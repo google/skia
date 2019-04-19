@@ -104,51 +104,6 @@ public:
         SkTextBlobBuilder builder;
         SkFont font;
 
-        // Explicit bounds.
-        {
-            sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, !blob);
-        }
-
-        {
-            SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
-            builder.allocRun(font, 16, 0, 0, &r1);
-            sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, blob->bounds() == r1);
-        }
-
-        {
-            SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
-            builder.allocRunPosH(font, 16, 0, &r1);
-            sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, blob->bounds() == r1);
-        }
-
-        {
-            SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
-            builder.allocRunPos(font, 16, &r1);
-            sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, blob->bounds() == r1);
-        }
-
-        {
-            SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
-            SkRect r2 = SkRect::MakeXYWH(15, 20, 50, 50);
-            SkRect r3 = SkRect::MakeXYWH(0, 5, 10, 5);
-
-            builder.allocRun(font, 16, 0, 0, &r1);
-            builder.allocRunPosH(font, 16, 0, &r2);
-            builder.allocRunPos(font, 16, &r3);
-
-            sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, blob->bounds() == SkRect::MakeXYWH(0, 5, 65, 65));
-        }
-
-        {
-            sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, !blob);
-        }
-
         // Implicit bounds
 
         {
@@ -272,26 +227,24 @@ private:
     }
 
     static void AddRun(const SkFont& font, int count, SkTextBlobRunIterator::GlyphPositioning pos,
-                       const SkPoint& offset, SkTextBlobBuilder& builder,
-                       const SkRect* bounds = nullptr) {
+                       const SkPoint& offset, SkTextBlobBuilder& builder) {
         switch (pos) {
         case SkTextBlobRunIterator::kDefault_Positioning: {
             const SkTextBlobBuilder::RunBuffer& rb = builder.allocRun(font, count, offset.x(),
-                                                                      offset.y(), bounds);
+                                                                      offset.y());
             for (int i = 0; i < count; ++i) {
                 rb.glyphs[i] = i;
             }
         } break;
         case SkTextBlobRunIterator::kHorizontal_Positioning: {
-            const SkTextBlobBuilder::RunBuffer& rb = builder.allocRunPosH(font, count, offset.y(),
-                                                                          bounds);
+            const SkTextBlobBuilder::RunBuffer& rb = builder.allocRunPosH(font, count, offset.y());
             for (int i = 0; i < count; ++i) {
                 rb.glyphs[i] = i;
                 rb.pos[i] = SkIntToScalar(i);
             }
         } break;
         case SkTextBlobRunIterator::kFull_Positioning: {
-            const SkTextBlobBuilder::RunBuffer& rb = builder.allocRunPos(font, count, bounds);
+            const SkTextBlobBuilder::RunBuffer& rb = builder.allocRunPos(font, count);
             for (int i = 0; i < count; ++i) {
                 rb.glyphs[i] = i;
                 rb.pos[i * 2] = SkIntToScalar(i);
@@ -324,7 +277,7 @@ DEF_TEST(TextBlob_extended, reporter) {
     (void)font.textToGlyphs(text1, strlen(text1), kUTF8_SkTextEncoding, glyphs.get(), glyphCount);
 
     auto run = SkTextBlobBuilderPriv::AllocRunText(&textBlobBuilder,
-            font, glyphCount, 0, 0, SkToInt(strlen(text2)), SkString(), nullptr);
+            font, glyphCount, 0, 0, SkToInt(strlen(text2)), SkString());
     memcpy(run.glyphs, glyphs.get(), sizeof(uint16_t) * glyphCount);
     memcpy(run.utf8text, text2, strlen(text2));
     for (int i = 0; i < glyphCount; ++i) {
