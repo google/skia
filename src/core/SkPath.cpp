@@ -690,6 +690,13 @@ static inline void copy_verbs_reverse(uint8_t* inorderDst,
     }
 }
 
+SkPath::Verb SkPath::getVerb(int index) const{
+    if((unsigned)index < (unsigned)fPathRef->countVerbs()){
+        return (Verb)fPathRef->atVerb(index);
+    }
+    return kDone_Verb;
+}
+
 int SkPath::getVerbs(uint8_t dst[], int max) const {
     SkDEBUGCODE(this->validate();)
 
