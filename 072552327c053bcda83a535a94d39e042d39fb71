@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33c07903_16df244e",
+        "filename": "tests/PathTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1482,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-04-19T13:43:44Z",
+      "side": 1,
+      "message": "Just calling attention to this. This is the same issue as crbug.com/950508, which is what led me to investigate the convexity checker this week. This test case was added because of a nearly-identical bug, but the test expectations were updated with the December rewrite.\n\nI have a follow-up CL that returns this path to concave) but still working on further side effects of that change.",
+      "revId": "072552327c053bcda83a535a94d39e042d39fb71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
