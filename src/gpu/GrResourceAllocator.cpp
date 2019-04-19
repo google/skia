@@ -57,6 +57,12 @@ GrResourceAllocator::~GrResourceAllocator() {
 
 void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end
                                       SkDEBUGCODE(, bool isDirectDstRead)) {
+    if (proxy->canSkipResourceAllocator()) {
+        return;
+    }
+
+    SkASSERT(!proxy->priv().ignoredByResourceAllocator());
+
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
 
