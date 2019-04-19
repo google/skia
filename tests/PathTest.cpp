@@ -1348,10 +1348,10 @@ static void test_path_crbug389050(skiatest::Reporter* reporter) {
     tinyConvexPolygon.lineTo(600.134891f, 800.137724f);
     tinyConvexPolygon.close();
     tinyConvexPolygon.getConvexity();
-    check_convexity(reporter, tinyConvexPolygon, SkPath::kConvex_Convexity);
-    // lines are close enough to straight that polygon collapses to line that does not
-    // enclose area, so has unknown first direction
-    check_direction(reporter, tinyConvexPolygon, SkPathPriv::kUnknown_FirstDirection);
+    // This is convex, but so small that it fails many of our checks, and the three "backwards"
+    // bends convince the checker that it's concave. That's okay though, we draw it correctly.
+    check_convexity(reporter, tinyConvexPolygon, SkPath::kConcave_Convexity);
+    check_direction(reporter, tinyConvexPolygon, SkPathPriv::kCW_FirstDirection);
 
     SkPath  platTriangle;
     platTriangle.moveTo(0, 0);
@@ -1479,7 +1479,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
     stroke.setStrokeStyle(2 * SK_Scalar1);
     stroke.applyToPath(&strokedSin, strokedSin);
-    check_convexity(reporter, strokedSin, SkPath::kConvex_Convexity); // !!!
+    check_convexity(reporter, strokedSin, SkPath::kConcave_Convexity);
     check_direction(reporter, strokedSin, kDontCheckDir);
 
     // http://crbug.com/412640

@@ -2592,7 +2592,6 @@ enum DirChange {
     kLeft_DirChange,
     kRight_DirChange,
     kStraight_DirChange,
-    kConcave_DirChange,   // if cross on diagonal is too small, assume concave
     kBackwards_DirChange, // if double back, allow simple lines to be convex
     kInvalid_DirChange
 };
@@ -2628,8 +2627,9 @@ struct Convexicator {
         }
         fCurrPt = pt;
         if (fPriorPt == fLastPt) {  // should only be true for first non-zero vector
+            fLastVec = fCurrPt - fLastPt;
             fFirstPt = pt;
-        } else if (!this->addVec()) {
+        } else if (!this->addVec(fCurrPt - fLastPt)) {
             return false;
         }
         fPriorPt = fLastPt;
@@ -2686,10 +2686,8 @@ struct Convexicator {
     }
 
 private:
-    DirChange directionChange() {
-        SkVector lastVec = fLastPt - fPriorPt;
-        SkVector curVec = fCurrPt - fLastPt;
-        SkScalar cross = SkPoint::CrossProduct(lastVec, curVec);
+    DirChange directionChange(const SkVector& curVec) {
+        SkScalar cross = SkPoint::CrossProduct(fLastVec, curVec);
         if (!SkScalarIsFinite(cross)) {
                 return kUnknown_DirChange;
         }
@@ -2698,13 +2696,13 @@ private:
         largest = SkTMax(largest, -smallest);
 
         if (almost_equal(largest, largest + cross)) {
-            return lastVec.dot(curVec) < 0 ? kBackwards_DirChange : kStraight_DirChange;
+            return fLastVec.dot(curVec) < 0 ? kBackwards_DirChange : kStraight_DirChange;
         }
         return 1 == SkScalarSignAsInt(cross) ? kRight_DirChange : kLeft_DirChange;
     }
 
-    bool addVec() {
-        DirChange dir = this->directionChange();
+    bool addVec(const SkVector& curVec) {
+        DirChange dir = this->directionChange(curVec);
         switch (dir) {
             case kLeft_DirChange:       // fall through
             case kRight_DirChange:
@@ -2716,17 +2714,16 @@ private:
                     fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
                     return false;
                 }
+                fLastVec = curVec;
                 break;
             case kStraight_DirChange:
                 break;
-            case kConcave_DirChange:
-                fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
-                return false;
             case kBackwards_DirChange:
                 //  allow path to reverse direction twice
                 //    Given path.moveTo(0, 0); path.lineTo(1, 1);
                 //    - 1st reversal: direction change formed by line (0,0 1,1), line (1,1 0,0)
                 //    - 2nd reversal: direction change formed by line (1,1 0,0), line (0,0 1,1)
+                fLastVec = curVec;
                 return ++fReversals < 3;
             case kUnknown_DirChange:
                 return (fIsFinite = false);
@@ -2741,6 +2738,7 @@ private:
     SkPoint             fPriorPt {0, 0};
     SkPoint             fLastPt {0, 0};
     SkPoint             fCurrPt {0, 0};
+    SkVector            fLastVec {0, 0};
     DirChange           fExpectedDir { kInvalid_DirChange };
     SkPathPriv::FirstDirection   fFirstDirection { SkPathPriv::kUnknown_FirstDirection };
     int                 fReversals { 0 };
