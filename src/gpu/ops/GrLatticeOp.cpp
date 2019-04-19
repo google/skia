@@ -170,7 +170,10 @@ public:
 
     const char* name() const override { return "NonAALatticeOp"; }
 
-    void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
+    void visitProxies(const VisitProxyFunc& func, VisitorType type) const override {
+        if (GrOp::VisitorType::kAllocatorGather == type) {
+            fProxy->incFoo();
+        }
         func(fProxy.get());
         fHelper.visitProxies(func);
     }

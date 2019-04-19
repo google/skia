@@ -196,6 +196,7 @@ public:
     const char* name() const override { return "TextureOp"; }
 
     void visitProxies(const VisitProxyFunc& func, VisitorType visitor) const override {
+        // TODO: remove fCanSkipAllocatorGather. The allocator now ignores skippable proxies itself.
         if (visitor == VisitorType::kAllocatorGather && fCanSkipAllocatorGather) {
             return;
         }
