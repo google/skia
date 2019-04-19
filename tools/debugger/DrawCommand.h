@@ -417,6 +417,19 @@ private:
     typedef DrawCommand INHERITED;
 };
 
+class DrawBehindCommand : public DrawCommand {
+public:
+    DrawBehindCommand(const SkPaint& paint);
+    void execute(SkCanvas* canvas) const override;
+    bool render(SkCanvas* canvas) const override;
+    void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
+
+private:
+    SkPaint fPaint;
+
+    typedef DrawCommand INHERITED;
+};
+
 class DrawPathCommand : public DrawCommand {
 public:
     DrawPathCommand(const SkPath& path, const SkPaint& paint);

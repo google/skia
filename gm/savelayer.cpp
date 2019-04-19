@@ -338,7 +338,8 @@ DEF_SIMPLE_GM(savelayer_clipmask_maskfilter, canvas, 500, 500) {
 #include "SkGradientShader.h"
 #include "SkTextBlob.h"
 
-static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkScalar w, SkScalar h) {
+static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkScalar w, SkScalar h,
+                      bool useDrawBehind) {
     SkRect r = SkRect::MakeWH(w, h);
     SkPaint p;
     p.setColor(c);
@@ -366,7 +367,12 @@ static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkSca
     auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
     p.setShader(sh);
     p.setBlendMode(SkBlendMode::kDstIn);
-    canvas->drawRect(r, p);
+
+    if (useDrawBehind) {
+        SkCanvasPriv::DrawBehind(canvas, p);
+    } else {
+        canvas->drawRect(r, p);
+    }
 
     // this should restore the behind image
     canvas->restore();
@@ -377,10 +383,9 @@ static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkSca
     p.reset();
     p.setStyle(SkPaint::kStroke_Style);
     p.setAlphaf(0.25f);
-    canvas->drawRect(r, p);
 }
 
-static void draw_list(SkCanvas* canvas, sk_sp<SkTextBlob> blob) {
+static void draw_list(SkCanvas* canvas, sk_sp<SkTextBlob> blob, bool useDrawBehind) {
     SkAutoCanvasRestore acr(canvas, true);
 
     SkRandom rand;
@@ -389,19 +394,27 @@ static void draw_list(SkCanvas* canvas, sk_sp<SkTextBlob> blob) {
     for (int i = 0; i < 8; ++i) {
         SkColor c = rand.nextU();   // ensure we're opaque
         c = (c & 0xFFFFFF) | 0x80000000;
-        draw_cell(canvas, blob, c, w, h);
+        draw_cell(canvas, blob, c, w, h, useDrawBehind);
         canvas->translate(0, h);
     }
 }
 
-DEF_SIMPLE_GM(save_behind, canvas, 400, 670) {
+DEF_SIMPLE_GM(save_behind, canvas, 830, 670) {
     SkFont font;
     font.setSize(30);
     const char text[] = "This is a very long line of text";
     auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
 
-    draw_list(canvas, blob);
-    canvas->translate(0, 350);
-    canvas->saveLayer({0, 0, 400, 320}, nullptr);
-    draw_list(canvas, blob);
+    for (bool useDrawBehind : {false, true}) {
+        canvas->save();
+
+        draw_list(canvas, blob, useDrawBehind);
+        canvas->translate(0, 350);
+        canvas->saveLayer({0, 0, 400, 320}, nullptr);
+        draw_list(canvas, blob, useDrawBehind);
+        canvas->restore();
+
+        canvas->restore();
+        canvas->translate(430, 0);
+    }
 }
