@@ -9,6 +9,7 @@
 #ifndef SKFONTHOST_FREETYPE_COMMON_H_
 #define SKFONTHOST_FREETYPE_COMMON_H_
 
+#include "SkCharToGlyphCache.h"
 #include "SkGlyph.h"
 #include "SkMutex.h"
 #include "SkScalerContext.h"
@@ -116,6 +117,9 @@ protected:
                           size_t length, void* data) const override;
 
 private:
+    mutable SkMutex fC2GCacheMutex;
+    mutable SkCharToGlyphCache fC2GCache;
+
     typedef SkTypeface INHERITED;
 };
 
