@@ -76,7 +76,7 @@ public:
     void processInvalidUniqueKey(const GrUniqueKey&);
     sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
 
-    bool instatiateProxy(GrSurfaceProxy*);
+    bool instatiateProxy1(GrSurfaceProxy*);
 
     // Creates a GPU buffer with a "dynamic" access pattern.
     sk_sp<GrGpuBuffer> makeBuffer(GrGpuBufferType, size_t, const void* data = nullptr);

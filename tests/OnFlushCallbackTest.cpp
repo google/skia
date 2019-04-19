@@ -323,6 +323,8 @@ public:
                 kBottomLeft_GrSurfaceOrigin,
                 kRGBA_8888_GrPixelConfig,
                 *proxyProvider->caps());
+
+        fAtlasProxy->priv().setIgnoredByResourceAllocator();
         return fAtlasProxy;
     }
 
@@ -346,7 +348,7 @@ public:
             return; // nothing to atlas
         }
 
-        if (!resourceProvider->instatiateProxy(fAtlasProxy.get())) {
+        if (!resourceProvider->instatiateProxy1(fAtlasProxy.get())) {
             return;
         }
 

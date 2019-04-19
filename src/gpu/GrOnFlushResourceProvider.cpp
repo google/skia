@@ -22,7 +22,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     // Since this is at flush time and these won't be allocated for us by the GrResourceAllocator
     // we have to manually ensure it is allocated here. The proxy had best have been created
     // with the kNoPendingIO flag!
-    if (!this->instatiateProxy(proxy.get())) {
+    if (!this->instatiateProxy1(proxy.get())) {
         return nullptr;
     }
 
@@ -63,7 +63,8 @@ sk_sp<GrTextureProxy> GrOnFlushResourceProvider::findOrCreateProxyByUniqueKey(
     return proxyProvider->findOrCreateProxyByUniqueKey(key, origin);
 }
 
-bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
+bool GrOnFlushResourceProvider::instatiateProxy1(GrSurfaceProxy* proxy) {
+    SkASSERT(proxy->priv().ignoredByResourceAllocator());
     SkASSERT(proxy->priv().requiresNoPendingIO());
 
     // TODO: this class should probably just get a GrDirectContext
