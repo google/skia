@@ -1574,6 +1574,26 @@ void DrawPaintCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManag
     MakeJsonPaint(writer, fPaint, urlDataManager);
 }
 
+DrawBehindCommand::DrawBehindCommand(const SkPaint& paint) : INHERITED(kDrawPaint_OpType) {
+    fPaint = paint;
+}
+
+void DrawBehindCommand::execute(SkCanvas* canvas) const {
+    SkCanvasPriv::DrawBehind(canvas, fPaint);
+}
+
+bool DrawBehindCommand::render(SkCanvas* canvas) const {
+    canvas->clear(0xFFFFFFFF);
+    SkCanvasPriv::DrawBehind(canvas, fPaint);
+    return true;
+}
+
+void DrawBehindCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
+    INHERITED::toJSON(writer, urlDataManager);
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_PAINT);
+    MakeJsonPaint(writer, fPaint, urlDataManager);
+}
+
 DrawPathCommand::DrawPathCommand(const SkPath& path, const SkPaint& paint)
         : INHERITED(kDrawPath_OpType) {
     fPath  = path;

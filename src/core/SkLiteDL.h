@@ -44,6 +44,7 @@ public:
     void clipRegion(const SkRegion&, SkClipOp);
 
     void drawPaint (const SkPaint&);
+    void drawBehind(const SkPaint&);
     void drawPath  (const SkPath&, const SkPaint&);
     void drawRect  (const SkRect&, const SkPaint&);
     void drawRegion(const SkRegion&, const SkPaint&);
