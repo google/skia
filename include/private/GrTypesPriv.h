@@ -1039,6 +1039,10 @@ static inline bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
     return false;
 }
 
+static inline bool GrPixelConfigNeedsClamp(GrPixelConfig config) {
+    return kRGBA_half_Clamped_GrPixelConfig == config;
+}
+
 /**
  * Returns true if the pixel config is a GPU-specific compressed format
  * representation.
