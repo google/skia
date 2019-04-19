@@ -46,7 +46,7 @@ GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VkPhysicalDevice physicalDevice,
     // Manually testing runs of dm using 64 here instead of the default 256 shows less memory usage
     // on average. Also dm seems to run faster using 64 so it doesn't seem to be trading off speed
     // for memory.
-    info.preferredLargeHeapBlockSize = 64*1024*1024;
+    info.preferredLargeHeapBlockSize = 4*1024*1024;
     info.pAllocationCallbacks = nullptr;
     info.pDeviceMemoryCallbacks = nullptr;
     info.frameInUseCount = 0;
