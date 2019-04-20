@@ -47,16 +47,6 @@ public:
 
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const;
 
-    enum Flags {
-        /** If set the filter methods will not change the alpha channel of the colors.
-        */
-        kAlphaUnchanged_Flag = 1 << 0,
-    };
-
-    /** Returns the flags for this filter. Override in subclasses to return custom flags.
-    */
-    virtual uint32_t getFlags() const { return 0; }
-
     SkColor filterColor(SkColor) const;
     SkColor4f filterColor4f(const SkColor4f&, SkColorSpace*) const;
 
@@ -108,6 +98,16 @@ public:
 protected:
     SkColorFilter() {}
 
+    enum Flags {
+        /** If set the filter methods will not change the alpha channel of the colors.
+         */
+        kAlphaUnchanged_Flag = 1 << 0,
+    };
+
+    /** Returns the flags for this filter. Override in subclasses to return custom flags.
+     */
+    virtual uint32_t getFlags() const { return 0; }
+
 private:
     /*
      *  Returns 1 if this is a single filter (not a composition of other filters), otherwise it
@@ -121,6 +121,8 @@ private:
     virtual bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
 
     friend class SkComposeColorFilter;
+    friend class SkMixerColorFilter;
+    friend class SkColorFilterPriv;
 
     typedef SkFlattenable INHERITED;
 };

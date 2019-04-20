@@ -12,6 +12,14 @@
 #include "SkColorFilter.h"
 #include "SkString.h"
 
+class SkColorFilterPriv {
+public:
+    static bool AlphaUnchanged(const SkColorFilter* cf) {
+        return SkToBool(cf->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
+    }
+};
+
+
 using SkRuntimeColorFilterFn = void(*)(float[4], const void*);
 
 class SK_API SkRuntimeColorFilterFactory {

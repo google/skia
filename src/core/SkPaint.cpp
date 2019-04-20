@@ -8,6 +8,7 @@
 #include "SkPaint.h"
 
 #include "SkColorFilter.h"
+#include "SkColorFilterPriv.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkData.h"
@@ -525,7 +526,7 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
 
 // return true if the filter exists, and may affect alpha
 static bool affects_alpha(const SkColorFilter* cf) {
-    return cf && !(cf->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
+    return cf && !SkColorFilterPriv::AlphaUnchanged(cf);
 }
 
 // return true if the filter exists, and may affect alpha

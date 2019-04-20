@@ -6,6 +6,7 @@
  */
 
 #include "SkColorFilter.h"
+#include "SkColorFilterPriv.h"
 #include "SkPaintPriv.h"
 #include "SkPaint.h"
 #include "SkShaderBase.h"
@@ -13,7 +14,7 @@
 
 static bool changes_alpha(const SkPaint& paint) {
     SkColorFilter* cf = paint.getColorFilter();
-    return cf && !(cf->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
+    return cf && !SkColorFilterPriv::AlphaUnchanged(cf);
 }
 
 bool SkPaintPriv::Overwrites(const SkPaint* paint, ShaderOverrideOpacity overrideOpacity) {

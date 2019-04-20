@@ -10,6 +10,7 @@
 #include "SkBlitter.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
+#include "SkColorFilterPriv.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkOpts.h"
@@ -155,7 +156,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             colorPipeline, alloc, dst.colorType(), dst.colorSpace(), paint, nullptr, SkMatrix::I()
         };
         colorFilter->appendStages(rec, is_opaque);
-        is_opaque = is_opaque && (colorFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
+        is_opaque = is_opaque && SkColorFilterPriv::AlphaUnchanged(colorFilter);
     }
 
     // Not all formats make sense to dither (think, F16).  We set their dither rate
