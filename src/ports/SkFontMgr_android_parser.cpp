@@ -23,16 +23,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-// #define LMP_SYSTEM_FONTS_FILE "/system/etc/fonts.xml"
-// #define OLD_SYSTEM_FONTS_FILE "/system/etc/system_fonts.xml"
-// #define FALLBACK_FONTS_FILE "/system/etc/fallback_fonts.xml"
-// #define VENDOR_FONTS_FILE "/vendor/etc/fallback_fonts.xml"
-// 
-// #define LOCALE_FALLBACK_FONTS_SYSTEM_DIR "/system/etc"
-// #define LOCALE_FALLBACK_FONTS_VENDOR_DIR "/vendor/etc"
-// #define LOCALE_FALLBACK_FONTS_PREFIX "fallback_fonts-"
-// #define LOCALE_FALLBACK_FONTS_SUFFIX ".xml"
-  
+#ifndef LUMIN
+
+#define LMP_SYSTEM_FONTS_FILE "/system/etc/fonts.xml"
+#define OLD_SYSTEM_FONTS_FILE "/system/etc/system_fonts.xml"
+#define FALLBACK_FONTS_FILE "/system/etc/fallback_fonts.xml"
+#define VENDOR_FONTS_FILE "/vendor/etc/fallback_fonts.xml"
+
+#define LOCALE_FALLBACK_FONTS_SYSTEM_DIR "/system/etc"
+#define LOCALE_FALLBACK_FONTS_VENDOR_DIR "/vendor/etc"
+#define LOCALE_FALLBACK_FONTS_PREFIX "fallback_fonts-"
+
+#else
+
 #define LMP_SYSTEM_FONTS_FILE "/package/etc/fonts.xml"
 #define OLD_SYSTEM_FONTS_FILE "/package/etc/system_fonts.xml"
 #define FALLBACK_FONTS_FILE "/package/etc/fallback_fonts.xml"
@@ -41,10 +44,13 @@
 #define LOCALE_FALLBACK_FONTS_SYSTEM_DIR "/package/etc"
 #define LOCALE_FALLBACK_FONTS_VENDOR_DIR "/package/etc"
 #define LOCALE_FALLBACK_FONTS_PREFIX "fallback_fonts"
+
+#endif
+
 #define LOCALE_FALLBACK_FONTS_SUFFIX ".xml"
 
 #ifndef SK_FONT_FILE_PREFIX
-#    define SK_FONT_FILE_PREFIX "/fonts/"
+#define SK_FONT_FILE_PREFIX "/fonts/"
 #endif
 
 /**
@@ -780,10 +786,13 @@ static void mixin_vendor_fallback_font_families(SkTDArray<FontFamily*>& fallback
 }
 
 void SkFontMgr_Android_Parser::GetSystemFontFamilies(SkTDArray<FontFamily*>& fontFamilies) {
+#ifndef LUMIN
     // Version 21 of the system font configuration does not need any fallback configuration files.
-    /* SkString basePath(getenv("ANDROID_ROOT"));
-    basePath.append(SK_FONT_FILE_PREFIX, sizeof(SK_FONT_FILE_PREFIX) - 1); */
+    SkString basePath(getenv("ANDROID_ROOT"));
+    basePath.append(SK_FONT_FILE_PREFIX, sizeof(SK_FONT_FILE_PREFIX) - 1);
+#else
     SkString basePath("/");
+#endif
 
     if (append_system_font_families(fontFamilies, basePath) >= 21) {
         return;
