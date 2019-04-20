@@ -1,0 +1,10 @@
+# Steps for publishing project cache
+
+steps:
+  - task: PublishBuildArtifacts@1
+    displayName: '[Release]'
+    inputs:
+        pathToPublish: '_release'
+        artifactName: 'release-$(Agent.OS)'
+        parallel: true
+        parallelCount: 8

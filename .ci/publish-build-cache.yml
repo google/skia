@@ -1,0 +1,24 @@
+# Steps for publishing project cache
+
+steps:
+  - bash: 'mkdir -p $(STAGING_DIRECTORY_UNIX)'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    displayName: '[Cache][Publish] Create cache directory'
+
+  - bash: 'cd $(ESY__CACHE_INSTALL_PATH) && tar -czf $(STAGING_DIRECTORY_UNIX)/esy-cache.tar .'
+    workingDirectory: ''
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    displayName: '[Cache][Publish] Tar esy cache directory'
+
+  # - bash: 'cd $(ESY__NPM_ROOT) && tar -czf $(STAGING_DIRECTORY_UNIX)/npm-cache.tar .'
+  #   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  #   displayName: '[Cache][Publish] Tar npm cache directory'
+
+  - task: PublishBuildArtifacts@1
+    displayName: '[Cache][Publish] Upload tarball'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    inputs:
+        pathToPublish: '$(STAGING_DIRECTORY)'
+        artifactName: 'cache-$(Agent.OS)-install'
+        parallel: true
+        parallelCount: 8

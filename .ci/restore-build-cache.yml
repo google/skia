@@ -1,0 +1,36 @@
+# Steps for restoring project cache
+
+steps:
+  - task: DownloadBuildArtifacts@0
+    condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+    displayName: '[Cache][Restore] Restore install'
+    inputs:
+        buildType: 'specific'
+        project: '$(System.TeamProject)'
+        pipeline: '$(Build.DefinitionName)'
+        branchName: 'refs/heads/master'
+        buildVersionToDownload: 'latestFromBranch'
+        downloadType: 'single'
+        artifactName: 'cache-$(Agent.OS)-install'
+        downloadPath: '$(STAGING_DIRECTORY)'
+    continueOnError: true
+
+  - bash: 'mkdir -p $(ESY__CACHE_INSTALL_PATH)'
+    condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+    displayName: '[Cache][Restore] Create cache directory'
+
+  # - bash: 'cd $(ESY__NPM_ROOT) && tar -xf $(STAGING_DIRECTORY_UNIX)/cache-$(Agent.OS)-install/npm-cache.tar -C .'
+  #   continueOnError: true
+  #   condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+  #   displayName: '[Cache][Restore] Untar npm cache directory'
+
+  - bash: 'cd $(ESY__CACHE_INSTALL_PATH) && tar -xf $(STAGING_DIRECTORY_UNIX)/cache-$(Agent.OS)-install/esy-cache.tar -C .'
+    continueOnError: true
+    condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+    displayName: '[Cache][Restore] Untar esy cache directory'
+
+  - bash: 'rm -rf *'
+    continueOnError: true
+    workingDirectory: '$(STAGING_DIRECTORY)'
+    condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+    displayName: '[Cache][Restore] Clean up'
