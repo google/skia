@@ -226,6 +226,9 @@ class SkPicturePlayback(object):
 
     # Create the required local storage directories.
     self._CreateLocalStorageDirs()
+    # Add __init__.py to webpages_archive dir.
+    os.mknod(
+      os.path.join(self._local_record_webpages_archive_dir, "__init__.py"))
 
     # Start the timer.
     start_time = time.time()
