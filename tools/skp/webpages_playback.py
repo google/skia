@@ -226,13 +226,17 @@ class SkPicturePlayback(object):
 
     # Create the required local storage directories.
     self._CreateLocalStorageDirs()
+    # Add __init__.py to webpages_archive dir.
+    os.mknod(
+      os.path.join(self._local_record_webpages_archive_dir, '__init__.py'))
 
     # Start the timer.
     start_time = time.time()
 
     # Loop through all page_sets.
     for page_set in self._page_sets:
-
+      if os.path.basename(page_set) == '__init__.py':
+        continue
       page_set_basename = os.path.basename(page_set).split('.')[0]
       page_set_json_name = page_set_basename + '.json'
       wpr_data_file_glob = (
