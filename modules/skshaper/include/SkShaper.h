@@ -107,7 +107,7 @@ public:
             Range utf8Range;
         };
 
-        struct Buffer {
+        struct  Buffer {
             SkGlyphID* glyphs;  // required
             SkPoint* positions; // required
             SkPoint* offsets;   // optional
