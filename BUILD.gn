@@ -97,31 +97,12 @@ if (defined(skia_settings)) {
   import(skia_settings)
 }
 
-skia_public_includes = [
-  "include/android",
-  "include/c",
-  "include/codec",
-  "include/config",
-  "include/core",
-  "include/docs",
-  "include/effects",
-  "include/encode",
-  "include/gpu",
-  "include/atlastext",
-  "include/pathops",
-  "include/ports",
-  "include/svg",
-  "include/utils",
-  "include/utils/mac",
-]
-
-if (skia_enable_atlas_text) {
-  skia_public_includes += [ "include/atlastext" ]
-}
-
 # Skia public API, generally provided by :skia.
 config("skia_public") {
-  include_dirs = skia_public_includes
+  include_dirs = [
+    ".",
+    "include/third_party/vulkan",
+  ]
   defines = []
   if (is_component_build) {
     defines += [ "SKIA_DLL" ]
@@ -155,26 +136,6 @@ config("skia_private") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "include/private",
-    "src/c",
-    "src/codec",
-    "src/core",
-    "src/effects",
-    "src/fonts",
-    "src/image",
-    "src/images",
-    "src/lazy",
-    "src/opts",
-    "src/pathops",
-    "src/pdf",
-    "src/ports",
-    "src/sfnt",
-    "src/shaders",
-    "src/shaders/gradients",
-    "src/sksl",
-    "src/utils",
-    "src/utils/win",
-    "src/xml",
     "third_party/etc1",
     "third_party/gif",
   ]
@@ -1218,16 +1179,28 @@ if (skia_enable_tools) {
     skia_h = "$target_gen_dir/skia.h"
     script = "gn/find_headers.py"
 
-    # TODO: would be cool to not hard-code these here, but how?
-    module_public_includes = [
-      "modules/sksg/include",
-      "modules/skshaper/include",
-      "modules/skottie/include",
-    ]
-    args =
-        [ rebase_path("//bin/gn") ] + [ rebase_path("//") ] +
-        [ rebase_path(skia_h, root_build_dir) ] +
-        rebase_path(skia_public_includes) + rebase_path(module_public_includes)
+    args = [ rebase_path("//bin/gn") ] + [ rebase_path("//") ] +
+           [ rebase_path(skia_h, root_build_dir) ] +
+           rebase_path([
+                         "include/android",
+                         "include/atlastext",
+                         "include/c",
+                         "include/codec",
+                         "include/config",
+                         "include/core",
+                         "include/docs",
+                         "include/effects",
+                         "include/encode",
+                         "include/gpu",
+                         "include/pathops",
+                         "include/ports",
+                         "include/svg",
+                         "include/utils",
+                         "include/utils/mac",
+                         "modules/sksg/include",
+                         "modules/skshaper/include",
+                         "modules/skottie/include",
+                       ])
     depfile = "$skia_h.deps"
     outputs = [
       skia_h,

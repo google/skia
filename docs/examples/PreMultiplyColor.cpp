@@ -1,7 +1,7 @@
 #if 0  // Disabled until updated to use current API.
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=0bcc0f86a2aefc899f3500503dce6968
 REG_FIDDLE(PreMultiplyColor, 300, 128, false, 0) {
 void draw(SkCanvas* canvas) {

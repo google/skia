@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGColorFilter.h"
+#include "modules/sksg/include/SkSGColorFilter.h"
 
-#include "SkColorData.h"
-#include "SkColorFilter.h"
-#include "SkSGPaint.h"
-#include "SkTableColorFilter.h"
+#include "include/private/SkColorData.h"
+#include "include/core/SkColorFilter.h"
+#include "modules/sksg/include/SkSGPaint.h"
+#include "include/effects/SkTableColorFilter.h"
 
 #include <cmath>
 

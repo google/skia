@@ -8,8 +8,8 @@
 #ifndef GrCpuBuffer_DEFINED
 #define GrCpuBuffer_DEFINED
 
-#include "GrBuffer.h"
-#include "GrNonAtomicRef.h"
+#include "src/gpu/GrBuffer.h"
+#include "src/gpu/GrNonAtomicRef.h"
 
 class GrCpuBuffer final : public GrNonAtomicRef<GrCpuBuffer>, public GrBuffer {
 public:

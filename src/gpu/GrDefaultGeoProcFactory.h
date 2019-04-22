@@ -8,9 +8,9 @@
 #ifndef GrDefaultGeoProcFactory_DEFINED
 #define GrDefaultGeoProcFactory_DEFINED
 
-#include "GrColorSpaceXform.h"
-#include "GrGeometryProcessor.h"
-#include "GrShaderCaps.h"
+#include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrShaderCaps.h"
 
 /*
  * A factory for creating default Geometry Processors which simply multiply position by the uniform

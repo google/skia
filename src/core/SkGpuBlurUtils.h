@@ -9,8 +9,8 @@
 #define SkGpuBlurUtils_DEFINED
 
 #if SK_SUPPORT_GPU
-#include "GrRenderTargetContext.h"
-#include "effects/GrTextureDomain.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 
 class GrContext;
 class GrTexture;

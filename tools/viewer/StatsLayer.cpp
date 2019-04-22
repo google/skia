@@ -5,13 +5,13 @@
 * found in the LICENSE file.
 */
 
-#include "StatsLayer.h"
+#include "tools/viewer/StatsLayer.h"
 
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkString.h"
-#include "SkSurface.h"
-#include "SkTime.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTime.h"
 
 StatsLayer::StatsLayer()
     : fCurrentMeasurement(-1)

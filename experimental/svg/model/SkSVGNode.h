@@ -8,8 +8,8 @@
 #ifndef SkSVGNode_DEFINED
 #define SkSVGNode_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkSVGAttribute.h"
+#include "include/core/SkRefCnt.h"
+#include "experimental/svg/model/SkSVGAttribute.h"
 
 class SkCanvas;
 class SkMatrix;

@@ -8,9 +8,9 @@
 #ifndef GrTypes_DEFINED
 #define GrTypes_DEFINED
 
-#include "SkMath.h"
-#include "SkTypes.h"
-#include "GrConfig.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrConfig.h"
 
 class GrBackendSemaphore;
 

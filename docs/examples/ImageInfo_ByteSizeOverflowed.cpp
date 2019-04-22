@@ -1,7 +1,7 @@
 #if 0  // disabled
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=6a63dfdd62ab77ff57783af8c33d7b78
 REG_FIDDLE(ImageInfo_ByteSizeOverflowed, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {

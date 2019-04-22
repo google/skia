@@ -8,7 +8,7 @@
 #ifndef SKIASL_MEMORYLAYOUT
 #define SKIASL_MEMORYLAYOUT
 
-#include "ir/SkSLType.h"
+#include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
 

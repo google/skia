@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 
-#include "SkMatrix.h"
-#include "SkMatrix44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkMatrix44.h"
 
 void GrGLSLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix) const {
     float mt[] = {

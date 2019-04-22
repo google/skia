@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "EventTracingPriv.h"
+#include "tools/trace/EventTracingPriv.h"
 
-#include "ChromeTracingTracer.h"
-#include "CommandLineFlags.h"
-#include "SkATrace.h"
-#include "SkDebugfTracer.h"
-#include "SkEventTracer.h"
-#include "SkTraceEvent.h"
+#include "tools/trace/ChromeTracingTracer.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "src/core/SkATrace.h"
+#include "tools/trace/SkDebugfTracer.h"
+#include "include/utils/SkEventTracer.h"
+#include "src/core/SkTraceEvent.h"
 
 static DEFINE_string(trace,
               "",

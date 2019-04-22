@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkCachedData.h"
-#include "SkDiscardableMemory.h"
-#include "SkMalloc.h"
+#include "src/core/SkCachedData.h"
+#include "src/core/SkDiscardableMemory.h"
+#include "include/private/SkMalloc.h"
 
 SkCachedData::SkCachedData(void* data, size_t size)
     : fData(data)

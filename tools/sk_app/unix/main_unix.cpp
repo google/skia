@@ -6,11 +6,11 @@
 * found in the LICENSE file.
 */
 
-#include "SkTypes.h"
-#include "SkTHash.h"
-#include "Timer.h"
-#include "Window_unix.h"
-#include "../Application.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTHash.h"
+#include "tools/timer/Timer.h"
+#include "tools/sk_app/unix/Window_unix.h"
+#include "tools/sk_app/Application.h"
 
 using sk_app::Application;
 

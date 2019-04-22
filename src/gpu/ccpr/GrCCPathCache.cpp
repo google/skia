@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPathCache.h"
+#include "src/gpu/ccpr/GrCCPathCache.h"
 
-#include "GrOnFlushResourceProvider.h"
-#include "GrProxyProvider.h"
-#include "SkNx.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "include/private/SkNx.h"
 
 static constexpr int kMaxKeyDataCountU32 = 256;  // 1kB of uint32_t's.
 

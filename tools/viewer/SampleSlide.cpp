@@ -5,11 +5,11 @@
 * found in the LICENSE file.
 */
 
-#include "SampleSlide.h"
+#include "tools/viewer/SampleSlide.h"
 
-#include "SkCanvas.h"
-#include "SkOSFile.h"
-#include "SkStream.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkOSFile.h"
+#include "include/core/SkStream.h"
 
 using namespace sk_app;
 

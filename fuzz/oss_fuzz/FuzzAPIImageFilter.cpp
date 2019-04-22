@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "../Fuzz.h"
+#include "fuzz/Fuzz.h"
 
 void fuzz_ImageFilter(Fuzz* f);
 

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Fuzz.h"
-#include "FuzzCommon.h"
+#include "fuzz/Fuzz.h"
+#include "fuzz/FuzzCommon.h"
 
 DEF_FUZZ(RegionOp, fuzz) {  // `fuzz -t api -n RegionOp`
     SkRegion regionA, regionB, regionC;
