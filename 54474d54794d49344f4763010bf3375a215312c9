@@ -22,6 +22,30 @@
       "revId": "54474d54794d49344f4763010bf3375a215312c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aca449c6_5fd8b992",
+        "filename": "site/dev/chrome/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-22T16:44:34Z",
+      "side": 1,
+      "message": "Done. That was the only doc page which had to do with CQ, but the config makes more sense, at least without a general CQ page.",
+      "parentUuid": "8ae3eaa6_2df00b4c",
+      "range": {
+        "startLine": 31,
+        "startChar": 31,
+        "endLine": 31,
+        "endChar": 52
+      },
+      "revId": "54474d54794d49344f4763010bf3375a215312c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
