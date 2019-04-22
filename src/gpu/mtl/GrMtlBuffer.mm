@@ -28,7 +28,7 @@ sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrGpuBufferType
 GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
                          GrAccessPattern accessPattern)
         : INHERITED(gpu, size, intendedType, accessPattern)
-        , fIsDynamic(accessPattern == kDynamic_GrAccessPattern)
+        , fIsDynamic(accessPattern != kStatic_GrAccessPattern)
         , fOffset(0) {
     // We'll allocate dynamic buffers when we map them, below.
     if (!fIsDynamic) {

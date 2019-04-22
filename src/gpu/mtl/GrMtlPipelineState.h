@@ -37,8 +37,8 @@ public:
             MTLPixelFormat pixelFormat,
             const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
             const UniformInfoArray& uniforms,
-            sk_sp<GrMtlBuffer> geometryUniformBuffer,
-            sk_sp<GrMtlBuffer> fragmentUniformBuffer,
+            uint32_t geometryUniformBufferSize,
+            uint32_t fragmentUniformBufferSize,
             uint32_t numSamplers,
             std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
             std::unique_ptr<GrGLSLXferProcessor> xferPRocessor,
@@ -118,9 +118,6 @@ private:
     GrGLSLBuiltinUniformHandles fBuiltinUniformHandles;
 
     GrStencilSettings fStencil;
-
-    sk_sp<GrMtlBuffer> fGeometryUniformBuffer;
-    sk_sp<GrMtlBuffer> fFragmentUniformBuffer;
 
     int fNumSamplers;
     SkTArray<SamplerBindings> fSamplerBindings;

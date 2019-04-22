@@ -231,20 +231,15 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
         return true;
     }
 
-    NSUInteger options = 0;
-#ifdef SK_BUILD_FOR_MAC
-    options |= MTLResourceStorageModeManaged;
-#else
-    options |= MTLResourceStorageModeShared;
-#endif
-    // TODO: Create GrMtlTransferBuffer
-    id<MTLBuffer> transferBuffer = [fDevice newBufferWithLength: combinedBufferSize
-                                                        options: options];
-    if (nil == transferBuffer) {
+    sk_sp<GrMtlBuffer> transferBuffer = GrMtlBuffer::Make(this, combinedBufferSize,
+                                                          GrGpuBufferType::kXferCpuToGpu,
+                                                          kStream_GrAccessPattern);
+    if (!transferBuffer) {
         return false;
     }
 
-    char* buffer = (char*) transferBuffer.contents;
+    char* buffer = (char*) transferBuffer->map();
+    size_t bufferOffset = transferBuffer->offset();
 
     currentWidth = width;
     currentHeight = height;
@@ -265,8 +260,8 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
             const char* src = (const char*)texels[currentMipLevel].fPixels;
             SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
 
-            [blitCmdEncoder copyFromBuffer: transferBuffer
-                              sourceOffset: individualMipOffsets[currentMipLevel]
+            [blitCmdEncoder copyFromBuffer: transferBuffer->mtlBuffer()
+                              sourceOffset: bufferOffset + individualMipOffsets[currentMipLevel]
                          sourceBytesPerRow: trimRowBytes
                        sourceBytesPerImage: trimRowBytes*currentHeight
                                 sourceSize: MTLSizeMake(currentWidth, currentHeight, 1)
@@ -280,10 +275,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
         layerHeight = currentHeight;
     }
     [blitCmdEncoder endEncoding];
-#ifdef SK_BUILD_FOR_MAC
-    // for Managed resources, need to tell driver to sync CPU and GPU copies
-    [transferBuffer didModifyRange: NSMakeRange(0, combinedBufferSize)];
-#endif
+    transferBuffer->unmap();
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
         tex->texturePriv().markMipMapsDirty();
