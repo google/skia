@@ -196,6 +196,9 @@ public:
     const char* name() const override { return "TextureOp"; }
 
     void visitProxies(const VisitProxyFunc& func, VisitorType visitor) const override {
+        if (visitor == VisitorType::kAllocatorGather && fCanSkipAllocatorGather) {
+            return;
+        }
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             func(fProxies[p].fProxy);
         }
@@ -297,6 +300,8 @@ private:
         auto bounds = dstQuad.bounds(dstQuadType);
         this->setBounds(bounds, HasAABloat(aaType == GrAAType::kCoverage), IsZeroArea::kNo);
         fDomain = static_cast<unsigned>(domain);
+        fCanSkipAllocatorGather =
+                static_cast<unsigned>(fProxies[0].fProxy->canSkipResourceAllocator());
     }
     TextureOp(const GrRenderTargetContext::TextureSetEntry set[], int cnt,
               GrSamplerState::Filter filter, GrAAType aaType,
@@ -310,6 +315,7 @@ private:
         SkRect bounds = SkRectPriv::MakeLargestInverted();
         GrAAType overallAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
         bool mustFilter = false;
+        fCanSkipAllocatorGather = static_cast<unsigned>(true);
         // Most dst rects are transformed by the same view matrix, so their quad types start
         // identical, unless an entry provides a dstClip or additional transform that changes it.
         // The quad list will automatically adapt to that.
@@ -321,6 +327,9 @@ private:
             fProxies[p].fQuadCnt = 1;
             SkASSERT(fProxies[p].fProxy->textureType() == fProxies[0].fProxy->textureType());
             SkASSERT(fProxies[p].fProxy->config() == fProxies[0].fProxy->config());
+            if (!fProxies[p].fProxy->canSkipResourceAllocator()) {
+                fCanSkipAllocatorGather = static_cast<unsigned>(false);
+            }
 
             SkMatrix ctm = viewMatrix;
             if (set[p].fPreViewMatrix) {
@@ -668,7 +677,8 @@ private:
     GR_STATIC_ASSERT(GrQuadPerEdgeAA::kColorTypeCount <= 4);
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     unsigned fFinalized : 1;
-    unsigned fProxyCnt : 32 - 8;
+    unsigned fCanSkipAllocatorGather : 1;
+    unsigned fProxyCnt : 32 - 9;
     Proxy fProxies[1];
 
     static_assert(kGrQuadTypeCount <= 4, "GrQuadType does not fit in 2 bits");
