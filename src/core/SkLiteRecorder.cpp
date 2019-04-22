@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkLiteDL.h"
-#include "SkLiteRecorder.h"
-#include "SkSurface.h"
+#include "src/core/SkLiteDL.h"
+#include "src/core/SkLiteRecorder.h"
+#include "include/core/SkSurface.h"
 
 SkLiteRecorder::SkLiteRecorder()
     : INHERITED(1, 1)

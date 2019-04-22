@@ -8,7 +8,7 @@
 #ifndef GrResourceHandle_DEFINED
 #define GrResourceHandle_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 // Opaque handle to a resource. Users should always use the macro below to create a specific
 // template instantiation of GrResourceHandle.

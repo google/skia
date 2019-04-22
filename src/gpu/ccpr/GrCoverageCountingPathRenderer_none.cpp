@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrCoverageCountingPathRenderer.h"
+#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 
 bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
     return false;

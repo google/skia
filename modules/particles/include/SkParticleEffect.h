@@ -8,11 +8,11 @@
 #ifndef SkParticleEffect_DEFINED
 #define SkParticleEffect_DEFINED
 
-#include "SkAutoMalloc.h"
-#include "SkCurve.h"
-#include "SkRandom.h"
-#include "SkRefCnt.h"
-#include "SkTArray.h"
+#include "src/core/SkAutoMalloc.h"
+#include "modules/particles/include/SkCurve.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTArray.h"
 
 class SkCanvas;
 class SkFieldVisitor;

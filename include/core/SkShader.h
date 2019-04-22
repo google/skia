@@ -8,13 +8,13 @@
 #ifndef SkShader_DEFINED
 #define SkShader_DEFINED
 
-#include "SkBlendMode.h"
-#include "SkColor.h"
-#include "SkFilterQuality.h"
-#include "SkFlattenable.h"
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
-#include "SkTileMode.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkTileMode.h"
 
 class SkArenaAlloc;
 class SkBitmap;

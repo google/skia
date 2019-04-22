@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkCanvasPriv.h"
-#include "SkReadBuffer.h"
-#include "SkWriter32.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriter32.h"
 
 SkAutoCanvasMatrixPaint::SkAutoCanvasMatrixPaint(SkCanvas* canvas, const SkMatrix* matrix,
                                                  const SkPaint* paint, const SkRect& bounds)

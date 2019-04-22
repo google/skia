@@ -5,25 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPictureRecorder.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUTF.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
-#include "SkPicture.h"
-#include "SkTextUtils.h"
-#include "SkTypeface.h"
+#include "samplecode/Sample.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "src/utils/SkUTF.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkPicture.h"
+#include "include/utils/SkTextUtils.h"
+#include "include/core/SkTypeface.h"
 
 // effects
-#include "SkGradientShader.h"
-#include "SkBlurMask.h"
-#include "SkBlurDrawLooper.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/core/SkBlurMask.h"
+#include "include/effects/SkBlurDrawLooper.h"
 
 static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     bm->allocPixels(SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType));

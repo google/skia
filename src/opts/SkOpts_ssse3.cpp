@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkOpts.h"
+#include "src/core/SkOpts.h"
 #define SK_OPTS_NS ssse3
-#include "SkBitmapProcState_opts.h"
-#include "SkBlitMask_opts.h"
-#include "SkSwizzler_opts.h"
-#include "SkXfermode_opts.h"
+#include "src/opts/SkBitmapProcState_opts.h"
+#include "src/opts/SkBlitMask_opts.h"
+#include "src/opts/SkSwizzler_opts.h"
+#include "src/opts/SkXfermode_opts.h"
 
 namespace SkOpts {
     void Init_ssse3() {

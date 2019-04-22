@@ -26,10 +26,10 @@
 #include <cstdint>
 #include <cstdlib>
 #include <vector>
-#include <SkMatrix44.h>
+#include "include/core/SkMatrix44.h"
 
 #include "arcore_c_api.h"
-#include "glm.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/glm.h"
 
 #ifndef LOGI
 #define LOGI(...) \

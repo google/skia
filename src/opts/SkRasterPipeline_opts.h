@@ -8,7 +8,7 @@
 #ifndef SkRasterPipeline_opts_DEFINED
 #define SkRasterPipeline_opts_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 // Every function in this file should be marked static and inline using SI.
 #if defined(__clang__)

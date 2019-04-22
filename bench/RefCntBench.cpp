@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Benchmark.h"
-#include "SkRefCnt.h"
-#include "SkWeakRefCnt.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkWeakRefCnt.h"
 #include <memory>
 #include <new>
 

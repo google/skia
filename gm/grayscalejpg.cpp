@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkImage.h"
-#include "gm.h"
+#include "tools/Resources.h"
+#include "include/core/SkImage.h"
+#include "gm/gm.h"
 
 /*
  *  Test decoding grayscale JPEG

@@ -8,9 +8,9 @@
 #ifndef SkPoint_DEFINED
 #define SkPoint_DEFINED
 
-#include "SkMath.h"
-#include "SkScalar.h"
-#include "../private/SkSafe32.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkSafe32.h"
 
 struct SkIPoint;
 

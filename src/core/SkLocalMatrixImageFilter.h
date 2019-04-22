@@ -8,8 +8,8 @@
 #ifndef SkLocalMatrixImageFilter_DEFINED
 #define SkLocalMatrixImageFilter_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkImageFilter.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkImageFilter.h"
 
 /**
  *  Wraps another imagefilter + matrix, such that using this filter will give the same result

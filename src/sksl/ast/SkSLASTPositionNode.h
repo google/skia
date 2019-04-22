@@ -8,8 +8,8 @@
 #ifndef SKSL_ASTPOSITIONNODE
 #define SKSL_ASTPOSITIONNODE
 
-#include "SkSLASTNode.h"
-#include "../SkSLPosition.h"
+#include "src/sksl/ast/SkSLASTNode.h"
+#include "src/sksl/SkSLPosition.h"
 
 namespace SkSL {
 

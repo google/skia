@@ -7,8 +7,8 @@
 #ifndef SkLineClipper_DEFINED
 #define SkLineClipper_DEFINED
 
-#include "SkRect.h"
-#include "SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkPoint.h"
 
 class SkLineClipper {
 public:

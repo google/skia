@@ -8,9 +8,9 @@
 #ifndef GrGaussianConvolutionFragmentProcessor_DEFINED
 #define GrGaussianConvolutionFragmentProcessor_DEFINED
 
-#include "GrCoordTransform.h"
-#include "GrFragmentProcessor.h"
-#include "GrTextureDomain.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 
 /**
  * A 1D Gaussian convolution effect. The kernel is computed as an array of 2 * half-width weights.

@@ -8,8 +8,8 @@
 #ifndef SKSL_ASTINTERFACEBLOCK
 #define SKSL_ASTINTERFACEBLOCK
 
-#include "SkSLASTVarDeclaration.h"
-#include "../ir/SkSLModifiers.h"
+#include "src/sksl/ast/SkSLASTVarDeclaration.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 
 namespace SkSL {
 

@@ -8,9 +8,9 @@
 #ifndef SkFont_DEFINED
 #define SkFont_DEFINED
 
-#include "SkFontTypes.h"
-#include "SkScalar.h"
-#include "SkTypeface.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypeface.h"
 
 class SkMatrix;
 class SkPaint;

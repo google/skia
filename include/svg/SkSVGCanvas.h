@@ -8,7 +8,7 @@
 #ifndef SkSVGCanvas_DEFINED
 #define SkSVGCanvas_DEFINED
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 
 class SkWStream;
 

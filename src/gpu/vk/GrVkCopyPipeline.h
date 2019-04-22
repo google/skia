@@ -8,7 +8,7 @@
 #ifndef GrVkCopyPipeline_DEFINED
 #define GrVkCopyPipeline_DEFINED
 
-#include "GrVkPipeline.h"
+#include "src/gpu/vk/GrVkPipeline.h"
 
 class GrVkCopyPipeline : public GrVkPipeline {
 public:

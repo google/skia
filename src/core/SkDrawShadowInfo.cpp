@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkDrawShadowInfo.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkPolyUtils.h"
-#include "SkRect.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "src/utils/SkPolyUtils.h"
+#include "include/core/SkRect.h"
 
 namespace SkDrawShadowMetrics {
 

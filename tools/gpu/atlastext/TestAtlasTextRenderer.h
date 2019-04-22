@@ -8,8 +8,8 @@
 #ifndef TestAtlasTextRenderer_DEFINED
 #define TestAtlasTextRenderer_DEFINED
 
-#include "SkAtlasTextRenderer.h"
-#include "SkBitmap.h"
+#include "include/atlastext/SkAtlasTextRenderer.h"
+#include "include/core/SkBitmap.h"
 
 namespace sk_gpu_test {
 

@@ -8,7 +8,7 @@
 #ifndef SkSVGG_DEFINED
 #define SkSVGG_DEFINED
 
-#include "SkSVGContainer.h"
+#include "experimental/svg/model/SkSVGContainer.h"
 
 class SkSVGG : public SkSVGContainer {
 public:

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkCamera.h"
+#include "include/utils/SkCamera.h"
 
 static SkScalar SkScalarDotDiv(int count, const SkScalar a[], int step_a,
                                const SkScalar b[], int step_b,
@@ -387,7 +387,7 @@ void Sk3DView::getMatrix(SkMatrix* matrix) const {
     }
 }
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 
 void Sk3DView::applyToCanvas(SkCanvas* canvas) const {
     SkMatrix    matrix;
