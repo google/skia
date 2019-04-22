@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81e6fb56_52109fb0",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 819,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-04-22T18:43:42Z",
+      "side": 1,
+      "message": "I have another CL to test things out that is this, plus:\n- Moving the header to include/third_party/skcms\n- Adjusting this public reference, and the one in skia_public_include\n- Adding include_dirs here, pointing to that location",
+      "revId": "95788820301fc4132bff3f959d561bb798dd02f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
