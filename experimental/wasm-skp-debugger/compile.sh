@@ -133,6 +133,7 @@ ${EMCXX} \
     -Isrc/shaders/ \
     -Isrc/utils/ \
     -Ithird_party/icu \
+    -Ithird_party/skcms \
     -Itools \
     -Itools/debugger \
     -DSK_DISABLE_AAA \
