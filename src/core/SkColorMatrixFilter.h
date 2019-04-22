@@ -11,16 +11,16 @@
 #include "SkFlattenable.h"
 #include "SkColorFilter.h"
 
-class SkColorMatrixFilterRowMajor255 : public SkColorFilter {
+class SkColorMatrixFilter : public SkColorFilter {
 public:
-    SkColorMatrixFilterRowMajor255() {}
-    explicit SkColorMatrixFilterRowMajor255(const SkScalar array[20]);
+    SkColorMatrixFilter() {}
+    explicit SkColorMatrixFilter(const SkScalar colMajor[20]);
 
     /** Creates a color matrix filter that returns the same value in all four channels. */
     static sk_sp<SkColorFilter> MakeSingleChannelOutput(const SkScalar row[5]);
 
     uint32_t getFlags() const override;
-    bool asColorMatrix(SkScalar matrix[20]) const override;
+    bool asColorMatrix(SkScalar rowMajor[20]) const override;
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
@@ -31,13 +31,12 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
 private:
-    SK_FLATTENABLE_HOOKS(SkColorMatrixFilterRowMajor255)
+    SK_FLATTENABLE_HOOKS(SkColorMatrixFilter)
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
-    SkScalar        fMatrix[20];
-    float           fTranspose[20]; // for Sk4s
-    uint32_t        fFlags;
+    SkScalar fMatrix[20];   // colMajor
+    uint32_t fFlags;
 
     void initState();
 
