@@ -94,6 +94,30 @@
       "revId": "4abef4ec55c5968e664774b33263a41bf4ad66d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f3eb6e2_1af9ec2c",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-04-22T21:03:28Z",
+      "side": 1,
+      "message": "Yeah, I wouldn\u0027t offer the column-major. It\u0027s an implementation detail, and I really doubt you\u0027ll find someone that prefers to use column-major in their code. They\u0027re just awkward.",
+      "parentUuid": "a74ebbd7_4da92879",
+      "range": {
+        "startLine": 132,
+        "startChar": 1,
+        "endLine": 132,
+        "endChar": 70
+      },
+      "revId": "4abef4ec55c5968e664774b33263a41bf4ad66d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
