@@ -64,7 +64,6 @@ sk_sp<GrTextureProxy> GrOnFlushResourceProvider::findOrCreateProxyByUniqueKey(
 }
 
 bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
-    SkASSERT(proxy->priv().ignoredByResourceAllocator());
     SkASSERT(proxy->priv().requiresNoPendingIO());
 
     // TODO: this class should probably just get a GrDirectContext

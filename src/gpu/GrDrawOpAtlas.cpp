@@ -536,8 +536,6 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
             return false;
         }
 
-        fProxies[i]->priv().setIgnoredByResourceAllocator();
-
         // set up allocated plots
         fPages[i].fPlotArray.reset(new sk_sp<Plot>[ numPlotsX * numPlotsY ]);
 
