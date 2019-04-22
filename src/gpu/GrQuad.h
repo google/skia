@@ -100,7 +100,7 @@ public:
 
 private:
     template<typename T>
-    friend class GrQuadListBase;
+    friend class GrQuadBuffer;
 
     float fX[4];
     float fY[4];
@@ -167,192 +167,389 @@ public:
 
 private:
     template<typename T>
-    friend class GrQuadListBase;
-
-    // Copy 4 values from each of the arrays into the quad's components
-    GrPerspQuad(const float xs[4], const float ys[4], const float ws[4]);
+    friend class GrQuadBuffer;
 
     float fX[4];
     float fY[4];
     float fW[4];
 };
 
-// Underlying data used by GrQuadListBase. It is defined outside of GrQuadListBase due to compiler
-// issues related to specializing member types.
+/**
+ * GrQuadBuffer is an optimized collection for storing GrPerspQuads, i.e. for use in a GrOp prior to
+ * tessellation into a GPU buffer. It only supports adding quadrilaterals, appending another buffer,
+ * and iterating over the elements. This allows it to compactly represent each GrPerspQuad with as
+ * little data as possible:
+ *  - Each quad with type kRect requires 4 floats
+ *  - Each quad with type kRectilinear or kStandard requires 8 floats
+ *  - Each quad with type kPerspective requires 12 floats
+ *
+ * Each "element" in the buffer is a primary quadrilateral, templated metadata, and an optional
+ * secondary quadrilateral (e.g. for explicit local coordinates associated with primary quad).
+ * The buffer tracks the most complex primary and secondary quad type in the buffer, but each
+ * element preserves its own types so storing mixed type quadrilaterals does not require the largest
+ * storage size per-quad.
+ */
 template<typename T>
-struct QuadData {
-    float fX[4];
-    float fY[4];
-    T fMetadata;
-};
-
-template<>
-struct QuadData<void> {
-    float fX[4];
-    float fY[4];
-};
-
-// A dynamic list of (possibly) perspective quads that tracks the most general quad type of all
-// added quads. It avoids storing the 3rd component if the quad type never becomes perspective.
-// Use GrQuadList subclass when only storing quads. Use GrTQuadList subclass when storing quads
-// and per-quad templated metadata (such as color or domain).
-template<typename T>
-class GrQuadListBase {
+class GrQuadBuffer {
 public:
+    explicit GrQuadBuffer(int reserve = 1)
+            : fElementCount(0)
+            , fPrimaryQuadType(GrQuadType::kRect)
+            , fSecondaryQuadType(GrQuadType::kRect)
+            , fData(reserve * (sizeof(T)/sizeof(int32_t) + 13))
+            , fInsertIndex(0)
+            , fDataLimit(reserve * (sizeof(T)/sizeof(int32_t) + 13)) {}
 
-    int count() const { return fXYs.count(); }
 
-    GrQuadType quadType() const { return fType; }
-
-    void reserve(int count, GrQuadType forType) {
-        fXYs.reserve(count);
-        if (forType == GrQuadType::kPerspective || fType == GrQuadType::kPerspective) {
-            fWs.reserve(4 * count);
+    /** Copies all elements of 'that' into this buffer. */
+    void concat(const GrQuadBuffer<T>& that) {
+        if (that.fPrimaryQuadType > fPrimaryQuadType) {
+            fPrimaryQuadType = that.fPrimaryQuadType;
         }
-    }
-
-    GrPerspQuad operator[] (int i) const {
-        SkASSERT(i < this->count());
-        SkASSERT(i >= 0);
-
-        const QuadData<T>& item = fXYs[i];
-        if (fType == GrQuadType::kPerspective) {
-            // Read the explicit ws
-            return GrPerspQuad(item.fX, item.fY, fWs.begin() + 4 * i);
-        } else {
-            // Ws are implicitly 1s.
-            static constexpr float kNoPerspectiveWs[4] = {1.f, 1.f, 1.f, 1.f};
-            return GrPerspQuad(item.fX, item.fY, kNoPerspectiveWs);
+        if (that.fSecondaryQuadType > fSecondaryQuadType) {
+            fSecondaryQuadType = that.fSecondaryQuadType;
         }
-    }
 
-    // Subclasses expose push_back(const GrQuad|GrPerspQuad&, GrQuadType, [const T&]), where
-    // the metadata argument is only present in GrTQuadList's push_back definition.
-
-protected:
-    GrQuadListBase() : fType(GrQuadType::kRect) {}
-
-    void concatImpl(const GrQuadListBase<T>& that) {
-        this->upgradeType(that.fType);
-        fXYs.push_back_n(that.fXYs.count(), that.fXYs.begin());
-        if (fType == GrQuadType::kPerspective) {
-            if (that.fType == GrQuadType::kPerspective) {
-                // Copy the other's ws into the end of this list's data
-                fWs.push_back_n(that.fWs.count(), that.fWs.begin());
-            } else {
-                // This list stores ws but the appended list had implicit 1s, so add explicit 1s to
-                // fill out the total list
-                fWs.push_back_n(4 * that.count(), 1.f);
-            }
+        fElementCount += that.fElementCount;
+        if (that.fInsertIndex + fInsertIndex > fDataLimit) {
+            fDataLimit = 2 * (fDataLimit + that.fDataLimit);
+            fData.realloc(fDataLimit);
         }
+        memcpy(fData.get() + fInsertIndex, that.fData.get(), sizeof(int32_t) * that.fInsertIndex);
+        fInsertIndex += that.fInsertIndex;
     }
 
-    // Returns the added item data so that its metadata can be initialized if T is not void
-    QuadData<T>& pushBackImpl(const GrQuad& quad, GrQuadType type) {
-        this->upgradeType(type);
-        QuadData<T>& item = fXYs.push_back();
-        memcpy(item.fX, quad.fX, 4 * sizeof(float));
-        memcpy(item.fY, quad.fY, 4 * sizeof(float));
-        if (fType == GrQuadType::kPerspective) {
-            fWs.push_back_n(4, 1.f);
-        }
-        return item;
-    }
-
-    QuadData<T>& pushBackImpl(const GrPerspQuad& quad, GrQuadType type) {
-        this->upgradeType(type);
-        QuadData<T>& item = fXYs.push_back();
-        memcpy(item.fX, quad.fX, 4 * sizeof(float));
-        memcpy(item.fY, quad.fY, 4 * sizeof(float));
-        if (fType == GrQuadType::kPerspective) {
-            fWs.push_back_n(4, quad.fW);
-        }
-        return item;
-    }
-
-    const QuadData<T>& item(int i) const {
-        return fXYs[i];
-    }
-
-    QuadData<T>& item(int i) {
-        return fXYs[i];
-    }
-
-private:
-    void upgradeType(GrQuadType type) {
-        // Possibly upgrade the overall type tracked by the list
-        if (type > fType) {
-            fType = type;
-            if (type == GrQuadType::kPerspective) {
-                // All existing quads were 2D, so the ws array just needs to be filled with 1s
-                fWs.push_back_n(4 * this->count(), 1.f);
-            }
-        }
-    }
-
-    // Interleaves xs, ys, and per-quad metadata so that all data for a single quad is together
-    // (barring ws, which can be dropped entirely if the quad type allows it).
-    SkSTArray<1, QuadData<T>, true> fXYs;
-    // The w channel is kept separate so that it can remain empty when only dealing with 2D quads.
-    SkTArray<float, true> fWs;
-
-    GrQuadType fType;
-};
-
-// This list only stores the quad data itself.
-class GrQuadList : public GrQuadListBase<void> {
-public:
-    GrQuadList() : INHERITED() {}
-
-    void concat(const GrQuadList& that) {
-        this->concatImpl(that);
-    }
-
-    void push_back(const GrQuad& quad, GrQuadType type) {
-        this->pushBackImpl(quad, type);
-    }
-
-    void push_back(const GrPerspQuad& quad, GrQuadType type) {
-        this->pushBackImpl(quad, type);
-    }
-
-private:
-    typedef GrQuadListBase<void> INHERITED;
-};
-
-// This variant of the list allows simple metadata to be stored per quad as well, such as color
-// or texture domain.
-template<typename T>
-class GrTQuadList : public GrQuadListBase<T> {
-public:
-    GrTQuadList() : INHERITED() {}
-
-    void concat(const GrTQuadList<T>& that) {
-        this->concatImpl(that);
-    }
-
-    // Adding to the list requires metadata
+    /** Appends a 'quad' of the given type (not verified) with 'metadata' and no secondary quad. */
     void push_back(const GrQuad& quad, GrQuadType type, T&& metadata) {
-        QuadData<T>& item = this->pushBackImpl(quad, type);
-        item.fMetadata = std::move(metadata);
+        this->appendHeader(type, GrQuadType::kRect, false, std::move(metadata));
+        this->appendQuad(quad.fX, quad.fY, nullptr, type);
     }
 
+    /** Appends a 'quad' of the given type (not verified) with 'metadata' and no secondary quad. */
     void push_back(const GrPerspQuad& quad, GrQuadType type, T&& metadata) {
-        QuadData<T>& item = this->pushBackImpl(quad, type);
-        item.fMetadata = std::move(metadata);
+        this->appendHeader(type, GrQuadType::kRect, false, std::move(metadata));
+        this->appendQuad(quad.fX, quad.fY, quad.fW, type);
     }
 
-    // And provide access to the metadata per quad
-    const T& metadata(int i) const {
-        return this->item(i).fMetadata;
+    /** Appends a 'primary' and 'secondary' quad of the given types (not verified) with 'metadata'*/
+    void push_back(const GrQuad& primary, GrQuadType primaryType, const GrQuad& secondary,
+                   GrQuadType secondaryType, T&& metadata) {
+        this->appendHeader(primaryType, secondaryType, true, std::move(metadata));
+        this->appendQuad(primary.fX, primary.fY, nullptr, primaryType);
+        this->appendQuad(secondary.fX, secondary.fY, nullptr, secondaryType);
     }
 
-    T& metadata(int i) {
-        return this->item(i).fMetadata;
+    /** Appends a 'primary' and 'secondary' quad of the given types (not verified) with 'metadata'*/
+    void push_back(const GrPerspQuad& primary, GrQuadType primaryType, const GrPerspQuad& secondary,
+                   GrQuadType secondaryType, T&& metadata) {
+        this->appendHeader(primaryType, secondaryType, true, std::move(metadata));
+        this->appendQuad(primary.fX, primary.fY, primary.fW, primaryType);
+        this->appendQuad(secondary.fX, secondary.fY, secondary.fW, secondaryType);
     }
+
+    /** The most general primary quad type stored in the buffer. */
+    GrQuadType primaryQuadType() const { return fPrimaryQuadType; }
+
+    /** The most general secondary quad type stored in the buffer. */
+    GrQuadType secondaryQuadType() const { return fSecondaryQuadType; }
+
+    /** The number of elements (primary quad, data, and optional secondary quad) in the buffer. */
+    int count() const { return fElementCount; }
+
+    /**
+     * Iterator reports quads in the order they were added to its buffer. It is not allowed to
+     * iterate over the buffer while adding quads.
+     */
+    template <bool is_const>
+    class Iterator {
+    public:
+        // const-dependent types (non-const iterators allow metadata to be mutated)
+        typedef typename std::conditional<is_const, const GrQuadBuffer*, GrQuadBuffer*>::type
+                BufferPointer;
+        typedef typename std::conditional<is_const, const T*, T*>::type MetadataPointer;
+
+        /**
+         * Advance the iterator to the next element. If this returns true, the quad coordinates
+         * can be accessed by primaryQuad() and secondaryQuad() (assuming hasSecondaryQuad() returns
+         * true). The metadata for the element can be read and modified via the metadata() pointer.
+         */
+        bool next() {
+            SkASSERT(fBufferCount == fBuffer->count());
+            if (fNextIndex >= fBuffer->fInsertIndex) {
+                SkDEBUGCODE(fQuadsValid = false;)
+                SkDEBUGCODE(fMetadataValid = false;)
+                return false;
+            }
+
+            fNextIndex = fBuffer->reconstructElement(
+                    fNextIndex, &fPrimary, &fSecondary, &fHasSecondary, &fMetadata);
+
+            SkDEBUGCODE(fQuadsValid = true;)
+            SkDEBUGCODE(fMetadataValid = true;)
+            return true;
+        }
+
+        /** Advance the iterator to the next element, skipping the quad coordinate data, to only
+         * iterate the metadata. Can call metadata() and hasSecondaryQuad() if this returns true.
+         * Cannot ever call primaryQuad() or secondaryQuad() after this method. */
+        bool nextMeta() {
+            SkASSERT(fBufferCount == fBuffer->count());
+            if (fNextIndex >= fBuffer->fInsertIndex) {
+                SkDEBUGCODE(fQuadsValid = false;)
+                SkDEBUGCODE(fMetadataValid = false;)
+                return false;
+            }
+
+            fNextIndex = fBuffer->reconstructElement(
+                    fNextIndex, nullptr, nullptr, &fHasSecondary, &fMetadata);
+
+            SkDEBUGCODE(fQuadsValid = false;)
+            SkDEBUGCODE(fMetadataValid = true;)
+            return true;
+        }
+
+        /** Get primary quad coordinates from last successful call to next().*/
+        const GrPerspQuad& primaryQuad() const {
+            SkASSERT(fQuadsValid);
+            return fPrimary;
+        }
+
+        /** Get secondary quad coordinates from last successful to next(), but requires
+         * hasSecondaryQuad() to be true. */
+        const GrPerspQuad& secondaryQuad() const {
+            SkASSERT(fQuadsValid && fHasSecondary);
+            return fSecondary;
+        }
+
+        /** True if the iterated element came with a secondary quadrilateral. */
+        bool hasSecondaryQuad() const {
+            SkASSERT(fMetadataValid);
+            return fHasSecondary;
+        }
+
+        /** Get the pointer to the metadata of the last iterated element, from  next() or
+         * nextMeta().*/
+        MetadataPointer metadata() const {
+            SkASSERT(fMetadataValid);
+            return fMetadata;
+        }
+
+    private:
+        friend class GrQuadBuffer<T>;
+
+        explicit Iterator(BufferPointer buffer) : fBuffer(buffer), fNextIndex(0) {
+            SkDEBUGCODE(fBufferCount = fBuffer->count();)
+            SkDEBUGCODE(fQuadsValid = false;)
+            SkDEBUGCODE(fMetadataValid = false;)
+        }
+
+        BufferPointer          fBuffer;
+        int                    fNextIndex;
+        // Hold on to the results of the last next() call so callers don't need to always declare
+        // the same block of local variables.
+        GrPerspQuad            fPrimary;
+        GrPerspQuad            fSecondary;
+        MetadataPointer        fMetadata;
+        bool                   fHasSecondary;
+
+        // Since buffers are only added to, and existing elements are immutable, if the buffer's
+        // element count is greater than this, the iterator has been invalidated.
+        SkDEBUGCODE(int fBufferCount;)
+        SkDEBUGCODE(bool fQuadsValid;)
+        SkDEBUGCODE(bool fMetadataValid;)
+    };
+
+    /** Get a new iterator over every current quad in the buffer. */
+    Iterator<false> iter() { return Iterator<false>(this); }
+    Iterator<true> iter() const { return Iterator<true>(this); }
 
 private:
-    typedef GrQuadListBase<T> INHERITED;
+    struct ElementHeader {
+        unsigned fPrimaryQuadType    : 2;
+        unsigned fSecondaryQuadType  : 2;
+        bool     fHasSecondaryQuad   : 1;
+    };
+    static constexpr int kMetadataSize = sizeof(T) / sizeof(int32_t);
+
+    static_assert(kGrQuadTypeCount <= 4, "QuadType cannot fit into 2 bits");
+    static_assert(sizeof(ElementHeader) == sizeof(int32_t), "ElementHeader must fit in int32_t");
+    static_assert(alignof(T) == alignof(int32_t), "Metadata must align on int32_t");
+
+    int             fElementCount;
+    GrQuadType      fPrimaryQuadType;
+    GrQuadType      fSecondaryQuadType;
+    // SkTArray<int32_t, /* MEM_MOVE */ true> fData;
+    SkAutoSTMalloc<24, int32_t> fData;
+    int fInsertIndex;
+    int fDataLimit;
+
+    int elementSize(GrQuadType type) const {
+        switch(type) {
+            case GrQuadType::kRect: return 4;
+            case GrQuadType::kPerspective: return 12;
+            default: return 8;
+        }
+    }
+
+    int elementSize(GrQuadType primaryType, GrQuadType secondaryType, bool hasSecondary) const {
+        return 1 + kMetadataSize + this->elementSize(primaryType) + (hasSecondary ? this->elementSize(secondaryType) : 0);
+    }
+
+    int32_t* push_back(int num) {
+        SkASSERT(fInsertIndex + num <= fDataLimit);
+        int32_t* ptr = fData.get() + fInsertIndex;
+        fInsertIndex += num;
+        return ptr;
+    }
+
+    void appendHeader(GrQuadType primaryType, GrQuadType secondaryType, bool hasSecondary,
+                      T&& metadata) {
+        int requiredSize = this->elementSize(primaryType, secondaryType, hasSecondary);
+        if (fInsertIndex + requiredSize > fDataLimit) {
+            fDataLimit = 2 * (fInsertIndex + requiredSize);
+            fData.realloc(fDataLimit);
+        }
+
+        ElementHeader* header = reinterpret_cast<ElementHeader*>(this->push_back(1));
+        header->fPrimaryQuadType = static_cast<unsigned>(primaryType);
+        header->fSecondaryQuadType = static_cast<unsigned>(secondaryType);
+        header->fHasSecondaryQuad = hasSecondary;
+
+        T* metaStorage = reinterpret_cast<T*>(this->push_back(kMetadataSize));
+        *metaStorage = std::move(metadata);
+
+        fElementCount++;
+        if (primaryType > fPrimaryQuadType) {
+            fPrimaryQuadType = primaryType;
+        }
+        if (secondaryType > fSecondaryQuadType) {
+            fSecondaryQuadType = secondaryType;
+        }
+    }
+
+    void append4f(const float data[4]) {
+        int32_t* storage = this->push_back(4);
+        memcpy(storage, data, 4 * sizeof(float));
+    }
+
+    void appendQuad(const float xs[], const float ys[], const float ws[], GrQuadType type) {
+        SkASSERT(xs && ys);
+        if (type == GrQuadType::kRect) {
+            // Select LTRB from the xs and ys
+            float ltrb[4] = {xs[0], ys[0], xs[2], ys[1]};
+            this->append4f(ltrb);
+        } else {
+            // Always push back the xs and the ys
+            this->append4f(xs);
+            this->append4f(ys);
+            if (type == GrQuadType::kPerspective) {
+                SkASSERT(ws);
+                this->append4f(ws);
+            }
+        }
+    }
+
+    int reconstructElement(int index, GrPerspQuad* primary, GrPerspQuad* secondary,
+                           bool* hasSecondary, T** metadata) {
+        // Always expects metadata and hasSecondary, quad pointers are optional to support
+        // metadata-only iteration
+        SkASSERT(metadata && hasSecondary);
+
+        SkASSERT(index < fDataLimit);
+        const ElementHeader& header = reinterpret_cast<const ElementHeader&>(fData[index++]);
+
+        SkASSERT(index + kMetadataSize <= fDataLimit);
+        // If we have an output pointer for the metadata, update it to the element's data
+        *metadata = reinterpret_cast<T*>(fData.get() + index);
+        index += kMetadataSize;
+
+        index = reconstructQuads(index, header, primary, secondary, hasSecondary);
+        return index;
+    }
+
+    int reconstructElement(int index, GrPerspQuad* primary, GrPerspQuad* secondary,
+                           bool* hasSecondary, const T** metadata) const {
+        // Always expects metadata and hasSecondary, quad pointers are optional to support
+        // metadata-only iteration
+        SkASSERT(metadata && hasSecondary);
+        SkASSERT(index < fDataLimit);
+        const ElementHeader& header = reinterpret_cast<const ElementHeader&>(fData[index++]);
+
+        SkASSERT(index + kMetadataSize <= fDataLimit);
+        // If we have an output pointer for the metadata, update it to the element's data
+        *metadata = reinterpret_cast<const T*>(fData.get() + index);
+        index += kMetadataSize;
+
+        return reconstructQuads(index, header, primary, secondary, hasSecondary);
+    }
+
+    int reconstructQuads(int index, const ElementHeader& header, GrPerspQuad* primary,
+                         GrPerspQuad* secondary, bool* hasSecondary) const {
+        // Read primary quad (always provided)
+        index = this->reconstructQuad(
+                index, static_cast<GrQuadType>(header.fPrimaryQuadType), primary);
+
+        if (header.fHasSecondaryQuad) {
+            // Read secondary quad
+            index = this->reconstructQuad(
+                    index, static_cast<GrQuadType>(header.fSecondaryQuadType), secondary);
+            *hasSecondary = true;
+        } else {
+            *hasSecondary = false;
+        }
+
+        return index;
+    }
+
+    int reconstructQuad(int index, GrQuadType type, GrPerspQuad* quad) const {
+        if (type == GrQuadType::kRect) {
+            SkASSERT(index + 4 <= fDataLimit);
+            // Rectangle stored as LTRB so inflate xs: LLRR, ys: TBTB, ws: 1111
+            if (quad) {
+                const float* ltrb = reinterpret_cast<const float*>(fData.get() + index);
+                quad->fX[0] = ltrb[0];
+                quad->fX[1] = ltrb[0];
+                quad->fX[2] = ltrb[2];
+                quad->fX[3] = ltrb[2];
+                quad->fY[0] = ltrb[1];
+                quad->fY[1] = ltrb[3];
+                quad->fY[2] = ltrb[1];
+                quad->fY[3] = ltrb[3];
+                quad->fW[0] = 1.f;
+                quad->fW[1] = 1.f;
+                quad->fW[2] = 1.f;
+                quad->fW[3] = 1.f;
+            }
+            index += 4;
+        } else {
+            // Read back 4 xs and 4 ys
+            SkASSERT(index + 8 <= fDataLimit);
+            if (quad) {
+                const float* xs = reinterpret_cast<const float*>(fData.get() + index);
+                const float* ys = reinterpret_cast<const float*>(fData.get() + index + 4);
+                memcpy(quad->fX, xs, 4 * sizeof(float));
+                memcpy(quad->fY, ys, 4 * sizeof(float));
+            }
+            index += 8;
+
+            if (type == GrQuadType::kPerspective) {
+                // Also read back 4 ws
+                SkASSERT(index + 4 <= fDataLimit);
+                if (quad) {
+                    const float* ws = reinterpret_cast<const float*>(fData.get() + index);
+                    memcpy(quad->fW, ws, 4 * sizeof(float));
+                }
+                index += 4;
+            } else if (quad) {
+                // Store 1.s in the ws
+                quad->fW[0] = 1.f;
+                quad->fW[1] = 1.f;
+                quad->fW[2] = 1.f;
+                quad->fW[3] = 1.f;
+            }
+        }
+        return index;
+    }
 };
 
 #endif

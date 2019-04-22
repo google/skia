@@ -208,13 +208,15 @@ public:
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("# draws: %d\n", fQuads.count());
-        int q = 0;
+        auto iter = fQuads.iter();
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             str.appendf("Proxy ID: %d, Filter: %d\n", fProxies[p].fProxy->uniqueID().asUInt(),
                         static_cast<int>(fFilter));
-            for (int i = 0; i < fProxies[p].fQuadCnt; ++i, ++q) {
-                GrPerspQuad quad = fQuads[q];
-                const ColorDomainAndAA& info = fQuads.metadata(i);
+            for (int i = 0; i < fProxies[p].fQuadCnt; ++i) {
+                SkAssertResult(iter.next());
+                const GrPerspQuad& quad = iter.primaryQuad();
+                const ColorDomainAndAA& info = *iter.metadata();
+
                 str.appendf(
                         "%d: Color: 0x%08x, TexRect [L: %.2f, T: %.2f, R: %.2f, B: %.2f] "
                         "Quad [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n",
@@ -239,8 +241,9 @@ public:
             fProxies[p].fProxy->unref();
         }
         fColorType = static_cast<unsigned>(ColorType::kNone);
-        for (int q = 0; q < fQuads.count(); ++q) {
-            const ColorDomainAndAA& info = fQuads.metadata(q);
+        auto iter = fQuads.iter();
+        while(iter.nextMeta()) {
+            const ColorDomainAndAA& info = *iter.metadata();
             auto colorType = GrQuadPerEdgeAA::MinColorType(info.fColor, clampType, caps);
             fColorType = SkTMax(fColorType, static_cast<unsigned>(colorType));
         }
@@ -290,11 +293,13 @@ private:
 
         Domain domain = constraint == SkCanvas::kStrict_SrcRectConstraint ? Domain::kYes
                                                                           : Domain::kNo;
-        // Initially, if srcQuad is provided it will always be at index 0 of fSrcQuads
-        fQuads.push_back(dstQuad, dstQuadType, {color, srcRect, srcQuad ? 0 : -1, domain, aaFlags});
         if (srcQuad) {
-            fSrcQuads.push_back(*srcQuad, srcQuadType);
+            fQuads.push_back(dstQuad, dstQuadType, *srcQuad, srcQuadType,
+                             {color, srcRect, domain, aaFlags});
+        } else {
+            fQuads.push_back(dstQuad, dstQuadType, {color, srcRect, domain, aaFlags});
         }
+
         fProxyCnt = 1;
         fProxies[0] = {proxy.release(), 1};
         auto bounds = dstQuad.bounds(dstQuadType);
@@ -308,6 +313,7 @@ private:
               SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
               sk_sp<GrColorSpaceXform> textureColorSpaceXform)
             : INHERITED(ClassID())
+            , fQuads(cnt)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fFilter(static_cast<unsigned>(filter))
             , fFinalized(0) {
@@ -316,10 +322,6 @@ private:
         GrAAType overallAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
         bool mustFilter = false;
         fCanSkipAllocatorGather = static_cast<unsigned>(true);
-        // Most dst rects are transformed by the same view matrix, so their quad types start
-        // identical, unless an entry provides a dstClip or additional transform that changes it.
-        // The quad list will automatically adapt to that.
-        fQuads.reserve(cnt, GrQuadTypeForTransformedRect(viewMatrix));
         bool allOpaque = true;
         Domain netDomain = Domain::kNo;
         for (unsigned p = 0; p < fProxyCnt; ++p) {
@@ -373,18 +375,18 @@ private:
             float alpha = SkTPin(set[p].fAlpha, 0.f, 1.f);
             allOpaque &= (1.f == alpha);
             SkPMColor4f color{alpha, alpha, alpha, alpha};
-            int srcQuadIndex = -1;
+
             if (set[p].fDstClipQuad) {
-                // Derive new source coordinates that match dstClip's relative locations in dstRect,
-                // but with respect to srcRect
+                // Calculate src quad that matches the dst clip
                 SkPoint srcQuad[4];
                 GrMapRectPoints(set[p].fDstRect, set[p].fSrcRect, set[p].fDstClipQuad, srcQuad, 4);
-                fSrcQuads.push_back(GrPerspQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()),
-                                    GrQuadTypeForPoints(srcQuad, SkMatrix::I()));
-                srcQuadIndex = fSrcQuads.count() - 1;
+                fQuads.push_back(quad, quadType,
+                                 GrPerspQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()),
+                                 GrQuadTypeForPoints(srcQuad, SkMatrix::I()),
+                                 {color, set[p].fSrcRect, domainForQuad, aaFlags});
+            } else {
+                fQuads.push_back(quad, quadType, {color, set[p].fSrcRect, domainForQuad, aaFlags});
             }
-            fQuads.push_back(quad, quadType,
-                             {color, set[p].fSrcRect, srcQuadIndex, domainForQuad, aaFlags});
         }
         fAAType = static_cast<unsigned>(overallAAType);
         if (!mustFilter) {
@@ -394,8 +396,37 @@ private:
         fDomain = static_cast<unsigned>(netDomain);
     }
 
-    void tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy, int start,
-              int cnt) const {
+struct ColorDomainAndAA {
+        // Special constructor to convert enums into the packed bits, which should not delete
+        // the implicit move constructor (but it does require us to declare an empty ctor for
+        // use with the GrTQuadList).
+        ColorDomainAndAA(const SkPMColor4f& color, const SkRect& srcRect,
+                         Domain hasDomain, GrQuadAAFlags aaFlags)
+                : fColor(color)
+                , fSrcRect(srcRect)
+                , fHasDomain(static_cast<unsigned>(hasDomain))
+                , fAAFlags(static_cast<unsigned>(aaFlags)) {
+            SkASSERT(fHasDomain == static_cast<unsigned>(hasDomain));
+            SkASSERT(fAAFlags == static_cast<unsigned>(aaFlags));
+        }
+        ColorDomainAndAA() = default;
+
+        SkPMColor4f fColor;
+        // Even if there's a separate source quad, use fSrcRect for domain constraint
+        SkRect fSrcRect;
+        unsigned fHasDomain : 1;
+        unsigned fAAFlags : 4;
+
+        Domain domain() const { return Domain(fHasDomain); }
+        GrQuadAAFlags aaFlags() const { return static_cast<GrQuadAAFlags>(fAAFlags); }
+    };
+    struct Proxy {
+        GrTextureProxy* fProxy;
+        int fQuadCnt;
+    };
+
+    void tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy,
+              GrQuadBuffer<ColorDomainAndAA>::Iterator<true>* iter, int cnt) const {
         TRACE_EVENT0("skia", TRACE_FUNC);
         auto origin = proxy->origin();
         const auto* texture = proxy->peekTexture();
@@ -409,16 +440,21 @@ private:
             h = 1.f;
         }
 
-        for (int i = start; i < start + cnt; ++i) {
-            const GrPerspQuad& device = fQuads[i];
-            const ColorDomainAndAA& info = fQuads.metadata(i);
+        // Read cnt quads from the iterator
+        GrPerspQuad src;
+        for (int i = 0; i < cnt; ++i) {
+            // Should not run out of quads in the iterator
+            SkAssertResult(iter->next());
+            const ColorDomainAndAA& info = *iter->metadata();
 
-            GrPerspQuad srcQuad = info.fSrcQuadIndex >= 0 ?
-                    compute_src_quad(origin, fSrcQuads[info.fSrcQuadIndex], iw, ih, h) :
-                    compute_src_quad_from_rect(origin, info.fSrcRect, iw, ih, h);
+            if (iter->hasSecondaryQuad()) {
+                src = compute_src_quad(origin, iter->secondaryQuad(), iw, ih, h);
+            } else {
+                src = compute_src_quad_from_rect(origin, info.fSrcRect, iw, ih, h);
+            }
             SkRect domain =
                     compute_domain(info.domain(), this->filter(), origin, info.fSrcRect, iw, ih, h);
-            v = GrQuadPerEdgeAA::Tessellate(v, spec, device, info.fColor, srcQuad, domain,
+            v = GrQuadPerEdgeAA::Tessellate(v, spec, iter->primaryQuad(), info.fColor, src, domain,
                                             info.aaFlags());
         }
     }
@@ -435,13 +471,12 @@ private:
         auto config = fProxies[0].fProxy->config();
         GrAAType aaType = this->aaType();
         for (const auto& op : ChainRange<TextureOp>(this)) {
-            if (op.fQuads.quadType() > quadType) {
-                quadType = op.fQuads.quadType();
+            if (op.fQuads.primaryQuadType() > quadType) {
+                quadType = op.fQuads.primaryQuadType();
             }
-            if (op.fSrcQuads.quadType() > srcQuadType) {
-                // Should only become more general if there are quads to use instead of fSrcRect
-                SkASSERT(op.fSrcQuads.count() > 0);
-                srcQuadType = op.fSrcQuads.quadType();
+            if (op.fQuads.secondaryQuadType() > srcQuadType) {
+                // Will only become more general if there are quads to use instead of fSrcRect
+                srcQuadType = op.fQuads.secondaryQuadType();
             }
             if (op.fDomain) {
                 domain = Domain::kYes;
@@ -504,7 +539,7 @@ private:
 
         int m = 0;
         for (const auto& op : ChainRange<TextureOp>(this)) {
-            int q = 0;
+            auto iter = op.fQuads.iter();
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
                 int quadCnt = op.fProxies[p].fQuadCnt;
                 auto* proxy = op.fProxies[p].fProxy;
@@ -521,7 +556,7 @@ private:
                 }
                 SkASSERT(numAllocatedVertices >= meshVertexCnt);
 
-                op.tess(vdata, vertexSpec, proxy, q, quadCnt);
+                op.tess(vdata, vertexSpec, proxy, &iter, quadCnt);
 
                 if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, &(meshes[m]), vertexSpec,
                                                            quadCnt)) {
@@ -537,7 +572,6 @@ private:
                 numQuadVerticesLeft -= meshVertexCnt;
                 vertexOffsetInBuffer += meshVertexCnt;
                 vdata = reinterpret_cast<char*>(vdata) + vertexSize * meshVertexCnt;
-                q += quadCnt;
             }
         }
         SkASSERT(!numQuadVerticesLeft);
@@ -596,79 +630,20 @@ private:
             fAAType = static_cast<unsigned>(GrAAType::kCoverage);
         }
 
-        // Concatenate quad lists together, updating the fSrcQuadIndex in the appended quads
-        // to account for the new starting index in fSrcQuads
-        int srcQuadOffset = fSrcQuads.count();
-        int oldQuadCount = fQuads.count();
-
-        fSrcQuads.concat(that->fSrcQuads);
         fQuads.concat(that->fQuads);
         fProxies[0].fQuadCnt += that->fQuads.count();
 
-        if (that->fSrcQuads.count() > 0) {
-            // Some of the concatenated quads pointed to fSrcQuads, so adjust the indices for the
-            // newly appended quads
-            for (int i = oldQuadCount; i < fQuads.count(); ++i) {
-                if (fQuads.metadata(i).fSrcQuadIndex >= 0) {
-                    fQuads.metadata(i).fSrcQuadIndex += srcQuadOffset;
-                }
-            }
-        }
-
-        // Confirm all tracked state makes sense when in debug builds
-#ifdef SK_DEBUG
-        SkASSERT(fSrcQuads.count() <= fQuads.count());
-        for (int i = 0; i < fQuads.count(); ++i) {
-            int srcIndex = fQuads.metadata(i).fSrcQuadIndex;
-            if (srcIndex >= 0) {
-                // Make sure it points to a valid index, in the right region of the list
-                SkASSERT(srcIndex < fSrcQuads.count());
-                SkASSERT((i < oldQuadCount && srcIndex < srcQuadOffset) ||
-                         (i >= oldQuadCount && srcIndex >= srcQuadOffset));
-            }
-        }
-#endif
         return CombineResult::kMerged;
     }
 
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
     GrSamplerState::Filter filter() const { return static_cast<GrSamplerState::Filter>(fFilter); }
 
-    struct ColorDomainAndAA {
-        // Special constructor to convert enums into the packed bits, which should not delete
-        // the implicit move constructor (but it does require us to declare an empty ctor for
-        // use with the GrTQuadList).
-        ColorDomainAndAA(const SkPMColor4f& color, const SkRect& srcRect, int srcQuadIndex,
-                         Domain hasDomain, GrQuadAAFlags aaFlags)
-                : fColor(color)
-                , fSrcRect(srcRect)
-                , fSrcQuadIndex(srcQuadIndex)
-                , fHasDomain(static_cast<unsigned>(hasDomain))
-                , fAAFlags(static_cast<unsigned>(aaFlags)) {
-            SkASSERT(fHasDomain == static_cast<unsigned>(hasDomain));
-            SkASSERT(fAAFlags == static_cast<unsigned>(aaFlags));
-        }
-        ColorDomainAndAA() = default;
-
-        SkPMColor4f fColor;
-        // Even if fSrcQuadIndex provides source coords, use fSrcRect for domain constraint
-        SkRect fSrcRect;
-        // If >= 0, use to access fSrcQuads instead of fSrcRect for the source coordinates
-        int fSrcQuadIndex;
-        unsigned fHasDomain : 1;
-        unsigned fAAFlags : 4;
-
-        Domain domain() const { return Domain(fHasDomain); }
-        GrQuadAAFlags aaFlags() const { return static_cast<GrQuadAAFlags>(fAAFlags); }
-    };
-    struct Proxy {
-        GrTextureProxy* fProxy;
-        int fQuadCnt;
-    };
-    GrTQuadList<ColorDomainAndAA> fQuads;
+    GrQuadBuffer<ColorDomainAndAA> fQuads;
+    // GrTQuadList<ColorDomainAndAA> fQuads;
     // The majority of texture ops will not track a complete src quad so this is indexed separately
     // and may be of different size to fQuads.
-    GrQuadList fSrcQuads;
+    // GrQuadList fSrcQuads;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
     unsigned fFilter : 2;
     unsigned fAAType : 2;

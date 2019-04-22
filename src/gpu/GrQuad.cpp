@@ -164,13 +164,6 @@ bool GrQuad::aaHasEffectOnRect() const {
     return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
 }
 
-// Private constructor used by GrQuadList to quickly fill in a quad's values from the channel arrays
-GrPerspQuad::GrPerspQuad(const float* xs, const float* ys, const float* ws) {
-    memcpy(fX, xs, 4 * sizeof(float));
-    memcpy(fY, ys, 4 * sizeof(float));
-    memcpy(fW, ws, 4 * sizeof(float));
-}
-
 GrPerspQuad GrPerspQuad::MakeFromRect(const SkRect& rect, const SkMatrix& m) {
     Sk4f x, y, w;
     SkMatrix::TypeMask tm = m.getType();
