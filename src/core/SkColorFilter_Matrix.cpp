@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorMatrixFilterRowMajor255.h"
+#include "SkColorFilter_Matrix.h"
 #include "SkColorData.h"
 #include "SkNx.h"
 #include "SkRasterPipeline.h"
@@ -15,64 +15,86 @@
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
 
-void SkColorMatrixFilterRowMajor255::initState() {
-    const float* srcR = fMatrix + 0;
-    const float* srcG = fMatrix + 5;
-    const float* srcB = fMatrix + 10;
-    const float* srcA = fMatrix + 15;
-
-    fFlags = (srcA[0] == 0 && srcA[1] == 0 && srcA[2] == 0 && srcA[3] == 1 && srcA[4] == 0)
-        ? kAlphaUnchanged_Flag : 0;
+static void rowMajor_to_colMajor_div255(float dst[20], const float src[20]) {
+    const float* srcR = src + 0;
+    const float* srcG = src + 5;
+    const float* srcB = src + 10;
+    const float* srcA = src + 15;
 
     for (int i = 0; i < 16; i += 4) {
-        fTranspose[i + 0] = *srcR++;
-        fTranspose[i + 1] = *srcG++;
-        fTranspose[i + 2] = *srcB++;
-        fTranspose[i + 3] = *srcA++;
+        dst[i + 0] = *srcR++;
+        dst[i + 1] = *srcG++;
+        dst[i + 2] = *srcB++;
+        dst[i + 3] = *srcA++;
     }
-    // Might as well scale these translates down to [0,1] here instead of every filter call.
-    fTranspose[16] = *srcR * (1/255.0f);
-    fTranspose[17] = *srcG * (1/255.0f);
-    fTranspose[18] = *srcB * (1/255.0f);
-    fTranspose[19] = *srcA * (1/255.0f);
+    dst[16] = *srcR * (1/255.0f);
+    dst[17] = *srcG * (1/255.0f);
+    dst[18] = *srcB * (1/255.0f);
+    dst[19] = *srcA * (1/255.0f);
 }
 
-SkColorMatrixFilterRowMajor255::SkColorMatrixFilterRowMajor255(const SkScalar array[20]) {
-    memcpy(fMatrix, array, 20 * sizeof(SkScalar));
+static void colMajor_to_rowMajor_mul255(float dst[20], const float src[20]) {
+    for (int i = 0; i < 4; ++i) {
+        dst[i +  0] = *src++;
+        dst[i +  5] = *src++;
+        dst[i + 10] = *src++;
+        dst[i + 15] = *src++;
+    }
+    dst[ 4] = src[0] * 255;
+    dst[ 9] = src[1] * 255;
+    dst[14] = src[2] * 255;
+    dst[19] = src[3] * 255;
+}
+
+void SkColorFilter_Matrix::initState() {
+    fFlags = (fMatrix[ 0] == 0 && fMatrix[ 4] == 0 && fMatrix[8] == 0 &&
+              fMatrix[12] == 1 && fMatrix[16] == 0)
+        ? kAlphaUnchanged_Flag : 0;
+}
+
+SkColorFilter_Matrix::SkColorFilter_Matrix(const SkScalar array[20]) {
+    memcpy(fMatrix, array, sizeof(fMatrix));
     this->initState();
 }
 
-uint32_t SkColorMatrixFilterRowMajor255::getFlags() const {
+uint32_t SkColorFilter_Matrix::getFlags() const {
     return this->INHERITED::getFlags() | fFlags;
 }
 
-void SkColorMatrixFilterRowMajor255::flatten(SkWriteBuffer& buffer) const {
+void SkColorFilter_Matrix::flatten(SkWriteBuffer& buffer) const {
     SkASSERT(sizeof(fMatrix)/sizeof(SkScalar) == 20);
     buffer.writeScalarArray(fMatrix, 20);
 }
 
-sk_sp<SkFlattenable> SkColorMatrixFilterRowMajor255::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkColorFilter_Matrix::CreateProc(SkReadBuffer& buffer) {
+
     SkScalar matrix[20];
     if (buffer.readScalarArray(matrix, 20)) {
-        return sk_make_sp<SkColorMatrixFilterRowMajor255>(matrix);
+        if (buffer.isVersionLT(SkReadBuffer::kColorMatrixColMajor_Version)) {
+            SkScalar transposed[20];
+            rowMajor_to_colMajor_div255(transposed, matrix);
+            memcpy(matrix, transposed, sizeof(matrix));
+        }
+        return SkColorFilters::Matrix(matrix);
     }
     return nullptr;
 }
 
-bool SkColorMatrixFilterRowMajor255::asColorMatrix(SkScalar matrix[20]) const {
+bool SkColorFilter_Matrix::asColorMatrix(SkScalar matrix[20]) const {
     if (matrix) {
-        memcpy(matrix, fMatrix, 20 * sizeof(SkScalar));
+        // this virtual was defined when we were rowMajor, so transform into that
+        colMajor_to_rowMajor_mul255(matrix, fMatrix);
     }
     return true;
 }
 
-bool SkColorMatrixFilterRowMajor255::onAppendStages(const SkStageRec& rec,
+bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec,
                                                     bool shaderIsOpaque) const {
     const bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag);
 
     SkRasterPipeline* p = rec.fPipeline;
     if (!shaderIsOpaque) { p->append(SkRasterPipeline::unpremul); }
-    if (           true) { p->append(SkRasterPipeline::matrix_4x5, fTranspose); }
+    if (           true) { p->append(SkRasterPipeline::matrix_4x5, fMatrix); }
     if (           true) { p->append(SkRasterPipeline::clamp_0); }
     if (           true) { p->append(SkRasterPipeline::clamp_1); }
     if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
@@ -131,20 +153,8 @@ private:
         void onSetData(const GrGLSLProgramDataManager& uniManager,
                        const GrFragmentProcessor& proc) override {
             const ColorMatrixEffect& cme = proc.cast<ColorMatrixEffect>();
-            const float* m = cme.fMatrix;
-            // The GL matrix is transposed from SkColorMatrix.
-            float mt[]  = {
-                m[0], m[5], m[10], m[15],
-                m[1], m[6], m[11], m[16],
-                m[2], m[7], m[12], m[17],
-                m[3], m[8], m[13], m[18],
-            };
-            static const float kScale = 1.0f / 255.0f;
-            float vec[] = {
-                m[4] * kScale, m[9] * kScale, m[14] * kScale, m[19] * kScale,
-            };
-            uniManager.setMatrix4fv(fMatrixHandle, 1, mt);
-            uniManager.set4fv(fVectorHandle, 1, vec);
+            uniManager.setMatrix4fv(fMatrixHandle, 1, cme.fMatrix);
+            uniManager.set4fv(fVectorHandle, 1, cme.fMatrix + 16);
         }
 
     private:
@@ -193,7 +203,7 @@ std::unique_ptr<GrFragmentProcessor> ColorMatrixEffect::TestCreate(GrProcessorTe
 
 #endif
 
-std::unique_ptr<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentProcessor(
+std::unique_ptr<GrFragmentProcessor> SkColorFilter_Matrix::asFragmentProcessor(
         GrRecordingContext*, const GrColorSpaceInfo&) const {
     return ColorMatrixEffect::Make(fMatrix);
 }
@@ -202,28 +212,34 @@ std::unique_ptr<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentP
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkColorFilter> SkColorFilters::MatrixRowMajor255(const float array[20]) {
+sk_sp<SkColorFilter> SkColorFilters::MatrixRowMajor255(const float rowMajor[20]) {
+    SkScalar array[20];
+    rowMajor_to_colMajor_div255(array, rowMajor);
+    return SkColorFilters::Matrix(array);
+}
+
+sk_sp<SkColorFilter> SkColorFilters::Matrix(const float array[20]) {
     if (!SkScalarsAreFinite(array, 20)) {
         return nullptr;
     }
-
-    return sk_sp<SkColorFilter>(new SkColorMatrixFilterRowMajor255(array));
+    return sk_sp<SkColorFilter>(new SkColorFilter_Matrix(array));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkColorFilter>
-SkColorMatrixFilterRowMajor255::MakeSingleChannelOutput(const SkScalar row[5]) {
+SkColorFilter_Matrix::MakeSingleChannelOutput(const SkScalar row[5]) {
     if (!SkScalarsAreFinite(row, 5)) {
         return nullptr;
     }
 
-    SkASSERT(row);
-    auto cf = sk_make_sp<SkColorMatrixFilterRowMajor255>();
-    static_assert(sizeof(SkScalar) * 5 * 4 == sizeof(cf->fMatrix), "sizes don't match");
+    SkScalar array[20];
+    SkScalar* a = array;
     for (int i = 0; i < 4; ++i) {
-        memcpy(cf->fMatrix + 5 * i, row, sizeof(SkScalar) * 5);
+        a[0] = a[1] = a[2] = a[3] = row[i];
+        a += 4;
     }
-    cf->initState();
-    return std::move(cf);
+    a[0] = a[1] = a[2] = a[3] = row[4] * (1.0f/255);
+
+    return SkColorFilters::Matrix(array);
 }
