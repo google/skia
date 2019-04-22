@@ -70,6 +70,30 @@
       "revId": "4abef4ec55c5968e664774b33263a41bf4ad66d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a74ebbd7_4da92879",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-22T21:00:29Z",
+      "side": 1,
+      "message": "and *not* offer the other as well (even though that\u0027s our impl)? I think I\u0027d prefer both... for some reason.",
+      "parentUuid": "cfddc810_2a54322d",
+      "range": {
+        "startLine": 132,
+        "startChar": 1,
+        "endLine": 132,
+        "endChar": 70
+      },
+      "revId": "4abef4ec55c5968e664774b33263a41bf4ad66d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
