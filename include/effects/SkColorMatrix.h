@@ -11,7 +11,9 @@
 #include "SkScalar.h"
 
 class SK_API SkColorMatrix {
+#ifdef SK_SUPPORT_LEGACY_COLORMATRIX_PUBLIC
 public:
+#endif
     enum {
         kCount = 20
     };
@@ -28,12 +30,15 @@ public:
         kB_Trans    = 14,
         kA_Trans    = 19,
     };
+    void postTranslate(SkScalar rTrans, SkScalar gTrans, SkScalar bTrans,
+                       SkScalar aTrans = 0);
+    static bool NeedsClamping(const SkScalar[20]);
+    static void SetConcat(SkScalar result[20], const SkScalar outer[20], const SkScalar inner[20]);
 
+public:
     void setIdentity();
     void setScale(SkScalar rScale, SkScalar gScale, SkScalar bScale,
                   SkScalar aScale = SK_Scalar1);
-    void postTranslate(SkScalar rTrans, SkScalar gTrans, SkScalar bTrans,
-                       SkScalar aTrans = 0);
 
     enum Axis {
         kR_Axis = 0,
@@ -53,14 +58,18 @@ public:
     void setRGB2YUV();
     void setYUV2RGB();
 
+    void postTranslate255(SkScalar r, SkScalar g, SkScalar b, SkScalar a = 0) {
+        this->postTranslate(r, g, b, a);
+    }
+
     bool operator==(const SkColorMatrix& other) const {
         return 0 == memcmp(fMat, other.fMat, sizeof(fMat));
     }
 
     bool operator!=(const SkColorMatrix& other) const { return !((*this) == other); }
 
-    static bool NeedsClamping(const SkScalar[20]);
-    static void SetConcat(SkScalar result[20], const SkScalar outer[20], const SkScalar inner[20]);
+private:
+    friend class SkColorFilters;
 };
 
 #endif
