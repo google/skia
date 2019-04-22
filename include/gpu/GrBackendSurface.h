@@ -8,16 +8,16 @@
 #ifndef GrBackendSurface_DEFINED
 #define GrBackendSurface_DEFINED
 
-#include "GrTypes.h"
-#include "gl/GrGLTypes.h"
-#include "mock/GrMockTypes.h"
-#include "vk/GrVkTypes.h"
-#include "../private/GrVkTypesPriv.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/mock/GrMockTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/GrVkTypesPriv.h"
 
 class GrVkImageLayout;
 
 #ifdef SK_METAL
-#include "mtl/GrMtlTypes.h"
+#include "include/gpu/mtl/GrMtlTypes.h"
 #endif
 
 #if !SK_SUPPORT_GPU

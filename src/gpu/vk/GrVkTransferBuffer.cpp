@@ -5,9 +5,9 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkTransferBuffer.h"
-#include "GrVkGpu.h"
-#include "SkTraceMemoryDump.h"
+#include "src/gpu/vk/GrVkTransferBuffer.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "include/core/SkTraceMemoryDump.h"
 
 sk_sp<GrVkTransferBuffer> GrVkTransferBuffer::Make(GrVkGpu* gpu, size_t size,
                                                    GrVkBuffer::Type type) {

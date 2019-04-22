@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkPath.h"
-#include "SkRandom.h"
+#include "gm/gm.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
 
 #define W   400
 #define H   400

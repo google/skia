@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkGradientShader.h"
+#include "tools/ToolUtils.h"
+#include "gm/gm.h"
 
 namespace skiagm {
 

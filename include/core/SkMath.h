@@ -8,7 +8,7 @@
 #ifndef SkMath_DEFINED
 #define SkMath_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 // 64bit -> 32bit utilities
 

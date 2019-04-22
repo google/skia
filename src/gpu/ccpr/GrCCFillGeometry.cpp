@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCFillGeometry.h"
+#include "src/gpu/ccpr/GrCCFillGeometry.h"
 
-#include "GrTypes.h"
-#include "SkGeometry.h"
+#include "include/gpu/GrTypes.h"
+#include "src/core/SkGeometry.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>

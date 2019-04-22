@@ -5,5 +5,5 @@
  * found in the LICENSE file.
  */
 
-#include "SkSVGTypes.h"
-#include "SkSVGValue.h"
+#include "experimental/svg/model/SkSVGTypes.h"
+#include "experimental/svg/model/SkSVGValue.h"

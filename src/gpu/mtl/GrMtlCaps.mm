@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlCaps.h"
+#include "src/gpu/mtl/GrMtlCaps.h"
 
-#include "GrBackendSurface.h"
-#include "GrMtlUtil.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetProxy.h"
-#include "GrShaderCaps.h"
-#include "GrSurfaceProxy.h"
-#include "SkRect.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "src/gpu/mtl/GrMtlUtil.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "include/private/GrRenderTargetProxy.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/core/SkRect.h"
 
 GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice> device,
                      MTLFeatureSet featureSet)

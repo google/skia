@@ -8,10 +8,10 @@
 #ifndef SkRect_DEFINED
 #define SkRect_DEFINED
 
-#include "SkPoint.h"
-#include "SkSize.h"
-#include "../private/SkSafe32.h"
-#include "../private/SkTFitsIn.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkSize.h"
+#include "include/private/SkSafe32.h"
+#include "include/private/SkTFitsIn.h"
 
 #include <utility>
 

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontDescriptor.h"
-#include "SkMakeUnique.h"
-#include "SkStream.h"
-#include "SkData.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkMakeUnique.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkData.h"
 
 enum {
     kInvalid        = 0x00,

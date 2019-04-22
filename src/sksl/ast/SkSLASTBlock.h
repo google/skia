@@ -8,7 +8,7 @@
 #ifndef SKSL_ASTBLOCK
 #define SKSL_ASTBLOCK
 
-#include "SkSLASTStatement.h"
+#include "src/sksl/ast/SkSLASTStatement.h"
 
 namespace SkSL {
 

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlRenderTarget.h"
+#include "src/gpu/mtl/GrMtlRenderTarget.h"
 
-#include "GrMtlGpu.h"
-#include "GrMtlUtil.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlUtil.h"
 
 // Called for wrapped non-texture render targets.
 GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,

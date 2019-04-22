@@ -8,10 +8,10 @@
 #ifndef SkSGTransform_DEFINED
 #define SkSGTransform_DEFINED
 
-#include "SkSGEffectNode.h"
+#include "modules/sksg/include/SkSGEffectNode.h"
 
-#include "SkMatrix.h"
-#include "SkMatrix44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkMatrix44.h"
 
 namespace sksg {
 

@@ -8,10 +8,10 @@
 #ifndef Slide_DEFINED
 #define Slide_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkSize.h"
-#include "SkString.h"
-#include "sk_app/Window.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "tools/sk_app/Window.h"
 
 class SkCanvas;
 class AnimTimer;

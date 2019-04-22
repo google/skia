@@ -8,7 +8,7 @@
 #ifndef SKSL_SYMBOL
 #define SKSL_SYMBOL
 
-#include "SkSLIRNode.h"
+#include "src/sksl/ir/SkSLIRNode.h"
 
 namespace SkSL {
 
