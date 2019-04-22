@@ -118,6 +118,30 @@
       "revId": "4abef4ec55c5968e664774b33263a41bf4ad66d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "464a98d1_aa50a6c7",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-22T21:04:01Z",
+      "side": 1,
+      "message": "Yeah, I\u0027d suggest just row major at the interface.  If you\u0027re typing a matrix out, you always want it to be row-major so it reads like you would write it on paper.  And if instead you\u0027re constructing a matrix programatically, you won\u0027t care.\n\nPretty sure we don\u0027t even really care that it\u0027s column major in the implementation.  I bet we could just keep it row major the whole way through if you like.",
+      "parentUuid": "a74ebbd7_4da92879",
+      "range": {
+        "startLine": 132,
+        "startChar": 1,
+        "endLine": 132,
+        "endChar": 70
+      },
+      "revId": "4abef4ec55c5968e664774b33263a41bf4ad66d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
