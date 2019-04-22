@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkString.h"
+#include "../../include/core/SkString.h"
 
 #include "SkSafeMath.h"
-#include "SkTo.h"
+#include "../../include/private/SkTo.h"
 #include "SkUtils.h"
 
 #include <cstdarg>

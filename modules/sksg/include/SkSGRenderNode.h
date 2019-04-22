@@ -10,9 +10,9 @@
 
 #include "SkSGNode.h"
 
-#include "SkBlendMode.h"
-#include "SkColorFilter.h"
-#include "SkShader.h"
+#include "../../../include/core/SkBlendMode.h"
+#include "../../../include/core/SkColorFilter.h"
+#include "../../../include/core/SkShader.h"
 
 class SkCanvas;
 class SkImageFilter;

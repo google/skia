@@ -8,11 +8,11 @@
 #ifndef SkCoreBlitters_DEFINED
 #define SkCoreBlitters_DEFINED
 
-#include "SkBitmapProcShader.h"
+#include "../shaders/SkBitmapProcShader.h"
 #include "SkBlitter.h"
 #include "SkBlitRow.h"
-#include "SkPaint.h"
-#include "SkShaderBase.h"
+#include "../../include/core/SkPaint.h"
+#include "../shaders/SkShaderBase.h"
 #include "SkXfermodePriv.h"
 
 class SkRasterBlitter : public SkBlitter {

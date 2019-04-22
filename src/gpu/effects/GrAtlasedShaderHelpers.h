@@ -8,11 +8,11 @@
 #ifndef GrAtlasedShaderHelpers_DEFINED
 #define GrAtlasedShaderHelpers_DEFINED
 
-#include "GrShaderCaps.h"
-#include "glsl/GrGLSLPrimitiveProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "../GrShaderCaps.h"
+#include "../glsl/GrGLSLPrimitiveProcessor.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLVarying.h"
+#include "../glsl/GrGLSLVertexGeoBuilder.h"
 
 static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                      const char* inTexCoordsName,

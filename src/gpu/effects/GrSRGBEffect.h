@@ -8,7 +8,7 @@
 #ifndef GrSRGBEffect_DEFINED
 #define GrSRGBEffect_DEFINED
 
-#include "GrFragmentProcessor.h"
+#include "../GrFragmentProcessor.h"
 
 class GrSRGBEffect : public GrFragmentProcessor {
 public:

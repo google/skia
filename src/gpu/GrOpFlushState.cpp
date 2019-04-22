@@ -11,7 +11,7 @@
 #include "GrDrawOpAtlas.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
-#include "GrTexture.h"
+#include "../../include/gpu/GrTexture.h"
 
 //////////////////////////////////////////////////////////////////////////////
 

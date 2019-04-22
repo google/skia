@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilter.h"
-#include "SkGradientShader.h"
-#include "ToolUtils.h"
+#include "../include/core/SkColorFilter.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 #define WIDTH 512

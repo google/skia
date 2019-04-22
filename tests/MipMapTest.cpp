@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkMipMap.h"
-#include "SkRandom.h"
+#include "../include/core/SkBitmap.h"
+#include "../src/core/SkMipMap.h"
+#include "../include/utils/SkRandom.h"
 #include "Test.h"
 
 static void make_bitmap(SkBitmap* bm, int width, int height) {

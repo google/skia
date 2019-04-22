@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
-#include "SkRandom.h"
-#include "ToolUtils.h"
+#include "../include/effects/SkBlurImageFilter.h"
+#include "../include/utils/SkRandom.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 #define WIDTH 640

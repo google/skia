@@ -8,7 +8,7 @@
 #ifndef GrTessellatingPathRenderer_DEFINED
 #define GrTessellatingPathRenderer_DEFINED
 
-#include "GrPathRenderer.h"
+#include "../GrPathRenderer.h"
 
 /**
  *  Subclass that renders the path by converting to screen-space trapezoids plus

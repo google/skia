@@ -7,12 +7,12 @@
 
 #include "GrGLSLPrimitiveProcessor.h"
 
-#include "GrCoordTransform.h"
-#include "GrTexture.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "../GrCoordTransform.h"
+#include "../../../include/gpu/GrTexture.h"
+#include "GrGLSLFragmentShaderBuilder.h"
+#include "GrGLSLProgramBuilder.h"
+#include "GrGLSLUniformHandler.h"
+#include "GrGLSLVertexGeoBuilder.h"
 
 SkMatrix GrGLSLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatrix,
                                                       const GrCoordTransform& coordTransform) {

@@ -8,12 +8,12 @@
 #ifndef SkImage_GpuBase_DEFINED
 #define SkImage_GpuBase_DEFINED
 
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "GrTypesPriv.h"
-#include "SkDeferredDisplayListRecorder.h"
+#include "../../include/gpu/GrBackendSurface.h"
+#include "../../include/gpu/GrContext.h"
+#include "../../include/private/GrTypesPriv.h"
+#include "../../include/core/SkDeferredDisplayListRecorder.h"
 #include "SkImage_Base.h"
-#include "SkYUVAIndex.h"
+#include "../../include/core/SkYUVAIndex.h"
 
 class GrColorSpaceXform;
 class SkColorSpace;

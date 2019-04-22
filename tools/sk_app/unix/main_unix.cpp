@@ -6,9 +6,9 @@
 * found in the LICENSE file.
 */
 
-#include "SkTypes.h"
-#include "SkTHash.h"
-#include "Timer.h"
+#include "../../../include/core/SkTypes.h"
+#include "../../../include/private/SkTHash.h"
+#include "../../timer/Timer.h"
 #include "Window_unix.h"
 #include "../Application.h"
 

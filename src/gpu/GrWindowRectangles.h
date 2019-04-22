@@ -9,7 +9,7 @@
 #define GrWindowRectangles_DEFINED
 
 #include "GrNonAtomicRef.h"
-#include "SkRect.h"
+#include "../../include/core/SkRect.h"
 
 class GrWindowRectangles {
 public:

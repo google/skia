@@ -6,8 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkPath.h"
 
 DEF_SIMPLE_GM_BG(crbug_947055, canvas, 200, 50, SK_ColorBLUE) {
     // Green 2D rectangle to highlight the red rectangle. Isn't necessary

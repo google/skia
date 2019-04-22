@@ -8,10 +8,10 @@
 #ifndef SkInternalAtlasTextContext_DEFINED
 #define SkInternalAtlasTextContext_DEFINED
 
-#include "GrDeferredUpload.h"
-#include "SkArenaAlloc.h"
-#include "SkArenaAllocList.h"
-#include "SkRefCnt.h"
+#include "../gpu/GrDeferredUpload.h"
+#include "../../include/private/SkArenaAlloc.h"
+#include "../core/SkArenaAllocList.h"
+#include "../../include/core/SkRefCnt.h"
 
 class GrContext;
 class GrStrikeCache;

@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkLumaColorFilter.h"
-#include "SkColorData.h"
-#include "SkEffectPriv.h"
-#include "SkRasterPipeline.h"
-#include "SkString.h"
+#include "../../include/effects/SkLumaColorFilter.h"
+#include "../../include/private/SkColorData.h"
+#include "../core/SkEffectPriv.h"
+#include "../core/SkRasterPipeline.h"
+#include "../../include/core/SkString.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "effects/generated/GrLumaColorFilterEffect.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../../include/gpu/GrContext.h"
+#include "../gpu/effects/generated/GrLumaColorFilterEffect.h"
+#include "../gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "../gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #endif
 
 bool SkLumaColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {

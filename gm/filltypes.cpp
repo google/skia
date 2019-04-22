@@ -6,7 +6,7 @@
  */
 
 #include "gm.h"
-#include "SkPath.h"
+#include "../include/core/SkPath.h"
 
 namespace skiagm {
 

@@ -7,11 +7,11 @@
 
 #include "GrGLSLGeometryProcessor.h"
 
-#include "GrCoordTransform.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "../GrCoordTransform.h"
+#include "GrGLSLFragmentShaderBuilder.h"
+#include "GrGLSLUniformHandler.h"
+#include "GrGLSLVarying.h"
+#include "GrGLSLVertexGeoBuilder.h"
 
 void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGPArgs gpArgs;

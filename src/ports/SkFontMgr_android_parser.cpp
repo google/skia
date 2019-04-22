@@ -7,16 +7,16 @@
 
 // Despite the name and location, this is portable code.
 
-#include "SkFixed.h"
-#include "SkFontMgr.h"
+#include "../../include/private/SkFixed.h"
+#include "../../include/core/SkFontMgr.h"
 #include "SkFontMgr_android_parser.h"
-#include "SkMalloc.h"
-#include "SkOSFile.h"
-#include "SkStream.h"
-#include "SkTDArray.h"
-#include "SkTSearch.h"
-#include "SkTemplates.h"
-#include "SkTLogic.h"
+#include "../../include/private/SkMalloc.h"
+#include "../core/SkOSFile.h"
+#include "../../include/core/SkStream.h"
+#include "../../include/private/SkTDArray.h"
+#include "../../include/private/SkTSearch.h"
+#include "../../include/private/SkTemplates.h"
+#include "../../include/private/SkTLogic.h"
 
 #include <expat.h>
 

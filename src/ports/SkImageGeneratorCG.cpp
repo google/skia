@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "mac/SkUniqueCFRef.h"
-#include "SkCGUtils.h"
-#include "SkEncodedOrigin.h"
-#include "SkImageGeneratorCG.h"
-#include "SkPixmapPriv.h"
-#include "SkTemplates.h"
+#include "../utils/mac/SkUniqueCFRef.h"
+#include "../../include/utils/mac/SkCGUtils.h"
+#include "../../include/codec/SkEncodedOrigin.h"
+#include "../../include/ports/SkImageGeneratorCG.h"
+#include "../core/SkPixmapPriv.h"
+#include "../../include/private/SkTemplates.h"
 
 #ifdef SK_BUILD_FOR_MAC
 #include <ApplicationServices/ApplicationServices.h>

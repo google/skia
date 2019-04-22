@@ -6,10 +6,10 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkGradientShader.h"
-#include "SkTableColorFilter.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/effects/SkColorFilterImageFilter.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../include/effects/SkTableColorFilter.h"
 
 static sk_sp<SkShader> make_shader0(int w, int h) {
     SkPoint pts[] = { {0, 0}, {SkIntToScalar(w), SkIntToScalar(h)} };

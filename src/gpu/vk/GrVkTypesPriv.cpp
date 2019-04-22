@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkTypesPriv.h"
+#include "../../../include/private/GrVkTypesPriv.h"
 
 #include "GrVkImageLayout.h"
 

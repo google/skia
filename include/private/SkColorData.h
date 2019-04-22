@@ -8,8 +8,8 @@
 #ifndef SkColorData_DEFINED
 #define SkColorData_DEFINED
 
-#include "SkColor.h"
-#include "SkColorPriv.h"
+#include "../core/SkColor.h"
+#include "../core/SkColorPriv.h"
 #include "SkNx.h"
 #include "SkTo.h"
 

@@ -7,7 +7,7 @@
 #ifndef SkTo_DEFINED
 #define SkTo_DEFINED
 
-#include "SkTypes.h"
+#include "../core/SkTypes.h"
 #include "SkTFitsIn.h"
 
 template <typename D, typename S> constexpr D SkTo(S s) {

@@ -6,7 +6,7 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
-#include "SkString.h"
+#include "../include/core/SkString.h"
 
 static void testSimplifyTrianglesMain(PathOpsThreadState* data) {
     SkASSERT(data);

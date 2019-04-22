@@ -6,8 +6,8 @@
  */
 
 #include "GrColorSpaceXform.h"
-#include "SkColorSpace.h"
-#include "SkColorSpacePriv.h"
+#include "../../include/core/SkColorSpace.h"
+#include "../core/SkColorSpacePriv.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"

@@ -9,8 +9,8 @@
 
 #if defined(SK_PDF_USE_HARFBUZZ_SUBSET)
 
-#include "SkTo.h"
-#include "SkTemplates.h"
+#include "../../include/private/SkTo.h"
+#include "../../include/private/SkTemplates.h"
 
 #include "hb.h"
 #include "hb-subset.h"

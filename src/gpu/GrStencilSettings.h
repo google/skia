@@ -10,7 +10,7 @@
 #define GrStencilSettings_DEFINED
 
 #include "GrUserStencilSettings.h"
-#include "SkRegion.h"
+#include "../../include/core/SkRegion.h"
 
 class GrProcessorKeyBuilder;
 

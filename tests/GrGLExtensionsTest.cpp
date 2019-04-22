@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "../include/core/SkTypes.h"
 
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLExtensions.h"
+#include "../src/gpu/gl/GrGLDefines.h"
+#include "../include/gpu/gl/GrGLExtensions.h"
 #include "Test.h"
 
 const GrGLubyte* simpleGetString(GrGLenum name) {

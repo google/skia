@@ -9,7 +9,7 @@
 #define SK_COMMON_FLAGS_CONFIG_H
 
 #include "CommandLineFlags.h"
-#include "GrContextFactory.h"
+#include "../gpu/GrContextFactory.h"
 
 DECLARE_string(config);
 

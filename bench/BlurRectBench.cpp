@@ -6,12 +6,12 @@
  */
 
 #include "Benchmark.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkString.h"
+#include "../src/core/SkBlurMask.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkPaint.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkShader.h"
+#include "../include/core/SkString.h"
 
 #define SMALL   SkIntToScalar(2)
 #define REAL    1.5f

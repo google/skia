@@ -7,12 +7,12 @@
 
 #include "gm.h"
 
-#include "SkColorSpace.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkDashPathEffect.h"
-#include "SkFont.h"
-#include "SkGradientShader.h"
-#include "SkString.h"
+#include "../include/core/SkColorSpace.h"
+#include "../src/core/SkColorSpaceXformSteps.h"
+#include "../include/effects/SkDashPathEffect.h"
+#include "../include/core/SkFont.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../include/core/SkString.h"
 
 static bool nearly_equal(SkColor4f x, SkColor4f y) {
     const float K = 0.01f;

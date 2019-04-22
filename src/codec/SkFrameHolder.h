@@ -8,10 +8,10 @@
 #ifndef SkFrameHolder_DEFINED
 #define SkFrameHolder_DEFINED
 
-#include "SkTypes.h"
-#include "SkCodecAnimation.h"
+#include "../../include/core/SkTypes.h"
+#include "../../include/codec/SkCodecAnimation.h"
 #include "SkCodecAnimationPriv.h"
-#include "SkRect.h"
+#include "../../include/core/SkRect.h"
 
 /**
  *  Base class for a single frame of an animated image.

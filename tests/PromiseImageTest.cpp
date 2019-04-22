@@ -7,13 +7,13 @@
 
 #include "Test.h"
 
-#include "GrBackendSurface.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrTexture.h"
-#include "SkImage_Gpu.h"
-#include "SkColorFilter.h"
-#include "SkPromiseImageTexture.h"
+#include "../include/gpu/GrBackendSurface.h"
+#include "../src/gpu/GrContextPriv.h"
+#include "../src/gpu/GrGpu.h"
+#include "../include/gpu/GrTexture.h"
+#include "../src/image/SkImage_Gpu.h"
+#include "../include/core/SkColorFilter.h"
+#include "../include/core/SkPromiseImageTexture.h"
 
 using namespace sk_gpu_test;
 

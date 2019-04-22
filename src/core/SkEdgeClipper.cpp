@@ -8,7 +8,7 @@
 #include "SkEdgeClipper.h"
 #include "SkGeometry.h"
 #include "SkLineClipper.h"
-#include "SkMacros.h"
+#include "../../include/private/SkMacros.h"
 
 #include <utility>
 

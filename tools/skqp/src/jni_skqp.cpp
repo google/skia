@@ -12,9 +12,9 @@
 #include <jni.h>
 #include <sys/stat.h>
 
-#include "ResourceFactory.h"
-#include "SkStream.h"
-#include "SkTo.h"
+#include "../../ResourceFactory.h"
+#include "../../../include/core/SkStream.h"
+#include "../../../include/private/SkTo.h"
 
 #include "skqp.h"
 

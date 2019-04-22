@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkLightingShader.h"
-#include "SkNormalSource.h"
-#include "SkPoint3.h"
-#include "SkShader.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
+#include "../src/shaders/SkLightingShader.h"
+#include "../src/core/SkNormalSource.h"
+#include "../include/core/SkPoint3.h"
+#include "../include/core/SkShader.h"
+#include "../include/core/SkTypeface.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 // Create a truncated pyramid normal map

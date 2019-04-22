@@ -8,10 +8,10 @@
 #ifndef SkBitmapController_DEFINED
 #define SkBitmapController_DEFINED
 
-#include "SkBitmap.h"
+#include "../../include/core/SkBitmap.h"
 #include "SkBitmapCache.h"
-#include "SkFilterQuality.h"
-#include "SkMatrix.h"
+#include "../../include/core/SkFilterQuality.h"
+#include "../../include/core/SkMatrix.h"
 #include "SkMipMap.h"
 
 class SkBitmapProvider;

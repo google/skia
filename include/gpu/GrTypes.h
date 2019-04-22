@@ -8,8 +8,8 @@
 #ifndef GrTypes_DEFINED
 #define GrTypes_DEFINED
 
-#include "SkMath.h"
-#include "SkTypes.h"
+#include "../core/SkMath.h"
+#include "../core/SkTypes.h"
 #include "GrConfig.h"
 
 class GrBackendSemaphore;

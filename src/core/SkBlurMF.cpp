@@ -12,32 +12,32 @@
 #include "SkReadBuffer.h"
 #include "SkRRectPriv.h"
 #include "SkWriteBuffer.h"
-#include "SkMaskFilter.h"
-#include "SkRRect.h"
+#include "../../include/core/SkMaskFilter.h"
+#include "../../include/core/SkRRect.h"
 #include "SkStringUtils.h"
-#include "SkStrokeRec.h"
-#include "SkVertices.h"
+#include "../../include/core/SkStrokeRec.h"
+#include "../../include/core/SkVertices.h"
 
 #if SK_SUPPORT_GPU
-#include "GrClip.h"
-#include "GrFragmentProcessor.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrResourceProvider.h"
-#include "GrShaderCaps.h"
-#include "GrShape.h"
-#include "GrStyle.h"
-#include "GrTextureProxy.h"
-#include "effects/GrTextureDomain.h"
-#include "effects/generated/GrCircleBlurFragmentProcessor.h"
-#include "effects/generated/GrSimpleTextureEffect.h"
-#include "effects/generated/GrRectBlurEffect.h"
-#include "effects/generated/GrRRectBlurEffect.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "../gpu/GrClip.h"
+#include "../gpu/GrFragmentProcessor.h"
+#include "../../include/private/GrRecordingContext.h"
+#include "../gpu/GrRecordingContextPriv.h"
+#include "../gpu/GrRenderTargetContext.h"
+#include "../gpu/GrResourceProvider.h"
+#include "../gpu/GrShaderCaps.h"
+#include "../gpu/GrShape.h"
+#include "../gpu/GrStyle.h"
+#include "../../include/private/GrTextureProxy.h"
+#include "../gpu/effects/GrTextureDomain.h"
+#include "../gpu/effects/generated/GrCircleBlurFragmentProcessor.h"
+#include "../gpu/effects/generated/GrSimpleTextureEffect.h"
+#include "../gpu/effects/generated/GrRectBlurEffect.h"
+#include "../gpu/effects/generated/GrRRectBlurEffect.h"
+#include "../gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "../gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../gpu/glsl/GrGLSLProgramDataManager.h"
+#include "../gpu/glsl/GrGLSLUniformHandler.h"
 #endif
 
 class SkBlurMaskFilterImpl : public SkMaskFilterBase {
@@ -306,7 +306,7 @@ bool SkBlurMaskFilterImpl::filterRRectMask(SkMask* dst, const SkRRect& r,
     return SkBlurMask::BlurRRect(sigma, dst, r, fBlurStyle, margin, createMode);
 }
 
-#include "SkCanvas.h"
+#include "../../include/core/SkCanvas.h"
 
 static bool prepare_to_draw_into_mask(const SkRect& bounds, SkMask* mask) {
     SkASSERT(mask != nullptr);

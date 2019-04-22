@@ -5,27 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
+#include "../../../include/effects/SkBlurImageFilter.h"
 
 #include <algorithm>
 
-#include "SkArenaAlloc.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkBitmap.h"
-#include "SkColorData.h"
-#include "SkImageFilterPriv.h"
-#include "SkTFitsIn.h"
-#include "SkGpuBlurUtils.h"
-#include "SkNx.h"
-#include "SkOpts.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkWriteBuffer.h"
+#include "../../../include/private/SkArenaAlloc.h"
+#include "../../core/SkAutoPixmapStorage.h"
+#include "../../../include/core/SkBitmap.h"
+#include "../../../include/private/SkColorData.h"
+#include "../../core/SkImageFilterPriv.h"
+#include "../../../include/private/SkTFitsIn.h"
+#include "../../core/SkGpuBlurUtils.h"
+#include "../../../include/private/SkNx.h"
+#include "../../core/SkOpts.h"
+#include "../../core/SkReadBuffer.h"
+#include "../../core/SkSpecialImage.h"
+#include "../../core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrTextureProxy.h"
-#include "SkGr.h"
+#include "../../../include/gpu/GrContext.h"
+#include "../../../include/private/GrTextureProxy.h"
+#include "../../gpu/SkGr.h"
 #endif
 
 static constexpr double kPi = 3.14159265358979323846264338327950288;

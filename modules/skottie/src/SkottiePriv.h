@@ -8,15 +8,15 @@
 #ifndef SkottiePriv_DEFINED
 #define SkottiePriv_DEFINED
 
-#include "Skottie.h"
+#include "../include/Skottie.h"
 
-#include "SkFontStyle.h"
-#include "SkottieProperty.h"
-#include "SkSGScene.h"
-#include "SkString.h"
-#include "SkTHash.h"
-#include "SkTypeface.h"
-#include "SkUTF.h"
+#include "../../../include/core/SkFontStyle.h"
+#include "../include/SkottieProperty.h"
+#include "../../sksg/include/SkSGScene.h"
+#include "../../../include/core/SkString.h"
+#include "../../../include/private/SkTHash.h"
+#include "../../../include/core/SkTypeface.h"
+#include "../../../src/utils/SkUTF.h"
 
 #include <functional>
 

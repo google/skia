@@ -10,9 +10,9 @@
 
 #include "SkSGEffectNode.h"
 
-#include "SkBlendMode.h"
-#include "SkBlurImageFilter.h"
-#include "SkColor.h"
+#include "../../../include/core/SkBlendMode.h"
+#include "../../../include/effects/SkBlurImageFilter.h"
+#include "../../../include/core/SkColor.h"
 
 #include <memory>
 #include <vector>

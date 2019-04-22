@@ -6,10 +6,10 @@
  */
 #include "Test.h"
 
-#include "SkCanvas.h"
-#include "SkPDFDocument.h"
-#include "SkStream.h"
-#include "SkFont.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/docs/SkPDFDocument.h"
+#include "../include/core/SkStream.h"
+#include "../include/core/SkFont.h"
 
 using PDFTag = SkPDF::StructureElementNode;
 

@@ -8,10 +8,10 @@
 #ifndef Sk4pxXfermode_DEFINED
 #define Sk4pxXfermode_DEFINED
 
-#include "Sk4px.h"
-#include "SkMSAN.h"
-#include "SkNx.h"
-#include "SkXfermodePriv.h"
+#include "../core/Sk4px.h"
+#include "../core/SkMSAN.h"
+#include "../../include/private/SkNx.h"
+#include "../core/SkXfermodePriv.h"
 
 #ifdef SK_FORCE_RASTER_PIPELINE_BLITTER
 

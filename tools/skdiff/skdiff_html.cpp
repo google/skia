@@ -7,8 +7,8 @@
 
 #include "skdiff.h"
 #include "skdiff_html.h"
-#include "SkStream.h"
-#include "SkTime.h"
+#include "../../include/core/SkStream.h"
+#include "../../include/core/SkTime.h"
 
 /// Make layout more consistent by scaling image to 240 height, 360 width,
 /// or natural size, whichever is smallest.

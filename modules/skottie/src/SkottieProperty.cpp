@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkottieProperty.h"
+#include "../include/SkottieProperty.h"
 
 #include "SkottieAdapter.h"
-#include "SkSGOpacityEffect.h"
-#include "SkSGPaint.h"
+#include "../../sksg/include/SkSGOpacityEffect.h"
+#include "../../sksg/include/SkSGPaint.h"
 
 namespace skottie {
 

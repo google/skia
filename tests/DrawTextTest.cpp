@@ -5,23 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkDashPathEffect.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPathEffect.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkSurface.h"
-#include "SkTypes.h"
+#include "../include/core/SkBitmap.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkColor.h"
+#include "../include/effects/SkDashPathEffect.h"
+#include "../include/core/SkMatrix.h"
+#include "../include/core/SkPaint.h"
+#include "../include/core/SkPathEffect.h"
+#include "../include/core/SkPoint.h"
+#include "../include/core/SkRect.h"
+#include "../include/core/SkRefCnt.h"
+#include "../include/core/SkScalar.h"
+#include "../include/core/SkSurface.h"
+#include "../include/core/SkTypes.h"
+#include "../include/core/SkFont.h"
 #include "Test.h"
 
 #include <cmath>
-#include <SkFont.h>
 
 static const SkColor bgColor = SK_ColorWHITE;
 

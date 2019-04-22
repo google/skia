@@ -7,9 +7,9 @@
 
 #include "ImageSlide.h"
 
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkImage.h"
+#include "../../include/core/SkCanvas.h"
+#include "../../include/core/SkData.h"
+#include "../../include/core/SkImage.h"
 
 ImageSlide::ImageSlide(const SkString& name, const SkString& path) : fPath(path) {
     fName = name;

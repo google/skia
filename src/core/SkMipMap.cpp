@@ -7,14 +7,14 @@
 
 #include "SkMipMap.h"
 
-#include "SkBitmap.h"
-#include "SkColorData.h"
-#include "SkHalf.h"
-#include "SkImageInfoPriv.h"
+#include "../../include/core/SkBitmap.h"
+#include "../../include/private/SkColorData.h"
+#include "../../include/private/SkHalf.h"
+#include "../../include/private/SkImageInfoPriv.h"
 #include "SkMathPriv.h"
-#include "SkNx.h"
-#include "SkTo.h"
-#include "SkTypes.h"
+#include "../../include/private/SkNx.h"
+#include "../../include/private/SkTo.h"
+#include "../../include/core/SkTypes.h"
 #include <new>
 
 //

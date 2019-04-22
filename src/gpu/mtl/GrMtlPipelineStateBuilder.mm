@@ -7,14 +7,14 @@
 
 #include "GrMtlPipelineStateBuilder.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "../../../include/gpu/GrContext.h"
+#include "../GrContextPriv.h"
 
 #include "GrMtlGpu.h"
 #include "GrMtlPipelineState.h"
 #include "GrMtlUtil.h"
 
-#include "GrRenderTargetPriv.h"
+#include "../GrRenderTargetPriv.h"
 
 #import <simd/simd.h>
 

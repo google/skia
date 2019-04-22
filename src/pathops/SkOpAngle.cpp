@@ -7,7 +7,7 @@
 #include "SkOpAngle.h"
 #include "SkOpSegment.h"
 #include "SkPathOpsCurve.h"
-#include "SkTSort.h"
+#include "../core/SkTSort.h"
 
 /* Angles are sorted counterclockwise. The smallest angle has a positive x and the smallest
    positive y. The largest angle has a positive x and a zero y. */

@@ -8,14 +8,14 @@
 #include "SkGlyphRun.h"
 
 #include "SkDevice.h"
-#include "SkFont.h"
+#include "../../include/core/SkFont.h"
 #include "SkFontPriv.h"
-#include "SkPaint.h"
+#include "../../include/core/SkPaint.h"
 #include "SkStrike.h"
 #include "SkStrikeCache.h"
-#include "SkTextBlob.h"
+#include "../../include/core/SkTextBlob.h"
 #include "SkTextBlobPriv.h"
-#include "SkTo.h"
+#include "../../include/private/SkTo.h"
 #include "SkUtils.h"
 
 // -- SkGlyphRun -----------------------------------------------------------------------------------

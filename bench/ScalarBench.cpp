@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkFloatBits.h"
-#include "SkRandom.h"
-#include "SkRect.h"
-#include "SkString.h"
+#include "../include/private/SkFloatBits.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkRect.h"
+#include "../include/core/SkString.h"
 
 class ScalarBench : public Benchmark {
     SkString    fName;

@@ -6,7 +6,7 @@
  */
 
 #include "gm.h"
-#include "SkBlurImageFilter.h"
+#include "../include/effects/SkBlurImageFilter.h"
 
 // For all sigma, the black box should be centered in the red outline. For small sigma,
 // the rectangle is not blurred, but still must be centered properly.

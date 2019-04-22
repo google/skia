@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
+#include "../../include/core/SkCanvas.h"
 #include "SkCanvasPriv.h"
 #include "SkDrawShadowInfo.h"
 #include "SkFontPriv.h"
 #include "SkPaintPriv.h"
-#include "SkPatchUtils.h"
+#include "../utils/SkPatchUtils.h"
 #include "SkPictureData.h"
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkReadBuffer.h"
-#include "SkRSXform.h"
+#include "../../include/core/SkRSXform.h"
 #include "SkSafeMath.h"
-#include "SkTextBlob.h"
-#include "SkTDArray.h"
-#include "SkTypes.h"
+#include "../../include/core/SkTextBlob.h"
+#include "../../include/private/SkTDArray.h"
+#include "../../include/core/SkTypes.h"
 
 // matches old SkCanvas::SaveFlags
 enum LegacySaveFlags {

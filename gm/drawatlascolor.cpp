@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkRSXform.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkRSXform.h"
+#include "../include/core/SkSurface.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 // Create a square atlas of:

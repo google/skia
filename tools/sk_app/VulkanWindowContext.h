@@ -8,15 +8,15 @@
 #ifndef VulkanWindowContext_DEFINED
 #define VulkanWindowContext_DEFINED
 
-#include "SkTypes.h" // required to pull in any SkUserConfig defines
+#include "../../include/core/SkTypes.h"
 
 #ifdef SK_VULKAN
 
-#include "vk/GrVkVulkan.h"
+#include "../../include/gpu/vk/GrVkVulkan.h"
 
-#include "vk/GrVkBackendContext.h"
-#include "vk/GrVkInterface.h"
-#include "vk/VkTestUtils.h"
+#include "../../include/gpu/vk/GrVkBackendContext.h"
+#include "../../src/gpu/vk/GrVkInterface.h"
+#include "../gpu/vk/VkTestUtils.h"
 #include "WindowContext.h"
 
 class GrRenderTarget;

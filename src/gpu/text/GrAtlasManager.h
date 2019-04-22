@@ -8,10 +8,10 @@
 #ifndef GrAtlasManager_DEFINED
 #define GrAtlasManager_DEFINED
 
-#include "GrCaps.h"
-#include "GrDrawOpAtlas.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrProxyProvider.h"
+#include "../GrCaps.h"
+#include "../GrDrawOpAtlas.h"
+#include "../GrOnFlushResourceProvider.h"
+#include "../GrProxyProvider.h"
 
 struct GrGlyph;
 class GrTextStrike;

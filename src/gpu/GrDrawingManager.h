@@ -13,8 +13,8 @@
 #include "GrPathRenderer.h"
 #include "GrPathRendererChain.h"
 #include "GrResourceCache.h"
-#include "SkSurface.h"
-#include "SkTArray.h"
+#include "../../include/core/SkSurface.h"
+#include "../../include/private/SkTArray.h"
 #include "text/GrTextContext.h"
 
 class GrCoverageCountingPathRenderer;

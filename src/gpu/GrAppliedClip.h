@@ -12,7 +12,7 @@
 #include "GrScissorState.h"
 #include "GrWindowRectsState.h"
 
-#include "SkClipStack.h"
+#include "../core/SkClipStack.h"
 
 
 /**

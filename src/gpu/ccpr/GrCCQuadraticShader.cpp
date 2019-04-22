@@ -7,8 +7,8 @@
 
 #include "GrCCQuadraticShader.h"
 
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLVertexGeoBuilder.h"
 
 void GrCCQuadraticShader::emitSetupCode(
         GrGLSLVertexGeoBuilder* s, const char* pts, const char** outHull4) const {

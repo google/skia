@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "effects/GrCoverageSetOpXP.h"
-#include "GrCaps.h"
-#include "GrColor.h"
-#include "GrPipeline.h"
-#include "GrProcessor.h"
-#include "GrRenderTargetContext.h"
-#include "glsl/GrGLSLBlend.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLXferProcessor.h"
+#include "GrCoverageSetOpXP.h"
+#include "../GrCaps.h"
+#include "../../../include/private/GrColor.h"
+#include "../GrPipeline.h"
+#include "../GrProcessor.h"
+#include "../GrRenderTargetContext.h"
+#include "../glsl/GrGLSLBlend.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLUniformHandler.h"
+#include "../glsl/GrGLSLXferProcessor.h"
 
 class CoverageSetOpXP : public GrXferProcessor {
 public:

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkFrontBufferedStream.h"
-#include "SkRefCnt.h"
-#include "SkStream.h"
+#include "../src/core/SkAutoMalloc.h"
+#include "../include/core/SkBitmap.h"
+#include "../include/codec/SkCodec.h"
+#include "../include/utils/SkFrontBufferedStream.h"
+#include "../include/core/SkRefCnt.h"
+#include "../include/core/SkStream.h"
 #include "Test.h"
 
 static void test_read(skiatest::Reporter* reporter, SkStream* bufferedStream,

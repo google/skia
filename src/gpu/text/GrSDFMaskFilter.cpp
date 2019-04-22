@@ -6,12 +6,12 @@
  */
 
 #include "GrSDFMaskFilter.h"
-#include "SkDistanceFieldGen.h"
-#include "SkMaskFilterBase.h"
-#include "SkReadBuffer.h"
-#include "SkSafeMath.h"
-#include "SkWriteBuffer.h"
-#include "SkString.h"
+#include "../../core/SkDistanceFieldGen.h"
+#include "../../core/SkMaskFilterBase.h"
+#include "../../core/SkReadBuffer.h"
+#include "../../core/SkSafeMath.h"
+#include "../../core/SkWriteBuffer.h"
+#include "../../../include/core/SkString.h"
 
 class SK_API GrSDFMaskFilterImpl : public SkMaskFilterBase {
 public:

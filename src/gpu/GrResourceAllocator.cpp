@@ -9,14 +9,14 @@
 
 #include "GrDeinstantiateProxyTracker.h"
 #include "GrGpuResourcePriv.h"
-#include "GrOpList.h"
-#include "GrRenderTargetProxy.h"
+#include "../../include/private/GrOpList.h"
+#include "../../include/private/GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrSurfacePriv.h"
-#include "GrSurfaceProxy.h"
+#include "../../include/private/GrSurfaceProxy.h"
 #include "GrSurfaceProxyPriv.h"
-#include "GrTextureProxy.h"
+#include "../../include/private/GrTextureProxy.h"
 
 #if GR_TRACK_INTERVAL_CREATION
     #include <atomic>

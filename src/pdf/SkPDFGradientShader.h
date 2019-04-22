@@ -9,7 +9,7 @@
 
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
-#include "SkShader.h"
+#include "../../include/core/SkShader.h"
 
 class SkMatrix;
 class SkPDFDocument;

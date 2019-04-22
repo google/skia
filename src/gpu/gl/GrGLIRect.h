@@ -10,7 +10,7 @@
 #ifndef GrGLIRect_DEFINED
 #define GrGLIRect_DEFINED
 
-#include "gl/GrGLInterface.h"
+#include "../../../include/gpu/gl/GrGLInterface.h"
 #include "GrGLUtil.h"
 
 /**

@@ -6,8 +6,8 @@
  */
 
 #include "../RasterWindowContext.h"
-#include "SkAutoMalloc.h"
-#include "SkSurface.h"
+#include "../../../src/core/SkAutoMalloc.h"
+#include "../../../include/core/SkSurface.h"
 #include "WindowContextFactory_win.h"
 
 #include <Windows.h>

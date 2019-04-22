@@ -8,11 +8,11 @@
 #ifndef SkImage_Gpu_DEFINED
 #define SkImage_Gpu_DEFINED
 
-#include "GrContext.h"
-#include "GrGpuResourcePriv.h"
-#include "GrSurfaceProxyPriv.h"
-#include "SkGr.h"
-#include "SkImagePriv.h"
+#include "../../include/gpu/GrContext.h"
+#include "../gpu/GrGpuResourcePriv.h"
+#include "../gpu/GrSurfaceProxyPriv.h"
+#include "../gpu/SkGr.h"
+#include "../core/SkImagePriv.h"
 #include "SkImage_GpuBase.h"
 
 class GrTexture;

@@ -9,7 +9,7 @@
 #define SkPictureShader_DEFINED
 
 #include "SkShaderBase.h"
-#include "SkTileMode.h"
+#include "../../include/core/SkTileMode.h"
 #include <atomic>
 
 class SkArenaAlloc;

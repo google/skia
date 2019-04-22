@@ -8,7 +8,7 @@
 #include "SkAutoMalloc.h"
 #include "SkEndian.h"
 #include "SkFontStream.h"
-#include "SkStream.h"
+#include "../../include/core/SkStream.h"
 
 struct SkSFNTHeader {
     uint32_t    fVersion;

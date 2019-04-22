@@ -9,11 +9,11 @@
 
 #include "GrCaps.h"
 #include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
+#include "../../include/private/GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 #include "GrShape.h"
 #include "GrSurfaceContext.h"
-#include "GrTextureProxy.h"
+#include "../../include/private/GrTextureProxy.h"
 
 /*
  * Convert a boolean operation into a transfer mode code

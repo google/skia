@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkBlendModePriv.h"
+#include "../../include/private/SkArenaAlloc.h"
+#include "../core/SkBlendModePriv.h"
 #include "SkComposeShader.h"
-#include "SkColorFilter.h"
-#include "SkColorData.h"
+#include "../../include/core/SkColorFilter.h"
+#include "../../include/private/SkColorData.h"
 #include "SkColorShader.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkString.h"
+#include "../core/SkRasterPipeline.h"
+#include "../core/SkReadBuffer.h"
+#include "../core/SkWriteBuffer.h"
+#include "../../include/core/SkString.h"
 
 sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
     switch (mode) {
@@ -174,11 +174,11 @@ bool SkShader_LerpRed::onAppendStages(const SkStageRec& rec) const {
 
 #if SK_SUPPORT_GPU
 
-#include "effects/generated/GrConstColorProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
-#include "GrRecordingContext.h"
-#include "effects/generated/GrComposeLerpEffect.h"
-#include "effects/generated/GrComposeLerpRedEffect.h"
+#include "../gpu/effects/generated/GrConstColorProcessor.h"
+#include "../gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "../../include/private/GrRecordingContext.h"
+#include "../gpu/effects/generated/GrComposeLerpEffect.h"
+#include "../gpu/effects/generated/GrComposeLerpRedEffect.h"
 
 static std::unique_ptr<GrFragmentProcessor> as_fp(const GrFPArgs& args, SkShader* shader) {
     return shader ? as_SB(shader)->asFragmentProcessor(args) : nullptr;

@@ -7,17 +7,17 @@
 
 #include "SkottiePriv.h"
 
-#include "SkData.h"
-#include "SkFontMgr.h"
-#include "SkMakeUnique.h"
+#include "../../../include/core/SkData.h"
+#include "../../../include/core/SkFontMgr.h"
+#include "../../../src/core/SkMakeUnique.h"
 #include "SkottieAdapter.h"
 #include "SkottieJson.h"
 #include "SkottieValue.h"
-#include "SkSGDraw.h"
-#include "SkSGGroup.h"
-#include "SkSGPaint.h"
-#include "SkSGText.h"
-#include "SkTypes.h"
+#include "../../sksg/include/SkSGDraw.h"
+#include "../../sksg/include/SkSGGroup.h"
+#include "../../sksg/include/SkSGPaint.h"
+#include "../../sksg/include/SkSGText.h"
+#include "../../../include/core/SkTypes.h"
 
 #include <string.h>
 

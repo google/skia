@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkStream.h"
+#include "../include/core/SkStream.h"
 #include "Test.h"
 
 #if defined(SK_XML)
 
-#include "SkDOM.h"
+#include "../src/xml/SkDOM.h"
 
 static const SkDOM::Node* check_node(skiatest::Reporter* r, const SkDOM& dom,
                                      const SkDOM::Node* node, const char* expectedName,

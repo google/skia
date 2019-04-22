@@ -6,13 +6,13 @@
  */
 
 #include "Benchmark.h"
-#include "SkBlendModePriv.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkString.h"
-#include "SkTextBlob.h"
+#include "../src/core/SkBlendModePriv.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkFont.h"
+#include "../include/core/SkPaint.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkString.h"
+#include "../include/core/SkTextBlob.h"
 
 // Benchmark that draws non-AA rects or AA text with an SkXfermode::Mode.
 class XfermodeBench : public Benchmark {

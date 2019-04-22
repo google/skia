@@ -6,12 +6,12 @@
  */
 
 #include "GrDrawVerticesOp.h"
-#include "GrCaps.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrOpFlushState.h"
+#include "../GrCaps.h"
+#include "../GrDefaultGeoProcFactory.h"
+#include "../GrOpFlushState.h"
 #include "GrSimpleMeshDrawOpHelper.h"
-#include "SkGr.h"
-#include "SkRectPriv.h"
+#include "../SkGr.h"
+#include "../../core/SkRectPriv.h"
 
 namespace {
 
@@ -592,7 +592,7 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
 
 #if GR_TEST_UTILS
 
-#include "GrDrawOpTest.h"
+#include "../GrDrawOpTest.h"
 
 static uint32_t seed_vertices(GrPrimitiveType type) {
     switch (type) {

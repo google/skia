@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "PathOpsTestCommon.h"
-#include "SkPathOpsCubic.h"
+#include "../src/pathops/SkPathOpsCubic.h"
 #include "Test.h"
 
 static const CubicPts hullTests[] = {

@@ -7,11 +7,11 @@
 
 #include "GrSemaphoreOp.h"
 
-#include "GrGpu.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
+#include "../GrGpu.h"
+#include "../GrMemoryPool.h"
+#include "../GrOpFlushState.h"
+#include "../../../include/private/GrRecordingContext.h"
+#include "../GrRecordingContextPriv.h"
 
 class GrWaitSemaphoreOp final : public GrSemaphoreOp {
 public:

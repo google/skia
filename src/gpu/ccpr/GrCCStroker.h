@@ -8,10 +8,10 @@
 #ifndef GrCCStroker_DEFINED
 #define GrCCStroker_DEFINED
 
-#include "GrAllocator.h"
-#include "GrMesh.h"
-#include "SkNx.h"
-#include "ccpr/GrCCStrokeGeometry.h"
+#include "../GrAllocator.h"
+#include "../GrMesh.h"
+#include "../../../include/private/SkNx.h"
+#include "GrCCStrokeGeometry.h"
 
 class GrGpuBuffer;
 class GrCCCoverageProcessor;

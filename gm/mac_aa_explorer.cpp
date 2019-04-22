@@ -6,8 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkFont.h"
-#include "SkSurface.h"
+#include "../include/core/SkFont.h"
+#include "../include/core/SkSurface.h"
 
 #ifdef SK_BUILD_FOR_MAC
 

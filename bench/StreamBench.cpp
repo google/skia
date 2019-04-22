@@ -6,7 +6,7 @@
  */
 
 #include "Benchmark.h"
-#include "SkStream.h"
+#include "../include/core/SkStream.h"
 
 class StreamBench : public Benchmark {
     SkString    fName;

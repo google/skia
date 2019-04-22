@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GrGLExtensions.h"
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLUtil.h"
+#include "../../../include/gpu/gl/GrGLExtensions.h"
+#include "GrGLDefines.h"
+#include "GrGLUtil.h"
 
-#include "SkJSONWriter.h"
-#include "SkMakeUnique.h"
-#include "SkTSearch.h"
-#include "SkTSort.h"
+#include "../../utils/SkJSONWriter.h"
+#include "../../core/SkMakeUnique.h"
+#include "../../../include/private/SkTSearch.h"
+#include "../../core/SkTSort.h"
 
 namespace { // This cannot be static because it is used as a template parameter.
 inline bool extension_compare(const SkString& a, const SkString& b) {

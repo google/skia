@@ -9,15 +9,15 @@
 
 #include "Test.h"
 
-#include "GrBackendSurface.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrProxyProvider.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetProxy.h"
-#include "GrSurfaceProxy.h"
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
+#include "../include/gpu/GrBackendSurface.h"
+#include "../src/gpu/GrContextPriv.h"
+#include "../src/gpu/GrGpu.h"
+#include "../src/gpu/GrProxyProvider.h"
+#include "../include/gpu/GrRenderTarget.h"
+#include "../include/private/GrRenderTargetProxy.h"
+#include "../include/private/GrSurfaceProxy.h"
+#include "../include/gpu/GrTexture.h"
+#include "../include/private/GrTextureProxy.h"
 
 static sk_sp<GrSurfaceProxy> make_wrapped_rt(GrProxyProvider* provider,
                                              GrGpu* gpu,

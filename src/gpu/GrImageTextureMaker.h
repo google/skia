@@ -9,7 +9,7 @@
 #define GrImageTextureMaker_DEFINED
 
 #include "GrTextureMaker.h"
-#include "SkImage.h"
+#include "../../include/core/SkImage.h"
 
 class SkImage_Lazy;
 class SkImage_GpuYUVA;

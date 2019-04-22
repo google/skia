@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkFont.h"
-#include "ToolUtils.h"
+#include "../include/core/SkFont.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 namespace skiagm {

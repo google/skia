@@ -9,8 +9,8 @@
 #ifndef SkScan_DEFINED
 #define SkScan_DEFINED
 
-#include "SkFixed.h"
-#include "SkRect.h"
+#include "../../include/private/SkFixed.h"
+#include "../../include/core/SkRect.h"
 #include <atomic>
 
 class SkRasterClip;

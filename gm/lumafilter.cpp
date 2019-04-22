@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlendModePriv.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkLumaColorFilter.h"
-#include "ToolUtils.h"
+#include "../src/core/SkBlendModePriv.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../include/effects/SkLumaColorFilter.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 static SkScalar kSize   = 80;

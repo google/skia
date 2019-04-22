@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkRectPriv.h"
-#include "SkSGNode.h"
-#include "SkSGInvalidationController.h"
+#include "../../../src/core/SkRectPriv.h"
+#include "../include/SkSGNode.h"
+#include "../include/SkSGInvalidationController.h"
 
 #include <algorithm>
 

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathPriv.h"
-#include "SkPolyUtils.h"
-#include "ToolUtils.h"
+#include "../src/core/SkPathPriv.h"
+#include "../src/utils/SkPolyUtils.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 static void create_ngon(int n, SkPoint* pts, SkScalar w, SkScalar h, SkPath::Direction dir) {

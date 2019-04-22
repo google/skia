@@ -8,7 +8,7 @@
 #ifndef GrGLGLSL_DEFINED
 #define GrGLGLSL_DEFINED
 
-#include "glsl/GrGLSL.h"
+#include "../glsl/GrGLSL.h"
 
 struct GrGLInterface;
 

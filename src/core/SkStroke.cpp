@@ -8,10 +8,10 @@
 #include "SkStrokerPriv.h"
 
 #include "SkGeometry.h"
-#include "SkMacros.h"
+#include "../../include/private/SkMacros.h"
 #include "SkPathPriv.h"
 #include "SkPointPriv.h"
-#include "SkTo.h"
+#include "../../include/private/SkTo.h"
 
 #include <utility>
 

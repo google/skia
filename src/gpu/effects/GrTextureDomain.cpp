@@ -7,17 +7,17 @@
 
 #include "GrTextureDomain.h"
 
-#include "GrProxyProvider.h"
-#include "GrShaderCaps.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTexture.h"
-#include "SkFloatingPoint.h"
+#include "../GrProxyProvider.h"
+#include "../GrShaderCaps.h"
+#include "../GrSurfaceProxyPriv.h"
+#include "../../../include/gpu/GrTexture.h"
+#include "../../../include/private/SkFloatingPoint.h"
 #include "generated/GrSimpleTextureEffect.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLShaderBuilder.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "../glsl/GrGLSLFragmentProcessor.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLProgramDataManager.h"
+#include "../glsl/GrGLSLShaderBuilder.h"
+#include "../glsl/GrGLSLUniformHandler.h"
 
 #include <utility>
 

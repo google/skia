@@ -5,11 +5,11 @@
 * found in the LICENSE file.
 */
 
-#include "GrRectanizer_pow2.h"
-#include "GrRectanizer_skyline.h"
-#include "SkRandom.h"
-#include "SkSize.h"
-#include "SkTDArray.h"
+#include "../src/gpu/GrRectanizer_pow2.h"
+#include "../src/gpu/GrRectanizer_skyline.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkSize.h"
+#include "../include/private/SkTDArray.h"
 #include "Test.h"
 
 static const int kWidth = 1024;

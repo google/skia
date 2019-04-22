@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkData.h"
-#include "SkJSON.h"
-#include "SkStream.h"
+#include "../../include/core/SkData.h"
+#include "../../src/utils/SkJSON.h"
+#include "../../include/core/SkStream.h"
 
 void FuzzJSON(sk_sp<SkData> bytes) {
     skjson::DOM dom(static_cast<const char*>(bytes->data()), bytes->size());

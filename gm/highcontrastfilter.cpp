@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkGradientShader.h"
-#include "SkHighContrastFilter.h"
-#include "ToolUtils.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkFont.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../include/effects/SkHighContrastFilter.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 using InvertStyle = SkHighContrastConfig::InvertStyle;

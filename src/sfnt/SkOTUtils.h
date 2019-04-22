@@ -11,7 +11,7 @@
 #include "SkOTTableTypes.h"
 #include "SkOTTable_OS_2_V4.h"
 #include "SkOTTable_name.h"
-#include "SkTypeface.h"
+#include "../../include/core/SkTypeface.h"
 
 class SkData;
 class SkStream;

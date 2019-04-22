@@ -7,9 +7,9 @@
 #ifndef SkKeyedImage_DEFINED
 #define SkKeyedImage_DEFINED
 
-#include "SkBitmap.h"
+#include "../../include/core/SkBitmap.h"
 #include "SkBitmapKey.h"
-#include "SkImage.h"
+#include "../../include/core/SkImage.h"
 
 /**
    This class has all the advantages of SkBitmaps and SkImages.

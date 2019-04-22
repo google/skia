@@ -7,9 +7,9 @@
 
 #include "gm.h"
 
-#include "SkImage.h"
-#include "SkSurface.h"
-#include "SkTArray.h"
+#include "../include/core/SkImage.h"
+#include "../include/core/SkSurface.h"
+#include "../include/private/SkTArray.h"
 
 class ImageScaleAlignedGM : public skiagm::GM {
 protected:

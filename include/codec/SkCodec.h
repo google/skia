@@ -12,15 +12,15 @@
 #include "../private/SkTemplates.h"
 #include "../private/SkEncodedInfo.h"
 #include "SkCodecAnimation.h"
-#include "SkColor.h"
-#include "SkEncodedImageFormat.h"
+#include "../core/SkColor.h"
+#include "../core/SkEncodedImageFormat.h"
 #include "SkEncodedOrigin.h"
-#include "SkImageInfo.h"
-#include "SkPixmap.h"
-#include "SkSize.h"
-#include "SkStream.h"
-#include "SkTypes.h"
-#include "SkYUVASizeInfo.h"
+#include "../core/SkImageInfo.h"
+#include "../core/SkPixmap.h"
+#include "../core/SkSize.h"
+#include "../core/SkStream.h"
+#include "../core/SkTypes.h"
+#include "../core/SkYUVASizeInfo.h"
 
 #include <vector>
 

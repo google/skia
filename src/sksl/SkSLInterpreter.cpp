@@ -23,7 +23,7 @@
 #include "ir/SkSLVarDeclarations.h"
 #include "ir/SkSLVarDeclarationsStatement.h"
 #include "ir/SkSLVariableReference.h"
-#include "SkRasterPipeline.h"
+#include "../core/SkRasterPipeline.h"
 
 namespace SkSL {
 

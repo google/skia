@@ -8,15 +8,15 @@
 #include "GrRRectEffect.h"
 
 #include "GrConvexPolyEffect.h"
-#include "GrFragmentProcessor.h"
+#include "../GrFragmentProcessor.h"
 #include "GrOvalEffect.h"
-#include "GrShaderCaps.h"
-#include "SkRRectPriv.h"
-#include "SkTLazy.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "../GrShaderCaps.h"
+#include "../../core/SkRRectPriv.h"
+#include "../../core/SkTLazy.h"
+#include "../glsl/GrGLSLFragmentProcessor.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLProgramDataManager.h"
+#include "../glsl/GrGLSLUniformHandler.h"
 
 // The effects defined here only handle rrect radii >= kRadiusMin.
 static const SkScalar kRadiusMin = SK_ScalarHalf;

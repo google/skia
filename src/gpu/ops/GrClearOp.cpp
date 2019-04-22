@@ -7,12 +7,12 @@
 
 #include "GrClearOp.h"
 
-#include "GrGpuCommandBuffer.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
+#include "../GrGpuCommandBuffer.h"
+#include "../GrMemoryPool.h"
+#include "../GrOpFlushState.h"
+#include "../GrProxyProvider.h"
+#include "../../../include/private/GrRecordingContext.h"
+#include "../GrRecordingContextPriv.h"
 
 std::unique_ptr<GrClearOp> GrClearOp::Make(GrRecordingContext* context,
                                            const GrFixedClip& clip,

@@ -8,7 +8,7 @@
 #ifndef SkSVGTransformableNode_DEFINED
 #define SkSVGTransformableNode_DEFINED
 
-#include "SkMatrix.h"
+#include "../../../include/core/SkMatrix.h"
 #include "SkSVGNode.h"
 
 class SkSVGTransformableNode : public SkSVGNode {

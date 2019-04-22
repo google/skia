@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "Sample.h"
-#include "SkRRect.h"
-#include "SkRandom.h"
+#include "../../../tools/timer/AnimTimer.h"
+#include "../../../samplecode/Sample.h"
+#include "../../../include/core/SkRRect.h"
+#include "../../../include/utils/SkRandom.h"
 
-#include "SkSGDraw.h"
-#include "SkSGGroup.h"
-#include "SkSGPaint.h"
-#include "SkSGPath.h"
-#include "SkSGRect.h"
-#include "SkSGScene.h"
-#include "SkSGTransform.h"
+#include "../include/SkSGDraw.h"
+#include "../include/SkSGGroup.h"
+#include "../include/SkSGPaint.h"
+#include "../include/SkSGPath.h"
+#include "../include/SkSGRect.h"
+#include "../include/SkSGScene.h"
+#include "../include/SkSGTransform.h"
 
 namespace {
 

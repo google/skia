@@ -7,12 +7,12 @@
 
 #include "Benchmark.h"
 
-#include "SkCanvas.h"
-#include "SkShader.h"
-#include "SkGradientShader.h"
-#include "SkString.h"
-#include "SkColor.h"
-#include "SkPaint.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkShader.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../include/core/SkString.h"
+#include "../include/core/SkColor.h"
+#include "../include/core/SkPaint.h"
 
 class HardStopGradientBench_ScaleNumHardStops : public Benchmark {
 public:

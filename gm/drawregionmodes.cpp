@@ -6,12 +6,12 @@
  */
 
 #include "gm.h"
-#include "SkBlurImageFilter.h"
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkGradientShader.h"
-#include "SkMaskFilter.h"
-#include "SkRegion.h"
+#include "../include/effects/SkBlurImageFilter.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/effects/SkDashPathEffect.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../include/core/SkMaskFilter.h"
+#include "../include/core/SkRegion.h"
 
 class DrawRegionModesGM : public skiagm::GM {
 public:

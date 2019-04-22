@@ -8,8 +8,8 @@
 #ifndef GrVkMemoryAllocator_DEFINED
 #define GrVkMemoryAllocator_DEFINED
 
-#include "SkRefCnt.h"
-#include "GrTypes.h"
+#include "../../core/SkRefCnt.h"
+#include "../GrTypes.h"
 #include "GrVkTypes.h"
 
 class GrVkMemoryAllocator : public SkRefCnt {

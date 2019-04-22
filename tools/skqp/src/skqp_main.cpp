@@ -10,9 +10,9 @@
 
 #include "skqp.h"
 
-#include "Resources.h"
-#include "SkData.h"
-#include "SkOSFile.h"
+#include "../../Resources.h"
+#include "../../../include/core/SkData.h"
+#include "../../../src/core/SkOSFile.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

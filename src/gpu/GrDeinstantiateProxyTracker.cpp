@@ -7,7 +7,7 @@
 
 #include "GrDeinstantiateProxyTracker.h"
 
-#include "GrSurfaceProxy.h"
+#include "../../include/private/GrSurfaceProxy.h"
 #include "GrSurfaceProxyPriv.h"
 
 void GrDeinstantiateProxyTracker::addProxy(GrSurfaceProxy* proxy) {

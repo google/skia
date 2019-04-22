@@ -6,7 +6,7 @@
  */
 
 #include "SkRecord.h"
-#include "SkImage.h"
+#include "../../include/core/SkImage.h"
 #include <algorithm>
 
 SkRecord::~SkRecord() {

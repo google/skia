@@ -7,7 +7,7 @@
  */
 
 #include "SkLights.h"
-#include "SkReadBuffer.h"
+#include "../core/SkReadBuffer.h"
 
 sk_sp<SkLights> SkLights::MakeFromBuffer(SkReadBuffer& buf) {
     Builder builder;

@@ -6,11 +6,11 @@
  */
 
 #include "gm.h"
-#include "SkGeometry.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkRandom.h"
+#include "../src/core/SkGeometry.h"
+#include "../include/core/SkPaint.h"
+#include "../include/core/SkPath.h"
+#include "../include/core/SkPoint.h"
+#include "../include/utils/SkRandom.h"
 
 #include <math.h>
 

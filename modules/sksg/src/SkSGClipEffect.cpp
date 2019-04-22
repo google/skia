@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGClipEffect.h"
+#include "../include/SkSGClipEffect.h"
 
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkSGGeometryNode.h"
+#include "../../../include/core/SkCanvas.h"
+#include "../../../include/core/SkPath.h"
+#include "../include/SkSGGeometryNode.h"
 
 namespace sksg {
 

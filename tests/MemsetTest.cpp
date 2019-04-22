@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkRandom.h"
-#include "SkUtils.h"
+#include "../include/utils/SkRandom.h"
+#include "../src/core/SkUtils.h"
 #include "Test.h"
 
 static void set_zero(void* dst, size_t bytes) {

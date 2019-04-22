@@ -6,7 +6,7 @@
  */
 
 #include "Test.h"
-#include "SkBitmap.h"
+#include "../include/core/SkBitmap.h"
 
 class GrSurfaceContext;
 class GrSurfaceProxy;

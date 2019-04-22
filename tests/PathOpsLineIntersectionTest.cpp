@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 #include "PathOpsTestCommon.h"
-#include "SkIntersections.h"
-#include "SkPathOpsLine.h"
+#include "../src/pathops/SkIntersections.h"
+#include "../src/pathops/SkPathOpsLine.h"
 #include "Test.h"
 
 // FIXME: add tests for intersecting, non-intersecting, degenerate, coincident

@@ -8,12 +8,12 @@
 #ifndef SkPathRef_DEFINED
 #define SkPathRef_DEFINED
 
-#include "SkMatrix.h"
+#include "../core/SkMatrix.h"
 #include "SkMutex.h"
-#include "SkPoint.h"
-#include "SkRRect.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
+#include "../core/SkPoint.h"
+#include "../core/SkRRect.h"
+#include "../core/SkRect.h"
+#include "../core/SkRefCnt.h"
 #include "SkTDArray.h"
 #include "SkTemplates.h"
 #include "SkTo.h"

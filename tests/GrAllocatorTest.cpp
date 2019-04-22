@@ -6,7 +6,7 @@
  */
 
 #include "Test.h"
-#include "GrAllocator.h"
+#include "../src/gpu/GrAllocator.h"
 
 namespace {
 struct C {

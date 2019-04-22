@@ -13,17 +13,17 @@
 #include "SkCachedData.h"
 #include "SkCoverageModePriv.h"
 #include "SkDraw.h"
-#include "SkPath.h"
-#include "SkRRect.h"
+#include "../../include/core/SkPath.h"
+#include "../../include/core/SkRRect.h"
 #include "SkRasterClip.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrTextureProxy.h"
-#include "GrFragmentProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
-#include "text/GrSDFMaskFilter.h"
+#include "../../include/private/GrTextureProxy.h"
+#include "../gpu/GrFragmentProcessor.h"
+#include "../gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "../gpu/text/GrSDFMaskFilter.h"
 #endif
 
 SkMaskFilterBase::NinePatch::~NinePatch() {

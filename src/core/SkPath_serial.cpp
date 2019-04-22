@@ -6,13 +6,13 @@
  */
 
 #include "SkBuffer.h"
-#include "SkData.h"
-#include "SkMath.h"
+#include "../../include/core/SkData.h"
+#include "../../include/core/SkMath.h"
 #include "SkPathPriv.h"
-#include "SkPathRef.h"
+#include "../../include/private/SkPathRef.h"
 #include "SkRRectPriv.h"
 #include "SkSafeMath.h"
-#include "SkTo.h"
+#include "../../include/private/SkTo.h"
 
 #include <cmath>
 
