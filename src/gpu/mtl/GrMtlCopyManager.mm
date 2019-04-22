@@ -10,6 +10,7 @@
 #include "GrSurface.h"
 
 #include "GrMtlBuffer.h"
+#include "GrMtlCommandBuffer.h"
 #include "GrMtlCopyPipelineState.h"
 #include "GrMtlGpu.h"
 #include "GrMtlResourceProvider.h"
@@ -197,7 +198,7 @@ bool GrMtlCopyManager::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrig
     renderPassDesc.colorAttachments[0].storeAction = MTLStoreActionStore;
 
     id<MTLRenderCommandEncoder> renderCmdEncoder =
-            [fGpu->commandBuffer() renderCommandEncoderWithDescriptor: renderPassDesc];
+            fGpu->commandBuffer()->getRenderCommandEncoder(renderPassDesc);
     GrMtlCopyPipelineState* copyPipelineState =
             fGpu->resourceProvider().findOrCreateCopyPipelineState(dstTex.pixelFormat,
                                                                    fVertexFunction,
@@ -217,7 +218,6 @@ bool GrMtlCopyManager::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrig
     [renderCmdEncoder drawPrimitives: MTLPrimitiveTypeTriangleStrip
                          vertexStart: 0
                          vertexCount: 4];
-    [renderCmdEncoder endEncoding];
     return true;
 }
 

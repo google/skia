@@ -9,6 +9,7 @@
 
 #include "GrColor.h"
 #include "GrFixedClip.h"
+#include "GrMtlCommandBuffer.h"
 #include "GrMtlPipelineState.h"
 #include "GrMtlPipelineStateBuilder.h"
 #include "GrMtlRenderTarget.h"
@@ -72,12 +73,10 @@ GrMtlGpuRTCommandBuffer::~GrMtlGpuRTCommandBuffer() {
 
 void GrMtlGpuRTCommandBuffer::addNullCommand() {
     SkASSERT(nil == fActiveRenderCmdEncoder);
-    SK_BEGIN_AUTORELEASE_BLOCK
-    id<MTLRenderCommandEncoder> cmdEncoder =
-            [fGpu->commandBuffer() renderCommandEncoderWithDescriptor:fRenderPassDesc];
+
+    SkDEBUGCODE(id<MTLRenderCommandEncoder> cmdEncoder =)
+            fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc);
     SkASSERT(nil != cmdEncoder);
-    [cmdEncoder endEncoding];
-    SK_END_AUTORELEASE_BLOCK
 }
 
 void GrMtlGpuRTCommandBuffer::submit() {
@@ -176,8 +175,7 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     }
 
     SkASSERT(nil == fActiveRenderCmdEncoder);
-    fActiveRenderCmdEncoder = [fGpu->commandBuffer()
-                               renderCommandEncoderWithDescriptor:fRenderPassDesc];
+    fActiveRenderCmdEncoder = fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc);
     SkASSERT(fActiveRenderCmdEncoder);
     // TODO: can we set this once somewhere at the beginning of the draw?
     [fActiveRenderCmdEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
@@ -232,7 +230,6 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         mesh.sendToGpu(this);
     }
 
-    [fActiveRenderCmdEncoder endEncoding];
     fActiveRenderCmdEncoder = nil;
     fGpu->bufferManager().resetBindings();
     fCommandBufferInfo.fBounds.join(bounds);

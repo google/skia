@@ -25,6 +25,7 @@ class GrMtlGpuRTCommandBuffer;
 class GrMtlTexture;
 class GrSemaphore;
 struct GrMtlBackendContext;
+class GrMtlCommandBuffer;
 
 namespace SkSL {
     class Compiler;
@@ -38,8 +39,9 @@ class GrMtlGpu : public GrGpu {
 public:
     static sk_sp<GrGpu> Make(GrContext* context, const GrContextOptions& options,
                              id<MTLDevice> device, id<MTLCommandQueue> queue);
+    ~GrMtlGpu() override;
 
-    ~GrMtlGpu() override = default;
+    void disconnect(DisconnectType) override;
 
     const GrMtlCaps& mtlCaps() const { return *fMtlCaps.get(); }
 
@@ -49,7 +51,7 @@ public:
 
     GrMtlBufferManager& bufferManager() { return fBufferManager; }
 
-    id<MTLCommandBuffer> commandBuffer();
+    GrMtlCommandBuffer* commandBuffer();
 
     enum SyncQueue {
         kForce_SyncQueue,
@@ -131,6 +133,8 @@ public:
 private:
     GrMtlGpu(GrContext* context, const GrContextOptions& options,
              id<MTLDevice> device, id<MTLCommandQueue> queue, MTLFeatureSet featureSet);
+
+    void destroyResources();
 
     void onResetContext(uint32_t resetBits) override {}
 
@@ -220,12 +224,14 @@ private:
     id<MTLDevice> fDevice;
     id<MTLCommandQueue> fQueue;
 
-    id<MTLCommandBuffer> fCmdBuffer;
+    GrMtlCommandBuffer* fCmdBuffer;
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
     GrMtlCopyManager fCopyManager;
     GrMtlResourceProvider fResourceProvider;
     GrMtlBufferManager    fBufferManager;
+
+    bool fDisconnected;
 
     typedef GrGpu INHERITED;
 };
