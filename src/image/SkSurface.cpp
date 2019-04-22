@@ -247,6 +247,19 @@ GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, const GrFlus
     return asSB(this)->onFlush(access, flushInfo);
 }
 
+GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, GrFlushFlags flags,
+                                       int numSemaphores, GrBackendSemaphore signalSemaphores[],
+                                       GrGpuFinishedProc finishedProc,
+                                       GrGpuFinishedContext finishedContext) {
+    GrFlushInfo info;
+    info.fFlags = flags;
+    info.fNumSemaphores = numSemaphores;
+    info.fSignalSemaphores = signalSemaphores;
+    info.fFinishedProc = finishedProc;
+    info.fFinishedContext = finishedContext;
+    return this->flush(access, info);
+}
+
 GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, FlushFlags flags,
                                        int numSemaphores, GrBackendSemaphore signalSemaphores[]) {
     GrFlushFlags grFlags = flags == kSyncCpu_FlushFlag ? kSyncCpu_GrFlushFlag : kNone_GrFlushFlags;
