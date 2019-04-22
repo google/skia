@@ -6,9 +6,9 @@
  */
 
 #include "SkBitmapCache.h"
-#include "SkMutex.h"
+#include "include/private/SkMutex.h"
 #include "SkNextID.h"
-#include "SkPixelRef.h"
+#include "include/core/SkPixelRef.h"
 #include "SkTraceEvent.h"
 #include <atomic>
 

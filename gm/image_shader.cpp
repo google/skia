@@ -6,11 +6,11 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkPictureRecorder.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSurface.h"
 
 static void draw_something(SkCanvas* canvas, const SkRect& bounds) {
     SkPaint paint;

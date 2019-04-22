@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkCodec.h"
+#include "../tools/Resources.h"
+#include "include/codec/SkCodec.h"
 #include "Test.h"
 
 DEF_TEST(ExifOrientation, r) {

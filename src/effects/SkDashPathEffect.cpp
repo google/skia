@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkDashPathEffect.h"
+#include "include/effects/SkDashPathEffect.h"
 
 #include "SkDashImpl.h"
-#include "SkDashPathPriv.h"
-#include "SkReadBuffer.h"
-#include "SkStrokeRec.h"
-#include "SkTo.h"
-#include "SkWriteBuffer.h"
+#include "../utils/SkDashPathPriv.h"
+#include "../core/SkReadBuffer.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/private/SkTo.h"
+#include "../core/SkWriteBuffer.h"
 
 #include <utility>
 

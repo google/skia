@@ -7,7 +7,7 @@
 
 #include "SkJpegInfo.h"
 
-#include "SkTo.h"
+#include "include/private/SkTo.h"
 
 #ifndef SK_HAS_JPEG_LIBRARY
 

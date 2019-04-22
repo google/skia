@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkMutex.h"
-#include "SkSharedMutex.h"
-#include "SkSpinlock.h"
-#include "SkString.h"
+#include "include/private/SkMutex.h"
+#include "../src/core/SkSharedMutex.h"
+#include "include/private/SkSpinlock.h"
+#include "include/core/SkString.h"
 
 template <typename Mutex>
 class MutexBench : public Benchmark {

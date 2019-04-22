@@ -8,16 +8,16 @@
 #ifndef SkPictureRecord_DEFINED
 #define SkPictureRecord_DEFINED
 
-#include "SkCanvas.h"
-#include "SkCanvasVirtualEnforcer.h"
-#include "SkFlattenable.h"
-#include "SkPicture.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkCanvasVirtualEnforcer.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkPicture.h"
 #include "SkPictureData.h"
-#include "SkTArray.h"
-#include "SkTDArray.h"
-#include "SkTHash.h"
-#include "SkTo.h"
-#include "SkVertices.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkTHash.h"
+#include "include/private/SkTo.h"
+#include "include/core/SkVertices.h"
 #include "SkWriter32.h"
 
 // These macros help with packing and unpacking a single byte value and

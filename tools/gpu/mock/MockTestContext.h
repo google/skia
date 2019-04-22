@@ -8,7 +8,7 @@
 #ifndef MockTestContext_DEFINED
 #define MockTestContext_DEFINED
 
-#include "TestContext.h"
+#include "../TestContext.h"
 
 namespace sk_gpu_test {
 

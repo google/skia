@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGPlane.h"
+#include "modules/sksg/include/SkSGPlane.h"
 
-#include "SkCanvas.h"
-#include "SkPath.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
 
 namespace sksg {
 

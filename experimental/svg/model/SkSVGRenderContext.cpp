@@ -7,13 +7,13 @@
 
 #include "SkSVGRenderContext.h"
 
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkPath.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/core/SkPath.h"
 #include "SkSVGAttribute.h"
 #include "SkSVGNode.h"
 #include "SkSVGTypes.h"
-#include "SkTo.h"
+#include "include/private/SkTo.h"
 
 namespace {
 

@@ -25,11 +25,11 @@
 #include <set>
 #include <string>
 #include <unordered_map>
-#include <GrContext.h>
-#include <gl/GrGLTypes.h>
-#include <GrBackendSurface.h>
-#include <SkSurface.h>
-#include <Skottie.h>
+#include "include/gpu/GrContext.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/core/SkSurface.h"
+#include "modules/skottie/include/Skottie.h"
 
 #include "arcore_c_api.h"
 #include "background_renderer.h"

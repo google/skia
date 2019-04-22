@@ -9,12 +9,12 @@
 #define GrDrawPathOp_DEFINED
 
 #include "GrDrawOp.h"
-#include "GrOpFlushState.h"
-#include "GrPath.h"
-#include "GrPathProcessor.h"
-#include "GrPathRendering.h"
-#include "GrProcessorSet.h"
-#include "GrStencilSettings.h"
+#include "../GrOpFlushState.h"
+#include "../GrPath.h"
+#include "../GrPathProcessor.h"
+#include "../GrPathRendering.h"
+#include "../GrProcessorSet.h"
+#include "../GrStencilSettings.h"
 
 class GrPaint;
 class GrRecordingContext;

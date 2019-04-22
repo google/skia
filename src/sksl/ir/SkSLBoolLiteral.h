@@ -8,7 +8,7 @@
 #ifndef SKSL_BOOLLITERAL
 #define SKSL_BOOLLITERAL
 
-#include "SkSLContext.h"
+#include "../SkSLContext.h"
 #include "SkSLExpression.h"
 
 namespace SkSL {

@@ -6,11 +6,11 @@
  */
 
 #include "SkAutoMalloc.h"
-#include "SkColorData.h"
+#include "include/private/SkColorData.h"
 #include "SkDistanceFieldGen.h"
 #include "SkMask.h"
 #include "SkPointPriv.h"
-#include "SkTemplates.h"
+#include "include/private/SkTemplates.h"
 
 #include <utility>
 

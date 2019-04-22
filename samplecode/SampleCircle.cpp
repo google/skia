@@ -6,9 +6,9 @@
  */
 
 #include "Sample.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 
 // ensure that we don't accidentally screw up the bounds when the oval is
 // fractional, and the impl computes the center and radii, and uses them to

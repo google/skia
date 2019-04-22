@@ -8,7 +8,7 @@
 #ifndef GrPathRendering_DEFINED
 #define GrPathRendering_DEFINED
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 #include "GrPipeline.h"
 
 class GrGpu;

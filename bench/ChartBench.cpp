@@ -6,11 +6,11 @@
  */
 
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkTDArray.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
+#include "include/private/SkTDArray.h"
 
 /**
  * This is a conversion of samplecode/SampleChart.cpp into a bench. It sure would be nice to be able

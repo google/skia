@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "GrSKSLPrettyPrint.h"
-#include "SkSLString.h"
+#include "../sksl/SkSLString.h"
 
 namespace GrSKSLPrettyPrint {
 

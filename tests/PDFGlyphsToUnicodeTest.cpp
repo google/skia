@@ -9,11 +9,11 @@
 
 #ifdef SK_SUPPORT_PDF
 
-#include "SkBitSet.h"
-#include "SkData.h"
-#include "SkPDFMakeToUnicodeCmap.h"
-#include "SkStream.h"
-#include "SkTo.h"
+#include "../src/utils/SkBitSet.h"
+#include "include/core/SkData.h"
+#include "../src/pdf/SkPDFMakeToUnicodeCmap.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTo.h"
 
 static constexpr SkGlyphID kMaximumGlyphIndex = UINT16_MAX;
 

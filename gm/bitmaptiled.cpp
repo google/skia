@@ -7,7 +7,7 @@
 
 #include "gm.h"
 
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 
 // This test exercises Ganesh's drawing of tiled bitmaps. In particular, that the offsets and the
 // extents of the tiles don't causes gaps between tiles.

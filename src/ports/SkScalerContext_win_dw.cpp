@@ -4,35 +4,35 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkDWriteNTDDI_VERSION.h"
+#include "../utils/win/SkDWriteNTDDI_VERSION.h"
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
 #undef GetGlyphIndices
 
-#include "SkCodec.h"
-#include "SkDWrite.h"
-#include "SkDWriteGeometrySink.h"
-#include "SkDraw.h"
-#include "SkEndian.h"
-#include "SkFontMetrics.h"
-#include "SkGlyph.h"
-#include "SkHRESULT.h"
-#include "SkMaskGamma.h"
-#include "SkMatrix22.h"
-#include "SkMutex.h"
-#include "SkOTTable_EBLC.h"
-#include "SkOTTable_EBSC.h"
-#include "SkOTTable_gasp.h"
-#include "SkOTTable_maxp.h"
-#include "SkPath.h"
-#include "SkRasterClip.h"
-#include "SkScalerContext.h"
+#include "include/codec/SkCodec.h"
+#include "../utils/win/SkDWrite.h"
+#include "../utils/win/SkDWriteGeometrySink.h"
+#include "../core/SkDraw.h"
+#include "../core/SkEndian.h"
+#include "include/core/SkFontMetrics.h"
+#include "../core/SkGlyph.h"
+#include "../utils/win/SkHRESULT.h"
+#include "../core/SkMaskGamma.h"
+#include "../utils/SkMatrix22.h"
+#include "include/private/SkMutex.h"
+#include "../sfnt/SkOTTable_EBLC.h"
+#include "../sfnt/SkOTTable_EBSC.h"
+#include "../sfnt/SkOTTable_gasp.h"
+#include "../sfnt/SkOTTable_maxp.h"
+#include "include/core/SkPath.h"
+#include "../core/SkRasterClip.h"
+#include "../core/SkScalerContext.h"
 #include "SkScalerContext_win_dw.h"
-#include "SkSharedMutex.h"
-#include "SkTScopedComPtr.h"
-#include "SkTo.h"
+#include "../core/SkSharedMutex.h"
+#include "../utils/win/SkTScopedComPtr.h"
+#include "include/private/SkTo.h"
 #include "SkTypeface_win_dw.h"
 
 #include <dwrite.h>
@@ -791,7 +791,7 @@ void SkScalerContext_DW::generateFontMetrics(SkFontMetrics* metrics) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkColorData.h"
+#include "include/private/SkColorData.h"
 
 static void bilevel_to_bw(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph) {
     const int width = glyph.fWidth;

@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
-#include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
-#include "SkReadBuffer.h"
-#include "SkTextBlob.h"
-#include "SkTo.h"
-#include "SkWriteBuffer.h"
+#include "../src/core/SkBlurMask.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "../src/core/SkReadBuffer.h"
+#include "include/core/SkTextBlob.h"
+#include "include/private/SkTo.h"
+#include "../src/core/SkWriteBuffer.h"
 
-#include "Sk2DPathEffect.h"
+#include "include/effects/Sk2DPathEffect.h"
 
 static SkPath create_underline(const SkTDArray<SkScalar>& intersections,
         SkScalar last, SkScalar finalPos,

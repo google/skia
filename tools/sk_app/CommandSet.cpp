@@ -7,9 +7,9 @@
 
 #include "CommandSet.h"
 
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkTSort.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "../../src/core/SkTSort.h"
 
 namespace sk_app {
 

@@ -6,8 +6,8 @@
  */
 
 #include "SkCoreBlitters.h"
-#include "SkColorData.h"
-#include "SkShader.h"
+#include "include/private/SkColorData.h"
+#include "include/core/SkShader.h"
 #include "SkXfermodePriv.h"
 
 SkA8_Coverage_Blitter::SkA8_Coverage_Blitter(const SkPixmap& device,

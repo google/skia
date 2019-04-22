@@ -7,7 +7,7 @@
 #ifndef SkOpSegment_DEFINE
 #define SkOpSegment_DEFINE
 
-#include "SkArenaAlloc.h"
+#include "include/private/SkArenaAlloc.h"
 #include "SkOpAngle.h"
 #include "SkOpSpan.h"
 #include "SkPathOpsBounds.h"

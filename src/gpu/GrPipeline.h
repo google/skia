@@ -8,7 +8,7 @@
 #ifndef GrPipeline_DEFINED
 #define GrPipeline_DEFINED
 
-#include "GrColor.h"
+#include "include/private/GrColor.h"
 #include "GrFragmentProcessor.h"
 #include "GrNonAtomicRef.h"
 #include "GrPendingIOResource.h"
@@ -18,8 +18,8 @@
 #include "GrScissorState.h"
 #include "GrUserStencilSettings.h"
 #include "GrWindowRectsState.h"
-#include "SkMatrix.h"
-#include "SkRefCnt.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRefCnt.h"
 #include "effects/GrCoverageSetOpXP.h"
 #include "effects/GrDisableColorXP.h"
 #include "effects/GrPorterDuffXferProcessor.h"

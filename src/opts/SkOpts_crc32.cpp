@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkOpts.h"
+#include "../core/SkOpts.h"
 
 #define SK_OPTS_NS crc32
 #include "SkChecksum_opts.h"

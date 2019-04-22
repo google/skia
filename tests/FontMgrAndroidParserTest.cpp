@@ -7,15 +7,15 @@
 
 #include "Test.h"
 
-#include "CommandLineFlags.h"
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkFixed.h"
-#include "SkFont.h"
-#include "SkFontMgr_android.h"
-#include "SkFontMgr_android_parser.h"
-#include "SkOSFile.h"
-#include "SkTypeface.h"
+#include "../tools/flags/CommandLineFlags.h"
+#include "../tools/Resources.h"
+#include "include/core/SkCanvas.h"
+#include "include/private/SkFixed.h"
+#include "include/core/SkFont.h"
+#include "include/ports/SkFontMgr_android.h"
+#include "../src/ports/SkFontMgr_android_parser.h"
+#include "../src/core/SkOSFile.h"
+#include "include/core/SkTypeface.h"
 
 #include <cmath>
 #include <cstdio>

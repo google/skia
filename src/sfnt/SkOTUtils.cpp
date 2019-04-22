@@ -7,15 +7,15 @@
 
 #include "SkOTUtils.h"
 
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkData.h"
-#include "SkEndian.h"
+#include "../core/SkAdvancedTypefaceMetrics.h"
+#include "include/core/SkData.h"
+#include "../core/SkEndian.h"
 #include "SkOTTableTypes.h"
 #include "SkOTTable_head.h"
 #include "SkOTTable_name.h"
 #include "SkSFNTHeader.h"
-#include "SkStream.h"
-#include "SkTo.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTo.h"
 
 extern const uint8_t SK_OT_GlyphData_NoOutline[] = {
     0x0,0x0, //SkOTTableGlyphData::numberOfContours

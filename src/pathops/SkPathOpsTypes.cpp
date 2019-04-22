@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkArenaAlloc.h"
-#include "SkFloatBits.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkFloatBits.h"
 #include "SkOpCoincidence.h"
 #include "SkPathOpsTypes.h"
 

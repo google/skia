@@ -6,7 +6,7 @@
  */
 
 #include "SkAutoPixmapStorage.h"
-#include "SkData.h"
+#include "include/core/SkData.h"
 
 SkAutoPixmapStorage::SkAutoPixmapStorage() : fStorage(nullptr) {}
 

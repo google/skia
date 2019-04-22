@@ -11,11 +11,11 @@
 #include "SkDistanceFieldGen.h"
 #include "SkGlyphRun.h"
 #include "SkScalerContext.h"
-#include "SkSurfaceProps.h"
+#include "include/core/SkSurfaceProps.h"
 #include "SkTextBlobPriv.h"
 
 #if SK_SUPPORT_GPU
-#include "text/GrTextContext.h"
+#include "../gpu/text/GrTextContext.h"
 class GrColorSpaceInfo;
 class GrRenderTargetContext;
 #endif

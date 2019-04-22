@@ -6,14 +6,14 @@
  */
 
 #include "CodecPriv.h"
-#include "Resources.h"
-#include "SkAndroidCodec.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkStream.h"
-#include "SkTypes.h"
+#include "../tools/Resources.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
 #include "Test.h"
 
 static unsigned char gGIFData[] = {

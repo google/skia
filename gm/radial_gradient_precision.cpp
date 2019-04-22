@@ -6,7 +6,7 @@
  */
 
 #include "gm.h"
-#include "SkGradientShader.h"
+#include "include/effects/SkGradientShader.h"
 
 // All we're looking for here is that we see a smooth gradient.
 DEF_SIMPLE_GM(radial_gradient_precision, canvas, 200, 200) {

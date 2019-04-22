@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkRandom.h"
-#include "SkTSort.h"
+#include "include/utils/SkRandom.h"
+#include "../src/core/SkTSort.h"
 #include "Test.h"
 
 static bool anderson_darling_test(double p[32]) {

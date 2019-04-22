@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "SkCanvas.h"
-#include "SkFontMetrics.h"
-#include "SkFontMgr.h"
-#include "SkFontPriv.h"
-#include "SkGraphics.h"
-#include "SkMetaData.h"
-#include "SkPath.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
+#include "../tools/flags/CommandLineFlags.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontMgr.h"
+#include "../src/core/SkFontPriv.h"
+#include "include/core/SkGraphics.h"
+#include "../src/utils/SkMetaData.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkTypeface.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 // limit this just so we don't take too long to draw

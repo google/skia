@@ -9,8 +9,8 @@
 #define ImageSlide_DEFINED
 
 #include "Slide.h"
-#include "SkPicture.h"
-#include "SkImage.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkImage.h"
 
 class ImageSlide : public Slide {
 public:

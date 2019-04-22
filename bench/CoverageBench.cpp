@@ -6,14 +6,14 @@
  */
 
 #include "Benchmark.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkDraw.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkRasterClip.h"
+#include "../src/core/SkAutoPixmapStorage.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "../src/core/SkDraw.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "../src/core/SkRasterClip.h"
 
 class DrawPathBench : public Benchmark {
     SkPaint     fPaint;

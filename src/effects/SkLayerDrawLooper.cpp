@@ -4,21 +4,21 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkArenaAlloc.h"
-#include "SkBlendModePriv.h"
-#include "SkBlurDrawLooper.h"
-#include "SkColorSpacePriv.h"
-#include "SkMaskFilter.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkMaskFilterBase.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkLayerDrawLooper.h"
-#include "SkString.h"
-#include "SkStringUtils.h"
-#include "SkUnPreMultiply.h"
-#include "SkXfermodePriv.h"
+#include "include/private/SkArenaAlloc.h"
+#include "../core/SkBlendModePriv.h"
+#include "include/effects/SkBlurDrawLooper.h"
+#include "../core/SkColorSpacePriv.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "../core/SkMaskFilterBase.h"
+#include "../core/SkReadBuffer.h"
+#include "../core/SkWriteBuffer.h"
+#include "include/effects/SkLayerDrawLooper.h"
+#include "include/core/SkString.h"
+#include "../core/SkStringUtils.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "../core/SkXfermodePriv.h"
 
 SkLayerDrawLooper::LayerInfo::LayerInfo() {
     fPaintBits = 0;                     // ignore our paint fields

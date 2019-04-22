@@ -10,15 +10,15 @@
  **************************************************************************************************/
 #ifndef GrConfigConversionEffect_DEFINED
 #define GrConfigConversionEffect_DEFINED
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrClip.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrRenderTargetContext.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "../../GrClip.h"
+#include "include/gpu/GrContext.h"
+#include "../../GrContextPriv.h"
+#include "../../GrProxyProvider.h"
+#include "../../GrRenderTargetContext.h"
+#include "../../GrFragmentProcessor.h"
+#include "../../GrCoordTransform.h"
 class GrConfigConversionEffect : public GrFragmentProcessor {
 public:
     static bool TestForPreservingPMConversions(GrContext* context) {

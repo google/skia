@@ -8,7 +8,7 @@
 #ifndef GrVkGpu_DEFINED
 #define GrVkGpu_DEFINED
 
-#include "GrGpu.h"
+#include "../GrGpu.h"
 #include "GrVkCaps.h"
 #include "GrVkCopyManager.h"
 #include "GrVkIndexBuffer.h"
@@ -17,8 +17,8 @@
 #include "GrVkSemaphore.h"
 #include "GrVkVertexBuffer.h"
 #include "GrVkUtil.h"
-#include "vk/GrVkBackendContext.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkBackendContext.h"
+#include "include/gpu/vk/GrVkTypes.h"
 
 class GrPipeline;
 

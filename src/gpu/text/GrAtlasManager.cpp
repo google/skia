@@ -7,7 +7,7 @@
 
 #include "GrAtlasManager.h"
 
-#include "GrGlyph.h"
+#include "../GrGlyph.h"
 #include "GrStrikeCache.h"
 
 GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrStrikeCache* glyphCache,
@@ -83,14 +83,14 @@ void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpd
 }
 
 #ifdef SK_DEBUG
-#include "GrContextPriv.h"
-#include "GrSurfaceProxy.h"
-#include "GrSurfaceContext.h"
-#include "GrTextureProxy.h"
+#include "../GrContextPriv.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "../GrSurfaceContext.h"
+#include "include/private/GrTextureProxy.h"
 
-#include "SkBitmap.h"
-#include "SkImageEncoder.h"
-#include "SkStream.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkStream.h"
 #include <stdio.h>
 
 /**

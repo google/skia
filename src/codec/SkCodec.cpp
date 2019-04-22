@@ -6,12 +6,12 @@
  */
 
 #include "SkBmpCodec.h"
-#include "SkCodec.h"
+#include "include/codec/SkCodec.h"
 #include "SkCodecPriv.h"
-#include "SkColorSpace.h"
-#include "SkData.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
 #include "SkFrameHolder.h"
-#include "SkHalf.h"
+#include "include/private/SkHalf.h"
 #ifdef SK_HAS_HEIF_LIBRARY
 #include "SkHeifCodec.h"
 #endif
@@ -21,7 +21,7 @@
 #include "SkPngCodec.h"
 #endif
 #include "SkRawCodec.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
 #include "SkWbmpCodec.h"
 #include "SkWebpCodec.h"
 #ifdef SK_HAS_WUFFS_LIBRARY

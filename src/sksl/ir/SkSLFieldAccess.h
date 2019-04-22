@@ -9,7 +9,7 @@
 #define SKSL_FIELDACCESS
 
 #include "SkSLExpression.h"
-#include "SkSLUtil.h"
+#include "../SkSLUtil.h"
 
 namespace SkSL {
 

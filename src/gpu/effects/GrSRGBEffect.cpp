@@ -7,10 +7,10 @@
 
 #include "GrSRGBEffect.h"
 
-#include "GrFragmentProcessor.h"
-#include "GrProcessor.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../GrFragmentProcessor.h"
+#include "../GrProcessor.h"
+#include "../glsl/GrGLSLFragmentProcessor.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
 
 class GrGLSRGBEffect : public GrGLSLFragmentProcessor {
 public:

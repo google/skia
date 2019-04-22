@@ -6,7 +6,7 @@
  */
 
 #include "SkColorTable.h"
-#include "../private/SkMalloc.h"
+#include "include/private/SkMalloc.h"
 
 SkColorTable::SkColorTable(const SkPMColor colors[], int count) {
     SkASSERT(0 == count || colors);

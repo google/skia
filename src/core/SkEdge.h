@@ -9,9 +9,9 @@
 #define SkEdge_DEFINED
 
 #include "SkFDot6.h"
-#include "SkMath.h"
-#include "SkRect.h"
-#include "SkTo.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkRect.h"
+#include "include/private/SkTo.h"
 
 #include <utility>
 

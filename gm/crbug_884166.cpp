@@ -6,8 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
 
 DEF_SIMPLE_GM(crbug_884166, canvas, 300, 300) {
     SkPaint paint;

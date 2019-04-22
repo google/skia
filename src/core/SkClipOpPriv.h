@@ -8,7 +8,7 @@
 #ifndef SkClipOpPriv_DEFINED
 #define SkClipOpPriv_DEFINED
 
-#include "SkClipOp.h"
+#include "include/core/SkClipOp.h"
 
 const SkClipOp kDifference_SkClipOp         = SkClipOp::kDifference;
 const SkClipOp kIntersect_SkClipOp          = SkClipOp::kIntersect;

@@ -8,8 +8,8 @@
 #ifndef GrDistanceFieldGeoProc_DEFINED
 #define GrDistanceFieldGeoProc_DEFINED
 
-#include "GrProcessor.h"
-#include "GrGeometryProcessor.h"
+#include "../GrProcessor.h"
+#include "../GrGeometryProcessor.h"
 
 class GrGLDistanceFieldA8TextGeoProc;
 class GrGLDistanceFieldPathGeoProc;

@@ -6,7 +6,7 @@
  */
 
 #include "Test.h"
-#include "SkSafeMath.h"
+#include "../src/core/SkSafeMath.h"
 
 DEF_TEST(SafeMath, r) {
     size_t max = std::numeric_limits<size_t>::max();

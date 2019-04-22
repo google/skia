@@ -9,10 +9,10 @@
 // We record an empty picture and a picture with one draw op to force memory allocation.
 
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkLiteDL.h"
-#include "SkLiteRecorder.h"
-#include "SkPictureRecorder.h"
+#include "include/core/SkCanvas.h"
+#include "../src/core/SkLiteDL.h"
+#include "../src/core/SkLiteRecorder.h"
+#include "include/core/SkPictureRecorder.h"
 
 template <int kDraws, bool kLite>
 struct PictureOverheadBench : public Benchmark {

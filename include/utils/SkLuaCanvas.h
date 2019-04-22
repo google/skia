@@ -8,9 +8,9 @@
 #ifndef SkLuaCanvas_DEFINED
 #define SkLuaCanvas_DEFINED
 
-#include "SkCanvas.h"
-#include "SkString.h"
-#include "SkVertices.h"
+#include "../core/SkCanvas.h"
+#include "../core/SkString.h"
+#include "../core/SkVertices.h"
 
 struct lua_State;
 

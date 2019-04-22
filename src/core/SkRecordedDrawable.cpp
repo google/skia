@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix.h"
+#include "include/core/SkMatrix.h"
 #include "SkPictureData.h"
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
-#include "SkPictureRecorder.h"
+#include "include/core/SkPictureRecorder.h"
 #include "SkRecordedDrawable.h"
 #include "SkRecordDraw.h"
 

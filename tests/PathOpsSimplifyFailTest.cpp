@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 #include "PathOpsExtendedTest.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkPoint.h"
+#include "include/core/SkPath.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/core/SkPoint.h"
 #include "Test.h"
 
 static const SkPoint nonFinitePts[] = {

@@ -9,8 +9,8 @@
 #ifndef GrGLStencilAttachment_DEFINED
 #define GrGLStencilAttachment_DEFINED
 
-#include "gl/GrGLInterface.h"
-#include "GrStencilAttachment.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "../GrStencilAttachment.h"
 
 class GrGLStencilAttachment : public GrStencilAttachment {
 public:

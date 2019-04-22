@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkGlyphRun.h"
+#include "../src/core/SkGlyphRun.h"
 
-#include "SkTextBlob.h"
+#include "include/core/SkTextBlob.h"
 #include "Test.h"
 
 #include <algorithm>

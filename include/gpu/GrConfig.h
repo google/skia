@@ -11,7 +11,7 @@
 #ifndef GrConfig_DEFINED
 #define GrConfig_DEFINED
 
-#include "SkTypes.h"
+#include "../core/SkTypes.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // preconfig section:

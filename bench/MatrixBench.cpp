@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkMatrix.h"
-#include "SkMatrixUtils.h"
-#include "SkRandom.h"
-#include "SkString.h"
+#include "include/core/SkMatrix.h"
+#include "../src/core/SkMatrixUtils.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkString.h"
 
 class MatrixBench : public Benchmark {
     SkString    fName;

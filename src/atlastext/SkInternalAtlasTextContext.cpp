@@ -6,11 +6,11 @@
  */
 
 #include "SkInternalAtlasTextContext.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "SkAtlasTextContext.h"
-#include "SkAtlasTextRenderer.h"
-#include "text/GrStrikeCache.h"
+#include "include/gpu/GrContext.h"
+#include "../gpu/GrContextPriv.h"
+#include "include/atlastext/SkAtlasTextContext.h"
+#include "include/atlastext/SkAtlasTextRenderer.h"
+#include "../gpu/text/GrStrikeCache.h"
 
 SkAtlasTextRenderer* SkGetAtlasTextRendererFromInternalContext(
         class SkInternalAtlasTextContext& internal) {

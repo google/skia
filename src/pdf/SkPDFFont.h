@@ -7,13 +7,13 @@
 #ifndef SkPDFFont_DEFINED
 #define SkPDFFont_DEFINED
 
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkPDFDocument.h"
+#include "../core/SkAdvancedTypefaceMetrics.h"
+#include "include/docs/SkPDFDocument.h"
 #include "SkPDFGlyphUse.h"
 #include "SkPDFType1Font.h"
 #include "SkPDFTypes.h"
-#include "SkStrikeCache.h"
-#include "SkTypeface.h"
+#include "../core/SkStrikeCache.h"
+#include "include/core/SkTypeface.h"
 
 /** \class SkPDFFont
     A PDF Object class representing a font.  The font may have resources

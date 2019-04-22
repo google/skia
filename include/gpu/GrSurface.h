@@ -11,8 +11,8 @@
 #include "GrTypes.h"
 #include "GrBackendSurface.h"
 #include "GrGpuResource.h"
-#include "SkImageInfo.h"
-#include "SkRect.h"
+#include "../core/SkImageInfo.h"
+#include "../core/SkRect.h"
 
 class GrRenderTarget;
 class GrSurfacePriv;

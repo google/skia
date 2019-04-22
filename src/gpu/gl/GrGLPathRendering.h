@@ -8,12 +8,12 @@
 #ifndef GrGLPathRendering_DEFINED
 #define GrGLPathRendering_DEFINED
 
-#include "SkRefCnt.h"
-#include "GrGpu.h"
-#include "GrPathRendering.h"
-#include "GrStencilSettings.h"
-#include "gl/GrGLTypes.h"
-#include "glsl/GrGLSLUtil.h"
+#include "include/core/SkRefCnt.h"
+#include "../GrGpu.h"
+#include "../GrPathRendering.h"
+#include "../GrStencilSettings.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "../glsl/GrGLSLUtil.h"
 
 class GrGLNameAllocator;
 class GrGLGpu;

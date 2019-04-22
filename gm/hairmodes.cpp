@@ -6,9 +6,9 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkShader.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkShader.h"
 
 constexpr SkBlendMode gModes[] = {
     SkBlendMode::kClear,

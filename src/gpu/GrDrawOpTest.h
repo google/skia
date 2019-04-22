@@ -9,7 +9,7 @@
 #define GrDrawOpTest_DEFINED
 
 #include "GrTestUtils.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 
 #if GR_TEST_UTILS
 

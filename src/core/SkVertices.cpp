@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkVertices.h"
+#include "include/core/SkVertices.h"
 
-#include "SkData.h"
+#include "include/core/SkData.h"
 #include "SkReader32.h"
 #include "SkSafeMath.h"
 #include "SkSafeRange.h"
-#include "SkTo.h"
+#include "include/private/SkTo.h"
 #include "SkWriter32.h"
 #include <atomic>
 #include <new>

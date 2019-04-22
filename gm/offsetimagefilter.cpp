@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkImage.h"
-#include "SkImageSource.h"
-#include "SkOffsetImageFilter.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
+#include "include/core/SkImage.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkOffsetImageFilter.h"
+#include "include/core/SkSurface.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 #define WIDTH 600

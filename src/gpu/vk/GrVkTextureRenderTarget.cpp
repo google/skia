@@ -7,14 +7,14 @@
 
 #include "GrVkTextureRenderTarget.h"
 
-#include "GrTexturePriv.h"
+#include "../GrTexturePriv.h"
 #include "GrVkGpu.h"
 #include "GrVkImageView.h"
 #include "GrVkUtil.h"
 
-#include "SkMipMap.h"
+#include "../../core/SkMipMap.h"
 
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 

@@ -7,14 +7,14 @@
 
 #include "gm.h"
 
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkImageEncoderPriv.h"
-#include "SkJpegEncoder.h"
-#include "SkPngEncoder.h"
-#include "SkWebpEncoder.h"
+#include "../tools/Resources.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "../src/images/SkImageEncoderPriv.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/encode/SkWebpEncoder.h"
 
 namespace skiagm {
 

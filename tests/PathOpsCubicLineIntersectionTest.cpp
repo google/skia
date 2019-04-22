@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 #include "PathOpsTestCommon.h"
-#include "SkIntersections.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsLine.h"
-#include "SkReduceOrder.h"
+#include "../src/pathops/SkIntersections.h"
+#include "../src/pathops/SkPathOpsCubic.h"
+#include "../src/pathops/SkPathOpsLine.h"
+#include "../src/pathops/SkReduceOrder.h"
 #include "Test.h"
 
 #include <utility>

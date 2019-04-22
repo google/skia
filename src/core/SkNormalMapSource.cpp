@@ -7,18 +7,18 @@
 
 #include "SkNormalMapSource.h"
 
-#include "SkArenaAlloc.h"
-#include "SkLightingShader.h"
-#include "SkMatrix.h"
+#include "include/private/SkArenaAlloc.h"
+#include "../shaders/SkLightingShader.h"
+#include "include/core/SkMatrix.h"
 #include "SkNormalSource.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrCoordTransform.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "SkGr.h"
+#include "../gpu/GrCoordTransform.h"
+#include "../gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "../gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../gpu/SkGr.h"
 
 class NormalMapFP : public GrFragmentProcessor {
 public:

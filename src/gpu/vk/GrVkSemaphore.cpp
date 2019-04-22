@@ -7,7 +7,7 @@
 
 #include "GrVkSemaphore.h"
 
-#include "GrBackendSemaphore.h"
+#include "include/gpu/GrBackendSemaphore.h"
 #include "GrVkGpu.h"
 #include "GrVkUtil.h"
 

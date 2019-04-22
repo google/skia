@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "Test.h"
 
 // Tests for some of the helpers in SkTemplates.h

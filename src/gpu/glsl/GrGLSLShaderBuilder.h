@@ -8,11 +8,11 @@
 #ifndef GrGLSLShaderBuilder_DEFINED
 #define GrGLSLShaderBuilder_DEFINED
 
-#include "GrAllocator.h"
-#include "GrShaderVar.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "SkSLString.h"
-#include "SkTDArray.h"
+#include "../GrAllocator.h"
+#include "../GrShaderVar.h"
+#include "GrGLSLUniformHandler.h"
+#include "../../sksl/SkSLString.h"
+#include "include/private/SkTDArray.h"
 
 #include <stdarg.h>
 

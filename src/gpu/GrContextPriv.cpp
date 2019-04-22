@@ -8,19 +8,19 @@
 #include "GrContextPriv.h"
 
 #include "GrClip.h"
-#include "GrContextThreadSafeProxy.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "GrContextThreadSafeProxyPriv.h"
 #include "GrDrawingManager.h"
 #include "GrGpu.h"
 #include "GrMemoryPool.h"
 #include "GrRenderTargetContext.h"
-#include "GrSkSLFPFactoryCache.h"
+#include "include/private/GrSkSLFPFactoryCache.h"
 #include "GrSurfacePriv.h"
-#include "GrTexture.h"
+#include "include/gpu/GrTexture.h"
 #include "GrTextureContext.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkImage_Base.h"
-#include "SkImage_Gpu.h"
+#include "../core/SkAutoPixmapStorage.h"
+#include "../image/SkImage_Base.h"
+#include "../image/SkImage_Gpu.h"
 #include "SkGr.h"
 #include "text/GrTextBlobCache.h"
 
@@ -644,7 +644,7 @@ void GrContextPriv::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
 
 //////////////////////////////////////////////////////////////////////////////
 #ifdef SK_ENABLE_DUMP_GPU
-#include "SkJSONWriter.h"
+#include "../utils/SkJSONWriter.h"
 SkString GrContextPriv::dump() const {
     SkDynamicMemoryWStream stream;
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);

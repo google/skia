@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrTexturePriv.h"
-#include "SkCanvas.h"
-#include "SkImage_Base.h"
-#include "SkSurface.h"
+#include "include/gpu/GrContext.h"
+#include "../src/gpu/GrContextPriv.h"
+#include "../src/gpu/GrTexturePriv.h"
+#include "include/core/SkCanvas.h"
+#include "../src/image/SkImage_Base.h"
+#include "include/core/SkSurface.h"
 #include "Test.h"
 
 // Tests that MIP maps are created and invalidated as expected when drawing to and from GrTextures.

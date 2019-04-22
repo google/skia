@@ -6,12 +6,12 @@
  */
 
 #include "GrDashLinePathRenderer.h"
-#include "GrAuditTrail.h"
-#include "GrGpu.h"
-#include "GrRenderTargetContext.h"
-#include "GrShape.h"
-#include "ops/GrDashOp.h"
-#include "ops/GrMeshDrawOp.h"
+#include "include/private/GrAuditTrail.h"
+#include "../GrGpu.h"
+#include "../GrRenderTargetContext.h"
+#include "../GrShape.h"
+#include "GrDashOp.h"
+#include "GrMeshDrawOp.h"
 
 GrPathRenderer::CanDrawPath
 GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {

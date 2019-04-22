@@ -6,11 +6,11 @@
  */
 
 #include "GrSimpleMeshDrawOpHelper.h"
-#include "GrAppliedClip.h"
-#include "GrProcessorSet.h"
-#include "GrRect.h"
-#include "GrUserStencilSettings.h"
-#include "SkGr.h"
+#include "../GrAppliedClip.h"
+#include "../GrProcessorSet.h"
+#include "../GrRect.h"
+#include "../GrUserStencilSettings.h"
+#include "../SkGr.h"
 
 GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAAType aaType,
                                                    InputFlags inputFlags)

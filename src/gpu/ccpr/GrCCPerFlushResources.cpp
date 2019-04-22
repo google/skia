@@ -7,18 +7,18 @@
 
 #include "GrCCPerFlushResources.h"
 
-#include "GrClip.h"
-#include "GrMemoryPool.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrShape.h"
-#include "GrSurfaceContextPriv.h"
-#include "SkMakeUnique.h"
-#include "ccpr/GrCCPathCache.h"
-#include "ccpr/GrGSCoverageProcessor.h"
-#include "ccpr/GrVSCoverageProcessor.h"
+#include "../GrClip.h"
+#include "../GrMemoryPool.h"
+#include "../GrOnFlushResourceProvider.h"
+#include "include/private/GrRecordingContext.h"
+#include "../GrRecordingContextPriv.h"
+#include "../GrRenderTargetContext.h"
+#include "../GrShape.h"
+#include "../GrSurfaceContextPriv.h"
+#include "../../core/SkMakeUnique.h"
+#include "GrCCPathCache.h"
+#include "GrGSCoverageProcessor.h"
+#include "GrVSCoverageProcessor.h"
 
 using FillBatchID = GrCCFiller::BatchID;
 using StrokeBatchID = GrCCStroker::BatchID;

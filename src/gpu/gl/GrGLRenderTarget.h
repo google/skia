@@ -9,10 +9,10 @@
 #ifndef GrGLRenderTarget_DEFINED
 #define GrGLRenderTarget_DEFINED
 
-#include "GrBackendSurface.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "GrGLIRect.h"
-#include "GrRenderTarget.h"
-#include "SkScalar.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "include/core/SkScalar.h"
 
 class GrGLCaps;
 class GrGLGpu;

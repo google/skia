@@ -7,17 +7,17 @@
 
 #include "GrDrawAtlasOp.h"
 
-#include "GrCaps.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrDrawOpTest.h"
-#include "GrOpFlushState.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
+#include "../GrCaps.h"
+#include "../GrDefaultGeoProcFactory.h"
+#include "../GrDrawOpTest.h"
+#include "../GrOpFlushState.h"
+#include "include/private/GrRecordingContext.h"
+#include "../GrRecordingContextPriv.h"
 #include "GrSimpleMeshDrawOpHelper.h"
-#include "SkGr.h"
-#include "SkRSXform.h"
-#include "SkRandom.h"
-#include "SkRectPriv.h"
+#include "../SkGr.h"
+#include "include/core/SkRSXform.h"
+#include "include/utils/SkRandom.h"
+#include "../../core/SkRectPriv.h"
 
 namespace {
 

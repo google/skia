@@ -8,11 +8,11 @@
 #ifndef SkMatrixConvolutionImageFilter_DEFINED
 #define SkMatrixConvolutionImageFilter_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkImageFilter.h"
-#include "SkScalar.h"
-#include "SkSize.h"
-#include "SkPoint.h"
+#include "../core/SkFlattenable.h"
+#include "../core/SkImageFilter.h"
+#include "../core/SkScalar.h"
+#include "../core/SkSize.h"
+#include "../core/SkPoint.h"
 
 class SkBitmap;
 

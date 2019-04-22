@@ -6,10 +6,10 @@
  */
 
 #include "Sample.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

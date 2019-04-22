@@ -8,7 +8,7 @@
 #ifndef GrVkIndexBuffer_DEFINED
 #define GrVkIndexBuffer_DEFINED
 
-#include "GrGpuBuffer.h"
+#include "../GrGpuBuffer.h"
 #include "GrVkBuffer.h"
 
 class GrVkGpu;

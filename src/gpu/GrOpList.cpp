@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrOpList.h"
+#include "include/private/GrOpList.h"
 
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 #include "GrDeferredProxyUploader.h"
 #include "GrMemoryPool.h"
 #include "GrRenderTargetPriv.h"
-#include "GrSurfaceProxy.h"
+#include "include/private/GrSurfaceProxy.h"
 #include "GrTextureProxyPriv.h"
 #include <atomic>
 

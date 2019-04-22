@@ -7,32 +7,32 @@
 
 #include "SkDraw.h"
 
-#include "SkArenaAlloc.h"
+#include "include/private/SkArenaAlloc.h"
 #include "SkAutoBlitterChoose.h"
 #include "SkBlendModePriv.h"
 #include "SkBlitter.h"
-#include "SkCanvas.h"
-#include "SkColorData.h"
+#include "include/core/SkCanvas.h"
+#include "include/private/SkColorData.h"
 #include "SkDevice.h"
 #include "SkDrawProcs.h"
 #include "SkMaskFilterBase.h"
-#include "SkMacros.h"
-#include "SkMatrix.h"
+#include "include/private/SkMacros.h"
+#include "include/core/SkMatrix.h"
 #include "SkMatrixUtils.h"
-#include "SkPaint.h"
-#include "SkPathEffect.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathEffect.h"
 #include "SkPathPriv.h"
-#include "SkRRect.h"
+#include "include/core/SkRRect.h"
 #include "SkRasterClip.h"
 #include "SkRectPriv.h"
 #include "SkScan.h"
-#include "SkShader.h"
-#include "SkString.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
 #include "SkStroke.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkStrokeRec.h"
 #include "SkTLazy.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 #include "SkUtils.h"
 
 #include <utility>
@@ -1201,9 +1201,9 @@ void SkDraw::validate() const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 #include "SkDraw.h"
-#include "SkRegion.h"
+#include "include/core/SkRegion.h"
 #include "SkBlitter.h"
 
 bool SkDraw::ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect* clipBounds,

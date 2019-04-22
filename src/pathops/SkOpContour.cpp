@@ -7,7 +7,7 @@
 #include "SkOpContour.h"
 #include "SkPathWriter.h"
 #include "SkReduceOrder.h"
-#include "SkTSort.h"
+#include "../core/SkTSort.h"
 
 void SkOpContour::toPath(SkPathWriter* path) const {
     if (!this->count()) {

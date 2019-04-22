@@ -6,16 +6,16 @@
  */
 
 #include "GrTextBlob.h"
-#include "GrBlurUtils.h"
-#include "GrClip.h"
-#include "GrContext.h"
-#include "GrShape.h"
-#include "GrStyle.h"
+#include "../GrBlurUtils.h"
+#include "../GrClip.h"
+#include "include/gpu/GrContext.h"
+#include "../GrShape.h"
+#include "../GrStyle.h"
 #include "GrTextTarget.h"
-#include "SkColorFilter.h"
-#include "SkMaskFilterBase.h"
-#include "SkPaintPriv.h"
-#include "ops/GrAtlasTextOp.h"
+#include "include/core/SkColorFilter.h"
+#include "../../core/SkMaskFilterBase.h"
+#include "../../core/SkPaintPriv.h"
+#include "../ops/GrAtlasTextOp.h"
 
 #include <new>
 

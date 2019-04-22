@@ -12,7 +12,7 @@
 
 #include <android/native_window_jni.h>
 
-#include "SkString.h"
+#include "include/core/SkString.h"
 
 #include "../Application.h"
 #include "../Window.h"

@@ -7,8 +7,8 @@
 
 #include "GrGSCoverageProcessor.h"
 
-#include "GrMesh.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "../GrMesh.h"
+#include "../glsl/GrGLSLVertexGeoBuilder.h"
 
 using InputType = GrGLSLGeometryBuilder::InputType;
 using OutputType = GrGLSLGeometryBuilder::OutputType;

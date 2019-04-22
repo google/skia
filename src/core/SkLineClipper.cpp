@@ -6,7 +6,7 @@
  */
 
 #include "SkLineClipper.h"
-#include "SkTo.h"
+#include "include/private/SkTo.h"
 
 #include <utility>
 

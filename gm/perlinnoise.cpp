@@ -6,8 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkPerlinNoiseShader.h"
-#include "SkShader.h"
+#include "include/effects/SkPerlinNoiseShader.h"
+#include "include/core/SkShader.h"
 
 namespace {
 

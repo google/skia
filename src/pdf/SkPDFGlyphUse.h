@@ -3,8 +3,8 @@
 #ifndef SkPDFGlyphUse_DEFINED
 #define SkPDFGlyphUse_DEFINED
 
-#include "SkBitSet.h"
-#include "SkTypes.h"
+#include "../utils/SkBitSet.h"
+#include "include/core/SkTypes.h"
 
 class SkPDFGlyphUse {
 public:

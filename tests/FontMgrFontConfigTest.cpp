@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkFontMgr.h"
-#include "SkFontMgr_fontconfig.h"
-#include "SkTypeface.h"
+#include "../tools/Resources.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMgr.h"
+#include "include/ports/SkFontMgr_fontconfig.h"
+#include "include/core/SkTypeface.h"
 #include "Test.h"
 
 #include <fontconfig/fontconfig.h>

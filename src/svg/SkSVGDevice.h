@@ -8,8 +8,8 @@
 #ifndef SkSVGDevice_DEFINED
 #define SkSVGDevice_DEFINED
 
-#include "SkClipStackDevice.h"
-#include "SkTemplates.h"
+#include "../core/SkClipStackDevice.h"
+#include "include/private/SkTemplates.h"
 
 class SkXMLWriter;
 

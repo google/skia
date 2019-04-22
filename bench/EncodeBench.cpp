@@ -6,12 +6,12 @@
  */
 
 #include "Benchmark.h"
-#include "Resources.h"
-#include "SkBitmap.h"
-#include "SkJpegEncoder.h"
-#include "SkPngEncoder.h"
-#include "SkWebpEncoder.h"
-#include "SkStream.h"
+#include "../tools/Resources.h"
+#include "include/core/SkBitmap.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/encode/SkWebpEncoder.h"
+#include "include/core/SkStream.h"
 
 // Like other Benchmark subclasses, Encoder benchmarks are run by:
 // nanobench --match ^Encode_

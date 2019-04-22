@@ -8,7 +8,7 @@
 #ifndef SkRemoteGlyphCacheImpl_DEFINED
 #define SkRemoteGlyphCacheImpl_DEFINED
 
-#include "SkArenaAlloc.h"
+#include "include/private/SkArenaAlloc.h"
 #include "SkDescriptor.h"
 #include "SkGlyphRun.h"
 #include "SkGlyphRunPainter.h"

@@ -224,7 +224,7 @@ static const bool gOutInverse[kReverseDifference_SkPathOp + 1][2][2] = {
 
 #if DEBUG_T_SECT_LOOP_COUNT
 
-#include "SkMutex.h"
+#include "include/private/SkMutex.h"
 
 SK_DECLARE_STATIC_MUTEX(debugWorstLoop);
 

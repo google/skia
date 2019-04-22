@@ -11,7 +11,7 @@
 #define SkCamera_DEFINED
 
 #include "../private/SkNoncopyable.h"
-#include "SkMatrix.h"
+#include "../core/SkMatrix.h"
 
 class SkCanvas;
 

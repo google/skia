@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkColorData.h"
-#include "SkRandom.h"
-#include "SkString.h"
+#include "include/private/SkColorData.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkString.h"
 
 template <bool kFast, bool kScale>
 class FourByteInterpBench : public Benchmark {

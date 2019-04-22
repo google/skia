@@ -8,9 +8,9 @@
 #ifndef GrContext_Base_DEFINED
 #define GrContext_Base_DEFINED
 
-#include "SkRefCnt.h"
-#include "GrContextOptions.h"
-#include "GrTypes.h"
+#include "../core/SkRefCnt.h"
+#include "../gpu/GrContextOptions.h"
+#include "../gpu/GrTypes.h"
 
 class GrBaseContextPriv;
 class GrCaps;

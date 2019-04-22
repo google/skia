@@ -8,10 +8,10 @@
 #ifndef GrPrimitiveProcessor_DEFINED
 #define GrPrimitiveProcessor_DEFINED
 
-#include "GrColor.h"
+#include "include/private/GrColor.h"
 #include "GrNonAtomicRef.h"
 #include "GrProcessor.h"
-#include "GrProxyRef.h"
+#include "include/private/GrProxyRef.h"
 #include "GrShaderVar.h"
 
 class GrCoordTransform;

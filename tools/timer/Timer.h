@@ -7,9 +7,9 @@
 #ifndef Timer_DEFINED
 #define Timer_DEFINED
 
-#include "SkString.h"
-#include "SkTime.h"
-#include "SkTypes.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTime.h"
+#include "include/core/SkTypes.h"
 
 class WallTimer {
 public:

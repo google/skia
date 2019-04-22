@@ -8,7 +8,7 @@
 #ifndef GrDashLinePathRenderer_DEFINED
 #define GrDashLinePathRenderer_DEFINED
 
-#include "GrPathRenderer.h"
+#include "../GrPathRenderer.h"
 
 class GrGpu;
 

@@ -8,7 +8,7 @@
 #ifndef SkSVGNode_DEFINED
 #define SkSVGNode_DEFINED
 
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 #include "SkSVGAttribute.h"
 
 class SkCanvas;

@@ -7,10 +7,10 @@
 
 #include "gm.h"
 
-#include "SkColorFilter.h"
-#include "SkImage.h"
-#include "SkMaskFilter.h"
-#include "SkShader.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkShader.h"
 
 static SkBitmap make_alpha_image(int w, int h) {
     SkBitmap bm;

@@ -8,10 +8,10 @@
 #ifndef GrConvexPolyEffect_DEFINED
 #define GrConvexPolyEffect_DEFINED
 
-#include "GrCaps.h"
-#include "GrFragmentProcessor.h"
-#include "GrProcessor.h"
-#include "GrTypesPriv.h"
+#include "../GrCaps.h"
+#include "../GrFragmentProcessor.h"
+#include "../GrProcessor.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrInvariantOutput;
 class SkPath;

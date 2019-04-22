@@ -9,11 +9,11 @@
 #define CodecBench_DEFINED
 
 #include "Benchmark.h"
-#include "SkAutoMalloc.h"
-#include "SkData.h"
-#include "SkImageInfo.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
+#include "../src/core/SkAutoMalloc.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 
 /**
  *  Time SkCodec.

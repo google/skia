@@ -6,7 +6,7 @@
  */
 
 #include "Test.h"
-#include "SkFixed15.h"
+#include "../src/core/SkFixed15.h"
 
 DEF_TEST(SkFixed15, r) {
     // For all v, v*0 == 0, v*1 == v.

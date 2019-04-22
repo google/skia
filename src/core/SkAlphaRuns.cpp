@@ -6,7 +6,7 @@
  */
 
 #include "SkAntiRun.h"
-#include "SkTo.h"
+#include "include/private/SkTo.h"
 #include "SkUtils.h"
 
 void SkAlphaRuns::reset(int width) {

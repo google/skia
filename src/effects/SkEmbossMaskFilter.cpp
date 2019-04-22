@@ -6,13 +6,13 @@
  */
 
 #include "SkEmbossMaskFilter.h"
-#include "SkBlurMaskFilter.h"
-#include "SkBlurMask.h"
-#include "SkColorPriv.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "../core/SkBlurMask.h"
+#include "include/core/SkColorPriv.h"
 #include "SkEmbossMask.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkString.h"
+#include "../core/SkReadBuffer.h"
+#include "../core/SkWriteBuffer.h"
+#include "include/core/SkString.h"
 
 static void normalize3(SkScalar dst[3], const SkScalar src[3]) {
     SkScalar mag = SkScalarSquare(src[0]) + SkScalarSquare(src[1]) + SkScalarSquare(src[2]);
