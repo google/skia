@@ -16,7 +16,7 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-#include "../third_party/skcms/skcms.h"
+#include "skcms.h"
 #include "png.h"
 
 #include <memory>

@@ -10,7 +10,7 @@
 
 #include "../private/SkFixed.h"
 #include "../private/SkOnce.h"
-#include "../../third_party/skcms/skcms.h"
+#include "skcms.h"
 #include "SkMatrix44.h"
 #include "SkRefCnt.h"
 #include <memory>
