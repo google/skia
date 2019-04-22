@@ -8,19 +8,19 @@
 #ifndef SkReadBuffer_DEFINED
 #define SkReadBuffer_DEFINED
 
-#include "SkColorFilter.h"
-#include "SkSerialProcs.h"
-#include "SkDrawLooper.h"
-#include "SkFont.h"
-#include "SkImageFilter.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkSerialProcs.h"
+#include "include/core/SkDrawLooper.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImageFilter.h"
 #include "SkMaskFilterBase.h"
 #include "SkPaintPriv.h"
-#include "SkPath.h"
-#include "SkPathEffect.h"
-#include "SkPicture.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPicture.h"
 #include "SkReader32.h"
-#include "SkRefCnt.h"
-#include "SkShaderBase.h"
+#include "include/core/SkRefCnt.h"
+#include "../shaders/SkShaderBase.h"
 #include "SkWriteBuffer.h"
 
 class SkData;

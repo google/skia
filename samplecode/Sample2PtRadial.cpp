@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 #include "Sample.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkGradientShader.h"
 
 
 class TwoPtConicalView : public Sample {

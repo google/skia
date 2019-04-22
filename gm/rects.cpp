@@ -6,13 +6,13 @@
  */
 
 #include "gm.h"
-#include "SkBlurDrawLooper.h"
-#include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
-#include "SkColorFilter.h"
-#include "SkGradientShader.h"
-#include "SkMatrix.h"
-#include "SkTArray.h"
+#include "include/effects/SkBlurDrawLooper.h"
+#include "../src/core/SkBlurMask.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/core/SkColorFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkMatrix.h"
+#include "include/private/SkTArray.h"
 
 namespace skiagm {
 

@@ -7,10 +7,10 @@
 
 #include "SkBitmapProcShader.h"
 
-#include "SkArenaAlloc.h"
-#include "SkBitmapProcState.h"
-#include "SkBitmapProvider.h"
-#include "SkXfermodePriv.h"
+#include "include/private/SkArenaAlloc.h"
+#include "../core/SkBitmapProcState.h"
+#include "../core/SkBitmapProvider.h"
+#include "../core/SkXfermodePriv.h"
 
 static bool only_scale_and_translate(const SkMatrix& matrix) {
     unsigned mask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;

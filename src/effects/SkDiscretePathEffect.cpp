@@ -6,13 +6,13 @@
  */
 
 
-#include "SkDiscretePathEffect.h"
-#include "SkFixed.h"
-#include "SkPathMeasure.h"
-#include "SkPointPriv.h"
-#include "SkReadBuffer.h"
-#include "SkStrokeRec.h"
-#include "SkWriteBuffer.h"
+#include "include/effects/SkDiscretePathEffect.h"
+#include "include/private/SkFixed.h"
+#include "include/core/SkPathMeasure.h"
+#include "../core/SkPointPriv.h"
+#include "../core/SkReadBuffer.h"
+#include "include/core/SkStrokeRec.h"
+#include "../core/SkWriteBuffer.h"
 
 sk_sp<SkPathEffect> SkDiscretePathEffect::Make(SkScalar segLength, SkScalar deviation,
                                                uint32_t seedAssist) {

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkMatrixConvolutionImageFilter.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkString.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkString.h"
 
 static const char* name(SkMatrixConvolutionImageFilter::TileMode mode) {
     switch (mode) {

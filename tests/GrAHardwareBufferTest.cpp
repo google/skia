@@ -7,17 +7,17 @@
 
 // This is a GPU-backend specific test. It relies on static intializers to work
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if SK_SUPPORT_GPU && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 
-#include "GrAHardwareBufferImageGenerator.h"
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "SkImage.h"
-#include "SkSurface.h"
+#include "../src/gpu/GrAHardwareBufferImageGenerator.h"
+#include "include/gpu/GrContext.h"
+#include "../tools/gpu/GrContextFactory.h"
+#include "../src/gpu/GrContextPriv.h"
+#include "../src/gpu/GrGpu.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkSurface.h"
 #include "Test.h"
 
 #include <android/hardware_buffer.h>

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkHighContrastFilter.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkHighContrastFilter.h"
 #include "Test.h"
 
 DEF_TEST(HighContrastFilter_FilterImage, reporter) {

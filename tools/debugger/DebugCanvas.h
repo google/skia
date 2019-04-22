@@ -9,14 +9,14 @@
 #define SKDEBUGCANVAS_H_
 
 #include "DrawCommand.h"
-#include "SkCanvas.h"
-#include "SkCanvasVirtualEnforcer.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkString.h"
-#include "SkTArray.h"
-#include "SkVertices.h"
-#include "UrlDataManager.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkCanvasVirtualEnforcer.h"
+#include "include/core/SkPath.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTArray.h"
+#include "include/core/SkVertices.h"
+#include "../UrlDataManager.h"
 
 class GrAuditTrail;
 class SkNWayCanvas;

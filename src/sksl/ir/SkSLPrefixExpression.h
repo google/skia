@@ -10,8 +10,8 @@
 
 #include "SkSLExpression.h"
 #include "SkSLFloatLiteral.h"
-#include "SkSLIRGenerator.h"
-#include "SkSLLexer.h"
+#include "../SkSLIRGenerator.h"
+#include "../SkSLLexer.h"
 
 namespace SkSL {
 

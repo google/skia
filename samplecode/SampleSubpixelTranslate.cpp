@@ -8,13 +8,13 @@
 #include "Sample.h"
 
 #include "DecodeFile.h"
-#include "Resources.h"
-#include "SkBlurMaskFilter.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkFont.h"
-#include "SkRandom.h"
-#include "SkStream.h"
+#include "../tools/Resources.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkFont.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkStream.h"
 
 // Intended to exercise pixel snapping observed with scaled images (and
 // with non-scaled images, but for a different reason):  Bug 1145

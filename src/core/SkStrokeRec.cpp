@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkStrokeRec.h"
+#include "include/core/SkStrokeRec.h"
 #include "SkPaintDefaults.h"
 
 // must be < 0, since ==0 means hairline, and >0 means normal stroke

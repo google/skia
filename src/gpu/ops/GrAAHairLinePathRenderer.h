@@ -8,7 +8,7 @@
 #ifndef GrAAHairLinePathRenderer_DEFINED
 #define GrAAHairLinePathRenderer_DEFINED
 
-#include "GrPathRenderer.h"
+#include "../GrPathRenderer.h"
 
 class GrAAHairLinePathRenderer : public GrPathRenderer {
 public:

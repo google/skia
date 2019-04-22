@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkParsePath.h"
-#include "SkPath.h"
-#include "SkTArray.h"
-#include "SkTrimPathEffect.h"
+#include "../tools/timer/AnimTimer.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/utils/SkParsePath.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkTArray.h"
+#include "include/effects/SkTrimPathEffect.h"
 #include "gm.h"
 
 #include <utility>

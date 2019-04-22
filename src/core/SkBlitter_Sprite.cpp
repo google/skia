@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkColorSpace.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/core/SkColorSpace.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkCoreBlitters.h"

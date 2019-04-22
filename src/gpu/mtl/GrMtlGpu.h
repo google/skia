@@ -8,10 +8,10 @@
 #ifndef GrMtlGpu_DEFINED
 #define GrMtlGpu_DEFINED
 
-#include "GrGpu.h"
-#include "GrRenderTarget.h"
-#include "GrSemaphore.h"
-#include "GrTexture.h"
+#include "../GrGpu.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "../GrSemaphore.h"
+#include "include/gpu/GrTexture.h"
 
 #include "GrMtlBuffer.h"
 #include "GrMtlCaps.h"

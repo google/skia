@@ -8,9 +8,9 @@
 #include "SkPDFMakeCIDGlyphWidthsArray.h"
 
 #include "SkPDFGlyphUse.h"
-#include "SkPaint.h"
-#include "SkStrike.h"
-#include "SkTo.h"
+#include "include/core/SkPaint.h"
+#include "../core/SkStrike.h"
+#include "include/private/SkTo.h"
 
 #include <vector>
 

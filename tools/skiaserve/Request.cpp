@@ -7,9 +7,9 @@
 
 #include "Request.h"
 
-#include "SkJSONWriter.h"
-#include "SkPictureRecorder.h"
-#include "ToolUtils.h"
+#include "../../src/utils/SkJSONWriter.h"
+#include "include/core/SkPictureRecorder.h"
+#include "../ToolUtils.h"
 
 using namespace sk_gpu_test;
 

@@ -8,8 +8,8 @@
 #ifndef SkMergeImageFilter_DEFINED
 #define SkMergeImageFilter_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkImageFilter.h"
+#include "../core/SkFlattenable.h"
+#include "../core/SkImageFilter.h"
 
 class SK_API SkMergeImageFilter : public SkImageFilter {
 public:

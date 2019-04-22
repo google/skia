@@ -8,12 +8,12 @@
 #ifndef GrProcessorUnitTest_DEFINED
 #define GrProcessorUnitTest_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if GR_TEST_UTILS
 
-#include "../private/GrTextureProxy.h"
-#include "../private/SkTArray.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/private/SkTArray.h"
 #include "GrTestUtils.h"
 
 class SkMatrix;

@@ -6,7 +6,7 @@
  */
 
 #include "SkCharToGlyphCache.h"
-#include "../private/SkTFitsIn.h"
+#include "include/private/SkTFitsIn.h"
 
 SkCharToGlyphCache::SkCharToGlyphCache() {
     this->reset();

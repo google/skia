@@ -7,12 +7,12 @@
 
 #include "GrStrikeCache.h"
 #include "GrAtlasManager.h"
-#include "GrCaps.h"
-#include "GrColor.h"
-#include "GrDistanceFieldGenFromVector.h"
+#include "../GrCaps.h"
+#include "include/private/GrColor.h"
+#include "../GrDistanceFieldGenFromVector.h"
 
-#include "SkAutoMalloc.h"
-#include "SkDistanceFieldGen.h"
+#include "../../core/SkAutoMalloc.h"
+#include "../../core/SkDistanceFieldGen.h"
 
 GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
         : fPreserveStrike(nullptr)

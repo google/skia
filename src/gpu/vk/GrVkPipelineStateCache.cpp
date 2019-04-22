@@ -6,16 +6,16 @@
  */
 
 
-#include "GrProcessor.h"
-#include "GrRenderTargetPriv.h"  // TODO: remove once refPipelineState gets passed stencil settings.
-#include "GrStencilSettings.h"
+#include "../GrProcessor.h"
+#include "../GrRenderTargetPriv.h"
+#include "../GrStencilSettings.h"
 #include "GrVkGpu.h"
 #include "GrVkPipelineState.h"
 #include "GrVkPipelineStateBuilder.h"
 #include "GrVkResourceProvider.h"
-#include "SkOpts.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLProgramDataManager.h"
+#include "../../core/SkOpts.h"
+#include "../glsl/GrGLSLFragmentProcessor.h"
+#include "../glsl/GrGLSLProgramDataManager.h"
 
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
 // Display pipeline state cache usage

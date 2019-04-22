@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkChecksum.h"
-#include "SkOpts.h"
-#include "SkRandom.h"
-#include "SkTypes.h"
+#include "include/private/SkChecksum.h"
+#include "../src/core/SkOpts.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkTypes.h"
 #include "Test.h"
 
 DEF_TEST(Checksum, r) {

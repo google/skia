@@ -8,7 +8,7 @@
 #ifndef SkSurface_Gpu_DEFINED
 #define SkSurface_Gpu_DEFINED
 
-#include "GrTypesPriv.h"
+#include "include/private/GrTypesPriv.h"
 #include "SkSurface_Base.h"
 
 #if SK_SUPPORT_GPU

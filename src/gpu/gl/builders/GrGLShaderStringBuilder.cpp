@@ -6,13 +6,13 @@
  */
 
 #include "GrGLShaderStringBuilder.h"
-#include "GrSKSLPrettyPrint.h"
-#include "SkAutoMalloc.h"
-#include "SkSLCompiler.h"
-#include "SkSLGLSLCodeGenerator.h"
-#include "SkTraceEvent.h"
-#include "gl/GrGLGpu.h"
-#include "ir/SkSLProgram.h"
+#include "../../GrSKSLPrettyPrint.h"
+#include "../../../core/SkAutoMalloc.h"
+#include "../../../sksl/SkSLCompiler.h"
+#include "../../../sksl/SkSLGLSLCodeGenerator.h"
+#include "../../../core/SkTraceEvent.h"
+#include "../GrGLGpu.h"
+#include "../../../sksl/ir/SkSLProgram.h"
 
 #define GL_CALL(X) GR_GL_CALL(gpu->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(gpu->glInterface(), R, X)

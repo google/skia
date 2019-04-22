@@ -9,7 +9,7 @@
 #define GrBicubicTextureEffect_DEFINED
 
 #include "GrTextureDomain.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
+#include "../glsl/GrGLSLFragmentProcessor.h"
 
 class GrInvariantOutput;
 

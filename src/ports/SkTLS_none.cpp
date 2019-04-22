@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkTLS.h"
+#include "../core/SkTLS.h"
 
 static void* gSpecific = nullptr;
 

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
+#include "../src/core/SkAutoMalloc.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkRegion.h"
 #include "Test.h"
 
 static void Union(SkRegion* rgn, const SkIRect& rect) {

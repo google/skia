@@ -6,19 +6,19 @@
  */
 
 #include "GrStencilAndCoverPathRenderer.h"
-#include "GrCaps.h"
+#include "../GrCaps.h"
 #include "GrDrawPathOp.h"
-#include "GrFixedClip.h"
-#include "GrGpu.h"
-#include "GrPath.h"
-#include "GrRecordingContext.h"
-#include "GrRenderTargetContextPriv.h"
-#include "GrResourceProvider.h"
-#include "GrShape.h"
-#include "GrStencilClip.h"
+#include "../GrFixedClip.h"
+#include "../GrGpu.h"
+#include "../GrPath.h"
+#include "include/private/GrRecordingContext.h"
+#include "../GrRenderTargetContextPriv.h"
+#include "../GrResourceProvider.h"
+#include "../GrShape.h"
+#include "../GrStencilClip.h"
 #include "GrStencilPathOp.h"
-#include "GrStyle.h"
-#include "ops/GrFillRectOp.h"
+#include "../GrStyle.h"
+#include "GrFillRectOp.h"
 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
                                                       const GrCaps& caps) {

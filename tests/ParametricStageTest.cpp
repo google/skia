@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpace.h"
-#include "SkRasterPipeline.h"
+#include "include/core/SkColorSpace.h"
+#include "../src/core/SkRasterPipeline.h"
 #include "Test.h"
 
 static void check_error(skiatest::Reporter* r, float limit, skcms_TransferFunction fn) {

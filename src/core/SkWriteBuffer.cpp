@@ -7,14 +7,14 @@
 
 #include "SkWriteBuffer.h"
 
-#include "SkBitmap.h"
-#include "SkData.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
 #include "SkImagePriv.h"
 #include "SkPaintPriv.h"
 #include "SkPtrRecorder.h"
-#include "SkStream.h"
-#include "SkTo.h"
-#include "SkTypeface.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTo.h"
+#include "include/core/SkTypeface.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

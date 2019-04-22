@@ -6,21 +6,21 @@
  */
 
 #include "SkBlendModePriv.h"
-#include "SkColorData.h"
+#include "include/private/SkColorData.h"
 #include "SkMathPriv.h"
-#include "SkOnce.h"
+#include "include/private/SkOnce.h"
 #include "SkOpts.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
 #include "SkWriteBuffer.h"
 #include "SkXfermodePriv.h"
 
 #if SK_SUPPORT_GPU
-#include "GrFragmentProcessor.h"
-#include "effects/GrCustomXfermode.h"
-#include "effects/GrPorterDuffXferProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
+#include "../gpu/GrFragmentProcessor.h"
+#include "../gpu/effects/GrCustomXfermode.h"
+#include "../gpu/effects/GrPorterDuffXferProcessor.h"
+#include "../gpu/effects/GrXfermodeFragmentProcessor.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

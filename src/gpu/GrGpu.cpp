@@ -8,10 +8,10 @@
 
 #include "GrGpu.h"
 
-#include "GrBackendSemaphore.h"
-#include "GrBackendSurface.h"
+#include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "GrCaps.h"
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "GrMesh.h"
@@ -27,8 +27,8 @@
 #include "GrTexturePriv.h"
 #include "GrTextureProxyPriv.h"
 #include "GrTracing.h"
-#include "SkJSONWriter.h"
-#include "SkMathPriv.h"
+#include "../utils/SkJSONWriter.h"
+#include "../core/SkMathPriv.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

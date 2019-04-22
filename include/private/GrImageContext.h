@@ -9,7 +9,7 @@
 #define GrImageContext_DEFINED
 
 #include "GrContext_Base.h"
-#include "../private/GrSingleOwner.h"
+#include "GrSingleOwner.h"
 
 class GrImageContextPriv;
 class GrProxyProvider;

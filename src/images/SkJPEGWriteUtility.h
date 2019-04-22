@@ -9,8 +9,8 @@
 #ifndef SkJpegUtility_DEFINED
 #define SkJpegUtility_DEFINED
 
-#include "SkJpegPriv.h"
-#include "SkStream.h"
+#include "../codec/SkJpegPriv.h"
+#include "include/core/SkStream.h"
 
 extern "C" {
     #include "jpeglib.h"

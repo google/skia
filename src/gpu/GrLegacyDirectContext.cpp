@@ -6,10 +6,10 @@
  */
 
 
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 
 #include "GrContextPriv.h"
-#include "GrContextThreadSafeProxy.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "GrContextThreadSafeProxyPriv.h"
 #include "GrGpu.h"
 

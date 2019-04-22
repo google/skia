@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathMeasure.h"
-#include "SkContourMeasure.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkContourMeasure.h"
 
 SkPathMeasure::SkPathMeasure() {}
 

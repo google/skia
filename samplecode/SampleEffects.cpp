@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 #include "Sample.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkColorMatrixFilter.h"
-#include "SkDiscretePathEffect.h"
-#include "SkEmbossMaskFilter.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
+#include "../src/core/SkBlurMask.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/effects/SkDiscretePathEffect.h"
+#include "../src/effects/SkEmbossMaskFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkPaint.h"
 
 
 //#define COLOR 0xFFFF8844

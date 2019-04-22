@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkCubicClipper.h"
-#include "SkFloatBits.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkSurface.h"
-#include "SkTypes.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "../src/core/SkCubicClipper.h"
+#include "include/private/SkFloatBits.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "Test.h"
 
 // Currently the supersampler blitter uses int16_t for its index into an array
@@ -171,7 +171,7 @@ DEF_TEST(ClipCubic, reporter) {
     test_giantClip();
 }
 
-#include "SkSurface.h"
+#include "include/core/SkSurface.h"
 
 DEF_TEST(test_fuzz_crbug_698714, reporter) {
     auto surface(SkSurface::MakeRasterN32Premul(500, 500));

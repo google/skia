@@ -10,7 +10,7 @@
 #include "SkLineParameters.h"
 #include "SkPathOpsCurve.h"
 #if DEBUG_ANGLE
-#include "SkString.h"
+#include "include/core/SkString.h"
 #endif
 
 class SkOpContour;

@@ -7,10 +7,10 @@
 
 #include "GLTestAtlasTextRenderer.h"
 #include "../gl/GLTestContext.h"
-#include "SkBitmap.h"
+#include "include/core/SkBitmap.h"
 #include "TestAtlasTextRenderer.h"
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLUtil.h"
+#include "../../../src/gpu/gl/GrGLDefines.h"
+#include "../../../src/gpu/gl/GrGLUtil.h"
 
 using sk_gpu_test::GLTestContext;
 

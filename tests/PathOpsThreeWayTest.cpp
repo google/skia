@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 #include "PathOpsTestCommon.h"
-#include "SkIntersections.h"
-#include "SkTDArray.h"
+#include "../src/pathops/SkIntersections.h"
+#include "include/private/SkTDArray.h"
 #include "Test.h"
 
 // check intersections for consistency

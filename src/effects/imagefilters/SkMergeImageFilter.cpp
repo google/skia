@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkMergeImageFilter.h"
+#include "include/effects/SkMergeImageFilter.h"
 
-#include "SkCanvas.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
-#include "SkWriteBuffer.h"
-#include "SkValidationUtils.h"
+#include "include/core/SkCanvas.h"
+#include "../../core/SkReadBuffer.h"
+#include "../../core/SkSpecialImage.h"
+#include "../../core/SkSpecialSurface.h"
+#include "../../core/SkWriteBuffer.h"
+#include "../../core/SkValidationUtils.h"
 
 sk_sp<SkImageFilter> SkMergeImageFilter::Make(sk_sp<SkImageFilter>* const filters, int count,
                                                const CropRect* cropRect) {

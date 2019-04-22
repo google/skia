@@ -6,12 +6,12 @@
 */
 
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkMaskFilter.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRect.h"
-#include "SkString.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkString.h"
 
 class BlurRectsBench : public Benchmark {
 public:

@@ -10,7 +10,7 @@
 #include "GrColorSpaceXform.h"
 #include "GrGpu.h"
 #include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
+#include "include/private/GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 
 sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSamplerState& params,

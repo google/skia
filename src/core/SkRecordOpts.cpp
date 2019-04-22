@@ -10,7 +10,7 @@
 #include "SkCanvasPriv.h"
 #include "SkRecordPattern.h"
 #include "SkRecords.h"
-#include "SkTDArray.h"
+#include "include/private/SkTDArray.h"
 
 using namespace SkRecords;
 

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkAlphaThresholdFilter.h"
-#include "SkImage.h"
-#include "SkRegion.h"
+#include "include/effects/SkAlphaThresholdFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkRegion.h"
 #include "Test.h"
 
 static void test_flattenable(skiatest::Reporter* r,

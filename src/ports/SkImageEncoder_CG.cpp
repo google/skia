@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageEncoderPriv.h"
+#include "../images/SkImageEncoderPriv.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
-#include "mac/SkUniqueCFRef.h"
-#include "SkBitmap.h"
-#include "SkCGUtils.h"
-#include "SkColorData.h"
-#include "SkData.h"
-#include "SkStream.h"
-#include "SkStreamPriv.h"
-#include "SkTemplates.h"
-#include "SkUnPreMultiply.h"
+#include "../utils/mac/SkUniqueCFRef.h"
+#include "include/core/SkBitmap.h"
+#include "include/utils/mac/SkCGUtils.h"
+#include "include/private/SkColorData.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "../core/SkStreamPriv.h"
+#include "include/private/SkTemplates.h"
+#include "include/core/SkUnPreMultiply.h"
 
 #ifdef SK_BUILD_FOR_MAC
 #include <ApplicationServices/ApplicationServices.h>

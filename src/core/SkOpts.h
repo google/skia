@@ -9,7 +9,7 @@
 #define SkOpts_DEFINED
 
 #include "SkRasterPipeline.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #include "SkXfermodePriv.h"
 
 struct SkBitmapProcState;

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkParsePath.h"
+#include "include/utils/SkParsePath.h"
 #include "Test.h"
 
 static void test_to_from(skiatest::Reporter* reporter, const SkPath& path) {
@@ -72,8 +72,8 @@ DEF_TEST(ParsePath_invalid, r) {
     REPORTER_ASSERT(r, !success);
 }
 
-#include "random_parse_path.h"
-#include "SkRandom.h"
+#include "../tools/random_parse_path.h"
+#include "include/utils/SkRandom.h"
 
 DEF_TEST(ParsePathRandom, r) {
     SkRandom rand;

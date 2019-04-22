@@ -7,13 +7,13 @@
 
 #include "SkottiePriv.h"
 
-#include "SkJSON.h"
+#include "../../../src/utils/SkJSON.h"
 #include "SkottieAdapter.h"
 #include "SkottieJson.h"
 #include "SkottieValue.h"
-#include "SkSGColorFilter.h"
-#include "SkSGPaint.h"
-#include "SkSGRenderEffect.h"
+#include "modules/sksg/include/SkSGColorFilter.h"
+#include "modules/sksg/include/SkSGPaint.h"
+#include "modules/sksg/include/SkSGRenderEffect.h"
 
 namespace skottie {
 namespace internal {

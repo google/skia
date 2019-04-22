@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 // Hue, Saturation, Color, and Luminosity blend modes are oddballs.

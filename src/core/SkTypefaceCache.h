@@ -10,9 +10,9 @@
 #ifndef SkTypefaceCache_DEFINED
 #define SkTypefaceCache_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkTypeface.h"
-#include "SkTArray.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTArray.h"
 
 class SkTypefaceCache {
 public:

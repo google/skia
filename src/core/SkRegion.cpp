@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkRegion.h"
+#include "include/core/SkRegion.h"
 
-#include "SkMacros.h"
+#include "include/private/SkMacros.h"
 #include "SkRegionPriv.h"
 #include "SkSafeMath.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
-#include "SkUTF.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
+#include "../utils/SkUTF.h"
 
 #include <utility>
 

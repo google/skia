@@ -10,11 +10,11 @@
  **************************************************************************************************/
 #ifndef GrEllipseEffect_DEFINED
 #define GrEllipseEffect_DEFINED
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrShaderCaps.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "../../GrShaderCaps.h"
+#include "../../GrFragmentProcessor.h"
+#include "../../GrCoordTransform.h"
 class GrEllipseEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,

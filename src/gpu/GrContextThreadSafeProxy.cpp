@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrContextThreadSafeProxy.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "GrContextThreadSafeProxyPriv.h"
 
 #include "GrBaseContextPriv.h"
 #include "GrCaps.h"
-#include "GrContext.h"
-#include "GrSkSLFPFactoryCache.h"
-#include "SkSurface_Gpu.h"
-#include "SkSurfaceCharacterization.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrSkSLFPFactoryCache.h"
+#include "../image/SkSurface_Gpu.h"
+#include "include/core/SkSurfaceCharacterization.h"
 
 GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
                                                    const GrContextOptions& options,

@@ -9,7 +9,7 @@
 #define GrCCPerOpListPaths_DEFINED
 
 #include "SkArenaAlloc.h"
-#include "SkRefCnt.h"
+#include "../core/SkRefCnt.h"
 #include "SkTInternalLList.h"
 #include "GrCCClipPath.h"
 

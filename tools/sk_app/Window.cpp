@@ -7,8 +7,8 @@
 
 #include "Window.h"
 
-#include "SkSurface.h"
-#include "SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkCanvas.h"
 #include "WindowContext.h"
 
 namespace sk_app {

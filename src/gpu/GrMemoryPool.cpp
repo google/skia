@@ -6,7 +6,7 @@
  */
 
 #include "GrMemoryPool.h"
-#include "SkMalloc.h"
+#include "include/private/SkMalloc.h"
 #include "ops/GrOp.h"
 #ifdef SK_DEBUG
     #include <atomic>

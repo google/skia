@@ -7,13 +7,13 @@
 
 #include "SkPDFGraphicState.h"
 
-#include "SkData.h"
-#include "SkPDFDocument.h"
+#include "include/core/SkData.h"
+#include "include/docs/SkPDFDocument.h"
 #include "SkPDFDocumentPriv.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFUtils.h"
-#include "SkPaint.h"
-#include "SkTo.h"
+#include "include/core/SkPaint.h"
+#include "include/private/SkTo.h"
 
 static const char* as_pdf_blend_mode_name(SkBlendMode mode) {
     const char* name = SkPDFUtils::BlendModeName(mode);

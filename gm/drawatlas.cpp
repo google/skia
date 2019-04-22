@@ -7,12 +7,12 @@
 
 #include "gm.h"
 
-#include "SkAutoMalloc.h"
-#include "SkCanvas.h"
-#include "SkRSXform.h"
-#include "SkSurface.h"
-#include "SkTextBlob.h"
-#include "ToolUtils.h"
+#include "../src/core/SkAutoMalloc.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
+#include "../tools/ToolUtils.h"
 
 class DrawAtlasGM : public skiagm::GM {
     static sk_sp<SkImage> MakeAtlas(SkCanvas* caller, const SkRect& target) {
@@ -99,10 +99,10 @@ private:
 DEF_GM( return new DrawAtlasGM; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkFont.h"
-#include "SkFontPriv.h"
-#include "SkPath.h"
-#include "SkPathMeasure.h"
+#include "include/core/SkFont.h"
+#include "../src/core/SkFontPriv.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathMeasure.h"
 
 static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
                               const SkPoint xy[], const SkPath& path, const SkFont& font, const SkPaint& paint,
@@ -153,7 +153,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
     }
 }
 
-#include "SkGradientShader.h"
+#include "include/effects/SkGradientShader.h"
 static sk_sp<SkShader> make_shader() {
     SkPoint pts[2] = {{0, 0}, {220, 0}};
     SkColor colors[2] = {SK_ColorRED, SK_ColorBLUE};
@@ -237,9 +237,9 @@ DEF_SIMPLE_GM(blob_rsxform, canvas, 500, 100) {
     canvas->drawTextBlob(blob, offset.fX, offset.fY, paint);
 }
 
-#include "Resources.h"
-#include "SkColorFilter.h"
-#include "SkVertices.h"
+#include "../tools/Resources.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkVertices.h"
 
 static sk_sp<SkVertices> make_vertices(sk_sp<SkImage> image, const SkRect& r,
                                        SkColor color) {

@@ -7,14 +7,14 @@
 
 #include "GrCCFiller.h"
 
-#include "GrCaps.h"
-#include "GrGpuCommandBuffer.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrOpFlushState.h"
-#include "SkMathPriv.h"
-#include "SkPath.h"
-#include "SkPathPriv.h"
-#include "SkPoint.h"
+#include "../GrCaps.h"
+#include "../GrGpuCommandBuffer.h"
+#include "../GrOnFlushResourceProvider.h"
+#include "../GrOpFlushState.h"
+#include "../../core/SkMathPriv.h"
+#include "include/core/SkPath.h"
+#include "../../core/SkPathPriv.h"
+#include "include/core/SkPoint.h"
 #include <stdlib.h>
 
 using TriPointInstance = GrCCCoverageProcessor::TriPointInstance;

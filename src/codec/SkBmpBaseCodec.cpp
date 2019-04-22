@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "SkBmpBaseCodec.h"
-#include "../private/SkMalloc.h"
+#include "include/private/SkMalloc.h"
 
 SkBmpBaseCodec::~SkBmpBaseCodec() {}
 

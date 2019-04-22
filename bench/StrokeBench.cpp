@@ -6,10 +6,10 @@
  */
 
 #include "Benchmark.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkString.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkString.h"
 
 class StrokeBench : public Benchmark {
 public:

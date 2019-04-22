@@ -8,12 +8,12 @@
 #ifndef GrMtlPipelineStateBuilder_DEFINED
 #define GrMtlPipelineStateBuilder_DEFINED
 
-#include "GrPipeline.h"
-#include "GrProgramDesc.h"
+#include "../GrPipeline.h"
+#include "../GrProgramDesc.h"
 #include "GrMtlUniformHandler.h"
 #include "GrMtlVaryingHandler.h"
-#include "SkSLCompiler.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "../../sksl/SkSLCompiler.h"
+#include "../glsl/GrGLSLProgramBuilder.h"
 
 #import <metal/metal.h>
 

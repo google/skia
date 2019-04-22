@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkLRUCache.h"
+#include "../src/core/SkLRUCache.h"
 #include "Test.h"
 
 struct Value {

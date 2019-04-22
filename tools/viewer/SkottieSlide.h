@@ -11,7 +11,7 @@
 #include "Slide.h"
 
 #if defined(SK_ENABLE_SKOTTIE)
-#include "Skottie.h"
+#include "modules/skottie/include/Skottie.h"
 
 namespace sksg    { class Scene;     }
 

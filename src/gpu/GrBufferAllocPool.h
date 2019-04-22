@@ -10,11 +10,11 @@
 
 #include "GrCpuBuffer.h"
 #include "GrNonAtomicRef.h"
-#include "GrTypesPriv.h"
-#include "SkNoncopyable.h"
-#include "SkTArray.h"
-#include "SkTDArray.h"
-#include "SkTypes.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
+#include "include/core/SkTypes.h"
 
 class GrGpu;
 

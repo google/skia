@@ -6,13 +6,13 @@
  */
 
 #include "RandomScalerContext.h"
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkGlyph.h"
-#include "SkMakeUnique.h"
-#include "SkPath.h"
-#include "SkRectPriv.h"
+#include "../../src/core/SkAdvancedTypefaceMetrics.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "../../src/core/SkGlyph.h"
+#include "../../src/core/SkMakeUnique.h"
+#include "include/core/SkPath.h"
+#include "../../src/core/SkRectPriv.h"
 
 class SkDescriptor;
 

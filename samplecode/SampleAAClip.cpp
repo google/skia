@@ -6,9 +6,9 @@
  */
 
 #include "Sample.h"
-#include "SkAAClip.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
+#include "../src/core/SkAAClip.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
 
 static void testop(const SkIRect& r0, const SkIRect& r1, SkRegion::Op op,
                    const SkIRect& expectedR) {

@@ -7,19 +7,19 @@
 
 #include "SkGpuBlurUtils.h"
 
-#include "SkRect.h"
+#include "include/core/SkRect.h"
 
 #if SK_SUPPORT_GPU
-#include "GrCaps.h"
-#include "GrFixedClip.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetContextPriv.h"
-#include "effects/GrGaussianConvolutionFragmentProcessor.h"
-#include "effects/GrMatrixConvolutionEffect.h"
+#include "../gpu/GrCaps.h"
+#include "../gpu/GrFixedClip.h"
+#include "include/private/GrRecordingContext.h"
+#include "../gpu/GrRecordingContextPriv.h"
+#include "../gpu/GrRenderTargetContext.h"
+#include "../gpu/GrRenderTargetContextPriv.h"
+#include "../gpu/effects/GrGaussianConvolutionFragmentProcessor.h"
+#include "../gpu/effects/GrMatrixConvolutionEffect.h"
 
-#include "SkGr.h"
+#include "../gpu/SkGr.h"
 
 #define MAX_BLUR_SIGMA 4.0f
 

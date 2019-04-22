@@ -7,10 +7,10 @@
 
 #include "SkMaskGamma.h"
 
-#include "SkColor.h"
-#include "SkFloatingPoint.h"
-#include "SkTo.h"
-#include "SkTypes.h"
+#include "include/core/SkColor.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkTo.h"
+#include "include/core/SkTypes.h"
 
 class SkLinearColorSpaceLuminance : public SkColorSpaceLuminance {
     SkScalar toLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luminance) const override {

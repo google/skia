@@ -7,16 +7,16 @@
 
 #include "GrBufferAllocPool.h"
 #include "GrCaps.h"
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrCpuBuffer.h"
 #include "GrGpu.h"
 #include "GrGpuBuffer.h"
 #include "GrResourceProvider.h"
-#include "GrTypes.h"
-#include "SkMacros.h"
-#include "SkSafeMath.h"
-#include "SkTraceEvent.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkMacros.h"
+#include "../core/SkSafeMath.h"
+#include "../core/SkTraceEvent.h"
 
 sk_sp<GrBufferAllocPool::CpuBufferCache> GrBufferAllocPool::CpuBufferCache::Make(
         int maxBuffersToCache) {

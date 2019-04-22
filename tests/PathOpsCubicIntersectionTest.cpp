@@ -6,10 +6,10 @@
  */
 #include "PathOpsCubicIntersectionTestData.h"
 #include "PathOpsTestCommon.h"
-#include "SkGeometry.h"
-#include "SkIntersections.h"
-#include "SkPathOpsRect.h"
-#include "SkReduceOrder.h"
+#include "../src/core/SkGeometry.h"
+#include "../src/pathops/SkIntersections.h"
+#include "../src/pathops/SkPathOpsRect.h"
+#include "../src/pathops/SkReduceOrder.h"
 #include "Test.h"
 
 #include <stdlib.h>

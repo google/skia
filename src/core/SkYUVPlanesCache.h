@@ -9,9 +9,9 @@
 #define SkYUVPlanesCache_DEFINED
 
 #include "SkCachedData.h"
-#include "SkImageInfo.h"
-#include "SkYUVAIndex.h"
-#include "SkYUVASizeInfo.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkYUVAIndex.h"
+#include "include/core/SkYUVASizeInfo.h"
 
 class SkResourceCache;
 

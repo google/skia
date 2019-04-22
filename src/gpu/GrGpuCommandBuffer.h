@@ -9,7 +9,7 @@
 #define GrGpuCommandBuffer_DEFINED
 
 #include "GrPipeline.h"
-#include "SkDrawable.h"
+#include "include/core/SkDrawable.h"
 #include "ops/GrDrawOp.h"
 
 class GrOpFlushState;

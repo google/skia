@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
-#include "SkImage.h"
-#include "SkImageSource.h"
+#include "include/core/SkImage.h"
+#include "include/effects/SkImageSource.h"
 
 // This GM exercises the SkImageSource ImageFilter class.
 

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkImageSource.h"
-#include "SkMaskFilter.h"
-#include "SkSurface.h"
+#include "../tools/Resources.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkImageSource.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkSurface.h"
 #include "Test.h"
 
 DEF_TEST(skbug_6389, r) {

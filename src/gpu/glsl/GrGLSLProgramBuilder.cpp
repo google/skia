@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "GrGLSLProgramBuilder.h"
 
-#include "GrCaps.h"
-#include "GrPipeline.h"
-#include "GrRenderTarget.h"
-#include "GrShaderCaps.h"
-#include "GrTexturePriv.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLXferProcessor.h"
-#include "SkSLCompiler.h"
+#include "../GrCaps.h"
+#include "../GrPipeline.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "../GrShaderCaps.h"
+#include "../GrTexturePriv.h"
+#include "GrGLSLFragmentProcessor.h"
+#include "GrGLSLGeometryProcessor.h"
+#include "GrGLSLVarying.h"
+#include "GrGLSLXferProcessor.h"
+#include "../../sksl/SkSLCompiler.h"
 
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 

@@ -7,8 +7,8 @@
 
 #include "SkSVGPattern.h"
 
-#include "SkPictureRecorder.h"
-#include "SkShader.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkShader.h"
 #include "SkSVGRenderContext.h"
 #include "SkSVGValue.h"
 

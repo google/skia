@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkSurface.h"
-#include "ToolUtils.h"
+#include "include/core/SkSurface.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 static sk_sp<SkSurface> make_surface(SkCanvas* root, int N) {

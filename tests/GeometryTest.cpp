@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkGeometry.h"
-#include "SkPointPriv.h"
-#include "SkRandom.h"
+#include "../src/core/SkGeometry.h"
+#include "../src/core/SkPointPriv.h"
+#include "include/utils/SkRandom.h"
 #include "Test.h"
 
 #include <array>

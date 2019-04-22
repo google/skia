@@ -12,7 +12,7 @@
 #include "SkImage.h"
 #include "SkSurfaceProps.h"
 
-#include "GrTypes.h"
+#include "../gpu/GrTypes.h"
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 #include <android/hardware_buffer.h>

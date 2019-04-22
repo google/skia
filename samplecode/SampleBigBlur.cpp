@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 #include "Sample.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkMaskFilter.h"
+#include "../src/core/SkBlurMask.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMaskFilter.h"
 
 class BigBlurView : public Sample {
 public:

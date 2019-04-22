@@ -7,16 +7,16 @@
 
 #include "SkWuffsCodec.h"
 
-#include "../private/SkMalloc.h"
-#include "SkBitmap.h"
-#include "SkDraw.h"
+#include "include/private/SkMalloc.h"
+#include "include/core/SkBitmap.h"
+#include "../core/SkDraw.h"
 #include "SkFrameHolder.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkRasterClip.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "../core/SkRasterClip.h"
 #include "SkSampler.h"
 #include "SkScalingCodec.h"
-#include "SkUtils.h"
+#include "../core/SkUtils.h"
 
 // Wuffs ships as a "single file C library" or "header file library" as per
 // https://github.com/nothings/stb/blob/master/docs/stb_howto.txt

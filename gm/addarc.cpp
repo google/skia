@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "SkCanvas.h"
-#include "SkPathMeasure.h"
-#include "SkRandom.h"
-#include "ToolUtils.h"
+#include "../tools/timer/AnimTimer.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/utils/SkRandom.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 class AddArcGM : public skiagm::GM {

@@ -6,7 +6,7 @@
  */
 
 #include "CodecPriv.h"
-#include "SkBitmap.h"
+#include "include/core/SkBitmap.h"
 #include "Test.h"
 
 // A valid 1x1 indexed PNG.

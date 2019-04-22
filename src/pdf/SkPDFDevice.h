@@ -8,20 +8,20 @@
 #ifndef SkPDFDevice_DEFINED
 #define SkPDFDevice_DEFINED
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkClipStack.h"
-#include "SkClipStackDevice.h"
-#include "SkData.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "../core/SkClipStack.h"
+#include "../core/SkClipStackDevice.h"
+#include "include/core/SkData.h"
 #include "SkKeyedImage.h"
 #include "SkPDFGraphicStackState.h"
 #include "SkPDFTypes.h"
-#include "SkPaint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkStream.h"
-#include "SkTHash.h"
-#include "SkTextBlobPriv.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTHash.h"
+#include "../core/SkTextBlobPriv.h"
 
 #include <vector>
 

@@ -6,13 +6,13 @@
  */
 
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkChecksum.h"
-#include "SkFont.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkString.h"
-#include "SkTemplates.h"
+#include "include/core/SkCanvas.h"
+#include "include/private/SkChecksum.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTemplates.h"
 
 #include "gUniqueGlyphIDs.h"
 

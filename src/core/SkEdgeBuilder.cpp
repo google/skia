@@ -11,10 +11,10 @@
 #include "SkEdgeClipper.h"
 #include "SkGeometry.h"
 #include "SkLineClipper.h"
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 #include "SkPathPriv.h"
 #include "SkSafeMath.h"
-#include "SkTo.h"
+#include "include/private/SkTo.h"
 
 SkEdgeBuilder::Combine SkBasicEdgeBuilder::combineVertical(const SkEdge* edge, SkEdge* last) {
     if (last->fCurveCount || last->fDX || edge->fX != last->fX) {

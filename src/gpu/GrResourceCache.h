@@ -8,17 +8,17 @@
 #ifndef GrResourceCache_DEFINED
 #define GrResourceCache_DEFINED
 
-#include "GrGpuResource.h"
+#include "include/gpu/GrGpuResource.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrGpuResourcePriv.h"
-#include "GrResourceKey.h"
-#include "SkMessageBus.h"
-#include "SkRefCnt.h"
-#include "SkTArray.h"
-#include "SkTDPQueue.h"
-#include "SkTHash.h"
-#include "SkTInternalLList.h"
-#include "SkTMultiMap.h"
+#include "include/private/GrResourceKey.h"
+#include "include/private/SkMessageBus.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTArray.h"
+#include "../core/SkTDPQueue.h"
+#include "include/private/SkTHash.h"
+#include "include/private/SkTInternalLList.h"
+#include "../core/SkTMultiMap.h"
 
 class GrCaps;
 class GrProxyProvider;

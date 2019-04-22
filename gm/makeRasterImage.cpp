@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkSurface.h"
+#include "../tools/Resources.h"
+#include "include/core/SkSurface.h"
 #include "gm.h"
 
 DEF_SIMPLE_GM(makeRasterImage, canvas, 128,128) {

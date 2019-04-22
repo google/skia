@@ -9,10 +9,10 @@
 
 #ifdef SK_VULKAN
 
-#include "SkAutoMalloc.h"
-#include "vk/GrVkBackendContext.h"
-#include "vk/GrVkExtensions.h"
-#include "../ports/SkOSLibrary.h"
+#include "../../../src/core/SkAutoMalloc.h"
+#include "include/gpu/vk/GrVkBackendContext.h"
+#include "include/gpu/vk/GrVkExtensions.h"
+#include "../../../src/ports/SkOSLibrary.h"
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
 #include <sanitizer/lsan_interface.h>

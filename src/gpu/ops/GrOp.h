@@ -8,13 +8,13 @@
 #ifndef GrOp_DEFINED
 #define GrOp_DEFINED
 
-#include "GrGpuResource.h"
-#include "GrNonAtomicRef.h"
-#include "GrTracing.h"
-#include "GrXferProcessor.h"
-#include "SkMatrix.h"
-#include "SkRect.h"
-#include "SkString.h"
+#include "include/gpu/GrGpuResource.h"
+#include "../GrNonAtomicRef.h"
+#include "../GrTracing.h"
+#include "../GrXferProcessor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkString.h"
 #include <atomic>
 #include <new>
 

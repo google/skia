@@ -7,7 +7,7 @@
 #include "PathOpsDebug.h"
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
 #include <atomic>
 
 // four rects, of four sizes

@@ -10,7 +10,7 @@
 
 #include "SkSGRenderNode.h"
 
-#include "SkFilterQuality.h"
+#include "include/core/SkFilterQuality.h"
 
 class SkImage;
 

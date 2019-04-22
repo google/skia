@@ -7,7 +7,7 @@
 
 #include "SkCodecPriv.h"
 #include "SkMasks.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 /*
  *

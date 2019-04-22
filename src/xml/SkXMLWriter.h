@@ -8,8 +8,8 @@
 #ifndef SkXMLWriter_DEFINED
 #define SkXMLWriter_DEFINED
 
-#include "../private/SkTDArray.h"
-#include "SkString.h"
+#include "include/private/SkTDArray.h"
+#include "include/core/SkString.h"
 #include "SkDOM.h"
 
 class SkWStream;

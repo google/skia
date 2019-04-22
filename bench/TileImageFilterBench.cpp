@@ -6,10 +6,10 @@
  */
 
 #include "Benchmark.h"
-#include "SkTileImageFilter.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkString.h"
+#include "include/effects/SkTileImageFilter.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkString.h"
 
 #define WIDTH 512
 #define HEIGHT 512

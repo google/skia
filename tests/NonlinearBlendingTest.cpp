@@ -6,8 +6,8 @@
  */
 
 #include "../third_party/skcms/skcms.h"
-#include "SkColorSpace.h"
-#include "SkColorSpaceXformSteps.h"
+#include "include/core/SkColorSpace.h"
+#include "../src/core/SkColorSpaceXformSteps.h"
 #include "Test.h"
 
 DEF_TEST(SkColorSpaceXformSteps_vs_skcms, r) {

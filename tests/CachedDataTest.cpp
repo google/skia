@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCachedData.h"
-#include "SkDiscardableMemoryPool.h"
-#include "SkMalloc.h"
-#include "SkRefCnt.h"
-#include "SkTypes.h"
+#include "../src/core/SkCachedData.h"
+#include "../src/lazy/SkDiscardableMemoryPool.h"
+#include "include/private/SkMalloc.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "Test.h"
 
 #include <cstring>

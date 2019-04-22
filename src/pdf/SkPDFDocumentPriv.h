@@ -7,13 +7,13 @@
 #ifndef SkPDFDocumentPriv_DEFINED
 #define SkPDFDocumentPriv_DEFINED
 
-#include "SkCanvas.h"
-#include "SkMutex.h"
-#include "SkPDFDocument.h"
+#include "include/core/SkCanvas.h"
+#include "include/private/SkMutex.h"
+#include "include/docs/SkPDFDocument.h"
 #include "SkPDFMetadata.h"
 #include "SkPDFTag.h"
-#include "SkStream.h"
-#include "SkTHash.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTHash.h"
 
 #include <atomic>
 #include <vector>

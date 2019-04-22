@@ -8,8 +8,8 @@
 #ifndef SkPointPriv_DEFINED
 #define SkPointPriv_DEFINED
 
-#include "SkPoint.h"
-#include "SkRect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 
 class SkPointPriv {
 public:

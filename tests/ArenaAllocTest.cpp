@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkRefCnt.h"
-#include "SkTypes.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "Test.h"
 
 #include <memory>

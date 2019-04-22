@@ -6,13 +6,13 @@
  */
 
 #include "GrGLSLFragmentShaderBuilder.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
-#include "GrShaderCaps.h"
-#include "gl/GrGLGpu.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLVarying.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "../GrRenderTargetPriv.h"
+#include "../GrShaderCaps.h"
+#include "../gl/GrGLGpu.h"
+#include "GrGLSLProgramBuilder.h"
+#include "GrGLSLUniformHandler.h"
+#include "GrGLSLVarying.h"
 
 const char* GrGLSLFragmentShaderBuilder::kDstColorName = "_dstColor";
 

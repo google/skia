@@ -8,11 +8,11 @@
 #define skiatest_Test_DEFINED
 
 #include "../tools/Registry.h"
-#include "GrContextFactory.h"
-#include "SkClipOpPriv.h"
-#include "SkString.h"
-#include "SkTraceEvent.h"
-#include "SkTypes.h"
+#include "../tools/gpu/GrContextFactory.h"
+#include "../src/core/SkClipOpPriv.h"
+#include "include/core/SkString.h"
+#include "../src/core/SkTraceEvent.h"
+#include "include/core/SkTypes.h"
 
 namespace skiatest {
 
@@ -94,7 +94,7 @@ typedef sk_tools::Registry<Test> TestRegistry;
 /*
     Use the following macros to make use of the skiatest classes, e.g.
 
-    #include "Test.h"
+#include "Test.h"
 
     DEF_TEST(TestName, reporter) {
         ...

@@ -8,14 +8,14 @@
 #include "PathOpsDebug.h"
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkMatrix.h"
-#include "SkMutex.h"
-#include "SkPaint.h"
-#include "SkParsePath.h"
-#include "SkRegion.h"
-#include "SkStream.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix.h"
+#include "include/private/SkMutex.h"
+#include "include/core/SkPaint.h"
+#include "include/utils/SkParsePath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkStream.h"
 
 #include <stdlib.h>
 #include <vector>

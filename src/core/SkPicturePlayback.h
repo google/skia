@@ -8,7 +8,7 @@
 #ifndef SkPicturePlayback_DEFINED
 #define SkPicturePlayback_DEFINED
 
-#include "SkPictureFlat.h"  // for DrawType
+#include "SkPictureFlat.h"
 
 class SkBitmap;
 class SkCanvas;

@@ -8,7 +8,7 @@
 #ifndef SKSL_FUNCTIONREFERENCE
 #define SKSL_FUNCTIONREFERENCE
 
-#include "SkSLContext.h"
+#include "../SkSLContext.h"
 #include "SkSLExpression.h"
 #include "SkSLFunctionDeclaration.h"
 

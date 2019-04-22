@@ -8,12 +8,12 @@
 #ifndef GrVkUniformHandler_DEFINED
 #define GrVkUniformHandler_DEFINED
 
-#include "GrAllocator.h"
-#include "GrSamplerState.h"
-#include "GrShaderVar.h"
+#include "../GrAllocator.h"
+#include "include/gpu/GrSamplerState.h"
+#include "../GrShaderVar.h"
 #include "GrVkSampler.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "vk/GrVkTypes.h"
+#include "../glsl/GrGLSLUniformHandler.h"
+#include "include/gpu/vk/GrVkTypes.h"
 
 class GrVkUniformHandler : public GrGLSLUniformHandler {
 public:

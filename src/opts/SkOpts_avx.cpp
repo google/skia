@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkOpts.h"
+#include "../core/SkOpts.h"
 
 #define SK_OPTS_NS avx
 #include "SkRasterPipeline_opts.h"

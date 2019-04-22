@@ -6,8 +6,8 @@
  */
 // Unit tests for src/core/SkPoint.cpp and its header
 
-#include "SkPointPriv.h"
-#include "SkRect.h"
+#include "../src/core/SkPointPriv.h"
+#include "include/core/SkRect.h"
 #include "Test.h"
 
 static void test_casts(skiatest::Reporter* reporter) {

@@ -6,10 +6,10 @@
  */
 
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkPaint.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkSurface.h"
 
 class GrMipMapBench: public Benchmark {
     sk_sp<SkSurface> fSurface;

@@ -8,9 +8,9 @@
 #ifndef SkImage_GpuYUVA_DEFINED
 #define SkImage_GpuYUVA_DEFINED
 
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "SkCachedData.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "../core/SkCachedData.h"
 #include "SkImage_GpuBase.h"
 
 class GrTexture;

@@ -7,7 +7,7 @@
 
 #include "Test.h"
 
-#include "SkColor.h"
+#include "include/core/SkColor.h"
 
 DEF_TEST(ColorToHSVRoundTrip, reporter) {
     SkScalar hsv[3];
