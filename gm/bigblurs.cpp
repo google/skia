@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkBlurMask.h"
-#include "SkMaskFilter.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "src/core/SkBlurMask.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPath.h"
 
 namespace skiagm {
 

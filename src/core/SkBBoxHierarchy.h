@@ -8,9 +8,9 @@
 #ifndef SkBBoxHierarchy_DEFINED
 #define SkBBoxHierarchy_DEFINED
 
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkTDArray.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTDArray.h"
 
 /**
  * Interface for a spatial data structure that stores axis-aligned bounding

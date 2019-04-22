@@ -8,9 +8,9 @@
 #ifndef GrMockBuffer_DEFINED
 #define GrMockBuffer_DEFINED
 
-#include "GrCaps.h"
-#include "GrGpuBuffer.h"
-#include "GrMockGpu.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpuBuffer.h"
+#include "src/gpu/mock/GrMockGpu.h"
 
 class GrMockBuffer : public GrGpuBuffer {
 public:

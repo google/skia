@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlendModePriv.h"
-#include "SkCoverageModePriv.h"
-#include "SkRasterPipeline.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/core/SkCoverageModePriv.h"
+#include "src/core/SkRasterPipeline.h"
 
 bool SkBlendMode_ShouldPreScaleCoverage(SkBlendMode mode, bool rgb_coverage) {
     // The most important things we do here are:

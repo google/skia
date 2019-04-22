@@ -8,9 +8,9 @@
 #ifndef GrProxyRef_DEFINED
 #define GrProxyRef_DEFINED
 
-#include "GrSurfaceProxy.h"
-#include "GrTextureProxy.h"
-#include "GrTypesPriv.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/private/GrTypesPriv.h"
 
 /**
  * Helper for owning a ref and/or pending IO on a GrSurfaceProxy. This is useful when ownership

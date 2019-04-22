@@ -9,8 +9,8 @@
 #define GLatticeOp_DEFINED
 
 #include <memory>
-#include "GrSamplerState.h"
-#include "SkRefCnt.h"
+#include "include/gpu/GrSamplerState.h"
+#include "include/core/SkRefCnt.h"
 
 class GrColorSpaceXform;
 class GrDrawOp;

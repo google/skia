@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
-#include "SkClipOpPriv.h"
-#include "SkRRect.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "src/core/SkClipOpPriv.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkSurface.h"
+#include "tools/ToolUtils.h"
+#include "gm/gm.h"
 
 #define WIDTH 512
 #define HEIGHT 512

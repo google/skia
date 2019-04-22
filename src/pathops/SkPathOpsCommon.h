@@ -7,8 +7,8 @@
 #ifndef SkPathOpsCommon_DEFINED
 #define SkPathOpsCommon_DEFINED
 
-#include "SkOpAngle.h"
-#include "SkTDArray.h"
+#include "src/pathops/SkOpAngle.h"
+#include "include/private/SkTDArray.h"
 
 class SkOpCoincidence;
 class SkOpContour;

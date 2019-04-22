@@ -7,9 +7,9 @@
 #ifndef SkOpContour_DEFINED
 #define SkOpContour_DEFINED
 
-#include "SkOpSegment.h"
-#include "SkTDArray.h"
-#include "SkTSort.h"
+#include "src/pathops/SkOpSegment.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkTSort.h"
 
 enum class SkOpRayDir;
 struct SkOpRayHit;

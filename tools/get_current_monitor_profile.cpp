@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkStream.h"
+#include "include/core/SkStream.h"
 
 #if defined(SK_BUILD_FOR_MAC)
 #include <ApplicationServices/ApplicationServices.h>

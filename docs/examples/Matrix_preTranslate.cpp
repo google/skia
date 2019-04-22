@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=f75a9b629aa6c51ed888f8799b5ba5f7
 REG_FIDDLE(Matrix_preTranslate, 256, 160, false, 0) {
 void draw(SkCanvas* canvas) {

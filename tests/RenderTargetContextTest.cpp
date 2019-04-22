@@ -7,14 +7,14 @@
 
 // This is a GPU-backend specific test.
 
-#include "Test.h"
+#include "tests/Test.h"
 
 // MDB TODO: the early instantiation of the renderTargetContext's backing GrRenderTargetProxy
 // mixes this test up. Re-enable once backing GPU resources are distributed by MDB at flush time.
 #if 0
 
-#include "GrTextureProxy.h"
-#include "GrRenderTargetContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrRenderTargetContext.h"
 
 static const int kSize = 64;
 

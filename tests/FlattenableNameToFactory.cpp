@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkFlattenable.h"
-#include "Test.h"
+#include "include/core/SkFlattenable.h"
+#include "tests/Test.h"
 
 DEF_TEST(FlattenableNameToFactory, r) {
     if (!SkFlattenable::NameToFactory("SkImageShader")) {

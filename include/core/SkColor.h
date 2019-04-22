@@ -8,9 +8,9 @@
 #ifndef SkColor_DEFINED
 #define SkColor_DEFINED
 
-#include "SkImageInfo.h"
-#include "SkScalar.h"
-#include "SkTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 
 /** \file SkColor.h
 

@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCFiller.h"
+#include "src/gpu/ccpr/GrCCFiller.h"
 
-#include "GrCaps.h"
-#include "GrGpuCommandBuffer.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrOpFlushState.h"
-#include "SkMathPriv.h"
-#include "SkPath.h"
-#include "SkPathPriv.h"
-#include "SkPoint.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/core/SkMathPriv.h"
+#include "include/core/SkPath.h"
+#include "src/core/SkPathPriv.h"
+#include "include/core/SkPoint.h"
 #include <stdlib.h>
 
 using TriPointInstance = GrCCCoverageProcessor::TriPointInstance;

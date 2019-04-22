@@ -8,7 +8,7 @@
 #ifndef SkFixed15_DEFINED
 #define SkFixed15_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 // SkFixed15 is a fixed point value that represents values in [0,1] as [0x0000, 0x8000].
 // This mapping allows us to implement most operations in tightly packed 16-bit SIMD,

@@ -8,9 +8,9 @@
 #ifndef SkRasterClipStack_DEFINED
 #define SkRasterClipStack_DEFINED
 
-#include "SkClipOp.h"
-#include "SkDeque.h"
-#include "SkRasterClip.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkDeque.h"
+#include "src/core/SkRasterClip.h"
 #include <new>
 
 template <typename T> class SkTStack {
