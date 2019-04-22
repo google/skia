@@ -13,7 +13,7 @@
 #include "SkString.h"
 #include "Test.h"
 
-#include "../third_party/skcms/skcms.h"
+#include "skcms.h"
 
 DEF_TEST(AdobeRGB, r) {
     if (sk_sp<SkData> profile = GetResourceAsData("icc_profiles/AdobeRGB1998.icc")) {
