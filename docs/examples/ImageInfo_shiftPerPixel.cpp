@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=e47b911f94fc629f756a829e523a2a89
 REG_FIDDLE(ImageInfo_shiftPerPixel, 256, 256, true, 0) {
 const char* color_type(SkColorType ct) {

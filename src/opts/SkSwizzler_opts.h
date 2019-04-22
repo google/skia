@@ -8,7 +8,7 @@
 #ifndef SkSwizzler_opts_DEFINED
 #define SkSwizzler_opts_DEFINED
 
-#include "SkColorData.h"
+#include "include/private/SkColorData.h"
 
 #include <utility>
 

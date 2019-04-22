@@ -8,8 +8,8 @@
 #ifndef SkLiteRecorder_DEFINED
 #define SkLiteRecorder_DEFINED
 
-#include "SkCanvasVirtualEnforcer.h"
-#include "SkNoDrawCanvas.h"
+#include "include/core/SkCanvasVirtualEnforcer.h"
+#include "include/utils/SkNoDrawCanvas.h"
 
 class SkLiteDL;
 

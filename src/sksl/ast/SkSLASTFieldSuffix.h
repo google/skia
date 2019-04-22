@@ -8,7 +8,7 @@
 #ifndef SKSL_ASTFIELDSUFFIX
 #define SKSL_ASTFIELDSUFFIX
 
-#include "SkSLASTSuffix.h"
+#include "src/sksl/ast/SkSLASTSuffix.h"
 
 namespace SkSL {
 

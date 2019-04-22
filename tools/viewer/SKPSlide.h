@@ -8,8 +8,8 @@
 #ifndef SKPSlide_DEFINED
 #define SKPSlide_DEFINED
 
-#include "Slide.h"
-#include "SkPicture.h"
+#include "tools/viewer/Slide.h"
+#include "include/core/SkPicture.h"
 
 class SKPSlide : public Slide {
 public:

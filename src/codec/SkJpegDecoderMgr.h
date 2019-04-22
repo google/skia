@@ -8,10 +8,10 @@
 #ifndef SkJpegDecoderMgr_DEFINED
 #define SkJpegDecoderMgr_DEFINED
 
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
+#include "include/codec/SkCodec.h"
+#include "src/codec/SkCodecPriv.h"
 #include <stdio.h>
-#include "SkJpegUtility.h"
+#include "src/codec/SkJpegUtility.h"
 
 extern "C" {
     #include "jpeglib.h"

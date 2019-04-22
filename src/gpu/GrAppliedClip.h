@@ -8,11 +8,11 @@
 #ifndef GrAppliedClip_DEFINED
 #define GrAppliedClip_DEFINED
 
-#include "GrFragmentProcessor.h"
-#include "GrScissorState.h"
-#include "GrWindowRectsState.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrScissorState.h"
+#include "src/gpu/GrWindowRectsState.h"
 
-#include "SkClipStack.h"
+#include "src/core/SkClipStack.h"
 
 
 /**

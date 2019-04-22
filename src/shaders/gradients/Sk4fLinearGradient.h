@@ -8,8 +8,8 @@
 #ifndef Sk4fLinearGradient_DEFINED
 #define Sk4fLinearGradient_DEFINED
 
-#include "Sk4fGradientBase.h"
-#include "SkLinearGradient.h"
+#include "src/shaders/gradients/Sk4fGradientBase.h"
+#include "src/shaders/gradients/SkLinearGradient.h"
 
 class SkLinearGradient::
 LinearGradient4fContext final : public GradientShaderBase4fContext {

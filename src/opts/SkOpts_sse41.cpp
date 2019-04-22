@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkOpts.h"
+#include "src/core/SkOpts.h"
 
 #define SK_OPTS_NS sse41
-#include "SkBlitRow_opts.h"
-#include "SkRasterPipeline_opts.h"
+#include "src/opts/SkBlitRow_opts.h"
+#include "src/opts/SkRasterPipeline_opts.h"
 
 namespace SkOpts {
     void Init_sse41() {

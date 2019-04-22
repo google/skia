@@ -7,9 +7,9 @@
 #ifndef SkPDFGradientShader_DEFINED
 #define SkPDFGradientShader_DEFINED
 
-#include "SkPDFTypes.h"
-#include "SkPDFUtils.h"
-#include "SkShader.h"
+#include "src/pdf/SkPDFTypes.h"
+#include "src/pdf/SkPDFUtils.h"
+#include "include/core/SkShader.h"
 
 class SkMatrix;
 class SkPDFDocument;

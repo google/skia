@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkIntersections.h"
-#include "SkLineParameters.h"
-#include "SkPathOpsConic.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsQuad.h"
-#include "SkPathOpsRect.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkLineParameters.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsRect.h"
 
 // cribbed from the float version in SkGeometry.cpp
 static void conic_deriv_coeff(const double src[],

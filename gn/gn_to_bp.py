@@ -469,6 +469,21 @@ write_config('include/config/linux/SkUserConfig.h', linux_defines, 'UNIX')
 write_config('include/config/mac/SkUserConfig.h',   mac_defines, 'MAC')
 write_config('include/config/win/SkUserConfig.h',   win_defines, 'WIN')
 
+with open('include/config/SkUserConfig.h', 'w') as f:
+  print >>f,'''
+  #if defined(__ANDROID__)
+    #include "include/config/android/SkUserConfig.h"
+  #elif defined(__linux__)
+    #include "include/config/linux/SkUserConfig.h"
+  #elif defined(__APPLE__)
+    #include "include/config/mac/SkUserConfig.h"
+  #elif defined(_MSC_VER)
+    #include "include/config/win/SkUserConfig.h"
+  #else
+    #error "Oops, we don't support this platform yet."
+  #endif
+  '''
+
 # Turn a list of strings into the style bpfmt outputs.
 def bpfmt(indent, lst, sort=True):
   if sort:

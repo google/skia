@@ -8,8 +8,8 @@
 #ifndef HelloWorld_DEFINED
 #define HelloWorld_DEFINED
 
-#include "sk_app/Application.h"
-#include "sk_app/Window.h"
+#include "tools/sk_app/Application.h"
+#include "tools/sk_app/Window.h"
 
 class SkCanvas;
 

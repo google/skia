@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlResourceProvider.h"
+#include "src/gpu/mtl/GrMtlResourceProvider.h"
 
-#include "GrMtlCopyManager.h"
-#include "GrMtlGpu.h"
-#include "GrMtlPipelineState.h"
-#include "GrMtlUtil.h"
+#include "src/gpu/mtl/GrMtlCopyManager.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlPipelineState.h"
+#include "src/gpu/mtl/GrMtlUtil.h"
 
-#include "SkSLCompiler.h"
+#include "src/sksl/SkSLCompiler.h"
 
 
 GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)

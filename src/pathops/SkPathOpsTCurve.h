@@ -8,7 +8,7 @@
 #ifndef SkPathOpsTCurve_DEFINED
 #define SkPathOpsTCurve_DEFINED
 
-#include "SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsPoint.h"
 
 class SkArenaAlloc;
 class SkIntersections;

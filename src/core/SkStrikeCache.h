@@ -11,10 +11,10 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "SkDescriptor.h"
-#include "SkStrike.h"
-#include "SkSpinlock.h"
-#include "SkTemplates.h"
+#include "src/core/SkDescriptor.h"
+#include "src/core/SkStrike.h"
+#include "include/private/SkSpinlock.h"
+#include "include/private/SkTemplates.h"
 
 class SkStrike;
 class SkTraceMemoryDump;
