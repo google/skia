@@ -12,6 +12,8 @@ UPLOAD_ATTEMPTS = 5
 
 
 class InfraApi(recipe_api.RecipeApi):
+  _luci_context_path = None
+
   @property
   def goroot(self):
     return self.m.vars.slave_dir.join('go', 'go')
@@ -50,6 +52,18 @@ class InfraApi(recipe_api.RecipeApi):
           self.m.step,
           'env go version',
           cmd=['go', 'version'])
+
+  @property
+  def luci_context_path(self):
+    if not self._luci_context_path:
+      self._luci_context_path = self.m.python.inline(
+          name='get luci context path from env',
+          program='''import os
+print os.environ.get('LUCI_CONTEXT', '')
+''',
+          stdout=self.m.raw_io.output()).stdout.rstrip()
+    return self._luci_context_path
+
 
   class MetadataFetch():
     def __init__(self, api, metadata_key, local_file, **kwargs):

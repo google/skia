@@ -7,3 +7,8 @@
 FROM gcr.io/skia-public/karma-chrome-tests:72.0.3626.121_v1
 
 COPY /tmp/gold-aggregator /opt/gold-aggregator
+
+COPY /tmp/goldctl /opt/goldctl
+
+# Run as root to make sure we have access to /LUCI and auth
+USER root

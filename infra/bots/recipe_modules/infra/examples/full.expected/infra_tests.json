@@ -76,6 +76,20 @@
     ]
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('LUCI_CONTEXT', '')\n"
+    ],
+    "name": "get luci context path from env",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('LUCI_CONTEXT', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
     "jsonResult": null,
     "name": "$result"
   }
