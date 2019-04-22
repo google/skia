@@ -9,12 +9,12 @@
 #ifndef TestContext_DEFINED
 #define TestContext_DEFINED
 
-#include "FenceSync.h"
-#include "GrTypes.h"
-#include "SkNoncopyable.h"
-#include "SkRefCnt.h"
-#include "SkScopeExit.h"
-#include "SkTemplates.h"
+#include "tools/gpu/FenceSync.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/core/SkRefCnt.h"
+#include "src/core/SkScopeExit.h"
+#include "include/private/SkTemplates.h"
 
 class GrContext;
 struct GrContextOptions;

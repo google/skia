@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SKPAnimationBench.h"
-#include "CommandLineFlags.h"
-#include "SkMultiPictureDraw.h"
-#include "SkSurface.h"
+#include "bench/SKPAnimationBench.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "include/core/SkMultiPictureDraw.h"
+#include "include/core/SkSurface.h"
 
 SKPAnimationBench::SKPAnimationBench(const char* name, const SkPicture* pic, const SkIRect& clip,
                                      Animation* animation, bool doLooping)

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
-#include "SkData.h"
-#include "SkImageGenerator.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageGenerator.h"
 
 #include <memory>
 

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "GrQuad.h"
+#include "src/gpu/GrQuad.h"
 
 #define ASSERT(cond) REPORTER_ASSERT(r, cond)
 #define ASSERTF(cond, ...) REPORTER_ASSERT(r, cond, __VA_ARGS__)

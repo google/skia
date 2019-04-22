@@ -7,11 +7,11 @@
 #ifndef SkBmpRLECodec_DEFINED
 #define SkBmpRLECodec_DEFINED
 
-#include "SkBmpCodec.h"
-#include "SkColorTable.h"
-#include "SkImageInfo.h"
-#include "SkSampler.h"
-#include "SkTypes.h"
+#include "src/codec/SkBmpCodec.h"
+#include "src/codec/SkColorTable.h"
+#include "include/core/SkImageInfo.h"
+#include "src/codec/SkSampler.h"
+#include "include/core/SkTypes.h"
 
 /*
  * This class implements the decoding for bmp images that use an RLE encoding

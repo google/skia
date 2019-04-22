@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_types.h"
+#include "gm/gm.h"
+#include "include/c/sk_types.h"
 
 extern "C" void sk_test_c_api(sk_canvas_t*);
 

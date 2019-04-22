@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontConfigInterface_direct.h"
-#include "SkOnce.h"
+#include "src/ports/SkFontConfigInterface_direct.h"
+#include "include/private/SkOnce.h"
 
 SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface() {
     static SkFontConfigInterface* singleton;

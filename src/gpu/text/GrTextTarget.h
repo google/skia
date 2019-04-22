@@ -8,8 +8,8 @@
 #ifndef GrTextTarget_DEFINED
 #define GrTextTarget_DEFINED
 
-#include "GrColorSpaceInfo.h"
-#include "SkPaint.h"
+#include "src/gpu/GrColorSpaceInfo.h"
+#include "include/core/SkPaint.h"
 
 class GrAtlasTextOp;
 class GrClip;

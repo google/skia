@@ -5,6 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkSVGClipPath.h"
+#include "experimental/svg/model/SkSVGClipPath.h"
 
 SkSVGClipPath::SkSVGClipPath() : INHERITED(SkSVGTag::kClipPath) {}

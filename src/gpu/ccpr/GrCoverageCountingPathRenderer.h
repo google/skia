@@ -9,11 +9,11 @@
 #define GrCoverageCountingPathRenderer_DEFINED
 
 #include <map>
-#include "GrCCPerOpListPaths.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrPathRenderer.h"
-#include "GrRenderTargetOpList.h"
-#include "ccpr/GrCCPerFlushResources.h"
+#include "include/private/GrCCPerOpListPaths.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/GrRenderTargetOpList.h"
+#include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
 class GrCCDrawPathsOp;
 class GrCCPathCache;

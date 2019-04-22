@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=dd81527bbdf5eaae7dd21ac04ab84f9e
 REG_FIDDLE(Color_Type_RGBA_F16, 256, 96, false, 0) {
 union FloatUIntUnion {

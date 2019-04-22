@@ -7,10 +7,10 @@
 #ifndef SkOpAngle_DEFINED
 #define SkOpAngle_DEFINED
 
-#include "SkLineParameters.h"
-#include "SkPathOpsCurve.h"
+#include "src/pathops/SkLineParameters.h"
+#include "src/pathops/SkPathOpsCurve.h"
 #if DEBUG_ANGLE
-#include "SkString.h"
+#include "include/core/SkString.h"
 #endif
 
 class SkOpContour;

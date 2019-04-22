@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "NFAtoDFA.h"
-#include "RegexParser.h"
+#include "src/sksl/lex/NFAtoDFA.h"
+#include "src/sksl/lex/RegexParser.h"
 
 #include <fstream>
 #include <sstream>

@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrShadowRRectOp.h"
+#include "src/gpu/ops/GrShadowRRectOp.h"
 
-#include "GrDrawOpTest.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "SkRRectPriv.h"
-#include "effects/GrShadowGeoProc.h"
+#include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/core/SkRRectPriv.h"
+#include "src/gpu/effects/GrShadowGeoProc.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Circle Data

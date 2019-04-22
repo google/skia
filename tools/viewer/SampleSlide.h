@@ -8,8 +8,8 @@
 #ifndef SampleSlide_DEFINED
 #define SampleSlide_DEFINED
 
-#include "Slide.h"
-#include "Sample.h"
+#include "tools/viewer/Slide.h"
+#include "samplecode/Sample.h"
 
 class SampleSlide : public Slide {
 public:

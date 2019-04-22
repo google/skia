@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gl/GLTestContext.h"
+#include "tools/gpu/gl/GLTestContext.h"
 
 #define GL_GLEXT_PROTOTYPES
 #include <GLES2/gl2.h>
@@ -13,8 +13,8 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLUtil.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 namespace {
 

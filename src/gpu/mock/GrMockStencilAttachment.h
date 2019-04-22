@@ -8,8 +8,8 @@
 #ifndef GrMockStencilAttachment_DEFINED
 #define GrMockStencilAttachment_DEFINED
 
-#include "GrMockGpu.h"
-#include "GrStencilAttachment.h"
+#include "src/gpu/mock/GrMockGpu.h"
+#include "src/gpu/GrStencilAttachment.h"
 
 class GrMockStencilAttachment : public GrStencilAttachment {
 public:

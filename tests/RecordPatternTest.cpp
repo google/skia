@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "SkRecord.h"
-#include "SkRecordPattern.h"
-#include "SkRecorder.h"
-#include "SkRecords.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecordPattern.h"
+#include "src/core/SkRecorder.h"
+#include "src/core/SkRecords.h"
 
 using namespace SkRecords;
 typedef Pattern<Is<Save>,

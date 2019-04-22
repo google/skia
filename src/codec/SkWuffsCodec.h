@@ -8,7 +8,7 @@
 #ifndef SkWuffsCodec_DEFINED
 #define SkWuffsCodec_DEFINED
 
-#include "SkCodec.h"
+#include "include/codec/SkCodec.h"
 
 // These functions' types match DecoderProc in SkCodec.cpp.
 bool                     SkWuffsCodec_IsFormat(const void*, size_t);

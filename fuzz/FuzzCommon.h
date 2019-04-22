@@ -8,11 +8,11 @@
 #ifndef FuzzCommon_DEFINED
 #define FuzzCommon_DEFINED
 
-#include "Fuzz.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkRRect.h"
-#include "SkRegion.h"
+#include "fuzz/Fuzz.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRegion.h"
 
 // allows some float values for path points
 void FuzzNicePath(Fuzz* fuzz, SkPath* path, int maxOps);
