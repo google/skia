@@ -9,7 +9,7 @@
 #ifndef SkFlate_DEFINED
 #define SkFlate_DEFINED
 
-#include "SkStream.h"
+#include "include/core/SkStream.h"
 
 /**
   * Wrap a stream in this class to compress the information written to

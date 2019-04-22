@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
+#include "include/private/SkArenaAlloc.h"
 #include <algorithm>
 #include <new>
 

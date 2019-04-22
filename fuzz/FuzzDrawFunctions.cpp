@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "Fuzz.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkImage.h"
-#include "SkPath.h"
-#include "SkSurface.h"
-#include "SkTextBlob.h"
-#include "SkTypeface.h"
-#include "SkClipOpPriv.h"
+#include "fuzz/Fuzz.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkClipOpPriv.h"
 
 static const int kBmpSize = 24;
 static const int kMaxX = 250;

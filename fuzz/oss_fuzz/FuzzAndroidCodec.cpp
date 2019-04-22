@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkAndroidCodec.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkSurface.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkSurface.h"
 
-#include "../Fuzz.h"
+#include "fuzz/Fuzz.h"
 
 bool FuzzAndroidCodec(sk_sp<SkData> bytes, uint8_t sampleSize) {
     auto codec = SkAndroidCodec::MakeFromData(bytes);

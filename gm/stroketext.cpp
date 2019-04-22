@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkTextBlob.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/core/SkTextBlob.h"
+#include "tools/ToolUtils.h"
+#include "gm/gm.h"
 
 static void test_nulldev(SkCanvas* canvas) {
     SkBitmap bm;

@@ -8,9 +8,9 @@
 #ifndef SkMatrixImageFilter_DEFINED
 #define SkMatrixImageFilter_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkImageFilter.h"
-#include "SkMatrix.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMatrix.h"
 
 /*! \class SkMatrixImageFilter
     Matrix transformation image filter.  This filter draws its source

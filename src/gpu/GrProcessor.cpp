@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrProcessor.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGeometryProcessor.h"
-#include "GrMemoryPool.h"
-#include "GrSamplerState.h"
-#include "GrTextureProxy.h"
-#include "GrXferProcessor.h"
-#include "SkSpinlock.h"
+#include "src/gpu/GrProcessor.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "include/gpu/GrSamplerState.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrXferProcessor.h"
+#include "include/private/SkSpinlock.h"
 
 #if GR_TEST_UTILS
 

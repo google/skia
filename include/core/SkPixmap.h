@@ -8,9 +8,9 @@
 #ifndef SkPixmap_DEFINED
 #define SkPixmap_DEFINED
 
-#include "SkColor.h"
-#include "SkFilterQuality.h"
-#include "SkImageInfo.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImageInfo.h"
 
 class SkData;
 struct SkMask;

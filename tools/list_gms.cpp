@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "gm.h"
+#include "gm/gm.h"
 
 int main() {
     std::vector<std::string> gms;

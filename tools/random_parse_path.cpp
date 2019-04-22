@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkRandom.h"
-#include "random_parse_path.h"
+#include "include/utils/SkRandom.h"
+#include "tools/random_parse_path.h"
 
 const struct Legal {
     char fSymbol;

@@ -5,25 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "GrResourceCache.h"
+#include "src/gpu/GrResourceCache.h"
 #include <atomic>
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpuResourceCacheAccess.h"
-#include "GrProxyProvider.h"
-#include "GrSingleOwner.h"
-#include "GrTexture.h"
-#include "GrTextureProxyCacheAccess.h"
-#include "GrTracing.h"
-#include "SkExchange.h"
-#include "SkGr.h"
-#include "SkMessageBus.h"
-#include "SkOpts.h"
-#include "SkRandom.h"
-#include "SkScopeExit.h"
-#include "SkTSort.h"
-#include "SkTo.h"
+#include "src/gpu/GrCaps.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpuResourceCacheAccess.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "include/private/GrSingleOwner.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrTextureProxyCacheAccess.h"
+#include "src/gpu/GrTracing.h"
+#include "src/core/SkExchange.h"
+#include "src/gpu/SkGr.h"
+#include "include/private/SkMessageBus.h"
+#include "src/core/SkOpts.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkScopeExit.h"
+#include "src/core/SkTSort.h"
+#include "include/private/SkTo.h"
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
 

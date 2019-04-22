@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 
 #ifndef SkWGL_DEFINED
 #define SkWGL_DEFINED
 
-#include "SkLeanWindows.h"
+#include "include/private/SkLeanWindows.h"
 
 /**
  * Working with WGL extensions can be a pain. Among the reasons is that You must

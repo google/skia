@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkPath.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkSurface.h"
+#include "tools/ToolUtils.h"
+#include "gm/gm.h"
 
 static sk_sp<SkImage> make_image(SkCanvas* origCanvas, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);

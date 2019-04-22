@@ -8,7 +8,7 @@
 #ifndef SKSL_MODIFIERS
 #define SKSL_MODIFIERS
 
-#include "SkSLLayout.h"
+#include "src/sksl/ir/SkSLLayout.h"
 
 namespace SkSL {
 

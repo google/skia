@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkColorMatrix.h"
+#include "include/effects/SkColorMatrix.h"
 
 // To detect if we need to apply clamping after applying a matrix, we check if
 // any output component might go outside of [0, 255] for any combination of

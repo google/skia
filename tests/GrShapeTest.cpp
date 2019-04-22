@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "GrShape.h"
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkRectPriv.h"
-#include "SkSurface.h"
-#include "SkClipOpPriv.h"
+#include "tests/Test.h"
+#include "src/gpu/GrShape.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/core/SkPath.h"
+#include "include/pathops/SkPathOps.h"
+#include "src/core/SkRectPriv.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkClipOpPriv.h"
 
 #include <initializer_list>
 #include <functional>

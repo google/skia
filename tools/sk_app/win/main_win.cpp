@@ -8,10 +8,10 @@
 #include <windows.h>
 #include <tchar.h>
 
-#include "SkTypes.h"
-#include "Timer.h"
-#include "Window_win.h"
-#include "../Application.h"
+#include "include/core/SkTypes.h"
+#include "tools/timer/Timer.h"
+#include "tools/sk_app/win/Window_win.h"
+#include "tools/sk_app/Application.h"
 
 using sk_app::Application;
 

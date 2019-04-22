@@ -8,8 +8,8 @@
 #ifndef SKSL_ASTSUFFIX
 #define SKSL_ASTSUFFIX
 
-#include "SkSLASTPositionNode.h"
-#include "SkSLASTExpression.h"
+#include "src/sksl/ast/SkSLASTPositionNode.h"
+#include "src/sksl/ast/SkSLASTExpression.h"
 
 namespace SkSL {
 
