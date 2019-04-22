@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15c45d77_a41c809b",
+        "filename": "src/gpu/GrResourceAllocator.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-22T19:49:09Z",
+      "side": 1,
+      "message": "I think it\u0027d be helpful to future readers of this to document what actualUse means here. Maybe make into an enum?",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 66
+      },
+      "revId": "fbfcb4d2b808550e69faf3f5f0ba8b79420fe9fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
