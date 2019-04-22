@@ -7,16 +7,16 @@
 
 #include "ParticlesSlide.h"
 
-#include "AnimTimer.h"
+#include "tools/timer/AnimTimer.h"
 #include "ImGuiLayer.h"
-#include "Resources.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkParticleAffector.h"
-#include "SkParticleDrawable.h"
-#include "SkParticleEffect.h"
-#include "SkParticleSerialization.h"
-#include "SkReflected.h"
+#include "tools/Resources.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkOSPath.h"
+#include "modules/particles/include/SkParticleAffector.h"
+#include "modules/particles/include/SkParticleDrawable.h"
+#include "modules/particles/include/SkParticleEffect.h"
+#include "modules/particles/include/SkParticleSerialization.h"
+#include "modules/particles/include/SkReflected.h"
 
 #include "imgui.h"
 

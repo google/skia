@@ -5,27 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "GrSurfaceProxy.h"
+#include "include/private/GrSurfaceProxy.h"
 #include "GrSurfaceProxyPriv.h"
 
 #include "GrCaps.h"
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
-#include "GrOpList.h"
+#include "include/private/GrOpList.h"
 #include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
+#include "include/private/GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
 #include "GrTextureRenderTargetProxy.h"
 
-#include "SkMathPriv.h"
-#include "SkMipMap.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkMipMap.h"
 
 #ifdef SK_DEBUG
-#include "GrRenderTarget.h"
+#include "include/gpu/GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
 
 static bool is_valid_fully_lazy(const GrSurfaceDesc& desc, SkBackingFit fit) {

@@ -11,7 +11,7 @@
 #include "GrProxyRef.h"
 #include "GrTextureProxy.h"
 #include "SkColorData.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 #include "SkTDArray.h"
 
 class GrAuditTrail;

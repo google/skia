@@ -6,22 +6,22 @@
  */
 
 #include "Sample.h"
-#include "SkCanvas.h"
-#include "SkBlurMaskFilter.h"
-#include "SkCamera.h"
-#include "SkColorFilter.h"
-#include "SkColorPriv.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkInterpolator.h"
-#include "SkMaskFilter.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkTime.h"
-#include "SkTypeface.h"
-#include "SkUTF.h"
-#include "SkClipOpPriv.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/utils/SkCamera.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkImage.h"
+#include "include/utils/SkInterpolator.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTime.h"
+#include "include/core/SkTypeface.h"
+#include "src/utils/SkUTF.h"
+#include "src/core/SkClipOpPriv.h"
 
 static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {
     SkColor colors[] = { 0, SK_ColorWHITE };
@@ -180,12 +180,12 @@ DEF_SAMPLE( return new LayersView; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include "SkBlurImageFilter.h"
-#include "SkMatrixConvolutionImageFilter.h"
-#include "SkMorphologyImageFilter.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/effects/SkMorphologyImageFilter.h"
 
-#include "AnimTimer.h"
-#include "Resources.h"
+#include "tools/timer/AnimTimer.h"
+#include "tools/Resources.h"
 
 class BackdropView : public Sample {
     SkPoint fCenter;

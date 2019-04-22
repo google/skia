@@ -9,7 +9,7 @@
 #define SKSL_TERNARYEXPRESSION
 
 #include "SkSLExpression.h"
-#include "../SkSLPosition.h"
+#include "src/sksl/SkSLPosition.h"
 
 namespace SkSL {
 

@@ -10,21 +10,21 @@
 #include "GrCaps.h"
 #include "GrFixedClip.h"
 #include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
+#include "include/private/GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrShape.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrStyle.h"
-#include "GrTextureProxy.h"
+#include "include/private/GrTextureProxy.h"
 #include "effects/generated/GrSimpleTextureEffect.h"
 
-#include "SkDraw.h"
+#include "src/core/SkDraw.h"
 #include "SkGr.h"
-#include "SkMaskFilterBase.h"
-#include "SkPaint.h"
-#include "SkTLazy.h"
+#include "src/core/SkMaskFilterBase.h"
+#include "include/core/SkPaint.h"
+#include "src/core/SkTLazy.h"
 
 static bool clip_bounds_quick_reject(const SkIRect& clipBounds, const SkIRect& rect) {
     return clipBounds.isEmpty() || rect.isEmpty() || !SkIRect::Intersects(clipBounds, rect);

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/core/SkSurface.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 static sk_sp<SkImage> make_image(SkCanvas* canvas, int direction) {

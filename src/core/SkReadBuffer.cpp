@@ -6,17 +6,17 @@
  */
 
 #include "SkAutoMalloc.h"
-#include "SkBitmap.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkImageGenerator.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageGenerator.h"
 #include "SkMakeUnique.h"
 #include "SkMathPriv.h"
 #include "SkMatrixPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSafeMath.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
 
 #ifndef SK_DISABLE_READBUFFER
 

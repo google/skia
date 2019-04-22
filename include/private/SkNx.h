@@ -9,8 +9,8 @@
 #define SkNx_DEFINED
 
 #include "SkSafe_math.h"
-#include "SkScalar.h"
-#include "SkTypes.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 
 #include <algorithm>
 #include <limits>
@@ -410,9 +410,9 @@ typedef SkNx<4, uint32_t> Sk4u;
 
 // Include platform specific specializations if available.
 #if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    #include "SkNx_sse.h"
+#include "SkNx_sse.h"
 #elif !defined(SKNX_NO_SIMD) && defined(SK_ARM_HAS_NEON)
-    #include "SkNx_neon.h"
+#include "SkNx_neon.h"
 #else
 
 AI static Sk4i Sk4f_round(const Sk4f& x) {

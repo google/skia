@@ -6,7 +6,7 @@
  */
 
 #include "Benchmark.h"
-#include "SkPolyUtils.h"
+#include "src/utils/SkPolyUtils.h"
 
 class PolyUtilsBench : public Benchmark {
 public:

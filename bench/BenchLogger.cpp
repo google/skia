@@ -7,7 +7,7 @@
 
 #include "BenchLogger.h"
 
-#include "SkStream.h"
+#include "include/core/SkStream.h"
 
 BenchLogger::BenchLogger()
 : fFileStream(nullptr) {}

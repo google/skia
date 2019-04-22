@@ -6,12 +6,12 @@
  */
 
 #include "ChromeTracingTracer.h"
-#include "SkJSONWriter.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
-#include "SkThreadID.h"
-#include "SkTraceEvent.h"
+#include "src/utils/SkJSONWriter.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkOSPath.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkThreadID.h"
+#include "src/core/SkTraceEvent.h"
 
 #include <chrono>
 

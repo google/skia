@@ -6,9 +6,9 @@
  */
 
 #include "CommonFlagsConfig.h"
-#include "SkColorSpacePriv.h"
-#include "SkImageInfo.h"
-#include "SkTHash.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "include/core/SkImageInfo.h"
+#include "include/private/SkTHash.h"
 
 #include <stdlib.h>
 

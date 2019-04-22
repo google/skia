@@ -8,8 +8,8 @@
 #include "GrAtlasManager.h"
 #include "GrTextBlob.h"
 #include "GrTextTarget.h"
-#include "SkDistanceFieldGen.h"
-#include "ops/GrAtlasTextOp.h"
+#include "src/core/SkDistanceFieldGen.h"
+#include "src/gpu/ops/GrAtlasTextOp.h"
 
 enum RegenMask {
     kNoRegen    = 0x0,

@@ -7,12 +7,12 @@
 #ifndef SkPictureFlat_DEFINED
 #define SkPictureFlat_DEFINED
 
-#include "SkCanvas.h"
-#include "SkChecksum.h"
+#include "include/core/SkCanvas.h"
+#include "include/private/SkChecksum.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
-#include "SkPaint.h"
-#include "SkPicture.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
 #include "SkPtrRecorder.h"
 #include "SkTDynamicHash.h"
 

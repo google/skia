@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkBlurMask.h"
-#include "SkFont.h"
-#include "SkLayerDrawLooper.h"
-#include "SkMaskFilter.h"
-#include "SkPaintPriv.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkReadBuffer.h"
-#include "SkTo.h"
-#include "SkTypeface.h"
-#include "SkUTF.h"
-#include "SkWriteBuffer.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkBlurMask.h"
+#include "include/core/SkFont.h"
+#include "include/effects/SkLayerDrawLooper.h"
+#include "include/core/SkMaskFilter.h"
+#include "src/core/SkPaintPriv.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkReadBuffer.h"
+#include "include/private/SkTo.h"
+#include "include/core/SkTypeface.h"
+#include "src/utils/SkUTF.h"
+#include "src/core/SkWriteBuffer.h"
 #include "Test.h"
 #undef ASSERT
 
@@ -218,7 +218,7 @@ DEF_TEST(Paint_getHash, r) {
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 }
 
-#include "SkColorMatrixFilter.h"
+#include "include/effects/SkColorMatrixFilter.h"
 
 DEF_TEST(Paint_nothingToDraw, r) {
     SkPaint paint;

@@ -8,8 +8,8 @@
 #ifndef SkFloatingPoint_DEFINED
 #define SkFloatingPoint_DEFINED
 
-#include "../private/SkFloatBits.h"
-#include "SkTypes.h"
+#include "SkFloatBits.h"
+#include "include/core/SkTypes.h"
 #include "SkSafe_math.h"
 #include <float.h>
 #include <math.h>

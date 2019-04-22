@@ -8,11 +8,11 @@
 #ifndef GrGLGpuCommandBuffer_DEFINED
 #define GrGLGpuCommandBuffer_DEFINED
 
-#include "GrGpuCommandBuffer.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
 
 #include "GrGLGpu.h"
 #include "GrGLRenderTarget.h"
-#include "GrOpFlushState.h"
+#include "src/gpu/GrOpFlushState.h"
 
 class GrGLGpu;
 class GrGLRenderTarget;

@@ -7,7 +7,7 @@
 
 #include "SkBmpMaskCodec.h"
 #include "SkCodecPriv.h"
-#include "SkColorData.h"
+#include "include/private/SkColorData.h"
 
 /*
  * Creates an instance of the decoder

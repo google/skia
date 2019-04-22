@@ -7,12 +7,12 @@
 
 #include "SkottieValue.h"
 
-#include "SkColor.h"
+#include "include/core/SkColor.h"
 #include "SkottieJson.h"
 #include "SkottiePriv.h"
-#include "SkNx.h"
-#include "SkPoint.h"
-#include "SkSize.h"
+#include "include/private/SkNx.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkSize.h"
 
 namespace  skottie {
 

@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkPicture.h"
+#include "include/core/SkPicture.h"
 
-#include "SkImageGenerator.h"
+#include "include/core/SkImageGenerator.h"
 #include "SkMathPriv.h"
 #include "SkPictureCommon.h"
 #include "SkPictureData.h"
 #include "SkPicturePlayback.h"
 #include "SkPicturePriv.h"
 #include "SkPictureRecord.h"
-#include "SkPictureRecorder.h"
-#include "SkSerialProcs.h"
-#include "SkTo.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSerialProcs.h"
+#include "include/private/SkTo.h"
 #include <atomic>
 
 // When we read/write the SkPictInfo via a stream, we have a sentinel byte right after the info.

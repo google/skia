@@ -7,13 +7,13 @@
 
 #include "SkottiePriv.h"
 
-#include "SkJSON.h"
+#include "src/utils/SkJSON.h"
 #include "SkottieJson.h"
 #include "SkottieValue.h"
-#include "SkMakeUnique.h"
-#include "SkSGRenderNode.h"
-#include "SkSGScene.h"
-#include "SkTLazy.h"
+#include "src/core/SkMakeUnique.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
+#include "modules/sksg/include/SkSGScene.h"
+#include "src/core/SkTLazy.h"
 
 namespace skottie {
 namespace internal {

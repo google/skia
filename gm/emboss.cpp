@@ -7,11 +7,11 @@
 
 #include "gm.h"
 
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkEmbossMaskFilter.h"
-#include "SkFont.h"
+#include "src/core/SkBlurMask.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "src/effects/SkEmbossMaskFilter.h"
+#include "include/core/SkFont.h"
 
 static SkBitmap make_bm() {
     SkBitmap bm;

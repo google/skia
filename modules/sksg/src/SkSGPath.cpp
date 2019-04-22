@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGPath.h"
+#include "modules/sksg/include/SkSGPath.h"
 
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkRectPriv.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "src/core/SkRectPriv.h"
 
 namespace sksg {
 

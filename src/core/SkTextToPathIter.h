@@ -9,7 +9,7 @@
 #define SkTextToPathIter_DEFINED
 
 #include "SkFontPriv.h"
-#include "SkPaint.h"
+#include "include/core/SkPaint.h"
 #include "SkStrikeCache.h"
 
 class SkTextBaseIter {

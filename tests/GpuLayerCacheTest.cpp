@@ -9,10 +9,10 @@
 // The test fails when we add a discard to a newly created render target.
 #if 0
 
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 #include "GrLayerCache.h"
-#include "GrResourceCache.h"
-#include "SkPictureRecorder.h"
+#include "src/gpu/GrResourceCache.h"
+#include "include/core/SkPictureRecorder.h"
 #include "Test.h"
 
 class TestingAccess {

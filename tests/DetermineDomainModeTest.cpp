@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrSamplerState.h"
-#include "GrTextureProducer.h"
-#include "GrTextureProxy.h"
-#include "GrTypes.h"
-#include "GrTypesPriv.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
+#include "include/gpu/GrContext.h"
+#include "tools/gpu/GrContextFactory.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "include/gpu/GrSamplerState.h"
+#include "src/gpu/GrTextureProducer.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "Test.h"
 
 #include <initializer_list>

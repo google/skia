@@ -9,13 +9,13 @@
 
 #include "WindowContextFactory_unix.h"
 
-#include "SkUTF.h"
-#include "Timer.h"
-#include "../GLWindowContext.h"
+#include "src/utils/SkUTF.h"
+#include "tools/timer/Timer.h"
+#include "tools/sk_app/GLWindowContext.h"
 #include "Window_unix.h"
 
 extern "C" {
-    #include "keysym2ucs.h"
+#include "keysym2ucs.h"
 }
 #include <X11/Xutil.h>
 #include <X11/XKBlib.h>

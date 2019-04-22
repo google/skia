@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "SkFontMgr.h"
-#include "SkOTTable_name.h"
-#include "SkTypeface.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "include/core/SkFontMgr.h"
+#include "src/sfnt/SkOTTable_name.h"
+#include "include/core/SkTypeface.h"
 #include "Test.h"
 
 #include <stddef.h>

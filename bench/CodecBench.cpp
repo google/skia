@@ -7,10 +7,10 @@
 
 #include "CodecBench.h"
 #include "CodecBenchPriv.h"
-#include "CommandLineFlags.h"
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkOSFile.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "include/core/SkBitmap.h"
+#include "include/codec/SkCodec.h"
+#include "src/core/SkOSFile.h"
 
 // Actually zeroing the memory would throw off timing, so we just lie.
 static DEFINE_bool(zero_init, false,

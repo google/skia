@@ -8,8 +8,8 @@
 #ifndef SkMatrixPriv_DEFINE
 #define SkMatrixPriv_DEFINE
 
-#include "SkMatrix.h"
-#include "SkNx.h"
+#include "include/core/SkMatrix.h"
+#include "include/private/SkNx.h"
 #include "SkPointPriv.h"
 
 class SkMatrixPriv {

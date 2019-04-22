@@ -7,16 +7,16 @@
  */
 
 #include "GLWindowContext.h"
-#include "GrBackendSurface.h"
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "SkCanvas.h"
-#include "SkImage_Base.h"
-#include "SkMathPriv.h"
-#include "SkSurface.h"
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "src/gpu/GrCaps.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "include/core/SkCanvas.h"
+#include "src/image/SkImage_Base.h"
+#include "src/core/SkMathPriv.h"
+#include "include/core/SkSurface.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 namespace sk_app {
 

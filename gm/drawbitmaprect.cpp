@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
-#include "SkColorPriv.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkImage_Base.h"
-#include "SkMathPriv.h"
-#include "SkShader.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
+#include "src/core/SkBlurMask.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkImage.h"
+#include "src/image/SkImage_Base.h"
+#include "src/core/SkMathPriv.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 static SkBitmap make_chessbm(int w, int h) {

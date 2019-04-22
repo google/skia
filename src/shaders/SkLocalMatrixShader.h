@@ -9,8 +9,8 @@
 #define SkLocalMatrixShader_DEFINED
 
 #include "SkShaderBase.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 class GrFragmentProcessor;
 class SkArenaAlloc;

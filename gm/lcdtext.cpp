@@ -9,12 +9,12 @@
 /* Tests text rendering with LCD and subpixel rendering turned on and off.
  */
 
-#include "SkCanvas.h"
-#include "SkPicture.h"
-#include "SkPictureImageFilter.h"
-#include "SkPictureRecorder.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPicture.h"
+#include "include/effects/SkPictureImageFilter.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSurface.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 class LcdTextGM : public skiagm::GM {

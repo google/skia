@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkAlphaThresholdFilter.h"
-#include "SkImageSource.h"
-#include "SkOffsetImageFilter.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
+#include "include/effects/SkAlphaThresholdFilter.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkOffsetImageFilter.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkSurface.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 #define WIDTH 500

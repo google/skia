@@ -7,10 +7,10 @@
 
 #include "GrCCStrokeGeometry.h"
 
-#include "SkGeometry.h"
-#include "SkMathPriv.h"
-#include "SkNx.h"
-#include "SkStrokeRec.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkMathPriv.h"
+#include "include/private/SkNx.h"
+#include "include/core/SkStrokeRec.h"
 
 // This is the maximum distance in pixels that we can stray from the edge of a stroke when
 // converting it to flat line segments.

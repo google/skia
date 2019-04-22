@@ -8,7 +8,7 @@
 #ifndef SkDeferredDisplayList_DEFINED
 #define SkDeferredDisplayList_DEFINED
 
-#include "SkSurfaceCharacterization.h"
+#include "include/core/SkSurfaceCharacterization.h"
 
 #if SK_SUPPORT_GPU
 #include "GrCCPerOpListPaths.h"

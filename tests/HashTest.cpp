@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkChecksum.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
-#include "SkTHash.h"
+#include "include/private/SkChecksum.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTHash.h"
 #include "Test.h"
 
 // Tests use of const foreach().  map.count() is of course the better way to do this.

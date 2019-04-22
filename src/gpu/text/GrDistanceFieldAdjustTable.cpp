@@ -7,7 +7,7 @@
 
 #include "GrDistanceFieldAdjustTable.h"
 
-#include "SkScalerContext.h"
+#include "src/core/SkScalerContext.h"
 
 SkDEBUGCODE(static const int kExpectedDistanceAdjustTableSize = 8;)
 

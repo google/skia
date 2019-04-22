@@ -9,9 +9,9 @@
 #define SkFixed_DEFINED
 
 #include "SkSafe_math.h"
-#include "SkScalar.h"
+#include "include/core/SkScalar.h"
 #include "SkTo.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 /** \file SkFixed.h
 

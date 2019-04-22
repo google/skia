@@ -12,7 +12,7 @@
 */
 
 #include "GMSlide.h"
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 
 GMSlide::GMSlide(skiagm::GM* gm) : fGM(gm) {
     fName.printf("GM_%s", gm->getName());

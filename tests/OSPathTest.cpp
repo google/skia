@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkOSPath.h"
-#include "SkString.h"
+#include "src/utils/SkOSPath.h"
+#include "include/core/SkString.h"
 #include "Test.h"
 
 /**

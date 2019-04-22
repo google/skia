@@ -8,8 +8,8 @@
 
 #include "GrShaderCaps.h"
 
-#include "GrContextOptions.h"
-#include "SkJSONWriter.h"
+#include "include/gpu/GrContextOptions.h"
+#include "src/utils/SkJSONWriter.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

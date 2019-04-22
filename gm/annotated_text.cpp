@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkAnnotation.h"
-#include "SkData.h"
-#include "SkFont.h"
+#include "include/core/SkAnnotation.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFont.h"
 #include "gm.h"
 
 static void draw_url_annotated_text_with_box(

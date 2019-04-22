@@ -13,8 +13,8 @@
 
 #include "SkDescriptor.h"
 #include "SkStrike.h"
-#include "SkSpinlock.h"
-#include "SkTemplates.h"
+#include "include/private/SkSpinlock.h"
+#include "include/private/SkTemplates.h"
 
 class SkStrike;
 class SkTraceMemoryDump;

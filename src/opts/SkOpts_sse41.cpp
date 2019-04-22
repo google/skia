@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkOpts.h"
+#include "src/core/SkOpts.h"
 
 #define SK_OPTS_NS sse41
 #include "SkBlitRow_opts.h"

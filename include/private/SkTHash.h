@@ -9,7 +9,7 @@
 #define SkTHash_DEFINED
 
 #include "SkChecksum.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #include "SkTemplates.h"
 #include <new>
 

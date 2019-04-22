@@ -8,7 +8,7 @@
 #ifndef GrSurfaceProxyPriv_DEFINED
 #define GrSurfaceProxyPriv_DEFINED
 
-#include "GrSurfaceProxy.h"
+#include "include/private/GrSurfaceProxy.h"
 
 #include "GrResourceProvider.h"
 

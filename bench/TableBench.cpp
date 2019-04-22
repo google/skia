@@ -6,8 +6,8 @@
  */
 
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkRect.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRect.h"
 
 static const SkScalar kCellWidth = SkIntToScalar(20);
 static const SkScalar kCellHeight = SkIntToScalar(10);

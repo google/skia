@@ -6,7 +6,7 @@
  */
 
 #include "SkRasterClip.h"
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 #include "SkRegionPriv.h"
 
 enum MutateResult {

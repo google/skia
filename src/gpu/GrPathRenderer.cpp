@@ -12,7 +12,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrShape.h"
 #include "GrUserStencilSettings.h"
-#include "SkDrawProcs.h"
+#include "src/core/SkDrawProcs.h"
 
 #ifdef SK_DEBUG
 void GrPathRenderer::StencilPathArgs::validate() const {

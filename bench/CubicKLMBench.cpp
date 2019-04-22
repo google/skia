@@ -7,8 +7,8 @@
 
 #include "Benchmark.h"
 
-#include "GrPathUtils.h"
-#include "SkGeometry.h"
+#include "src/gpu/GrPathUtils.h"
+#include "src/core/SkGeometry.h"
 
 class CubicKLMBench : public Benchmark {
 public:

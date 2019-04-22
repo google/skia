@@ -15,11 +15,11 @@
 #include "GrSwizzle.h"
 #include "GrAllocator.h"
 #include "GrTextureProducer.h"
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 #include "GrXferProcessor.h"
-#include "SkPath.h"
-#include "SkSurface.h"
-#include "SkTArray.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkTArray.h"
 #include <map>
 
 class GrBackendRenderTarget;

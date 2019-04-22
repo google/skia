@@ -10,9 +10,9 @@
 
 #include "Slide.h"
 
-#include "SkCanvas.h"
-#include "SkVertices.h"
-#include "nima/NimaActor.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkVertices.h"
+#include "experimental/nima/NimaActor.h"
 
 class NIMASlide : public Slide {
 public:

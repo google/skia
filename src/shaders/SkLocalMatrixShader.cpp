@@ -6,10 +6,10 @@
  */
 
 #include "SkLocalMatrixShader.h"
-#include "SkTLazy.h"
+#include "src/core/SkTLazy.h"
 
 #if SK_SUPPORT_GPU
-#include "GrFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #endif
 
 #if SK_SUPPORT_GPU

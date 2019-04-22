@@ -8,18 +8,18 @@
 #ifndef GrGLSLProgramBuilder_DEFINED
 #define GrGLSLProgramBuilder_DEFINED
 
-#include "GrCaps.h"
-#include "GrGeometryProcessor.h"
-#include "GrProgramDesc.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLPrimitiveProcessor.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
-#include "glsl/GrGLSLXferProcessor.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrProgramDesc.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "GrGLSLFragmentProcessor.h"
+#include "GrGLSLFragmentShaderBuilder.h"
+#include "GrGLSLPrimitiveProcessor.h"
+#include "GrGLSLProgramDataManager.h"
+#include "GrGLSLUniformHandler.h"
+#include "GrGLSLVertexGeoBuilder.h"
+#include "GrGLSLXferProcessor.h"
 
 class GrShaderVar;
 class GrGLSLVaryingHandler;

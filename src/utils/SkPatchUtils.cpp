@@ -7,12 +7,12 @@
 
 #include "SkPatchUtils.h"
 
-#include "SkArenaAlloc.h"
-#include "SkColorData.h"
-#include "SkColorSpacePriv.h"
-#include "SkConvertPixels.h"
-#include "SkGeometry.h"
-#include "SkTo.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkColorData.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkConvertPixels.h"
+#include "src/core/SkGeometry.h"
+#include "include/private/SkTo.h"
 
 namespace {
     enum CubicCtrlPts {

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkTypeface.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 // test shader w/ transparency

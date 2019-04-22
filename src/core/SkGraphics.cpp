@@ -5,28 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "SkGraphics.h"
+#include "include/core/SkGraphics.h"
 
 #include "SkBlitter.h"
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 #include "SkCpu.h"
 #include "SkGeometry.h"
-#include "SkImageFilter.h"
-#include "SkMath.h"
-#include "SkMatrix.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkMatrix.h"
 #include "SkOpts.h"
-#include "SkPath.h"
-#include "SkPathEffect.h"
-#include "SkRefCnt.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRefCnt.h"
 #include "SkResourceCache.h"
 #include "SkScalerContext.h"
-#include "SkShader.h"
-#include "SkStream.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkStream.h"
 #include "SkStrikeCache.h"
-#include "SkTSearch.h"
-#include "SkTime.h"
+#include "include/private/SkTSearch.h"
+#include "include/core/SkTime.h"
 #include "SkTypefaceCache.h"
-#include "SkUTF.h"
+#include "src/utils/SkUTF.h"
 
 #include <stdlib.h>
 

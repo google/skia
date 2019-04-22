@@ -6,16 +6,16 @@
  */
 
 #include "SkBigPicture.h"
-#include "SkData.h"
-#include "SkDrawable.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
 #include "SkMiniRecorder.h"
-#include "SkPictureRecorder.h"
+#include "include/core/SkPictureRecorder.h"
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
 #include "SkRecordOpts.h"
 #include "SkRecordedDrawable.h"
 #include "SkRecorder.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 SkPictureRecorder::SkPictureRecorder() {
     fActivelyRecording = false;

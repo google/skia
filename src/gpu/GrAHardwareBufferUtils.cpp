@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 #define GL_GLEXT_PROTOTYPES
@@ -15,10 +15,10 @@
 
 #include <android/hardware_buffer.h>
 
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "gl/GrGLDefines.h"
-#include "gl/GrGLTypes.h"
+#include "include/gpu/gl/GrGLTypes.h"
 
 #ifdef SK_VULKAN
 #include "vk/GrVkCaps.h"

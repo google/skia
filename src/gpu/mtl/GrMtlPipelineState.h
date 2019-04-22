@@ -10,9 +10,9 @@
 
 #include "GrMtlBuffer.h"
 #include "GrMtlPipelineStateDataManager.h"
-#include "GrStencilSettings.h"
-#include "GrTypesPriv.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/GrStencilSettings.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
 #import <metal/metal.h>
 

@@ -7,14 +7,14 @@
 
 #include "GrCoverageCountingPathRenderer.h"
 
-#include "GrCaps.h"
-#include "GrClip.h"
-#include "GrProxyProvider.h"
-#include "SkMakeUnique.h"
-#include "SkPathOps.h"
-#include "ccpr/GrCCClipProcessor.h"
-#include "ccpr/GrCCDrawPathsOp.h"
-#include "ccpr/GrCCPathCache.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/core/SkMakeUnique.h"
+#include "include/pathops/SkPathOps.h"
+#include "GrCCClipProcessor.h"
+#include "GrCCDrawPathsOp.h"
+#include "GrCCPathCache.h"
 
 using PathInstance = GrCCPathProcessor::Instance;
 

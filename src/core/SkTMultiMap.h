@@ -8,7 +8,7 @@
 #ifndef SkTMultiMap_DEFINED
 #define SkTMultiMap_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 #include "SkTDynamicHash.h"
 
 /** A set that contains pointers to instances of T. Instances can be looked up with key Key.

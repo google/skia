@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkGradientShader.h"
+#include "include/effects/SkGradientShader.h"
 #include "SkSVGLinearGradient.h"
 #include "SkSVGRenderContext.h"
 #include "SkSVGValue.h"

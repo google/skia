@@ -6,14 +6,14 @@
  */
 
 #include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkBlurImageFilter.h"
-#include "SkOffsetImageFilter.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkString.h"
+#include "include/core/SkBitmap.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkOffsetImageFilter.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
 
 #define FILTER_WIDTH_SMALL  32
 #define FILTER_HEIGHT_SMALL 32

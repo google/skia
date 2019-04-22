@@ -6,10 +6,10 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkResourceCache.h"
-#include "SkShadowUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "src/core/SkResourceCache.h"
+#include "include/utils/SkShadowUtils.h"
 
 void draw_shadow(SkCanvas* canvas, const SkPath& path, SkScalar height, SkColor color,
                  SkPoint3 lightPos, SkScalar lightR, bool isAmbient, uint32_t flags) {

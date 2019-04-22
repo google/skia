@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkDashPathEffect.h"
-#include "SkPaint.h"
-#include "SkPath.h"
+#include "include/core/SkBitmap.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "gm.h"
 
 // Repro case for skia:7674.  Requires lots of RAM to run, and currently triggers UB:

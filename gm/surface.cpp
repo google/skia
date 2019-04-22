@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkGradientShader.h"
-#include "SkSurface.h"
-#include "SkSurfaceProps.h"
-#include "SkTextUtils.h"
-#include "ToolUtils.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/utils/SkTextUtils.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 #define W 200

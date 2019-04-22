@@ -6,7 +6,7 @@
  */
 
 #include "SkCodecPriv.h"
-#include "SkColorData.h"
+#include "include/private/SkColorData.h"
 #include "SkMaskSwizzler.h"
 
 static void swizzle_mask16_to_rgba_opaque(

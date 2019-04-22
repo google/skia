@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkTypeface.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 /**

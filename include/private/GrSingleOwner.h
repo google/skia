@@ -8,7 +8,7 @@
 #ifndef GrSingleOwner_DEFINED
 #define GrSingleOwner_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_DEBUG
 #include "SkMutex.h"

@@ -12,7 +12,7 @@
 #include "gl/GrGLTypes.h"
 #include "mock/GrMockTypes.h"
 #include "vk/GrVkTypes.h"
-#include "../private/GrVkTypesPriv.h"
+#include "include/private/GrVkTypesPriv.h"
 
 class GrVkImageLayout;
 

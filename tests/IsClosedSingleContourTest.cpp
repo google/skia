@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
-#include "SkPathPriv.h"
+#include "src/core/SkPathPriv.h"
 
 DEF_TEST(IsClosedSingleContourTest, reporter) {
     SkPath p;

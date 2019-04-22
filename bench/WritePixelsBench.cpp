@@ -6,9 +6,9 @@
  */
 
 #include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkString.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkString.h"
 
 // Time variants of write-pixels
 //  [ colortype ][ alphatype ][ colorspace ]

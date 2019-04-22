@@ -11,8 +11,8 @@
 
 #include "SkSLJIT.h"
 
-#include "SkCpu.h"
-#include "SkRasterPipeline.h"
+#include "src/core/SkCpu.h"
+#include "src/core/SkRasterPipeline.h"
 #include "ir/SkSLAppendStage.h"
 #include "ir/SkSLExpressionStatement.h"
 #include "ir/SkSLFunctionCall.h"

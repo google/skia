@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 #include "PathOpsTestCommon.h"
-#include "SkGeometry.h"
-#include "SkIntersections.h"
+#include "src/core/SkGeometry.h"
+#include "src/pathops/SkIntersections.h"
 #include "Test.h"
 
 /*
@@ -60,12 +60,12 @@ static void chopCompare(const SkConic chopped[2], const SkDConic dChopped[2]) {
 #endif
 }
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkImageEncoder.h"
-#include "SkPathOpsRect.h"
-#include "SkPaint.h"
-#include "SkString.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImageEncoder.h"
+#include "src/pathops/SkPathOpsRect.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkString.h"
 
 #define DEBUG_VISUALIZE_CONICS 0
 

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkDiscardableMemory.h"
-#include "SkDiscardableMemoryPool.h"
-#include "SkRefCnt.h"
+#include "src/core/SkDiscardableMemory.h"
+#include "src/lazy/SkDiscardableMemoryPool.h"
+#include "include/core/SkRefCnt.h"
 #include "Test.h"
 
 #include <memory>

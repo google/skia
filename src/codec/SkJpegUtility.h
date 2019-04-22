@@ -10,7 +10,7 @@
 #define SkJpegUtility_codec_DEFINED
 
 #include "SkJpegPriv.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
 
 #include <setjmp.h>
 // stdio is needed for jpeglib

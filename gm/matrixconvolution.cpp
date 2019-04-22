@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkColor.h"
-#include "SkGradientShader.h"
-#include "SkMatrixConvolutionImageFilter.h"
-#include "ToolUtils.h"
+#include "include/core/SkColor.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 namespace skiagm {

@@ -9,7 +9,7 @@
 #define GMSlide_DEFINED
 
 #include "Slide.h"
-#include "gm.h"
+#include "gm/gm.h"
 
 class GMSlide : public Slide {
 public:

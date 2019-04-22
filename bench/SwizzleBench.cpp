@@ -6,7 +6,7 @@
  */
 
 #include "Benchmark.h"
-#include "SkOpts.h"
+#include "src/core/SkOpts.h"
 
 class SwizzleBench : public Benchmark {
 public:

@@ -7,7 +7,7 @@
 
 #include "GrVkRenderPass.h"
 
-#include "GrProcessor.h"
+#include "src/gpu/GrProcessor.h"
 #include "GrVkFramebuffer.h"
 #include "GrVkGpu.h"
 #include "GrVkRenderTarget.h"

@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkAndroidCodec.h"
+#include "include/codec/SkAndroidCodec.h"
 #include "SkAndroidCodecAdapter.h"
-#include "SkCodec.h"
+#include "include/codec/SkCodec.h"
 #include "SkCodecPriv.h"
-#include "SkMakeUnique.h"
-#include "SkPixmap.h"
-#include "SkPixmapPriv.h"
+#include "src/core/SkMakeUnique.h"
+#include "include/core/SkPixmap.h"
+#include "src/core/SkPixmapPriv.h"
 #include "SkSampledCodec.h"
 
 static bool is_valid_sample_size(int sampleSize) {

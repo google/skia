@@ -9,11 +9,11 @@
 
 #include "SkBigPicture.h"
 #include "SkCanvasPriv.h"
-#include "SkImage.h"
-#include "SkPatchUtils.h"
-#include "SkPicture.h"
-#include "SkSurface.h"
-#include "SkTo.h"
+#include "include/core/SkImage.h"
+#include "src/utils/SkPatchUtils.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkTo.h"
 
 #include <new>
 

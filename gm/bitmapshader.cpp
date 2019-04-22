@@ -6,13 +6,13 @@
  */
 #include "gm.h"
 
-#include "SkBitmap.h"
-#include "SkPaint.h"
-#include "SkShader.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
 
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
 
 namespace skiagm {
 

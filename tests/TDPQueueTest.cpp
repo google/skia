@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkTDPQueue.h"
-#include "SkRandom.h"
+#include "src/core/SkTDPQueue.h"
+#include "include/utils/SkRandom.h"
 #include "Test.h"
 
 namespace { bool intless(const int& a, const int& b) { return a < b; } }

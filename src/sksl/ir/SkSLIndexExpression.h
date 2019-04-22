@@ -8,9 +8,9 @@
 #ifndef SKSL_INDEX
 #define SKSL_INDEX
 
-#include "SkSLContext.h"
+#include "src/sksl/SkSLContext.h"
 #include "SkSLExpression.h"
-#include "SkSLUtil.h"
+#include "src/sksl/SkSLUtil.h"
 
 namespace SkSL {
 

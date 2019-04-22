@@ -6,11 +6,11 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkScalar.h"
-#include "SkTArray.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkTArray.h"
 
 namespace skiagm {
 

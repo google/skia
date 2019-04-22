@@ -6,13 +6,13 @@
  */
 
 #include "GrDrawPathOp.h"
-#include "GrAppliedClip.h"
-#include "GrMemoryPool.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetPriv.h"
-#include "SkTemplates.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "include/private/SkTemplates.h"
 
 static constexpr GrUserStencilSettings kCoverPass{
         GrUserStencilSettings::StaticInit<

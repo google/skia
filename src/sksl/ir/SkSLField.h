@@ -9,7 +9,7 @@
 #define SKSL_FIELD
 
 #include "SkSLModifiers.h"
-#include "SkSLPosition.h"
+#include "src/sksl/SkSLPosition.h"
 #include "SkSLSymbol.h"
 #include "SkSLType.h"
 #include "SkSLVariable.h"

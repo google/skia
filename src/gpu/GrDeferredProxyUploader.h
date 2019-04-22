@@ -8,10 +8,10 @@
 #ifndef GrDeferredProxyUploader_DEFINED
 #define GrDeferredProxyUploader_DEFINED
 
-#include "SkAutoPixmapStorage.h"
-#include "SkMakeUnique.h"
-#include "SkRefCnt.h"
-#include "SkSemaphore.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkMakeUnique.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkSemaphore.h"
 
 #include "GrOpFlushState.h"
 #include "GrTextureProxyPriv.h"

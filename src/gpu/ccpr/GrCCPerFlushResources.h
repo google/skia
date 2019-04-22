@@ -8,11 +8,11 @@
 #ifndef GrCCPerFlushResources_DEFINED
 #define GrCCPerFlushResources_DEFINED
 
-#include "GrNonAtomicRef.h"
-#include "ccpr/GrCCAtlas.h"
-#include "ccpr/GrCCFiller.h"
-#include "ccpr/GrCCStroker.h"
-#include "ccpr/GrCCPathProcessor.h"
+#include "src/gpu/GrNonAtomicRef.h"
+#include "GrCCAtlas.h"
+#include "GrCCFiller.h"
+#include "GrCCStroker.h"
+#include "GrCCPathProcessor.h"
 
 class GrCCPathCache;
 class GrCCPathCacheEntry;

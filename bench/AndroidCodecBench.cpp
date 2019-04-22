@@ -7,10 +7,10 @@
 
 #include "AndroidCodecBench.h"
 #include "CodecBenchPriv.h"
-#include "CommandLineFlags.h"
-#include "SkAndroidCodec.h"
-#include "SkBitmap.h"
-#include "SkOSFile.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/core/SkBitmap.h"
+#include "src/core/SkOSFile.h"
 
 AndroidCodecBench::AndroidCodecBench(SkString baseName, SkData* encoded, int sampleSize)
     : fData(SkRef(encoded))

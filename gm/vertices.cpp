@@ -6,12 +6,12 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkGradientShader.h"
-#include "SkLocalMatrixShader.h"
-#include "SkRandom.h"
-#include "SkVertices.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/shaders/SkLocalMatrixShader.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkVertices.h"
 
 static constexpr SkScalar kShaderSize = 40;
 static sk_sp<SkShader> make_shader1(SkScalar shaderScale) {

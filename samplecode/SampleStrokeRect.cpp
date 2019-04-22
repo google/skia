@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 #include "Sample.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
 
 class StrokeRectSample : public Sample {
 public:

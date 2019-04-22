@@ -6,7 +6,7 @@
  */
 
 #include "SkSLSetting.h"
-#include "SkSLIRGenerator.h"
+#include "src/sksl/SkSLIRGenerator.h"
 #include "SkSLVariableReference.h"
 
 namespace SkSL {

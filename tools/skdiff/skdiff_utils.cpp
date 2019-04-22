@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 #include "skdiff_utils.h"
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkData.h"
-#include "SkImageEncoder.h"
-#include "SkStream.h"
-#include "SkTypes.h"
-#include "ToolUtils.h"
+#include "include/core/SkBitmap.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "tools/ToolUtils.h"
 #include "skdiff.h"
 
 #include <memory>

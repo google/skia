@@ -8,14 +8,14 @@
 #include "DDLTileHelper.h"
 
 #include "DDLPromiseImageHelper.h"
-#include "SkCanvas.h"
-#include "SkDeferredDisplayListPriv.h"
-#include "SkDeferredDisplayListRecorder.h"
-#include "SkImage_Gpu.h"
-#include "SkPicture.h"
-#include "SkSurface.h"
-#include "SkSurfaceCharacterization.h"
-#include "SkTaskGroup.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkDeferredDisplayListPriv.h"
+#include "include/core/SkDeferredDisplayListRecorder.h"
+#include "src/image/SkImage_Gpu.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceCharacterization.h"
+#include "src/core/SkTaskGroup.h"
 
 DDLTileHelper::TileData::TileData(sk_sp<SkSurface> s, const SkIRect& clip)
         : fSurface(std::move(s))

@@ -6,9 +6,9 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkVertices.h"
-#include "SkPoint.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkVertices.h"
+#include "include/core/SkPoint.h"
 
 #include <iostream>
 #include <vector>

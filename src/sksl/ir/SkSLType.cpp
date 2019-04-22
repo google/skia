@@ -6,7 +6,7 @@
  */
 
 #include "SkSLType.h"
-#include "SkSLContext.h"
+#include "src/sksl/SkSLContext.h"
 
 namespace SkSL {
 

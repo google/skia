@@ -8,9 +8,9 @@
 #ifndef GrClearStencilClipOp_DEFINED
 #define GrClearStencilClipOp_DEFINED
 
-#include "GrFixedClip.h"
+#include "src/gpu/GrFixedClip.h"
 #include "GrOp.h"
-#include "GrRenderTargetProxy.h"
+#include "include/private/GrRenderTargetProxy.h"
 
 class GrOpFlushState;
 class GrRecordingContext;

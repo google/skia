@@ -8,7 +8,7 @@
 #ifndef SkCanvas_DEFINED
 #define SkCanvas_DEFINED
 
-#include "../private/SkMacros.h"
+#include "include/private/SkMacros.h"
 #include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkClipOp.h"

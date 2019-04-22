@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLJIT.h"
+#include "src/sksl/SkSLJIT.h"
 
 #include "Test.h"
 

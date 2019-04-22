@@ -8,18 +8,18 @@
 #ifndef SkBitmapDevice_DEFINED
 #define SkBitmapDevice_DEFINED
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "SkDevice.h"
 #include "SkGlyphRunPainter.h"
-#include "SkImageInfo.h"
+#include "include/core/SkImageInfo.h"
 #include "SkRasterClip.h"
 #include "SkRasterClipStack.h"
-#include "SkRect.h"
-#include "SkScalar.h"
-#include "SkSize.h"
-#include "SkSurfaceProps.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkSurfaceProps.h"
 
 class SkImageFilterCache;
 class SkMatrix;

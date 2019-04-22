@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkColor.h"
-#include "SkColorData.h"
-#include "SkColorPriv.h"
-#include "SkMathPriv.h"
-#include "SkRandom.h"
-#include "SkTypes.h"
-#include "SkUnPreMultiply.h"
+#include "include/core/SkColor.h"
+#include "include/private/SkColorData.h"
+#include "include/core/SkColorPriv.h"
+#include "src/core/SkMathPriv.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkUnPreMultiply.h"
 #include "Test.h"
 
 #define GetPackedR16As32(packed)    (SkGetPackedR16(dc) << (8 - SK_R16_BITS))

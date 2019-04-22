@@ -7,7 +7,7 @@
 
 #include "SkKeyedImage.h"
 
-#include "SkImage_Base.h"
+#include "src/image/SkImage_Base.h"
 
 SkBitmapKey SkBitmapKeyFromImage(const SkImage* image) {
     if (!image) {

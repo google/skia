@@ -7,8 +7,8 @@
 
 #include "GrCCConicShader.h"
 
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 void GrCCConicShader::emitSetupCode(
         GrGLSLVertexGeoBuilder* s, const char* pts, const char** outHull4) const {

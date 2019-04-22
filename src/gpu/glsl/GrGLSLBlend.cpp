@@ -6,9 +6,9 @@
  */
 
 #include "GrGLSLBlend.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "SkBlendModePriv.h"
+#include "GrGLSLFragmentShaderBuilder.h"
+#include "GrGLSLProgramBuilder.h"
+#include "src/core/SkBlendModePriv.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //  Advanced (non-coeff) blend helpers

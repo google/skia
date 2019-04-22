@@ -24,8 +24,8 @@
 #include "SkTypeface_remote.h"
 
 #if SK_SUPPORT_GPU
-#include "GrDrawOpAtlas.h"
-#include "text/GrTextContext.h"
+#include "src/gpu/GrDrawOpAtlas.h"
+#include "src/gpu/text/GrTextContext.h"
 #endif
 
 static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,

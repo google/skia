@@ -10,8 +10,8 @@
 
 #include "GrVkResource.h"
 
-#include "SkOpts.h"
-#include "vk/GrVkTypes.h"
+#include "src/core/SkOpts.h"
+#include "include/gpu/vk/GrVkTypes.h"
 
 class GrVkGpu;
 

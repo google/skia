@@ -7,14 +7,14 @@
 
 #include "GrCCPathProcessor.h"
 
-#include "GrGpuCommandBuffer.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrTexture.h"
-#include "ccpr/GrCCPerFlushResources.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "glsl/GrGLSLVarying.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "include/gpu/GrTexture.h"
+#include "GrCCPerFlushResources.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
 
 // Paths are drawn as octagons. Each point on the octagon is the intersection of two lines: one edge
 // from the path's bounding box and one edge from its 45-degree bounding box. The selectors

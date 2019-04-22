@@ -8,9 +8,9 @@
 #ifndef GrMtlRenderTarget_DEFINED
 #define GrMtlRenderTarget_DEFINED
 
-#include "GrRenderTarget.h"
+#include "include/gpu/GrRenderTarget.h"
 
-#include "GrBackendSurface.h"
+#include "include/gpu/GrBackendSurface.h"
 
 #import <Metal/Metal.h>
 

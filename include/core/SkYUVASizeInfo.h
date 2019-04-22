@@ -8,7 +8,7 @@
 #ifndef SkYUVASizeInfo_DEFINED
 #define SkYUVASizeInfo_DEFINED
 
-#include "SkEncodedOrigin.h"
+#include "include/codec/SkEncodedOrigin.h"
 #include "SkImageInfo.h"
 #include "SkSize.h"
 

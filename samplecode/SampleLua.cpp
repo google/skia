@@ -6,10 +6,10 @@
  */
 
 #include "Sample.h"
-#include "SkLua.h"
-#include "SkCanvas.h"
-#include "Resources.h"
-#include "SkData.h"
+#include "include/utils/SkLua.h"
+#include "include/core/SkCanvas.h"
+#include "tools/Resources.h"
+#include "include/core/SkData.h"
 
 extern "C" {
 #include "lua.h"

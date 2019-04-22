@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkRRect.h"
-#include "SkRandom.h"
-#include "SkRect.h"
-#include "ToolUtils.h"
+#include "include/core/SkRRect.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkRect.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 namespace skiagm {

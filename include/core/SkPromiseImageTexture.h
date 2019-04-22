@@ -8,8 +8,8 @@
 #ifndef SkPromiseImageTexture_DEFINED
 #define SkPromiseImageTexture_DEFINED
 
-#include "../private/GrResourceKey.h"
-#include "GrBackendSurface.h"
+#include "include/private/GrResourceKey.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "SkRefCnt.h"
 
 #if SK_SUPPORT_GPU

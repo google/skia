@@ -6,11 +6,11 @@
 */
 
 #include "GrVkPipelineState.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrPipeline.h"
-#include "GrRenderTarget.h"
-#include "GrTexturePriv.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrPipeline.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrTexturePriv.h"
 #include "GrVkBufferView.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkDescriptorPool.h"
@@ -23,10 +23,10 @@
 #include "GrVkSampler.h"
 #include "GrVkTexture.h"
 #include "GrVkUniformBuffer.h"
-#include "SkMipMap.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLXferProcessor.h"
+#include "src/core/SkMipMap.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLXferProcessor.h"
 
 GrVkPipelineState::GrVkPipelineState(
         GrVkGpu* gpu,

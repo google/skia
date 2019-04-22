@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkMatrix.h"
-#include "SkPathOps.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix.h"
+#include "include/pathops/SkPathOps.h"
 #include "SkSVGNode.h"
 #include "SkSVGRenderContext.h"
 #include "SkSVGValue.h"
-#include "SkTLazy.h"
+#include "src/core/SkTLazy.h"
 
 SkSVGNode::SkSVGNode(SkSVGTag t) : fTag(t) { }
 

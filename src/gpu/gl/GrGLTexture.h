@@ -9,8 +9,8 @@
 #ifndef GrGLTexture_DEFINED
 #define GrGLTexture_DEFINED
 
-#include "GrGpu.h"
-#include "GrTexture.h"
+#include "src/gpu/GrGpu.h"
+#include "include/gpu/GrTexture.h"
 #include "GrGLUtil.h"
 
 class GrGLGpu;

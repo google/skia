@@ -6,15 +6,15 @@
  */
 #include "Test.h"
 
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkExecutor.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkPDFDocument.h"
-#include "SkStream.h"
+#include "tools/Resources.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkExecutor.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkOSPath.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/core/SkStream.h"
 
-#include "ToolUtils.h"
+#include "tools/ToolUtils.h"
 
 static void test_empty(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;

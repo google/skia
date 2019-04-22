@@ -10,11 +10,11 @@
 
 #include <cmath>
 
-#include "SkGlyphRunPainter.h"
-#include "SkIPoint16.h"
-#include "SkSize.h"
-#include "SkTDArray.h"
-#include "SkTInternalLList.h"
+#include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkIPoint16.h"
+#include "include/core/SkSize.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkTInternalLList.h"
 
 #include "ops/GrDrawOp.h"
 

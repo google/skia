@@ -8,7 +8,7 @@
 #include "SkOpContour.h"
 #include "SkOpSegment.h"
 #include "SkPathWriter.h"
-#include "SkPointPriv.h"
+#include "src/core/SkPointPriv.h"
 
 #include <utility>
 

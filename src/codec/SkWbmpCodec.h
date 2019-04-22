@@ -8,8 +8,8 @@
 #ifndef SkCodec_wbmp_DEFINED
 #define SkCodec_wbmp_DEFINED
 
-#include "SkCodec.h"
-#include "SkColorSpace.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkColorSpace.h"
 #include "SkSwizzler.h"
 
 class SkWbmpCodec final : public SkCodec {

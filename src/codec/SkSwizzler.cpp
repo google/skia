@@ -6,14 +6,14 @@
  */
 
 #include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkHalf.h"
-#include "SkOpts.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkHalf.h"
+#include "src/core/SkOpts.h"
 #include "SkSwizzler.h"
-#include "SkTemplates.h"
+#include "include/private/SkTemplates.h"
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    #include "SkAndroidFrameworkUtils.h"
+#include "include/android/SkAndroidFrameworkUtils.h"
 #endif
 
 static void copy(void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,

@@ -18,10 +18,10 @@
 #include "SkSLStringStream.h"
 
 #ifndef SKSL_STANDALONE
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if SK_SUPPORT_GPU
-#include "GrContextOptions.h"
-#include "GrShaderCaps.h"
+#include "include/gpu/GrContextOptions.h"
+#include "src/gpu/GrShaderCaps.h"
 #endif // SK_SUPPORT_GPU
 #endif // SKSL_STANDALONE
 

@@ -9,10 +9,10 @@
 #define SKSL_SWIZZLE
 
 #include "SkSLConstructor.h"
-#include "SkSLContext.h"
+#include "src/sksl/SkSLContext.h"
 #include "SkSLExpression.h"
-#include "SkSLIRGenerator.h"
-#include "SkSLUtil.h"
+#include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/SkSLUtil.h"
 
 namespace SkSL {
 

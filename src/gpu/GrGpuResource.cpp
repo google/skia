@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrGpuResource.h"
-#include "GrContext.h"
+#include "include/gpu/GrGpuResource.h"
+#include "include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrResourceCache.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
-#include "SkTraceMemoryDump.h"
+#include "include/core/SkTraceMemoryDump.h"
 #include <atomic>
 
 static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {

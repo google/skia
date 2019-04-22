@@ -9,7 +9,7 @@
 #define SkSVGAttribute_DEFINED
 
 #include "SkSVGTypes.h"
-#include "SkTLazy.h"
+#include "src/core/SkTLazy.h"
 
 class SkSVGRenderContext;
 

@@ -8,7 +8,7 @@
 #include "SkOpSpan.h"
 #include "SkPathOpsPoint.h"
 #include "SkPathWriter.h"
-#include "SkTSort.h"
+#include "src/core/SkTSort.h"
 
 // wrap path to keep track of whether the contour is initialized and non-empty
 SkPathWriter::SkPathWriter(SkPath& path)

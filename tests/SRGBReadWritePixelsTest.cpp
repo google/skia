@@ -6,13 +6,13 @@
  */
 
 #include "Test.h"
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrSurfaceContext.h"
-#include "SkCanvas.h"
-#include "SkGr.h"
-#include "SkSurface.h"
+#include "src/gpu/GrCaps.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "include/core/SkCanvas.h"
+#include "src/gpu/SkGr.h"
+#include "include/core/SkSurface.h"
 
 // using anonymous namespace because these functions are used as template params.
 namespace {

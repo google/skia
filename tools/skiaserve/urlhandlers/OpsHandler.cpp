@@ -7,8 +7,8 @@
 
 #include "UrlHandler.h"
 
-#include "../Request.h"
-#include "../Response.h"
+#include "tools/skiaserve/Request.h"
+#include "tools/skiaserve/Response.h"
 #include "microhttpd.h"
 
 using namespace Response;

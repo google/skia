@@ -9,7 +9,7 @@
 #define SampleSlide_DEFINED
 
 #include "Slide.h"
-#include "Sample.h"
+#include "samplecode/Sample.h"
 
 class SampleSlide : public Slide {
 public:

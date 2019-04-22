@@ -8,8 +8,8 @@
 #ifndef MetalWindowContext_DEFINED
 #define MetalWindowContext_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkSurface.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
 
 #include "WindowContext.h"
 

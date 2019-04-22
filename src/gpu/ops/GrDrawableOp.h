@@ -10,9 +10,9 @@
 
 #include "GrOp.h"
 
-#include "GrSemaphore.h"
-#include "SkDrawable.h"
-#include "SkMatrix.h"
+#include "src/gpu/GrSemaphore.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkMatrix.h"
 
 class GrRecordingContext;
 

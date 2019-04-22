@@ -7,16 +7,16 @@
 
 #include "SkDraw.h"
 #include "SkFontPriv.h"
-#include "SkPaint.h"
+#include "include/core/SkPaint.h"
 #include "SkPaintDefaults.h"
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 #include "SkScalerContext.h"
 #include "SkStrike.h"
 #include "SkStrikeCache.h"
-#include "SkTo.h"
+#include "include/private/SkTo.h"
 #include "SkTLazy.h"
-#include "SkTypeface.h"
-#include "SkUTF.h"
+#include "include/core/SkTypeface.h"
+#include "src/utils/SkUTF.h"
 #include "SkUtils.h"
 
 #define kDefault_Size       SkPaintDefaults_TextSize

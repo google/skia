@@ -7,11 +7,11 @@
 
 #include "GrDrawOpTest.h"
 #include "GrCaps.h"
-#include "GrContext_Base.h"
+#include "include/private/GrContext_Base.h"
 #include "GrBaseContextPriv.h"
 #include "GrUserStencilSettings.h"
-#include "SkRandom.h"
-#include "SkTypes.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkTypes.h"
 
 #if GR_TEST_UTILS
 

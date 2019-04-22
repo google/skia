@@ -6,9 +6,9 @@
  */
 
 #include "Benchmark.h"
-#include "SkGeometry.h"
-#include "SkRandom.h"
-#include "SkRect.h"
+#include "src/core/SkGeometry.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkRect.h"
 
 class GeometryBench : public Benchmark {
 public:
@@ -244,7 +244,7 @@ protected:
 };
 DEF_BENCH( return new ChopCubicAt; )
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 
 class ConvexityBench : public Benchmark {
     SkPath fPath;

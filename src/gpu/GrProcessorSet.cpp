@@ -10,7 +10,7 @@
 #include "GrCaps.h"
 #include "GrUserStencilSettings.h"
 #include "GrXferProcessor.h"
-#include "SkBlendModePriv.h"
+#include "src/core/SkBlendModePriv.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 
 const GrProcessorSet& GrProcessorSet::EmptySet() {

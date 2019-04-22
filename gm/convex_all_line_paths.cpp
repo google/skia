@@ -6,8 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkPolyUtils.h"
-#include "SkPathPriv.h"
+#include "src/utils/SkPolyUtils.h"
+#include "src/core/SkPathPriv.h"
 
 static void create_ngon(int n, SkPoint* pts, SkScalar width, SkScalar height) {
     float angleStep = 360.0f / n, angle = 0.0f;

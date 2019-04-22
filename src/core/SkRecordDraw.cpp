@@ -7,8 +7,8 @@
 
 #include "SkRecordDraw.h"
 #include "SkCanvasPriv.h"
-#include "SkImage.h"
-#include "SkPatchUtils.h"
+#include "include/core/SkImage.h"
+#include "src/utils/SkPatchUtils.h"
 
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,

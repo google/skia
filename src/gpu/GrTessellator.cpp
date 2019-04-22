@@ -11,11 +11,11 @@
 #include "GrPathUtils.h"
 #include "GrVertexWriter.h"
 
-#include "SkArenaAlloc.h"
-#include "SkGeometry.h"
-#include "SkPath.h"
-#include "SkPointPriv.h"
-#include "SkTDPQueue.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkGeometry.h"
+#include "include/core/SkPath.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkTDPQueue.h"
 
 #include <algorithm>
 #include <cstdio>

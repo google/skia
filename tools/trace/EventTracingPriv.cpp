@@ -8,11 +8,11 @@
 #include "EventTracingPriv.h"
 
 #include "ChromeTracingTracer.h"
-#include "CommandLineFlags.h"
-#include "SkATrace.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "src/core/SkATrace.h"
 #include "SkDebugfTracer.h"
-#include "SkEventTracer.h"
-#include "SkTraceEvent.h"
+#include "include/utils/SkEventTracer.h"
+#include "src/core/SkTraceEvent.h"
 
 static DEFINE_string(trace,
               "",

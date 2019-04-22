@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkPathPriv.h"
-#include "SkTextFormatParams.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkTextFormatParams.h"
+#include "include/core/SkTypeface.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 /* Generated on a Mac with:
