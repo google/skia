@@ -94,8 +94,6 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider,
 }
 
 sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvider) const {
-    SkASSERT(resourceProvider->explicitlyAllocateGPUResources());
-
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, 1,
                                                        /* needsStencil = */ false,
                                                        kNone_GrSurfaceFlags,

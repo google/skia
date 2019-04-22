@@ -398,13 +398,7 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
         ctx->flush();
 
         if (failInstantiation) {
-            if (resourceProvider->explicitlyAllocateGPUResources()) {
-                REPORTER_ASSERT(reporter, 1 == executeTestValue);
-            } else {
-                // When we disable explicit gpu resource allocation we don't throw away ops that
-                // have uninstantiated proxies.
-                REPORTER_ASSERT(reporter, 2 == executeTestValue);
-            }
+            REPORTER_ASSERT(reporter, 1 == executeTestValue);
         } else {
             REPORTER_ASSERT(reporter, 2 == executeTestValue);
         }

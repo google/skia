@@ -34,10 +34,7 @@
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "text/GrTextContext.h"
 
-GrDrawingManager::OpListDAG::OpListDAG(bool explicitlyAllocating, bool sortOpLists)
-        : fSortOpLists(sortOpLists) {
-    SkASSERT(!sortOpLists || explicitlyAllocating);
-}
+GrDrawingManager::OpListDAG::OpListDAG(bool sortOpLists) : fSortOpLists(sortOpLists) {}
 
 GrDrawingManager::OpListDAG::~OpListDAG() {}
 
@@ -153,13 +150,12 @@ void GrDrawingManager::OpListDAG::cleanup(const GrCaps* caps) {
 GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
                                    const GrTextContext::Options& optionsForTextContext,
-                                   bool explicitlyAllocating,
                                    bool sortOpLists,
                                    GrContextOptions::Enable reduceOpListSplitting)
         : fContext(context)
         , fOptionsForPathRendererChain(optionsForPathRendererChain)
         , fOptionsForTextContext(optionsForTextContext)
-        , fDAG(explicitlyAllocating, sortOpLists)
+        , fDAG(sortOpLists)
         , fTextContext(nullptr)
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
@@ -411,17 +407,10 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
 
         GrOpList* opList = fDAG.opList(i);
 
-        if (resourceProvider->explicitlyAllocateGPUResources()) {
-            if (!opList->isFullyInstantiated()) {
-                // If the backing surface wasn't allocated drop the draw of the entire opList.
-                fDAG.removeOpList(i);
-                continue;
-            }
-        } else {
-            if (!opList->instantiate(resourceProvider)) {
-                fDAG.removeOpList(i);
-                continue;
-            }
+        if (!opList->isFullyInstantiated()) {
+            // If the backing surface wasn't allocated drop the draw of the entire opList.
+            fDAG.removeOpList(i);
+            continue;
         }
 
         // TODO: handle this instantiation via lazy surface proxies?
@@ -633,16 +622,7 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetPr
         fActiveOpList = nullptr;
     }
 
-    // MDB TODO: this is unfortunate. GrOpList only needs the resourceProvider here so that, when
-    // not explicitly allocating resources, it can immediately instantiate 'rtp' so that the use
-    // order matches the allocation order (see the comment in GrOpList's ctor).
-    GrResourceProvider* resourceProvider = nullptr;
-    if (fContext->priv().asDirectContext()) {
-        resourceProvider = fContext->priv().asDirectContext()->priv().resourceProvider();
-    }
-
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
-                                                        resourceProvider,
                                                         fContext->priv().refOpMemoryPool(),
                                                         rtp,
                                                         fContext->priv().auditTrail()));
@@ -682,16 +662,7 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(sk_sp<GrTextureProxy> 
         fActiveOpList = nullptr;
     }
 
-    // MDB TODO: this is unfortunate. GrOpList only needs the resourceProvider here so that, when
-    // not explicitly allocating resources, it can immediately instantiate 'texureProxy' so that
-    // the use order matches the allocation order (see the comment in GrOpList's ctor).
-    GrResourceProvider* resourceProvider = nullptr;
-    if (fContext->priv().asDirectContext()) {
-        resourceProvider = fContext->priv().asDirectContext()->priv().resourceProvider();
-    }
-
-    sk_sp<GrTextureOpList> opList(new GrTextureOpList(resourceProvider,
-                                                      fContext->priv().refOpMemoryPool(),
+    sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->priv().refOpMemoryPool(),
                                                       textureProxy,
                                                       fContext->priv().auditTrail()));
 
