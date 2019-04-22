@@ -23,7 +23,7 @@ PATHKIT_DIR=$BASE_DIR/../../modules/pathkit
 npx karma start $PATHKIT_DIR/karma.conf.js --single-run
 # Tell the aggregator to dump the json
 # This curl command gets the HTTP code and stores it into $CODE
-CODE=`curl -s -o /dev/null -I -w "%{http_code}" -X POST localhost:8081/dump_json`
+CODE=`curl -s -o /dev/null -I -w "%{http_code}" -X POST localhost:8081/finalize`
 if [ $CODE -ne 200 ]; then
     # If we don't get 200 back, something is wrong with writing to disk, so exit with error
     exit 1
