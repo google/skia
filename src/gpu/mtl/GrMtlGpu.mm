@@ -8,6 +8,7 @@
 #include "GrMtlGpu.h"
 
 #include "GrMtlBuffer.h"
+#include "GrMtlCommandBuffer.h"
 #include "GrMtlGpuCommandBuffer.h"
 #include "GrMtlTexture.h"
 #include "GrMtlTextureRenderTarget.h"
@@ -96,13 +97,17 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
         : INHERITED(context)
         , fDevice(device)
         , fQueue(queue)
-        , fCmdBuffer(nil)
+        , fCmdBuffer(nullptr)
         , fCompiler(new SkSL::Compiler())
         , fCopyManager(this)
         , fResourceProvider(this)
         , fBufferManager(this) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
+}
+
+GrMtlGpu::~GrMtlGpu() {
+    SkASSERT(!fCmdBuffer);
 }
 
 GrGpuRTCommandBuffer* GrMtlGpu::getCommandBuffer(
@@ -128,26 +133,19 @@ void GrMtlGpu::submit(GrGpuCommandBuffer* buffer) {
     delete buffer;
 }
 
-id<MTLCommandBuffer> GrMtlGpu::commandBuffer() {
+GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
     if (!fCmdBuffer) {
-        SK_BEGIN_AUTORELEASE_BLOCK
-        fCmdBuffer = [fQueue commandBuffer];
-        SK_END_AUTORELEASE_BLOCK
+        fCmdBuffer = GrMtlCommandBuffer::Create(fQueue);
     }
     return fCmdBuffer;
 }
 
 void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
-    [fCmdBuffer commit];
-    if (SyncQueue::kForce_SyncQueue == sync) {
-        [fCmdBuffer waitUntilCompleted];
+    if (fCmdBuffer) {
+        fCmdBuffer->commit(SyncQueue::kForce_SyncQueue == sync);
+        delete fCmdBuffer;
+        fCmdBuffer = nullptr;
     }
-    if (MTLCommandBufferStatusError == fCmdBuffer.status) {
-        NSString* description = fCmdBuffer.error.localizedDescription;
-        const char* errorString = [description UTF8String];
-        SkDebugf("Error submitting command buffer: %s\n", errorString);
-    }
-    fCmdBuffer = nil;
 }
 
 sk_sp<GrGpuBuffer> GrMtlGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
@@ -251,7 +249,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     int layerHeight = tex->height();
     MTLOrigin origin = MTLOriginMake(left, top, 0);
 
-    id<MTLBlitCommandEncoder> blitCmdEncoder = [this->commandBuffer() blitCommandEncoder];
+    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         if (texels[currentMipLevel].fPixels) {
             SkASSERT(1 == mipLevelCount || currentHeight == layerHeight);
@@ -279,7 +277,6 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
         currentHeight = SkTMax(1, currentHeight/2);
         layerHeight = currentHeight;
     }
-    [blitCmdEncoder endEncoding];
 #ifdef SK_BUILD_FOR_MAC
     // for Managed resources, need to tell driver to sync CPU and GPU copies
     [transferBuffer didModifyRange: NSMakeRange(0, combinedBufferSize)];
@@ -344,7 +341,7 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, GrColorType dataColorType) {
         return false;
     }
 
-    id<MTLBlitCommandEncoder> blitCmdEncoder = [this->commandBuffer() blitCommandEncoder];
+    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
     // clear the buffer to transparent black
     NSRange clearRange;
     clearRange.location = 0;
@@ -372,7 +369,6 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, GrColorType dataColorType) {
         currentWidth = SkTMax(1, currentWidth/2);
         currentHeight = SkTMax(1, currentHeight/2);
     }
-    [blitCmdEncoder endEncoding];
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
         tex->texturePriv().markMipMapsDirty();
@@ -588,9 +584,8 @@ bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
         return false;
     }
 
-    id<MTLBlitCommandEncoder> blitCmdEncoder = [this->commandBuffer() blitCommandEncoder];
+    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
     [blitCmdEncoder generateMipmapsForTexture: mtlTexture];
-    [blitCmdEncoder endEncoding];
 
     return true;
 }
@@ -816,7 +811,7 @@ bool GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     }
     dstRect.fBottom = dstRect.fTop + srcMtlRect.height();
 
-    id<MTLBlitCommandEncoder> blitCmdEncoder = [this->commandBuffer() blitCommandEncoder];
+    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
     [blitCmdEncoder copyFromTexture: srcTex
                         sourceSlice: 0
                         sourceLevel: 0
@@ -826,7 +821,6 @@ bool GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                    destinationSlice: 0
                    destinationLevel: 0
                   destinationOrigin: MTLOriginMake(dstRect.x(), dstRect.y(), 0)];
-    [blitCmdEncoder endEncoding];
 
     return true;
 }
@@ -992,7 +986,7 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     transferBuffer = [fDevice newBufferWithLength: transBufferImageBytes
                                                         options: options];
 
-    id<MTLBlitCommandEncoder> blitCmdEncoder = [this->commandBuffer() blitCommandEncoder];
+    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
     [blitCmdEncoder copyFromTexture: mtlTexture
                         sourceSlice: 0
                         sourceLevel: 0
@@ -1006,7 +1000,6 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     // Sync GPU data back to the CPU
     [blitCmdEncoder synchronizeResource: transferBuffer];
 #endif
-    [blitCmdEncoder endEncoding];
     SK_END_AUTORELEASE_BLOCK
 
     this->submitCommandBuffer(kForce_SyncQueue);

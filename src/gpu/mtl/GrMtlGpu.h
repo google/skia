@@ -25,6 +25,7 @@ class GrMtlGpuRTCommandBuffer;
 class GrMtlTexture;
 class GrSemaphore;
 struct GrMtlBackendContext;
+class GrMtlCommandBuffer;
 
 namespace SkSL {
     class Compiler;
@@ -39,7 +40,7 @@ public:
     static sk_sp<GrGpu> Make(GrContext* context, const GrContextOptions& options,
                              id<MTLDevice> device, id<MTLCommandQueue> queue);
 
-    ~GrMtlGpu() override = default;
+    ~GrMtlGpu() override;
 
     const GrMtlCaps& mtlCaps() const { return *fMtlCaps.get(); }
 
@@ -49,7 +50,7 @@ public:
 
     GrMtlBufferManager& bufferManager() { return fBufferManager; }
 
-    id<MTLCommandBuffer> commandBuffer();
+    GrMtlCommandBuffer* commandBuffer();
 
     enum SyncQueue {
         kForce_SyncQueue,
@@ -220,7 +221,7 @@ private:
     id<MTLDevice> fDevice;
     id<MTLCommandQueue> fQueue;
 
-    id<MTLCommandBuffer> fCmdBuffer;
+    GrMtlCommandBuffer* fCmdBuffer;
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
     GrMtlCopyManager fCopyManager;
