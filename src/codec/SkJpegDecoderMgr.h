@@ -8,7 +8,7 @@
 #ifndef SkJpegDecoderMgr_DEFINED
 #define SkJpegDecoderMgr_DEFINED
 
-#include "SkCodec.h"
+#include "../../include/codec/SkCodec.h"
 #include "SkCodecPriv.h"
 #include <stdio.h>
 #include "SkJpegUtility.h"

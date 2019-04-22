@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Resources.h"
+#include "../tools/Resources.h"
 #include "gm.h"
 // https://bug.skia.org/4374
 DEF_SIMPLE_GM(draw_bitmap_rect_skbug4734, canvas, 64, 64) {

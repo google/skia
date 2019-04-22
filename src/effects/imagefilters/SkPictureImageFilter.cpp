@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkPictureImageFilter.h"
+#include "../../../include/effects/SkPictureImageFilter.h"
 
-#include "SkCanvas.h"
-#include "SkImageSource.h"
-#include "SkPicturePriv.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
-#include "SkWriteBuffer.h"
-#include "SkValidationUtils.h"
+#include "../../../include/core/SkCanvas.h"
+#include "../../../include/effects/SkImageSource.h"
+#include "../../core/SkPicturePriv.h"
+#include "../../core/SkReadBuffer.h"
+#include "../../core/SkSpecialImage.h"
+#include "../../core/SkSpecialSurface.h"
+#include "../../core/SkWriteBuffer.h"
+#include "../../core/SkValidationUtils.h"
 
 sk_sp<SkImageFilter> SkPictureImageFilter::Make(sk_sp<SkPicture> picture) {
     return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(picture)));

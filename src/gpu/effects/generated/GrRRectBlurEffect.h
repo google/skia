@@ -10,23 +10,23 @@
  **************************************************************************************************/
 #ifndef GrRRectBlurEffect_DEFINED
 #define GrRRectBlurEffect_DEFINED
-#include "SkTypes.h"
+#include "../../../../include/core/SkTypes.h"
 
-#include "GrCaps.h"
-#include "GrClip.h"
-#include "GrContext.h"
-#include "GrPaint.h"
-#include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrStyle.h"
-#include "SkBlurMaskFilter.h"
-#include "SkBlurPriv.h"
-#include "SkGpuBlurUtils.h"
-#include "SkRRectPriv.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "../../GrCaps.h"
+#include "../../GrClip.h"
+#include "../../../../include/gpu/GrContext.h"
+#include "../../GrPaint.h"
+#include "../../GrProxyProvider.h"
+#include "../../../../include/private/GrRecordingContext.h"
+#include "../../GrRecordingContextPriv.h"
+#include "../../GrRenderTargetContext.h"
+#include "../../GrStyle.h"
+#include "../../../../include/effects/SkBlurMaskFilter.h"
+#include "../../../core/SkBlurPriv.h"
+#include "../../../core/SkGpuBlurUtils.h"
+#include "../../../core/SkRRectPriv.h"
+#include "../../GrFragmentProcessor.h"
+#include "../../GrCoordTransform.h"
 class GrRRectBlurEffect : public GrFragmentProcessor {
 public:
     static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrRecordingContext* context,

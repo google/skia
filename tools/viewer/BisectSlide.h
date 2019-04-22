@@ -8,8 +8,8 @@
 #ifndef BisectSlide_DEFINED
 #define BisectSlide_DEFINED
 
-#include "SkCanvas.h"
-#include "SkPath.h"
+#include "../../include/core/SkCanvas.h"
+#include "../../include/core/SkPath.h"
 #include "Slide.h"
 
 #include <stack>

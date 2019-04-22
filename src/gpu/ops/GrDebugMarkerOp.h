@@ -9,7 +9,7 @@
 #define GrDebugMarkerOp_DEFINED
 
 #include "GrOp.h"
-#include "GrRenderTargetProxy.h"
+#include "../../../include/private/GrRenderTargetProxy.h"
 
 class GrOpFlushState;
 class GrRecordingContext;

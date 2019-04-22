@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix44.h"
-#include "SkPoint3.h"
+#include "../include/core/SkMatrix44.h"
+#include "../include/core/SkPoint3.h"
 #include "Test.h"
 
 static bool nearly_equal_double(double a, double b) {

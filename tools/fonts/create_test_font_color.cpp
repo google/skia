@@ -8,10 +8,10 @@
 // running create_test_font_color generates ./<cbdt|sbix|cpal>.ttx
 // which are read by fonttools ttx to produce native fonts.
 
-#include "CommandLineFlags.h"
-#include "SkRefCnt.h"
-#include "SkStream.h"
-#include "SkString.h"
+#include "../flags/CommandLineFlags.h"
+#include "../../include/core/SkRefCnt.h"
+#include "../../include/core/SkStream.h"
+#include "../../include/core/SkString.h"
 #include "TestSVGTypeface.h"
 
 static void export_ttx(sk_sp<TestSVGTypeface> typeface,

@@ -7,10 +7,10 @@
 
 #include "gm.h"
 
-#include "SkPaint.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkShader.h"
+#include "../include/core/SkPaint.h"
+#include "../include/core/SkPicture.h"
+#include "../include/core/SkPictureRecorder.h"
+#include "../include/core/SkShader.h"
 
 constexpr SkScalar kPictureSize = SK_Scalar1;
 constexpr SkScalar kFillSize = 100;

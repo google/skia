@@ -6,10 +6,10 @@
  */
 
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkRTree.h"
-#include "SkRandom.h"
-#include "SkString.h"
+#include "../include/core/SkCanvas.h"
+#include "../src/core/SkRTree.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkString.h"
 
 // confine rectangles to a smallish area, so queries generally hit something, and overlap occurs:
 static const SkScalar GENERATE_EXTENTS = 1000.0f;

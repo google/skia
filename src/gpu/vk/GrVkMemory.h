@@ -9,8 +9,8 @@
 #define GrVkMemory_DEFINED
 
 #include "GrVkBuffer.h"
-#include "SkTArray.h"
-#include "vk/GrVkTypes.h"
+#include "../../../include/private/SkTArray.h"
+#include "../../../include/gpu/vk/GrVkTypes.h"
 
 class GrVkGpu;
 

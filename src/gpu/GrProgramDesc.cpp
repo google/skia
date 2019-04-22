@@ -13,8 +13,8 @@
 #include "GrRenderTargetPriv.h"
 #include "GrShaderCaps.h"
 #include "GrTexturePriv.h"
-#include "SkChecksum.h"
-#include "SkTo.h"
+#include "../../include/private/SkChecksum.h"
+#include "../../include/private/SkTo.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 

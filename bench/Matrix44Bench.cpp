@@ -6,9 +6,9 @@
  */
 
 #include "Benchmark.h"
-#include "SkMatrix44.h"
-#include "SkRandom.h"
-#include "SkString.h"
+#include "../include/core/SkMatrix44.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkString.h"
 
 class Matrix44Bench : public Benchmark {
     SkString    fName;

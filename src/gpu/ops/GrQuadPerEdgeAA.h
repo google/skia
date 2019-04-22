@@ -8,14 +8,14 @@
 #ifndef GrQuadPerEdgeAA_DEFINED
 #define GrQuadPerEdgeAA_DEFINED
 
-#include "GrColor.h"
-#include "GrGeometryProcessor.h"
+#include "../../../include/private/GrColor.h"
+#include "../GrGeometryProcessor.h"
 #include "GrMeshDrawOp.h"
-#include "GrQuad.h"
-#include "GrSamplerState.h"
-#include "GrTypesPriv.h"
-#include "SkPoint.h"
-#include "SkPoint3.h"
+#include "../GrQuad.h"
+#include "../../../include/gpu/GrSamplerState.h"
+#include "../../../include/private/GrTypesPriv.h"
+#include "../../../include/core/SkPoint.h"
+#include "../../../include/core/SkPoint3.h"
 
 class GrCaps;
 class GrColorSpaceXform;

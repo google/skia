@@ -7,9 +7,9 @@
 
 #include "../Fuzz.h"
 #include "../FuzzCommon.h"
-#include "SkData.h"
-#include "SkPath.h"
-#include "SkRegion.h"
+#include "../../include/core/SkData.h"
+#include "../../include/core/SkPath.h"
+#include "../../include/core/SkRegion.h"
 
 
 void FuzzRegionSetPath(Fuzz* fuzz) {

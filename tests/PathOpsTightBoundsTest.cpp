@@ -6,9 +6,9 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
-#include "SkCanvas.h"
-#include "SkRandom.h"
-#include "SkTSort.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/utils/SkRandom.h"
+#include "../src/core/SkTSort.h"
 #include "Test.h"
 
 static void testTightBoundsLines(PathOpsThreadState* data) {

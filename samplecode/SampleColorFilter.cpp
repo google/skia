@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 #include "Sample.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkPaint.h"
-#include "SkShader.h"
-#include "ToolUtils.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkColorFilter.h"
+#include "../include/core/SkPaint.h"
+#include "../include/core/SkShader.h"
+#include "../tools/ToolUtils.h"
 
 static int inflate5To8(int x) {
     return (x << 3) | (x >> 2);

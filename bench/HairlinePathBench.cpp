@@ -6,12 +6,12 @@
  */
 
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkString.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkPaint.h"
+#include "../include/core/SkPath.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkShader.h"
+#include "../include/core/SkString.h"
 
 enum Flags {
     kBig_Flag = 1 << 0,

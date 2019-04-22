@@ -8,9 +8,9 @@
 #ifndef GrVkFramebuffer_DEFINED
 #define GrVkFramebuffer_DEFINED
 
-#include "GrTypes.h"
+#include "../../../include/gpu/GrTypes.h"
 #include "GrVkResource.h"
-#include "vk/GrVkTypes.h"
+#include "../../../include/gpu/vk/GrVkTypes.h"
 
 class GrVkGpu;
 class GrVkImageView;

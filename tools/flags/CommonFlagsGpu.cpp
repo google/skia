@@ -6,8 +6,8 @@
  */
 
 #include "CommonFlags.h"
-#include "GrContextOptions.h"
-#include "SkExecutor.h"
+#include "../../include/gpu/GrContextOptions.h"
+#include "../../include/core/SkExecutor.h"
 
 
 DEFINE_int(gpuThreads,

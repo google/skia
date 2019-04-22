@@ -9,9 +9,9 @@
 
 #ifdef SK_SUPPORT_PDF
 
-#include "SkDeflate.h"
-#include "SkRandom.h"
-#include "SkTo.h"
+#include "../src/pdf/SkDeflate.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/private/SkTo.h"
 
 namespace {
 

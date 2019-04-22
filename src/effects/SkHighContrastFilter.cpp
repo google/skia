@@ -5,20 +5,20 @@
 * found in the LICENSE file.
 */
 
-#include "SkHighContrastFilter.h"
-#include "SkArenaAlloc.h"
-#include "SkColorData.h"
-#include "SkEffectPriv.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkString.h"
-#include "SkWriteBuffer.h"
+#include "../../include/effects/SkHighContrastFilter.h"
+#include "../../include/private/SkArenaAlloc.h"
+#include "../../include/private/SkColorData.h"
+#include "../core/SkEffectPriv.h"
+#include "../core/SkRasterPipeline.h"
+#include "../core/SkReadBuffer.h"
+#include "../../include/core/SkString.h"
+#include "../core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrColorSpaceInfo.h"
-#include "GrContext.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../gpu/GrColorSpaceInfo.h"
+#include "../../include/gpu/GrContext.h"
+#include "../gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "../gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #endif
 
 using InvertStyle = SkHighContrastConfig::InvertStyle;

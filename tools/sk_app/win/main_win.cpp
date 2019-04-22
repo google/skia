@@ -8,8 +8,8 @@
 #include <windows.h>
 #include <tchar.h>
 
-#include "SkTypes.h"
-#include "Timer.h"
+#include "../../../include/core/SkTypes.h"
+#include "../../timer/Timer.h"
 #include "Window_win.h"
 #include "../Application.h"
 

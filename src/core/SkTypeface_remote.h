@@ -11,11 +11,11 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkDescriptor.h"
 #include "SkFontDescriptor.h"
-#include "SkFontStyle.h"
-#include "SkPaint.h"
+#include "../../include/core/SkFontStyle.h"
+#include "../../include/core/SkPaint.h"
 #include "SkRemoteGlyphCache.h"
 #include "SkScalerContext.h"
-#include "SkTypeface.h"
+#include "../../include/core/SkTypeface.h"
 
 class SkTypefaceProxy;
 class SkStrikeCache;

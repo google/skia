@@ -93,11 +93,11 @@ cc_library_static {
           "third_party/vulkanmemoryallocator/GrVulkanMemoryAllocator.cpp",
         ],
         local_include_dirs: [
-          "include/config/android",
+          "android/dummy",
           "third_party/vulkanmemoryallocator/",
         ],
         export_include_dirs: [
-          "include/config/android",
+          "android/dummy",
         ],
       },
       linux_glibc: {
@@ -108,10 +108,10 @@ cc_library_static {
           $linux_srcs
         ],
         local_include_dirs: [
-          "include/config/linux",
+          "linux/dummy",
         ],
         export_include_dirs: [
-          "include/config/linux",
+          "linux/dummy",
         ],
       },
       darwin: {
@@ -122,10 +122,10 @@ cc_library_static {
           $mac_srcs
         ],
         local_include_dirs: [
-          "include/config/mac",
+          "mac/dummy",
         ],
         export_include_dirs: [
-          "include/config/mac",
+          "mac/dummy",
         ],
       },
       windows: {
@@ -137,10 +137,10 @@ cc_library_static {
           $win_srcs
         ],
         local_include_dirs: [
-          "include/config/win",
+          "win/dummy",
         ],
         export_include_dirs: [
-          "include/config/win",
+          "win/dummy",
         ],
       },
     },
@@ -416,13 +416,19 @@ linux_defines   = get_defines(js_linux)
 mac_defines     = get_defines(js_mac)
 win_defines     = get_defines(js_win)
 
+# We pass -I$platform/dummy so that #include "../config/SkUserConfig.h"
+# in SkTypes.h works.  The dummy directories can be empty.
 def mkdir_if_not_exists(path):
   if not os.path.exists(path):
-    os.mkdir(path)
-mkdir_if_not_exists('include/config/android/')
-mkdir_if_not_exists('include/config/linux/')
-mkdir_if_not_exists('include/config/mac/')
-mkdir_if_not_exists('include/config/win/')
+    os.makedirs(path)
+mkdir_if_not_exists('android/dummy')
+mkdir_if_not_exists('android/config')
+mkdir_if_not_exists('linux/dummy')
+mkdir_if_not_exists('linux/config')
+mkdir_if_not_exists('mac/dummy')
+mkdir_if_not_exists('mac/config')
+mkdir_if_not_exists('win/dummy')
+mkdir_if_not_exists('win/config')
 
 platforms = { 'IOS', 'MAC', 'WIN', 'ANDROID', 'UNIX' }
 
@@ -444,7 +450,7 @@ def append_to_file(config, s):
   with open(config, 'a') as f:
     print >>f, s
 
-android_config = 'include/config/android/SkUserConfig.h'
+android_config = 'android/config/SkUserConfig.h'
 gn_to_bp_utils.WriteUserConfig(android_config, android_defines)
 append_to_file(android_config, '''
 #ifndef SK_BUILD_FOR_ANDROID
@@ -465,9 +471,9 @@ def write_config(config_path, defines, platform):
 #endif''' % (platform, platform))
   disallow_platforms(config_path, platform)
 
-write_config('include/config/linux/SkUserConfig.h', linux_defines, 'UNIX')
-write_config('include/config/mac/SkUserConfig.h',   mac_defines, 'MAC')
-write_config('include/config/win/SkUserConfig.h',   win_defines, 'WIN')
+write_config('linux/config/SkUserConfig.h', linux_defines, 'UNIX')
+write_config('mac/config/SkUserConfig.h',   mac_defines, 'MAC')
+write_config('win/config/SkUserConfig.h',   win_defines, 'WIN')
 
 # Turn a list of strings into the style bpfmt outputs.
 def bpfmt(indent, lst, sort=True):

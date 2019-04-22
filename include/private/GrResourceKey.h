@@ -8,12 +8,12 @@
 #ifndef GrResourceKey_DEFINED
 #define GrResourceKey_DEFINED
 
-#include "../private/SkOnce.h"
-#include "../private/SkTemplates.h"
-#include "../private/SkTo.h"
-#include "GrTypes.h"
-#include "SkData.h"
-#include "SkString.h"
+#include "SkOnce.h"
+#include "SkTemplates.h"
+#include "SkTo.h"
+#include "../gpu/GrTypes.h"
+#include "../core/SkData.h"
+#include "../core/SkString.h"
 
 #include <new>
 

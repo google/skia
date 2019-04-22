@@ -9,8 +9,8 @@
 #ifndef SkMagnifierImageFilter_DEFINED
 #define SkMagnifierImageFilter_DEFINED
 
-#include "SkRect.h"
-#include "SkImageFilter.h"
+#include "../core/SkRect.h"
+#include "../core/SkImageFilter.h"
 
 class SK_API SkMagnifierImageFilter : public SkImageFilter {
 public:

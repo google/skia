@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurMaskFilter.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkLayerDrawLooper.h"
+#include "../include/effects/SkBlurMaskFilter.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkColorFilter.h"
+#include "../include/effects/SkLayerDrawLooper.h"
 #include "gm.h"
 
 DEF_SIMPLE_GM(crbug_899512, canvas, 520, 520) {

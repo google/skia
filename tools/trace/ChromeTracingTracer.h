@@ -9,10 +9,10 @@
 #define ChromeTracingTracer_DEFINED
 
 #include "EventTracingPriv.h"
-#include "SkEventTracer.h"
-#include "SkSpinlock.h"
-#include "SkString.h"
-#include "SkTHash.h"
+#include "../../include/utils/SkEventTracer.h"
+#include "../../include/private/SkSpinlock.h"
+#include "../../include/core/SkString.h"
+#include "../../include/private/SkTHash.h"
 
 class SkJSONWriter;
 

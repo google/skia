@@ -8,11 +8,11 @@
 #ifndef GrMockGpu_DEFINED
 #define GrMockGpu_DEFINED
 
-#include "GrGpu.h"
-#include "GrRenderTarget.h"
-#include "GrSemaphore.h"
-#include "GrTexture.h"
-#include "SkTHash.h"
+#include "../GrGpu.h"
+#include "../../../include/gpu/GrRenderTarget.h"
+#include "../GrSemaphore.h"
+#include "../../../include/gpu/GrTexture.h"
+#include "../../../include/private/SkTHash.h"
 
 class GrMockGpuRTCommandBuffer;
 struct GrMockOptions;

@@ -6,9 +6,9 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkRRect.h"
-#include "SkPath.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkRRect.h"
+#include "../include/core/SkPath.h"
 
 class ScaledStrokesGM : public skiagm::GM {
 public:

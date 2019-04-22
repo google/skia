@@ -9,15 +9,15 @@
 
 #include <vector>
 
-#include "SkImageFilter.h"
-#include "SkMutex.h"
-#include "SkOnce.h"
+#include "../../include/core/SkImageFilter.h"
+#include "../../include/private/SkMutex.h"
+#include "../../include/private/SkOnce.h"
 #include "SkOpts.h"
-#include "SkRefCnt.h"
+#include "../../include/core/SkRefCnt.h"
 #include "SkSpecialImage.h"
 #include "SkTDynamicHash.h"
-#include "SkTHash.h"
-#include "SkTInternalLList.h"
+#include "../../include/private/SkTHash.h"
+#include "../../include/private/SkTInternalLList.h"
 
 #ifdef SK_BUILD_FOR_IOS
   enum { kDefaultCacheSize = 2 * 1024 * 1024 };

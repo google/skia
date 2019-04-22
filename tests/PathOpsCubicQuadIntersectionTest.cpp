@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 #include "PathOpsTestCommon.h"
-#include "SkIntersections.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsQuad.h"
-#include "SkRandom.h"
-#include "SkReduceOrder.h"
+#include "../src/pathops/SkIntersections.h"
+#include "../src/pathops/SkPathOpsCubic.h"
+#include "../src/pathops/SkPathOpsQuad.h"
+#include "../include/utils/SkRandom.h"
+#include "../src/pathops/SkReduceOrder.h"
 #include "Test.h"
 
 static struct quadCubic {

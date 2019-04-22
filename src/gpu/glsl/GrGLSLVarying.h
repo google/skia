@@ -8,11 +8,11 @@
 #ifndef GrGLSLVarying_DEFINED
 #define GrGLSLVarying_DEFINED
 
-#include "GrAllocator.h"
-#include "GrGeometryProcessor.h"
-#include "GrShaderVar.h"
-#include "GrTypesPriv.h"
-#include "glsl/GrGLSLProgramDataManager.h"
+#include "../GrAllocator.h"
+#include "../GrGeometryProcessor.h"
+#include "../GrShaderVar.h"
+#include "../../../include/private/GrTypesPriv.h"
+#include "GrGLSLProgramDataManager.h"
 
 class GrGLSLProgramBuilder;
 

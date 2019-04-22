@@ -6,16 +6,16 @@
  */
 
 #include "gm.h"
-#include "SkBlurImageFilter.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkImageSource.h"
-#include "SkOffsetImageFilter.h"
-#include "SkPath.h"
-#include "SkPictureImageFilter.h"
-#include "SkPictureRecorder.h"
-#include "SkRandom.h"
-#include "SkSurface.h"
-#include "SkTileImageFilter.h"
+#include "../include/effects/SkBlurImageFilter.h"
+#include "../include/effects/SkDropShadowImageFilter.h"
+#include "../include/effects/SkImageSource.h"
+#include "../include/effects/SkOffsetImageFilter.h"
+#include "../include/core/SkPath.h"
+#include "../include/effects/SkPictureImageFilter.h"
+#include "../include/core/SkPictureRecorder.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkSurface.h"
+#include "../include/effects/SkTileImageFilter.h"
 
 namespace skiagm {
 

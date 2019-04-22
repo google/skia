@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkFloatingPoint.h"
-#include "SkMath.h"
-#include "SkPoint.h"
-#include "SkRandom.h"
-#include "SkRect.h"
+#include "../include/private/SkFloatingPoint.h"
+#include "../include/core/SkMath.h"
+#include "../include/core/SkPoint.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkRect.h"
 #include "Test.h"
 
 static void test_roundtoint(skiatest::Reporter* reporter) {

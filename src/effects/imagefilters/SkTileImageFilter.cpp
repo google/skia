@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkTileImageFilter.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkImageFilterPriv.h"
-#include "SkMatrix.h"
-#include "SkOffsetImageFilter.h"
-#include "SkPaint.h"
-#include "SkReadBuffer.h"
-#include "SkShader.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
-#include "SkSurface.h"
-#include "SkValidationUtils.h"
-#include "SkWriteBuffer.h"
+#include "../../../include/effects/SkTileImageFilter.h"
+#include "../../../include/core/SkCanvas.h"
+#include "../../../include/core/SkImage.h"
+#include "../../core/SkImageFilterPriv.h"
+#include "../../../include/core/SkMatrix.h"
+#include "../../../include/effects/SkOffsetImageFilter.h"
+#include "../../../include/core/SkPaint.h"
+#include "../../core/SkReadBuffer.h"
+#include "../../../include/core/SkShader.h"
+#include "../../core/SkSpecialImage.h"
+#include "../../core/SkSpecialSurface.h"
+#include "../../../include/core/SkSurface.h"
+#include "../../core/SkValidationUtils.h"
+#include "../../core/SkWriteBuffer.h"
 
 sk_sp<SkImageFilter> SkTileImageFilter::Make(const SkRect& srcRect, const SkRect& dstRect,
                                              sk_sp<SkImageFilter> input) {

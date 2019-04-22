@@ -8,9 +8,9 @@
 #ifndef Sk1DPathEffect_DEFINED
 #define Sk1DPathEffect_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkPathEffect.h"
-#include "SkPath.h"
+#include "../core/SkFlattenable.h"
+#include "../core/SkPathEffect.h"
+#include "../core/SkPath.h"
 
 class SkPathMeasure;
 

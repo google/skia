@@ -10,7 +10,7 @@
 
 #include "../private/SkFixed.h"
 #include "../private/SkFloatBits.h"
-#include "SkScalar.h"
+#include "../core/SkScalar.h"
 
 /** \class SkRandom
 

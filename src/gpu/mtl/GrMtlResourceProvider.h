@@ -10,8 +10,8 @@
 
 #include "GrMtlCopyPipelineState.h"
 #include "GrMtlPipelineStateBuilder.h"
-#include "SkLRUCache.h"
-#include "SkTArray.h"
+#include "../../core/SkLRUCache.h"
+#include "../../../include/private/SkTArray.h"
 
 #import <metal/metal.h>
 

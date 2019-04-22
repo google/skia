@@ -6,7 +6,7 @@
  */
 
 #include "gm.h"
-#include "SkRegion.h"
+#include "../include/core/SkRegion.h"
 
 // This GM exercises the use case found in crbug.com/423834.
 // The following pattern:

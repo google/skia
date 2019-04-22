@@ -7,9 +7,9 @@
 
 #include "GrCCCubicShader.h"
 
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLProgramBuilder.h"
+#include "../glsl/GrGLSLVertexGeoBuilder.h"
 
 using Shader = GrCCCoverageProcessor::Shader;
 

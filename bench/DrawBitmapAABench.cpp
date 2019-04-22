@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkString.h"
+#include "../include/core/SkBitmap.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkMatrix.h"
+#include "../include/core/SkPaint.h"
+#include "../include/core/SkString.h"
 
 /**
  * This bench measures the rendering time of SkCanvas::drawBitmap with different anti-aliasing /

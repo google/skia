@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
+#include "../../include/private/SkArenaAlloc.h"
 #include "SkAutoBlitterChoose.h"
-#include "SkComposeShader.h"
+#include "../shaders/SkComposeShader.h"
 #include "SkConvertPixels.h"
 #include "SkCoreBlitters.h"
 #include "SkDraw.h"
-#include "SkNx.h"
+#include "../../include/private/SkNx.h"
 #include "SkRasterClip.h"
 #include "SkRasterPipeline.h"
 #include "SkScan.h"
-#include "SkShaderBase.h"
-#include "SkString.h"
+#include "../shaders/SkShaderBase.h"
+#include "../../include/core/SkString.h"
 #include "SkVertState.h"
 
 struct Matrix43 {

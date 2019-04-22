@@ -8,7 +8,7 @@
 #include "GrDefaultGeoProcFactory.h"
 
 #include "GrCaps.h"
-#include "SkRefCnt.h"
+#include "../../include/core/SkRefCnt.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"

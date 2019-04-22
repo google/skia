@@ -7,16 +7,16 @@
 
 #include "GrTextureOpList.h"
 
-#include "GrAuditTrail.h"
-#include "GrContext.h"
+#include "../../include/private/GrAuditTrail.h"
+#include "../../include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrMemoryPool.h"
-#include "GrRecordingContext.h"
+#include "../../include/private/GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 #include "GrResourceAllocator.h"
-#include "GrTextureProxy.h"
-#include "SkStringUtils.h"
+#include "../../include/private/GrTextureProxy.h"
+#include "../core/SkStringUtils.h"
 #include "ops/GrCopySurfaceOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////

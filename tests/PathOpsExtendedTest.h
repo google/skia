@@ -7,10 +7,10 @@
 #ifndef PathOpsExtendedTest_DEFINED
 #define PathOpsExtendedTest_DEFINED
 
-#include "SkBitmap.h"
-#include "SkPath.h"
-#include "SkPathOpsTypes.h"
-#include "SkStream.h"
+#include "../include/core/SkBitmap.h"
+#include "../include/core/SkPath.h"
+#include "../src/pathops/SkPathOpsTypes.h"
+#include "../include/core/SkStream.h"
 #include "Test.h"
 
 struct PathOpsThreadState;

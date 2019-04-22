@@ -7,11 +7,11 @@
 
 #include "SkPDFMetadata.h"
 
-#include "SkMD5.h"
-#include "SkMilestone.h"
+#include "../core/SkMD5.h"
+#include "../../include/core/SkMilestone.h"
 #include "SkPDFTypes.h"
-#include "SkTo.h"
-#include "SkUtils.h"
+#include "../../include/private/SkTo.h"
+#include "../core/SkUtils.h"
 
 #include <utility>
 

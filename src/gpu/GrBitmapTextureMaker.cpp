@@ -9,13 +9,13 @@
 
 #include "GrGpuResourcePriv.h"
 #include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
+#include "../../include/private/GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 #include "GrSurfaceContext.h"
-#include "SkBitmap.h"
+#include "../../include/core/SkBitmap.h"
 #include "SkGr.h"
-#include "SkMipMap.h"
-#include "SkPixelRef.h"
+#include "../core/SkMipMap.h"
+#include "../../include/core/SkPixelRef.h"
 
 static bool bmp_is_alpha_only(const SkBitmap& bm) { return kAlpha_8_SkColorType == bm.colorType(); }
 

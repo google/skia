@@ -13,9 +13,9 @@
 #include "GrBufferAllocPool.h"
 #include "GrDeferredUpload.h"
 #include "GrDeinstantiateProxyTracker.h"
-#include "GrRenderTargetProxy.h"
-#include "SkArenaAlloc.h"
-#include "SkArenaAllocList.h"
+#include "../../include/private/GrRenderTargetProxy.h"
+#include "../../include/private/SkArenaAlloc.h"
+#include "../core/SkArenaAllocList.h"
 #include "ops/GrMeshDrawOp.h"
 
 class GrGpu;

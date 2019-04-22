@@ -6,9 +6,9 @@
  */
 #include "PathOpsQuadIntersectionTestData.h"
 #include "PathOpsTestCommon.h"
-#include "SkIntersections.h"
-#include "SkPathOpsRect.h"
-#include "SkReduceOrder.h"
+#include "../src/pathops/SkIntersections.h"
+#include "../src/pathops/SkPathOpsRect.h"
+#include "../src/pathops/SkReduceOrder.h"
 #include "Test.h"
 
 static void standardTestCases(skiatest::Reporter* reporter) {

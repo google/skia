@@ -10,12 +10,12 @@
 #include <cctype>
 
 #include "SkGlyphRunPainter.h"
-#include "SkGraphics.h"
-#include "SkMutex.h"
+#include "../../include/core/SkGraphics.h"
+#include "../../include/private/SkMutex.h"
 #include "SkStrike.h"
-#include "SkTemplates.h"
-#include "SkTraceMemoryDump.h"
-#include "SkTypeface.h"
+#include "../../include/private/SkTemplates.h"
+#include "../../include/core/SkTraceMemoryDump.h"
+#include "../../include/core/SkTypeface.h"
 
 class SkStrikeCache::Node final : public SkStrikeInterface {
 public:

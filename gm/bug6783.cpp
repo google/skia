@@ -6,7 +6,7 @@
 */
 
 #include "gm.h"
-#include "SkSurface.h"
+#include "../include/core/SkSurface.h"
 
 // This GM reproduces skia:6783, which demonstrated a bug in repeat and mirror
 // image sampling tiling modes as implemented in software.  We want to tile to

@@ -8,7 +8,7 @@
 #ifndef SkArithmeticImageFilter_DEFINED
 #define SkArithmeticImageFilter_DEFINED
 
-#include "SkImageFilter.h"
+#include "../core/SkImageFilter.h"
 
 struct ArithmeticFPInputs {
     ArithmeticFPInputs() {

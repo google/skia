@@ -8,31 +8,31 @@
 #include "SkGlyphRunPainter.h"
 
 #if SK_SUPPORT_GPU
-#include "GrCaps.h"
-#include "GrColorSpaceInfo.h"
-#include "GrContextPriv.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "SkGr.h"
-#include "text/GrTextBlobCache.h"
-#include "text/GrTextContext.h"
+#include "../gpu/GrCaps.h"
+#include "../gpu/GrColorSpaceInfo.h"
+#include "../gpu/GrContextPriv.h"
+#include "../../include/private/GrRecordingContext.h"
+#include "../gpu/GrRecordingContextPriv.h"
+#include "../gpu/GrRenderTargetContext.h"
+#include "../gpu/SkGr.h"
+#include "../gpu/text/GrTextBlobCache.h"
+#include "../gpu/text/GrTextContext.h"
 #endif
 
-#include "SkColorFilter.h"
+#include "../../include/core/SkColorFilter.h"
 #include "SkDevice.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
 #include "SkFontPriv.h"
-#include "SkMaskFilter.h"
+#include "../../include/core/SkMaskFilter.h"
 #include "SkPaintPriv.h"
-#include "SkPathEffect.h"
+#include "../../include/core/SkPathEffect.h"
 #include "SkRasterClip.h"
 #include "SkRemoteGlyphCacheImpl.h"
 #include "SkStrikeInterface.h"
 #include "SkStrike.h"
 #include "SkStrikeCache.h"
-#include "SkTDArray.h"
+#include "../../include/private/SkTDArray.h"
 #include "SkTraceEvent.h"
 
 // -- SkGlyphCacheCommon ---------------------------------------------------------------------------
@@ -953,8 +953,8 @@ void GrTextBlob::processDeviceFallback(SkSpan<const SkGlyphPos> masks,
 
 #if GR_TEST_UTILS
 
-#include "GrRenderTargetContext.h"
-#include "GrRecordingContextPriv.h"
+#include "../gpu/GrRenderTargetContext.h"
+#include "../gpu/GrRecordingContextPriv.h"
 
 std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext* context,
                                                               GrTextContext* textContext,

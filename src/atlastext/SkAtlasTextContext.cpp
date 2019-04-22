@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtlasTextContext.h"
-#include "SkAtlasTextRenderer.h"
+#include "../../include/atlastext/SkAtlasTextContext.h"
+#include "../../include/atlastext/SkAtlasTextRenderer.h"
 #include "SkInternalAtlasTextContext.h"
 
 sk_sp<SkAtlasTextContext> SkAtlasTextContext::Make(sk_sp<SkAtlasTextRenderer> renderer) {

@@ -6,9 +6,9 @@
  */
 
 #include "Benchmark.h"
-#include "SkRandom.h"
-#include "SkString.h"
-#include "SkTSort.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkString.h"
+#include "../src/core/SkTSort.h"
 
 #include <algorithm>
 #include <stdlib.h>

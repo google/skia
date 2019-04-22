@@ -7,19 +7,19 @@
 
 #include "GrMtlPipelineState.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrPipeline.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
-#include "GrTexturePriv.h"
+#include "../../../include/gpu/GrContext.h"
+#include "../GrContextPriv.h"
+#include "../GrPipeline.h"
+#include "../../../include/gpu/GrRenderTarget.h"
+#include "../GrRenderTargetPriv.h"
+#include "../GrTexturePriv.h"
 #include "GrMtlBuffer.h"
 #include "GrMtlGpu.h"
 #include "GrMtlSampler.h"
 #include "GrMtlTexture.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLXferProcessor.h"
+#include "../glsl/GrGLSLFragmentProcessor.h"
+#include "../glsl/GrGLSLGeometryProcessor.h"
+#include "../glsl/GrGLSLXferProcessor.h"
 
 GrMtlPipelineState::SamplerBindings::SamplerBindings(const GrSamplerState& state,
                                                      GrTexture* texture,

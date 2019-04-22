@@ -17,7 +17,7 @@
 #include "hello_ar_application.h"
 #include "plane_renderer.h"
 #include "util.h"
-#include "SkCanvas.h"
+#include "../../../../../../../include/core/SkCanvas.h"
 
 namespace hello_ar {
     PendingAnchor::PendingAnchor(SkPoint touchLocation) : touchLocation(touchLocation) {}

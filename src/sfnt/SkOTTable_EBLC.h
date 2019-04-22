@@ -8,7 +8,7 @@
 #ifndef SkOTTable_EBLC_DEFINED
 #define SkOTTable_EBLC_DEFINED
 
-#include "SkEndian.h"
+#include "../core/SkEndian.h"
 #include "SkOTTable_EBDT.h"
 #include "SkOTTableTypes.h"
 

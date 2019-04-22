@@ -8,11 +8,11 @@
 #ifndef GrCCDrawPathsOp_DEFINED
 #define GrCCDrawPathsOp_DEFINED
 
-#include "GrShape.h"
-#include "SkTInternalLList.h"
-#include "ccpr/GrCCSTLList.h"
-#include "ccpr/GrCCPathCache.h"
-#include "ops/GrDrawOp.h"
+#include "../GrShape.h"
+#include "../../../include/private/SkTInternalLList.h"
+#include "GrCCSTLList.h"
+#include "GrCCPathCache.h"
+#include "../ops/GrDrawOp.h"
 
 class GrCCAtlas;
 class GrCCPerFlushResources;

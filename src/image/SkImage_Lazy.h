@@ -9,10 +9,10 @@
 #define SkImage_Lazy_DEFINED
 
 #include "SkImage_Base.h"
-#include "SkMutex.h"
+#include "../../include/private/SkMutex.h"
 
 #if SK_SUPPORT_GPU
-#include "GrTextureMaker.h"
+#include "../gpu/GrTextureMaker.h"
 #endif
 
 class SharedGenerator;

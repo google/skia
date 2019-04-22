@@ -9,7 +9,7 @@
 
 #include "SkPathOpsDebug.h"
 #include "SkPathOpsTypes.h"
-#include "SkPoint.h"
+#include "../../include/core/SkPoint.h"
 
 class SkArenaAlloc;
 class SkOpAngle;

@@ -9,15 +9,15 @@
 
 #if SK_SUPPORT_GPU
 
-#include "Resources.h"
-#include "SkColorMatrixFilter.h"
-#include "SkFont.h"
-#include "SkGradientShader.h"
-#include "SkLineClipper.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkPaintFilterCanvas.h"
-#include "SkShaderMaskFilter.h"
-#include "YUVUtils.h"
+#include "../tools/Resources.h"
+#include "../include/effects/SkColorMatrixFilter.h"
+#include "../include/core/SkFont.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../src/core/SkLineClipper.h"
+#include "../include/effects/SkMorphologyImageFilter.h"
+#include "../include/utils/SkPaintFilterCanvas.h"
+#include "../include/effects/SkShaderMaskFilter.h"
+#include "../tools/gpu/YUVUtils.h"
 
 #include <array>
 

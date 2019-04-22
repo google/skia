@@ -6,16 +6,16 @@
  * found in the LICENSE file.
  */
 
-#include "vk/GrVkVulkan.h"
+#include "../../../include/gpu/vk/GrVkVulkan.h"
 
-#include "vk/GrVkInterface.h"
-#include "vk/GrVkUtil.h"
+#include "../../../src/gpu/vk/GrVkInterface.h"
+#include "../../../src/gpu/vk/GrVkUtil.h"
 
-#include "vk/VkTestUtils.h"
+#include "../../gpu/vk/VkTestUtils.h"
 
 #include "WindowContextFactory_mac.h"
 #include "../VulkanWindowContext.h"
-#include "vulkan/vulkan_macos.h"
+#include "../../../include/third_party/vulkan/vulkan/vulkan_macos.h"
 
 #import <MetalKit/MetalKit.h>
 

@@ -73,8 +73,8 @@ mailing address.
 */
 
 #include "SkGifImageReader.h"
-#include "SkColorPriv.h"
-#include "SkGifCodec.h"
+#include "../../include/core/SkColorPriv.h"
+#include "../../src/codec/SkGifCodec.h"
 
 #include <algorithm>
 #include <string.h>

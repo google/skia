@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkDescriptor.h"
+#include "../src/core/SkDescriptor.h"
 #include "Test.h"
 
 class SkDescriptorTestHelper {

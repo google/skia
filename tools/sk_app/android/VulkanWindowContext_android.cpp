@@ -6,13 +6,13 @@
  * found in the LICENSE file.
  */
 
-#include "vk/GrVkVulkan.h"
+#include "../../../include/gpu/vk/GrVkVulkan.h"
 
 #include "WindowContextFactory_android.h"
 
 #include "../VulkanWindowContext.h"
 
-#include "vk/VkTestUtils.h"
+#include "../../gpu/vk/VkTestUtils.h"
 
 namespace sk_app {
 

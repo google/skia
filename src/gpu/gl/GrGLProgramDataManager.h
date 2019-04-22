@@ -8,12 +8,12 @@
 #ifndef GrGLProgramDataManager_DEFINED
 #define GrGLProgramDataManager_DEFINED
 
-#include "GrAllocator.h"
-#include "GrShaderVar.h"
-#include "gl/GrGLTypes.h"
-#include "glsl/GrGLSLProgramDataManager.h"
+#include "../GrAllocator.h"
+#include "../GrShaderVar.h"
+#include "../../../include/gpu/gl/GrGLTypes.h"
+#include "../glsl/GrGLSLProgramDataManager.h"
 
-#include "SkTArray.h"
+#include "../../../include/private/SkTArray.h"
 
 class GrGLGpu;
 class SkMatrix;

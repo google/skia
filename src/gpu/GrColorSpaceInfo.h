@@ -9,9 +9,9 @@
 #define GrColorSpaceInfo_DEFINED
 
 #include "GrColorSpaceXform.h"
-#include "GrTypes.h"
-#include "SkColorSpace.h"
-#include "SkRefCnt.h"
+#include "../../include/gpu/GrTypes.h"
+#include "../../include/core/SkColorSpace.h"
+#include "../../include/core/SkRefCnt.h"
 
 /** Describes the color space properties of a surface context. */
 class GrColorSpaceInfo {

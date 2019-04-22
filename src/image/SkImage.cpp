@@ -5,32 +5,32 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkBitmapCache.h"
-#include "SkCachedData.h"
-#include "SkCanvas.h"
-#include "SkColorSpacePriv.h"
-#include "SkData.h"
-#include "SkImageEncoder.h"
-#include "SkImageFilter.h"
-#include "SkImageFilterCache.h"
-#include "SkImageGenerator.h"
-#include "SkImagePriv.h"
-#include "SkImageShader.h"
+#include "../../include/core/SkBitmap.h"
+#include "../core/SkBitmapCache.h"
+#include "../core/SkCachedData.h"
+#include "../../include/core/SkCanvas.h"
+#include "../core/SkColorSpacePriv.h"
+#include "../../include/core/SkData.h"
+#include "../../include/core/SkImageEncoder.h"
+#include "../../include/core/SkImageFilter.h"
+#include "../core/SkImageFilterCache.h"
+#include "../../include/core/SkImageGenerator.h"
+#include "../core/SkImagePriv.h"
+#include "../shaders/SkImageShader.h"
 #include "SkImage_Base.h"
-#include "SkNextID.h"
-#include "SkPicture.h"
+#include "../core/SkNextID.h"
+#include "../../include/core/SkPicture.h"
 #include "SkReadPixelsRec.h"
-#include "SkSpecialImage.h"
-#include "SkString.h"
-#include "SkSurface.h"
+#include "../core/SkSpecialImage.h"
+#include "../../include/core/SkString.h"
+#include "../../include/core/SkSurface.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrTexture.h"
+#include "../../include/gpu/GrContext.h"
+#include "../../include/gpu/GrTexture.h"
 #include "SkImage_Gpu.h"
 #endif
-#include "GrBackendSurface.h"
+#include "../../include/gpu/GrBackendSurface.h"
 
 SkImage::SkImage(const SkImageInfo& info, uint32_t uniqueID)
         : fInfo(info)

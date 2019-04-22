@@ -6,12 +6,12 @@
  */
 
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPictureRecorder.h"
-#include "SkPictureShader.h"
-#include "SkShaderMaskFilter.h"
-#include "SkSurface.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkPaint.h"
+#include "../include/core/SkPictureRecorder.h"
+#include "../src/shaders/SkPictureShader.h"
+#include "../include/effects/SkShaderMaskFilter.h"
+#include "../include/core/SkSurface.h"
 
 static sk_sp<SkShader> make_bitmap_shader() {
     SkPaint p;

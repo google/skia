@@ -8,12 +8,12 @@
 #ifndef GrStrikeCache_DEFINED
 #define GrStrikeCache_DEFINED
 
-#include "GrDrawOpAtlas.h"
-#include "GrGlyph.h"
-#include "SkArenaAlloc.h"
-#include "SkMasks.h"
-#include "SkStrike.h"
-#include "SkTDynamicHash.h"
+#include "../GrDrawOpAtlas.h"
+#include "../GrGlyph.h"
+#include "../../../include/private/SkArenaAlloc.h"
+#include "../../codec/SkMasks.h"
+#include "../../core/SkStrike.h"
+#include "../../core/SkTDynamicHash.h"
 
 class GrAtlasManager;
 class GrGpu;

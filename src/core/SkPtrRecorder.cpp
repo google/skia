@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "SkPtrRecorder.h"
-#include "SkTSearch.h"
+#include "../../include/private/SkTSearch.h"
 
 void SkPtrSet::reset() {
     Pair* p = fList.begin();

@@ -8,7 +8,7 @@
 #include "SkScan.h"
 #include "SkBlitter.h"
 #include "SkMathPriv.h"
-#include "SkPaint.h"
+#include "../../include/core/SkPaint.h"
 #include "SkRasterClip.h"
 #include "SkFDot6.h"
 #include "SkLineClipper.h"
@@ -202,9 +202,9 @@ void SkScan::HairRect(const SkRect& rect, const SkRasterClip& clip, SkBlitter* b
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkPath.h"
+#include "../../include/core/SkPath.h"
 #include "SkGeometry.h"
-#include "SkNx.h"
+#include "../../include/private/SkNx.h"
 
 #define kMaxCubicSubdivideLevel 9
 #define kMaxQuadSubdivideLevel  5

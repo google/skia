@@ -7,11 +7,11 @@
 
 #include "GrClearStencilClipOp.h"
 
-#include "GrGpuCommandBuffer.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
+#include "../GrGpuCommandBuffer.h"
+#include "../GrMemoryPool.h"
+#include "../GrOpFlushState.h"
+#include "../../../include/private/GrRecordingContext.h"
+#include "../GrRecordingContextPriv.h"
 
 std::unique_ptr<GrOp> GrClearStencilClipOp::Make(GrRecordingContext* context,
                                                  const GrFixedClip& clip,

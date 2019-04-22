@@ -7,9 +7,9 @@
 
 #include "GrPathUtils.h"
 
-#include "GrTypes.h"
-#include "SkMathPriv.h"
-#include "SkPointPriv.h"
+#include "../../include/gpu/GrTypes.h"
+#include "../core/SkMathPriv.h"
+#include "../core/SkPointPriv.h"
 
 static const SkScalar gMinCurveTol = 0.0001f;
 

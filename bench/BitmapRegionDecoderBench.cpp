@@ -7,8 +7,8 @@
 
 #include "BitmapRegionDecoderBench.h"
 #include "CodecBenchPriv.h"
-#include "SkBitmap.h"
-#include "SkOSFile.h"
+#include "../include/core/SkBitmap.h"
+#include "../src/core/SkOSFile.h"
 
 BitmapRegionDecoderBench::BitmapRegionDecoderBench(const char* baseName, SkData* encoded,
         SkColorType colorType, uint32_t sampleSize, const SkIRect& subset)

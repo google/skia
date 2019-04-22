@@ -7,25 +7,25 @@
 
 #include "SkImage_Lazy.h"
 
-#include "SkBitmap.h"
-#include "SkBitmapCache.h"
-#include "SkCachedData.h"
-#include "SkData.h"
-#include "SkImageGenerator.h"
-#include "SkImagePriv.h"
-#include "SkNextID.h"
+#include "../../include/core/SkBitmap.h"
+#include "../core/SkBitmapCache.h"
+#include "../core/SkCachedData.h"
+#include "../../include/core/SkData.h"
+#include "../../include/core/SkImageGenerator.h"
+#include "../core/SkImagePriv.h"
+#include "../core/SkNextID.h"
 
 #if SK_SUPPORT_GPU
-#include "GrCaps.h"
-#include "GrGpuResourcePriv.h"
-#include "GrImageTextureMaker.h"
-#include "GrResourceKey.h"
-#include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrSamplerState.h"
-#include "GrYUVProvider.h"
-#include "SkGr.h"
+#include "../gpu/GrCaps.h"
+#include "../gpu/GrGpuResourcePriv.h"
+#include "../gpu/GrImageTextureMaker.h"
+#include "../../include/private/GrResourceKey.h"
+#include "../gpu/GrProxyProvider.h"
+#include "../../include/private/GrRecordingContext.h"
+#include "../gpu/GrRecordingContextPriv.h"
+#include "../../include/gpu/GrSamplerState.h"
+#include "../gpu/GrYUVProvider.h"
+#include "../gpu/SkGr.h"
 #endif
 
 // Ref-counted tuple(SkImageGenerator, SkMutex) which allows sharing one generator among N images

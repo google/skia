@@ -7,13 +7,13 @@
 
 #include "SkottieUtils.h"
 
-#include "SkAnimCodecPlayer.h"
-#include "SkData.h"
-#include "SkCodec.h"
-#include "SkImage.h"
-#include "SkMakeUnique.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
+#include "../../../include/utils/SkAnimCodecPlayer.h"
+#include "../../../include/core/SkData.h"
+#include "../../../include/codec/SkCodec.h"
+#include "../../../include/core/SkImage.h"
+#include "../../../src/core/SkMakeUnique.h"
+#include "../../../src/core/SkOSFile.h"
+#include "../../../src/utils/SkOSPath.h"
 
 #include <cmath>
 

@@ -6,7 +6,7 @@
 */
 
 #include "GrGLSLUtil.h"
-#include "SkMatrix.h"
+#include "../../../include/core/SkMatrix.h"
 
 template<> void GrGLSLGetMatrix<3>(float* dest, const SkMatrix& src) {
     // Col 0

@@ -8,7 +8,7 @@
 #ifndef SKSL_TYPEREFERENCE
 #define SKSL_TYPEREFERENCE
 
-#include "SkSLContext.h"
+#include "../SkSLContext.h"
 #include "SkSLExpression.h"
 
 namespace SkSL {

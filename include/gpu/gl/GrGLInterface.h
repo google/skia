@@ -10,7 +10,7 @@
 
 #include "GrGLFunctions.h"
 #include "GrGLExtensions.h"
-#include "SkRefCnt.h"
+#include "../../core/SkRefCnt.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

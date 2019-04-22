@@ -11,7 +11,7 @@
 #include "SkSLExpression.h"
 #include "SkSLFloatLiteral.h"
 #include "SkSLIntLiteral.h"
-#include "SkSLIRGenerator.h"
+#include "../SkSLIRGenerator.h"
 #include "SkSLPrefixExpression.h"
 
 namespace SkSL {

@@ -10,8 +10,8 @@
 #include <new>
 
 #include "SkOpts.h"
-#include "SkTo.h"
-#include "SkTypes.h"
+#include "../../include/private/SkTo.h"
+#include "../../include/core/SkTypes.h"
 
 std::unique_ptr<SkDescriptor> SkDescriptor::Alloc(size_t length) {
     SkASSERT(SkAlign4(length) == length);

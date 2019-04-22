@@ -6,10 +6,10 @@
  */
 
 #include "SkDrawShadowInfo.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkPolyUtils.h"
-#include "SkRect.h"
+#include "../../include/core/SkMatrix.h"
+#include "../../include/core/SkPath.h"
+#include "../utils/SkPolyUtils.h"
+#include "../../include/core/SkRect.h"
 
 namespace SkDrawShadowMetrics {
 

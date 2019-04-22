@@ -8,15 +8,15 @@
 #include "GrGpuCommandBuffer.h"
 
 #include "GrCaps.h"
-#include "GrContext.h"
+#include "../../include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrMesh.h"
 #include "GrPrimitiveProcessor.h"
-#include "GrRenderTarget.h"
+#include "../../include/gpu/GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
-#include "SkRect.h"
+#include "../../include/core/SkRect.h"
 
 void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, const SkPMColor4f& color) {
     SkASSERT(fRenderTarget);

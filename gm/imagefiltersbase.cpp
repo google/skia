@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkColorPriv.h"
-#include "SkImageFilterPriv.h"
-#include "SkShader.h"
-#include "SkTextUtils.h"
-#include "ToolUtils.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkColorFilter.h"
+#include "../include/core/SkColorPriv.h"
+#include "../src/core/SkImageFilterPriv.h"
+#include "../include/core/SkShader.h"
+#include "../include/utils/SkTextUtils.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
-#include "SkBlurImageFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkSpecialImage.h"
+#include "../include/effects/SkBlurImageFilter.h"
+#include "../include/effects/SkColorFilterImageFilter.h"
+#include "../include/effects/SkDropShadowImageFilter.h"
+#include "../src/core/SkSpecialImage.h"
 
 class FailImageFilter : public SkImageFilter {
 public:

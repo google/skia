@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrRecordingContext.h"
+#include "../../include/private/GrRecordingContext.h"
 
 #include "GrCaps.h"
-#include "GrContext.h"
+#include "../../include/gpu/GrContext.h"
 #include "GrDrawingManager.h"
 #include "GrMemoryPool.h"
 #include "GrProxyProvider.h"
 #include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
-#include "GrSkSLFPFactoryCache.h"
+#include "../../include/private/GrSkSLFPFactoryCache.h"
 #include "GrTextureContext.h"
 #include "SkGr.h"
 #include "text/GrTextBlobCache.h"

@@ -8,7 +8,7 @@
 #ifndef GrContextPriv_DEFINED
 #define GrContextPriv_DEFINED
 
-#include "GrContext.h"
+#include "../../include/gpu/GrContext.h"
 #include "GrSurfaceContext.h"
 #include "text/GrAtlasManager.h"
 

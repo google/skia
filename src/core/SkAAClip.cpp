@@ -8,13 +8,13 @@
 #include "SkAAClip.h"
 
 #include "SkBlitter.h"
-#include "SkColorData.h"
-#include "SkMacros.h"
-#include "SkPath.h"
+#include "../../include/private/SkColorData.h"
+#include "../../include/private/SkMacros.h"
+#include "../../include/core/SkPath.h"
 #include "SkRectPriv.h"
 #include "SkScan.h"
-#include "SkTo.h"
-#include "SkUTF.h"
+#include "../../include/private/SkTo.h"
+#include "../utils/SkUTF.h"
 #include <atomic>
 #include <utility>
 

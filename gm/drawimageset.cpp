@@ -8,9 +8,9 @@
 #include "gm.h"
 
 #include <algorithm>
-#include "SkGradientShader.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../include/core/SkSurface.h"
+#include "../tools/ToolUtils.h"
 
 // Makes a set of m x n tiled images to be drawn with SkCanvas::experimental_drawImageSetV1().
 static void make_image_tiles(int tileW, int tileH, int m, int n, const SkColor colors[4],

@@ -7,9 +7,9 @@
 
 #include "gm.h"
 
-#include "GrContext.h"
-#include "GrContextOptions.h"
-#include "SkPath.h"
+#include "../include/gpu/GrContext.h"
+#include "../include/gpu/GrContextOptions.h"
+#include "../include/core/SkPath.h"
 
 /** This tests the GPU backend's caching of path coverage masks */
 class PathMaskCache : public skiagm::GM {

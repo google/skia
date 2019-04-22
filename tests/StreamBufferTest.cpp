@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkData.h"
-#include "SkMakeUnique.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
-#include "SkStreamBuffer.h"
+#include "../include/core/SkData.h"
+#include "../src/core/SkMakeUnique.h"
+#include "../src/utils/SkOSPath.h"
+#include "../include/core/SkStream.h"
+#include "../src/codec/SkStreamBuffer.h"
 
 #include "FakeStreams.h"
 #include "Test.h"

@@ -7,15 +7,15 @@
 
 #include "SkNormalFlatSource.h"
 
-#include "SkArenaAlloc.h"
+#include "../../include/private/SkArenaAlloc.h"
 #include "SkNormalSource.h"
-#include "SkPoint3.h"
+#include "../../include/core/SkPoint3.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "../gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
 class NormalFlatFP : public GrFragmentProcessor {
 public:

@@ -8,11 +8,11 @@
 #ifndef SkAnimatedImage_DEFINED
 #define SkAnimatedImage_DEFINED
 
-#include "SkBitmap.h"
-#include "SkCodecAnimation.h"
-#include "SkDrawable.h"
-#include "SkMatrix.h"
-#include "SkRect.h"
+#include "../core/SkBitmap.h"
+#include "../codec/SkCodecAnimation.h"
+#include "../core/SkDrawable.h"
+#include "../core/SkMatrix.h"
+#include "../core/SkRect.h"
 
 class SkAndroidCodec;
 class SkPicture;

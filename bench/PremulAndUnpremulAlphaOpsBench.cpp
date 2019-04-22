@@ -6,9 +6,9 @@
  */
 
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkString.h"
-#include "ToolUtils.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkString.h"
+#include "../tools/ToolUtils.h"
 
 class PremulAndUnpremulAlphaOpsBench : public Benchmark {
     enum {

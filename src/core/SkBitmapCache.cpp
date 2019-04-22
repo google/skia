@@ -7,11 +7,11 @@
 
 #include "SkBitmapCache.h"
 #include "SkBitmapProvider.h"
-#include "SkImage.h"
+#include "../../include/core/SkImage.h"
 #include "SkResourceCache.h"
 #include "SkMipMap.h"
-#include "SkPixelRef.h"
-#include "SkRect.h"
+#include "../../include/core/SkPixelRef.h"
+#include "../../include/core/SkRect.h"
 
 /**
  *  Use this for bitmapcache and mipmapcache entries.

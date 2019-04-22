@@ -8,10 +8,10 @@
 #ifndef GrGLSLFragmentProcessor_DEFINED
 #define GrGLSLFragmentProcessor_DEFINED
 
-#include "GrFragmentProcessor.h"
-#include "GrShaderVar.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "../GrFragmentProcessor.h"
+#include "../GrShaderVar.h"
+#include "GrGLSLProgramDataManager.h"
+#include "GrGLSLUniformHandler.h"
 
 class GrProcessor;
 class GrProcessorKeyBuilder;

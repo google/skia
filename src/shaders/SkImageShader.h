@@ -9,7 +9,7 @@
 #define SkImageShader_DEFINED
 
 #include "SkBitmapProcShader.h"
-#include "SkImage.h"
+#include "../../include/core/SkImage.h"
 #include "SkShaderBase.h"
 
 class SkImageShader : public SkShaderBase {

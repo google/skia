@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "effects/GrPorterDuffXferProcessor.h"
+#include "GrPorterDuffXferProcessor.h"
 
-#include "GrBlend.h"
-#include "GrCaps.h"
-#include "GrPipeline.h"
-#include "GrProcessor.h"
-#include "GrProcessorAnalysis.h"
-#include "GrTypes.h"
-#include "GrXferProcessor.h"
-#include "SkTo.h"
-#include "glsl/GrGLSLBlend.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLXferProcessor.h"
+#include "../../../include/gpu/GrBlend.h"
+#include "../GrCaps.h"
+#include "../GrPipeline.h"
+#include "../GrProcessor.h"
+#include "../GrProcessorAnalysis.h"
+#include "../../../include/gpu/GrTypes.h"
+#include "../GrXferProcessor.h"
+#include "../../../include/private/SkTo.h"
+#include "../glsl/GrGLSLBlend.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLProgramDataManager.h"
+#include "../glsl/GrGLSLUniformHandler.h"
+#include "../glsl/GrGLSLXferProcessor.h"
 
 /**
  * Wraps the shader outputs and HW blend state that comprise a Porter Duff blend mode with coverage.

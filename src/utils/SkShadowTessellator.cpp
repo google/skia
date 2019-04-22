@@ -6,17 +6,17 @@
  */
 
 #include "SkShadowTessellator.h"
-#include "SkColorData.h"
-#include "SkDrawShadowInfo.h"
-#include "SkGeometry.h"
+#include "../../include/private/SkColorData.h"
+#include "../core/SkDrawShadowInfo.h"
+#include "../core/SkGeometry.h"
 #include "SkPolyUtils.h"
-#include "SkPath.h"
-#include "SkPoint3.h"
-#include "SkPointPriv.h"
-#include "SkVertices.h"
+#include "../../include/core/SkPath.h"
+#include "../../include/core/SkPoint3.h"
+#include "../core/SkPointPriv.h"
+#include "../../include/core/SkVertices.h"
 
 #if SK_SUPPORT_GPU
-#include "GrPathUtils.h"
+#include "../gpu/GrPathUtils.h"
 #endif
 
 

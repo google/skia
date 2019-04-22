@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkPerlinNoiseShader.h"
-#include "SkShader.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/effects/SkPerlinNoiseShader.h"
+#include "../include/core/SkShader.h"
 
 class PerlinNoiseBench : public Benchmark {
     SkISize fSize;

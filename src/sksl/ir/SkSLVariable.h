@@ -9,7 +9,7 @@
 #define SKSL_VARIABLE
 
 #include "SkSLModifiers.h"
-#include "SkSLPosition.h"
+#include "../SkSLPosition.h"
 #include "SkSLSymbol.h"
 #include "SkSLType.h"
 

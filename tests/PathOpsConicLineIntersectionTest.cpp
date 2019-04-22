@@ -6,11 +6,11 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsTestCommon.h"
-#include "SkGeometry.h"
-#include "SkIntersections.h"
-#include "SkPathOpsConic.h"
-#include "SkPathOpsLine.h"
-#include "SkReduceOrder.h"
+#include "../src/core/SkGeometry.h"
+#include "../src/pathops/SkIntersections.h"
+#include "../src/pathops/SkPathOpsConic.h"
+#include "../src/pathops/SkPathOpsLine.h"
+#include "../src/pathops/SkReduceOrder.h"
 #include "Test.h"
 
 #include <utility>

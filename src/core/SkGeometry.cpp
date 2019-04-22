@@ -6,9 +6,9 @@
  */
 
 #include "SkGeometry.h"
-#include "SkMatrix.h"
-#include "SkNx.h"
-#include "SkPoint3.h"
+#include "../../include/core/SkMatrix.h"
+#include "../../include/private/SkNx.h"
+#include "../../include/core/SkPoint3.h"
 #include "SkPointPriv.h"
 
 #include <utility>

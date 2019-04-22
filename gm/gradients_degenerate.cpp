@@ -6,8 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkFont.h"
-#include "SkGradientShader.h"
+#include "../include/core/SkFont.h"
+#include "../include/effects/SkGradientShader.h"
 
 // NOTE: The positions define hardstops for the red and green borders. For the repeating degenerate
 // gradients, that means the red and green are never visible, so the average color used should only

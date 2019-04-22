@@ -9,10 +9,10 @@
 #include "GrPathRendererChain.h"
 
 #include "GrCaps.h"
-#include "GrContext.h"
+#include "../../include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
-#include "GrRecordingContext.h"
+#include "../../include/private/GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 #include "GrShaderCaps.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"

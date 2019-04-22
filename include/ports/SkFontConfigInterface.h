@@ -8,10 +8,10 @@
 #ifndef SkFontConfigInterface_DEFINED
 #define SkFontConfigInterface_DEFINED
 
-#include "SkFontStyle.h"
-#include "SkRefCnt.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
+#include "../core/SkFontStyle.h"
+#include "../core/SkRefCnt.h"
+#include "../core/SkStream.h"
+#include "../core/SkTypeface.h"
 
 class SkFontMgr;
 

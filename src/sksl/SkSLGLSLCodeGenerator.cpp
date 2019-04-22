@@ -16,7 +16,7 @@
 #include "ir/SkSLVariableReference.h"
 
 #ifndef SKSL_STANDALONE
-#include "SkOnce.h"
+#include "../../include/private/SkOnce.h"
 #endif
 
 namespace SkSL {

@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include "SkSockets.h"
-#include "SkData.h"
+#include "../../include/core/SkData.h"
 
 SkSocket::SkSocket() {
     fMaxfd = 0;

@@ -6,7 +6,7 @@
  */
 
 #include "SkBitmapProvider.h"
-#include "SkImage_Base.h"
+#include "../image/SkImage_Base.h"
 
 SkBitmapCacheDesc SkBitmapProvider::makeCacheDesc() const {
     return SkBitmapCacheDesc::Make(fImage);

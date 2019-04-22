@@ -6,8 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkColor.h"
-#include "SkImageFilter.h"
+#include "../include/core/SkColor.h"
+#include "../include/core/SkImageFilter.h"
 
 static void draw(SkCanvas* canvas, const SkRect& rect, const SkBitmap& bitmap,
                  const SkMatrix& matrix, SkFilterQuality filter) {

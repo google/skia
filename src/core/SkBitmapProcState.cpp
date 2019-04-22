@@ -8,14 +8,14 @@
 #include "SkBitmapCache.h"
 #include "SkBitmapController.h"
 #include "SkBitmapProcState.h"
-#include "SkColorData.h"
-#include "SkImageEncoder.h"
-#include "SkMacros.h"
+#include "../../include/private/SkColorData.h"
+#include "../../include/core/SkImageEncoder.h"
+#include "../../include/private/SkMacros.h"
 #include "SkMipMap.h"
 #include "SkOpts.h"
-#include "SkPaint.h"
+#include "../../include/core/SkPaint.h"
 #include "SkResourceCache.h"
-#include "SkShader.h"   // for tilemodes
+#include "../../include/core/SkShader.h"
 #include "SkUtils.h"
 
 // One-stop-shop shader for,

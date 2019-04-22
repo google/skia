@@ -9,13 +9,13 @@
 
 #ifdef SK_HAS_PNG_LIBRARY
 
-#include "SkColorTable.h"
+#include "../codec/SkColorTable.h"
 #include "SkImageEncoderFns.h"
-#include "SkImageInfoPriv.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkPngEncoder.h"
-#include "SkPngPriv.h"
+#include "../../include/private/SkImageInfoPriv.h"
+#include "../../include/core/SkStream.h"
+#include "../../include/core/SkString.h"
+#include "../../include/encode/SkPngEncoder.h"
+#include "../codec/SkPngPriv.h"
 #include <vector>
 
 #include "png.h"
