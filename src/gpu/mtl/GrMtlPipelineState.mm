@@ -37,8 +37,8 @@ GrMtlPipelineState::GrMtlPipelineState(
         MTLPixelFormat pixelFormat,
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms,
-        sk_sp<GrMtlBuffer> geometryUniformBuffer,
-        sk_sp<GrMtlBuffer> fragmentUniformBuffer,
+        uint32_t geometryUniformBufferSize,
+        uint32_t fragmentUniformBufferSize,
         uint32_t numSamplers,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
@@ -48,15 +48,12 @@ GrMtlPipelineState::GrMtlPipelineState(
         , fPipelineState(pipelineState)
         , fPixelFormat(pixelFormat)
         , fBuiltinUniformHandles(builtinUniformHandles)
-        , fGeometryUniformBuffer(std::move(geometryUniformBuffer))
-        , fFragmentUniformBuffer(std::move(fragmentUniformBuffer))
         , fNumSamplers(numSamplers)
         , fGeometryProcessor(std::move(geometryProcessor))
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
         , fFragmentProcessorCnt(fragmentProcessorCnt)
-        , fDataManager(uniforms, fGeometryUniformBuffer->size(),
-                       fFragmentUniformBuffer->size()) {
+        , fDataManager(uniforms, geometryUniformBufferSize, fragmentUniformBufferSize) {
     (void) fPixelFormat; // Suppress unused-var warning.
 }
 
@@ -106,10 +103,7 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     }
 
     SkASSERT(fNumSamplers == fSamplerBindings.count());
-    if (fGeometryUniformBuffer || fFragmentUniformBuffer) {
-        fDataManager.uploadUniformBuffers(fGpu, fGeometryUniformBuffer.get(),
-                                          fFragmentUniformBuffer.get());
-    }
+    fDataManager.resetDirtyBits();
 
     if (pipeline.isStencilEnabled()) {
         SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
@@ -126,14 +120,8 @@ void GrMtlPipelineState::setDrawState(id<MTLRenderCommandEncoder> renderCmdEncod
 }
 
 void GrMtlPipelineState::bind(id<MTLRenderCommandEncoder> renderCmdEncoder) {
-    if (fGeometryUniformBuffer) {
-        fGpu->bufferManager().setVertexBuffer(renderCmdEncoder, fGeometryUniformBuffer.get(),
-                                              GrMtlUniformHandler::kGeometryBinding);
-    }
-    if (fFragmentUniformBuffer) {
-        fGpu->bufferManager().setFragmentBuffer(renderCmdEncoder, fFragmentUniformBuffer.get(),
-                                              GrMtlUniformHandler::kFragBinding);
-    }
+    fDataManager.uploadAndBindUniformBuffers(fGpu, renderCmdEncoder);
+
     SkASSERT(fNumSamplers == fSamplerBindings.count());
     for (int index = 0; index < fNumSamplers; ++index) {
         [renderCmdEncoder setFragmentTexture: fSamplerBindings[index].fTexture
