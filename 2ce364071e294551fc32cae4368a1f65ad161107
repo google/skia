@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da4f3cb5_3b1ee1f1",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-22T14:38:48Z",
+      "side": 1,
+      "message": "This works too:\n\n    SkFont font(ToolUtils::create_portable_typeface(), 30);",
+      "revId": "2ce364071e294551fc32cae4368a1f65ad161107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
