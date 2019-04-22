@@ -7,6 +7,7 @@
 
 #include "SkColorMatrixFilterRowMajor255.h"
 #include "SkColorData.h"
+#include "SkColorMatrix.h"
 #include "SkNx.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
@@ -201,6 +202,10 @@ std::unique_ptr<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentP
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkColorFilter> SkColorFilters::Matrix(const SkColorMatrix& cm) {
+    return MatrixRowMajor255(cm.fMat);
+}
 
 sk_sp<SkColorFilter> SkColorFilters::MatrixRowMajor255(const float array[20]) {
     if (!SkScalarsAreFinite(array, 20)) {

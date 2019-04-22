@@ -32,5 +32,5 @@ sk_sp<SkColorFilter> SkColorMatrixFilter::MakeLightingFilter(SkColor mul, SkColo
                          SkIntToScalar(SkColorGetG(add)),
                          SkIntToScalar(SkColorGetB(add)),
                          0);
-    return SkColorFilters::MatrixRowMajor255(matrix.fMat);
+    return SkColorFilters::Matrix(matrix);
 }

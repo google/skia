@@ -11,7 +11,9 @@
 #include "SkScalar.h"
 
 class SK_API SkColorMatrix {
+#ifdef SK_SUPPORT_LEGACY_COLORMATRIX_PUBLIC
 public:
+#endif
     enum {
         kCount = 20
     };
@@ -29,6 +31,7 @@ public:
         kA_Trans    = 19,
     };
 
+public:
     void setIdentity();
     void setScale(SkScalar rScale, SkScalar gScale, SkScalar bScale,
                   SkScalar aScale = SK_Scalar1);
@@ -61,6 +64,9 @@ public:
 
     static bool NeedsClamping(const SkScalar[20]);
     static void SetConcat(SkScalar result[20], const SkScalar outer[20], const SkScalar inner[20]);
+
+private:
+    friend class SkColorFilters;
 };
 
 #endif
