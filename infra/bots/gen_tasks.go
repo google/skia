@@ -1059,6 +1059,10 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, c
 	return name
 }
 
+var skipUploadByName = []*regexp.Regexp{
+	regexp.MustCompile("Test.+Kit"), // CanvasKit and PathKit upload gold results via goldctl
+}
+
 // doUpload indicates whether the given Job should upload its results.
 func doUpload(name string) bool {
 	for _, s := range CONFIG.NoUpload {
@@ -1070,6 +1074,12 @@ func doUpload(name string) bool {
 			return false
 		}
 	}
+	for _, r := range skipUploadByName {
+		if r.MatchString(name) {
+			return false
+		}
+	}
+
 	return true
 }
 
