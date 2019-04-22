@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkLatticeIter.h"
-#include "SkRect.h"
+#include "src/core/SkLatticeIter.h"
+#include "include/core/SkRect.h"
 
 /**
  *  Divs must be in increasing order with no duplicates.

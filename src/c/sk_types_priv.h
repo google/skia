@@ -8,7 +8,7 @@
 #ifndef sk_types_priv_DEFINED
 #define sk_types_priv_DEFINED
 
-#include "sk_types.h"
+#include "include/c/sk_types.h"
 
 class SkMaskFilter;
 class SkPaint;

@@ -8,8 +8,8 @@
 #ifndef SKSL_ASTSUFFIXEXPRESSION
 #define SKSL_ASTSUFFIXEXPRESSION
 
-#include "SkSLASTSuffix.h"
-#include "SkSLASTExpression.h"
+#include "src/sksl/ast/SkSLASTSuffix.h"
+#include "src/sksl/ast/SkSLASTExpression.h"
 
 namespace SkSL {
 

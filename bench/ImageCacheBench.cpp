@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkResourceCache.h"
+#include "bench/Benchmark.h"
+#include "src/core/SkResourceCache.h"
 
 namespace {
 static void* gGlobalAddress;

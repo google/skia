@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkBigPicture.h"
-#include "SkData.h"
-#include "SkDrawable.h"
-#include "SkMiniRecorder.h"
-#include "SkPictureRecorder.h"
-#include "SkRecord.h"
-#include "SkRecordDraw.h"
-#include "SkRecordOpts.h"
-#include "SkRecordedDrawable.h"
-#include "SkRecorder.h"
-#include "SkTypes.h"
+#include "src/core/SkBigPicture.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
+#include "src/core/SkMiniRecorder.h"
+#include "include/core/SkPictureRecorder.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecordDraw.h"
+#include "src/core/SkRecordOpts.h"
+#include "src/core/SkRecordedDrawable.h"
+#include "src/core/SkRecorder.h"
+#include "include/core/SkTypes.h"
 
 SkPictureRecorder::SkPictureRecorder() {
     fActivelyRecording = false;

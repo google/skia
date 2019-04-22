@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGRenderNode.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
 
-#include "SkCanvas.h"
-#include "SkImageFilter.h"
-#include "SkPaint.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
 
 namespace sksg {
 

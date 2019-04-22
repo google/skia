@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkAddIntersections.h"
-#include "SkOpCoincidence.h"
-#include "SkPathOpsBounds.h"
+#include "src/pathops/SkAddIntersections.h"
+#include "src/pathops/SkOpCoincidence.h"
+#include "src/pathops/SkPathOpsBounds.h"
 
 #include <utility>
 

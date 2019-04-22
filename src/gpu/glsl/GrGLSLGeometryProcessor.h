@@ -8,7 +8,7 @@
 #ifndef GrGLSLGeometryProcessor_DEFINED
 #define GrGLSLGeometryProcessor_DEFINED
 
-#include "GrGLSLPrimitiveProcessor.h"
+#include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
 
 class GrGLSLGPBuilder;
 

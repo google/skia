@@ -8,7 +8,7 @@
 #ifndef SkMultiPictureDocumentPriv_DEFINED
 #define SkMultiPictureDocumentPriv_DEFINED
 
-#include "SkMultiPictureDocument.h"
+#include "src/utils/SkMultiPictureDocument.h"
 
 /**
  *  Additional API allows one to read the array of page-sizes without parsing

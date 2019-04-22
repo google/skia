@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsCubic.h"
 
 static bool rotate(const SkDCubic& cubic, int zero, int index, SkDCubic& rotPath) {
     double dy = cubic[index].fY - cubic[zero].fY;

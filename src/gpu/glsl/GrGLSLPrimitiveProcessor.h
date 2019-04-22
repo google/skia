@@ -8,10 +8,10 @@
 #ifndef GrGLSLPrimitiveProcessor_DEFINED
 #define GrGLSLPrimitiveProcessor_DEFINED
 
-#include "GrFragmentProcessor.h"
-#include "GrPrimitiveProcessor.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrPrimitiveProcessor.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 class GrPrimitiveProcessor;
 class GrGLSLFPFragmentBuilder;

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGMaskEffect.h"
+#include "modules/sksg/include/SkSGMaskEffect.h"
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 
 namespace sksg {
 

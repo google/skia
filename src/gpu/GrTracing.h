@@ -8,7 +8,7 @@
 #ifndef GrTracing_DEFINED
 #define GrTracing_DEFINED
 
-#include "SkTraceEvent.h"
+#include "src/core/SkTraceEvent.h"
 
 class GrContext;
 

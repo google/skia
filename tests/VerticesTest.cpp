@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkSurface.h"
-#include "SkVertices.h"
-#include "Test.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkVertices.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
 static bool equal(const SkVertices* v0, const SkVertices* v1) {
     if (v0->mode() != v1->mode()) {
