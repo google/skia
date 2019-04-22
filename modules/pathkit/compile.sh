@@ -116,6 +116,7 @@ ${EMCXX} $RELEASE_CONF -std=c++14 \
 -Isrc/shaders \
 -Isrc/opts \
 -Isrc/utils \
+-Ithird_party/skcms \
 -std=c++14 \
 --bind \
 --pre-js $BASE_DIR/helper.js \

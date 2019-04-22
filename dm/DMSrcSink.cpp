@@ -74,7 +74,7 @@
 #include <cmath>
 #include <functional>
 
-#include "../third_party/skcms/skcms.h"
+#include "skcms.h"
 
 static DEFINE_bool(multiPage, false,
                    "For document-type backends, render the source into multiple pages");

@@ -8,7 +8,7 @@
 #ifndef SkImageEncoderFns_DEFINED
 #define SkImageEncoderFns_DEFINED
 
-#include "../../third_party/skcms/skcms.h"
+#include "skcms.h"
 #include "SkColor.h"
 #include "SkColorData.h"
 #include "SkICC.h"

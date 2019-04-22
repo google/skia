@@ -8,7 +8,7 @@
 #include "SkColorSpaceXformSteps.h"
 #include "SkColorSpacePriv.h"
 #include "SkRasterPipeline.h"
-#include "../../third_party/skcms/skcms.h"
+#include "skcms.h"
 
 // TODO(mtklein): explain the logic of this file
 

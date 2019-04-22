@@ -113,6 +113,7 @@ skia_public_includes = [
   "include/svg",
   "include/utils",
   "include/utils/mac",
+  "third_party/skcms",
 ]
 
 if (skia_enable_atlas_text) {

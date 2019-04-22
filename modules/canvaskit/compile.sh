@@ -214,6 +214,7 @@ ${EMCXX} \
     -Isrc/core/ \
     -Isrc/utils/ \
     -Ithird_party/icu \
+    -Ithird_party/skcms \
     -Itools \
     -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \

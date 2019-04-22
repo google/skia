@@ -5,7 +5,7 @@
 * found in the LICENSE file.
 */
 
-#include "../third_party/skcms/skcms.h"
+#include "skcms.h"
 #include "SkCanvas.h"
 #include "SkColorSpacePriv.h"
 #include "SkData.h"
