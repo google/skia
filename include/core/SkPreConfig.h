@@ -10,8 +10,6 @@
 #ifndef SkPreConfig_DEFINED
 #define SkPreConfig_DEFINED
 
-#include "SkApi.h"
-
 // Allows embedders that want to disable macros that take arguments to just
 // define that symbol to be one of these
 #define SK_NOTHING_ARG1(arg1)
@@ -175,6 +173,28 @@
 // __ARM_FEATURE_CRC32 for -arch arm64, even though their chips don't support those instructions!
 #if defined(__ARM_FEATURE_CRC32) && !defined(__APPLE__)
     #define SK_ARM_HAS_CRC32
+#endif
+
+//////////////////////////////////////////////////////////////////////
+
+#if !defined(SKIA_IMPLEMENTATION)
+    #define SKIA_IMPLEMENTATION 0
+#endif
+
+#if !defined(SK_API)
+    #if defined(SKIA_DLL)
+        #if defined(_MSC_VER)
+            #if SKIA_IMPLEMENTATION
+                #define SK_API __declspec(dllexport)
+            #else
+                #define SK_API __declspec(dllimport)
+            #endif
+        #else
+            #define SK_API __attribute__((visibility("default")))
+        #endif
+    #else
+        #define SK_API
+    #endif
 #endif
 
 #endif
