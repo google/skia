@@ -8,8 +8,8 @@
 #ifndef GrVkBuffer_DEFINED
 #define GrVkBuffer_DEFINED
 
-#include "GrVkResource.h"
-#include "vk/GrVkTypes.h"
+#include "src/gpu/vk/GrVkResource.h"
+#include "include/gpu/vk/GrVkTypes.h"
 
 class GrVkGpu;
 

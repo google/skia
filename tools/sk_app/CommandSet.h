@@ -8,8 +8,8 @@
 #ifndef CommandSet_DEFINED
 #define CommandSet_DEFINED
 
-#include "SkString.h"
-#include "Window.h"
+#include "include/core/SkString.h"
+#include "tools/sk_app/Window.h"
 
 #include <functional>
 #include <vector>

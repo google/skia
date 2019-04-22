@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "RegexParser.h"
+#include "src/sksl/lex/RegexParser.h"
 
-#include "LexUtil.h"
+#include "src/sksl/lex/LexUtil.h"
 
 RegexNode RegexParser::parse(std::string source) {
     fSource = source;

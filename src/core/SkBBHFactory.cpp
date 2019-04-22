@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBBHFactory.h"
-#include "SkRect.h"
-#include "SkRTree.h"
-#include "SkScalar.h"
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkRect.h"
+#include "src/core/SkRTree.h"
+#include "include/core/SkScalar.h"
 
 SkBBoxHierarchy* SkRTreeFactory::operator()(const SkRect& bounds) const {
     SkScalar aspectRatio = bounds.width() / bounds.height();

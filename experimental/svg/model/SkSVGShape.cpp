@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkSVGRenderContext.h"
-#include "SkSVGShape.h"
+#include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGShape.h"
 
 SkSVGShape::SkSVGShape(SkSVGTag t) : INHERITED(t) {}
 

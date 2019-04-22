@@ -8,7 +8,7 @@
 #ifndef SkRasterHandleAllocator_DEFINED
 #define SkRasterHandleAllocator_DEFINED
 
-#include "SkImageInfo.h"
+#include "include/core/SkImageInfo.h"
 
 class SkBitmap;
 class SkCanvas;

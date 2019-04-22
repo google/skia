@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GLTestContext.h"
+#include "tools/gpu/gl/GLTestContext.h"
 
 #if defined(_M_ARM64)
 
@@ -20,7 +20,7 @@ GLTestContext* CreatePlatformGLTestContext(GrGLStandard, GLTestContext*) { retur
 
 #include <windows.h>
 #include <GL/GL.h>
-#include "win/SkWGL.h"
+#include "src/utils/win/SkWGL.h"
 
 #include <windows.h>
 

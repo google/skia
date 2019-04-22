@@ -7,20 +7,20 @@
 
 // This test only works with the GPU backend.
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "GrClip.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrRenderTargetContextPriv.h"
-#include "GrTextureProxy.h"
-#include "SkBitmap.h"
-#include "SkGr.h"
-#include "SkGradientShader.h"
-#include "effects/GrYUVtoRGBEffect.h"
-#include "ops/GrDrawOp.h"
-#include "ops/GrFillRectOp.h"
+#include "src/gpu/GrClip.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/core/SkBitmap.h"
+#include "src/gpu/SkGr.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/gpu/effects/GrYUVtoRGBEffect.h"
+#include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/ops/GrFillRectOp.h"
 
 #define YSIZE 8
 #define USIZE 4

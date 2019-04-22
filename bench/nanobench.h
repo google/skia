@@ -8,11 +8,11 @@
 #ifndef nanobench_DEFINED
 #define nanobench_DEFINED
 
-#include "Benchmark.h"
-#include "GrContextFactory.h"
-#include "SkImageInfo.h"
-#include "SkSurface.h"
-#include "SkTypes.h"
+#include "bench/Benchmark.h"
+#include "tools/gpu/GrContextFactory.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 
 class SkBitmap;
 class SkCanvas;

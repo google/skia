@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkFontMetrics.h"
-#include "SkPath.h"
-#include "SkTextUtils.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "tools/Resources.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkTextUtils.h"
+#include "include/core/SkTypeface.h"
+#include "tools/ToolUtils.h"
+#include "gm/gm.h"
 
 class Poly2PolyGM : public skiagm::GM {
 public:

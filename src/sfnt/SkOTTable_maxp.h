@@ -8,9 +8,9 @@
 #ifndef SkOTTable_maxp_DEFINED
 #define SkOTTable_maxp_DEFINED
 
-#include "SkOTTableTypes.h"
-#include "SkOTTable_maxp_CFF.h"
-#include "SkOTTable_maxp_TT.h"
+#include "src/sfnt/SkOTTableTypes.h"
+#include "src/sfnt/SkOTTable_maxp_CFF.h"
+#include "src/sfnt/SkOTTable_maxp_TT.h"
 
 #pragma pack(push, 1)
 

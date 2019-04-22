@@ -8,8 +8,8 @@
 #ifndef SKSL_ASTSWITCHSTATEMENT
 #define SKSL_ASTSWITCHSTATEMENT
 
-#include "SkSLASTStatement.h"
-#include "SkSLASTSwitchCase.h"
+#include "src/sksl/ast/SkSLASTStatement.h"
+#include "src/sksl/ast/SkSLASTSwitchCase.h"
 
 namespace SkSL {
 

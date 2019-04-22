@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBBoxHierarchy.h"
-#include "SkBigPicture.h"
-#include "SkPictureCommon.h"
-#include "SkRecord.h"
-#include "SkRecordDraw.h"
-#include "SkTraceEvent.h"
+#include "src/core/SkBBoxHierarchy.h"
+#include "src/core/SkBigPicture.h"
+#include "src/core/SkPictureCommon.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecordDraw.h"
+#include "src/core/SkTraceEvent.h"
 
 SkBigPicture::SkBigPicture(const SkRect& cull,
                            SkRecord* record,

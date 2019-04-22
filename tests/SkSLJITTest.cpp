@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLJIT.h"
+#include "src/sksl/SkSLJIT.h"
 
-#include "Test.h"
+#include "tests/Test.h"
 
 #ifdef SK_LLVM_AVAILABLE
 

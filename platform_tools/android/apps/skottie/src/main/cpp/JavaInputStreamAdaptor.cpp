@@ -15,8 +15,8 @@
  */
 
 
-#include "JavaInputStreamAdaptor.h"
-#include "SkPostConfig.h"
+#include "platform_tools/android/apps/skottie/src/main/cpp/JavaInputStreamAdaptor.h"
+#include "include/core/SkPostConfig.h"
 
 static jclass findClassCheck(JNIEnv* env, const char classname[]) {
     jclass clazz = env->FindClass(classname);

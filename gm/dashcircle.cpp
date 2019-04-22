@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "SkDashPathEffect.h"
-#include "SkPath.h"
-#include "gm.h"
+#include "tools/timer/AnimTimer.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/core/SkPath.h"
+#include "gm/gm.h"
 
 int dash1[] = { 1, 1 };
 int dash2[] = { 1, 3 };
