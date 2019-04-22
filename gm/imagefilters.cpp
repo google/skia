@@ -138,7 +138,7 @@ static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count
 DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 830, 550) {
     SkColorMatrix cm;
     cm.setSaturation(10);
-    sk_sp<SkColorFilter> cf(SkColorFilters::MatrixRowMajor255(cm.fMat));
+    sk_sp<SkColorFilter> cf(SkColorFilters::Matrix(cm));
     const SkScalar kernel[] = { 4, 0, 4, 0, -15, 0, 4, 0, 4 };
     sk_sp<SkImageFilter> filters[] = {
         SkBlurImageFilter::Make(10, 10, nullptr),

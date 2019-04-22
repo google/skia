@@ -236,11 +236,11 @@ DEF_TEST(Paint_nothingToDraw, r) {
 
     SkColorMatrix cm;
     cm.setIdentity();   // does not change alpha
-    paint.setColorFilter(SkColorFilters::MatrixRowMajor255(cm.fMat));
+    paint.setColorFilter(SkColorFilters::Matrix(cm));
     REPORTER_ASSERT(r, paint.nothingToDraw());
 
-    cm.postTranslate(0, 0, 0, 1);    // wacks alpha
-    paint.setColorFilter(SkColorFilters::MatrixRowMajor255(cm.fMat));
+    cm.postTranslate255(0, 0, 0, 1);    // wacks alpha
+    paint.setColorFilter(SkColorFilters::Matrix(cm));
     REPORTER_ASSERT(r, !paint.nothingToDraw());
 }
 

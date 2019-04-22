@@ -29,19 +29,19 @@ static sk_sp<SkColorFilter> make_cf_null() {
 static sk_sp<SkColorFilter> make_cf0() {
     SkColorMatrix cm;
     cm.setSaturation(0.75f);
-    return SkColorFilters::MatrixRowMajor255(cm.fMat);
+    return SkColorFilters::Matrix(cm);
 }
 
 static sk_sp<SkColorFilter> make_cf1() {
     SkColorMatrix cm;
     cm.setSaturation(0.75f);
-    auto a = SkColorFilters::MatrixRowMajor255(cm.fMat);
+    auto a = SkColorFilters::Matrix(cm);
     // CreateComposedFilter will try to concat these two matrices, resulting in a single
     // filter (which is good for speed). For this test, we want to force a real compose of
     // these two, so our inner filter has a scale-up, which disables the optimization of
     // combining the two matrices.
     cm.setScale(1.1f, 0.9f, 1);
-    return a->makeComposed(SkColorFilters::MatrixRowMajor255(cm.fMat));
+    return a->makeComposed(SkColorFilters::Matrix(cm));
 }
 
 static sk_sp<SkColorFilter> make_cf2() {

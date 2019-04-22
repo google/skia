@@ -178,7 +178,7 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, false);
     SkColorMatrix cm;
     cm.setSaturation(0.0f);
-    sk_sp<SkColorFilter> cf(SkColorFilters::MatrixRowMajor255(cm.fMat));
+    sk_sp<SkColorFilter> cf(SkColorFilters::Matrix(cm));
     SkPaint p;
     p.setImageFilter(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
     canvas->saveLayer(nullptr, &p);

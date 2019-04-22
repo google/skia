@@ -17,6 +17,7 @@ class GrColorSpaceInfo;
 class GrFragmentProcessor;
 class GrRecordingContext;
 class SkBitmap;
+class SkColorMatrix;
 class SkColorSpace;
 struct SkStageRec;
 class SkString;
@@ -135,6 +136,8 @@ public:
     static sk_sp<SkColorFilter> LinearToSRGBGamma();
     static sk_sp<SkColorFilter> SRGBToLinearGamma();
     static sk_sp<SkColorFilter> Lerp(float t, sk_sp<SkColorFilter> dst, sk_sp<SkColorFilter> src);
+
+    static sk_sp<SkColorFilter> Matrix(const SkColorMatrix&);
 
 private:
     SkColorFilters() = delete;

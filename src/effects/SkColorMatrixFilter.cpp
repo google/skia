@@ -28,9 +28,9 @@ sk_sp<SkColorFilter> SkColorMatrixFilter::MakeLightingFilter(SkColor mul, SkColo
                     byte_to_scale(SkColorGetG(mul)),
                     byte_to_scale(SkColorGetB(mul)),
                     1);
-    matrix.postTranslate(SkIntToScalar(SkColorGetR(add)),
+    matrix.postTranslate255(SkIntToScalar(SkColorGetR(add)),
                          SkIntToScalar(SkColorGetG(add)),
                          SkIntToScalar(SkColorGetB(add)),
                          0);
-    return SkColorFilters::MatrixRowMajor255(matrix.fMat);
+    return SkColorFilters::Matrix(matrix);
 }
