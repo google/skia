@@ -7,10 +7,10 @@
 
 #include "gm.h"
 
-#include "SkDashPathEffect.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRRect.h"
+#include "../include/effects/SkDashPathEffect.h"
+#include "../include/core/SkPaint.h"
+#include "../include/core/SkPath.h"
+#include "../include/core/SkRRect.h"
 
 namespace skiagm {
 

@@ -8,7 +8,7 @@
 #ifndef SKSL_ASTNODE
 #define SKSL_ASTNODE
 
-#include "SkSLString.h"
+#include "../SkSLString.h"
 
 namespace SkSL {
 

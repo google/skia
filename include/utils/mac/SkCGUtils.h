@@ -8,10 +8,10 @@
 #ifndef SkCGUtils_DEFINED
 #define SkCGUtils_DEFINED
 
-#include "SkSize.h"
-#include "SkImageInfo.h"
-#include "SkImage.h"
-#include "SkPixmap.h"
+#include "../../core/SkSize.h"
+#include "../../core/SkImageInfo.h"
+#include "../../core/SkImage.h"
+#include "../../core/SkPixmap.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 

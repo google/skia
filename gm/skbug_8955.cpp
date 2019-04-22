@@ -7,9 +7,9 @@
 
 #include "gm.h"
 
-#include "SkFont.h"
-#include "SkPaint.h"
-#include "SkTextBlob.h"
+#include "../include/core/SkFont.h"
+#include "../include/core/SkPaint.h"
+#include "../include/core/SkTextBlob.h"
 
 DEF_SIMPLE_GM(skbug_8955, canvas, 100, 100) {
     SkPaint p;

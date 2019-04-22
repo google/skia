@@ -8,9 +8,9 @@
 #ifndef SkSwizzler_DEFINED
 #define SkSwizzler_DEFINED
 
-#include "SkCodec.h"
-#include "SkColor.h"
-#include "SkImageInfo.h"
+#include "../../include/codec/SkCodec.h"
+#include "../../include/core/SkColor.h"
+#include "../../include/core/SkImageInfo.h"
 #include "SkSampler.h"
 
 class SkSwizzler : public SkSampler {

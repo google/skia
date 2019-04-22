@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "ToolUtils.h"
+#include "../tools/Resources.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 static const char* kFilterQualityNames[] = { "none", "low", "medium", "high" };

@@ -10,14 +10,14 @@
 #include "SkCanvasPriv.h"
 #include "SkClipOpPriv.h"
 #include "SkDrawShadowInfo.h"
-#include "SkImage_Base.h"
+#include "../image/SkImage_Base.h"
 #include "SkMatrixPriv.h"
-#include "SkPatchUtils.h"
-#include "SkRRect.h"
-#include "SkRSXform.h"
-#include "SkTSearch.h"
-#include "SkTextBlob.h"
-#include "SkTo.h"
+#include "../utils/SkPatchUtils.h"
+#include "../../include/core/SkRRect.h"
+#include "../../include/core/SkRSXform.h"
+#include "../../include/private/SkTSearch.h"
+#include "../../include/core/SkTextBlob.h"
+#include "../../include/private/SkTo.h"
 
 #define HEAP_BLOCK_SIZE 4096
 

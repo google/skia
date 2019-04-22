@@ -8,9 +8,9 @@
 #ifndef SkPaintImageFilter_DEFINED
 #define SkPaintImageFilter_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkImageFilter.h"
-#include "SkPaint.h"
+#include "../core/SkFlattenable.h"
+#include "../core/SkImageFilter.h"
+#include "../core/SkPaint.h"
 
 class SK_API SkPaintImageFilter : public SkImageFilter {
 public:

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkFlattenable.h"
+#include "../../include/core/SkFlattenable.h"
 #include "SkPtrRecorder.h"
 #include "SkReadBuffer.h"
 

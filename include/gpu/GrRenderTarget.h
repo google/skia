@@ -9,7 +9,7 @@
 #define GrRenderTarget_DEFINED
 
 #include "GrSurface.h"
-#include "SkRect.h"
+#include "../core/SkRect.h"
 
 class GrCaps;
 class GrRenderTargetOpList;

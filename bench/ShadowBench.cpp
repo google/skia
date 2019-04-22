@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkDrawShadowInfo.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkShadowUtils.h"
+#include "../include/core/SkCanvas.h"
+#include "../src/core/SkDrawShadowInfo.h"
+#include "../include/core/SkPaint.h"
+#include "../include/core/SkPath.h"
+#include "../include/utils/SkShadowUtils.h"
 
 class ShadowBench : public Benchmark {
 // Draws a set of shadowed rrects filling the canvas, in various modes:

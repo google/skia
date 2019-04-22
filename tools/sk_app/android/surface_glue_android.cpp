@@ -21,10 +21,10 @@
 #include <android/native_window_jni.h>
 
 #include "../Application.h"
-#include "ResourceFactory.h"
-#include "SkTo.h"
-#include "SkTypes.h"
-#include "SkUTF.h"
+#include "../../ResourceFactory.h"
+#include "../../../include/private/SkTo.h"
+#include "../../../include/core/SkTypes.h"
+#include "../../../src/utils/SkUTF.h"
 #include "Window_android.h"
 
 

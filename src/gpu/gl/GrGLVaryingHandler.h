@@ -8,9 +8,9 @@
 #ifndef GrGLVaryingHandler_DEFINED
 #define GrGLVaryingHandler_DEFINED
 
-#include "glsl/GrGLSLVarying.h"
-#include "GrTypesPriv.h"
-#include "gl/GrGLProgramDataManager.h"
+#include "../glsl/GrGLSLVarying.h"
+#include "../../../include/private/GrTypesPriv.h"
+#include "GrGLProgramDataManager.h"
 
 class GrGLVaryingHandler : public GrGLSLVaryingHandler {
 public:

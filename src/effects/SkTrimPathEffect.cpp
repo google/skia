@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathMeasure.h"
-#include "SkTrimPathEffect.h"
+#include "../../include/core/SkPathMeasure.h"
+#include "../../include/effects/SkTrimPathEffect.h"
 #include "SkTrimPE.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "../core/SkReadBuffer.h"
+#include "../core/SkWriteBuffer.h"
 
 namespace {
 

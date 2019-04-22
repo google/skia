@@ -6,7 +6,7 @@
  */
 
 #include "gm.h"
-#include "SkParsePath.h"
+#include "../include/utils/SkParsePath.h"
 
 DEF_SIMPLE_GM_CAN_FAIL(crbug_691386, canvas, errorMsg, 256, 256) {
     SkPath path;

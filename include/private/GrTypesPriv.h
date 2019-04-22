@@ -10,11 +10,11 @@
 
 #include <chrono>
 #include "GrSharedEnums.h"
-#include "GrTypes.h"
-#include "SkCanvas.h"
-#include "SkImageInfo.h"
+#include "../gpu/GrTypes.h"
+#include "../core/SkCanvas.h"
+#include "../core/SkImageInfo.h"
 #include "SkImageInfoPriv.h"
-#include "SkRefCnt.h"
+#include "../core/SkRefCnt.h"
 #include "SkWeakRefCnt.h"
 
 class GrCaps;

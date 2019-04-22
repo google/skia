@@ -6,7 +6,7 @@
  */
 
 #include "GrColorSpaceInfo.h"
-#include "SkColorSpacePriv.h"
+#include "../core/SkColorSpacePriv.h"
 
 GrColorSpaceInfo::GrColorSpaceInfo(sk_sp<SkColorSpace> colorSpace, GrPixelConfig config)
         : fColorSpace(std::move(colorSpace))

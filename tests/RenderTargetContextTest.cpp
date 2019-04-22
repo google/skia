@@ -13,8 +13,8 @@
 // mixes this test up. Re-enable once backing GPU resources are distributed by MDB at flush time.
 #if 0
 
-#include "GrTextureProxy.h"
-#include "GrRenderTargetContext.h"
+#include "../include/private/GrTextureProxy.h"
+#include "../src/gpu/GrRenderTargetContext.h"
 
 static const int kSize = 64;
 

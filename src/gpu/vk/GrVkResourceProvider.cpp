@@ -7,8 +7,8 @@
 
 #include "GrVkResourceProvider.h"
 
-#include "GrContextPriv.h"
-#include "GrSamplerState.h"
+#include "../GrContextPriv.h"
+#include "../../../include/gpu/GrSamplerState.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkCommandPool.h"
 #include "GrVkCopyPipeline.h"
@@ -17,7 +17,7 @@
 #include "GrVkRenderTarget.h"
 #include "GrVkUniformBuffer.h"
 #include "GrVkUtil.h"
-#include "SkTaskGroup.h"
+#include "../../core/SkTaskGroup.h"
 
 #ifdef SK_TRACE_VK_RESOURCES
 std::atomic<uint32_t> GrVkResource::fKeyCounter{0};

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkRandom.h"
-#include "SkTInternalLList.h"
-#include "SkTLList.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/private/SkTInternalLList.h"
+#include "../src/core/SkTLList.h"
 #include "Test.h"
 
 class ListElement {

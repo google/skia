@@ -9,7 +9,7 @@
 
 #include "GrClip.h"
 #include "GrReducedClip.h"
-#include "SkClipStack.h"
+#include "../core/SkClipStack.h"
 
 class GrPathRenderer;
 class GrTextureProxy;

@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "vk/GrVkSecondaryCBDrawContext.h"
+#include "GrVkSecondaryCBDrawContext.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrContextThreadSafeProxyPriv.h"
-#include "GrRenderTargetContext.h"
-#include "SkDeferredDisplayList.h"
-#include "SkGpuDevice.h"
-#include "SkImageInfo.h"
-#include "SkSurfaceCharacterization.h"
-#include "SkSurfacePriv.h"
-#include "vk/GrVkTypes.h"
+#include "../../../include/gpu/GrContext.h"
+#include "../GrContextPriv.h"
+#include "../GrContextThreadSafeProxyPriv.h"
+#include "../GrRenderTargetContext.h"
+#include "../../../include/private/SkDeferredDisplayList.h"
+#include "../SkGpuDevice.h"
+#include "../../../include/core/SkImageInfo.h"
+#include "../../../include/core/SkSurfaceCharacterization.h"
+#include "../../core/SkSurfacePriv.h"
+#include "../../../include/gpu/vk/GrVkTypes.h"
 
 sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrContext* ctx,
                                                                    const SkImageInfo& imageInfo,

@@ -6,8 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkPath.h"
 
 class CircularClipsGM : public skiagm::GM {
     SkScalar fX1, fX2, fY, fR;

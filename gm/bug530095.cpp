@@ -6,8 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkPath.h"
-#include "SkDashPathEffect.h"
+#include "../include/core/SkPath.h"
+#include "../include/effects/SkDashPathEffect.h"
 
 DEF_SIMPLE_GM(bug530095, canvas, 900, 1200) {
     SkPath path1, path2;

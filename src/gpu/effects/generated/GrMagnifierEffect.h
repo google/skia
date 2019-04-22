@@ -10,9 +10,9 @@
  **************************************************************************************************/
 #ifndef GrMagnifierEffect_DEFINED
 #define GrMagnifierEffect_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "../../../../include/core/SkTypes.h"
+#include "../../GrFragmentProcessor.h"
+#include "../../GrCoordTransform.h"
 class GrMagnifierEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> src, SkIRect bounds,

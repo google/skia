@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrTextureProxy.h"
+#include "../../include/private/GrTextureProxy.h"
 #include "GrTextureProxyPriv.h"
 
-#include "GrContext.h"
+#include "../../include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrDeferredProxyUploader.h"
 #include "GrProxyProvider.h"

@@ -6,8 +6,8 @@
  */
 
 #include "Benchmark.h"
-#include "SkColor.h"
-#include "SkNx.h"
+#include "../include/core/SkColor.h"
+#include "../include/private/SkNx.h"
 
 // Writing into this array prevents the loops from being compiled away.
 static volatile float blackhole[4];

@@ -6,14 +6,14 @@
  */
 
 #include "SkColorMatrixFilterRowMajor255.h"
-#include "SkColorData.h"
-#include "SkColorMatrix.h"
-#include "SkNx.h"
+#include "../../include/private/SkColorData.h"
+#include "../../include/effects/SkColorMatrix.h"
+#include "../../include/private/SkNx.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
-#include "SkUnPreMultiply.h"
+#include "../../include/core/SkRefCnt.h"
+#include "../../include/core/SkString.h"
+#include "../../include/core/SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
 
 void SkColorMatrixFilterRowMajor255::initState() {
@@ -81,11 +81,11 @@ bool SkColorMatrixFilterRowMajor255::onAppendStages(const SkStageRec& rec,
 }
 
 #if SK_SUPPORT_GPU
-#include "GrFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "../gpu/GrFragmentProcessor.h"
+#include "../gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "../gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../gpu/glsl/GrGLSLProgramDataManager.h"
+#include "../gpu/glsl/GrGLSLUniformHandler.h"
 
 class ColorMatrixEffect : public GrFragmentProcessor {
 public:

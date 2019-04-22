@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkStream.h"
-#include "SkTextBlob.h"
-#include "SkTypeface.h"
+#include "../tools/Resources.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../include/core/SkStream.h"
+#include "../include/core/SkTextBlob.h"
+#include "../include/core/SkTypeface.h"
 
 namespace skiagm {
 

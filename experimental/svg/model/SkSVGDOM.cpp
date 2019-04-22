@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkDOM.h"
-#include "SkParsePath.h"
+#include "../../../include/core/SkCanvas.h"
+#include "../../../src/xml/SkDOM.h"
+#include "../../../include/utils/SkParsePath.h"
 #include "SkSVGAttributeParser.h"
 #include "SkSVGCircle.h"
 #include "SkSVGClipPath.h"
@@ -29,9 +29,9 @@
 #include "SkSVGTypes.h"
 #include "SkSVGUse.h"
 #include "SkSVGValue.h"
-#include "SkString.h"
-#include "SkTSearch.h"
-#include "SkTo.h"
+#include "../../../include/core/SkString.h"
+#include "../../../include/private/SkTSearch.h"
+#include "../../../include/private/SkTo.h"
 
 namespace {
 

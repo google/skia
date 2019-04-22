@@ -5,16 +5,16 @@
 * found in the LICENSE file.
 */
 
-#include "vk/GrVkPipelineStateBuilder.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrPersistentCacheUtils.h"
-#include "GrShaderCaps.h"
-#include "GrStencilSettings.h"
+#include "GrVkPipelineStateBuilder.h"
+#include "../../../include/gpu/GrContext.h"
+#include "../GrContextPriv.h"
+#include "../GrPersistentCacheUtils.h"
+#include "../GrShaderCaps.h"
+#include "../GrStencilSettings.h"
 #include "GrVkRenderTarget.h"
-#include "vk/GrVkDescriptorSetManager.h"
-#include "vk/GrVkGpu.h"
-#include "vk/GrVkRenderPass.h"
+#include "GrVkDescriptorSetManager.h"
+#include "GrVkGpu.h"
+#include "GrVkRenderPass.h"
 
 typedef size_t shader_size;
 

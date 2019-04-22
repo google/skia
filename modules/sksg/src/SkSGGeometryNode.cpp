@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGGeometryNode.h"
+#include "../include/SkSGGeometryNode.h"
 
-#include "SkPath.h"
+#include "../../../include/core/SkPath.h"
 
 namespace sksg {
 

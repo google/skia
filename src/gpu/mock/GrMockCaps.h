@@ -8,9 +8,9 @@
 #ifndef GrMockCaps_DEFINED
 #define GrMockCaps_DEFINED
 
-#include "GrCaps.h"
-#include "SkGr.h"
-#include "mock/GrMockTypes.h"
+#include "../GrCaps.h"
+#include "../SkGr.h"
+#include "../../../include/gpu/mock/GrMockTypes.h"
 
 class GrMockCaps : public GrCaps {
 public:

@@ -6,7 +6,7 @@
  */
 
 #include "gm.h"
-#include "SkPath.h"
+#include "../include/core/SkPath.h"
 
 // this draws a small arc scaled up
 // see https://code.google.com/p/chromium/issues/detail?id=102411

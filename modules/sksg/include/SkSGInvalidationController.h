@@ -8,9 +8,9 @@
 #ifndef SkSGInvalidationController_DEFINED
 #define SkSGInvalidationController_DEFINED
 
-#include "SkMatrix.h"
-#include "SkTDArray.h"
-#include "SkTypes.h"
+#include "../../../include/core/SkMatrix.h"
+#include "../../../include/private/SkTDArray.h"
+#include "../../../include/core/SkTypes.h"
 
 struct SkRect;
 

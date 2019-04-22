@@ -7,10 +7,10 @@
 
 #include "YUVUtils.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "SkCodecImageGenerator.h"
-#include "SkData.h"
+#include "../../include/gpu/GrContext.h"
+#include "../../src/gpu/GrContextPriv.h"
+#include "../../src/codec/SkCodecImageGenerator.h"
+#include "../../include/core/SkData.h"
 
 namespace sk_gpu_test {
 

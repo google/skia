@@ -6,9 +6,9 @@
  */
 
 #include "gm.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPictureRecorder.h"
+#include "../include/core/SkPaint.h"
+#include "../include/core/SkPath.h"
+#include "../include/core/SkPictureRecorder.h"
 
 static sk_sp<SkPicture> make_picture() {
     SkPictureRecorder rec;

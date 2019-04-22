@@ -6,9 +6,9 @@
  */
 
 #include "SkImageEncoderPriv.h"
-#include "SkJpegEncoder.h"
-#include "SkPngEncoder.h"
-#include "SkWebpEncoder.h"
+#include "../../include/encode/SkJpegEncoder.h"
+#include "../../include/encode/SkPngEncoder.h"
+#include "../../include/encode/SkWebpEncoder.h"
 
 #ifndef SK_HAS_JPEG_LIBRARY
 bool SkJpegEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }

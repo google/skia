@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCClipPath.h"
+#include "../../../include/private/GrCCClipPath.h"
 
-#include "GrOnFlushResourceProvider.h"
-#include "GrProxyProvider.h"
-#include "GrTexture.h"
-#include "ccpr/GrCCPerFlushResources.h"
+#include "../GrOnFlushResourceProvider.h"
+#include "../GrProxyProvider.h"
+#include "../../../include/gpu/GrTexture.h"
+#include "GrCCPerFlushResources.h"
 
 void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect, int rtWidth,
                         int rtHeight, const GrCaps& caps) {

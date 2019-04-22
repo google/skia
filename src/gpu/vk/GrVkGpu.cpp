@@ -7,16 +7,16 @@
 
 #include "GrVkGpu.h"
 
-#include "GrContextPriv.h"
-#include "GrBackendSemaphore.h"
-#include "GrBackendSurface.h"
-#include "GrContextOptions.h"
-#include "GrGeometryProcessor.h"
-#include "GrGpuResourceCacheAccess.h"
-#include "GrMesh.h"
-#include "GrPipeline.h"
-#include "GrRenderTargetPriv.h"
-#include "GrTexturePriv.h"
+#include "../GrContextPriv.h"
+#include "../../../include/gpu/GrBackendSemaphore.h"
+#include "../../../include/gpu/GrBackendSurface.h"
+#include "../../../include/gpu/GrContextOptions.h"
+#include "../GrGeometryProcessor.h"
+#include "../GrGpuResourceCacheAccess.h"
+#include "../GrMesh.h"
+#include "../GrPipeline.h"
+#include "../GrRenderTargetPriv.h"
+#include "../GrTexturePriv.h"
 #include "GrVkAMDMemoryAllocator.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkCommandPool.h"
@@ -34,13 +34,13 @@
 #include "GrVkTextureRenderTarget.h"
 #include "GrVkTransferBuffer.h"
 #include "GrVkVertexBuffer.h"
-#include "SkConvertPixels.h"
-#include "SkMipMap.h"
-#include "SkSLCompiler.h"
-#include "SkTo.h"
+#include "../../core/SkConvertPixels.h"
+#include "../../core/SkMipMap.h"
+#include "../../sksl/SkSLCompiler.h"
+#include "../../../include/private/SkTo.h"
 
-#include "vk/GrVkExtensions.h"
-#include "vk/GrVkTypes.h"
+#include "../../../include/gpu/vk/GrVkExtensions.h"
+#include "../../../include/gpu/vk/GrVkTypes.h"
 
 #include <utility>
 
@@ -49,7 +49,7 @@
 #endif // !defined(SK_BUILD_FOR_WIN)
 
 #if defined(SK_BUILD_FOR_WIN) && defined(SK_DEBUG)
-#include "SkLeanWindows.h"
+#include "../../../include/private/SkLeanWindows.h"
 #endif
 
 #define VK_CALL(X) GR_VK_CALL(this->vkInterface(), X)

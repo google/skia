@@ -6,7 +6,7 @@
  */
 
 #include "gm.h"
-#include "SkGradientShader.h"
+#include "../include/effects/SkGradientShader.h"
 
 namespace skiagm {
 
@@ -914,7 +914,7 @@ DEF_SIMPLE_GM(gradient_many_stops, canvas, 500, 500) {
     draw_many_stops(canvas);
 }
 
-#include "SkPictureRecorder.h"
+#include "../include/core/SkPictureRecorder.h"
 
 static void draw_circle_shader(SkCanvas* canvas, SkScalar cx, SkScalar cy, SkScalar r,
                                sk_sp<SkShader> (*shaderFunc)()) {

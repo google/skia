@@ -5,31 +5,31 @@
  * found in the LICENSE file.
  */
 
-#include "SkMorphologyImageFilter.h"
+#include "../../../include/effects/SkMorphologyImageFilter.h"
 
-#include "SkBitmap.h"
-#include "SkColorData.h"
-#include "SkImageFilterPriv.h"
-#include "SkReadBuffer.h"
-#include "SkRect.h"
-#include "SkSpecialImage.h"
-#include "SkWriteBuffer.h"
+#include "../../../include/core/SkBitmap.h"
+#include "../../../include/private/SkColorData.h"
+#include "../../core/SkImageFilterPriv.h"
+#include "../../core/SkReadBuffer.h"
+#include "../../../include/core/SkRect.h"
+#include "../../core/SkSpecialImage.h"
+#include "../../core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrCoordTransform.h"
-#include "GrFixedClip.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
-#include "SkGr.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "../../../include/gpu/GrContext.h"
+#include "../../gpu/GrContextPriv.h"
+#include "../../gpu/GrCoordTransform.h"
+#include "../../gpu/GrFixedClip.h"
+#include "../../../include/private/GrRecordingContext.h"
+#include "../../gpu/GrRecordingContextPriv.h"
+#include "../../gpu/GrRenderTargetContext.h"
+#include "../../../include/gpu/GrTexture.h"
+#include "../../../include/private/GrTextureProxy.h"
+#include "../../gpu/SkGr.h"
+#include "../../gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "../../gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../../gpu/glsl/GrGLSLProgramDataManager.h"
+#include "../../gpu/glsl/GrGLSLUniformHandler.h"
 #endif
 
 sk_sp<SkImageFilter> SkDilateImageFilter::Make(int radiusX, int radiusY,

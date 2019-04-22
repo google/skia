@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGDraw.h"
+#include "../include/SkSGDraw.h"
 
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkSGGeometryNode.h"
-#include "SkSGInvalidationController.h"
-#include "SkSGPaint.h"
-#include "SkTLazy.h"
+#include "../../../include/core/SkCanvas.h"
+#include "../../../include/core/SkPath.h"
+#include "../include/SkSGGeometryNode.h"
+#include "../include/SkSGInvalidationController.h"
+#include "../include/SkSGPaint.h"
+#include "../../../src/core/SkTLazy.h"
 
 namespace sksg {
 

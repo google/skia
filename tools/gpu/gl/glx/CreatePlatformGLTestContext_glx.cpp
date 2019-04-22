@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GLTestContext.h"
-#include "SkOnce.h"
+#include "../GLTestContext.h"
+#include "../../../../include/private/SkOnce.h"
 
 #include <X11/Xlib.h>
 #include <GL/glx.h>

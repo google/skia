@@ -7,7 +7,7 @@
 
 #include "SkPDFResourceDict.h"
 #include "SkPDFTypes.h"
-#include "SkStream.h"
+#include "../../include/core/SkStream.h"
 
 // Sanity check that the values of enum ResourceType correspond to the
 // expected values as defined in the arrays below.

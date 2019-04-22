@@ -10,9 +10,9 @@
  **************************************************************************************************/
 #ifndef GrSingleIntervalGradientColorizer_DEFINED
 #define GrSingleIntervalGradientColorizer_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "../../../../include/core/SkTypes.h"
+#include "../../GrFragmentProcessor.h"
+#include "../../GrCoordTransform.h"
 class GrSingleIntervalGradientColorizer : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(SkPMColor4f start, SkPMColor4f end) {

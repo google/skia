@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkSurfaceCharacterization.h"
+#include "../../include/core/SkSurfaceCharacterization.h"
 
 #if SK_SUPPORT_GPU
-#include "GrCaps.h"
-#include "GrContextThreadSafeProxyPriv.h"
+#include "../gpu/GrCaps.h"
+#include "../gpu/GrContextThreadSafeProxyPriv.h"
 
 bool SkSurfaceCharacterization::operator==(const SkSurfaceCharacterization& other) const {
     if (!this->isValid() || !other.isValid()) {

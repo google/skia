@@ -8,11 +8,11 @@
 #ifndef SkValidatingReadBuffer_DEFINED
 #define SkValidatingReadBuffer_DEFINED
 
-#include "SkRefCnt.h"
+#include "../../include/core/SkRefCnt.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
-#include "SkPath.h"
-#include "SkPicture.h"
+#include "../../include/core/SkPath.h"
+#include "../../include/core/SkPicture.h"
 #include "SkReader32.h"
 
 class SkBitmap;

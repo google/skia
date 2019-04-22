@@ -11,8 +11,8 @@
 #include "GrDeferredUpload.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
-#include "SkRefCnt.h"
-#include "SkTArray.h"
+#include "../../include/core/SkRefCnt.h"
+#include "../../include/private/SkTArray.h"
 
 class GrDrawingManager;
 class GrOpList;

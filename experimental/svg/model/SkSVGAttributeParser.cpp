@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkParse.h"
+#include "../../../include/utils/SkParse.h"
 #include "SkSVGAttributeParser.h"
 #include "SkSVGTypes.h"
 

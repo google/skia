@@ -7,24 +7,24 @@
 
 /* migrated from chrome/src/skia/ext/SkFontHost_fontconfig_direct.cpp */
 
-#include "SkAutoMalloc.h"
-#include "SkBuffer.h"
-#include "SkFixed.h"
+#include "../core/SkAutoMalloc.h"
+#include "../core/SkBuffer.h"
+#include "../../include/private/SkFixed.h"
 #include "SkFontConfigInterface_direct.h"
-#include "SkFontStyle.h"
-#include "SkMutex.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTArray.h"
-#include "SkTDArray.h"
-#include "SkTemplates.h"
-#include "SkTypeface.h"
+#include "../../include/core/SkFontStyle.h"
+#include "../../include/private/SkMutex.h"
+#include "../../include/core/SkStream.h"
+#include "../../include/core/SkString.h"
+#include "../../include/private/SkTArray.h"
+#include "../../include/private/SkTDArray.h"
+#include "../../include/private/SkTemplates.h"
+#include "../../include/core/SkTypeface.h"
 
 #include <fontconfig/fontconfig.h>
 #include <unistd.h>
 
 #ifdef SK_DEBUG
-#    include "SkTLS.h"
+#    include "../core/SkTLS.h"
 #endif
 
 namespace {

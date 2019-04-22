@@ -7,8 +7,8 @@
 
 
 #include "GrGLUtil.h"
-#include "GrTypesPriv.h"
-#include "SkMatrix.h"
+#include "../../../include/private/GrTypesPriv.h"
+#include "../../../include/core/SkMatrix.h"
 #include <stdio.h>
 
 void GrGLClearErr(const GrGLInterface* gl) {

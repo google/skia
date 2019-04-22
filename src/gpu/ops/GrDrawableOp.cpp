@@ -7,12 +7,12 @@
 
 #include "GrDrawableOp.h"
 
-#include "GrGpuCommandBuffer.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "SkDrawable.h"
+#include "../GrGpuCommandBuffer.h"
+#include "../GrMemoryPool.h"
+#include "../GrOpFlushState.h"
+#include "../../../include/private/GrRecordingContext.h"
+#include "../GrRecordingContextPriv.h"
+#include "../../../include/core/SkDrawable.h"
 
 std::unique_ptr<GrDrawableOp> GrDrawableOp::Make(
         GrRecordingContext* context, std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,

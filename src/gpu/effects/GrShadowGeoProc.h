@@ -8,8 +8,8 @@
 #ifndef GrShadowGeoProc_DEFINED
 #define GrShadowGeoProc_DEFINED
 
-#include "GrProcessor.h"
-#include "GrGeometryProcessor.h"
+#include "../GrProcessor.h"
+#include "../GrGeometryProcessor.h"
 
 class GrGLRRectShadowGeoProc;
 

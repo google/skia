@@ -9,7 +9,7 @@
 
 #include "generated/GrCircleEffect.h"
 #include "generated/GrEllipseEffect.h"
-#include "SkRect.h"
+#include "../../../include/core/SkRect.h"
 
 std::unique_ptr<GrFragmentProcessor> GrOvalEffect::Make(GrClipEdgeType edgeType, const SkRect& oval,
                                                         const GrShaderCaps& caps) {

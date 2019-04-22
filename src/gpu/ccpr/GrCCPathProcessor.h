@@ -9,10 +9,10 @@
 #define GrCCPathProcessor_DEFINED
 
 #include <array>
-#include "GrCaps.h"
-#include "GrGeometryProcessor.h"
-#include "GrPipeline.h"
-#include "SkPath.h"
+#include "../GrCaps.h"
+#include "../GrGeometryProcessor.h"
+#include "../GrPipeline.h"
+#include "../../../include/core/SkPath.h"
 
 class GrCCPathCacheEntry;
 class GrCCPerFlushResources;

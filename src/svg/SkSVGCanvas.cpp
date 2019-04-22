@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkSVGCanvas.h"
+#include "../../include/svg/SkSVGCanvas.h"
 #include "SkSVGDevice.h"
-#include "SkMakeUnique.h"
-#include "SkXMLWriter.h"
+#include "../core/SkMakeUnique.h"
+#include "../xml/SkXMLWriter.h"
 
 std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkWStream* writer) {
     // TODO: pass full bounds to the device

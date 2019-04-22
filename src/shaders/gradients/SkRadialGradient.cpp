@@ -6,9 +6,9 @@
  */
 
 #include "SkRadialGradient.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "../../core/SkRasterPipeline.h"
+#include "../../core/SkReadBuffer.h"
+#include "../../core/SkWriteBuffer.h"
 
 namespace {
 
@@ -67,7 +67,7 @@ void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
 
 #if SK_SUPPORT_GPU
 
-#include "gradients/GrGradientShader.h"
+#include "../../gpu/gradients/GrGradientShader.h"
 
 std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
         const GrFPArgs& args) const {

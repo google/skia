@@ -36,7 +36,7 @@
 
 #include "gm.h"
 
-#include "SkGradientShader.h"
+#include "../include/effects/SkGradientShader.h"
 
 // All positions must be divided by the target interval count, which will produce the expected
 // normalized position array for that interval number (assuming an appropriate color count is

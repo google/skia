@@ -9,8 +9,8 @@
 #define GrShaderCaps_DEFINED
 
 #include "GrSwizzle.h"
-#include "GrTypesPriv.h"
-#include "SkRefCnt.h"
+#include "../../include/private/GrTypesPriv.h"
+#include "../../include/core/SkRefCnt.h"
 #include "glsl/GrGLSL.h"
 
 namespace SkSL {

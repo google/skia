@@ -7,13 +7,13 @@
 
 #include "Benchmark.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrGpuResource.h"
-#include "GrGpuResourcePriv.h"
-#include "GrResourceCache.h"
-#include "SkCanvas.h"
+#include "../include/gpu/GrContext.h"
+#include "../src/gpu/GrContextPriv.h"
+#include "../src/gpu/GrGpu.h"
+#include "../include/gpu/GrGpuResource.h"
+#include "../src/gpu/GrGpuResourcePriv.h"
+#include "../src/gpu/GrResourceCache.h"
+#include "../include/core/SkCanvas.h"
 
 enum {
     CACHE_SIZE_COUNT = 4096,

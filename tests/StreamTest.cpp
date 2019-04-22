@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkAutoMalloc.h"
-#include "SkData.h"
-#include "SkFrontBufferedStream.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkRandom.h"
-#include "SkStream.h"
-#include "SkStreamPriv.h"
-#include "SkTo.h"
+#include "../tools/Resources.h"
+#include "../src/core/SkAutoMalloc.h"
+#include "../include/core/SkData.h"
+#include "../include/utils/SkFrontBufferedStream.h"
+#include "../src/core/SkOSFile.h"
+#include "../src/utils/SkOSPath.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkStream.h"
+#include "../src/core/SkStreamPriv.h"
+#include "../include/private/SkTo.h"
 #include "Test.h"
 
 #include <functional>
@@ -637,7 +637,7 @@ DEF_TEST(FILEStreamWithOffset, r) {
     test_all(&stream2, true);
 }
 
-#include "SkBuffer.h"
+#include "../src/core/SkBuffer.h"
 
 DEF_TEST(RBuffer, reporter) {
     int32_t value = 0;

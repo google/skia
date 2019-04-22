@@ -14,8 +14,8 @@
  */
 
 #include "SkBitmapProcState.h"
-#include "SkShader.h"
-#include "SkTo.h"
+#include "../../include/core/SkShader.h"
+#include "../../include/private/SkTo.h"
 #include "SkUtils.h"
 
 /*

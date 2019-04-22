@@ -7,14 +7,14 @@
 
 #include "GrSkSLFP.h"
 
-#include "GrBaseContextPriv.h"
-#include "GrContext_Base.h"
-#include "GrTexture.h"
-#include "SkSLUtil.h"
+#include "../GrBaseContextPriv.h"
+#include "../../../include/private/GrContext_Base.h"
+#include "../../../include/gpu/GrTexture.h"
+#include "../../sksl/SkSLUtil.h"
 
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "../glsl/GrGLSLFragmentProcessor.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLProgramBuilder.h"
 
 GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl,
                                  SkSL::Program::Kind kind)
@@ -475,8 +475,8 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
 #if GR_TEST_UTILS
 
 #include "generated/GrConstColorProcessor.h"
-#include "GrContext.h"
-#include "SkArithmeticImageFilter.h"
+#include "../../../include/gpu/GrContext.h"
+#include "../../../include/effects/SkArithmeticImageFilter.h"
 
 extern const char* SKSL_ARITHMETIC_SRC;
 extern const char* SKSL_DITHER_SRC;

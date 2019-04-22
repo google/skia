@@ -8,7 +8,7 @@
 #ifndef MtlTestContext_h
 #define MtlTestContext_h
 
-#include "TestContext.h"
+#include "../TestContext.h"
 
 #ifdef SK_METAL
 

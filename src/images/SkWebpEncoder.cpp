@@ -18,14 +18,14 @@
 
 #ifdef SK_HAS_WEBP_LIBRARY
 
-#include "SkBitmap.h"
-#include "SkColorData.h"
+#include "../../include/core/SkBitmap.h"
+#include "../../include/private/SkColorData.h"
 #include "SkImageEncoderFns.h"
-#include "SkStream.h"
-#include "SkTemplates.h"
-#include "SkUnPreMultiply.h"
-#include "SkUTF.h"
-#include "SkWebpEncoder.h"
+#include "../../include/core/SkStream.h"
+#include "../../include/private/SkTemplates.h"
+#include "../../include/core/SkUnPreMultiply.h"
+#include "../utils/SkUTF.h"
+#include "../../include/encode/SkWebpEncoder.h"
 
 // A WebP encoder only, on top of (subset of) libwebp
 // For more information on WebP image format, and libwebp library, see:

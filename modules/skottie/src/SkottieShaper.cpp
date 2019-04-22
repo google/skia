@@ -7,11 +7,11 @@
 
 #include "SkottieShaper.h"
 
-#include "SkFontMetrics.h"
-#include "SkShaper.h"
-#include "SkTextBlob.h"
-#include "SkTextBlobPriv.h"
-#include "SkUTF.h"
+#include "../../../include/core/SkFontMetrics.h"
+#include "../../skshaper/include/SkShaper.h"
+#include "../../../include/core/SkTextBlob.h"
+#include "../../../src/core/SkTextBlobPriv.h"
+#include "../../../src/utils/SkUTF.h"
 
 namespace skottie {
 namespace {

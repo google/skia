@@ -9,9 +9,9 @@
 #define GrRectanizer_pow2_DEFINED
 
 #include "GrRectanizer.h"
-#include "SkMathPriv.h"
-#include "SkMalloc.h"
-#include "SkIPoint16.h"
+#include "../core/SkMathPriv.h"
+#include "../../include/private/SkMalloc.h"
+#include "../core/SkIPoint16.h"
 
 // This Rectanizer quantizes the incoming rects to powers of 2. Each power
 // of two can have, at most, one active row/shelf. Once a row/shelf for

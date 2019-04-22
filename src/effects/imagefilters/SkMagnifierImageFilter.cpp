@@ -5,27 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "SkMagnifierImageFilter.h"
+#include "../../../include/effects/SkMagnifierImageFilter.h"
 
-#include "SkBitmap.h"
-#include "SkColorData.h"
-#include "SkImageFilterPriv.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkWriteBuffer.h"
-#include "SkValidationUtils.h"
+#include "../../../include/core/SkBitmap.h"
+#include "../../../include/private/SkColorData.h"
+#include "../../core/SkImageFilterPriv.h"
+#include "../../core/SkReadBuffer.h"
+#include "../../core/SkSpecialImage.h"
+#include "../../core/SkWriteBuffer.h"
+#include "../../core/SkValidationUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
-#include "GrColorSpaceXform.h"
-#include "GrContext.h"
-#include "GrCoordTransform.h"
-#include "GrTexture.h"
-#include "effects/generated/GrMagnifierEffect.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "../../gpu/GrColorSpaceXform.h"
+#include "../../../include/gpu/GrContext.h"
+#include "../../gpu/GrCoordTransform.h"
+#include "../../../include/gpu/GrTexture.h"
+#include "../../gpu/effects/generated/GrMagnifierEffect.h"
+#include "../../gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "../../gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../../gpu/glsl/GrGLSLProgramDataManager.h"
+#include "../../gpu/glsl/GrGLSLUniformHandler.h"
 #endif
 
 sk_sp<SkImageFilter> SkMagnifierImageFilter::Make(const SkRect& srcRect, SkScalar inset,

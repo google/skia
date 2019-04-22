@@ -6,8 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkRegion.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkRegion.h"
 
 /**
  *  This is very similar to the RectGrid macrobench in Android.

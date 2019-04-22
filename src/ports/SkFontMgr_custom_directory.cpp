@@ -6,10 +6,10 @@
  */
 
 #include "SkFontMgr_custom.h"
-#include "SkFontMgr_directory.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
+#include "../../include/ports/SkFontMgr_directory.h"
+#include "../core/SkOSFile.h"
+#include "../utils/SkOSPath.h"
+#include "../../include/core/SkStream.h"
 
 class DirectorySystemFontLoader : public SkFontMgr_Custom::SystemFontLoader {
 public:

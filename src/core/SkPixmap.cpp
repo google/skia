@@ -5,25 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "SkPixmap.h"
+#include "../../include/core/SkPixmap.h"
 
-#include "SkBitmap.h"
-#include "SkColorData.h"
+#include "../../include/core/SkBitmap.h"
+#include "../../include/private/SkColorData.h"
 #include "SkConvertPixels.h"
-#include "SkData.h"
+#include "../../include/core/SkData.h"
 #include "SkDraw.h"
-#include "SkHalf.h"
-#include "SkImageInfoPriv.h"
-#include "SkImageShader.h"
+#include "../../include/private/SkHalf.h"
+#include "../../include/private/SkImageInfoPriv.h"
+#include "../shaders/SkImageShader.h"
 #include "SkMask.h"
-#include "SkNx.h"
+#include "../../include/private/SkNx.h"
 #include "SkPixmapPriv.h"
 #include "SkRasterClip.h"
-#include "SkReadPixelsRec.h"
-#include "SkSurface.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
-#include "SkUnPreMultiply.h"
+#include "../image/SkReadPixelsRec.h"
+#include "../../include/core/SkSurface.h"
+#include "../../include/private/SkTemplates.h"
+#include "../../include/private/SkTo.h"
+#include "../../include/core/SkUnPreMultiply.h"
 #include "SkUtils.h"
 
 #include <utility>

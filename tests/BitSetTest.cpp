@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitSet.h"
+#include "../src/utils/SkBitSet.h"
 #include "Test.h"
 
 #include <vector>

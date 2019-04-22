@@ -10,8 +10,8 @@
 
 #include "SkSGGeometryNode.h"
 
-#include "SkPath.h"
-#include "SkTrimPathEffect.h"
+#include "../../../include/core/SkPath.h"
+#include "../../../include/effects/SkTrimPathEffect.h"
 
 class SkCanvas;
 class SkPaint;

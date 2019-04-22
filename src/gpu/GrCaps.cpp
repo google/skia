@@ -6,13 +6,13 @@
  */
 
 #include "GrCaps.h"
-#include "GrBackendSurface.h"
-#include "GrContextOptions.h"
-#include "GrSurface.h"
-#include "GrSurfaceProxy.h"
-#include "GrTypesPriv.h"
+#include "../../include/gpu/GrBackendSurface.h"
+#include "../../include/gpu/GrContextOptions.h"
+#include "../../include/gpu/GrSurface.h"
+#include "../../include/private/GrSurfaceProxy.h"
+#include "../../include/private/GrTypesPriv.h"
 #include "GrWindowRectangles.h"
-#include "SkJSONWriter.h"
+#include "../utils/SkJSONWriter.h"
 
 GrCaps::GrCaps(const GrContextOptions& options) {
     fMipMapSupport = false;

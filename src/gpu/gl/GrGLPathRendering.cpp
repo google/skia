@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GrGLPathRendering.h"
-#include "gl/GrGLUtil.h"
-#include "gl/GrGLGpu.h"
+#include "GrGLPathRendering.h"
+#include "GrGLUtil.h"
+#include "GrGLGpu.h"
 
 #include "GrGLPath.h"
 #include "GrGLPathRendering.h"
-#include "GrRenderTargetProxy.h"
+#include "../../../include/private/GrRenderTargetProxy.h"
 
-#include "SkStream.h"
-#include "SkTypeface.h"
+#include "../../../include/core/SkStream.h"
+#include "../../../include/core/SkTypeface.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->gpu()->glInterface(), RET, X)

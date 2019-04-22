@@ -9,12 +9,12 @@
 #define GrResourceAllocator_DEFINED
 
 #include "GrGpuResourcePriv.h"
-#include "GrSurface.h"
-#include "GrSurfaceProxy.h"
+#include "../../include/gpu/GrSurface.h"
+#include "../../include/private/GrSurfaceProxy.h"
 
-#include "SkArenaAlloc.h"
-#include "SkTDynamicHash.h"
-#include "SkTMultiMap.h"
+#include "../../include/private/SkArenaAlloc.h"
+#include "../core/SkTDynamicHash.h"
+#include "../core/SkTMultiMap.h"
 
 class GrDeinstantiateProxyTracker;
 class GrResourceProvider;

@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkTextBlob.h"
+#include "../../include/core/SkTextBlob.h"
 #include "SkFontPriv.h"
 #include "SkGlyphRun.h"
 #include "SkPaintPriv.h"
 #include "SkReadBuffer.h"
-#include "SkRSXform.h"
+#include "../../include/core/SkRSXform.h"
 #include "SkSafeMath.h"
 #include "SkTextBlobPriv.h"
 #include "SkTextToPathIter.h"
-#include "SkTypeface.h"
+#include "../../include/core/SkTypeface.h"
 #include "SkWriteBuffer.h"
 
 #include <atomic>
@@ -22,7 +22,7 @@
 #include <new>
 
 #if SK_SUPPORT_GPU
-#include "text/GrTextBlobCache.h"
+#include "../gpu/text/GrTextBlobCache.h"
 #endif
 
 namespace {

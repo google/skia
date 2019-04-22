@@ -7,17 +7,17 @@
 #ifndef SkStrike_DEFINED
 #define SkStrike_DEFINED
 
-#include "SkArenaAlloc.h"
+#include "../../include/private/SkArenaAlloc.h"
 #include "SkDescriptor.h"
-#include "SkFontMetrics.h"
-#include "SkFontTypes.h"
+#include "../../include/core/SkFontMetrics.h"
+#include "../../include/core/SkFontTypes.h"
 #include "SkGlyph.h"
 #include "SkGlyphRunPainter.h"
-#include "SkPaint.h"
-#include "SkTHash.h"
+#include "../../include/core/SkPaint.h"
+#include "../../include/private/SkTHash.h"
 #include "SkScalerContext.h"
 #include "SkStrikeInterface.h"
-#include "SkTemplates.h"
+#include "../../include/private/SkTemplates.h"
 #include <memory>
 
 /** \class SkGlyphCache

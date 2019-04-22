@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 #include "Sample.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkShader.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkPaint.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkShader.h"
 
 /**
  * Animated sample used to develop a predecessor of GrDrawOp combining.

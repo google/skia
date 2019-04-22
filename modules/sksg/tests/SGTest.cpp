@@ -5,22 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "../../../include/core/SkTypes.h"
 
 #if !defined(SK_BUILD_FOR_GOOGLE3)
 
-#include "SkRect.h"
-#include "SkRectPriv.h"
-#include "SkSGDraw.h"
-#include "SkSGGroup.h"
-#include "SkSGInvalidationController.h"
-#include "SkSGPaint.h"
-#include "SkSGRect.h"
-#include "SkSGRenderEffect.h"
-#include "SkSGTransform.h"
-#include "SkTo.h"
+#include "../../../include/core/SkRect.h"
+#include "../../../src/core/SkRectPriv.h"
+#include "../include/SkSGDraw.h"
+#include "../include/SkSGGroup.h"
+#include "../include/SkSGInvalidationController.h"
+#include "../include/SkSGPaint.h"
+#include "../include/SkSGRect.h"
+#include "../include/SkSGRenderEffect.h"
+#include "../include/SkSGTransform.h"
+#include "../../../include/private/SkTo.h"
 
-#include "Test.h"
+#include "../../../tests/Test.h"
 
 #include <vector>
 

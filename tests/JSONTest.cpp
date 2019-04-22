@@ -7,10 +7,10 @@
 
 #include "Test.h"
 
-#include "SkArenaAlloc.h"
-#include "SkJSON.h"
-#include "SkString.h"
-#include "SkStream.h"
+#include "../include/private/SkArenaAlloc.h"
+#include "../src/utils/SkJSON.h"
+#include "../include/core/SkString.h"
+#include "../include/core/SkStream.h"
 
 using namespace skjson;
 

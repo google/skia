@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
 #include "CommonFlags.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
+#include "../../src/core/SkOSFile.h"
+#include "../../src/utils/SkOSPath.h"
 
 bool CollectImages(CommandLineFlags::StringArray images, SkTArray<SkString>* output) {
     SkASSERT(output);

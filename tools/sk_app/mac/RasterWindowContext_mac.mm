@@ -7,11 +7,11 @@
  */
 
 #include "../GLWindowContext.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "ToolUtils.h"
+#include "../../../include/core/SkCanvas.h"
+#include "../../../include/core/SkColorFilter.h"
+#include "../../ToolUtils.h"
 #include "WindowContextFactory_mac.h"
-#include "gl/GrGLInterface.h"
+#include "../../../include/gpu/gl/GrGLInterface.h"
 
 #include <OpenGL/gl.h>
 

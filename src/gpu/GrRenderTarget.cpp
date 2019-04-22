@@ -6,9 +6,9 @@
  */
 
 
-#include "GrRenderTarget.h"
+#include "../../include/gpu/GrRenderTarget.h"
 
-#include "GrContext.h"
+#include "../../include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrGpu.h"
@@ -17,7 +17,7 @@
 #include "GrSamplePatternDictionary.h"
 #include "GrStencilAttachment.h"
 #include "GrStencilSettings.h"
-#include "SkRectPriv.h"
+#include "../core/SkRectPriv.h"
 
 GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc,
                                GrStencilAttachment* stencil)

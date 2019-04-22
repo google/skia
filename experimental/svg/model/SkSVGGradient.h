@@ -8,7 +8,7 @@
 #ifndef SkSVGGradient_DEFINED
 #define SkSVGGradient_DEFINED
 
-#include "SkShader.h"
+#include "../../../include/core/SkShader.h"
 #include "SkSVGHiddenContainer.h"
 #include "SkSVGTypes.h"
 

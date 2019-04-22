@@ -6,8 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkPath.h"
-#include "SkScan.h"
+#include "../include/core/SkPath.h"
+#include "../src/core/SkScan.h"
 
 #define W   800
 #define H   800

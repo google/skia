@@ -9,7 +9,7 @@
 #define SkTypeface_win_DEFINED
 
 #include "../private/SkLeanWindows.h"
-#include "SkTypeface.h"
+#include "../core/SkTypeface.h"
 
 #ifdef SK_BUILD_FOR_WIN
 

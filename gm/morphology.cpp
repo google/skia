@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkMorphologyImageFilter.h"
-#include "ToolUtils.h"
+#include "../include/effects/SkMorphologyImageFilter.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 #define WIDTH 700

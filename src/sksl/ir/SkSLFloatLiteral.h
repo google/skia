@@ -8,7 +8,7 @@
 #ifndef SKSL_FLOATLITERAL
 #define SKSL_FLOATLITERAL
 
-#include "SkSLContext.h"
+#include "../SkSLContext.h"
 #include "SkSLExpression.h"
 
 namespace SkSL {

@@ -8,11 +8,11 @@
 #ifndef SkWriteBuffer_DEFINED
 #define SkWriteBuffer_DEFINED
 
-#include "SkData.h"
-#include "SkFlattenable.h"
-#include "SkSerialProcs.h"
+#include "../../include/core/SkData.h"
+#include "../../include/core/SkFlattenable.h"
+#include "../../include/core/SkSerialProcs.h"
 #include "SkWriter32.h"
-#include "../private/SkTHash.h"
+#include "../../include/private/SkTHash.h"
 
 class SkFactorySet;
 class SkImage;

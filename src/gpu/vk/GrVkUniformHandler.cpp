@@ -7,11 +7,11 @@
 
 #include "GrVkUniformHandler.h"
 
-#include "GrTexturePriv.h"
+#include "../GrTexturePriv.h"
 #include "GrVkGpu.h"
 #include "GrVkPipelineStateBuilder.h"
 #include "GrVkTexture.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "../glsl/GrGLSLProgramBuilder.h"
 
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we

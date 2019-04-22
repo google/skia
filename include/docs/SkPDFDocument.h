@@ -3,11 +3,11 @@
 #ifndef SkPDFDocument_DEFINED
 #define SkPDFDocument_DEFINED
 
-#include "SkDocument.h"
+#include "../core/SkDocument.h"
 
-#include "SkScalar.h"
-#include "SkString.h"
-#include "SkTime.h"
+#include "../core/SkScalar.h"
+#include "../core/SkString.h"
+#include "../core/SkTime.h"
 
 class SkExecutor;
 

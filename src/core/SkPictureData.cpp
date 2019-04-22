@@ -8,20 +8,20 @@
 #include "SkPictureData.h"
 
 #include "SkAutoMalloc.h"
-#include "SkImageGenerator.h"
+#include "../../include/core/SkImageGenerator.h"
 #include "SkMakeUnique.h"
 #include "SkPictureRecord.h"
 #include "SkPicturePriv.h"
 #include "SkReadBuffer.h"
 #include "SkTextBlobPriv.h"
-#include "SkTypeface.h"
+#include "../../include/core/SkTypeface.h"
 #include "SkWriteBuffer.h"
-#include "SkTo.h"
+#include "../../include/private/SkTo.h"
 
 #include <new>
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
+#include "../../include/gpu/GrContext.h"
 #endif
 
 template <typename T> int SafeCount(const T* obj) {
@@ -64,7 +64,7 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkStream.h"
+#include "../../include/core/SkStream.h"
 
 static size_t compute_chunk_size(SkFlattenable::Factory* array, int count) {
     size_t size = 4;  // for 'count'

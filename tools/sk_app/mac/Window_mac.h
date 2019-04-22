@@ -9,7 +9,7 @@
 #define Window_mac_DEFINED
 
 #include "../Window.h"
-#include "SkTDynamicHash.h"
+#include "../../../src/core/SkTDynamicHash.h"
 
 #import <Cocoa/Cocoa.h>
 

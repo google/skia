@@ -7,7 +7,7 @@
 
 #include "GrGLContext.h"
 #include "GrGLGLSL.h"
-#include "SkSLCompiler.h"
+#include "../../sksl/SkSLCompiler.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -9,7 +9,7 @@
 
 #include "../private/SkTArray.h"
 #include "../private/SkTDArray.h"
-#include "SkPreConfig.h"
+#include "../core/SkPreConfig.h"
 
 class SkPath;
 struct SkRect;

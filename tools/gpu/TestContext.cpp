@@ -10,7 +10,7 @@
 
 #include "GpuTimer.h"
 
-#include "GrContext.h"
+#include "../../include/gpu/GrContext.h"
 
 namespace sk_gpu_test {
 TestContext::TestContext()

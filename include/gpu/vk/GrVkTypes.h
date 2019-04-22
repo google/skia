@@ -9,7 +9,7 @@
 #ifndef GrVkTypes_DEFINED
 #define GrVkTypes_DEFINED
 
-#include "SkTypes.h"
+#include "../../core/SkTypes.h"
 #include "GrVkVulkan.h"
 
 #ifndef VK_VERSION_1_1
@@ -17,7 +17,7 @@
 #endif
 
 #include <functional>
-#include "GrTypes.h"
+#include "../GrTypes.h"
 
 typedef intptr_t GrVkBackendMemory;
 

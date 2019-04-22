@@ -9,9 +9,9 @@
 
 #ifdef SK_VULKAN
 
-#include "GrContext.h"
+#include "../../../include/gpu/GrContext.h"
 #include "VkTestUtils.h"
-#include "vk/GrVkExtensions.h"
+#include "../../../include/gpu/vk/GrVkExtensions.h"
 
 namespace {
 

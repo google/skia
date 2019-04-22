@@ -7,14 +7,14 @@
 #ifndef SkGifCodec_DEFINED
 #define SkGifCodec_DEFINED
 
-#include "SkCodec.h"
-#include "SkCodecAnimation.h"
-#include "SkColorSpace.h"
+#include "../../include/codec/SkCodec.h"
+#include "../../include/codec/SkCodecAnimation.h"
+#include "../../include/core/SkColorSpace.h"
 #include "SkColorTable.h"
-#include "SkImageInfo.h"
+#include "../../include/core/SkImageInfo.h"
 #include "SkSwizzler.h"
 
-#include "SkGifImageReader.h"
+#include "../../third_party/gif/SkGifImageReader.h"
 
 /*
  *

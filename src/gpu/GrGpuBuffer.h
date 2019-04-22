@@ -9,7 +9,7 @@
 #define GrGpuBuffer_DEFINED
 
 #include "GrBuffer.h"
-#include "GrGpuResource.h"
+#include "../../include/gpu/GrGpuResource.h"
 
 class GrGpu;
 

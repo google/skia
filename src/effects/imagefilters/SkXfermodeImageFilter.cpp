@@ -5,30 +5,30 @@
  * found in the LICENSE file.
  */
 
-#include "SkXfermodeImageFilter.h"
-#include "SkArithmeticImageFilter.h"
-#include "SkCanvas.h"
-#include "SkColorData.h"
-#include "SkImageFilterPriv.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
-#include "SkWriteBuffer.h"
+#include "../../../include/effects/SkXfermodeImageFilter.h"
+#include "../../../include/effects/SkArithmeticImageFilter.h"
+#include "../../../include/core/SkCanvas.h"
+#include "../../../include/private/SkColorData.h"
+#include "../../core/SkImageFilterPriv.h"
+#include "../../core/SkReadBuffer.h"
+#include "../../core/SkSpecialImage.h"
+#include "../../core/SkSpecialSurface.h"
+#include "../../core/SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
-#include "GrCaps.h"
-#include "GrClip.h"
-#include "GrColorSpaceXform.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrTextureProxy.h"
+#include "../../gpu/GrCaps.h"
+#include "../../gpu/GrClip.h"
+#include "../../gpu/GrColorSpaceXform.h"
+#include "../../../include/private/GrRecordingContext.h"
+#include "../../gpu/GrRecordingContextPriv.h"
+#include "../../gpu/GrRenderTargetContext.h"
+#include "../../../include/private/GrTextureProxy.h"
 
-#include "effects/generated/GrConstColorProcessor.h"
-#include "effects/GrTextureDomain.h"
-#include "effects/generated/GrSimpleTextureEffect.h"
-#include "SkGr.h"
+#include "../../gpu/effects/generated/GrConstColorProcessor.h"
+#include "../../gpu/effects/GrTextureDomain.h"
+#include "../../gpu/effects/generated/GrSimpleTextureEffect.h"
+#include "../../gpu/SkGr.h"
 #endif
-#include "SkClipOpPriv.h"
+#include "../../core/SkClipOpPriv.h"
 
 class SkXfermodeImageFilter_Base : public SkImageFilter {
 public:
@@ -236,7 +236,7 @@ void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage
 
 #if SK_SUPPORT_GPU
 
-#include "effects/GrXfermodeFragmentProcessor.h"
+#include "../../gpu/effects/GrXfermodeFragmentProcessor.h"
 
 sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                                                    SkSpecialImage* source,

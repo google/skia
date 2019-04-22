@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlendMode.h"
-#include "SkMaskFilter.h"
-#include "SkPaint.h"
-#include "SkShader.h"
+#include "../../include/core/SkBlendMode.h"
+#include "../../include/core/SkMaskFilter.h"
+#include "../../include/core/SkPaint.h"
+#include "../../include/core/SkShader.h"
 
-#include "sk_paint.h"
+#include "../../include/c/sk_paint.h"
 #include "sk_types_priv.h"
 
 #define MAKE_FROM_TO_NAME(FROM)     g_ ## FROM ## _map

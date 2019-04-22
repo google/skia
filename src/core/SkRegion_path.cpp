@@ -6,13 +6,13 @@
  */
 
 #include "SkBlitter.h"
-#include "SkPath.h"
+#include "../../include/core/SkPath.h"
 #include "SkRegionPriv.h"
 #include "SkSafeMath.h"
 #include "SkScan.h"
-#include "SkTDArray.h"
+#include "../../include/private/SkTDArray.h"
 #include "SkTSort.h"
-#include "SkTo.h"
+#include "../../include/private/SkTo.h"
 
 // The rgnbuilder caller *seems* to pass short counts, possible often seens early failure, so
 // we may not want to promote this to a "std" routine just yet.

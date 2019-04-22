@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkBBoxHierarchy.h"
-#include "SkPaint.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkRectPriv.h"
+#include "../include/core/SkBitmap.h"
+#include "../include/core/SkCanvas.h"
+#include "../src/core/SkBBoxHierarchy.h"
+#include "../include/core/SkPaint.h"
+#include "../include/core/SkPicture.h"
+#include "../include/core/SkPictureRecorder.h"
+#include "../src/core/SkRectPriv.h"
 
 #include "Test.h"
 

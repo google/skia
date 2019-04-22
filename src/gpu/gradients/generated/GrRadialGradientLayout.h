@@ -10,12 +10,12 @@
  **************************************************************************************************/
 #ifndef GrRadialGradientLayout_DEFINED
 #define GrRadialGradientLayout_DEFINED
-#include "SkTypes.h"
+#include "../../../../include/core/SkTypes.h"
 
-#include "SkRadialGradient.h"
+#include "../../../shaders/gradients/SkRadialGradient.h"
 #include "../GrGradientShader.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "../../GrFragmentProcessor.h"
+#include "../../GrCoordTransform.h"
 class GrRadialGradientLayout : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(const SkRadialGradient& gradient,

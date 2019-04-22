@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
+#include "../../include/private/SkArenaAlloc.h"
 #include "SkBitmapProcShader.h"
-#include "SkBitmapProcState.h"
-#include "SkColor.h"
+#include "../core/SkBitmapProcState.h"
+#include "../../include/core/SkColor.h"
 #include "SkEmptyShader.h"
 #include "SkLightingShader.h"
-#include "SkMathPriv.h"
-#include "SkNormalSource.h"
-#include "SkPoint3.h"
-#include "SkReadBuffer.h"
+#include "../core/SkMathPriv.h"
+#include "../core/SkNormalSource.h"
+#include "../../include/core/SkPoint3.h"
+#include "../core/SkReadBuffer.h"
 #include "SkShaderBase.h"
-#include "SkUnPreMultiply.h"
-#include "SkWriteBuffer.h"
+#include "../../include/core/SkUnPreMultiply.h"
+#include "../core/SkWriteBuffer.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -101,13 +101,13 @@ private:
 
 #if SK_SUPPORT_GPU
 
-#include "GrCoordTransform.h"
-#include "GrFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "SkGr.h"
+#include "../gpu/GrCoordTransform.h"
+#include "../gpu/GrFragmentProcessor.h"
+#include "../gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "../gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../gpu/glsl/GrGLSLProgramDataManager.h"
+#include "../gpu/glsl/GrGLSLUniformHandler.h"
+#include "../gpu/SkGr.h"
 
 // This FP expects a premul'd color input for its diffuse color. Premul'ing of the paint's color is
 // handled by the asFragmentProcessor() factory, but shaders providing diffuse color must output it

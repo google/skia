@@ -10,8 +10,8 @@
 #include "SkBmpRLECodec.h"
 #include "SkBmpStandardCodec.h"
 #include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkStream.h"
+#include "../../include/private/SkColorData.h"
+#include "../../include/core/SkStream.h"
 
 /*
  * Defines the version and type of the second bitmap header

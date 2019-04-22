@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "../../include/core/SkTypes.h"
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 #define GL_GLEXT_PROTOTYPES
@@ -17,21 +17,21 @@
 #include <android/hardware_buffer.h>
 
 #include "GrAHardwareBufferUtils.h"
-#include "GrBackendSurface.h"
-#include "GrContext.h"
+#include "../../include/gpu/GrBackendSurface.h"
+#include "../../include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
+#include "../../include/private/GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrResourceProviderPriv.h"
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
-#include "SkExchange.h"
-#include "SkMessageBus.h"
+#include "../../include/gpu/GrTexture.h"
+#include "../../include/private/GrTextureProxy.h"
+#include "../core/SkExchange.h"
+#include "../../include/private/SkMessageBus.h"
 #include "gl/GrGLDefines.h"
-#include "gl/GrGLTypes.h"
+#include "../../include/gpu/gl/GrGLTypes.h"
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -39,7 +39,7 @@
 #include <GLES/glext.h>
 
 #ifdef SK_VULKAN
-#include "vk/GrVkExtensions.h"
+#include "../../include/gpu/vk/GrVkExtensions.h"
 #include "vk/GrVkGpu.h"
 #endif
 

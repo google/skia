@@ -10,11 +10,11 @@
 
 #include "GrDrawOpAtlas.h"
 #include "GrRect.h"
-#include "GrTypes.h"
+#include "../../include/gpu/GrTypes.h"
 
-#include "SkChecksum.h"
-#include "SkFixed.h"
-#include "SkPath.h"
+#include "../../include/private/SkChecksum.h"
+#include "../../include/private/SkFixed.h"
+#include "../../include/core/SkPath.h"
 
 struct GrGlyph {
     enum MaskStyle {

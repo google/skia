@@ -6,12 +6,12 @@
  */
 #include "gm.h"
 
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkFont.h"
-#include "SkImage.h"
-#include "SkImageEncoder.h"
+#include "../tools/Resources.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkData.h"
+#include "../include/core/SkFont.h"
+#include "../include/core/SkImage.h"
+#include "../include/core/SkImageEncoder.h"
 
 namespace skiagm {
 

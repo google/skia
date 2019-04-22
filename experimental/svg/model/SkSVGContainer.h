@@ -9,7 +9,7 @@
 #define SkSVGContainer_DEFINED
 
 #include "SkSVGTransformableNode.h"
-#include "SkTArray.h"
+#include "../../../include/private/SkTArray.h"
 
 class SkSVGContainer : public SkSVGTransformableNode {
 public:

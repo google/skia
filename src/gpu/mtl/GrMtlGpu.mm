@@ -12,10 +12,10 @@
 #include "GrMtlTexture.h"
 #include "GrMtlTextureRenderTarget.h"
 #include "GrMtlUtil.h"
-#include "GrRenderTargetPriv.h"
-#include "GrTexturePriv.h"
-#include "SkConvertPixels.h"
-#include "SkSLCompiler.h"
+#include "../GrRenderTargetPriv.h"
+#include "../GrTexturePriv.h"
+#include "../../core/SkConvertPixels.h"
+#include "../../sksl/SkSLCompiler.h"
 
 #import <simd/simd.h>
 

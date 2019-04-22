@@ -6,12 +6,12 @@
  */
 
 #include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkString.h"
+#include "../include/core/SkBitmap.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../include/core/SkPaint.h"
+#include "../include/core/SkPath.h"
+#include "../include/core/SkString.h"
 
 enum ColorPattern {
     kWhite_ColorPattern,

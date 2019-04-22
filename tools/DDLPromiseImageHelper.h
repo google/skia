@@ -8,15 +8,15 @@
 #ifndef PromiseImageHelper_DEFINED
 #define PromiseImageHelper_DEFINED
 
-#include "GrBackendSurface.h"
-#include "SkBitmap.h"
-#include "SkCachedData.h"
-#include "SkDeferredDisplayListRecorder.h"
-#include "SkPromiseImageTexture.h"
-#include "SkTArray.h"
-#include "SkTLazy.h"
-#include "SkYUVAIndex.h"
-#include "SkYUVASizeInfo.h"
+#include "../include/gpu/GrBackendSurface.h"
+#include "../include/core/SkBitmap.h"
+#include "../src/core/SkCachedData.h"
+#include "../include/core/SkDeferredDisplayListRecorder.h"
+#include "../include/core/SkPromiseImageTexture.h"
+#include "../include/private/SkTArray.h"
+#include "../src/core/SkTLazy.h"
+#include "../include/core/SkYUVAIndex.h"
+#include "../include/core/SkYUVASizeInfo.h"
 
 class GrContext;
 class SkImage;

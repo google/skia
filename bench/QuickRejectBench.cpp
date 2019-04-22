@@ -6,8 +6,8 @@
  */
 
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkRandom.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/utils/SkRandom.h"
 
 class QuickRejectBench : public Benchmark {
     enum { N = 1000000 };

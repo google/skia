@@ -6,7 +6,7 @@
  */
 
 #include "Benchmark.h"
-#include "SkResourceCache.h"
+#include "../src/core/SkResourceCache.h"
 
 namespace {
 static void* gGlobalAddress;

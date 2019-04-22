@@ -10,7 +10,7 @@
 #include "../GLWindowContext.h"
 #include "SDL.h"
 #include "WindowContextFactory_ios.h"
-#include "gl/GrGLInterface.h"
+#include "../../../include/gpu/gl/GrGLInterface.h"
 
 using sk_app::DisplayParams;
 using sk_app::window_context_factory::IOSWindowInfo;

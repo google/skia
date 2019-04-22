@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkLuaCanvas.h"
+#include "../../include/utils/SkLuaCanvas.h"
 
-#include "SkLua.h"
-#include "SkStringUtils.h"
-#include "SkTo.h"
+#include "../../include/utils/SkLua.h"
+#include "../core/SkStringUtils.h"
+#include "../../include/private/SkTo.h"
 
 extern "C" {
     #include "lua.h"

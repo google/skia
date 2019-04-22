@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../include/core/SkPath.h"
+#include "../include/core/SkSurface.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 #define W   SkIntToScalar(80)

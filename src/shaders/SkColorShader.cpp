@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
+#include "../../include/private/SkArenaAlloc.h"
 #include "SkColorShader.h"
-#include "SkColorSpace.h"
-#include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkUtils.h"
+#include "../../include/core/SkColorSpace.h"
+#include "../core/SkColorSpacePriv.h"
+#include "../core/SkColorSpaceXformSteps.h"
+#include "../core/SkRasterPipeline.h"
+#include "../core/SkReadBuffer.h"
+#include "../core/SkUtils.h"
 
 SkColorShader::SkColorShader(SkColor c) : fColor(c) {}
 
@@ -92,10 +92,10 @@ bool SkColor4Shader::onAppendStages(const SkStageRec& rec) const {
 
 #if SK_SUPPORT_GPU
 
-#include "GrColorSpaceInfo.h"
-#include "GrColorSpaceXform.h"
-#include "SkGr.h"
-#include "effects/generated/GrConstColorProcessor.h"
+#include "../gpu/GrColorSpaceInfo.h"
+#include "../gpu/GrColorSpaceXform.h"
+#include "../gpu/SkGr.h"
+#include "../gpu/effects/generated/GrConstColorProcessor.h"
 
 std::unique_ptr<GrFragmentProcessor> SkColorShader::asFragmentProcessor(
         const GrFPArgs& args) const {
