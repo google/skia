@@ -348,11 +348,10 @@ inline void GrRenderTargetOpList::OpChain::validate() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrRenderTargetOpList::GrRenderTargetOpList(GrResourceProvider* resourceProvider,
-                                           sk_sp<GrOpMemoryPool> opMemoryPool,
+GrRenderTargetOpList::GrRenderTargetOpList(sk_sp<GrOpMemoryPool> opMemoryPool,
                                            sk_sp<GrRenderTargetProxy> proxy,
                                            GrAuditTrail* auditTrail)
-        : INHERITED(resourceProvider, std::move(opMemoryPool), std::move(proxy), auditTrail)
+        : INHERITED(std::move(opMemoryPool), std::move(proxy), auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
         SkDEBUGCODE(, fNumClips(0)) {
 }

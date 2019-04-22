@@ -86,7 +86,7 @@ protected:
             sortOpLists = true;
         }
 
-        this->setupDrawingManager(this->explicitlyAllocateGPUResources(), sortOpLists);
+        this->setupDrawingManager(sortOpLists);
 
         SkASSERT(this->caps());
 

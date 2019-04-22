@@ -442,11 +442,7 @@ private:
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
                 numTotalQuads += op.fProxies[p].fQuadCnt;
                 auto* proxy = op.fProxies[p].fProxy;
-                if (target->resourceProvider()->explicitlyAllocateGPUResources()) {
-                    if (!proxy->isInstantiated()) {
-                        return;
-                    }
-                } else if (!proxy->instantiate(target->resourceProvider())) {
+                if (!proxy->isInstantiated()) {
                     return;
                 }
                 SkASSERT(proxy->config() == config);
