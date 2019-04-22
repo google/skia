@@ -263,11 +263,15 @@ public:
      * Deprecated.
      */
     GrSemaphoresSubmitted flush(GrFlushFlags flags, int numSemaphores,
-                                GrBackendSemaphore signalSemaphores[]) {
+                                GrBackendSemaphore signalSemaphores[],
+                                GrGpuFinishedProc finishedProc = nullptr,
+                                GrGpuFinishedContext finishedContext = nullptr) {
         GrFlushInfo info;
         info.fFlags = flags;
         info.fNumSemaphores = numSemaphores;
         info.fSignalSemaphores = signalSemaphores;
+        info.fFinishedProc = finishedProc;
+        info.fFinishedContext = finishedContext;
         return this->flush(info);
     }
 

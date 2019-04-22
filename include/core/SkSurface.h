@@ -737,7 +737,14 @@ public:
     */
     GrSemaphoresSubmitted flush(BackendSurfaceAccess access, const GrFlushInfo& info);
 
-    /** The below enum and flush call are deprected
+    /** Deprecated
+     */
+    GrSemaphoresSubmitted flush(BackendSurfaceAccess access, GrFlushFlags flags,
+                                int numSemaphores, GrBackendSemaphore signalSemaphores[],
+                                GrGpuFinishedProc finishedProc = nullptr,
+                                GrGpuFinishedContext finishedContext = nullptr);
+
+    /** The below enum and flush call are deprecated
      */
     enum FlushFlags {
         kNone_FlushFlags = 0,
