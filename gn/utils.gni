@@ -71,6 +71,8 @@ skia_utils_sources = [
   "$_src/utils/SkShadowTessellator.cpp",
   "$_src/utils/SkShadowTessellator.h",
   "$_src/utils/SkShadowUtils.cpp",
+  "$_src/utils/SkShaperJSONWriter.h",
+  "$_src/utils/SkShaperJSONWriter.cpp",
   "$_src/utils/SkTextUtils.cpp",
   "$_src/utils/SkThreadUtils_pthread.cpp",
   "$_src/utils/SkThreadUtils_win.cpp",
