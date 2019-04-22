@@ -189,6 +189,11 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
 }
 
 bool GrSurfaceProxy::canSkipResourceAllocator() const {
+    if (this->ignoredByResourceAllocator()) {
+        // Usually an atlas or onFlush proxy
+        return true;
+    }
+
     auto peek = this->peekSurface();
     if (!peek) {
         return false;

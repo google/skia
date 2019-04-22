@@ -183,9 +183,8 @@ protected:
         }
     }
 
-    int32_t internalGetProxyRefCnt() const {
-        return fRefCnt;
-    }
+    int32_t internalGetProxyRefCnt() const { return fRefCnt; }
+    int32_t internalGetTotalRefs() const { return fRefCnt + fPendingReads + fPendingWrites; }
 
     // For deferred proxies this will be null. For wrapped proxies it will point to the
     // wrapped resource.
@@ -493,9 +492,11 @@ protected:
     friend class GrSurfaceProxyPriv;
 
     // Methods made available via GrSurfaceProxyPriv
-    int32_t getProxyRefCnt() const {
-        return this->internalGetProxyRefCnt();
-    }
+    bool ignoredByResourceAllocator() const { return fIgnoredByResourceAllocator; }
+    void setIgnoredByResourceAllocator() { fIgnoredByResourceAllocator = true; }
+
+    int32_t getProxyRefCnt() const { return this->internalGetProxyRefCnt(); }
+    int32_t getTotalRefs() const { return this->internalGetTotalRefs(); }
 
     void computeScratchKey(GrScratchKey*) const;
 
@@ -551,6 +552,7 @@ private:
     virtual size_t onUninstantiatedGpuMemorySize() const = 0;
 
     bool                   fNeedsClear;
+    bool                   fIgnoredByResourceAllocator = false;
 
     // This entry is lazily evaluated so, when the proxy wraps a resource, the resource
     // will be called but, when the proxy is deferred, it will compute the answer itself.
