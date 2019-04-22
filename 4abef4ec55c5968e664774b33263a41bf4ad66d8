@@ -22,6 +22,30 @@
       "revId": "4abef4ec55c5968e664774b33263a41bf4ad66d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38c8f438_1bef3c6e",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-22T20:50:17Z",
+      "side": 1,
+      "message": "Sure, there\u0027s no actual need to deprecate/remove this as a factory option...",
+      "parentUuid": "01f16d67_764beacd",
+      "range": {
+        "startLine": 132,
+        "startChar": 1,
+        "endLine": 132,
+        "endChar": 70
+      },
+      "revId": "4abef4ec55c5968e664774b33263a41bf4ad66d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
