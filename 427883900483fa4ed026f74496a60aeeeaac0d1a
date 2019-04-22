@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2b9cf4ae_c3f19402",
+        "filename": "bench/AAClipBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-22T19:34:37Z",
+      "side": 1,
+      "message": "Yeah, I don\u0027t really mind it either way.  Sometimes it feels nice to be able to see same-directory includes as relative paths, but when things start to get further and further away, an absolute path from skia/ is probably more clear.  There\u0027s all sorts of ways we could try, and if you just patch in tools/rewrite_includes.py, you can probably fool around and see which you like?  The only hard constraint I\u0027m aware of is the need to let include/ move relative to everything else.",
+      "parentUuid": "20194f67_9c612d8e",
+      "range": {
+        "startLine": 9,
+        "startChar": 10,
+        "endLine": 9,
+        "endChar": 13
+      },
+      "revId": "427883900483fa4ed026f74496a60aeeeaac0d1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "87c81995_fa0aba6f",
         "filename": "bench/AAClipBench.cpp",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2019-04-22T19:20:14Z",
       "side": 1,
       "message": "Nit: should the script re-order alphabetically based on path now?",
+      "revId": "427883900483fa4ed026f74496a60aeeeaac0d1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a193671_8d88919d",
+        "filename": "bench/AAClipBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-22T19:34:37Z",
+      "side": 1,
+      "message": "I have thought about that, but I don\u0027t think I can do that well unless it\u0027s nicely behaved include blocks like this.  I think maybe clang-format has a mode that can just resort headers though?  I\u0027ll look into it.",
+      "parentUuid": "87c81995_fa0aba6f",
       "revId": "427883900483fa4ed026f74496a60aeeeaac0d1a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
