@@ -274,6 +274,10 @@ private:
     SpvId writeBinaryOperation(const BinaryExpression& expr, SpvOp_ ifFloat, SpvOp_ ifInt,
                                SpvOp_ ifUInt, OutputStream& out);
 
+    SpvId writeBinaryExpression(const Type& leftType, SpvId lhs, Token::Kind op,
+                                const Type& rightType, SpvId rhs, const Type& resultType,
+                                OutputStream& out);
+
     SpvId writeBinaryExpression(const BinaryExpression& b, OutputStream& out);
 
     SpvId writeTernaryExpression(const TernaryExpression& t, OutputStream& out);
