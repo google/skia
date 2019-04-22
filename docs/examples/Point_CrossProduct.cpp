@@ -1,7 +1,7 @@
 #if 0  // Disabled until updated to use current API.
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=8b8a4cd8a29d22bb9c5e63b70357bd65
 REG_FIDDLE(Point_CrossProduct, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {

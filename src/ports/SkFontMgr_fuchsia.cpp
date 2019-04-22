@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontMgr_fuchsia.h"
+#include "include/ports/SkFontMgr_fuchsia.h"
 
 #include <fuchsia/fonts/cpp/fidl.h>
 #include <lib/zx/vmar.h>
@@ -13,13 +13,13 @@
 #include <memory>
 #include <unordered_map>
 
-#include "third_party/skia/src/core/SkFontDescriptor.h"
-#include "third_party/skia/src/ports/SkFontMgr_custom.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/ports/SkFontMgr_custom.h"
 
-#include "SkFontMgr.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
-#include "SkTypefaceCache.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkTypefaceCache.h"
 
 void UnmapMemory(const void* buffer, uint64_t size) {
     static_assert(sizeof(void*) == sizeof(uint64_t), "pointers aren't 64-bit");

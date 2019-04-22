@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkXMLParser.h"
+#include "src/xml/SkXMLParser.h"
 
 #include "expat.h"
 
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTo.h"
-#include "SkTypes.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTo.h"
+#include "include/core/SkTypes.h"
 
 static char const* const gErrorStrings[] = {
     "empty or missing file ",

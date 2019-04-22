@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkDashPathEffect.h"
-#include "SkParsePath.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/utils/SkParsePath.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
+#include "tools/ToolUtils.h"
+#include "gm/gm.h"
 
 #define W   400
 #define H   400

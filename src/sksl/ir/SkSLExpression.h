@@ -8,8 +8,8 @@
 #ifndef SKSL_EXPRESSION
 #define SKSL_EXPRESSION
 
-#include "SkSLType.h"
-#include "SkSLVariable.h"
+#include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 #include <unordered_map>
 

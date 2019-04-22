@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Request.h"
+#include "tools/skiaserve/Request.h"
 
-#include "SkJSONWriter.h"
-#include "SkPictureRecorder.h"
-#include "ToolUtils.h"
+#include "src/utils/SkJSONWriter.h"
+#include "include/core/SkPictureRecorder.h"
+#include "tools/ToolUtils.h"
 
 using namespace sk_gpu_test;
 

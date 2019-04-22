@@ -8,9 +8,9 @@
 #ifndef RecordingBench_DEFINED
 #define RecordingBench_DEFINED
 
-#include "Benchmark.h"
-#include "SkPicture.h"
-#include "SkLiteDL.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkPicture.h"
+#include "src/core/SkLiteDL.h"
 
 class PictureCentricBench : public Benchmark {
 public:

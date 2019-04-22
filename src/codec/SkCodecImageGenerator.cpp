@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodecImageGenerator.h"
-#include "SkMakeUnique.h"
-#include "SkPixmapPriv.h"
-#include "SkYUVAIndex.h"
+#include "src/codec/SkCodecImageGenerator.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkPixmapPriv.h"
+#include "include/core/SkYUVAIndex.h"
 
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk_sp<SkData> data) {
     auto codec = SkCodec::MakeFromData(data);

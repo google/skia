@@ -8,8 +8,8 @@
 #ifndef SkTableMaskFilter_DEFINED
 #define SkTableMaskFilter_DEFINED
 
-#include "SkMaskFilter.h"
-#include "SkScalar.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkScalar.h"
 
 /** \class SkTableMaskFilter
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
 // clipRect and drawLine should line up exactly when they use the same point.
 // When SkPDF rounds large floats, this doesn't always happen.

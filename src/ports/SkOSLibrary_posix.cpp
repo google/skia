@@ -4,10 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if !defined(SK_BUILD_FOR_WIN)
 
-#include "SkOSLibrary.h"
+#include "src/ports/SkOSLibrary.h"
 
 #include <dlfcn.h>
 

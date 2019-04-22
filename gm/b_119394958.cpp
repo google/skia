@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
 DEF_SIMPLE_GM(b_119394958, canvas, 100, 100) {
     // The root cause of this bug was that a stroked arc with round caps was batched with a filled

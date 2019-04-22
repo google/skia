@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkIntersections.h"
-#include "SkLineParameters.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsCurve.h"
-#include "SkPathOpsQuad.h"
-#include "SkPathOpsRect.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkLineParameters.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsCurve.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsRect.h"
 
 // from blackpawn.com/texts/pointinpoly
 static bool pointInTriangle(const SkDPoint fPts[3], const SkDPoint& test) {

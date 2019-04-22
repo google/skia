@@ -8,10 +8,10 @@
 #ifndef Window_DEFINED
 #define Window_DEFINED
 
-#include "DisplayParams.h"
-#include "SkRect.h"
-#include "SkTDArray.h"
-#include "SkTypes.h"
+#include "tools/sk_app/DisplayParams.h"
+#include "include/core/SkRect.h"
+#include "include/private/SkTDArray.h"
+#include "include/core/SkTypes.h"
 
 class GrContext;
 class SkCanvas;

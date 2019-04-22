@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBmpRLECodec.h"
-#include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkStream.h"
+#include "src/codec/SkBmpRLECodec.h"
+#include "src/codec/SkCodecPriv.h"
+#include "include/private/SkColorData.h"
+#include "include/core/SkStream.h"
 
 /*
  * Creates an instance of the decoder

@@ -8,10 +8,10 @@
 #ifndef GrBackendSemaphore_DEFINED
 #define GrBackendSemaphore_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
-#include "gl/GrGLTypes.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
 
 /**
  * Wrapper class for passing into and receiving data from Ganesh about a backend semaphore object.

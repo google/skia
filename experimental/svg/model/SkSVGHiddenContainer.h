@@ -8,7 +8,7 @@
 #ifndef SkSVGHiddenContainer_DEFINED
 #define SkSVGHiddenContainer_DEFINED
 
-#include "SkSVGContainer.h"
+#include "experimental/svg/model/SkSVGContainer.h"
 
 class SkSVGHiddenContainer : public SkSVGContainer {
 public:

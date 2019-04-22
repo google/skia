@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlGpuCommandBuffer.h"
+#include "src/gpu/mtl/GrMtlGpuCommandBuffer.h"
 
-#include "GrColor.h"
-#include "GrFixedClip.h"
-#include "GrMtlPipelineState.h"
-#include "GrMtlPipelineStateBuilder.h"
-#include "GrMtlRenderTarget.h"
-#include "GrRenderTargetPriv.h"
-#include "GrTexturePriv.h"
+#include "include/private/GrColor.h"
+#include "src/gpu/GrFixedClip.h"
+#include "src/gpu/mtl/GrMtlPipelineState.h"
+#include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
+#include "src/gpu/mtl/GrMtlRenderTarget.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrTexturePriv.h"
 
 GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
         GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,

@@ -8,7 +8,7 @@
 #ifndef SkEmbossMaskFilter_DEFINED
 #define SkEmbossMaskFilter_DEFINED
 
-#include "SkMaskFilterBase.h"
+#include "src/core/SkMaskFilterBase.h"
 
 /** \class SkEmbossMaskFilter
 

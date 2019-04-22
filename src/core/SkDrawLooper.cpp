@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkDrawLooper.h"
-#include "SkCanvas.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkRect.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/core/SkDrawLooper.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
 
 bool SkDrawLooper::canComputeFastBounds(const SkPaint& paint) const {
     SkCanvas canvas;

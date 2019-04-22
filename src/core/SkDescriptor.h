@@ -10,9 +10,9 @@
 
 #include <memory>
 
-#include "SkMacros.h"
-#include "SkNoncopyable.h"
-#include "SkScalerContext.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkNoncopyable.h"
+#include "src/core/SkScalerContext.h"
 
 class SkDescriptor : SkNoncopyable {
 public:

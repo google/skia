@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkATrace.h"
+#include "src/core/SkATrace.h"
 
-#include "SkTraceEvent.h"
+#include "src/core/SkTraceEvent.h"
 
-#include "SkTraceEventCommon.h"
+#include "src/core/SkTraceEventCommon.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include <dlfcn.h>
