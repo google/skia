@@ -6,6 +6,7 @@
  */
 
 #include "GrMtlBuffer.h"
+#include "GrMtlCommandBuffer.h"
 #include "GrMtlGpu.h"
 #include "GrGpuResourcePriv.h"
 #include "GrTypesPriv.h"
@@ -139,16 +140,13 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
         [fMtlBuffer didModifyRange: NSMakeRange(fOffset, sizeInBytes)];
 #endif
     } else {
-        SK_BEGIN_AUTORELEASE_BLOCK
-        id<MTLBlitCommandEncoder> blitCmdEncoder =
-                [this->mtlGpu()->commandBuffer() blitCommandEncoder];
+        GrMtlCommandBuffer* cmdBuffer = this->mtlGpu()->commandBuffer();
+        id<MTLBlitCommandEncoder> blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
         [blitCmdEncoder copyFromBuffer: fMappedBuffer
                           sourceOffset: 0
                               toBuffer: fMtlBuffer
                      destinationOffset: 0
                                   size: sizeInBytes];
-        [blitCmdEncoder endEncoding];
-        SK_END_AUTORELEASE_BLOCK
     }
     fMappedBuffer = nil;
     fMapPtr = nullptr;
