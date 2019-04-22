@@ -259,9 +259,6 @@ BASE_SRCS_ALL = struct(
 
         # Atlas text
         "src/atlastext/*",
-
-        # Compute backend not yet even hooked into Skia.
-        "src/compute/**/*",
     ],
 )
 
