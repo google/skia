@@ -8,7 +8,7 @@
 #ifndef SkStreamPriv_DEFINED
 #define SkStreamPriv_DEFINED
 
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 
 class SkData;
 class SkStream;

@@ -8,7 +8,7 @@
 #ifndef SkTLS_DEFINED
 #define SkTLS_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 /**
  *  Maintains a per-thread cache, using a CreateProc as the key into that cache.

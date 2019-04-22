@@ -7,9 +7,9 @@
 #ifndef GMBench_DEFINED
 #define GMBench_DEFINED
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "gm.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "gm/gm.h"
 
 /**
  * Runs a GM as a benchmark by repeatedly drawing the GM.

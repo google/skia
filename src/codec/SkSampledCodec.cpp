@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
-#include "SkMath.h"
-#include "SkMathPriv.h"
-#include "SkSampledCodec.h"
-#include "SkSampler.h"
-#include "SkTemplates.h"
+#include "include/codec/SkCodec.h"
+#include "src/codec/SkCodecPriv.h"
+#include "include/core/SkMath.h"
+#include "src/core/SkMathPriv.h"
+#include "src/codec/SkSampledCodec.h"
+#include "src/codec/SkSampler.h"
+#include "include/private/SkTemplates.h"
 
 SkSampledCodec::SkSampledCodec(SkCodec* codec, ExifOrientationBehavior behavior)
     : INHERITED(codec, behavior)

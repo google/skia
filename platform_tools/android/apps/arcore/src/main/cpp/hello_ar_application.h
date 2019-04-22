@@ -25,19 +25,19 @@
 #include <set>
 #include <string>
 #include <unordered_map>
-#include <GrContext.h>
-#include <gl/GrGLTypes.h>
-#include <GrBackendSurface.h>
-#include <SkSurface.h>
-#include <Skottie.h>
+#include "include/gpu/GrContext.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/core/SkSurface.h"
+#include "modules/skottie/include/Skottie.h"
 
 #include "arcore_c_api.h"
-#include "background_renderer.h"
-#include "glm.h"
-#include "plane_renderer.h"
-#include "point_cloud_renderer.h"
-#include "util.h"
-#include "pending_anchor.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/background_renderer.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/glm.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/plane_renderer.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/point_cloud_renderer.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/util.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/pending_anchor.h"
 
 namespace hello_ar {
 

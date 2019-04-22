@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "NimaActor.h"
+#include "experimental/nima/NimaActor.h"
 
-#include "SkData.h"
-#include "SkFilterQuality.h"
-#include "SkImage.h"
-#include "SkPaint.h"
-#include "SkString.h"
-#include "SkVertices.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkString.h"
+#include "include/core/SkVertices.h"
 
 #include <algorithm>
 #include <cmath>

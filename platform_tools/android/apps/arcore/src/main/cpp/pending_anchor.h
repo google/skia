@@ -21,7 +21,7 @@
 #include <GrBackendSurface.h>
 
 #include "arcore_c_api.h"
-#include "glm.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/glm.h"
 
 namespace hello_ar {
     class PendingAnchor {

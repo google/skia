@@ -11,7 +11,7 @@
 #include <memory>
 #include <QMainWindow>
 
-#include "Model.h"
+#include "tools/mdbviz/Model.h"
 
 class QLabel;
 class QMenu;

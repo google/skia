@@ -10,9 +10,9 @@
  **************************************************************************************************/
 #ifndef GrTiledGradientEffect_DEFINED
 #define GrTiledGradientEffect_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "include/core/SkTypes.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrCoordTransform.h"
 class GrTiledGradientEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(

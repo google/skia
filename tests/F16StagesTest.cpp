@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkRasterPipeline.h"
-#include "Test.h"
+#include "src/core/SkRasterPipeline.h"
+#include "tests/Test.h"
 
 DEF_TEST(F16Stages, r) {
     // Make sure SkRasterPipeline::load_f16 and store_f16 can handle a range of

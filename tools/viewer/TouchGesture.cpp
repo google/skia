@@ -7,9 +7,9 @@
 
 #include <algorithm>
 
-#include "TouchGesture.h"
-#include "SkMatrix.h"
-#include "SkTime.h"
+#include "tools/viewer/TouchGesture.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkTime.h"
 
 #define DISCRETIZE_TRANSLATE_TO_AVOID_FLICKER   true
 

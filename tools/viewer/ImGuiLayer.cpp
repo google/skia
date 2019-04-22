@@ -5,15 +5,15 @@
 * found in the LICENSE file.
 */
 
-#include "ImGuiLayer.h"
+#include "tools/viewer/ImGuiLayer.h"
 
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkPixmap.h"
-#include "SkSurface.h"
-#include "SkSwizzle.h"
-#include "SkTime.h"
-#include "SkVertices.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkSwizzle.h"
+#include "include/core/SkTime.h"
+#include "include/core/SkVertices.h"
 
 #include "imgui.h"
 

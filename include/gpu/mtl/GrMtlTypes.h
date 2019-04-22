@@ -8,7 +8,7 @@
 #ifndef GrMtlTypes_DEFINED
 #define GrMtlTypes_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
 /**
  * Declares typedefs for Metal types used in Ganesh cpp code
