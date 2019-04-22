@@ -8,11 +8,11 @@
 #define GrMockTexture_DEFINED
 
 #include "GrMockGpu.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
-#include "GrTexture.h"
-#include "GrTexturePriv.h"
-#include "mock/GrMockTypes.h"
+#include "../../../include/gpu/GrRenderTarget.h"
+#include "../GrRenderTargetPriv.h"
+#include "../../../include/gpu/GrTexture.h"
+#include "../GrTexturePriv.h"
+#include "../../../include/gpu/mock/GrMockTypes.h"
 
 class GrMockTexture : public GrTexture {
 public:

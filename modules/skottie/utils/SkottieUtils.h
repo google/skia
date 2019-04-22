@@ -8,11 +8,11 @@
 #ifndef SkottieUtils_DEFINED
 #define SkottieUtils_DEFINED
 
-#include "SkColor.h"
-#include "Skottie.h"
-#include "SkottieProperty.h"
-#include "SkString.h"
-#include "SkTHash.h"
+#include "../../../include/core/SkColor.h"
+#include "../include/Skottie.h"
+#include "../include/SkottieProperty.h"
+#include "../../../include/core/SkString.h"
+#include "../../../include/private/SkTHash.h"
 
 #include <memory>
 #include <string>

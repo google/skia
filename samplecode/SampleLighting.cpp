@@ -7,11 +7,11 @@
 
 #include "DecodeFile.h"
 #include "Sample.h"
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkLightingShader.h"
-#include "SkNormalSource.h"
-#include "SkPoint3.h"
+#include "../tools/Resources.h"
+#include "../include/core/SkCanvas.h"
+#include "../src/shaders/SkLightingShader.h"
+#include "../src/core/SkNormalSource.h"
+#include "../include/core/SkPoint3.h"
 
 static sk_sp<SkLights> create_lights(SkScalar angle, SkScalar blue) {
 

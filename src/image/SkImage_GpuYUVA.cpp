@@ -9,23 +9,23 @@
 #include <cstring>
 #include <type_traits>
 
-#include "GrClip.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrTexture.h"
-#include "GrTextureProducer.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkGr.h"
+#include "../gpu/GrClip.h"
+#include "../../include/gpu/GrContext.h"
+#include "../gpu/GrContextPriv.h"
+#include "../gpu/GrGpu.h"
+#include "../../include/private/GrRecordingContext.h"
+#include "../gpu/GrRecordingContextPriv.h"
+#include "../gpu/GrRenderTargetContext.h"
+#include "../../include/gpu/GrTexture.h"
+#include "../gpu/GrTextureProducer.h"
+#include "../core/SkAutoPixmapStorage.h"
+#include "../gpu/SkGr.h"
 #include "SkImage_Gpu.h"
 #include "SkImage_GpuYUVA.h"
-#include "SkMipMap.h"
-#include "SkScopeExit.h"
-#include "SkYUVASizeInfo.h"
-#include "effects/GrYUVtoRGBEffect.h"
+#include "../core/SkMipMap.h"
+#include "../core/SkScopeExit.h"
+#include "../../include/core/SkYUVASizeInfo.h"
+#include "../gpu/effects/GrYUVtoRGBEffect.h"
 
 static constexpr auto kAssumedColorType = kRGBA_8888_SkColorType;
 

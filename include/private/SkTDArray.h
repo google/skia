@@ -11,7 +11,7 @@
 
 #include "SkMalloc.h"
 #include "SkTo.h"
-#include "SkTypes.h"
+#include "../core/SkTypes.h"
 
 #include <initializer_list>
 #include <utility>

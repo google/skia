@@ -7,8 +7,8 @@
 
 #include "SkPDFGradientShader.h"
 
-#include "SkOpts.h"
-#include "SkPDFDocument.h"
+#include "../core/SkOpts.h"
+#include "../../include/docs/SkPDFDocument.h"
 #include "SkPDFDocumentPriv.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"

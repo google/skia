@@ -8,8 +8,8 @@
 #ifndef SkBRDAllocator_DEFINED
 #define SkBRDAllocator_DEFINED
 
-#include "SkBitmap.h"
-#include "SkCodec.h"
+#include "../core/SkBitmap.h"
+#include "../codec/SkCodec.h"
 
 /**
  *  Abstract subclass of SkBitmap's allocator.

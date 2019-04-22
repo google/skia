@@ -9,13 +9,13 @@
 
 #ifdef SK_HAS_JPEG_LIBRARY
 
-#include "SkColorData.h"
+#include "../../include/private/SkColorData.h"
 #include "SkImageEncoderFns.h"
-#include "SkImageInfoPriv.h"
-#include "SkJpegEncoder.h"
+#include "../../include/private/SkImageInfoPriv.h"
+#include "../../include/encode/SkJpegEncoder.h"
 #include "SkJPEGWriteUtility.h"
-#include "SkStream.h"
-#include "SkTemplates.h"
+#include "../../include/core/SkStream.h"
+#include "../../include/private/SkTemplates.h"
 
 #include <stdio.h>
 

@@ -6,8 +6,8 @@
  */
 
 #include <functional>
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/effects/SkDashPathEffect.h"
 #include "gm.h"
 
 constexpr SkScalar kStarts[] = {0.f, 10.f, 30.f, 45.f, 90.f, 165.f, 180.f, 270.f};

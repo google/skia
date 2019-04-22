@@ -8,25 +8,25 @@
 #ifndef GrVkVulkan_DEFINED
 #define GrVkVulkan_DEFINED
 
-#include "SkTypes.h"
+#include "../../core/SkTypes.h"
 
 #if SKIA_IMPLEMENTATION || !defined(SK_VULKAN)
-#include "../../include/third_party/vulkan/vulkan/vulkan_core.h"
+    #include "../../third_party/vulkan/vulkan/vulkan_core.h"
 #else
-// For google3 builds we don't set SKIA_IMPLEMENTATION so we need to make sure that the vulkan
-// headers stay up to date for our needs
-#include <vulkan/vulkan_core.h>
+    // For google3 builds we don't set SKIA_IMPLEMENTATION so we need to make sure that the vulkan
+    // headers stay up to date for our needs
+    #include <vulkan/vulkan_core.h>
 #endif
 
 #ifdef SK_BUILD_FOR_ANDROID
-// This is needed to get android extensions for external memory
-#if SKIA_IMPLEMENTATION || !defined(SK_VULKAN)
-#include "../../include/third_party/vulkan/vulkan/vulkan_android.h"
-#else
-// For google3 builds we don't set SKIA_IMPLEMENTATION so we need to make sure that the vulkan
-// headers stay up to date for our needs
-#include <vulkan/vulkan_android.h>
-#endif
+    // This is needed to get android extensions for external memory
+    #if SKIA_IMPLEMENTATION || !defined(SK_VULKAN)
+        #include "../../third_party/vulkan/vulkan/vulkan_android.h"
+    #else
+        // For google3 builds we don't set SKIA_IMPLEMENTATION so we need to make sure that the
+        // vulkan headers stay up to date for our needs
+        #include <vulkan/vulkan_android.h>
+    #endif
 #endif
 
 #endif

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageSource.h"
-#include "SkSurface.h"
-#include "SkTileImageFilter.h"
+#include "../include/effects/SkImageSource.h"
+#include "../include/core/SkSurface.h"
+#include "../include/effects/SkTileImageFilter.h"
 #include "gm.h"
 
 static sk_sp<SkImage> create_circle_texture(int size, SkColor color) {

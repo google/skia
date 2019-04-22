@@ -7,9 +7,9 @@
 
 #include "GrGLGpuCommandBuffer.h"
 
-#include "GrContextPriv.h"
-#include "GrFixedClip.h"
-#include "GrRenderTargetPriv.h"
+#include "../GrContextPriv.h"
+#include "../GrFixedClip.h"
+#include "../GrRenderTargetPriv.h"
 
 void GrGLGpuRTCommandBuffer::begin() {
     if (GrLoadOp::kClear == fColorLoadAndStoreInfo.fLoadOp) {

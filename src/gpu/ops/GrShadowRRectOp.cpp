@@ -7,13 +7,13 @@
 
 #include "GrShadowRRectOp.h"
 
-#include "GrDrawOpTest.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "SkRRectPriv.h"
-#include "effects/GrShadowGeoProc.h"
+#include "../GrDrawOpTest.h"
+#include "../GrMemoryPool.h"
+#include "../GrOpFlushState.h"
+#include "../../../include/private/GrRecordingContext.h"
+#include "../GrRecordingContextPriv.h"
+#include "../../core/SkRRectPriv.h"
+#include "../effects/GrShadowGeoProc.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Circle Data

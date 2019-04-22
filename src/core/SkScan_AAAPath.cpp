@@ -12,16 +12,16 @@
 #include "SkEdge.h"
 #include "SkEdgeBuilder.h"
 #include "SkGeometry.h"
-#include "SkPath.h"
+#include "../../include/core/SkPath.h"
 #include "SkQuadClipper.h"
 #include "SkRasterClip.h"
-#include "SkRegion.h"
+#include "../../include/core/SkRegion.h"
 #include "SkScan.h"
 #include "SkScanPriv.h"
 #include "SkTSort.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
-#include "SkUTF.h"
+#include "../../include/private/SkTemplates.h"
+#include "../../include/private/SkTo.h"
+#include "../utils/SkUTF.h"
 
 #include <utility>
 

@@ -9,7 +9,7 @@
 
 #include "GrMtlGpu.h"
 #include "GrMtlUtil.h"
-#include "GrTexturePriv.h"
+#include "../GrTexturePriv.h"
 
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            SkBudgeted budgeted,

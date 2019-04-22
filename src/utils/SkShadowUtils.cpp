@@ -5,27 +5,27 @@
 * found in the LICENSE file.
 */
 
-#include "SkShadowUtils.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkColorData.h"
-#include "SkDevice.h"
-#include "SkDrawShadowInfo.h"
-#include "SkEffectPriv.h"
-#include "SkMaskFilter.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkRasterPipeline.h"
-#include "SkResourceCache.h"
+#include "../../include/utils/SkShadowUtils.h"
+#include "../core/SkBlurMask.h"
+#include "../../include/core/SkCanvas.h"
+#include "../../include/core/SkColorFilter.h"
+#include "../../include/private/SkColorData.h"
+#include "../core/SkDevice.h"
+#include "../core/SkDrawShadowInfo.h"
+#include "../core/SkEffectPriv.h"
+#include "../../include/core/SkMaskFilter.h"
+#include "../../include/core/SkPath.h"
+#include "../../include/utils/SkRandom.h"
+#include "../core/SkRasterPipeline.h"
+#include "../core/SkResourceCache.h"
 #include "SkShadowTessellator.h"
-#include "SkString.h"
-#include "SkTLazy.h"
-#include "SkVertices.h"
+#include "../../include/core/SkString.h"
+#include "../core/SkTLazy.h"
+#include "../../include/core/SkVertices.h"
 #include <new>
 #if SK_SUPPORT_GPU
-#include "GrShape.h"
-#include "effects/generated/GrBlurredEdgeFragmentProcessor.h"
+#include "../gpu/GrShape.h"
+#include "../gpu/effects/generated/GrBlurredEdgeFragmentProcessor.h"
 #endif
 
 /**

@@ -6,8 +6,8 @@
  */
 
 #include "SkCpu.h"
-#include "SkHalf.h"
-#include "SkOnce.h"
+#include "../../include/private/SkHalf.h"
+#include "../../include/private/SkOnce.h"
 #include "SkOpts.h"
 
 #if defined(SK_ARM_HAS_NEON)
@@ -36,14 +36,14 @@
     #define SK_OPTS_NS portable
 #endif
 
-#include "SkBitmapProcState_opts.h"
-#include "SkBlitMask_opts.h"
-#include "SkBlitRow_opts.h"
-#include "SkChecksum_opts.h"
-#include "SkRasterPipeline_opts.h"
-#include "SkSwizzler_opts.h"
-#include "SkUtils_opts.h"
-#include "SkXfermode_opts.h"
+#include "../opts/SkBitmapProcState_opts.h"
+#include "../opts/SkBlitMask_opts.h"
+#include "../opts/SkBlitRow_opts.h"
+#include "../opts/SkChecksum_opts.h"
+#include "../opts/SkRasterPipeline_opts.h"
+#include "../opts/SkSwizzler_opts.h"
+#include "../opts/SkUtils_opts.h"
+#include "../opts/SkXfermode_opts.h"
 
 namespace SkOpts {
     // Define default function pointer values here...

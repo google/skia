@@ -8,7 +8,7 @@
 #ifndef GrTRecorder_DEFINED
 #define GrTRecorder_DEFINED
 
-#include "SkTypes.h"
+#include "../../include/core/SkTypes.h"
 #include <new>
 
 template<typename TBase, typename TAlign> class GrTRecorder;

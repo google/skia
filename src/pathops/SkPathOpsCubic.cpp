@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkGeometry.h"
+#include "../core/SkGeometry.h"
 #include "SkLineParameters.h"
 #include "SkPathOpsConic.h"
 #include "SkPathOpsCubic.h"
@@ -12,7 +12,7 @@
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
 #include "SkPathOpsRect.h"
-#include "SkTSort.h"
+#include "../core/SkTSort.h"
 
 const int SkDCubic::gPrecisionUnit = 256;  // FIXME: test different values in test framework
 

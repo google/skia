@@ -6,10 +6,10 @@
  */
 
 #include "gm.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkShader.h"
+#include "../include/core/SkBitmap.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkColor.h"
+#include "../include/core/SkShader.h"
 
 namespace skiagm {
 

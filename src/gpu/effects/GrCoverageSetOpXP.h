@@ -8,9 +8,9 @@
 #ifndef GrCoverageSetOpXP_DEFINED
 #define GrCoverageSetOpXP_DEFINED
 
-#include "GrTypes.h"
-#include "GrXferProcessor.h"
-#include "SkRegion.h"
+#include "../../../include/gpu/GrTypes.h"
+#include "../GrXferProcessor.h"
+#include "../../../include/core/SkRegion.h"
 
 // See the comment above GrXPFactory's definition about this warning suppression.
 #if defined(__GNUC__)

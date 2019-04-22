@@ -8,10 +8,10 @@
 #ifndef GrMeshDrawOp_DEFINED
 #define GrMeshDrawOp_DEFINED
 
-#include "GrAppliedClip.h"
+#include "../GrAppliedClip.h"
 #include "GrDrawOp.h"
-#include "GrGeometryProcessor.h"
-#include "GrMesh.h"
+#include "../GrGeometryProcessor.h"
+#include "../GrMesh.h"
 #include <type_traits>
 
 class GrAtlasManager;

@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "SkFontDescriptor.h"
-#include "SkPicture.h"
-#include "SkPictureCommon.h"
-#include "SkPictureData.h"
-#include "SkStream.h"
-#include "SkTo.h"
+#include "flags/CommandLineFlags.h"
+#include "../src/core/SkFontDescriptor.h"
+#include "../include/core/SkPicture.h"
+#include "../src/core/SkPictureCommon.h"
+#include "../src/core/SkPictureData.h"
+#include "../include/core/SkStream.h"
+#include "../include/private/SkTo.h"
 
 static DEFINE_string2(input, i, "", "skp on which to report");
 static DEFINE_bool2(version, v, true, "version");

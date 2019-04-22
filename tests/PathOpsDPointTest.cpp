@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "PathOpsTestCommon.h"
-#include "SkPathOpsPoint.h"
+#include "../src/pathops/SkPathOpsPoint.h"
 #include "Test.h"
 
 static const SkDPoint tests[] = {

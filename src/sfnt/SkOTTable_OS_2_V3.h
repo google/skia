@@ -8,7 +8,7 @@
 #ifndef SkOTTable_OS_2_V3_DEFINED
 #define SkOTTable_OS_2_V3_DEFINED
 
-#include "SkEndian.h"
+#include "../core/SkEndian.h"
 #include "SkIBMFamilyClass.h"
 #include "SkOTTableTypes.h"
 #include "SkPanose.h"

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrRenderTargetProxy.h"
+#include "../../include/private/GrRenderTargetProxy.h"
 
 #include "GrCaps.h"
 #include "GrGpuResourcePriv.h"
@@ -14,7 +14,7 @@
 #include "GrResourceProvider.h"
 #include "GrSurfacePriv.h"
 #include "GrTextureRenderTargetProxy.h"
-#include "SkMathPriv.h"
+#include "../core/SkMathPriv.h"
 
 // Deferred version
 // TODO: we can probably munge the 'desc' in both the wrapped and deferred

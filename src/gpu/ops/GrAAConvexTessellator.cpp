@@ -6,11 +6,11 @@
  */
 
 #include "GrAAConvexTessellator.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkString.h"
-#include "GrPathUtils.h"
+#include "../../../include/core/SkCanvas.h"
+#include "../../../include/core/SkPath.h"
+#include "../../../include/core/SkPoint.h"
+#include "../../../include/core/SkString.h"
+#include "../GrPathUtils.h"
 
 // Next steps:
 //  add an interactive sample app slide
@@ -965,7 +965,7 @@ void GrAAConvexTessellator::cubicTo(const SkMatrix& m, SkPoint pts[4]) {
 }
 
 // include down here to avoid compilation errors caused by "-" overload in SkGeometry.h
-#include "SkGeometry.h"
+#include "../../core/SkGeometry.h"
 
 void GrAAConvexTessellator::conicTo(const SkMatrix& m, SkPoint pts[3], SkScalar w) {
     m.mapPoints(pts, 3);

@@ -182,7 +182,7 @@ testName.printf("tiger8a_x%d", ++gTigerTests);
 testSimplify(reporter, path, testName.c_str());
 }
 
-#include "SkRandom.h"
+#include "../include/utils/SkRandom.h"
 
 static void tiger8a_h_1(skiatest::Reporter* reporter, const char* ) {
     uint64_t testlines = 0x0000000000002008;  // best so far: 0x0000001d14c14bb1;

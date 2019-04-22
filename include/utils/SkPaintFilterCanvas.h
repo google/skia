@@ -8,7 +8,7 @@
 #ifndef SkPaintFilterCanvas_DEFINED
 #define SkPaintFilterCanvas_DEFINED
 
-#include "SkCanvasVirtualEnforcer.h"
+#include "../core/SkCanvasVirtualEnforcer.h"
 #include "SkNWayCanvas.h"
 
 class SkAndroidFrameworkUtils;

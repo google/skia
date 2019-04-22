@@ -6,10 +6,10 @@
  */
 
 #include "Sample.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkPath.h"
-#include "SkClipOpPriv.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkFont.h"
+#include "../include/core/SkPath.h"
+#include "../src/core/SkClipOpPriv.h"
 
 class ComplexClipView : public Sample {
 public:

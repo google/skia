@@ -11,7 +11,7 @@
 #include <climits>
 #include <cmath>
 
-#include "SkTypes.h"
+#include "../../include/core/SkTypes.h"
 
 // returns `value * pow(base, e)`, assuming `e` is positive.
 static double pow_by_squaring(double value, double base, int e) {

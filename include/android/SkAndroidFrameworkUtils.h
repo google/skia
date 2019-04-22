@@ -8,8 +8,8 @@
 #ifndef SkAndroidFrameworkUtils_DEFINED
 #define SkAndroidFrameworkUtils_DEFINED
 
-#include "SkTypes.h"
-#include "SkRefCnt.h"
+#include "../core/SkTypes.h"
+#include "../core/SkRefCnt.h"
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 

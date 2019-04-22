@@ -6,7 +6,7 @@
  */
 
 #include "SkBlitRow.h"
-#include "SkColorData.h"
+#include "../../include/private/SkColorData.h"
 #include "SkOpts.h"
 #include "SkUtils.h"
 

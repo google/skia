@@ -7,7 +7,7 @@
 
 #include "SkLiteDL.h"
 #include "SkLiteRecorder.h"
-#include "SkSurface.h"
+#include "../../include/core/SkSurface.h"
 
 SkLiteRecorder::SkLiteRecorder()
     : INHERITED(1, 1)

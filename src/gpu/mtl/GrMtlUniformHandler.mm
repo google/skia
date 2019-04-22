@@ -6,9 +6,9 @@
 */
 
 #include "GrMtlUniformHandler.h"
-#include "GrTexture.h"
-#include "GrTexturePriv.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "../../../include/gpu/GrTexture.h"
+#include "../GrTexturePriv.h"
+#include "../glsl/GrGLSLProgramBuilder.h"
 
 // TODO: this class is basically copy and pasted from GrVklUniformHandler so that we can have
 // some shaders working. The SkSL Metal code generator was written to work with GLSL generated for

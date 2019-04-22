@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathEffect.h"
-#include "SkPath.h"
+#include "../../include/core/SkPathEffect.h"
+#include "../../include/core/SkPath.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 

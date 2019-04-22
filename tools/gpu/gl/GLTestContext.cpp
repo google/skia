@@ -7,9 +7,9 @@
 
 #include "GLTestContext.h"
 
-#include "GrContext.h"
-#include "GpuTimer.h"
-#include "gl/GrGLUtil.h"
+#include "../../../include/gpu/GrContext.h"
+#include "../GpuTimer.h"
+#include "../../../src/gpu/gl/GrGLUtil.h"
 
 namespace {
 

@@ -7,9 +7,9 @@
 
 #include "SKPSlide.h"
 
-#include "SkCanvas.h"
-#include "SkOSFile.h"
-#include "SkStream.h"
+#include "../../include/core/SkCanvas.h"
+#include "../../src/core/SkOSFile.h"
+#include "../../include/core/SkStream.h"
 
 SKPSlide::SKPSlide(const SkString& name, const SkString& path) : fPath(path) {
     fName = name;

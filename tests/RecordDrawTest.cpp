@@ -8,15 +8,15 @@
 #include "Test.h"
 #include "RecordTestUtils.h"
 
-#include "DebugCanvas.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkImagePriv.h"
-#include "SkRecord.h"
-#include "SkRecordDraw.h"
-#include "SkRecordOpts.h"
-#include "SkRecorder.h"
-#include "SkRecords.h"
-#include "SkSurface.h"
+#include "../tools/debugger/DebugCanvas.h"
+#include "../include/effects/SkDropShadowImageFilter.h"
+#include "../src/core/SkImagePriv.h"
+#include "../src/core/SkRecord.h"
+#include "../src/core/SkRecordDraw.h"
+#include "../src/core/SkRecordOpts.h"
+#include "../src/core/SkRecorder.h"
+#include "../src/core/SkRecords.h"
+#include "../include/core/SkSurface.h"
 
 static const int W = 1920, H = 1080;
 

@@ -7,7 +7,7 @@
 
 #include "GrVkTransferBuffer.h"
 #include "GrVkGpu.h"
-#include "SkTraceMemoryDump.h"
+#include "../../../include/core/SkTraceMemoryDump.h"
 
 sk_sp<GrVkTransferBuffer> GrVkTransferBuffer::Make(GrVkGpu* gpu, size_t size,
                                                    GrVkBuffer::Type type) {

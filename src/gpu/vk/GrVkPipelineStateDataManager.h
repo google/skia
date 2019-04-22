@@ -8,11 +8,11 @@
 #ifndef GrVkPipelineStateDataManager_DEFINED
 #define GrVkPipelineStateDataManager_DEFINED
 
-#include "glsl/GrGLSLProgramDataManager.h"
+#include "../glsl/GrGLSLProgramDataManager.h"
 
-#include "SkAutoMalloc.h"
-#include "vk/GrVkTypes.h"
-#include "vk/GrVkUniformHandler.h"
+#include "../../core/SkAutoMalloc.h"
+#include "../../../include/gpu/vk/GrVkTypes.h"
+#include "GrVkUniformHandler.h"
 
 class GrVkGpu;
 class GrVkUniformBuffer;

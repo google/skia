@@ -7,7 +7,7 @@
 
 #include "GrMtlCopyManager.h"
 
-#include "GrSurface.h"
+#include "../../../include/gpu/GrSurface.h"
 
 #include "GrMtlBuffer.h"
 #include "GrMtlCopyPipelineState.h"
@@ -15,9 +15,9 @@
 #include "GrMtlResourceProvider.h"
 #include "GrMtlUtil.h"
 
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkTraceEvent.h"
+#include "../../../include/core/SkPoint.h"
+#include "../../../include/core/SkRect.h"
+#include "../../core/SkTraceEvent.h"
 
 #import <simd/simd.h>
 

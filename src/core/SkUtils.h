@@ -9,7 +9,7 @@
 #define SkUtils_DEFINED
 
 #include "SkOpts.h"
-#include "SkFontTypes.h"
+#include "../../include/core/SkFontTypes.h"
 #include "../utils/SkUTF.h"
 
 /** Similar to memset(), but it assigns a 16, 32, or 64-bit value into the buffer.

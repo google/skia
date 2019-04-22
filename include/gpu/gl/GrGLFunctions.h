@@ -10,7 +10,7 @@
 #define GrGLFunctions_DEFINED
 
 #include <cstring>
-#include "../private/SkTLogic.h"
+#include "../../private/SkTLogic.h"
 #include "GrGLTypes.h"
 
 

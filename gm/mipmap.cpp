@@ -6,10 +6,10 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkRandom.h"
-#include "SkSurface.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkImage.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkSurface.h"
 
 static sk_sp<SkImage> make_image() {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(319, 52);

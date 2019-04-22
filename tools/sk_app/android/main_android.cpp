@@ -11,7 +11,7 @@
 #include <android_native_app_glue.h>
 
 #include "../Application.h"
-#include "Timer.h"
+#include "../../timer/Timer.h"
 
 using sk_app::Application;
 

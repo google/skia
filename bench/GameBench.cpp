@@ -6,13 +6,13 @@
  */
 
 #include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkString.h"
-#include "SkVertices.h"
+#include "../include/core/SkBitmap.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkPaint.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkShader.h"
+#include "../include/core/SkString.h"
+#include "../include/core/SkVertices.h"
 
 // This bench simulates the calls Skia sees from various HTML5 canvas
 // game bench marks

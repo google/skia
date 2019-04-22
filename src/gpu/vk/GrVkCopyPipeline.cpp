@@ -9,7 +9,7 @@
 
 #include "GrVkGpu.h"
 #include "GrVkUtil.h"
-#include "SkOnce.h"
+#include "../../../include/private/SkOnce.h"
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
 #include <sanitizer/lsan_interface.h>

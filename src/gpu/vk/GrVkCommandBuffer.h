@@ -12,7 +12,7 @@
 #include "GrVkResource.h"
 #include "GrVkSemaphore.h"
 #include "GrVkUtil.h"
-#include "vk/GrVkTypes.h"
+#include "../../../include/gpu/vk/GrVkTypes.h"
 
 class GrVkBuffer;
 class GrVkFramebuffer;

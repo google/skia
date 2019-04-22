@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkTLazy.h"
+#include "../../../include/core/SkCanvas.h"
+#include "../../../src/core/SkTLazy.h"
 #include "SkSVGRenderContext.h"
 #include "SkSVGPoly.h"
 #include "SkSVGValue.h"

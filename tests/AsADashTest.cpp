@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkCornerPathEffect.h"
-#include "SkDashPathEffect.h"
-#include "SkPathEffect.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkTemplates.h"
+#include "../include/effects/SkCornerPathEffect.h"
+#include "../include/effects/SkDashPathEffect.h"
+#include "../include/core/SkPathEffect.h"
+#include "../include/core/SkRefCnt.h"
+#include "../include/core/SkScalar.h"
+#include "../include/private/SkTemplates.h"
 #include "Test.h"
 
 DEF_TEST(AsADashTest_noneDash, reporter) {

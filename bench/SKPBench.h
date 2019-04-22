@@ -9,9 +9,9 @@
 #define SKPBench_DEFINED
 
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkPicture.h"
-#include "SkTDArray.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkPicture.h"
+#include "../include/private/SkTDArray.h"
 
 class SkSurface;
 

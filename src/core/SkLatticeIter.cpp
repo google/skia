@@ -6,7 +6,7 @@
  */
 
 #include "SkLatticeIter.h"
-#include "SkRect.h"
+#include "../../include/core/SkRect.h"
 
 /**
  *  Divs must be in increasing order with no duplicates.

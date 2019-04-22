@@ -6,8 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkOverdrawColorFilter.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/effects/SkOverdrawColorFilter.h"
 
 static inline void set_bitmap(SkBitmap* bitmap, uint8_t alpha) {
     for (int y = 0; y < bitmap->height(); y++) {

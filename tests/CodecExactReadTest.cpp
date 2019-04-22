@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkData.h"
-#include "SkImageInfo.h"
-#include "SkMakeUnique.h"
-#include "SkRefCnt.h"
-#include "SkStream.h"
-#include "SkTemplates.h"
+#include "../tools/Resources.h"
+#include "../include/core/SkBitmap.h"
+#include "../include/codec/SkCodec.h"
+#include "../include/core/SkData.h"
+#include "../include/core/SkImageInfo.h"
+#include "../src/core/SkMakeUnique.h"
+#include "../include/core/SkRefCnt.h"
+#include "../include/core/SkStream.h"
+#include "../include/private/SkTemplates.h"
 #include "Test.h"
 
 #include <cstring>

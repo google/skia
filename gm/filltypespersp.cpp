@@ -6,8 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../include/core/SkPath.h"
 
 namespace skiagm {
 

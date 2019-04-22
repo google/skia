@@ -10,7 +10,7 @@
 #define SkNWayCanvas_DEFINED
 
 #include "../private/SkTDArray.h"
-#include "SkCanvasVirtualEnforcer.h"
+#include "../core/SkCanvasVirtualEnforcer.h"
 #include "SkNoDrawCanvas.h"
 
 class SK_API SkNWayCanvas : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {

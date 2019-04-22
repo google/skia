@@ -11,8 +11,8 @@
 
 #include "GrVkDescriptorSetManager.h"
 #include "GrVkPipelineStateDataManager.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "vk/GrVkTypes.h"
+#include "../glsl/GrGLSLProgramBuilder.h"
+#include "../../../include/gpu/vk/GrVkTypes.h"
 
 class GrPipeline;
 class GrStencilSettings;

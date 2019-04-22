@@ -6,11 +6,11 @@
  */
 
 #include "gm.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkLayerDrawLooper.h"
-#include "SkMaskFilter.h"
+#include "../src/core/SkBlurMask.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkColorFilter.h"
+#include "../include/effects/SkLayerDrawLooper.h"
+#include "../include/core/SkMaskFilter.h"
 
 // This GM tests 3 different ways of drawing four shadows around a square:
 //      just using 4 blurred rects

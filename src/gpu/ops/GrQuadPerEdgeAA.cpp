@@ -6,16 +6,16 @@
  */
 
 #include "GrQuadPerEdgeAA.h"
-#include "GrQuad.h"
-#include "GrVertexWriter.h"
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLPrimitiveProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
-#include "SkGr.h"
-#include "SkNx.h"
+#include "../GrQuad.h"
+#include "../GrVertexWriter.h"
+#include "../glsl/GrGLSLColorSpaceXformHelper.h"
+#include "../glsl/GrGLSLGeometryProcessor.h"
+#include "../glsl/GrGLSLPrimitiveProcessor.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLVarying.h"
+#include "../glsl/GrGLSLVertexGeoBuilder.h"
+#include "../SkGr.h"
+#include "../../../include/private/SkNx.h"
 
 #define AI SK_ALWAYS_INLINE
 

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkImage.h"
-#include "ToolUtils.h"
+#include "../tools/Resources.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkColorFilter.h"
+#include "../include/core/SkImage.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 DEF_SIMPLE_GM(srgb_colorfilter, canvas, 512, 256*3) {

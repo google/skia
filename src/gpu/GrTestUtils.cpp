@@ -8,15 +8,15 @@
 #include "GrTestUtils.h"
 
 #include "GrColorSpaceInfo.h"
-#include "GrContext.h"
+#include "../../include/gpu/GrContext.h"
 #include "GrProcessorUnitTest.h"
 #include "GrStyle.h"
-#include "SkDashPathPriv.h"
-#include "SkMakeUnique.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkRectPriv.h"
-#include "SkRRect.h"
+#include "../utils/SkDashPathPriv.h"
+#include "../core/SkMakeUnique.h"
+#include "../../include/core/SkMatrix.h"
+#include "../../include/core/SkPath.h"
+#include "../core/SkRectPriv.h"
+#include "../../include/core/SkRRect.h"
 
 #if GR_TEST_UTILS
 

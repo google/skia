@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkInterpolator.h"
+#include "../include/utils/SkInterpolator.h"
 
 #include "Test.h"
 

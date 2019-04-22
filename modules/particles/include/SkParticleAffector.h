@@ -11,7 +11,7 @@
 #include "SkReflected.h"
 
 #include "SkParticleData.h"
-#include "SkPoint.h"
+#include "../../../include/core/SkPoint.h"
 
 struct SkColorCurve;
 struct SkCurve;

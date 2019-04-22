@@ -6,11 +6,11 @@
  */
 
 #include "GrGLTextureRenderTarget.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "../../../include/gpu/GrContext.h"
+#include "../GrContextPriv.h"
 #include "GrGLGpu.h"
-#include "GrTexturePriv.h"
-#include "SkTraceMemoryDump.h"
+#include "../GrTexturePriv.h"
+#include "../../../include/core/SkTraceMemoryDump.h"
 
 GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  SkBudgeted budgeted,

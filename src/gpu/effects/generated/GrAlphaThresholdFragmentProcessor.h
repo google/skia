@@ -10,9 +10,9 @@
  **************************************************************************************************/
 #ifndef GrAlphaThresholdFragmentProcessor_DEFINED
 #define GrAlphaThresholdFragmentProcessor_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "../../../../include/core/SkTypes.h"
+#include "../../GrFragmentProcessor.h"
+#include "../../GrCoordTransform.h"
 class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
 public:
     inline OptimizationFlags optFlags(float outerThreshold);

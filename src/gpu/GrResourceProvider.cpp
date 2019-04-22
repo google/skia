@@ -6,10 +6,10 @@
  */
 
 #include "GrResourceProvider.h"
-#include "../private/GrSingleOwner.h"
-#include "GrBackendSemaphore.h"
+#include "../../include/private/GrSingleOwner.h"
+#include "../../include/gpu/GrBackendSemaphore.h"
 #include "GrCaps.h"
-#include "GrContext.h"
+#include "../../include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrGpuBuffer.h"
@@ -18,12 +18,12 @@
 #include "GrProxyProvider.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
-#include "GrResourceKey.h"
+#include "../../include/private/GrResourceKey.h"
 #include "GrSemaphore.h"
 #include "GrStencilAttachment.h"
 #include "GrTexturePriv.h"
 #include "SkGr.h"
-#include "SkMathPriv.h"
+#include "../core/SkMathPriv.h"
 
 const uint32_t GrResourceProvider::kMinScratchTextureSize = 16;
 

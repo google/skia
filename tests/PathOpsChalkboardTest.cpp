@@ -6,7 +6,7 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
-#include "SkRandom.h"
+#include "../include/utils/SkRandom.h"
 #include <atomic>
 
 #define TEST(name) { name, #name }

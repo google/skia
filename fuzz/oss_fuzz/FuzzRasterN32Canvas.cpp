@@ -6,8 +6,8 @@
  */
 
 #include "../Fuzz.h"
-#include "SkFontMgrPriv.h"
-#include "TestFontMgr.h"
+#include "../../src/core/SkFontMgrPriv.h"
+#include "../../tools/fonts/TestFontMgr.h"
 
 void fuzz_RasterN32Canvas(Fuzz* f);
 

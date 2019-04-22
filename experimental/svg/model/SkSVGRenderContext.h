@@ -8,14 +8,14 @@
 #ifndef SkSVGRenderContext_DEFINED
 #define SkSVGRenderContext_DEFINED
 
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRect.h"
-#include "SkSize.h"
+#include "../../../include/core/SkPaint.h"
+#include "../../../include/core/SkPath.h"
+#include "../../../include/core/SkRect.h"
+#include "../../../include/core/SkSize.h"
 #include "SkSVGAttribute.h"
 #include "SkSVGIDMapper.h"
-#include "SkTLazy.h"
-#include "SkTypes.h"
+#include "../../../src/core/SkTLazy.h"
+#include "../../../include/core/SkTypes.h"
 
 class SkCanvas;
 class SkSVGLength;

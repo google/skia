@@ -9,8 +9,8 @@
 #define SkRTree_DEFINED
 
 #include "SkBBoxHierarchy.h"
-#include "SkRect.h"
-#include "SkTDArray.h"
+#include "../../include/core/SkRect.h"
+#include "../../include/private/SkTDArray.h"
 
 /**
  * An R-Tree implementation. In short, it is a balanced n-ary tree containing a hierarchy of

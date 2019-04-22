@@ -6,7 +6,7 @@
  */
 
 #include "Benchmark.h"
-#include "SkCubicMap.h"
+#include "../include/core/SkCubicMap.h"
 
 class CubicMapBench : public Benchmark {
 public:

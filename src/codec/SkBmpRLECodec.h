@@ -9,9 +9,9 @@
 
 #include "SkBmpCodec.h"
 #include "SkColorTable.h"
-#include "SkImageInfo.h"
+#include "../../include/core/SkImageInfo.h"
 #include "SkSampler.h"
-#include "SkTypes.h"
+#include "../../include/core/SkTypes.h"
 
 /*
  * This class implements the decoding for bmp images that use an RLE encoding

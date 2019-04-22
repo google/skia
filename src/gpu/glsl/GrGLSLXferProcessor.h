@@ -8,9 +8,9 @@
 #ifndef GrGLSLXferProcessor_DEFINED
 #define GrGLSLXferProcessor_DEFINED
 
-#include "SkPoint.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "../../../include/core/SkPoint.h"
+#include "GrGLSLProgramDataManager.h"
+#include "GrGLSLUniformHandler.h"
 
 class GrXferProcessor;
 class GrGLSLXPBuilder;

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilter.h"
+#include "../../include/core/SkColorFilter.h"
 #include "SkPaintPriv.h"
-#include "SkPaint.h"
-#include "SkShaderBase.h"
+#include "../../include/core/SkPaint.h"
+#include "../shaders/SkShaderBase.h"
 #include "SkXfermodePriv.h"
 
 static bool changes_alpha(const SkPaint& paint) {

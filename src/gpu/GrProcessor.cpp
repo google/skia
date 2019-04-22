@@ -6,14 +6,14 @@
  */
 
 #include "GrProcessor.h"
-#include "GrContext.h"
+#include "../../include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGeometryProcessor.h"
 #include "GrMemoryPool.h"
-#include "GrSamplerState.h"
-#include "GrTextureProxy.h"
+#include "../../include/gpu/GrSamplerState.h"
+#include "../../include/private/GrTextureProxy.h"
 #include "GrXferProcessor.h"
-#include "SkSpinlock.h"
+#include "../../include/private/SkSpinlock.h"
 
 #if GR_TEST_UTILS
 

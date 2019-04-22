@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkGradientShader.h"
-#include "SkPictureRecorder.h"
+#include "../include/effects/SkGradientShader.h"
+#include "../include/core/SkPictureRecorder.h"
 #include "gm.h"
 
 DEF_SIMPLE_GM(bug6643, canvas, 200, 200) {

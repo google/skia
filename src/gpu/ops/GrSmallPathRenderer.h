@@ -8,14 +8,14 @@
 #ifndef GrSmallPathRenderer_DEFINED
 #define GrSmallPathRenderer_DEFINED
 
-#include "GrDrawOpAtlas.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrPathRenderer.h"
-#include "GrRect.h"
-#include "GrShape.h"
+#include "../GrDrawOpAtlas.h"
+#include "../GrOnFlushResourceProvider.h"
+#include "../GrPathRenderer.h"
+#include "../GrRect.h"
+#include "../GrShape.h"
 
-#include "SkOpts.h"
-#include "SkTDynamicHash.h"
+#include "../../core/SkOpts.h"
+#include "../../core/SkTDynamicHash.h"
 
 class GrRecordingContext;
 

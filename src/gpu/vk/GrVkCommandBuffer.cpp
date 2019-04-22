@@ -22,7 +22,7 @@
 #include "GrVkTransferBuffer.h"
 #include "GrVkUtil.h"
 #include "GrVkVertexBuffer.h"
-#include "SkRect.h"
+#include "../../../include/core/SkRect.h"
 
 void GrVkCommandBuffer::invalidateState() {
     for (auto& boundInputBuffer : fBoundInputBuffers) {

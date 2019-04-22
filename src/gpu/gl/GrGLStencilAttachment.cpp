@@ -8,7 +8,7 @@
 
 #include "GrGLStencilAttachment.h"
 #include "GrGLGpu.h"
-#include "SkTraceMemoryDump.h"
+#include "../../../include/core/SkTraceMemoryDump.h"
 
 size_t GrGLStencilAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();

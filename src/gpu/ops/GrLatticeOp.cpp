@@ -6,23 +6,23 @@
  */
 
 #include "GrLatticeOp.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrDrawOpTest.h"
-#include "GrGpu.h"
+#include "../GrDefaultGeoProcFactory.h"
+#include "../GrDrawOpTest.h"
+#include "../GrGpu.h"
 #include "GrMeshDrawOp.h"
-#include "GrOpFlushState.h"
-#include "GrResourceProvider.h"
-#include "GrResourceProviderPriv.h"
+#include "../GrOpFlushState.h"
+#include "../GrResourceProvider.h"
+#include "../GrResourceProviderPriv.h"
 #include "GrSimpleMeshDrawOpHelper.h"
-#include "GrVertexWriter.h"
-#include "SkBitmap.h"
-#include "SkGr.h"
-#include "SkLatticeIter.h"
-#include "SkMatrixPriv.h"
-#include "SkRect.h"
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLVarying.h"
+#include "../GrVertexWriter.h"
+#include "../../../include/core/SkBitmap.h"
+#include "../SkGr.h"
+#include "../../core/SkLatticeIter.h"
+#include "../../core/SkMatrixPriv.h"
+#include "../../../include/core/SkRect.h"
+#include "../glsl/GrGLSLColorSpaceXformHelper.h"
+#include "../glsl/GrGLSLGeometryProcessor.h"
+#include "../glsl/GrGLSLVarying.h"
 
 namespace {
 
@@ -350,8 +350,8 @@ std::unique_ptr<GrDrawOp> MakeNonAA(GrRecordingContext* context,
 };
 
 #if GR_TEST_UTILS
-#include "GrProxyProvider.h"
-#include "GrRecordingContextPriv.h"
+#include "../GrProxyProvider.h"
+#include "../GrRecordingContextPriv.h"
 
 /** Randomly divides subset into count divs. */
 static void init_random_divs(int divs[], int count, int subsetStart, int subsetStop,

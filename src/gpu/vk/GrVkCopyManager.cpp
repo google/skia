@@ -7,11 +7,11 @@
 
 #include "GrVkCopyManager.h"
 
-#include "GrRenderTargetPriv.h"
-#include "GrSamplerState.h"
-#include "GrShaderCaps.h"
-#include "GrSurface.h"
-#include "GrTexturePriv.h"
+#include "../GrRenderTargetPriv.h"
+#include "../../../include/gpu/GrSamplerState.h"
+#include "../GrShaderCaps.h"
+#include "../../../include/gpu/GrSurface.h"
+#include "../GrTexturePriv.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkCommandPool.h"
 #include "GrVkCopyPipeline.h"
@@ -25,9 +25,9 @@
 #include "GrVkTexture.h"
 #include "GrVkUniformBuffer.h"
 #include "GrVkVertexBuffer.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkTraceEvent.h"
+#include "../../../include/core/SkPoint.h"
+#include "../../../include/core/SkRect.h"
+#include "../../core/SkTraceEvent.h"
 
 GrVkCopyManager::GrVkCopyManager()
     : fVertShaderModule(VK_NULL_HANDLE)

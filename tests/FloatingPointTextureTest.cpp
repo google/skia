@@ -14,12 +14,12 @@
 
 #include "Test.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrTextureProxy.h"
-#include "ProxyUtils.h"
-#include "SkHalf.h"
+#include "../include/gpu/GrContext.h"
+#include "../src/gpu/GrContextPriv.h"
+#include "../src/gpu/GrProxyProvider.h"
+#include "../include/private/GrTextureProxy.h"
+#include "../tools/gpu/ProxyUtils.h"
+#include "../include/private/SkHalf.h"
 
 #include <float.h>
 

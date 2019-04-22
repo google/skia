@@ -6,16 +6,16 @@
  */
 
 #include "Resources.h"
-#include "CommandLineFlags.h"
+#include "flags/CommandLineFlags.h"
 #include "ResourceFactory.h"
-#include "SkBitmap.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkImageGenerator.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
+#include "../include/core/SkBitmap.h"
+#include "../include/core/SkData.h"
+#include "../include/core/SkImage.h"
+#include "../include/core/SkImageGenerator.h"
+#include "../src/core/SkOSFile.h"
+#include "../src/utils/SkOSPath.h"
+#include "../include/core/SkStream.h"
+#include "../include/core/SkTypeface.h"
 
 static DEFINE_string2(resourcePath, i, "resources",
                       "Directory with test resources: images, fonts, etc.");

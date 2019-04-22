@@ -7,7 +7,7 @@
 
 #include "Fuzz.h"
 #include "FuzzCommon.h"
-#include "SkPathMeasure.h"
+#include "../include/core/SkPathMeasure.h"
 
 void inline ignoreResult(bool ) {}
 

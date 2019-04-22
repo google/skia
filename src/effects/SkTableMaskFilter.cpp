@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkFixed.h"
-#include "SkReadBuffer.h"
-#include "SkString.h"
-#include "SkTableMaskFilter.h"
-#include "SkWriteBuffer.h"
+#include "../../include/private/SkFixed.h"
+#include "../core/SkReadBuffer.h"
+#include "../../include/core/SkString.h"
+#include "../../include/effects/SkTableMaskFilter.h"
+#include "../core/SkWriteBuffer.h"
 
 class SkTableMaskFilterImpl : public SkMaskFilterBase {
 public:

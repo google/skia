@@ -6,7 +6,7 @@
  */
 
 #include "GrGLVertexArray.h"
-#include "GrCpuBuffer.h"
+#include "../GrCpuBuffer.h"
 #include "GrGLBuffer.h"
 #include "GrGLGpu.h"
 

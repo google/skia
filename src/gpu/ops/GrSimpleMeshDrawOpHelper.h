@@ -8,12 +8,12 @@
 #ifndef GrSimpleMeshDrawOpHelper_DEFINED
 #define GrSimpleMeshDrawOpHelper_DEFINED
 
-#include "GrMemoryPool.h" // only here bc of the templated FactoryHelper
+#include "../GrMemoryPool.h"
 #include "GrMeshDrawOp.h"
-#include "GrOpFlushState.h"
-#include "GrPipeline.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
+#include "../GrOpFlushState.h"
+#include "../GrPipeline.h"
+#include "../../../include/private/GrRecordingContext.h"
+#include "../GrRecordingContextPriv.h"
 #include <new>
 
 struct SkRect;

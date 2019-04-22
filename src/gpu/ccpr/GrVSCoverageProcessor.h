@@ -8,7 +8,7 @@
 #ifndef GrVSCoverageProcessor_DEFINED
 #define GrVSCoverageProcessor_DEFINED
 
-#include "ccpr/GrCCCoverageProcessor.h"
+#include "GrCCCoverageProcessor.h"
 
 /**
  * This class implements GrCCCoverageProcessor with analytic coverage using vertex shaders.

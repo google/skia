@@ -8,7 +8,7 @@
 #ifndef SkOTTable_maxp_CFF_DEFINED
 #define SkOTTable_maxp_CFF_DEFINED
 
-#include "SkEndian.h"
+#include "../core/SkEndian.h"
 #include "SkOTTableTypes.h"
 
 #pragma pack(push, 1)

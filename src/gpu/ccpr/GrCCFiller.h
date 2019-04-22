@@ -8,14 +8,14 @@
 #ifndef GrCCPathParser_DEFINED
 #define GrCCPathParser_DEFINED
 
-#include "GrMesh.h"
-#include "SkPathPriv.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "GrTessellator.h"
-#include "ccpr/GrCCCoverageProcessor.h"
-#include "ccpr/GrCCFillGeometry.h"
-#include "ops/GrDrawOp.h"
+#include "../GrMesh.h"
+#include "../../core/SkPathPriv.h"
+#include "../../../include/core/SkRect.h"
+#include "../../../include/core/SkRefCnt.h"
+#include "../GrTessellator.h"
+#include "GrCCCoverageProcessor.h"
+#include "GrCCFillGeometry.h"
+#include "../ops/GrDrawOp.h"
 
 class GrOnFlushResourceProvider;
 class SkMatrix;

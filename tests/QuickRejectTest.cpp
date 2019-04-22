@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkDrawLooper.h"
-#include "SkLightingImageFilter.h"
-#include "SkPoint3.h"
-#include "SkTypes.h"
+#include "../include/private/SkArenaAlloc.h"
+#include "../include/core/SkBitmap.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkDrawLooper.h"
+#include "../include/effects/SkLightingImageFilter.h"
+#include "../include/core/SkPoint3.h"
+#include "../include/core/SkTypes.h"
 #include "Test.h"
 
 /*
@@ -166,8 +166,8 @@ DEF_TEST(QuickReject_MatrixState, reporter) {
     canvas.quickReject(SkRect::MakeWH(100.0f, 100.0f));
 }
 
-#include "SkLayerDrawLooper.h"
-#include "SkSurface.h"
+#include "../include/effects/SkLayerDrawLooper.h"
+#include "../include/core/SkSurface.h"
 DEF_TEST(looper_nothingtodraw, reporter) {
     auto surf = SkSurface::MakeRasterN32Premul(20, 20);
 

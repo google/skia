@@ -7,9 +7,9 @@
 
 #include "GrCCPathCache.h"
 
-#include "GrOnFlushResourceProvider.h"
-#include "GrProxyProvider.h"
-#include "SkNx.h"
+#include "../GrOnFlushResourceProvider.h"
+#include "../GrProxyProvider.h"
+#include "../../../include/private/SkNx.h"
 
 static constexpr int kMaxKeyDataCountU32 = 256;  // 1kB of uint32_t's.
 

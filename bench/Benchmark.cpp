@@ -7,9 +7,9 @@
 
 #include "Benchmark.h"
 
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkParse.h"
+#include "../include/core/SkCanvas.h"
+#include "../include/core/SkPaint.h"
+#include "../include/utils/SkParse.h"
 
 template BenchRegistry* BenchRegistry::gHead;
 

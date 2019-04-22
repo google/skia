@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkComposeImageFilter.h"
-#include "SkImageFilterPriv.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkWriteBuffer.h"
+#include "../../../include/effects/SkComposeImageFilter.h"
+#include "../../core/SkImageFilterPriv.h"
+#include "../../core/SkReadBuffer.h"
+#include "../../core/SkSpecialImage.h"
+#include "../../core/SkWriteBuffer.h"
 
 sk_sp<SkImageFilter> SkComposeImageFilter::Make(sk_sp<SkImageFilter> outer,
                                                 sk_sp<SkImageFilter> inner) {

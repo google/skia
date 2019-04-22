@@ -8,7 +8,7 @@
 #define SkBmpBaseCodec_DEFINED
 
 #include "SkBmpCodec.h"
-#include "SkTemplates.h"
+#include "../../include/private/SkTemplates.h"
 
 /*
  * Common base class for SkBmpStandardCodec and SkBmpMaskCodec.

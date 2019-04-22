@@ -8,8 +8,8 @@
 #ifndef GrVkTypesPriv_DEFINED
 #define GrVkTypesPriv_DEFINED
 
-#include "vk/GrVkTypes.h"
-#include "SkRefCnt.h"
+#include "../gpu/vk/GrVkTypes.h"
+#include "../core/SkRefCnt.h"
 
 class GrVkImageLayout;
 

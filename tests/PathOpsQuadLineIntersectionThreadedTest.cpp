@@ -7,11 +7,11 @@
 #include "PathOpsExtendedTest.h"
 #include "PathOpsTestCommon.h"
 #include "PathOpsThreadedCommon.h"
-#include "SkIntersections.h"
-#include "SkPathOpsLine.h"
-#include "SkPathOpsQuad.h"
-#include "SkReduceOrder.h"
-#include "SkString.h"
+#include "../src/pathops/SkIntersections.h"
+#include "../src/pathops/SkPathOpsLine.h"
+#include "../src/pathops/SkPathOpsQuad.h"
+#include "../src/pathops/SkReduceOrder.h"
+#include "../include/core/SkString.h"
 
 #include <utility>
 

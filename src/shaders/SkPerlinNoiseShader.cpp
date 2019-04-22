@@ -5,27 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "SkPerlinNoiseShader.h"
+#include "../../include/effects/SkPerlinNoiseShader.h"
 
-#include "SkArenaAlloc.h"
-#include "SkColorFilter.h"
-#include "SkMakeUnique.h"
-#include "SkReadBuffer.h"
-#include "SkShader.h"
-#include "SkString.h"
-#include "SkUnPreMultiply.h"
-#include "SkWriteBuffer.h"
+#include "../../include/private/SkArenaAlloc.h"
+#include "../../include/core/SkColorFilter.h"
+#include "../core/SkMakeUnique.h"
+#include "../core/SkReadBuffer.h"
+#include "../../include/core/SkShader.h"
+#include "../../include/core/SkString.h"
+#include "../../include/core/SkUnPreMultiply.h"
+#include "../core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrCoordTransform.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "SkGr.h"
-#include "effects/generated/GrConstColorProcessor.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "../gpu/GrCoordTransform.h"
+#include "../../include/private/GrRecordingContext.h"
+#include "../gpu/GrRecordingContextPriv.h"
+#include "../gpu/SkGr.h"
+#include "../gpu/effects/generated/GrConstColorProcessor.h"
+#include "../gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "../gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../gpu/glsl/GrGLSLProgramDataManager.h"
+#include "../gpu/glsl/GrGLSLUniformHandler.h"
 #endif
 
 static const int kBlockSize = 256;

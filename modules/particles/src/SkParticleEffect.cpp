@@ -5,15 +5,15 @@
 * found in the LICENSE file.
 */
 
-#include "SkParticleEffect.h"
+#include "../include/SkParticleEffect.h"
 
-#include "SkCanvas.h"
-#include "SkColorData.h"
-#include "SkPaint.h"
-#include "SkParticleAffector.h"
-#include "SkParticleDrawable.h"
-#include "SkReflected.h"
-#include "SkRSXform.h"
+#include "../../../include/core/SkCanvas.h"
+#include "../../../include/private/SkColorData.h"
+#include "../../../include/core/SkPaint.h"
+#include "../include/SkParticleAffector.h"
+#include "../include/SkParticleDrawable.h"
+#include "../include/SkReflected.h"
+#include "../../../include/core/SkRSXform.h"
 
 void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("MaxCount", fMaxCount);

@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkDWriteNTDDI_VERSION.h"
+#include "../utils/win/SkDWriteNTDDI_VERSION.h"
 
-#include "SkTypes.h"
+#include "../../include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
 // SkTypes will include Windows.h, which will pull in all of the GDI defines.
@@ -15,21 +15,21 @@
 // not use GDI, undefing GetGlyphIndices makes things less confusing.
 #undef GetGlyphIndices
 
-#include "SkDWrite.h"
-#include "SkDWriteFontFileStream.h"
-#include "SkFontDescriptor.h"
-#include "SkFontStream.h"
-#include "SkOTTable_OS_2.h"
-#include "SkOTTable_fvar.h"
-#include "SkOTTable_head.h"
-#include "SkOTTable_hhea.h"
-#include "SkOTTable_post.h"
-#include "SkOTUtils.h"
-#include "SkScalerContext.h"
+#include "../utils/win/SkDWrite.h"
+#include "../utils/win/SkDWriteFontFileStream.h"
+#include "../core/SkFontDescriptor.h"
+#include "../core/SkFontStream.h"
+#include "../sfnt/SkOTTable_OS_2.h"
+#include "../sfnt/SkOTTable_fvar.h"
+#include "../sfnt/SkOTTable_head.h"
+#include "../sfnt/SkOTTable_hhea.h"
+#include "../sfnt/SkOTTable_post.h"
+#include "../sfnt/SkOTUtils.h"
+#include "../core/SkScalerContext.h"
 #include "SkScalerContext_win_dw.h"
-#include "SkTo.h"
+#include "../../include/private/SkTo.h"
 #include "SkTypeface_win_dw.h"
-#include "SkUtils.h"
+#include "../core/SkUtils.h"
 
 void DWriteFontTypeface::onGetFamilyName(SkString* familyName) const {
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;

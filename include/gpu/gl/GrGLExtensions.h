@@ -10,7 +10,7 @@
 
 #include "../../private/SkTArray.h"
 #include "GrGLFunctions.h"
-#include "SkString.h"
+#include "../../core/SkString.h"
 
 #include <utility>
 

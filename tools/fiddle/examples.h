@@ -3,7 +3,7 @@
 #ifndef examples_DEFINED
 #define examples_DEFINED
 
-#include "Registry.h"
+#include "../Registry.h"
 #include "skia.h"
 
 #include <cmath>

@@ -9,7 +9,7 @@
 #define GrMockStencilAttachment_DEFINED
 
 #include "GrMockGpu.h"
-#include "GrStencilAttachment.h"
+#include "../GrStencilAttachment.h"
 
 class GrMockStencilAttachment : public GrStencilAttachment {
 public:

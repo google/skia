@@ -9,7 +9,7 @@
 #define GrFragmentProcessor_DEFINED
 
 #include "GrProcessor.h"
-#include "GrProxyRef.h"
+#include "../../include/private/GrProxyRef.h"
 
 class GrCoordTransform;
 class GrGLSLFragmentProcessor;

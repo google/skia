@@ -9,16 +9,16 @@
 #define SkGpuDevice_DEFINED
 
 #include "GrClipStackClip.h"
-#include "GrContext.h"
+#include "../../include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
-#include "GrTypes.h"
-#include "SkBitmap.h"
-#include "SkClipStackDevice.h"
+#include "../../include/gpu/GrTypes.h"
+#include "../../include/core/SkBitmap.h"
+#include "../core/SkClipStackDevice.h"
 #include "SkGr.h"
-#include "SkPicture.h"
-#include "SkRegion.h"
-#include "SkSurface.h"
+#include "../../include/core/SkPicture.h"
+#include "../../include/core/SkRegion.h"
+#include "../../include/core/SkSurface.h"
 
 class GrAccelData;
 class GrTextureMaker;

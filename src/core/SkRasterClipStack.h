@@ -8,8 +8,8 @@
 #ifndef SkRasterClipStack_DEFINED
 #define SkRasterClipStack_DEFINED
 
-#include "SkClipOp.h"
-#include "SkDeque.h"
+#include "../../include/core/SkClipOp.h"
+#include "../../include/core/SkDeque.h"
 #include "SkRasterClip.h"
 #include <new>
 

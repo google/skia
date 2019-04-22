@@ -6,9 +6,9 @@
  */
 
 #include "Benchmark.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
-#include "SkString.h"
+#include "../include/utils/SkRandom.h"
+#include "../include/core/SkRegion.h"
+#include "../include/core/SkString.h"
 
 static bool sect_proc(SkRegion& a, SkRegion& b) {
     SkRegion result;
