@@ -32,19 +32,16 @@ static void test_empty_back_and_pop(skiatest::Reporter* reporter) {
         // pops. We want to test poping the first guy off, guys in the middle of the block, and the
         // first guy on a non-head block.
         for (int j = 0; j < 8; ++j) {
-            GrTRecorder<IntWrapper, int> recorder(j);
+            GrTRecorder<IntWrapper> recorder(j);
 
             REPORTER_ASSERT(reporter, recorder.empty());
 
             for (int i = 0; i < 100; ++i) {
                 if (data) {
-                    REPORTER_ASSERT(reporter, i == *GrNEW_APPEND_TO_RECORDER(recorder,
-                                                                             IntWrapper, (i)));
+                    REPORTER_ASSERT(reporter, i == recorder.emplaceWithData<IntWrapper>(
+                                                           rand.nextULessThan(10), i));
                 } else {
-                    REPORTER_ASSERT(reporter, i ==
-                                    *GrNEW_APPEND_WITH_DATA_TO_RECORDER(recorder,
-                                                                        IntWrapper, (i),
-                                                                        rand.nextULessThan(10)));
+                    REPORTER_ASSERT(reporter, i == recorder.emplace<IntWrapper>(i));
                 }
                 REPORTER_ASSERT(reporter, !recorder.empty());
                 REPORTER_ASSERT(reporter, i == recorder.back());
@@ -56,7 +53,6 @@ static void test_empty_back_and_pop(skiatest::Reporter* reporter) {
                     }
                 }
             }
-
             REPORTER_ASSERT(reporter, !recorder.empty());
             recorder.reset();
             REPORTER_ASSERT(reporter, recorder.empty());
@@ -65,7 +61,7 @@ static void test_empty_back_and_pop(skiatest::Reporter* reporter) {
 }
 
 struct ExtraData {
-    typedef GrTRecorder<ExtraData, int> Recorder;
+    typedef GrTRecorder<ExtraData> Recorder;
 
     ExtraData(int i) : fData(i) {
         int* extraData = this->extraData();
@@ -77,40 +73,39 @@ struct ExtraData {
     ~ExtraData() {
         --activeRecorderItems;
     }
-    int* extraData() {
-        return reinterpret_cast<int*>(Recorder::GetDataForItem(this));
-    }
+    int* extraData() { return reinterpret_cast<int*>(this + 1); }
     int fData;
 };
 
 static void test_extra_data(skiatest::Reporter* reporter) {
     ExtraData::Recorder recorder(0);
     for (int i = 0; i < 100; ++i) {
-        GrNEW_APPEND_WITH_DATA_TO_RECORDER(recorder, ExtraData, (i), i * sizeof(int));
+        recorder.emplaceWithData<ExtraData>(i * sizeof(int), i);
     }
     REPORTER_ASSERT(reporter, 100 == activeRecorderItems);
 
-    ExtraData::Recorder::Iter iter(recorder);
-    for (int i = 0; i < 100; ++i) {
-        REPORTER_ASSERT(reporter, iter.next());
+    auto iter = recorder.begin();
+    for (int i = 0; i < 100; ++i, ++iter) {
         REPORTER_ASSERT(reporter, i == iter->fData);
         for (int j = 0; j < i; j++) {
             REPORTER_ASSERT(reporter, i == iter->extraData()[j]);
         }
     }
-    REPORTER_ASSERT(reporter, !iter.next());
+    REPORTER_ASSERT(reporter, iter == recorder.end());
 
-    ExtraData::Recorder::ReverseIter reverseIter(recorder);
-    for (int i = 99; i >= 0; --i) {
+    auto reverseIter = recorder.rbegin();
+    for (int i = 99; i >= 0; --i, ++reverseIter) {
         REPORTER_ASSERT(reporter, i == reverseIter->fData);
         for (int j = 0; j < i; j++) {
             REPORTER_ASSERT(reporter, i == reverseIter->extraData()[j]);
         }
-        REPORTER_ASSERT(reporter, reverseIter.previous() == !!i);
     }
+    REPORTER_ASSERT(reporter, reverseIter == recorder.rend());
 
     recorder.reset();
     REPORTER_ASSERT(reporter, 0 == activeRecorderItems);
+    REPORTER_ASSERT(reporter, recorder.begin() == recorder.end());
+    REPORTER_ASSERT(reporter, recorder.rbegin() == recorder.rend());
 }
 
 enum ClassType {
@@ -125,7 +120,7 @@ enum ClassType {
 
 class Base {
 public:
-    typedef GrTRecorder<Base, void*> Recorder;
+    typedef GrTRecorder<Base> Recorder;
 
     Base() {
         fMatrix.reset();
@@ -179,7 +174,7 @@ private:
 class SubclassExtraData : public Base {
 public:
     SubclassExtraData(int length) : fLength(length) {
-        int* data = reinterpret_cast<int*>(Recorder::GetDataForItem(this));
+        int* data = reinterpret_cast<int*>(this + 1);
         for (int i = 0; i < fLength; ++i) {
             data[i] = ValueAt(i);
         }
@@ -189,7 +184,7 @@ public:
 
     virtual void validate(skiatest::Reporter* reporter) const {
         Base::validate(reporter);
-        const int* data = reinterpret_cast<const int*>(Recorder::GetDataForItem(this));
+        const int* data = reinterpret_cast<const int*>(this + 1);
         for (int i = 0; i < fLength; ++i) {
             REPORTER_ASSERT(reporter, ValueAt(i) == data[i]);
         }
@@ -218,8 +213,8 @@ public:
 private:
     uint32_t fCurrent;
 };
-static void test_subclasses_iters(skiatest::Reporter*, Order&, Base::Recorder::Iter&,
-                                  Base::Recorder::ReverseIter&, int = 0);
+static void test_subclasses_iters(skiatest::Reporter*, Order&, Base::Recorder::iterator&,
+                                  Base::Recorder::reverse_iterator&, int = 0);
 static void test_subclasses(skiatest::Reporter* reporter) {
     Base::Recorder recorder(1024);
 
@@ -227,23 +222,23 @@ static void test_subclasses(skiatest::Reporter* reporter) {
     for (int i = 0; i < 1000; i++) {
         switch (order.next()) {
             case kBase_ClassType:
-                GrNEW_APPEND_TO_RECORDER(recorder, Base, ());
+                recorder.emplace<Base>();
                 break;
 
             case kSubclass_ClassType:
-                GrNEW_APPEND_TO_RECORDER(recorder, Subclass, ());
+                recorder.emplace<Subclass>();
                 break;
 
             case kSubSubclass_ClassType:
-                GrNEW_APPEND_TO_RECORDER(recorder, SubSubclass, ());
+                recorder.emplace<SubSubclass>();
                 break;
 
             case kSubclassExtraData_ClassType:
-                GrNEW_APPEND_WITH_DATA_TO_RECORDER(recorder, SubclassExtraData, (i), sizeof(int) * i);
+                recorder.emplaceWithData<SubclassExtraData>(sizeof(int) * i, i);
                 break;
 
             case kSubclassEmpty_ClassType:
-                GrNEW_APPEND_TO_RECORDER(recorder, SubclassEmpty, ());
+                recorder.emplace<SubclassEmpty>();
                 break;
 
             default:
@@ -254,33 +249,83 @@ static void test_subclasses(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 1000 == activeRecorderItems);
 
     order.reset();
-    Base::Recorder::Iter iter(recorder);
-    Base::Recorder::ReverseIter reverseIter(recorder);
+    auto iter = recorder.begin();
+    auto reverseIter = recorder.rbegin();
 
     test_subclasses_iters(reporter, order, iter, reverseIter);
 
-    REPORTER_ASSERT(reporter, !iter.next());
+    REPORTER_ASSERT(reporter, iter == recorder.end());
+    REPORTER_ASSERT(reporter, reverseIter == recorder.rend());
 
     // Don't reset the recorder. It should automatically destruct all its items.
 }
 static void test_subclasses_iters(skiatest::Reporter* reporter, Order& order,
-                                  Base::Recorder::Iter& iter,
-                                  Base::Recorder::ReverseIter& reverseIter, int i) {
+                                  Base::Recorder::iterator& iter,
+                                  Base::Recorder::reverse_iterator& reverseIter, int i) {
     if (i >= 1000) {
         return;
     }
 
     ClassType classType = order.next();
 
-    REPORTER_ASSERT(reporter, iter.next());
     REPORTER_ASSERT(reporter, classType == iter->getType());
     iter->validate(reporter);
 
+    ++iter;
     test_subclasses_iters(reporter, order, iter, reverseIter, i + 1);
 
     REPORTER_ASSERT(reporter, classType == reverseIter->getType());
     reverseIter->validate(reporter);
-    REPORTER_ASSERT(reporter, reverseIter.previous() == !!i);
+    reverseIter++;
+}
+
+struct AlignBase {
+    char fValue;
+};
+struct alignas(16) Align16 : public AlignBase {};
+struct alignas(32) Align32 : public AlignBase {};
+struct alignas(64) Align64 : public AlignBase {};
+struct alignas(128) Align128 : public AlignBase {};
+
+static void test_alignment(skiatest::Reporter* reporter) {
+    GrTRecorder<AlignBase> recorder(0);
+    SkTArray<size_t> expectedAlignments;
+    SkRandom random;
+    for (int i = 0; i < 100; ++i) {
+        size_t dataSize = random.nextULessThan(20);
+        switch (random.nextULessThan(5)) {
+            case 0:
+                recorder.emplaceWithData<AlignBase>(dataSize);
+                expectedAlignments.push_back(alignof(AlignBase));
+                break;
+            case 1:
+                recorder.emplaceWithData<Align16>(dataSize);
+                expectedAlignments.push_back(16);
+                break;
+            case 2:
+                recorder.emplaceWithData<Align32>(dataSize);
+                expectedAlignments.push_back(32);
+                break;
+            case 3:
+                recorder.emplaceWithData<Align64>(dataSize);
+                expectedAlignments.push_back(64);
+                break;
+            case 4:
+                recorder.emplaceWithData<Align128>(dataSize);
+                expectedAlignments.push_back(128);
+                break;
+        }
+        recorder.back().fValue = i;
+    }
+    int i = 0;
+    for (const auto& x : recorder) {
+        REPORTER_ASSERT(reporter, x.fValue == i);
+        auto p64t = reinterpret_cast<uint64_t>(&x);
+        uint64_t mask = static_cast<uint64_t>(expectedAlignments[i]) - 1;
+        REPORTER_ASSERT(reporter, !(p64t & mask));
+        i++;
+    }
+    REPORTER_ASSERT(reporter, i == 100);
 }
 
 DEF_GPUTEST(GrTRecorder, reporter, /* options */) {
@@ -291,4 +336,6 @@ DEF_GPUTEST(GrTRecorder, reporter, /* options */) {
 
     test_subclasses(reporter);
     REPORTER_ASSERT(reporter, 0 == activeRecorderItems); // Ensure ~GrTRecorder invokes dtors.
+
+    test_alignment(reporter);
 }
