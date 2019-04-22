@@ -262,6 +262,18 @@ public:
     /**
      * Deprecated.
      */
+    GrSemaphoresSubmitted flush(GrFlushFlags flags, int numSemaphores,
+                                GrBackendSemaphore signalSemaphores[]) {
+        GrFlushInfo info;
+        info.fFlags = flags;
+        info.fNumSemaphores = numSemaphores;
+        info.fSignalSemaphores = signalSemaphores;
+        return this->flush(info);
+    }
+
+    /**
+     * Deprecated.
+     */
     GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[]) {
         GrFlushInfo info;
