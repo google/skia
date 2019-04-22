@@ -18,7 +18,7 @@ GrMtlPipelineStateDataManager::GrMtlPipelineStateDataManager(const UniformInfoAr
         , fGeometryUniformsDirty(false)
         , fFragmentUniformsDirty(false) {
     fGeometryUniformData.reset(geometryUniformSize);
-    fFragmentUniformData.reset(fragmentUniformSize);
+    fFragmentUniformData.reset(fFragmentUniformSize);
     int count = uniforms.count();
     fUniforms.push_back_n(count);
     // We must add uniforms in same order is the UniformInfoArray so that UniformHandles already
@@ -360,17 +360,26 @@ template<> struct set_uniform_matrix<4> {
     }
 };
 
-void GrMtlPipelineStateDataManager::uploadUniformBuffers(GrMtlGpu* gpu,
-                                                         GrMtlBuffer* geometryBuffer,
-                                                         GrMtlBuffer* fragmentBuffer) const {
-    if (geometryBuffer && fGeometryUniformsDirty) {
-        SkAssertResult(geometryBuffer->updateData(fGeometryUniformData.get(),
-                                                  fGeometryUniformSize));
+void GrMtlPipelineStateDataManager::uploadAndBindUniformBuffers(
+        GrMtlGpu* gpu,
+        id<MTLRenderCommandEncoder> renderCmdEncoder) const {
+    if (fGeometryUniformSize && fGeometryUniformsDirty) {
+        SkASSERT(fGeometryUniformSize < 4*1024);
+        [renderCmdEncoder setVertexBytes: fGeometryUniformData.get()
+                                  length: fGeometryUniformSize
+                                 atIndex: GrMtlUniformHandler::kGeometryBinding];
         fGeometryUniformsDirty = false;
     }
-    if (fragmentBuffer && fFragmentUniformsDirty) {
-        SkAssertResult(fragmentBuffer->updateData(fFragmentUniformData.get(),
-                                                  fFragmentUniformSize));
+    if (fFragmentUniformSize && fFragmentUniformsDirty) {
+        SkASSERT(fFragmentUniformSize < 4*1024);
+        [renderCmdEncoder setFragmentBytes: fFragmentUniformData.get()
+                                    length: fFragmentUniformSize
+                                   atIndex: GrMtlUniformHandler::kFragBinding];
         fFragmentUniformsDirty = false;
     }
+}
+
+void GrMtlPipelineStateDataManager::resetDirtyBits() {
+    fGeometryUniformsDirty = true;
+    fFragmentUniformsDirty = true;
 }

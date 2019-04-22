@@ -215,6 +215,9 @@ id<MTLBuffer> GrMtlBufferManager::getDynamicAllocation(size_t size, size_t* offs
         fAllocationSize = kSharedDynamicBufferSize;
     }
 
+    // to see if we ever get here
+    SkASSERT(false);
+
     // Grab the next available block
     *offset = fNextOffset;
     fNextOffset += size;
