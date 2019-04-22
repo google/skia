@@ -46,6 +46,30 @@
       "revId": "4abef4ec55c5968e664774b33263a41bf4ad66d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfddc810_2a54322d",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-22T20:54:37Z",
+      "side": 1,
+      "message": "I\u0027d just go with a single\n\n   static sk_sp\u003cSkColorFilter\u003e Matrix(const SkScalar rowMajor4x5[20]);\n\n?",
+      "parentUuid": "38c8f438_1bef3c6e",
+      "range": {
+        "startLine": 132,
+        "startChar": 1,
+        "endLine": 132,
+        "endChar": 70
+      },
+      "revId": "4abef4ec55c5968e664774b33263a41bf4ad66d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
