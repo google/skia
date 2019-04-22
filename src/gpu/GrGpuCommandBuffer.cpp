@@ -57,22 +57,14 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
     if (fixedDynamicState && fixedDynamicState->fPrimitiveProcessorTextures) {
         GrTextureProxy** processorProxies = fixedDynamicState->fPrimitiveProcessorTextures;
         for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-            if (resourceProvider->explicitlyAllocateGPUResources()) {
-                SkASSERT(processorProxies[i]->isInstantiated());
-            } else if (!processorProxies[i]->instantiate(resourceProvider)) {
-                return false;
-            }
+            SkASSERT(processorProxies[i]->isInstantiated());
         }
     }
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
         int n = primProc.numTextureSamplers() * meshCount;
         const auto* textures = dynamicStateArrays->fPrimitiveProcessorTextures;
         for (int i = 0; i < n; ++i) {
-            if (resourceProvider->explicitlyAllocateGPUResources()) {
-                SkASSERT(textures[i]->isInstantiated());
-            } else if (!textures[i]->instantiate(resourceProvider)) {
-                return false;
-            }
+            SkASSERT(textures[i]->isInstantiated());
         }
 #ifdef SK_DEBUG
         SkASSERT(meshCount >= 1);
