@@ -11,9 +11,9 @@
 
 #include "GrGLCaps.h"
 #include "GrGLUtil.h"
-#include "gl/GrGLExtensions.h"
-#include "gl/GrGLInterface.h"
-#include "glsl/GrGLSL.h"
+#include "include/gpu/gl/GrGLExtensions.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "../glsl/GrGLSL.h"
 
 struct GrContextOptions;
 namespace SkSL {

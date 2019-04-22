@@ -9,8 +9,8 @@
 #define GrColorSpaceXform_DEFINED
 
 #include "GrFragmentProcessor.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkRefCnt.h"
+#include "../core/SkColorSpaceXformSteps.h"
+#include "include/core/SkRefCnt.h"
 
 class SkColorSpace;
 

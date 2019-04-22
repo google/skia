@@ -6,19 +6,19 @@
  */
 
 #include "GrGLProgram.h"
-#include "GrAllocator.h"
-#include "GrCoordTransform.h"
+#include "../GrAllocator.h"
+#include "../GrCoordTransform.h"
 #include "GrGLBuffer.h"
 #include "GrGLGpu.h"
 #include "GrGLPathRendering.h"
-#include "GrPathProcessor.h"
-#include "GrPipeline.h"
-#include "GrProcessor.h"
-#include "GrTexturePriv.h"
-#include "GrXferProcessor.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLXferProcessor.h"
+#include "../GrPathProcessor.h"
+#include "../GrPipeline.h"
+#include "../GrProcessor.h"
+#include "../GrTexturePriv.h"
+#include "../GrXferProcessor.h"
+#include "../glsl/GrGLSLFragmentProcessor.h"
+#include "../glsl/GrGLSLGeometryProcessor.h"
+#include "../glsl/GrGLSLXferProcessor.h"
 
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fGpu->glInterface(), R, X)

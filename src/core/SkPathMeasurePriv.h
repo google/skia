@@ -8,8 +8,8 @@
 #ifndef SkPathMeasurePriv_DEFINED
 #define SkPathMeasurePriv_DEFINED
 
-#include "SkPath.h"
-#include "SkPoint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
 #include "SkGeometry.h"
 
 // Used in the Segment struct defined in SkPathMeasure.h

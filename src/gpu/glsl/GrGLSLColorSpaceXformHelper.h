@@ -8,9 +8,9 @@
 #ifndef GrGLSLColorSpaceXformHelper_DEFINED
 #define GrGLSLColorSpaceXformHelper_DEFINED
 
-#include "GrColorSpaceXform.h"
+#include "../GrColorSpaceXform.h"
 #include "GrGLSLUniformHandler.h"
-#include "SkColorSpaceXformSteps.h"
+#include "../../core/SkColorSpaceXformSteps.h"
 
 /**
  * Helper class to assist with using GrColorSpaceXform within an FP. This manages all of the

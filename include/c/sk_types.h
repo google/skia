@@ -13,7 +13,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "SkApi.h"
+#include "../core/SkApi.h"
 
 #ifdef __cplusplus
     #define SK_C_PLUS_PLUS_BEGIN_GUARD    extern "C" {

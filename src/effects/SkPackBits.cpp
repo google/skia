@@ -6,7 +6,7 @@
  */
 
 #include "SkPackBits.h"
-#include "SkTo.h"
+#include "include/private/SkTo.h"
 
 #include <cstring>
 

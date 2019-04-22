@@ -7,13 +7,13 @@
 
 #include "SkStrike.h"
 
-#include "SkGraphics.h"
+#include "include/core/SkGraphics.h"
 #include "SkMakeUnique.h"
-#include "SkMutex.h"
-#include "SkOnce.h"
-#include "SkPath.h"
-#include "SkTemplates.h"
-#include "SkTypeface.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkOnce.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkTemplates.h"
+#include "include/core/SkTypeface.h"
 #include <cctype>
 
 namespace {

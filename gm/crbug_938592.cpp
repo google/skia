@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkPaint.h"
 #include "gm.h"
 
 // This draws a hard stop gradient applied to a rectangle. The hard stops fall at half pixel

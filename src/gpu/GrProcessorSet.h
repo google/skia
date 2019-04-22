@@ -11,7 +11,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrPaint.h"
 #include "GrProcessorAnalysis.h"
-#include "SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "GrXferProcessor.h"
 
 struct GrUserStencilSettings;

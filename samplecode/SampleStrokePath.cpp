@@ -7,13 +7,13 @@
 
 #include "Sample.h"
 
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkMaskFilter.h"
-#include "SkParsePath.h"
-#include "SkPath.h"
-#include "SkRandom.h"
+#include "../src/core/SkBlurMask.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/utils/SkParsePath.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
 
 
 static void test_huge_stroke(SkCanvas* canvas) {

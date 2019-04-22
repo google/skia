@@ -10,7 +10,7 @@
 
 #include "GrVkDescriptorSetManager.h"
 #include "GrVkResource.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
 
 class GrVkDescriptorPool;
 class GrVkGpu;

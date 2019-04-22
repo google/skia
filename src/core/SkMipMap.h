@@ -9,11 +9,11 @@
 #define SkMipMap_DEFINED
 
 #include "SkCachedData.h"
-#include "SkImageInfoPriv.h"
-#include "SkPixmap.h"
-#include "SkScalar.h"
-#include "SkSize.h"
-#include "SkShaderBase.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "../shaders/SkShaderBase.h"
 
 class SkBitmap;
 class SkDiscardableMemory;

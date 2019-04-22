@@ -5,14 +5,14 @@
 * found in the LICENSE file.
 */
 
-#include "AnimTimer.h"
-#include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkString.h"
+#include "../tools/timer/AnimTimer.h"
+#include "../src/core/SkBlurMask.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkString.h"
 #include "gm.h"
 
 /**

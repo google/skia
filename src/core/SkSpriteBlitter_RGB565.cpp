@@ -6,13 +6,13 @@
  */
 
 #include "SkSpriteBlitter.h"
-#include "SkArenaAlloc.h"
+#include "include/private/SkArenaAlloc.h"
 #include "SkBlitRow.h"
-#include "SkColorFilter.h"
-#include "SkColorData.h"
-#include "SkPaint.h"
-#include "SkTemplates.h"
-#include "SkUTF.h"
+#include "include/core/SkColorFilter.h"
+#include "include/private/SkColorData.h"
+#include "include/core/SkPaint.h"
+#include "include/private/SkTemplates.h"
+#include "../utils/SkUTF.h"
 #include "SkXfermodePriv.h"
 
 ///////////////////////////////////////////////////////////////////////////////

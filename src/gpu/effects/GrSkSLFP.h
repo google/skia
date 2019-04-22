@@ -8,14 +8,14 @@
 #ifndef GrSkSLFP_DEFINED
 #define GrSkSLFP_DEFINED
 
-#include "GrCaps.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
-#include "GrShaderCaps.h"
-#include "SkSLCompiler.h"
-#include "SkSLPipelineStageCodeGenerator.h"
-#include "SkRefCnt.h"
-#include "../private/GrSkSLFPFactoryCache.h"
+#include "../GrCaps.h"
+#include "../GrFragmentProcessor.h"
+#include "../GrCoordTransform.h"
+#include "../GrShaderCaps.h"
+#include "../../sksl/SkSLCompiler.h"
+#include "../../sksl/SkSLPipelineStageCodeGenerator.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/GrSkSLFPFactoryCache.h"
 #include <atomic>
 
 #if GR_TEST_UTILS

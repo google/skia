@@ -11,7 +11,7 @@
 
 #include "../private/SkNoncopyable.h"
 #include "../private/SkTo.h"
-#include "SkScalar.h"
+#include "../core/SkScalar.h"
 
 class SK_API SkInterpolatorBase : SkNoncopyable {
 public:

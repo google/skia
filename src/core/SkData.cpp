@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkData.h"
+#include "include/core/SkData.h"
 #include "SkOSFile.h"
-#include "SkOnce.h"
+#include "include/private/SkOnce.h"
 #include "SkReadBuffer.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
 #include "SkWriteBuffer.h"
 #include <new>
 

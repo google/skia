@@ -49,12 +49,12 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrRecordingContext*
             new GrRRectBlurEffect(xformedSigma, devRRect.getBounds(),
                                   SkRRectPriv::GetSimpleRadii(devRRect).fX, std::move(mask)));
 }
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "GrTexture.h"
-#include "SkSLCPP.h"
-#include "SkSLUtil.h"
+#include "../../glsl/GrGLSLFragmentProcessor.h"
+#include "../../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../../glsl/GrGLSLProgramBuilder.h"
+#include "include/gpu/GrTexture.h"
+#include "../../../sksl/SkSLCPP.h"
+#include "../../../sksl/SkSLUtil.h"
 class GrGLSLRRectBlurEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLSLRRectBlurEffect() {}

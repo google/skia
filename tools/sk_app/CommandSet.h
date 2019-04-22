@@ -8,7 +8,7 @@
 #ifndef CommandSet_DEFINED
 #define CommandSet_DEFINED
 
-#include "SkString.h"
+#include "include/core/SkString.h"
 #include "Window.h"
 
 #include <functional>

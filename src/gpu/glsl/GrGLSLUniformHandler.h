@@ -9,8 +9,8 @@
 #define GrGLSLUniformHandler_DEFINED
 
 #include "GrGLSLProgramDataManager.h"
-#include "GrShaderVar.h"
-#include "GrSwizzle.h"
+#include "../GrShaderVar.h"
+#include "../GrSwizzle.h"
 
 // variable names beginning with this prefix will not be mangled
 #define GR_NO_MANGLE_PREFIX "sk_"

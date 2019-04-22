@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodec.h"
+#include "include/codec/SkCodec.h"
 #include "SkCodecPriv.h"
 #include "SkSampler.h"
-#include "SkUtils.h"
+#include "../core/SkUtils.h"
 
 void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
                      SkCodec::ZeroInitialized zeroInit) {

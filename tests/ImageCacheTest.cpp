@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkDiscardableMemory.h"
-#include "SkResourceCache.h"
+#include "../src/core/SkDiscardableMemory.h"
+#include "../src/core/SkResourceCache.h"
 #include "Test.h"
 
 namespace {
@@ -105,7 +105,7 @@ static void test_cache_purge_shared_id(skiatest::Reporter* reporter, SkResourceC
     }
 }
 
-#include "SkDiscardableMemoryPool.h"
+#include "../src/lazy/SkDiscardableMemoryPool.h"
 
 static SkDiscardableMemoryPool* gPool;
 static SkDiscardableMemory* pool_factory(size_t bytes) {

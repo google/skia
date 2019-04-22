@@ -10,7 +10,7 @@
 
 #include "SkAutoMalloc.h"
 #include "SkBlitter.h"
-#include "SkRegion.h"
+#include "include/core/SkRegion.h"
 
 class SkAAClip {
 public:

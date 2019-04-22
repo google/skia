@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
-#include "SkColorMatrixFilter.h"
-#include "SkImage.h"
-#include "SkImageFilter.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkSurface.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 /**
@@ -104,13 +104,13 @@ DEF_SIMPLE_GM(fast_slow_blurimagefilter, canvas, 620, 260) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "Resources.h"
-#include "SkBlurImageFilter.h"
-#include "SkMatrixConvolutionImageFilter.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkColorMatrixFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkRRect.h"
+#include "../tools/Resources.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/core/SkRRect.h"
 
 static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count) {
     const SkRect r = SkRect::MakeXYWH(30, 30, 200, 200);

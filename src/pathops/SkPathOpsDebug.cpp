@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkMutex.h"
+#include "include/private/SkMutex.h"
 #include "SkOpCoincidence.h"
 #include "SkOpContour.h"
-#include "SkOSFile.h"
-#include "SkPath.h"
+#include "../core/SkOSFile.h"
+#include "include/core/SkPath.h"
 #include "SkPathOpsDebug.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
 
 #include <utility>
 
@@ -2939,8 +2939,8 @@ void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool incl
 }
 
 #if DEBUG_DUMP_VERIFY
-#include "SkData.h"
-#include "SkStream.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
 
 static void dump_path(FILE* file, const SkPath& path, bool force, bool dumpAsHex) {
     SkDynamicMemoryWStream wStream;
@@ -2994,9 +2994,9 @@ void SkPathOpsDebug::DumpSimplify(FILE* file, const SkPath& path, const char* te
     fclose(file);
 }
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
 
 const int bitWidth = 64;
 const int bitHeight = 64;

@@ -8,11 +8,11 @@
 #ifndef GrProgramDesc_DEFINED
 #define GrProgramDesc_DEFINED
 
-#include "GrColor.h"
-#include "GrTypesPriv.h"
-#include "SkOpts.h"
-#include "SkTArray.h"
-#include "SkTo.h"
+#include "include/private/GrColor.h"
+#include "include/private/GrTypesPriv.h"
+#include "../core/SkOpts.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTo.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 class GrShaderCaps;

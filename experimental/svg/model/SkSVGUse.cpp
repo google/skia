@@ -7,7 +7,7 @@
 
 #include "SkSVGUse.h"
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 #include "SkSVGRenderContext.h"
 #include "SkSVGValue.h"
 

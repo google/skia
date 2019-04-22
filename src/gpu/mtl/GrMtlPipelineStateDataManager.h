@@ -8,9 +8,9 @@
 #ifndef GrMtlPipelineStateDataManager_DEFINED
 #define GrMtlPipelineStateDataManager_DEFINED
 
-#include "glsl/GrGLSLProgramDataManager.h"
+#include "../glsl/GrGLSLProgramDataManager.h"
 #include "GrMtlUniformHandler.h"
-#include "SkAutoMalloc.h"
+#include "../../core/SkAutoMalloc.h"
 
 class GrMtlBuffer;
 class GrMtlGpu;

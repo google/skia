@@ -9,9 +9,9 @@
 
 #include "Request.h"
 
-#include "CommandLineFlags.h"
-#include "SkData.h"
-#include "SkString.h"
+#include "../flags/CommandLineFlags.h"
+#include "include/core/SkData.h"
+#include "include/core/SkString.h"
 
 #include "microhttpd.h"
 

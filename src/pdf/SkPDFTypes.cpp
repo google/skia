@@ -7,16 +7,16 @@
 
 #include "SkPDFTypes.h"
 
-#include "SkData.h"
+#include "include/core/SkData.h"
 #include "SkDeflate.h"
-#include "SkExecutor.h"
-#include "SkMakeUnique.h"
+#include "include/core/SkExecutor.h"
+#include "../core/SkMakeUnique.h"
 #include "SkPDFDocumentPriv.h"
 #include "SkPDFUnion.h"
 #include "SkPDFUtils.h"
-#include "SkStream.h"
-#include "SkStreamPriv.h"
-#include "SkTo.h"
+#include "include/core/SkStream.h"
+#include "../core/SkStreamPriv.h"
+#include "include/private/SkTo.h"
 
 #include <new>
 

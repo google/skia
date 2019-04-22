@@ -10,7 +10,7 @@
  **************************************************************************************************/
 #include "GrCircleBlurFragmentProcessor.h"
 
-#include "GrProxyProvider.h"
+#include "../../GrProxyProvider.h"
 
 // Computes an unnormalized half kernel (right side). Returns the summation of all the half
 // kernel values.
@@ -250,12 +250,12 @@ std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(
     return std::unique_ptr<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(
             circle, textureRadius, solidRadius, std::move(profile)));
 }
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "GrTexture.h"
-#include "SkSLCPP.h"
-#include "SkSLUtil.h"
+#include "../../glsl/GrGLSLFragmentProcessor.h"
+#include "../../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../../glsl/GrGLSLProgramBuilder.h"
+#include "include/gpu/GrTexture.h"
+#include "../../../sksl/SkSLCPP.h"
+#include "../../../sksl/SkSLUtil.h"
 class GrGLSLCircleBlurFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
     GrGLSLCircleBlurFragmentProcessor() {}

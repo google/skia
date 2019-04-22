@@ -9,19 +9,19 @@
 #define GrRenderTargetOpList_DEFINED
 
 #include "GrAppliedClip.h"
-#include "GrOpList.h"
+#include "include/private/GrOpList.h"
 #include "GrPathRendering.h"
 #include "GrPrimitiveProcessor.h"
 #include "ops/GrOp.h"
 #include "ops/GrDrawOp.h"
-#include "SkArenaAlloc.h"
-#include "SkClipStack.h"
-#include "SkMatrix.h"
-#include "SkStringUtils.h"
-#include "SkStrokeRec.h"
-#include "SkTArray.h"
-#include "SkTLazy.h"
-#include "SkTypes.h"
+#include "include/private/SkArenaAlloc.h"
+#include "../core/SkClipStack.h"
+#include "include/core/SkMatrix.h"
+#include "../core/SkStringUtils.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/private/SkTArray.h"
+#include "../core/SkTLazy.h"
+#include "include/core/SkTypes.h"
 
 class GrAuditTrail;
 class GrClearOp;

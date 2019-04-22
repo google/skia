@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <string>
 
-#include "SkBitmap.h"
+#include "include/core/SkBitmap.h"
 
 #include "skqp.h"
 

@@ -6,7 +6,7 @@
  */
 
 #include "Sk4fGradientBase.h"
-#include "SkPaint.h"
+#include "include/core/SkPaint.h"
 #include <functional>
 
 namespace {

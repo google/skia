@@ -8,7 +8,7 @@
 #ifndef SkRectPriv_DEFINED
 #define SkRectPriv_DEFINED
 
-#include "SkRect.h"
+#include "include/core/SkRect.h"
 #include "SkMathPriv.h"
 
 class SkRectPriv {

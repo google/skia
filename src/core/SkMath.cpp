@@ -6,11 +6,11 @@
  */
 
 #include "SkMathPriv.h"
-#include "SkFixed.h"
-#include "SkFloatBits.h"
-#include "SkFloatingPoint.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkFloatingPoint.h"
 #include "SkSafeMath.h"
-#include "SkScalar.h"
+#include "include/core/SkScalar.h"
 
 #define sub_shift(zeros, x, n)  \
     zeros -= n;                 \

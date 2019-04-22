@@ -8,7 +8,7 @@
 #ifndef GrVkResourceProvider_DEFINED
 #define GrVkResourceProvider_DEFINED
 
-#include "GrResourceHandle.h"
+#include "../GrResourceHandle.h"
 #include "GrVkDescriptorPool.h"
 #include "GrVkDescriptorSetManager.h"
 #include "GrVkPipelineStateBuilder.h"
@@ -17,11 +17,11 @@
 #include "GrVkSampler.h"
 #include "GrVkSamplerYcbcrConversion.h"
 #include "GrVkUtil.h"
-#include "SkLRUCache.h"
-#include "SkTArray.h"
-#include "SkTDynamicHash.h"
-#include "SkTInternalLList.h"
-#include "vk/GrVkTypes.h"
+#include "../../core/SkLRUCache.h"
+#include "include/private/SkTArray.h"
+#include "../../core/SkTDynamicHash.h"
+#include "include/private/SkTInternalLList.h"
+#include "include/gpu/vk/GrVkTypes.h"
 
 #include <mutex>
 #include <thread>

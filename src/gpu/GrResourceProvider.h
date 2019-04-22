@@ -8,11 +8,11 @@
 #ifndef GrResourceProvider_DEFINED
 #define GrResourceProvider_DEFINED
 
-#include "GrContextOptions.h"
+#include "include/gpu/GrContextOptions.h"
 #include "GrGpuBuffer.h"
 #include "GrResourceCache.h"
-#include "SkImageInfoPriv.h"
-#include "SkScalerContext.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "../core/SkScalerContext.h"
 
 class GrBackendRenderTarget;
 class GrBackendSemaphore;

@@ -6,9 +6,9 @@
  */
 
 #include "gm.h"
-#include "SkColorMatrixFilter.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkImage.h"
 
 #define WIDTH 500
 #define HEIGHT 500

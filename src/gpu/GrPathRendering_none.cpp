@@ -11,7 +11,7 @@
 #include "GrPathRenderer.h"
 #include "GrPathRendering.h"
 #include "GrResourceProvider.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLPathRendering.h"
 #include "ops/GrStencilAndCoverPathRenderer.h"

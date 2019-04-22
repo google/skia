@@ -6,7 +6,7 @@
  */
 
 #include "SkFontConfigInterface_direct.h"
-#include "SkOnce.h"
+#include "include/private/SkOnce.h"
 
 SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface() {
     static SkFontConfigInterface* singleton;

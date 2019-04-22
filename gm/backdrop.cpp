@@ -6,11 +6,11 @@
  */
 
 #include "gm.h"
-#include "SkBlurImageFilter.h"
-#include "SkGradientShader.h"
-#include "SkLiteDL.h"
-#include "SkLiteRecorder.h"
-#include "SkPictureRecorder.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "../src/core/SkLiteDL.h"
+#include "../src/core/SkLiteRecorder.h"
+#include "include/core/SkPictureRecorder.h"
 
 // Make a noisy (with hard-edges) background, so we can see the effect of the blur
 //

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkMakeUnique.h"
-#include "SkTypes.h"
-#include "SkString.h"
-#include "Skottie.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "../../src/core/SkMakeUnique.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkString.h"
+#include "modules/skottie/include/Skottie.h"
 
 #include <string>
 #include <vector>
@@ -20,8 +20,8 @@
 #include "WasmAliases.h"
 
 #if SK_INCLUDE_MANAGED_SKOTTIE
-#include "SkottieProperty.h"
-#include "SkottieUtils.h"
+#include "modules/skottie/include/SkottieProperty.h"
+#include "../skottie/utils/SkottieUtils.h"
 #endif // SK_INCLUDE_MANAGED_SKOTTIE
 
 using namespace emscripten;

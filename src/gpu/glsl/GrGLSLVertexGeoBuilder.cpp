@@ -9,7 +9,7 @@
 
 #include "GrGLSLProgramBuilder.h"
 #include "GrGLSLVarying.h"
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
 void GrGLSLVertexGeoBuilder::emitNormalizedSkPosition(SkString* out, const char* devPos,
                                                       const char* rtAdjustName,

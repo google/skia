@@ -8,8 +8,8 @@
 #include "SkPDFMakeToUnicodeCmap.h"
 
 #include "SkPDFUtils.h"
-#include "SkTo.h"
-#include "SkUTF.h"
+#include "include/private/SkTo.h"
+#include "../utils/SkUTF.h"
 
 static void append_tounicode_header(SkDynamicMemoryWStream* cmap,
                                     bool multibyte) {

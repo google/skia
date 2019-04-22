@@ -6,16 +6,16 @@
  */
 
 #include "GrVkCaps.h"
-#include "GrBackendSurface.h"
-#include "GrRenderTargetProxy.h"
-#include "GrRenderTarget.h"
-#include "GrShaderCaps.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/private/GrRenderTargetProxy.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "../GrShaderCaps.h"
 #include "GrVkInterface.h"
 #include "GrVkTexture.h"
 #include "GrVkUtil.h"
-#include "SkGr.h"
-#include "vk/GrVkBackendContext.h"
-#include "vk/GrVkExtensions.h"
+#include "../SkGr.h"
+#include "include/gpu/vk/GrVkBackendContext.h"
+#include "include/gpu/vk/GrVkExtensions.h"
 
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,

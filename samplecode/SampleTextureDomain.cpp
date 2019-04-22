@@ -6,10 +6,10 @@
  */
 
 #include "Sample.h"
-#include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
-#include "SkCanvas.h"
-#include "SkSurface.h"
+#include "../src/core/SkBlurMask.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
 
 static SkBitmap make_bitmap() {
     SkBitmap bm;

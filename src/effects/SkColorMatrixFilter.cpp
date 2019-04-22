@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorMatrixFilter.h"
+#include "include/effects/SkColorMatrixFilter.h"
 
 static SkScalar byte_to_scale(U8CPU byte) {
     if (0xFF == byte) {

@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkBitmapController.h"
+#include "include/private/SkArenaAlloc.h"
+#include "../core/SkBitmapController.h"
 #include "SkBitmapProcShader.h"
-#include "SkBitmapProvider.h"
-#include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformSteps.h"
+#include "../core/SkBitmapProvider.h"
+#include "../core/SkColorSpacePriv.h"
+#include "../core/SkColorSpaceXformSteps.h"
 #include "SkEmptyShader.h"
-#include "SkImage_Base.h"
+#include "../image/SkImage_Base.h"
 #include "SkImageShader.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "../core/SkRasterPipeline.h"
+#include "../core/SkReadBuffer.h"
+#include "../core/SkWriteBuffer.h"
 
 /**
  *  We are faster in clamp, so always use that tiling when we can.
@@ -164,13 +164,13 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
 
 #if SK_SUPPORT_GPU
 
-#include "GrCaps.h"
-#include "GrColorSpaceInfo.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "SkGr.h"
-#include "effects/GrBicubicEffect.h"
-#include "effects/generated/GrSimpleTextureEffect.h"
+#include "../gpu/GrCaps.h"
+#include "../gpu/GrColorSpaceInfo.h"
+#include "include/private/GrRecordingContext.h"
+#include "../gpu/GrRecordingContextPriv.h"
+#include "../gpu/SkGr.h"
+#include "../gpu/effects/GrBicubicEffect.h"
+#include "../gpu/effects/generated/GrSimpleTextureEffect.h"
 
 static GrSamplerState::WrapMode tile_mode_to_wrap_mode(const SkTileMode tileMode) {
     switch (tileMode) {
@@ -266,7 +266,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkImagePriv.h"
+#include "../core/SkImagePriv.h"
 
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkTileMode tmx, SkTileMode tmy,
                                    const SkMatrix* localMatrix, SkCopyPixelsMode cpm) {

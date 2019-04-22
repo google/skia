@@ -7,12 +7,12 @@
 
 #include "GrYUVtoRGBEffect.h"
 
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "GrTexture.h"
-#include "SkSLCPP.h"
-#include "SkSLUtil.h"
+#include "../glsl/GrGLSLFragmentProcessor.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLProgramBuilder.h"
+#include "include/gpu/GrTexture.h"
+#include "../../sksl/SkSLCPP.h"
+#include "../../sksl/SkSLUtil.h"
 
 static const float kJPEGConversionMatrix[16] = {
     1.0f,  0.0f,       1.402f,    -0.703749f,

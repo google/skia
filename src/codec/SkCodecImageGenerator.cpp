@@ -6,9 +6,9 @@
  */
 
 #include "SkCodecImageGenerator.h"
-#include "SkMakeUnique.h"
-#include "SkPixmapPriv.h"
-#include "SkYUVAIndex.h"
+#include "../core/SkMakeUnique.h"
+#include "../core/SkPixmapPriv.h"
+#include "include/core/SkYUVAIndex.h"
 
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk_sp<SkData> data) {
     auto codec = SkCodec::MakeFromData(data);

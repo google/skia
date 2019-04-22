@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrBackendSurface.h"
-#include "SkCanvas.h"
-#include "SkFontLCDConfig.h"
-#include "SkImagePriv.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFontLCDConfig.h"
+#include "../core/SkImagePriv.h"
 #include "SkSurface_Base.h"
 #include <atomic>
 
@@ -291,7 +291,7 @@ bool SkSurface::draw(SkDeferredDisplayList* ddl) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-#include "SkNoDrawCanvas.h"
+#include "include/utils/SkNoDrawCanvas.h"
 
 class SkNullSurface : public SkSurface_Base {
 public:

@@ -6,14 +6,14 @@
  */
 
 #include "GrBezierEffect.h"
-#include "GrShaderCaps.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLUtil.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "../GrShaderCaps.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLGeometryProcessor.h"
+#include "../glsl/GrGLSLProgramDataManager.h"
+#include "../glsl/GrGLSLUniformHandler.h"
+#include "../glsl/GrGLSLUtil.h"
+#include "../glsl/GrGLSLVarying.h"
+#include "../glsl/GrGLSLVertexGeoBuilder.h"
 
 class GrGLConicEffect : public GrGLSLGeometryProcessor {
 public:

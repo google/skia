@@ -6,18 +6,18 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkImageGenerator.h"
-#include "SkImage_Base.h"
-#include "SkMakeUnique.h"
-#include "SkPictureRecorder.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageGenerator.h"
+#include "../src/image/SkImage_Base.h"
+#include "../src/core/SkMakeUnique.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSurface.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrSurfaceContext.h"
-#include "GrTextureProxy.h"
+#include "include/gpu/GrContext.h"
+#include "../src/gpu/GrContextPriv.h"
+#include "../src/gpu/GrSurfaceContext.h"
+#include "include/private/GrTextureProxy.h"
 #include "../src/image/SkImage_Gpu.h"
 
 static void draw_something(SkCanvas* canvas, const SkRect& bounds) {

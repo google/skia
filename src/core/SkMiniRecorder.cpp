@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 #include "SkTLazy.h"
 #include "SkMiniRecorder.h"
-#include "SkOnce.h"
-#include "SkPicture.h"
+#include "include/private/SkOnce.h"
+#include "include/core/SkPicture.h"
 #include "SkPictureCommon.h"
 #include "SkRecordDraw.h"
 #include "SkRectPriv.h"
-#include "SkTextBlob.h"
+#include "include/core/SkTextBlob.h"
 #include <new>
 
 using namespace SkRecords;

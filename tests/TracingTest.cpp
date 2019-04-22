@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "SkImageInfo.h"
-#include "SkLeanWindows.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkTraceEvent.h"
+#include "../tools/flags/CommandLineFlags.h"
+#include "include/core/SkImageInfo.h"
+#include "include/private/SkLeanWindows.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "../src/core/SkTraceEvent.h"
 #include "Test.h"
 
 static DEFINE_bool(slowTracingTest, false,

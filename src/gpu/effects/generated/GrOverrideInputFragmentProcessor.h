@@ -10,9 +10,9 @@
  **************************************************************************************************/
 #ifndef GrOverrideInputFragmentProcessor_DEFINED
 #define GrOverrideInputFragmentProcessor_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "include/core/SkTypes.h"
+#include "../../GrFragmentProcessor.h"
+#include "../../GrCoordTransform.h"
 class GrOverrideInputFragmentProcessor : public GrFragmentProcessor {
 public:
     static OptimizationFlags OptFlags(const std::unique_ptr<GrFragmentProcessor>& fp,

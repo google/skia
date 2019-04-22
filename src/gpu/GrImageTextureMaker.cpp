@@ -8,8 +8,8 @@
 #include "GrColorSpaceXform.h"
 #include "GrImageTextureMaker.h"
 #include "SkGr.h"
-#include "SkImage_GpuYUVA.h"
-#include "SkImage_Lazy.h"
+#include "../image/SkImage_GpuYUVA.h"
+#include "../image/SkImage_Lazy.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
 GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,

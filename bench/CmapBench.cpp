@@ -6,12 +6,12 @@
  */
 
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkCharToGlyphCache.h"
-#include "SkFont.h"
-#include "SkRandom.h"
-#include "SkTypeface.h"
-#include "SkUTF.h"
+#include "include/core/SkCanvas.h"
+#include "../src/utils/SkCharToGlyphCache.h"
+#include "include/core/SkFont.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkTypeface.h"
+#include "../src/utils/SkUTF.h"
 
 enum {
     NGLYPHS = 100

@@ -8,8 +8,8 @@
 #ifndef GrBitmapTextGeoProc_DEFINED
 #define GrBitmapTextGeoProc_DEFINED
 
-#include "GrProcessor.h"
-#include "GrGeometryProcessor.h"
+#include "../GrProcessor.h"
+#include "../GrGeometryProcessor.h"
 
 class GrGLBitmapTextGeoProc;
 class GrInvariantOutput;

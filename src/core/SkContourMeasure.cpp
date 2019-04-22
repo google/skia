@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkContourMeasure.h"
+#include "include/core/SkContourMeasure.h"
 #include "SkPathMeasurePriv.h"
 #include "SkGeometry.h"
-#include "SkPath.h"
-#include "SkTSearch.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkTSearch.h"
 
 #define kMaxTValue  0x3FFFFFFF
 

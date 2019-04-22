@@ -7,17 +7,17 @@
 
 #include "SkWebpCodec.h"
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkCodecAnimation.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/codec/SkCodecAnimation.h"
 #include "SkCodecAnimationPriv.h"
 #include "SkCodecPriv.h"
-#include "SkMakeUnique.h"
-#include "SkRasterPipeline.h"
+#include "../core/SkMakeUnique.h"
+#include "../core/SkRasterPipeline.h"
 #include "SkSampler.h"
-#include "SkStreamPriv.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
+#include "../core/SkStreamPriv.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 
 // A WebP decoder on top of (subset of) libwebp
 // For more information on WebP image format, and libwebp library, see:

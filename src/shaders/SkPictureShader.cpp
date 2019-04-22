@@ -7,25 +7,25 @@
 
 #include "SkPictureShader.h"
 
-#include "SkArenaAlloc.h"
-#include "SkBitmap.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/core/SkBitmap.h"
 #include "SkBitmapProcShader.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
 #include "SkImageShader.h"
-#include "SkMatrixUtils.h"
-#include "SkPicturePriv.h"
-#include "SkReadBuffer.h"
-#include "SkResourceCache.h"
+#include "../core/SkMatrixUtils.h"
+#include "../core/SkPicturePriv.h"
+#include "../core/SkReadBuffer.h"
+#include "../core/SkResourceCache.h"
 #include <atomic>
 
 #if SK_SUPPORT_GPU
-#include "GrCaps.h"
-#include "GrColorSpaceInfo.h"
-#include "GrFragmentProcessor.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "SkGr.h"
+#include "../gpu/GrCaps.h"
+#include "../gpu/GrColorSpaceInfo.h"
+#include "../gpu/GrFragmentProcessor.h"
+#include "include/private/GrRecordingContext.h"
+#include "../gpu/GrRecordingContextPriv.h"
+#include "../gpu/SkGr.h"
 #endif
 
 sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix* localMatrix,
@@ -318,8 +318,8 @@ void SkPictureShader::PictureShaderContext::shadeSpan(int x, int y, SkPMColor ds
 }
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "include/gpu/GrContext.h"
+#include "../gpu/GrContextPriv.h"
 
 std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         const GrFPArgs& args) const {

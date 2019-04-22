@@ -9,16 +9,16 @@
 
 #include "Test.h"
 
-#include "GrBackendSurface.h"
-#include "GrContextPriv.h"
-#include "GrResourceCache.h"
-#include "GrProxyProvider.h"
-#include "GrResourceProvider.h"
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "../src/gpu/GrContextPriv.h"
+#include "../src/gpu/GrResourceCache.h"
+#include "../src/gpu/GrProxyProvider.h"
+#include "../src/gpu/GrResourceProvider.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrTextureProxy.h"
 
-#include "SkGr.h"
-#include "SkImage.h"
+#include "../src/gpu/SkGr.h"
+#include "include/core/SkImage.h"
 
 int GrProxyProvider::numUniqueKeyProxies_TestOnly() const {
     return fUniquelyKeyedProxies.count();

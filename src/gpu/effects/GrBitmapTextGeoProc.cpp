@@ -8,15 +8,15 @@
 #include "GrBitmapTextGeoProc.h"
 
 #include "GrAtlasedShaderHelpers.h"
-#include "GrCaps.h"
-#include "GrShaderCaps.h"
-#include "GrTexture.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "../GrCaps.h"
+#include "../GrShaderCaps.h"
+#include "include/gpu/GrTexture.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLGeometryProcessor.h"
+#include "../glsl/GrGLSLProgramDataManager.h"
+#include "../glsl/GrGLSLUniformHandler.h"
+#include "../glsl/GrGLSLVarying.h"
+#include "../glsl/GrGLSLVertexGeoBuilder.h"
 
 class GrGLBitmapTextGeoProc : public GrGLSLGeometryProcessor {
 public:

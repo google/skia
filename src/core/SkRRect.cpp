@@ -7,8 +7,8 @@
 
 #include "SkRRectPriv.h"
 #include "SkBuffer.h"
-#include "SkMalloc.h"
-#include "SkMatrix.h"
+#include "include/private/SkMalloc.h"
+#include "include/core/SkMatrix.h"
 #include "SkScaleToSides.h"
 
 #include <cmath>
@@ -568,7 +568,7 @@ bool SkRRectPriv::ReadFromBuffer(SkRBuffer* buffer, SkRRect* rr) {
            (rr->readFromMemory(&storage, SkRRect::kSizeInMemory) == SkRRect::kSizeInMemory);
 }
 
-#include "SkString.h"
+#include "include/core/SkString.h"
 #include "SkStringUtils.h"
 
 void SkRRect::dump(bool asHex) const {

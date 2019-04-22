@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontDescriptor.h"
-#include "SkOpts.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTypeface.h"
+#include "../core/SkFontDescriptor.h"
+#include "../core/SkOpts.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
 #include "SkUTF.h"
 #include "../sfnt/SkOTUtils.h"
 
@@ -249,7 +249,7 @@ const char checksumTrailer[] =
 "static const int whitelistCount = (int) SK_ARRAY_COUNT(whitelist);"        "\n";
 
 
-#include "SkOSFile.h"
+#include "../core/SkOSFile.h"
 
 bool GenerateChecksums() {
     FILE* file = sk_fopen(checksumFileName, kWrite_SkFILE_Flag);

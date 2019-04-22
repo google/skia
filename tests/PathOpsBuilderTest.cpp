@@ -7,7 +7,7 @@
 
 #include "PathOpsExtendedTest.h"
 #include "PathOpsTestCommon.h"
-#include "SkBitmap.h"
+#include "include/core/SkBitmap.h"
 #include "Test.h"
 
 DEF_TEST(PathOpsBuilder, reporter) {

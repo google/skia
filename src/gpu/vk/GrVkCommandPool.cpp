@@ -7,7 +7,7 @@
 
 #include "GrVkCommandPool.h"
 
-#include "GrContextPriv.h"
+#include "../GrContextPriv.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkGpu.h"
 

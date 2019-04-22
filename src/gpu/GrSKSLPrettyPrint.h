@@ -7,7 +7,7 @@
 #ifndef GrSKSLPrettyPrint_DEFINED
 #define GrSKSLPrettyPrint_DEFINED
 
-#include "SkSLString.h"
+#include "../sksl/SkSLString.h"
 
 namespace GrSKSLPrettyPrint {
 SkSL::String PrettyPrint(const SkSL::String& string);

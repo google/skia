@@ -7,22 +7,22 @@
 
 #include "GrTextContext.h"
 
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrRecordingContextPriv.h"
+#include "../GrCaps.h"
+#include "include/gpu/GrContext.h"
+#include "../GrRecordingContextPriv.h"
 #include "GrSDFMaskFilter.h"
 #include "GrTextBlobCache.h"
-#include "SkDistanceFieldGen.h"
-#include "SkDraw.h"
-#include "SkDrawProcs.h"
-#include "SkGlyphRun.h"
-#include "SkGr.h"
-#include "SkGraphics.h"
-#include "SkMakeUnique.h"
-#include "SkMaskFilterBase.h"
-#include "SkPaintPriv.h"
-#include "SkTo.h"
-#include "ops/GrMeshDrawOp.h"
+#include "../../core/SkDistanceFieldGen.h"
+#include "../../core/SkDraw.h"
+#include "../../core/SkDrawProcs.h"
+#include "../../core/SkGlyphRun.h"
+#include "../SkGr.h"
+#include "include/core/SkGraphics.h"
+#include "../../core/SkMakeUnique.h"
+#include "../../core/SkMaskFilterBase.h"
+#include "../../core/SkPaintPriv.h"
+#include "include/private/SkTo.h"
+#include "../ops/GrMeshDrawOp.h"
 
 // DF sizes and thresholds for usage of the small and medium sizes. For example, above
 // kSmallDFFontLimit we will use the medium size. The large size is used up until the size at
@@ -222,7 +222,7 @@ SkPaint GrTextContext::InitDistanceFieldPaint(const SkPaint& paint) {
 
 #if GR_TEST_UTILS
 
-#include "GrRenderTargetContext.h"
+#include "../GrRenderTargetContext.h"
 
 GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     static uint32_t gContextID = SK_InvalidGenID;

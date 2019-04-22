@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkGradientShader.h"
-#include "SkSurface.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkSurface.h"
 #include "gm.h"
 
 static void make_transparency(SkCanvas* canvas, SkScalar width, SkScalar height) {

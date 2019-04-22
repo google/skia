@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathMeasure.h"
+#include "include/core/SkPathMeasure.h"
 #include "Test.h"
 
 static void test_small_segment3() {
@@ -228,7 +228,7 @@ DEF_TEST(PathMeasure_nextctr, reporter) {
     REPORTER_ASSERT(reporter, !meas.nextContour());
 }
 
-#include "SkContourMeasure.h"
+#include "include/core/SkContourMeasure.h"
 
 static void test_90_degrees(sk_sp<SkContourMeasure> cm, SkScalar radius,
                             skiatest::Reporter* reporter) {

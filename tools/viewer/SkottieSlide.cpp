@@ -9,12 +9,12 @@
 
 #if defined(SK_ENABLE_SKOTTIE)
 
-#include "AnimTimer.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkOSPath.h"
-#include "Skottie.h"
-#include "SkottieUtils.h"
+#include "../timer/AnimTimer.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "../../src/utils/SkOSPath.h"
+#include "modules/skottie/include/Skottie.h"
+#include "../../modules/skottie/utils/SkottieUtils.h"
 
 #include <cmath>
 

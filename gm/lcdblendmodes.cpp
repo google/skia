@@ -10,10 +10,10 @@
  * Tests text rendering with LCD and the various blend modes.
  */
 
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkSurface.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 namespace skiagm {

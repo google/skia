@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilterImageFilter.h"
-#include "SkColorMatrixFilter.h"
-#include "SkImage.h"
-#include "SkImageSource.h"
-#include "SkTileImageFilter.h"
-#include "ToolUtils.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/core/SkImage.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkTileImageFilter.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 #define WIDTH 400

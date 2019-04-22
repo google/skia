@@ -8,8 +8,8 @@
 #include "Request.h"
 #include "Response.h"
 
-#include "CommandLineFlags.h"
-#include "SkGraphics.h"
+#include "../flags/CommandLineFlags.h"
+#include "include/core/SkGraphics.h"
 
 #include "urlhandlers/UrlHandler.h"
 

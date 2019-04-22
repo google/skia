@@ -7,9 +7,9 @@
 
 #include "Sample.h"
 
-#include "AnimTimer.h"
-#include "Resources.h"
-#include "nima/NimaActor.h"
+#include "../tools/timer/AnimTimer.h"
+#include "../tools/Resources.h"
+#include "../experimental/nima/NimaActor.h"
 
 #include <nima/Animation/ActorAnimationInstance.hpp>
 #include <cmath>

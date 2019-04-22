@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "effects/GrDisableColorXP.h"
-#include "GrShaderCaps.h"
-#include "GrPipeline.h"
-#include "GrProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLXferProcessor.h"
+#include "GrDisableColorXP.h"
+#include "../GrShaderCaps.h"
+#include "../GrPipeline.h"
+#include "../GrProcessor.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLProgramDataManager.h"
+#include "../glsl/GrGLSLXferProcessor.h"
 
 /**
  * This xfer processor disables color writing. Thus color and coverage and ignored and no blending

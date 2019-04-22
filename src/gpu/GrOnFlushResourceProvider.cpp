@@ -10,10 +10,10 @@
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
+#include "include/private/GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
-#include "GrSurfaceProxy.h"
+#include "include/private/GrSurfaceProxy.h"
 
 sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
                                                         sk_sp<GrSurfaceProxy> proxy,

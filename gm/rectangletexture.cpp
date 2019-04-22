@@ -9,14 +9,14 @@
 
 #include "gm.h"
 
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "gl/GrGLContext.h"
-#include "SkBitmap.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "../src/gpu/GrContextPriv.h"
+#include "../src/gpu/GrGpu.h"
+#include "../src/gpu/gl/GrGLContext.h"
+#include "include/core/SkBitmap.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkImage.h"
 
 namespace skiagm {
 class RectangleTexture : public GpuGM {

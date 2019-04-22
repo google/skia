@@ -10,9 +10,9 @@
  **************************************************************************************************/
 #ifndef GrAARectEffect_DEFINED
 #define GrAARectEffect_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "include/core/SkTypes.h"
+#include "../../GrFragmentProcessor.h"
+#include "../../GrCoordTransform.h"
 class GrAARectEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkRect rect) {

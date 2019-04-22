@@ -7,13 +7,13 @@
 
 #include "GrCCDrawPathsOp.h"
 
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "ccpr/GrCCPathCache.h"
-#include "ccpr/GrCCPerFlushResources.h"
-#include "ccpr/GrCoverageCountingPathRenderer.h"
+#include "../GrMemoryPool.h"
+#include "../GrOpFlushState.h"
+#include "include/private/GrRecordingContext.h"
+#include "../GrRecordingContextPriv.h"
+#include "GrCCPathCache.h"
+#include "GrCCPerFlushResources.h"
+#include "GrCoverageCountingPathRenderer.h"
 
 static bool has_coord_transforms(const GrPaint& paint) {
     GrFragmentProcessor::Iter iter(paint);

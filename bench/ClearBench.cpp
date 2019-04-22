@@ -12,13 +12,13 @@
 
 #include "Benchmark.h"
 
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
-#include "SkRect.h"
-#include "SkRRect.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRRect.h"
 
-#include "GrRenderTargetContext.h"
+#include "../src/gpu/GrRenderTargetContext.h"
 
 static sk_sp<SkShader> make_shader() {
     static const SkPoint kPts[] = {{0, 0}, {10, 10}};

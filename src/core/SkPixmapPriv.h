@@ -8,8 +8,8 @@
 #ifndef SkPixmapPriv_DEFINED
 #define SkPixmapPriv_DEFINED
 
-#include "SkPixmap.h"
-#include "SkEncodedOrigin.h"
+#include "include/core/SkPixmap.h"
+#include "include/codec/SkEncodedOrigin.h"
 #include "SkAutoPixmapStorage.h"
 
 class SkPixmapPriv {

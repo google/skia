@@ -8,8 +8,8 @@
 #ifndef SkLumaColorFilter_DEFINED
 #define SkLumaColorFilter_DEFINED
 
-#include "SkColorFilter.h"
-#include "SkRefCnt.h"
+#include "../core/SkColorFilter.h"
+#include "../core/SkRefCnt.h"
 
 class SkRasterPipeline;
 
@@ -31,7 +31,7 @@ class SkRasterPipeline;
  *  SkLumaColorFilter and feColorMatrix+luminanceToAlpha agree there.)
  */
 
- #include "SkFlattenable.h"
+#include "../core/SkFlattenable.h"
 
 class SK_API SkLumaColorFilter : public SkColorFilter {
 public:

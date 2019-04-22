@@ -42,8 +42,8 @@ private:
 
 #else
 
-#include "SkData.h"
-#include "SkStream.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
 
 namespace SkSL {
 

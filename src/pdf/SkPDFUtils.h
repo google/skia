@@ -7,14 +7,14 @@
 #ifndef SkPDFUtils_DEFINED
 #define SkPDFUtils_DEFINED
 
-#include "SkFloatToDecimal.h"
+#include "../utils/SkFloatToDecimal.h"
 #include "SkPDFTypes.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkShader.h"
-#include "SkShaderBase.h"
-#include "SkStream.h"
-#include "SkUtils.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkShader.h"
+#include "../shaders/SkShaderBase.h"
+#include "include/core/SkStream.h"
+#include "../core/SkUtils.h"
 
 class SkMatrix;
 class SkPDFArray;

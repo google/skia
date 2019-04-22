@@ -3,10 +3,10 @@
 #ifndef SkPDFGraphicStackState_DEFINED
 #define SkPDFGraphicStackState_DEFINED
 
-#include "SkClipStack.h"
-#include "SkColor.h"
-#include "SkMatrix.h"
-#include "SkScalar.h"
+#include "../core/SkClipStack.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkScalar.h"
 
 class SkDynamicMemoryWStream;
 

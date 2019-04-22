@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkPathPriv.h"
-#include "SkRRect.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "../src/core/SkPathPriv.h"
+#include "include/core/SkRRect.h"
 #include "Test.h"
 
 static SkRRect path_contains_rrect(skiatest::Reporter* reporter, const SkPath& path,

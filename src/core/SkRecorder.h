@@ -9,12 +9,12 @@
 #define SkRecorder_DEFINED
 
 #include "SkBigPicture.h"
-#include "SkCanvasVirtualEnforcer.h"
+#include "include/core/SkCanvasVirtualEnforcer.h"
 #include "SkMiniRecorder.h"
-#include "SkNoDrawCanvas.h"
+#include "include/utils/SkNoDrawCanvas.h"
 #include "SkRecord.h"
 #include "SkRecords.h"
-#include "SkTDArray.h"
+#include "include/private/SkTDArray.h"
 
 class SkBBHFactory;
 

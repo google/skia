@@ -7,8 +7,8 @@
 
 #include "SkSVGContainer.h"
 
-#include "SkPath.h"
-#include "SkPathOps.h"
+#include "include/core/SkPath.h"
+#include "include/pathops/SkPathOps.h"
 
 SkSVGContainer::SkSVGContainer(SkSVGTag t) : INHERITED(t) { }
 

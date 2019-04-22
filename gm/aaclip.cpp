@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvasPriv.h"
-#include "SkMakeUnique.h"
-#include "SkPath.h"
-#include "ToolUtils.h"
+#include "../src/core/SkCanvasPriv.h"
+#include "../src/core/SkMakeUnique.h"
+#include "include/core/SkPath.h"
+#include "../tools/ToolUtils.h"
 #include "gm.h"
 
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
@@ -161,7 +161,7 @@ static std::unique_ptr<SkCanvas> make_canvas(const SkBitmap& bm) {
     }
 }
 
-#include "SkCGUtils.h"
+#include "include/utils/mac/SkCGUtils.h"
 static void test_image(SkCanvas* canvas, const SkImageInfo& info) {
     SkBitmap bm;
     bm.allocPixels(info);

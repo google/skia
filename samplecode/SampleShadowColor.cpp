@@ -6,14 +6,14 @@
  * found in the LICENSE file.
  */
 #include "Sample.h"
-#include "Resources.h"
+#include "../tools/Resources.h"
 
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkImage.h"
-#include "SkPath.h"
-#include "SkPoint3.h"
-#include "SkShadowUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint3.h"
+#include "include/utils/SkShadowUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Sample to demonstrate tonal color shadows

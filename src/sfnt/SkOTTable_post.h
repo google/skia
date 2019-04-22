@@ -8,7 +8,7 @@
 #ifndef SkOTTable_post_DEFINED
 #define SkOTTable_post_DEFINED
 
-#include "SkEndian.h"
+#include "../core/SkEndian.h"
 #include "SkOTTableTypes.h"
 
 #pragma pack(push, 1)

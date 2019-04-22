@@ -10,7 +10,7 @@
 
 #include "SkSGEffectNode.h"
 
-#include "SkBlendMode.h"
+#include "include/core/SkBlendMode.h"
 
 #include <vector>
 

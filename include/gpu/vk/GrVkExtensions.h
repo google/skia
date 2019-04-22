@@ -9,8 +9,8 @@
 #define GrVkExtensions_DEFINED
 
 #include "../../private/SkTArray.h"
-#include "SkString.h"
-#include "vk/GrVkTypes.h"
+#include "../../core/SkString.h"
+#include "GrVkTypes.h"
 
 /**
  * Helper class that eats in an array of extensions strings for instance and device and allows for

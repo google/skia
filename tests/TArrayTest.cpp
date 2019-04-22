@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkRandom.h"
-#include "SkRefCnt.h"
-#include "SkTArray.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTArray.h"
 #include "Test.h"
 
 // Tests the SkTArray<T> class template.

@@ -7,10 +7,10 @@
 
 #include "SkJSON.h"
 
-#include "SkMalloc.h"
-#include "SkParse.h"
-#include "SkStream.h"
-#include "SkString.h"
+#include "include/private/SkMalloc.h"
+#include "include/utils/SkParse.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "SkUTF.h"
 
 #include <cmath>

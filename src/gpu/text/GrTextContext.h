@@ -9,12 +9,12 @@
 #define GrTextContext_DEFINED
 
 #include "GrDistanceFieldAdjustTable.h"
-#include "GrGeometryProcessor.h"
+#include "../GrGeometryProcessor.h"
 #include "GrTextTarget.h"
-#include "SkGlyphRun.h"
+#include "../../core/SkGlyphRun.h"
 
 #if GR_TEST_UTILS
-#include "GrDrawOpTest.h"
+#include "../GrDrawOpTest.h"
 #endif
 
 class GrDrawOp;

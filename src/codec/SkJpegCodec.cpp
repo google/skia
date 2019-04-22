@@ -7,15 +7,15 @@
 
 #include "SkJpegCodec.h"
 
-#include "SkCodec.h"
+#include "include/codec/SkCodec.h"
 #include "SkCodecPriv.h"
-#include "SkColorData.h"
+#include "include/private/SkColorData.h"
 #include "SkJpegDecoderMgr.h"
-#include "SkJpegInfo.h"
-#include "SkStream.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
-#include "SkTypes.h"
+#include "../pdf/SkJpegInfo.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
+#include "include/core/SkTypes.h"
 
 // stdio is needed for libjpeg-turbo
 #include <stdio.h>

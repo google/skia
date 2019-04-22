@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkRTree.h"
-#include "SkRandom.h"
+#include "../src/core/SkRTree.h"
+#include "include/utils/SkRandom.h"
 #include "Test.h"
 
 static const int NUM_RECTS = 200;

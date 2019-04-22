@@ -6,9 +6,9 @@
  */
 
 #include "gm.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkRRect.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkRRect.h"
 
 namespace skiagm {
 

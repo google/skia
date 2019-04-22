@@ -6,22 +6,22 @@
  */
 
 #include "GrBackendTextureImageGenerator.h"
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
+#include "include/private/GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrResourceProviderPriv.h"
 #include "GrSemaphore.h"
-#include "GrTexture.h"
+#include "include/gpu/GrTexture.h"
 #include "GrTexturePriv.h"
 #include "GrTextureProxyPriv.h"
 #include "SkGr.h"
-#include "SkMessageBus.h"
+#include "include/private/SkMessageBus.h"
 #include "gl/GrGLTexture.h"
 
 GrBackendTextureImageGenerator::RefHelper::RefHelper(GrTexture* texture, uint32_t owningContextID)

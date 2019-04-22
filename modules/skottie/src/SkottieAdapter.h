@@ -8,9 +8,9 @@
 #ifndef SkottieAdapter_DEFINED
 #define SkottieAdapter_DEFINED
 
-#include "SkPoint.h"
-#include "SkRefCnt.h"
-#include "SkSize.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "SkottieValue.h"
 
 namespace sksg {

@@ -6,11 +6,11 @@
  */
 
 #include "gm.h"
-#include "SkImage.h"
-#include "SkImageInfoPriv.h"
-#include "SkJpegEncoder.h"
+#include "include/core/SkImage.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "include/encode/SkJpegEncoder.h"
 
-#include "Resources.h"
+#include "../tools/Resources.h"
 
 namespace skiagm {
 

@@ -8,12 +8,12 @@
 #ifndef GrSurfaceProxy_DEFINED
 #define GrSurfaceProxy_DEFINED
 
-#include "../private/SkNoncopyable.h"
-#include "GrBackendSurface.h"
-#include "GrGpuResource.h"
-#include "GrSurface.h"
-#include "GrTexture.h"
-#include "SkRect.h"
+#include "SkNoncopyable.h"
+#include "../gpu/GrBackendSurface.h"
+#include "../gpu/GrGpuResource.h"
+#include "../gpu/GrSurface.h"
+#include "../gpu/GrTexture.h"
+#include "../core/SkRect.h"
 
 class GrCaps;
 class GrContext_Base;

@@ -21,12 +21,12 @@
 #include "generated/GrUnrolledBinaryGradientColorizer.h"
 #include "GrGradientBitmapCache.h"
 
-#include "GrCaps.h"
-#include "GrColor.h"
-#include "GrColorSpaceInfo.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "SkGr.h"
+#include "../GrCaps.h"
+#include "include/private/GrColor.h"
+#include "../GrColorSpaceInfo.h"
+#include "include/private/GrRecordingContext.h"
+#include "../GrRecordingContextPriv.h"
+#include "../SkGr.h"
 
 // Intervals smaller than this (that aren't hard stops) on low-precision-only devices force us to
 // use the textured gradient

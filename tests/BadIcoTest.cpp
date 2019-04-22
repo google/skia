@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTypes.h"
+#include "../tools/Resources.h"
+#include "include/core/SkBitmap.h"
+#include "include/codec/SkCodec.h"
+#include "../src/utils/SkOSPath.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "Test.h"
 
 #include <memory>

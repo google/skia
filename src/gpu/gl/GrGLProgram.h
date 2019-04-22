@@ -10,8 +10,8 @@
 #define GrGLProgram_DEFINED
 
 #include "GrGLProgramDataManager.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "../glsl/GrGLSLProgramDataManager.h"
+#include "../glsl/GrGLSLUniformHandler.h"
 
 class GrGLSLFragmentProcessor;
 class GrGLSLPrimitiveProcessor;

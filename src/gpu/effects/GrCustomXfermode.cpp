@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "effects/GrCustomXfermode.h"
+#include "GrCustomXfermode.h"
 
-#include "GrCaps.h"
-#include "GrCoordTransform.h"
-#include "GrFragmentProcessor.h"
-#include "GrPipeline.h"
-#include "GrProcessor.h"
-#include "GrShaderCaps.h"
-#include "glsl/GrGLSLBlend.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLXferProcessor.h"
+#include "../GrCaps.h"
+#include "../GrCoordTransform.h"
+#include "../GrFragmentProcessor.h"
+#include "../GrPipeline.h"
+#include "../GrProcessor.h"
+#include "../GrShaderCaps.h"
+#include "../glsl/GrGLSLBlend.h"
+#include "../glsl/GrGLSLFragmentProcessor.h"
+#include "../glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../glsl/GrGLSLProgramDataManager.h"
+#include "../glsl/GrGLSLUniformHandler.h"
+#include "../glsl/GrGLSLXferProcessor.h"
 
 bool GrCustomXfermode::IsSupportedMode(SkBlendMode mode) {
     return (int)mode  > (int)SkBlendMode::kLastCoeffMode &&

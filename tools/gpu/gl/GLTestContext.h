@@ -8,8 +8,8 @@
 #ifndef GLTestContext_DEFINED
 #define GLTestContext_DEFINED
 
-#include "TestContext.h"
-#include "gl/GrGLInterface.h"
+#include "../TestContext.h"
+#include "include/gpu/gl/GrGLInterface.h"
 
 namespace sk_gpu_test {
 /**

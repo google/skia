@@ -7,13 +7,13 @@
 
 #include "SkBmpCodec.h"
 #include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkData.h"
+#include "include/private/SkColorData.h"
+#include "include/core/SkData.h"
 #include "SkIcoCodec.h"
 #include "SkPngCodec.h"
-#include "SkStream.h"
-#include "SkTDArray.h"
-#include "SkTSort.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTDArray.h"
+#include "../core/SkTSort.h"
 
 /*
  * Checks the start of the stream to see if the image is an Ico or Cur

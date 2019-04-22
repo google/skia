@@ -6,9 +6,9 @@
  */
 
 #include "SkDashPathPriv.h"
-#include "SkPathMeasure.h"
-#include "SkPointPriv.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkPathMeasure.h"
+#include "../core/SkPointPriv.h"
+#include "include/core/SkStrokeRec.h"
 
 #include <utility>
 

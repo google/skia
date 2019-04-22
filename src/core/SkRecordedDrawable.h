@@ -8,7 +8,7 @@
 #define SkRecordedDrawable_DEFINED
 
 #include "SkBBoxHierarchy.h"
-#include "SkDrawable.h"
+#include "include/core/SkDrawable.h"
 #include "SkRecord.h"
 #include "SkRecorder.h"
 

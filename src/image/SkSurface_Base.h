@@ -8,10 +8,10 @@
 #ifndef SkSurface_Base_DEFINED
 #define SkSurface_Base_DEFINED
 
-#include "SkCanvas.h"
-#include "SkImagePriv.h"
-#include "SkSurface.h"
-#include "SkSurfacePriv.h"
+#include "include/core/SkCanvas.h"
+#include "../core/SkImagePriv.h"
+#include "include/core/SkSurface.h"
+#include "../core/SkSurfacePriv.h"
 
 class SkSurface_Base : public SkSurface {
 public:

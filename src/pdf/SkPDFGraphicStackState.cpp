@@ -3,9 +3,9 @@
 
 #include "SkPDFGraphicStackState.h"
 
-#include "SkStream.h"
+#include "include/core/SkStream.h"
 #include "SkPDFUtils.h"
-#include "SkPathOps.h"
+#include "include/pathops/SkPathOps.h"
 
 static SkPath to_path(const SkRect& r) {
     SkPath p;

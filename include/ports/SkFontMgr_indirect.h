@@ -11,11 +11,11 @@
 #include "../private/SkMutex.h"
 #include "../private/SkOnce.h"
 #include "../private/SkTArray.h"
-#include "SkFontMgr.h"
-#include "SkRefCnt.h"
+#include "../core/SkFontMgr.h"
+#include "../core/SkRefCnt.h"
 #include "SkRemotableFontMgr.h"
-#include "SkTypeface.h"
-#include "SkTypes.h"
+#include "../core/SkTypeface.h"
+#include "../core/SkTypes.h"
 
 class SkData;
 class SkFontStyle;

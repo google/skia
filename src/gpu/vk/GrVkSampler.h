@@ -10,8 +10,8 @@
 
 #include "GrVkResource.h"
 #include "GrVkSamplerYcbcrConversion.h"
-#include "SkOpts.h"
-#include "vk/GrVkTypes.h"
+#include "../../core/SkOpts.h"
+#include "include/gpu/vk/GrVkTypes.h"
 #include <atomic>
 
 class GrSamplerState;
