@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01f16d67_764beacd",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-22T20:31:56Z",
+      "side": 1,
+      "message": "I do like switching all values to be normalized, but I\u0027m kind of sad to lose row-major in the process.  It\u0027s the natural way to type things out if you\u0027re doing it manually, and if you\u0027re not, doesn\u0027t really matter.",
+      "range": {
+        "startLine": 132,
+        "startChar": 1,
+        "endLine": 132,
+        "endChar": 70
+      },
+      "revId": "4abef4ec55c5968e664774b33263a41bf4ad66d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
