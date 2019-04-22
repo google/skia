@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20194f67_9c612d8e",
+        "filename": "bench/AAClipBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-04-22T19:20:14Z",
+      "side": 1,
+      "message": "Is there a reason for differentiating private vs. public headers this way?  I would expect \"src/core/...\" to also work if the root dir is in the include path.",
+      "range": {
+        "startLine": 9,
+        "startChar": 10,
+        "endLine": 9,
+        "endChar": 13
+      },
+      "revId": "427883900483fa4ed026f74496a60aeeeaac0d1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87c81995_fa0aba6f",
+        "filename": "bench/AAClipBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-04-22T19:20:14Z",
+      "side": 1,
+      "message": "Nit: should the script re-order alphabetically based on path now?",
+      "revId": "427883900483fa4ed026f74496a60aeeeaac0d1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
