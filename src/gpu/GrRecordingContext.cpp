@@ -64,7 +64,7 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCac
     return true;
 }
 
-void GrRecordingContext::setupDrawingManager(bool explicitlyAllocate, bool sortOpLists) {
+void GrRecordingContext::setupDrawingManager(bool sortOpLists) {
     GrPathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
 #if GR_TEST_UTILS
@@ -100,11 +100,10 @@ void GrRecordingContext::setupDrawingManager(bool explicitlyAllocate, bool sortO
     // DDL contexts/drawing managers. We should still obey the options for non-DDL drawing managers
     // until predictive intermediate flushes are added (i.e., we can't reorder forever).
     fDrawingManager.reset(new GrDrawingManager(this,
-                                                prcOptions,
-                                                textContextOptions,
-                                                explicitlyAllocate,
-                                                sortOpLists,
-                                                this->options().fReduceOpListSplitting));
+                                               prcOptions,
+                                               textContextOptions,
+                                               sortOpLists,
+                                               this->options().fReduceOpListSplitting));
 }
 
 void GrRecordingContext::abandonContext() {

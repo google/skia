@@ -206,8 +206,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                                           context->priv().resourceProvider(),
                                           context->priv().getResourceCache(),
                                           &tracker);
-                GrRenderTargetOpList opList(context->priv().resourceProvider(),
-                                            sk_ref_sp(context->priv().opMemoryPool()),
+                GrRenderTargetOpList opList(sk_ref_sp(context->priv().opMemoryPool()),
                                             sk_ref_sp(proxy->asRenderTargetProxy()),
                                             context->priv().auditTrail());
                 // This assumes the particular values of kRanges.

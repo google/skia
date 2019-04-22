@@ -21,11 +21,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTextureOpList::GrTextureOpList(GrResourceProvider* resourceProvider,
-                                 sk_sp<GrOpMemoryPool> opMemoryPool,
+GrTextureOpList::GrTextureOpList(sk_sp<GrOpMemoryPool> opMemoryPool,
                                  sk_sp<GrTextureProxy> proxy,
                                  GrAuditTrail* auditTrail)
-        : INHERITED(resourceProvider, std::move(opMemoryPool), proxy, auditTrail) {
+        : INHERITED(std::move(opMemoryPool), proxy, auditTrail) {
     SkASSERT(fOpMemoryPool);
     SkASSERT(!proxy->readOnly());
 }

@@ -32,7 +32,7 @@ protected:
 
     GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
     bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>) override;
-    void setupDrawingManager(bool explicitlyAllocate, bool sortOpLists);
+    void setupDrawingManager(bool sortOpLists);
 
     void abandonContext() override;
 
