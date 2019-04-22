@@ -5,6 +5,8 @@
 DEPS = [
   'recipe_engine/context',
   'recipe_engine/file',
+  'recipe_engine/python',
+  'recipe_engine/raw_io',
   'recipe_engine/step',
   'run',
   'vars',

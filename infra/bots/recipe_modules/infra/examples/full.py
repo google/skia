@@ -24,6 +24,7 @@ def RunSteps(api):
   api.infra.go_version()
   with api.infra.MetadataFetch(api, 'key', 'file'):
     pass
+  api.infra.luci_context_path
 
 
 def GenTests(api):

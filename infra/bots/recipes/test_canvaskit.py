@@ -12,13 +12,14 @@ DEPS = [
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
+  'recipe_engine/raw_io',
   'recipe_engine/step',
   'run',
   'vars',
 ]
 
 
-DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:72.0.3626.121_v1'
+DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:72.0.3626.121_v2'
 INNER_KARMA_SCRIPT = '/SRC/skia/infra/canvaskit/test_canvaskit.sh'
 
 
@@ -83,23 +84,29 @@ os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't writ
       args=[copy_dest, base_dir, bundle_name, out_dir],
       infra_step=True)
 
-
   cmd = ['docker', 'run', '--shm-size=2gb', '--rm',
-         '--volume', '%s:/SRC' % checkout_root,
-         '--volume', '%s:/OUT' % out_dir]
+         '--volume', '%s:/SRC' % checkout_root]
+
+  luci_context = api.infra.luci_context_path
+  if luci_context:
+    cmd.extend([
+      '--volume', '%s:/LUCI' % api.path.dirname(luci_context),
+      '--env', 'LUCI_CONTEXT=/LUCI/%s' % api.path.basename(luci_context)
+    ])
 
   cmd.extend([
       DOCKER_IMAGE,             INNER_KARMA_SCRIPT,
       '--builder',              api.vars.builder_name,
       '--git_hash',             api.properties['revision'],
       '--buildbucket_build_id', api.properties.get('buildbucket_build_id',
-                                                  ''),
-      '--bot_id',               api.vars.swarming_bot_id,
-      '--task_id',              api.vars.swarming_task_id,
+                                                   ''),
       '--browser',              'Chrome',
       '--config',               api.vars.configuration,
       '--source_type',          'canvaskit',
       ])
+
+  if luci_context:
+      cmd += ['--use_luci']
 
   if api.vars.is_trybot:
     cmd.extend([
@@ -124,7 +131,9 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data('get luci context path from env',
+          stdout=api.raw_io.output('/b/s/w/temp/luci_context.314159676'))
   )
 
   yield (
