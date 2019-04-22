@@ -10,7 +10,7 @@
 #ifndef SkMetaData_DEFINED
 #define SkMetaData_DEFINED
 
-#include "SkScalar.h"
+#include "include/core/SkScalar.h"
 
 class SkRefCnt;
 

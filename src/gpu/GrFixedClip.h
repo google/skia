@@ -8,9 +8,9 @@
 #ifndef GrFixedClip_DEFINED
 #define GrFixedClip_DEFINED
 
-#include "GrClip.h"
-#include "GrScissorState.h"
-#include "GrWindowRectsState.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrScissorState.h"
+#include "src/gpu/GrWindowRectsState.h"
 
 /**
  * Implements GrHardClip with scissor and window rectangles.

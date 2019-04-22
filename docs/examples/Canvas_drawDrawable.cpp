@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=3a4dfcd08838866b5cfc0d82489195ba
 REG_FIDDLE(Canvas_drawDrawable, 256, 100, false, 0) {
 struct MyDrawable : public SkDrawable {

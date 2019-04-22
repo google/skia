@@ -7,8 +7,8 @@
 #ifndef SkPathOpBounds_DEFINED
 #define SkPathOpBounds_DEFINED
 
-#include "SkPathOpsRect.h"
-#include "SkRect.h"
+#include "src/pathops/SkPathOpsRect.h"
+#include "include/core/SkRect.h"
 
 // SkPathOpsBounds, unlike SkRect, does not consider a line to be empty.
 struct SkPathOpsBounds : public SkRect {

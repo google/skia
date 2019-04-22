@@ -8,12 +8,12 @@
 #ifndef GrCCAtlas_DEFINED
 #define GrCCAtlas_DEFINED
 
-#include "GrAllocator.h"
-#include "GrNonAtomicRef.h"
-#include "GrResourceKey.h"
-#include "GrTexture.h"
-#include "SkRefCnt.h"
-#include "SkSize.h"
+#include "src/gpu/GrAllocator.h"
+#include "src/gpu/GrNonAtomicRef.h"
+#include "include/private/GrResourceKey.h"
+#include "include/gpu/GrTexture.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 
 class GrCCCachedAtlas;
 class GrOnFlushResourceProvider;

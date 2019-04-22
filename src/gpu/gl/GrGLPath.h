@@ -8,8 +8,8 @@
 #ifndef GrGLPath_DEFINED
 #define GrGLPath_DEFINED
 
-#include "../GrPath.h"
-#include "gl/GrGLTypes.h"
+#include "src/gpu/GrPath.h"
+#include "include/gpu/gl/GrGLTypes.h"
 
 class GrGLGpu;
 class GrStyle;

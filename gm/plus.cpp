@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkPath.h"
 
 DEF_SIMPLE_GM(PlusMergesAA, canvas, 256, 256) {
     SkPaint p;

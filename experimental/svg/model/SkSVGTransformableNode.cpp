@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkSVGRenderContext.h"
-#include "SkSVGTransformableNode.h"
-#include "SkSVGValue.h"
+#include "include/core/SkCanvas.h"
+#include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGTransformableNode.h"
+#include "experimental/svg/model/SkSVGValue.h"
 
 SkSVGTransformableNode::SkSVGTransformableNode(SkSVGTag tag)
     : INHERITED(tag)

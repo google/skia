@@ -104,18 +104,7 @@ ${NINJA} -C ${BUILD_DIR} libpathkit.a
 echo "Generating WASM"
 
 ${EMCXX} $RELEASE_CONF -std=c++14 \
--Iinclude/config \
--Iinclude/core \
--Iinclude/effects \
--Iinclude/gpu \
--Iinclude/pathops \
--Iinclude/private \
--Iinclude/utils \
--Isrc/core \
--Isrc/gpu \
--Isrc/shaders \
--Isrc/opts \
--Isrc/utils \
+-I. \
 -std=c++14 \
 --bind \
 --pre-js $BASE_DIR/helper.js \
