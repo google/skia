@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d04ed614_639e815f",
+        "filename": "src/gpu/vk/GrVkAMDMemoryAllocator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-22T12:13:41Z",
+      "side": 1,
+      "message": "Might want to update/delete this?",
+      "range": {
+        "startLine": 46,
+        "startChar": 3,
+        "endLine": 48,
+        "endChar": 18
+      },
+      "revId": "865dc5604dcfd7921b0ce8e273825228e7f2bc1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
