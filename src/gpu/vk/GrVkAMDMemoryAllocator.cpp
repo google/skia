@@ -43,9 +43,9 @@ GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VkPhysicalDevice physicalDevice,
     info.flags = 0;
     info.physicalDevice = physicalDevice;
     info.device = device;
-    // Manually testing runs of dm using 64 here instead of the default 256 shows less memory usage
-    // on average. Also dm seems to run faster using 64 so it doesn't seem to be trading off speed
-    // for memory.
+    // 4MB was picked for the size here by looking at memory usuage of Android apps and runs of DM.
+    // The AMD allocator will start making blocks at 1/8 the max size and builds up block size as
+    // needed before capping at the max set here.
     info.preferredLargeHeapBlockSize = 4*1024*1024;
     info.pAllocationCallbacks = nullptr;
     info.pDeviceMemoryCallbacks = nullptr;
