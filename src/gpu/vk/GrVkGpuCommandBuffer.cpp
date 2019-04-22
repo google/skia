@@ -78,11 +78,7 @@ void get_vk_load_store_ops(GrLoadOp loadOpIn, GrStoreOp storeOpIn,
     }
 }
 
-GrVkGpuRTCommandBuffer::GrVkGpuRTCommandBuffer(GrVkGpu* gpu)
-        : fCurrentCmdInfo(-1)
-        , fGpu(gpu)
-        , fLastPipelineState(nullptr) {
-}
+GrVkGpuRTCommandBuffer::GrVkGpuRTCommandBuffer(GrVkGpu* gpu) : fGpu(gpu) {}
 
 void GrVkGpuRTCommandBuffer::init() {
     GrVkRenderPass::LoadStoreOps vkColorOps(fVkColorLoadOp, fVkColorStoreOp);
@@ -164,21 +160,14 @@ void GrVkGpuRTCommandBuffer::submit() {
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
     GrVkImage* targetImage = vkRT->msaaImage() ? vkRT->msaaImage() : vkRT;
     GrStencilAttachment* stencil = fRenderTarget->renderTargetPriv().getStencilAttachment();
+    auto currPreCmd = fPreCommandBufferTasks.begin();
 
     for (int i = 0; i < fCommandBufferInfos.count(); ++i) {
         CommandBufferInfo& cbInfo = fCommandBufferInfos[i];
 
-        for (int j = 0; j < cbInfo.fPreDrawUploads.count(); ++j) {
-            InlineUploadInfo& iuInfo = cbInfo.fPreDrawUploads[j];
-            iuInfo.fFlushState->doUpload(iuInfo.fUpload);
+        for (int c = 0; c < cbInfo.fNumPreCmds; ++c, ++currPreCmd) {
+            currPreCmd->execute(this);
         }
-
-        for (int j = 0; j < cbInfo.fPreCopies.count(); ++j) {
-            CopyInfo& copyInfo = cbInfo.fPreCopies[j];
-            fGpu->copySurface(fRenderTarget, fOrigin, copyInfo.fSrc.get(), copyInfo.fSrcOrigin,
-                              copyInfo.fSrcRect, copyInfo.fDstPoint, copyInfo.fShouldDiscardDst);
-        }
-
 
         // TODO: Many things create a scratch texture which adds the discard immediately, but then
         // don't draw to it right away. This causes the discard to be ignored and we get yelled at
@@ -260,6 +249,7 @@ void GrVkGpuRTCommandBuffer::submit() {
                                                &cbInfo.fColorClearValue, vkRT, fOrigin, iBounds);
         }
     }
+    SkASSERT(currPreCmd == fPreCommandBufferTasks.end());
 }
 
 void GrVkGpuRTCommandBuffer::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
@@ -298,6 +288,7 @@ void GrVkGpuRTCommandBuffer::reset() {
         cbInfo.fRenderPass->unref(fGpu);
     }
     fCommandBufferInfos.reset();
+    fPreCommandBufferTasks.reset();
 
     fCurrentCmdInfo = -1;
 
@@ -341,9 +332,6 @@ void GrVkGpuRTCommandBuffer::discard() {
         oldRP->unref(fGpu);
         cbInfo.fBounds.join(fRenderTarget->getBoundsRect());
         cbInfo.fLoadStoreState = LoadStoreState::kStartsWithDiscard;
-        // If we are going to discard the whole render target then the results of any copies we did
-        // immediately before to the target won't matter, so just drop them.
-        cbInfo.fPreCopies.reset();
     }
 }
 
@@ -447,10 +435,6 @@ void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f&
 
         cbInfo.fColorClearValue.color = {{color.fR, color.fG, color.fB, color.fA}};
         cbInfo.fLoadStoreState = LoadStoreState::kStartsWithClear;
-        // If we are going to clear the whole render target then the results of any copies we did
-        // immediately before to the target won't matter, so just drop them.
-        cbInfo.fPreCopies.reset();
-
         // Update command buffer bounds
         cbInfo.fBounds.join(fRenderTarget->getBoundsRect());
         return;
@@ -545,7 +529,21 @@ void GrVkGpuRTCommandBuffer::inlineUpload(GrOpFlushState* state,
     if (!fCommandBufferInfos[fCurrentCmdInfo].fIsEmpty) {
         this->addAdditionalRenderPass();
     }
-    fCommandBufferInfos[fCurrentCmdInfo].fPreDrawUploads.emplace_back(state, upload);
+
+    class InlineUpload : public PreCommandBufferTask {
+    public:
+        InlineUpload(GrOpFlushState* state, const GrDeferredTextureUploadFn& upload)
+                : fFlushState(state), fUpload(upload) {}
+        ~InlineUpload() override = default;
+
+        void execute(GrVkGpuRTCommandBuffer*) override { fFlushState->doUpload(fUpload); }
+
+    private:
+        GrOpFlushState* fFlushState;
+        GrDeferredTextureUploadFn fUpload;
+    };
+    fPreCommandBufferTasks.emplace<InlineUpload>(state, upload);
+    ++fCommandBufferInfos[fCurrentCmdInfo].fNumPreCmds;
 }
 
 void GrVkGpuRTCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
@@ -555,9 +553,35 @@ void GrVkGpuRTCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin, con
         this->addAdditionalRenderPass();
     }
 
-    fCommandBufferInfos[fCurrentCmdInfo].fPreCopies.emplace_back(
+    class Copy : public PreCommandBufferTask {
+    public:
+        Copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+             const SkIPoint& dstPoint, bool shouldDiscardDst)
+                : fSrc(src)
+                , fSrcOrigin(srcOrigin)
+                , fSrcRect(srcRect)
+                , fDstPoint(dstPoint)
+                , fShouldDiscardDst(shouldDiscardDst) {}
+        ~Copy() override = default;
+
+        void execute(GrVkGpuRTCommandBuffer* cb) override {
+            cb->fGpu->copySurface(cb->fRenderTarget, cb->fOrigin, fSrc.get(), fSrcOrigin, fSrcRect,
+                                  fDstPoint, fShouldDiscardDst);
+        }
+
+    private:
+        using Src = GrPendingIOResource<GrSurface, kRead_GrIOType>;
+        Src fSrc;
+        GrSurfaceOrigin fSrcOrigin;
+        SkIRect fSrcRect;
+        SkIPoint fDstPoint;
+        bool fShouldDiscardDst;
+    };
+
+    fPreCommandBufferTasks.emplace<Copy>(
             src, srcOrigin, srcRect, dstPoint,
             LoadStoreState::kStartsWithDiscard == cbInfo.fLoadStoreState);
+    ++fCommandBufferInfos[fCurrentCmdInfo].fNumPreCmds;
 
     if (LoadStoreState::kLoadAndStore != cbInfo.fLoadStoreState) {
         // Change the render pass to do a load and store so we don't lose the results of our copy
