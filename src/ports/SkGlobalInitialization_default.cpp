@@ -23,7 +23,7 @@
     #include "SkBitmapProcShader.h"
     #include "SkColorFilter.h"
     #include "SkColorFilterShader.h"
-    #include "SkColorMatrixFilterRowMajor255.h"
+    #include "SkColorFilter_Matrix.h"
     #include "SkColorShader.h"
     #include "SkComposeShader.h"
     #include "SkCornerPathEffect.h"
@@ -90,7 +90,7 @@
         SkShaderBase::RegisterFlattenables();
 
         // Color filters.
-        SK_REGISTER_FLATTENABLE(SkColorMatrixFilterRowMajor255);
+        SkColorFilter_Matrix::RegisterFlattenables();
         SK_REGISTER_FLATTENABLE(SkLumaColorFilter);
         SkColorFilter::RegisterFlattenables();
         SkHighContrastFilter::RegisterFlattenables();
