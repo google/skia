@@ -119,7 +119,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
 
     // Because readOnly proxies do not get a usage interval we must instantiate them here (since it
     // won't occur in GrResourceAllocator::assign)
-    if (proxy->readOnly() || !fResourceProvider->explicitlyAllocateGPUResources()) {
+    if (proxy->readOnly()) {
         // FIXME: remove this once we can do the lazy instantiation from assign instead.
         if (GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState()) {
             if (proxy->priv().doLazyInstantiation(fResourceProvider)) {
@@ -381,11 +381,6 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     }
     SkDebugf("\n");
 #endif
-
-    if (!fResourceProvider->explicitlyAllocateGPUResources()) {
-        fIntvlList.detachAll(); // arena allocator will clean these up for us
-        return true;
-    }
 
     SkDEBUGCODE(fAssigned = true;)
 
