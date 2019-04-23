@@ -1141,11 +1141,7 @@ void SkCanvas::internalSaveBehind(const SkRect* localBounds) {
 
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kClear);
-    if (localBounds) {
-        this->drawRect(*localBounds, paint);
-    } else {
-        this->drawPaint(paint);
-    }
+    this->drawClippedToSaveBehind(paint);
 }
 
 void SkCanvas::internalRestore() {
@@ -2146,7 +2142,6 @@ void SkCanvas::onDrawBehind(const SkPaint& paint) {
     while (iter.next()) {
         SkBaseDevice* dev = iter.fDevice;
 
-        SkMatrix ctm = dev->ctm();
         dev->save();
         // We use clipRegion because it is already defined to operate in dev-space
         // (i.e. ignores the ctm). However, it is going to first translate by -origin,
@@ -2154,7 +2149,7 @@ void SkCanvas::onDrawBehind(const SkPaint& paint) {
         SkRegion rgn(bounds.makeOffset(dev->fOrigin.fX, dev->fOrigin.fY));
         dev->clipRegion(rgn, SkClipOp::kIntersect);
         dev->drawPaint(looper.paint());
-        dev->restore(ctm);
+        dev->restore(fMCRec->fMatrix);
     }
 
     LOOPER_END
