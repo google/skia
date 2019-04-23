@@ -14,7 +14,6 @@
 
 #include "SkSLCompiler.h"
 
-
 GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
     : fGpu(gpu) {
     fPipelineStateCache.reset(new PipelineStateCache(gpu));
@@ -43,6 +42,109 @@ GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
         const GrTextureProxy* const primProcProxies[], GrPrimitiveType primType) {
     return fPipelineStateCache->refPipelineState(renderTarget, origin, proc, primProcProxies,
                                                  pipeline, primType);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+id<MTLDepthStencilState> GrMtlResourceProvider::getDisabledDepthStencilState() {
+    if (nil == fDisabledDepthStencilState) {
+        MTLDepthStencilDescriptor* desc = [[MTLDepthStencilDescriptor alloc] init];
+        fDisabledDepthStencilState = [fGpu->device() newDepthStencilStateWithDescriptor:desc];
+    }
+
+    return fDisabledDepthStencilState;
+}
+
+MTLStencilOperation skia_stencil_op_to_mtl(GrStencilOp op) {
+    switch (op) {
+        case GrStencilOp::kKeep:
+            return MTLStencilOperationKeep;
+        case GrStencilOp::kZero:
+            return MTLStencilOperationZero;
+        case GrStencilOp::kReplace:
+            return MTLStencilOperationReplace;
+        case GrStencilOp::kInvert:
+            return MTLStencilOperationInvert;
+        case GrStencilOp::kIncWrap:
+            return MTLStencilOperationIncrementWrap;
+        case GrStencilOp::kDecWrap:
+            return MTLStencilOperationDecrementWrap;
+        case GrStencilOp::kIncClamp:
+            return MTLStencilOperationIncrementClamp;
+        case GrStencilOp::kDecClamp:
+            return MTLStencilOperationDecrementClamp;
+    }
+}
+
+MTLStencilDescriptor* skia_stencil_to_mtl(GrStencilSettings::Face face) {
+    MTLStencilDescriptor* result = [[MTLStencilDescriptor alloc] init];
+    switch (face.fTest) {
+        case GrStencilTest::kAlways:
+            result.stencilCompareFunction = MTLCompareFunctionAlways;
+            break;
+        case GrStencilTest::kNever:
+            result.stencilCompareFunction = MTLCompareFunctionNever;
+            break;
+        case GrStencilTest::kGreater:
+            result.stencilCompareFunction = MTLCompareFunctionGreater;
+            break;
+        case GrStencilTest::kGEqual:
+            result.stencilCompareFunction = MTLCompareFunctionGreaterEqual;
+            break;
+        case GrStencilTest::kLess:
+            result.stencilCompareFunction = MTLCompareFunctionLess;
+            break;
+        case GrStencilTest::kLEqual:
+            result.stencilCompareFunction = MTLCompareFunctionLessEqual;
+            break;
+        case GrStencilTest::kEqual:
+            result.stencilCompareFunction = MTLCompareFunctionEqual;
+            break;
+        case GrStencilTest::kNotEqual:
+            result.stencilCompareFunction = MTLCompareFunctionNotEqual;
+            break;
+    }
+    result.readMask = face.fTestMask;
+    result.writeMask = face.fWriteMask;
+    result.depthStencilPassOperation = skia_stencil_op_to_mtl(face.fPassOp);
+    result.stencilFailureOperation = skia_stencil_op_to_mtl(face.fFailOp);
+    return result;
+}
+
+id<MTLDepthStencilState> GrMtlResourceProvider::findOrCreateCompatibleDepthStencilState(
+        const GrStencilSettings& stencil, const GrSurfaceOrigin& origin) {
+    if (stencil.isDisabled()) {
+        return this->getDisabledDepthStencilState();
+    }
+
+    // TODO: cache this
+    MTLDepthStencilDescriptor* desc = [[MTLDepthStencilDescriptor alloc] init];
+    if (!stencil.isDisabled()) {
+        if (stencil.isTwoSided()) {
+            desc.frontFaceStencil = skia_stencil_to_mtl(stencil.front(origin));
+            desc.backFaceStencil = skia_stencil_to_mtl(stencil.back(origin));
+        }
+        else {
+            desc.frontFaceStencil = skia_stencil_to_mtl(stencil.frontAndBack());
+            desc.backFaceStencil = desc.frontFaceStencil;
+        }
+    }
+
+    id<MTLDepthStencilState> state = [fGpu->device() newDepthStencilStateWithDescriptor:desc];
+    return state;
+}
+
+// Finds or creates a compatible MTLSamplerState based on the GrSamplerState.
+GrMtlSampler* GrMtlResourceProvider::findOrCreateCompatibleSampler(const GrSamplerState& params,
+                                                                   uint32_t maxMipLevel) {
+    GrMtlSampler* sampler;
+    sampler = fSamplers.find(GrMtlSampler::GenerateKey(params, maxMipLevel));
+    if (!sampler) {
+        sampler = GrMtlSampler::Create(fGpu, params, maxMipLevel);
+        fSamplers.add(sampler);
+    }
+    SkASSERT(sampler);
+    return sampler;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
