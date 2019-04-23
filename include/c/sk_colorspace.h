@@ -8,8 +8,8 @@
 // EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL
 // DO NOT USE -- FOR INTERNAL TESTING ONLY
 
-#ifndef sk_imageinfo_DEFINED
-#define sk_imageinfo_DEFINED
+#ifndef sk_colorspace_DEFINED
+#define sk_colorspace_DEFINED
 
 #include "sk_types.h"
 
