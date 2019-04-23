@@ -142,19 +142,11 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
     REPORTER_ASSERT(reporter, expectedResult == doTheBackingStoresMatch);
 }
 
-bool GrResourceProvider::testingOnly_setExplicitlyAllocateGPUResources(bool newValue) {
-    bool oldValue = fExplicitlyAllocateGPUResources;
-    fExplicitlyAllocateGPUResources = newValue;
-    return oldValue;
-}
-
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     const GrCaps* caps = ctxInfo.grContext()->priv().caps();
     GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
     GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
     GrResourceCache* resourceCache = ctxInfo.grContext()->priv().getResourceCache();
-
-    bool orig = resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(true);
 
     struct TestCase {
         ProxyParams   fP1;
@@ -264,8 +256,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
 
         cleanup_backend(ctxInfo.grContext(), backEndTex);
     }
-
-    resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(orig);
 }
 
 static void draw(GrContext* context) {
@@ -282,13 +272,11 @@ static void draw(GrContext* context) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
 
     int maxNum;
     size_t maxBytes;
     context->getResourceCacheLimits(&maxNum, &maxBytes);
 
-    bool orig = resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(true);
     context->setResourceCacheLimits(0, 0); // We'll always be overbudget
 
     draw(context);
@@ -298,7 +286,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInf
     context->flush();
 
     context->setResourceCacheLimits(maxNum, maxBytes);
-    resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(orig);
 }
 
 sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* caps,
@@ -337,7 +324,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
     GrResourceCache* resourceCache = ctxInfo.grContext()->priv().getResourceCache();
-    resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(true);
     ProxyParams texParams;
     texParams.fFit = SkBackingFit::kExact;
     texParams.fOrigin = kTopLeft_GrSurfaceOrigin;
@@ -385,8 +371,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
     GrResourceCache* resourceCache = context->priv().getResourceCache();
-
-    bool orig = resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(true);
 
     int origMaxNum;
     size_t origMaxBytes;
@@ -438,5 +422,4 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
     }
 
     context->setResourceCacheLimits(origMaxNum, origMaxBytes);
-    resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(orig);
 }
