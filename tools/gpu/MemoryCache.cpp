@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrPersistentCacheUtils.h"
-#include "MemoryCache.h"
-#include "SkBase64.h"
-#include "SkMD5.h"
+#include "include/utils/SkBase64.h"
+#include "src/core/SkMD5.h"
+#include "src/gpu/GrPersistentCacheUtils.h"
+#include "tools/gpu/MemoryCache.h"
 
 #if defined(SK_VULKAN)
-#include "vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkGpu.h"
 #endif
 
 // Change this to 1 to log cache hits/misses/stores using SkDebugf.

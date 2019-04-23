@@ -6,8 +6,8 @@
  */
 
 
-#include "GrShaderVar.h"
-#include "GrShaderCaps.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrShaderVar.h"
 
 static const char* type_modifier_string(GrShaderVar::TypeModifier t) {
     switch (t) {

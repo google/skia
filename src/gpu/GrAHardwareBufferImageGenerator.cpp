@@ -5,33 +5,33 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 
 
-#include "GrAHardwareBufferImageGenerator.h"
+#include "src/gpu/GrAHardwareBufferImageGenerator.h"
 
 #include <android/hardware_buffer.h>
 
-#include "GrAHardwareBufferUtils.h"
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrResourceCache.h"
-#include "GrResourceProvider.h"
-#include "GrResourceProviderPriv.h"
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
-#include "SkExchange.h"
-#include "SkMessageBus.h"
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTexture.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/GrRecordingContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/private/SkMessageBus.h"
+#include "src/core/SkExchange.h"
+#include "src/gpu/GrAHardwareBufferUtils.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrResourceCache.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrResourceProviderPriv.h"
+#include "src/gpu/gl/GrGLDefines.h"
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -39,8 +39,8 @@
 #include <GLES/glext.h>
 
 #ifdef SK_VULKAN
-#include "vk/GrVkExtensions.h"
-#include "vk/GrVkGpu.h"
+#include "include/gpu/vk/GrVkExtensions.h"
+#include "src/gpu/vk/GrVkGpu.h"
 #endif
 
 #define PROT_CONTENT_EXT_STR "EGL_EXT_protected_content"

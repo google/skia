@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "PathOpsDebug.h"
-#include "PathOpsTSectDebug.h"
-#include "SkOpCoincidence.h"
-#include "SkOpContour.h"
-#include "SkIntersectionHelper.h"
-#include "SkMutex.h"
-#include "SkOpSegment.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
+#include "include/private/SkMutex.h"
+#include "src/pathops/SkIntersectionHelper.h"
+#include "src/pathops/SkOpCoincidence.h"
+#include "src/pathops/SkOpContour.h"
+#include "src/pathops/SkOpSegment.h"
+#include "tests/PathOpsDebug.h"
+#include "tests/PathOpsTSectDebug.h"
 
 bool PathOpsDebug::gJson;
 bool PathOpsDebug::gMarkJsonFlaky;

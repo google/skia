@@ -8,7 +8,7 @@
 #ifndef SkFrontBufferedStream_DEFINED
 #define SkFrontBufferedStream_DEFINED
 
-#include "SkStream.h"
+#include "include/core/SkStream.h"
 
 /**
  *  Specialized stream that buffers the first X bytes of a stream,

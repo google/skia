@@ -5,13 +5,13 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkRenderPass.h"
+#include "src/gpu/vk/GrVkRenderPass.h"
 
-#include "GrProcessor.h"
-#include "GrVkFramebuffer.h"
-#include "GrVkGpu.h"
-#include "GrVkRenderTarget.h"
-#include "GrVkUtil.h"
+#include "src/gpu/GrProcessor.h"
+#include "src/gpu/vk/GrVkFramebuffer.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkRenderTarget.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 typedef GrVkRenderPass::AttachmentsDescriptor::AttachmentDesc AttachmentDesc;
 

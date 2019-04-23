@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 
 DEF_SIMPLE_GM(crbug_788500, canvas, 300, 300) {
     SkPath path;

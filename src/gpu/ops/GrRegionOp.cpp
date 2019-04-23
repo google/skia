@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "GrRegionOp.h"
+#include "src/gpu/ops/GrRegionOp.h"
 
-#include "GrCaps.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrDrawOpTest.h"
-#include "GrMeshDrawOp.h"
-#include "GrOpFlushState.h"
-#include "GrResourceProvider.h"
-#include "GrSimpleMeshDrawOpHelper.h"
-#include "GrVertexWriter.h"
-#include "SkMatrixPriv.h"
-#include "SkRegion.h"
+#include "include/core/SkRegion.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 static const int kVertsPerInstance = 4;
 static const int kIndicesPerInstance = 6;

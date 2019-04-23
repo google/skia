@@ -6,22 +6,22 @@
  */
 
 
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 
-#include "GrContextPriv.h"
-#include "GrContextThreadSafeProxy.h"
-#include "GrContextThreadSafeProxyPriv.h"
-#include "GrGpu.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrContextThreadSafeProxyPriv.h"
+#include "src/gpu/GrGpu.h"
 
-#include "effects/GrSkSLFP.h"
-#include "gl/GrGLGpu.h"
-#include "mock/GrMockGpu.h"
-#include "text/GrStrikeCache.h"
+#include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/mock/GrMockGpu.h"
+#include "src/gpu/text/GrStrikeCache.h"
 #ifdef SK_METAL
-#include "mtl/GrMtlTrampoline.h"
+#include "src/gpu/mtl/GrMtlTrampoline.h"
 #endif
 #ifdef SK_VULKAN
-#include "vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkGpu.h"
 #endif
 
 #ifdef SK_DISABLE_OPLIST_SORTING

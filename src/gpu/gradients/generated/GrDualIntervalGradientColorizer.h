@@ -10,9 +10,10 @@
  **************************************************************************************************/
 #ifndef GrDualIntervalGradientColorizer_DEFINED
 #define GrDualIntervalGradientColorizer_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "include/core/SkTypes.h"
+
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
 class GrDualIntervalGradientColorizer : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(const SkPMColor4f& c0, const SkPMColor4f& c1,

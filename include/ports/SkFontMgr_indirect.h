@@ -8,14 +8,14 @@
 #ifndef SkFontMgr_indirect_DEFINED
 #define SkFontMgr_indirect_DEFINED
 
-#include "../private/SkMutex.h"
-#include "../private/SkOnce.h"
-#include "../private/SkTArray.h"
-#include "SkFontMgr.h"
-#include "SkRefCnt.h"
-#include "SkRemotableFontMgr.h"
-#include "SkTypeface.h"
-#include "SkTypes.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/ports/SkRemotableFontMgr.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTArray.h"
 
 class SkData;
 class SkFontStyle;

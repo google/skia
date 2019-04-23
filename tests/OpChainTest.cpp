@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrRenderTargetOpList.h"
-#include "Test.h"
-#include "ops/GrOp.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrRenderTargetOpList.h"
+#include "src/gpu/ops/GrOp.h"
+#include "tests/Test.h"
 
 // We create Ops that write a value into a range of a buffer. We create ranges from
 // kNumOpPositions starting positions x kRanges canonical ranges. We repeat each range kNumRepeats

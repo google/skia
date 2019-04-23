@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkImage.h"
-#include "SkRRect.h"
-#include "SkTextBlob.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkTextBlob.h"
+#include "tools/ToolUtils.h"
 
 static void rotated_checkerboard_shader(SkPaint* paint,
                                         SkColor c1,

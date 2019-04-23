@@ -8,10 +8,10 @@
 #ifndef SkTLList_DEFINED
 #define SkTLList_DEFINED
 
-#include "SkMalloc.h"
-#include "SkTInternalLList.h"
-#include "SkTemplates.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTInternalLList.h"
+#include "include/private/SkTemplates.h"
 #include <new>
 #include <utility>
 

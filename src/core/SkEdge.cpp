@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkEdge.h"
+#include "src/core/SkEdge.h"
 
-#include "SkFDot6.h"
-#include "SkMathPriv.h"
-#include "SkTo.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkFDot6.h"
+#include "src/core/SkMathPriv.h"
 
 #include <utility>
 

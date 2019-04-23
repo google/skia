@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFDocument.h"
-#include "SkPDFDocumentPriv.h"
+#include "include/docs/SkPDFDocument.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
 
-#include "SkMakeUnique.h"
-#include "SkPDFDevice.h"
-#include "SkPDFDocument.h"
-#include "SkPDFFont.h"
-#include "SkPDFGradientShader.h"
-#include "SkPDFGraphicState.h"
-#include "SkPDFShader.h"
-#include "SkPDFTag.h"
-#include "SkPDFUtils.h"
-#include "SkStream.h"
-#include "SkTo.h"
+#include "include/core/SkStream.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/pdf/SkPDFDevice.h"
+#include "src/pdf/SkPDFFont.h"
+#include "src/pdf/SkPDFGradientShader.h"
+#include "src/pdf/SkPDFGraphicState.h"
+#include "src/pdf/SkPDFShader.h"
+#include "src/pdf/SkPDFTag.h"
+#include "src/pdf/SkPDFUtils.h"
 
 #include <utility>
 

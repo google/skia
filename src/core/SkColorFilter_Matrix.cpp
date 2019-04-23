@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilter_Matrix.h"
-#include "SkColorData.h"
-#include "SkColorMatrix.h"
-#include "SkNx.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
-#include "SkUnPreMultiply.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/effects/SkColorMatrix.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkNx.h"
+#include "src/core/SkColorFilter_Matrix.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 static void scale_last_column(float rowMajor[20], float scale) {
     for (int i = 0; i < 4; ++i) {
@@ -72,11 +72,11 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec,
 }
 
 #if SK_SUPPORT_GPU
-#include "GrFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 class ColorMatrixEffect : public GrFragmentProcessor {
 public:

@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCStroker.h"
+#include "src/gpu/ccpr/GrCCStroker.h"
 
-#include "GrGpuCommandBuffer.h"
-#include "GrOnFlushResourceProvider.h"
-#include "SkPathPriv.h"
-#include "SkStrokeRec.h"
-#include "ccpr/GrCCCoverageProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "include/core/SkStrokeRec.h"
+#include "src/core/SkPathPriv.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/ccpr/GrCCCoverageProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 static constexpr int kMaxNumLinearSegmentsLog2 = GrCCStrokeGeometry::kMaxNumLinearSegmentsLog2;
 using TriangleInstance = GrCCCoverageProcessor::TriPointInstance;

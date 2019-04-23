@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include "hello_ar_application.h"
-#include "plane_renderer.h"
-#include "util.h"
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/hello_ar_application.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/plane_renderer.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/util.h"
 
 namespace hello_ar {
     PendingAnchor::PendingAnchor(SkPoint touchLocation) : touchLocation(touchLocation) {}

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "../RasterWindowContext.h"
-#include "SkAutoMalloc.h"
-#include "SkSurface.h"
-#include "WindowContextFactory_win.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkAutoMalloc.h"
+#include "tools/sk_app/RasterWindowContext.h"
+#include "tools/sk_app/win/WindowContextFactory_win.h"
 
 #include <Windows.h>
 

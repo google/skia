@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkData.h"
-#include "SkFixed.h"
-#include "SkFontDescriptor.h"
-#include "SkFontMgr.h"
-#include "SkMakeUnique.h"
-#include "SkOTTable_OS_2.h"
-#include "SkRefCnt.h"
-#include "SkSFNTHeader.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
-#include "SkTypefaceCache.h"
-#include "Test.h"
-#include "TestEmptyTypeface.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkTypefaceCache.h"
+#include "src/sfnt/SkOTTable_OS_2.h"
+#include "src/sfnt/SkSFNTHeader.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
+#include "tools/fonts/TestEmptyTypeface.h"
 
 #include <memory>
 

@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCDrawPathsOp.h"
+#include "src/gpu/ccpr/GrCCDrawPathsOp.h"
 
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "ccpr/GrCCPathCache.h"
-#include "ccpr/GrCCPerFlushResources.h"
-#include "ccpr/GrCoverageCountingPathRenderer.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/ccpr/GrCCPathCache.h"
+#include "src/gpu/ccpr/GrCCPerFlushResources.h"
+#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 
 static bool has_coord_transforms(const GrPaint& paint) {
     GrFragmentProcessor::Iter iter(paint);

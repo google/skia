@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkPath.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkGradientShader.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 static sk_sp<SkImage> make_image1() { return GetResourceAsImage("images/mandrill_128.png"); }
 

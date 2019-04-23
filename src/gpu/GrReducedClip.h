@@ -8,10 +8,10 @@
 #ifndef GrReducedClip_DEFINED
 #define GrReducedClip_DEFINED
 
-#include "GrFragmentProcessor.h"
-#include "GrWindowRectangles.h"
-#include "SkClipStack.h"
-#include "SkTLList.h"
+#include "src/core/SkClipStack.h"
+#include "src/core/SkTLList.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrWindowRectangles.h"
 
 class GrCoverageCountingPathRenderer;
 class GrRecordingContext;

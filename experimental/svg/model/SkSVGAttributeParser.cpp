@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkParse.h"
-#include "SkSVGAttributeParser.h"
-#include "SkSVGTypes.h"
+#include "experimental/svg/model/SkSVGAttributeParser.h"
+#include "experimental/svg/model/SkSVGTypes.h"
+#include "include/utils/SkParse.h"
 
 namespace {
 

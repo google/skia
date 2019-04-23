@@ -5,23 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "GrBackendSemaphore.h"
-#include "GrClip.h"
-#include "GrContextPriv.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrProxyProvider.h"
-#include "GrQuad.h"
-#include "GrRenderTargetContextPriv.h"
-#include "GrResourceProvider.h"
-#include "GrTexture.h"
+#include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrQuad.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
 
-#include "SkBitmap.h"
-#include "SkPointPriv.h"
-#include "effects/generated/GrSimpleTextureEffect.h"
-#include "ops/GrSimpleMeshDrawOpHelper.h"
+#include "include/core/SkBitmap.h"
+#include "src/core/SkPointPriv.h"
+#include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 namespace {
 // This is a simplified mesh drawing op that can be used in the atlas generation test.
@@ -473,8 +473,8 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
 // atlas
 #if 0
 #include "SkGrPriv.h"
-#include "SkImageEncoder.h"
-#include "ToolUtils.h"
+#include "include/core/SkImageEncoder.h"
+#include "tools/ToolUtils.h"
 
 static void save_bm(const SkBitmap& bm, const char name[]) {
     bool result = ToolUtils::EncodeImageToFile(name, bm, SkEncodedImageFormat::kPNG, 100);

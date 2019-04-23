@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkCubicMap.h"
-#include "SkDashPathEffect.h"
-#include "SkFloatBits.h"
-#include "SkFloatingPoint.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPaintDefaults.h"
-#include "SkParsePath.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkRect.h"
-#include "SkString.h"
-#include "SkStrokeRec.h"
-#include "SkTrimPathEffect.h"
+#include "include/core/SkCubicMap.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkString.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/effects/SkTrimPathEffect.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/utils/SkParsePath.h"
+#include "src/core/SkPaintDefaults.h"
 
 #include <emscripten/emscripten.h>
 #include <emscripten/bind.h>

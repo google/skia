@@ -8,16 +8,16 @@
 #ifndef SkShaderBase_DEFINED
 #define SkShaderBase_DEFINED
 
-#include "SkEffectPriv.h"
-#include "SkFilterQuality.h"
-#include "SkMask.h"
-#include "SkMatrix.h"
-#include "SkNoncopyable.h"
-#include "SkShader.h"
-#include "SkTLazy.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkNoncopyable.h"
+#include "src/core/SkEffectPriv.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkTLazy.h"
 
 #if SK_SUPPORT_GPU
-#include "GrFPArgs.h"
+#include "src/gpu/GrFPArgs.h"
 #endif
 
 class GrContext;

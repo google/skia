@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrYUVtoRGBEffect.h"
+#include "src/gpu/effects/GrYUVtoRGBEffect.h"
 
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "GrTexture.h"
-#include "SkSLCPP.h"
-#include "SkSLUtil.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/sksl/SkSLCPP.h"
+#include "src/sksl/SkSLUtil.h"
 
 static const float kJPEGConversionMatrix[16] = {
     1.0f,  0.0f,       1.402f,    -0.703749f,

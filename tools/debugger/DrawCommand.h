@@ -8,20 +8,20 @@
 #ifndef SKDRAWCOMMAND_H_
 #define SKDRAWCOMMAND_H_
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkDrawShadowInfo.h"
-#include "SkFlattenable.h"
-#include "SkJSONWriter.h"
-#include "SkPath.h"
-#include "SkRRect.h"
-#include "SkRSXform.h"
-#include "SkRegion.h"
-#include "SkString.h"
-#include "SkTDArray.h"
-#include "SkTLazy.h"
-#include "SkVertices.h"
-#include "UrlDataManager.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkString.h"
+#include "include/core/SkVertices.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkTLazy.h"
+#include "src/utils/SkJSONWriter.h"
+#include "tools/UrlDataManager.h"
 
 class DrawCommand {
 public:

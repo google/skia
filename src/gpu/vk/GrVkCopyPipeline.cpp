@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkCopyPipeline.h"
+#include "src/gpu/vk/GrVkCopyPipeline.h"
 
-#include "GrVkGpu.h"
-#include "GrVkUtil.h"
-#include "SkOnce.h"
+#include "include/private/SkOnce.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
 #include <sanitizer/lsan_interface.h>

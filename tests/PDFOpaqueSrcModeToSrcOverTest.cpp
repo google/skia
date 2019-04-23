@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkPDFDocument.h"
-#include "SkStream.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkStream.h"
+#include "include/docs/SkPDFDocument.h"
+#include "tests/Test.h"
 
 static void run_test(SkWStream* out, SkBlendMode mode, U8CPU alpha) {
     auto pdfDoc = SkPDF::MakeDocument(out);

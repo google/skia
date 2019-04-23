@@ -8,7 +8,7 @@
 #ifndef SkRefCnt_DEFINED
 #define SkRefCnt_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #include <atomic>
 #include <cstddef>

@@ -8,10 +8,10 @@
 #ifndef DecodeFile_DEFINED
 #define DecodeFile_DEFINED
 
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkData.h"
-#include "SkImage.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
 
 static inline bool decode_file(const char* filename, SkBitmap* bitmap,
                                SkColorType colorType = kN32_SkColorType,

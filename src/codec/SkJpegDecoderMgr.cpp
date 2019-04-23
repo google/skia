@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkJpegDecoderMgr.h"
+#include "src/codec/SkJpegDecoderMgr.h"
 
-#include "SkJpegUtility.h"
+#include "src/codec/SkJpegUtility.h"
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    #include "SkAndroidFrameworkUtils.h"
+    #include "include/android/SkAndroidFrameworkUtils.h"
 #endif
 
 /*

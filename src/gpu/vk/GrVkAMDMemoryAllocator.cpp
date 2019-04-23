@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkAMDMemoryAllocator.h"
+#include "src/gpu/vk/GrVkAMDMemoryAllocator.h"
 
-#include "GrVkInterface.h"
-#include "GrVkMemory.h"
-#include "GrVkUtil.h"
+#include "src/gpu/vk/GrVkInterface.h"
+#include "src/gpu/vk/GrVkMemory.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VkPhysicalDevice physicalDevice,
                                                VkDevice device,

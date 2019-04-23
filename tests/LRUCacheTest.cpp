@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkLRUCache.h"
-#include "Test.h"
+#include "src/core/SkLRUCache.h"
+#include "tests/Test.h"
 
 struct Value {
     Value(int value, int* counter)

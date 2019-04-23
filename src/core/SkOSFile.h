@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 
-#include "SkString.h"
+#include "include/core/SkString.h"
 
 enum SkFILE_Flags {
     kRead_SkFILE_Flag   = 0x01,

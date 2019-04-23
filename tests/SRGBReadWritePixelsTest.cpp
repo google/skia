@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrSurfaceContext.h"
-#include "SkCanvas.h"
-#include "SkGr.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/SkGr.h"
+#include "tests/Test.h"
 
 // using anonymous namespace because these functions are used as template params.
 namespace {

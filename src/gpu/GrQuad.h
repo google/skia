@@ -8,11 +8,11 @@
 #ifndef GrQuad_DEFINED
 #define GrQuad_DEFINED
 
-#include "SkMatrix.h"
-#include "SkNx.h"
-#include "SkPoint.h"
-#include "SkPoint3.h"
-#include "SkTArray.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
+#include "include/private/SkNx.h"
+#include "include/private/SkTArray.h"
 
 enum class GrAAType : unsigned;
 enum class GrQuadAAFlags;

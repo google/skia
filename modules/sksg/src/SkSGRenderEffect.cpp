@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGRenderEffect.h"
+#include "modules/sksg/include/SkSGRenderEffect.h"
 
-#include "SkCanvas.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkMakeUnique.h"
-#include "SkShader.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkShader.h"
+#include "include/effects/SkDropShadowImageFilter.h"
+#include "src/core/SkMakeUnique.h"
 
 namespace sksg {
 

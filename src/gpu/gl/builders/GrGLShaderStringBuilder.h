@@ -8,11 +8,11 @@
 #ifndef GrGLShaderStringBuilder_DEFINED
 #define GrGLShaderStringBuilder_DEFINED
 
-#include "GrAllocator.h"
-#include "GrGpu.h"
-#include "gl/GrGLContext.h"
-#include "SkSLGLSLCodeGenerator.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "src/gpu/GrAllocator.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/gl/GrGLContext.h"
+#include "src/sksl/SkSLGLSLCodeGenerator.h"
 
 std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum type,
                                             const SkSL::String& sksl,

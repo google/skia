@@ -8,8 +8,8 @@
 #ifndef DMJsonWriter_DEFINED
 #define DMJsonWriter_DEFINED
 
-#include "CommandLineFlags.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
+#include "tools/flags/CommandLineFlags.h"
 
 namespace DM {
 

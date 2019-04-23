@@ -8,10 +8,10 @@
 #ifndef SkContourMeasure_DEFINED
 #define SkContourMeasure_DEFINED
 
-#include "../private/SkNoncopyable.h"
-#include "../private/SkTDArray.h"
-#include "SkPath.h"
-#include "SkRefCnt.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTDArray.h"
 
 struct SkConic;
 

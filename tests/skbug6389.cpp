@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkImageSource.h"
-#include "SkMaskFilter.h"
-#include "SkSurface.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkImageSource.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
 
 DEF_TEST(skbug_6389, r) {
     auto s = SkSurface::MakeRasterN32Premul(100, 100);

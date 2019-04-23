@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
-#include "SkBitmap.h"
-#include "SkBlendModePriv.h"
-#include "SkColorPriv.h"
-#include "SkGradientShader.h"
-#include "SkSurface.h"
-#include "SkTextUtils.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/gpu/GrContext.h"
+#include "include/utils/SkTextUtils.h"
+#include "src/core/SkBlendModePriv.h"
+#include "tools/ToolUtils.h"
 
 namespace skiagm {
 

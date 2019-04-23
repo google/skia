@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkFrontBufferedStream.h"
-#include "SkStream.h"
-#include "SkTemplates.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkFrontBufferedStream.h"
 
 class FrontBufferedStream : public SkStreamRewindable {
 public:

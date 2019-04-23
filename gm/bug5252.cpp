@@ -5,10 +5,10 @@
 * found in the LICENSE file.
 */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkRect.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
 
 DEF_SIMPLE_GM(bug5252, canvas, 500, 500) {
 	canvas->translate(SkIntToScalar(10), SkIntToScalar(20));

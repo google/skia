@@ -8,9 +8,9 @@
 #ifndef SKSL_ASTPARAMETER
 #define SKSL_ASTPARAMETER
 
-#include "SkSLASTPositionNode.h"
-#include "SkSLASTType.h"
-#include "../ir/SkSLModifiers.h"
+#include "src/sksl/ast/SkSLASTPositionNode.h"
+#include "src/sksl/ast/SkSLASTType.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 
 namespace SkSL {
 

@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkData.h"
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
 
-#include "SkGraphics.h"
-#include "SkImageGenerator.h"
-#include "SkImageInfoPriv.h"
-#include "SkYUVAIndex.h"
-#include "Test.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkYUVAIndex.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "tests/Test.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-    #include "SkImageGeneratorCG.h"
+    #include "include/ports/SkImageGeneratorCG.h"
 #elif defined(SK_BUILD_FOR_WIN)
-    #include "SkImageGeneratorWIC.h"
+    #include "include/ports/SkImageGeneratorWIC.h"
 #endif
 
 static bool gMyFactoryWasCalled;
@@ -96,8 +96,8 @@ DEF_TEST(ImageGenerator, reporter) {
     }
 }
 
-#include "SkAutoMalloc.h"
-#include "SkPictureRecorder.h"
+#include "include/core/SkPictureRecorder.h"
+#include "src/core/SkAutoMalloc.h"
 
 static sk_sp<SkPicture> make_picture() {
     SkPictureRecorder recorder;

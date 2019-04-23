@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkIndexBuffer.h"
-#include "GrVkGpu.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkIndexBuffer.h"
 
 GrVkIndexBuffer::GrVkIndexBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
                                  const GrVkBuffer::Resource* bufferResource)

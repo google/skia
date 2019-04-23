@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "SkCanvas.h"
-#include "SkSurface.h"
-#include "SkTextBlob.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
 
 // This tests that we don't try to reuse textblobs from the GPU textblob cache across pixel geometry
 // changes when we have LCD.  crbug/486744

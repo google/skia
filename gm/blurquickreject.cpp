@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkMaskFilter.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMaskFilter.h"
+#include "src/core/SkBlurMask.h"
 
 // This GM tests out the quick reject bounds of the blur mask filter. It draws
 // four blurred rects around a central clip. The blurred rect geometry outset

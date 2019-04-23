@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlBuffer.h"
-#include "GrMtlCommandBuffer.h"
-#include "GrMtlGpu.h"
-#include "GrGpuResourcePriv.h"
-#include "GrTypesPriv.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/mtl/GrMtlBuffer.h"
+#include "src/gpu/mtl/GrMtlCommandBuffer.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
 
 #ifdef SK_DEBUG
 #define VALIDATE() this->validate()

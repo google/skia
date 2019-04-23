@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLSLFragmentShaderBuilder.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
-#include "GrShaderCaps.h"
-#include "gl/GrGLGpu.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLVarying.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
 
 const char* GrGLSLFragmentShaderBuilder::kDstColorName = "_dstColor";
 

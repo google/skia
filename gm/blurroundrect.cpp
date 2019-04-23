@@ -5,18 +5,18 @@
 * found in the LICENSE file.
 */
 
-#include "gm.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkLayerDrawLooper.h"
-#include "SkMaskFilter.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRRect.h"
-#include "SkString.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkLayerDrawLooper.h"
+#include "src/core/SkBlurMask.h"
 
 // This GM mimics a blurred RR seen in the wild.
 class BlurRoundRectGM : public skiagm::GM {
@@ -82,7 +82,7 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-#include "SkGradientShader.h"
+#include "include/effects/SkGradientShader.h"
 /*
  * Spits out a dummy gradient to test blur with shader on paint
  */

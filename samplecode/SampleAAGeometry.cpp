@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkGeometry.h"
-#include "SkIntersections.h"
-#include "SkMacros.h"
-#include "SkOpEdgeBuilder.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/private/SkMacros.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkGeometry.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkOpEdgeBuilder.h"
 // #include "SkPathOpsSimplifyAA.h"
 // #include "SkPathStroker.h"
-#include "SkPointPriv.h"
-#include "SkString.h"
-#include "SkTextUtils.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkTextUtils.h"
+#include "src/core/SkPointPriv.h"
 
 #if 0
 void SkStrokeSegment::dump() const {

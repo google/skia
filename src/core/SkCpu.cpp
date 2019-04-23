@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkCpu.h"
-#include "SkOnce.h"
+#include "include/private/SkOnce.h"
+#include "src/core/SkCpu.h"
 
 #if defined(SK_CPU_X86)
     #if defined(SK_BUILD_FOR_WIN)

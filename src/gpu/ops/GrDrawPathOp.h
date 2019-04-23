@@ -8,13 +8,13 @@
 #ifndef GrDrawPathOp_DEFINED
 #define GrDrawPathOp_DEFINED
 
-#include "GrDrawOp.h"
-#include "GrOpFlushState.h"
-#include "GrPath.h"
-#include "GrPathProcessor.h"
-#include "GrPathRendering.h"
-#include "GrProcessorSet.h"
-#include "GrStencilSettings.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrPath.h"
+#include "src/gpu/GrPathProcessor.h"
+#include "src/gpu/GrPathRendering.h"
+#include "src/gpu/GrProcessorSet.h"
+#include "src/gpu/GrStencilSettings.h"
+#include "src/gpu/ops/GrDrawOp.h"
 
 class GrPaint;
 class GrRecordingContext;

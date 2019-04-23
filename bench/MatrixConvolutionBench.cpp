@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkMatrixConvolutionImageFilter.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/utils/SkRandom.h"
 
 static const char* name(SkMatrixConvolutionImageFilter::TileMode mode) {
     switch (mode) {

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLCPPUniformCTypes.h"
-#include "SkSLHCodeGenerator.h"
-#include "SkSLStringStream.h"
+#include "src/sksl/SkSLCPPUniformCTypes.h"
+#include "src/sksl/SkSLHCodeGenerator.h"
+#include "src/sksl/SkSLStringStream.h"
 
 #include <vector>
 

@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkExecutor.h"
-#include "SkMakeUnique.h"
-#include "SkMutex.h"
-#include "SkSemaphore.h"
-#include "SkSpinlock.h"
-#include "SkTArray.h"
+#include "include/core/SkExecutor.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkSemaphore.h"
+#include "include/private/SkSpinlock.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkMakeUnique.h"
 #include <deque>
 #include <thread>
 
 #if defined(SK_BUILD_FOR_WIN)
-    #include "SkLeanWindows.h"
+    #include "include/private/SkLeanWindows.h"
     static int num_cores() {
         SYSTEM_INFO sysinfo;
         GetNativeSystemInfo(&sysinfo);

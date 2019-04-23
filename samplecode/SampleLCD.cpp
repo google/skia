@@ -4,11 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkPaint.h"
-#include "SkShader.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "samplecode/Sample.h"
 
 class LCDView : public Sample {
 public:

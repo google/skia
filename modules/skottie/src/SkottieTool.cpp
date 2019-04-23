@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "SkCanvas.h"
-#include "SkGraphics.h"
-#include "SkMakeUnique.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkPictureRecorder.h"
-#include "SkStream.h"
-#include "SkSurface.h"
-#include "Skottie.h"
-#include "SkottieUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
+#include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/utils/SkottieUtils.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include <vector>
 

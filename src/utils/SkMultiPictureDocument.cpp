@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkMultiPictureDocument.h"
+#include "src/utils/SkMultiPictureDocument.h"
 
-#include "SkMultiPictureDocumentPriv.h"
-#include "SkNWayCanvas.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkSerialProcs.h"
-#include "SkStream.h"
-#include "SkTArray.h"
-#include "SkTo.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSerialProcs.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkNWayCanvas.h"
+#include "src/utils/SkMultiPictureDocumentPriv.h"
 
 #include <limits.h>
 

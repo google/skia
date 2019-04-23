@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrPathRenderer.h"
-#include "GrCaps.h"
-#include "GrPaint.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrShape.h"
-#include "GrUserStencilSettings.h"
-#include "SkDrawProcs.h"
+#include "src/core/SkDrawProcs.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrPaint.h"
+#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/GrUserStencilSettings.h"
 
 #ifdef SK_DEBUG
 void GrPathRenderer::StencilPathArgs::validate() const {

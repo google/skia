@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "SkIStream.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
+#include "src/utils/win/SkIStream.h"
 
 /**
  * SkBaseIStream

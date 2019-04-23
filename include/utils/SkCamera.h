@@ -10,8 +10,8 @@
 #ifndef SkCamera_DEFINED
 #define SkCamera_DEFINED
 
-#include "../private/SkNoncopyable.h"
-#include "SkMatrix.h"
+#include "include/core/SkMatrix.h"
+#include "include/private/SkNoncopyable.h"
 
 class SkCanvas;
 

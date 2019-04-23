@@ -8,9 +8,9 @@
 #ifndef Window_ios_DEFINED
 #define Window_ios_DEFINED
 
-#include "../Window.h"
-#include "SkChecksum.h"
-#include "SkTDynamicHash.h"
+#include "include/private/SkChecksum.h"
+#include "src/core/SkTDynamicHash.h"
+#include "tools/sk_app/Window.h"
 
 #include "SDL.h"
 

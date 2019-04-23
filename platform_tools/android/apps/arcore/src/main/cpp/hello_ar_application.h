@@ -17,11 +17,11 @@
 #ifndef C_ARCORE_HELLOE_AR_HELLO_AR_APPLICATION_H_
 #define C_ARCORE_HELLOE_AR_HELLO_AR_APPLICATION_H_
 
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "SkSurface.h"
-#include "Skottie.h"
-#include "gl/GrGLTypes.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "modules/skottie/include/Skottie.h"
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <android/asset_manager.h>
@@ -32,12 +32,12 @@
 #include <unordered_map>
 
 #include "arcore_c_api.h"
-#include "background_renderer.h"
-#include "glm.h"
-#include "plane_renderer.h"
-#include "point_cloud_renderer.h"
-#include "util.h"
-#include "pending_anchor.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/background_renderer.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/glm.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/pending_anchor.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/plane_renderer.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/point_cloud_renderer.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/util.h"
 
 namespace hello_ar {
 

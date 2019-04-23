@@ -5,30 +5,30 @@
  * found in the LICENSE file.
  */
 
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkBitmap.h"
-#include "SkCallableTraits.h"
-#include "SkCanvas.h"
-#include "SkColorData.h"
-#include "SkDescriptor.h"
-#include "SkFDot6.h"
-#include "SkFontDescriptor.h"
-#include "SkFontHost_FreeType_common.h"
-#include "SkFontMetrics.h"
-#include "SkGlyph.h"
-#include "SkMakeUnique.h"
-#include "SkMalloc.h"
-#include "SkMask.h"
-#include "SkMaskGamma.h"
-#include "SkMatrix22.h"
-#include "SkMutex.h"
-#include "SkOTUtils.h"
-#include "SkPath.h"
-#include "SkScalerContext.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkDescriptor.h"
+#include "src/core/SkFDot6.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkMaskGamma.h"
+#include "src/core/SkScalerContext.h"
+#include "src/ports/SkFontHost_FreeType_common.h"
+#include "src/sfnt/SkOTUtils.h"
+#include "src/utils/SkCallableTraits.h"
+#include "src/utils/SkMatrix22.h"
 
 #include <memory>
 
@@ -1549,7 +1549,7 @@ void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkUtils.h"
+#include "src/core/SkUtils.h"
 
 // Just made up, so we don't end up storing 1000s of entries
 constexpr int kMaxC2GCacheCount = 512;
@@ -1822,7 +1822,7 @@ bool SkTypeface_FreeType::Scanner::recognizedFont(SkStreamAsset* stream, int* nu
     return true;
 }
 
-#include "SkTSearch.h"
+#include "include/private/SkTSearch.h"
 bool SkTypeface_FreeType::Scanner::scanFont(
     SkStreamAsset* stream, int ttcIndex,
     SkString* name, SkFontStyle* style, bool* isFixedPitch, AxisDefinitions* axes) const

@@ -8,7 +8,7 @@
 #ifndef SkPaintPriv_DEFINED
 #define SkPaintPriv_DEFINED
 
-#include "SkPaint.h"
+#include "include/core/SkPaint.h"
 
 class SkFont;
 class SkReadBuffer;

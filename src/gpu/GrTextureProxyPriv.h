@@ -8,7 +8,7 @@
 #ifndef GrTextureProxyPriv_DEFINED
 #define GrTextureProxyPriv_DEFINED
 
-#include "GrTextureProxy.h"
+#include "include/private/GrTextureProxy.h"
 
 class GrDeferredProxyUploader;
 class GrOpFlushState;

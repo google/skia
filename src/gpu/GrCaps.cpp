@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrCaps.h"
-#include "GrBackendSurface.h"
-#include "GrContextOptions.h"
-#include "GrSurface.h"
-#include "GrSurfaceProxy.h"
-#include "GrTypesPriv.h"
-#include "GrWindowRectangles.h"
-#include "SkJSONWriter.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrSurface.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrWindowRectangles.h"
+#include "src/utils/SkJSONWriter.h"
 
 GrCaps::GrCaps(const GrContextOptions& options) {
     fMipMapSupport = false;
