@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkTraceMemoryDump.h"
+#include "include/core/SkTraceMemoryDump.h"
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "GrContextPriv.h"
-#include "GrRenderTarget.h"
-#include "GrTexture.h"
-#include "gl/GrGLBuffer.h"
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLGpu.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/gl/GrGLBuffer.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLGpu.h"
 
 /*
  * Build test for SkTraceMemoryDump.

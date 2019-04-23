@@ -8,16 +8,16 @@
 #ifndef SkHeifCodec_DEFINED
 #define SkHeifCodec_DEFINED
 
-#include "SkCodec.h"
-#include "SkEncodedOrigin.h"
-#include "SkImageInfo.h"
-#include "SkSwizzler.h"
-#include "SkStream.h"
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkStream.h"
+#include "src/codec/SkSwizzler.h"
 
 #if __has_include("HeifDecoderAPI.h")
     #include "HeifDecoderAPI.h"
 #else
-    #include "SkStubHeifDecoderAPI.h"
+    #include "src/codec/SkStubHeifDecoderAPI.h"
 #endif
 
 class SkHeifCodec : public SkCodec {

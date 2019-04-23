@@ -8,9 +8,9 @@
 #ifndef SkJSONWriter_DEFINED
 #define SkJSONWriter_DEFINED
 
-#include "SkNoncopyable.h"
-#include "SkStream.h"
-#include "SkTArray.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTArray.h"
 
 /**
  *  Lightweight class for writing properly structured JSON data. No random-access, everything must

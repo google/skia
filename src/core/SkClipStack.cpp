@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkClipStack.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkClipOpPriv.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/pathops/SkPathOps.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkClipStack.h"
 #include <atomic>
 #include <new>
 
 #if SK_SUPPORT_GPU
-#include "GrProxyProvider.h"
+#include "src/gpu/GrProxyProvider.h"
 #endif
 
 SkClipStack::Element::Element(const Element& that) {

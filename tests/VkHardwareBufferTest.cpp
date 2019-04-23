@@ -7,27 +7,27 @@
 
 // This is a GPU-backend specific test. It relies on static intializers to work
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if SK_SUPPORT_GPU && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26 && defined(SK_VULKAN)
 
-#include "GrBackendSemaphore.h"
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrProxyProvider.h"
-#include "SkAutoMalloc.h"
-#include "SkCanvas.h"
-#include "SkGr.h"
-#include "SkImage.h"
-#include "SkSurface.h"
-#include "Test.h"
-#include "../tools/gpu/vk/VkTestUtils.h"
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLUtil.h"
-#include "vk/GrVkBackendContext.h"
-#include "vk/GrVkExtensions.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/vk/GrVkBackendContext.h"
+#include "include/gpu/vk/GrVkExtensions.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
+#include "tools/gpu/vk/VkTestUtils.h"
 
 #include <android/hardware_buffer.h>
 #include <cinttypes>

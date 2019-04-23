@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtlasTextTarget.h"
+#include "include/atlastext/SkAtlasTextTarget.h"
 
-#include "GrClip.h"
-#include "GrContextPriv.h"
-#include "GrDrawingManager.h"
-#include "GrMemoryPool.h"
-#include "SkAtlasTextContext.h"
-#include "SkAtlasTextFont.h"
-#include "SkAtlasTextRenderer.h"
-#include "SkGlyphRunPainter.h"
-#include "SkGr.h"
-#include "SkInternalAtlasTextContext.h"
-#include "ops/GrAtlasTextOp.h"
-#include "text/GrTextContext.h"
+#include "include/atlastext/SkAtlasTextContext.h"
+#include "include/atlastext/SkAtlasTextFont.h"
+#include "include/atlastext/SkAtlasTextRenderer.h"
+#include "src/atlastext/SkInternalAtlasTextContext.h"
+#include "src/core/SkGlyphRunPainter.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/ops/GrAtlasTextOp.h"
+#include "src/gpu/text/GrTextContext.h"
 
 static constexpr int kMaxBatchLookBack = 10;
 

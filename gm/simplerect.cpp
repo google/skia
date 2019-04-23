@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
-#include "SkPath.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkPath.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "src/core/SkBlurMask.h"
+#include "tools/ToolUtils.h"
 
 class SimpleRectGM : public skiagm::GM {
 public:

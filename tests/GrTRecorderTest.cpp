@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix.h"
-#include "SkRandom.h"
-#include "SkString.h"
-#include "Test.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkRandom.h"
+#include "tests/Test.h"
 
-#include "GrTRecorder.h"
+#include "src/gpu/GrTRecorder.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

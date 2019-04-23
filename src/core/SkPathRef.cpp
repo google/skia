@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathRef.h"
+#include "include/private/SkPathRef.h"
 
-#include "SkBuffer.h"
-#include "SkNx.h"
-#include "SkOnce.h"
-#include "SkPath.h"
-#include "SkPathPriv.h"
-#include "SkSafeMath.h"
-#include "SkTo.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkNx.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBuffer.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkSafeMath.h"
 
 // Conic weights must be 0 < weight <= finite
 static bool validate_conic_weights(const SkScalar weights[], int count) {

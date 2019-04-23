@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkResourceCache.h"
+#include "src/core/SkResourceCache.h"
 
-#include "SkDiscardableMemory.h"
-#include "SkMessageBus.h"
-#include "SkMipMap.h"
-#include "SkMutex.h"
-#include "SkOpts.h"
-#include "SkTo.h"
-#include "SkTraceMemoryDump.h"
+#include "include/core/SkTraceMemoryDump.h"
+#include "include/private/SkMessageBus.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkDiscardableMemory.h"
+#include "src/core/SkMipMap.h"
+#include "src/core/SkOpts.h"
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -60,7 +60,7 @@ void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t dataS
                          (fCount32 - kUnhashedLocal32s) << 2);
 }
 
-#include "SkTHash.h"
+#include "include/private/SkTHash.h"
 
 namespace {
     struct HashTraits {
@@ -539,8 +539,8 @@ void SkResourceCache::PostPurgeSharedID(uint64_t sharedID) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkGraphics.h"
-#include "SkImageFilter.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkImageFilter.h"
 
 size_t SkGraphics::GetResourceCacheTotalBytesUsed() {
     return SkResourceCache::GetTotalBytesUsed();

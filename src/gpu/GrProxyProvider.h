@@ -8,10 +8,10 @@
 #ifndef GrProxyProvider_DEFINED
 #define GrProxyProvider_DEFINED
 
-#include "GrResourceKey.h"
-#include "GrTextureProxy.h"
-#include "GrTypes.h"
-#include "SkTDynamicHash.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrResourceKey.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/core/SkTDynamicHash.h"
 
 class GrImageContext;
 class GrBackendRenderTarget;

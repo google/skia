@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrBackendSurface.h"
-#include "SkCanvas.h"
-#include "SkFontLCDConfig.h"
-#include "SkImagePriv.h"
-#include "SkSurface_Base.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFontLCDConfig.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "src/core/SkImagePriv.h"
+#include "src/image/SkSurface_Base.h"
 #include <atomic>
 
 static SkPixelGeometry compute_default_geometry() {
@@ -291,7 +291,7 @@ bool SkSurface::draw(SkDeferredDisplayList* ddl) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-#include "SkNoDrawCanvas.h"
+#include "include/utils/SkNoDrawCanvas.h"
 
 class SkNullSurface : public SkSurface_Base {
 public:

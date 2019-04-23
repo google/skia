@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "Sk3D.h"
-#include "SkFont.h"
-#include "SkPath.h"
-#include "SkPoint3.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint3.h"
+#include "include/utils/Sk3D.h"
 
 #ifdef SK_ENABLE_SKOTTIE
 
-#include "AnimTimer.h"
-#include "Resources.h"
-#include "SkStream.h"
-#include "Skottie.h"
+#include "include/core/SkStream.h"
+#include "modules/skottie/include/Skottie.h"
+#include "tools/Resources.h"
+#include "tools/timer/AnimTimer.h"
 
 static SkMatrix operator*(const SkMatrix& a, const SkMatrix& b) {
     SkMatrix44 c;

@@ -8,7 +8,7 @@
 #ifndef JsonWriteBuffer_DEFINED
 #define JsonWriteBuffer_DEFINED
 
-#include "SkWriteBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 class SkJSONWriter;
 class SkPath;

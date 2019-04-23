@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkColorFilterShader.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkShader.h"
-#include "SkString.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/shaders/SkColorFilterShader.h"
 
 #if SK_SUPPORT_GPU
-#include "GrFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #endif
 
 SkColorFilterShader::SkColorFilterShader(sk_sp<SkShader> shader, sk_sp<SkColorFilter> filter)
@@ -49,7 +49,7 @@ bool SkColorFilterShader::onAppendStages(const SkStageRec& rec) const {
 #if SK_SUPPORT_GPU
 /////////////////////////////////////////////////////////////////////
 
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 
 std::unique_ptr<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
         const GrFPArgs& args) const {

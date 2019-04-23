@@ -8,8 +8,8 @@
 #ifndef SKSL_CODEGENERATOR
 #define SKSL_CODEGENERATOR
 
-#include "ir/SkSLProgram.h"
-#include "SkSLOutputStream.h"
+#include "src/sksl/SkSLOutputStream.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 namespace SkSL {
 

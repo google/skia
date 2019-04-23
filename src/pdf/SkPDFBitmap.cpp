@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFBitmap.h"
+#include "src/pdf/SkPDFBitmap.h"
 
-#include "SkColorData.h"
-#include "SkData.h"
-#include "SkDeflate.h"
-#include "SkExecutor.h"
-#include "SkImage.h"
-#include "SkImageInfoPriv.h"
-#include "SkJpegInfo.h"
-#include "SkPDFDocumentPriv.h"
-#include "SkPDFTypes.h"
-#include "SkPDFUtils.h"
-#include "SkStream.h"
-#include "SkTo.h"
+#include "include/core/SkData.h"
+#include "include/core/SkExecutor.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "include/private/SkTo.h"
+#include "src/pdf/SkDeflate.h"
+#include "src/pdf/SkJpegInfo.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
+#include "src/pdf/SkPDFTypes.h"
+#include "src/pdf/SkPDFUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

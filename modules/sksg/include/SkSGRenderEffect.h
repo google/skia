@@ -8,11 +8,11 @@
 #ifndef SkSGRenderEffect_DEFINED
 #define SkSGRenderEffect_DEFINED
 
-#include "SkSGEffectNode.h"
+#include "modules/sksg/include/SkSGEffectNode.h"
 
-#include "SkBlendMode.h"
-#include "SkBlurImageFilter.h"
-#include "SkColor.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
+#include "include/effects/SkBlurImageFilter.h"
 
 #include <memory>
 #include <vector>

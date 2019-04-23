@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkBlendMode.h"
-#include "SkColor.h"
-#include "SkColorFilter.h"
-#include "SkRandom.h"
-#include "SkReadBuffer.h"
-#include "SkRefCnt.h"
-#include "SkWriteBuffer.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "tests/Test.h"
 
 class SkFlattenable;
 

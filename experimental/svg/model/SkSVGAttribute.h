@@ -8,8 +8,8 @@
 #ifndef SkSVGAttribute_DEFINED
 #define SkSVGAttribute_DEFINED
 
-#include "SkSVGTypes.h"
-#include "SkTLazy.h"
+#include "experimental/svg/model/SkSVGTypes.h"
+#include "src/core/SkTLazy.h"
 
 class SkSVGRenderContext;
 

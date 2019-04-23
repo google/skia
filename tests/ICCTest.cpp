@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "Resources.h"
-#include "SkColorSpacePriv.h"
-#include "SkICC.h"
-#include "SkString.h"
-#include "Test.h"
+#include "include/core/SkICC.h"
+#include "include/core/SkString.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
 
 #include "skcms.h"
 

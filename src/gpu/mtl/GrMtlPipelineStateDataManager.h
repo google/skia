@@ -8,9 +8,9 @@
 #ifndef GrMtlPipelineStateDataManager_DEFINED
 #define GrMtlPipelineStateDataManager_DEFINED
 
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "GrMtlUniformHandler.h"
-#include "SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/mtl/GrMtlUniformHandler.h"
 
 #import <Metal/Metal.h>
 

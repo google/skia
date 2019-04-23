@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurMaskFilter.h"
-#include "SkCanvas.h"
-#include "SkGraphics.h"
-#include "SkLayerDrawLooper.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPath.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/effects/SkLayerDrawLooper.h"
+#include "include/utils/SkRandom.h"
+#include "tools/ToolUtils.h"
 
 static SkRect inset(const SkRect& r) {
     SkRect rect = r;

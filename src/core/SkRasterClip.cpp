@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkRasterClip.h"
-#include "SkPath.h"
-#include "SkRegionPriv.h"
+#include "include/core/SkPath.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkRegionPriv.h"
 
 enum MutateResult {
     kDoNothing_MutateResult,

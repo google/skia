@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkBlurImageFilter.h"
-#include "SkRSXform.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkBlurImageFilter.h"
 
 static void make_bm(SkBitmap* bm) {
     bm->allocN32Pixels(100, 100);

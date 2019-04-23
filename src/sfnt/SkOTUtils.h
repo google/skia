@@ -8,10 +8,10 @@
 #ifndef SkOTUtils_DEFINED
 #define SkOTUtils_DEFINED
 
-#include "SkOTTableTypes.h"
-#include "SkOTTable_OS_2_V4.h"
-#include "SkOTTable_name.h"
-#include "SkTypeface.h"
+#include "include/core/SkTypeface.h"
+#include "src/sfnt/SkOTTableTypes.h"
+#include "src/sfnt/SkOTTable_OS_2_V4.h"
+#include "src/sfnt/SkOTTable_name.h"
 
 class SkData;
 class SkStream;

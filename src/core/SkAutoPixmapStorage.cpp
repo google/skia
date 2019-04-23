@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoPixmapStorage.h"
-#include "SkData.h"
+#include "include/core/SkData.h"
+#include "src/core/SkAutoPixmapStorage.h"
 
 SkAutoPixmapStorage::SkAutoPixmapStorage() : fStorage(nullptr) {}
 

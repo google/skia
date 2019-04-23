@@ -10,13 +10,13 @@
 
 #include <cmath>
 
-#include "SkGlyphRunPainter.h"
-#include "SkIPoint16.h"
-#include "SkSize.h"
-#include "SkTDArray.h"
-#include "SkTInternalLList.h"
+#include "include/core/SkSize.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkTInternalLList.h"
+#include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkIPoint16.h"
 
-#include "ops/GrDrawOp.h"
+#include "src/gpu/ops/GrDrawOp.h"
 
 class GrOnFlushResourceProvider;
 class GrRectanizer;

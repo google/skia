@@ -10,8 +10,8 @@
 #ifndef SkDeque_DEFINED
 #define SkDeque_DEFINED
 
-#include "../private/SkNoncopyable.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkNoncopyable.h"
 
 /*
  * The deque class works by blindly creating memory space of a specified element

@@ -8,16 +8,16 @@
 #ifndef GrGradientShader_DEFINE
 #define GrGradientShader_DEFINE
 
-#include "GrFPArgs.h"
-#include "GrFragmentProcessor.h"
-#include "SkGradientShaderPriv.h"
-#include "SkLinearGradient.h"
-#include "SkRadialGradient.h"
-#include "SkSweepGradient.h"
-#include "SkTwoPointConicalGradient.h"
+#include "src/gpu/GrFPArgs.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/shaders/gradients/SkGradientShaderPriv.h"
+#include "src/shaders/gradients/SkLinearGradient.h"
+#include "src/shaders/gradients/SkRadialGradient.h"
+#include "src/shaders/gradients/SkSweepGradient.h"
+#include "src/shaders/gradients/SkTwoPointConicalGradient.h"
 
 #if GR_TEST_UTILS
-#include "SkRandom.h"
+#include "include/utils/SkRandom.h"
 #endif
 
 namespace GrGradientShader {

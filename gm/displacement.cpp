@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkDisplacementMapEffect.h"
-#include "SkImage.h"
-#include "SkImageSource.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkImage.h"
+#include "include/effects/SkDisplacementMapEffect.h"
+#include "include/effects/SkImageSource.h"
+#include "tools/ToolUtils.h"
 
 namespace skiagm {
 

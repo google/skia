@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkMaskFilterBase.h"
-#include "SkReadBuffer.h"
-#include "SkShaderMaskFilter.h"
-#include "SkShaderBase.h"
-#include "SkString.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkShaderMaskFilter.h"
+#include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/shaders/SkShaderBase.h"
 
 class SkShaderMF : public SkMaskFilterBase {
 public:
@@ -111,7 +111,7 @@ bool SkShaderMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
-#include "GrFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
 
 std::unique_ptr<GrFragmentProcessor> SkShaderMF::onAsFragmentProcessor(const GrFPArgs& args) const {
     return GrFragmentProcessor::MulInputByChildAlpha(as_SB(fShader)->asFragmentProcessor(args));

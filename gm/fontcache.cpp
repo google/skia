@@ -8,17 +8,17 @@
 // GM to stress the GPU font cache
 // It's not necessary to run this with CPU configs
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "GrContext.h"
-#include "GrContextOptions.h"
-#include "GrContextPriv.h"
-#include "SkCanvas.h"
-#include "SkGraphics.h"
-#include "SkImage.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkTypeface.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextOptions.h"
+#include "src/gpu/GrContextPriv.h"
+#include "tools/ToolUtils.h"
 
 static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
                            SkScalar y, const SkFont& font) {

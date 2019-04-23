@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFMakeToUnicodeCmap.h"
+#include "src/pdf/SkPDFMakeToUnicodeCmap.h"
 
-#include "SkPDFUtils.h"
-#include "SkTo.h"
-#include "SkUTF.h"
+#include "include/private/SkTo.h"
+#include "src/pdf/SkPDFUtils.h"
+#include "src/utils/SkUTF.h"
 
 static void append_tounicode_header(SkDynamicMemoryWStream* cmap,
                                     bool multibyte) {

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkPackBits.h"
-#include "Test.h"
+#include "src/effects/SkPackBits.h"
+#include "tests/Test.h"
 
-#include "SkRandom.h"
+#include "include/utils/SkRandom.h"
 static SkRandom gRand;
 static const uint8_t gTest80[] = { 0, 0, 1, 1 };
 static const uint8_t gTest81[] = { 1, 2, 3, 4, 5, 6 };

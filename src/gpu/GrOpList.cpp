@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrOpList.h"
+#include "include/private/GrOpList.h"
 
-#include "GrContext.h"
-#include "GrDeferredProxyUploader.h"
-#include "GrMemoryPool.h"
-#include "GrRenderTargetPriv.h"
-#include "GrSurfaceProxy.h"
-#include "GrTextureProxyPriv.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "src/gpu/GrDeferredProxyUploader.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrTextureProxyPriv.h"
 #include <atomic>
 
 uint32_t GrOpList::CreateUniqueID() {

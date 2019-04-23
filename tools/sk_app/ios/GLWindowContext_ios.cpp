@@ -7,10 +7,10 @@
  */
 
 #include <OpenGLES/ES2/gl.h>
-#include "../GLWindowContext.h"
+#include "tools/sk_app/GLWindowContext.h"
 #include "SDL.h"
-#include "WindowContextFactory_ios.h"
-#include "gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "tools/sk_app/ios/WindowContextFactory_ios.h"
 
 using sk_app::DisplayParams;
 using sk_app::window_context_factory::IOSWindowInfo;

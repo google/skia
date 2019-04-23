@@ -5,23 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkImage_Base.h"
-#include "SkBitmap.h"
-#include "SkBitmapProcShader.h"
-#include "SkCanvas.h"
-#include "SkColorTable.h"
-#include "SkConvertPixels.h"
-#include "SkData.h"
-#include "SkImageInfoPriv.h"
-#include "SkImagePriv.h"
-#include "SkPixelRef.h"
-#include "SkSurface.h"
-#include "SkTLazy.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/codec/SkColorTable.h"
+#include "src/core/SkConvertPixels.h"
+#include "src/core/SkImagePriv.h"
+#include "src/core/SkTLazy.h"
+#include "src/image/SkImage_Base.h"
+#include "src/shaders/SkBitmapProcShader.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrTextureAdjuster.h"
-#include "SkGr.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrTextureAdjuster.h"
+#include "src/gpu/SkGr.h"
 #endif
 
 // fixes https://bug.skia.org/5096

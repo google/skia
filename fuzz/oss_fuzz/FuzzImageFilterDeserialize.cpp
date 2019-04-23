@@ -6,13 +6,13 @@
  */
 
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkFontMgrPriv.h"
-#include "SkImageFilter.h"
-#include "SkPaint.h"
-#include "TestFontMgr.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "src/core/SkFontMgrPriv.h"
+#include "tools/fonts/TestFontMgr.h"
 
 void FuzzImageFilterDeserialize(sk_sp<SkData> bytes) {
     const int BitmapSize = 24;

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
 static void make_bm(SkBitmap* bm) {
     const SkColor colors[4] = {

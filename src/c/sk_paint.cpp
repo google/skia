@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlendMode.h"
-#include "SkMaskFilter.h"
-#include "SkPaint.h"
-#include "SkShader.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
 
-#include "sk_paint.h"
-#include "sk_types_priv.h"
+#include "include/c/sk_paint.h"
+#include "src/c/sk_types_priv.h"
 
 #define MAKE_FROM_TO_NAME(FROM)     g_ ## FROM ## _map
 
@@ -36,12 +36,12 @@ const struct {
 #define CType           sk_stroke_cap_t
 #define SKType          SkPaint::Cap
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_stroke_cap_t)
-#include "sk_c_from_to.h"
+#include "src/c/sk_c_from_to.h"
 
 #define CType           sk_stroke_join_t
 #define SKType          SkPaint::Join
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_stroke_join_t)
-#include "sk_c_from_to.h"
+#include "src/c/sk_c_from_to.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

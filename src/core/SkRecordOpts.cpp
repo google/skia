@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkRecordOpts.h"
+#include "src/core/SkRecordOpts.h"
 
-#include "SkCanvasPriv.h"
-#include "SkRecordPattern.h"
-#include "SkRecords.h"
-#include "SkTDArray.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkRecordPattern.h"
+#include "src/core/SkRecords.h"
 
 using namespace SkRecords;
 

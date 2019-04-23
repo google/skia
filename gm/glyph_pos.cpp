@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkTypeface.h"
+#include "tools/ToolUtils.h"
 
 /* This test tries to define the effect of using hairline strokes on text.
  * Provides non-hairline images for reference and consistency checks.

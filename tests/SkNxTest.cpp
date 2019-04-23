@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Sk4px.h"
-#include "SkNx.h"
-#include "SkRandom.h"
-#include "Test.h"
+#include "include/private/SkNx.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/Sk4px.h"
+#include "tests/Test.h"
 
 template <int N>
 static void test_Nf(skiatest::Reporter* r) {
@@ -281,7 +281,7 @@ DEF_TEST(SkNx_int_float, r) {
     REPORTER_ASSERT(r, f[3] ==  0.0f);
 }
 
-#include "SkRandom.h"
+#include "include/utils/SkRandom.h"
 
 DEF_TEST(SkNx_u16_float, r) {
     {

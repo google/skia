@@ -8,11 +8,11 @@
 #ifndef GrProcessorSet_DEFINED
 #define GrProcessorSet_DEFINED
 
-#include "GrFragmentProcessor.h"
-#include "GrPaint.h"
-#include "GrProcessorAnalysis.h"
-#include "SkTemplates.h"
-#include "GrXferProcessor.h"
+#include "include/private/SkTemplates.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrPaint.h"
+#include "src/gpu/GrProcessorAnalysis.h"
+#include "src/gpu/GrXferProcessor.h"
 
 struct GrUserStencilSettings;
 class GrAppliedClip;

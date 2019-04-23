@@ -28,7 +28,7 @@ extern "C" {
 
 
 #define VK_VERSION_1_0 1
-#include "vk_platform.h"
+#include "include/third_party/vulkan/vulkan/vk_platform.h"
 
 #define VK_MAKE_VERSION(major, minor, patch) \
     (((major) << 22) | ((minor) << 12) | (patch))

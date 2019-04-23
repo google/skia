@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkGraphics.h"
-#include "SkLayerDrawLooper.h"
-#include "SkMaskFilter.h"
-#include "SkRandom.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/effects/SkLayerDrawLooper.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkBlurMask.h"
+#include "tools/ToolUtils.h"
 
 #define WIDTH   200
 #define HEIGHT  200

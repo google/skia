@@ -8,8 +8,8 @@
 #ifndef SkSVGClipPath_DEFINED
 #define SkSVGClipPath_DEFINED
 
-#include "SkSVGHiddenContainer.h"
-#include "SkSVGTypes.h"
+#include "experimental/svg/model/SkSVGHiddenContainer.h"
+#include "experimental/svg/model/SkSVGTypes.h"
 
 class SkSVGClipPath final : public SkSVGHiddenContainer {
 public:

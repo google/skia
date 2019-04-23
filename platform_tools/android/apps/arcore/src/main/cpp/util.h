@@ -17,7 +17,7 @@
 #ifndef C_ARCORE_HELLOE_AR_UTIL_H_
 #define C_ARCORE_HELLOE_AR_UTIL_H_
 
-#include "SkMatrix44.h"
+#include "include/core/SkMatrix44.h"
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <android/asset_manager.h>
@@ -29,7 +29,7 @@
 #include <vector>
 
 #include "arcore_c_api.h"
-#include "glm.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/glm.h"
 
 #ifndef LOGI
 #define LOGI(...) \

@@ -8,9 +8,9 @@
 #ifndef GrTessellator_DEFINED
 #define GrTessellator_DEFINED
 
-#include "GrColor.h"
-#include "SkColorData.h"
-#include "SkPoint.h"
+#include "include/core/SkPoint.h"
+#include "include/private/GrColor.h"
+#include "include/private/SkColorData.h"
 
 class SkPath;
 struct SkRect;

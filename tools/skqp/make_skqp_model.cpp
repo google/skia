@@ -1,10 +1,10 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkPngEncoder.h"
-#include "SkOSFile.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/encode/SkPngEncoder.h"
+#include "src/core/SkOSFile.h"
 
 static void update(SkBitmap* maxBitmap, SkBitmap* minBitmap, const SkBitmap& bm) {
     SkASSERT(!bm.drawsNothing());

@@ -72,9 +72,9 @@ or revised. This service is offered free of charge; please provide us with your
 mailing address.
 */
 
-#include "SkGifImageReader.h"
-#include "SkColorPriv.h"
-#include "SkGifCodec.h"
+#include "include/core/SkColorPriv.h"
+#include "src/codec/SkGifCodec.h"
+#include "third_party/gif/SkGifImageReader.h"
 
 #include <algorithm>
 #include <string.h>

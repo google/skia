@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrContext.h"
-#include "GrPath.h"
-#include "GrShape.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkDashPathEffect.h"
-#include "SkRRect.h"
-#include "SkRect.h"
-#include "SkSurface.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrPath.h"
+#include "src/gpu/GrShape.h"
+#include "tests/Test.h"
 
 #include <initializer_list>
 

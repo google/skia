@@ -8,11 +8,11 @@
 #ifndef GrSurface_DEFINED
 #define GrSurface_DEFINED
 
-#include "GrTypes.h"
-#include "GrBackendSurface.h"
-#include "GrGpuResource.h"
-#include "SkImageInfo.h"
-#include "SkRect.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrGpuResource.h"
+#include "include/gpu/GrTypes.h"
 
 class GrRenderTarget;
 class GrSurfacePriv;

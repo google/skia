@@ -5,28 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "GrSurfaceProxy.h"
-#include "GrSurfaceProxyPriv.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
 
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpuResourcePriv.h"
-#include "GrOpList.h"
-#include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrSurfaceContext.h"
-#include "GrSurfacePriv.h"
-#include "GrTexturePriv.h"
-#include "GrTextureRenderTargetProxy.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrOpList.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTextureRenderTargetProxy.h"
 
-#include "SkMathPriv.h"
-#include "SkMipMap.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkMipMap.h"
 
 #ifdef SK_DEBUG
-#include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTargetPriv.h"
 
 static bool is_valid_fully_lazy(const GrSurfaceDesc& desc, SkBackingFit fit) {
     return desc.fWidth <= 0 &&

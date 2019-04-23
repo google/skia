@@ -8,20 +8,20 @@
 #ifndef GrTextBlob_DEFINED
 #define GrTextBlob_DEFINED
 
-#include "GrColor.h"
-#include "GrDrawOpAtlas.h"
-#include "GrStrikeCache.h"
-#include "GrTextTarget.h"
-#include "text/GrTextContext.h"
-#include "SkDescriptor.h"
-#include "SkMaskFilterBase.h"
-#include "SkOpts.h"
-#include "SkPathEffect.h"
-#include "SkPoint3.h"
-#include "SkRectPriv.h"
-#include "SkStrikeCache.h"
-#include "SkSurfaceProps.h"
-#include "SkTInternalLList.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/private/GrColor.h"
+#include "include/private/SkTInternalLList.h"
+#include "src/core/SkDescriptor.h"
+#include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkRectPriv.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/gpu/GrDrawOpAtlas.h"
+#include "src/gpu/text/GrStrikeCache.h"
+#include "src/gpu/text/GrTextContext.h"
+#include "src/gpu/text/GrTextTarget.h"
 
 class GrAtlasManager;
 struct GrDistanceFieldAdjustTable;

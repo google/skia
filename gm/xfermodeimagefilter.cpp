@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkArithmeticImageFilter.h"
-#include "SkImage.h"
-#include "SkImageSource.h"
-#include "SkOffsetImageFilter.h"
-#include "SkXfermodeImageFilter.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkImage.h"
+#include "include/effects/SkArithmeticImageFilter.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkOffsetImageFilter.h"
+#include "include/effects/SkXfermodeImageFilter.h"
+#include "tools/ToolUtils.h"
 
 #define WIDTH 600
 #define HEIGHT 700

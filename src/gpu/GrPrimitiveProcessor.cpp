@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrPrimitiveProcessor.h"
+#include "src/gpu/GrPrimitiveProcessor.h"
 
-#include "GrCoordTransform.h"
+#include "src/gpu/GrCoordTransform.h"
 
 /**
  * We specialize the vertex code for each of these matrix types.

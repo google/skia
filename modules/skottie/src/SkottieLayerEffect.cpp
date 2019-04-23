@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkottiePriv.h"
+#include "modules/skottie/src/SkottiePriv.h"
 
-#include "SkJSON.h"
-#include "SkottieAdapter.h"
-#include "SkottieJson.h"
-#include "SkottieValue.h"
-#include "SkSGColorFilter.h"
-#include "SkSGPaint.h"
-#include "SkSGRenderEffect.h"
+#include "modules/skottie/src/SkottieAdapter.h"
+#include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottieValue.h"
+#include "modules/sksg/include/SkSGColorFilter.h"
+#include "modules/sksg/include/SkSGPaint.h"
+#include "modules/sksg/include/SkSGRenderEffect.h"
+#include "src/utils/SkJSON.h"
 
 namespace skottie {
 namespace internal {
