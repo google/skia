@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "79ada100_4a24073b",
+        "filename": "include/core/SkScalar.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-23T19:26:26Z",
+      "side": 1,
+      "message": "No doubt. SkScalar1 has been around a long time... probably from the days of fixed-vs-float.\nI can remove the float symbol.",
+      "parentUuid": "1c618f14_548af373",
+      "range": {
+        "startLine": 18,
+        "startChar": 36,
+        "endLine": 19,
+        "endChar": 48
+      },
+      "revId": "6d2b0d77d4827dbed6e81bafb48f513c2c2ede06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c110f0c7_aed95199",
         "filename": "include/private/SkFloatingPoint.h",
         "patchSetId": 2
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "5467b640_c52cf365",
+        "filename": "include/private/SkFloatingPoint.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-23T19:26:26Z",
+      "side": 1,
+      "message": "sg\nthis was a mirror of SkScalar.h",
+      "parentUuid": "c110f0c7_aed95199",
+      "revId": "6d2b0d77d4827dbed6e81bafb48f513c2c2ede06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7cc7d7d9_d2fea92f",
         "filename": "include/private/SkFloatingPoint.h",
         "patchSetId": 2
@@ -53,6 +95,30 @@
       "writtenOn": "2019-04-23T19:15:02Z",
       "side": 1,
       "message": "What\u0027s the deal with this?  Just a convenience, or were you imagining a different impl?",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 1
+      },
+      "revId": "6d2b0d77d4827dbed6e81bafb48f513c2c2ede06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ecde53f_95e5663d",
+        "filename": "include/private/SkFloatingPoint.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-23T19:26:26Z",
+      "side": 1,
+      "message": "convenience. there are several sites that have 2 values.\nnever quite sure if there is a more efficient impl. When N is large, the mul-trick probably helps, but never tried to see for what Ns",
+      "parentUuid": "7cc7d7d9_d2fea92f",
       "range": {
         "startLine": 83,
         "startChar": 0,
