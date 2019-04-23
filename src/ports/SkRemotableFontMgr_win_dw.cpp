@@ -4,23 +4,23 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkDWriteNTDDI_VERSION.h"
+#include "src/utils/win/SkDWriteNTDDI_VERSION.h"
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "SkDWrite.h"
-#include "SkDWriteFontFileStream.h"
-#include "SkHRESULT.h"
-#include "SkMutex.h"
-#include "SkRemotableFontMgr.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTArray.h"
-#include "SkTScopedComPtr.h"
-#include "SkTypeface_win_dw.h"
-#include "SkTypes.h"
-#include "SkUTF.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/ports/SkRemotableFontMgr.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTArray.h"
+#include "src/ports/SkTypeface_win_dw.h"
+#include "src/utils/SkUTF.h"
+#include "src/utils/win/SkDWrite.h"
+#include "src/utils/win/SkDWriteFontFileStream.h"
+#include "src/utils/win/SkHRESULT.h"
+#include "src/utils/win/SkTScopedComPtr.h"
 
 #include <dwrite.h>
 

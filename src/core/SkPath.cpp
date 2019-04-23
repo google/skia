@@ -5,22 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 
-#include "SkBuffer.h"
-#include "SkCubicClipper.h"
-#include "SkData.h"
-#include "SkGeometry.h"
-#include "SkMacros.h"
-#include "SkMath.h"
-#include "SkMatrixPriv.h"
-#include "SkPathPriv.h"
-#include "SkPathRef.h"
-#include "SkPointPriv.h"
-#include "SkRRect.h"
-#include "SkSafeMath.h"
-#include "SkTLazy.h"
-#include "SkTo.h"
+#include "include/core/SkData.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkRRect.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkPathRef.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBuffer.h"
+#include "src/core/SkCubicClipper.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkSafeMath.h"
+#include "src/core/SkTLazy.h"
 
 #include <cmath>
 #include <utility>
@@ -1084,7 +1084,7 @@ SkPath& SkPath::addPoly(const SkPoint pts[], int count, bool close) {
     return *this;
 }
 
-#include "SkGeometry.h"
+#include "src/core/SkGeometry.h"
 
 static bool arc_is_lone_point(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
                               SkPoint* pt) {
@@ -2157,9 +2157,9 @@ SkPath::Verb SkPath::Iter::doNext(SkPoint ptsParam[4]) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkString.h"
-#include "SkStringUtils.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "src/core/SkStringUtils.h"
 
 static void append_params(SkString* str, const char label[], const SkPoint pts[],
                           int count, SkScalarAsStringType strType, SkScalar conicWeight = -12345) {
@@ -3784,7 +3784,7 @@ void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar st
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkNx.h"
+#include "include/private/SkNx.h"
 
 static int compute_quad_extremas(const SkPoint src[3], SkPoint extremas[3]) {
     SkScalar ts[2];

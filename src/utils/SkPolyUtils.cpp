@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkPolyUtils.h"
+#include "src/utils/SkPolyUtils.h"
 
 #include <limits>
 
-#include "SkNx.h"
-#include "SkPointPriv.h"
-#include "SkTArray.h"
-#include "SkTemplates.h"
-#include "SkTDPQueue.h"
-#include "SkTInternalLList.h"
+#include "include/private/SkNx.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTInternalLList.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkTDPQueue.h"
 
 //////////////////////////////////////////////////////////////////////////////////
 // Helper data structures and functions

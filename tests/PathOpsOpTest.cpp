@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsDebug.h"
-#include "PathOpsExtendedTest.h"
-#include "PathOpsTestCommon.h"
+#include "tests/PathOpsDebug.h"
+#include "tests/PathOpsExtendedTest.h"
+#include "tests/PathOpsTestCommon.h"
 
 class PathTest_Private {
 public:
@@ -3590,7 +3590,7 @@ static void loop1(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-#include "SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsCubic.h"
 
 static void loop1asQuad(skiatest::Reporter* reporter, const char* filename) {
     CubicPts cubic1 = {{{0,1}, {1,5}, {-5.66666651f,3.33333349f}, {8.83333302f,2.33333349f}}};
@@ -3656,7 +3656,7 @@ static void loop4(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-#include "SkParsePath.h"
+#include "include/utils/SkParsePath.h"
 
 static void issue3517(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
@@ -3848,7 +3848,7 @@ static void cubicOp130(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
 }
 
-#include "SkGeometry.h"
+#include "src/core/SkGeometry.h"
 
 static void complex_to_quads(const SkPoint pts[], SkPath* path) {
     SkScalar loopT[3];

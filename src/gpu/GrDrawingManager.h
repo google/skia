@@ -8,14 +8,14 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
-#include "GrBufferAllocPool.h"
-#include "GrDeferredUpload.h"
-#include "GrPathRenderer.h"
-#include "GrPathRendererChain.h"
-#include "GrResourceCache.h"
-#include "SkSurface.h"
-#include "SkTArray.h"
-#include "text/GrTextContext.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkTArray.h"
+#include "src/gpu/GrBufferAllocPool.h"
+#include "src/gpu/GrDeferredUpload.h"
+#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/GrPathRendererChain.h"
+#include "src/gpu/GrResourceCache.h"
+#include "src/gpu/text/GrTextContext.h"
 
 class GrCoverageCountingPathRenderer;
 class GrOnFlushCallbackObject;

@@ -8,8 +8,8 @@
 #ifndef SKSL_ASTVARDECLARATIONSTATEMENT
 #define SKSL_ASTVARDECLARATIONSTATEMENT
 
-#include "SkSLASTStatement.h"
-#include "SkSLASTVarDeclaration.h"
+#include "src/sksl/ast/SkSLASTStatement.h"
+#include "src/sksl/ast/SkSLASTVarDeclaration.h"
 
 namespace SkSL {
 

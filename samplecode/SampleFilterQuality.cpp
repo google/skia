@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "Resources.h"
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkFont.h"
-#include "SkGradientShader.h"
-#include "SkInterpolator.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkSurface.h"
-#include "SkTime.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTime.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/utils/SkInterpolator.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/Sample.h"
+#include "tools/Resources.h"
+#include "tools/timer/AnimTimer.h"
 
 static sk_sp<SkSurface> make_surface(SkCanvas* canvas, const SkImageInfo& info) {
     auto surface = canvas->makeSurface(info);

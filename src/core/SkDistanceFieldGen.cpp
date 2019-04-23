@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkColorData.h"
-#include "SkDistanceFieldGen.h"
-#include "SkMask.h"
-#include "SkPointPriv.h"
-#include "SkTemplates.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkPointPriv.h"
 
 #include <utility>
 

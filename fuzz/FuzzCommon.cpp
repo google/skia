@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Fuzz.h"
-#include "FuzzCommon.h"
+#include "fuzz/Fuzz.h"
+#include "fuzz/FuzzCommon.h"
 
 // We don't always want to test NaNs and infinities.
 static void fuzz_nice_float(Fuzz* fuzz, float* f) {

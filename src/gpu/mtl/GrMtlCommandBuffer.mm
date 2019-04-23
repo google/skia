@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlCommandBuffer.h"
-#include "GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlCommandBuffer.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
 
 GrMtlCommandBuffer* GrMtlCommandBuffer::Create(id<MTLCommandQueue> queue) {
     id<MTLCommandBuffer> mtlCommandBuffer;

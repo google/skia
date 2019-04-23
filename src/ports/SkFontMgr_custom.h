@@ -8,13 +8,13 @@
 #ifndef SkFontMgr_custom_DEFINED
 #define SkFontMgr_custom_DEFINED
 
-#include "SkFontHost_FreeType_common.h"
-#include "SkFontMgr.h"
-#include "SkFontStyle.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
-#include "SkTArray.h"
-#include "SkTypes.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
+#include "src/ports/SkFontHost_FreeType_common.h"
 
 class SkData;
 class SkFontDescriptor;

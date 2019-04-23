@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "util.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/util.h"
 
-#include "SkMatrix44.h"
+#include "include/core/SkMatrix44.h"
 #include <gtx/string_cast.inl>
 #include <sstream>
 #include <string>
 #include <unistd.h>
 
-#include "jni_interface.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/jni_interface.h"
 
 namespace hello_ar {
     namespace util {

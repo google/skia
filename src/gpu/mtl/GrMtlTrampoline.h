@@ -8,8 +8,8 @@
 #ifndef GrMtlTrampoline_DEFINED
 #define GrMtlTrampoline_DEFINED
 
-#include "GrTypes.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrTypes.h"
 
 class GrContext;
 class GrGpu;

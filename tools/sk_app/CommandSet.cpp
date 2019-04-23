@@ -5,11 +5,11 @@
 * found in the LICENSE file.
 */
 
-#include "CommandSet.h"
+#include "tools/sk_app/CommandSet.h"
 
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkTSort.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "src/core/SkTSort.h"
 
 namespace sk_app {
 

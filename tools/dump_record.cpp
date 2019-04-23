@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "DumpRecord.h"
-#include "SkBitmap.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkRecordDraw.h"
-#include "SkRecordOpts.h"
-#include "SkRecorder.h"
-#include "SkStream.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkStream.h"
+#include "src/core/SkRecordDraw.h"
+#include "src/core/SkRecordOpts.h"
+#include "src/core/SkRecorder.h"
+#include "tools/DumpRecord.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include <stdio.h>
 

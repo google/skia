@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"  // Keep this before any #ifdef ...
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
 #ifdef SK_BUILD_FOR_MAC
@@ -19,36 +19,36 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
-#include "mac/SkUniqueCFRef.h"
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkAutoMalloc.h"
-#include "SkCGUtils.h"
-#include "SkColorData.h"
-#include "SkDescriptor.h"
-#include "SkEndian.h"
-#include "SkFloatingPoint.h"
-#include "SkFontDescriptor.h"
-#include "SkFontMetrics.h"
-#include "SkFontMgr.h"
-#include "SkGlyph.h"
-#include "SkMakeUnique.h"
-#include "SkMaskGamma.h"
-#include "SkMathPriv.h"
-#include "SkMutex.h"
-#include "SkOTTable_OS_2.h"
-#include "SkOTUtils.h"
-#include "SkOnce.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkSFNTHeader.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
-#include "SkTypefaceCache.h"
-#include "SkTypeface_mac.h"
-#include "SkUTF.h"
-#include "SkUtils.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/ports/SkTypeface_mac.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
+#include "include/utils/mac/SkCGUtils.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkDescriptor.h"
+#include "src/core/SkEndian.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkMaskGamma.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkTypefaceCache.h"
+#include "src/core/SkUtils.h"
+#include "src/sfnt/SkOTTable_OS_2.h"
+#include "src/sfnt/SkOTUtils.h"
+#include "src/sfnt/SkSFNTHeader.h"
+#include "src/utils/SkUTF.h"
+#include "src/utils/mac/SkUniqueCFRef.h"
 
 #include <dlfcn.h>
 
@@ -1217,7 +1217,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     glyph->fHeight = SkToU16(skIBounds.height());
 }
 
-#include "SkColorData.h"
+#include "include/private/SkColorData.h"
 
 static constexpr uint8_t sk_pow2_table(size_t i) {
     return SkToU8(((i * i + 128) / 255));
@@ -2399,7 +2399,7 @@ static bool find_desc_str(CTFontDescriptorRef desc, CFStringRef name, SkString* 
     return true;
 }
 
-#include "SkFontMgr.h"
+#include "include/core/SkFontMgr.h"
 
 static inline int sqr(int value) {
     SkASSERT(SkAbs32(value) < 0x7FFF);  // check for overflow

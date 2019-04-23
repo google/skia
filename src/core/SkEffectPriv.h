@@ -8,7 +8,7 @@
 #ifndef SkEffectPriv_DEFINED
 #define SkEffectPriv_DEFINED
 
-#include "SkImageInfo.h"
+#include "include/core/SkImageInfo.h"
 
 class SkArenaAlloc;
 class SkColorSpace;

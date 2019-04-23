@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkData.h"
-#include "SkRandom.h"
-#include "SkStream.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "tools/ToolUtils.h"
 
 #include <functional>
 
@@ -154,7 +154,7 @@ DEF_GM( return new ImageGM; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkPictureRecorder.h"
+#include "include/core/SkPictureRecorder.h"
 
 static void draw_pixmap(SkCanvas* canvas, const SkPixmap& pmap) {
     SkBitmap bitmap;
@@ -383,8 +383,8 @@ static sk_sp<SkImage> make_lazy_image(SkSurface* surf) {
     return SkImage::MakeFromEncoded(std::move(data));
 }
 
-#include "SkWriteBuffer.h"
-#include "SkReadBuffer.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 static sk_sp<SkImage> serial_deserial(SkImage* img) {
     SkBinaryWriteBuffer writer;
     writer.writeImage(img);

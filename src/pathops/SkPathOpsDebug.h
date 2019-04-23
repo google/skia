@@ -7,9 +7,9 @@
 #ifndef SkPathOpsDebug_DEFINED
 #define SkPathOpsDebug_DEFINED
 
-#include "SkPathOps.h"
-#include "SkString.h"
-#include "SkTypes.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/pathops/SkPathOps.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -247,7 +247,7 @@ DummyClasses(Cubic, Cubic);
 #endif
 
 #if DEBUG_SHOW_TEST_NAME
-#include "SkTLS.h"
+#include "src/core/SkTLS.h"
 #endif
 
 // Tests with extreme numbers may fail, but all other tests should never fail.

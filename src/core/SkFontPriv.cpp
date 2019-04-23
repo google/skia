@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontPriv.h"
-#include "SkGraphics.h"
-#include "SkMatrix.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkMatrix.h"
+#include "src/core/SkFontPriv.h"
 
 static SkScalar mag2(SkScalar x, SkScalar y) {
     return x * x + y * y;

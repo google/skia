@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrOp.h"
+#include "src/gpu/ops/GrOp.h"
 
 std::atomic<uint32_t> GrOp::gCurrOpClassID {GrOp::kIllegalOpID + 1};
 std::atomic<uint32_t> GrOp::gCurrOpUniqueID{GrOp::kIllegalOpID + 1};

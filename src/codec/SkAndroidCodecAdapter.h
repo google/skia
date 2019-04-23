@@ -7,7 +7,7 @@
 #ifndef SkAndroidCodecAdapter_DEFINED
 #define SkAndroidCodecAdapter_DEFINED
 
-#include "SkAndroidCodec.h"
+#include "include/codec/SkAndroidCodec.h"
 
 /**
  *  This class wraps SkCodec to implement the functionality of SkAndroidCodec.

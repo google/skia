@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrProcessorAnalysis.h"
-#include "GrGeometryProcessor.h"
-#include "ops/GrDrawOp.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrProcessorAnalysis.h"
+#include "src/gpu/ops/GrDrawOp.h"
 
 GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
         const GrProcessorAnalysisColor& input,

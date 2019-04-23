@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
+#include "samplecode/Sample.h"
 
-#include "AnimTimer.h"
-#include "Resources.h"
-#include "nima/NimaActor.h"
+#include "experimental/nima/NimaActor.h"
+#include "tools/Resources.h"
+#include "tools/timer/AnimTimer.h"
 
 #include <nima/Animation/ActorAnimationInstance.hpp>
 #include <cmath>

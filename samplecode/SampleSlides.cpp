@@ -4,17 +4,17 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Sample.h"
-#include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
-#include "SkCanvas.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
-#include "SkVertices.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkVertices.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkBlurMask.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
-#include "ToolUtils.h"
+#include "tools/ToolUtils.h"
 
 #define BG_COLOR    0xFFDDDDDD
 
@@ -22,11 +22,11 @@ typedef void (*SlideProc)(SkCanvas*);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "Sk1DPathEffect.h"
-#include "Sk2DPathEffect.h"
-#include "SkCornerPathEffect.h"
-#include "SkDashPathEffect.h"
-#include "SkDiscretePathEffect.h"
+#include "include/effects/Sk1DPathEffect.h"
+#include "include/effects/Sk2DPathEffect.h"
+#include "include/effects/SkCornerPathEffect.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/effects/SkDiscretePathEffect.h"
 
 static void compose_pe(SkPaint* paint) {
     SkPathEffect* pe = paint->getPathEffect();
@@ -150,7 +150,7 @@ static void patheffect_slide(SkCanvas* canvas) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkGradientShader.h"
+#include "include/effects/SkGradientShader.h"
 
 struct GradData {
     int             fCount;
@@ -236,10 +236,10 @@ static void gradient_slide(SkCanvas* canvas) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "DecodeFile.h"
-#include "SkOSFile.h"
-#include "SkRandom.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/DecodeFile.h"
+#include "src/core/SkOSFile.h"
 
 static sk_sp<SkShader> make_shader0(SkIPoint* size) {
     SkBitmap    bm;
@@ -390,11 +390,11 @@ static void mesh_slide(SkCanvas* canvas) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkTypeface.h"
+#include "include/core/SkTypeface.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkImageEncoder.h"
+#include "include/core/SkImageEncoder.h"
 
 static const SlideProc gProc[] = {
     patheffect_slide,

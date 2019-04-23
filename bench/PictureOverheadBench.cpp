@@ -8,11 +8,11 @@
 // A benchmark designed to isolate the constant overheads of picture recording.
 // We record an empty picture and a picture with one draw op to force memory allocation.
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkLiteDL.h"
-#include "SkLiteRecorder.h"
-#include "SkPictureRecorder.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPictureRecorder.h"
+#include "src/core/SkLiteDL.h"
+#include "src/core/SkLiteRecorder.h"
 
 template <int kDraws, bool kLite>
 struct PictureOverheadBench : public Benchmark {

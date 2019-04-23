@@ -8,15 +8,15 @@
 #ifndef GrProcessor_DEFINED
 #define GrProcessor_DEFINED
 
-#include "GrColor.h"
-#include "GrGpuBuffer.h"
-#include "GrProcessorUnitTest.h"
-#include "GrSamplerState.h"
-#include "GrShaderVar.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTextureProxy.h"
-#include "SkMath.h"
-#include "SkString.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkString.h"
+#include "include/gpu/GrSamplerState.h"
+#include "include/private/GrColor.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrGpuBuffer.h"
+#include "src/gpu/GrProcessorUnitTest.h"
+#include "src/gpu/GrShaderVar.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
 
 class GrContext;
 class GrResourceProvider;

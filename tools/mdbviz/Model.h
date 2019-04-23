@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkTDArray.h"
+#include "include/core/SkBitmap.h"
+#include "include/private/SkTDArray.h"
 
 class DrawCommand;
 

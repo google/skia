@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodecPriv.h"
-#include "SkMasks.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkMasks.h"
 
 /*
  *

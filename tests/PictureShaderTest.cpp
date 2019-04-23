@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkPictureShader.h"
-#include "SkShader.h"
-#include "SkSurface.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
+#include "src/shaders/SkPictureShader.h"
+#include "tests/Test.h"
 
 // Test that the SkPictureShader cache is purged on shader deletion.
 DEF_TEST(PictureShader_caching, reporter) {

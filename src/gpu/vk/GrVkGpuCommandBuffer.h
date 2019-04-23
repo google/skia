@@ -8,13 +8,13 @@
 #ifndef GrVkGpuCommandBuffer_DEFINED
 #define GrVkGpuCommandBuffer_DEFINED
 
-#include "GrGpuCommandBuffer.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
 
-#include "GrColor.h"
-#include "GrMesh.h"
-#include "GrTypes.h"
-#include "GrVkPipelineState.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/GrColor.h"
+#include "src/gpu/GrMesh.h"
+#include "src/gpu/vk/GrVkPipelineState.h"
 
 class GrVkGpu;
 class GrVkImage;

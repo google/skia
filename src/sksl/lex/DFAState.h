@@ -8,7 +8,7 @@
 #ifndef SKSL_DFASTATE
 #define SKSL_DFASTATE
 
-#include "LexUtil.h"
+#include "src/sksl/lex/LexUtil.h"
 
 struct DFAState {
     struct Label {

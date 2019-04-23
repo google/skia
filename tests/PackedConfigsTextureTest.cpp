@@ -11,13 +11,13 @@
  * as valid texturing configs.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrTextureProxy.h"
-#include "ProxyUtils.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "tools/gpu/ProxyUtils.h"
 
 static const int DEV_W = 10, DEV_H = 10;
 static const uint8_t TOL = 0x4;

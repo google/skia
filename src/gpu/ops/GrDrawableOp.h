@@ -8,11 +8,11 @@
 #ifndef GrDrawableOp_DEFINED
 #define GrDrawableOp_DEFINED
 
-#include "GrOp.h"
+#include "src/gpu/ops/GrOp.h"
 
-#include "GrSemaphore.h"
-#include "SkDrawable.h"
-#include "SkMatrix.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkMatrix.h"
+#include "src/gpu/GrSemaphore.h"
 
 class GrRecordingContext;
 

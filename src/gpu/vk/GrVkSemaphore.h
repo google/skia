@@ -8,11 +8,11 @@
 #ifndef GrVkSemaphore_DEFINED
 #define GrVkSemaphore_DEFINED
 
-#include "GrSemaphore.h"
+#include "src/gpu/GrSemaphore.h"
 
-#include "GrResourceProvider.h"
-#include "GrVkResource.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/vk/GrVkResource.h"
 
 class GrBackendSemaphore;
 class GrVkGpu;

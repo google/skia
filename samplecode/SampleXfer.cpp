@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkDrawable.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
-#include "SkRSXform.h"
-#include "SkRandom.h"
-#include "SkString.h"
-#include "SkSurface.h"
-#include "SkTextUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/utils/SkRandom.h"
+#include "include/utils/SkTextUtils.h"
+#include "samplecode/Sample.h"
+#include "tools/timer/AnimTimer.h"
 
 const SkBlendMode gModes[] = {
     SkBlendMode::kSrcOver,

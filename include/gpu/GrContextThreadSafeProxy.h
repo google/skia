@@ -8,7 +8,7 @@
 #ifndef GrContextThreadSafeProxy_DEFINED
 #define GrContextThreadSafeProxy_DEFINED
 
-#include "../private/GrContext_Base.h"
+#include "include/private/GrContext_Base.h"
 
 class GrBackendFormat;
 class GrContextThreadSafeProxyPriv;

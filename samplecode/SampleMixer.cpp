@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUtils.h"
-#include "Resources.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/effects/SkGradientShader.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkUtils.h"
+#include "tools/Resources.h"
 
 const SkScalar gMat[] = {
     .3f, .6f, .1f, 0, 0,
@@ -97,8 +97,8 @@ DEF_SAMPLE( return new MixerView; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include "SkMaskFilter.h"
-#include "SkSurface.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkSurface.h"
 
 static sk_sp<SkShader> make_resource_shader(const char path[], int size) {
     auto img = GetResourceAsImage(path);

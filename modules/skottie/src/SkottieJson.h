@@ -8,8 +8,8 @@
 #ifndef SkottieJson_DEFINED
 #define SkottieJson_DEFINED
 
-#include "SkJSON.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "src/utils/SkJSON.h"
 
 class SkData;
 class SkStream;

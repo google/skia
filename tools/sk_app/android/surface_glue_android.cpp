@@ -5,7 +5,7 @@
 * found in the LICENSE file.
 */
 
-#include "surface_glue_android.h"
+#include "tools/sk_app/android/surface_glue_android.h"
 
 #include <jni.h>
 #include <pthread.h>
@@ -20,12 +20,12 @@
 #include <android/looper.h>
 #include <android/native_window_jni.h>
 
-#include "../Application.h"
-#include "ResourceFactory.h"
-#include "SkTo.h"
-#include "SkTypes.h"
-#include "SkUTF.h"
-#include "Window_android.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTo.h"
+#include "src/utils/SkUTF.h"
+#include "tools/ResourceFactory.h"
+#include "tools/sk_app/Application.h"
+#include "tools/sk_app/android/Window_android.h"
 
 
 namespace sk_app {

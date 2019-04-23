@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
+#include "bench/Benchmark.h"
 
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkRandom.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkSurface.h"
+#include "include/utils/SkRandom.h"
 
 enum class ClampingMode {
     // Submit image set entries with the fast constraint

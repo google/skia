@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkClipOpPriv.h"
-#include "SkColorFilter.h"
-#include "SkMaskFilter.h"
-#include "SkPaint.h"
-#include "SkRRect.h"
+#include "gm/gm.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
+#include "src/core/SkClipOpPriv.h"
 
 namespace skiagm {
 

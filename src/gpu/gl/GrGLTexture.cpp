@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLTexture.h"
-#include "GrGLGpu.h"
-#include "GrSemaphore.h"
-#include "GrShaderCaps.h"
-#include "GrTexturePriv.h"
-#include "SkTraceMemoryDump.h"
+#include "include/core/SkTraceMemoryDump.h"
+#include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLTexture.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)

@@ -6,8 +6,8 @@
  */
 
 
-#include "Fuzz.h"
-#include "FuzzCommon.h"
+#include "fuzz/Fuzz.h"
+#include "fuzz/FuzzCommon.h"
 
 // UBSAN reminds us that bool can only legally hold 0 or 1.
 void Fuzz::next(bool* b) {

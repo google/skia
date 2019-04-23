@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "Resources.h"
-#include "SkBitmap.h"
-#include "SkPaint.h"
-#include "SkShader.h"
-#include "SkStream.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkStream.h"
+#include "tools/Resources.h"
 
  /***
   *

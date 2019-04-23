@@ -8,10 +8,10 @@
 #ifndef SkFontMgr_DEFINED
 #define SkFontMgr_DEFINED
 
-#include "SkFontArguments.h"
-#include "SkFontStyle.h"
-#include "SkRefCnt.h"
-#include "SkTypes.h"
+#include "include/core/SkFontArguments.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 
 class SkData;
 class SkFontData;

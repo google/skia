@@ -10,8 +10,8 @@
 #ifndef SkTime_DEFINED
 #define SkTime_DEFINED
 
-#include "../private/SkMacros.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMacros.h"
 
 class SkString;
 

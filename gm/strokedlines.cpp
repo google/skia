@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkDashPathEffect.h"
-#include "SkGradientShader.h"
-#include "SkMaskFilter.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPoint3.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint3.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/effects/SkGradientShader.h"
+#include "tools/ToolUtils.h"
 
 constexpr int kNumColumns = 6;
 constexpr int kNumRows = 8;

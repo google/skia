@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkString.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkString.h"
+#include "samplecode/Sample.h"
 
 #if SK_SUPPORT_GPU
-#   include "GrContext.h"
+#   include "include/gpu/GrContext.h"
 #else
 class GrContext;
 #endif

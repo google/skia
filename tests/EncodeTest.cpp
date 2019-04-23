@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "Test.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
 
-#include "SkBitmap.h"
-#include "SkColorPriv.h"
-#include "SkEncodedImageFormat.h"
-#include "SkImage.h"
-#include "SkJpegEncoder.h"
-#include "SkPngEncoder.h"
-#include "SkStream.h"
-#include "SkWebpEncoder.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkStream.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/encode/SkWebpEncoder.h"
 
 #include "png.h"
 

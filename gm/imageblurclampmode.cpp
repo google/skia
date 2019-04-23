@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "tools/ToolUtils.h"
 
 static sk_sp<SkImage> make_image(SkCanvas* canvas) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(250, 200);

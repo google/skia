@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkColorMatrixFilter.h"
-#include "SkColorFilterImageFilter.h"
+#include "gm/gm.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkColorMatrixFilter.h"
 
 // This GM renders correctly in 8888, but fails in PDF
 DEF_SIMPLE_GM(fadefilter, canvas, 256, 256) {

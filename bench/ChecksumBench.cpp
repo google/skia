@@ -4,13 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkChecksum.h"
-#include "SkOpts.h"
-#include "SkMD5.h"
-#include "SkRandom.h"
-#include "SkTemplates.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/private/SkChecksum.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkMD5.h"
+#include "src/core/SkOpts.h"
 
 enum ChecksumType {
     kMD5_ChecksumType,

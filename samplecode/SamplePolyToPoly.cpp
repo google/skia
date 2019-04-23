@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkFontMetrics.h"
-#include "SkGraphics.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkString.h"
-#include "SkTextUtils.h"
-#include "SkTime.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTime.h"
+#include "include/utils/SkRandom.h"
+#include "include/utils/SkTextUtils.h"
+#include "samplecode/Sample.h"
 
 class PolyToPolyView : public Sample {
 public:

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageSource.h"
-#include "SkSurface.h"
-#include "SkTileImageFilter.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkTileImageFilter.h"
 
 static sk_sp<SkImage> create_circle_texture(int size, SkColor color) {
     auto surface(SkSurface::MakeRasterN32Premul(size, size));

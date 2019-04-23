@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGText.h"
+#include "modules/sksg/include/SkSGText.h"
 
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkTArray.h"
-#include "SkTypeface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTArray.h"
 
 namespace sksg {
 

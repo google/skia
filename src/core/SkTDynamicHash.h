@@ -8,9 +8,9 @@
 #ifndef SkTDynamicHash_DEFINED
 #define SkTDynamicHash_DEFINED
 
-#include "SkMath.h"
-#include "SkTemplates.h"
-#include "SkTypes.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
 
 // Traits requires:
 //   static const Key& GetKey(const T&) { ... }

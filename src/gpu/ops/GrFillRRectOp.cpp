@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "GrFillRRectOp.h"
+#include "src/gpu/ops/GrFillRRectOp.h"
 
-#include "GrCaps.h"
-#include "GrGpuCommandBuffer.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "SkRRectPriv.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/core/SkRRectPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 // Hardware derivatives are not always accurate enough for highly elliptical corners. This method
 // checks to make sure the corners will still all look good if we use HW derivatives.

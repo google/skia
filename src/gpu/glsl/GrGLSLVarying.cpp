@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrShaderCaps.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
 
 void GrGLSLVaryingHandler::addPassThroughAttribute(const GrGeometryProcessor::Attribute& input,
                                                    const char* output,

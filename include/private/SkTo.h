@@ -7,8 +7,8 @@
 #ifndef SkTo_DEFINED
 #define SkTo_DEFINED
 
-#include "SkTypes.h"
-#include "SkTFitsIn.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTFitsIn.h"
 
 template <typename D, typename S> constexpr D SkTo(S s) {
     return SkASSERT(SkTFitsIn<D>(s)),

@@ -8,10 +8,10 @@
 #ifndef SkPathMeasure_DEFINED
 #define SkPathMeasure_DEFINED
 
-#include "../private/SkNoncopyable.h"
-#include "../private/SkTDArray.h"
-#include "SkContourMeasure.h"
-#include "SkPath.h"
+#include "include/core/SkContourMeasure.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTDArray.h"
 
 class SK_API SkPathMeasure : SkNoncopyable {
 public:

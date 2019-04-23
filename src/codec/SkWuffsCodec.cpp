@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkWuffsCodec.h"
+#include "src/codec/SkWuffsCodec.h"
 
-#include "../private/SkMalloc.h"
-#include "SkBitmap.h"
-#include "SkDraw.h"
-#include "SkFrameHolder.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkRasterClip.h"
-#include "SkSampler.h"
-#include "SkScalingCodec.h"
-#include "SkUtils.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/private/SkMalloc.h"
+#include "src/codec/SkFrameHolder.h"
+#include "src/codec/SkSampler.h"
+#include "src/codec/SkScalingCodec.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkUtils.h"
 
 // Wuffs ships as a "single file C library" or "header file library" as per
 // https://github.com/nothings/stb/blob/master/docs/stb_howto.txt

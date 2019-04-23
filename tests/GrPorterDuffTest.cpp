@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "GrBackendSurface.h"
-#include "GrContextFactory.h"
-#include "GrContextOptions.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrProxyProvider.h"
-#include "GrXferProcessor.h"
-#include "effects/GrPorterDuffXferProcessor.h"
-#include "gl/GrGLCaps.h"
-#include "ops/GrMeshDrawOp.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContextOptions.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/effects/GrPorterDuffXferProcessor.h"
+#include "src/gpu/gl/GrGLCaps.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "tools/gpu/GrContextFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

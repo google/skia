@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrSurfaceContext.h"
-#include "GrContextPriv.h"
-#include "GrDrawingManager.h"
-#include "GrOpList.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "SkGr.h"
-#include "../private/GrAuditTrail.h"
+#include "include/private/GrAuditTrail.h"
+#include "include/private/GrOpList.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/SkGr.h"
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)

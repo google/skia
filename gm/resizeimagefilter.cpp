@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkColor.h"
-#include "SkImageSource.h"
-#include "SkRefCnt.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkImageSource.h"
 
 namespace skiagm {
 

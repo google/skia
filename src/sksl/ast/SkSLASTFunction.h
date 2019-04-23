@@ -8,10 +8,10 @@
 #ifndef SKSL_ASTFUNCTION
 #define SKSL_ASTFUNCTION
 
-#include "SkSLASTBlock.h"
-#include "SkSLASTDeclaration.h"
-#include "SkSLASTParameter.h"
-#include "SkSLASTType.h"
+#include "src/sksl/ast/SkSLASTBlock.h"
+#include "src/sksl/ast/SkSLASTDeclaration.h"
+#include "src/sksl/ast/SkSLASTParameter.h"
+#include "src/sksl/ast/SkSLASTType.h"
 
 namespace SkSL {
 

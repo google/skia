@@ -8,12 +8,12 @@
 #ifndef SkCodecPriv_DEFINED
 #define SkCodecPriv_DEFINED
 
-#include "SkColorData.h"
-#include "SkColorTable.h"
-#include "SkEncodedInfo.h"
-#include "SkEncodedOrigin.h"
-#include "SkImageInfo.h"
-#include "SkTypes.h"
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkEncodedInfo.h"
+#include "src/codec/SkColorTable.h"
 
 #ifdef SK_PRINT_CODEC_MESSAGES
     #define SkCodecPrintf SkDebugf

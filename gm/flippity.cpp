@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "SkSurface.h"
+#include "include/core/SkSurface.h"
 
-#include "GrContextPriv.h"
-#include "ProxyUtils.h"
-#include "SkImage_Gpu.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/image/SkImage_Gpu.h"
+#include "tools/gpu/ProxyUtils.h"
 
 static const int kNumMatrices = 6;
 static const int kImageSize = 128;

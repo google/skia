@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkTo.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkRandom.h"
 
 int make_bm(SkBitmap* bm, int height) {
     constexpr int kRadius = 22;

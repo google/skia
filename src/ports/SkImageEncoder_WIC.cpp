@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "SkAutoCoInitialize.h"
-#include "SkAutoMalloc.h"
-#include "SkBitmap.h"
-#include "SkImageEncoderPriv.h"
-#include "SkIStream.h"
-#include "SkImageEncoder.h"
-#include "SkStream.h"
-#include "SkTScopedComPtr.h"
-#include "SkTemplates.h"
-#include "SkUnPreMultiply.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/images/SkImageEncoderPriv.h"
+#include "src/utils/win/SkAutoCoInitialize.h"
+#include "src/utils/win/SkIStream.h"
+#include "src/utils/win/SkTScopedComPtr.h"
 #include <wincodec.h>
 
 //All Windows SDKs back to XPSP2 export the CLSID_WICImagingFactory symbol.

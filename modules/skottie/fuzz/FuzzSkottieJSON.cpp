@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkData.h"
-#include "SkFontMgrPriv.h"
-#include "SkStream.h"
-#include "Skottie.h"
-#include "TestFontMgr.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "modules/skottie/include/Skottie.h"
+#include "src/core/SkFontMgrPriv.h"
+#include "tools/fonts/TestFontMgr.h"
 
 void FuzzSkottieJSON(sk_sp<SkData> bytes) {
     SkMemoryStream stream(bytes);

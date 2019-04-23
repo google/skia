@@ -8,7 +8,7 @@
 #ifndef GrSurfaceContextPriv_DEFINED
 #define GrSurfaceContextPriv_DEFINED
 
-#include "GrSurfaceContext.h"
+#include "src/gpu/GrSurfaceContext.h"
 
 /** Class that adds methods to GrSurfaceContext that are only intended for use internal to
     Skia. This class is purely a privileged window into GrSurfaceContext. It should never have

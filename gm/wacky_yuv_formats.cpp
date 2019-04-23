@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "SkColorPriv.h"
-#include "SkImageGenerator.h"
-#include "SkPath.h"
-#include "SkTextUtils.h"
-#include "SkYUVAIndex.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkYUVAIndex.h"
+#include "include/utils/SkTextUtils.h"
 
 #if SK_SUPPORT_GPU
-#include "GrBackendSurface.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "SkImage_GpuYUVA.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/image/SkImage_GpuYUVA.h"
 #endif
 
 static const int kTileWidthHeight = 128;

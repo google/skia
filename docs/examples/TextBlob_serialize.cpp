@@ -1,10 +1,10 @@
 #if 0  // Disabled until updated to use current API.
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=90ce8c327d407b1faac73baa2ebd0378
 REG_FIDDLE(TextBlob_serialize, 256, 64, false, 0) {
-#include "SkSerialProcs.h"
+#include "include/core/SkSerialProcs.h"
 
 void draw(SkCanvas* canvas) {
     SkFont blobFont;

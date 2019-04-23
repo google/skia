@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontArguments.h"
-#include "SkFontDescriptor.h"
-#include "SkFontHost_FreeType_common.h"
-#include "SkFontMgr.h"
-#include "SkFontMgr_custom.h"
-#include "SkFontStyle.h"
-#include "SkMakeUnique.h"
-#include "SkRefCnt.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTArray.h"
-#include "SkTemplates.h"
-#include "SkTypeface.h"
-#include "SkTypes.h"
+#include "include/core/SkFontArguments.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/ports/SkFontHost_FreeType_common.h"
+#include "src/ports/SkFontMgr_custom.h"
 
 #include <limits>
 #include <memory>

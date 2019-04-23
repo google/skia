@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrStyle.h"
-#include "SkDashPathPriv.h"
+#include "src/gpu/GrStyle.h"
+#include "src/utils/SkDashPathPriv.h"
 
 int GrStyle::KeySize(const GrStyle &style, Apply apply, uint32_t flags) {
     GR_STATIC_ASSERT(sizeof(uint32_t) == sizeof(SkScalar));
