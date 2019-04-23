@@ -80,7 +80,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\", \"-DGR_EGL_TRY_GLES3_THEN_GLES2\", \"-I[START_DIR]/cache/work/skia/third_party/externals/egl-registry/api\", \"-I[START_DIR]/cache/work/skia/third_party/externals/opengl-registry/api\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/Release/swiftshader_out\"] is_debug=false skia_use_egl=true target_cpu=\"x86_64\""
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\", \"-DGR_EGL_TRY_GLES3_THEN_GLES2\", \"-I[START_DIR]/cache/work/skia/third_party/externals/egl-registry/api\", \"-I[START_DIR]/cache/work/skia/third_party/externals/opengl-registry/api\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/Release/swiftshader_out\"] is_debug=false skia_use_egl=true target_cpu=\"x86_64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

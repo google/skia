@@ -11,6 +11,7 @@ declare_args() {
   extra_ldflags = []
 
   malloc = ""
+  werror = false
 }
 
 if (is_ios) {
@@ -37,13 +38,20 @@ config("default") {
   ldflags = []
   libs = []
 
+  if (werror) {
+    if (is_win) {
+      cflags += [ "/WX" ]
+    } else {
+      cflags += [ "-Werror" ]
+    }
+  }
+
   if (is_win) {
     if (is_clang && target_cpu == "arm64") {
       cflags += [ "--target=arm64-windows" ]
     }
     cflags += [
       "/bigobj",  # Some of our files are bigger than the regular limits.
-      "/WX",  # Treat warnings as errors.
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
     ]
     if (is_clang) {
@@ -306,7 +314,6 @@ config("warnings") {
     ]
   } else {
     cflags += [
-      "-Werror",
       "-Wall",
       "-Wextra",
       "-Winit-self",
