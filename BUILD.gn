@@ -99,6 +99,7 @@ if (defined(skia_settings)) {
 
 skia_public_includes = [
   "include/android",
+  "include/atlastext",
   "include/c",
   "include/codec",
   "include/config",
@@ -107,7 +108,6 @@ skia_public_includes = [
   "include/effects",
   "include/encode",
   "include/gpu",
-  "include/atlastext",
   "include/pathops",
   "include/ports",
   "include/svg",
@@ -115,10 +115,6 @@ skia_public_includes = [
   "include/utils/mac",
   "third_party/skcms",
 ]
-
-if (skia_enable_atlas_text) {
-  skia_public_includes += [ "include/atlastext" ]
-}
 
 # Skia public API, generally provided by :skia.
 config("skia_public") {
