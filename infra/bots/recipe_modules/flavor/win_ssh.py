@@ -118,5 +118,18 @@ class WinSSHFlavor(ssh.SSHFlavor):
                                            self.device_dirs.bin_dir)
 
     cmd[0] = self.device_path_join(self.device_dirs.bin_dir, cmd[0])
-    self._cmd(name, subprocess.list2cmdline(map(str, cmd)),
+    cmdstr = subprocess.list2cmdline(map(str, cmd))
+    # If dm crashes, it seems the only way to notice is to look at the Windows
+    # application event log. The easiest way to do that is via PowerShell.
+    pscmd = ('$ErrorActionPreference = \'Stop\'; '
+             '$begin = Get-Date; '
+             '%s; '
+             '$end = Get-Date; '
+             '$faults = Get-EventLog application 1000 -entrytype error'
+             '  -after $begin -before $end; '
+             'if ($faults.Count -ne 0) {'
+             '  $host.SetShouldExit(17);'
+             '  Write-Host $faults[0].Message; '
+             '}') % cmdstr
+    self._cmd(name, 'powershell -Command "%s"' % pscmd,
               infra_step=infra_step, **kwargs)
