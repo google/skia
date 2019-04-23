@@ -10,7 +10,11 @@
 
 // IWYU pragma: begin_exports
 #include "SkPreConfig.h"
-#include "SkUserConfig.h"
+#if defined (SK_USER_CONFIG_HEADER)
+    #include SK_USER_CONFIG_HEADER
+#else
+    #include "SkUserConfig.h"
+#endif
 #include "SkPostConfig.h"
 #include <stddef.h>
 #include <stdint.h>
