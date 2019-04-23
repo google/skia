@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f5790ac5_ad91aef9",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-04-23T17:10:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9497c956_a1825636",
+      "range": {
+        "startLine": 185,
+        "startChar": 43,
+        "endLine": 185,
+        "endChar": 48
+      },
+      "revId": "d3ba45be343f215aa91ea977ea2f01cfdd2e4482",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "02053ae1_d8030503",
         "filename": "src/core/SkStrike.cpp",
         "patchSetId": 1
@@ -39,6 +63,24 @@
       "revId": "d3ba45be343f215aa91ea977ea2f01cfdd2e4482",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "983466a4_c0524c8a",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-04-23T17:10:54Z",
+      "side": 1,
+      "message": "This will not be a problem with paths. This is the fallback case when a glyph is too big to fit in the atlas (or the path only case when paths are needed). While images are not needed immediately in the GPU case, paths are. Paths are directly encoded into the op stream as paths, while image are needed later during atlas generation, and the images are not directly encoded in the op stream.",
+      "parentUuid": "02053ae1_d8030503",
+      "revId": "d3ba45be343f215aa91ea977ea2f01cfdd2e4482",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
