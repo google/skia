@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkDashPathEffect.h"
+#include "SkFont.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPathEffect.h"
@@ -21,7 +22,6 @@
 #include "Test.h"
 
 #include <cmath>
-#include <SkFont.h>
 
 static const SkColor bgColor = SK_ColorWHITE;
 
