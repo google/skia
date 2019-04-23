@@ -82,11 +82,17 @@ Unit tests can be run with the `unitTest_` prefix:
 Run as a non-APK executable
 ---------------------------
 
-1.  Follow steps 1-3 as above.
+1.  Follow steps 1-2 as above.
 
-2.  Build the SkQP program, load files on the device, and run skqp:
+2.  Set up the build:
 
-        gn gen out/skqp-arm
-        ninja -C out/skqp-arm skqp
-        python tools/skqp/run_skqp_exe out/skqp-arm
+        python tools/skqp/generate_gn_args out/skqp  "$ANDROID_NDK"
+
+    Or:
+
+        python tools/skqp/generate_gn_args out/skqp_x86 --arch x86 "$ANDROID_NDK"
+
+3.  Build, load files on the device, and run skqp:
+
+        python tools/skqp/run_skqp_exe out/skqp
 

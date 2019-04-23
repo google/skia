@@ -15,7 +15,8 @@ RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y \
         clang-6.0 \
         git \
-        python
+        python \
+        gdb
 
 RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /opt/depot_tools
 

@@ -7,8 +7,10 @@
 import os
 import subprocess
 import tempfile
-import sysopen
 import sys
+
+assert '/' in [os.sep, os.altsep] and '..' == os.pardir
+SKIA_DIR = os.path.dirname(__file__) + '/../..'
 
 def skqp(build):
     def adb(*args):
@@ -16,27 +18,35 @@ def skqp(build):
         subprocess.check_call(['adb'] + list(args))
 
     assert os.path.isdir(build)
+    assert os.path.isfile(build + '/args.gn')
     build = os.path.abspath(build)
 
-    os.chdir(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
+    os.chdir(SKIA_DIR)
+
+    for cmd in [[sys.executable, 'tools/git-sync-deps'],
+                ['bin/gn', 'gen', build],
+                ['ninja', '-C', build, 'skqp'],
+                [sys.executable, 'tools/skqp/download_model'],
+                [sys.executable, 'tools/skqp/setup_resources']]:
+        sys.stdout.write("'" + "' '".join(cmd) + "'\n")
+        subprocess.check_call(cmd)
 
     adb('shell', 'rm -rf /data/local/tmp/skqp; mkdir -p /data/local/tmp/skqp')
 
     adb('push',
-        os.path.join(*'platform_tools/android/apps/skqp/src/main/assets'.split('/')),
-        '/data/local/tmp/skqp/skqp_assets')
+        build + '/skqp',
+        'platform_tools/android/apps/skqp/src/main/assets',
+        '/data/local/tmp/skqp/')
 
-    adb('push', os.path.join(build, 'skqp'), '/data/local/tmp/skqp/skqp')
-
-    cmd = "cd /data/local/tmp/skqp; ./skqp skqp_assets report"
+    cmd = "cd /data/local/tmp/skqp; ./skqp assets report"
     sys.stdout.write("adb 'shell' '%s'\n" % cmd)
     ret = subprocess.call(['adb', 'shell', cmd])
 
     tmpdir = tempfile.mkdtemp(prefix='skqp')
 
-    adb('pull', "/data/local/tmp/report", tmpdir)
+    adb('pull', "/data/local/tmp/skqp/report", tmpdir)
 
-    return ret, os.path.join(tmpdir, 'report')
+    return ret, tmpdir  + '/report'
 
 if __name__ == '__main__':
     if len(sys.argv) != 2 or not os.path.isdir(sys.argv[1]):
@@ -49,5 +59,4 @@ if __name__ == '__main__':
         sys.exit(1)
 
     sys.stdout.write('\nReturn code: %d\nOutput written to "%s"\n' % (ret, report))
-    sysopen.sysopen(os.path.join(report, 'report.html'))
-
+    subprocess.call([SKIA_DIR + '/bin/sysopen', report + '/report.html'])
