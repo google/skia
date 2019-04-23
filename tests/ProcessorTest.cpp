@@ -309,10 +309,7 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
         proxies[0] = proxyProvider->createTextureProxy(img, kNone_GrSurfaceFlags, 1,
                                                        SkBudgeted::kYes, SkBackingFit::kExact,
                                                        GrInternalSurfaceFlags::kNoPendingIO);
-
-        if (resourceProvider->explicitlyAllocateGPUResources()) {
-            proxies[0]->instantiate(resourceProvider);
-        }
+        proxies[0]->instantiate(resourceProvider);
     }
 
     {
@@ -331,10 +328,7 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
         proxies[1] = proxyProvider->createTextureProxy(img, kNone_GrSurfaceFlags, 1,
                                                        SkBudgeted::kYes, SkBackingFit::kExact,
                                                        GrInternalSurfaceFlags::kNoPendingIO);
-
-        if (resourceProvider->explicitlyAllocateGPUResources()) {
-            proxies[1]->instantiate(resourceProvider);
-        }
+        proxies[1]->instantiate(resourceProvider);
     }
 
     return proxies[0] && proxies[1];
@@ -444,10 +438,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     auto resourceProvider = context->priv().resourceProvider();
     using FPFactory = GrFragmentProcessorTestFactory;
-
-    // This test side-steps the GrResourceAllocator thus violates some assumptions and
-    // asserts
-    bool orig = resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(false);
 
     uint32_t seed = FLAGS_processorSeed;
     if (FLAGS_randomProcessorTest) {
@@ -688,8 +678,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             }
         }
     }
-
-    resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(orig);
 }
 
 // Tests that fragment processors returned by GrFragmentProcessor::clone() are equivalent to their
@@ -698,10 +686,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     auto resourceProvider = context->priv().resourceProvider();
-
-    // This test side-steps the GrResourceAllocator thus violates some assumptions and
-    // asserts
-    bool orig = resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(false);
 
     SkRandom random;
 
@@ -773,8 +757,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
             }
         }
     }
-
-    resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(orig);
 }
 
 #endif  // GR_TEST_UTILS

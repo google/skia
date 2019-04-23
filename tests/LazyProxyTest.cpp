@@ -379,7 +379,6 @@ private:
 DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
     GrMockOptions mockOptions;
     sk_sp<GrContext> ctx = GrContext::MakeMock(&mockOptions, GrContextOptions());
-    GrResourceProvider* resourceProvider = ctx->priv().resourceProvider();
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     GrBackendFormat format =
                 ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
@@ -398,13 +397,7 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
         ctx->flush();
 
         if (failInstantiation) {
-            if (resourceProvider->explicitlyAllocateGPUResources()) {
-                REPORTER_ASSERT(reporter, 1 == executeTestValue);
-            } else {
-                // When we disable explicit gpu resource allocation we don't throw away ops that
-                // have uninstantiated proxies.
-                REPORTER_ASSERT(reporter, 2 == executeTestValue);
-            }
+            REPORTER_ASSERT(reporter, 1 == executeTestValue);
         } else {
             REPORTER_ASSERT(reporter, 2 == executeTestValue);
         }
