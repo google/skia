@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "77d62a6a_f76afb58",
+        "filename": "src/gpu/GrRenderTargetProxyPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-23T20:24:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7581f9ad_0d667535",
+      "revId": "145bc2e9dd4b31a847f2b648aa3aac06275d2661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c827d41c_34dbc52d",
         "filename": "src/gpu/GrRenderTargetProxyPriv.h",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "145bc2e9dd4b31a847f2b648aa3aac06275d2661",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f32d4377_050aa48a",
+        "filename": "src/gpu/GrRenderTargetProxyPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-23T20:24:05Z",
+      "side": 1,
+      "message": "I think that\u0027s the literal definition of when lazyInstantiationState() returns kFully:\n\nhttps://cs.chromium.org/chromium/src/third_party/skia/include/private/GrSurfaceProxy.h?type\u003dcs\u0026g\u003d0\u0026l\u003d268",
+      "parentUuid": "c827d41c_34dbc52d",
+      "revId": "145bc2e9dd4b31a847f2b648aa3aac06275d2661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +118,54 @@
     },
     {
       "key": {
+        "uuid": "91518f62_da931f21",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-23T20:24:05Z",
+      "side": 1,
+      "message": "We could, but in total there would be more calls to asTextureProxy than we currently have to asRenderTargetProxy if we did it that way.\n\nI actually started the conversion then decided to give up and keep it as a texture proxy.",
+      "parentUuid": "9b0efda3_26879b26",
+      "range": {
+        "startLine": 195,
+        "startChar": 4,
+        "endLine": 195,
+        "endChar": 17
+      },
+      "revId": "145bc2e9dd4b31a847f2b648aa3aac06275d2661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e0fd3d7_236daaa0",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-23T20:24:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c703dc0a_78754792",
+      "range": {
+        "startLine": 195,
+        "startChar": 51,
+        "endLine": 195,
+        "endChar": 65
+      },
+      "revId": "145bc2e9dd4b31a847f2b648aa3aac06275d2661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e3e109ea_81576e24",
         "filename": "src/gpu/ccpr/GrCCPathProcessor.cpp",
         "patchSetId": 1
@@ -96,6 +180,24 @@
       "revId": "145bc2e9dd4b31a847f2b648aa3aac06275d2661",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3664dc07_4fafbd32",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-23T20:24:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3e109ea_81576e24",
+      "revId": "145bc2e9dd4b31a847f2b648aa3aac06275d2661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
