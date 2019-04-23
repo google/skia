@@ -22,6 +22,30 @@
       "revId": "fbfcb4d2b808550e69faf3f5f0ba8b79420fe9fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c159914_797eb67f",
+        "filename": "src/gpu/GrResourceAllocator.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-23T12:20:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15c45d77_a41c809b",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 66
+      },
+      "revId": "fbfcb4d2b808550e69faf3f5f0ba8b79420fe9fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
