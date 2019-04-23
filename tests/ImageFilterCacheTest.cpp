@@ -5,16 +5,16 @@
   * found in the LICENSE file.
   */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "SkBitmap.h"
-#include "SkColorFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkImage.h"
-#include "SkImageFilter.h"
-#include "SkImageFilterCache.h"
-#include "SkMatrix.h"
-#include "SkSpecialImage.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "src/core/SkImageFilterCache.h"
+#include "src/core/SkSpecialImage.h"
 
 static const int kSmallerSize = 10;
 static const int kPad = 3;
@@ -191,13 +191,13 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
     test_image_backed(reporter, nullptr, srcImage);
 }
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrResourceProvider.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
 
 static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider) {
     SkBitmap srcBM = create_bm();

@@ -9,9 +9,9 @@
  * be overwritten.
  */
 
-#include "gl/GrGLAssembleInterface.h"
-#include "gl/GrGLAssembleHelpers.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/gl/GrGLAssembleHelpers.h"
+#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 #define GET_PROC(F) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F)
 #define GET_PROC_SUFFIX(F, S) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F #S)

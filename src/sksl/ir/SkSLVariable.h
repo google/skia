@@ -8,10 +8,10 @@
 #ifndef SKSL_VARIABLE
 #define SKSL_VARIABLE
 
-#include "SkSLModifiers.h"
-#include "SkSLPosition.h"
-#include "SkSLSymbol.h"
-#include "SkSLType.h"
+#include "src/sksl/SkSLPosition.h"
+#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLSymbol.h"
+#include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
 

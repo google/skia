@@ -8,8 +8,8 @@
 #ifndef SkPngChunkReader_DEFINED
 #define SkPngChunkReader_DEFINED
 
-#include "SkTypes.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 
 /**
  *  SkPngChunkReader

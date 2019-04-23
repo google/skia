@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkShadowTessellator.h"
-#include "SkColorData.h"
-#include "SkDrawShadowInfo.h"
-#include "SkGeometry.h"
-#include "SkPolyUtils.h"
-#include "SkPath.h"
-#include "SkPoint3.h"
-#include "SkPointPriv.h"
-#include "SkVertices.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkVertices.h"
+#include "include/private/SkColorData.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
+#include "src/utils/SkPolyUtils.h"
+#include "src/utils/SkShadowTessellator.h"
 
 #if SK_SUPPORT_GPU
-#include "GrPathUtils.h"
+#include "src/gpu/GrPathUtils.h"
 #endif
 
 

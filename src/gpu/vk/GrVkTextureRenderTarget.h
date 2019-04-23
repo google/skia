@@ -9,9 +9,9 @@
 #ifndef GrVkTextureRenderTarget_DEFINED
 #define GrVkTextureRenderTarget_DEFINED
 
-#include "GrVkTexture.h"
-#include "GrVkRenderTarget.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/vk/GrVkRenderTarget.h"
+#include "src/gpu/vk/GrVkTexture.h"
 
 class GrVkGpu;
 

@@ -196,27 +196,9 @@ echo "Generating final wasm"
 # Emscripten will use LLD, which may relax this requirement.
 ${EMCXX} \
     $RELEASE_CONF \
-    -Iexperimental \
-    -Iinclude/c \
-    -Iinclude/codec \
-    -Iinclude/config \
-    -Iinclude/core \
-    -Iinclude/effects \
-    -Iinclude/gpu \
-    -Iinclude/gpu/gl \
-    -Iinclude/pathops \
-    -Iinclude/private \
-    -Iinclude/utils/ \
-    -Imodules/skottie/include \
-    -Imodules/skottie/utils \
-    -Imodules/sksg/include \
-    -Imodules/skshaper/include \
-    -Imodules/particles/include \
-    -Isrc/core/ \
-    -Isrc/utils/ \
+    -I. \
     -Ithird_party/icu \
     -Ithird_party/skcms \
-    -Itools \
     -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
     $WASM_GPU \

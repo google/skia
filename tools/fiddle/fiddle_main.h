@@ -8,14 +8,14 @@
 #define fiddle_main_DEFINED
 
 #ifdef FIDDLE_BUILD_TEST
-    #include "GrContext.h"
-    #include "SkCanvas.h"
-    #include "SkDocument.h"
-    #include "SkPictureRecorder.h"
-    #include "SkStream.h"
-    #include "SkSurface.h"
-    #include "gl/GrGLAssembleInterface.h"
-    #include "gl/GrGLInterface.h"
+    #include "include/core/SkCanvas.h"
+    #include "include/core/SkDocument.h"
+    #include "include/core/SkPictureRecorder.h"
+    #include "include/core/SkStream.h"
+    #include "include/core/SkSurface.h"
+    #include "include/gpu/GrContext.h"
+    #include "include/gpu/gl/GrGLAssembleInterface.h"
+    #include "include/gpu/gl/GrGLInterface.h"
 #else
     #include "skia.h"
 #endif

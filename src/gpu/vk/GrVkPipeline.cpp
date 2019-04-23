@@ -5,14 +5,14 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkPipeline.h"
-#include "GrGeometryProcessor.h"
-#include "GrPipeline.h"
-#include "GrStencilSettings.h"
-#include "GrVkCommandBuffer.h"
-#include "GrVkGpu.h"
-#include "GrVkRenderTarget.h"
-#include "GrVkUtil.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrStencilSettings.h"
+#include "src/gpu/vk/GrVkCommandBuffer.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkPipeline.h"
+#include "src/gpu/vk/GrVkRenderTarget.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
 #include <sanitizer/lsan_interface.h>

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkColorPriv.h"
-#include "SkImageSource.h"
-#include "SkMagnifierImageFilter.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkMagnifierImageFilter.h"
 
 static sk_sp<SkImage> make_image(GrContext* context, int size, GrSurfaceOrigin origin) {
     if (context) {

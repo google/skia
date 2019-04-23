@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "skdiff.h"
-#include "skdiff_html.h"
-#include "SkStream.h"
-#include "SkTime.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTime.h"
+#include "tools/skdiff/skdiff.h"
+#include "tools/skdiff/skdiff_html.h"
 
 /// Make layout more consistent by scaling image to 240 height, 360 width,
 /// or natural size, whichever is smallest.

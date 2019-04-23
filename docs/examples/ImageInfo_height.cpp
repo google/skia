@@ -1,7 +1,7 @@
 #if 0  // Disabled until updated to use current API.
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=72c35baaeddca1d912edf93d19429c8e
 REG_FIDDLE(ImageInfo_height, 256, 96, false, 4) {
 void draw(SkCanvas* canvas) {

@@ -4,10 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Sample.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkShader.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkShader.h"
+#include "samplecode/Sample.h"
 
 static void make_bitmap(SkBitmap* bm) {
     const int W = 100;

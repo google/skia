@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkOpPE.h"
-#include "SkStrokeRec.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkStrokeRec.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/effects/SkOpPE.h"
 
 sk_sp<SkPathEffect> SkMergePathEffect::Make(sk_sp<SkPathEffect> one, sk_sp<SkPathEffect> two,
                                             SkPathOp op) {

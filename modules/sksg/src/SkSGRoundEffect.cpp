@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGRoundEffect.h"
+#include "modules/sksg/include/SkSGRoundEffect.h"
 
-#include "SkCanvas.h"
-#include "SkCornerPathEffect.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/effects/SkCornerPathEffect.h"
 
 namespace sksg {
 

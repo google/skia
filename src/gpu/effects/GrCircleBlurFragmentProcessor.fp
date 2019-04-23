@@ -31,7 +31,7 @@ uniform half4 circleData;
 }
 
 @cpp {
-    #include "GrProxyProvider.h"
+    #include "src/gpu/GrProxyProvider.h"
 
     // Computes an unnormalized half kernel (right side). Returns the summation of all the half
     // kernel values.

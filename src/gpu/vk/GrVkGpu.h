@@ -8,17 +8,17 @@
 #ifndef GrVkGpu_DEFINED
 #define GrVkGpu_DEFINED
 
-#include "GrGpu.h"
-#include "GrVkCaps.h"
-#include "GrVkCopyManager.h"
-#include "GrVkIndexBuffer.h"
-#include "GrVkMemory.h"
-#include "GrVkResourceProvider.h"
-#include "GrVkSemaphore.h"
-#include "GrVkVertexBuffer.h"
-#include "GrVkUtil.h"
-#include "vk/GrVkBackendContext.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkBackendContext.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/vk/GrVkCaps.h"
+#include "src/gpu/vk/GrVkCopyManager.h"
+#include "src/gpu/vk/GrVkIndexBuffer.h"
+#include "src/gpu/vk/GrVkMemory.h"
+#include "src/gpu/vk/GrVkResourceProvider.h"
+#include "src/gpu/vk/GrVkSemaphore.h"
+#include "src/gpu/vk/GrVkUtil.h"
+#include "src/gpu/vk/GrVkVertexBuffer.h"
 
 class GrPipeline;
 

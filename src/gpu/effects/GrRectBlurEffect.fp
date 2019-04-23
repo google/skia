@@ -6,10 +6,10 @@
  */
 
 @header {
-    #include "GrProxyProvider.h"
-    #include "GrShaderCaps.h"
-    #include "SkBlurMask.h"
-    #include "SkScalar.h"
+    #include "include/core/SkScalar.h"
+    #include "src/core/SkBlurMask.h"
+    #include "src/gpu/GrProxyProvider.h"
+    #include "src/gpu/GrShaderCaps.h"
 }
 
 in uniform float4 rect;

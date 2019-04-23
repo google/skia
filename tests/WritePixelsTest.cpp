@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkColorData.h"
-#include "SkImageInfoPriv.h"
-#include "SkMathPriv.h"
-#include "SkSurface.h"
-#include "Test.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkMathPriv.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrProxyProvider.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrProxyProvider.h"
 
 #include <initializer_list>
 
@@ -273,7 +273,7 @@ static bool check_write(skiatest::Reporter* reporter, SkSurface* surf, SkAlphaTy
     return true;
 }
 
-#include "SkMallocPixelRef.h"
+#include "include/core/SkMallocPixelRef.h"
 
 // This is a tricky pattern, because we have to setConfig+rowBytes AND specify
 // a custom pixelRef (which also has to specify its rowBytes), so we have to be

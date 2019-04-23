@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
+#include "samplecode/Sample.h"
 
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkMaskFilter.h"
-#include "SkParsePath.h"
-#include "SkPath.h"
-#include "SkRandom.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkParsePath.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkBlurMask.h"
 
 
 static void test_huge_stroke(SkCanvas* canvas) {

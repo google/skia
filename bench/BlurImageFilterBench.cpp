@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkBlurImageFilter.h"
-#include "SkOffsetImageFilter.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkOffsetImageFilter.h"
+#include "include/utils/SkRandom.h"
 
 #define FILTER_WIDTH_SMALL  32
 #define FILTER_HEIGHT_SMALL 32

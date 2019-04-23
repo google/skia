@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkStrokerPriv.h"
-#include "SkGeometry.h"
-#include "SkPath.h"
-#include "SkPointPriv.h"
+#include "include/core/SkPath.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkStrokerPriv.h"
 
 #include <utility>
 

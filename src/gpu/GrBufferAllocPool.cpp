@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "GrBufferAllocPool.h"
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrCpuBuffer.h"
-#include "GrGpu.h"
-#include "GrGpuBuffer.h"
-#include "GrResourceProvider.h"
-#include "GrTypes.h"
-#include "SkMacros.h"
-#include "SkSafeMath.h"
-#include "SkTraceEvent.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkMacros.h"
+#include "src/core/SkSafeMath.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrBufferAllocPool.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrCpuBuffer.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrGpuBuffer.h"
+#include "src/gpu/GrResourceProvider.h"
 
 sk_sp<GrBufferAllocPool::CpuBufferCache> GrBufferAllocPool::CpuBufferCache::Make(
         int maxBuffersToCache) {

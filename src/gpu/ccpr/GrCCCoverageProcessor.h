@@ -8,13 +8,13 @@
 #ifndef GrCCCoverageProcessor_DEFINED
 #define GrCCCoverageProcessor_DEFINED
 
-#include "GrCaps.h"
-#include "GrGeometryProcessor.h"
-#include "GrPipeline.h"
-#include "GrShaderCaps.h"
-#include "SkNx.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLVarying.h"
+#include "include/private/SkNx.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
 
 class GrGLSLFPFragmentBuilder;
 class GrGLSLVertexGeoBuilder;

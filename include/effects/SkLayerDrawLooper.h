@@ -8,10 +8,10 @@
 #ifndef SkLayerDrawLooper_DEFINED
 #define SkLayerDrawLooper_DEFINED
 
-#include "SkDrawLooper.h"
-#include "SkPaint.h"
-#include "SkPoint.h"
-#include "SkBlendMode.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkDrawLooper.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
 
 class SK_API SkLayerDrawLooper : public SkDrawLooper {
 public:

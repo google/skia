@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkResourceCache.h"
-#include "SkShadowUtils.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkShadowUtils.h"
+#include "src/core/SkResourceCache.h"
 
 void draw_shadow(SkCanvas* canvas, const SkPath& path, SkScalar height, SkColor color,
                  SkPoint3 lightPos, SkScalar lightR, bool isAmbient, uint32_t flags) {

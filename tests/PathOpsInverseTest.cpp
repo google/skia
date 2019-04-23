@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsExtendedTest.h"
+#include "tests/PathOpsExtendedTest.h"
 
 DEF_TEST(PathOpsInverse, reporter) {
     SkPath one, two;

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkAAClip.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
-#include "SkString.h"
-#include "SkClipOpPriv.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkAAClip.h"
+#include "src/core/SkClipOpPriv.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // This bench tests out AA/BW clipping via canvas' clipPath and clipRect calls

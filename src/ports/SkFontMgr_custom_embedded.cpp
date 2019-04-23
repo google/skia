@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontDescriptor.h"
-#include "SkFontMgr_custom.h"
-#include "SkMakeUnique.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/ports/SkFontMgr_custom.h"
 
 struct SkEmbeddedResource { const uint8_t* data; size_t size; };
 struct SkEmbeddedResourceHeader { const SkEmbeddedResource* entries; int count; };

@@ -7,16 +7,16 @@
 
 // This test only works with the GPU backend.
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "gl/GrGLContext.h"
-#include "SkBitmap.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImage.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/gl/GrGLContext.h"
 
 namespace skiagm {
 class RectangleTexture : public GpuGM {

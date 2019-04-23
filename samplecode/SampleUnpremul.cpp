@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "DecodeFile.h"
-#include "Resources.h"
-#include "Sample.h"
-#include "SkBlurDrawLooper.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTypes.h"
-#include "SkUTF.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkBlurDrawLooper.h"
+#include "samplecode/DecodeFile.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkBlurMask.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkOSPath.h"
+#include "src/utils/SkUTF.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 /**
  *  Interprets c as an unpremultiplied color, and returns the

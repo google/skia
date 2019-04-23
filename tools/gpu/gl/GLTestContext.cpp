@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GLTestContext.h"
+#include "tools/gpu/gl/GLTestContext.h"
 
-#include "GrContext.h"
-#include "GpuTimer.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/gl/GrGLUtil.h"
+#include "tools/gpu/GpuTimer.h"
 
 namespace {
 

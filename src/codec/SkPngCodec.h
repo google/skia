@@ -7,13 +7,13 @@
 #ifndef SkPngCodec_DEFINED
 #define SkPngCodec_DEFINED
 
-#include "SkCodec.h"
-#include "SkColorTable.h"
-#include "SkPngChunkReader.h"
-#include "SkEncodedImageFormat.h"
-#include "SkImageInfo.h"
-#include "SkRefCnt.h"
-#include "SkSwizzler.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPngChunkReader.h"
+#include "include/core/SkRefCnt.h"
+#include "src/codec/SkColorTable.h"
+#include "src/codec/SkSwizzler.h"
 
 class SkStream;
 

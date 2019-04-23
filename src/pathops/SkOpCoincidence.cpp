@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkOpCoincidence.h"
-#include "SkOpSegment.h"
-#include "SkPathOpsTSect.h"
+#include "src/pathops/SkOpCoincidence.h"
+#include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkPathOpsTSect.h"
 
 #include <utility>
 

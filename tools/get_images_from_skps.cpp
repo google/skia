@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkColorSpace.h"
-#include "SkData.h"
-#include "SkJSONWriter.h"
-#include "SkMD5.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkPicture.h"
-#include "SkSerialProcs.h"
-#include "SkStream.h"
-#include "SkTHash.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkSerialProcs.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTHash.h"
+#include "src/core/SkMD5.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkJSONWriter.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include <iostream>
 #include <map>

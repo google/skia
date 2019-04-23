@@ -4,10 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsTestCommon.h"
-#include "SkPathOpsBounds.h"
-#include "SkPathOpsCurve.h"
-#include "Test.h"
+#include "src/pathops/SkPathOpsBounds.h"
+#include "src/pathops/SkPathOpsCurve.h"
+#include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
 
 static const SkRect sectTests[][2] = {
     {{2, 0, 4, 1}, {4, 0, 6, 1}},

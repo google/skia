@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkHalf.h"
-#include "SkRasterPipeline.h"
-#include "SkTo.h"
-#include "Test.h"
+#include "include/private/SkHalf.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkRasterPipeline.h"
+#include "tests/Test.h"
 
 DEF_TEST(SkRasterPipeline, r) {
     // Build and run a simple pipeline to exercise SkRasterPipeline,

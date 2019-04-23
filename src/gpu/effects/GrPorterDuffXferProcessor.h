@@ -8,9 +8,9 @@
 #ifndef GrPorterDuffXferProcessor_DEFINED
 #define GrPorterDuffXferProcessor_DEFINED
 
-#include "GrTypes.h"
-#include "GrXferProcessor.h"
-#include "SkBlendMode.h"
+#include "include/core/SkBlendMode.h"
+#include "include/gpu/GrTypes.h"
+#include "src/gpu/GrXferProcessor.h"
 
 // See the comment above GrXPFactory's definition about this warning suppression.
 #if defined(__GNUC__)

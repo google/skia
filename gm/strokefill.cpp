@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkPathPriv.h"
-#include "SkTextFormatParams.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkTextFormatParams.h"
+#include "tools/ToolUtils.h"
 
 /* Generated on a Mac with:
  * paint.setTypeface(SkTypeface::CreateByName("Papyrus"));

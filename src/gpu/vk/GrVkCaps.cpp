@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkCaps.h"
-#include "GrBackendSurface.h"
-#include "GrRenderTargetProxy.h"
-#include "GrRenderTarget.h"
-#include "GrShaderCaps.h"
-#include "GrVkInterface.h"
-#include "GrVkTexture.h"
-#include "GrVkUtil.h"
-#include "SkGr.h"
-#include "vk/GrVkBackendContext.h"
-#include "vk/GrVkExtensions.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "include/gpu/vk/GrVkBackendContext.h"
+#include "include/gpu/vk/GrVkExtensions.h"
+#include "include/private/GrRenderTargetProxy.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/vk/GrVkCaps.h"
+#include "src/gpu/vk/GrVkInterface.h"
+#include "src/gpu/vk/GrVkTexture.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,

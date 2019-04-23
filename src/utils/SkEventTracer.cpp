@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkEventTracer.h"
-#include "SkOnce.h"
+#include "include/private/SkOnce.h"
+#include "include/utils/SkEventTracer.h"
 #include <atomic>
 
 #include <stdlib.h>

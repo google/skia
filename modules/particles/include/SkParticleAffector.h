@@ -8,10 +8,10 @@
 #ifndef SkParticleAffector_DEFINED
 #define SkParticleAffector_DEFINED
 
-#include "SkReflected.h"
+#include "modules/particles/include/SkReflected.h"
 
-#include "SkParticleData.h"
-#include "SkPoint.h"
+#include "include/core/SkPoint.h"
+#include "modules/particles/include/SkParticleData.h"
 
 struct SkColorCurve;
 struct SkCurve;

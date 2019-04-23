@@ -8,7 +8,7 @@
 #ifndef SKSL_ASTSWITCHCASE
 #define SKSL_ASTSWITCHCASE
 
-#include "SkSLASTStatement.h"
+#include "src/sksl/ast/SkSLASTStatement.h"
 
 namespace SkSL {
 

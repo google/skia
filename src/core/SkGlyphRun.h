@@ -11,12 +11,12 @@
 #include <functional>
 #include <vector>
 
-#include "SkFont.h"
-#include "SkPaint.h"
-#include "SkPoint.h"
-#include "SkSpan.h"
-#include "SkTemplates.h"
-#include "SkTypes.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkSpan.h"
 
 class SkBaseDevice;
 class SkGlyph;

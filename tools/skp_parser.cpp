@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "DebugCanvas.h"
-#include "SkNullCanvas.h"
-#include "SkPicture.h"
-#include "SkStream.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkStream.h"
+#include "include/utils/SkNullCanvas.h"
+#include "tools/debugger/DebugCanvas.h"
 
 #include <iostream>
 

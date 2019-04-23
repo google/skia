@@ -8,8 +8,8 @@
 #ifndef GrOvalOpFactory_DEFINED
 #define GrOvalOpFactory_DEFINED
 
-#include "GrColor.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/GrColor.h"
 
 class GrDrawOp;
 class GrPaint;

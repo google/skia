@@ -8,9 +8,9 @@
 #ifndef GrRecordingContext_DEFINED
 #define GrRecordingContext_DEFINED
 
-#include "GrAuditTrail.h"
-#include "GrImageContext.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/GrAuditTrail.h"
+#include "include/private/GrImageContext.h"
 
 class GrDrawingManager;
 class GrOnFlushCallbackObject;

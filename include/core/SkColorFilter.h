@@ -8,10 +8,10 @@
 #ifndef SkColorFilter_DEFINED
 #define SkColorFilter_DEFINED
 
-#include "SkBlendMode.h"
-#include "SkColor.h"
-#include "SkFlattenable.h"
-#include "SkRefCnt.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkRefCnt.h"
 
 class GrColorSpaceInfo;
 class GrFragmentProcessor;

@@ -5,27 +5,27 @@
 * found in the LICENSE file.
 */
 
-#include "SkShadowUtils.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkColorData.h"
-#include "SkDevice.h"
-#include "SkDrawShadowInfo.h"
-#include "SkEffectPriv.h"
-#include "SkMaskFilter.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkRasterPipeline.h"
-#include "SkResourceCache.h"
-#include "SkShadowTessellator.h"
-#include "SkString.h"
-#include "SkTLazy.h"
-#include "SkVertices.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
+#include "include/core/SkVertices.h"
+#include "include/private/SkColorData.h"
+#include "include/utils/SkRandom.h"
+#include "include/utils/SkShadowUtils.h"
+#include "src/core/SkBlurMask.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkEffectPriv.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkResourceCache.h"
+#include "src/core/SkTLazy.h"
+#include "src/utils/SkShadowTessellator.h"
 #include <new>
 #if SK_SUPPORT_GPU
-#include "GrShape.h"
-#include "effects/generated/GrBlurredEdgeFragmentProcessor.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/effects/generated/GrBlurredEdgeFragmentProcessor.h"
 #endif
 
 /**

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageInfoPriv.h"
-#include "SkSwizzle.h"
-#include "SkSwizzler.h"
-#include "Test.h"
-#include "SkOpts.h"
+#include "include/core/SkSwizzle.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/codec/SkSwizzler.h"
+#include "src/core/SkOpts.h"
+#include "tests/Test.h"
 
 static void check_fill(skiatest::Reporter* r,
                        const SkImageInfo& imageInfo,

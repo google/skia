@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrOpFlushState.h"
+#include "src/gpu/GrOpFlushState.h"
 
-#include "GrContextPriv.h"
-#include "GrDrawOpAtlas.h"
-#include "GrGpu.h"
-#include "GrResourceProvider.h"
-#include "GrTexture.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDrawOpAtlas.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrResourceProvider.h"
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "samplecode/Sample.h"
 
 // Reproduces https://code.google.com/p/chromium/issues/detail?id=279014
 

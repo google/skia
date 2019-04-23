@@ -8,13 +8,13 @@
 #ifndef GrBufferAllocPool_DEFINED
 #define GrBufferAllocPool_DEFINED
 
-#include "GrCpuBuffer.h"
-#include "GrNonAtomicRef.h"
-#include "GrTypesPriv.h"
-#include "SkNoncopyable.h"
-#include "SkTArray.h"
-#include "SkTDArray.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
+#include "src/gpu/GrCpuBuffer.h"
+#include "src/gpu/GrNonAtomicRef.h"
 
 class GrGpu;
 

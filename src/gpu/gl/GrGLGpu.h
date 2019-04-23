@@ -8,21 +8,21 @@
 #ifndef GrGLGpu_DEFINED
 #define GrGLGpu_DEFINED
 
-#include "GrGLContext.h"
-#include "GrGLIRect.h"
-#include "GrGLPathRendering.h"
-#include "GrGLProgram.h"
-#include "GrGLRenderTarget.h"
-#include "GrGLStencilAttachment.h"
-#include "GrGLTexture.h"
-#include "GrGLVertexArray.h"
-#include "GrGpu.h"
-#include "GrMesh.h"
-#include "GrWindowRectsState.h"
-#include "GrXferProcessor.h"
-#include "SkLRUCache.h"
-#include "SkTArray.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkLRUCache.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMesh.h"
+#include "src/gpu/GrWindowRectsState.h"
+#include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/gl/GrGLContext.h"
+#include "src/gpu/gl/GrGLIRect.h"
+#include "src/gpu/gl/GrGLPathRendering.h"
+#include "src/gpu/gl/GrGLProgram.h"
+#include "src/gpu/gl/GrGLRenderTarget.h"
+#include "src/gpu/gl/GrGLStencilAttachment.h"
+#include "src/gpu/gl/GrGLTexture.h"
+#include "src/gpu/gl/GrGLVertexArray.h"
 
 class GrGLBuffer;
 class GrGLGpuRTCommandBuffer;

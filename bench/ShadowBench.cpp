@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkDrawShadowInfo.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkShadowUtils.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkShadowUtils.h"
+#include "src/core/SkDrawShadowInfo.h"
 
 class ShadowBench : public Benchmark {
 // Draws a set of shadowed rrects filling the canvas, in various modes:

@@ -7,32 +7,32 @@
 
 // This is a GPU-backend specific test. It relies on static intializers to work
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
-#include "GrAutoLocaleSetter.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrDrawOpTest.h"
-#include "GrDrawingManager.h"
-#include "GrPipeline.h"
-#include "GrRenderTargetContextPriv.h"
-#include "GrXferProcessor.h"
-#include "SkChecksum.h"
-#include "SkRandom.h"
-#include "Test.h"
+#include "include/private/SkChecksum.h"
+#include "include/utils/SkRandom.h"
+#include "src/gpu/GrAutoLocaleSetter.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrXferProcessor.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
-#include "ops/GrDrawOp.h"
+#include "src/gpu/ops/GrDrawOp.h"
 
-#include "effects/generated/GrConfigConversionEffect.h"
-#include "effects/GrPorterDuffXferProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/effects/GrPorterDuffXferProcessor.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/effects/generated/GrConfigConversionEffect.h"
 
-#include "gl/GrGLGpu.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
 /*
  * A dummy processor which just tries to insert a massive key and verify that it can retrieve the

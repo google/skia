@@ -8,12 +8,12 @@
 #ifndef VkTestContext_DEFINED
 #define VkTestContext_DEFINED
 
-#include "TestContext.h"
+#include "tools/gpu/TestContext.h"
 
 #ifdef SK_VULKAN
 
-#include "GrVulkanDefines.h"
-#include "vk/GrVkBackendContext.h"
+#include "include/gpu/vk/GrVkBackendContext.h"
+#include "tools/gpu/vk/GrVulkanDefines.h"
 
 class GrVkExtensions;
 

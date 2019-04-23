@@ -8,10 +8,10 @@
 #ifndef SkCurve_DEFINED
 #define SkCurve_DEFINED
 
-#include "SkColor.h"
-#include "SkParticleData.h"
-#include "SkScalar.h"
-#include "SkTArray.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkTArray.h"
+#include "modules/particles/include/SkParticleData.h"
 
 class SkFieldVisitor;
 

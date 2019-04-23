@@ -8,12 +8,12 @@
 #ifndef GrCCPathCache_DEFINED
 #define GrCCPathCache_DEFINED
 
-#include "GrShape.h"
-#include "SkExchange.h"
-#include "SkTHash.h"
-#include "SkTInternalLList.h"
-#include "ccpr/GrCCAtlas.h"
-#include "ccpr/GrCCPathProcessor.h"
+#include "include/private/SkTHash.h"
+#include "include/private/SkTInternalLList.h"
+#include "src/core/SkExchange.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/ccpr/GrCCAtlas.h"
+#include "src/gpu/ccpr/GrCCPathProcessor.h"
 
 class GrCCPathCacheEntry;
 class GrShape;

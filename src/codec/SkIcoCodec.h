@@ -7,11 +7,11 @@
 #ifndef SkIcoCodec_DEFINED
 #define SkIcoCodec_DEFINED
 
-#include "SkCodec.h"
-#include "SkImageInfo.h"
-#include "SkStream.h"
-#include "SkTArray.h"
-#include "SkTypes.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
 
 /*
  * This class implements the decoding for bmp images

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrAtlasManager.h"
-#include "GrTextBlob.h"
-#include "GrTextTarget.h"
-#include "SkDistanceFieldGen.h"
-#include "ops/GrAtlasTextOp.h"
+#include "src/core/SkDistanceFieldGen.h"
+#include "src/gpu/ops/GrAtlasTextOp.h"
+#include "src/gpu/text/GrAtlasManager.h"
+#include "src/gpu/text/GrTextBlob.h"
+#include "src/gpu/text/GrTextTarget.h"
 
 enum RegenMask {
     kNoRegen    = 0x0,

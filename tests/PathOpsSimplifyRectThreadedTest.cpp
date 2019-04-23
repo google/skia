@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "PathOpsExtendedTest.h"
-#include "PathOpsThreadedCommon.h"
-#include "SkMacros.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
+#include "include/private/SkMacros.h"
+#include "tests/PathOpsExtendedTest.h"
+#include "tests/PathOpsThreadedCommon.h"
 
 // four rects, of four sizes
 // for 3 smaller sizes, tall, wide

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "CodecBench.h"
-#include "CodecBenchPriv.h"
-#include "CommandLineFlags.h"
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkOSFile.h"
+#include "bench/CodecBench.h"
+#include "bench/CodecBenchPriv.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "src/core/SkOSFile.h"
+#include "tools/flags/CommandLineFlags.h"
 
 // Actually zeroing the memory would throw off timing, so we just lie.
 static DEFINE_bool(zero_init, false,

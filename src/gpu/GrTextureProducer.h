@@ -8,10 +8,10 @@
 #ifndef GrTextureProducer_DEFINED
 #define GrTextureProducer_DEFINED
 
-#include "GrResourceKey.h"
-#include "GrSamplerState.h"
-#include "SkImageInfo.h"
-#include "SkNoncopyable.h"
+#include "include/core/SkImageInfo.h"
+#include "include/gpu/GrSamplerState.h"
+#include "include/private/GrResourceKey.h"
+#include "include/private/SkNoncopyable.h"
 
 class GrFragmentProcessor;
 class GrRecordingContext;

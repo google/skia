@@ -8,10 +8,10 @@
 #ifndef SkBmpMaskCodec_DEFINED
 #define SkBmpMaskCodec_DEFINED
 
-#include "SkBmpBaseCodec.h"
-#include "SkImageInfo.h"
-#include "SkMaskSwizzler.h"
-#include "SkTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkTypes.h"
+#include "src/codec/SkBmpBaseCodec.h"
+#include "src/codec/SkMaskSwizzler.h"
 
 /*
  * This class implements the decoding for bmp images using bit masks

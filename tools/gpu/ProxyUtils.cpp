@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "ProxyUtils.h"
-#include "GrBackendSurface.h"
-#include "GrContextPriv.h"
-#include "GrDrawingManager.h"
-#include "GrGpu.h"
-#include "GrProxyProvider.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "tools/gpu/ProxyUtils.h"
 
 namespace sk_gpu_test {
 

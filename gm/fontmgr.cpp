@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "SkCanvas.h"
-#include "SkFontMetrics.h"
-#include "SkFontMgr.h"
-#include "SkFontPriv.h"
-#include "SkGraphics.h"
-#include "SkMetaData.h"
-#include "SkPath.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkFontPriv.h"
+#include "src/utils/SkMetaData.h"
+#include "tools/ToolUtils.h"
+#include "tools/flags/CommandLineFlags.h"
 
 // limit this just so we don't take too long to draw
 #define MAX_FAMILIES    30

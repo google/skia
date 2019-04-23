@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkRRect.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkSurface.h"
+#include "include/utils/SkRandom.h"
 
 namespace skiagm {
 

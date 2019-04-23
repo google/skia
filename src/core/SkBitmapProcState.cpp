@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapCache.h"
-#include "SkBitmapController.h"
-#include "SkBitmapProcState.h"
-#include "SkColorData.h"
-#include "SkImageEncoder.h"
-#include "SkMacros.h"
-#include "SkMipMap.h"
-#include "SkOpts.h"
-#include "SkPaint.h"
-#include "SkResourceCache.h"
-#include "SkShader.h"   // for tilemodes
-#include "SkUtils.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkMacros.h"
+#include "src/core/SkBitmapCache.h"
+#include "src/core/SkBitmapController.h"
+#include "src/core/SkBitmapProcState.h"
+#include "src/core/SkMipMap.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkResourceCache.h"
+#include "src/core/SkUtils.h"
 
 // One-stop-shop shader for,
 //   - nearest-neighbor sampling (_nofilter_),

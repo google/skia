@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "GrStrokeRectOp.h"
+#include "src/gpu/ops/GrStrokeRectOp.h"
 
-#include "GrCaps.h"
-#include "GrColor.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrDrawOpTest.h"
-#include "GrMeshDrawOp.h"
-#include "GrOpFlushState.h"
-#include "GrResourceKey.h"
-#include "GrResourceProvider.h"
-#include "GrSimpleMeshDrawOpHelper.h"
-#include "GrVertexWriter.h"
-#include "ops/GrFillRectOp.h"
-#include "SkRandom.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/private/GrColor.h"
+#include "include/private/GrResourceKey.h"
+#include "include/utils/SkRandom.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 namespace {
 
@@ -785,7 +785,7 @@ std::unique_ptr<GrDrawOp> MakeNested(GrRecordingContext* context,
 
 #if GR_TEST_UTILS
 
-#include "GrDrawOpTest.h"
+#include "src/gpu/GrDrawOpTest.h"
 
 GR_DRAW_OP_TEST_DEFINE(NonAAStrokeRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);

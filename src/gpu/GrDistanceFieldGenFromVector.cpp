@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkDistanceFieldGen.h"
-#include "GrDistanceFieldGenFromVector.h"
+#include "src/core/SkDistanceFieldGen.h"
+#include "src/gpu/GrDistanceFieldGenFromVector.h"
 
-#include "GrConfig.h"
-#include "GrPathUtils.h"
-#include "SkAutoMalloc.h"
-#include "SkGeometry.h"
-#include "SkMatrix.h"
-#include "SkPathOps.h"
-#include "SkPointPriv.h"
-#include "SkRectPriv.h"
+#include "include/core/SkMatrix.h"
+#include "include/gpu/GrConfig.h"
+#include "include/pathops/SkPathOps.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkRectPriv.h"
+#include "src/gpu/GrPathUtils.h"
 
 /**
  * If a scanline (a row of texel) cross from the kRight_SegSide

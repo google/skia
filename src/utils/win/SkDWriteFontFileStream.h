@@ -8,11 +8,11 @@
 #ifndef SkDWriteFontFileStream_DEFINED
 #define SkDWriteFontFileStream_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "SkMutex.h"
-#include "SkStream.h"
-#include "SkTScopedComPtr.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkMutex.h"
+#include "src/utils/win/SkTScopedComPtr.h"
 
 #include <dwrite.h>
 

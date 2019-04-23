@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlCopyManager.h"
+#include "src/gpu/mtl/GrMtlCopyManager.h"
 
-#include "GrSurface.h"
+#include "include/gpu/GrSurface.h"
 
-#include "GrMtlBuffer.h"
-#include "GrMtlCommandBuffer.h"
-#include "GrMtlCopyPipelineState.h"
-#include "GrMtlGpu.h"
-#include "GrMtlResourceProvider.h"
-#include "GrMtlUtil.h"
+#include "src/gpu/mtl/GrMtlBuffer.h"
+#include "src/gpu/mtl/GrMtlCommandBuffer.h"
+#include "src/gpu/mtl/GrMtlCopyPipelineState.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlResourceProvider.h"
+#include "src/gpu/mtl/GrMtlUtil.h"
 
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkTraceEvent.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "src/core/SkTraceEvent.h"
 
 #import <simd/simd.h>
 

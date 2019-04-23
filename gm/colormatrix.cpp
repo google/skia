@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkColorMatrixFilter.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
+#include "gm/gm.h"
+#include "include/core/SkImage.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/effects/SkGradientShader.h"
 
 #define WIDTH 500
 #define HEIGHT 500

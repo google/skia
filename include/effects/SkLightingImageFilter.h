@@ -8,8 +8,8 @@
 #ifndef SkLightingImageFilter_DEFINED
 #define SkLightingImageFilter_DEFINED
 
-#include "SkImageFilter.h"
-#include "SkColor.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageFilter.h"
 
 
 class SkImageFilterLight;

@@ -5,25 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrBackendSurface.h"
-#include "GrBackendTextureImageGenerator.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrRenderTargetContext.h"
-#include "GrSemaphore.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTexturePriv.h"
-#include "GrTextureProxy.h"
-#include "SkCanvas.h"
-#include "SkImage_Base.h"
-#include "SkGpuDevice.h"
-#include "SkPoint.h"
-#include "SkSurface.h"
-#include "SkSurface_Gpu.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrBackendTextureImageGenerator.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/SkGpuDevice.h"
+#include "src/image/SkImage_Base.h"
+#include "src/image/SkSurface_Gpu.h"
+#include "tests/Test.h"
 
 static constexpr int kSize = 8;
 
