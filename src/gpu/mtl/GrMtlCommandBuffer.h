@@ -10,7 +10,7 @@
 
 #import <Metal/Metal.h>
 
-#include <SkRefCnt.h>
+#include "SkRefCnt.h"
 
 class GrMtlGpu;
 
