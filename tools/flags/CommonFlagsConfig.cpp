@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "CommonFlagsConfig.h"
-#include "SkColorSpacePriv.h"
-#include "SkImageInfo.h"
-#include "SkTHash.h"
+#include "tools/flags/CommonFlagsConfig.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "include/core/SkImageInfo.h"
+#include "include/private/SkTHash.h"
 
 #include <stdlib.h>
 

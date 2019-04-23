@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrStencilAttachment.h"
-#include "GrResourceKey.h"
+#include "src/gpu/GrStencilAttachment.h"
+#include "include/private/GrResourceKey.h"
 
 void GrStencilAttachment::ComputeSharedStencilAttachmentKey(int width, int height, int sampleCnt,
                                                             GrUniqueKey* key) {

@@ -8,10 +8,10 @@
 #ifndef SkColorData_DEFINED
 #define SkColorData_DEFINED
 
-#include "SkColor.h"
-#include "SkColorPriv.h"
-#include "SkNx.h"
-#include "SkTo.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/private/SkNx.h"
+#include "include/private/SkTo.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Convert a 16bit pixel to a 32bit pixel

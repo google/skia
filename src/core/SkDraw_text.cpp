@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkDraw.h"
-#include "SkFontPriv.h"
-#include "SkPaintPriv.h"
-#include "SkRasterClip.h"
-#include "SkScalerContext.h"
-#include "SkStrike.h"
-#include "SkUtils.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkFontPriv.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkScalerContext.h"
+#include "src/core/SkStrike.h"
+#include "src/core/SkUtils.h"
 
 bool SkDraw::ShouldDrawTextAsPaths(const SkFont& font, const SkPaint& paint,
                                    const SkMatrix& ctm, SkScalar sizeLimit) {

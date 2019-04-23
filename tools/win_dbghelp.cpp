@@ -6,7 +6,7 @@
  */
 
 #include "windows.h"
-#include "win_dbghelp.h"
+#include "tools/win_dbghelp.h"
 
 #include <process.h>
 #include <string.h>

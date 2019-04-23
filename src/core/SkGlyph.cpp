@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkGlyph.h"
+#include "src/core/SkGlyph.h"
 
-#include "SkArenaAlloc.h"
-#include "SkMakeUnique.h"
-#include "SkScalerContext.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkScalerContext.h"
 
 SkMask SkGlyph::mask() const {
     // getMetrics had to be called.

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkDrawable.h"
-#include "SkInterpolator.h"
-#include "SkPictureRecorder.h"
-#include "SkPointPriv.h"
-#include "SkRandom.h"
+#include "tools/timer/AnimTimer.h"
+#include "samplecode/Sample.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkDrawable.h"
+#include "include/utils/SkInterpolator.h"
+#include "include/core/SkPictureRecorder.h"
+#include "src/core/SkPointPriv.h"
+#include "include/utils/SkRandom.h"
 
 const SkRect gUnitSquare = { -1, -1, 1, 1 };
 

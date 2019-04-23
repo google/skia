@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkDashPathPriv.h"
-#include "SkPathMeasure.h"
-#include "SkPointPriv.h"
-#include "SkStrokeRec.h"
+#include "src/utils/SkDashPathPriv.h"
+#include "include/core/SkPathMeasure.h"
+#include "src/core/SkPointPriv.h"
+#include "include/core/SkStrokeRec.h"
 
 #include <utility>
 

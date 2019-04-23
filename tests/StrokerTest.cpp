@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "PathOpsCubicIntersectionTestData.h"
-#include "PathOpsQuadIntersectionTestData.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPathOpsCubic.h"
-#include "SkPointPriv.h"
-#include "SkRandom.h"
-#include "SkStrokerPriv.h"
-#include "SkTime.h"
-#include "Test.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "tests/PathOpsCubicIntersectionTestData.h"
+#include "tests/PathOpsQuadIntersectionTestData.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/core/SkPointPriv.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkStrokerPriv.h"
+#include "include/core/SkTime.h"
+#include "tests/Test.h"
 
 static DEFINE_bool(timeout, true, "run until alloted time expires");
 

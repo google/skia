@@ -8,11 +8,11 @@
 #ifndef SkParticleSerialization_DEFINED
 #define SkParticleSerialization_DEFINED
 
-#include "SkReflected.h"
+#include "modules/particles/include/SkReflected.h"
 
-#include "SkJSON.h"
-#include "SkJSONWriter.h"
-#include "SkTArray.h"
+#include "src/utils/SkJSON.h"
+#include "src/utils/SkJSONWriter.h"
+#include "include/private/SkTArray.h"
 
 class SkToJsonVisitor : public SkFieldVisitor {
 public:

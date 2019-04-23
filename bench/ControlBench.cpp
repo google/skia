@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
+#include "bench/Benchmark.h"
 
 // This benchmark's runtime should be fairly constant for a given machine,
 // so it can be used as a baseline to control for thermal or other throttling.

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLOutputStream.h"
+#include "src/sksl/SkSLOutputStream.h"
 
 namespace SkSL {
 

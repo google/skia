@@ -8,7 +8,7 @@
 #ifndef SkBitSet_DEFINED
 #define SkBitSet_DEFINED
 
-#include "SkTemplates.h"
+#include "include/private/SkTemplates.h"
 
 class SkBitSet {
 public:

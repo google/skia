@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkInterpolator.h"
+#include "include/utils/SkInterpolator.h"
 
-#include "Test.h"
+#include "tests/Test.h"
 
 static SkScalar* iset(SkScalar array[3], int a, int b, int c) {
     array[0] = SkIntToScalar(a);

@@ -8,7 +8,7 @@
 #ifndef SKSL_ASTSECTION
 #define SKSL_ASTSECTION
 
-#include "SkSLASTDeclaration.h"
+#include "src/sksl/ast/SkSLASTDeclaration.h"
 
 namespace SkSL {
 

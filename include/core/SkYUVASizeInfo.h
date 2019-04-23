@@ -8,9 +8,9 @@
 #ifndef SkYUVASizeInfo_DEFINED
 #define SkYUVASizeInfo_DEFINED
 
-#include "SkEncodedOrigin.h"
-#include "SkImageInfo.h"
-#include "SkSize.h"
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkSize.h"
 
 struct SK_API SkYUVASizeInfo {
     static constexpr auto kMaxCount = 4;

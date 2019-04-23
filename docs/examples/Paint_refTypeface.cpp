@@ -1,7 +1,7 @@
 #if 0  // Disabled until updated to use current API.
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=8b5aa7e555a0dc31be69db7cadf471a1
 REG_FIDDLE(Paint_refTypeface, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {

@@ -8,7 +8,7 @@
 #ifndef SkEndian_DEFINED
 #define SkEndian_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 /** \file SkEndian.h
 

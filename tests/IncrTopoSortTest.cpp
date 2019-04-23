@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkRefCnt.h"
-#include "SkTSort.h"
-#include "Test.h"
+#include "include/core/SkRefCnt.h"
+#include "src/core/SkTSort.h"
+#include "tests/Test.h"
 
-#include "ToolUtils.h"
+#include "tools/ToolUtils.h"
 
 // A node in the graph. This corresponds to an opList in the MDB world.
 class Node : public SkRefCnt {
