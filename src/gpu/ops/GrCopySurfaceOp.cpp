@@ -83,7 +83,7 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrRecordingContext* context,
 
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
-    return pool->allocate<GrCopySurfaceOp>(srcProxy, clippedSrcRect, clippedDstPoint);
+    return pool->allocate<GrCopySurfaceOp>(dstProxy, srcProxy, clippedSrcRect, clippedDstPoint);
 }
 
 void GrCopySurfaceOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {

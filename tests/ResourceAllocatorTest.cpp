@@ -95,13 +95,11 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
     GrDeinstantiateProxyTracker deinstantiateTracker(resourceCache);
     GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker SkDEBUGCODE(, 1));
 
-    alloc.addInterval(p1, 0, 4, GrResourceAllocator::ActualUse::kYes);
+    alloc.addInterval(p1, 0, 4);
     alloc.incOps();
-    alloc.addInterval(p2, 1, 2, GrResourceAllocator::ActualUse::kYes);
+    alloc.addInterval(p2, 1, 2);
     alloc.incOps();
     alloc.markEndOfOpList(0);
-
-    alloc.determineRecyclability();
 
     int startIndex, stopIndex;
     GrResourceAllocator::AssignError error;
@@ -129,11 +127,9 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
     alloc.incOps();
     alloc.incOps();
 
-    alloc.addInterval(p1, 0, 2, GrResourceAllocator::ActualUse::kYes);
-    alloc.addInterval(p2, 3, 5, GrResourceAllocator::ActualUse::kYes);
+    alloc.addInterval(p1, 0, 2);
+    alloc.addInterval(p2, 3, 5);
     alloc.markEndOfOpList(0);
-
-    alloc.determineRecyclability();
 
     int startIndex, stopIndex;
     GrResourceAllocator::AssignError error;
@@ -349,15 +345,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
     GrDeinstantiateProxyTracker deinstantiateTracker(resourceCache);
     {
         GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker SkDEBUGCODE(, 1));
-        alloc.addInterval(p0.get(), 0, 1, GrResourceAllocator::ActualUse::kNo);
-        alloc.addInterval(p1.get(), 0, 1, GrResourceAllocator::ActualUse::kNo);
-        alloc.addInterval(p2.get(), 0, 1, GrResourceAllocator::ActualUse::kNo);
-        alloc.addInterval(p3.get(), 0, 1, GrResourceAllocator::ActualUse::kNo);
+        alloc.addInterval(p0.get(), 0, 1);
+        alloc.addInterval(p1.get(), 0, 1);
+        alloc.addInterval(p2.get(), 0, 1);
+        alloc.addInterval(p3.get(), 0, 1);
         alloc.incOps();
         alloc.markEndOfOpList(0);
-
-        alloc.determineRecyclability();
-
         int startIndex, stopIndex;
         GrResourceAllocator::AssignError error;
         alloc.assign(&startIndex, &stopIndex, &error);
@@ -399,22 +392,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
         GrDeinstantiateProxyTracker deinstantiateTracker(resourceCache);
         GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker SkDEBUGCODE(, 2));
 
-        alloc.addInterval(p1, 0, 0, GrResourceAllocator::ActualUse::kYes);
+        alloc.addInterval(p1, 0, 0);
         alloc.incOps();
-        alloc.addInterval(p2, 1, 1, GrResourceAllocator::ActualUse::kYes);
+        alloc.addInterval(p2, 1, 1);
         alloc.incOps();
         alloc.markEndOfOpList(0);
 
-        alloc.addInterval(p3, 2, 2, GrResourceAllocator::ActualUse::kYes);
+        alloc.addInterval(p3, 2, 2);
         alloc.incOps();
-        alloc.addInterval(p4, 3, 3, GrResourceAllocator::ActualUse::kYes);
+        alloc.addInterval(p4, 3, 3);
         alloc.incOps();
         alloc.markEndOfOpList(1);
 
         int startIndex, stopIndex;
         GrResourceAllocator::AssignError error;
-
-        alloc.determineRecyclability();
 
         alloc.assign(&startIndex, &stopIndex, &error);
         REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);

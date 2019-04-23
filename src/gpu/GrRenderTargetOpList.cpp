@@ -633,27 +633,24 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
         // they can be recycled. This is a bit unfortunate because a flush can proceed in waves
         // with sub-flushes. The deferred proxies only need to be pinned from the start of
         // the sub-flush in which they appear.
-        alloc->addInterval(fDeferredProxies[i], 0, 0, GrResourceAllocator::ActualUse::kNo);
+        alloc->addInterval(fDeferredProxies[i], 0, 0);
     }
 
     // Add the interval for all the writes to this opList's target
     if (fOpChains.count()) {
         unsigned int cur = alloc->curOp();
 
-        alloc->addInterval(fTarget.get(), cur, cur + fOpChains.count() - 1,
-                           GrResourceAllocator::ActualUse::kYes);
+        alloc->addInterval(fTarget.get(), cur, cur + fOpChains.count() - 1);
     } else {
         // This can happen if there is a loadOp (e.g., a clear) but no other draws. In this case we
         // still need to add an interval for the destination so we create a fake op# for
         // the missing clear op.
-        alloc->addInterval(fTarget.get(), alloc->curOp(), alloc->curOp(),
-                           GrResourceAllocator::ActualUse::kYes);
+        alloc->addInterval(fTarget.get(), alloc->curOp(), alloc->curOp());
         alloc->incOps();
     }
 
     auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p) {
-        alloc->addInterval(p, alloc->curOp(), alloc->curOp(), GrResourceAllocator::ActualUse::kYes
-                           SkDEBUGCODE(, fTarget.get() == p));
+        alloc->addInterval(p, alloc->curOp(), alloc->curOp() SkDEBUGCODE(, fTarget.get() == p));
     };
     for (const OpChain& recordedOp : fOpChains) {
         // only diff from the GrTextureOpList version

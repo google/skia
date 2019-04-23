@@ -37,20 +37,6 @@ void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
     fProxy->priv().assign(std::move(s));
 }
 
-void GrResourceAllocator::determineRecyclability() {
-    for (Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
-        SkASSERT(!cur->proxy()->priv().ignoredByResourceAllocator() &&
-                 !cur->proxy()->canSkipResourceAllocator());
-
-        if (cur->uses() >= cur->proxy()->priv().getTotalRefs()) {
-            // All the refs on the proxy are known to the resource allocator thus no one
-            // should be holding onto it outside of Ganesh.
-            SkASSERT(cur->uses() == cur->proxy()->priv().getTotalRefs());
-            cur->markAsRecyclable();
-        }
-    }
-}
-
 void GrResourceAllocator::markEndOfOpList(int opListIndex) {
     SkASSERT(!fAssigned);      // We shouldn't be adding any opLists after (or during) assignment
 
@@ -69,8 +55,7 @@ GrResourceAllocator::~GrResourceAllocator() {
     SkASSERT(!fIntvlHash.count());
 }
 
-void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end,
-                                      ActualUse actualUse
+void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end
                                       SkDEBUGCODE(, bool isDirectDstRead)) {
 
     bool needsStencil = proxy->asRenderTargetProxy()
@@ -115,9 +100,6 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
                 SkASSERT(intvl->end() <= start && intvl->end() <= end);
             }
 #endif
-            if (ActualUse::kYes == actualUse) {
-                intvl->addUse();
-            }
             intvl->extendEnd(end);
             return;
         }
@@ -131,9 +113,6 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
             newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
         }
 
-        if (ActualUse::kYes == actualUse) {
-            newIntvl->addUse();
-        }
         fIntvlList.insertByIncreasingStart(newIntvl);
         fIntvlHash.add(newIntvl);
     }
@@ -330,7 +309,10 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
         if (temp->wasAssignedSurface()) {
             sk_sp<GrSurface> surface = temp->detachSurface();
 
-            if (temp->isRecyclable()) {
+            // If the proxy has an actual live ref on it that means someone wants to retain its
+            // contents. In that case we cannot recycle it (until the external holder lets
+            // go of it).
+            if (0 == temp->proxy()->priv().getProxyRefCnt()) {
                 this->recycleSurface(std::move(surface));
             }
         }
