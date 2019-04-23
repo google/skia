@@ -101,8 +101,6 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
 
 sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
                                                     GrResourceProvider* resourceProvider) const {
-    SkASSERT(resourceProvider->explicitlyAllocateGPUResources());
-
     static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, this->numStencilSamples(),

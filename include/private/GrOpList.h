@@ -30,7 +30,7 @@ struct SkIRect;
 
 class GrOpList : public SkRefCnt {
 public:
-    GrOpList(GrResourceProvider*, sk_sp<GrOpMemoryPool>, sk_sp<GrSurfaceProxy>, GrAuditTrail*);
+    GrOpList(sk_sp<GrOpMemoryPool>, sk_sp<GrSurfaceProxy>, GrAuditTrail*);
     ~GrOpList() override;
 
     // These four methods are invoked at flush time

@@ -144,13 +144,6 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
         , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fManagedOpList(managedOpList) {
-    if (!context->priv().explicitlyAllocateGPUResources()) {
-        // MDB TODO: to ensure all resources still get allocated in the correct order in the hybrid
-        // world we need to get the correct opList here so that it, in turn, can grab and hold
-        // its rendertarget.
-        this->getRTOpList();
-    }
-
     fTextTarget.reset(new TextTarget(this));
     SkDEBUGCODE(this->validate();)
 }

@@ -39,11 +39,7 @@ GrPipeline::GrPipeline(const InitArgs& args,
     fXferProcessor = processors.refXferProcessor();
 
     if (args.fDstProxy.proxy()) {
-        if (args.fResourceProvider->explicitlyAllocateGPUResources()) {
-            SkASSERT(args.fDstProxy.proxy()->isInstantiated());
-        } else if (!args.fDstProxy.proxy()->instantiate(args.fResourceProvider)) {
-            this->markAsBad();
-        }
+        SkASSERT(args.fDstProxy.proxy()->isInstantiated());
 
         fDstTextureProxy.reset(args.fDstProxy.proxy());
         fDstTextureOffset = args.fDstProxy.offset();

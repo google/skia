@@ -247,9 +247,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
             surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
         }
     }
-    if (fImageContext->priv().explicitlyAllocateGPUResources()) {
-        surfaceFlags |= GrInternalSurfaceFlags::kNoPendingIO;
-    }
+    surfaceFlags |= GrInternalSurfaceFlags::kNoPendingIO;
 
     GrSurfaceDesc desc;
     desc.fWidth = srcImage->width();

@@ -439,11 +439,7 @@ public:
     // 'instantiate' should only ever be called at flush time.
     // TODO: this can go away once explicit allocation has stuck
     bool instantiate(GrResourceProvider* resourceProvider) const {
-        if (resourceProvider->explicitlyAllocateGPUResources()) {
-            return fProxyRef.get()->isInstantiated();
-        } else {
-            return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
-        }
+        return fProxyRef.get()->isInstantiated();
     }
 
     // 'peekTexture' should only ever be called after a successful 'instantiate' call

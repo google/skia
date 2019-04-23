@@ -33,8 +33,7 @@ private:
     using DstProxy = GrXferProcessor::DstProxy;
 
 public:
-    GrRenderTargetOpList(GrResourceProvider*, sk_sp<GrOpMemoryPool>,
-                         sk_sp<GrRenderTargetProxy>, GrAuditTrail*);
+    GrRenderTargetOpList(sk_sp<GrOpMemoryPool>, sk_sp<GrRenderTargetProxy>, GrAuditTrail*);
 
     ~GrRenderTargetOpList() override;
 

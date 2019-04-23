@@ -79,8 +79,6 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider,
 }
 
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
-    SkASSERT(resourceProvider->explicitlyAllocateGPUResources());
-
     static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt, fNeedsStencil,
