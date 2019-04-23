@@ -1562,7 +1562,7 @@ STAGE(parametric, const skcms_TransferFunction* ctx) {
     b = fn(b);
 }
 
-STAGE(gamma, const float* G) {
+STAGE(gamma_, const float* G) {
     auto fn = [&](F v) {
         U32 sign;
         v = strip_sign(v, &sign);
@@ -3413,7 +3413,7 @@ STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     NOT_IMPLEMENTED(matrix_4x5)  // TODO
     NOT_IMPLEMENTED(matrix_4x3)  // TODO
     NOT_IMPLEMENTED(parametric)
-    NOT_IMPLEMENTED(gamma)
+    NOT_IMPLEMENTED(gamma_)
     NOT_IMPLEMENTED(rgb_to_hsl)
     NOT_IMPLEMENTED(hsl_to_rgb)
     NOT_IMPLEMENTED(gauss_a_to_rgba)  // TODO

@@ -158,7 +158,7 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
                    srcTF.d == 0 &&
                    srcTF.e == 0 &&
                    srcTF.f == 0) {
-            p->append(SkRasterPipeline::gamma, &srcTF.g);
+            p->append(SkRasterPipeline::gamma_, &srcTF.g);
         } else {
             p->append(SkRasterPipeline::parametric, &srcTF);
         }
@@ -175,7 +175,7 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
                    dstTFInv.d == 0 &&
                    dstTFInv.e == 0 &&
                    dstTFInv.f == 0) {
-            p->append(SkRasterPipeline::gamma, &dstTFInv.g);
+            p->append(SkRasterPipeline::gamma_, &dstTFInv.g);
         } else {
             p->append(SkRasterPipeline::parametric, &dstTFInv);
         }
