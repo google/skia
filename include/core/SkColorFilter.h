@@ -44,7 +44,7 @@ public:
      *  returns true, and sets the matrix appropriately.
      *  If not, this returns false and ignores the parameter.
      */
-    virtual bool asColorMatrix(SkScalar matrix[20]) const;
+    virtual bool asColorMatrix(float rowMajor255[20]) const;
 
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const;
 
@@ -129,14 +129,14 @@ private:
 class SK_API SkColorFilters {
 public:
     // Deprecated: use Matrix(...) with 0...1 values for translate
-    static sk_sp<SkColorFilter> MatrixRowMajor255(const SkScalar array[20]);
+    static sk_sp<SkColorFilter> MatrixRowMajor255(const float array[20]);
 
     static sk_sp<SkColorFilter> Compose(sk_sp<SkColorFilter> outer, sk_sp<SkColorFilter> inner) {
         return outer ? outer->makeComposed(inner) : inner;
     }
     static sk_sp<SkColorFilter> Blend(SkColor c, SkBlendMode mode);
     static sk_sp<SkColorFilter> Matrix(const SkColorMatrix&);
-    static sk_sp<SkColorFilter> Matrix(const SkScalar rowMajor[20]);
+    static sk_sp<SkColorFilter> Matrix(const float rowMajor[20]);
 
     static sk_sp<SkColorFilter> LinearToSRGBGamma();
     static sk_sp<SkColorFilter> SRGBToLinearGamma();
