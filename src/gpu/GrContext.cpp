@@ -232,6 +232,22 @@ int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool GrContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[]) {
+    if (!fGpu || fGpu->caps()->fenceSyncSupport()) {
+        return false;
+    }
+    for (int i = 0; i < numSemaphores; ++i) {
+        sk_sp<GrSemaphore> sema = fResourceProvider->wrapBackendSemaphore(
+                waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait,
+                kAdopt_GrWrapOwnership);
+        fGpu->waitSemaphore(std::move(sema));
+    }
+    return true;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 void GrContext::flush() {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
