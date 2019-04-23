@@ -1,0 +1,103 @@
+From 7cf5c0c69b2470ba0dddec4ab571f174df646966 Mon Sep 17 00:00:00 2001
+From: Ethan Nicholas <ethannicholas@google.com>
+Date: Thu, 11 Apr 2019 16:55:47 -0400
+Subject: [PATCH] work on functionizing stages
+
+---
+ src/gpu/effects/GrComposeLerpEffect.fp            |  1 +
+ src/gpu/effects/generated/GrComposeLerpEffect.cpp | 10 +++++++++-
+ src/gpu/glsl/GrGLSLProgramBuilder.cpp             | 13 +++++++++++++
+ src/gpu/glsl/GrGLSLShaderBuilder.h                | 10 +++++++---
+ 4 files changed, 30 insertions(+), 4 deletions(-)
+
+diff --git a/src/gpu/effects/GrComposeLerpEffect.fp b/src/gpu/effects/GrComposeLerpEffect.fp
+index 4f55d21bef..eadffda0cd 100644
+--- a/src/gpu/effects/GrComposeLerpEffect.fp
++++ b/src/gpu/effects/GrComposeLerpEffect.fp
+@@ -13,4 +13,5 @@ void main() {
+     sk_OutColor = mix(child1 != null ? process(child1) : sk_InColor,
+                       child2 != null ? process(child2) : sk_InColor,
+                       half(weight));
++    sk_OutColor = process(child1, half4(1, 0, 0, 1));
+ }
+diff --git a/src/gpu/effects/generated/GrComposeLerpEffect.cpp b/src/gpu/effects/generated/GrComposeLerpEffect.cpp
+index a768b5cb48..1b29cfaa5e 100644
+--- a/src/gpu/effects/generated/GrComposeLerpEffect.cpp
++++ b/src/gpu/effects/generated/GrComposeLerpEffect.cpp
+@@ -38,11 +38,19 @@ public:
+         } else {
+             fragBuilder->codeAppendf("half4 %s;", _child1.c_str());
+         }
+-        fragBuilder->codeAppendf("%s = mix(%s ? %s : %s, %s ? %s : %s, half(%s));\n",
++        fragBuilder->codeAppendf("%s = mix(%s ? %s : %s, %s ? %s : %s, half(%s));",
+                                  args.fOutputColor, _outer.child1_index >= 0 ? "true" : "false",
+                                  _child0.c_str(), args.fInputColor,
+                                  _outer.child2_index >= 0 ? "true" : "false", _child1.c_str(),
+                                  args.fInputColor, args.fUniformHandler->getUniformCStr(weightVar));
++        SkString _input0("half4(1.0, 0.0, 0.0, 1.0)");
++        SkString _child0("_child0");
++        if (_outer.child1_index >= 0) {
++            this->emitChild(_outer.child1_index, _input0.c_str(), &_child0, args);
++        } else {
++            fragBuilder->codeAppendf("half4 %s;", _child0.c_str());
++        }
++        fragBuilder->codeAppendf("\n%s = %s;\n", args.fOutputColor, _child0.c_str());
+     }
+ 
+ private:
+diff --git a/src/gpu/glsl/GrGLSLProgramBuilder.cpp b/src/gpu/glsl/GrGLSLProgramBuilder.cpp
+index d0f0a53d81..8af8bb283e 100644
+--- a/src/gpu/glsl/GrGLSLProgramBuilder.cpp
++++ b/src/gpu/glsl/GrGLSLProgramBuilder.cpp
+@@ -207,7 +207,20 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
+                                            coords,
+                                            textureSamplers);
+ 
++    fFS.nextStage();
++    fFS.codeAppendf("half4 %s;", output.c_str());
+     fragProc->emitCode(args);
++    fFS.codeAppendf("return %s;", output.c_str());
++    SkString funcName;
++    GrShaderVar inColor(input.c_str(), kHalf4_GrSLType);
++    fFS.emitFunction(kHalf4_GrSLType,
++                     "stage",
++                     1,
++                     &inColor,
++                     fFS.code().c_str(),
++                     &funcName);
++    fFS.deleteStage();
++    fFS.codeAppendf("%s = %s(%s);", output.c_str(), funcName.c_str(), input.c_str());
+ 
+     // We have to check that effects and the code they emit are consistent, ie if an effect
+     // asks for dst color, then the emit code needs to follow suit
+diff --git a/src/gpu/glsl/GrGLSLShaderBuilder.h b/src/gpu/glsl/GrGLSLShaderBuilder.h
+index 061699751d..6e1de93d8c 100644
+--- a/src/gpu/glsl/GrGLSLShaderBuilder.h
++++ b/src/gpu/glsl/GrGLSLShaderBuilder.h
+@@ -199,6 +199,13 @@ protected:
+         fCodeIndex++;
+     }
+ 
++    void deleteStage() {
++        fShaderStrings.pop_back();
++        fCompilerStrings.pop_back();
++        fCompilerStringLengths.pop_back();
++        fCodeIndex--;
++    }
++
+     SkString& versionDecl() { return fShaderStrings[kVersionDecl]; }
+     SkString& extensions() { return fShaderStrings[kExtensions]; }
+     SkString& definitions() { return fShaderStrings[kDefinitions]; }
+@@ -233,9 +240,6 @@ protected:
+     SkSTArray<kPrealloc, const char*, true> fCompilerStrings;
+     SkSTArray<kPrealloc, int, true> fCompilerStringLengths;
+     SkSTArray<kPrealloc, SkString> fShaderStrings;
+-    SkString fCode;
+-    SkString fFunctions;
+-    SkString fExtensions;
+ 
+     VarArray fInputs;
+     VarArray fOutputs;
+-- 
+2.19.0.605.g01d371f741-goog
+

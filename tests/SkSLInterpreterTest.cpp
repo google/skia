@@ -10,12 +10,53 @@
 
 #include "Test.h"
 
+void test(skiatest::Reporter* r, const char* src, SkSL::Interpreter::Value* in, int expectedCount,
+          SkSL::Interpreter::Value* expected) {
+    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+                                                             SkSL::Program::kGeneric_Kind,
+                                                             SkSL::String(src), settings);
+    REPORTER_ASSERT(r, program);
+    if (program) {
+        std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
+        REPORTER_ASSERT(r, !compiler.errorCount());
+        if (compiler.errorCount() > 0) {
+            printf("%s\n%s", src, compiler.errorText().c_str());
+            return;
+        }
+        SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
+        SkSL::Interpreter interpreter(std::move(program), std::move(byteCode));
+        SkSL::Interpreter::Value* out = interpreter.run(*main, in, nullptr);
+        bool valid = !memcmp(out, expected, sizeof(SkSL::Interpreter::Value) * expectedCount);
+        if (!valid) {
+            printf("for program: %s\n", src);
+            printf("    expected (");
+            const char* separator = "";
+            for (int i = 0; i < expectedCount; ++i) {
+                printf("%s%f", separator, expected[i].fFloat);
+                separator = ", ";
+            }
+            printf("), but received (");
+            separator = "";
+            for (int i = 0; i < expectedCount; ++i) {
+                printf("%s%f", separator, out[i].fFloat);
+                separator = ", ";
+            }
+            printf(")\n");
+        }
+        REPORTER_ASSERT(r, valid);
+    } else {
+        printf("%s\n%s", src, compiler.errorText().c_str());
+    }
+}
+
 void test(skiatest::Reporter* r, const char* src, float inR, float inG, float inB, float inA,
         float expectedR, float expectedG, float expectedB, float expectedA) {
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-                                                             SkSL::Program::kPipelineStage_Kind,
+                                                             SkSL::Program::kGeneric_Kind,
                                                              SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
     if (program) {
@@ -43,11 +84,6 @@ void test(skiatest::Reporter* r, const char* src, float inR, float inG, float in
     } else {
         printf("%s\n%s", src, compiler.errorText().c_str());
     }
-}
-
-DEF_TEST(SkSLInterpreterTEMP_TEST, r) {
-    test(r, "void main(inout half4 color) { half4 c = color; color += c; }", 0.25, 0.5, 0.75, 1,
-         0.5, 1, 1.5, 2);
 }
 
 DEF_TEST(SkSLInterpreterAdd, r) {
@@ -197,4 +233,16 @@ DEF_TEST(SkSLInterpreterSwizzle, r) {
 DEF_TEST(SkSLInterpreterGlobal, r) {
     test(r, "int x; void main(inout half4 color) { x = 10; color.b = x; }", 1, 2, 3, 4, 1, 2, 10,
          4);
+}
+
+DEF_TEST(SkSLInterpreterGeneric, r) {
+    float value1 = 5;
+    float expected1 = 25;
+    test(r, "float main(float x) { return x * x; }", (SkSL::Interpreter::Value*) &value1, 1,
+         (SkSL::Interpreter::Value*) &expected1);
+    float value2[2] = { 5, 25 };
+    float expected2[2] = { 25, 625 };
+    test(r, "float2 main(float x, float y) { return float2(x * x, y * y); }",
+         (SkSL::Interpreter::Value*) &value2, 2,
+         (SkSL::Interpreter::Value*) expected2);
 }

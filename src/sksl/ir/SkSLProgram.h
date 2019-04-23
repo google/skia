@@ -214,7 +214,8 @@ struct Program {
         kGeometry_Kind,
         kFragmentProcessor_Kind,
         kPipelineStage_Kind,
-        kMixer_Kind
+        kGeneric_Kind,
+
     };
 
     Program(Kind kind,
