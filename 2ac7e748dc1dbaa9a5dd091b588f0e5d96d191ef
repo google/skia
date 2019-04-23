@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b02fa36_f4e71cec",
+        "filename": "src/core/SkStrikeInterface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-23T17:14:05Z",
+      "side": 1,
+      "message": "Aka\n\n  enum PreparationDetail {\n     kBoundsOnly,\n     kImageIfNeeded,\n  };\n\n:)",
+      "range": {
+        "startLine": 73,
+        "startChar": 3,
+        "endLine": 76,
+        "endChar": 6
+      },
+      "revId": "2ac7e748dc1dbaa9a5dd091b588f0e5d96d191ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
