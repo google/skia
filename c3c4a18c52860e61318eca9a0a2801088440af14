@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2d890708_0e06ce54",
+        "filename": "src/gpu/GrTRecorder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-23T19:25:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab350768_f07a8ba7",
+      "range": {
+        "startLine": 54,
+        "startChar": 41,
+        "endLine": 54,
+        "endChar": 50
+      },
+      "revId": "c3c4a18c52860e61318eca9a0a2801088440af14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "889db6d8_6687f794",
         "filename": "src/gpu/GrTRecorder.h",
         "patchSetId": 12
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "bf51df94_00d649c5",
+        "filename": "src/gpu/GrTRecorder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-23T19:25:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "889db6d8_6687f794",
+      "range": {
+        "startLine": 106,
+        "startChar": 28,
+        "endLine": 106,
+        "endChar": 38
+      },
+      "revId": "c3c4a18c52860e61318eca9a0a2801088440af14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "72216261_0661ac1d",
         "filename": "src/gpu/GrTRecorder.h",
         "patchSetId": 12
@@ -59,6 +107,24 @@
       "writtenOn": "2019-04-23T19:00:52Z",
       "side": 1,
       "message": "I suppose the alternative would be an offset field to the address of the base class. (e.g., (TBase*)((char*)header + header-\u003efOffset));\n\nThoughts on that approach as opposed to a runtime assert?",
+      "revId": "c3c4a18c52860e61318eca9a0a2801088440af14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa1536be_19e5529a",
+        "filename": "src/gpu/GrTRecorder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-23T19:25:55Z",
+      "side": 1,
+      "message": "Seems like that\u0027s not really better than what we had before (a ptr to the base in the footer, now header). I suppose it could be fewer than 8 bytes, but that seems pretty marginal as it\u0027s likely TItem has 8 byte alignment anyway.\n\nI\u0027m not particularly worried about bugs here. Anything we add to a GrTRecorder ought to be tested and should be caught quickly by the assert.",
+      "parentUuid": "72216261_0661ac1d",
       "revId": "c3c4a18c52860e61318eca9a0a2801088440af14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "d02e5894_f4f2a69c",
+        "filename": "src/gpu/GrTRecorder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-23T19:25:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f92b62a_139a3bf7",
+      "range": {
+        "startLine": 140,
+        "startChar": 46,
+        "endLine": 140,
+        "endChar": 78
+      },
+      "revId": "c3c4a18c52860e61318eca9a0a2801088440af14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "805728b4_e2873516",
         "filename": "src/gpu/GrTRecorder.h",
         "patchSetId": 12
@@ -99,6 +189,24 @@
       "writtenOn": "2019-04-23T19:00:52Z",
       "side": 1,
       "message": "Why do we need a friend class?",
+      "revId": "c3c4a18c52860e61318eca9a0a2801088440af14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3c1f6c7_c7edecdc",
+        "filename": "src/gpu/GrTRecorder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-23T19:25:55Z",
+      "side": 1,
+      "message": "To construct from Header*, added comment.",
+      "parentUuid": "805728b4_e2873516",
       "revId": "c3c4a18c52860e61318eca9a0a2801088440af14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
