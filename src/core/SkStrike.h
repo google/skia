@@ -140,6 +140,7 @@ public:
                                                const SkPoint positions[],
                                                size_t n,
                                                int maxDimension,
+                                               bool generateImage,
                                                SkGlyphPos results[]) override;
 
     void onAboutToExitScope() override;

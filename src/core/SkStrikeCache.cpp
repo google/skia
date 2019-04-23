@@ -40,8 +40,10 @@ public:
                                                const SkPoint positions[],
                                                size_t n,
                                                int maxDimension,
+                                               bool generateImage,
                                                SkGlyphPos results[]) override {
-        return fStrike.prepareForDrawing(glyphIDs, positions, n, maxDimension, results);
+        return fStrike.prepareForDrawing(
+                glyphIDs, positions, n, maxDimension, generateImage, results);
     }
 
     void generatePath(const SkGlyph& glyph) override {

@@ -79,6 +79,7 @@ public:
                                                        const SkPoint positions[],
                                                        size_t n,
                                                        int maxDimension,
+                                                       bool generateImage,
                                                        SkGlyphPos results[]) = 0;
 
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
