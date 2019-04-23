@@ -613,6 +613,7 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
         const SkPoint positions[],
         size_t n,
         int maxDimension,
+        PreparationDetail detail,
         SkGlyphPos results[]) {
     size_t glyphsToSendCount = 0;
     for (size_t i = 0; i < n; i++) {
