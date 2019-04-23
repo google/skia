@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitter.h"
-#include "SkColor.h"
-#include "SkMask.h"
-#include "SkRect.h"
-#include "SkTypes.h"
+#include "src/core/SkBlitter.h"
+#include "include/core/SkColor.h"
+#include "src/core/SkMask.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
 #include "Test.h"
 
 #include <string.h>

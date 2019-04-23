@@ -8,7 +8,7 @@
 #ifndef SkDataTable_DEFINED
 #define SkDataTable_DEFINED
 
-#include "../private/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "SkData.h"
 #include "SkString.h"
 

@@ -9,11 +9,11 @@
 
 #include "SkAntiRun.h"
 #include "SkBlitter.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
 #include "SkPathPriv.h"
-#include "SkRegion.h"
-#include "SkTo.h"
+#include "include/core/SkRegion.h"
+#include "include/private/SkTo.h"
 
 #define SHIFT   SK_SUPERSAMPLE_SHIFT
 #define SCALE   (1 << SHIFT)

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 #include "PathOpsQuadIntersectionTestData.h"
-#include "SkIntersections.h"
-#include "SkPathOpsRect.h"
-#include "SkReduceOrder.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkPathOpsRect.h"
+#include "src/pathops/SkReduceOrder.h"
 #include "Test.h"
 
 static const QuadPts testSet[] = {

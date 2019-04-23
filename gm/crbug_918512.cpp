@@ -3,7 +3,7 @@
 
 #include "gm.h"
 
-#include "SkLumaColorFilter.h"
+#include "include/effects/SkLumaColorFilter.h"
 
 // PDF backend should produce correct results.
 DEF_SIMPLE_GM(crbug_918512, canvas, 256, 256) {

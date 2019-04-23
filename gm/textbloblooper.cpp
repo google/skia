@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
-#include "Sk2DPathEffect.h"
-#include "SkBlurMask.h"
-#include "SkColorMatrixFilter.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkGraphics.h"
-#include "SkLayerDrawLooper.h"
-#include "SkMaskFilter.h"
-#include "SkRandom.h"
-#include "SkTextBlob.h"
+#include "include/effects/Sk2DPathEffect.h"
+#include "src/core/SkBlurMask.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkGraphics.h"
+#include "include/effects/SkLayerDrawLooper.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkTextBlob.h"
 
 namespace skiagm {
 

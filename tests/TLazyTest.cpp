@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkTLazy.h"
+#include "src/core/SkTLazy.h"
 #include "Test.h"
 
 DEF_TEST(TLazy_copy, r) {

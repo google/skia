@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 #include "Sample.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkShader.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkShader.h"
 
 static void make_bitmap(SkBitmap* bm) {
     const int W = 100;

@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix.h"
+#include "include/core/SkMatrix.h"
 
-#include "SkFloatBits.h"
+#include "include/private/SkFloatBits.h"
 #include "SkMathPriv.h"
 #include "SkMatrixPriv.h"
-#include "SkNx.h"
-#include "SkPaint.h"
-#include "SkPoint3.h"
-#include "SkRSXform.h"
-#include "SkString.h"
-#include "SkTo.h"
+#include "include/private/SkNx.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTo.h"
 
 #include <cstddef>
 #include <utility>

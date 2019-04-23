@@ -7,9 +7,9 @@
 
 #include "SkBmpStandardCodec.h"
 #include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkMathPriv.h"
-#include "SkStream.h"
+#include "include/private/SkColorData.h"
+#include "src/core/SkMathPriv.h"
+#include "include/core/SkStream.h"
 
 /*
  * Creates an instance of the decoder

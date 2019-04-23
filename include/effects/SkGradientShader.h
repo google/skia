@@ -8,7 +8,7 @@
 #ifndef SkGradientShader_DEFINED
 #define SkGradientShader_DEFINED
 
-#include "SkShader.h"
+#include "include/core/SkShader.h"
 
 /** \class SkGradientShader
 

@@ -8,7 +8,7 @@
 #ifndef SKSL_NULLLITERAL
 #define SKSL_NULLLITERAL
 
-#include "SkSLContext.h"
+#include "src/sksl/SkSLContext.h"
 #include "SkSLExpression.h"
 
 namespace SkSL {

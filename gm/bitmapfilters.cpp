@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 static void make_bm(SkBitmap* bm) {

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkTime.h"
-#include "SkTo.h"
+#include "include/core/SkTime.h"
+#include "include/private/SkTo.h"
 #include "Test.h"
 
 // Sanity checks for the GetDateTime function.

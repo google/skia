@@ -7,8 +7,8 @@
 
 // Unit tests for src/core/SkPoint3.cpp and its header
 
-#include "SkPoint3.h"
-#include "SkRandom.h"
+#include "include/core/SkPoint3.h"
+#include "include/utils/SkRandom.h"
 #include "Test.h"
 
 static void test_eq_ops(skiatest::Reporter* reporter) {

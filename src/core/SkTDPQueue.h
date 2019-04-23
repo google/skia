@@ -8,7 +8,7 @@
 #ifndef SkTDPQueue_DEFINED
 #define SkTDPQueue_DEFINED
 
-#include "SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "SkTSort.h"
 
 #include <utility>

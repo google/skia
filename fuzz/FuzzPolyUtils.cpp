@@ -6,7 +6,7 @@
  */
 
 #include "Fuzz.h"
-#include "SkPolyUtils.h"
+#include "src/utils/SkPolyUtils.h"
 
 void inline ignoreResult(bool ) {}
 

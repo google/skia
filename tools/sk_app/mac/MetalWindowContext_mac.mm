@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "../MetalWindowContext.h"
+#include "tools/sk_app/MetalWindowContext.h"
 #include "WindowContextFactory_mac.h"
 
 #import <MetalKit/MetalKit.h>

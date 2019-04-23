@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GrGLAssembleInterface.h"
+#include "GrGLAssembleInterface.h"
 
 void GrGetEGLQueryAndDisplay(GrEGLQueryStringFn** queryString, GrEGLDisplay* display,
                              void* ctx, GrGLGetProc get);

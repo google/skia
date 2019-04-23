@@ -8,7 +8,7 @@
 #ifndef GrMockGpuCommandBuffer_DEFINED
 #define GrMockGpuCommandBuffer_DEFINED
 
-#include "GrGpuCommandBuffer.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
 #include "GrMockGpu.h"
 
 class GrMockGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {

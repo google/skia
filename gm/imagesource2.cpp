@@ -6,9 +6,9 @@
  */
 
 #include "gm.h"
-#include "SkImage.h"
-#include "SkImageSource.h"
-#include "SkSurface.h"
+#include "include/core/SkImage.h"
+#include "include/effects/SkImageSource.h"
+#include "include/core/SkSurface.h"
 
 namespace skiagm {
 

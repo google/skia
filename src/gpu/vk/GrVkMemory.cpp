@@ -9,7 +9,7 @@
 
 #include "GrVkGpu.h"
 #include "GrVkUtil.h"
-#include "vk/GrVkMemoryAllocator.h"
+#include "include/gpu/vk/GrVkMemoryAllocator.h"
 
 using AllocationPropertyFlags = GrVkMemoryAllocator::AllocationPropertyFlags;
 using BufferUsage = GrVkMemoryAllocator::BufferUsage;

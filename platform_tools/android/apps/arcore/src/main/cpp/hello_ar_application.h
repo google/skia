@@ -17,11 +17,11 @@
 #ifndef C_ARCORE_HELLOE_AR_HELLO_AR_APPLICATION_H_
 #define C_ARCORE_HELLOE_AR_HELLO_AR_APPLICATION_H_
 
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "SkSurface.h"
-#include "Skottie.h"
-#include "gl/GrGLTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/core/SkSurface.h"
+#include "modules/skottie/include/Skottie.h"
+#include "include/gpu/gl/GrGLTypes.h"
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <android/asset_manager.h>

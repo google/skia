@@ -8,7 +8,7 @@
 #ifndef SkScanPriv_DEFINED
 #define SkScanPriv_DEFINED
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 #include "SkScan.h"
 #include "SkBlitter.h"
 

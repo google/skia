@@ -7,14 +7,14 @@
 
 #include "GrVkGpuCommandBuffer.h"
 
-#include "GrBackendDrawableInfo.h"
-#include "GrContextPriv.h"
-#include "GrFixedClip.h"
-#include "GrMesh.h"
-#include "GrOpFlushState.h"
-#include "GrPipeline.h"
-#include "GrRenderTargetPriv.h"
-#include "GrTexturePriv.h"
+#include "include/gpu/GrBackendDrawableInfo.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrMesh.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrTexturePriv.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkCommandPool.h"
 #include "GrVkGpu.h"
@@ -24,8 +24,8 @@
 #include "GrVkResourceProvider.h"
 #include "GrVkSemaphore.h"
 #include "GrVkTexture.h"
-#include "SkDrawable.h"
-#include "SkRect.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkRect.h"
 
 void GrVkGpuTextureCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin,
                                        const SkIRect& srcRect, const SkIPoint& dstPoint) {

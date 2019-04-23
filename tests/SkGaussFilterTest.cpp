@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkGaussFilter.h"
+#include "src/core/SkGaussFilter.h"
 
 #include <cmath>
 #include <tuple>

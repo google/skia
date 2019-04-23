@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_HAS_HEIF_LIBRARY
-#include "SkCodec.h"
+#include "include/codec/SkCodec.h"
 #include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkEndian.h"
-#include "SkStream.h"
+#include "include/private/SkColorData.h"
+#include "src/core/SkEndian.h"
+#include "include/core/SkStream.h"
 #include "SkHeifCodec.h"
 
 #define FOURCC(c1, c2, c3, c4) \

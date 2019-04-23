@@ -7,15 +7,15 @@
 
 #include "GrCCCoverageProcessor.h"
 
-#include "GrGpuCommandBuffer.h"
-#include "GrOpFlushState.h"
-#include "SkMakeUnique.h"
-#include "ccpr/GrCCConicShader.h"
-#include "ccpr/GrCCCubicShader.h"
-#include "ccpr/GrCCQuadraticShader.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/core/SkMakeUnique.h"
+#include "GrCCConicShader.h"
+#include "GrCCCubicShader.h"
+#include "GrCCQuadraticShader.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 class GrCCCoverageProcessor::TriangleShader : public GrCCCoverageProcessor::Shader {
     void onEmitVaryings(

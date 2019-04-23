@@ -7,13 +7,13 @@
 #ifndef SkPathOpsTSect_DEFINED
 #define SkPathOpsTSect_DEFINED
 
-#include "SkArenaAlloc.h"
+#include "include/private/SkArenaAlloc.h"
 #include "SkIntersections.h"
-#include "SkMacros.h"
+#include "include/private/SkMacros.h"
 #include "SkPathOpsBounds.h"
 #include "SkPathOpsRect.h"
 #include "SkPathOpsTCurve.h"
-#include "SkTSort.h"
+#include "src/core/SkTSort.h"
 
 #include <utility>
 

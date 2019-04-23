@@ -10,7 +10,7 @@
 
 #include "SkMath.h"
 #include "SkScalar.h"
-#include "../private/SkSafe32.h"
+#include "include/private/SkSafe32.h"
 
 struct SkIPoint;
 

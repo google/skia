@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkMatrix.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/core/SkMatrix.h"
 #include "SkOpEdgeBuilder.h"
-#include "SkPathPriv.h"
-#include "SkPathOps.h"
+#include "src/core/SkPathPriv.h"
+#include "include/pathops/SkPathOps.h"
 #include "SkPathOpsCommon.h"
 
 static bool one_contour(const SkPath& path) {

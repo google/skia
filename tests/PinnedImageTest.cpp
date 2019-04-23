@@ -11,11 +11,11 @@
 
 using namespace sk_gpu_test;
 
-#include "GrContextFactory.h"
+#include "tools/gpu/GrContextFactory.h"
 
-#include "SkCanvas.h"
-#include "SkImagePriv.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkImagePriv.h"
+#include "include/core/SkSurface.h"
 
 static bool surface_is_expected_color(SkSurface* surf, const SkImageInfo& ii, SkColor color) {
     SkBitmap bm;

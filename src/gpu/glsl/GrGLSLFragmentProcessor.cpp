@@ -6,10 +6,10 @@
  */
 
 #include "GrGLSLFragmentProcessor.h"
-#include "GrFragmentProcessor.h"
-#include "GrProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrProcessor.h"
+#include "GrGLSLFragmentShaderBuilder.h"
+#include "GrGLSLUniformHandler.h"
 
 void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
                                       const GrFragmentProcessor& processor) {

@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <cstring>
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 /*
     memory wrappers to be implemented by the porting layer (platform)

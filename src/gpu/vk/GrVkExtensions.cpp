@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "vk/GrVkExtensions.h"
+#include "include/gpu/vk/GrVkExtensions.h"
 
 // Can remove this once we get rid of the extension flags.
-#include "vk/GrVkBackendContext.h"
+#include "include/gpu/vk/GrVkBackendContext.h"
 
-#include "SkTSearch.h"
-#include "SkTSort.h"
+#include "include/private/SkTSearch.h"
+#include "src/core/SkTSort.h"
 
 // finds the index of ext in infos or a negative result if ext is not found.
 static int find_info(const SkTArray<GrVkExtensions::Info>& infos, const char ext[]) {

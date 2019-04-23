@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkSwizzle.h"
+#include "include/core/SkSwizzle.h"
 
 #include "SkOpts.h"
 

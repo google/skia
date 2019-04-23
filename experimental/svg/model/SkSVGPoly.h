@@ -8,7 +8,7 @@
 #ifndef SkSVGPoly_DEFINED
 #define SkSVGPoly_DEFINED
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 #include "SkSVGShape.h"
 
 // Handles <polygon> and <polyline> elements.

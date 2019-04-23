@@ -7,13 +7,13 @@
 
 #include "SkMatrixImageFilter.h"
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 #include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
-#include "SkRect.h"
+#include "include/core/SkRect.h"
 
 SkMatrixImageFilter::SkMatrixImageFilter(const SkMatrix& transform,
                                          SkFilterQuality filterQuality,

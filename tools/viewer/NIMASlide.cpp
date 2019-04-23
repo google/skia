@@ -7,11 +7,11 @@
 
 #include "NIMASlide.h"
 
-#include "AnimTimer.h"
-#include "Resources.h"
-#include "SkOSPath.h"
+#include "tools/timer/AnimTimer.h"
+#include "tools/Resources.h"
+#include "src/utils/SkOSPath.h"
 #include "imgui.h"
-#include "nima/NimaActor.h"
+#include "experimental/nima/NimaActor.h"
 
 #include <algorithm>
 #include <cmath>

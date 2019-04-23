@@ -7,13 +7,13 @@
 
 #include "SkBlurMask.h"
 
-#include "SkColorPriv.h"
+#include "include/core/SkColorPriv.h"
 #include "SkEndian.h"
 #include "SkMaskBlurFilter.h"
-#include "SkMath.h"
+#include "include/core/SkMath.h"
 #include "SkMathPriv.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 
 // This constant approximates the scaling done in the software path's
 // "high quality" mode, in SkBlurMask::Blur() (1 / sqrt(3)).

@@ -6,10 +6,10 @@
  */
 
 #include "Benchmark.h"
-#include "SkBlendModePriv.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
+#include "src/core/SkBlendModePriv.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkPaint.h"
 
 #include <ctype.h>
 

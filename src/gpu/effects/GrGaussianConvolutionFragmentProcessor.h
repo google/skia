@@ -8,8 +8,8 @@
 #ifndef GrGaussianConvolutionFragmentProcessor_DEFINED
 #define GrGaussianConvolutionFragmentProcessor_DEFINED
 
-#include "GrCoordTransform.h"
-#include "GrFragmentProcessor.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #include "GrTextureDomain.h"
 
 /**

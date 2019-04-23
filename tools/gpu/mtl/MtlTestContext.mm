@@ -7,8 +7,8 @@
 
 #include "MtlTestContext.h"
 
-#include "GrContext.h"
-#include "GrContextOptions.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextOptions.h"
 
 #ifdef SK_METAL
 

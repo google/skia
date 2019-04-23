@@ -6,7 +6,7 @@
  */
 
 #include "GrVkImage.h"
-#include "GrGpuResourcePriv.h"
+#include "src/gpu/GrGpuResourcePriv.h"
 #include "GrVkGpu.h"
 #include "GrVkMemory.h"
 #include "GrVkTexture.h"

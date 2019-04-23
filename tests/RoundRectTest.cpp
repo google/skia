@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix.h"
-#include "SkPointPriv.h"
-#include "SkRRect.h"
+#include "include/core/SkMatrix.h"
+#include "src/core/SkPointPriv.h"
+#include "include/core/SkRRect.h"
 #include "Test.h"
 
 static void test_tricky_radii(skiatest::Reporter* reporter) {

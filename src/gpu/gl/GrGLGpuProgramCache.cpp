@@ -8,12 +8,12 @@
 #include "GrGLGpu.h"
 
 #include "builders/GrGLProgramBuilder.h"
-#include "GrProcessor.h"
-#include "GrProgramDesc.h"
+#include "src/gpu/GrProcessor.h"
+#include "src/gpu/GrProgramDesc.h"
 #include "GrGLPathRendering.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "SkTSearch.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "include/private/SkTSearch.h"
 
 #ifdef PROGRAM_CACHE_STATS
 // Display program cache usage

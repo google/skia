@@ -8,13 +8,13 @@
 #ifndef SkImage_DEFINED
 #define SkImage_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 #include "SkFilterQuality.h"
 #include "SkImageInfo.h"
 #include "SkImageEncoder.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
-#include "SkShader.h"   // can remove once we switch to SkTileMode
+#include "SkShader.h"
 #include "SkTileMode.h"
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26

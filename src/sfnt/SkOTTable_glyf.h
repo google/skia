@@ -8,7 +8,7 @@
 #ifndef SkOTTable_glyf_DEFINED
 #define SkOTTable_glyf_DEFINED
 
-#include "SkEndian.h"
+#include "src/core/SkEndian.h"
 #include "SkOTTableTypes.h"
 #include "SkOTTable_head.h"
 #include "SkOTTable_loca.h"

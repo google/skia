@@ -9,7 +9,7 @@
 #define SkComposeShader_DEFINED
 
 #include "SkShaderBase.h"
-#include "SkBlendMode.h"
+#include "include/core/SkBlendMode.h"
 
 class SkShader_Blend final : public SkShaderBase {
 public:

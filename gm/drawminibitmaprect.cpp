@@ -6,13 +6,13 @@
  */
 
 #include "gm.h"
-#include "SkColorPriv.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkMathPriv.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkSurface.h"
+#include "include/core/SkColorPriv.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkImage.h"
+#include "src/core/SkMathPriv.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
 
 static sk_sp<SkImage> makebm(int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);

@@ -7,7 +7,7 @@
  */
 
 #include "GrContextFactory.h"
-#include "GrContextPriv.h"
+#include "src/gpu/GrContextPriv.h"
 #include "gl/GLTestContext.h"
 
 #if SK_ANGLE
@@ -20,9 +20,9 @@
 #ifdef SK_METAL
 #include "mtl/MtlTestContext.h"
 #endif
-#include "gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLGpu.h"
 #include "mock/MockTestContext.h"
-#include "GrCaps.h"
+#include "src/gpu/GrCaps.h"
 
 #if defined(SK_BUILD_FOR_WIN) && defined(SK_ENABLE_DISCRETE_GPU)
 extern "C" {

@@ -11,7 +11,7 @@
 
 #include "GrVkTexture.h"
 #include "GrVkRenderTarget.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
 
 class GrVkGpu;
 

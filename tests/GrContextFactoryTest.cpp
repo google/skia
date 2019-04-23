@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrCaps.h"
-#include "SkExecutor.h"
+#include "tools/gpu/GrContextFactory.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "include/core/SkExecutor.h"
 #include "Test.h"
 
 using namespace sk_gpu_test;

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilter.h"
-#include "SkMaskFilter.h"
-#include "SkPath.h"
-#include "ToolUtils.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPath.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 /**

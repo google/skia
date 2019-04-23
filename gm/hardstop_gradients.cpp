@@ -38,7 +38,7 @@
 
 #include "gm.h"
 
-#include "SkGradientShader.h"
+#include "include/effects/SkGradientShader.h"
 
 const int WIDTH  = 500;
 const int HEIGHT = 500;

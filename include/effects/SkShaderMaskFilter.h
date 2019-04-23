@@ -8,7 +8,7 @@
 #ifndef SkShaderMaskFilter_DEFINED
 #define SkShaderMaskFilter_DEFINED
 
-#include "SkMaskFilter.h"
+#include "include/core/SkMaskFilter.h"
 
 class SkShader;
 

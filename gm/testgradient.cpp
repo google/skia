@@ -7,9 +7,9 @@
 
 #include "gm.h"
 
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkRRect.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkRRect.h"
 
 class TestGradientGM : public skiagm::GM {
 public:

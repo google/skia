@@ -8,9 +8,9 @@
 #ifndef SkOTTable_name_DEFINED
 #define SkOTTable_name_DEFINED
 
-#include "SkEndian.h"
+#include "src/core/SkEndian.h"
 #include "SkOTTableTypes.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
 
 #pragma pack(push, 1)
 

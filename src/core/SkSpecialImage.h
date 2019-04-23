@@ -9,11 +9,11 @@
 #define SkSpecialImage_DEFINED
 
 #include "SkNextID.h"
-#include "SkRefCnt.h"
-#include "SkSurfaceProps.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
 
-#include "SkImageFilter.h" // for OutputProperties
-#include "SkImageInfo.h"   // for SkAlphaType
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
 
 class GrRecordingContext;
 class GrTextureProxy;

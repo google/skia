@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkRect.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRect.h"
 #include "SkSVGRect.h"
 #include "SkSVGRenderContext.h"
 #include "SkSVGValue.h"

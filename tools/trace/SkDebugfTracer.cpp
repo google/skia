@@ -6,7 +6,7 @@
  */
 
 #include "SkDebugfTracer.h"
-#include "SkTraceEvent.h"
+#include "src/core/SkTraceEvent.h"
 
 SkEventTracer::Handle SkDebugfTracer::addTraceEvent(char phase,
                                                     const uint8_t* categoryEnabledFlag,

@@ -10,7 +10,7 @@
 
 #include "MockTestContext.h"
 
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 
 namespace {
 

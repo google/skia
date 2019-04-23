@@ -7,19 +7,19 @@
 
 #include "GrFillRectOp.h"
 
-#include "GrCaps.h"
-#include "GrGeometryProcessor.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGeometryProcessor.h"
 #include "GrMeshDrawOp.h"
-#include "GrPaint.h"
-#include "GrQuad.h"
+#include "src/gpu/GrPaint.h"
+#include "src/gpu/GrQuad.h"
 #include "GrQuadPerEdgeAA.h"
 #include "GrSimpleMeshDrawOpHelper.h"
-#include "SkGr.h"
-#include "SkMatrix.h"
-#include "SkRect.h"
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLVarying.h"
+#include "src/gpu/SkGr.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
 
 namespace {
 
@@ -483,8 +483,8 @@ std::unique_ptr<GrDrawOp> MakeWithLocalRect(GrRecordingContext* context,
 
 #if GR_TEST_UTILS
 
-#include "GrDrawOpTest.h"
-#include "SkGr.h"
+#include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/SkGr.h"
 
 GR_DRAW_OP_TEST_DEFINE(FillRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);

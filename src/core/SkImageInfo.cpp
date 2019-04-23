@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageInfoPriv.h"
+#include "include/private/SkImageInfoPriv.h"
 #include "SkSafeMath.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -99,7 +99,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkReadPixelsRec.h"
+#include "src/image/SkReadPixelsRec.h"
 
 bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
     if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {

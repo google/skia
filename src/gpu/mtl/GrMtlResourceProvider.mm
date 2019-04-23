@@ -12,7 +12,7 @@
 #include "GrMtlPipelineState.h"
 #include "GrMtlUtil.h"
 
-#include "SkSLCompiler.h"
+#include "src/sksl/SkSLCompiler.h"
 
 
 GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)

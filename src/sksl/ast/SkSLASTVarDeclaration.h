@@ -11,8 +11,8 @@
 #include "SkSLASTDeclaration.h"
 #include "SkSLASTStatement.h"
 #include "SkSLASTType.h"
-#include "../SkSLUtil.h"
-#include "../ir/SkSLModifiers.h"
+#include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 
 namespace SkSL {
 

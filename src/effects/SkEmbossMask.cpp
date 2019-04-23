@@ -7,10 +7,10 @@
 
 #include "SkEmbossMask.h"
 
-#include "SkFixed.h"
-#include "SkMath.h"
-#include "SkMathPriv.h"
-#include "SkTo.h"
+#include "include/private/SkFixed.h"
+#include "include/core/SkMath.h"
+#include "src/core/SkMathPriv.h"
+#include "include/private/SkTo.h"
 
 static inline int nonzero_to_one(int x) {
 #if 0

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkColor.h"
+#include "include/core/SkColor.h"
 #include "Test.h"
 
 DEF_TEST(SkColor4f_FromColor, reporter) {

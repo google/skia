@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 #include "PathOpsTestCommon.h"
-#include "SkIntersections.h"
-#include "SkOpContour.h"
-#include "SkOpSegment.h"
-#include "SkRandom.h"
-#include "SkTSort.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkOpContour.h"
+#include "src/pathops/SkOpSegment.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkTSort.h"
 #include "Test.h"
 
 static bool gDisableAngleTests = true;

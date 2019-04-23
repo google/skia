@@ -7,14 +7,14 @@
 
 #include "SkPDFUtils.h"
 
-#include "SkData.h"
-#include "SkFixed.h"
-#include "SkGeometry.h"
-#include "SkImage_Base.h"
+#include "include/core/SkData.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkGeometry.h"
+#include "src/image/SkImage_Base.h"
 #include "SkPDFResourceDict.h"
 #include "SkPDFTypes.h"
-#include "SkStream.h"
-#include "SkString.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 
 #include <cmath>
 

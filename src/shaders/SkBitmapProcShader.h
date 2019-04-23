@@ -7,7 +7,7 @@
 #ifndef SkBitmapProcShader_DEFINED
 #define SkBitmapProcShader_DEFINED
 
-#include "SkImagePriv.h"
+#include "src/core/SkImagePriv.h"
 #include "SkShaderBase.h"
 
 class SkBitmapProvider;

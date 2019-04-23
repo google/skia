@@ -6,12 +6,12 @@
  */
 
 #include "Benchmark.h"
-#include "CommandLineFlags.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkRRect.h"
-#include "SkRandom.h"
-#include "SkString.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkString.h"
 
 #include <stdio.h>
 #include <stdlib.h>

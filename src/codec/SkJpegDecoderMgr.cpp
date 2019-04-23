@@ -10,7 +10,7 @@
 #include "SkJpegUtility.h"
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    #include "SkAndroidFrameworkUtils.h"
+    #include "include/android/SkAndroidFrameworkUtils.h"
 #endif
 
 /*

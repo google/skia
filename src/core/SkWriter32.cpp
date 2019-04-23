@@ -7,8 +7,8 @@
 
 #include "SkMatrixPriv.h"
 #include "SkReader32.h"
-#include "SkString.h"
-#include "SkTo.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTo.h"
 
 #include "SkWriter32.h"
 

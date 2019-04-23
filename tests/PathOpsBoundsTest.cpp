@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 #include "PathOpsTestCommon.h"
-#include "SkPathOpsBounds.h"
-#include "SkPathOpsCurve.h"
+#include "src/pathops/SkPathOpsBounds.h"
+#include "src/pathops/SkPathOpsCurve.h"
 #include "Test.h"
 
 static const SkRect sectTests[][2] = {

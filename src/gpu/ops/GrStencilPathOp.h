@@ -9,9 +9,9 @@
 #define GrStencilPathOp_DEFINED
 
 #include "GrOp.h"
-#include "GrPath.h"
-#include "GrPathRendering.h"
-#include "GrStencilSettings.h"
+#include "src/gpu/GrPath.h"
+#include "src/gpu/GrPathRendering.h"
+#include "src/gpu/GrStencilSettings.h"
 
 class GrOpFlushState;
 class GrRecordingContext;

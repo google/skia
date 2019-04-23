@@ -6,10 +6,10 @@
  */
 
 #include "RecordingBench.h"
-#include "SkBBHFactory.h"
-#include "SkLiteDL.h"
-#include "SkLiteRecorder.h"
-#include "SkPictureRecorder.h"
+#include "include/core/SkBBHFactory.h"
+#include "src/core/SkLiteDL.h"
+#include "src/core/SkLiteRecorder.h"
+#include "include/core/SkPictureRecorder.h"
 
 PictureCentricBench::PictureCentricBench(const char* name, const SkPicture* pic) : fName(name) {
     // Flatten the source picture in case it's trivially nested (useless for timing).
@@ -67,7 +67,7 @@ void RecordingBench::onDraw(int loops, SkCanvas*) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkSerialProcs.h"
+#include "include/core/SkSerialProcs.h"
 
 DeserializePictureBench::DeserializePictureBench(const char* name, sk_sp<SkData> data)
     : fName(name)

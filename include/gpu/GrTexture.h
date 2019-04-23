@@ -12,10 +12,10 @@
 #include "GrBackendSurface.h"
 #include "GrSamplerState.h"
 #include "GrSurface.h"
-#include "SkImage.h"
-#include "SkPoint.h"
-#include "SkRefCnt.h"
-#include "../private/GrTypesPriv.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrTexturePriv;
 

@@ -11,9 +11,9 @@
 #ifndef GrColor_DEFINED
 #define GrColor_DEFINED
 
-#include "SkColor.h"
+#include "include/core/SkColor.h"
 #include "SkColorData.h"
-#include "SkColorPriv.h"
+#include "include/core/SkColorPriv.h"
 #include "SkHalf.h"
 
 /**

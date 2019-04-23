@@ -6,7 +6,7 @@
  */
 
 
-#include "SkBitmap.h"
+#include "include/core/SkBitmap.h"
 #include "SkMask.h"
 
 #ifndef ClearLow3Bits_DEFINED

@@ -7,8 +7,8 @@
 
 #include "GrVkUtil.h"
 
-#include "vk/GrVkGpu.h"
-#include "SkSLCompiler.h"
+#include "GrVkGpu.h"
+#include "src/sksl/SkSLCompiler.h"
 
 bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
     VkFormat dontCare;

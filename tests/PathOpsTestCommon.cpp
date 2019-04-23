@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 #include "PathOpsTestCommon.h"
-#include "SkPathOpsBounds.h"
-#include "SkPathOpsConic.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsLine.h"
-#include "SkPathOpsQuad.h"
-#include "SkPathOpsTSect.h"
-#include "SkReduceOrder.h"
-#include "SkTSort.h"
+#include "src/pathops/SkPathOpsBounds.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsTSect.h"
+#include "src/pathops/SkReduceOrder.h"
+#include "src/core/SkTSort.h"
 
 #include <utility>
 

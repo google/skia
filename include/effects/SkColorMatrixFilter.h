@@ -8,7 +8,7 @@
 #ifndef SkColorMatrixFilter_DEFINED
 #define SkColorMatrixFilter_DEFINED
 
-#include "SkColorFilter.h"
+#include "include/core/SkColorFilter.h"
 #include "SkColorMatrix.h"
 
 class SK_API SkColorMatrixFilter : public SkColorFilter {

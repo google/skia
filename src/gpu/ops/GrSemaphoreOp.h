@@ -10,9 +10,9 @@
 
 #include "GrOp.h"
 
-#include "GrRenderTargetProxy.h"
-#include "GrSemaphore.h"
-#include "SkRefCnt.h"
+#include "include/private/GrRenderTargetProxy.h"
+#include "src/gpu/GrSemaphore.h"
+#include "include/core/SkRefCnt.h"
 
 class GrRecordingContext;
 

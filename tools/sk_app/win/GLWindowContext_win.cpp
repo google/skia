@@ -6,10 +6,10 @@
  * found in the LICENSE file.
  */
 
-#include "../GLWindowContext.h"
-#include "gl/GrGLInterface.h"
+#include "tools/sk_app/GLWindowContext.h"
+#include "include/gpu/gl/GrGLInterface.h"
 #include "WindowContextFactory_win.h"
-#include "win/SkWGL.h"
+#include "src/utils/win/SkWGL.h"
 
 #include <Windows.h>
 #include <GL/gl.h>

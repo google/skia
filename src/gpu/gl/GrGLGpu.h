@@ -16,13 +16,13 @@
 #include "GrGLStencilAttachment.h"
 #include "GrGLTexture.h"
 #include "GrGLVertexArray.h"
-#include "GrGpu.h"
-#include "GrMesh.h"
-#include "GrWindowRectsState.h"
-#include "GrXferProcessor.h"
-#include "SkLRUCache.h"
-#include "SkTArray.h"
-#include "SkTypes.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMesh.h"
+#include "src/gpu/GrWindowRectsState.h"
+#include "src/gpu/GrXferProcessor.h"
+#include "src/core/SkLRUCache.h"
+#include "include/private/SkTArray.h"
+#include "include/core/SkTypes.h"
 
 class GrGLBuffer;
 class GrGLGpuRTCommandBuffer;

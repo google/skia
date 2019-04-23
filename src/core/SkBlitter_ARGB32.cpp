@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorData.h"
+#include "include/private/SkColorData.h"
 #include "SkCoreBlitters.h"
-#include "SkShader.h"
+#include "include/core/SkShader.h"
 #include "SkUtils.h"
 #include "SkXfermodePriv.h"
-#include "SkVx.h"
+#include "include/private/SkVx.h"
 
 static inline int upscale_31_to_32(int value) {
     SkASSERT((unsigned)value <= 31);

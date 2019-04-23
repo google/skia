@@ -6,9 +6,9 @@
  */
 
 #include "gm.h"
-#include "Resources.h"
-#include "SkCodec.h"
-#include "SkImage.h"
+#include "tools/Resources.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkImage.h"
 
 namespace skiagm {
 

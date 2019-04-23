@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "PathOpsTestCommon.h"
-#include "SkLineParameters.h"
+#include "src/pathops/SkLineParameters.h"
 #include "Test.h"
 
 // tests to verify that distance calculations are coded correctly

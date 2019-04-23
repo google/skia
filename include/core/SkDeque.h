@@ -10,7 +10,7 @@
 #ifndef SkDeque_DEFINED
 #define SkDeque_DEFINED
 
-#include "../private/SkNoncopyable.h"
+#include "include/private/SkNoncopyable.h"
 #include "SkTypes.h"
 
 /*

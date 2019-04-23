@@ -7,8 +7,8 @@
 
 #include "Test.h"
 
-#include "SkMallocPixelRef.h"
-#include "SkPixelRef.h"
+#include "include/core/SkMallocPixelRef.h"
+#include "include/core/SkPixelRef.h"
 
 static void decrement_counter_proc(void* pixels, void* ctx) {
     int* counter = (int*)ctx;

@@ -9,12 +9,12 @@
 #define Sk4fGradientBase_DEFINED
 
 #include "Sk4fGradientPriv.h"
-#include "SkColor.h"
+#include "include/core/SkColor.h"
 #include "SkGradientShaderPriv.h"
-#include "SkMatrixPriv.h"
-#include "SkNx.h"
-#include "SkShaderBase.h"
-#include "SkTArray.h"
+#include "src/core/SkMatrixPriv.h"
+#include "include/private/SkNx.h"
+#include "src/shaders/SkShaderBase.h"
+#include "include/private/SkTArray.h"
 
 struct Sk4fGradientInterval {
     Sk4fGradientInterval(const Sk4f& c0, SkScalar t0,

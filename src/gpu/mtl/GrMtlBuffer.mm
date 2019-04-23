@@ -8,8 +8,8 @@
 #include "GrMtlBuffer.h"
 #include "GrMtlCommandBuffer.h"
 #include "GrMtlGpu.h"
-#include "GrGpuResourcePriv.h"
-#include "GrTypesPriv.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "include/private/GrTypesPriv.h"
 
 #ifdef SK_DEBUG
 #define VALIDATE() this->validate()

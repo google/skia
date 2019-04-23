@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkHalf.h"
-#include "SkRasterPipeline.h"
-#include "SkTo.h"
+#include "include/private/SkHalf.h"
+#include "src/core/SkRasterPipeline.h"
+#include "include/private/SkTo.h"
 #include "Test.h"
 
 DEF_TEST(SkRasterPipeline, r) {

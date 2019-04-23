@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkRasterPipeline.h"
+#include "src/core/SkRasterPipeline.h"
 #include "Test.h"
 
 DEF_TEST(F16Stages, r) {

@@ -10,7 +10,7 @@
 
 #include "GrAuditTrail.h"
 #include "GrImageContext.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 
 class GrDrawingManager;
 class GrOnFlushCallbackObject;

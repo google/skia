@@ -7,16 +7,16 @@
 
 #include "GrRegionOp.h"
 
-#include "GrCaps.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrDrawOpTest.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrDrawOpTest.h"
 #include "GrMeshDrawOp.h"
-#include "GrOpFlushState.h"
-#include "GrResourceProvider.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
-#include "GrVertexWriter.h"
-#include "SkMatrixPriv.h"
-#include "SkRegion.h"
+#include "src/gpu/GrVertexWriter.h"
+#include "src/core/SkMatrixPriv.h"
+#include "include/core/SkRegion.h"
 
 static const int kVertsPerInstance = 4;
 static const int kIndicesPerInstance = 6;

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkLightingImageFilter.h"
-#include "SkPoint3.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkLightingImageFilter.h"
+#include "include/core/SkPoint3.h"
 
 #define FILTER_WIDTH_SMALL  SkIntToScalar(32)
 #define FILTER_HEIGHT_SMALL SkIntToScalar(32)

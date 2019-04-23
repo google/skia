@@ -8,7 +8,7 @@
 #ifndef SkTextBlob_DEFINED
 #define SkTextBlob_DEFINED
 
-#include "../private/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "SkFont.h"
 #include "SkPaint.h"
 #include "SkString.h"

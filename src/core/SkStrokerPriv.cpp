@@ -7,7 +7,7 @@
 
 #include "SkStrokerPriv.h"
 #include "SkGeometry.h"
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 #include "SkPointPriv.h"
 
 #include <utility>

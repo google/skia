@@ -6,11 +6,11 @@
  */
 
 #include "RecordTestUtils.h"
-#include "SkBitmap.h"
-#include "SkImageInfo.h"
-#include "SkRecord.h"
-#include "SkRecords.h"
-#include "SkShader.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImageInfo.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecords.h"
+#include "include/core/SkShader.h"
 #include "Test.h"
 
 #include <new>

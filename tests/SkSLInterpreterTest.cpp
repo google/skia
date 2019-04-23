@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLCompiler.h"
-#include "SkSLInterpreter.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLInterpreter.h"
 
 #include "Test.h"
 

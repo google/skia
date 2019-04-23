@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkImageGenerator.h"
-#include "SkMakeUnique.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageGenerator.h"
+#include "src/core/SkMakeUnique.h"
+#include "include/core/SkSurface.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 namespace {

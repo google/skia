@@ -6,7 +6,7 @@
  */
 
 #include "GrGLSL.h"
-#include "GrShaderCaps.h"
+#include "src/gpu/GrShaderCaps.h"
 
 const char* GrGLSLTypeString(GrSLType t) {
     switch (t) {

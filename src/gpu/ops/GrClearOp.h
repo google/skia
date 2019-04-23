@@ -8,7 +8,7 @@
 #ifndef GrClearOp_DEFINED
 #define GrClearOp_DEFINED
 
-#include "GrFixedClip.h"
+#include "src/gpu/GrFixedClip.h"
 #include "GrOp.h"
 
 class GrOpFlushState;

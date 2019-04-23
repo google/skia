@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkFont.h"
-#include "SkPaint.h"
-#include "SkUTF.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "src/utils/SkUTF.h"
 #include "Test.h"
 
 // Simple test to ensure that when we call textToGlyphs, we get the same
@@ -44,8 +44,8 @@ DEF_TEST(Unicode_textencodings, reporter) {
     REPORTER_ASSERT(reporter, !memcmp(glyphs8, glyphs32, count8 * sizeof(uint16_t)));
 }
 
-#include "SkFont.h"
-#include "SkFontPriv.h"
+#include "include/core/SkFont.h"
+#include "src/core/SkFontPriv.h"
 
 DEF_TEST(glyphs_to_unichars, reporter) {
     SkFont font;

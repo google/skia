@@ -6,7 +6,7 @@
  */
 #include "SkOpEdgeBuilder.h"
 #include "SkPathOpsCommon.h"
-#include "SkRect.h"
+#include "include/core/SkRect.h"
 #include <algorithm>
 #include <vector>
 

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrGpu.h"
-#include "GrContextPriv.h"
-#include "GrTexture.h"
-#include "SkConvertPixels.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrContextPriv.h"
+#include "include/gpu/GrTexture.h"
+#include "src/core/SkConvertPixels.h"
 #include "Test.h"
 #include "TestUtils.h"
 

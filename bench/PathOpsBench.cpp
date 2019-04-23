@@ -6,12 +6,12 @@
  */
 
 #include "Benchmark.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkString.h"
-#include "SkTArray.h"
+#include "include/core/SkPath.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTArray.h"
 
 class PathOpsBench : public Benchmark {
     SkString    fName;

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "DebugCanvas.h"
-#include "SkCanvas.h"
-#include "SkPicture.h"
-#include "SkPictureFlat.h"
-#include "SkPictureRecord.h"
+#include "tools/debugger/DebugCanvas.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPicture.h"
+#include "src/core/SkPictureFlat.h"
+#include "src/core/SkPictureRecord.h"
 #include "Test.h"
 
 // This test exercises the Matrix/Clip State collapsing system. It generates

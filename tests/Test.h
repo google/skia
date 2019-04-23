@@ -7,12 +7,12 @@
 #ifndef skiatest_Test_DEFINED
 #define skiatest_Test_DEFINED
 
-#include "../tools/Registry.h"
-#include "GrContextFactory.h"
-#include "SkClipOpPriv.h"
-#include "SkString.h"
-#include "SkTraceEvent.h"
-#include "SkTypes.h"
+#include "tools/Registry.h"
+#include "tools/gpu/GrContextFactory.h"
+#include "src/core/SkClipOpPriv.h"
+#include "include/core/SkString.h"
+#include "src/core/SkTraceEvent.h"
+#include "include/core/SkTypes.h"
 
 namespace skiatest {
 

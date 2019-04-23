@@ -8,17 +8,17 @@
 #ifndef SkBitmapProcState_DEFINED
 #define SkBitmapProcState_DEFINED
 
-#include "SkArenaAlloc.h"
-#include "SkBitmap.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/core/SkBitmap.h"
 #include "SkBitmapController.h"
 #include "SkBitmapProvider.h"
-#include "SkFixed.h"
-#include "SkFloatBits.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkFloatBits.h"
 #include "SkMatrixPriv.h"
 #include "SkMipMap.h"
-#include "SkPaint.h"
-#include "SkShader.h"
-#include "SkTemplates.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkTemplates.h"
 
 typedef SkFixed3232    SkFractionalInt;
 #define SkScalarToFractionalInt(x)  SkScalarToFixed3232(x)

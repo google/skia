@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GrGLAssembleHelpers.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/gl/GrGLAssembleHelpers.h"
+#include "GrGLUtil.h"
 
 void GrGetEGLQueryAndDisplay(GrEGLQueryStringFn** queryString, GrEGLDisplay* display,
                              void* ctx, GrGLGetProc get) {

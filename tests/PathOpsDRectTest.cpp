@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 #include "PathOpsTestCommon.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsLine.h"
-#include "SkPathOpsQuad.h"
-#include "SkPathOpsRect.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsRect.h"
 #include "Test.h"
 
 static const QuadPts quadTests[] = {

@@ -8,7 +8,7 @@
 #ifndef GrRenderTargetPriv_DEFINED
 #define GrRenderTargetPriv_DEFINED
 
-#include "GrRenderTarget.h"
+#include "include/gpu/GrRenderTarget.h"
 #include "GrGpu.h"
 
 class GrStencilSettings;

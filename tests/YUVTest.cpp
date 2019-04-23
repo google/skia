@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkAutoMalloc.h"
-#include "SkCodec.h"
-#include "SkStream.h"
-#include "SkTemplates.h"
-#include "SkYUVASizeInfo.h"
+#include "tools/Resources.h"
+#include "src/core/SkAutoMalloc.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTemplates.h"
+#include "include/core/SkYUVASizeInfo.h"
 #include "Test.h"
 
 static void codec_yuv(skiatest::Reporter* reporter,

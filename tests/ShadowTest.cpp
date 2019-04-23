@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkDrawShadowInfo.h"
-#include "SkPath.h"
-#include "SkShadowTessellator.h"
-#include "SkShadowUtils.h"
-#include "SkVertices.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "include/core/SkPath.h"
+#include "src/utils/SkShadowTessellator.h"
+#include "include/utils/SkShadowUtils.h"
+#include "include/core/SkVertices.h"
 #include "Test.h"
 
 enum ExpectVerts {

@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
+#include "include/private/SkArenaAlloc.h"
 #include "SkBlendModePriv.h"
 #include "SkBlitRow.h"
-#include "SkColorFilter.h"
-#include "SkColorData.h"
+#include "include/core/SkColorFilter.h"
+#include "include/private/SkColorData.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkModeColorFilter.h"
-#include "SkRandom.h"
+#include "include/utils/SkRandom.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
-#include "SkString.h"
-#include "SkUTF.h"
+#include "include/core/SkString.h"
+#include "src/utils/SkUTF.h"
 #include "SkValidationUtils.h"
 #include "SkWriteBuffer.h"
 
@@ -73,10 +73,10 @@ bool SkModeColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaqu
 
 ///////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
-#include "GrBlend.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
-#include "effects/generated/GrConstColorProcessor.h"
-#include "SkGr.h"
+#include "include/gpu/GrBlend.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/effects/generated/GrConstColorProcessor.h"
+#include "src/gpu/SkGr.h"
 
 std::unique_ptr<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
         GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const {

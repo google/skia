@@ -6,10 +6,10 @@
  */
 
 #include "SkBitmapRegionCodec.h"
-#include "SkBitmapRegionDecoder.h"
-#include "SkAndroidCodec.h"
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
+#include "include/android/SkBitmapRegionDecoder.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/codec/SkCodec.h"
+#include "src/codec/SkCodecPriv.h"
 
 SkBitmapRegionDecoder* SkBitmapRegionDecoder::Create(
         sk_sp<SkData> data, Strategy strategy) {

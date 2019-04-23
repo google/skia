@@ -6,24 +6,24 @@
  */
 
 #include "SkSpecialImage.h"
-#include "SkBitmap.h"
-#include "SkImage.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImage.h"
 #include "SkBitmapCache.h"
-#include "SkCanvas.h"
-#include "SkImage_Base.h"
+#include "include/core/SkCanvas.h"
+#include "src/image/SkImage_Base.h"
 #include "SkSpecialSurface.h"
 #include "SkSurfacePriv.h"
 #include <atomic>
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrSurfaceContext.h"
-#include "GrTextureProxy.h"
-#include "SkImage_Gpu.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/image/SkImage_Gpu.h"
 #endif
 
 // Currently the raster imagefilters can only handle certain imageinfos. Call this to know if

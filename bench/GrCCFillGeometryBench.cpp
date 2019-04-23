@@ -7,8 +7,8 @@
 
 #include "Benchmark.h"
 
-#include "ccpr/GrCCFillGeometry.h"
-#include "SkGeometry.h"
+#include "src/gpu/ccpr/GrCCFillGeometry.h"
+#include "src/core/SkGeometry.h"
 
 static int kNumBaseLoops = 50000;
 

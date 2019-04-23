@@ -17,8 +17,8 @@
 #ifndef C_ARCORE_HELLO_AR_PENDING_ANCHOR_H_
 #define C_ARCORE_HELLO_AR_PENDING_ANCHOR_H_
 
-#include "GrBackendSurface.h"
-#include "gl/GrGLTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/gl/GrGLTypes.h"
 
 #include "arcore_c_api.h"
 #include "glm.h"

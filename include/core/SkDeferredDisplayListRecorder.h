@@ -8,7 +8,7 @@
 #ifndef SkDeferredDisplayListRecorder_DEFINED
 #define SkDeferredDisplayListRecorder_DEFINED
 
-#include "../private/SkDeferredDisplayList.h"
+#include "include/private/SkDeferredDisplayList.h"
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceCharacterization.h"

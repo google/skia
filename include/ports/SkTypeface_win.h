@@ -8,8 +8,8 @@
 #ifndef SkTypeface_win_DEFINED
 #define SkTypeface_win_DEFINED
 
-#include "../private/SkLeanWindows.h"
-#include "SkTypeface.h"
+#include "include/private/SkLeanWindows.h"
+#include "include/core/SkTypeface.h"
 
 #ifdef SK_BUILD_FOR_WIN
 

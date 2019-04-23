@@ -7,12 +7,12 @@
 
 #include "GrMtlUtil.h"
 
-#include "GrTypesPriv.h"
-#include "GrSurface.h"
-#include "mtl/GrMtlGpu.h"
-#include "mtl/GrMtlTexture.h"
-#include "mtl/GrMtlRenderTarget.h"
-#include "SkSLCompiler.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/gpu/GrSurface.h"
+#include "GrMtlGpu.h"
+#include "GrMtlTexture.h"
+#include "GrMtlRenderTarget.h"
+#include "src/sksl/SkSLCompiler.h"
 
 #import <Metal/Metal.h>
 

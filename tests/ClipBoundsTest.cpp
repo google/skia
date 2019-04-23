@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrClipStackClip.h"
-#include "SkClipOpPriv.h"
-#include "SkClipStack.h"
-#include "SkMatrix.h"
-#include "SkRect.h"
+#include "src/gpu/GrClipStackClip.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkClipStack.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
 #include "Test.h"
 
 // Ensure that the 'getConservativeBounds' calls are returning bounds clamped

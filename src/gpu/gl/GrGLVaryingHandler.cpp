@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GrGLVaryingHandler.h"
+#include "GrGLVaryingHandler.h"
 
-#include "gl/GrGLGpu.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "GrGLGpu.h"
+#include "builders/GrGLProgramBuilder.h"
 
 
 GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying(

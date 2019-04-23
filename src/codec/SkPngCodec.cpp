@@ -5,28 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
+#include "include/core/SkBitmap.h"
 #include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkColorSpace.h"
+#include "include/private/SkColorData.h"
+#include "include/core/SkColorSpace.h"
 #include "SkColorTable.h"
-#include "SkMacros.h"
-#include "SkMath.h"
-#include "SkOpts.h"
+#include "include/private/SkMacros.h"
+#include "include/core/SkMath.h"
+#include "src/core/SkOpts.h"
 #include "SkPngCodec.h"
 #include "SkPngPriv.h"
-#include "SkPoint3.h"
-#include "SkSize.h"
-#include "SkStream.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
 #include "SkSwizzler.h"
-#include "SkTemplates.h"
-#include "SkUtils.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkUtils.h"
 
 #include "png.h"
 #include <algorithm>
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    #include "SkAndroidFrameworkUtils.h"
+    #include "include/android/SkAndroidFrameworkUtils.h"
 #endif
 
 // This warning triggers false postives way too often in here.

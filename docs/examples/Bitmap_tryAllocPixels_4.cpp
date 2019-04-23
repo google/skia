@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=eb6f861ca1839146d26e40d56c2a001c
 REG_FIDDLE(Bitmap_tryAllocPixels_4, 256, 100, false, 0) {
 class LargePixelRef : public SkPixelRef {

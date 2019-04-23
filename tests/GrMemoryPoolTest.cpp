@@ -6,11 +6,11 @@
  */
 
 #include "Test.h"
-#include "GrMemoryPool.h"
-#include "SkRandom.h"
-#include "SkTArray.h"
-#include "SkTDArray.h"
-#include "SkTemplates.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "include/utils/SkRandom.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkTemplates.h"
 
 // A is the top of an inheritance tree of classes that overload op new and
 // and delete to use a GrMemoryPool. The objects have values of different types

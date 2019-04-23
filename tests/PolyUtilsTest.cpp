@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
-#include "SkPolyUtils.h"
+#include "src/utils/SkPolyUtils.h"
 
 DEF_TEST(PolyUtils, reporter) {
 

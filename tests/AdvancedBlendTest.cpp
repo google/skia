@@ -7,10 +7,10 @@
 
 #include "Test.h"
 
-#include "GrContextPriv.h"
-#include "GrPaint.h"
-#include "GrProcessorSet.h"
-#include "effects/GrCustomXfermode.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrPaint.h"
+#include "src/gpu/GrProcessorSet.h"
+#include "src/gpu/effects/GrCustomXfermode.h"
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest, reporter, ctxInfo) {
     static constexpr auto opaque = GrProcessorAnalysisColor::Opaque::kYes;

@@ -10,7 +10,7 @@
 
 #include "SkSGGeometryNode.h"
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 
 class SkCanvas;
 class SkPaint;

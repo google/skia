@@ -8,11 +8,11 @@
 #ifndef GrAuditTrail_DEFINED
 #define GrAuditTrail_DEFINED
 
-#include "GrConfig.h"
-#include "GrGpuResource.h"
+#include "include/gpu/GrConfig.h"
+#include "include/gpu/GrGpuResource.h"
 #include "GrRenderTargetProxy.h"
-#include "SkRect.h"
-#include "SkString.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkString.h"
 #include "SkTArray.h"
 #include "SkTHash.h"
 

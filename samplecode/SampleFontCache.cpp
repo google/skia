@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 #include "Sample.h"
-#include "SkCanvas.h"
-#include "SkGraphics.h"
-#include "SkRandom.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkGraphics.h"
+#include "include/utils/SkRandom.h"
 
 #include <pthread.h>
 

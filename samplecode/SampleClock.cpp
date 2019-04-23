@@ -6,11 +6,11 @@
  */
 #include "Sample.h"
 
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkRRect.h"
-#include "SkTime.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkTime.h"
 
 // Implementation in C++ of Mozilla Canvas2D benchmark Canvas Clock Test
 // See https://code.google.com/p/skia/issues/detail?id=1626

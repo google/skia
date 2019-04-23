@@ -6,9 +6,9 @@
  */
 
 #include "Benchmark.h"
-#include "SkData.h"
-#include "SkJSON.h"
-#include "SkStream.h"
+#include "include/core/SkData.h"
+#include "src/utils/SkJSON.h"
+#include "include/core/SkStream.h"
 
 #if defined(SK_BUILD_FOR_ANDROID)
 static constexpr const char* kBenchFile = "/data/local/tmp/bench.json";

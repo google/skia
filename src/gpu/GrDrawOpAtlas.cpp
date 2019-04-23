@@ -7,7 +7,7 @@
 
 #include "GrDrawOpAtlas.h"
 
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 #include "GrContextPriv.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrOpFlushState.h"
@@ -15,7 +15,7 @@
 #include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceProxyPriv.h"
-#include "GrTexture.h"
+#include "include/gpu/GrTexture.h"
 #include "GrTracing.h"
 
 // When proxy allocation is deferred until flush time the proxies acting as atlases require

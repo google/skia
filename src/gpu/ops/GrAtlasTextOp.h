@@ -8,9 +8,9 @@
 #ifndef GrAtlasTextOp_DEFINED
 #define GrAtlasTextOp_DEFINED
 
-#include "ops/GrMeshDrawOp.h"
-#include "text/GrTextBlob.h"
-#include "text/GrDistanceFieldAdjustTable.h"
+#include "GrMeshDrawOp.h"
+#include "src/gpu/text/GrTextBlob.h"
+#include "src/gpu/text/GrDistanceFieldAdjustTable.h"
 
 class GrRecordingContext;
 class SkAtlasTextTarget;

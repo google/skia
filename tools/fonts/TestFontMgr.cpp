@@ -6,9 +6,9 @@
  */
 
 #include "TestFontMgr.h"
-#include "SkFontDescriptor.h"
+#include "src/core/SkFontDescriptor.h"
 #include "TestTypeface.h"
-#include "ToolUtils.h"
+#include "tools/ToolUtils.h"
 
 #ifdef SK_XML
 #include "TestSVGTypeface.h"

@@ -6,14 +6,14 @@
  */
 
 #include "gm.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkClipStack.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkRect.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkClipStack.h"
+#include "include/core/SkPath.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRect.h"
 
 namespace skiagm {
 

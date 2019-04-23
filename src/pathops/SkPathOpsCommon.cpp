@@ -8,10 +8,10 @@
 #include "SkAddIntersections.h"
 #include "SkOpCoincidence.h"
 #include "SkOpEdgeBuilder.h"
-#include "SkMacros.h"
+#include "include/private/SkMacros.h"
 #include "SkPathOpsCommon.h"
 #include "SkPathWriter.h"
-#include "SkTSort.h"
+#include "src/core/SkTSort.h"
 
 const SkOpAngle* AngleWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* windingPtr,
         bool* sortablePtr) {

@@ -6,18 +6,18 @@
  */
 
 #include "GrGLCaps.h"
-#include "GrContextOptions.h"
+#include "include/gpu/GrContextOptions.h"
 #include "GrGLContext.h"
 #include "GrGLRenderTarget.h"
 #include "GrGLTexture.h"
-#include "GrRenderTargetProxyPriv.h"
-#include "GrShaderCaps.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTextureProxyPriv.h"
-#include "SkJSONWriter.h"
-#include "SkGr.h"
-#include "SkTSearch.h"
-#include "SkTSort.h"
+#include "src/gpu/GrRenderTargetProxyPriv.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTextureProxyPriv.h"
+#include "src/utils/SkJSONWriter.h"
+#include "src/gpu/SkGr.h"
+#include "include/private/SkTSearch.h"
+#include "src/core/SkTSort.h"
 
 GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
                    const GrGLContextInfo& ctxInfo,

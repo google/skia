@@ -7,8 +7,8 @@
 
 #include "Test.h"
 
-#include "SkBitmap.h"
-#include "SkImage.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImage.h"
 
 // https://bug.skia.org/5096
 // Test that when we make an image from a subset of a bitmap, that it

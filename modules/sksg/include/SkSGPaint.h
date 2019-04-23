@@ -10,8 +10,8 @@
 
 #include "SkSGNode.h"
 
-#include "SkColor.h"
-#include "SkPaint.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
 
 namespace sksg {
 

@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkFontPriv.h"
-#include "SkGradientShader.h"
-#include "SkImageGenerator.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkTextUtils.h"
-#include "ToolUtils.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkFontPriv.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/utils/SkTextUtils.h"
+#include "tools/ToolUtils.h"
 #include "gm.h"
 
 static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
