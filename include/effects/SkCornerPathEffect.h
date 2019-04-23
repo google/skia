@@ -8,8 +8,8 @@
 #ifndef SkCornerPathEffect_DEFINED
 #define SkCornerPathEffect_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkPathEffect.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkPathEffect.h"
 
 /** \class SkCornerPathEffect
 

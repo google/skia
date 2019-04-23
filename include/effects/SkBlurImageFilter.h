@@ -8,7 +8,7 @@
 #ifndef SkBlurImageFilter_DEFINED
 #define SkBlurImageFilter_DEFINED
 
-#include "SkImageFilter.h"
+#include "include/core/SkImageFilter.h"
 
 class SK_API SkBlurImageFilter {
 public:

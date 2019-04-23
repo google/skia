@@ -8,10 +8,10 @@
 #ifndef GrPathUtils_DEFINED
 #define GrPathUtils_DEFINED
 
-#include "SkGeometry.h"
-#include "SkRect.h"
-#include "SkPathPriv.h"
-#include "SkTArray.h"
+#include "src/core/SkGeometry.h"
+#include "include/core/SkRect.h"
+#include "src/core/SkPathPriv.h"
+#include "include/private/SkTArray.h"
 
 class SkMatrix;
 

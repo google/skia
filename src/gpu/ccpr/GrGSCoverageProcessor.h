@@ -8,7 +8,7 @@
 #ifndef GrGSCoverageProcessor_DEFINED
 #define GrGSCoverageProcessor_DEFINED
 
-#include "ccpr/GrCCCoverageProcessor.h"
+#include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 
 /**
  * This class implements GrCCCoverageProcessor with analytic coverage using geometry shaders.

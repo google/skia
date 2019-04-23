@@ -6,7 +6,7 @@
  */
 
 
-#include "SkParse.h"
+#include "include/utils/SkParse.h"
 
 #include <stdlib.h>
 

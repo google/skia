@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkXMLWriter.h"
+#include "src/xml/SkXMLWriter.h"
 
-#include "SkStream.h"
-#include "SkTo.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTo.h"
 
 SkXMLWriter::SkXMLWriter(bool doEscapeMarkup) : fDoEscapeMarkup(doEscapeMarkup)
 {}
@@ -260,7 +260,7 @@ void SkXMLStreamWriter::writeHeader() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkXMLParser.h"
+#include "src/xml/SkXMLParser.h"
 
 SkXMLParserWriter::SkXMLParserWriter(SkXMLParser* parser)
     : SkXMLWriter(false), fParser(*parser)

@@ -8,8 +8,8 @@
 #ifndef SkHighContrastFilter_DEFINED
 #define SkHighContrastFilter_DEFINED
 
-#include "SkColorFilter.h"
-#include "SkPaint.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkPaint.h"
 
 /**
  *  Configuration struct for SkHighContrastFilter.

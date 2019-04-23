@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkString.h"
-#include "SkStringUtils.h"
-#include "SkUTF.h"
+#include "include/core/SkString.h"
+#include "src/core/SkStringUtils.h"
+#include "src/utils/SkUTF.h"
 
 void SkAppendScalar(SkString* str, SkScalar value, SkScalarAsStringType asType) {
     switch (asType) {

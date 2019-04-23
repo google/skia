@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkBuffer.h"
-#include "GrVkGpu.h"
-#include "GrVkMemory.h"
-#include "GrVkTransferBuffer.h"
-#include "GrVkUtil.h"
+#include "src/gpu/vk/GrVkBuffer.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkMemory.h"
+#include "src/gpu/vk/GrVkTransferBuffer.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 

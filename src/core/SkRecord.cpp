@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkRecord.h"
-#include "SkImage.h"
+#include "src/core/SkRecord.h"
+#include "include/core/SkImage.h"
 #include <algorithm>
 
 SkRecord::~SkRecord() {

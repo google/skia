@@ -7,7 +7,7 @@
 
 // Need to include SkTypes before checking SK_BUILD_FOR_ANDROID, so it will be
 // set in the Android framework build.
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #ifdef SK_BUILD_FOR_ANDROID
 extern bool gSkDebugToStdOut;
 

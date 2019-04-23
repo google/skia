@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkRandom.h"
-#include "SkRRect.h"
+#include "gm/gm.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkRRect.h"
 
 namespace skiagm {
 

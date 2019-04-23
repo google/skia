@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLCompiler.h"
+#include "src/sksl/SkSLCompiler.h"
 
-#include "Test.h"
+#include "tests/Test.h"
 
 static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps,
                  std::vector<const char*> expectedH, std::vector<const char*> expectedCPP) {

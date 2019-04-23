@@ -5,23 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkMaskFilter.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPictureRecorder.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSurface.h"
 
-#include "sk_canvas.h"
-#include "sk_data.h"
-#include "sk_image.h"
-#include "sk_paint.h"
-#include "sk_path.h"
-#include "sk_surface.h"
-#include "sk_types_priv.h"
+#include "include/c/sk_canvas.h"
+#include "include/c/sk_data.h"
+#include "include/c/sk_image.h"
+#include "include/c/sk_paint.h"
+#include "include/c/sk_path.h"
+#include "include/c/sk_surface.h"
+#include "src/c/sk_types_priv.h"
 
 const struct {
     sk_pixelgeometry_t fC;

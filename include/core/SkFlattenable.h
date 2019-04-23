@@ -8,7 +8,7 @@
 #ifndef SkFlattenable_DEFINED
 #define SkFlattenable_DEFINED
 
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 
 class SkData;
 class SkReadBuffer;

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "PathOpsExtendedTest.h"
-#include "PathOpsThreadedCommon.h"
-#include "Test.h"
+#include "tests/PathOpsExtendedTest.h"
+#include "tests/PathOpsThreadedCommon.h"
+#include "tests/Test.h"
 
 static SkPath build_squircle(SkPath::Verb verb, const SkRect& rect, SkPath::Direction dir) {
     SkPath path;

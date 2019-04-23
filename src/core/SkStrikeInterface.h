@@ -10,9 +10,9 @@
 
 #include <memory>
 
-#include "SkPoint.h"
-#include "SkSpan.h"
-#include "SkTypes.h"
+#include "include/core/SkPoint.h"
+#include "src/core/SkSpan.h"
+#include "include/core/SkTypes.h"
 
 class SkDescriptor;
 class SkGlyph;

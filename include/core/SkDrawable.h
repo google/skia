@@ -8,9 +8,9 @@
 #ifndef SkDrawable_DEFINED
 #define SkDrawable_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkImageInfo.h"
-#include "SkScalar.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkScalar.h"
 
 class GrBackendDrawableInfo;
 class SkCanvas;

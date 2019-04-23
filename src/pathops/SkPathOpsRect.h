@@ -7,7 +7,7 @@
 #ifndef SkPathOpsRect_DEFINED
 #define SkPathOpsRect_DEFINED
 
-#include "SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsPoint.h"
 
 class SkTCurve;
 

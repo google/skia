@@ -8,13 +8,13 @@
 #ifndef SkImageInfo_DEFINED
 #define SkImageInfo_DEFINED
 
-#include "SkColorSpace.h"
-#include "SkMath.h"
-#include "SkRect.h"
-#include "SkSize.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
 
-#include "../private/SkTFitsIn.h"
-#include "../private/SkTo.h"
+#include "include/private/SkTFitsIn.h"
+#include "include/private/SkTo.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;

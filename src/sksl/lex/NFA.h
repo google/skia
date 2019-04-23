@@ -8,8 +8,8 @@
 #ifndef SKSL_NFA
 #define SKSL_NFA
 
-#include "NFAState.h"
-#include "RegexNode.h"
+#include "src/sksl/lex/NFAState.h"
+#include "src/sksl/lex/RegexNode.h"
 
 /**
  * A nondeterministic finite automaton for matching regular expressions. The NFA is initialized with

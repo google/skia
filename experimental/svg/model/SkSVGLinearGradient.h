@@ -8,8 +8,8 @@
 #ifndef SkSVGLinearGradient_DEFINED
 #define SkSVGLinearGradient_DEFINED
 
-#include "SkSVGGradient.h"
-#include "SkSVGTypes.h"
+#include "experimental/svg/model/SkSVGGradient.h"
+#include "experimental/svg/model/SkSVGTypes.h"
 
 class SkSVGLinearGradient final : public SkSVGGradient {
 public:

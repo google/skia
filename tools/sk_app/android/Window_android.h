@@ -8,8 +8,8 @@
 #ifndef Window_android_DEFINED
 #define Window_android_DEFINED
 
-#include "../Window.h"
-#include "surface_glue_android.h"
+#include "tools/sk_app/Window.h"
+#include "tools/sk_app/android/surface_glue_android.h"
 
 namespace sk_app {
 

@@ -8,13 +8,13 @@
 #ifndef SkBlitter_DEFINED
 #define SkBlitter_DEFINED
 
-#include "SkAutoMalloc.h"
-#include "SkColor.h"
-#include "SkImagePriv.h"
-#include "SkRect.h"
-#include "SkRegion.h"
-#include "SkShaderBase.h"
-#include "SkTo.h"
+#include "src/core/SkAutoMalloc.h"
+#include "include/core/SkColor.h"
+#include "src/core/SkImagePriv.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRegion.h"
+#include "src/shaders/SkShaderBase.h"
+#include "include/private/SkTo.h"
 
 class SkArenaAlloc;
 class SkMatrix;

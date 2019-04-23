@@ -19,7 +19,7 @@
 
 #include <type_traits>
 
-#include "background_renderer.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/background_renderer.h"
 
 namespace hello_ar {
     namespace {
