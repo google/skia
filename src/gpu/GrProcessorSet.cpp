@@ -190,6 +190,7 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
         hasCoverageFP = hasCoverageFP || clip->numClipCoverageFragmentProcessors();
         for (int i = 0; i < clip->numClipCoverageFragmentProcessors(); ++i) {
             const GrFragmentProcessor* clipFP = clip->clipCoverageFragmentProcessor(i);
+            clipFP->markPendingExecution();
             analysis.fCompatibleWithCoverageAsAlpha &= clipFP->compatibleWithCoverageAsAlpha();
             coverageUsesLocalCoords |= clipFP->usesLocalCoords();
         }
