@@ -573,7 +573,7 @@ bool GrCCStroker::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     fBaseInstances[1].fStrokes[0] = fInstanceCounts[0]->fStrokes[0];
     int endLinearStrokesIdx = fBaseInstances[1].fStrokes[0] + fInstanceCounts[1]->fStrokes[0];
 
-    int cubicStrokesIdx = GR_CT_DIV_ROUND_UP(endLinearStrokesIdx * sizeof(LinearStrokeInstance),
+    int cubicStrokesIdx = GrSizeDivRoundUp(endLinearStrokesIdx * sizeof(LinearStrokeInstance),
                                              sizeof(CubicStrokeInstance));
     for (int i = 1; i <= kMaxNumLinearSegmentsLog2; ++i) {
         for (int j = 0; j < kNumScissorModes; ++j) {
@@ -582,7 +582,7 @@ bool GrCCStroker::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
         }
     }
 
-    int trianglesIdx = GR_CT_DIV_ROUND_UP(cubicStrokesIdx * sizeof(CubicStrokeInstance),
+    int trianglesIdx = GrSizeDivRoundUp(cubicStrokesIdx * sizeof(CubicStrokeInstance),
                                           sizeof(TriangleInstance));
     fBaseInstances[0].fTriangles = trianglesIdx;
     fBaseInstances[1].fTriangles =
@@ -590,7 +590,7 @@ bool GrCCStroker::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     int endTrianglesIdx =
             fBaseInstances[1].fTriangles + fInstanceCounts[1]->fTriangles;
 
-    int conicsIdx = GR_CT_DIV_ROUND_UP(endTrianglesIdx * sizeof(TriangleInstance),
+    int conicsIdx = GrSizeDivRoundUp(endTrianglesIdx * sizeof(TriangleInstance),
                                        sizeof(ConicInstance));
     fBaseInstances[0].fConics = conicsIdx;
     fBaseInstances[1].fConics = fBaseInstances[0].fConics + fInstanceCounts[0]->fConics;
