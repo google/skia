@@ -93,13 +93,6 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
             *geometryColor = overrideColor;
         }
     } else {
-        if (clip) {
-            for (int i = 0; i < clip->numClipCoverageFragmentProcessors(); ++i) {
-                const GrFragmentProcessor* clipFP = clip->clipCoverageFragmentProcessor(i);
-                clipFP->markPendingExecution();
-            }
-        }
-
         analysis = GrProcessorSet::EmptySetAnalysis();
     }
     fUsesLocalCoords = analysis.usesLocalCoords();
