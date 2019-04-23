@@ -690,8 +690,9 @@ void ByteCodeGenerator::writeIfStatement(const IfStatement& i) {
 }
 
 void ByteCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
-    // not yet implemented
-    abort();
+    this->writeExpression(*r.fExpression);
+    this->write(ByteCodeInstruction::kReturn);
+    this->write8(r.fExpression->fType.columns() * r.fExpression->fType.rows());
 }
 
 void ByteCodeGenerator::writeSwitchStatement(const SwitchStatement& r) {
