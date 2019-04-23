@@ -318,6 +318,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxy,
             }
             alloc.markEndOfOpList(i);
         }
+        alloc.determineRecyclability();
 
         GrResourceAllocator::AssignError error = GrResourceAllocator::AssignError::kNoError;
         int numOpListsExecuted = 0;
