@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include <SkFont.h>
 #include "Sample.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkPaint.h"
 #include "SkShader.h"
 

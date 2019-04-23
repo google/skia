@@ -15,11 +15,11 @@
  */
 #include "util.h"
 
-#include <unistd.h>
+#include "SkMatrix44.h"
+#include <gtx/string_cast.inl>
 #include <sstream>
 #include <string>
-#include <SkMatrix44.h>
-#include <gtx/string_cast.inl>
+#include <unistd.h>
 
 #include "jni_interface.h"
 

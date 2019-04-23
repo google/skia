@@ -4,13 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include <SkFont.h>
-#include "gm.h"
 #include "Resources.h"
 #include "SkFixed.h"
+#include "SkFont.h"
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
 #include "SkTypeface.h"
+#include "gm.h"
 
 namespace skiagm {
 
