@@ -193,22 +193,6 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilter_Matrix::asFragmentProcessor(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkColorFilter>
-SkColorFilter_Matrix::MakeSingleChannelOutput(const SkScalar row[5]) {
-    if (!SkScalarsAreFinite(row, 5)) {
-        return nullptr;
-    }
-
-    SkScalar matrix[20];
-    for (int i = 0; i < 4; ++i) {
-        memcpy(matrix + 5 * i, row, sizeof(SkScalar) * 5);
-    }
-    scale_last_column(matrix, 1.0f/255);   // todo: change semantics for MakeSingle to avoid this
-    return SkColorFilters::Matrix(matrix);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 sk_sp<SkColorFilter> SkColorFilters::Matrix(const float array[20]) {
     if (!SkScalarsAreFinite(array, 20)) {
         return nullptr;
