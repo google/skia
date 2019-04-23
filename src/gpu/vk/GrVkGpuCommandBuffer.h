@@ -12,6 +12,7 @@
 
 #include "GrColor.h"
 #include "GrMesh.h"
+#include "GrTRecorder.h"
 #include "GrTypes.h"
 #include "GrVkPipelineState.h"
 #include "vk/GrVkTypes.h"
@@ -148,28 +149,16 @@ private:
     void addAdditionalCommandBuffer();
     void addAdditionalRenderPass();
 
-    struct InlineUploadInfo {
-        InlineUploadInfo(GrOpFlushState* state, const GrDeferredTextureUploadFn& upload)
-                : fFlushState(state), fUpload(upload) {}
+    class PreCommandBufferTask {
+    public:
+        virtual ~PreCommandBufferTask() = default;
 
-        GrOpFlushState* fFlushState;
-        GrDeferredTextureUploadFn fUpload;
-    };
+        virtual void execute(GrVkGpuRTCommandBuffer*) = 0;
 
-    struct CopyInfo {
-        CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-                 const SkIPoint& dstPoint, bool shouldDiscardDst)
-                : fSrc(src)
-                , fSrcOrigin(srcOrigin)
-                , fSrcRect(srcRect)
-                , fDstPoint(dstPoint)
-                , fShouldDiscardDst(shouldDiscardDst) {}
-        using Src = GrPendingIOResource<GrSurface, kRead_GrIOType>;
-        Src              fSrc;
-        GrSurfaceOrigin  fSrcOrigin;
-        SkIRect          fSrcRect;
-        SkIPoint         fDstPoint;
-        bool             fShouldDiscardDst;
+    protected:
+        PreCommandBufferTask() = default;
+        PreCommandBufferTask(const PreCommandBufferTask&) = delete;
+        PreCommandBufferTask& operator=(const PreCommandBufferTask&) = delete;
     };
 
     enum class LoadStoreState {
@@ -183,14 +172,11 @@ private:
         using SampledTexture = GrPendingIOResource<GrVkTexture, kRead_GrIOType>;
         const GrVkRenderPass*                  fRenderPass;
         SkTArray<GrVkSecondaryCommandBuffer*>  fCommandBuffers;
+        int                                    fNumPreCmds = 0;
         VkClearValue                           fColorClearValue;
         SkRect                                 fBounds;
         bool                                   fIsEmpty = true;
         LoadStoreState                         fLoadStoreState = LoadStoreState::kUnknown;
-        // The PreDrawUploads and PreCopies are sent to the GPU before submitting the secondary
-        // command buffer.
-        SkTArray<InlineUploadInfo>             fPreDrawUploads;
-        SkTArray<CopyInfo>                     fPreCopies;
         // Array of images that will be sampled and thus need to be transferred to sampled layout
         // before submitting the secondary command buffers. This must happen after we do any predraw
         // uploads or copies.
@@ -201,16 +187,16 @@ private:
         }
     };
 
-    SkTArray<CommandBufferInfo> fCommandBufferInfos;
-    int                         fCurrentCmdInfo;
-
-    GrVkGpu*                    fGpu;
-    VkAttachmentLoadOp          fVkColorLoadOp;
-    VkAttachmentStoreOp         fVkColorStoreOp;
-    VkAttachmentLoadOp          fVkStencilLoadOp;
-    VkAttachmentStoreOp         fVkStencilStoreOp;
-    SkPMColor4f                 fClearColor;
-    GrVkPipelineState*          fLastPipelineState;
+    SkTArray<CommandBufferInfo>         fCommandBufferInfos;
+    GrTRecorder<PreCommandBufferTask>   fPreCommandBufferTasks{1024};
+    GrVkGpu*                            fGpu;
+    GrVkPipelineState*                  fLastPipelineState = nullptr;
+    SkPMColor4f                         fClearColor;
+    VkAttachmentLoadOp                  fVkColorLoadOp;
+    VkAttachmentStoreOp                 fVkColorStoreOp;
+    VkAttachmentLoadOp                  fVkStencilLoadOp;
+    VkAttachmentStoreOp                 fVkStencilStoreOp;
+    int                                 fCurrentCmdInfo = -1;
 
     typedef GrGpuRTCommandBuffer INHERITED;
 };

@@ -315,7 +315,7 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     // QuadPointInstance[]. So, reinterpreting the instance data as QuadPointInstance[], we start
     // them on the first index that will not overwrite previous TriPointInstance data.
     int quadBaseIdx =
-            GR_CT_DIV_ROUND_UP(triEndIdx * sizeof(TriPointInstance), sizeof(QuadPointInstance));
+            GrSizeDivRoundUp(triEndIdx * sizeof(TriPointInstance), sizeof(QuadPointInstance));
     fBaseInstances[0].fWeightedTriangles = quadBaseIdx;
     fBaseInstances[1].fWeightedTriangles = fBaseInstances[0].fWeightedTriangles +
                                         fTotalPrimitiveCounts[0].fWeightedTriangles;
