@@ -22,6 +22,30 @@
       "revId": "2ac7e748dc1dbaa9a5dd091b588f0e5d96d191ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55ea2d53_80224ec1",
+        "filename": "src/core/SkStrikeInterface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-04-23T17:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b02fa36_f4e71cec",
+      "range": {
+        "startLine": 73,
+        "startChar": 3,
+        "endLine": 76,
+        "endChar": 6
+      },
+      "revId": "2ac7e748dc1dbaa9a5dd091b588f0e5d96d191ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
