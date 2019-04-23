@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "745d0f7b_c6b40a94",
+        "filename": "BUILD.gn",
+        "patchSetId": 26
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-23T20:29:39Z",
+      "side": 1,
+      "message": "What about these?  These can be deleted.",
+      "revId": "493e8eba71dc58787ad5c589c026a13e1d8d3ca2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fecc00d0_1d02a313",
+        "filename": "BUILD.gn",
+        "patchSetId": 26
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-23T20:29:39Z",
+      "side": 1,
+      "message": "and these?",
+      "revId": "493e8eba71dc58787ad5c589c026a13e1d8d3ca2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62b3b083_ec328560",
+        "filename": "BUILD.gn",
+        "patchSetId": 26
+      },
+      "lineNbr": 1824,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-23T20:29:39Z",
+      "side": 1,
+      "message": "this.",
+      "revId": "493e8eba71dc58787ad5c589c026a13e1d8d3ca2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cf3c561_185d9680",
+        "filename": "BUILD.gn",
+        "patchSetId": 26
+      },
+      "lineNbr": 1862,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-23T20:29:39Z",
+      "side": 1,
+      "message": "this.",
+      "revId": "493e8eba71dc58787ad5c589c026a13e1d8d3ca2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
