@@ -181,7 +181,12 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                             *ad.getDesc(), effects,*pathFont.getTypefaceOrDefault());
 
             auto glyphPosSpan = strike->prepareForDrawing(
-                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(), 0, fGlyphPos);
+                    glyphRun.glyphsIDs().data(),
+                    fPositions,
+                    glyphRun.runSize(),
+                    0,
+                    SkStrikeInterface::kBoundsOnly,
+                    fGlyphPos);
 
             SkTDArray<SkPathPos> pathsAndPositions;
             pathsAndPositions.setReserve(glyphPosSpan.size());
@@ -233,8 +238,12 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             matrix.mapPoints(fPositions, glyphRun.positions().data(), runSize);
 
             SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
-                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(),
-                    std::numeric_limits<int>::max(), fGlyphPos);
+                    glyphRun.glyphsIDs().data(),
+                    fPositions,
+                    glyphRun.runSize(),
+                    std::numeric_limits<int>::max(),
+                    SkStrikeInterface::kImageIfNeeded,
+                    fGlyphPos);
 
             SkTDArray<SkMask> masks;
             masks.setReserve(glyphPosSpan.size());
@@ -320,6 +329,7 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
                 fARGBPositions.data(),
                 fARGBGlyphsIDs.size(),
                 SkStrikeCommon::kSkSideTooBigForAtlas,
+                SkStrikeInterface::kBoundsOnly,
                 fGlyphPos);
 
         if (process) {
@@ -366,6 +376,7 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
                                                       fARGBPositions.data(),
                                                       fARGBGlyphsIDs.size(),
                                                       SkStrikeCommon::kSkSideTooBigForAtlas,
+                                                      SkStrikeInterface::kBoundsOnly,
                                                       fGlyphPos);
 
         if (process) {
@@ -437,8 +448,12 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                             *ad.getDesc(), effects, *dfFont.getTypefaceOrDefault());
 
             SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
-                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(),
-                    SkStrikeCommon::kSkSideTooBigForAtlas, fGlyphPos);
+                    glyphRun.glyphsIDs().data(),
+                    fPositions,
+                    glyphRun.runSize(),
+                    SkStrikeCommon::kSkSideTooBigForAtlas,
+                    SkStrikeInterface::kBoundsOnly,
+                    fGlyphPos);
 
             size_t glyphsWithMaskCount = 0;
             for (const SkGlyphPos& glyphPos : glyphPosSpan) {
@@ -517,7 +532,12 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                             *ad.getDesc(), effects,*pathFont.getTypefaceOrDefault());
 
             SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
-                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(), 0, fGlyphPos);
+                    glyphRun.glyphsIDs().data(),
+                    fPositions,
+                    glyphRun.runSize(),
+                    0,
+                    SkStrikeInterface::kBoundsOnly,
+                    fGlyphPos);
 
             // As opposed to SDF and mask, path handling puts paths in fGlyphPos instead of fPaths.
             size_t glyphsWithPathCount = 0;
@@ -573,6 +593,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     fPositions,
                     glyphRun.runSize(),
                     SkStrikeCommon::kSkSideTooBigForAtlas,
+                    SkStrikeInterface::kBoundsOnly,
                     fGlyphPos);
 
             // Sort glyphs into the three bins: mask (fGlyphPos), path (fPaths), and fallback.

@@ -47,6 +47,7 @@ public:
                                                const SkPoint positions[],
                                                size_t n,
                                                int maxDimension,
+                                               PreparationDetail detail,
                                                SkGlyphPos results[]) override;
 
     void generatePath(const SkGlyph& glyph) override;
