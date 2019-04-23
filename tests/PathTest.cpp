@@ -5,26 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkGeometry.h"
-#include "SkNullCanvas.h"
-#include "SkPaint.h"
-#include "SkParse.h"
-#include "SkParsePath.h"
-#include "SkPathEffect.h"
-#include "SkPathPriv.h"
-#include "SkRRect.h"
-#include "SkRandom.h"
-#include "SkReader32.h"
-#include "SkSize.h"
-#include "SkStream.h"
-#include "SkStrokeRec.h"
-#include "SkSurface.h"
-#include "SkTo.h"
-#include "SkWriter32.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkNullCanvas.h"
+#include "include/utils/SkParse.h"
+#include "include/utils/SkParsePath.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkReader32.h"
+#include "src/core/SkWriter32.h"
+#include "tests/Test.h"
 
 #include <cmath>
 #include <utility>
@@ -733,7 +733,7 @@ static void test_bounds_crbug_513799(skiatest::Reporter* reporter) {
 #endif
 }
 
-#include "SkSurface.h"
+#include "include/core/SkSurface.h"
 static void test_fuzz_crbug_627414(skiatest::Reporter* reporter) {
     SkPath path;
     path.moveTo(0, 0);
@@ -4606,7 +4606,7 @@ DEF_TEST(PathInterp, reporter) {
     test_interp(reporter);
 }
 
-#include "SkSurface.h"
+#include "include/core/SkSurface.h"
 DEF_TEST(PathBigCubic, reporter) {
     SkPath path;
     path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
@@ -4837,7 +4837,7 @@ static void rand_path(SkPath* path, SkRandom& rand, SkPath::Verb verb, int n) {
     }
 }
 
-#include "SkPathOps.h"
+#include "include/pathops/SkPathOps.h"
 DEF_TEST(path_tight_bounds, reporter) {
     SkRandom rand;
 
@@ -5202,7 +5202,7 @@ DEF_TEST(Path_self_add, reporter) {
     }
 }
 
-#include "SkVertices.h"
+#include "include/core/SkVertices.h"
 static void draw_triangle(SkCanvas* canvas, const SkPoint pts[]) {
     // draw in different ways, looking for an assert
 

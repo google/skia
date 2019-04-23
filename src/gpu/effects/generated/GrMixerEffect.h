@@ -10,9 +10,10 @@
  **************************************************************************************************/
 #ifndef GrMixerEffect_DEFINED
 #define GrMixerEffect_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "include/core/SkTypes.h"
+
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
 class GrMixerEffect : public GrFragmentProcessor {
 public:
     static OptimizationFlags OptFlags(const std::unique_ptr<GrFragmentProcessor>& fp0,

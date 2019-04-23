@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkDrawable.h"
-#include "SkPath.h"
-#include "SkRSXform.h"
-#include "SkRandom.h"
-#include "SkSurface.h"
-#include "SkTextUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkSurface.h"
+#include "include/utils/SkRandom.h"
+#include "include/utils/SkTextUtils.h"
+#include "samplecode/Sample.h"
+#include "tools/timer/AnimTimer.h"
 
 typedef void (*DrawAtlasProc)(SkCanvas*, SkImage*, const SkRSXform[], const SkRect[],
                               const SkColor[], int, const SkRect*, const SkPaint*);

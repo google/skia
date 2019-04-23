@@ -9,12 +9,12 @@
 #ifndef GrVkRenderTarget_DEFINED
 #define GrVkRenderTarget_DEFINED
 
-#include "GrVkImage.h"
-#include "GrRenderTarget.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/vk/GrVkImage.h"
 
-#include "GrVkRenderPass.h"
-#include "GrVkResourceProvider.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/vk/GrVkRenderPass.h"
+#include "src/gpu/vk/GrVkResourceProvider.h"
 
 class GrVkCommandBuffer;
 class GrVkFramebuffer;

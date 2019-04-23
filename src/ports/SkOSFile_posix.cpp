@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkOSFile.h"
-#include "SkString.h"
-#include "SkTFitsIn.h"
-#include "SkTemplates.h"
-#include "SkTypes.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTFitsIn.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkOSFile.h"
 
 #include <dirent.h>
 #include <new>
@@ -21,7 +21,7 @@
 #include <unistd.h>
 
 #ifdef SK_BUILD_FOR_IOS
-#include "SkOSFile_ios.h"
+#include "src/ports/SkOSFile_ios.h"
 #endif
 
 bool sk_exists(const char *path, SkFILE_Flags flags) {

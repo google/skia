@@ -8,10 +8,10 @@
 #ifndef YUVUtils_DEFINED
 #define YUVUtils_DEFINED
 
-#include "SkAutoMalloc.h"
-#include "SkImage.h"
-#include "SkYUVAIndex.h"
-#include "SkYUVASizeInfo.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkYUVAIndex.h"
+#include "include/core/SkYUVASizeInfo.h"
+#include "src/core/SkAutoMalloc.h"
 
 class SkData;
 

@@ -4,15 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
-#include "SkBlurDrawLooper.h"
-#include "SkBlurMask.h"
-#include "SkColorFilter.h"
-#include "SkGradientShader.h"
-#include "SkMaskFilter.h"
-#include "SkMatrix.h"
-#include "SkRandom.h"
-#include "SkTArray.h"
+#include "gm/gm.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/effects/SkBlurDrawLooper.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/private/SkTArray.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkBlurMask.h"
 
 namespace skiagm {
 

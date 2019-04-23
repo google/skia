@@ -5,19 +5,19 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkResourceProvider.h"
+#include "src/gpu/vk/GrVkResourceProvider.h"
 
-#include "GrContextPriv.h"
-#include "GrSamplerState.h"
-#include "GrVkCommandBuffer.h"
-#include "GrVkCommandPool.h"
-#include "GrVkCopyPipeline.h"
-#include "GrVkGpu.h"
-#include "GrVkPipeline.h"
-#include "GrVkRenderTarget.h"
-#include "GrVkUniformBuffer.h"
-#include "GrVkUtil.h"
-#include "SkTaskGroup.h"
+#include "include/gpu/GrSamplerState.h"
+#include "src/core/SkTaskGroup.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/vk/GrVkCommandBuffer.h"
+#include "src/gpu/vk/GrVkCommandPool.h"
+#include "src/gpu/vk/GrVkCopyPipeline.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkPipeline.h"
+#include "src/gpu/vk/GrVkRenderTarget.h"
+#include "src/gpu/vk/GrVkUniformBuffer.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 #ifdef SK_TRACE_VK_RESOURCES
 std::atomic<uint32_t> GrVkResource::fKeyCounter{0};

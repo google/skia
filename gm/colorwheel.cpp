@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 static void draw_image(SkCanvas* canvas, const char* resource, int x, int y) {
     sk_sp<SkImage> image(GetResourceAsImage(resource));

@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
+#include "samplecode/Sample.h"
 
-#include "GrQuad.h"
-#include "ops/GrQuadPerEdgeAA.h"
+#include "src/gpu/GrQuad.h"
+#include "src/gpu/ops/GrQuadPerEdgeAA.h"
 
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkPaint.h"
-#include "SkPathOps.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/pathops/SkPathOps.h"
 
 // Draw a line through the two points, outset by a fixed length in screen space
 static void draw_extended_line(SkCanvas* canvas, const SkPaint paint,

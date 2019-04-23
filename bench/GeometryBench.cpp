@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkGeometry.h"
-#include "SkRandom.h"
-#include "SkRect.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkRect.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkGeometry.h"
 
 class GeometryBench : public Benchmark {
 public:
@@ -244,7 +244,7 @@ protected:
 };
 DEF_BENCH( return new ChopCubicAt; )
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 
 class ConvexityBench : public Benchmark {
     SkPath fPath;

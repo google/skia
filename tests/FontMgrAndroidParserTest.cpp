@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "CommandLineFlags.h"
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkFixed.h"
-#include "SkFont.h"
-#include "SkFontMgr_android.h"
-#include "SkFontMgr_android_parser.h"
-#include "SkOSFile.h"
-#include "SkTypeface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkTypeface.h"
+#include "include/ports/SkFontMgr_android.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkOSFile.h"
+#include "src/ports/SkFontMgr_android_parser.h"
+#include "tools/Resources.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include <cmath>
 #include <cstdio>

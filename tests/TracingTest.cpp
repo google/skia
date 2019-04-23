@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "SkImageInfo.h"
-#include "SkLeanWindows.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkTraceEvent.h"
-#include "Test.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/private/SkLeanWindows.h"
+#include "src/core/SkTraceEvent.h"
+#include "tests/Test.h"
+#include "tools/flags/CommandLineFlags.h"
 
 static DEFINE_bool(slowTracingTest, false,
                    "Artificially slow down tracing test to produce nicer JSON");

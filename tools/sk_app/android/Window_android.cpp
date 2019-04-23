@@ -5,9 +5,9 @@
 * found in the LICENSE file.
 */
 
-#include "Window_android.h"
-#include "WindowContextFactory_android.h"
-#include "../WindowContext.h"
+#include "tools/sk_app/WindowContext.h"
+#include "tools/sk_app/android/WindowContextFactory_android.h"
+#include "tools/sk_app/android/Window_android.h"
 
 namespace sk_app {
 

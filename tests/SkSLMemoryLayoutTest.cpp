@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLContext.h"
-#include "SkSLMemoryLayout.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLMemoryLayout.h"
 
-#include "Test.h"
+#include "tests/Test.h"
 
 DEF_TEST(SkSLMemoryLayout140Test, r) {
     SkSL::Context context;

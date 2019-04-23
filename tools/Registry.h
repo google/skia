@@ -8,8 +8,8 @@
 #ifndef sk_tools_Registry_DEFINED
 #define sk_tools_Registry_DEFINED
 
-#include "SkNoncopyable.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkNoncopyable.h"
 
 namespace sk_tools {
 

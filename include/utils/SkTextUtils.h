@@ -8,10 +8,10 @@
 #ifndef SkTextUtils_DEFINED
 #define SkTextUtils_DEFINED
 
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkPaint.h"
-#include "SkString.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkString.h"
 
 class SkPath;
 

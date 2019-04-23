@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GrGLUniformHandler.h"
+#include "src/gpu/gl/GrGLUniformHandler.h"
 
-#include "GrTexturePriv.h"
-#include "gl/GrGLCaps.h"
-#include "gl/GrGLGpu.h"
-#include "gl/builders/GrGLProgramBuilder.h"
-#include "SkSLCompiler.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/gl/GrGLCaps.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/builders/GrGLProgramBuilder.h"
+#include "src/sksl/SkSLCompiler.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->glGpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->glGpu()->glInterface(), R, X)

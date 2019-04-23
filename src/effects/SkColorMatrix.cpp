@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorMatrix.h"
-#include "../private/SkFloatingPoint.h"
+#include "include/effects/SkColorMatrix.h"
+#include "include/private/SkFloatingPoint.h"
 
 enum {
     kR_Scale = 0,

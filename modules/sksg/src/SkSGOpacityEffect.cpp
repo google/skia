@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGOpacityEffect.h"
+#include "modules/sksg/include/SkSGOpacityEffect.h"
 
 namespace sksg {
 

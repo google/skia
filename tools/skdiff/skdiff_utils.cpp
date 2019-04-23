@@ -4,15 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "skdiff_utils.h"
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkData.h"
-#include "SkImageEncoder.h"
-#include "SkStream.h"
-#include "SkTypes.h"
-#include "ToolUtils.h"
-#include "skdiff.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "tools/ToolUtils.h"
+#include "tools/skdiff/skdiff.h"
+#include "tools/skdiff/skdiff_utils.h"
 
 #include <memory>
 

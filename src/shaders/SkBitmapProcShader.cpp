@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapProcShader.h"
+#include "src/shaders/SkBitmapProcShader.h"
 
-#include "SkArenaAlloc.h"
-#include "SkBitmapProcState.h"
-#include "SkBitmapProvider.h"
-#include "SkXfermodePriv.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkBitmapProcState.h"
+#include "src/core/SkBitmapProvider.h"
+#include "src/core/SkXfermodePriv.h"
 
 static bool only_scale_and_translate(const SkMatrix& matrix) {
     unsigned mask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;

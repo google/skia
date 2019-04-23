@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPictureRecorder.h"
-#include "SkPictureShader.h"
-#include "SkShaderMaskFilter.h"
-#include "SkSurface.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkShaderMaskFilter.h"
+#include "src/shaders/SkPictureShader.h"
 
 static sk_sp<SkShader> make_bitmap_shader() {
     SkPaint p;

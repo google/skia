@@ -8,7 +8,7 @@
 #ifndef SKSL_ASTCONTINUESTATEMENT
 #define SKSL_ASTCONTINUESTATEMENT
 
-#include "SkSLASTStatement.h"
+#include "src/sksl/ast/SkSLASTStatement.h"
 
 namespace SkSL {
 

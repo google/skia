@@ -8,7 +8,7 @@
 #ifndef SkAnimCodecPlayer_DEFINED
 #define SkAnimCodecPlayer_DEFINED
 
-#include "SkCodec.h"
+#include "include/codec/SkCodec.h"
 
 class SkImage;
 

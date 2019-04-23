@@ -7,14 +7,14 @@
 #ifndef CodecPriv_DEFINED
 #define CodecPriv_DEFINED
 
-#include "CommandLineFlags.h"
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkData.h"
-#include "SkEncodedImageFormat.h"
-#include "SkImageEncoder.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkStream.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/flags/CommandLineFlags.h"
 
 static DEFINE_string(codecWritePath, "",
                      "Dump image decodes from codec unit tests here.");

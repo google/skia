@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrStrikeCache.h"
-#include "GrAtlasManager.h"
-#include "GrCaps.h"
-#include "GrColor.h"
-#include "GrDistanceFieldGenFromVector.h"
+#include "include/private/GrColor.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrDistanceFieldGenFromVector.h"
+#include "src/gpu/text/GrAtlasManager.h"
+#include "src/gpu/text/GrStrikeCache.h"
 
-#include "SkAutoMalloc.h"
-#include "SkDistanceFieldGen.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkDistanceFieldGen.h"
 
 GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
         : fPreserveStrike(nullptr)

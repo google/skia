@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkRSXform.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkSurface.h"
+#include "tools/ToolUtils.h"
 
 // Create a square atlas of:
 //   opaque white  |     opaque red

@@ -9,8 +9,8 @@
 #define SKSL_ASTSTATEMENT
 
 #include <vector>
-#include "SkSLASTPositionNode.h"
-#include "SkSLASTExpression.h"
+#include "src/sksl/ast/SkSLASTExpression.h"
+#include "src/sksl/ast/SkSLASTPositionNode.h"
 
 namespace SkSL {
 

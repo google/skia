@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "TestUtils.h"
+#include "tests/TestUtils.h"
 
-#include "GrContextPriv.h"
-#include "GrSurfaceContext.h"
-#include "GrSurfaceContextPriv.h"
-#include "GrSurfaceProxy.h"
-#include "GrTextureProxy.h"
-#include "ProxyUtils.h"
-#include "SkGr.h"
-#include "SkBase64.h"
-#include "SkPngEncoder.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/utils/SkBase64.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSurfaceContextPriv.h"
+#include "src/gpu/SkGr.h"
+#include "tools/gpu/ProxyUtils.h"
 
 void test_read_pixels(skiatest::Reporter* reporter,
                       GrSurfaceContext* srcContext, uint32_t expectedPixelValues[],
@@ -183,7 +183,7 @@ bool bitmap_to_base64_data_uri(const SkBitmap& bitmap, SkString* dst) {
     return true;
 }
 
-#include "SkCharToGlyphCache.h"
+#include "src/utils/SkCharToGlyphCache.h"
 
 static SkGlyphID hash_to_glyph(uint32_t value) {
     return SkToU16(((value >> 16) ^ value) & 0xFFFF);

@@ -8,7 +8,7 @@
 #ifndef GrGLSLVertexGeoBuilder_DEFINED
 #define GrGLSLVertexGeoBuilder_DEFINED
 
-#include "GrGLSLShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLShaderBuilder.h"
 
 /**
  * Base class for vertex and geometry shader builders. This is the stage that computes input

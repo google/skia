@@ -8,7 +8,7 @@
 #ifndef SkRWBuffer_DEFINED
 #define SkRWBuffer_DEFINED
 
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 
 struct SkBufferBlock;
 struct SkBufferHead;

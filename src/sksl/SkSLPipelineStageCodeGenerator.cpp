@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLPipelineStageCodeGenerator.h"
+#include "src/sksl/SkSLPipelineStageCodeGenerator.h"
 
-#include "SkSLCompiler.h"
-#include "SkSLHCodeGenerator.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLHCodeGenerator.h"
 
 namespace SkSL {
 

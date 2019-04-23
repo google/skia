@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "DecodeFile.h"
-#include "Sample.h"
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkLightingShader.h"
-#include "SkNormalSource.h"
-#include "SkPoint3.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPoint3.h"
+#include "samplecode/DecodeFile.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkNormalSource.h"
+#include "src/shaders/SkLightingShader.h"
+#include "tools/Resources.h"
 
 static sk_sp<SkLights> create_lights(SkScalar angle, SkScalar blue) {
 

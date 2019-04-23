@@ -8,12 +8,12 @@
 #ifndef GrAAConvexTessellator_DEFINED
 #define GrAAConvexTessellator_DEFINED
 
-#include "SkColor.h"
-#include "SkPaint.h"
-#include "SkPointPriv.h"
-#include "SkScalar.h"
-#include "SkStrokeRec.h"
-#include "SkTDArray.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkPointPriv.h"
 
 class SkCanvas;
 class SkMatrix;

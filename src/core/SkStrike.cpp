@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkStrike.h"
+#include "src/core/SkStrike.h"
 
-#include "SkGraphics.h"
-#include "SkMakeUnique.h"
-#include "SkMutex.h"
-#include "SkOnce.h"
-#include "SkPath.h"
-#include "SkTemplates.h"
-#include "SkTypeface.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkMakeUnique.h"
 #include <cctype>
 
 namespace {
@@ -269,8 +269,8 @@ SkSpan<const SkGlyphPos> SkStrike::prepareForDrawing(const SkGlyphID glyphIDs[],
     return SkSpan<const SkGlyphPos>{result, drawableGlyphCount};
 }
 
-#include "../pathops/SkPathOpsCubic.h"
-#include "../pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsQuad.h"
 
 static bool quad_in_bounds(const SkScalar* pts, const SkScalar bounds[2]) {
     SkScalar min = SkTMin(SkTMin(pts[0], pts[2]), pts[4]);

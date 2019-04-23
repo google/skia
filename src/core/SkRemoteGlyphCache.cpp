@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkRemoteGlyphCache.h"
+#include "src/core/SkRemoteGlyphCache.h"
 
 #include <iterator>
 #include <memory>
@@ -13,19 +13,19 @@
 #include <string>
 #include <tuple>
 
-#include "SkDevice.h"
-#include "SkDraw.h"
-#include "SkGlyphRun.h"
-#include "SkRemoteGlyphCacheImpl.h"
-#include "SkStrike.h"
-#include "SkStrikeCache.h"
-#include "SkTLazy.h"
-#include "SkTraceEvent.h"
-#include "SkTypeface_remote.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkGlyphRun.h"
+#include "src/core/SkRemoteGlyphCacheImpl.h"
+#include "src/core/SkStrike.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/core/SkTLazy.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/core/SkTypeface_remote.h"
 
 #if SK_SUPPORT_GPU
-#include "GrDrawOpAtlas.h"
-#include "text/GrTextContext.h"
+#include "src/gpu/GrDrawOpAtlas.h"
+#include "src/gpu/text/GrTextContext.h"
 #endif
 
 static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,

@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkColorShader.h"
-#include "SkGradientShader.h"
-#include "SkShader.h"
-#include "SkSurface.h"
-#include "SkTemplates.h"
-#include "SkTLazy.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkTLazy.h"
+#include "src/shaders/SkColorShader.h"
+#include "tests/Test.h"
 
 // https://code.google.com/p/chromium/issues/detail?id=448299
 // Giant (inverse) matrix causes overflow when converting/computing using 32.32

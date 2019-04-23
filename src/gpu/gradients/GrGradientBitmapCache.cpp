@@ -6,12 +6,12 @@
  */
 
 
-#include "GrGradientBitmapCache.h"
+#include "src/gpu/gradients/GrGradientBitmapCache.h"
 
-#include "SkMalloc.h"
-#include "SkFloatBits.h"
-#include "SkHalf.h"
-#include "SkTemplates.h"
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkHalf.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTemplates.h"
 
 #include <functional>
 

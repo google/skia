@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkColorMatrixFilter.h"
-#include "SkColorPriv.h"
-#include "SkShader.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkShader.h"
+#include "include/effects/SkColorMatrixFilter.h"
 
-#include "SkBlurImageFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkTDArray.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/private/SkTDArray.h"
 
 #define FILTER_WIDTH    SkIntToScalar(30)
 #define FILTER_HEIGHT   SkIntToScalar(30)
@@ -51,9 +51,9 @@ static void sk_gm_get_colorfilters(SkTArray<sk_sp<SkColorFilter>>* array) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "Resources.h"
+#include "include/core/SkImage.h"
+#include "include/effects/SkGradientShader.h"
+#include "tools/Resources.h"
 
 static sk_sp<SkShader> sh_make_lineargradient0() {
     const SkPoint pts[] = { { 0, 0 }, { 100, 100 } };
@@ -187,7 +187,7 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkGradientShader.h"
+#include "include/effects/SkGradientShader.h"
 
 template <typename T> class SkTRefArray : public SkTDArray<T> {
 public:

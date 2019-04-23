@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkOnce.h"
-#include "SkRemotableFontMgr.h"
+#include "include/ports/SkRemotableFontMgr.h"
+#include "include/private/SkOnce.h"
 
 SkRemotableFontIdentitySet::SkRemotableFontIdentitySet(int count, SkFontIdentity** data)
       : fCount(count), fData(count)

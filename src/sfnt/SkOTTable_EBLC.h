@@ -8,9 +8,9 @@
 #ifndef SkOTTable_EBLC_DEFINED
 #define SkOTTable_EBLC_DEFINED
 
-#include "SkEndian.h"
-#include "SkOTTable_EBDT.h"
-#include "SkOTTableTypes.h"
+#include "src/core/SkEndian.h"
+#include "src/sfnt/SkOTTableTypes.h"
+#include "src/sfnt/SkOTTable_EBDT.h"
 
 #pragma pack(push, 1)
 

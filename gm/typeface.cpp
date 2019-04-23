@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkBlurTypes.h"
-#include "SkCanvas.h"
-#include "SkFontStyle.h"
-#include "SkMaskFilter.h"
-#include "SkString.h"
-#include "SkSurfaceProps.h"
-#include "SkTextBlob.h"
-#include "SkTypeface.h"
-#include "SkTypes.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 static void getGlyphPositions(const SkFont& font, const uint16_t glyphs[],
                              int count, SkScalar x, SkScalar y, SkPoint pos[]) {

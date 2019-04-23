@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkDrawable.h"
-#include "SkFont.h"
-#include "SkPictureRecorder.h"
-#include "SkReadBuffer.h"
-#include "SkRect.h"
-#include "SkStream.h"
-#include "SkWriteBuffer.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkStream.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "tests/Test.h"
 
 class IntDrawable : public SkDrawable {
 public:

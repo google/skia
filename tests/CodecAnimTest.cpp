@@ -5,22 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "CodecPriv.h"
-#include "Resources.h"
-#include "SkAndroidCodec.h"
-#include "SkAnimCodecPlayer.h"
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkCodecAnimation.h"
-#include "SkData.h"
-#include "SkImageInfo.h"
-#include "SkMakeUnique.h"
-#include "SkRefCnt.h"
-#include "SkSize.h"
-#include "SkString.h"
-#include "SkTypes.h"
-#include "Test.h"
-#include "ToolUtils.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkCodecAnimation.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkAnimCodecPlayer.h"
+#include "src/core/SkMakeUnique.h"
+#include "tests/CodecPriv.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 #include <cstring>
 #include <memory>

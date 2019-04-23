@@ -6,15 +6,15 @@
  */
 
 
-#include "SkStrike.h"
+#include "src/core/SkStrike.h"
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkGraphics.h"
-#include "SkStrikeCache.h"
-#include "SkTaskGroup.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/core/SkTaskGroup.h"
+#include "tools/ToolUtils.h"
 
 static void do_font_stuff(SkFont* font) {
     SkPaint defaultPaint;

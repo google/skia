@@ -5,22 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlendModePriv.h"
-#include "SkColorData.h"
-#include "SkMathPriv.h"
-#include "SkOnce.h"
-#include "SkOpts.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkString.h"
-#include "SkWriteBuffer.h"
-#include "SkXfermodePriv.h"
+#include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkOnce.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/core/SkXfermodePriv.h"
 
 #if SK_SUPPORT_GPU
-#include "GrFragmentProcessor.h"
-#include "effects/GrCustomXfermode.h"
-#include "effects/GrPorterDuffXferProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/GrCustomXfermode.h"
+#include "src/gpu/effects/GrPorterDuffXferProcessor.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

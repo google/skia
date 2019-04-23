@@ -8,8 +8,8 @@
 #ifndef SKSL_FIELDACCESS
 #define SKSL_FIELDACCESS
 
-#include "SkSLExpression.h"
-#include "SkSLUtil.h"
+#include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLExpression.h"
 
 namespace SkSL {
 

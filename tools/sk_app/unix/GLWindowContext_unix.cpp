@@ -6,9 +6,9 @@
  * found in the LICENSE file.
  */
 
-#include "../GLWindowContext.h"
-#include "WindowContextFactory_unix.h"
-#include "gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "tools/sk_app/GLWindowContext.h"
+#include "tools/sk_app/unix/WindowContextFactory_unix.h"
 
 #include <GL/gl.h>
 

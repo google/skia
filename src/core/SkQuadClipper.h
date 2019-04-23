@@ -9,7 +9,7 @@
 #ifndef SkQuadClipper_DEFINED
 #define SkQuadClipper_DEFINED
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 
 /** This class is initialized with a clip rectangle, and then can be fed quads,
     which must already be monotonic in Y.

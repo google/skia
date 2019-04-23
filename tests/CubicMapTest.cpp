@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCubicMap.h"
-#include "SkGeometry.h"
-#include "SkRandom.h"
-#include "Test.h"
-#include "../../src/pathops/SkPathOpsCubic.h"
+#include "include/core/SkCubicMap.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkGeometry.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "tests/Test.h"
 
 static float accurate_t(float A, float B, float C, float D) {
     double roots[3];

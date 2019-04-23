@@ -10,8 +10,8 @@
 
 #include <functional>
 
-#include "SkTDArray.h"
-#include "SkPoint.h"
+#include "include/core/SkPoint.h"
+#include "include/private/SkTDArray.h"
 
 /**
  * Generates a polygon that is inset a constant from the boundary of a given convex polygon.

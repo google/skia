@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkRRectPriv.h"
-#include "SkBuffer.h"
-#include "SkMalloc.h"
-#include "SkMatrix.h"
-#include "SkScaleToSides.h"
+#include "include/core/SkMatrix.h"
+#include "include/private/SkMalloc.h"
+#include "src/core/SkBuffer.h"
+#include "src/core/SkRRectPriv.h"
+#include "src/core/SkScaleToSides.h"
 
 #include <cmath>
 #include <utility>
@@ -568,8 +568,8 @@ bool SkRRectPriv::ReadFromBuffer(SkRBuffer* buffer, SkRRect* rr) {
            (rr->readFromMemory(&storage, SkRRect::kSizeInMemory) == SkRRect::kSizeInMemory);
 }
 
-#include "SkString.h"
-#include "SkStringUtils.h"
+#include "include/core/SkString.h"
+#include "src/core/SkStringUtils.h"
 
 void SkRRect::dump(bool asHex) const {
     SkScalarAsStringType asType = asHex ? kHex_SkScalarAsStringType : kDec_SkScalarAsStringType;

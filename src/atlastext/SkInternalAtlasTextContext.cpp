@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkInternalAtlasTextContext.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "SkAtlasTextContext.h"
-#include "SkAtlasTextRenderer.h"
-#include "text/GrStrikeCache.h"
+#include "include/atlastext/SkAtlasTextContext.h"
+#include "include/atlastext/SkAtlasTextRenderer.h"
+#include "include/gpu/GrContext.h"
+#include "src/atlastext/SkInternalAtlasTextContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/text/GrStrikeCache.h"
 
 SkAtlasTextRenderer* SkGetAtlasTextRendererFromInternalContext(
         class SkInternalAtlasTextContext& internal) {

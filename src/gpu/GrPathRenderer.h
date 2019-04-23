@@ -8,9 +8,9 @@
 #ifndef GrPathRenderer_DEFINED
 #define GrPathRenderer_DEFINED
 
-#include "GrTypesPriv.h"
-#include "SkTArray.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkTArray.h"
 
 class GrCaps;
 class GrClip;

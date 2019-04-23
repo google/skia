@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrStencilPathOp.h"
+#include "src/gpu/ops/GrStencilPathOp.h"
 
-#include "GrGpu.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetPriv.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetPriv.h"
 
 std::unique_ptr<GrOp> GrStencilPathOp::Make(GrRecordingContext* context,
                                             const SkMatrix& viewMatrix,

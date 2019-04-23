@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpaceXformSteps.h"
-#include "SkRasterPipeline.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkRasterPipeline.h"
+#include "tests/Test.h"
 
 #include <math.h>
 

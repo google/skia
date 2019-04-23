@@ -7,13 +7,13 @@
 
 #include <memory>
 
-#include "Model.h"
+#include "tools/mdbviz/Model.h"
 
-#include "DebugCanvas.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkPicture.h"
-#include "SkStream.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkStream.h"
+#include "tools/debugger/DebugCanvas.h"
 
 Model::Model() : fCurOp(0) {
     SkImageInfo ii = SkImageInfo::MakeN32Premul(1024, 1024);

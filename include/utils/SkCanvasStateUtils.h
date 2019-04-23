@@ -8,7 +8,7 @@
 #ifndef SkCanvasStateUtils_DEFINED
 #define SkCanvasStateUtils_DEFINED
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 
 class SkCanvasState;
 
