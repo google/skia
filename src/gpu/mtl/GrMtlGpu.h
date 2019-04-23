@@ -223,7 +223,8 @@ private:
     id<MTLCommandBuffer> fCmdBuffer;
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
-    GrMtlCopyManager fCopyManager;
+
+    GrMtlCopyManager      fCopyManager;
     GrMtlResourceProvider fResourceProvider;
     GrMtlBufferManager    fBufferManager;
 
