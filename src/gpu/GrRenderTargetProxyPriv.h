@@ -23,6 +23,18 @@ public:
         return fRenderTargetProxy->glRTFBOIDIs0();
     }
 
+    // Once the size of a fully-lazy render target proxy is decided, and before it gets
+    // instantiated, the client can use this optional method to specify the proxy's size. (A proxy's
+    // size can be less than the GPU surface that backs it. e.g., SkBackingFit::kApprox.) Otherwise,
+    // the proxy's size will be set to match the underlying render target upon instantiation.
+    void setContentSize(const SkISize& contentSize) {
+        SkASSERT(GrSurfaceProxy::LazyState::kFully == fRenderTargetProxy->lazyInstantiationState());
+        SkASSERT(contentSize.width() > 0);
+        SkASSERT(contentSize.height() > 0);
+        fRenderTargetProxy->fWidth = contentSize.width();
+        fRenderTargetProxy->fHeight = contentSize.height();
+    }
+
 private:
     explicit GrRenderTargetProxyPriv(GrRenderTargetProxy* renderTargetProxy)
             : fRenderTargetProxy(renderTargetProxy) {}
