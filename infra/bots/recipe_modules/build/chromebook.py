@@ -73,6 +73,7 @@ def compile_fn(api, checkout_root, out_dir):
     'skia_use_fontconfig': 'false',
     'skia_use_system_freetype2': 'false',
     'skia_use_egl': 'true',
+    'werror': 'true',
   }
   extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
                       api.run.asset_version('clang_linux', skia_dir))

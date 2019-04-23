@@ -33,6 +33,7 @@ def compile_fn(api, checkout_root, out_dir):
   args = {
       'ndk': quote(api.vars.slave_dir.join(ndk_path)),
       'target_cpu': quote(target_arch),
+      'werror': 'true',
   }
   extra_cflags.append('-DDUMMY_ndk_version=%s' %
                       api.run.asset_version(ndk_asset, skia_dir))

@@ -152,6 +152,7 @@ echo "Compiling bitcode"
   is_debug=false \
   is_official_build=true \
   is_component_build=false \
+  werror=true \
   target_cpu=\"wasm\" \
   \
   skia_use_angle = false \

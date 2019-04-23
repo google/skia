@@ -32,7 +32,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan/Release_x64",
-      "--args=cc=\"clang\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_clang_win_version=42\"] is_debug=false skia_enable_vulkan_debug_layers=false skia_use_vulkan=true target_cpu=\"x86_64\" win_sdk=\"[START_DIR]/win_toolchain/win_sdk\" win_vc=\"[START_DIR]/win_toolchain/VC\""
+      "--args=cc=\"clang\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_clang_win_version=42\"] is_debug=false skia_enable_vulkan_debug_layers=false skia_use_vulkan=true target_cpu=\"x86_64\" werror=true win_sdk=\"[START_DIR]/win_toolchain/win_sdk\" win_vc=\"[START_DIR]/win_toolchain/VC\""
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

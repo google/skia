@@ -18,7 +18,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-x86_64-Release-Shared/Release",
-      "--args=cc=\"gcc\" cxx=\"g++\" is_component_build=true is_debug=false target_cpu=\"x86_64\""
+      "--args=cc=\"gcc\" cxx=\"g++\" is_component_build=true is_debug=false target_cpu=\"x86_64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

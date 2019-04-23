@@ -63,7 +63,7 @@ def compile_fn(api, checkout_root, out_dir):
   cc, cxx = None, None
   extra_cflags = []
   extra_ldflags = []
-  args = {}
+  args = {'werror': 'true'}
   env = {}
 
   if os == 'Mac':
