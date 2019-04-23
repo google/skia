@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9497c956_a1825636",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-23T15:56:53Z",
+      "side": 1,
+      "message": "Let\u0027s make a little enum for this?  I keep wondering reading through what false and true mean in this context.",
+      "range": {
+        "startLine": 185,
+        "startChar": 43,
+        "endLine": 185,
+        "endChar": 48
+      },
+      "revId": "d3ba45be343f215aa91ea977ea2f01cfdd2e4482",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02053ae1_d8030503",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-23T15:56:53Z",
+      "side": 1,
+      "message": "Is the same bug waiting for us down here with paths?",
+      "revId": "d3ba45be343f215aa91ea977ea2f01cfdd2e4482",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
