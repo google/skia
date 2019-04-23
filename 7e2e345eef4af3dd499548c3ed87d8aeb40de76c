@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9be7e710_9cf500e1",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-23T14:53:48Z",
+      "side": 1,
+      "message": "Maybe nit? I feel like we put all the class forward declares before the structs, but I don\u0027t really know for sure.",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 25
+      },
+      "revId": "7e2e345eef4af3dd499548c3ed87d8aeb40de76c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
