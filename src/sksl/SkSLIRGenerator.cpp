@@ -57,6 +57,39 @@
 #include "ir/SkSLVariableReference.h"
 #include "ir/SkSLWhileStatement.h"
 
+#ifndef __has_builtin
+    #define __has_builtin(x) false
+#endif
+
+// we only use these functions for error checking; it's not the end of the world if they just
+// pretend to succeed on older compilers
+#define DUMMY_OVERFLOW_FUNCTION(name, type, op) \
+    bool name(type x, type y, type* result) {   \
+        *result = x op y;                       \
+        return true;                            \
+    }
+
+#if __has_builtin(__builtin_add_overflow)
+    #define ADD_OVERFLOW __builtin_add_overflow
+#else
+    DUMMY_OVERFLOW_FUNCTION(ADD_OVERFLOW, int64_t, +)
+    DUMMY_OVERFLOW_FUNCTION(ADD_OVERFLOW, double, +)
+#endif
+
+#if __has_builtin(__builtin_sub_overflow)
+    #define SUB_OVERFLOW __builtin_sub_overflow
+#else
+    DUMMY_OVERFLOW_FUNCTION(SUB_OVERFLOW, int64_t, -)
+    DUMMY_OVERFLOW_FUNCTION(SUB_OVERFLOW, double, -)
+#endif
+
+#if __has_builtin(__builtin_mul_overflow)
+    #define MUL_OVERFLOW __builtin_mul_overflow
+#else
+    DUMMY_OVERFLOW_FUNCTION(MUL_OVERFLOW, int64_t, *)
+    DUMMY_OVERFLOW_FUNCTION(MUL_OVERFLOW, double, *)
+#endif
+
 namespace SkSL {
 
 class AutoSymbolTable {
@@ -1421,15 +1454,27 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     }
     #define RESULT(t, op) std::unique_ptr<Expression>(new t ## Literal(fContext, left.fOffset, \
                                                                        leftVal op rightVal))
+    #define COMPUTE_AND_RETURN(t, f) {                                                      \
+                int64_t result;                                                             \
+                if (f(leftVal, rightVal, &result)) {                                        \
+                    fErrors.error(left.fOffset, "arithmetic overflow");                     \
+                }                                                                           \
+                return std::unique_ptr<Expression>(new t ## Literal(fContext, left.fOffset, \
+                                                                    result));               \
+            }
     if (left.fKind == Expression::kIntLiteral_Kind && right.fKind == Expression::kIntLiteral_Kind) {
         int64_t leftVal  = ((IntLiteral&) left).fValue;
         int64_t rightVal = ((IntLiteral&) right).fValue;
         switch (op) {
-            case Token::PLUS:       return RESULT(Int, +);
-            case Token::MINUS:      return RESULT(Int, -);
-            case Token::STAR:       return RESULT(Int, *);
+            case Token::PLUS:  COMPUTE_AND_RETURN(Int, ADD_OVERFLOW)
+            case Token::MINUS: COMPUTE_AND_RETURN(Int, SUB_OVERFLOW)
+            case Token::STAR:  COMPUTE_AND_RETURN(Int, MUL_OVERFLOW)
             case Token::SLASH:
                 if (rightVal) {
+                    if (leftVal == std::numeric_limits<int64_t>::min() && rightVal == -1) {
+                        fErrors.error(left.fOffset, "arithmetic overflow");
+                        return nullptr;
+                    }
                     return RESULT(Int, /);
                 }
                 fErrors.error(right.fOffset, "division by zero");

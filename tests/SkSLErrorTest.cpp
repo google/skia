@@ -427,6 +427,18 @@ DEF_TEST(SkSLDivByZero, r) {
                  "error: 1: division by zero\n1 error\n");
 }
 
+DEF_TEST(SkSLArithmeticOverflow, r) {
+    test_failure(r,
+                 "int x = -9223372036854775808 * -1;",
+                 "error: 1: arithmetic overflow\n1 error\n");
+    test_failure(r,
+                 "int x = -9223372036854775808 / -1;",
+                 "error: 1: arithmetic overflow\n1 error\n");
+    test_failure(r,
+                 "int x = -9223372036854775808 - 1;",
+                 "error: 1: arithmetic overflow\n1 error\n");
+}
+
 DEF_TEST(SkSLUnsupportedGLSLIdentifiers, r) {
     test_failure(r,
                  "void main() { float x = gl_FragCoord.x; };",
