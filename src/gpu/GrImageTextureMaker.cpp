@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrColorSpaceXform.h"
-#include "GrImageTextureMaker.h"
-#include "SkGr.h"
-#include "SkImage_GpuYUVA.h"
-#include "SkImage_Lazy.h"
-#include "effects/GrYUVtoRGBEffect.h"
+#include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrImageTextureMaker.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrYUVtoRGBEffect.h"
+#include "src/image/SkImage_GpuYUVA.h"
+#include "src/image/SkImage_Lazy.h"
 
 GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
                                          SkImage::CachingHint chint, bool useDecal)

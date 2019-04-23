@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorPriv.h"
-#include "SkPath.h"
-#include "SkShader.h"
-#include "SkTextUtils.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkShader.h"
+#include "include/utils/SkTextUtils.h"
+#include "tools/ToolUtils.h"
 
 enum {
     kXfermodeCount = (int)SkBlendMode::kLastMode + 1 + 1,   // extra for arith

@@ -5,10 +5,10 @@
 * found in the LICENSE file.
 */
 
-#include "GrMtlUniformHandler.h"
-#include "GrTexture.h"
-#include "GrTexturePriv.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/mtl/GrMtlUniformHandler.h"
 
 // TODO: this class is basically copy and pasted from GrVklUniformHandler so that we can have
 // some shaders working. The SkSL Metal code generator was written to work with GLSL generated for

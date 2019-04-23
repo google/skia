@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "RecordTestUtils.h"
-#include "SkBitmap.h"
-#include "SkImageInfo.h"
-#include "SkRecord.h"
-#include "SkRecords.h"
-#include "SkShader.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkShader.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecords.h"
+#include "tests/RecordTestUtils.h"
+#include "tests/Test.h"
 
 #include <new>
 

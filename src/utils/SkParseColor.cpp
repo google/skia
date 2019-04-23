@@ -6,7 +6,7 @@
  */
 
 
-#include "SkParse.h"
+#include "include/utils/SkParse.h"
 
 static const unsigned int gColorNames[] = {
 0x85891945, 0x32a50000, 0x00f0f8ff, // aliceblue

@@ -8,19 +8,19 @@
 #ifndef SkGr_DEFINED
 #define SkGr_DEFINED
 
-#include "GrBlend.h"
-#include "GrCaps.h"
-#include "GrColor.h"
-#include "GrSamplerState.h"
-#include "GrTypes.h"
-#include "SkBlendModePriv.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkColorData.h"
-#include "SkFilterQuality.h"
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
-#include "SkVertices.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkVertices.h"
+#include "include/gpu/GrBlend.h"
+#include "include/gpu/GrSamplerState.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrColor.h"
+#include "include/private/SkColorData.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/gpu/GrCaps.h"
 
 class GrCaps;
 class GrColorSpaceInfo;

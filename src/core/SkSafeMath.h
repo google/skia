@@ -8,8 +8,8 @@
 #ifndef SkSafeMath_DEFINED
 #define SkSafeMath_DEFINED
 
-#include "SkTFitsIn.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTFitsIn.h"
 #include <limits>
 
 // SkSafeMath always check that a series of operations do not overflow.

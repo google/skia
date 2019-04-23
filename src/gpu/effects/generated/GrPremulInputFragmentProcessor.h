@@ -10,9 +10,10 @@
  **************************************************************************************************/
 #ifndef GrPremulInputFragmentProcessor_DEFINED
 #define GrPremulInputFragmentProcessor_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "include/core/SkTypes.h"
+
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
 class GrPremulInputFragmentProcessor : public GrFragmentProcessor {
 public:
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {

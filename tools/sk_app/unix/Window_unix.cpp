@@ -7,15 +7,15 @@
 
 //#include <tchar.h>
 
-#include "WindowContextFactory_unix.h"
+#include "tools/sk_app/unix/WindowContextFactory_unix.h"
 
-#include "SkUTF.h"
-#include "Timer.h"
-#include "../GLWindowContext.h"
-#include "Window_unix.h"
+#include "src/utils/SkUTF.h"
+#include "tools/sk_app/GLWindowContext.h"
+#include "tools/sk_app/unix/Window_unix.h"
+#include "tools/timer/Timer.h"
 
 extern "C" {
-    #include "keysym2ucs.h"
+    #include "tools/sk_app/unix/keysym2ucs.h"
 }
 #include <X11/Xutil.h>
 #include <X11/XKBlib.h>

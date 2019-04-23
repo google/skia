@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkTextUtils.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkColorFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkDropShadowImageFilter.h"
+#include "include/utils/SkTextUtils.h"
+#include "tools/ToolUtils.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

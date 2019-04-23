@@ -5,24 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "GrContextPriv.h"
+#include "src/gpu/GrContextPriv.h"
 
-#include "GrClip.h"
-#include "GrContextThreadSafeProxy.h"
-#include "GrContextThreadSafeProxyPriv.h"
-#include "GrDrawingManager.h"
-#include "GrGpu.h"
-#include "GrMemoryPool.h"
-#include "GrRenderTargetContext.h"
-#include "GrSkSLFPFactoryCache.h"
-#include "GrSurfacePriv.h"
-#include "GrTexture.h"
-#include "GrTextureContext.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkImage_Base.h"
-#include "SkImage_Gpu.h"
-#include "SkGr.h"
-#include "text/GrTextBlobCache.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrSkSLFPFactoryCache.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrContextThreadSafeProxyPriv.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrTextureContext.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/text/GrTextBlobCache.h"
+#include "src/image/SkImage_Base.h"
+#include "src/image/SkImage_Gpu.h"
 
 #define ASSERT_OWNED_PROXY_PRIV(P) \
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == fContext)
@@ -644,7 +644,7 @@ void GrContextPriv::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
 
 //////////////////////////////////////////////////////////////////////////////
 #ifdef SK_ENABLE_DUMP_GPU
-#include "SkJSONWriter.h"
+#include "src/utils/SkJSONWriter.h"
 SkString GrContextPriv::dump() const {
     SkDynamicMemoryWStream stream;
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);

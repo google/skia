@@ -9,10 +9,10 @@
 #ifndef SkPDFShader_DEFINED
 #define SkPDFShader_DEFINED
 
-#include "SkBitmapKey.h"
-#include "SkMacros.h"
-#include "SkPDFTypes.h"
-#include "SkShader.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkMacros.h"
+#include "src/pdf/SkBitmapKey.h"
+#include "src/pdf/SkPDFTypes.h"
 
 
 class SkPDFDocument;

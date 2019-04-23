@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFResourceDict.h"
-#include "SkPDFTypes.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
+#include "src/pdf/SkPDFResourceDict.h"
+#include "src/pdf/SkPDFTypes.h"
 
 // Sanity check that the values of enum ResourceType correspond to the
 // expected values as defined in the arrays below.

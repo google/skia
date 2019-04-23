@@ -8,10 +8,10 @@
 #ifndef SkPictureRecorder_DEFINED
 #define SkPictureRecorder_DEFINED
 
-#include "../private/SkNoncopyable.h"
-#include "SkBBHFactory.h"
-#include "SkPicture.h"
-#include "SkRefCnt.h"
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkNoncopyable.h"
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 namespace android {

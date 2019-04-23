@@ -8,8 +8,8 @@
 #ifndef GrMtlTextureRenderTarget_DEFINED
 #define GrMtlTextureRenderTarget_DEFINED
 
-#include "GrMtlRenderTarget.h"
-#include "GrMtlTexture.h"
+#include "src/gpu/mtl/GrMtlRenderTarget.h"
+#include "src/gpu/mtl/GrMtlTexture.h"
 
 class GrMtlTextureRenderTarget: public GrMtlTexture, public GrMtlRenderTarget {
 public:

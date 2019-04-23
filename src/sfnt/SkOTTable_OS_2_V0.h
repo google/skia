@@ -8,10 +8,10 @@
 #ifndef SkOTTable_OS_2_V0_DEFINED
 #define SkOTTable_OS_2_V0_DEFINED
 
-#include "SkEndian.h"
-#include "SkIBMFamilyClass.h"
-#include "SkOTTableTypes.h"
-#include "SkPanose.h"
+#include "src/core/SkEndian.h"
+#include "src/sfnt/SkIBMFamilyClass.h"
+#include "src/sfnt/SkOTTableTypes.h"
+#include "src/sfnt/SkPanose.h"
 
 #pragma pack(push, 1)
 

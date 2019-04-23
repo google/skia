@@ -8,8 +8,8 @@
 #ifndef GrTextureContext_DEFINED
 #define GrTextureContext_DEFINED
 
-#include "GrSurfaceContext.h"
-#include "../private/GrTextureProxy.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrSurfaceContext.h"
 
 class GrContext;
 class GrDrawingManager;

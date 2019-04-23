@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "NFAtoDFA.h"
-#include "RegexParser.h"
+#include "src/sksl/lex/NFAtoDFA.h"
+#include "src/sksl/lex/RegexParser.h"
 
 #include <fstream>
 #include <sstream>
@@ -203,7 +203,7 @@ void process(const char* inPath, const char* lexer, const char* token, const cha
     NFAtoDFA converter(&nfa);
     DFA dfa = converter.convert();
     writeH(dfa, lexer, token, tokens, hPath);
-    writeCPP(dfa, lexer, token, (std::string("SkSL") + lexer + ".h").c_str(), cppPath);
+    writeCPP(dfa, lexer, token, (std::string("src/sksl/SkSL") + lexer + ".h").c_str(), cppPath);
 }
 
 int main(int argc, const char** argv) {

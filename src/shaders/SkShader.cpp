@@ -5,25 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkBitmapProcShader.h"
-#include "SkColorShader.h"
-#include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkEmptyShader.h"
-#include "SkMallocPixelRef.h"
-#include "SkPaint.h"
-#include "SkPicture.h"
-#include "SkPictureShader.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkScalar.h"
-#include "SkShaderBase.h"
-#include "SkTLazy.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkMallocPixelRef.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkTLazy.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/shaders/SkBitmapProcShader.h"
+#include "src/shaders/SkColorShader.h"
+#include "src/shaders/SkEmptyShader.h"
+#include "src/shaders/SkPictureShader.h"
+#include "src/shaders/SkShaderBase.h"
 
 #if SK_SUPPORT_GPU
-#include "GrFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #endif
 
 SkShaderBase::SkShaderBase(const SkMatrix* localMatrix)

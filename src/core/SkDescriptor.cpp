@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkDescriptor.h"
+#include "src/core/SkDescriptor.h"
 
 #include <new>
 
-#include "SkOpts.h"
-#include "SkTo.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkOpts.h"
 
 std::unique_ptr<SkDescriptor> SkDescriptor::Alloc(size_t length) {
     SkASSERT(SkAlign4(length) == length);

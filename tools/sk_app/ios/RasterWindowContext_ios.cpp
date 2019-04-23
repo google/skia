@@ -6,12 +6,12 @@
  * found in the LICENSE file.
  */
 
-#include "../GLWindowContext.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "ToolUtils.h"
-#include "WindowContextFactory_ios.h"
-#include "gl/GrGLInterface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "tools/ToolUtils.h"
+#include "tools/sk_app/GLWindowContext.h"
+#include "tools/sk_app/ios/WindowContextFactory_ios.h"
 
 #include <OpenGLES/ES2/gl.h>
 

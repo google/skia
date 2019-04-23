@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitter.h"
-#include "SkEdge.h"
-#include "SkEdgeBuilder.h"
-#include "SkGeometry.h"
-#include "SkMacros.h"
-#include "SkPath.h"
-#include "SkQuadClipper.h"
-#include "SkRasterClip.h"
-#include "SkRectPriv.h"
-#include "SkRegion.h"
-#include "SkSafe32.h"
-#include "SkScanPriv.h"
-#include "SkTSort.h"
-#include "SkTemplates.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkSafe32.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkEdge.h"
+#include "src/core/SkEdgeBuilder.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkQuadClipper.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkRectPriv.h"
+#include "src/core/SkScanPriv.h"
+#include "src/core/SkTSort.h"
 
 #include <utility>
 

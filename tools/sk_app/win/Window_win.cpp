@@ -5,19 +5,19 @@
 * found in the LICENSE file.
 */
 
-#include "vk/GrVkVulkan.h"
+#include "include/gpu/vk/GrVkVulkan.h"
 
-#include "Window_win.h"
+#include "tools/sk_app/win/Window_win.h"
 
 #include <tchar.h>
 #include <windows.h>
 #include <windowsx.h>
 
-#include "SkUtils.h"
-#include "../WindowContext.h"
-#include "WindowContextFactory_win.h"
+#include "src/core/SkUtils.h"
+#include "tools/sk_app/WindowContext.h"
+#include "tools/sk_app/win/WindowContextFactory_win.h"
 #ifdef SK_VULKAN
-#include "../VulkanWindowContext.h"
+#include "tools/sk_app/VulkanWindowContext.h"
 #endif
 
 namespace sk_app {

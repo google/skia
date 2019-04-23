@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "Resources.h"
+#include "tools/Resources.h"
 
 DEF_SIMPLE_GM(skbug_8664, canvas, 830, 550) {
     const struct {

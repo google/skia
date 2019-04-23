@@ -6,7 +6,7 @@
  */
 
 @class {
-    #include "SkColorData.h"
+    #include "include/private/SkColorData.h"
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
         float luma = SK_ITU_BT709_LUM_COEFF_R * input.fR +

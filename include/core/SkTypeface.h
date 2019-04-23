@@ -8,15 +8,15 @@
 #ifndef SkTypeface_DEFINED
 #define SkTypeface_DEFINED
 
-#include "../private/SkNoncopyable.h"
-#include "../private/SkOnce.h"
-#include "../private/SkWeakRefCnt.h"
-#include "SkFontArguments.h"
-#include "SkFontParameters.h"
-#include "SkFontStyle.h"
-#include "SkFontTypes.h"
-#include "SkRect.h"
-#include "SkString.h"
+#include "include/core/SkFontArguments.h"
+#include "include/core/SkFontParameters.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkString.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkWeakRefCnt.h"
 
 class SkData;
 class SkDescriptor;

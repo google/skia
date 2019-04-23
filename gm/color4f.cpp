@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkShader.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
 
-#include "SkColorMatrixFilter.h"
-#include "SkGradientShader.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/effects/SkGradientShader.h"
 
 static sk_sp<SkShader> make_opaque_color() {
     return SkShaders::Color(0xFFFF0000);
@@ -88,7 +88,7 @@ DEF_SIMPLE_GM(color4f, canvas, 1024, 260) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkColorSpace.h"
+#include "include/core/SkColorSpace.h"
 
 DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
     canvas->translate(10, 10);

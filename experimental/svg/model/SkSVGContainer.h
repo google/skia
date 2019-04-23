@@ -8,8 +8,8 @@
 #ifndef SkSVGContainer_DEFINED
 #define SkSVGContainer_DEFINED
 
-#include "SkSVGTransformableNode.h"
-#include "SkTArray.h"
+#include "experimental/svg/model/SkSVGTransformableNode.h"
+#include "include/private/SkTArray.h"
 
 class SkSVGContainer : public SkSVGTransformableNode {
 public:

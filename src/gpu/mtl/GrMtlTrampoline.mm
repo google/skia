@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlTrampoline.h"
+#include "src/gpu/mtl/GrMtlTrampoline.h"
 
-#include "GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
 
 sk_sp<GrGpu> GrMtlTrampoline::MakeGpu(GrContext* context,
                                       const GrContextOptions& options,

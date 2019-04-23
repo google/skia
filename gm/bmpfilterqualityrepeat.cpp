@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "SkShader.h"
+#include "include/core/SkShader.h"
 
 // Inspired by svg/as-border-image/svg-as-border-image.html. Draws a four-color checker board bitmap
 // such that it is stretched and repeat tiled with different filter qualities. It is testing whether

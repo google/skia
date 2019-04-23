@@ -7,18 +7,18 @@
 
 // This test only works with the GPU backend.
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrRenderTargetContextPriv.h"
-#include "SkBitmap.h"
-#include "SkGradientShader.h"
-#include "SkSurface.h"
-#include "effects/GrTextureDomain.h"
-#include "ops/GrDrawOp.h"
-#include "ops/GrFillRectOp.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/effects/GrTextureDomain.h"
+#include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/ops/GrFillRectOp.h"
 
 namespace skiagm {
 /**

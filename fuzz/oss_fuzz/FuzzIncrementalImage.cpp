@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkData.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
 
 bool FuzzIncrementalImageDecode(sk_sp<SkData> bytes) {
     auto codec = SkCodec::MakeFromData(bytes);

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkVertices.h"
-#include "SkPoint.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkVertices.h"
 
 #include <iostream>
 #include <vector>

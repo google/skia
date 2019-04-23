@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "SkLeanWindows.h"
+#include "include/private/SkLeanWindows.h"
 
 #ifndef UNICODE
 #define UNICODE
@@ -22,37 +22,37 @@
 #include <FontSub.h>
 #include <limits>
 
-#include "SkColor.h"
-#include "SkData.h"
-#include "SkDraw.h"
-#include "SkEndian.h"
-#include "SkGeometry.h"
-#include "SkHRESULT.h"
-#include "SkIStream.h"
-#include "SkImage.h"
-#include "SkImageEncoder.h"
-#include "SkImagePriv.h"
-#include "SkMaskFilterBase.h"
-#include "SkPaint.h"
-#include "SkPathEffect.h"
-#include "SkPathOps.h"
-#include "SkPoint.h"
-#include "SkRasterClip.h"
-#include "SkSFNTHeader.h"
-#include "SkShader.h"
-#include "SkShaderBase.h"
-#include "SkSize.h"
-#include "SkStream.h"
-#include "SkStrikeCache.h"
-#include "SkTDArray.h"
-#include "SkTLazy.h"
-#include "SkTScopedComPtr.h"
-#include "SkTTCFHeader.h"
-#include "SkTo.h"
-#include "SkTypefacePriv.h"
-#include "SkUtils.h"
-#include "SkVertices.h"
-#include "SkXPSDevice.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkVertices.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkEndian.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkImagePriv.h"
+#include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/core/SkTLazy.h"
+#include "src/core/SkTypefacePriv.h"
+#include "src/core/SkUtils.h"
+#include "src/sfnt/SkSFNTHeader.h"
+#include "src/sfnt/SkTTCFHeader.h"
+#include "src/shaders/SkShaderBase.h"
+#include "src/utils/win/SkHRESULT.h"
+#include "src/utils/win/SkIStream.h"
+#include "src/utils/win/SkTScopedComPtr.h"
+#include "src/xps/SkXPSDevice.h"
 
 //Windows defines a FLOAT type,
 //make it clear when converting a scalar that this is what is wanted.

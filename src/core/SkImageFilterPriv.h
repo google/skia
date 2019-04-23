@@ -8,7 +8,7 @@
 #ifndef SkImageFilterPriv_DEFINED
 #define SkImageFilterPriv_DEFINED
 
-#include "SkImageFilter.h"
+#include "include/core/SkImageFilter.h"
 
 /**
  *  Helper to unflatten the common data, and return nullptr if we fail.

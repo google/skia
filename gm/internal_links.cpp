@@ -4,11 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "SkAnnotation.h"
-#include "SkData.h"
+#include "include/core/SkAnnotation.h"
+#include "include/core/SkData.h"
 
 namespace skiagm {
 

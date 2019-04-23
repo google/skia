@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "SkTDArray.h"
-#include "SkTSort.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkTSort.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include <stdlib.h>
 

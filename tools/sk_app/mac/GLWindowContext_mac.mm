@@ -6,9 +6,9 @@
  * found in the LICENSE file.
  */
 
-#include "../GLWindowContext.h"
-#include "WindowContextFactory_mac.h"
-#include "gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "tools/sk_app/GLWindowContext.h"
+#include "tools/sk_app/mac/WindowContextFactory_mac.h"
 
 #include <OpenGL/gl.h>
 #include <Cocoa/Cocoa.h>

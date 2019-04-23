@@ -8,13 +8,13 @@
 #ifndef SkSGText_DEFINED
 #define SkSGText_DEFINED
 
-#include "SkSGGeometryNode.h"
+#include "modules/sksg/include/SkSGGeometryNode.h"
 
-#include "SkFont.h"
-#include "SkPoint.h"
-#include "SkString.h"
-#include "SkTextBlob.h"
-#include "SkTextUtils.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/utils/SkTextUtils.h"
 
 class SkCanvas;
 class SkPaint;

@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrSkSLFP.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 
-#include "GrBaseContextPriv.h"
-#include "GrContext_Base.h"
-#include "GrTexture.h"
-#include "SkSLUtil.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrContext_Base.h"
+#include "src/gpu/GrBaseContextPriv.h"
+#include "src/sksl/SkSLUtil.h"
 
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
 GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl,
                                  SkSL::Program::Kind kind)
@@ -474,9 +474,9 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
 
 #if GR_TEST_UTILS
 
-#include "generated/GrConstColorProcessor.h"
-#include "GrContext.h"
-#include "SkArithmeticImageFilter.h"
+#include "include/effects/SkArithmeticImageFilter.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
 extern const char* SKSL_ARITHMETIC_SRC;
 extern const char* SKSL_DITHER_SRC;

@@ -6,17 +6,17 @@
  * found in the LICENSE file.
  */
 
-#include "vk/GrVkVulkan.h"
+#include "include/gpu/vk/GrVkVulkan.h"
 
-#include "WindowContextFactory_win.h"
+#include "tools/sk_app/win/WindowContextFactory_win.h"
 
-#include "../VulkanWindowContext.h"
-#include "Window_win.h"
+#include "tools/sk_app/VulkanWindowContext.h"
+#include "tools/sk_app/win/Window_win.h"
 
-#include "vk/GrVkInterface.h"
-#include "vk/GrVkUtil.h"
+#include "src/gpu/vk/GrVkInterface.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
-#include "vk/VkTestUtils.h"
+#include "tools/gpu/vk/VkTestUtils.h"
 
 #include <Windows.h>
 

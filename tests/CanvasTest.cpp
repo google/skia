@@ -45,44 +45,44 @@
  *      that the invoked method returns a non-zero value.
  */
 
-#include "SkBitmap.h"
-#include "SkBlendMode.h"
-#include "SkCanvas.h"
-#include "SkCanvasStack.h"
-#include "SkClipOp.h"
-#include "SkClipOpPriv.h"
-#include "SkColor.h"
-#include "SkImageFilter.h"
-#include "SkImageInfo.h"
-#include "SkMalloc.h"
-#include "SkMatrix.h"
-#include "SkNWayCanvas.h"
-#include "SkPDFDocument.h"
-#include "SkPaint.h"
-#include "SkPaintFilterCanvas.h"
-#include "SkPath.h"
-#include "SkPictureRecorder.h"
-#include "SkPixmap.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkRegion.h"
-#include "SkScalar.h"
-#include "SkShader.h"
-#include "SkSize.h"
-#include "SkSpecialImage.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkSurface.h"
-#include "SkTDArray.h"
-#include "SkTemplates.h"
-#include "SkTypes.h"
-#include "SkVertices.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkVertices.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkNWayCanvas.h"
+#include "include/utils/SkPaintFilterCanvas.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/utils/SkCanvasStack.h"
+#include "tests/Test.h"
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-#include "SkColorData.h"
-#include "SkColorSpace.h"
+#include "include/core/SkColorSpace.h"
+#include "include/private/SkColorData.h"
 #endif
 
 #include <memory>
@@ -869,7 +869,7 @@ DEF_TEST(Canvas_SaveLayerWithNullBoundsAndZeroBoundsImageFilter, r) {
     canvas.restore();
 }
 
-#include "SkPaintImageFilter.h"
+#include "include/effects/SkPaintImageFilter.h"
 
 // Test that we don't crash/assert when building a canvas with degenerate coordintes
 // (esp. big ones, that might invoke tiling).
@@ -890,7 +890,7 @@ DEF_TEST(Canvas_degenerate_dimension, reporter) {
     }
 }
 
-#include "SkBlurImageFilter.h"
+#include "include/effects/SkBlurImageFilter.h"
 
 DEF_TEST(Canvas_ClippedOutImageFilter, reporter) {
     SkCanvas canvas(100, 100);

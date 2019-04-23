@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkPictureRecord.h"
+#include "src/core/SkPictureRecord.h"
 
-#include "SkCanvasPriv.h"
-#include "SkClipOpPriv.h"
-#include "SkDrawShadowInfo.h"
-#include "SkImage_Base.h"
-#include "SkMatrixPriv.h"
-#include "SkPatchUtils.h"
-#include "SkRRect.h"
-#include "SkRSXform.h"
-#include "SkTSearch.h"
-#include "SkTextBlob.h"
-#include "SkTo.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkTextBlob.h"
+#include "include/private/SkTSearch.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/image/SkImage_Base.h"
+#include "src/utils/SkPatchUtils.h"
 
 #define HEAP_BLOCK_SIZE 4096
 

@@ -5,15 +5,15 @@
 * found in the LICENSE file.
 */
 
-#include "SkParticleAffector.h"
+#include "modules/particles/include/SkParticleAffector.h"
 
-#include "SkContourMeasure.h"
-#include "SkCurve.h"
-#include "SkParsePath.h"
-#include "SkParticleData.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkTextUtils.h"
+#include "include/core/SkContourMeasure.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkParsePath.h"
+#include "include/utils/SkRandom.h"
+#include "include/utils/SkTextUtils.h"
+#include "modules/particles/include/SkCurve.h"
+#include "modules/particles/include/SkParticleData.h"
 
 
 void SkParticleAffector::apply(const SkParticleUpdateParams& params,

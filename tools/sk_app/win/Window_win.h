@@ -8,7 +8,7 @@
 #ifndef Window_win_DEFINED
 #define Window_win_DEFINED
 
-#include "../Window.h"
+#include "tools/sk_app/Window.h"
 
 #include <windows.h>
 

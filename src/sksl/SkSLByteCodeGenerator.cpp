@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLByteCodeGenerator.h"
+#include "src/sksl/SkSLByteCodeGenerator.h"
 
 namespace SkSL {
 

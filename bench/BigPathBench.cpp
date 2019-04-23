@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "ToolUtils.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "tools/ToolUtils.h"
 
 enum Align {
     kLeft_Align,

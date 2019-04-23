@@ -8,8 +8,8 @@
 #ifndef SkDocument_DEFINED
 #define SkDocument_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkScalar.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 
 class SkCanvas;
 class SkWStream;

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathPriv.h"
-#include "SkPolyUtils.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "src/core/SkPathPriv.h"
+#include "src/utils/SkPolyUtils.h"
+#include "tools/ToolUtils.h"
 
 static void create_ngon(int n, SkPoint* pts, SkScalar w, SkScalar h, SkPath::Direction dir) {
     float angleStep = 360.0f / n, angle = 0.0f;

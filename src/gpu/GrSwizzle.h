@@ -8,8 +8,8 @@
 #ifndef GrSwizzle_DEFINED
 #define GrSwizzle_DEFINED
 
-#include "GrColor.h"
-#include "SkColorData.h"
+#include "include/private/GrColor.h"
+#include "include/private/SkColorData.h"
 
 /** Represents a rgba swizzle. It can be converted either into a string or a eight bit int.
     Currently there is no way to specify an arbitrary swizzle, just some static swizzles and an

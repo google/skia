@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageInfoPriv.h"
-#include "SkSafeMath.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSafeMath.h"
+#include "src/core/SkWriteBuffer.h"
 
 int SkColorTypeBytesPerPixel(SkColorType ct) {
     switch (ct) {
@@ -99,7 +99,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkReadPixelsRec.h"
+#include "src/image/SkReadPixelsRec.h"
 
 bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
     if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {
@@ -136,7 +136,7 @@ bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkWritePixelsRec.h"
+#include "src/core/SkWritePixelsRec.h"
 
 bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
     if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {

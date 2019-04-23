@@ -4,10 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkTArray.h"
+#include "gm/gm.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkTArray.h"
+#include "include/utils/SkRandom.h"
 
 class SkDoOnce : SkNoncopyable {
 public:

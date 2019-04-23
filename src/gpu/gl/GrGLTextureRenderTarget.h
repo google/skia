@@ -9,8 +9,8 @@
 #ifndef GrGLTextureRenderTarget_DEFINED
 #define GrGLTextureRenderTarget_DEFINED
 
-#include "GrGLTexture.h"
-#include "GrGLRenderTarget.h"
+#include "src/gpu/gl/GrGLRenderTarget.h"
+#include "src/gpu/gl/GrGLTexture.h"
 
 class GrGLGpu;
 

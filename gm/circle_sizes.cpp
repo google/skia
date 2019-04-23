@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
+#include "gm/gm.h"
 // https://crbug.com/772953
 DEF_SIMPLE_GM(circle_sizes, canvas, 128, 128) {
     SkPaint p;

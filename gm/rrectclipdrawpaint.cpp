@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkPath.h"
-#include "SkGradientShader.h"
+#include "gm/gm.h"
+#include "include/core/SkPath.h"
+#include "include/effects/SkGradientShader.h"
 
 // Exercises code in GrRenderTargetContext that attempts to replace a rrect clip/draw paint with
 // draw rrect.

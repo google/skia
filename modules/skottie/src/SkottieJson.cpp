@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkottieJson.h"
+#include "modules/skottie/src/SkottieJson.h"
 
-#include "SkData.h"
-#include "SkScalar.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkottieValue.h"
+#include "include/core/SkData.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "modules/skottie/src/SkottieValue.h"
 #include <vector>
 
 namespace skottie {

@@ -97,28 +97,13 @@ if (defined(skia_settings)) {
   import(skia_settings)
 }
 
-skia_public_includes = [
-  "include/android",
-  "include/atlastext",
-  "include/c",
-  "include/codec",
-  "include/config",
-  "include/core",
-  "include/docs",
-  "include/effects",
-  "include/encode",
-  "include/gpu",
-  "include/pathops",
-  "include/ports",
-  "include/svg",
-  "include/utils",
-  "include/utils/mac",
-  "third_party/skcms",
-]
-
 # Skia public API, generally provided by :skia.
 config("skia_public") {
-  include_dirs = skia_public_includes
+  include_dirs = [
+    ".",
+    "third_party/skcms",
+    "include/third_party/vulkan",
+  ]
   defines = []
   if (is_component_build) {
     defines += [ "SKIA_DLL" ]
@@ -152,26 +137,6 @@ config("skia_private") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "include/private",
-    "src/c",
-    "src/codec",
-    "src/core",
-    "src/effects",
-    "src/fonts",
-    "src/image",
-    "src/images",
-    "src/lazy",
-    "src/opts",
-    "src/pathops",
-    "src/pdf",
-    "src/ports",
-    "src/sfnt",
-    "src/shaders",
-    "src/shaders/gradients",
-    "src/sksl",
-    "src/utils",
-    "src/utils/win",
-    "src/xml",
     "third_party/etc1",
     "third_party/gif",
   ]
@@ -189,12 +154,6 @@ config("skia_private") {
   }
   libs = []
   lib_dirs = []
-  if (skia_enable_gpu) {
-    include_dirs += [ "src/gpu" ]
-    if (is_skia_dev_build && skia_use_vulkan) {
-      include_dirs += [ "tools/gpu/vk" ]
-    }
-  }
   if (skia_use_angle) {
     defines += [ "SK_ANGLE" ]
   }
@@ -508,7 +467,7 @@ if (skia_lex) {
       "src/sksl/lex/RegexNode.cpp",
       "src/sksl/lex/RegexParser.cpp",
     ]
-    include_dirs = [ "src/sksl/lex" ]
+    include_dirs = [ "." ]
   }
 
   action("run_sksllex") {
@@ -551,10 +510,7 @@ if (skia_compile_processors) {
       "src/sksl/SkSLMain.cpp",
     ]
     sources += skia_sksl_sources
-    include_dirs = [
-      "src/gpu",
-      "src/sksl",
-    ]
+    include_dirs = [ "." ]
     deps = [
       ":run_sksllex",
       "//third_party/spirv-tools",
@@ -1096,18 +1052,6 @@ if (target_cpu == "wasm") {
   static_library("debugcanvas") {
     public_configs = [ ":skia_public" ]
 
-    include_dirs = [
-      "include/gpu",
-      "include/private",
-      "src/gpu",
-      "src/core",
-      "src/sksl",
-      "src/shaders",
-      "src/utils",
-      "tools",
-      "tools/debugger",
-    ]
-
     sources = [
       "tools/UrlDataManager.cpp",
       "tools/debugger/DebugCanvas.cpp",
@@ -1199,9 +1143,31 @@ group("modules") {
 
 # Targets guarded by skia_enable_tools may use //third_party freely.
 if (skia_enable_tools) {
+  skia_public_includes = [
+    "include/android",
+    "include/atlastext",
+    "include/c",
+    "include/codec",
+    "include/config",
+    "include/core",
+    "include/docs",
+    "include/effects",
+    "include/encode",
+    "include/gpu",
+    "include/pathops",
+    "include/ports",
+    "include/svg",
+    "include/utils",
+    "include/utils/mac",
+    "modules/sksg/include",
+    "modules/skshaper/include",
+    "modules/skottie/include",
+  ]
+
   # Used by gn_to_bp.py to list our public include dirs.
   source_set("public") {
     configs += [ ":skia_public" ]
+    include_dirs = skia_public_includes
   }
 
   config("skia.h_config") {
@@ -1212,16 +1178,9 @@ if (skia_enable_tools) {
     skia_h = "$target_gen_dir/skia.h"
     script = "gn/find_headers.py"
 
-    # TODO: would be cool to not hard-code these here, but how?
-    module_public_includes = [
-      "modules/sksg/include",
-      "modules/skshaper/include",
-      "modules/skottie/include",
-    ]
-    args =
-        [ rebase_path("//bin/gn") ] + [ rebase_path("//") ] +
-        [ rebase_path(skia_h, root_build_dir) ] +
-        rebase_path(skia_public_includes) + rebase_path(module_public_includes)
+    args = [ rebase_path("//bin/gn") ] + [ rebase_path("//") ] +
+           [ rebase_path(skia_h, root_build_dir) ] +
+           rebase_path(skia_public_includes)
     depfile = "$skia_h.deps"
     outputs = [
       skia_h,
@@ -1273,13 +1232,12 @@ if (skia_enable_tools) {
 
   template("test_lib") {
     config(target_name + "_config") {
-      include_dirs = invoker.public_include_dirs
       if (defined(invoker.public_defines)) {
         defines = invoker.public_defines
       }
     }
     source_set(target_name) {
-      forward_variables_from(invoker, "*", [ "public_include_dirs" ])
+      forward_variables_from(invoker, "*", [])
       check_includes = false
       public_configs = [
         ":" + target_name + "_config",
@@ -1484,9 +1442,7 @@ if (skia_enable_tools) {
   }
 
   test_lib("gpu_tool_utils") {
-    public_include_dirs = []
     public_defines = []
-    public_include_dirs += [ "tools/gpu" ]
 
     defines = []
     if (skia_enable_discrete_gpu) {
@@ -1539,7 +1495,6 @@ if (skia_enable_tools) {
       sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
     }
 
-    public_include_dirs += [ "include/third_party/vulkan" ]
     if (skia_use_vulkan) {
       sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
       sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]
@@ -1553,14 +1508,12 @@ if (skia_enable_tools) {
   }
 
   test_lib("flags") {
-    public_include_dirs = [ "tools/flags" ]
     sources = [
       "tools/flags/CommandLineFlags.cpp",
     ]
   }
 
   test_lib("common_flags_config") {
-    public_include_dirs = [ "tools/flags" ]
     sources = [
       "tools/flags/CommonFlagsConfig.cpp",
     ]
@@ -1572,7 +1525,6 @@ if (skia_enable_tools) {
     ]
   }
   test_lib("common_flags_gpu") {
-    public_include_dirs = [ "tools/flags" ]
     sources = [
       "tools/flags/CommonFlagsGpu.cpp",
     ]
@@ -1584,7 +1536,6 @@ if (skia_enable_tools) {
     ]
   }
   test_lib("common_flags_images") {
-    public_include_dirs = [ "tools/flags" ]
     sources = [
       "tools/flags/CommonFlagsImages.cpp",
     ]
@@ -1593,7 +1544,6 @@ if (skia_enable_tools) {
     ]
   }
   test_lib("common_flags_aa") {
-    public_include_dirs = [ "tools/flags" ]
     sources = [
       "tools/flags/CommonFlagsAA.cpp",
     ]
@@ -1603,7 +1553,6 @@ if (skia_enable_tools) {
   }
 
   test_lib("trace") {
-    public_include_dirs = [ "tools/trace" ]
     deps = [
       ":flags",
     ]
@@ -1618,12 +1567,6 @@ if (skia_enable_tools) {
   }
 
   test_lib("tool_utils") {
-    public_include_dirs = [
-      "tools",
-      "tools/debugger",
-      "tools/fonts",
-      "tools/timer",
-    ]
     sources = [
       "tools/AndroidSkDebugToStdOut.cpp",
       "tools/CrashHandler.cpp",
@@ -1673,7 +1616,6 @@ if (skia_enable_tools) {
 
   import("gn/gm.gni")
   test_lib("gm") {
-    public_include_dirs = [ "gm" ]
     sources = gm_sources
     deps = [
       ":flags",
@@ -1691,7 +1633,6 @@ if (skia_enable_tools) {
 
   import("gn/tests.gni")
   test_lib("tests") {
-    public_include_dirs = [ "tests" ]
     sources = tests_sources + pathops_tests_sources
     if (!skia_enable_fontmgr_android) {
       sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
@@ -1718,7 +1659,6 @@ if (skia_enable_tools) {
 
   import("gn/bench.gni")
   test_lib("bench") {
-    public_include_dirs = [ "bench" ]
     sources = bench_sources
     deps = [
       ":flags",
@@ -1730,9 +1670,7 @@ if (skia_enable_tools) {
   }
 
   test_lib("experimental_svg_model") {
-    public_include_dirs = []
     if (skia_use_expat) {
-      public_include_dirs += [ "experimental/svg/model" ]
       sources = [
         "experimental/svg/model/SkSVGAttribute.cpp",
         "experimental/svg/model/SkSVGAttributeParser.cpp",
@@ -1767,7 +1705,6 @@ if (skia_enable_tools) {
 
   if (skia_use_lua) {
     test_lib("lua") {
-      public_include_dirs = []
       sources = [
         "src/utils/SkLua.cpp",
         "src/utils/SkLuaCanvas.cpp",
@@ -1823,8 +1760,6 @@ if (skia_enable_tools) {
   if (target_cpu != "wasm") {
     import("gn/samples.gni")
     test_lib("samples") {
-      public_include_dirs = [ "samplecode" ]
-      include_dirs = [ "experimental" ]
       sources = samples_sources
       public_deps = [
         ":tool_utils",
@@ -1862,7 +1797,6 @@ if (skia_enable_tools) {
       ]
     }
     test_lib("hash_and_encode") {
-      public_include_dirs = [ "tools" ]
       sources = [
         "tools/HashAndEncode.cpp",
         "tools/HashAndEncode.h",
@@ -2060,12 +1994,6 @@ if (skia_enable_tools) {
   }
 
   test_app("fuzz") {
-    include_dirs = [
-      "tools",
-      "tools/debugger",
-      "tools/fonts",
-      "src/sksl",
-    ]
     sources = [
       "fuzz/Fuzz.cpp",
       "fuzz/FuzzCanvas.cpp",
@@ -2155,7 +2083,6 @@ if (skia_enable_tools) {
 
   if (!is_win) {
     test_lib("skqp_lib") {
-      public_include_dirs = [ "tools/skqp/src" ]
       defines =
           [ "SK_SKQP_GLOBAL_ERROR_TOLERANCE=$skia_skqp_global_error_tolerance" ]
       sources = [
@@ -2216,7 +2143,6 @@ if (skia_enable_tools) {
       ]
       libs = []
 
-      include_dirs = []
       deps = [
         ":skia",
         "modules/skottie",
@@ -2246,7 +2172,6 @@ if (skia_enable_tools) {
   }
 
   test_lib("sk_app") {
-    public_include_dirs = [ "tools/sk_app" ]
     sources = [
       "tools/sk_app/CommandSet.cpp",
       "tools/sk_app/GLWindowContext.cpp",
@@ -2351,7 +2276,6 @@ if (skia_enable_tools) {
         "tools/fiddle/examples.cpp",
         "tools/fiddle/examples.h",
       ]
-      include_dirs = [ "tools" ]
       if (is_win) {
         cflags = [ "/wd4756" ]  # Overflow in constant arithmetic
       }
@@ -2383,7 +2307,6 @@ if (skia_enable_tools) {
     ]
     libs = []
 
-    include_dirs = [ "experimental" ]
     deps = [
       ":common_flags_gpu",
       ":experimental_svg_model",
@@ -2474,7 +2397,6 @@ if (skia_enable_tools) {
       ]
       libs = []
 
-      include_dirs = []
       deps = [
         ":flags",
         ":gpu_tool_utils",
@@ -2491,7 +2413,6 @@ if (skia_enable_tools) {
         "example/SkiaSDLExample.cpp",
       ]
       libs = []
-      include_dirs = []
       deps = [
         ":gpu_tool_utils",
         ":skia",
@@ -2559,8 +2480,6 @@ if (skia_enable_tools) {
         "$skia_qt_path/include",
         "$skia_qt_path/include/QtCore",
         "$skia_qt_path/include/QtWidgets",
-        "tools",
-        "tools/debugger",
       ]
       deps = [
         ":generate_mocs",

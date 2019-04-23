@@ -7,15 +7,15 @@
 
 // This is a GPU-backend specific test. It relies on static intializers to work
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrSurfaceProxy.h"
-#include "ProxyUtils.h"
-#include "SkGr.h"
-#include "Test.h"
-#include "TestUtils.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/SkGr.h"
+#include "tests/Test.h"
+#include "tests/TestUtils.h"
+#include "tools/gpu/GrContextFactory.h"
+#include "tools/gpu/ProxyUtils.h"
 
 using sk_gpu_test::GrContextFactory;
 

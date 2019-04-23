@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
 
-#include "GrMtlBuffer.h"
-#include "GrMtlCommandBuffer.h"
-#include "GrMtlGpuCommandBuffer.h"
-#include "GrMtlTexture.h"
-#include "GrMtlTextureRenderTarget.h"
-#include "GrMtlUtil.h"
-#include "GrRenderTargetPriv.h"
-#include "GrTexturePriv.h"
-#include "SkConvertPixels.h"
-#include "SkSLCompiler.h"
+#include "src/core/SkConvertPixels.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/mtl/GrMtlBuffer.h"
+#include "src/gpu/mtl/GrMtlCommandBuffer.h"
+#include "src/gpu/mtl/GrMtlGpuCommandBuffer.h"
+#include "src/gpu/mtl/GrMtlTexture.h"
+#include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
+#include "src/gpu/mtl/GrMtlUtil.h"
+#include "src/sksl/SkSLCompiler.h"
 
 #import <simd/simd.h>
 

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrQuad.h"
+#include "src/gpu/GrQuad.h"
 
-#include "GrTypesPriv.h"
+#include "include/private/GrTypesPriv.h"
 
 static bool aa_affects_rect(float ql, float qt, float qr, float qb) {
     return !SkScalarIsInt(ql) || !SkScalarIsInt(qr) || !SkScalarIsInt(qt) || !SkScalarIsInt(qb);

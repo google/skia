@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
 #if defined(SK_XML)
-#include "SkPEG.h"
-#include "SkTo.h"
+#include "experimental/svg/model/SkPEG.h"
+#include "include/private/SkTo.h"
 
 using namespace skpeg;
 

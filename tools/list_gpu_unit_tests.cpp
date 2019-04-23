@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "Test.h"
+#include "tests/Test.h"
 
 int main() {
     std::vector<std::string> tests;

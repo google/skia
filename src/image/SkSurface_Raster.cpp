@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkSurface_Base.h"
-#include "SkImageInfoPriv.h"
-#include "SkImagePriv.h"
-#include "SkCanvas.h"
-#include "SkDevice.h"
-#include "SkMallocPixelRef.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMallocPixelRef.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkImagePriv.h"
+#include "src/image/SkSurface_Base.h"
 
 class SkSurface_Raster : public SkSurface_Base {
 public:

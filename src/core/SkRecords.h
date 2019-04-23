@@ -8,22 +8,22 @@
 #ifndef SkRecords_DEFINED
 #define SkRecords_DEFINED
 
-#include "SkData.h"
-#include "SkCanvas.h"
-#include "SkDrawable.h"
-#include "SkDrawShadowInfo.h"
-#include "SkImage.h"
-#include "SkImageFilter.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkPicture.h"
-#include "SkRect.h"
-#include "SkRegion.h"
-#include "SkRRect.h"
-#include "SkRSXform.h"
-#include "SkString.h"
-#include "SkTextBlob.h"
-#include "SkVertices.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkVertices.h"
+#include "src/core/SkDrawShadowInfo.h"
 
 namespace SkRecords {
 

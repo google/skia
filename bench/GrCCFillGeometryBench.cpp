@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
+#include "bench/Benchmark.h"
 
-#include "ccpr/GrCCFillGeometry.h"
-#include "SkGeometry.h"
+#include "src/core/SkGeometry.h"
+#include "src/gpu/ccpr/GrCCFillGeometry.h"
 
 static int kNumBaseLoops = 50000;
 

@@ -8,7 +8,7 @@
 #ifndef GrImageContextPriv_DEFINED
 #define GrImageContextPriv_DEFINED
 
-#include "GrImageContext.h"
+#include "include/private/GrImageContext.h"
 
 /** Class that exposes methods on GrImageContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrImageContext. It should never have

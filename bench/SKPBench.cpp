@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SKPBench.h"
-#include "CommandLineFlags.h"
-#include "SkMultiPictureDraw.h"
-#include "SkSurface.h"
+#include "bench/SKPBench.h"
+#include "include/core/SkMultiPictureDraw.h"
+#include "include/core/SkSurface.h"
+#include "tools/flags/CommandLineFlags.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
 
 // These CPU tile sizes are not good per se, but they are similar to what Chrome uses.
 static DEFINE_int(CPUbenchTileW, 256, "Tile width  used for CPU SKP playback.");
@@ -150,7 +150,7 @@ void SKPBench::drawPicture() {
     }
 }
 
-#include "GrGpu.h"
+#include "src/gpu/GrGpu.h"
 static void draw_pic_for_stats(SkCanvas* canvas, GrContext* context, const SkPicture* picture,
                                SkTArray<SkString>* keys, SkTArray<double>* values) {
     context->priv().resetGpuStats();

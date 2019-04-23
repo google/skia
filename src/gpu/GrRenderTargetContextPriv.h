@@ -8,9 +8,9 @@
 #ifndef GrRenderTargetContextPriv_DEFINED
 #define GrRenderTargetContextPriv_DEFINED
 
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetOpList.h"
-#include "GrPathRendering.h"
+#include "src/gpu/GrPathRendering.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetOpList.h"
 
 class GrFixedClip;
 class GrHardClip;

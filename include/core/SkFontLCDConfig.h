@@ -8,7 +8,7 @@
 #ifndef SkFontLCDConfig_DEFINED
 #define SkFontLCDConfig_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 class SK_API SkFontLCDConfig {
 public:

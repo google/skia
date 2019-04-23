@@ -8,12 +8,12 @@
 #ifndef Fuzz_DEFINED
 #define Fuzz_DEFINED
 
-#include "../tools/Registry.h"
-#include "SkData.h"
-#include "SkImageFilter.h"
-#include "SkMalloc.h"
-#include "SkRegion.h"
-#include "SkTypes.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
+#include "tools/Registry.h"
 
 #include <limits>
 #include <cmath>

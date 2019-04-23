@@ -8,9 +8,9 @@
 #ifndef SkFontPriv_DEFINED
 #define SkFontPriv_DEFINED
 
-#include "SkFont.h"
-#include "SkMatrix.h"
-#include "SkTypeface.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkTypeface.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;

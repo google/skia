@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkVaryingHandler.h"
+#include "src/gpu/vk/GrVkVaryingHandler.h"
 
 /** Returns the number of locations take up by a given GrSLType. We assume that all
     scalar values are 32 bits. */

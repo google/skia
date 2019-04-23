@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkRandom.h"
+#include "gm/gm.h"
+#include "include/utils/SkRandom.h"
 
 namespace skiagm {
 

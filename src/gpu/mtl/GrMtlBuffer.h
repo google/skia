@@ -8,8 +8,8 @@
 #ifndef GrMtlBuffer_DEFINED
 #define GrMtlBuffer_DEFINED
 
-#include "GrGpuBuffer.h"
-#include "GrMtlUniformHandler.h"
+#include "src/gpu/GrGpuBuffer.h"
+#include "src/gpu/mtl/GrMtlUniformHandler.h"
 
 #import <metal/metal.h>
 

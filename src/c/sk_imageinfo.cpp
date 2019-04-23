@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageInfo.h"
-#include "SkColorSpace.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
 
-#include "sk_imageinfo.h"
-#include "sk_colorspace.h"
+#include "include/c/sk_colorspace.h"
+#include "include/c/sk_imageinfo.h"
 
 const struct {
     sk_colortype_t  fC;

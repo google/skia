@@ -8,11 +8,11 @@
 #ifndef SkPictureData_DEFINED
 #define SkPictureData_DEFINED
 
-#include "SkBitmap.h"
-#include "SkDrawable.h"
-#include "SkPicture.h"
-#include "SkPictureFlat.h"
-#include "SkTArray.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkPicture.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkPictureFlat.h"
 
 #include <memory>
 

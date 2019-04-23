@@ -8,8 +8,8 @@
 #ifndef SkBitmapProvider_DEFINED
 #define SkBitmapProvider_DEFINED
 
-#include "SkImage.h"
-#include "SkBitmapCache.h"
+#include "include/core/SkImage.h"
+#include "src/core/SkBitmapCache.h"
 
 class SkBitmapProvider {
 public:

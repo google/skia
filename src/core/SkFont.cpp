@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkDraw.h"
-#include "SkFontPriv.h"
-#include "SkPaint.h"
-#include "SkPaintDefaults.h"
-#include "SkPath.h"
-#include "SkScalerContext.h"
-#include "SkStrike.h"
-#include "SkStrikeCache.h"
-#include "SkTo.h"
-#include "SkTLazy.h"
-#include "SkTypeface.h"
-#include "SkUTF.h"
-#include "SkUtils.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkFontPriv.h"
+#include "src/core/SkPaintDefaults.h"
+#include "src/core/SkScalerContext.h"
+#include "src/core/SkStrike.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/core/SkTLazy.h"
+#include "src/core/SkUtils.h"
+#include "src/utils/SkUTF.h"
 
 #define kDefault_Size       SkPaintDefaults_TextSize
 #define kDefault_Flags      0
@@ -493,8 +493,8 @@ void SkFontPriv::GlyphsToUnichars(const SkFont& font, const SkGlyphID glyphs[], 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 // packed int at the beginning of the serialized font:
 //

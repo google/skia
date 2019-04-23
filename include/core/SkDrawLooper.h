@@ -10,11 +10,11 @@
 #ifndef SkDrawLooper_DEFINED
 #define SkDrawLooper_DEFINED
 
-#include "../private/SkNoncopyable.h"
-#include "SkBlurTypes.h"
-#include "SkFlattenable.h"
-#include "SkPoint.h"
-#include "SkColor.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkPoint.h"
+#include "include/private/SkNoncopyable.h"
 
 class  SkArenaAlloc;
 class  SkCanvas;

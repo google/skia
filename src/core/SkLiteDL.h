@@ -8,13 +8,13 @@
 #ifndef SkLiteDL_DEFINED
 #define SkLiteDL_DEFINED
 
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkDrawable.h"
-#include "SkRect.h"
-#include "SkTDArray.h"
-#include "SkTemplates.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkTemplates.h"
 
 class SkLiteDL final {
 public:

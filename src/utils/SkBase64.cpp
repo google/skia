@@ -6,7 +6,7 @@
  */
 
 
-#include "SkBase64.h"
+#include "include/utils/SkBase64.h"
 
 #define DecodePad -2
 #define EncodePad 64

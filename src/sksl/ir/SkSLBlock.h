@@ -8,8 +8,8 @@
 #ifndef SKSL_BLOCK
 #define SKSL_BLOCK
 
-#include "SkSLStatement.h"
-#include "SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
 namespace SkSL {
 

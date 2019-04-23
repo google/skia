@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkMakeUnique.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkGradientShader.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkMakeUnique.h"
 
 static sk_sp<SkShader> make_grad(SkScalar w, SkScalar h) {
     SkColor colors[] = { 0xFF000000, 0xFF333333 };
@@ -47,7 +47,7 @@ DEF_SAMPLE( return new BigGradientView(); )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkRasterHandleAllocator.h"
+#include "include/core/SkRasterHandleAllocator.h"
 
 class GraphicsPort {
 protected:
@@ -84,7 +84,7 @@ public:
 
 #ifdef SK_BUILD_FOR_MAC
 
-#include "SkCGUtils.h"
+#include "include/utils/mac/SkCGUtils.h"
 class CGGraphicsPort : public GraphicsPort {
 public:
     CGGraphicsPort(SkCanvas* canvas) : GraphicsPort(canvas) {}

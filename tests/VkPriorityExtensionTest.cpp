@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if SK_SUPPORT_GPU && defined(SK_VULKAN)
 
-#include "SkAutoMalloc.h"
-#include "Test.h"
-#include "vk/GrVkTypes.h"
-#include "../tools/gpu/vk/VkTestUtils.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/core/SkAutoMalloc.h"
+#include "tests/Test.h"
+#include "tools/gpu/vk/VkTestUtils.h"
 
 #define ACQUIRE_VK_PROC_NOCHECK(name, instance, device) \
     PFN_vk##name grVk##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device))

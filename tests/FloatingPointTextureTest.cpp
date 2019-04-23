@@ -12,14 +12,14 @@
  * have been selected to require 32 bits of precision and full IEEE conformance
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrTextureProxy.h"
-#include "ProxyUtils.h"
-#include "SkHalf.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/private/SkHalf.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "tools/gpu/ProxyUtils.h"
 
 #include <float.h>
 

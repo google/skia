@@ -6,8 +6,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkLights.h"
-#include "SkReadBuffer.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/shaders/SkLights.h"
 
 sk_sp<SkLights> SkLights::MakeFromBuffer(SkReadBuffer& buf) {
     Builder builder;

@@ -1,8 +1,8 @@
 // Copyright 2018 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "SkUTF.h"
-#include "Test.h"
+#include "src/utils/SkUTF.h"
+#include "tests/Test.h"
 
 DEF_TEST(SkUTF_UTF16, reporter) {
     // Test non-basic-multilingual-plane unicode.

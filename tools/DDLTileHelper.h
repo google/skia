@@ -8,9 +8,9 @@
 #ifndef DDLTileHelper_DEFINED
 #define DDLTileHelper_DEFINED
 
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkSurfaceCharacterization.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceCharacterization.h"
 
 class DDLPromiseImageHelper;
 class SkCanvas;

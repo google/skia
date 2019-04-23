@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRect.h"
-#include "SkStroke.h"
-#include "SkStrokeRec.h"
-#include "Test.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkStrokeRec.h"
+#include "src/core/SkStroke.h"
+#include "tests/Test.h"
 
 static bool equal(const SkRect& a, const SkRect& b) {
     return  SkScalarNearlyEqual(a.left(), b.left()) &&

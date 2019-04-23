@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkGradientShader.h"
+#include "gm/gm.h"
+#include "include/effects/SkGradientShader.h"
 
 typedef sk_sp<SkShader> (*MakeShaderProc)(const SkColor[], int count, const SkSize&);
 

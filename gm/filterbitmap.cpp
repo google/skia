@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "Resources.h"
-#include "SkGradientShader.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
+#include "include/effects/SkGradientShader.h"
+#include "tools/Resources.h"
 
 static void setTypeface(SkFont* font, const char name[], SkFontStyle style) {
     font->setTypeface(ToolUtils::create_portable_typeface(name, style));

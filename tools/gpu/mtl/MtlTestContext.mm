@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "MtlTestContext.h"
+#include "tools/gpu/mtl/MtlTestContext.h"
 
-#include "GrContext.h"
-#include "GrContextOptions.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextOptions.h"
 
 #ifdef SK_METAL
 

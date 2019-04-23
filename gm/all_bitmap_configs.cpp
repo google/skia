@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkSurface.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
-#include "SkColorPriv.h"
-#include "SkFont.h"
-#include "SkMath.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMath.h"
 
 static SkBitmap copy_bitmap(const SkBitmap& src, SkColorType colorType) {
     const SkBitmap* srcPtr = &src;

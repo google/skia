@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkDiscardableMemoryPool.h"
-#include "SkDiscardableMemory.h"
-#include "SkMakeUnique.h"
-#include "SkMalloc.h"
-#include "SkMutex.h"
-#include "SkTInternalLList.h"
-#include "SkTemplates.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTInternalLList.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkDiscardableMemory.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/lazy/SkDiscardableMemoryPool.h"
 
 // Note:
 // A PoolDiscardableMemory is memory that is counted in a pool.

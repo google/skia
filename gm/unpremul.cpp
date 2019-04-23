@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkColor.h"
+#include "gm/gm.h"
+#include "include/core/SkColor.h"
 
 DEF_SIMPLE_GM(unpremul, canvas, 200, 200) {
     const SkColor color = 0xbf400000;

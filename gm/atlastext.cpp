@@ -5,23 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
 #if SK_SUPPORT_ATLAS_TEXT
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 
-#include "SkAtlasTextContext.h"
-#include "SkAtlasTextFont.h"
-#include "SkAtlasTextTarget.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkTypeface.h"
-#include "SkUTF.h"
-#include "ToolUtils.h"
-#include "gpu/TestContext.h"
-#include "gpu/atlastext/GLTestAtlasTextRenderer.h"
-#include "gpu/atlastext/TestAtlasTextRenderer.h"
+#include "include/atlastext/SkAtlasTextContext.h"
+#include "include/atlastext/SkAtlasTextFont.h"
+#include "include/atlastext/SkAtlasTextTarget.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkTypeface.h"
+#include "src/utils/SkUTF.h"
+#include "tools/ToolUtils.h"
+#include "tools/gpu/TestContext.h"
+#include "tools/gpu/atlastext/GLTestAtlasTextRenderer.h"
+#include "tools/gpu/atlastext/TestAtlasTextRenderer.h"
 
 // GM that draws text using the Atlas Text interface offscreen and then blits that to the canvas.
 

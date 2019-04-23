@@ -8,8 +8,8 @@
 #ifndef SkColorSpaceXformSteps_DEFINED
 #define SkColorSpaceXformSteps_DEFINED
 
-#include "SkColorSpace.h"
-#include "SkImageInfo.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
 
 class SkRasterPipeline;
 

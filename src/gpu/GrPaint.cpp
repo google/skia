@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrPaint.h"
-#include "GrXferProcessor.h"
-#include "effects/GrCoverageSetOpXP.h"
-#include "effects/GrPorterDuffXferProcessor.h"
-#include "effects/generated/GrSimpleTextureEffect.h"
+#include "src/gpu/GrPaint.h"
+#include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/effects/GrCoverageSetOpXP.h"
+#include "src/gpu/effects/GrPorterDuffXferProcessor.h"
+#include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
 
 GrPaint::GrPaint(const GrPaint& that)
         : fXPFactory(that.fXPFactory)

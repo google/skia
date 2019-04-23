@@ -8,14 +8,14 @@
 #ifndef SkGlyphRunPainter_DEFINED
 #define SkGlyphRunPainter_DEFINED
 
-#include "SkDistanceFieldGen.h"
-#include "SkGlyphRun.h"
-#include "SkScalerContext.h"
-#include "SkSurfaceProps.h"
-#include "SkTextBlobPriv.h"
+#include "include/core/SkSurfaceProps.h"
+#include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkGlyphRun.h"
+#include "src/core/SkScalerContext.h"
+#include "src/core/SkTextBlobPriv.h"
 
 #if SK_SUPPORT_GPU
-#include "text/GrTextContext.h"
+#include "src/gpu/text/GrTextContext.h"
 class GrColorSpaceInfo;
 class GrRenderTargetContext;
 #endif

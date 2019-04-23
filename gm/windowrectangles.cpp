@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkClipStack.h"
-#include "SkRRect.h"
-#include "SkTextUtils.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkRRect.h"
+#include "include/utils/SkTextUtils.h"
+#include "src/core/SkClipStack.h"
+#include "tools/ToolUtils.h"
 
-#include "GrAppliedClip.h"
-#include "GrCaps.h"
-#include "GrContextPriv.h"
-#include "GrReducedClip.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetContextPriv.h"
-#include "GrResourceProvider.h"
-#include "GrStencilClip.h"
-#include "effects/GrTextureDomain.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrReducedClip.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrStencilClip.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 
 constexpr static SkIRect kDeviceRect = {0, 0, 600, 600};
 constexpr static SkIRect kCoverRect = {50, 50, 550, 550};

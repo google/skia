@@ -9,10 +9,10 @@
 #ifndef GrVkPipelineState_DEFINED
 #define GrVkPipelineState_DEFINED
 
-#include "GrVkDescriptorSetManager.h"
-#include "GrVkPipelineStateDataManager.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/vk/GrVkDescriptorSetManager.h"
+#include "src/gpu/vk/GrVkPipelineStateDataManager.h"
 
 class GrPipeline;
 class GrStencilSettings;

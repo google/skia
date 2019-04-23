@@ -8,7 +8,7 @@
 #ifndef SKSL_BYTECODE
 #define SKSL_BYTECODE
 
-#include "ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 
 namespace SkSL {
 

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvasPriv.h"
-#include "SkShaderMaskFilter.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/effects/SkShaderMaskFilter.h"
+#include "src/core/SkCanvasPriv.h"
+#include "tools/ToolUtils.h"
 
 // This GM tests out the deprecated Android-specific unclipped saveLayer "feature".
 // In particular, it attempts to compare the performance of unclipped saveLayers with alternatives.
@@ -103,7 +103,7 @@ DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
     }
 };
 
-#include "Resources.h"
+#include "tools/Resources.h"
 
 // Test kInitWithPrevious_SaveLayerFlag by drawing an image, save a layer with the flag, which
 // should seed the layer with the image (from below). Then we punch a hole in the layer and
@@ -123,11 +123,11 @@ DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
     canvas->restore();
 };
 
-#include "SkBlurImageFilter.h"
-#include "SkGradientShader.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkSurface.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkGradientShader.h"
 
 static void draw_mask(SkCanvas* canvas, int size) {
     const SkScalar cx = size * SK_ScalarHalf,
@@ -334,9 +334,9 @@ DEF_SIMPLE_GM(savelayer_clipmask_maskfilter, canvas, 500, 500) {
     canvas->restore();
 }
 
-#include "SkFont.h"
-#include "SkGradientShader.h"
-#include "SkTextBlob.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkTextBlob.h"
+#include "include/effects/SkGradientShader.h"
 
 static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkScalar w, SkScalar h,
                       bool useDrawBehind) {

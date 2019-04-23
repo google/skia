@@ -10,9 +10,10 @@
  **************************************************************************************************/
 #ifndef GrConstColorProcessor_DEFINED
 #define GrConstColorProcessor_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "include/core/SkTypes.h"
+
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
 class GrConstColorProcessor : public GrFragmentProcessor {
 public:
     enum class InputMode { kIgnore = 0, kLast = 2, kModulateA = 2, kModulateRGBA = 1 };

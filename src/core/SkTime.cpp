@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkTime.h"
+#include "include/core/SkTime.h"
 
-#include "SkLeanWindows.h"
-#include "SkString.h"
-#include "SkTo.h"
-#include "SkTypes.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkLeanWindows.h"
+#include "include/private/SkTo.h"
 
 #include <chrono>
 

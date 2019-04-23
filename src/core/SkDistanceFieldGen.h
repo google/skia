@@ -7,7 +7,7 @@
 #ifndef SkDistanceFieldGen_DEFINED
 #define SkDistanceFieldGen_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 // the max magnitude for the distance field
 // distance values are limited to the range (-SK_DistanceFieldMagnitude, SK_DistanceFieldMagnitude]

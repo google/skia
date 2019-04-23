@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkJpegUtility.h"
+#include "src/codec/SkJpegUtility.h"
 
-#include "SkCodecPriv.h"
+#include "src/codec/SkCodecPriv.h"
 
 /*
  * Call longjmp to continue execution on an error

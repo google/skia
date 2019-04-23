@@ -6,19 +6,19 @@
  */
 
 #include <set>
-#include "GrClip.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrProxyProvider.h"
-#include "GrRenderTarget.h"
-#include "GrResourceProvider.h"
-#include "GrTexture.h"
-#include "GrTexturePriv.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkMipMap.h"
-#include "SkSurface.h"
-#include "Test.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "include/gpu/GrTexture.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkMipMap.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "tests/Test.h"
 
 // Tests that GrSurface::asTexture(), GrSurface::asRenderTarget(), and static upcasting of texture
 // and render targets to GrSurface all work as expected.
@@ -152,9 +152,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     }
 }
 
-#include "GrDrawingManager.h"
-#include "GrSurfaceProxy.h"
-#include "GrTextureContext.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrTextureContext.h"
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) {
     static constexpr int kSize = 100;

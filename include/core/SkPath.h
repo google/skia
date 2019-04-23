@@ -8,9 +8,9 @@
 #ifndef SkPath_DEFINED
 #define SkPath_DEFINED
 
-#include "SkMatrix.h"
-#include "../private/SkPathRef.h"
-#include "../private/SkTo.h"
+#include "include/core/SkMatrix.h"
+#include "include/private/SkPathRef.h"
+#include "include/private/SkTo.h"
 
 #include <initializer_list>
 

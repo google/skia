@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkOpts.h"
+#include "bench/Benchmark.h"
+#include "src/core/SkOpts.h"
 
 class SwizzleBench : public Benchmark {
 public:

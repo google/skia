@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkUtils.h"
+#include "src/core/SkUtils.h"
 
 namespace {  // NOLINT(google-build-namespaces)
 

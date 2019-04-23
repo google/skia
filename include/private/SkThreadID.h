@@ -8,7 +8,7 @@
 #ifndef SkThreadID_DEFINED
 #define SkThreadID_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 typedef int64_t SkThreadID;
 

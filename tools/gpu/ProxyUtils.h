@@ -8,8 +8,8 @@
 #ifndef ProxyUtils_DEFINED
 #define ProxyUtils_DEFINED
 
-#include "GrTextureProxy.h"
-#include "GrTypesPriv.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/private/GrTypesPriv.h"
 
 namespace sk_gpu_test {
 

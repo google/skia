@@ -8,9 +8,9 @@
 #ifndef StatsLayer_DEFINED
 #define StatsLayer_DEFINED
 
-#include "SkColor.h"
-#include "SkString.h"
-#include "sk_app/Window.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkString.h"
+#include "tools/sk_app/Window.h"
 
 class StatsLayer : public sk_app::Window::Layer {
 public:

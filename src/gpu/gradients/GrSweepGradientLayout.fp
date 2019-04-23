@@ -36,8 +36,8 @@ void main() {
 //////////////////////////////////////////////////////////////////////////////
 
 @header {
-    #include "SkSweepGradient.h"
-    #include "../GrGradientShader.h"
+    #include "src/gpu/gradients/GrGradientShader.h"
+    #include "src/shaders/gradients/SkSweepGradient.h"
 }
 
 // The sweep gradient never rejects a pixel so it doesn't change opacity

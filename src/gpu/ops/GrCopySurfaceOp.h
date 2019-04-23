@@ -8,8 +8,8 @@
 #ifndef GrCopySurfaceOp_DEFINED
 #define GrCopySurfaceOp_DEFINED
 
-#include "GrOp.h"
-#include "GrOpFlushState.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/ops/GrOp.h"
 
 class GrRecordingContext;
 

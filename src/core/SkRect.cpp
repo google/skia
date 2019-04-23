@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkRect.h"
+#include "include/core/SkRect.h"
 
-#include "SkMalloc.h"
+#include "include/private/SkMalloc.h"
 
 void SkIRect::join(int32_t left, int32_t top, int32_t right, int32_t bottom) {
     // do nothing if the params are empty
@@ -37,7 +37,7 @@ void SkRect::toQuad(SkPoint quad[4]) const {
     quad[3].set(fLeft, fBottom);
 }
 
-#include "SkNx.h"
+#include "include/private/SkNx.h"
 
 bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     SkASSERT((pts && count > 0) || count == 0);
@@ -128,8 +128,8 @@ void SkRect::join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkString.h"
-#include "SkStringUtils.h"
+#include "include/core/SkString.h"
+#include "src/core/SkStringUtils.h"
 
 static const char* set_scalar(SkString* storage, SkScalar value, SkScalarAsStringType asType) {
     storage->reset();

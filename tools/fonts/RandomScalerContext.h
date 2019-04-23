@@ -8,8 +8,8 @@
 #ifndef RandomScalerContext_DEFINED
 #define RandomScalerContext_DEFINED
 
-#include "SkScalerContext.h"
-#include "SkTypeface.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkScalerContext.h"
 
 /*
  * This scaler context is for debug only purposes.  It will 'randomly' but deterministically return

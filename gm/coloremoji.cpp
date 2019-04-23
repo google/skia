@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "Resources.h"
-#include "SkBlurImageFilter.h"
-#include "SkCanvas.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkColorMatrixFilter.h"
-#include "SkFont.h"
-#include "SkFontMetrics.h"
-#include "SkGradientShader.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "tools/Resources.h"
 
 /*
  * Spits out a dummy gradient to test blur with shader on paint

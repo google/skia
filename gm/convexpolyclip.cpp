@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "SkBitmap.h"
-#include "SkFont.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
-#include "SkTLList.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPath.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/core/SkTLList.h"
 
 static SkBitmap make_bmp(int w, int h) {
     SkBitmap bmp;

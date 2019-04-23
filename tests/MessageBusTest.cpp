@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkMessageBus.h"
-#include "Test.h"
+#include "include/private/SkMessageBus.h"
+#include "tests/Test.h"
 
 namespace {
 

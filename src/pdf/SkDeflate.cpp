@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkDeflate.h"
+#include "src/pdf/SkDeflate.h"
 
-#include "SkData.h"
-#include "SkMakeUnique.h"
-#include "SkMalloc.h"
-#include "SkTo.h"
-#include "SkTraceEvent.h"
+#include "include/core/SkData.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkTraceEvent.h"
 
 #include "zlib.h"
 

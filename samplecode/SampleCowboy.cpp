@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_XML
 
-#include "Sample.h"
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkDOM.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkRect.h"
-#include "SkStream.h"
-#include "SkSVGDOM.h"
+#include "experimental/svg/model/SkSVGDOM.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkStream.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkOSPath.h"
+#include "src/xml/SkDOM.h"
+#include "tools/Resources.h"
 
 namespace {
 

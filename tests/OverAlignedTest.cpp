@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "SkRandom.h"
+#include "include/utils/SkRandom.h"
+#include "tests/Test.h"
 
 // Clang seems to think only 32-bit alignment is guaranteed on 32-bit x86 Android.
 // See https://reviews.llvm.org/D8357

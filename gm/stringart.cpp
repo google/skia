@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "tools/ToolUtils.h"
+#include "tools/timer/AnimTimer.h"
 
 // Reproduces https://code.google.com/p/chromium/issues/detail?id=279014
 
@@ -87,7 +87,7 @@ DEF_GM( return new StringArtGM; )
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if 0
-#include "Skottie.h"
+#include "modules/skottie/include/Skottie.h"
 
 class SkottieGM : public skiagm::GM {
     enum {

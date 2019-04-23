@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkOSFile.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkOSFile.h"
+#include "tools/Resources.h"
 
 namespace skiagm {
 

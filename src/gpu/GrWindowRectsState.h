@@ -8,7 +8,7 @@
 #ifndef GrWindowRectsState_DEFINED
 #define GrWindowRectsState_DEFINED
 
-#include "GrWindowRectangles.h"
+#include "src/gpu/GrWindowRectangles.h"
 
 class GrWindowRectsState {
 public:

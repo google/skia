@@ -5,12 +5,12 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkDescriptorSetManager.h"
+#include "src/gpu/vk/GrVkDescriptorSetManager.h"
 
-#include "GrVkDescriptorPool.h"
-#include "GrVkDescriptorSet.h"
-#include "GrVkGpu.h"
-#include "GrVkUniformHandler.h"
+#include "src/gpu/vk/GrVkDescriptorPool.h"
+#include "src/gpu/vk/GrVkDescriptorSet.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkUniformHandler.h"
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
 #include <sanitizer/lsan_interface.h>

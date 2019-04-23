@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkExecutor.h"
-#include "SkTaskGroup.h"
+#include "include/core/SkExecutor.h"
+#include "src/core/SkTaskGroup.h"
 
 SkTaskGroup::SkTaskGroup(SkExecutor& executor) : fPending(0), fExecutor(executor) {}
 

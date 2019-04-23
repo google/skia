@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkGradientShader.h"
-#include "SkLocalMatrixShader.h"
-#include "SkRandom.h"
-#include "SkVertices.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkVertices.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/utils/SkRandom.h"
+#include "src/shaders/SkLocalMatrixShader.h"
 
 static constexpr SkScalar kShaderSize = 40;
 static sk_sp<SkShader> make_shader1(SkScalar shaderScale) {

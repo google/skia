@@ -9,10 +9,10 @@
 #ifndef SkString_DEFINED
 #define SkString_DEFINED
 
-#include "../private/SkTArray.h"
-#include "../private/SkTo.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTo.h"
 
 #include <atomic>
 #include <stdarg.h>

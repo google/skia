@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkOpts.h"
+#include "src/core/SkOpts.h"
 
 #define SK_OPTS_NS hsw
-#include "SkBlitRow_opts.h"
-#include "SkRasterPipeline_opts.h"
-#include "SkUtils_opts.h"
+#include "src/opts/SkBlitRow_opts.h"
+#include "src/opts/SkRasterPipeline_opts.h"
+#include "src/opts/SkUtils_opts.h"
 
 namespace SkOpts {
     void Init_hsw() {

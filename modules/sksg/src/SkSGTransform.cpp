@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGTransform.h"
+#include "modules/sksg/include/SkSGTransform.h"
 
-#include "SkCanvas.h"
-#include "SkSGTransformPriv.h"
+#include "include/core/SkCanvas.h"
+#include "modules/sksg/src/SkSGTransformPriv.h"
 
 namespace sksg {
 

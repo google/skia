@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "BisectSlide.h"
+#include "tools/viewer/BisectSlide.h"
 
-#include "SkOSPath.h"
-#include "SkPicture.h"
-#include "SkStream.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkStream.h"
+#include "src/utils/SkOSPath.h"
 
 #include <utility>
 
 #ifdef SK_XML
-#include "SkDOM.h"
-#include "../experimental/svg/model/SkSVGDOM.h"
+#include "experimental/svg/model/SkSVGDOM.h"
+#include "src/xml/SkDOM.h"
 #endif
 
 sk_sp<BisectSlide> BisectSlide::Create(const char filepath[]) {

@@ -8,7 +8,7 @@
 #ifndef SkRecordOpts_DEFINED
 #define SkRecordOpts_DEFINED
 
-#include "SkRecord.h"
+#include "src/core/SkRecord.h"
 
 // Run all optimizations in recommended order.
 void SkRecordOptimize(SkRecord*);

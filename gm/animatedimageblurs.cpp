@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "SkBlurImageFilter.h"
-#include "SkRRect.h"
-#include "SkRandom.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkRRect.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/utils/SkRandom.h"
+#include "tools/timer/AnimTimer.h"
 
 static const SkScalar kBlurMax = 7.0f;
 static const int kNumNodes = 30;

@@ -8,7 +8,7 @@
 #ifndef GrVulkanDefines_DEFINED
 #define GrVulkanDefines_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if defined(SK_BUILD_FOR_WIN)
 #   if !defined(VK_USE_PLATFORM_WIN32_KHR)

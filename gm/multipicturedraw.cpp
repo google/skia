@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "SkColorFilter.h"
-#include "SkMultiPictureDraw.h"
-#include "SkPath.h"
-#include "SkPictureRecorder.h"
-#include "SkSurface.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkMultiPictureDraw.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSurface.h"
 
 constexpr SkScalar kRoot3Over2 = 0.86602545f;  // sin(60)
 constexpr SkScalar kRoot3      = 1.73205081f;

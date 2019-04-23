@@ -5,25 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkColorPriv.h"
-#include "SkShader.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkShader.h"
 
-#include "SkBlurImageFilter.h"
-#include "SkColorMatrixFilter.h"
-#include "SkDisplacementMapEffect.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkGradientShader.h"
-#include "SkImageSource.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkLightingImageFilter.h"
-#include "SkMergeImageFilter.h"
-#include "SkOffsetImageFilter.h"
-#include "SkPoint3.h"
-#include "SkSurface.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/effects/SkDisplacementMapEffect.h"
+#include "include/effects/SkDropShadowImageFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkLightingImageFilter.h"
+#include "include/effects/SkMergeImageFilter.h"
+#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkOffsetImageFilter.h"
 
 namespace {
 

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
-#include "SkMaskFilter.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "tools/ToolUtils.h"
 
 DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
     SkPaint paint;
@@ -50,7 +50,7 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
 
 }
 
-#include "Resources.h"
+#include "tools/Resources.h"
 DEF_SIMPLE_GM_CAN_FAIL(blur_image, canvas, errorMsg, 500, 500) {
     auto image = GetResourceAsImage("images/mandrill_128.png");
     if (!image) {

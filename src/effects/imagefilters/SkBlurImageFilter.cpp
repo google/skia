@@ -5,27 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
+#include "include/effects/SkBlurImageFilter.h"
 
 #include <algorithm>
 
-#include "SkArenaAlloc.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkBitmap.h"
-#include "SkColorData.h"
-#include "SkImageFilterPriv.h"
-#include "SkTFitsIn.h"
-#include "SkGpuBlurUtils.h"
-#include "SkNx.h"
-#include "SkOpts.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkBitmap.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkNx.h"
+#include "include/private/SkTFitsIn.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkGpuBlurUtils.h"
+#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrTextureProxy.h"
-#include "SkGr.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/SkGr.h"
 #endif
 
 static constexpr double kPi = 3.14159265358979323846264338327950288;

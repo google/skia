@@ -5,10 +5,10 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkPipelineStateDataManager.h"
+#include "src/gpu/vk/GrVkPipelineStateDataManager.h"
 
-#include "GrVkGpu.h"
-#include "GrVkUniformBuffer.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkUniformBuffer.h"
 
 GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArray& uniforms,
                                                            uint32_t geometryUniformSize,

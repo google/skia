@@ -9,7 +9,7 @@
 // assembled by the fiddler program to compile into a fiddle: an
 // implementation of the GetDrawOptions() and draw() functions.
 
-#include "fiddle_main.h"
+#include "tools/fiddle/fiddle_main.h"
 DrawOptions GetDrawOptions() {
     // path *should* be absolute.
     static const char path[] = "resources/images/color_wheel.png";

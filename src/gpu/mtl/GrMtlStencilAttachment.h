@@ -8,7 +8,7 @@
 #ifndef GrMtlStencil_DEFINED
 #define GrMtlStencil_DEFINED
 
-#include "GrStencilAttachment.h"
+#include "src/gpu/GrStencilAttachment.h"
 
 #import <Metal/Metal.h>
 

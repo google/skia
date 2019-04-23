@@ -8,13 +8,13 @@
 #ifndef SKSL_INTERPRETER
 #define SKSL_INTERPRETER
 
-#include "SkSLByteCode.h"
-#include "ir/SkSLAppendStage.h"
-#include "ir/SkSLExpression.h"
-#include "ir/SkSLFunctionCall.h"
-#include "ir/SkSLFunctionDefinition.h"
-#include "ir/SkSLProgram.h"
-#include "ir/SkSLStatement.h"
+#include "src/sksl/SkSLByteCode.h"
+#include "src/sksl/ir/SkSLAppendStage.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLStatement.h"
 
 #include <stack>
 

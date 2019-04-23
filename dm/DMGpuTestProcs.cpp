@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;

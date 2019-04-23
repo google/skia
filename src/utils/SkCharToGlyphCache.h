@@ -8,8 +8,8 @@
 #ifndef SkCharToGlyphCache_DEFINED
 #define SkCharToGlyphCache_DEFINED
 
-#include "SkTypes.h"
-#include "../private/SkTDArray.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTDArray.h"
 
 class SkCharToGlyphCache {
 public:

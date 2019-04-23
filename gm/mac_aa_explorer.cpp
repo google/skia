@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkFont.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkSurface.h"
 
 #ifdef SK_BUILD_FOR_MAC
 

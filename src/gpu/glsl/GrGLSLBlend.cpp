@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLSLBlend.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "SkBlendModePriv.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/gpu/glsl/GrGLSLBlend.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //  Advanced (non-coeff) blend helpers

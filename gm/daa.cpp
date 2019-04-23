@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkFont.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPath.h"
 
 // This GM shows off a flaw in delta-based rasterizers (DAA, CCPR, etc.).
 // See also the bottom of dashing4 and skia:6886.

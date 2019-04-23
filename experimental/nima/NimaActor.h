@@ -12,9 +12,9 @@
 #include <nima/ActorImage.hpp>
 #include <nima/Vec2D.hpp>
 
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkImage.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
 
 #include <string>
 

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrMockGpu.h"
-#include "GrMockBuffer.h"
-#include "GrMockCaps.h"
-#include "GrMockGpuCommandBuffer.h"
-#include "GrMockStencilAttachment.h"
-#include "GrMockTexture.h"
+#include "src/gpu/mock/GrMockBuffer.h"
+#include "src/gpu/mock/GrMockCaps.h"
+#include "src/gpu/mock/GrMockGpu.h"
+#include "src/gpu/mock/GrMockGpuCommandBuffer.h"
+#include "src/gpu/mock/GrMockStencilAttachment.h"
+#include "src/gpu/mock/GrMockTexture.h"
 #include <atomic>
 
 int GrMockGpu::NextInternalTextureID() {

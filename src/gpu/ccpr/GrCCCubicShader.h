@@ -8,7 +8,7 @@
 #ifndef GrCCCubicShader_DEFINED
 #define GrCCCubicShader_DEFINED
 
-#include "ccpr/GrCCCoverageProcessor.h"
+#include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 
 /**
  * This class renders the coverage of convex closed cubic segments using the techniques outlined in

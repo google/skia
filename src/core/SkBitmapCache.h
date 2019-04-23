@@ -8,7 +8,7 @@
 #ifndef SkBitmapCache_DEFINED
 #define SkBitmapCache_DEFINED
 
-#include "SkRect.h"
+#include "include/core/SkRect.h"
 #include <memory>
 
 class SkBitmap;

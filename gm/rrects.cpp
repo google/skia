@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrRenderTargetContextPriv.h"
-#include "effects/GrRRectEffect.h"
-#include "ops/GrDrawOp.h"
-#include "ops/GrFillRectOp.h"
-#include "SkRRect.h"
+#include "gm/gm.h"
+#include "include/core/SkRRect.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/effects/GrRRectEffect.h"
+#include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/ops/GrFillRectOp.h"
 
 namespace skiagm {
 

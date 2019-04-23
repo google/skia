@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkDiscardableMemory.h"
-#include "SkDiscardableMemoryPool.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkDiscardableMemory.h"
+#include "src/lazy/SkDiscardableMemoryPool.h"
 
 SkDiscardableMemory* SkDiscardableMemory::Create(size_t bytes) {
     return SkGetGlobalDiscardableMemoryPool()->create(bytes);

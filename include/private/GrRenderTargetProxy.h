@@ -8,8 +8,8 @@
 #ifndef GrRenderTargetProxy_DEFINED
 #define GrRenderTargetProxy_DEFINED
 
-#include "GrSurfaceProxy.h"
-#include "GrTypesPriv.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrResourceProvider;
 class GrRenderTargetProxyPriv;

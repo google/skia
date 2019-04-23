@@ -6,11 +6,11 @@
  */
 
 
-#include "Sk1DPathEffect.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkPathMeasure.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/effects/Sk1DPathEffect.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 // Since we are stepping by a float, the do/while loop might go on forever (or nearly so).
 // Put in a governor to limit crash values from looping too long (and allocating too much ram).

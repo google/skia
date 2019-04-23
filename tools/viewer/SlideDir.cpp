@@ -5,22 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SlideDir.h"
+#include "tools/viewer/SlideDir.h"
 
-#include "AnimTimer.h"
-#include "SkCanvas.h"
-#include "SkCubicMap.h"
-#include "SkMakeUnique.h"
-#include "SkSGDraw.h"
-#include "SkSGGroup.h"
-#include "SkSGPaint.h"
-#include "SkSGPlane.h"
-#include "SkSGRect.h"
-#include "SkSGRenderNode.h"
-#include "SkSGScene.h"
-#include "SkSGText.h"
-#include "SkSGTransform.h"
-#include "SkTypeface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkCubicMap.h"
+#include "include/core/SkTypeface.h"
+#include "modules/sksg/include/SkSGDraw.h"
+#include "modules/sksg/include/SkSGGroup.h"
+#include "modules/sksg/include/SkSGPaint.h"
+#include "modules/sksg/include/SkSGPlane.h"
+#include "modules/sksg/include/SkSGRect.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
+#include "modules/sksg/include/SkSGScene.h"
+#include "modules/sksg/include/SkSGText.h"
+#include "modules/sksg/include/SkSGTransform.h"
+#include "src/core/SkMakeUnique.h"
+#include "tools/timer/AnimTimer.h"
 
 #include <cmath>
 #include <utility>

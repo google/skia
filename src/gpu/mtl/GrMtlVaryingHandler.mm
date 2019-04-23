@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlVaryingHandler.h"
+#include "src/gpu/mtl/GrMtlVaryingHandler.h"
 
 static void finalize_helper(GrMtlVaryingHandler::VarArray& vars) {
     int locationIndex;

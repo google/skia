@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "Resources.h"
-#include "SkAnimCodecPlayer.h"
-#include "SkColor.h"
-#include "SkMakeUnique.h"
-#include "Skottie.h"
-#include "SkottieProperty.h"
-#include "SkottieUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkColor.h"
+#include "include/utils/SkAnimCodecPlayer.h"
+#include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/include/SkottieProperty.h"
+#include "modules/skottie/utils/SkottieUtils.h"
+#include "src/core/SkMakeUnique.h"
+#include "tools/Resources.h"
+#include "tools/timer/AnimTimer.h"
 
 #include <cmath>
 #include <vector>

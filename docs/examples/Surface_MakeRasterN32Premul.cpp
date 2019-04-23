@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=b932a2bd68455fb0af2e7a1ed19e36b3
 REG_FIDDLE(Surface_MakeRasterN32Premul, 256, 256, true, 0) {
 void draw(SkCanvas* ) {

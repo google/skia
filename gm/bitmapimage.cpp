@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "Resources.h"
-#include "SkCodec.h"
-#include "SkImage.h"
+#include "gm/gm.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkImage.h"
+#include "tools/Resources.h"
 
 namespace skiagm {
 

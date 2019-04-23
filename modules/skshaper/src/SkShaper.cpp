@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkFont.h"
-#include "SkFontMetrics.h"
-#include "SkFontMgr.h"
-#include "SkMakeUnique.h"
-#include "SkShaper.h"
-#include "SkString.h"
-#include "SkTFitsIn.h"
-#include "SkTextBlobPriv.h"
-#include "SkTypeface.h"
-#include "SkUTF.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTFitsIn.h"
+#include "modules/skshaper/include/SkShaper.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkTextBlobPriv.h"
+#include "src/utils/SkUTF.h"
 
 #include <limits.h>
 #include <string.h>

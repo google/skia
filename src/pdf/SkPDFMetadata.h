@@ -8,9 +8,9 @@
 #ifndef SkPDFMetadata_DEFINED
 #define SkPDFMetadata_DEFINED
 
-#include "SkPDFDocument.h"
-#include "SkPDFTypes.h"
-#include "SkUUID.h"
+#include "include/docs/SkPDFDocument.h"
+#include "src/pdf/SkPDFTypes.h"
+#include "src/pdf/SkUUID.h"
 
 class SkPDFObject;
 

@@ -6,10 +6,10 @@
  */
 
 
-#include "GrShaderCaps.h"
+#include "src/gpu/GrShaderCaps.h"
 
-#include "GrContextOptions.h"
-#include "SkJSONWriter.h"
+#include "include/gpu/GrContextOptions.h"
+#include "src/utils/SkJSONWriter.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

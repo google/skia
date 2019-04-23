@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "GrTexture.h"
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrRenderTarget.h"
-#include "GrResourceKey.h"
-#include "GrSurfacePriv.h"
-#include "GrTexturePriv.h"
-#include "GrTypes.h"
-#include "SkMath.h"
-#include "SkMipMap.h"
-#include "SkTypes.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "include/gpu/GrTexture.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrResourceKey.h"
+#include "src/core/SkMipMap.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrTexturePriv.h"
 
 void GrTexture::markMipMapsDirty() {
     if (GrMipMapsStatus::kValid == fMipMapsStatus) {

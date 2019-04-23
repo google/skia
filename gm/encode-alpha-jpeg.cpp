@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkImage.h"
-#include "SkImageInfoPriv.h"
-#include "SkJpegEncoder.h"
+#include "gm/gm.h"
+#include "include/core/SkImage.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/private/SkImageInfoPriv.h"
 
-#include "Resources.h"
+#include "tools/Resources.h"
 
 namespace skiagm {
 

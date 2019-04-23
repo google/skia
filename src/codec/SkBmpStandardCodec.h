@@ -7,11 +7,11 @@
 #ifndef SkBmpStandardCodec_DEFINED
 #define SkBmpStandardCodec_DEFINED
 
-#include "SkBmpBaseCodec.h"
-#include "SkColorTable.h"
-#include "SkImageInfo.h"
-#include "SkSwizzler.h"
-#include "SkTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkTypes.h"
+#include "src/codec/SkBmpBaseCodec.h"
+#include "src/codec/SkColorTable.h"
+#include "src/codec/SkSwizzler.h"
 
 /*
  * This class implements the decoding for bmp images that use "standard" modes,

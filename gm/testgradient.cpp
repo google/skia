@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkRRect.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRRect.h"
+#include "include/effects/SkGradientShader.h"
 
 class TestGradientGM : public skiagm::GM {
 public:

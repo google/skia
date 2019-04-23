@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkData.h"
-#include "SkDataTable.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkRWBuffer.h"
-#include "SkRefCnt.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTArray.h"
-#include "SkTaskGroup.h"
-#include "SkTemplates.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDataTable.h"
+#include "include/core/SkRWBuffer.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkTaskGroup.h"
+#include "src/utils/SkOSPath.h"
+#include "tests/Test.h"
 
 #include <cstdio>
 #include <cstring>

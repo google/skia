@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGPaint.h"
+#include "modules/sksg/include/SkSGPaint.h"
 
-#include "SkSGRenderEffect.h"
+#include "modules/sksg/include/SkSGRenderEffect.h"
 
 namespace sksg {
 

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkCubicMap.h"
-#include "SkottieJson.h"
-#include "SkottiePriv.h"
-#include "SkottieValue.h"
-#include "SkSGScene.h"
-#include "SkString.h"
+#include "include/core/SkCubicMap.h"
+#include "include/core/SkString.h"
+#include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottiePriv.h"
+#include "modules/skottie/src/SkottieValue.h"
+#include "modules/sksg/include/SkSGScene.h"
 
 #include <memory>
 #include <vector>

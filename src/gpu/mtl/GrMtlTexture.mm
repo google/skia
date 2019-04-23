@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlTexture.h"
+#include "src/gpu/mtl/GrMtlTexture.h"
 
-#include "GrMtlGpu.h"
-#include "GrMtlUtil.h"
-#include "GrTexturePriv.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlUtil.h"
 
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            SkBudgeted budgeted,

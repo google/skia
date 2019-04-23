@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "tools/ToolUtils.h"
 
 #include <array>
 #include <vector>

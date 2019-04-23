@@ -13,7 +13,7 @@
 #ifndef SkUnPreMultiply_DEFINED
 #define SkUnPreMultiply_DEFINED
 
-#include "SkColor.h"
+#include "include/core/SkColor.h"
 
 class SK_API SkUnPreMultiply {
 public:

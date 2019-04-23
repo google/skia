@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLCompiler.h"
-#include "SkSLInterpreter.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLInterpreter.h"
 
-#include "Test.h"
+#include "tests/Test.h"
 
 void test(skiatest::Reporter* r, const char* src, SkSL::Interpreter::Value* in, int expectedCount,
           SkSL::Interpreter::Value* expected) {

@@ -8,9 +8,9 @@
 #ifndef GrGLExtensions_DEFINED
 #define GrGLExtensions_DEFINED
 
-#include "../../private/SkTArray.h"
-#include "GrGLFunctions.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
+#include "include/gpu/gl/GrGLFunctions.h"
+#include "include/private/SkTArray.h"
 
 #include <utility>
 

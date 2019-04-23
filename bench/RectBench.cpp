@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "CommandLineFlags.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/utils/SkRandom.h"
+#include "tools/flags/CommandLineFlags.h"
 
 static DEFINE_double(strokeWidth, -1.0, "If set, use this stroke width in RectBench.");
 

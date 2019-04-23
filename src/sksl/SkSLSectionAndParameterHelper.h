@@ -8,10 +8,10 @@
 #ifndef SKSL_SECTIONANDPARAMETERHELPER
 #define SKSL_SECTIONANDPARAMETERHELPER
 
-#include "SkSLErrorReporter.h"
-#include "ir/SkSLProgram.h"
-#include "ir/SkSLSection.h"
-#include "ir/SkSLVarDeclarations.h"
+#include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLSection.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
 #include <unordered_map>
 #include <vector>
 

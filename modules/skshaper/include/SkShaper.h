@@ -8,11 +8,11 @@
 #ifndef SkShaper_DEFINED
 #define SkShaper_DEFINED
 
-#include "SkPoint.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkTextBlob.h"
-#include "SkTypes.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypes.h"
 
 #include <memory>
 

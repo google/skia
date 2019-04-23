@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlSampler.h"
+#include "src/gpu/mtl/GrMtlSampler.h"
 
-#include "GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
 
 static inline MTLSamplerAddressMode wrap_mode_to_mtl_sampler_address(
         GrSamplerState::WrapMode wrapMode, const GrCaps& caps) {

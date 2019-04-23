@@ -8,8 +8,8 @@
 #ifndef SKSL_ASTMODIFIERDECLARATION
 #define SKSL_ASTMODIFIERDECLARATION
 
-#include "SkSLASTDeclaration.h"
-#include "../ir/SkSLModifiers.h"
+#include "src/sksl/ast/SkSLASTDeclaration.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 
 namespace SkSL {
 

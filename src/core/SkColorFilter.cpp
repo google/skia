@@ -5,23 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkColorFilter.h"
-#include "SkColorFilterPriv.h"
-#include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkNx.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
-#include "SkTDArray.h"
-#include "SkUnPreMultiply.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkNx.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkColorFilterPriv.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrFragmentProcessor.h"
-#include "effects/generated/GrMixerEffect.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/generated/GrMixerEffect.h"
 #endif
 
 bool SkColorFilter::asColorMode(SkColor*, SkBlendMode*) const {
@@ -48,7 +48,7 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
         .toSkColor();
 }
 
-#include "SkRasterPipeline.h"
+#include "src/core/SkRasterPipeline.h"
 SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c, SkColorSpace* colorSpace) const {
     SkPMColor4f dst, src = c.premul();
 
@@ -164,7 +164,7 @@ sk_sp<SkColorFilter> SkColorFilter::makeComposed(sk_sp<SkColorFilter> inner) con
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-#include "../gpu/effects/GrSRGBEffect.h"
+#include "src/gpu/effects/GrSRGBEffect.h"
 #endif
 
 class SkSRGBGammaColorFilter : public SkColorFilter {
@@ -361,10 +361,10 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-#include "effects/GrSkSLFP.h"
-#include "GrRecordingContext.h"
-#include "SkSLByteCode.h"
-#include "SkSLInterpreter.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/effects/GrSkSLFP.h"
+#include "src/sksl/SkSLByteCode.h"
+#include "src/sksl/SkSLInterpreter.h"
 
 class SkRuntimeColorFilter : public SkColorFilter {
 public:
@@ -483,7 +483,7 @@ sk_sp<SkColorFilter> SkRuntimeColorFilterFactory::make(sk_sp<SkData> inputs) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkModeColorFilter.h"
+#include "src/core/SkModeColorFilter.h"
 
 void SkColorFilter::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkComposeColorFilter);

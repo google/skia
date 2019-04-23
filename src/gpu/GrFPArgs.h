@@ -8,8 +8,8 @@
 #ifndef GrFPArgs_DEFINED
 #define GrFPArgs_DEFINED
 
-#include "SkFilterQuality.h"
-#include "SkMatrix.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkMatrix.h"
 
 class GrColorSpaceInfo;
 class GrRecordingContext;

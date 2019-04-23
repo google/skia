@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorData.h"
-#include "SkCoreBlitters.h"
-#include "SkShader.h"
-#include "SkUtils.h"
-#include "SkXfermodePriv.h"
-#include "SkVx.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkVx.h"
+#include "src/core/SkCoreBlitters.h"
+#include "src/core/SkUtils.h"
+#include "src/core/SkXfermodePriv.h"
 
 static inline int upscale_31_to_32(int value) {
     SkASSERT((unsigned)value <= 31);
@@ -769,7 +769,7 @@ void SkARGB32_Blitter::blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
 #define SK_BLITBWMASK_BLIT8(mask, dst)      solid_8_pixels(mask, dst, color)
 #define SK_BLITBWMASK_GETADDR               writable_addr32
 #define SK_BLITBWMASK_DEVTYPE               uint32_t
-#include "SkBlitBWMaskTemplate.h"
+#include "src/core/SkBlitBWMaskTemplate.h"
 
 #define blend_8_pixels(mask, dst, sc, dst_scale)                            \
     do {                                                                    \
@@ -788,7 +788,7 @@ void SkARGB32_Blitter::blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
 #define SK_BLITBWMASK_BLIT8(mask, dst)      blend_8_pixels(mask, dst, sc, dst_scale)
 #define SK_BLITBWMASK_GETADDR               writable_addr32
 #define SK_BLITBWMASK_DEVTYPE               uint32_t
-#include "SkBlitBWMaskTemplate.h"
+#include "src/core/SkBlitBWMaskTemplate.h"
 
 void SkARGB32_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     SkASSERT(mask.fBounds.contains(clip));

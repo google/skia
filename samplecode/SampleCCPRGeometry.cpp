@@ -5,31 +5,31 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if SK_SUPPORT_GPU
 
-#include "GrClip.h"
-#include "GrContextPriv.h"
-#include "GrMemoryPool.h"
-#include "GrPathUtils.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetContextPriv.h"
-#include "GrResourceProvider.h"
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkMakeUnique.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRectPriv.h"
-#include "ccpr/GrCCCoverageProcessor.h"
-#include "ccpr/GrCCFillGeometry.h"
-#include "ccpr/GrCCStroker.h"
-#include "ccpr/GrGSCoverageProcessor.h"
-#include "ccpr/GrVSCoverageProcessor.h"
-#include "gl/GrGLGpu.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "ops/GrDrawOp.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkRectPriv.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrPathUtils.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/ccpr/GrCCCoverageProcessor.h"
+#include "src/gpu/ccpr/GrCCFillGeometry.h"
+#include "src/gpu/ccpr/GrCCStroker.h"
+#include "src/gpu/ccpr/GrGSCoverageProcessor.h"
+#include "src/gpu/ccpr/GrVSCoverageProcessor.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/ops/GrDrawOp.h"
 
 using TriPointInstance = GrCCCoverageProcessor::TriPointInstance;
 using QuadPointInstance = GrCCCoverageProcessor::QuadPointInstance;

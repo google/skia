@@ -10,19 +10,19 @@
 
 #include <memory>
 
-#include "SkFont.h"
-#include "SkFontTypes.h"
-#include "SkGlyph.h"
-#include "SkMacros.h"
-#include "SkMask.h"
-#include "SkMaskFilter.h"
-#include "SkMaskGamma.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkStrikeInterface.h"
-#include "SkSurfacePriv.h"
-#include "SkTypeface.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkMacros.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkMaskGamma.h"
+#include "src/core/SkStrikeInterface.h"
+#include "src/core/SkSurfacePriv.h"
+#include "src/core/SkWriteBuffer.h"
 
 class SkAutoDescriptor;
 class SkDescriptor;

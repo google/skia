@@ -5,10 +5,10 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkDescriptorPool.h"
+#include "src/gpu/vk/GrVkDescriptorPool.h"
 
-#include "GrVkGpu.h"
-#include "SkTemplates.h"
+#include "include/private/SkTemplates.h"
+#include "src/gpu/vk/GrVkGpu.h"
 
 
 GrVkDescriptorPool::GrVkDescriptorPool(const GrVkGpu* gpu, VkDescriptorType type, uint32_t count)

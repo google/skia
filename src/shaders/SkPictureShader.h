@@ -8,8 +8,8 @@
 #ifndef SkPictureShader_DEFINED
 #define SkPictureShader_DEFINED
 
-#include "SkShaderBase.h"
-#include "SkTileMode.h"
+#include "include/core/SkTileMode.h"
+#include "src/shaders/SkShaderBase.h"
 #include <atomic>
 
 class SkArenaAlloc;

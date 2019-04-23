@@ -8,12 +8,12 @@
 #ifndef GrVkUtil_DEFINED
 #define GrVkUtil_DEFINED
 
-#include "GrColor.h"
-#include "GrTypes.h"
-#include "GrVkInterface.h"
-#include "SkMacros.h"
-#include "ir/SkSLProgram.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/GrColor.h"
+#include "include/private/SkMacros.h"
+#include "src/gpu/vk/GrVkInterface.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 class GrVkGpu;
 

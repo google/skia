@@ -10,22 +10,22 @@
 #include <sstream>
 #include <string>
 
-#include "CommandLineFlags.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkMipMap.h"
-#include "SkUtils.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkMipMap.h"
+#include "src/core/SkUtils.h"
+#include "tools/flags/CommandLineFlags.h"
 
-#include "fiddle_main.h"
+#include "tools/fiddle/fiddle_main.h"
 
 static DEFINE_double(duration, 1.0,
                      "The total duration, in seconds, of the animation we are drawing.");
 static DEFINE_double(frame, 1.0,
                      "A double value in [0, 1] that specifies the point in animation to draw.");
 
-#include "GrBackendSurface.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "gl/GLTestContext.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "tools/gpu/gl/GLTestContext.h"
 
 // Globals externed in fiddle_main.h
 sk_sp<GrTexture>      backingTexture;  // not externed

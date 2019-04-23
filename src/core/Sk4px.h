@@ -8,9 +8,9 @@
 #ifndef Sk4px_DEFINED
 #define Sk4px_DEFINED
 
-#include "SkNx.h"
-#include "SkColor.h"
-#include "SkColorData.h"
+#include "include/core/SkColor.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkNx.h"
 
 // This file may be included multiple times by .cpp files with different flags, leading
 // to different definitions.  Usually that doesn't matter because it's all inlined, but
@@ -237,14 +237,14 @@ private:
 }  // namespace
 
 #ifdef SKNX_NO_SIMD
-    #include "../opts/Sk4px_none.h"
+    #include "src/opts/Sk4px_none.h"
 #else
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-        #include "../opts/Sk4px_SSE2.h"
+        #include "src/opts/Sk4px_SSE2.h"
     #elif defined(SK_ARM_HAS_NEON)
-        #include "../opts/Sk4px_NEON.h"
+        #include "src/opts/Sk4px_NEON.h"
     #else
-        #include "../opts/Sk4px_none.h"
+        #include "src/opts/Sk4px_none.h"
     #endif
 #endif
 

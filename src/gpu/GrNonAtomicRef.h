@@ -8,9 +8,9 @@
 #ifndef GrNonAtomicRef_DEFINED
 #define GrNonAtomicRef_DEFINED
 
-#include "SkNoncopyable.h"
-#include "SkRefCnt.h"
-#include "SkTArray.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTArray.h"
 
 /**
  * A simple non-atomic ref used in the GrBackendApi when we don't want to pay for the overhead of a

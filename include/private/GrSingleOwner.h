@@ -8,11 +8,11 @@
 #ifndef GrSingleOwner_DEFINED
 #define GrSingleOwner_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_DEBUG
-#include "SkMutex.h"
-#include "SkThreadID.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkThreadID.h"
 
 // This is a debug tool to verify an object is only being used from one thread at a time.
 class GrSingleOwner {

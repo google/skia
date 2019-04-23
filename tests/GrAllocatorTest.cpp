@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "GrAllocator.h"
+#include "src/gpu/GrAllocator.h"
+#include "tests/Test.h"
 
 namespace {
 struct C {

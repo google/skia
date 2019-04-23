@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "CrashHandler.h"
+#include "tools/CrashHandler.h"
 
-#include "../private/SkLeanWindows.h"
+#include "include/private/SkLeanWindows.h"
 
 #include <stdlib.h>
 
@@ -110,7 +110,7 @@
     #elif defined(SK_BUILD_FOR_WIN)
 
         #include <DbgHelp.h>
-        #include "SkMalloc.h"
+        #include "include/private/SkMalloc.h"
 
         static const struct {
             const char* name;

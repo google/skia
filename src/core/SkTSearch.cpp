@@ -6,9 +6,9 @@
  */
 
 
-#include "SkTSearch.h"
+#include "include/private/SkTSearch.h"
 
-#include "SkMalloc.h"
+#include "include/private/SkMalloc.h"
 
 #include <ctype.h>
 

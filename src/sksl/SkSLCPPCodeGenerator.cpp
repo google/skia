@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLCPPCodeGenerator.h"
+#include "src/sksl/SkSLCPPCodeGenerator.h"
 
-#include "SkSLCompiler.h"
-#include "SkSLCPPUniformCTypes.h"
-#include "SkSLHCodeGenerator.h"
+#include "src/sksl/SkSLCPPUniformCTypes.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLHCodeGenerator.h"
 
 #include <algorithm>
 
@@ -1202,14 +1202,14 @@ bool CPPCodeGenerator::generateCode() {
     const char* fullName = fFullName.c_str();
     this->writef("%s\n", HCodeGenerator::GetHeader(fProgram, fErrors).c_str());
     this->writef(kFragmentProcessorHeader, fullName);
-    this->writef("#include \"%s.h\"\n", fullName);
+    this->writef("#include \"%s.h\"\n\n", fullName);
     this->writeSection(CPP_SECTION);
-    this->writef("#include \"glsl/GrGLSLFragmentProcessor.h\"\n"
-                 "#include \"glsl/GrGLSLFragmentShaderBuilder.h\"\n"
-                 "#include \"glsl/GrGLSLProgramBuilder.h\"\n"
-                 "#include \"GrTexture.h\"\n"
-                 "#include \"SkSLCPP.h\"\n"
-                 "#include \"SkSLUtil.h\"\n"
+    this->writef("#include \"include/gpu/GrTexture.h\"\n"
+                 "#include \"src/gpu/glsl/GrGLSLFragmentProcessor.h\"\n"
+                 "#include \"src/gpu/glsl/GrGLSLFragmentShaderBuilder.h\"\n"
+                 "#include \"src/gpu/glsl/GrGLSLProgramBuilder.h\"\n"
+                 "#include \"src/sksl/SkSLCPP.h\"\n"
+                 "#include \"src/sksl/SkSLUtil.h\"\n"
                  "class GrGLSL%s : public GrGLSLFragmentProcessor {\n"
                  "public:\n"
                  "    GrGLSL%s() {}\n",

@@ -8,15 +8,15 @@
 #ifndef SkPixelRef_DEFINED
 #define SkPixelRef_DEFINED
 
-#include "../private/SkMutex.h"
-#include "../private/SkTDArray.h"
-#include "SkBitmap.h"
-#include "SkFilterQuality.h"
-#include "SkImageInfo.h"
-#include "SkPixmap.h"
-#include "SkRefCnt.h"
-#include "SkSize.h"
-#include "SkString.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTDArray.h"
 
 #include <atomic>
 

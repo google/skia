@@ -8,12 +8,12 @@
 #ifndef SkMessageBus_DEFINED
 #define SkMessageBus_DEFINED
 
-#include "../private/SkNoncopyable.h"
-#include "SkMutex.h"
-#include "SkOnce.h"
-#include "SkTArray.h"
-#include "SkTDArray.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 
 /**
  * The following method must have a specialization for type 'Message':

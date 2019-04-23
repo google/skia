@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=06aeb3cf63ffccf7b49fe556e5def351
 REG_FIDDLE(Image_MakeBackendTextureFromSkImage, 256, 64, false, 0) {
 static sk_sp<SkImage> create_gpu_image(GrContext* grContext) {

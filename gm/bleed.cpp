@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkMaskFilter.h"
-#include "SkTDArray.h"
-#include "SkUTF.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkBlurMask.h"
+#include "src/utils/SkUTF.h"
+#include "tools/ToolUtils.h"
 
-#include "GrContext.h"
-#include "GrContextOptions.h"
-#include "SkGr.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextOptions.h"
+#include "src/gpu/SkGr.h"
 
 /** Holds either a bitmap or image to be rendered and a rect that indicates what part of the bitmap
     or image should be tested by the GM. The area outside of the rect is present to check
@@ -444,7 +444,7 @@ DEF_GM( return new BleedGM(kUseAlphaBitmapShader_BleedTest); )
 DEF_GM( return new BleedGM(kUseAlphaImageShader_BleedTest); )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkSurface.h"
+#include "include/core/SkSurface.h"
 
 // Construct an image and return the inner "src" rect. Build the image such that the interior is
 // blue, with a margin of blue (2px) but then an outer margin of red.

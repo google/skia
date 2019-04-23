@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkGlyphRun.h"
+#include "src/core/SkGlyphRun.h"
 
-#include "SkTextBlob.h"
-#include "Test.h"
+#include "include/core/SkTextBlob.h"
+#include "tests/Test.h"
 
 #include <algorithm>
 #include <memory>

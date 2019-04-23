@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkTextBlob.h"
+#include "gm/gm.h"
+#include "include/core/SkTextBlob.h"
 
 // https://bugs.skia.org/5321
 // two strings should draw the same.  PDF did not.

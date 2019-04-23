@@ -8,14 +8,14 @@
 #ifndef skiagm_DEFINED
 #define skiagm_DEFINED
 
-#include "../tools/Registry.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkClipOpPriv.h"
-#include "SkMacros.h"
-#include "SkPaint.h"
-#include "SkSize.h"
-#include "SkString.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/private/SkMacros.h"
+#include "src/core/SkClipOpPriv.h"
+#include "tools/Registry.h"
 
 class AnimTimer;
 class SkMetaData;

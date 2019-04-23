@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkMaskCache.h"
+#include "src/core/SkMaskCache.h"
 
 #define CHECK_LOCAL(localCache, localName, globalName, ...) \
     ((localCache) ? localCache->localName(__VA_ARGS__) : SkResourceCache::globalName(__VA_ARGS__))

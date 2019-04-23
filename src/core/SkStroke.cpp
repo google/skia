@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkStrokerPriv.h"
+#include "src/core/SkStrokerPriv.h"
 
-#include "SkGeometry.h"
-#include "SkMacros.h"
-#include "SkPathPriv.h"
-#include "SkPointPriv.h"
-#include "SkTo.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkPointPriv.h"
 
 #include <utility>
 
@@ -1299,7 +1299,7 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkPaintDefaults.h"
+#include "src/core/SkPaintDefaults.h"
 
 SkStroke::SkStroke() {
     fWidth      = SK_Scalar1;

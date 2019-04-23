@@ -7,8 +7,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "../Application.h"
-#include "Window_mac.h"
+#include "tools/sk_app/Application.h"
+#include "tools/sk_app/mac/Window_mac.h"
 
 @interface AppDelegate : NSObject<NSApplicationDelegate, NSWindowDelegate>
 

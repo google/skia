@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "RegexNode.h"
+#include "src/sksl/lex/RegexNode.h"
 
-#include "NFA.h"
+#include "src/sksl/lex/NFA.h"
 
 std::vector<int> RegexNode::createStates(NFA* nfa, const std::vector<int>& accept) const {
     std::vector<int> result;

@@ -10,8 +10,8 @@
 #ifndef SkTraceEvent_DEFINED
 #define SkTraceEvent_DEFINED
 
-#include "SkEventTracer.h"
-#include "SkTraceEventCommon.h"
+#include "include/utils/SkEventTracer.h"
+#include "src/core/SkTraceEventCommon.h"
 #include <atomic>
 
 ////////////////////////////////////////////////////////////////////////////////

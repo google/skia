@@ -8,9 +8,9 @@
 #ifndef SkAtlasTextTarget_DEFINED
 #define SkAtlasTextTarget_DEFINED
 
-#include "SkDeque.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
+#include "include/core/SkDeque.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 
 #include <memory>
 

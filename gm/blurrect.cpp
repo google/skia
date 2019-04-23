@@ -5,12 +5,12 @@
 * found in the LICENSE file.
 */
 
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkMaskFilter.h"
-#include "SkPath.h"
-#include "SkTo.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBlurMask.h"
 
 #define STROKE_WIDTH    SkIntToScalar(10)
 
@@ -54,7 +54,7 @@ static void draw_donut_skewed(SkCanvas* canvas, const SkRect& r, const SkPaint& 
     canvas->drawPath(path, p);
 }
 
-#include "SkGradientShader.h"
+#include "include/effects/SkGradientShader.h"
 
 /*
  * Spits out a dummy gradient to test blur with shader on paint

@@ -6,21 +6,21 @@
  */
 
 #include <atomic>
-#include "CommandLineFlags.h"
-#include "CrashHandler.h"
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "OverwriteLine.h"
-#include "PathOpsDebug.h"
-#include "Resources.h"
-#include "SkGraphics.h"
-#include "SkOSFile.h"
-#include "SkPathOpsDebug.h"
-#include "SkTArray.h"
-#include "SkTaskGroup.h"
-#include "SkTemplates.h"
-#include "SkTime.h"
-#include "Test.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkTime.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkTaskGroup.h"
+#include "src/pathops/SkPathOpsDebug.h"
+#include "tests/PathOpsDebug.h"
+#include "tests/Test.h"
+#include "tools/CrashHandler.h"
+#include "tools/OverwriteLine.h"
+#include "tools/Resources.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "tools/gpu/GrContextFactory.h"
 
 using namespace skiatest;
 using namespace sk_gpu_test;

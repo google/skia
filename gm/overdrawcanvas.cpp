@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkOverdrawCanvas.h"
-#include "SkOverdrawColorFilter.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkOverdrawCanvas.h"
+#include "include/effects/SkOverdrawColorFilter.h"
+#include "tools/ToolUtils.h"
 
 #define WIDTH 500
 #define HEIGHT 500

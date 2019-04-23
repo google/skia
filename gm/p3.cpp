@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "SkColorSpace.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkDashPathEffect.h"
-#include "SkFont.h"
-#include "SkGradientShader.h"
-#include "SkString.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/core/SkColorSpaceXformSteps.h"
 
 static bool nearly_equal(SkColor4f x, SkColor4f y) {
     const float K = 0.01f;

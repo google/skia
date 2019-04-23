@@ -19,12 +19,12 @@ inline GrFragmentProcessor::OptimizationFlags GrAlphaThresholdFragmentProcessor:
         return kCompatibleWithCoverageAsAlpha_OptimizationFlag;
     }
 }
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "GrTexture.h"
-#include "SkSLCPP.h"
-#include "SkSLUtil.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/sksl/SkSLCPP.h"
+#include "src/sksl/SkSLUtil.h"
 class GrGLSLAlphaThresholdFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
     GrGLSLAlphaThresholdFragmentProcessor() {}

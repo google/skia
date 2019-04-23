@@ -8,14 +8,14 @@
 #ifndef GrGLProgramBuilder_DEFINED
 #define GrGLProgramBuilder_DEFINED
 
-#include "GrPipeline.h"
-#include "gl/GrGLProgram.h"
-#include "gl/GrGLProgramDataManager.h"
-#include "gl/GrGLUniformHandler.h"
-#include "gl/GrGLVaryingHandler.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "ir/SkSLProgram.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/gl/GrGLProgram.h"
+#include "src/gpu/gl/GrGLProgramDataManager.h"
+#include "src/gpu/gl/GrGLUniformHandler.h"
+#include "src/gpu/gl/GrGLVaryingHandler.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 class GrFragmentProcessor;
 class GrGLContextInfo;

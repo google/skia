@@ -8,7 +8,7 @@
 #ifndef FenceSync_DEFINED
 #define FenceSync_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 namespace sk_gpu_test {
 

@@ -8,7 +8,7 @@
 #ifndef SkColorMatrix_DEFINED
 #define SkColorMatrix_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #include <memory.h>
 
 class SK_API SkColorMatrix {

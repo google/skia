@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoPixmapStorage.h"
-#include "SkColorPriv.h"
-#include "SkImage.h"
-#include "SkParsePath.h"
-#include "SkPath.h"
-#include "SkSurface.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkSurface.h"
+#include "include/utils/SkParsePath.h"
+#include "src/core/SkAutoPixmapStorage.h"
 
 // GM to test combinations of stroking zero length paths with different caps and other settings
 // Variables:

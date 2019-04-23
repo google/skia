@@ -8,16 +8,16 @@
 #ifndef DMSrcSink_DEFINED
 #define DMSrcSink_DEFINED
 
-#include "CommonFlagsConfig.h"
-#include "SkBBHFactory.h"
-#include "SkBBoxHierarchy.h"
-#include "SkBitmap.h"
-#include "SkBitmapRegionDecoder.h"
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkMultiPictureDocument.h"
-#include "SkPicture.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/android/SkBitmapRegionDecoder.h"
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkPicture.h"
+#include "src/core/SkBBoxHierarchy.h"
+#include "src/utils/SkMultiPictureDocument.h"
+#include "tools/flags/CommonFlagsConfig.h"
 
 //#define TEST_VIA_SVG
 

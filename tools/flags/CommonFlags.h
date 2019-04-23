@@ -6,9 +6,9 @@
  */
 #pragma once
 
-#include "../private/SkTArray.h"
-#include "CommandLineFlags.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTArray.h"
+#include "tools/flags/CommandLineFlags.h"
 
 /**
  *  Helper to assist in collecting image paths from |dir| specified through a command line

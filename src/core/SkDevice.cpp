@@ -5,32 +5,32 @@
  * found in the LICENSE file.
  */
 
-#include "SkDevice.h"
+#include "src/core/SkDevice.h"
 
-#include "SkColorFilter.h"
-#include "SkDraw.h"
-#include "SkDrawable.h"
-#include "SkGlyphRun.h"
-#include "SkImageFilter.h"
-#include "SkImageFilterCache.h"
-#include "SkImagePriv.h"
-#include "SkImage_Base.h"
-#include "SkLatticeIter.h"
-#include "SkLocalMatrixShader.h"
-#include "SkMakeUnique.h"
-#include "SkMatrixPriv.h"
-#include "SkPatchUtils.h"
-#include "SkPathMeasure.h"
-#include "SkPathPriv.h"
-#include "SkRSXform.h"
-#include "SkRasterClip.h"
-#include "SkShader.h"
-#include "SkSpecialImage.h"
-#include "SkTLazy.h"
-#include "SkTextBlobPriv.h"
-#include "SkTo.h"
-#include "SkUtils.h"
-#include "SkVertices.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkVertices.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkGlyphRun.h"
+#include "src/core/SkImageFilterCache.h"
+#include "src/core/SkImagePriv.h"
+#include "src/core/SkLatticeIter.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkTLazy.h"
+#include "src/core/SkTextBlobPriv.h"
+#include "src/core/SkUtils.h"
+#include "src/image/SkImage_Base.h"
+#include "src/shaders/SkLocalMatrixShader.h"
+#include "src/utils/SkPatchUtils.h"
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
     : fInfo(info)
@@ -363,7 +363,7 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkUtils.h"
+#include "src/core/SkUtils.h"
 
 void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyphs[],
                                        const SkRSXform xform[], int count, SkPoint origin,

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Fuzz.h"
-#include "SkPolyUtils.h"
+#include "fuzz/Fuzz.h"
+#include "src/utils/SkPolyUtils.h"
 
 void inline ignoreResult(bool ) {}
 

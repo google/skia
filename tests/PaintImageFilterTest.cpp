@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPaintImageFilter.h"
-#include "SkShader.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkShader.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkPaintImageFilter.h"
+#include "tests/Test.h"
 
 static void test_unscaled(skiatest::Reporter* reporter) {
     int w = 10, h = 10;

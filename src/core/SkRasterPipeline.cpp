@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkRasterPipeline.h"
-#include "SkOpts.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkRasterPipeline.h"
 #include <algorithm>
 
 SkRasterPipeline::SkRasterPipeline(SkArenaAlloc* alloc) : fAlloc(alloc) {

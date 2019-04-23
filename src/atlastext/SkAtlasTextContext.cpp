@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtlasTextContext.h"
-#include "SkAtlasTextRenderer.h"
-#include "SkInternalAtlasTextContext.h"
+#include "include/atlastext/SkAtlasTextContext.h"
+#include "include/atlastext/SkAtlasTextRenderer.h"
+#include "src/atlastext/SkInternalAtlasTextContext.h"
 
 sk_sp<SkAtlasTextContext> SkAtlasTextContext::Make(sk_sp<SkAtlasTextRenderer> renderer) {
     return sk_sp<SkAtlasTextContext>(new SkAtlasTextContext(std::move(renderer)));

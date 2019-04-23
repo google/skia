@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "SkData.h"
-#include "SkGraphics.h"
-#include "SkLua.h"
-#include "SkLuaCanvas.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkPicture.h"
-#include "SkStream.h"
+#include "include/core/SkData.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkStream.h"
+#include "include/utils/SkLua.h"
+#include "include/utils/SkLuaCanvas.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include <stdlib.h>
 

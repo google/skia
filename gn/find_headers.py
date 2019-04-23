@@ -60,7 +60,7 @@ for target in desc_json.itervalues():
 Header = collections.namedtuple('Header', ['absolute', 'include'])
 headers = {}
 for source in sources:
-  source_as_include = [source[len(include_dir):]
+  source_as_include = [os.path.relpath(source, absolute_source)
                        for include_dir in include_dirs
                        if source.startswith(include_dir)]
   if not source_as_include:

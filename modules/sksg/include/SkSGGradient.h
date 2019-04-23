@@ -8,12 +8,12 @@
 #ifndef SkSGGradient_DEFINED
 #define SkSGGradient_DEFINED
 
-#include "SkSGRenderEffect.h"
+#include "modules/sksg/include/SkSGRenderEffect.h"
 
-#include "SkColor.h"
-#include "SkPoint.h"
-#include "SkScalar.h"
-#include "SkShader.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
 
 #include <vector>
 

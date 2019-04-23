@@ -6,9 +6,9 @@
  */
 
 #include "skcms.h"
-#include "SkColorSpace.h"
-#include "SkColorSpaceXformSteps.h"
-#include "Test.h"
+#include "include/core/SkColorSpace.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "tests/Test.h"
 
 DEF_TEST(SkColorSpaceXformSteps_vs_skcms, r) {
     auto srgb = SkColorSpace::MakeSRGB();

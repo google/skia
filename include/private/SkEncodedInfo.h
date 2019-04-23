@@ -8,8 +8,8 @@
 #ifndef SkEncodedInfo_DEFINED
 #define SkEncodedInfo_DEFINED
 
-#include "SkData.h"
-#include "SkImageInfo.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageInfo.h"
 #include "skcms.h"
 
 struct SkEncodedInfo {

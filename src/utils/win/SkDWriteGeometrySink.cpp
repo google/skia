@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "SkDWriteGeometrySink.h"
-#include "SkFloatUtils.h"
-#include "SkPath.h"
+#include "include/core/SkPath.h"
+#include "src/utils/SkFloatUtils.h"
+#include "src/utils/win/SkDWriteGeometrySink.h"
 
 #include <dwrite.h>
 #include <d2d1.h>

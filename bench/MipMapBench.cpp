@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkMipMap.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkBitmap.h"
+#include "src/core/SkMipMap.h"
 
 class MipMapBench: public Benchmark {
     SkBitmap fBitmap;

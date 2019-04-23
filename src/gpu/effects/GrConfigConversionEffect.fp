@@ -6,11 +6,11 @@
  */
 
 @header {
-    #include "GrClip.h"
-    #include "GrContext.h"
-    #include "GrContextPriv.h"
-    #include "GrProxyProvider.h"
-    #include "GrRenderTargetContext.h"
+    #include "include/gpu/GrContext.h"
+    #include "src/gpu/GrClip.h"
+    #include "src/gpu/GrContextPriv.h"
+    #include "src/gpu/GrProxyProvider.h"
+    #include "src/gpu/GrRenderTargetContext.h"
 }
 
 @class {

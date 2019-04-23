@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "SkShader.h"
+#include "include/core/SkShader.h"
 
 // This class of GMs test how edges/verts snap near rounding boundaries in device space without
 // anti-aliaing.

@@ -8,8 +8,8 @@
 #ifndef SkModeColorFilter_DEFINED
 #define SkModeColorFilter_DEFINED
 
-#include "SkColorFilter.h"
-#include "SkFlattenable.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFlattenable.h"
 
 class SkModeColorFilter : public SkColorFilter {
 public:

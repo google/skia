@@ -8,8 +8,8 @@
 #ifndef SkPEG_DEFINED
 #define SkPEG_DEFINED
 
-#include "SkTArray.h"
-#include "SkTLazy.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkTLazy.h"
 
 namespace skpeg {
 

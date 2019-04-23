@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkPath.h"
 
 typedef SkScalar (*MakePathProc)(SkPath*);
 

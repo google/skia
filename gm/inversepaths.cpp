@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkDashPathEffect.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/effects/SkDashPathEffect.h"
 
 static SkPath generate_square(SkScalar cx, SkScalar cy, SkScalar w) {
     SkRect rect = SkRect::MakeXYWH(cx - w / 2, cy - w / 2, w, w);

@@ -7,9 +7,9 @@
 #ifndef SkCodecImageGenerator_DEFINED
 #define SkCodecImageGenerator_DEFINED
 
-#include "SkCodec.h"
-#include "SkData.h"
-#include "SkImageGenerator.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageGenerator.h"
 
 class SkCodecImageGenerator : public SkImageGenerator {
 public:

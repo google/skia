@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "RecordTestUtils.h"
+#include "tests/RecordTestUtils.h"
+#include "tests/Test.h"
 
-#include "SkBlurImageFilter.h"
-#include "SkColorFilter.h"
-#include "SkRecord.h"
-#include "SkRecordOpts.h"
-#include "SkRecorder.h"
-#include "SkRecords.h"
-#include "SkPictureRecorder.h"
-#include "SkPictureImageFilter.h"
-#include "SkSurface.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkPictureImageFilter.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecordOpts.h"
+#include "src/core/SkRecorder.h"
+#include "src/core/SkRecords.h"
 
 static const int W = 1920, H = 1080;
 

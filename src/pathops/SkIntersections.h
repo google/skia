@@ -7,11 +7,11 @@
 #ifndef SkIntersections_DEFINE
 #define SkIntersections_DEFINE
 
-#include "SkPathOpsConic.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsLine.h"
-#include "SkPathOpsPoint.h"
-#include "SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsQuad.h"
 
 class SkIntersections {
 public:

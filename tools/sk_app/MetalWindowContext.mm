@@ -6,16 +6,16 @@
  * found in the LICENSE file.
  */
 
-#include "MetalWindowContext.h"
-#include "GrBackendSurface.h"
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "SkCanvas.h"
-#include "SkImage_Base.h"
-#include "SkMathPriv.h"
-#include "SkSurface.h"
-#include "mtl/GrMtlTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/mtl/GrMtlTypes.h"
+#include "src/core/SkMathPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/image/SkImage_Base.h"
+#include "tools/sk_app/MetalWindowContext.h"
 
 namespace sk_app {
 

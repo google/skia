@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "AnimTimer.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkGradientShader.h"
-#include "SkLumaColorFilter.h"
-#include "SkTableColorFilter.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkLumaColorFilter.h"
+#include "include/effects/SkTableColorFilter.h"
+#include "tools/timer/AnimTimer.h"
 
 // A tint filter maps colors to a given range (gradient), based on the input luminance:
 //
@@ -111,7 +111,7 @@ private:
 } // namespace
 DEF_GM( return new MixerCFGM(SkSize::Make(200, 250), 5); )
 
-#include "Resources.h"
+#include "tools/Resources.h"
 
 static sk_sp<SkShader> make_resource_shader(const char path[], int size) {
     auto img = GetResourceAsImage(path);

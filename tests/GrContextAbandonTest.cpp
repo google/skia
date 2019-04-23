@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrContextFactory.h"
-#include "Test.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
 using namespace sk_gpu_test;
 

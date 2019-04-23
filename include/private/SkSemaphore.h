@@ -8,8 +8,8 @@
 #ifndef SkSemaphore_DEFINED
 #define SkSemaphore_DEFINED
 
-#include "../private/SkOnce.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkOnce.h"
 #include <atomic>
 
 class SkBaseSemaphore {

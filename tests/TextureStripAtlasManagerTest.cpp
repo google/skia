@@ -6,14 +6,14 @@
  */
 
 
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
-#include "SkSurface.h"
-#include "SkTableColorFilter.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkTableColorFilter.h"
 
-#include "Resources.h"
-#include "Test.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
 
 // The gradient shader will use the texture strip atlas if it has too many colors. Make sure
 // abandoning the context works.

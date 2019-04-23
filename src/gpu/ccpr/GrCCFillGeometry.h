@@ -8,10 +8,10 @@
 #ifndef GrGrCCFillGeometry_DEFINED
 #define GrGrCCFillGeometry_DEFINED
 
-#include "SkGeometry.h"
-#include "SkNx.h"
-#include "SkPoint.h"
-#include "SkTArray.h"
+#include "include/core/SkPoint.h"
+#include "include/private/SkNx.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkGeometry.h"
 
 /**
  * This class chops device-space contours up into a series of segments that CCPR knows how to

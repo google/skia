@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkSurface.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkSurface.h"
+#include "tools/Resources.h"
 
 DEF_SIMPLE_GM(makeRasterImage, canvas, 128,128) {
     if (auto img = GetResourceAsImage("images/color_wheel.png")) {

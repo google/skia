@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkTFitsIn.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTFitsIn.h"
+#include "tests/Test.h"
 
 #include <limits>
 

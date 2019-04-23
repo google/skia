@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLUtil.h"
+#include "src/sksl/SkSLUtil.h"
 
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS

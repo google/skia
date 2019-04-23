@@ -5,11 +5,11 @@
 * found in the LICENSE file.
 */
 
-#include "SkTypes.h"
-#include "SkTHash.h"
-#include "Timer.h"
-#include "Window_ios.h"
-#include "../Application.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTHash.h"
+#include "tools/sk_app/Application.h"
+#include "tools/sk_app/ios/Window_ios.h"
+#include "tools/timer/Timer.h"
 
 #include "SDL.h"
 

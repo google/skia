@@ -9,9 +9,9 @@
 #ifndef SkLights_DEFINED
 #define SkLights_DEFINED
 
-#include "SkPoint3.h"
-#include "SkRefCnt.h"
-#include "../private/SkTArray.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTArray.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;

@@ -12,9 +12,9 @@
 
 /*  SkTypes.h, the root of the public header files, does the following trick:
 
-    #include "SkPreConfig.h"
-    #include "SkUserConfig.h"
-    #include "SkPostConfig.h"
+    #include "include/config/SkUserConfig.h"
+    #include "include/core/SkPostConfig.h"
+    #include "include/core/SkPreConfig.h"
 
     SkPreConfig.h runs first, and it is responsible for initializing certain
     skia defines.

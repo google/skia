@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "Resources.h"
-#include "SkCodec.h"
-#include "SkColorSpace.h"
-#include "SkColorSpacePriv.h"
-#include "SkHalf.h"
-#include "SkImage.h"
-#include "SkImageInfoPriv.h"
-#include "SkPictureRecorder.h"
+#include "gm/gm.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/private/SkHalf.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "tools/Resources.h"
 
 static const int kWidth = 64;
 static const int kHeight = 64;

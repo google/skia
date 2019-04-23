@@ -8,10 +8,10 @@
 #ifndef SkPathEffect_DEFINED
 #define SkPathEffect_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkRect.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 
 class SkPath;
 class SkStrokeRec;

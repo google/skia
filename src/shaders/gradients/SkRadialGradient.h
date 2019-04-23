@@ -8,7 +8,7 @@
 #ifndef SkRadialGradient_DEFINED
 #define SkRadialGradient_DEFINED
 
-#include "SkGradientShaderPriv.h"
+#include "src/shaders/gradients/SkGradientShaderPriv.h"
 
 class SkRadialGradient final : public SkGradientShaderBase {
 public:

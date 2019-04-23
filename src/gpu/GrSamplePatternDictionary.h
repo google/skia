@@ -8,8 +8,8 @@
 #ifndef GrSamplePatternDictionary_DEFINED
 #define GrSamplePatternDictionary_DEFINED
 
-#include "SkPoint.h"
-#include "SkTArray.h"
+#include "include/core/SkPoint.h"
+#include "include/private/SkTArray.h"
 #include <map>
 
 /**

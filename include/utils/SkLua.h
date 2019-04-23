@@ -8,10 +8,10 @@
 #ifndef SkLua_DEFINED
 #define SkLua_DEFINED
 
-#include "SkColor.h"
-#include "SkPathEffect.h"
-#include "SkScalar.h"
-#include "SkString.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
 
 struct lua_State;
 

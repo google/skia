@@ -8,7 +8,7 @@
 #ifndef SkDisplacementMapEffect_DEFINED
 #define SkDisplacementMapEffect_DEFINED
 
-#include "SkImageFilter.h"
+#include "include/core/SkImageFilter.h"
 
 class SK_API SkDisplacementMapEffect : public SkImageFilter {
 public:

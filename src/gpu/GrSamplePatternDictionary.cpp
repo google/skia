@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrSamplePatternDictionary.h"
+#include "src/gpu/GrSamplePatternDictionary.h"
 
 bool GrSamplePatternDictionary::LessThan::operator()(
         const SkTArray<SkPoint>& a, const SkTArray<SkPoint>& b) const {

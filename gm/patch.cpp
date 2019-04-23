@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkPatchUtils.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPath.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/utils/SkPatchUtils.h"
 
 static sk_sp<SkShader> make_shader() {
     const SkColor colors[] = {
@@ -147,7 +147,7 @@ DEF_SIMPLE_GM(patch_primitive, canvas, 1500, 1100) {
     };
     dopatch(canvas, colors);
 }
-#include "Resources.h"
+#include "tools/Resources.h"
 DEF_SIMPLE_GM(patch_image, canvas, 1500, 1100) {
     const SkColor colors[SkPatchUtils::kNumCorners] = {
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorCYAN

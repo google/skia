@@ -4,10 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsTestCommon.h"
-#include "SkIntersections.h"
-#include "SkTDArray.h"
-#include "Test.h"
+#include "include/private/SkTDArray.h"
+#include "src/pathops/SkIntersections.h"
+#include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
 
 // check intersections for consistency
 

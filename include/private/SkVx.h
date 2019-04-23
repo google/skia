@@ -21,7 +21,7 @@
 // [1] Ideally we'd only align to T, but that tanks ARMv7 NEON codegen.
 // [2] Some compilers barf if we try to use N*sizeof(T), so instead we leave them at T.
 
-#include "SkTypes.h"         // SK_CPU_SSE_LEVEL*, etc.
+#include "include/core/SkTypes.h"
 #include <algorithm>         // std::min, std::max
 #include <cmath>             // std::ceil, std::floor, std::trunc, std::round, std::sqrt, etc.
 #include <cstdint>           // intXX_t

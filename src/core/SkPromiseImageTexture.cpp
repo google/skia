@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkPromiseImageTexture.h"
-#include "SkMessageBus.h"
+#include "include/core/SkPromiseImageTexture.h"
+#include "include/private/SkMessageBus.h"
 
 #if SK_SUPPORT_GPU
 

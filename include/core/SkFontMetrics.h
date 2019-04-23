@@ -8,7 +8,7 @@
 #ifndef SkFontMetrics_DEFINED
 #define SkFontMetrics_DEFINED
 
-#include "SkScalar.h"
+#include "include/core/SkScalar.h"
 
 struct SK_API SkFontMetrics {
 

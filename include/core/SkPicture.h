@@ -8,10 +8,10 @@
 #ifndef SkPicture_DEFINED
 #define SkPicture_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkRect.h"
-#include "SkTileMode.h"
-#include "SkTypes.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
 
 class SkCanvas;
 class SkData;

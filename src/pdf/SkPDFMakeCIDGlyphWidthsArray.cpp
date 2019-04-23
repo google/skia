@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFMakeCIDGlyphWidthsArray.h"
+#include "src/pdf/SkPDFMakeCIDGlyphWidthsArray.h"
 
-#include "SkPDFGlyphUse.h"
-#include "SkPaint.h"
-#include "SkStrike.h"
-#include "SkTo.h"
+#include "include/core/SkPaint.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkStrike.h"
+#include "src/pdf/SkPDFGlyphUse.h"
 
 #include <vector>
 

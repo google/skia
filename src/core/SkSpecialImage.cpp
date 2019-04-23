@@ -5,25 +5,25 @@
  * found in the LICENSE file
  */
 
-#include "SkSpecialImage.h"
-#include "SkBitmap.h"
-#include "SkImage.h"
-#include "SkBitmapCache.h"
-#include "SkCanvas.h"
-#include "SkImage_Base.h"
-#include "SkSpecialSurface.h"
-#include "SkSurfacePriv.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "src/core/SkBitmapCache.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkSpecialSurface.h"
+#include "src/core/SkSurfacePriv.h"
+#include "src/image/SkImage_Base.h"
 #include <atomic>
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrSurfaceContext.h"
-#include "GrTextureProxy.h"
-#include "SkImage_Gpu.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrRecordingContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/image/SkImage_Gpu.h"
 #endif
 
 // Currently the raster imagefilters can only handle certain imageinfos. Call this to know if

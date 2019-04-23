@@ -8,7 +8,7 @@
 #ifndef SkReadPixelsRec_DEFINED
 #define SkReadPixelsRec_DEFINED
 
-#include "SkImageInfo.h"
+#include "include/core/SkImageInfo.h"
 
 /**
  *  Helper class to package and trim the parameters passed to readPixels()

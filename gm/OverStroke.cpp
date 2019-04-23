@@ -23,11 +23,11 @@
  */
 
 
-#include "gm.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPathMeasure.h"
-#include "SkPointPriv.h"
+#include "gm/gm.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathMeasure.h"
+#include "src/core/SkPointPriv.h"
 
 const SkScalar OVERSTROKE_WIDTH = 500.0f;
 const SkScalar NORMALSTROKE_WIDTH = 3.0f;

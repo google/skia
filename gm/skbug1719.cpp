@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilter.h"
-#include "SkMaskFilter.h"
-#include "SkPath.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPath.h"
+#include "tools/ToolUtils.h"
 
 /**
  * This test exercises bug 1719. An anti-aliased blurred path is rendered through a soft clip. On

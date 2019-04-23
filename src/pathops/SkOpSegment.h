@@ -7,12 +7,12 @@
 #ifndef SkOpSegment_DEFINE
 #define SkOpSegment_DEFINE
 
-#include "SkArenaAlloc.h"
-#include "SkOpAngle.h"
-#include "SkOpSpan.h"
-#include "SkPathOpsBounds.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsCurve.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/pathops/SkOpAngle.h"
+#include "src/pathops/SkOpSpan.h"
+#include "src/pathops/SkPathOpsBounds.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsCurve.h"
 
 struct SkDCurve;
 class SkOpCoincidence;

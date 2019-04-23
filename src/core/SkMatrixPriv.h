@@ -8,9 +8,9 @@
 #ifndef SkMatrixPriv_DEFINE
 #define SkMatrixPriv_DEFINE
 
-#include "SkMatrix.h"
-#include "SkNx.h"
-#include "SkPointPriv.h"
+#include "include/core/SkMatrix.h"
+#include "include/private/SkNx.h"
+#include "src/core/SkPointPriv.h"
 
 class SkMatrixPriv {
 public:

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
+#include "bench/Benchmark.h"
 
-#include "GrPathUtils.h"
-#include "SkGeometry.h"
+#include "src/core/SkGeometry.h"
+#include "src/gpu/GrPathUtils.h"
 
 class CubicKLMBench : public Benchmark {
 public:

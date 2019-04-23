@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkottieValue.h"
+#include "modules/skottie/src/SkottieValue.h"
 
-#include "SkColor.h"
-#include "SkottieJson.h"
-#include "SkottiePriv.h"
-#include "SkNx.h"
-#include "SkPoint.h"
-#include "SkSize.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkSize.h"
+#include "include/private/SkNx.h"
+#include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottiePriv.h"
 
 namespace  skottie {
 

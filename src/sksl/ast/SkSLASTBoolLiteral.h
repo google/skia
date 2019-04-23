@@ -8,7 +8,7 @@
 #ifndef SKSL_ASTBOOLLITERAL
 #define SKSL_ASTBOOLLITERAL
 
-#include "SkSLASTExpression.h"
+#include "src/sksl/ast/SkSLASTExpression.h"
 
 namespace SkSL {
 

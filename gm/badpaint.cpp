@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkShader.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkShader.h"
 
 /** This GM draws with invalid paints. It should draw nothing other than the background. */
 class BadPaintGM : public skiagm::GM {

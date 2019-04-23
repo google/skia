@@ -4,10 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkOpAngle.h"
-#include "SkOpSegment.h"
-#include "SkPathOpsCurve.h"
-#include "SkTSort.h"
+#include "src/core/SkTSort.h"
+#include "src/pathops/SkOpAngle.h"
+#include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkPathOpsCurve.h"
 
 /* Angles are sorted counterclockwise. The smallest angle has a positive x and the smallest
    positive y. The largest angle has a positive x and a zero y. */

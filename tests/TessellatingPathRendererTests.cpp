@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "GrClip.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrShape.h"
-#include "GrStyle.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
-#include "SkShaderBase.h"
-#include "effects/GrPorterDuffXferProcessor.h"
-#include "ops/GrTessellatingPathRenderer.h"
+#include "include/core/SkPath.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/GrStyle.h"
+#include "src/gpu/effects/GrPorterDuffXferProcessor.h"
+#include "src/gpu/ops/GrTessellatingPathRenderer.h"
+#include "src/shaders/SkShaderBase.h"
 
 /*
  * These tests pass by not crashing, hanging or asserting in Debug.

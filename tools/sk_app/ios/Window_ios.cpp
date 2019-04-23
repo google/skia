@@ -5,10 +5,10 @@
 * found in the LICENSE file.
 */
 
-#include "SkUtils.h"
-#include "Timer.h"
-#include "WindowContextFactory_ios.h"
-#include "Window_ios.h"
+#include "src/core/SkUtils.h"
+#include "tools/sk_app/ios/WindowContextFactory_ios.h"
+#include "tools/sk_app/ios/Window_ios.h"
+#include "tools/timer/Timer.h"
 
 namespace sk_app {
 

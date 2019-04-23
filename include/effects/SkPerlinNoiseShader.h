@@ -8,7 +8,7 @@
 #ifndef SkPerlinNoiseShader_DEFINED
 #define SkPerlinNoiseShader_DEFINED
 
-#include "SkShader.h"
+#include "include/core/SkShader.h"
 
 /** \class SkPerlinNoiseShader
 

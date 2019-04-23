@@ -8,12 +8,12 @@
 #ifndef GrPersistentCacheEntry_DEFINED
 #define GrPersistentCacheEntry_DEFINED
 
-#include "GrTypesPriv.h"
-#include "SkData.h"
-#include "SkReader32.h"
-#include "ir/SkSLProgram.h"
-#include "SkSLString.h"
-#include "SkWriter32.h"
+#include "include/core/SkData.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/core/SkReader32.h"
+#include "src/core/SkWriter32.h"
+#include "src/sksl/SkSLString.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 // The GrPersistentCache stores opaque blobs, as far as clients are concerned. It's helpful to
 // inspect certain kinds of cached data within our tools, so for those cases (GLSL, SPIR-V), we

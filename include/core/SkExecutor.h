@@ -10,7 +10,7 @@
 
 #include <functional>
 #include <memory>
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 class SK_API SkExecutor {
 public:

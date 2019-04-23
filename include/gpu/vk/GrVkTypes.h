@@ -9,15 +9,15 @@
 #ifndef GrVkTypes_DEFINED
 #define GrVkTypes_DEFINED
 
-#include "SkTypes.h"
-#include "GrVkVulkan.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/vk/GrVkVulkan.h"
 
 #ifndef VK_VERSION_1_1
 #error Skia requires the use of Vulkan 1.1 headers
 #endif
 
 #include <functional>
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
 typedef intptr_t GrVkBackendMemory;
 

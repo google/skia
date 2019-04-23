@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "Sample.h"
-#include "ToolUtils.h"
+#include "samplecode/Sample.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
-#include "SkCanvas.h"
-#include "SkFontMetrics.h"
-#include "SkFontMgr.h"
-#include "SkRandom.h"
-#include "SkTypeface.h"
-#include "SkTextBlob.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/utils/SkRandom.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
 #endif
 
 static sk_sp<SkTypeface> chinese_typeface() {

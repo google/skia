@@ -11,7 +11,7 @@
 #ifndef GrGLConfig_DEFINED
 #define GrGLConfig_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
 /**
  * Optional GL config file.

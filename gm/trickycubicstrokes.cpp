@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkGeometry.h"
-#include "SkPath.h"
-#include "SkPaint.h"
-#include "SkStrokeRec.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkStrokeRec.h"
+#include "src/core/SkGeometry.h"
 
 static constexpr float kStrokeWidth = 40;
 static constexpr int kCellSize = 200;

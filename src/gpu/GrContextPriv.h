@@ -8,9 +8,9 @@
 #ifndef GrContextPriv_DEFINED
 #define GrContextPriv_DEFINED
 
-#include "GrContext.h"
-#include "GrSurfaceContext.h"
-#include "text/GrAtlasManager.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/text/GrAtlasManager.h"
 
 class GrBackendFormat;
 class GrBackendRenderTarget;

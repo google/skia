@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "LexUtil.h"
+#include "src/sksl/lex/LexUtil.h"
 
 struct NFAState {
     enum Kind {

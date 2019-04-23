@@ -8,18 +8,18 @@
 #ifndef SkSurfaceCharacterization_DEFINED
 #define SkSurfaceCharacterization_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
-#include "SkColorSpace.h"
-#include "SkRefCnt.h"
-#include "SkSurfaceProps.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
 
 class SkColorSpace;
 
 #if SK_SUPPORT_GPU
 // TODO: remove the GrContext.h include once Flutter is updated
-#include "GrContext.h"
-#include "GrContextThreadSafeProxy.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 
 /** \class SkSurfaceCharacterization
     A surface characterization contains all the information Ganesh requires to makes its internal

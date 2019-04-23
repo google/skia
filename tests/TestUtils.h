@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "SkBitmap.h"
+#include "include/core/SkBitmap.h"
+#include "tests/Test.h"
 
 class GrSurfaceContext;
 class GrSurfaceProxy;

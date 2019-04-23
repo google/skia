@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "GrClip.h"
-#include "GrContext.h"
-#include "GrRenderTargetContext.h"
-#include "GrSurfaceContextPriv.h"
-#include "SkGr.h"
-#include "SkGradientShader.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceContextPriv.h"
+#include "src/gpu/SkGr.h"
 
 static constexpr SkScalar kTileWidth = 40;
 static constexpr SkScalar kTileHeight = 30;

@@ -8,8 +8,8 @@
 #ifndef SK_COMMON_FLAGS_CONFIG_H
 #define SK_COMMON_FLAGS_CONFIG_H
 
-#include "CommandLineFlags.h"
-#include "GrContextFactory.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "tools/gpu/GrContextFactory.h"
 
 DECLARE_string(config);
 

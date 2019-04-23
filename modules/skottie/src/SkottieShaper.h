@@ -8,8 +8,8 @@
 #ifndef SkottieShaper_DEFINED
 #define SkottieShaper_DEFINED
 
-#include "SkPoint.h"
-#include "SkTextUtils.h"
+#include "include/core/SkPoint.h"
+#include "include/utils/SkTextUtils.h"
 
 class SkTextBlob;
 

@@ -8,7 +8,7 @@
 #ifndef SKSL_ASTEXPRESSION
 #define SKSL_ASTEXPRESSION
 
-#include "SkSLASTPositionNode.h"
+#include "src/sksl/ast/SkSLASTPositionNode.h"
 
 namespace SkSL {
 

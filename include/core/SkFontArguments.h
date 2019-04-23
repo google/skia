@@ -8,8 +8,8 @@
 #ifndef SkFontArguments_DEFINED
 #define SkFontArguments_DEFINED
 
-#include "SkScalar.h"
-#include "SkTypes.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 
 /** Represents a set of actual arguments for a font. */
 struct SkFontArguments {

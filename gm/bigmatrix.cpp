@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "SkColorPriv.h"
-#include "SkPath.h"
-#include "SkShader.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkShader.h"
 
 DEF_SIMPLE_GM_BG(bigmatrix, canvas, 50, 50, ToolUtils::color_to_565(0xFF66AA99)) {
     SkMatrix m;

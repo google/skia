@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkLightingShader.h"
-#include "SkNormalSource.h"
-#include "SkPoint3.h"
-#include "SkShader.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkNormalSource.h"
+#include "src/shaders/SkLightingShader.h"
+#include "tools/ToolUtils.h"
 
 // Create a truncated pyramid normal map
 static SkBitmap make_frustum_normalmap(int texSize) {

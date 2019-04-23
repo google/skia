@@ -8,9 +8,9 @@
 #ifndef SkImagePriv_DEFINED
 #define SkImagePriv_DEFINED
 
-#include "SkImage.h"
-#include "SkSurface.h"
-#include "SkTileMode.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 
 enum SkCopyPixelsMode {
     kIfMutable_SkCopyPixelsMode,  //!< only copy src pixels if they are marked mutable

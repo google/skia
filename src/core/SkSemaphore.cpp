@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "../private/SkLeanWindows.h"
-#include "../private/SkSemaphore.h"
+#include "include/private/SkLeanWindows.h"
+#include "include/private/SkSemaphore.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     #include <mach/mach.h>

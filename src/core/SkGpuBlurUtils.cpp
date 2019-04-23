@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkGpuBlurUtils.h"
+#include "src/core/SkGpuBlurUtils.h"
 
-#include "SkRect.h"
+#include "include/core/SkRect.h"
 
 #if SK_SUPPORT_GPU
-#include "GrCaps.h"
-#include "GrFixedClip.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetContextPriv.h"
-#include "effects/GrGaussianConvolutionFragmentProcessor.h"
-#include "effects/GrMatrixConvolutionEffect.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h"
+#include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 
-#include "SkGr.h"
+#include "src/gpu/SkGr.h"
 
 #define MAX_BLUR_SIGMA 4.0f
 

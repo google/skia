@@ -11,8 +11,8 @@
 #include <unordered_map>
 #include <memory>
 #include <vector>
-#include "SkSLErrorReporter.h"
-#include "SkSLSymbol.h"
+#include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 
 namespace SkSL {
 

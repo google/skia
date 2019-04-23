@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext_Base.h"
+#include "include/private/GrContext_Base.h"
 
-#include "GrBaseContextPriv.h"
-#include "GrCaps.h"
-#include "GrSkSLFPFactoryCache.h"
+#include "include/private/GrSkSLFPFactoryCache.h"
+#include "src/gpu/GrBaseContextPriv.h"
+#include "src/gpu/GrCaps.h"
 
 static int32_t next_id() {
     static std::atomic<int32_t> nextID{1};

@@ -10,11 +10,11 @@
  * Tests overlapping LCD text
  */
 
-#include "SkCanvas.h"
-#include "SkSurface.h"
-#include "SkTextBlob.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
+#include "tools/ToolUtils.h"
 
 namespace skiagm {
 

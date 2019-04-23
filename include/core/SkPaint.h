@@ -8,11 +8,11 @@
 #ifndef SkPaint_DEFINED
 #define SkPaint_DEFINED
 
-#include "../private/SkTo.h"
-#include "SkBlendMode.h"
-#include "SkColor.h"
-#include "SkFilterQuality.h"
-#include "SkRefCnt.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTo.h"
 
 class SkColorFilter;
 class SkColorSpace;

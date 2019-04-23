@@ -8,7 +8,7 @@
 #ifndef SkBlendMode_DEFINED
 #define SkBlendMode_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 enum class SkBlendMode {
     kClear,                           //!< replaces destination with zero: fully transparent

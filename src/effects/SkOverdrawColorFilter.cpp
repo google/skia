@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkEffectPriv.h"
-#include "SkOverdrawColorFilter.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
+#include "include/effects/SkOverdrawColorFilter.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkEffectPriv.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "effects/GrSkSLFP.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 
 GR_FP_SRC_STRING SKSL_OVERDRAW_SRC = R"(
 layout(ctype=SkPMColor) in uniform half4 color0;
@@ -85,7 +85,7 @@ void SkOverdrawColorFilter::RegisterFlattenables() {
 }
 #if SK_SUPPORT_GPU
 
-#include "GrRecordingContext.h"
+#include "include/private/GrRecordingContext.h"
 
 std::unique_ptr<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(
         GrRecordingContext* context, const GrColorSpaceInfo&) const {

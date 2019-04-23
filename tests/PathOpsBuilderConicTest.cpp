@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "PathOpsExtendedTest.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
-#include "SubsetPath.h"
+#include "include/core/SkRegion.h"
+#include "include/utils/SkRandom.h"
+#include "tests/PathOpsExtendedTest.h"
+#include "tests/SubsetPath.h"
 
 #define DEBUG_SIMPLIFY_FAILS 0
 
@@ -88,7 +88,7 @@ static void setupOne(skiatest::Reporter* reporter, int col, int row, int rot, in
     testOne(reporter, set);
 }
 
-#include "CommandLineFlags.h"
+#include "tools/flags/CommandLineFlags.h"
 
 static DEFINE_int(processOffset, 0,
                     "Offset the test by this value. This permits multiple processes "
@@ -623,7 +623,7 @@ const char ovalsAsQuads[] = "M 146.4187316894531 136.5"
 " Q 146.3946533203125 126.4554138183594 146.4066772460938 129.8022613525391"
 " Q 146.4187316894531 133.1491088867188 146.4187316894531 136.5 Z";
 
-#include "SkParsePath.h"
+#include "include/utils/SkParsePath.h"
 
 DEF_TEST(PathOpsOvalsAsQuads, reporter) {
     return; // don't execute this for now

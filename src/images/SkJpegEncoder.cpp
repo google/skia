@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageEncoderPriv.h"
+#include "src/images/SkImageEncoderPriv.h"
 
 #ifdef SK_HAS_JPEG_LIBRARY
 
-#include "SkColorData.h"
-#include "SkImageEncoderFns.h"
-#include "SkImageInfoPriv.h"
-#include "SkJpegEncoder.h"
-#include "SkJPEGWriteUtility.h"
-#include "SkStream.h"
-#include "SkTemplates.h"
+#include "include/core/SkStream.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "include/private/SkTemplates.h"
+#include "src/images/SkImageEncoderFns.h"
+#include "src/images/SkJPEGWriteUtility.h"
 
 #include <stdio.h>
 

@@ -11,13 +11,13 @@
 #include <set>
 #include <unordered_set>
 #include <vector>
-#include "ir/SkSLProgram.h"
-#include "ir/SkSLSymbolTable.h"
-#include "SkSLByteCode.h"
-#include "SkSLCFGGenerator.h"
-#include "SkSLContext.h"
-#include "SkSLErrorReporter.h"
-#include "SkSLLexer.h"
+#include "src/sksl/SkSLByteCode.h"
+#include "src/sksl/SkSLCFGGenerator.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLLexer.h"
+#include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
 #define SK_FRAGCOLOR_BUILTIN           10001
 #define SK_IN_BUILTIN                  10002

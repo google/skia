@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkLua.h"
-#include "SkGraphics.h"
-#include "SkStream.h"
-#include "SkData.h"
-#include "SkOSFile.h"
+#include "include/core/SkData.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkStream.h"
+#include "include/utils/SkLua.h"
+#include "src/core/SkOSFile.h"
 
 #include <stdlib.h>
 

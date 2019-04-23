@@ -9,12 +9,12 @@
 
 #include <float.h>  // for FLT_EPSILON
 
-#include "SkFloatingPoint.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkPathOpsDebug.h"
-#include "SkSafe_math.h"  // for fabs, sqrt
-#include "SkScalar.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkScalar.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkSafe_math.h"
+#include "src/pathops/SkPathOpsDebug.h"
 
 enum SkPathOpsMask {
     kWinding_PathOpsMask = -1,

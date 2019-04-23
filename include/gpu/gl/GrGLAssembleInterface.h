@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
 
 typedef GrGLFuncPtr (*GrGLGetProc)(void* ctx, const char name[]);
 

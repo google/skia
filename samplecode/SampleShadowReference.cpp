@@ -5,13 +5,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Sample.h"
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkPath.h"
-#include "SkPoint3.h"
-#include "SkShadowUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint3.h"
+#include "include/utils/SkShadowUtils.h"
+#include "samplecode/Sample.h"
+#include "tools/Resources.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Sample to compare the Material Design shadow reference to our results

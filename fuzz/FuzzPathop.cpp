@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Fuzz.h"
-#include "FuzzCommon.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkRect.h"
+#include "fuzz/Fuzz.h"
+#include "fuzz/FuzzCommon.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/pathops/SkPathOps.h"
 
 const uint8_t MAX_OPS = 20;
 

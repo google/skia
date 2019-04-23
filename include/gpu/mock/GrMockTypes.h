@@ -8,8 +8,8 @@
 #ifndef GrMockOptions_DEFINED
 #define GrMockOptions_DEFINED
 
-#include "GrTypes.h"
-#include "../private/GrTypesPriv.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrTypesPriv.h"
 
 struct GrMockTextureInfo {
     GrPixelConfig fConfig;

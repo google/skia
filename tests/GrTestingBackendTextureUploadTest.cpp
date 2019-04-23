@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrGpu.h"
-#include "GrContextPriv.h"
-#include "GrTexture.h"
-#include "SkConvertPixels.h"
-#include "Test.h"
-#include "TestUtils.h"
+#include "include/gpu/GrTexture.h"
+#include "src/core/SkConvertPixels.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "tests/Test.h"
+#include "tests/TestUtils.h"
 
 void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context, GrColorType ct,
                                bool renderTarget, bool doDataUpload, GrMipMapped mipMapped) {

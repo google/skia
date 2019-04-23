@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkReader32.h"
-#include "Test.h"
+#include "src/core/SkReader32.h"
+#include "tests/Test.h"
 
 static void assert_eof(skiatest::Reporter* reporter, const SkReader32& reader) {
     REPORTER_ASSERT(reporter, reader.eof());

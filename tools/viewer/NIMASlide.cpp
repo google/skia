@@ -5,13 +5,13 @@
 * found in the LICENSE file.
 */
 
-#include "NIMASlide.h"
+#include "tools/viewer/NIMASlide.h"
 
-#include "AnimTimer.h"
-#include "Resources.h"
-#include "SkOSPath.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/Resources.h"
+#include "tools/timer/AnimTimer.h"
 #include "imgui.h"
-#include "nima/NimaActor.h"
+#include "experimental/nima/NimaActor.h"
 
 #include <algorithm>
 #include <cmath>

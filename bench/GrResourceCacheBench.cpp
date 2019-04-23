@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
+#include "bench/Benchmark.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrGpuResource.h"
-#include "GrGpuResourcePriv.h"
-#include "GrResourceCache.h"
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrGpuResource.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrResourceCache.h"
 
 enum {
     CACHE_SIZE_COUNT = 4096,

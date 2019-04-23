@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "Resources.h"
+#include "gm/gm.h"
+#include "tools/Resources.h"
 
-#include "GrContext.h"
-#include "SkImage.h"
+#include "include/core/SkImage.h"
+#include "include/gpu/GrContext.h"
 
 DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,
                            5 * 256 + 60, 256 + 128 + 30) {

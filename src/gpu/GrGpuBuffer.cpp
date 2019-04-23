@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrGpuBuffer.h"
-#include "GrCaps.h"
-#include "GrGpu.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrGpuBuffer.h"
 
 GrGpuBuffer::GrGpuBuffer(GrGpu* gpu, size_t sizeInBytes, GrGpuBufferType type,
                          GrAccessPattern pattern)

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 
 DEF_SIMPLE_GM(crbug_847759, canvas, 500, 500) {
     // This path exposed an issue in GrAAHairlinePathRenderer. When converting from cubics to quads

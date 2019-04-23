@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "GrContextFactory.h"
-#include "GrTypes.h"
-#include "SkBitmap.h"
-#include "SkDevice.h"
-#include "SkGpuDevice.h"
-#include "SkImage.h"
-#include "SkImageInfo.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkSpecialImage.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/gpu/SkGpuDevice.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
 class SkColorSpace;
 class GrContext;

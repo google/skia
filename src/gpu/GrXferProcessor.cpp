@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrXferProcessor.h"
+#include "src/gpu/GrXferProcessor.h"
 
-#include "GrCaps.h"
-#include "GrPipeline.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrPipeline.h"
 
 GrXferProcessor::GrXferProcessor(ClassID classID)
         : INHERITED(classID)

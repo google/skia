@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkBlurDrawLooper.h"
-#include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
-#include "SkColorFilter.h"
-#include "SkGradientShader.h"
-#include "SkMatrix.h"
-#include "SkTArray.h"
+#include "gm/gm.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/effects/SkBlurDrawLooper.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkBlurMask.h"
 
 namespace skiagm {
 

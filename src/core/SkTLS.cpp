@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkTLS.h"
+#include "src/core/SkTLS.h"
 
 struct SkTLSRec {
     SkTLSRec*           fNext;

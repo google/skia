@@ -11,7 +11,7 @@
 #ifndef sk_maskfilter_DEFINED
 #define sk_maskfilter_DEFINED
 
-#include "sk_types.h"
+#include "include/c/sk_types.h"
 
 typedef enum {
     NORMAL_SK_BLUR_STYLE,   //!< fuzzy inside and outside

@@ -8,10 +8,10 @@
 #ifndef SkUrlDataManager_DEFINED
 #define SkUrlDataManager_DEFINED
 
-#include "SkData.h"
-#include "SkOpts.h"
-#include "SkString.h"
-#include "SkTDynamicHash.h"
+#include "include/core/SkData.h"
+#include "include/core/SkString.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkTDynamicHash.h"
 
 /*
  * A simple class which allows clients to add opaque data types, and returns a url where this data

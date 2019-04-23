@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkImage.h"
-#include "Resources.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImage.h"
+#include "tools/Resources.h"
 
 // This gm draws 8 images that are mostly the same when respecting the
 // EXIF orientation tag. Each one has four quadrants (red, blue, green,

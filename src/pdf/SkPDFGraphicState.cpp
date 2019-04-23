@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFGraphicState.h"
+#include "src/pdf/SkPDFGraphicState.h"
 
-#include "SkData.h"
-#include "SkPDFDocument.h"
-#include "SkPDFDocumentPriv.h"
-#include "SkPDFFormXObject.h"
-#include "SkPDFUtils.h"
-#include "SkPaint.h"
-#include "SkTo.h"
+#include "include/core/SkData.h"
+#include "include/core/SkPaint.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/private/SkTo.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
+#include "src/pdf/SkPDFFormXObject.h"
+#include "src/pdf/SkPDFUtils.h"
 
 static const char* as_pdf_blend_mode_name(SkBlendMode mode) {
     const char* name = SkPDFUtils::BlendModeName(mode);

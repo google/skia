@@ -8,9 +8,9 @@
 #ifndef SkottieProperty_DEFINED
 #define SkottieProperty_DEFINED
 
-#include "SkColor.h"
-#include "SkPoint.h"
-#include "SkRefCnt.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
 
 #include <functional>
 

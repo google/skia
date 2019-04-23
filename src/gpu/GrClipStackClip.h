@@ -7,9 +7,9 @@
 #ifndef GrClipStackClip_DEFINED
 #define GrClipStackClip_DEFINED
 
-#include "GrClip.h"
-#include "GrReducedClip.h"
-#include "SkClipStack.h"
+#include "src/core/SkClipStack.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrReducedClip.h"
 
 class GrPathRenderer;
 class GrTextureProxy;

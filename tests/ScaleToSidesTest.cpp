@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkScaleToSides.h"
+#include "src/core/SkScaleToSides.h"
 
-#include "Test.h"
+#include "tests/Test.h"
 
 #include <algorithm>
 

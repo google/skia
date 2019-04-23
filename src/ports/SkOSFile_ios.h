@@ -8,7 +8,7 @@
 #ifndef SkOSFile_ios_DEFINED
 #define SkOSFile_ios_DEFINED
 
-#include "SkString.h"
+#include "include/core/SkString.h"
 
 #ifdef SK_BUILD_FOR_IOS
 #import <CoreFoundation/CoreFoundation.h>

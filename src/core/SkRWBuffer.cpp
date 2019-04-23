@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkRWBuffer.h"
+#include "include/core/SkRWBuffer.h"
 
-#include "SkMakeUnique.h"
-#include "SkMalloc.h"
-#include "SkStream.h"
-#include "SkTo.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkMakeUnique.h"
 
 #include <atomic>
 #include <new>

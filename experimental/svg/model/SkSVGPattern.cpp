@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkSVGPattern.h"
+#include "experimental/svg/model/SkSVGPattern.h"
 
-#include "SkPictureRecorder.h"
-#include "SkShader.h"
-#include "SkSVGRenderContext.h"
-#include "SkSVGValue.h"
+#include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGValue.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkShader.h"
 
 SkSVGPattern::SkSVGPattern() : INHERITED(SkSVGTag::kPattern) {}
 

@@ -6,12 +6,12 @@
  */
 
 #include <string>
-#include "AnimTimer.h"
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkGeometry.h"
-#include "SkPath.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPath.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkGeometry.h"
+#include "tools/timer/AnimTimer.h"
 
 // This draws an animation where every cubic has a cusp, to test drawing a circle
 // at the cusp point. Create a unit square. A cubic with its control points

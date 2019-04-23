@@ -8,7 +8,7 @@
 #ifndef SkSpinlock_DEFINED
 #define SkSpinlock_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #include <atomic>
 
 class SkSpinlock {

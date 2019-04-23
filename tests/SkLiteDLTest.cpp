@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkLiteDL.h"
-#include "SkLiteRecorder.h"
-#include "SkRSXform.h"
-#include "Test.h"
+#include "include/core/SkRSXform.h"
+#include "src/core/SkLiteDL.h"
+#include "src/core/SkLiteRecorder.h"
+#include "tests/Test.h"
 
 DEF_TEST(SkLiteDL_basics, r) {
     SkLiteDL p;

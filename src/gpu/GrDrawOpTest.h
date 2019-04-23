@@ -8,8 +8,8 @@
 #ifndef GrDrawOpTest_DEFINED
 #define GrDrawOpTest_DEFINED
 
-#include "GrTestUtils.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "src/gpu/GrTestUtils.h"
 
 #if GR_TEST_UTILS
 

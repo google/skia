@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkColorPriv.h"
-#include "SkShader.h"
-#include "SkTextUtils.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkShader.h"
+#include "include/utils/SkTextUtils.h"
+#include "tools/ToolUtils.h"
 
-#include "SkBlurImageFilter.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkMergeImageFilter.h"
-#include "SkOffsetImageFilter.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkMergeImageFilter.h"
+#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkOffsetImageFilter.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

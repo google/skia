@@ -8,8 +8,8 @@
 #ifndef SkOverdrawCanvas_DEFINED
 #define SkOverdrawCanvas_DEFINED
 
-#include "SkCanvasVirtualEnforcer.h"
-#include "SkNWayCanvas.h"
+#include "include/core/SkCanvasVirtualEnforcer.h"
+#include "include/utils/SkNWayCanvas.h"
 
 /**
  *  Captures all drawing commands.  Rather than draw the actual content, this device

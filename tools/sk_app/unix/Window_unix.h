@@ -8,9 +8,9 @@
 #ifndef Window_unix_DEFINED
 #define Window_unix_DEFINED
 
-#include "../Window.h"
-#include "SkChecksum.h"
-#include "SkTDynamicHash.h"
+#include "include/private/SkChecksum.h"
+#include "src/core/SkTDynamicHash.h"
+#include "tools/sk_app/Window.h"
 
 #include <GL/glx.h>
 #include <X11/Xlib.h>

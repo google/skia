@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Timer.h"
+#include "tools/timer/Timer.h"
 
 SkString HumanizeMs(double ms) {
     if (ms > 60e+3)  return SkStringPrintf("%.3gm", ms/60e+3);

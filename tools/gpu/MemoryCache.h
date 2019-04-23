@@ -8,9 +8,9 @@
 #ifndef MemoryCache_DEFINED
 #define MemoryCache_DEFINED
 
-#include "GrContextOptions.h"
-#include "SkChecksum.h"
-#include "SkData.h"
+#include "include/core/SkData.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/private/SkChecksum.h"
 
 #include <unordered_map>
 

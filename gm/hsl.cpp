@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
 // Hue, Saturation, Color, and Luminosity blend modes are oddballs.
 // They nominally convert their inputs to unpremul, then to HSL, then

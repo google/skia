@@ -7,23 +7,23 @@
 
 // This test only works with the GPU backend.
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrPathUtils.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContextPriv.h"
-#include "SkColorPriv.h"
-#include "SkGeometry.h"
-#include "SkPoint3.h"
-#include "SkPointPriv.h"
-#include "effects/GrBezierEffect.h"
-#include "ops/GrMeshDrawOp.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkPoint3.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrPathUtils.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/effects/GrBezierEffect.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
 
 namespace skiagm {
 

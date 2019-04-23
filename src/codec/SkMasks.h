@@ -7,7 +7,7 @@
 #ifndef SkMasks_DEFINED
 #define SkMasks_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 /*
  *

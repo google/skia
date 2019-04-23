@@ -8,7 +8,7 @@
 #ifndef SkTableColorFilter_DEFINED
 #define SkTableColorFilter_DEFINED
 
-#include "SkColorFilter.h"
+#include "include/core/SkColorFilter.h"
 
 class SK_API SkTableColorFilter {
 public:

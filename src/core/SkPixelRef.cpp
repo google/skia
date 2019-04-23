@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapCache.h"
-#include "SkMutex.h"
-#include "SkNextID.h"
-#include "SkPixelRef.h"
-#include "SkTraceEvent.h"
+#include "include/core/SkPixelRef.h"
+#include "include/private/SkMutex.h"
+#include "src/core/SkBitmapCache.h"
+#include "src/core/SkNextID.h"
+#include "src/core/SkTraceEvent.h"
 #include <atomic>
 
 uint32_t SkNextID::ImageID() {

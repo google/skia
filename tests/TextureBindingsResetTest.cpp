@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrContextPriv.h"
-#include "SkSurface.h"
-#include "Test.h"
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLGpu.h"
-#include "gl/GrGLUtil.h"
+#include "include/core/SkSurface.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLUtil.h"
+#include "tests/Test.h"
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInfo) {
 #define GL(F) GR_GL_CALL(ctxInfo.glContext()->gl(), F)

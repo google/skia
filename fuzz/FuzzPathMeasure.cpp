@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Fuzz.h"
-#include "FuzzCommon.h"
-#include "SkPathMeasure.h"
+#include "fuzz/Fuzz.h"
+#include "fuzz/FuzzCommon.h"
+#include "include/core/SkPathMeasure.h"
 
 void inline ignoreResult(bool ) {}
 

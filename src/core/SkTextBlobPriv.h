@@ -8,17 +8,17 @@
 #ifndef SkTextBlobPriv_DEFINED
 #define SkTextBlobPriv_DEFINED
 
-#include "SkColorFilter.h"
-#include "SkDrawLooper.h"
-#include "SkFont.h"
-#include "SkImageFilter.h"
-#include "SkMaskFilter.h"
-#include "SkPaintPriv.h"
-#include "SkPathEffect.h"
-#include "SkSafeMath.h"
-#include "SkShader.h"
-#include "SkTextBlob.h"
-#include "SkTypeface.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkDrawLooper.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkSafeMath.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;

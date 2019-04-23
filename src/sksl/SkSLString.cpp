@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLString.h"
+#include "src/sksl/SkSLString.h"
 
-#include "SkSLUtil.h"
+#include "src/sksl/SkSLUtil.h"
 #include <algorithm>
 #include <errno.h>
 #include <limits.h>

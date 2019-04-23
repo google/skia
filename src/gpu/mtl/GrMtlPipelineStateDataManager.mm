@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlPipelineStateDataManager.h"
+#include "src/gpu/mtl/GrMtlPipelineStateDataManager.h"
 
-#include "GrMtlBuffer.h"
-#include "GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlBuffer.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
 
 GrMtlPipelineStateDataManager::GrMtlPipelineStateDataManager(const UniformInfoArray& uniforms,
                                                              uint32_t geometryUniformSize,

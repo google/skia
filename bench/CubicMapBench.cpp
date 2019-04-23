@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkCubicMap.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCubicMap.h"
 
 class CubicMapBench : public Benchmark {
 public:

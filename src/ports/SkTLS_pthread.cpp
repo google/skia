@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkTLS.h"
-#include "SkOnce.h"
+#include "include/private/SkOnce.h"
+#include "src/core/SkTLS.h"
 
 #include <pthread.h>
 

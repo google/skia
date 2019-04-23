@@ -7,7 +7,7 @@
 #ifndef SkEnumOperators_DEFINED
 #define SkEnumOperators_DEFINED
 
-#include "SkTLogic.h"
+#include "include/private/SkTLogic.h"
 
 namespace skstd {
 template <typename T> struct is_bitmask_enum : std::false_type {};

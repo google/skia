@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkPerlinNoiseShader.h"
-#include "SkShader.h"
+#include "gm/gm.h"
+#include "include/core/SkShader.h"
+#include "include/effects/SkPerlinNoiseShader.h"
 
 namespace {
 

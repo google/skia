@@ -8,7 +8,7 @@
 #ifndef SkSize_DEFINED
 #define SkSize_DEFINED
 
-#include "SkScalar.h"
+#include "include/core/SkScalar.h"
 
 struct SkISize {
     int32_t fWidth;

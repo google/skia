@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkChecksum.h"
-#include "SkFont.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkString.h"
-#include "SkTemplates.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
+#include "include/private/SkChecksum.h"
+#include "include/private/SkTemplates.h"
 
-#include "gUniqueGlyphIDs.h"
+#include "bench/gUniqueGlyphIDs.h"
 
 #define gUniqueGlyphIDs_Sentinel    0xFFFF
 

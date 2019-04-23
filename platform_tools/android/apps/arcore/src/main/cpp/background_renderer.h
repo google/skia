@@ -22,7 +22,7 @@
 #include <cstdlib>
 
 #include "arcore_c_api.h"
-#include "util.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/util.h"
 
 namespace hello_ar {
 

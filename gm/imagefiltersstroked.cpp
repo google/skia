@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
-#include "SkColor.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkOffsetImageFilter.h"
-#include "SkScalar.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkScalar.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkDropShadowImageFilter.h"
+#include "include/effects/SkOffsetImageFilter.h"
 
 #define RESIZE_FACTOR_X SkIntToScalar(2)
 #define RESIZE_FACTOR_Y SkIntToScalar(5)

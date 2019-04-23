@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorData.h"
-#include "SkEndian.h"
-#include "SkFDot6.h"
-#include "SkFixed.h"
-#include "SkHalf.h"
-#include "SkMathPriv.h"
-#include "SkPoint.h"
-#include "SkRandom.h"
-#include "SkTo.h"
-#include "Test.h"
+#include "include/core/SkPoint.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkHalf.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkEndian.h"
+#include "src/core/SkFDot6.h"
+#include "src/core/SkMathPriv.h"
+#include "tests/Test.h"
 
 static void test_clz(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 32 == SkCLZ(0));

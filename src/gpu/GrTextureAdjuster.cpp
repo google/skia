@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrTextureAdjuster.h"
-#include "GrColorSpaceXform.h"
-#include "GrGpu.h"
-#include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "SkGr.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrTextureAdjuster.h"
+#include "src/gpu/SkGr.h"
 
 GrTextureAdjuster::GrTextureAdjuster(GrRecordingContext* context, sk_sp<GrTextureProxy> original,
                                      SkAlphaType alphaType,

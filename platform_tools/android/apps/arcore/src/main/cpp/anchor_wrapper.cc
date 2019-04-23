@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "hello_ar_application.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/hello_ar_application.h"
 #include "arcore_c_api.h"
-#include "anchor_wrapper.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/anchor_wrapper.h"
 
 namespace hello_ar {
 

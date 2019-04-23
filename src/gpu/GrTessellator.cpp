@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "GrTessellator.h"
+#include "src/gpu/GrTessellator.h"
 
-#include "GrDefaultGeoProcFactory.h"
-#include "GrPathUtils.h"
-#include "GrVertexWriter.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrPathUtils.h"
+#include "src/gpu/GrVertexWriter.h"
 
-#include "SkArenaAlloc.h"
-#include "SkGeometry.h"
-#include "SkPath.h"
-#include "SkPointPriv.h"
-#include "SkTDPQueue.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkTDPQueue.h"
 
 #include <algorithm>
 #include <cstdio>

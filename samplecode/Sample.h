@@ -8,13 +8,13 @@
 #ifndef SampleCode_DEFINED
 #define SampleCode_DEFINED
 
-#include "Registry.h"
-#include "SkColor.h"
-#include "SkMacros.h"
-#include "SkMetaData.h"
-#include "SkPoint.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/private/SkMacros.h"
+#include "src/utils/SkMetaData.h"
+#include "tools/Registry.h"
 
 class AnimTimer;
 class SkCanvas;

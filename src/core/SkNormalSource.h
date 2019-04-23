@@ -8,8 +8,8 @@
 #ifndef SkNormalSource_DEFINED
 #define SkNormalSource_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkShaderBase.h"
+#include "include/core/SkFlattenable.h"
+#include "src/shaders/SkShaderBase.h"
 
 class SkMatrix;
 struct SkPoint3;

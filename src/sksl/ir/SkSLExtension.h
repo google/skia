@@ -8,7 +8,7 @@
 #ifndef SKSL_EXTENSION
 #define SKSL_EXTENSION
 
-#include "SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
 
 namespace SkSL {
 

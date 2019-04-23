@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "PathOpsExtendedTest.h"
-#include "PathOpsTestCommon.h"
-#include "SkBitmap.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "tests/PathOpsExtendedTest.h"
+#include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
 
 DEF_TEST(PathOpsBuilder, reporter) {
     SkOpBuilder builder;

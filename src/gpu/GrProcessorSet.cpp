@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrProcessorSet.h"
-#include "GrAppliedClip.h"
-#include "GrCaps.h"
-#include "GrUserStencilSettings.h"
-#include "GrXferProcessor.h"
-#include "SkBlendModePriv.h"
-#include "effects/GrPorterDuffXferProcessor.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrProcessorSet.h"
+#include "src/gpu/GrUserStencilSettings.h"
+#include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 
 const GrProcessorSet& GrProcessorSet::EmptySet() {
     static GrProcessorSet gEmpty(GrProcessorSet::Empty::kEmpty);

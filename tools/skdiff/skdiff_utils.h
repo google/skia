@@ -8,7 +8,7 @@
 #ifndef skdiff_utils_DEFINED
 #define skdiff_utils_DEFINED
 
-#include "skdiff.h"
+#include "tools/skdiff/skdiff.h"
 
 class SkBitmap;
 class SkData;

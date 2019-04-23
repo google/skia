@@ -8,11 +8,11 @@
 #ifndef GrAutoLocaleSetter_DEFINED
 #define GrAutoLocaleSetter_DEFINED
 
-#include "GrTypes.h"
-#include "SkNoncopyable.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkNoncopyable.h"
 
 #if defined(SK_BUILD_FOR_WIN)
-#include "SkString.h"
+#include "include/core/SkString.h"
 #endif
 
 #if !defined(SK_BUILD_FOR_ANDROID)

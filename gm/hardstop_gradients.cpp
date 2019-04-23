@@ -36,9 +36,9 @@
  * 0, 0, 1 and 0, 1, 1). The final row has a single off-center hard stop.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "SkGradientShader.h"
+#include "include/effects/SkGradientShader.h"
 
 const int WIDTH  = 500;
 const int HEIGHT = 500;

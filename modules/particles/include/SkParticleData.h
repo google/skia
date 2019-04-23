@@ -8,11 +8,11 @@
 #ifndef SkParticleData_DEFINED
 #define SkParticleData_DEFINED
 
-#include "SkColor.h"
-#include "SkPoint.h"
-#include "SkRandom.h"
-#include "SkReflected.h"
-#include "SkRSXform.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRSXform.h"
+#include "include/utils/SkRandom.h"
+#include "modules/particles/include/SkReflected.h"
 
 /*
  *  Various structs used to communicate particle information among emitters, affectors, etc.

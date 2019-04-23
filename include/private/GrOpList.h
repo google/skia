@@ -8,11 +8,11 @@
 #ifndef GrOpList_DEFINED
 #define GrOpList_DEFINED
 
-#include "GrProxyRef.h"
-#include "GrTextureProxy.h"
-#include "SkColorData.h"
-#include "SkRefCnt.h"
-#include "SkTDArray.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/GrProxyRef.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkTDArray.h"
 
 class GrAuditTrail;
 class GrCaps;

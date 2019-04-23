@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkColorPriv.h"
-#include "SkImage.h"
+#include "gm/gm.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkImage.h"
 
 static const sk_sp<SkImage> make_image(int firstBlackRow, int lastBlackRow) {
     static const int kWidth = 25;

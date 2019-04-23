@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlPipelineState.h"
+#include "src/gpu/mtl/GrMtlPipelineState.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrPipeline.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
-#include "GrTexturePriv.h"
-#include "GrMtlBuffer.h"
-#include "GrMtlGpu.h"
-#include "GrMtlSampler.h"
-#include "GrMtlTexture.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLXferProcessor.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLXferProcessor.h"
+#include "src/gpu/mtl/GrMtlBuffer.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlSampler.h"
+#include "src/gpu/mtl/GrMtlTexture.h"
 
 GrMtlPipelineState::SamplerBindings::SamplerBindings(const GrSamplerState& state,
                                                      GrTexture* texture,

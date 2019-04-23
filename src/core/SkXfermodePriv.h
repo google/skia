@@ -8,9 +8,9 @@
 #ifndef SkXfermodePriv_DEFINED
 #define SkXfermodePriv_DEFINED
 
-#include "SkBlendMode.h"
-#include "SkColor.h"
-#include "SkRefCnt.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRefCnt.h"
 
 class GrFragmentProcessor;
 class GrTexture;

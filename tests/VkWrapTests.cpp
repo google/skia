@@ -7,23 +7,23 @@
 
 // This is a GPU-backend specific test. It relies on static intializers to work
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if defined(SK_VULKAN)
 
-#include "vk/GrVkVulkan.h"
+#include "include/gpu/vk/GrVkVulkan.h"
 
-#include "GrBackendSurface.h"
-#include "GrContextPriv.h"
-#include "GrContextFactory.h"
-#include "GrRenderTarget.h"
-#include "GrTexture.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrContextPriv.h"
+#include "tools/gpu/GrContextFactory.h"
 
-#include "Test.h"
-#include "vk/GrVkCaps.h"
-#include "vk/GrVkGpu.h"
-#include "vk/GrVkMemory.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/vk/GrVkCaps.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkMemory.h"
+#include "tests/Test.h"
 
 using sk_gpu_test::GrContextFactory;
 

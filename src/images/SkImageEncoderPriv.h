@@ -8,8 +8,8 @@
 #ifndef SkImageEncoderPriv_DEFINED
 #define SkImageEncoderPriv_DEFINED
 
-#include "SkImageEncoder.h"
-#include "SkImageInfoPriv.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/private/SkImageInfoPriv.h"
 
 static inline bool SkPixmapIsValid(const SkPixmap& src) {
     if (!SkImageInfoIsValid(src.info())) {

@@ -9,13 +9,13 @@
 #define SkTypes_DEFINED
 
 // IWYU pragma: begin_exports
-#include "SkPreConfig.h"
+#include "include/core/SkPreConfig.h"
 #if defined (SK_USER_CONFIG_HEADER)
     #include SK_USER_CONFIG_HEADER
 #else
-    #include "SkUserConfig.h"
+    #include "include/config/SkUserConfig.h"
 #endif
-#include "SkPostConfig.h"
+#include "include/core/SkPostConfig.h"
 #include <stddef.h>
 #include <stdint.h>
 // IWYU pragma: end_exports

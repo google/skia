@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkTLazy.h"
-#include "Test.h"
+#include "src/core/SkTLazy.h"
+#include "tests/Test.h"
 
 DEF_TEST(TLazy_copy, r) {
     SkTLazy<int> lazy;

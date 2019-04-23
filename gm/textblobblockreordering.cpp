@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "SkCanvas.h"
-#include "SkTextBlob.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkTextBlob.h"
 
 namespace skiagm {
 class TextBlobBlockReordering : public GM {

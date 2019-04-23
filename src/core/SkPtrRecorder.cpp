@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkPtrRecorder.h"
-#include "SkTSearch.h"
+#include "include/private/SkTSearch.h"
+#include "src/core/SkPtrRecorder.h"
 
 void SkPtrSet::reset() {
     Pair* p = fList.begin();

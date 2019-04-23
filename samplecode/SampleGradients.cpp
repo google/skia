@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkGradientShader.h"
+#include "samplecode/Sample.h"
 
 static sk_sp<SkShader> setgrad(const SkRect& r, SkColor c0, SkColor c1) {
     SkColor colors[] = { c0, c1 };

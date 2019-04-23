@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "../Fuzz.h"
-#include "SkFontMgrPriv.h"
-#include "TestFontMgr.h"
+#include "fuzz/Fuzz.h"
+#include "src/core/SkFontMgrPriv.h"
+#include "tools/fonts/TestFontMgr.h"
 
 void fuzz_MockGPUCanvas(Fuzz* f);
 

@@ -6,9 +6,9 @@
  */
 
 
-#include "SkScan.h"
-#include "SkBlitter.h"
-#include "SkRasterClip.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkScan.h"
 
 std::atomic<bool> gSkUseAnalyticAA{true};
 std::atomic<bool> gSkForceAnalyticAA{false};
