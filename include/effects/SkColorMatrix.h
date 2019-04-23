@@ -8,6 +8,7 @@
 #ifndef SkColorMatrix_DEFINED
 #define SkColorMatrix_DEFINED
 
+
 #include "SkTypes.h"
 #include <memory.h>
 
