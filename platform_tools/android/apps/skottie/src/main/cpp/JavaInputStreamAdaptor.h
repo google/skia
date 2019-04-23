@@ -16,9 +16,9 @@
 
 #pragma once
 
+#include "SkStream.h"
+#include "SkMalloc.h"
 #include <jni.h>
-#include <SkStream.h>
-#include <SkMalloc.h>
 
 SkStreamRewindable* CopyJavaInputStream(JNIEnv* env, jobject stream,
                                         jbyteArray storage);

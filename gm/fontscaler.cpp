@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include <SkFont.h>
+#include "SkFont.h"
 #include "SkTypeface.h"
 #include "ToolUtils.h"
 #include "gm.h"

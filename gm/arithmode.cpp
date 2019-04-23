@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include <SkFont.h>
 #include "SkArithmeticImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkImageSource.h"

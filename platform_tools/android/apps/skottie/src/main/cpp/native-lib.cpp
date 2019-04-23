@@ -6,23 +6,23 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
+#include "SkCanvas.h"
+#include "SkColor.h"
+#include "SkSurface.h"
+#include "SkTime.h"
 #include <jni.h>
 #include <math.h>
 #include <string>
 #include <utility>
-#include <SkColor.h>
-#include <SkCanvas.h>
-#include <SkBitmap.h>
-#include <SkSurface.h>
-#include <SkTime.h>
 
-#include <GrContextOptions.h>
-#include <GrContext.h>
-#include <gl/GrGLInterface.h>
-#include <GrBackendSurface.h>
-#include <gl/GrGLTypes.h>
+#include "GrBackendSurface.h"
+#include "GrContext.h"
+#include "GrContextOptions.h"
+#include "gl/GrGLInterface.h"
+#include "gl/GrGLTypes.h"
 
-#include <Skottie.h>
+#include "Skottie.h"
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>

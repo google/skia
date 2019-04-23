@@ -17,6 +17,11 @@
 #ifndef C_ARCORE_HELLOE_AR_HELLO_AR_APPLICATION_H_
 #define C_ARCORE_HELLOE_AR_HELLO_AR_APPLICATION_H_
 
+#include "GrBackendSurface.h"
+#include "GrContext.h"
+#include "SkSurface.h"
+#include "Skottie.h"
+#include "gl/GrGLTypes.h"
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <android/asset_manager.h>
@@ -25,11 +30,6 @@
 #include <set>
 #include <string>
 #include <unordered_map>
-#include <GrContext.h>
-#include <gl/GrGLTypes.h>
-#include <GrBackendSurface.h>
-#include <SkSurface.h>
-#include <Skottie.h>
 
 #include "arcore_c_api.h"
 #include "background_renderer.h"
