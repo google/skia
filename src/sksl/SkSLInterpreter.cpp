@@ -29,7 +29,7 @@ namespace SkSL {
 
 static constexpr int UNINITIALIZED = 0xDEADBEEF;
 
-Interpreter::Value Interpreter::run(const ByteCodeFunction& f, Interpreter::Value args[],
+Interpreter::Value* Interpreter::run(const ByteCodeFunction& f, Interpreter::Value args[],
                                     Interpreter::Value inputs[]) {
     fIP = 0;
     fCurrentFunction = &f;
@@ -62,7 +62,7 @@ Interpreter::Value Interpreter::run(const ByteCodeFunction& f, Interpreter::Valu
             offset += p->fType.columns() * p->fType.rows();
         }
     }
-    return fReturnValue;
+    return fStack.data();
 }
 
 struct CallbackCtx : public SkRasterPipeline_CallbackCtx {
@@ -142,7 +142,7 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             case ByteCodeInstruction::kDupDown: printf("dupdown %d", this->read8()); break;
             case ByteCodeInstruction::kFloatToInt: printf("floattoint"); break;
             case ByteCodeInstruction::kLoad: printf("load"); break;
-            case ByteCodeInstruction::kLoadGlobal: printf("loadglobal"); break;
+            case ByteCodeInstruction::kLoadGlobal: printf("loadglobal %d", this->read8()); break;
             case ByteCodeInstruction::kLoadSwizzle: {
                 int count = this->read8();
                 printf("loadswizzle %d", count);
@@ -166,8 +166,10 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
                 break;
             case ByteCodeInstruction::kRemainderS: printf("remainders"); break;
             case ByteCodeInstruction::kRemainderU: printf("remainderu"); break;
+            case ByteCodeInstruction::kReturn: printf("return %d", this->read8()); break;
             case ByteCodeInstruction::kSignedToFloat: printf("signedtofloat"); break;
             case ByteCodeInstruction::kStore: printf("store"); break;
+            case ByteCodeInstruction::kStoreGlobal: printf("storeglobal"); break;
             case ByteCodeInstruction::kStoreSwizzle: {
                 int count = this->read8();
                 printf("storeswizzle %d", count);
@@ -189,7 +191,8 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             }
             case ByteCodeInstruction::kUnsignedToFloat: printf("unsignedtofloat"); break;
             case ByteCodeInstruction::kVector: printf("vector%d", this->read8()); break;
-            default: SkASSERT(false);
+            default: printf("%d\n", fCurrentFunction->fCode[fIP - 1]);
+                     SkASSERT(false);
         }
         printf("\n");
     }
@@ -323,6 +326,14 @@ void Interpreter::next() {
             break;
         BINARY_OP(kRemainderS, int32_t, fSigned, %)
         BINARY_OP(kRemainderU, uint32_t, fUnsigned, %)
+        case ByteCodeInstruction::kReturn: {
+            int count = this->read8();
+            for (int i = 0; i < count; ++i) {
+                fStack[i] = fStack[fStack.size() - count + i];
+            }
+            fIP = (int) fCurrentFunction->fCode.size();
+            break;
+        }
         case ByteCodeInstruction::kStore: {
             Value value = this->pop();
             int target = this->pop().fSigned;

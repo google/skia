@@ -53,14 +53,13 @@ public:
 
     Interpreter(std::unique_ptr<Program> program, std::unique_ptr<ByteCode> byteCode)
     : fProgram(std::move(program))
-    , fByteCode(std::move(byteCode))
-    , fReturnValue(0) {}
+    , fByteCode(std::move(byteCode)) {}
 
     /**
      * Invokes the specified function with the given arguments, returning its return value. 'out'
      * and 'inout' parameters will result in the 'args' array being modified.
      */
-    Value run(const ByteCodeFunction& f, Value args[], Value inputs[]);
+    Value* run(const ByteCodeFunction& f, Value args[], Value inputs[]);
 
 private:
     StackIndex stackAlloc(int count);
@@ -93,7 +92,6 @@ private:
     const ByteCodeFunction* fCurrentFunction;
     std::vector<Value> fGlobals;
     std::vector<Value> fStack;
-    Value fReturnValue;
 };
 
 } // namespace

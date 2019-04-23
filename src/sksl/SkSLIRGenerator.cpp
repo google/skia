@@ -685,11 +685,6 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     return std::unique_ptr<Statement>(new ExpressionStatement(std::move(result)));
 }
 
-// returns true if the modifiers are (explicitly or implicitly) nothing but 'in'
-static bool is_in(const Modifiers& modifiers) {
-    return (modifiers.fFlags & ~Modifiers::kIn_Flag) == 0;
-}
-
 void IRGenerator::convertFunction(const ASTFunction& f) {
     const Type* returnType = this->convertType(*f.fReturnType);
     if (!returnType) {
@@ -744,19 +739,8 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
                 }
                 break;
             }
-            case Program::kMixer_Kind: {
-                if (*returnType != *fContext.fVoid_Type ||
-                    parameters.size() != 2 ||
-                    parameters[0]->fType != *fContext.fHalf4_Type ||
-                    !is_in(parameters[0]->fModifiers) ||
-                    parameters[1]->fType != *fContext.fHalf4_Type ||
-                    !is_in(parameters[1]->fModifiers)) {
-                    fErrors.error(f.fOffset, "mixer stage 'main' must be declared void main("
-                                             "half4, half4)");
-                    return;
-                }
+            case Program::kGeneric_Kind:
                 break;
-            }
             default:
                 if (parameters.size()) {
                     fErrors.error(f.fOffset, "shader 'main' must have zero parameters");

@@ -71,6 +71,8 @@ enum class ByteCodeInstruction : uint8_t {
     kPushImmediate,
     kRemainderS,
     kRemainderU,
+    // Followed by a byte indicating the number of slots being returned
+    kReturn,
     kStore,
     kStoreGlobal,
     // Followed by a count byte (1-4), and then one byte per swizzle component (0-3). Expects the
