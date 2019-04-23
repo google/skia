@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkColorMatrixFilter_DEFINED
-#define SkColorMatrixFilter_DEFINED
+#ifndef SkColorFilter_Matrix_DEFINED
+#define SkColorFilter_Matrix_DEFINED
 
 #include "SkFlattenable.h"
 #include "SkColorFilter.h"
 
-class SkColorMatrixFilterRowMajor255 : public SkColorFilter {
+class SkColorFilter_Matrix : public SkColorFilter {
 public:
-    SkColorMatrixFilterRowMajor255() {}
-    explicit SkColorMatrixFilterRowMajor255(const SkScalar array[20]);
+    SkColorFilter_Matrix() {}
+    explicit SkColorFilter_Matrix(const SkScalar array[20]);
 
     /** Creates a color matrix filter that returns the same value in all four channels. */
     static sk_sp<SkColorFilter> MakeSingleChannelOutput(const SkScalar row[5]);
@@ -27,17 +27,18 @@ public:
             GrRecordingContext*, const GrColorSpaceInfo&) const override;
 #endif
 
+    static void RegisterFlattenables();
+
 protected:
     void flatten(SkWriteBuffer&) const override;
 
 private:
-    SK_FLATTENABLE_HOOKS(SkColorMatrixFilterRowMajor255)
+    SK_FLATTENABLE_HOOKS(SkColorFilter_Matrix)
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
-    SkScalar        fMatrix[20];
-    float           fTranspose[20]; // for Sk4s
-    uint32_t        fFlags;
+    float       fMatrix[20];
+    uint32_t    fFlags;
 
     void initState();
 
