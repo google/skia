@@ -7,12 +7,12 @@
 #ifndef GrAHardwareBufferUtils_DEFINED
 #define GrAHardwareBufferUtils_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 
-#include "GrBackendSurface.h"
-#include "GrTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
 
 class GrContext;
 

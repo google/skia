@@ -8,9 +8,9 @@
 #ifndef SlideDir_DEFINED
 #define SlideDir_DEFINED
 
-#include "Slide.h"
+#include "tools/viewer/Slide.h"
 
-#include "SkTArray.h"
+#include "include/private/SkTArray.h"
 
 class SkString;
 

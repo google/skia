@@ -8,12 +8,12 @@
 #ifndef BitmapRegionDecoderBench_DEFINED
 #define BitmapRegionDecoderBench_DEFINED
 
-#include "Benchmark.h"
-#include "SkBitmapRegionDecoder.h"
-#include "SkData.h"
-#include "SkImageInfo.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/android/SkBitmapRegionDecoder.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 
 /**
  *  Benchmark Android's BitmapRegionDecoder for a particular colorType, sampleSize, and subset.

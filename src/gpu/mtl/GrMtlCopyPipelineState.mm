@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlCopyPipelineState.h"
-#include "GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlCopyPipelineState.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
 
 GrMtlCopyPipelineState* GrMtlCopyPipelineState::CreateCopyPipelineState(
         GrMtlGpu* gpu,

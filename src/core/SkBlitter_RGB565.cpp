@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkCoreBlitters.h"
-#include "SkColorData.h"
-#include "SkShader.h"
-#include "SkUTF.h"
-#include "SkXfermodePriv.h"
-#include "SkColorData.h"
+#include "src/core/SkCoreBlitters.h"
+#include "include/private/SkColorData.h"
+#include "include/core/SkShader.h"
+#include "src/utils/SkUTF.h"
+#include "src/core/SkXfermodePriv.h"
+#include "include/private/SkColorData.h"
 
-#include "SkNx.h"
+#include "include/private/SkNx.h"
 
 static void D16_S32X_src(uint16_t dst[], const SkPMColor src[], int count, uint8_t coverage) {
     SkASSERT(coverage == 0xFF);

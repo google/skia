@@ -10,8 +10,8 @@
 
 #import <Metal/Metal.h>
 
-#include "GrTypesPriv.h"
-#include "ir/SkSLProgram.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 class GrMtlGpu;
 class GrSurface;

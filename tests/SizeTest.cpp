@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkSize.h"
+#include "include/core/SkSize.h"
 
-#include "Test.h"
+#include "tests/Test.h"
 
 DEF_TEST(ISize, reporter) {
     SkISize  a, b;

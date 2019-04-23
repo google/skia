@@ -8,7 +8,7 @@
 #ifndef SkDashPathPriv_DEFINED
 #define SkDashPathPriv_DEFINED
 
-#include "SkPathEffect.h"
+#include "include/core/SkPathEffect.h"
 
 namespace SkDashPath {
     /**

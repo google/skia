@@ -9,7 +9,7 @@
 #ifndef SkEdgeClipper_DEFINED
 #define SkEdgeClipper_DEFINED
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 
 /** This is basically an iterator. It is initialized with an edge and a clip,
     and then next() is called until it returns kDone_Verb.

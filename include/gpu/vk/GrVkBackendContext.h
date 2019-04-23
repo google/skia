@@ -8,9 +8,9 @@
 #ifndef GrVkBackendContext_DEFINED
 #define GrVkBackendContext_DEFINED
 
-#include "GrVkTypes.h"
-#include "SkRefCnt.h"
-#include "vk/GrVkMemoryAllocator.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/vk/GrVkMemoryAllocator.h"
 
 class GrVkExtensions;
 

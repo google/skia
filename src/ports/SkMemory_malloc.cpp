@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkMalloc.h"
+#include "include/private/SkMalloc.h"
 
 #include <cstdlib>
 

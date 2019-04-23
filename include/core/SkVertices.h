@@ -8,11 +8,11 @@
 #ifndef SkVertices_DEFINED
 #define SkVertices_DEFINED
 
-#include "SkColor.h"
-#include "SkData.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 
 /**
  * An immutable set of vertex data that can be used with SkCanvas::drawVertices.

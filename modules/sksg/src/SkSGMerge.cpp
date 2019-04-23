@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGMerge.h"
+#include "modules/sksg/include/SkSGMerge.h"
 
-#include "SkCanvas.h"
-#include "SkPathOps.h"
+#include "include/core/SkCanvas.h"
+#include "include/pathops/SkPathOps.h"
 
 namespace sksg {
 

@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrDrawOpTest.h"
-#include "GrCaps.h"
-#include "GrContext_Base.h"
-#include "GrBaseContextPriv.h"
-#include "GrUserStencilSettings.h"
-#include "SkRandom.h"
-#include "SkTypes.h"
+#include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrCaps.h"
+#include "include/private/GrContext_Base.h"
+#include "src/gpu/GrBaseContextPriv.h"
+#include "src/gpu/GrUserStencilSettings.h"
+#include "include/utils/SkRandom.h"
+#include "include/core/SkTypes.h"
 
 #if GR_TEST_UTILS
 

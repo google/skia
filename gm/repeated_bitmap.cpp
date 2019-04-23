@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkImage.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "tools/Resources.h"
+#include "include/core/SkImage.h"
+#include "tools/ToolUtils.h"
+#include "gm/gm.h"
 
 static skiagm::DrawResult draw_rotated_image(SkCanvas* canvas, const SkImage* image,
                                              SkString* errorMsg) {

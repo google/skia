@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkData.h"
-#include "SkMallocPixelRef.h"
-#include "Test.h"
+#include "src/core/SkAutoMalloc.h"
+#include "include/core/SkData.h"
+#include "include/core/SkMallocPixelRef.h"
+#include "tests/Test.h"
 
 static void delete_uint8_proc(void* ptr, void*) {
     delete[] static_cast<uint8_t*>(ptr);

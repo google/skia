@@ -8,8 +8,8 @@
 #ifndef SkDiscretePathEffect_DEFINED
 #define SkDiscretePathEffect_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkPathEffect.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkPathEffect.h"
 
 /** \class SkDiscretePathEffect
 

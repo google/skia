@@ -8,11 +8,11 @@
 #ifndef Skottie_DEFINED
 #define Skottie_DEFINED
 
-#include "SkFontMgr.h"
-#include "SkRefCnt.h"
-#include "SkSize.h"
-#include "SkString.h"
-#include "SkTypes.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 
 #include <memory>
 
