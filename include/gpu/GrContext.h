@@ -242,6 +242,16 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
 
+
+    /**
+     * Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
+     * executing any more commands on the GPU. Skia will take ownership of the underlying semaphores
+     * and delete them once they have been signaled and waited on. If this call returns false, then
+     * the GPU back-end will not wait on any passed in semaphores, and the client will still own the
+     * semaphores.
+     */
+    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+
     /**
      * Call to ensure all drawing to the context has been issued to the underlying 3D API.
      */
