@@ -12,6 +12,7 @@
 #include "GrProxyProvider.h"
 #include "GrRectanizer_skyline.h"
 #include "GrRenderTargetContext.h"
+#include "GrRenderTargetProxyPriv.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "SkIPoint16.h"
@@ -188,6 +189,10 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
     // an atlas larger than maxRenderTargetSize.
     SkASSERT(SkTMax(fHeight, fWidth) <= fMaxTextureSize);
     SkASSERT(fMaxTextureSize <= onFlushRP->caps()->maxRenderTargetSize());
+
+    // Finalize the content size of our proxy. The GPU can potentially make optimizations if it
+    // knows we only intend to write out a smaller sub-rectangle of the backing texture.
+    fTextureProxy->priv().setSize(fDrawBounds.width(), fDrawBounds.height());
 
     if (backingTexture) {
         SkASSERT(backingTexture->config() == kAlpha_half_GrPixelConfig);
