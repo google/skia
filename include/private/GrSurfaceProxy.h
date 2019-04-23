@@ -490,6 +490,7 @@ protected:
     virtual ~GrSurfaceProxy();
 
     friend class GrSurfaceProxyPriv;
+    friend class GrRenderTargetProxyPriv;
 
     // Methods made available via GrSurfaceProxyPriv
     bool ignoredByResourceAllocator() const { return fIgnoredByResourceAllocator; }

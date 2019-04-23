@@ -83,7 +83,7 @@ GrCCPathProcessor::GrCCPathProcessor(const GrTextureProxy* atlas,
         : INHERITED(kGrCCPathProcessor_ClassID)
         , fAtlasAccess(atlas->textureType(), atlas->config(), GrSamplerState::Filter::kNearest,
                        GrSamplerState::WrapMode::kClamp)
-        , fAtlasSize(atlas->isize())
+        , fAtlasSize(SkISize::Make(atlas->peekSurface()->width(), atlas->peekSurface()->height()))
         , fAtlasOrigin(atlas->origin()) {
     // TODO: Can we just assert that atlas has GrCCAtlas::kTextureOrigin and remove fAtlasOrigin?
     this->setInstanceAttributes(kInstanceAttribs, SK_ARRAY_COUNT(kInstanceAttribs));
