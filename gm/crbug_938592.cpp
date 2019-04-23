@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/effects/SkGradientShader.h"
 
 // This draws a hard stop gradient applied to a rectangle. The hard stops fall at half pixel
 // boundaries in y. On some GPUs we've found that the winding of the two triangles that make up the

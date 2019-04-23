@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include "CommandLineFlags.h"
-#include "SkBitmap.h"
-#include "SkStream.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkStream.h"
+#include "tools/flags/CommandLineFlags.h"
 
 class HashAndEncode {
 public:

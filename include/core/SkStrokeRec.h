@@ -8,8 +8,8 @@
 #ifndef SkStrokeRec_DEFINED
 #define SkStrokeRec_DEFINED
 
-#include "../private/SkMacros.h"
-#include "SkPaint.h"
+#include "include/core/SkPaint.h"
+#include "include/private/SkMacros.h"
 
 class SkPath;
 

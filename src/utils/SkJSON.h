@@ -8,10 +8,10 @@
 #ifndef SkJSON_DEFINED
 #define SkJSON_DEFINED
 
-#include "SkArenaAlloc.h"
-#include "SkNoncopyable.h"
-#include "SkTo.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTo.h"
 
 #include <cstring>
 

@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkPaint.h"
-#include "SkPoint.h"
-#include "SkSerialProcs.h"
-#include "SkTextBlobPriv.h"
-#include "SkTo.h"
-#include "SkTypeface.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkSerialProcs.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkTextBlobPriv.h"
 
-#include "Test.h"
-#include "ToolUtils.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
 class TextBlobTester {
 public:
@@ -350,9 +350,9 @@ DEF_TEST(TextBlob_extended, reporter) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkCanvas.h"
-#include "SkSurface.h"
-#include "SkTDArray.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkTDArray.h"
 
 static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, SkScalar y,
                     sk_sp<SkTypeface> tf) {

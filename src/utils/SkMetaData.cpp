@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkMetaData.h"
+#include "src/utils/SkMetaData.h"
 
-#include "SkMalloc.h"
-#include "SkRefCnt.h"
-#include "SkTo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
 
 struct PtrPair {
     void*               fPtr;

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SubsetPath.h"
-#include "SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
+#include "tests/SubsetPath.h"
 
 SubsetPath::SubsetPath(const SkPath& path)
         : fPath(path)

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLSetting.h"
-#include "SkSLIRGenerator.h"
-#include "SkSLVariableReference.h"
+#include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/ir/SkSLSetting.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
 
 namespace SkSL {
 

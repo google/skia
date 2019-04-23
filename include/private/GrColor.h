@@ -11,10 +11,10 @@
 #ifndef GrColor_DEFINED
 #define GrColor_DEFINED
 
-#include "SkColor.h"
-#include "SkColorData.h"
-#include "SkColorPriv.h"
-#include "SkHalf.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkHalf.h"
 
 /**
  * GrColor is 4 bytes for R, G, B, A, in a specific order defined below. Whether the color is

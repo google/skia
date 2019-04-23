@@ -8,7 +8,7 @@
 #ifndef GrCCQuadraticShader_DEFINED
 #define GrCCQuadraticShader_DEFINED
 
-#include "ccpr/GrCCCoverageProcessor.h"
+#include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 
 /**
  * This class renders the coverage of closed quadratic curves using the techniques outlined in

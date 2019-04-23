@@ -19,7 +19,7 @@
     #include <string>
 #else
     #define SKSL_STRING_BASE SkString
-    #include "SkString.h"
+    #include "include/core/SkString.h"
 #endif
 
 namespace SkSL {
@@ -156,7 +156,7 @@ namespace std {
     };
 } // namespace
 #else
-#include "SkOpts.h"
+#include "src/core/SkOpts.h"
 namespace std {
     template<> struct hash<SkSL::String> {
         size_t operator()(const SkSL::String& s) const {

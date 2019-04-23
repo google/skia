@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "GrTextureOpList.h"
+#include "src/gpu/GrTextureOpList.h"
 
-#include "GrAuditTrail.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrMemoryPool.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrResourceAllocator.h"
-#include "GrTextureProxy.h"
-#include "SkStringUtils.h"
-#include "ops/GrCopySurfaceOp.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrAuditTrail.h"
+#include "include/private/GrRecordingContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/core/SkStringUtils.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrResourceAllocator.h"
+#include "src/gpu/ops/GrCopySurfaceOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

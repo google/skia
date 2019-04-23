@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrImageContext.h"
+#include "include/private/GrImageContext.h"
 
-#include "GrCaps.h"
-#include "GrImageContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrSkSLFPFactoryCache.h"
+#include "include/private/GrSkSLFPFactoryCache.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrImageContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)

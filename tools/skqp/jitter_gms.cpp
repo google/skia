@@ -7,12 +7,12 @@
 // there is a significant change.  Print `1` if the named test has no
 // significant change, `0` otherwise
 
-#include "gm.h"
-#include "SkGraphics.h"
-#include "SkExecutor.h"
-#include "SkSemaphore.h"
+#include "gm/gm.h"
+#include "include/core/SkExecutor.h"
+#include "include/core/SkGraphics.h"
+#include "include/private/SkSemaphore.h"
 
-#include "skqp_model.h"
+#include "tools/skqp/src/skqp_model.h"
 
 #include <algorithm>
 #include <cstdio>

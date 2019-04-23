@@ -5,32 +5,32 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkAnnotationKeys.h"
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkFixed.h"
-#include "SkFontDescriptor.h"
-#include "SkImage.h"
-#include "SkImageSource.h"
-#include "SkLightingShader.h"
-#include "SkMakeUnique.h"
-#include "SkMallocPixelRef.h"
-#include "SkMatrixPriv.h"
-#include "SkNormalSource.h"
-#include "SkOSFile.h"
-#include "SkPicturePriv.h"
-#include "SkPictureRecorder.h"
-#include "SkReadBuffer.h"
-#include "SkShaderBase.h"
-#include "SkTableColorFilter.h"
-#include "SkTemplates.h"
-#include "SkTextBlob.h"
-#include "SkTypeface.h"
-#include "SkWriteBuffer.h"
-#include "SkXfermodeImageFilter.h"
-#include "Test.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMallocPixelRef.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkTableColorFilter.h"
+#include "include/effects/SkXfermodeImageFilter.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkAnnotationKeys.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkNormalSource.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkPicturePriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/shaders/SkLightingShader.h"
+#include "src/shaders/SkShaderBase.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 static const uint32_t kArraySize = 64;
 static const int kBitmapSize = 256;
@@ -631,7 +631,7 @@ DEF_TEST(Serialization, reporter) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkAnnotation.h"
+#include "include/core/SkAnnotation.h"
 
 static sk_sp<SkPicture> copy_picture_via_serialization(SkPicture* src) {
     SkDynamicMemoryWStream wstream;

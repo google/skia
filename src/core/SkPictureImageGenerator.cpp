@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkImage_Base.h"
-#include "SkImageGenerator.h"
-#include "SkCanvas.h"
-#include "SkMakeUnique.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPicture.h"
-#include "SkSurface.h"
-#include "SkTLazy.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkTLazy.h"
+#include "src/image/SkImage_Base.h"
 
 class SkPictureImageGenerator : public SkImageGenerator {
 public:
@@ -92,8 +92,8 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 
 sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(
         GrRecordingContext* ctx, const SkImageInfo& info,

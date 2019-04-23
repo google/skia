@@ -8,8 +8,8 @@
 #ifndef GrFillRectOp_DEFINED
 #define GrFillRectOp_DEFINED
 
-#include "GrRenderTargetContext.h"
-#include "GrTypesPriv.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
 
 class GrDrawOp;
 class GrPaint;

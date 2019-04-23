@@ -7,8 +7,8 @@
 #ifndef SkAddIntersections_DEFINED
 #define SkAddIntersections_DEFINED
 
-#include "SkIntersectionHelper.h"
-#include "SkIntersections.h"
+#include "src/pathops/SkIntersectionHelper.h"
+#include "src/pathops/SkIntersections.h"
 
 class SkOpCoincidence;
 

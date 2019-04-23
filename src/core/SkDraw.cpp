@@ -5,35 +5,35 @@
  * found in the LICENSE file.
  */
 
-#include "SkDraw.h"
+#include "src/core/SkDraw.h"
 
-#include "SkArenaAlloc.h"
-#include "SkAutoBlitterChoose.h"
-#include "SkBlendModePriv.h"
-#include "SkBlitter.h"
-#include "SkCanvas.h"
-#include "SkColorData.h"
-#include "SkDevice.h"
-#include "SkDrawProcs.h"
-#include "SkMaskFilterBase.h"
-#include "SkMacros.h"
-#include "SkMatrix.h"
-#include "SkMatrixUtils.h"
-#include "SkPaint.h"
-#include "SkPathEffect.h"
-#include "SkPathPriv.h"
-#include "SkRRect.h"
-#include "SkRasterClip.h"
-#include "SkRectPriv.h"
-#include "SkScan.h"
-#include "SkShader.h"
-#include "SkString.h"
-#include "SkStroke.h"
-#include "SkStrokeRec.h"
-#include "SkTLazy.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
-#include "SkUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkAutoBlitterChoose.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkDrawProcs.h"
+#include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkMatrixUtils.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkRectPriv.h"
+#include "src/core/SkScan.h"
+#include "src/core/SkStroke.h"
+#include "src/core/SkTLazy.h"
+#include "src/core/SkUtils.h"
 
 #include <utility>
 
@@ -1201,10 +1201,10 @@ void SkDraw::validate() const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkPath.h"
-#include "SkDraw.h"
-#include "SkRegion.h"
-#include "SkBlitter.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkDraw.h"
 
 bool SkDraw::ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect* clipBounds,
                                const SkMaskFilter* filter, const SkMatrix* filterMatrix,

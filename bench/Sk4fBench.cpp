@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkColor.h"
-#include "SkNx.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkColor.h"
+#include "include/private/SkNx.h"
 
 // Writing into this array prevents the loops from being compiled away.
 static volatile float blackhole[4];

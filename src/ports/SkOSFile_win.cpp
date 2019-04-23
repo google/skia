@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "SkLeanWindows.h"
-#include "SkMalloc.h"
-#include "SkNoncopyable.h"
-#include "SkOSFile.h"
-#include "SkStringUtils.h"
-#include "SkTFitsIn.h"
+#include "include/private/SkLeanWindows.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTFitsIn.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkStringUtils.h"
 
 #include <io.h>
 #include <new>

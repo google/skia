@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkImage.h"
-#include "SkPaint.h"
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkSurface.h"
 
 bool FuzzImageDecode(sk_sp<SkData> bytes) {
     auto img = SkImage::MakeFromEncoded(bytes);

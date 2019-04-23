@@ -8,8 +8,8 @@
 #ifndef GrWindowRectangles_DEFINED
 #define GrWindowRectangles_DEFINED
 
-#include "GrNonAtomicRef.h"
-#include "SkRect.h"
+#include "include/core/SkRect.h"
+#include "src/gpu/GrNonAtomicRef.h"
 
 class GrWindowRectangles {
 public:

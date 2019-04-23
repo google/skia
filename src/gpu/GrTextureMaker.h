@@ -8,7 +8,7 @@
 #ifndef GrTextureMaker_DEFINED
 #define GrTextureMaker_DEFINED
 
-#include "GrTextureProducer.h"
+#include "src/gpu/GrTextureProducer.h"
 
 /**
  * Base class for sources that start out as something other than a texture (encoded image,

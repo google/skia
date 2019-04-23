@@ -5,18 +5,18 @@
 * found in the LICENSE file.
 */
 
-#include "ParticlesSlide.h"
+#include "tools/viewer/ParticlesSlide.h"
 
-#include "AnimTimer.h"
-#include "ImGuiLayer.h"
-#include "Resources.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkParticleAffector.h"
-#include "SkParticleDrawable.h"
-#include "SkParticleEffect.h"
-#include "SkParticleSerialization.h"
-#include "SkReflected.h"
+#include "modules/particles/include/SkParticleAffector.h"
+#include "modules/particles/include/SkParticleDrawable.h"
+#include "modules/particles/include/SkParticleEffect.h"
+#include "modules/particles/include/SkParticleSerialization.h"
+#include "modules/particles/include/SkReflected.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/Resources.h"
+#include "tools/timer/AnimTimer.h"
+#include "tools/viewer/ImGuiLayer.h"
 
 #include "imgui.h"
 

@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrSurface.h"
-#include "GrContext.h"
-#include "GrOpList.h"
-#include "GrRenderTarget.h"
-#include "GrResourceProvider.h"
-#include "GrSurfacePriv.h"
-#include "GrTexture.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "include/gpu/GrSurface.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrOpList.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfacePriv.h"
 
-#include "SkGr.h"
-#include "SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
+#include "src/gpu/SkGr.h"
 
 size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
     size_t size;

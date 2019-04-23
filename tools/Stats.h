@@ -8,9 +8,9 @@
 #ifndef Stats_DEFINED
 #define Stats_DEFINED
 
-#include "SkFloatingPoint.h"
-#include "SkString.h"
-#include "SkTSort.h"
+#include "include/core/SkString.h"
+#include "include/private/SkFloatingPoint.h"
+#include "src/core/SkTSort.h"
 
 #ifdef SK_BUILD_FOR_WIN
     static const char* kBars[] = { ".", "o", "O" };

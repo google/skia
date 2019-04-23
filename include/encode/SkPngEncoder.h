@@ -8,8 +8,8 @@
 #ifndef SkPngEncoder_DEFINED
 #define SkPngEncoder_DEFINED
 
-#include "SkEncoder.h"
-#include "SkDataTable.h"
+#include "include/core/SkDataTable.h"
+#include "include/encode/SkEncoder.h"
 
 class SkPngEncoderMgr;
 class SkWStream;

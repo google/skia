@@ -8,13 +8,13 @@
 #ifndef GrYUVtoRGBEffect_DEFINED
 #define GrYUVtoRGBEffect_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
-#include "GrTextureDomain.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 
-#include "SkYUVAIndex.h"
+#include "include/core/SkYUVAIndex.h"
 
 class GrYUVtoRGBEffect : public GrFragmentProcessor {
 public:

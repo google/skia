@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
 namespace skiagm {
 

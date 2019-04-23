@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpace.h"
-#include "SkColorSpacePriv.h"
-#include "SkData.h"
-#include "SkOpts.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkOpts.h"
 #include "skcms.h"
 
 bool SkColorSpacePrimaries::toXYZD50(skcms_Matrix3x3* toXYZ_D50) const {

@@ -10,12 +10,13 @@
  **************************************************************************************************/
 #ifndef GrLumaColorFilterEffect_DEFINED
 #define GrLumaColorFilterEffect_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "include/core/SkTypes.h"
+
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
 class GrLumaColorFilterEffect : public GrFragmentProcessor {
 public:
-#include "SkColorData.h"
+#include "include/private/SkColorData.h"
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
         float luma = SK_ITU_BT709_LUM_COEFF_R * input.fR + SK_ITU_BT709_LUM_COEFF_G * input.fG +

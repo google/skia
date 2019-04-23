@@ -1,7 +1,7 @@
 // Copyright 2018 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "SkPDFSubsetFont.h"
+#include "src/pdf/SkPDFSubsetFont.h"
 
 #if defined(SK_USING_THIRD_PARTY_ICU)
 #include "SkLoadICU.h"
@@ -9,8 +9,8 @@
 
 #if defined(SK_PDF_USE_HARFBUZZ_SUBSET)
 
-#include "SkTo.h"
-#include "SkTemplates.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 
 #include "hb.h"
 #include "hb-subset.h"

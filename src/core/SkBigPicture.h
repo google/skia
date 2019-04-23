@@ -8,11 +8,11 @@
 #ifndef SkBigPicture_DEFINED
 #define SkBigPicture_DEFINED
 
-#include "SkNoncopyable.h"
-#include "SkOnce.h"
-#include "SkPicture.h"
-#include "SkRect.h"
-#include "SkTemplates.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkRect.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTemplates.h"
 
 class SkBBoxHierarchy;
 class SkMatrix;

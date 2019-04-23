@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvasStateUtils.h"
+#include "include/utils/SkCanvasStateUtils.h"
 
-#include "SkCanvas.h"
-#include "SkCanvasStack.h"
-#include "SkDevice.h"
-#include "SkRasterClip.h"
-#include "SkWriter32.h"
-#include "SkClipOpPriv.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkWriter32.h"
+#include "src/utils/SkCanvasStack.h"
 
 /*
  * WARNING: The structs below are part of a stable ABI and as such we explicitly

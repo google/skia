@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkAAClip.h"
+#include "src/core/SkAAClip.h"
 
-#include "SkBlitter.h"
-#include "SkColorData.h"
-#include "SkMacros.h"
-#include "SkPath.h"
-#include "SkRectPriv.h"
-#include "SkScan.h"
-#include "SkTo.h"
-#include "SkUTF.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkRectPriv.h"
+#include "src/core/SkScan.h"
+#include "src/utils/SkUTF.h"
 #include <atomic>
 #include <utility>
 

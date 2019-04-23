@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorMatrix.h"
-#include "../private/SkFloatingPoint.h"
+#include "include/effects/SkColorMatrix.h"
+#include "include/private/SkFloatingPoint.h"
 
 // To detect if we need to apply clamping after applying a matrix, we check if
 // any output component might go outside of [0, 255] for any combination of

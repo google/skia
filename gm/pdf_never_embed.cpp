@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkTextBlob.h"
-#include "SkTo.h"
-#include "SkTypeface.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTo.h"
+#include "tools/Resources.h"
 
 static void excercise_draw_pos_text(SkCanvas* canvas,
                                     const char* text,

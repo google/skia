@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "GrContext.h"
-#include "SkShader.h"
-#include "SkTraceEvent.h"
-#include "ToolUtils.h"
+#include "include/core/SkShader.h"
+#include "include/gpu/GrContext.h"
+#include "src/core/SkTraceEvent.h"
+#include "tools/ToolUtils.h"
 using namespace skiagm;
 
 constexpr char GM::kErrorMsg_DrawSkippedGpuOnly[];

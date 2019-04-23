@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "Resources.h"
-#include "SkCodec.h"
-#include "SkColorSpace.h"
-#include "SkImage.h"
-#include "SkImagePriv.h"
+#include "gm/gm.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImage.h"
+#include "src/core/SkImagePriv.h"
+#include "tools/Resources.h"
 
 sk_sp<SkImage> make_raster_image(const char* path) {
     sk_sp<SkData> resourceData = GetResourceAsData(path);

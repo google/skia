@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkTypes.h"
-#include "SkParticleAffector.h"
-#include "SkParticleDrawable.h"
-#include "SkParticleEffect.h"
-#include "SkParticleSerialization.h"
-#include "SkRandom.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkRandom.h"
+#include "modules/particles/include/SkParticleAffector.h"
+#include "modules/particles/include/SkParticleDrawable.h"
+#include "modules/particles/include/SkParticleEffect.h"
+#include "modules/particles/include/SkParticleSerialization.h"
 
 #include <string>
 

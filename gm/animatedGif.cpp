@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "CommandLineFlags.h"
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkCodec.h"
-#include "SkColor.h"
-#include "SkFont.h"
-#include "SkPaint.h"
-#include "SkString.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkString.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "tools/timer/AnimTimer.h"
 
 #include <vector>
 
@@ -169,9 +169,9 @@ private:
 DEF_GM(return new AnimatedGifGM);
 
 
-#include "SkAnimCodecPlayer.h"
-#include "SkOSFile.h"
-#include "SkMakeUnique.h"
+#include "include/utils/SkAnimCodecPlayer.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkOSFile.h"
 
 static std::unique_ptr<SkCodec> load_codec(const char filename[]) {
     return SkCodec::MakeFromData(SkData::MakeFromFileName(filename));

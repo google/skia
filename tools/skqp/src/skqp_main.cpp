@@ -8,11 +8,11 @@
 #include <iostream>
 #include <sys/stat.h>
 
-#include "skqp.h"
+#include "tools/skqp/src/skqp.h"
 
-#include "Resources.h"
-#include "SkData.h"
-#include "SkOSFile.h"
+#include "include/core/SkData.h"
+#include "src/core/SkOSFile.h"
+#include "tools/Resources.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

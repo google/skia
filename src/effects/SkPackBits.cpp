@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkPackBits.h"
-#include "SkTo.h"
+#include "include/private/SkTo.h"
+#include "src/effects/SkPackBits.h"
 
 #include <cstring>
 

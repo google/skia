@@ -9,8 +9,8 @@
 
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include "SkTypes.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
 
 /* PACKET and HEADER Format */
 #define PACKET_SIZE 1024

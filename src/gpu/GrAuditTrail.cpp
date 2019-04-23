@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrAuditTrail.h"
-#include "ops/GrOp.h"
-#include "SkJSONWriter.h"
+#include "include/private/GrAuditTrail.h"
+#include "src/gpu/ops/GrOp.h"
+#include "src/utils/SkJSONWriter.h"
 
 const int GrAuditTrail::kGrAuditTrailInvalidID = -1;
 

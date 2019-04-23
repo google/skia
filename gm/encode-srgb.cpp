@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkCodec.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkImageEncoderPriv.h"
-#include "SkJpegEncoder.h"
-#include "SkPngEncoder.h"
-#include "SkWebpEncoder.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/encode/SkWebpEncoder.h"
+#include "src/images/SkImageEncoderPriv.h"
+#include "tools/Resources.h"
 
 namespace skiagm {
 

@@ -7,22 +7,22 @@
 
 // This test only works with the GPU backend.
 
-#include "gm.h"
+#include "gm/gm.h"
 
-#include "GrContext.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrPathUtils.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContextPriv.h"
-#include "SkColorPriv.h"
-#include "SkGeometry.h"
-#include "SkPointPriv.h"
-#include "SkTLList.h"
-#include "effects/GrConvexPolyEffect.h"
-#include "ops/GrMeshDrawOp.h"
+#include "include/core/SkColorPriv.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkTLList.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrPathUtils.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/effects/GrConvexPolyEffect.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
 
 /** outset rendered rect to visualize anti-aliased poly edges */
 static SkRect outset(const SkRect& unsorted) {

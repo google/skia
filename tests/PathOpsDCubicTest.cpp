@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsTestCommon.h"
-#include "SkPathOpsCubic.h"
-#include "Test.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
 
 static const CubicPts hullTests[] = {
 {{{2.6250000819563866, 2.3750000223517418}, {2.833333432674408, 2.3333333432674408}, {3.1111112236976624, 2.3333333134651184}, {3.4074075222015381, 2.3333332538604736}}},

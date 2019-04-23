@@ -8,11 +8,11 @@
 #ifndef SkSurface_DEFINED
 #define SkSurface_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkImage.h"
-#include "SkSurfaceProps.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 #include <android/hardware_buffer.h>

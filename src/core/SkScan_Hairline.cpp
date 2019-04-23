@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkScan.h"
-#include "SkBlitter.h"
-#include "SkMathPriv.h"
-#include "SkPaint.h"
-#include "SkRasterClip.h"
-#include "SkFDot6.h"
-#include "SkLineClipper.h"
+#include "include/core/SkPaint.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkFDot6.h"
+#include "src/core/SkLineClipper.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkScan.h"
 
 #include <utility>
 
@@ -202,9 +202,9 @@ void SkScan::HairRect(const SkRect& rect, const SkRasterClip& clip, SkBlitter* b
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkPath.h"
-#include "SkGeometry.h"
-#include "SkNx.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkNx.h"
+#include "src/core/SkGeometry.h"
 
 #define kMaxCubicSubdivideLevel 9
 #define kMaxQuadSubdivideLevel  5

@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkWriteBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
-#include "SkBitmap.h"
-#include "SkData.h"
-#include "SkImagePriv.h"
-#include "SkPaintPriv.h"
-#include "SkPtrRecorder.h"
-#include "SkStream.h"
-#include "SkTo.h"
-#include "SkTypeface.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkImagePriv.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkPtrRecorder.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

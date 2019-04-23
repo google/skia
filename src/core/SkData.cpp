@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkData.h"
-#include "SkOSFile.h"
-#include "SkOnce.h"
-#include "SkReadBuffer.h"
-#include "SkStream.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkOnce.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 #include <new>
 
 SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context) {

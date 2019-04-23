@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "TestFontMgr.h"
-#include "SkFontDescriptor.h"
-#include "TestTypeface.h"
-#include "ToolUtils.h"
+#include "src/core/SkFontDescriptor.h"
+#include "tools/ToolUtils.h"
+#include "tools/fonts/TestFontMgr.h"
+#include "tools/fonts/TestTypeface.h"
 
 #ifdef SK_XML
-#include "TestSVGTypeface.h"
+#include "tools/fonts/TestSVGTypeface.h"
 #endif
 
 #include <vector>

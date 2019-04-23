@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkPatchUtils.h"
+#include "src/utils/SkPatchUtils.h"
 
-#include "SkArenaAlloc.h"
-#include "SkColorData.h"
-#include "SkColorSpacePriv.h"
-#include "SkConvertPixels.h"
-#include "SkGeometry.h"
-#include "SkTo.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkConvertPixels.h"
+#include "src/core/SkGeometry.h"
 
 namespace {
     enum CubicCtrlPts {

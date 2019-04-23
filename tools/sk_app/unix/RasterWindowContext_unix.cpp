@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "WindowContextFactory_unix.h"
-#include "../RasterWindowContext.h"
-#include "SkSurface.h"
+#include "include/core/SkSurface.h"
+#include "tools/sk_app/RasterWindowContext.h"
+#include "tools/sk_app/unix/WindowContextFactory_unix.h"
 
 using sk_app::RasterWindowContext;
 using sk_app::DisplayParams;

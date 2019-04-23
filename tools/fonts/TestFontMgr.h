@@ -8,7 +8,7 @@
 #ifndef TestFontMgr_DEFINED
 #define TestFontMgr_DEFINED
 
-#include "SkFontMgr.h"
+#include "include/core/SkFontMgr.h"
 
 // An SkFontMgr that always uses ToolUtils::create_portable_typeface().
 

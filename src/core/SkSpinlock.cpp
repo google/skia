@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkSpinlock.h"
+#include "include/private/SkSpinlock.h"
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #include <emmintrin.h>

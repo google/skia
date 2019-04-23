@@ -8,7 +8,7 @@
 #ifndef SkWeakRefCnt_DEFINED
 #define SkWeakRefCnt_DEFINED
 
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 #include <atomic>
 
 /** \class SkWeakRefCnt

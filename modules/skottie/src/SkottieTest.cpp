@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix.h"
-#include "Skottie.h"
-#include "SkottieProperty.h"
-#include "SkottieShaper.h"
-#include "SkStream.h"
-#include "SkTextBlob.h"
-#include "SkTypeface.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/include/SkottieProperty.h"
+#include "modules/skottie/src/SkottieShaper.h"
 
-#include "Test.h"
+#include "tests/Test.h"
 
 #include <cmath>
 #include <tuple>

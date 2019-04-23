@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkGeometry.h"
-#include "SkMatrix.h"
-#include "SkNx.h"
-#include "SkPoint3.h"
-#include "SkPointPriv.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint3.h"
+#include "include/private/SkNx.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
 
 #include <utility>
 
@@ -936,7 +936,7 @@ SkScalar SkFindCubicCusp(const SkPoint src[4]) {
     return -1;
 }
 
-#include "../pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsCubic.h"
 
 typedef int (SkDCubic::*InterceptProc)(double intercept, double roots[3]) const;
 

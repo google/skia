@@ -8,15 +8,15 @@
 #ifndef TestTypeface_DEFINED
 #define TestTypeface_DEFINED
 
-#include "SkFixed.h"
-#include "SkFontArguments.h"
-#include "SkFontMetrics.h"
-#include "SkFontStyle.h"
-#include "SkPaint.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkTypeface.h"
-#include "SkTypes.h"
+#include "include/core/SkFontArguments.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFixed.h"
 
 #include <memory>
 

@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
 #ifdef SK_SUPPORT_PDF
 
-#include "SkBitSet.h"
-#include "SkData.h"
-#include "SkPDFMakeToUnicodeCmap.h"
-#include "SkStream.h"
-#include "SkTo.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTo.h"
+#include "src/pdf/SkPDFMakeToUnicodeCmap.h"
+#include "src/utils/SkBitSet.h"
 
 static constexpr SkGlyphID kMaximumGlyphIndex = UINT16_MAX;
 

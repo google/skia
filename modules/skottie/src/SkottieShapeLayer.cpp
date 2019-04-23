@@ -5,25 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "SkottiePriv.h"
+#include "modules/skottie/src/SkottiePriv.h"
 
-#include "SkJSON.h"
-#include "SkottieAdapter.h"
-#include "SkottieJson.h"
-#include "SkottieValue.h"
-#include "SkPath.h"
-#include "SkSGDraw.h"
-#include "SkSGGeometryTransform.h"
-#include "SkSGGradient.h"
-#include "SkSGGroup.h"
-#include "SkSGMerge.h"
-#include "SkSGPaint.h"
-#include "SkSGPath.h"
-#include "SkSGRect.h"
-#include "SkSGRenderEffect.h"
-#include "SkSGRoundEffect.h"
-#include "SkSGTransform.h"
-#include "SkSGTrimEffect.h"
+#include "include/core/SkPath.h"
+#include "modules/skottie/src/SkottieAdapter.h"
+#include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottieValue.h"
+#include "modules/sksg/include/SkSGDraw.h"
+#include "modules/sksg/include/SkSGGeometryTransform.h"
+#include "modules/sksg/include/SkSGGradient.h"
+#include "modules/sksg/include/SkSGGroup.h"
+#include "modules/sksg/include/SkSGMerge.h"
+#include "modules/sksg/include/SkSGPaint.h"
+#include "modules/sksg/include/SkSGPath.h"
+#include "modules/sksg/include/SkSGRect.h"
+#include "modules/sksg/include/SkSGRenderEffect.h"
+#include "modules/sksg/include/SkSGRoundEffect.h"
+#include "modules/sksg/include/SkSGTransform.h"
+#include "modules/sksg/include/SkSGTrimEffect.h"
+#include "src/utils/SkJSON.h"
 
 #include <algorithm>
 #include <iterator>

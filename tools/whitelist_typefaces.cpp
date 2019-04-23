@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkGraphics.h"
+#include "include/core/SkGraphics.h"
 
 extern bool CheckChecksums();
 extern bool GenerateChecksums();
