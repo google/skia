@@ -9,7 +9,9 @@
 #define GrMtlResourceProvider_DEFINED
 
 #include "GrMtlCopyPipelineState.h"
+#include "GrMtlDepthStencil.h"
 #include "GrMtlPipelineStateBuilder.h"
+#include "GrMtlSampler.h"
 #include "SkLRUCache.h"
 #include "SkTArray.h"
 
@@ -32,6 +34,13 @@ public:
         const GrPrimitiveProcessor&,
         const GrTextureProxy* const primProcProxies[],
         GrPrimitiveType);
+
+    // Finds or creates a compatible MTLDepthStencilState based on the GrStencilSettings.
+    GrMtlDepthStencil* findOrCreateCompatibleDepthStencilState(const GrStencilSettings&,
+                                                               GrSurfaceOrigin);
+
+    // Finds or creates a compatible MTLSamplerState based on the GrSamplerState.
+    GrMtlSampler* findOrCreateCompatibleSampler(const GrSamplerState&, uint32_t maxMipLevel);
 
 private:
 #ifdef SK_DEBUG
@@ -80,6 +89,9 @@ private:
 
     // Cache of GrMtlPipelineStates
     std::unique_ptr<PipelineStateCache> fPipelineStateCache;
+
+    SkTDynamicHash<GrMtlSampler, GrMtlSampler::Key> fSamplers;
+    SkTDynamicHash<GrMtlDepthStencil, GrMtlDepthStencil::Key> fDepthStencilStates;
 };
 
 #endif
