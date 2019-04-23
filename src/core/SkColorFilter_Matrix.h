@@ -16,9 +16,6 @@ public:
     SkColorFilter_Matrix() {}
     explicit SkColorFilter_Matrix(const SkScalar array[20]);
 
-    /** Creates a color matrix filter that returns the same value in all four channels. */
-    static sk_sp<SkColorFilter> MakeSingleChannelOutput(const SkScalar row[5]);
-
     uint32_t getFlags() const override;
     bool asColorMatrix(SkScalar matrix[20]) const override;
 
