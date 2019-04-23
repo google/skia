@@ -8,10 +8,10 @@
 #ifndef SkSVGDOM_DEFINED
 #define SkSVGDOM_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkSize.h"
-#include "SkSVGIDMapper.h"
-#include "SkTemplates.h"
+#include "experimental/svg/model/SkSVGIDMapper.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/private/SkTemplates.h"
 
 class SkCanvas;
 class SkDOM;

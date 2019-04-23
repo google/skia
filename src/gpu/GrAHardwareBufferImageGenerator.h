@@ -7,9 +7,9 @@
 #ifndef GrAHardwareBufferImageGenerator_DEFINED
 #define GrAHardwareBufferImageGenerator_DEFINED
 
-#include "SkImageGenerator.h"
+#include "include/core/SkImageGenerator.h"
 
-#include "GrTypesPriv.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrGpuResource;
 

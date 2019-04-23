@@ -8,10 +8,10 @@
 #ifndef Benchmark_DEFINED
 #define Benchmark_DEFINED
 
-#include "SkPoint.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
-#include "../tools/Registry.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "tools/Registry.h"
 
 #define DEF_BENCH3(code, N) \
     static BenchRegistry gBench##N([](void*) -> Benchmark* { code; });

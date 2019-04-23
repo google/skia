@@ -8,11 +8,11 @@
 #ifndef NIMASlide_DEFINED
 #define NIMASlide_DEFINED
 
-#include "Slide.h"
+#include "tools/viewer/Slide.h"
 
-#include "SkCanvas.h"
-#include "SkVertices.h"
-#include "nima/NimaActor.h"
+#include "experimental/nima/NimaActor.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkVertices.h"
 
 class NIMASlide : public Slide {
 public:

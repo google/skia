@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkColorShader.h"
-#include "SkGradientShader.h"
-#include "SkShader.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkShader.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/shaders/SkColorShader.h"
+#include "tests/Test.h"
 
 static void test_bitmap(skiatest::Reporter* reporter) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);

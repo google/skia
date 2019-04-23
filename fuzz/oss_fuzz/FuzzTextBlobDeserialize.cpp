@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkFontMgrPriv.h"
-#include "SkPaint.h"
-#include "SkReadBuffer.h"
-#include "SkSurface.h"
-#include "SkTextBlobPriv.h"
-#include "TestFontMgr.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkFontMgrPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkTextBlobPriv.h"
+#include "tools/fonts/TestFontMgr.h"
 
 void FuzzTextBlobDeserialize(SkReadBuffer& buf) {
     auto tb = SkTextBlobPriv::MakeFromBuffer(buf);

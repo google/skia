@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitRow.h"
-#include "SkColorData.h"
-#include "SkOpts.h"
-#include "SkUtils.h"
+#include "include/private/SkColorData.h"
+#include "src/core/SkBlitRow.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkUtils.h"
 
 // Everyone agrees memcpy() is the best way to do this.
 static void blit_row_s32_opaque(SkPMColor* dst,

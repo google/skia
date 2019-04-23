@@ -5,12 +5,12 @@
 * found in the LICENSE file.
 */
 
-#include "gm.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkMaskFilter.h"
-#include "SkPaint.h"
-#include "SkString.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkString.h"
+#include "src/core/SkBlurMask.h"
 
 class BlurCirclesGM : public skiagm::GM {
 public:

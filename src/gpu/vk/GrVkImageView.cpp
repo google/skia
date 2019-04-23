@@ -5,10 +5,10 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkImageView.h"
-#include "GrVkGpu.h"
-#include "GrVkSamplerYcbcrConversion.h"
-#include "GrVkUtil.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImageView.h"
+#include "src/gpu/vk/GrVkSamplerYcbcrConversion.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 const GrVkImageView* GrVkImageView::Create(GrVkGpu* gpu, VkImage image, VkFormat format,
                                            Type viewType, uint32_t miplevels,

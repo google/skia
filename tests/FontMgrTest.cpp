@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkFont.h"
-#include "SkFontMgr.h"
-#include "SkPaint.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
-#include "Test.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "tests/Test.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include <initializer_list>
 #include <limits>

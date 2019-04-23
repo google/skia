@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
-#include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
-#include "SkCanvas.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkBlurMask.h"
 
 static SkBitmap make_bitmap() {
     SkBitmap bm;

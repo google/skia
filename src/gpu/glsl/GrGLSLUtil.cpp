@@ -5,8 +5,8 @@
 * found in the LICENSE file.
 */
 
-#include "GrGLSLUtil.h"
-#include "SkMatrix.h"
+#include "include/core/SkMatrix.h"
+#include "src/gpu/glsl/GrGLSLUtil.h"
 
 template<> void GrGLSLGetMatrix<3>(float* dest, const SkMatrix& src) {
     // Col 0

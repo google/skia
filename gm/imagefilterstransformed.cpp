@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
-#include "SkColor.h"
-#include "SkDisplacementMapEffect.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkImageSource.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkScalar.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkDisplacementMapEffect.h"
+#include "include/effects/SkDropShadowImageFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkMorphologyImageFilter.h"
+#include "tools/ToolUtils.h"
 
 namespace skiagm {
 
@@ -117,7 +117,7 @@ DEF_GM( return new ImageFiltersTransformedGM; )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-#include "SkXfermodeImageFilter.h"
+#include "include/effects/SkXfermodeImageFilter.h"
 
 DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
     SkPaint paint;

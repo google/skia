@@ -8,14 +8,14 @@
 #ifndef SkottieValue_DEFINED
 #define SkottieValue_DEFINED
 
-#include "SkColor.h"
-#include "SkottieShaper.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkScalar.h"
-#include "SkString.h"
-#include "SkTextUtils.h"
-#include "SkTypeface.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/utils/SkTextUtils.h"
+#include "modules/skottie/src/SkottieShaper.h"
 
 #include <vector>
 

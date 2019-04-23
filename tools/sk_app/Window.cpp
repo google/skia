@@ -5,11 +5,11 @@
 * found in the LICENSE file.
 */
 
-#include "Window.h"
+#include "tools/sk_app/Window.h"
 
-#include "SkSurface.h"
-#include "SkCanvas.h"
-#include "WindowContext.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "tools/sk_app/WindowContext.h"
 
 namespace sk_app {
 

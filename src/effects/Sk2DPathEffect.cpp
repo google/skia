@@ -6,12 +6,12 @@
  */
 
 
-#include "Sk2DPathEffect.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/effects/Sk2DPathEffect.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 Sk2DPathEffect::Sk2DPathEffect(const SkMatrix& mat) : fMatrix(mat) {
     // Calling invert will set the type mask on both matrices, making them thread safe.

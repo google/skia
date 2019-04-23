@@ -10,10 +10,10 @@
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
-#include "../GLWindowContext.h"
-#include "WindowContextFactory_win.h"
-#include "gl/GrGLAssembleInterface.h"
-#include "gl/GrGLDefines.h"
+#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "tools/sk_app/GLWindowContext.h"
+#include "tools/sk_app/win/WindowContextFactory_win.h"
 
 using sk_app::GLWindowContext;
 using sk_app::DisplayParams;

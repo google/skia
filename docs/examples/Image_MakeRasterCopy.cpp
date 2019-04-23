@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=513afec5795a9504ebf6af5373d16b6b
 REG_FIDDLE(Image_MakeRasterCopy, 256, 50, false, 0) {
 void draw(SkCanvas* canvas) {

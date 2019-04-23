@@ -8,10 +8,10 @@
 #ifndef SkStream_DEFINED
 #define SkStream_DEFINED
 
-#include "../private/SkTo.h"
-#include "SkData.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
+#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkTo.h"
 
 #include <memory.h>
 

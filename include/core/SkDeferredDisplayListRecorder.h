@@ -8,11 +8,11 @@
 #ifndef SkDeferredDisplayListRecorder_DEFINED
 #define SkDeferredDisplayListRecorder_DEFINED
 
-#include "../private/SkDeferredDisplayList.h"
-#include "SkImageInfo.h"
-#include "SkRefCnt.h"
-#include "SkSurfaceCharacterization.h"
-#include "SkTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceCharacterization.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkDeferredDisplayList.h"
 
 class GrBackendFormat;
 class GrBackendTexture;

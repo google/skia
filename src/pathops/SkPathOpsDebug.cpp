@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkMutex.h"
-#include "SkOpCoincidence.h"
-#include "SkOpContour.h"
-#include "SkOSFile.h"
-#include "SkPath.h"
-#include "SkPathOpsDebug.h"
-#include "SkString.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
+#include "include/private/SkMutex.h"
+#include "src/core/SkOSFile.h"
+#include "src/pathops/SkOpCoincidence.h"
+#include "src/pathops/SkOpContour.h"
+#include "src/pathops/SkPathOpsDebug.h"
 
 #include <utility>
 
@@ -568,9 +568,9 @@ void SkPathOpsDebug::ShowPath(const SkPath& a, const SkPath& b, SkPathOp shapeOp
     show_op(shapeOp, "path", "pathB");
 }
 
-#include "SkPathOpsTypes.h"
-#include "SkIntersectionHelper.h"
-#include "SkIntersections.h"
+#include "src/pathops/SkIntersectionHelper.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkPathOpsTypes.h"
 
 #if DEBUG_COIN
 
@@ -705,8 +705,8 @@ void SkIntersections::debugResetLoopCount() {
 }
 #endif
 
-#include "SkPathOpsConic.h"
-#include "SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsCubic.h"
 
 SkDCubic SkDQuad::debugToCubic() const {
     SkDCubic cubic;
@@ -739,8 +739,8 @@ void SkDRect::debugInit() {
     fLeft = fTop = fRight = fBottom = SK_ScalarNaN;
 }
 
-#include "SkOpAngle.h"
-#include "SkOpSegment.h"
+#include "src/pathops/SkOpAngle.h"
+#include "src/pathops/SkOpSegment.h"
 
 #if DEBUG_COIN
 // commented-out lines keep this in sync with addT()
@@ -2717,7 +2717,7 @@ int SkIntersections::debugCoincidentUsed() const {
     return count;
 }
 
-#include "SkOpContour.h"
+#include "src/pathops/SkOpContour.h"
 
 // Commented-out lines keep this in sync with addOpp()
 void SkOpPtT::debugAddOpp(const SkOpPtT* opp, const SkOpPtT* oppPrev) const {
@@ -2939,8 +2939,8 @@ void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool incl
 }
 
 #if DEBUG_DUMP_VERIFY
-#include "SkData.h"
-#include "SkStream.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
 
 static void dump_path(FILE* file, const SkPath& path, bool force, bool dumpAsHex) {
     SkDynamicMemoryWStream wStream;
@@ -2994,9 +2994,9 @@ void SkPathOpsDebug::DumpSimplify(FILE* file, const SkPath& path, const char* te
     fclose(file);
 }
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
 
 const int bitWidth = 64;
 const int bitHeight = 64;

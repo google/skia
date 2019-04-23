@@ -8,8 +8,8 @@
 #ifndef SKSL_MODIFIERDECLARATION
 #define SKSL_MODIFIERDECLARATION
 
-#include "SkSLProgramElement.h"
-#include "SkSLModifiers.h"
+#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
 
 namespace SkSL {
 

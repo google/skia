@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "DMJsonWriter.h"
+#include "dm/DMJsonWriter.h"
 
-#include "ProcStats.h"
-#include "SkData.h"
-#include "SkJSON.h"
-#include "SkJSONWriter.h"
-#include "SkMutex.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
-#include "SkTArray.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkJSON.h"
+#include "src/utils/SkJSONWriter.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/ProcStats.h"
 
 namespace DM {
 

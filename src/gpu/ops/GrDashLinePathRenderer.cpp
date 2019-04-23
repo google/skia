@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrDashLinePathRenderer.h"
-#include "GrAuditTrail.h"
-#include "GrGpu.h"
-#include "GrRenderTargetContext.h"
-#include "GrShape.h"
-#include "ops/GrDashOp.h"
-#include "ops/GrMeshDrawOp.h"
+#include "include/private/GrAuditTrail.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/ops/GrDashLinePathRenderer.h"
+#include "src/gpu/ops/GrDashOp.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
 
 GrPathRenderer::CanDrawPath
 GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {

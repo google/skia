@@ -8,7 +8,7 @@
 #ifndef SkPathOpsConic_DEFINED
 #define SkPathOpsConic_DEFINED
 
-#include "SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsQuad.h"
 
 struct SkDConic {
     static const int kPointCount = 3;

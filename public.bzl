@@ -406,6 +406,7 @@ def skia_srcs(os_conditions):
 
 # Includes needed by Skia implementation.  Not public includes.
 INCLUDES = [
+    ".",
     "include/android",
     "include/c",
     "include/codec",
@@ -540,6 +541,7 @@ def dm_srcs(os_conditions):
 ################################################################################
 
 DM_INCLUDES = [
+    ".",
     "dm",
     "gm",
     "experimental/pipe",
@@ -687,6 +689,7 @@ def base_linkopts(os_conditions):
 ################################################################################
 
 SKOTTIE_TOOL_INCLUDES = [
+    ".",
     "modules/skottie/utils",
     "tools/flags",
 ]
@@ -705,6 +708,7 @@ SKOTTIE_TOOL_SRCS = [
 ################################################################################
 
 SKSHAPER_INCLUDES = [
+    ".",
     "modules/skshaper/include",
 ]
 

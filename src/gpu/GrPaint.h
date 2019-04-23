@@ -10,12 +10,12 @@
 #ifndef GrPaint_DEFINED
 #define GrPaint_DEFINED
 
-#include "GrColor.h"
-#include "GrFragmentProcessor.h"
-#include "SkBlendMode.h"
-#include "SkRefCnt.h"
-#include "SkRegion.h"
-#include "SkTLazy.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/private/GrColor.h"
+#include "src/core/SkTLazy.h"
+#include "src/gpu/GrFragmentProcessor.h"
 
 class GrTextureProxy;
 class GrXPFactory;

@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "DecodeFile.h"
-#include "Sample.h"
-#include "SkCamera.h"
-#include "SkCanvas.h"
-#include "SkEmbossMaskFilter.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkString.h"
-#include "SkUTF.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/utils/SkCamera.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/DecodeFile.h"
+#include "samplecode/Sample.h"
+#include "src/effects/SkEmbossMaskFilter.h"
+#include "src/utils/SkUTF.h"
+#include "tools/timer/AnimTimer.h"
 
 class CameraView : public Sample {
     SkTArray<sk_sp<SkShader>> fShaders;

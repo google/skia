@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrTextureRenderTargetProxy.h"
+#include "src/gpu/GrTextureRenderTargetProxy.h"
 
-#include "GrCaps.h"
-#include "GrTexture.h"
-#include "GrTexturePriv.h"
-#include "GrTextureProxyPriv.h"
-#include "GrRenderTarget.h"
-#include "GrSurfacePriv.h"
-#include "GrSurfaceProxyPriv.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTextureProxyPriv.h"
 
 // Deferred version
 // This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and

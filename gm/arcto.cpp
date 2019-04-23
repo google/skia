@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkParsePath.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkParsePath.h"
 
 /*
 The arcto test below should draw the same as this SVG:
@@ -103,8 +103,8 @@ DEF_SIMPLE_GM(arcto, canvas, 500, 600) {
     canvas->drawPath(path, paint);
 }
 
-#include "random_parse_path.h"
-#include "SkRandom.h"
+#include "include/utils/SkRandom.h"
+#include "tools/random_parse_path.h"
 
 /* The test below generates a reference image using SVG. To compare the result for correctness,
    enable the define below and then view the generated SVG in a browser.
@@ -112,7 +112,7 @@ DEF_SIMPLE_GM(arcto, canvas, 500, 600) {
 #define GENERATE_SVG_REFERENCE 0
 
 #if GENERATE_SVG_REFERENCE
-#include "SkOSFile.h"
+#include "src/core/SkOSFile.h"
 #endif
 
 enum {
@@ -206,8 +206,8 @@ DEF_SIMPLE_GM(bug593049, canvas, 300, 300) {
     canvas->drawPath(p, paint);
 }
 
-#include "SkDashPathEffect.h"
-#include "SkPathMeasure.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/effects/SkDashPathEffect.h"
 
 DEF_SIMPLE_GM(bug583299, canvas, 300, 300) {
   const char* d="M60,60 A50,50 0 0 0 160,60 A50,50 0 0 0 60,60z";

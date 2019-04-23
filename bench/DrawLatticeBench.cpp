@@ -5,11 +5,11 @@
 * found in the LICENSE file.
 */
 
-#include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkRect.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkString.h"
 
 class DrawLatticeBench : public Benchmark {
 public:

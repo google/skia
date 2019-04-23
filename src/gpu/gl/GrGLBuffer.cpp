@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLBuffer.h"
-#include "GrGLGpu.h"
-#include "GrGpuResourcePriv.h"
-#include "SkTraceMemoryDump.h"
+#include "include/core/SkTraceMemoryDump.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/gl/GrGLBuffer.h"
+#include "src/gpu/gl/GrGLGpu.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->glGpu()->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->glGpu()->glInterface(), RET, X)

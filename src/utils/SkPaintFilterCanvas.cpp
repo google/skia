@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkPaintFilterCanvas.h"
+#include "include/utils/SkPaintFilterCanvas.h"
 
-#include "SkPaint.h"
-#include "SkPixmap.h"
-#include "SkSurface.h"
-#include "SkTLazy.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkTLazy.h"
 
 class SkPaintFilterCanvas::AutoPaintFilter {
 public:

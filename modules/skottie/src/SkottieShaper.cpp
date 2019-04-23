@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkottieShaper.h"
+#include "modules/skottie/src/SkottieShaper.h"
 
-#include "SkFontMetrics.h"
-#include "SkShaper.h"
-#include "SkTextBlob.h"
-#include "SkTextBlobPriv.h"
-#include "SkUTF.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkTextBlob.h"
+#include "modules/skshaper/include/SkShaper.h"
+#include "src/core/SkTextBlobPriv.h"
+#include "src/utils/SkUTF.h"
 
 namespace skottie {
 namespace {

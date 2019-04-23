@@ -4,8 +4,8 @@
 #ifndef SkTraceEventCommon_DEFINED
 #define SkTraceEventCommon_DEFINED
 
-#include "SkTraceEventPhase.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkTraceEventPhase.h"
 
 // Trace events are for tracking application performance and resource usage.
 // Macros are provided to track:

@@ -5,25 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "Fuzz.h"
-#include "SkCanvas.h"
-#include "SkCodec.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkImageEncoder.h"
-#include "SkMallocPixelRef.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPicturePriv.h"
-#include "SkReadBuffer.h"
-#include "SkStream.h"
-#include "SkSurface.h"
-#include "SkTextBlob.h"
+#include "fuzz/Fuzz.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkMallocPixelRef.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkPicturePriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/flags/CommandLineFlags.h"
 
-#include "ToolUtils.h"
+#include "tools/ToolUtils.h"
 
 #include <iostream>
 #include <map>

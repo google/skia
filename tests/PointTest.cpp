@@ -6,9 +6,9 @@
  */
 // Unit tests for src/core/SkPoint.cpp and its header
 
-#include "SkPointPriv.h"
-#include "SkRect.h"
-#include "Test.h"
+#include "include/core/SkRect.h"
+#include "src/core/SkPointPriv.h"
+#include "tests/Test.h"
 
 static void test_casts(skiatest::Reporter* reporter) {
     SkPoint p = { 0, 0 };

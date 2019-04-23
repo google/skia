@@ -8,9 +8,9 @@
 #ifndef SkOpPathEffect_DEFINED
 #define SkOpPathEffect_DEFINED
 
-#include "SkPathEffect.h"
-#include "SkPaint.h"
-#include "SkPathOps.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathEffect.h"
+#include "include/pathops/SkPathOps.h"
 
 class SK_API SkMergePathEffect {
 public:

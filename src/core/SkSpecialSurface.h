@@ -8,12 +8,12 @@
 #ifndef SkSpecialSurface_DEFINED
 #define SkSpecialSurface_DEFINED
 
-#include "SkImageInfo.h"
-#include "SkRefCnt.h"
-#include "SkSurfaceProps.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
 
 #if SK_SUPPORT_GPU
-#include "GrTypesPriv.h"
+#include "include/private/GrTypesPriv.h"
 #endif
 
 class GrBackendFormat;

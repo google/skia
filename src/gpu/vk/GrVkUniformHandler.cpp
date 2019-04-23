@@ -5,13 +5,13 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkUniformHandler.h"
+#include "src/gpu/vk/GrVkUniformHandler.h"
 
-#include "GrTexturePriv.h"
-#include "GrVkGpu.h"
-#include "GrVkPipelineStateBuilder.h"
-#include "GrVkTexture.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkPipelineStateBuilder.h"
+#include "src/gpu/vk/GrVkTexture.h"
 
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we

@@ -5,9 +5,9 @@
 * found in the LICENSE file.
 */
 
-#include "SkUtils.h"
-#include "WindowContextFactory_mac.h"
-#include "Window_mac.h"
+#include "src/core/SkUtils.h"
+#include "tools/sk_app/mac/WindowContextFactory_mac.h"
+#include "tools/sk_app/mac/Window_mac.h"
 
 @interface WindowDelegate : NSObject<NSWindowDelegate>
 

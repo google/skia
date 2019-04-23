@@ -8,8 +8,8 @@
 #ifndef SkColorFilterShader_DEFINED
 #define SkColorFilterShader_DEFINED
 
-#include "SkColorFilter.h"
-#include "SkShaderBase.h"
+#include "include/core/SkColorFilter.h"
+#include "src/shaders/SkShaderBase.h"
 
 class SkArenaAlloc;
 

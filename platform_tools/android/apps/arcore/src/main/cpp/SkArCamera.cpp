@@ -6,7 +6,7 @@
  */
 
 #include <arcore_c_api.h>
-#include "SkArCamera.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/SkArCamera.h"
 #include "SkArUtil.h"
 
 std::unique_ptr<SkArCamera> SkArCamera::Make(SkArSession* session, SkArFrame* frame) {

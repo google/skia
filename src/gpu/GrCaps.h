@@ -8,13 +8,13 @@
 #ifndef GrCaps_DEFINED
 #define GrCaps_DEFINED
 
-#include "../private/GrTypesPriv.h"
-#include "GrBlend.h"
-#include "GrDriverBugWorkarounds.h"
-#include "GrShaderCaps.h"
-#include "SkImageInfo.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/gpu/GrBlend.h"
+#include "include/gpu/GrDriverBugWorkarounds.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrShaderCaps.h"
 
 class GrBackendFormat;
 class GrBackendRenderTarget;

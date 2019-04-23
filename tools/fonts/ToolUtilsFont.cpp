@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
+#include "tools/ToolUtils.h"
 
-#include "Resources.h"
-#include "SkFontMgr.h"
-#include "SkFontStyle.h"
-#include "SkMutex.h"
-#include "SkOSFile.h"
-#include "SkTypeface.h"
-#include "SkUTF.h"
-#include "TestFontMgr.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkMutex.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkUTF.h"
+#include "tools/Resources.h"
+#include "tools/fonts/TestFontMgr.h"
 
 namespace ToolUtils {
 

@@ -6,21 +6,21 @@
  */
 
 
-#include "SkPDFShader.h"
+#include "src/pdf/SkPDFShader.h"
 
-#include "SkData.h"
-#include "SkPDFDocument.h"
-#include "SkPDFDevice.h"
-#include "SkPDFDocumentPriv.h"
-#include "SkPDFFormXObject.h"
-#include "SkPDFGradientShader.h"
-#include "SkPDFGraphicState.h"
-#include "SkPDFResourceDict.h"
-#include "SkPDFUtils.h"
-#include "SkScalar.h"
-#include "SkStream.h"
-#include "SkSurface.h"
-#include "SkTemplates.h"
+#include "include/core/SkData.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/private/SkTemplates.h"
+#include "src/pdf/SkPDFDevice.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
+#include "src/pdf/SkPDFFormXObject.h"
+#include "src/pdf/SkPDFGradientShader.h"
+#include "src/pdf/SkPDFGraphicState.h"
+#include "src/pdf/SkPDFResourceDict.h"
+#include "src/pdf/SkPDFUtils.h"
 
 
 static void draw_image_matrix(SkCanvas* canvas, const SkImage* img,

@@ -6,24 +6,24 @@
  */
 
 
-#include "GrPathRendererChain.h"
+#include "src/gpu/GrPathRendererChain.h"
 
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrShaderCaps.h"
-#include "ccpr/GrCoverageCountingPathRenderer.h"
-#include "ops/GrAAConvexPathRenderer.h"
-#include "ops/GrAAHairLinePathRenderer.h"
-#include "ops/GrAALinearizingConvexPathRenderer.h"
-#include "ops/GrSmallPathRenderer.h"
-#include "ops/GrDashLinePathRenderer.h"
-#include "ops/GrDefaultPathRenderer.h"
-#include "ops/GrStencilAndCoverPathRenderer.h"
-#include "ops/GrTessellatingPathRenderer.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
+#include "src/gpu/ops/GrAAConvexPathRenderer.h"
+#include "src/gpu/ops/GrAAHairLinePathRenderer.h"
+#include "src/gpu/ops/GrAALinearizingConvexPathRenderer.h"
+#include "src/gpu/ops/GrDashLinePathRenderer.h"
+#include "src/gpu/ops/GrDefaultPathRenderer.h"
+#include "src/gpu/ops/GrSmallPathRenderer.h"
+#include "src/gpu/ops/GrStencilAndCoverPathRenderer.h"
+#include "src/gpu/ops/GrTessellatingPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Options& options) {
     const GrCaps& caps = *context->priv().caps();

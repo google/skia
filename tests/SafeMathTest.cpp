@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "SkSafeMath.h"
+#include "src/core/SkSafeMath.h"
+#include "tests/Test.h"
 
 DEF_TEST(SafeMath, r) {
     size_t max = std::numeric_limits<size_t>::max();

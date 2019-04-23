@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkString.h"
-#include "SkVertices.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/core/SkVertices.h"
+#include "include/utils/SkRandom.h"
 
 enum VertFlags {
     kColors_VertFlag,
@@ -95,9 +95,9 @@ DEF_BENCH(return new VertBench();)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "Resources.h"
-#include "SkRandom.h"
-#include "SkRSXform.h"
+#include "include/core/SkRSXform.h"
+#include "include/utils/SkRandom.h"
+#include "tools/Resources.h"
 
 enum AtlasFlags {
     kColors_Flag = 1 << 0,

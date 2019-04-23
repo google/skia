@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/ToolUtils.h"
 
-#include "Resources.h"
-#include "SkBlendModePriv.h"
-#include "SkGradientShader.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/core/SkBlendModePriv.h"
+#include "tools/Resources.h"
 
 DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     SkPaint p;

@@ -8,12 +8,12 @@
 #ifndef GrShape_DEFINED
 #define GrShape_DEFINED
 
-#include "GrStyle.h"
-#include "SkPath.h"
-#include "SkPathPriv.h"
-#include "SkRRect.h"
-#include "SkTemplates.h"
-#include "SkTLazy.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkTLazy.h"
+#include "src/gpu/GrStyle.h"
 #include <new>
 
 /**

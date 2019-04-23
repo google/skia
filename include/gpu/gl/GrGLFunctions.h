@@ -10,8 +10,8 @@
 #define GrGLFunctions_DEFINED
 
 #include <cstring>
-#include "../private/SkTLogic.h"
-#include "GrGLTypes.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/SkTLogic.h"
 
 
 extern "C" {

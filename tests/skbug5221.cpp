@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkSurface.h"
 
 // This passes by not crashing.
 static void test(SkCanvas* canvas) {

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "UrlHandler.h"
+#include "tools/skiaserve/urlhandlers/UrlHandler.h"
 
 #include "microhttpd.h"
-#include "../Request.h"
-#include "../Response.h"
+#include "tools/skiaserve/Request.h"
+#include "tools/skiaserve/Response.h"
 
 using namespace Response;
 

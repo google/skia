@@ -5,23 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkTypes.h"
+#include "tests/Test.h"
 
-#include "GrClip.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpuResource.h"
-#include "GrMemoryPool.h"
-#include "GrProxyProvider.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetContextPriv.h"
-#include "GrResourceProvider.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "ops/GrFillRectOp.h"
-#include "ops/GrMeshDrawOp.h"
-#include "TestUtils.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrGpuResource.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "tests/TestUtils.h"
 
 #include <atomic>
 #include <random>
@@ -230,7 +230,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
 // This test uses the random GrFragmentProcessor test factory, which relies on static initializers.
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
-#include "CommandLineFlags.h"
+#include "tools/flags/CommandLineFlags.h"
 static DEFINE_bool(randomProcessorTest, false,
                    "Use non-deterministic seed for random processor tests?");
 static DEFINE_int(processorSeed, 0,

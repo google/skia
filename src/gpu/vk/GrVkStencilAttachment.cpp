@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkStencilAttachment.h"
-#include "GrVkGpu.h"
-#include "GrVkImage.h"
-#include "GrVkImageView.h"
-#include "GrVkUtil.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImage.h"
+#include "src/gpu/vk/GrVkImageView.h"
+#include "src/gpu/vk/GrVkStencilAttachment.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 

@@ -8,11 +8,11 @@
 #ifndef GrContextFactory_DEFINED
 #define GrContextFactory_DEFINED
 
-#include "GrContext.h"
-#include "GrContextOptions.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextOptions.h"
 
-#include "gl/GLTestContext.h"
-#include "SkTArray.h"
+#include "include/private/SkTArray.h"
+#include "tools/gpu/gl/GLTestContext.h"
 
 struct GrVkBackendContext;
 

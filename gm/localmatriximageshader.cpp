@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 static sk_sp<SkImage> make_image(SkCanvas* rootCanvas, SkColor color) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);

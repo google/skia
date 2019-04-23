@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GMBench.h"
+#include "bench/GMBench.h"
 
 GMBench::GMBench(skiagm::GM* gm) : fGM(gm) {
     fName.printf("GM_%s", gm->getName());

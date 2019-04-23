@@ -8,7 +8,7 @@
 #ifndef GrFillRRectOp_DEFINED
 #define GrFillRRectOp_DEFINED
 
-#include "GrDrawOp.h"
+#include "src/gpu/ops/GrDrawOp.h"
 
 class GrRecordingContext;
 
