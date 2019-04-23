@@ -24,8 +24,4 @@
     #define SkPaintDefaults_Hinting         kNormal_SkFontHinting
 #endif
 
-#ifndef SkPaintDefaults_MiterLimit
-    #define SkPaintDefaults_MiterLimit      SkIntToScalar(4)
-#endif
-
 #endif

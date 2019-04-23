@@ -24,6 +24,11 @@ class SkPath;
 class SkPathEffect;
 class SkShader;
 
+/** This can be specified by the build system (or SkUserConfig.h) */
+#ifndef SkPaintDefaults_MiterLimit
+#define SkPaintDefaults_MiterLimit 4
+#endif
+
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
     options outside of the SkCanvas clip and SkCanvas matrix.
@@ -41,7 +46,21 @@ public:
 
         @return  default initialized SkPaint
     */
-    SkPaint();
+    SkPaint()
+        : fColor4f{0, 0, 0, 1}  // opaque black
+        , fWidth{0}
+        , fMiterLimit{SkPaintDefaults_MiterLimit}
+        , fBitfields{(unsigned)false,                   // fAntiAlias
+                     (unsigned)false,                   // fDither
+                     (unsigned)SkPaint::kDefault_Cap,   // fCapType
+                     (unsigned)SkPaint::kDefault_Join,  // fJoinType
+                     (unsigned)SkPaint::kFill_Style,    // fStyle
+                     (unsigned)kNone_SkFilterQuality,   // fFilterQuality
+                     (unsigned)SkBlendMode::kSrcOver,   // fBlendMode
+                     0}                                 // fPadding
+    {
+        static_assert(sizeof(fBitfields) == sizeof(fBitfieldsUInt), "");
+    }
 
     /** Makes a shallow copy of SkPaint. SkPathEffect, SkShader,
         SkMaskFilter, SkColorFilter, SkDrawLooper, and SkImageFilter are shared
@@ -55,7 +74,7 @@ public:
         @param paint  original to copy
         @return       shallow copy of paint
     */
-    SkPaint(const SkPaint& paint);
+    SkPaint(const SkPaint& paint) = default;
 
     /** Implements a move constructor to avoid increasing the reference counts
         of objects referenced by the paint.
@@ -65,13 +84,13 @@ public:
         @param paint  original to move
         @return       content of paint
     */
-    SkPaint(SkPaint&& paint);
+    SkPaint(SkPaint&& paint) = default;
 
     /** Decreases SkPaint SkRefCnt of owned objects: SkPathEffect, SkShader,
         SkMaskFilter, SkColorFilter, SkDrawLooper, and SkImageFilter. If the
         objects containing SkRefCnt go to zero, they are deleted.
     */
-    ~SkPaint();
+    ~SkPaint() = default;
 
     /** Makes a shallow copy of SkPaint. SkPathEffect, SkShader,
         SkMaskFilter, SkColorFilter, SkDrawLooper, and SkImageFilter are shared
@@ -83,7 +102,7 @@ public:
         @param paint  original to copy
         @return       content of paint
     */
-    SkPaint& operator=(const SkPaint& paint);
+    SkPaint& operator=(const SkPaint& paint) = default;
 
     /** Moves the paint to avoid increasing the reference counts
         of objects referenced by the paint parameter. Objects containing SkRefCnt in the
@@ -95,7 +114,7 @@ public:
         @param paint  original to move
         @return       content of paint
     */
-    SkPaint& operator=(SkPaint&& paint);
+    SkPaint& operator=(SkPaint&& paint) = default;
 
     /** Compares a and b, and returns true if a and b are equivalent. May return false
         if SkPathEffect, SkShader, SkMaskFilter, SkColorFilter,
@@ -684,4 +703,16 @@ private:
     };
 };
 
+SK_API SkPathEffect* SkRef(SkPathEffect* obj);
+SK_API SkShader* SkRef(SkShader* obj);
+SK_API SkMaskFilter* SkRef(SkMaskFilter* obj);
+SK_API SkColorFilter* SkRef(SkColorFilter* obj);
+SK_API SkDrawLooper* SkRef(SkDrawLooper* obj);
+SK_API SkImageFilter* SkRef(SkImageFilter* obj);
+SK_API void SkUnref(SkPathEffect* obj);
+SK_API void SkUnref(SkShader* obj);
+SK_API void SkUnref(SkMaskFilter* obj);
+SK_API void SkUnref(SkColorFilter* obj);
+SK_API void SkUnref(SkDrawLooper* obj);
+SK_API void SkUnref(SkImageFilter* obj);
 #endif

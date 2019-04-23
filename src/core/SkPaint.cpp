@@ -39,32 +39,29 @@
 // e.g. setTextSize(-1)
 //#define SK_REPORT_API_RANGE_CHECK
 
+SkPathEffect* SkRef(SkPathEffect* obj) { SkASSERT(obj); obj->ref(); return obj; }
 
-SkPaint::SkPaint()
-    : fColor4f{0, 0, 0, 1}  // opaque black
-    , fWidth{0}
-    , fMiterLimit{SkPaintDefaults_MiterLimit}
-    , fBitfields{(unsigned)false,                   // fAntiAlias
-                 (unsigned)false,                   // fDither
-                 (unsigned)SkPaint::kDefault_Cap,   // fCapType
-                 (unsigned)SkPaint::kDefault_Join,  // fJoinType
-                 (unsigned)SkPaint::kFill_Style,    // fStyle
-                 (unsigned)kNone_SkFilterQuality,   // fFilterQuality
-                 (unsigned)SkBlendMode::kSrcOver,   // fBlendMode
-                 0}                                 // fPadding
-{
-    static_assert(sizeof(fBitfields) == sizeof(fBitfieldsUInt), "");
-}
+SkShader* SkRef(SkShader* obj) { SkASSERT(obj); obj->ref(); return obj; }
 
-SkPaint::SkPaint(const SkPaint& src) = default;
+SkMaskFilter* SkRef(SkMaskFilter* obj) { SkASSERT(obj); obj->ref(); return obj; }
 
-SkPaint::SkPaint(SkPaint&& src) = default;
+SkColorFilter* SkRef(SkColorFilter* obj) { SkASSERT(obj); obj->ref(); return obj; }
 
-SkPaint::~SkPaint() = default;
+SkDrawLooper* SkRef(SkDrawLooper* obj) { SkASSERT(obj); obj->ref(); return obj; }
 
-SkPaint& SkPaint::operator=(const SkPaint& src) = default;
+SkImageFilter* SkRef(SkImageFilter* obj) { SkASSERT(obj); obj->ref(); return obj; }
 
-SkPaint& SkPaint::operator=(SkPaint&& src) = default;
+void SkUnref(SkPathEffect* obj) { SkASSERT(obj); obj->unref(); }
+
+void SkUnref(SkShader* obj) { SkASSERT(obj); obj->unref(); }
+
+void SkUnref(SkMaskFilter* obj) { SkASSERT(obj); obj->unref(); }
+
+void SkUnref(SkColorFilter* obj) { SkASSERT(obj); obj->unref(); }
+
+void SkUnref(SkDrawLooper* obj) { SkASSERT(obj); obj->unref(); }
+
+void SkUnref(SkImageFilter* obj) { SkASSERT(obj); obj->unref(); }
 
 bool operator==(const SkPaint& a, const SkPaint& b) {
 #define EQUAL(field) (a.field == b.field)
