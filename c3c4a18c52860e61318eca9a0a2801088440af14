@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab350768_f07a8ba7",
+        "filename": "src/gpu/GrTRecorder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-23T19:00:52Z",
+      "side": 1,
+      "message": "This threw me off. Might be worth adding a comment:\n\n// We carefully align the headers to guarantee that fTail+1 is appropriately aligned for each item. (See emplaceWithData().)\n\nwdyt about a member function on Header that does this offset+cast, complete with a comment about why it works?",
+      "range": {
+        "startLine": 54,
+        "startChar": 41,
+        "endLine": 54,
+        "endChar": 50
+      },
+      "revId": "c3c4a18c52860e61318eca9a0a2801088440af14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "889db6d8_6687f794",
+        "filename": "src/gpu/GrTRecorder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-23T19:00:52Z",
+      "side": 1,
+      "message": "kHeaderAlign?",
+      "range": {
+        "startLine": 106,
+        "startChar": 28,
+        "endLine": 106,
+        "endChar": 38
+      },
+      "revId": "c3c4a18c52860e61318eca9a0a2801088440af14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72216261_0661ac1d",
+        "filename": "src/gpu/GrTRecorder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-23T19:00:52Z",
+      "side": 1,
+      "message": "I suppose the alternative would be an offset field to the address of the base class. (e.g., (TBase*)((char*)header + header-\u003efOffset));\n\nThoughts on that approach as opposed to a runtime assert?",
+      "revId": "c3c4a18c52860e61318eca9a0a2801088440af14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f92b62a_139a3bf7",
+        "filename": "src/gpu/GrTRecorder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-23T19:00:52Z",
+      "side": 1,
+      "message": "Can we enforce this using a bool instead?\n\n template\u003ctypename TBase, bool IsConst\u003e class GrTRecorder\u003cTBase\u003e::IterImpl {\n     using T \u003d typename std::conditional\u003cIsConst, const TBase, TBase\u003e::type;",
+      "range": {
+        "startLine": 140,
+        "startChar": 46,
+        "endLine": 140,
+        "endChar": 78
+      },
+      "revId": "c3c4a18c52860e61318eca9a0a2801088440af14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "805728b4_e2873516",
+        "filename": "src/gpu/GrTRecorder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-23T19:00:52Z",
+      "side": 1,
+      "message": "Why do we need a friend class?",
+      "revId": "c3c4a18c52860e61318eca9a0a2801088440af14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
