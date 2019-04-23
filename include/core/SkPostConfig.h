@@ -10,6 +10,13 @@
 #ifndef SkPostConfig_DEFINED
 #define SkPostConfig_DEFINED
 
+#if defined(SK_SAMPLES_FOR_X) && !defined(SK_R32_SHIFT) && !defined(SK_G32_SHIFT) && !defined(SK_B32_SHIFT) && !defined(SK_A32_SHIFT)
+    #define SK_R32_SHIFT    16
+    #define SK_G32_SHIFT    8
+    #define SK_B32_SHIFT    0
+    #define SK_A32_SHIFT    24
+#endif
+
 #if !defined(SK_DEBUG) && !defined(SK_RELEASE)
     #ifdef NDEBUG
         #define SK_RELEASE
