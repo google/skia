@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7581f9ad_0d667535",
+        "filename": "src/gpu/GrRenderTargetProxyPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-23T18:50:48Z",
+      "side": 1,
+      "message": "The *Priv classes usually just call methods on the wrapped class rather than actually implement anything",
+      "revId": "145bc2e9dd4b31a847f2b648aa3aac06275d2661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c827d41c_34dbc52d",
+        "filename": "src/gpu/GrRenderTargetProxyPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-23T18:50:48Z",
+      "side": 1,
+      "message": "Do we also want to assert that the existing fWidth \u0026 fHeight are -1 ?",
+      "revId": "145bc2e9dd4b31a847f2b648aa3aac06275d2661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c703dc0a_78754792",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-23T18:50:48Z",
+      "side": 1,
+      "message": "wdyt about just \"setSize\" ?",
+      "range": {
+        "startLine": 195,
+        "startChar": 51,
+        "endLine": 195,
+        "endChar": 65
+      },
+      "revId": "145bc2e9dd4b31a847f2b648aa3aac06275d2661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b0efda3_26879b26",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-23T18:50:48Z",
+      "side": 1,
+      "message": "can we hold this as a renderTargetProxy ?",
+      "range": {
+        "startLine": 195,
+        "startChar": 4,
+        "endLine": 195,
+        "endChar": 17
+      },
+      "revId": "145bc2e9dd4b31a847f2b648aa3aac06275d2661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3e109ea_81576e24",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-23T18:50:48Z",
+      "side": 1,
+      "message": "How do we know the proxy has been instantiated at this point?",
+      "revId": "145bc2e9dd4b31a847f2b648aa3aac06275d2661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
