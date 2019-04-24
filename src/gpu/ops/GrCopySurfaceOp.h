@@ -43,8 +43,7 @@ public:
 private:
     friend class GrOpMemoryPool; // for ctor
 
-    GrCopySurfaceOp(GrSurfaceProxy* dst, GrSurfaceProxy* src,
-                    const SkIRect& srcRect, const SkIPoint& dstPoint)
+    GrCopySurfaceOp(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint)
             : INHERITED(ClassID())
             , fSrc(src)
             , fSrcRect(srcRect)
