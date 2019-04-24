@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3496188d_f1e4d6b5",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-24T23:35:53Z",
+      "side": 1,
+      "message": "Renamed to setLazySize",
+      "revId": "ccff5b210c81fdc286a77957e751b7e8835799d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
