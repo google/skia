@@ -12,29 +12,6 @@
 #include <memory.h>
 
 class SK_API SkColorMatrix {
-#ifdef SK_SUPPORT_LEGACY_COLORMATRIX_PUBLIC
-public:
-#endif
-    enum {
-        kCount = 20
-    };
-    float fMat[kCount];
-
-    enum Elem {
-        kR_Scale    = 0,
-        kG_Scale    = 6,
-        kB_Scale    = 12,
-        kA_Scale    = 18,
-
-        kR_Trans    = 4,
-        kG_Trans    = 9,
-        kB_Trans    = 14,
-        kA_Trans    = 19,
-    };
-    void postTranslate(float rTrans, float gTrans, float bTrans, float aTrans = 0);
-    static bool NeedsClamping(const float[20]);
-    static void SetConcat(float result[20], const float outer[20], const float inner[20]);
-
 public:
     void setIdentity();
     void setScale(float rScale, float gScale, float bScale, float aScale = 1.0f);
@@ -48,6 +25,7 @@ public:
     void setSinCos(Axis, float sine, float cosine);
     void preRotate(Axis, float degrees);
     void postRotate(Axis, float degrees);
+    void postTranslate(float dr, float dg, float db, float da);
 
     void setConcat(const SkColorMatrix& a, const SkColorMatrix& b);
     void preConcat(const SkColorMatrix& mat) { this->setConcat(*this, mat); }
@@ -57,8 +35,10 @@ public:
     void setRGB2YUV();
     void setYUV2RGB();
 
+    // DEPRECATED: use postTranslate()
     void postTranslate255(float r, float g, float b, float a = 0) {
-        this->postTranslate(r, g, b, a);
+        const float scale = 1.0f / 255;
+        this->postTranslate(r * scale, g * scale, b * scale, a * scale);
     }
 
     bool operator==(const SkColorMatrix& other) const {
@@ -68,6 +48,8 @@ public:
     bool operator!=(const SkColorMatrix& other) const { return !((*this) == other); }
 
 private:
+    float fMat[20];
+
     friend class SkColorFilters;
 };
 

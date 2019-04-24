@@ -201,7 +201,7 @@ sk_sp<SkColorFilter> SkColorFilters::Matrix(const float array[20]) {
 }
 
 sk_sp<SkColorFilter> SkColorFilters::Matrix(const SkColorMatrix& cm) {
-    return MatrixRowMajor255(cm.fMat);
+    return Matrix(cm.fMat);
 }
 
 // DEPRECATED

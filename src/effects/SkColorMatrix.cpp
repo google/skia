@@ -8,36 +8,19 @@
 #include "SkColorMatrix.h"
 #include "../private/SkFloatingPoint.h"
 
-// To detect if we need to apply clamping after applying a matrix, we check if
-// any output component might go outside of [0, 255] for any combination of
-// input components in [0..255].
-// Each output component is an affine transformation of the input component, so
-// the minimum and maximum values are for any combination of minimum or maximum
-// values of input components (i.e. 0 or 255).
-// E.g. if R' = x*R + y*G + z*B + w*A + t
-// Then the maximum value will be for R=255 if x>0 or R=0 if x<0, and the
-// minimum value will be for R=0 if x>0 or R=255 if x<0.
-// Same goes for all components.
-static bool component_needs_clamping(const float row[5]) {
-    float maxValue = row[4] / 255;
-    float minValue = row[4] / 255;
-    for (int i = 0; i < 4; ++i) {
-        if (row[i] > 0)
-            maxValue += row[i];
-        else
-            minValue += row[i];
-    }
-    return (maxValue > 1) || (minValue < 0);
-}
+enum {
+    kR_Scale = 0,
+    kG_Scale = 6,
+    kB_Scale = 12,
+    kA_Scale = 18,
 
-bool SkColorMatrix::NeedsClamping(const float matrix[20]) {
-    return component_needs_clamping(matrix)
-        || component_needs_clamping(matrix+5)
-        || component_needs_clamping(matrix+10)
-        || component_needs_clamping(matrix+15);
-}
+    kR_Trans = 4,
+    kG_Trans = 9,
+    kB_Trans = 14,
+    kA_Trans = 19,
+};
 
-void SkColorMatrix::SetConcat(float result[20], const float outer[20], const float inner[20]) {
+static void set_concat(float result[20], const float outer[20], const float inner[20]) {
     float    tmp[20];
     float*   target;
 
@@ -66,8 +49,6 @@ void SkColorMatrix::SetConcat(float result[20], const float outer[20], const flo
         memcpy(result, target, 20 * sizeof(float));
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////
 
 void SkColorMatrix::setIdentity() {
     memset(fMat, 0, sizeof(fMat));
@@ -126,7 +107,7 @@ void SkColorMatrix::postRotate(Axis axis, float degrees) {
 }
 
 void SkColorMatrix::setConcat(const SkColorMatrix& matA, const SkColorMatrix& matB) {
-    SetConcat(fMat, matA.fMat, matB.fMat);
+    set_concat(fMat, matA.fMat, matB.fMat);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
