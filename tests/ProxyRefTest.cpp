@@ -70,8 +70,7 @@ static sk_sp<GrTextureProxy> make_deferred(GrProxyProvider* proxyProvider, const
 
     const GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     return proxyProvider->createProxy(format, desc, kBottomLeft_GrSurfaceOrigin,
-                                      SkBackingFit::kApprox, SkBudgeted::kYes,
-                                      GrInternalSurfaceFlags::kNoPendingIO);
+                                      SkBackingFit::kApprox, SkBudgeted::kYes);
 }
 
 static sk_sp<GrTextureProxy> make_wrapped(GrProxyProvider* proxyProvider, const GrCaps* caps) {
