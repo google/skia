@@ -90,13 +90,12 @@ SkMatrix44 TransformAdapter3D::totalMatrix() const {
     t.setTranslate(-fAnchorPoint.fX, -fAnchorPoint.fY, -fAnchorPoint.fZ);
     t.postScale(fScale.fX / 100, fScale.fY / 100, fScale.fZ / 100);
 
-    // TODO: SkMatrix44:postRotate()?
     SkMatrix44 r;
-    r.setRotateDegreesAbout(1, 0, 0, fRotation.fX);
+    r.setRotateDegreesAbout(0, 0, 1, fRotation.fZ);
     t.postConcat(r);
     r.setRotateDegreesAbout(0, 1, 0, fRotation.fY);
     t.postConcat(r);
-    r.setRotateDegreesAbout(0, 0, 1, fRotation.fZ);
+    r.setRotateDegreesAbout(1, 0, 0, fRotation.fX);
     t.postConcat(r);
 
     t.postTranslate(fPosition.fX, fPosition.fY, fPosition.fZ);
