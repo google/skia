@@ -13,8 +13,7 @@
 #include "GrTypesPriv.h"
 
 /**
- * Helper for owning a ref and/or pending IO on a GrSurfaceProxy. This is useful when ownership
- * must transform from ref'ed to pending IO when the owner is recorded into a GrOpList.
+ * Helper for owning a ref on a GrSurfaceProxy.
  */
 template <typename T> class GrProxyRef {
 public:
@@ -24,13 +23,11 @@ public:
 
     /** ioType expresses what type of IO operations will be marked as pending on the proxy when
         markPendingIO is called. */
-    GrProxyRef(sk_sp<T> proxy, GrIOType ioType) { this->setProxy(std::move(proxy), ioType); }
+    GrProxyRef(sk_sp<T> proxy) { this->setProxy(std::move(proxy)); }
 
     ~GrProxyRef() { this->reset(); }
 
-    /** ioType expresses what type of IO operations will be marked as
-        pending on the proxy when markPendingIO is called. */
-    void setProxy(sk_sp<T> proxy, GrIOType ioType) {
+    void setProxy(sk_sp<T> proxy) {
         SkASSERT(!fPendingIO);
         SkASSERT(SkToBool(fProxy) == fOwnRef);
         SkSafeUnref(fProxy);
@@ -40,7 +37,6 @@ public:
         } else {
             fProxy = proxy.release();  // due to the semantics of this class we unpack from sk_sp
             fOwnRef = true;
-            fIOType = ioType;
         }
     }
 
@@ -49,27 +45,11 @@ public:
     /** Does this object own a pending read or write on the resource it is wrapping. */
     bool ownsPendingIO() const { return fPendingIO; }
 
-    /** What type of IO does this represent? This is independent of whether a normal ref or a
-        pending IO is currently held. */
-    GrIOType ioType() const { return fIOType; }
-
     /** Shortcut for calling setProxy() with NULL. It cannot be called after markingPendingIO
         is called. */
     void reset() {
         if (fPendingIO) {
             SkASSERT(fProxy);
-            switch (fIOType) {
-                case kRead_GrIOType:
-                    fProxy->completedRead();
-                    break;
-                case kWrite_GrIOType:
-                    fProxy->completedWrite();
-                    break;
-                case kRW_GrIOType:
-                    fProxy->completedRead();
-                    fProxy->completedWrite();
-                    break;
-            }
             fPendingIO = false;
         }
         if (fOwnRef) {
@@ -90,18 +70,6 @@ public:
         SkASSERT(!fPendingIO);
         SkASSERT(fProxy);
         fPendingIO = true;
-        switch (fIOType) {
-            case kRead_GrIOType:
-                fProxy->addPendingRead();
-                break;
-            case kWrite_GrIOType:
-                fProxy->addPendingWrite();
-                break;
-            case kRW_GrIOType:
-                fProxy->addPendingRead();
-                fProxy->addPendingWrite();
-                break;
-        }
     }
 
     /** Called when the program element/draw state is no longer owned by GrOpList-client code.
@@ -123,18 +91,6 @@ public:
     void pendingIOComplete() const {
         SkASSERT(fOwnRef);
         SkASSERT(fPendingIO);
-        switch (fIOType) {
-            case kRead_GrIOType:
-                fProxy->completedRead();
-                break;
-            case kWrite_GrIOType:
-                fProxy->completedWrite();
-                break;
-            case kRW_GrIOType:
-                fProxy->completedRead();
-                fProxy->completedWrite();
-                break;
-        }
         fPendingIO = false;
     }
 
@@ -142,7 +98,6 @@ private:
     T*              fProxy = nullptr;
     mutable bool    fOwnRef = false;
     mutable bool    fPendingIO = false;
-    GrIOType        fIOType = kRead_GrIOType;
 };
 
 using GrSurfaceProxyRef = GrProxyRef<GrSurfaceProxy>;

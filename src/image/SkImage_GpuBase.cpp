@@ -110,7 +110,7 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
         return nullptr;
     }
 
-    sk_sp<GrSurfaceProxy> proxy = this->asTextureProxyRef(context);
+    sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef(context);
 
     GrSurfaceDesc desc;
     desc.fWidth = subset.width();

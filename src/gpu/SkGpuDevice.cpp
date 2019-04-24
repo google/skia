@@ -267,7 +267,7 @@ void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
         if (this->context()->abandoned()) {
             return;
         }
-        newRTC->copy(fRenderTargetContext->asSurfaceProxy());
+        newRTC->copy(fRenderTargetContext->asTextureProxy());
     }
 
     fRenderTargetContext = newRTC;
@@ -1261,7 +1261,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
         // TODO: we should actually only copy the portion of the source needed to apply the image
         // filter
         proxy = GrSurfaceProxy::Copy(fContext.get(),
-                                     this->accessRenderTargetContext()->asSurfaceProxy(),
+                                     this->accessRenderTargetContext()->asTextureProxy(),
                                      GrMipMapped::kNo,
                                      SkBackingFit::kApprox,
                                      SkBudgeted::kYes);
@@ -1297,7 +1297,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapBackImage(const SkIRect& subset) {
     SkASSERT(rtc->asSurfaceProxy());
 
     auto srcProxy =
-            GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), rtc->mipMapped(), subset,
+            GrSurfaceProxy::Copy(ctx, rtc->asTextureProxy(), rtc->mipMapped(), subset,
                                  SkBackingFit::kApprox, rtc->asSurfaceProxy()->isBudgeted());
     if (!srcProxy) {
         return nullptr;
