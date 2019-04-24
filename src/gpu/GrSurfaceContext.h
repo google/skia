@@ -51,9 +51,9 @@ public:
      *       The end result is only valid src pixels and dst pixels will be touched but the copied
      *       regions will not be shifted.
      */
-    bool copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
+    bool copy(GrTextureProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
 
-    bool copy(GrSurfaceProxy* src) {
+    bool copy(GrTextureProxy* src) {
         return this->copy(src,
                           SkIRect::MakeWH(src->width(), src->height()),
                           SkIPoint::Make(0, 0));
