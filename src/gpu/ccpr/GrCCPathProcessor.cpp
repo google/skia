@@ -10,6 +10,7 @@
 #include "include/gpu/GrTexture.h"
 #include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
@@ -78,13 +79,13 @@ sk_sp<const GrGpuBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourcePro
     }
 }
 
-GrCCPathProcessor::GrCCPathProcessor(const GrTextureProxy* atlas,
+GrCCPathProcessor::GrCCPathProcessor(const GrTexture* atlasTexture, GrSurfaceOrigin atlasOrigin,
                                      const SkMatrix& viewMatrixIfUsingLocalCoords)
         : INHERITED(kGrCCPathProcessor_ClassID)
-        , fAtlasAccess(atlas->textureType(), atlas->config(), GrSamplerState::Filter::kNearest,
-                       GrSamplerState::WrapMode::kClamp)
-        , fAtlasSize(atlas->isize())
-        , fAtlasOrigin(atlas->origin()) {
+        , fAtlasAccess(atlasTexture->texturePriv().textureType(), atlasTexture->config(),
+                       GrSamplerState::Filter::kNearest, GrSamplerState::WrapMode::kClamp)
+        , fAtlasSize(SkISize::Make(atlasTexture->width(), atlasTexture->height()))
+        , fAtlasOrigin(atlasOrigin) {
     // TODO: Can we just assert that atlas has GrCCAtlas::kTextureOrigin and remove fAtlasOrigin?
     this->setInstanceAttributes(kInstanceAttribs, SK_ARRAY_COUNT(kInstanceAttribs));
     SkASSERT(this->instanceStride() == sizeof(Instance));
@@ -104,10 +105,10 @@ public:
 private:
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
                  FPCoordTransformIter&& transformIter) override {
-        const GrCCPathProcessor& proc = primProc.cast<GrCCPathProcessor>();
-        pdman.set2f(fAtlasAdjustUniform, 1.0f / proc.atlasSize().fWidth,
-                    1.0f / proc.atlasSize().fHeight);
-        this->setTransformDataHelper(proc.localMatrix(), pdman, &transformIter);
+        const auto& proc = primProc.cast<GrCCPathProcessor>();
+        pdman.set2f(
+                fAtlasAdjustUniform, 1.0f / proc.fAtlasSize.fWidth, 1.0f / proc.fAtlasSize.fHeight);
+        this->setTransformDataHelper(proc.fLocalMatrix, pdman, &transformIter);
     }
 
     GrGLSLUniformHandler::UniformHandle fAtlasAdjustUniform;
@@ -198,17 +199,17 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // Convert to atlas coordinates in order to do our texture lookup.
     v->codeAppendf("float2 atlascoord = octocoord + float2(dev_to_atlas_offset);");
-    if (kTopLeft_GrSurfaceOrigin == proc.atlasOrigin()) {
+    if (kTopLeft_GrSurfaceOrigin == proc.fAtlasOrigin) {
         v->codeAppendf("%s.xy = atlascoord * %s;", texcoord.vsOut(), atlasAdjust);
     } else {
-        SkASSERT(kBottomLeft_GrSurfaceOrigin == proc.atlasOrigin());
+        SkASSERT(kBottomLeft_GrSurfaceOrigin == proc.fAtlasOrigin);
         v->codeAppendf("%s.xy = float2(atlascoord.x * %s.x, 1 - atlascoord.y * %s.y);",
                        texcoord.vsOut(), atlasAdjust, atlasAdjust);
     }
     v->codeAppendf("%s.z = wind * .5;", texcoord.vsOut());
 
     gpArgs->fPositionVar.set(kFloat2_GrSLType, "octocoord");
-    this->emitTransforms(v, varyingHandler, uniHandler, gpArgs->fPositionVar, proc.localMatrix(),
+    this->emitTransforms(v, varyingHandler, uniHandler, gpArgs->fPositionVar, proc.fLocalMatrix,
                          args.fFPCoordTransformHandler);
 
     // Fragment shader.
