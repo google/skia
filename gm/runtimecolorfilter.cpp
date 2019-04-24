@@ -77,3 +77,47 @@ DEF_SIMPLE_GM(runtimecolorfilter_interpreted, canvas, 768, 256) {
         canvas->drawImage(img, 512, 0, &p);
     }
 }
+
+class RuntimeCF : public skiagm::GM {
+public:
+    RuntimeCF(bool useCpuProc)
+        : fFact(SkRuntimeColorFilterFactory(SkString(SKSL_TEST_SRC),
+                                            useCpuProc ? runtimeCpuFunc : nullptr))
+    {
+        fName.printf("runtime_cf_interp_%d", !useCpuProc);
+    }
+
+protected:
+    bool runAsBench() const override { return true; }
+
+    SkString onShortName() override {
+        return fName;
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(512, 256);
+    }
+
+    void onOnceBeforeDraw() override {
+        fImg = GetResourceAsImage("images/mandrill_256.png")->makeRasterImage();
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        canvas->drawImage(fImg, 0, 0, nullptr);
+
+        float b = 0.75;
+        sk_sp<SkData> data = SkData::MakeWithCopy(&b, sizeof(b));
+        auto cf1 = fFact.make(data);
+        SkPaint p;
+        p.setColorFilter(cf1);
+        canvas->drawImage(fImg, 256, 0, &p);
+    }
+private:
+    sk_sp<SkImage> fImg;
+    SkRuntimeColorFilterFactory fFact;
+    SkString fName;
+
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM(return new RuntimeCF(false);)
+DEF_GM(return new RuntimeCF(true);)
