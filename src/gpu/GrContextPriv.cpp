@@ -627,7 +627,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         top = dstSurface->height() - top - height;
     }
 
-    this->flush(dstProxy);
+    this->flush(caps->preferVRAMUseOverFlushes() ? dstProxy : nullptr);
 
     return this->getGpu()->writePixels(dstSurface, left, top, width, height, srcColorType, buffer,
                                        rowBytes);
@@ -758,4 +758,3 @@ void GrContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCal
     fContext->drawingManager()->testingOnly_removeOnFlushCallbackObject(cb);
 }
 #endif
-
