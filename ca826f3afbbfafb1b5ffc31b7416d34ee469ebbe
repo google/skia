@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01aea9b1_15cd676f",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-24T17:55:06Z",
+      "side": 1,
+      "message": "You just removed a bunch of \u0027-Ifoo\u0027 arguments to the compiler, now you add back a bunch of extra unneeded \u0027-dfoo\u0027 arguments!",
+      "revId": "ca826f3afbbfafb1b5ffc31b7416d34ee469ebbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
