@@ -117,4 +117,6 @@ def GenTests(api):
           api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
       )
     )
+    if 'Win' in builder:
+      test += api.platform('win', 64)
     yield test

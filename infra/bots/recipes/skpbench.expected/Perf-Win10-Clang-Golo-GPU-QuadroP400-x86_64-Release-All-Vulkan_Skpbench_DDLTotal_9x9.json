@@ -3,13 +3,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/tmp"
+      "[START_DIR]\\tmp"
     ],
     "infra_step": true,
     "name": "makedirs tmp_dir"
@@ -18,11 +18,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\skp\\VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -32,12 +32,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
       "42",
-      "[START_DIR]/tmp/SKP_VERSION"
+      "[START_DIR]\\tmp\\SKP_VERSION"
     ],
     "infra_step": true,
     "name": "write SKP_VERSION"
@@ -46,13 +46,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]"
+      "[START_DIR]\\[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
@@ -61,10 +61,10 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/skia/tools/skpbench/skpbench.py",
-      "[START_DIR]/build/skpbench",
+      "[START_DIR]\\skia\\tools\\skpbench\\skpbench.py",
+      "[START_DIR]\\build\\skpbench",
       "--resultsfile",
-      "[START_DIR]/[SWARM_OUT_DIR]/table",
+      "[START_DIR]\\[SWARM_OUT_DIR]\\table",
       "--config",
       "vk",
       "-v5",
@@ -75,11 +75,11 @@
       "9",
       "--ddlTilingWidthHeight",
       "3",
-      "[START_DIR]/skp"
+      "[START_DIR]\\skp"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "skpbench"
   },
@@ -115,8 +115,8 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/skia/tools/skpbench/skiaperf.py",
-      "[START_DIR]/[SWARM_OUT_DIR]/table",
+      "[START_DIR]\\skia\\tools\\skpbench\\skiaperf.py",
+      "[START_DIR]\\[SWARM_OUT_DIR]\\table",
       "--properties",
       "gitHash",
       "abc123",
@@ -125,7 +125,7 @@
       "swarming_task_id",
       "123456",
       "--outfile",
-      "[START_DIR]/[SWARM_OUT_DIR]/skpbench_abc123_1337000001.json",
+      "[START_DIR]\\[SWARM_OUT_DIR]\\skpbench_abc123_1337000001.json",
       "--key",
       "arch",
       "x86_64",
@@ -146,7 +146,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "Parse skpbench output into Perf json"
   },

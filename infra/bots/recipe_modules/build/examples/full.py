@@ -6,6 +6,7 @@
 DEPS = [
   'build',
   'recipe_engine/path',
+  'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
   'run',
@@ -87,4 +88,6 @@ def GenTests(api):
       api.test(buildername) +
       api.properties(**defaultProps(buildername))
     )
+    if 'Win' in buildername and not 'LenovoYogaC630' in buildername:
+      test += api.platform('win', 64)
     yield test
