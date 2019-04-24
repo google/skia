@@ -75,8 +75,7 @@ size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
                                   !this->priv().isExact());
 }
 
-bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider,
-                                             bool dontForceNoPendingIO) {
+bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (LazyState::kNot != this->lazyInstantiationState()) {
         return false;
     }
@@ -85,8 +84,7 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
     const GrUniqueKey& key = this->getUniqueKey();
 
     if (!this->instantiateImpl(resourceProvider, this->numStencilSamples(), this->needsStencil(),
-                               kDescFlags, this->mipMapped(), key.isValid() ? &key : nullptr,
-                               dontForceNoPendingIO)) {
+                               kDescFlags, this->mipMapped(), key.isValid() ? &key : nullptr)) {
         return false;
     }
     if (key.isValid()) {
@@ -105,7 +103,7 @@ sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, this->numStencilSamples(),
                                                        this->needsStencil(), kDescFlags,
-                                                       this->mipMapped(), true);
+                                                       this->mipMapped());
     if (!surface) {
         return nullptr;
     }

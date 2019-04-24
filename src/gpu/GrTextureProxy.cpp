@@ -76,15 +76,13 @@ GrTextureProxy::~GrTextureProxy() {
     }
 }
 
-bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider,
-                                 bool dontForceNoPendingIO) {
+bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (LazyState::kNot != this->lazyInstantiationState()) {
         return false;
     }
     if (!this->instantiateImpl(resourceProvider, 1, /* needsStencil = */ false,
                                kNone_GrSurfaceFlags, fMipMapped,
-                               fUniqueKey.isValid() ? &fUniqueKey : nullptr,
-                               dontForceNoPendingIO)) {
+                               fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
         return false;
     }
 
@@ -97,7 +95,7 @@ sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvi
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, 1,
                                                        /* needsStencil = */ false,
                                                        kNone_GrSurfaceFlags,
-                                                       fMipMapped, true);
+                                                       fMipMapped);
     if (!surface) {
         return nullptr;
     }

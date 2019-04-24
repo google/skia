@@ -25,7 +25,7 @@ public:
     const GrTextureProxy* asTextureProxy() const override { return this; }
 
     // Actually instantiate the backing texture, if necessary
-    bool instantiate(GrResourceProvider*, bool dontForceNoPendingIO = false) override;
+    bool instantiate(GrResourceProvider*) override;
 
     GrSamplerState::Filter highestFilterMode() const;
 

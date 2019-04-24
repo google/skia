@@ -40,7 +40,7 @@ private:
     // Wrapped version
     GrTextureRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 
-    bool instantiate(GrResourceProvider*, bool dontForceNoPendingIO = false) override;
+    bool instantiate(GrResourceProvider*) override;
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
     size_t onUninstantiatedGpuMemorySize() const override;

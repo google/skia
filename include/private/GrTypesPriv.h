@@ -762,15 +762,10 @@ enum class GrInternalSurfaceFlags {
     kNone                           = 0,
 
     // Surface-level
-
-    kNoPendingIO                    = 1 << 0,
-
-    kSurfaceMask                    = kNoPendingIO,
-
     // Texture-level
 
     // Means the pixels in the texture are read-only. Cannot also be a GrRenderTarget[Proxy].
-    kReadOnly                       = 1 << 1,
+    kReadOnly                       = 1 << 0,
 
     kTextureMask                    = kReadOnly,
 
@@ -782,10 +777,10 @@ enum class GrInternalSurfaceFlags {
     //    this is disabled for FBO0
     //    but, otherwise, is enabled whenever MSAA is enabled and GrCaps reports mixed samples
     //        are supported
-    kMixedSampled                   = 1 << 2,
+    kMixedSampled                   = 1 << 1,
 
     // This flag is for use with GL only. It tells us that the internal render target wraps FBO 0.
-    kGLRTFBOIDIs0                   = 1 << 3,
+    kGLRTFBOIDIs0                   = 1 << 2,
 
     kRenderTargetMask               = kMixedSampled | kGLRTFBOIDIs0,
 };

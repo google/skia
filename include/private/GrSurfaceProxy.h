@@ -363,8 +363,7 @@ public:
         return fUniqueID;
     }
 
-    virtual bool instantiate(GrResourceProvider* resourceProvider,
-                             bool dontForceNoPendingIO = false) = 0;
+    virtual bool instantiate(GrResourceProvider*) = 0;
 
     void deinstantiate();
 
@@ -504,8 +503,7 @@ protected:
     void assign(sk_sp<GrSurface> surface);
 
     sk_sp<GrSurface> createSurfaceImpl(GrResourceProvider*, int sampleCnt, bool needsStencil,
-                                       GrSurfaceDescFlags, GrMipMapped,
-                                       bool forceNoPendingIO) const;
+                                       GrSurfaceDescFlags, GrMipMapped) const;
 
     // Once the size of a fully-lazy proxy is decided, and before it gets instantiated, the client
     // can use this optional method to specify the proxy's size. (A proxy's size can be less than
@@ -519,8 +517,7 @@ protected:
     }
 
     bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt, bool needsStencil,
-                         GrSurfaceDescFlags descFlags, GrMipMapped, const GrUniqueKey*,
-                         bool dontForceNoPendingIO);
+                         GrSurfaceDescFlags descFlags, GrMipMapped, const GrUniqueKey*);
 
     // In many cases these flags aren't actually known until the proxy has been instantiated.
     // However, Ganesh frequently needs to change its behavior based on these settings. For
