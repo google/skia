@@ -29,6 +29,14 @@ namespace SkSL {
 
 static constexpr int UNINITIALIZED = 0xDEADBEEF;
 
+    template <typename T> void bulk_append(std::vector<T>& stack, const T array[], int count) {
+        stack.insert(stack.end(), array, array + count);
+    }
+
+    template <typename T> void fill_append(std::vector<T>& stack, const T& value, int count) {
+        stack.insert(stack.end(), count, value);
+    }
+
 Interpreter::Value* Interpreter::run(const ByteCodeFunction& f, Interpreter::Value args[],
                                     Interpreter::Value inputs[]) {
     fIP = 0;
@@ -38,6 +46,12 @@ Interpreter::Value* Interpreter::run(const ByteCodeFunction& f, Interpreter::Val
 #ifdef TRACE
     this->disassemble(f);
 #endif
+
+#if 1
+    bulk_append(fStack, args, f.fParameterCount);
+    fill_append(fStack, Value((int) UNINITIALIZED), f.fLocalCount);
+    fill_append(fGlobals, Value((int) UNINITIALIZED), f.fOwner.fGlobalCount);
+#else
     for (int i = 0; i < f.fParameterCount; ++i) {
         this->push(args[i]);
     }
@@ -47,6 +61,7 @@ Interpreter::Value* Interpreter::run(const ByteCodeFunction& f, Interpreter::Val
     for (int i = 0; i < f.fOwner.fGlobalCount; ++i) {
         fGlobals.push_back(Value((int) UNINITIALIZED));
     }
+#endif
     for (int i = f.fOwner.fInputSlots.size() - 1; i >= 0; --i) {
         fGlobals[f.fOwner.fInputSlots[i]] = inputs[i];
     }
@@ -88,16 +103,6 @@ uint32_t Interpreter::read32() {
                        fCurrentFunction->fCode[fIP + 3];
     fIP += 4;
     return result;
-}
-
-void Interpreter::push(Value v) {
-    fStack.push_back(v);
-}
-
-Interpreter::Value Interpreter::pop() {
-    Value v = fStack.back();
-    fStack.pop_back();
-    return v;
 }
 
 static String value_string(uint32_t v) {

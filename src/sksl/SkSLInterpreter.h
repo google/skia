@@ -76,9 +76,15 @@ private:
 
     void run();
 
-    void push(Value v);
+    void push(Value v) {
+        fStack.push_back(v);
+    }
 
-    Value pop();
+    Value pop() {
+        Value v = fStack.back();
+        fStack.pop_back();
+        return v;
+    }
 
     void swizzle();
 
