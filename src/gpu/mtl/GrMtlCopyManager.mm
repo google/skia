@@ -135,6 +135,7 @@ bool GrMtlCopyManager::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrig
 
     id<MTLTexture> dstTex = GrGetMTLTextureFromSurface(dst, false);
     id<MTLTexture> srcTex = GrGetMTLTextureFromSurface(src, false);
+    SkASSERT(srcTex != dstTex);
 
     if (fSamplerState == nil) {
         SkASSERT(fVertexAttributeBuffer == nil);
@@ -198,7 +199,7 @@ bool GrMtlCopyManager::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrig
     renderPassDesc.colorAttachments[0].storeAction = MTLStoreActionStore;
 
     id<MTLRenderCommandEncoder> renderCmdEncoder =
-            fGpu->commandBuffer()->getRenderCommandEncoder(renderPassDesc);
+            fGpu->commandBuffer()->getRenderCommandEncoder(renderPassDesc, nullptr);
     GrMtlCopyPipelineState* copyPipelineState =
             fGpu->resourceProvider().findOrCreateCopyPipelineState(dstTex.pixelFormat,
                                                                    fVertexFunction,

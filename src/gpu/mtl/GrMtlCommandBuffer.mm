@@ -7,6 +7,7 @@
 
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlPipelineState.h"
 
 GrMtlCommandBuffer* GrMtlCommandBuffer::Create(id<MTLCommandQueue> queue) {
     id<MTLCommandBuffer> mtlCommandBuffer;
@@ -37,17 +38,49 @@ id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
         fActiveBlitCommandEncoder = [fCmdBuffer blitCommandEncoder];
         SK_END_AUTORELEASE_BLOCK
     }
+    fPreviousRenderPassDescriptor = nil;
 
     return fActiveBlitCommandEncoder;
 }
 
+static bool compatible(const MTLRenderPassAttachmentDescriptor* first,
+                       const MTLRenderPassAttachmentDescriptor* second,
+                       const GrMtlPipelineState* pipelineState) {
+    // Check to see if the previous descriptor is compatible with the new one.
+    // They are compatible if:
+    // * they share the same rendertargets
+    // * the first's store actions are either Store or DontCare
+    // * the second's load actions are either Load or DontCare
+    // * the second doesn't sample from any rendertargets in the first
+    bool renderTargetsMatch = (first.texture == second.texture);
+    bool storeActionsValid = first.storeAction == MTLStoreActionStore ||
+                             first.storeAction == MTLStoreActionDontCare;
+    bool loadActionsValid = second.loadAction == MTLLoadActionLoad ||
+                            second.loadAction == MTLLoadActionDontCare;
+    bool secondDoesntSampleFirst = !pipelineState ||
+                                   pipelineState->doesntSampleAttachment(first);
+
+    return renderTargetsMatch &&
+           (nil == first.texture ||
+            (storeActionsValid && loadActionsValid && secondDoesntSampleFirst));
+}
+
 id<MTLRenderCommandEncoder> GrMtlCommandBuffer::getRenderCommandEncoder(
-        MTLRenderPassDescriptor* descriptor) {
-    // TODO: track whether a compatible renderCommandEncoder is currently active
+        MTLRenderPassDescriptor* descriptor, const GrMtlPipelineState* pipelineState) {
+    if (nil != fPreviousRenderPassDescriptor) {
+        if (compatible(fPreviousRenderPassDescriptor.colorAttachments[0],
+                       descriptor.colorAttachments[0], pipelineState) &&
+            compatible(fPreviousRenderPassDescriptor.stencilAttachment,
+                       descriptor.stencilAttachment, pipelineState)) {
+            return fActiveRenderCommandEncoder;
+        }
+    }
+
     this->endAllEncoding();
     SK_BEGIN_AUTORELEASE_BLOCK
     fActiveRenderCommandEncoder = [fCmdBuffer renderCommandEncoderWithDescriptor:descriptor];
     SK_END_AUTORELEASE_BLOCK
+    fPreviousRenderPassDescriptor = descriptor;
 
     return fActiveRenderCommandEncoder;
 }

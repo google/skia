@@ -75,7 +75,7 @@ void GrMtlGpuRTCommandBuffer::addNullCommand() {
     SkASSERT(nil == fActiveRenderCmdEncoder);
 
     SkDEBUGCODE(id<MTLRenderCommandEncoder> cmdEncoder =)
-            fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc);
+            fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr);
     SkASSERT(nil != cmdEncoder);
 }
 
@@ -175,7 +175,8 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     }
 
     SkASSERT(nil == fActiveRenderCmdEncoder);
-    fActiveRenderCmdEncoder = fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc);
+    fActiveRenderCmdEncoder = fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc,
+                                                                             pipelineState);
     SkASSERT(fActiveRenderCmdEncoder);
     // TODO: can we set this once somewhere at the beginning of the draw?
     [fActiveRenderCmdEncoder setFrontFacingWinding:MTLWindingCounterClockwise];

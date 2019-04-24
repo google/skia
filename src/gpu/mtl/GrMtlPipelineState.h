@@ -58,6 +58,8 @@ public:
                                            GrSurfaceOrigin rtOrigin,
                                            SkIRect scissorRect);
 
+    bool doesntSampleAttachment(const MTLRenderPassAttachmentDescriptor*) const;
+
 private:
     /**
     * We use the RT's size and origin to adjust from Skia device space to Metal normalized device
