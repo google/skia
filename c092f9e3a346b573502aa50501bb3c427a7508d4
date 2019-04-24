@@ -22,6 +22,30 @@
       "revId": "c092f9e3a346b573502aa50501bb3c427a7508d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90c33008_b111ed52",
+        "filename": "src/core/SkTLList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-24T14:26:22Z",
+      "side": 0,
+      "message": "Yes, but I still like to document it with an `\u003d delete` at the bottom of the class.",
+      "parentUuid": "7b3cc73c_18ddcd6c",
+      "range": {
+        "startLine": 31,
+        "startChar": 53,
+        "endLine": 31,
+        "endChar": 68
+      },
+      "revId": "c092f9e3a346b573502aa50501bb3c427a7508d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
