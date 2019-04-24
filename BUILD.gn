@@ -109,7 +109,7 @@ config("skia_public") {
     defines += [ "SKIA_DLL" ]
   }
   if (is_fuchsia || is_linux) {
-    defines += [ "SK_SAMPLES_FOR_X" ]
+    defines += [ "SK_R32_SHIFT=16" ]
   }
   if (skia_enable_flutter_defines) {
     defines += flutter_defines
