@@ -21,6 +21,7 @@ roots = [
     'samplecode',
     'src',
     'tests',
+    'third_party/etc1',
     'third_party/gif',
     'tools'
   ]

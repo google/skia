@@ -11,7 +11,7 @@
 #include "tools/ToolUtils.h"
 
 #if SK_SUPPORT_GPU && !defined(SK_BUILD_FOR_GOOGLE3)
-#include "etc1.h"
+#include "third_party/etc1/etc1.h"
 
 #include "include/gpu/GrContext.h"
 #include "include/private/GrTextureProxy.h"

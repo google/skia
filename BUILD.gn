@@ -136,11 +136,6 @@ config("skia_public") {
 config("skia_private") {
   visibility = [ ":*" ]
 
-  include_dirs = [
-    "third_party/etc1",
-    "third_party/gif",
-  ]
-
   defines = [ "SK_GAMMA_APPLY_TO_A8" ]
   if (skia_use_fixed_gamma_text) {
     defines += [
@@ -946,7 +941,6 @@ component("skia") {
     "src/sfnt/SkOTTable_name.cpp",
     "src/sfnt/SkOTUtils.cpp",
     "src/utils/mac/SkStream_mac.cpp",
-    "third_party/etc1/etc1.cpp",
   ]
 
   defines = []
@@ -1614,10 +1608,17 @@ if (skia_enable_tools) {
     ]
   }
 
+  test_lib("etc1") {
+    sources = [
+      "third_party/etc1/etc1.cpp",
+    ]
+  }
+
   import("gn/gm.gni")
   test_lib("gm") {
     sources = gm_sources
     deps = [
+      ":etc1",
       ":flags",
       ":skia",
       ":tool_utils",

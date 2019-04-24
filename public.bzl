@@ -273,7 +273,7 @@ def codec_srcs(limited):
             "src/codec/*Webp*.cpp",
             "src/codec/*Png*",
         ]
-    return native.glob(["src/codec/*.cpp", "third_party/etc1/*.cpp", "third_party/gif/*.cpp"], exclude = exclude)
+    return native.glob(["src/codec/*.cpp", "third_party/gif/*.cpp"], exclude = exclude)
 
 GL_SRCS_UNIX = struct(
     include = [
@@ -435,7 +435,6 @@ INCLUDES = [
     "src/shaders/gradients",
     "src/sksl",
     "src/utils",
-    "third_party/etc1",
     "third_party/gif",
     "third_party/skcms",
 ]
