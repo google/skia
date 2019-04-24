@@ -3,13 +3,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/cache/work"
+      "[START_DIR]\\cache\\work"
     ],
     "infra_step": true,
     "name": "makedirs checkout_path"
@@ -18,36 +18,36 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "remove",
-      "[START_DIR]/cache/work/.gclient_entries"
+      "[START_DIR]\\cache\\work\\.gclient_entries"
     ],
     "infra_step": true,
-    "name": "remove [START_DIR]/cache/work/.gclient_entries"
+    "name": "remove [START_DIR]\\cache\\work\\.gclient_entries"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
+      "RECIPE_MODULE[depot_tools::bot_update]\\resources\\bot_update.py",
       "--spec-path",
-      "cache_dir = '[START_DIR]/cache/git'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
+      "cache_dir = '[START_DIR]\\\\cache\\\\git'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
       "--patch_root",
       "skia",
       "--revision_mapping_file",
       "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
-      "[START_DIR]/cache/git",
+      "[START_DIR]\\cache\\git",
       "--cleanup-dir",
-      "[CLEANUP]/bot_update",
+      "[CLEANUP]\\bot_update",
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
       "skia@abc123"
     ],
-    "cwd": "[START_DIR]/cache/work",
+    "cwd": "[START_DIR]\\cache\\work",
     "env_prefixes": {
       "PATH": [
         "RECIPE_REPO[depot_tools]"
@@ -97,13 +97,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/tmp"
+      "[START_DIR]\\tmp"
     ],
     "infra_step": true,
     "name": "makedirs tmp_dir"

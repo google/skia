@@ -168,36 +168,18 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]\\[SWARM_OUT_DIR]\\dumps"
-    ],
-    "infra_step": true,
-    "name": "makedirs dumps"
-  },
-  {
-    "cmd": [
-      "[START_DIR]\\procdump_win\\procdump64.exe",
-      "-accepteula",
-      "-mp",
-      "-e",
-      "1",
-      "-x",
-      "[START_DIR]\\[SWARM_OUT_DIR]\\dumps",
-      "[START_DIR]\\build\\dm",
+      "[START_DIR]\\build\\nanobench",
       "--some-flag"
     ],
     "env": {
+      "ASAN_OPTIONS": "symbolize=1 detect_leaks=1",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+      "LD_LIBRARY_PATH": "[START_DIR]\\clang_linux/lib",
+      "LSAN_OPTIONS": "symbolize=1 print_suppressions=1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools];[START_DIR]\\clang_linux/bin",
+      "UBSAN_OPTIONS": "symbolize=1 print_stacktrace=1"
     },
-    "name": "dm"
+    "name": "nanobench"
   },
   {
     "jsonResult": null,

@@ -5,6 +5,7 @@
 
 DEPS = [
   'recipe_engine/path',
+  'recipe_engine/platform',
   'recipe_engine/properties',
   'vars',
 ]
@@ -46,6 +47,7 @@ def GenTests(api):
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]',
                      patch_storage='gerrit') +
+      api.platform('win', 64) +
       api.properties.tryserver(
           buildername=buildername,
           gerrit_project='skia',

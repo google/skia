@@ -257,9 +257,11 @@ class DefaultFlavor(object):
                                                   profname)
 
     if path:
-      env['PATH'] = '%%(PATH)s:%s' % ':'.join('%s' % p for p in path)
+      env['PATH'] = self.m.path.pathsep.join(
+          ['%(PATH)s'] + ['%s' % p for p in path])
     if ld_library_path:
-      env['LD_LIBRARY_PATH'] = ':'.join('%s' % p for p in ld_library_path)
+      env['LD_LIBRARY_PATH'] = self.m.path.pathsep.join(
+          '%s' % p for p in ld_library_path)
 
     to_symbolize = ['dm', 'nanobench']
     if name in to_symbolize and self.m.vars.is_linux:

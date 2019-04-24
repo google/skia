@@ -1112,6 +1112,7 @@ def GenTests(api):
                    gold_hashes_url='https://example.com/hashes.txt',
                    swarm_out_dir='[SWARM_OUT_DIR]',
                    task_id='task_12345') +
+    api.platform('win', 64) +
     api.properties(patch_storage='gerrit') +
     api.properties.tryserver(
           buildername=builder,
