@@ -194,8 +194,9 @@ private:
         sk_sp<const SkData> fKey;
         SkString            fKeyString;
 
-        SkSL::Program::Inputs fInputs;
-        SkSL::String fShader[kGrShaderTypeCount];
+        SkFourByteTag         fShaderType;
+        SkSL::String          fShader[kGrShaderTypeCount];
+        SkSL::Program::Inputs fInputs[kGrShaderTypeCount];
     };
 
     sk_gpu_test::MemoryCache fPersistentCache;

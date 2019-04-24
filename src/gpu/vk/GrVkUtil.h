@@ -45,7 +45,7 @@ bool GrVkFormatPixelConfigPairIsValid(VkFormat, GrPixelConfig);
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples);
 
 bool GrCompileVkShaderModule(const GrVkGpu* gpu,
-                             const char* shaderString,
+                             const SkSL::String& shaderString,
                              VkShaderStageFlagBits stage,
                              VkShaderModule* shaderModule,
                              VkPipelineShaderStageCreateInfo* stageInfo,

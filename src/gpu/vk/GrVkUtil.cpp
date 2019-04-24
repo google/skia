@@ -200,7 +200,7 @@ SkSL::Program::Kind vk_shader_stage_to_skiasl_kind(VkShaderStageFlagBits stage) 
 }
 
 bool GrCompileVkShaderModule(const GrVkGpu* gpu,
-                             const char* shaderString,
+                             const SkSL::String& shaderString,
                              VkShaderStageFlagBits stage,
                              VkShaderModule* shaderModule,
                              VkPipelineShaderStageCreateInfo* stageInfo,
@@ -208,11 +208,9 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
                              SkSL::String* outSPIRV,
                              SkSL::Program::Inputs* outInputs) {
     std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(
-                                                              vk_shader_stage_to_skiasl_kind(stage),
-                                                              SkSL::String(shaderString),
-                                                              settings);
+            vk_shader_stage_to_skiasl_kind(stage), shaderString, settings);
     if (!program) {
-        printf("%s\n", shaderString);
+        printf("%s\n", shaderString.c_str());
         SkDebugf("SkSL error:\n%s\n", gpu->shaderCompiler()->errorText().c_str());
         SkASSERT(false);
     }

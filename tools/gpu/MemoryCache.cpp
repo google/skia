@@ -93,16 +93,11 @@ void MemoryCache::writeShadersToDisk(const char* path, GrBackendApi api) {
         SkSL::Program::Inputs inputsIgnored[kGrShaderTypeCount];
         SkSL::String shaders[kGrShaderTypeCount];
         const SkData* data = it->second.fData.get();
-        const char* ext;
-        if (GrBackendApi::kOpenGL == api) {
-            ext = "frag";
-            GrPersistentCacheUtils::UnpackCachedGLSL(data, inputsIgnored, shaders);
-        } else if (GrBackendApi::kVulkan == api) {
-            // Even with the SPIR-V switches, it seems like we must use .spv, or malisc tries to
-            // run glslang on the input.
-            ext = "spv";
-            GrPersistentCacheUtils::UnpackCachedSPIRV(data, shaders, inputsIgnored);
-        }
+        // Even with the SPIR-V switches, it seems like we must use .spv, or malisc tries to
+        // run glslang on the input.
+        const char* ext = GrBackendApi::kOpenGL == api ? "frag" : "spv";
+        GrPersistentCacheUtils::UnpackCachedShaders(data, shaders,
+                                                    inputsIgnored, kGrShaderTypeCount);
 
         SkString filename = SkStringPrintf("%s/%s.%s", path, md5.c_str(), ext);
         SkFILEWStream file(filename.c_str());

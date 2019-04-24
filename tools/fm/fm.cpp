@@ -9,7 +9,6 @@
 #include "GrContextOptions.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
-#include "GrPersistentCacheUtils.h"
 #include "HashAndEncode.h"
 #include "MemoryCache.h"
 #include "SkCodec.h"
