@@ -10,13 +10,6 @@
 #ifndef SkPostConfig_DEFINED
 #define SkPostConfig_DEFINED
 
-#if defined(SK_SAMPLES_FOR_X) && !defined(SK_R32_SHIFT) && !defined(SK_G32_SHIFT) && !defined(SK_B32_SHIFT) && !defined(SK_A32_SHIFT)
-    #define SK_R32_SHIFT    16
-    #define SK_G32_SHIFT    8
-    #define SK_B32_SHIFT    0
-    #define SK_A32_SHIFT    24
-#endif
-
 #if !defined(SK_DEBUG) && !defined(SK_RELEASE)
     #ifdef NDEBUG
         #define SK_RELEASE
@@ -51,19 +44,6 @@
     #error "The Skia team is not endian-savvy enough to support big-endian CPUs."
     #error "If you still want to use Skia,"
     #error "please define I_ACKNOWLEDGE_SKIA_DOES_NOT_SUPPORT_BIG_ENDIAN."
-#endif
-
-/**
- * Ensure the port has defined all of SK_X32_SHIFT, or none of them.
- */
-#ifdef SK_A32_SHIFT
-#  if !defined(SK_R32_SHIFT) || !defined(SK_G32_SHIFT) || !defined(SK_B32_SHIFT)
-#    error "all or none of the 32bit SHIFT amounts must be defined"
-#  endif
-#else
-#  if defined(SK_R32_SHIFT) || defined(SK_G32_SHIFT) || defined(SK_B32_SHIFT)
-#    error "all or none of the 32bit SHIFT amounts must be defined"
-#  endif
 #endif
 
 #if !defined(SK_HAS_COMPILER_FEATURE)
@@ -110,16 +90,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_BUILD_FOR_WIN
-#  ifndef SK_A32_SHIFT
-#    define SK_A32_SHIFT 24
-#    define SK_R32_SHIFT 16
-#    define SK_G32_SHIFT 8
-#    define SK_B32_SHIFT 0
-#  endif
-#
-#endif
-
 #if defined(SK_BUILD_FOR_GOOGLE3)
     void SkDebugfForDumpStackTrace(const char* data, void* unused);
     void DumpStackTrace(int skip_count, void w(const char*, void*), void* arg);
@@ -147,24 +117,24 @@
     } while (false)
 #endif
 
-/**
- *  We check to see if the SHIFT value has already been defined.
- *  if not, we define it ourself to some default values. We default to OpenGL
- *  order (in memory: r,g,b,a)
- */
-#ifndef SK_A32_SHIFT
-#  ifdef SK_CPU_BENDIAN
-#    define SK_R32_SHIFT    24
-#    define SK_G32_SHIFT    16
-#    define SK_B32_SHIFT    8
-#    define SK_A32_SHIFT    0
-#  else
-#    define SK_R32_SHIFT    0
-#    define SK_G32_SHIFT    8
-#    define SK_B32_SHIFT    16
-#    define SK_A32_SHIFT    24
-#  endif
+// If SK_R32_SHIFT is set, we'll use that to choose RGBA or BGRA.
+// If not, we'll default to RGBA everywhere except BGRA on Windows.
+#if defined(SK_R32_SHIFT)
+    static_assert(SK_R32_SHIFT == 0 || SK_R32_SHIFT == 16, "");
+#elif defined(SK_BUILD_FOR_WIN)
+    #define SK_R32_SHIFT 16
+#else
+    #define SK_R32_SHIFT 0
 #endif
+
+#if defined(SK_B32_SHIFT)
+    static_assert(SK_B32_SHIFT == (16-SK_R32_SHIFT), "");
+#else
+    #define SK_B32_SHIFT (16-SK_R32_SHIFT)
+#endif
+
+#define SK_G32_SHIFT 8
+#define SK_A32_SHIFT 24
 
 /**
  * SkColor has well defined shift values, but SkPMColor is configurable. This
