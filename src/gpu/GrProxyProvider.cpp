@@ -247,7 +247,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
             surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
         }
     }
-    surfaceFlags |= GrInternalSurfaceFlags::kNoPendingIO;
 
     GrSurfaceDesc desc;
     desc.fWidth = srcImage->width();
@@ -262,10 +261,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
                 SkAssertResult(srcImage->peekPixels(&pixMap));
                 GrMipLevel mipLevel = { pixMap.addr(), pixMap.rowBytes() };
 
-                auto resourceProviderFlags = GrResourceProvider::Flags::kNone;
-                if (surfaceFlags & GrInternalSurfaceFlags::kNoPendingIO) {
-                    resourceProviderFlags |= GrResourceProvider::Flags::kNoPendingIO;
-                }
+                auto resourceProviderFlags = GrResourceProvider::Flags::kNoPendingIO;
                 return LazyInstantiationResult(resourceProvider->createTexture(
                         desc, budgeted, fit, mipLevel, resourceProviderFlags));
             },
@@ -753,7 +749,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(
         LazyInstantiateCallback&& callback, const GrBackendFormat& format, Renderable renderable,
         GrSurfaceOrigin origin, GrPixelConfig config, const GrCaps& caps, int sampleCnt) {
     GrSurfaceDesc desc;
-    GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNoPendingIO;
+    GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
     if (Renderable::kYes == renderable) {
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
         if (sampleCnt > 1 && caps.usesMixedSamples()) {
