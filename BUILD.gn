@@ -2172,6 +2172,9 @@ if (skia_enable_tools) {
   }
 
   test_lib("sk_app") {
+    public_deps = [
+      ":skia",
+    ]
     sources = [
       "tools/sk_app/CommandSet.cpp",
       "tools/sk_app/GLWindowContext.cpp",
@@ -2256,7 +2259,6 @@ if (skia_enable_tools) {
 
     deps = [
       ":gpu_tool_utils",
-      ":skia",
       ":tool_utils",
     ]
     if (is_android) {
@@ -2286,6 +2288,16 @@ if (skia_enable_tools) {
         "modules/skshaper",
       ]
     }
+  }
+  test_app("editor") {
+    is_shared_library = is_android
+    sources = [
+      "experimental/editor/editor_application.cpp",
+    ]
+    deps = [
+      ":sk_app",
+      "modules/skshaper",
+    ]
   }
   test_app("viewer") {
     is_shared_library = is_android
