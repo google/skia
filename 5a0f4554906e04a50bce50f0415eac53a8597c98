@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3f29efa_2c326548",
+        "filename": "src/core/SkOrderedReadBuffer.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-24T13:14:45Z",
+      "side": 1,
+      "message": "// Copyright YEAR Google LLC.\n// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.",
+      "revId": "5a0f4554906e04a50bce50f0415eac53a8597c98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08906f95_e12beadd",
+        "filename": "tests/MemoryTest.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-24T13:14:45Z",
+      "side": 1,
+      "message": "// Copyright YEAR Google LLC.\n// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.",
+      "revId": "5a0f4554906e04a50bce50f0415eac53a8597c98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
