@@ -307,8 +307,7 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
         SkPixmap pixmap(ii, rgbaData.get(), ii.minRowBytes());
         sk_sp<SkImage> img = SkImage::MakeRasterCopy(pixmap);
         proxies[0] = proxyProvider->createTextureProxy(img, kNone_GrSurfaceFlags, 1,
-                                                       SkBudgeted::kYes, SkBackingFit::kExact,
-                                                       GrInternalSurfaceFlags::kNoPendingIO);
+                                                       SkBudgeted::kYes, SkBackingFit::kExact);
         proxies[0]->instantiate(resourceProvider);
     }
 
@@ -326,8 +325,7 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
         SkPixmap pixmap(ii, alphaData.get(), ii.minRowBytes());
         sk_sp<SkImage> img = SkImage::MakeRasterCopy(pixmap);
         proxies[1] = proxyProvider->createTextureProxy(img, kNone_GrSurfaceFlags, 1,
-                                                       SkBudgeted::kYes, SkBackingFit::kExact,
-                                                       GrInternalSurfaceFlags::kNoPendingIO);
+                                                       SkBudgeted::kYes, SkBackingFit::kExact);
         proxies[1]->instantiate(resourceProvider);
     }
 
