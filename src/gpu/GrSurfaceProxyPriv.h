@@ -36,10 +36,6 @@ public:
     // Assign this proxy the provided GrSurface as its backing surface
     void assign(sk_sp<GrSurface> surface) { fProxy->assign(std::move(surface)); }
 
-    bool requiresNoPendingIO() const {
-        return fProxy->fSurfaceFlags & GrInternalSurfaceFlags::kNoPendingIO;
-    }
-
     // Don't abuse this call!!!!!!!
     bool isExact() const { return SkBackingFit::kExact == fProxy->fFit; }
 
