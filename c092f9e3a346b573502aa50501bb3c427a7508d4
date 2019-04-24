@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b3cc73c_18ddcd6c",
+        "filename": "src/core/SkTLList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-24T14:04:12Z",
+      "side": 0,
+      "message": "We don\u0027t need this any more because SkTInternalLList is now naturally uncopyable, right?",
+      "range": {
+        "startLine": 31,
+        "startChar": 53,
+        "endLine": 31,
+        "endChar": 68
+      },
+      "revId": "c092f9e3a346b573502aa50501bb3c427a7508d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
