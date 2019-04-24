@@ -35,6 +35,7 @@
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/flags/CommonFlags.h"
 #include "tools/trace/EventTracingPriv.h"
+#include "tools/trace/RealTimeTracer.h"
 #include "tools/viewer/BisectSlide.h"
 #include "tools/viewer/GMSlide.h"
 #include "tools/viewer/ImageSlide.h"
@@ -354,7 +355,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     ToolUtils::SetDefaultFontMgr();
 
-    initializeEventTracingForTools();
+//    initializeEventTracingForTools();
+    fTracer = new RealTimeTracer(1);
+    SkAssertResult(SkEventTracer::SetInstance(fTracer));
+
     static SkTaskGroup::Enabler kTaskGroupEnabler(FLAGS_threads);
 
     fBackendType = get_backend_type(FLAGS_backend[0]);
@@ -1446,6 +1450,11 @@ void Viewer::drawSlide(SkSurface* surface) {
 
     int count = slideCanvas->save();
     slideCanvas->clear(SK_ColorWHITE);
+
+    // Trace just the slide work...
+    fTracer->markFrame();
+    fTracer->setCaptureEnabled(true);
+
     // Time the painting logic of the slide
     fStatsLayer.beginTiming(fPaintTimer);
     if (fTiled) {
@@ -1492,6 +1501,8 @@ void Viewer::drawSlide(SkSurface* surface) {
     fStatsLayer.beginTiming(fFlushTimer);
     slideSurface->flushAndSubmit();
     fStatsLayer.endTiming(fFlushTimer);
+
+    fTracer->setCaptureEnabled(false);
 
     // If we rendered offscreen, snap an image and push the results to the window's canvas
     if (offscreenSurface) {
@@ -2453,6 +2464,37 @@ void Viewer::drawImGui() {
         }
 
         ImGui::End();
+    }
+
+    // Show trace summary...
+    {
+        if (ImGui::Begin("Trace")) {
+            static auto summary = fTracer->summarize();
+            static int framesSinceLastSummary = 0;
+            if (++framesSinceLastSummary > 30) {
+                summary = fTracer->summarize();
+                framesSinceLastSummary = 0;
+            }
+
+            ImGui::Columns(4);
+            ImGui::Separator();
+            ImGui::Text("Event"); ImGui::NextColumn();
+            ImGui::Text("Count"); ImGui::NextColumn();
+            ImGui::Text("Total Time"); ImGui::NextColumn();
+            ImGui::Text("Self Time"); ImGui::NextColumn();
+            ImGui::Separator();
+            int numRows = std::min(50, summary->count());
+            for (int i = 0; i < numRows; ++i) {
+                const RealTimeTracer::EventSummary& event((*summary)[i]);
+                ImGui::Text("%s", event.fName); ImGui::NextColumn();
+                ImGui::Text("%d", (int)event.fCount); ImGui::NextColumn();
+                ImGui::Text("%f", (double)event.fInclusiveTime * 1E-6); ImGui::NextColumn();
+                ImGui::Text("%f", (double)event.fExclusiveTime * 1E-6); ImGui::NextColumn();
+            }
+            ImGui::Columns(1);
+            ImGui::Separator();
+            ImGui::End();
+        }
     }
 }
 

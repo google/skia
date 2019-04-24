@@ -1672,6 +1672,8 @@ if (skia_enable_tools) {
       "tools/trace/ChromeTracingTracer.h",
       "tools/trace/EventTracingPriv.cpp",
       "tools/trace/EventTracingPriv.h",
+      "tools/trace/RealTimeTracer.cpp",
+      "tools/trace/RealTimeTracer.h",
       "tools/trace/SkDebugfTracer.cpp",
       "tools/trace/SkDebugfTracer.h",
     ]

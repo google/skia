@@ -25,6 +25,7 @@
 #include "tools/viewer/StatsLayer.h"
 #include "tools/viewer/TouchGesture.h"
 
+class RealTimeTracer;
 class SkCanvas;
 class SkData;
 
@@ -209,6 +210,8 @@ private:
 
     sk_gpu_test::MemoryCache fPersistentCache;
     SkTArray<CachedShader>   fCachedShaders;
+
+    RealTimeTracer* fTracer;
 };
 
 #endif
