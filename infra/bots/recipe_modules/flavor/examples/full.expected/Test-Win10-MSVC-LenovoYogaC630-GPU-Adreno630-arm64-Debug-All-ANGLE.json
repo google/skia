@@ -898,7 +898,7 @@
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
       "foo@127.0.0.1",
-      "C:\\Users\\chrome-bot\\botdata\\bin\\dm --some-flag",
+      "powershell -Command \"$ErrorActionPreference = 'Stop'; $begin = Get-Date; C:\\Users\\chrome-bot\\botdata\\bin\\dm --some-flag; $end = Get-Date; $faults = Get-EventLog application 1000 -entrytype error  -after $begin -before $end; if ($faults.Count -ne 0) {  $host.SetShouldExit(17);  Write-Host $faults[0].Message; }\"",
       "1"
     ],
     "env": {
