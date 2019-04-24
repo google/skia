@@ -65,7 +65,7 @@ static bool clip_src_rect_and_dst_point(const GrSurfaceProxy* dst,
 
 std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrRecordingContext* context,
                                             GrSurfaceProxy* dstProxy,
-                                            GrSurfaceProxy* srcProxy,
+                                            GrTextureProxy* srcProxy,
                                             const SkIRect& srcRect,
                                             const SkIPoint& dstPoint) {
     SkASSERT(dstProxy);
@@ -83,7 +83,7 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrRecordingContext* context,
 
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
-    return pool->allocate<GrCopySurfaceOp>(dstProxy, srcProxy, clippedSrcRect, clippedDstPoint);
+    return pool->allocate<GrCopySurfaceOp>(srcProxy, clippedSrcRect, clippedDstPoint);
 }
 
 void GrCopySurfaceOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {

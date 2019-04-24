@@ -579,7 +579,7 @@ bool GrRenderTargetOpList::resetForFullscreenClear() {
 // also store the applied clip and dest proxy with the op
 bool GrRenderTargetOpList::copySurface(GrRecordingContext* context,
                                        GrSurfaceProxy* dst,
-                                       GrSurfaceProxy* src,
+                                       GrTextureProxy* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
     SkASSERT(dst->asRenderTargetProxy() == fTarget.get());

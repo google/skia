@@ -32,7 +32,7 @@ GrOpList::GrOpList(sk_sp<GrOpMemoryPool> opMemoryPool,
         , fUniqueID(CreateUniqueID())
         , fFlags(0) {
     SkASSERT(fOpMemoryPool);
-    fTarget.setProxy(std::move(surfaceProxy), kWrite_GrIOType);
+    fTarget.setProxy(std::move(surfaceProxy));
     fTarget.get()->setLastOpList(this);
 
     fTarget.markPendingIO();
