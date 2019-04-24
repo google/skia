@@ -210,8 +210,8 @@ void Interpreter::dumpStack() {
 #define BINARY_OP(inst, type, field, op) \
     case ByteCodeInstruction::inst: {    \
         type b = this->pop().field;      \
-        type a = this->pop().field;      \
-        this->push(Value(a op b));       \
+        Value* a = &fStack.back();       \
+        *a = Value(a->field op b);       \
         break;                           \
     }
 
@@ -312,10 +312,16 @@ void Interpreter::next() {
             top.fBool = !top.fBool;
             break;
         }
-        case ByteCodeInstruction::kNegateF:
-            this->push(-this->pop().fFloat);
-        case ByteCodeInstruction::kNegateS:
-            this->push(-this->pop().fSigned);
+        case ByteCodeInstruction::kNegateF: {
+            Value& top = fStack.back();
+            top.fFloat = -top.fFloat;
+            break;
+        }
+        case ByteCodeInstruction::kNegateS: {
+            Value& top = fStack.back();
+            top.fSigned = -top.fSigned;
+            break;
+        }
         case ByteCodeInstruction::kPop:
             for (int i = read8(); i > 0; --i) {
                 this->pop();
