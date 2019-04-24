@@ -103,7 +103,6 @@ def GetArchSources(opts_file):
 def WriteUserConfig(userConfigPath, defines):
   # Most defines go into SkUserConfig.h
   defines.remove('NDEBUG')                 # Controlled by the Android build
-  defines.remove('SKIA_IMPLEMENTATION=1')  # don't export this define.
   if 'WIN32_LEAN_AND_MEAN' in defines:     # Controlled by the Android build
     defines.remove('WIN32_LEAN_AND_MEAN')
   if '_HAS_EXCEPTIONS=0' in defines:       # Controlled by the Android build
