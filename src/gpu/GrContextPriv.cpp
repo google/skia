@@ -627,7 +627,12 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         top = dstSurface->height() - top - height;
     }
 
-    this->flush(dstProxy);
+    // On platforms that prefer flushes over VRAM use (i.e., ANGLE) we're better off forcing a
+    // complete flush here. On platforms that prefer VRAM use over flushes we're better off
+    // giving the drawing manager the chance of skipping the flush (i.e., by passing in the
+    // destination proxy)
+    // TODO: should this policy decision just be moved into the drawing manager?
+    this->flush(caps->preferVRAMUseOverFlushes() ? dstProxy : nullptr);
 
     return this->getGpu()->writePixels(dstSurface, left, top, width, height, srcColorType, buffer,
                                        rowBytes);
@@ -758,4 +763,3 @@ void GrContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCal
     fContext->drawingManager()->testingOnly_removeOnFlushCallbackObject(cb);
 }
 #endif
-
