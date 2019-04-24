@@ -198,9 +198,6 @@ config("skia_private") {
   if (skia_use_angle) {
     defines += [ "SK_ANGLE" ]
   }
-  if (skia_enable_discrete_gpu) {
-    defines += [ "SK_ENABLE_DISCRETE_GPU" ]
-  }
   if (!is_official_build) {
     defines += [ "GR_TEST_UTILS=1" ]
   }
@@ -1490,6 +1487,11 @@ if (skia_enable_tools) {
     public_include_dirs = []
     public_defines = []
     public_include_dirs += [ "tools/gpu" ]
+
+    defines = []
+    if (skia_enable_discrete_gpu) {
+      defines += [ "SK_ENABLE_DISCRETE_GPU" ]
+    }
 
     deps = []
     public_deps = []
