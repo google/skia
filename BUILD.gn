@@ -143,17 +143,16 @@ config("skia_private") {
       "SK_GAMMA_CONTRAST=0.0",
     ]
   }
-  if (is_official_build || is_android) {
-    # TODO(bsalomon): it'd be nice to make Android normal.
-    defines += [ "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0" ]
+  if (is_skia_dev_build) {
+    defines += [
+      "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+      "GR_TEST_UTILS=1",
+    ]
   }
   libs = []
   lib_dirs = []
   if (skia_use_angle) {
     defines += [ "SK_ANGLE" ]
-  }
-  if (!is_official_build) {
-    defines += [ "GR_TEST_UTILS=1" ]
   }
   if (skia_llvm_path != "") {
     defines += [ "SK_LLVM_AVAILABLE" ]
