@@ -2333,63 +2333,6 @@ if (skia_enable_tools) {
     }
   }
 
-  if (is_android) {
-    test_app("arcore") {
-      is_shared_library = true
-      configs = [
-        ":skia_public",
-        "gn:default",
-      ]
-
-      # For internship expedience, yes, we're rebuilding Skia rather than depending on :skia.
-      # At the moment there's no way to use Skia and Skottie/SkShaper unless they're in the same .so.
-      public = skia_core_public
-      public += skia_utils_public
-      sources = []
-      sources += skia_core_sources
-      sources += skia_utils_sources
-      sources += skia_xps_sources
-      sources += [
-        "src/android/SkAndroidFrameworkUtils.cpp",
-        "src/android/SkAnimatedImage.cpp",
-        "src/android/SkBitmapRegionCodec.cpp",
-        "src/android/SkBitmapRegionDecoder.cpp",
-        "src/codec/SkAndroidCodec.cpp",
-        "src/codec/SkBmpBaseCodec.cpp",
-        "src/codec/SkBmpCodec.cpp",
-        "src/codec/SkBmpMaskCodec.cpp",
-        "src/codec/SkBmpRLECodec.cpp",
-        "src/codec/SkBmpStandardCodec.cpp",
-        "src/codec/SkCodec.cpp",
-        "src/codec/SkCodecImageGenerator.cpp",
-        "src/codec/SkColorTable.cpp",
-        "src/codec/SkGifCodec.cpp",
-        "src/codec/SkMaskSwizzler.cpp",
-        "src/codec/SkMasks.cpp",
-        "src/codec/SkSampledCodec.cpp",
-        "src/codec/SkSampler.cpp",
-        "src/codec/SkStreamBuffer.cpp",
-        "src/codec/SkSwizzler.cpp",
-        "src/codec/SkWbmpCodec.cpp",
-        "src/images/SkImageEncoder.cpp",
-        "src/ports/SkDiscardableMemory_none.cpp",
-        "src/ports/SkImageGenerator_skia.cpp",
-        "src/ports/SkMemory_malloc.cpp",
-        "src/ports/SkOSFile_stdio.cpp",
-        "src/sfnt/SkOTTable_name.cpp",
-        "src/sfnt/SkOTUtils.cpp",
-        "src/utils/mac/SkStream_mac.cpp",
-        "third_party/etc1/etc1.cpp",
-        "third_party/gif/SkGifImageReader.cpp",
-      ]
-      deps = [
-        ":tool_utils",
-        "modules/skottie",
-        "modules/skshaper",
-      ]
-    }
-  }
-
   if (!skia_use_angle && (is_linux || is_win || is_mac)) {
     test_app("HelloWorld") {
       sources = [
