@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "414aff0e_9f3f2b0d",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-24T12:06:49Z",
+      "side": 1,
+      "message": "a smidge surprised you didn\u0027t just use a \u0027*\u0027 here",
+      "range": {
+        "startLine": 418,
+        "startChar": 28,
+        "endLine": 418,
+        "endChar": 30
+      },
+      "revId": "cd38808e373c90b1e790fd5e12419e93e8fc0bec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
