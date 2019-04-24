@@ -5,8 +5,6 @@
 #define SkTraceEventPhase_DEFINED
 
 // Phase indicates the nature of an event entry. E.g. part of a begin/end pair.
-#define TRACE_EVENT_PHASE_BEGIN ('B')
-#define TRACE_EVENT_PHASE_END ('E')
 #define TRACE_EVENT_PHASE_COMPLETE ('X')
 #define TRACE_EVENT_PHASE_INSTANT ('I')
 #define TRACE_EVENT_PHASE_ASYNC_BEGIN ('S')
