@@ -23,11 +23,28 @@ class GrVkRenderPass;
 class GrVkRenderTarget;
 class GrVkSecondaryCommandBuffer;
 
+/** Base class for tasks executed on primary command buffer, between secondary command buffers. */
+class GrVkPrimaryCommandBufferTask {
+public:
+    virtual ~GrVkPrimaryCommandBufferTask();
+
+    struct Args {
+        GrGpu* fGpu;
+        GrSurface* fSurface;
+        GrSurfaceOrigin fOrigin;
+    };
+
+    virtual void execute(const Args& args) = 0;
+
+protected:
+    GrVkPrimaryCommandBufferTask();
+    GrVkPrimaryCommandBufferTask(const GrVkPrimaryCommandBufferTask&) = delete;
+    GrVkPrimaryCommandBufferTask& operator=(const GrVkPrimaryCommandBufferTask&) = delete;
+};
+
 class GrVkGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
     GrVkGpuTextureCommandBuffer(GrVkGpu* gpu) : fGpu(gpu) {}
-
-    ~GrVkGpuTextureCommandBuffer() override;
 
     void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
               const SkIPoint& dstPoint) override;
@@ -35,26 +52,15 @@ public:
     void insertEventMarker(const char*) override;
 
     void reset() {
-        fCopies.reset();
+        fTasks.reset();
         fTexture = nullptr;
     }
 
     void submit();
 
 private:
-    struct CopyInfo {
-        CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-                 const SkIPoint& dstPoint)
-                : fSrc(src), fSrcOrigin(srcOrigin), fSrcRect(srcRect), fDstPoint(dstPoint) {}
-        using Src = GrPendingIOResource<GrSurface, kRead_GrIOType>;
-        Src              fSrc;
-        GrSurfaceOrigin  fSrcOrigin;
-        SkIRect          fSrcRect;
-        SkIPoint         fDstPoint;
-    };
-
-    GrVkGpu*                    fGpu;
-    SkTArray<CopyInfo>          fCopies;
+    GrVkGpu*                                    fGpu;
+    GrTRecorder<GrVkPrimaryCommandBufferTask>   fTasks{1024};
 
     typedef GrGpuTextureCommandBuffer INHERITED;
 };
@@ -149,18 +155,6 @@ private:
     void addAdditionalCommandBuffer();
     void addAdditionalRenderPass();
 
-    class PreCommandBufferTask {
-    public:
-        virtual ~PreCommandBufferTask() = default;
-
-        virtual void execute(GrVkGpuRTCommandBuffer*) = 0;
-
-    protected:
-        PreCommandBufferTask() = default;
-        PreCommandBufferTask(const PreCommandBufferTask&) = delete;
-        PreCommandBufferTask& operator=(const PreCommandBufferTask&) = delete;
-    };
-
     enum class LoadStoreState {
         kUnknown,
         kStartsWithClear,
@@ -187,16 +181,16 @@ private:
         }
     };
 
-    SkTArray<CommandBufferInfo>         fCommandBufferInfos;
-    GrTRecorder<PreCommandBufferTask>   fPreCommandBufferTasks{1024};
-    GrVkGpu*                            fGpu;
-    GrVkPipelineState*                  fLastPipelineState = nullptr;
-    SkPMColor4f                         fClearColor;
-    VkAttachmentLoadOp                  fVkColorLoadOp;
-    VkAttachmentStoreOp                 fVkColorStoreOp;
-    VkAttachmentLoadOp                  fVkStencilLoadOp;
-    VkAttachmentStoreOp                 fVkStencilStoreOp;
-    int                                 fCurrentCmdInfo = -1;
+    SkTArray<CommandBufferInfo>                 fCommandBufferInfos;
+    GrTRecorder<GrVkPrimaryCommandBufferTask>   fPreCommandBufferTasks{1024};
+    GrVkGpu*                                    fGpu;
+    GrVkPipelineState*                          fLastPipelineState = nullptr;
+    SkPMColor4f                                 fClearColor;
+    VkAttachmentLoadOp                          fVkColorLoadOp;
+    VkAttachmentStoreOp                         fVkColorStoreOp;
+    VkAttachmentLoadOp                          fVkStencilLoadOp;
+    VkAttachmentStoreOp                         fVkStencilStoreOp;
+    int                                         fCurrentCmdInfo = -1;
 
     typedef GrGpuRTCommandBuffer INHERITED;
 };
