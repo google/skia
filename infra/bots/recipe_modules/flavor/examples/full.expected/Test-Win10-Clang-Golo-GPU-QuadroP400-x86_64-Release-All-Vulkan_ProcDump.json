@@ -183,15 +183,9 @@
   },
   {
     "cmd": [
-      "[START_DIR]/procdump_win/procdump64.exe",
-      "-accepteula",
-      "-mp",
-      "-e",
-      "1",
-      "-x",
-      "[START_DIR]/[SWARM_OUT_DIR]/dumps",
-      "[START_DIR]/build/dm",
-      "--some-flag"
+      "powershell",
+      "-Command",
+      "$ErrorActionPreference = 'Stop'; $begin = Get-Date; [START_DIR]/procdump_win/procdump64.exe -accepteula -mp -e 1 -x [START_DIR]/[SWARM_OUT_DIR]/dumps [START_DIR]/build/dm --some-flag; $end = Get-Date; $faults = Get-EventLog application 1000 -entrytype error  -after $begin -before $end; if ($faults.Count -ne 0) {  $host.SetShouldExit(17);  Write-Host 'If the message below is unrelated to this run,    please file a bug and assign to dogben.';  Write-Host $faults[0].Message; }"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

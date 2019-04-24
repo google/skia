@@ -5,6 +5,8 @@
 
 # pylint: disable=W0201
 
+import subprocess  # TODO(borenet): No! Remove this.
+
 
 """Default flavor, used for running code on desktop machines."""
 
@@ -271,7 +273,24 @@ class DefaultFlavor(object):
                  self.module.resource('symbolize_stack_trace.py'),
                  args=args,
                  infra_step=False)
-
+    elif 'Win' in self.m.vars.builder_cfg.get('os', ''):
+      cmdstr = subprocess.list2cmdline(map(str, cmd))
+      # If dm crashes, it seems the only way to notice is to look at the Windows
+      # application event log. The easiest way to do that is via PowerShell.
+      pscmd = ('$ErrorActionPreference = \'Stop\'; '
+               '$begin = Get-Date; '
+               '%s; '
+               '$end = Get-Date; '
+               '$faults = Get-EventLog application 1000 -entrytype error'
+               '  -after $begin -before $end; '
+               'if ($faults.Count -ne 0) {'
+               '  $host.SetShouldExit(17);'
+               '  Write-Host \'If the message below is unrelated to this run,'
+               '    please file a bug and assign to dogben.\';'
+               '  Write-Host $faults[0].Message; '
+               '}') % cmdstr
+      with self.m.context(env=env):
+        self._run(name, ['powershell', '-Command', "%s" % pscmd])
     else:
       with self.m.context(env=env):
         self._run(name, cmd)
