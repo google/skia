@@ -16,6 +16,24 @@
       "revId": "ca826f3afbbfafb1b5ffc31b7416d34ee469ebbe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "899da5d7_d6539958",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-24T17:56:13Z",
+      "side": 1,
+      "message": "No, I\u0027ve removed one of five...",
+      "parentUuid": "01aea9b1_15cd676f",
+      "revId": "ca826f3afbbfafb1b5ffc31b7416d34ee469ebbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
