@@ -13,6 +13,7 @@
 #include "include/core/SkRefCnt.h"
 
 class GrMtlGpu;
+class GrMtlPipelineState;
 
 class GrMtlCommandBuffer {
 public:
@@ -22,16 +23,20 @@ public:
     void commit(bool waitUntilCompleted);
 
     id<MTLBlitCommandEncoder> getBlitCommandEncoder();
-    id<MTLRenderCommandEncoder> getRenderCommandEncoder(MTLRenderPassDescriptor*);
+    id<MTLRenderCommandEncoder> getRenderCommandEncoder(MTLRenderPassDescriptor*,
+                                                        const GrMtlPipelineState*);
 
 private:
-    GrMtlCommandBuffer(id<MTLCommandBuffer> cmdBuffer) : fCmdBuffer(cmdBuffer) {}
+    GrMtlCommandBuffer(id<MTLCommandBuffer> cmdBuffer)
+        : fCmdBuffer(cmdBuffer)
+        , fPreviousRenderPassDescriptor(nil) {}
 
     void endAllEncoding();
 
-    id<MTLCommandBuffer> fCmdBuffer;
-    id<MTLBlitCommandEncoder> fActiveBlitCommandEncoder;
+    id<MTLCommandBuffer>        fCmdBuffer;
+    id<MTLBlitCommandEncoder>   fActiveBlitCommandEncoder;
     id<MTLRenderCommandEncoder> fActiveRenderCommandEncoder;
+    MTLRenderPassDescriptor*    fPreviousRenderPassDescriptor;
 };
 
 #endif

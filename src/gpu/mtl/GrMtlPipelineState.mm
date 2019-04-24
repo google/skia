@@ -293,3 +293,13 @@ void GrMtlPipelineState::SetDynamicScissorRectState(id<MTLRenderCommandEncoder> 
 
     [renderCmdEncoder setScissorRect: scissor];
 }
+
+bool GrMtlPipelineState::doesntSampleAttachment(
+        const MTLRenderPassAttachmentDescriptor* attachment) const {
+    for (int i = 0; i < fSamplerBindings.count(); ++i) {
+        if (attachment.texture == fSamplerBindings[i].fTexture) {
+            return false;
+        }
+    }
+    return true;
+}
