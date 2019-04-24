@@ -28,7 +28,7 @@
     allocCnt is the number of objects to allocate as a group. In the worst case fragmentation
     each object is using the space required for allocCnt unfragmented objects.
 */
-template <typename T, unsigned int N> class SkTLList : SkNoncopyable {
+template <typename T, unsigned int N> class SkTLList {
 private:
     struct Block;
     struct Node {
@@ -346,6 +346,9 @@ private:
     NodeList fFreeList;
     Block    fFirstBlock;
     int fCount;
+
+    SkTLList(const SkTLList&) = delete;
+    SkTLList& operator=(const SkTLList&) = delete;
 };
 
 #endif
