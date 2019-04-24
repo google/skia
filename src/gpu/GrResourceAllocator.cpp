@@ -298,8 +298,8 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
 
     proxy->priv().computeScratchKey(&key);
 
-    auto filter = [&] (const GrSurface* s) {
-        return !proxy->priv().requiresNoPendingIO() || !s->surfacePriv().hasPendingIO();
+    auto filter = [] (const GrSurface* s) {
+        return true;
     };
     sk_sp<GrSurface> surface(fFreePool.findAndRemove(key, filter));
     if (surface) {
