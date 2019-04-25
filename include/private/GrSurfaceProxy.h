@@ -505,17 +505,6 @@ protected:
     sk_sp<GrSurface> createSurfaceImpl(GrResourceProvider*, int sampleCnt, bool needsStencil,
                                        GrSurfaceDescFlags, GrMipMapped) const;
 
-    // Once the size of a fully-lazy proxy is decided, and before it gets instantiated, the client
-    // can use this optional method to specify the proxy's size. (A proxy's size can be less than
-    // the GPU surface that backs it. e.g., SkBackingFit::kApprox.) Otherwise, the proxy's size will
-    // be set to match the underlying GPU surface upon instantiation.
-    void setLazySize(int width, int height) {
-        SkASSERT(GrSurfaceProxy::LazyState::kFully == this->lazyInstantiationState());
-        SkASSERT(width > 0 && height > 0);
-        fWidth = width;
-        fHeight = height;
-    }
-
     bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt, bool needsStencil,
                          GrSurfaceDescFlags descFlags, GrMipMapped, const GrUniqueKey*);
 
