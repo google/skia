@@ -76,15 +76,12 @@ public:
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         SkASSERT(fSrcProxy);
-        auto srcProxy = fSrcProxy.get();
-        SkASSERT(srcProxy->isInstantiated());
-
-        GrCCPathProcessor pathProc(srcProxy->peekTexture(), srcProxy->origin());
-
-        GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc);
         GrPipeline::FixedDynamicState dynamicState;
+        auto srcProxy = fSrcProxy.get();
         dynamicState.fPrimitiveProcessorTextures = &srcProxy;
 
+        GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc);
+        GrCCPathProcessor pathProc(srcProxy);
         pathProc.drawPaths(flushState, pipeline, &dynamicState, *fResources, fBaseInstance,
                            fEndInstance, this->bounds());
     }
