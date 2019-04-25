@@ -117,6 +117,30 @@
       "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5855b41_0559f1bb",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-25T20:04:15Z",
+      "side": 1,
+      "message": "Hmmm it is suppose to switch it. However, we can only switch it to present if the swapchain extension was enabled for vulkan. Then chrome needs to tell Skia that the extension was enabled when creating the GrContext.",
+      "parentUuid": "8b5c6c68_e8c55f32",
+      "range": {
+        "startLine": 307,
+        "startChar": 32,
+        "endLine": 307,
+        "endChar": 55
+      },
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
