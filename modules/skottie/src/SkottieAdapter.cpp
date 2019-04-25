@@ -134,11 +134,11 @@ SkMatrix44 CameraAdapter::totalMatrix() const {
 
     {
         SkMatrix44 rot;
-        rot.setRotateDegreesAbout(1, 0, 0, this->getRotation().fX);
+        rot.setRotateDegreesAbout(1, 0, 0,  this->getRotation().fX);
         cam_t.postConcat(rot);
-        rot.setRotateDegreesAbout(0, 1, 0, this->getRotation().fY);
+        rot.setRotateDegreesAbout(0, 1, 0,  this->getRotation().fY);
         cam_t.postConcat(rot);
-        rot.setRotateDegreesAbout(0, 0, 1, this->getRotation().fZ);
+        rot.setRotateDegreesAbout(0, 0, 1, -this->getRotation().fZ);
         cam_t.postConcat(rot);
     }
 
