@@ -118,7 +118,7 @@ static SkScalar get_edge_dist_coverage(const bool edgeAA[4], const SkPoint corne
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
             SkScalar d = signed_distance(corners[i], outsetLines[j * 2], outsetLines[j * 2 + 1]);
-            if (d >= 0.f) {
+            if (d > 1e-4f) {
                 flip = true;
                 break;
             }
@@ -187,7 +187,7 @@ static bool inside_triangle(const SkPoint& point, const SkPoint& t0, const SkPoi
 
 static SkScalar get_framed_coverage(const SkPoint outer[4], const SkScalar outerCoverages[4],
                                     const SkPoint inner[4], const SkScalar innerCoverages[4],
-                                    const SkPoint& point) {
+                                    const SkRect& geomDomain, const SkPoint& point) {
     // Triangles are ordered clock wise. Indices >= 4 refer to inner[i - 4]. Otherwise its outer[i].
     static const int kFrameTris[] = {
         0, 1, 4,   4, 1, 5,
@@ -213,7 +213,16 @@ static SkScalar get_framed_coverage(const SkPoint outer[4], const SkScalar outer
             SkScalar c1 = i1 >= 4 ? innerCoverages[i1 - 4] : outerCoverages[i1];
             SkScalar c2 = i2 >= 4 ? innerCoverages[i2 - 4] : outerCoverages[i2];
 
-            return bary[0] * c0 + bary[1] * c1 + bary[2] * c2;
+            SkScalar coverage = bary[0] * c0 + bary[1] * c1 + bary[2] * c2;
+            if (coverage < 0.5f) {
+                // Check distances to domain
+                SkScalar l = SkScalarPin(point.fX - geomDomain.fLeft, 0.f, 1.f);
+                SkScalar t = SkScalarPin(point.fY - geomDomain.fTop, 0.f, 1.f);
+                SkScalar r = SkScalarPin(geomDomain.fRight - point.fX, 0.f, 1.f);
+                SkScalar b = SkScalarPin(geomDomain.fBottom - point.fY, 0.f, 1.f);
+                coverage = SkMinScalar(coverage, l * t * r * b);
+            }
+            return coverage;
         }
     }
     // Not inside any triangle
@@ -273,7 +282,9 @@ public:
             SkScalar gpuOutsetCoverage[4];
             SkPoint gpuInset[4];
             SkScalar gpuInsetCoverage[4];
-            this->getTessellatedPoints(gpuInset, gpuInsetCoverage, gpuOutset, gpuOutsetCoverage);
+            SkRect gpuDomain;
+            this->getTessellatedPoints(gpuInset, gpuInsetCoverage, gpuOutset, gpuOutsetCoverage,
+                                       &gpuDomain);
 
             // Visualize the coverage values across the clamping rectangle, but test pixels outside
             // of the "outer" rect since some quad edges can be outset extra far.
@@ -294,7 +305,8 @@ public:
                     } else {
                         SkASSERT(fCoverageMode == CoverageMode::kGPUMesh);
                         coverage = get_framed_coverage(gpuOutset, gpuOutsetCoverage,
-                                                       gpuInset, gpuInsetCoverage, pixelCenter);
+                                                       gpuInset, gpuInsetCoverage, gpuDomain,
+                                                       pixelCenter);
                     }
 
                     SkRect pixelRect = SkRect::MakeXYWH(px, py, 1.f, 1.f);
@@ -339,6 +351,12 @@ public:
                 insetPath.addPoly(gpuInset, 4, true);
                 linePaint.setColor(SK_ColorGREEN);
                 canvas->drawPath(insetPath, linePaint);
+
+                SkPaint domainPaint = linePaint;
+                domainPaint.setStrokeWidth(2.f / kViewScale);
+                domainPaint.setPathEffect(dashes);
+                domainPaint.setColor(SK_ColorMAGENTA);
+                canvas->drawRect(gpuDomain, domainPaint);
             }
 
             // Draw the edges of the true quad as a solid line
@@ -386,7 +404,7 @@ private:
     }
 
     void getTessellatedPoints(SkPoint inset[4], SkScalar insetCoverage[4], SkPoint outset[4],
-                              SkScalar outsetCoverage[4]) const {
+                              SkScalar outsetCoverage[4], SkRect* domain) const {
         // Fixed vertex spec for extracting the picture frame geometry
         static const GrQuadPerEdgeAA::VertexSpec kSpec =
             {GrQuadType::kStandard, GrQuadPerEdgeAA::ColorType::kNone,
@@ -402,7 +420,7 @@ private:
 
         GrPerspQuad quad = GrPerspQuad::MakeFromSkQuad(fCorners, SkMatrix::I());
 
-        float vertices[24]; // 2 quads, with x, y, and coverage
+        float vertices[56]; // 2 quads, with x, y, coverage, and geometry domain (7 floats x 8 vert)
         GrQuadPerEdgeAA::Tessellate(vertices, kSpec, quad, {1.f, 1.f, 1.f, 1.f},
                 GrPerspQuad(SkRect::MakeEmpty()), SkRect::MakeEmpty(), flags);
 
@@ -410,21 +428,23 @@ private:
         // are ordered TL, BL, TR, BR so un-interleave coverage and re-arrange
         inset[0] = {vertices[0], vertices[1]}; // TL
         insetCoverage[0] = vertices[2];
-        inset[3] = {vertices[3], vertices[4]}; // BL
-        insetCoverage[3] = vertices[5];
-        inset[1] = {vertices[6], vertices[7]}; // TR
-        insetCoverage[1] = vertices[8];
-        inset[2] = {vertices[9], vertices[10]}; // BR
-        insetCoverage[2] = vertices[11];
+        inset[3] = {vertices[7], vertices[8]}; // BL
+        insetCoverage[3] = vertices[9];
+        inset[1] = {vertices[14], vertices[15]}; // TR
+        insetCoverage[1] = vertices[16];
+        inset[2] = {vertices[21], vertices[22]}; // BR
+        insetCoverage[2] = vertices[23];
 
-        outset[0] = {vertices[12], vertices[13]}; // TL
-        outsetCoverage[0] = vertices[14];
-        outset[3] = {vertices[15], vertices[16]}; // BL
-        outsetCoverage[3] = vertices[17];
-        outset[1] = {vertices[18], vertices[19]}; // TR
-        outsetCoverage[1] = vertices[20];
-        outset[2] = {vertices[21], vertices[22]}; // BR
-        outsetCoverage[2] = vertices[23];
+        outset[0] = {vertices[28], vertices[29]}; // TL
+        outsetCoverage[0] = vertices[30];
+        outset[3] = {vertices[35], vertices[36]}; // BL
+        outsetCoverage[3] = vertices[37];
+        outset[1] = {vertices[42], vertices[43]}; // TR
+        outsetCoverage[1] = vertices[44];
+        outset[2] = {vertices[49], vertices[50]}; // BR
+        outsetCoverage[2] = vertices[51];
+
+        *domain = {vertices[52], vertices[53], vertices[54], vertices[55]};
     }
 
     typedef Sample INHERITED;
