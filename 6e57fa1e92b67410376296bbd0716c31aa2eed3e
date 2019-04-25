@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f981d08_99a1754a",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 7952
+      },
+      "writtenOn": "2019-04-25T19:29:49Z",
+      "side": 1,
+      "message": "If GrPrepareForExternalIORequests is provided, but semaphores are not. Which value will be returned?",
+      "range": {
+        "startLine": 277,
+        "startChar": 28,
+        "endLine": 277,
+        "endChar": 54
+      },
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e71a7b08_161a5efd",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 7952
+      },
+      "writtenOn": "2019-04-25T19:29:49Z",
+      "side": 1,
+      "message": "Will skia also transfer the layout back?",
+      "range": {
+        "startLine": 307,
+        "startChar": 32,
+        "endLine": 307,
+        "endChar": 55
+      },
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
