@@ -1808,7 +1808,7 @@ static bool peek_pony(const void* ptr, size_t len) {
 }
 
 static std::unique_ptr<SkCodec> make_pony(std::unique_ptr<SkStream>, SkCodec::Result* res) {
-    *res = (SkCodec::Result)42;
+    *res = SkCodec::kInvalidParameters;
     return nullptr;
 }
 
@@ -1826,5 +1826,5 @@ DEF_TEST(Codec_Register, r) {
     REPORTER_ASSERT(r, nullptr ==
             SkCodec::MakeFromStream(SkMemoryStream::MakeDirect(encoded, SK_ARRAY_COUNT(encoded)),
                                     &res));
-    REPORTER_ASSERT(r, res == (SkCodec::Result)42);
+    REPORTER_ASSERT(r, res == SkCodec::kInvalidParameters);
 }
