@@ -9,6 +9,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrSKSLPrettyPrint.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/vk/GrVkDescriptorSetManager.h"
 #include "src/gpu/vk/GrVkGpu.h"
@@ -65,14 +66,14 @@ void GrVkPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outpu
 }
 
 bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
-                                                    const GrGLSLShaderBuilder& builder,
+                                                    const SkSL::String& sksl,
                                                     VkShaderModule* shaderModule,
                                                     VkPipelineShaderStageCreateInfo* stageInfo,
                                                     const SkSL::Program::Settings& settings,
                                                     Desc* desc,
                                                     SkSL::String* outSPIRV,
                                                     SkSL::Program::Inputs* outInputs) {
-    if (!GrCompileVkShaderModule(fGpu, builder.fCompilerString.c_str(), stage, shaderModule,
+    if (!GrCompileVkShaderModule(fGpu, sksl, stage, shaderModule,
                                  stageInfo, settings, outSPIRV, outInputs)) {
         return false;
     }
@@ -102,6 +103,7 @@ bool GrVkPipelineStateBuilder::installVkShaderModule(VkShaderStageFlagBits stage
 }
 
 static constexpr SkFourByteTag kSPIRV_Tag = SkSetFourByteTag('S', 'P', 'R', 'V');
+static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
 
 int GrVkPipelineStateBuilder::loadShadersFromCache(const SkData& cached,
                                                    VkShaderModule* outVertShaderModule,
@@ -111,7 +113,10 @@ int GrVkPipelineStateBuilder::loadShadersFromCache(const SkData& cached,
     SkSL::String shaders[kGrShaderTypeCount];
     SkSL::Program::Inputs inputs[kGrShaderTypeCount];
 
-    GrPersistentCacheUtils::UnpackCachedShaders(&cached, shaders, inputs, kGrShaderTypeCount);
+    if (kSPIRV_Tag != GrPersistentCacheUtils::UnpackCachedShaders(&cached, shaders,
+                                                                  inputs, kGrShaderTypeCount)) {
+        return 0;
+    }
 
     SkAssertResult(this->installVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                                fVS,
@@ -141,10 +146,12 @@ int GrVkPipelineStateBuilder::loadShadersFromCache(const SkData& cached,
 }
 
 void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
-                                                   const SkSL::Program::Inputs inputs[]) {
+                                                   const SkSL::Program::Inputs inputs[],
+                                                   bool isSkSL) {
     Desc* desc = static_cast<Desc*>(this->desc());
     sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
-    sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(kSPIRV_Tag, shaders,
+    sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kSPIRV_Tag,
+                                                                   shaders,
                                                                    inputs, kGrShaderTypeCount);
     this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
@@ -208,16 +215,40 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
         sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
         cached = persistentCache->load(*key);
     }
-    int numShaderStages;
-    if (cached) {
+    bool binaryCache = true;
+#if GR_TEST_UTILS
+    binaryCache = !fGpu->getContext()->priv().options().fCacheSKSL;
+#endif
+    int numShaderStages = 0;
+    if (cached && binaryCache) {
         numShaderStages = this->loadShadersFromCache(*cached, &vertShaderModule, &fragShaderModule,
                                                      &geomShaderModule, shaderStageInfo);
-    } else {
+    }
+
+    if (!numShaderStages) {
         numShaderStages = 2; // We always have at least vertex and fragment stages.
         SkSL::String shaders[kGrShaderTypeCount];
         SkSL::Program::Inputs inputs[kGrShaderTypeCount];
+
+        SkSL::String* sksl[kGrShaderTypeCount] = {
+            &fVS.fCompilerString,
+            &fGS.fCompilerString,
+            &fFS.fCompilerString,
+        };
+#if GR_TEST_UTILS
+        SkSL::String cached_sksl[kGrShaderTypeCount];
+        if (cached) {
+            if (kSKSL_Tag == GrPersistentCacheUtils::UnpackCachedShaders(
+                    cached.get(), cached_sksl, inputs, kGrShaderTypeCount)) {
+                for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                    sksl[i] = &cached_sksl[i];
+                }
+            }
+        }
+#endif
+
         SkAssertResult(this->createVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
-                                                  fVS,
+                                                  *sksl[kVertex_GrShaderType],
                                                   &vertShaderModule,
                                                   &shaderStageInfo[0],
                                                   settings,
@@ -226,7 +257,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                                   &inputs[kVertex_GrShaderType]));
 
         SkAssertResult(this->createVkShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT,
-                                                  fFS,
+                                                  *sksl[kFragment_GrShaderType],
                                                   &fragShaderModule,
                                                   &shaderStageInfo[1],
                                                   settings,
@@ -236,7 +267,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
 
         if (this->primitiveProcessor().willUseGeoShader()) {
             SkAssertResult(this->createVkShaderModule(VK_SHADER_STAGE_GEOMETRY_BIT,
-                                                      fGS,
+                                                      *sksl[kGeometry_GrShaderType],
                                                       &geomShaderModule,
                                                       &shaderStageInfo[2],
                                                       settings,
@@ -245,8 +276,17 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                                       &inputs[kGeometry_GrShaderType]));
             ++numShaderStages;
         }
-        if (persistentCache) {
-            this->storeShadersInCache(shaders, inputs);
+        if (persistentCache && !cached) {
+            bool isSkSL = false;
+#if GR_TEST_UTILS
+            if (fGpu->getContext()->priv().options().fCacheSKSL) {
+                for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                    shaders[i] = GrSKSLPrettyPrint::PrettyPrint(*sksl[i]);
+                }
+                isSkSL = true;
+            }
+#endif
+            this->storeShadersInCache(shaders, inputs, isSkSL);
         }
     }
     GrVkPipeline* pipeline = resourceProvider.createPipeline(
