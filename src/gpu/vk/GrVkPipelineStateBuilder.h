@@ -97,10 +97,11 @@ private:
                              VkShaderModule* outGeomShaderModule,
                              VkPipelineShaderStageCreateInfo* outStageInfo);
 
-    void storeShadersInCache(const SkSL::String shaders[], const SkSL::Program::Inputs inputs[]);
+    void storeShadersInCache(const SkSL::String shaders[], const SkSL::Program::Inputs inputs[],
+                             bool isSkSL);
 
     bool createVkShaderModule(VkShaderStageFlagBits stage,
-                              const GrGLSLShaderBuilder& builder,
+                              const SkSL::String& sksl,
                               VkShaderModule* shaderModule,
                               VkPipelineShaderStageCreateInfo* stageInfo,
                               const SkSL::Program::Settings& settings,

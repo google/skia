@@ -41,7 +41,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
 
     const GrShaderCaps* shaderCaps = gpu->caps()->shaderCaps();
     const char* version = shaderCaps->versionDeclString();
-    SkString vertShaderText(version);
+    SkSL::String vertShaderText(version);
     vertShaderText.append(
         "#extension GL_ARB_separate_shader_objects : enable\n"
         "#extension GL_ARB_shading_language_420pack : enable\n"
@@ -61,7 +61,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
         "}"
     );
 
-    SkString fragShaderText(version);
+    SkSL::String fragShaderText(version);
     fragShaderText.append(
         "#extension GL_ARB_separate_shader_objects : enable\n"
         "#extension GL_ARB_shading_language_420pack : enable\n"
@@ -78,7 +78,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
     SkSL::Program::Settings settings;
     SkSL::String spirv;
     SkSL::Program::Inputs inputs;
-    if (!GrCompileVkShaderModule(gpu, vertShaderText.c_str(), VK_SHADER_STAGE_VERTEX_BIT,
+    if (!GrCompileVkShaderModule(gpu, vertShaderText, VK_SHADER_STAGE_VERTEX_BIT,
                                  &fVertShaderModule, &fShaderStageInfo[0], settings, &spirv,
                                  &inputs)) {
         this->destroyResources(gpu);
@@ -86,7 +86,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
     }
     SkASSERT(inputs.isEmpty());
 
-    if (!GrCompileVkShaderModule(gpu, fragShaderText.c_str(), VK_SHADER_STAGE_FRAGMENT_BIT,
+    if (!GrCompileVkShaderModule(gpu, fragShaderText, VK_SHADER_STAGE_FRAGMENT_BIT,
                                  &fFragShaderModule, &fShaderStageInfo[1], settings, &spirv,
                                  &inputs)) {
         this->destroyResources(gpu);

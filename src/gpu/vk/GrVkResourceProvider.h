@@ -185,6 +185,10 @@ public:
 
     void reset(GrVkCommandPool* pool);
 
+#if GR_TEST_UTILS
+    void resetShaderCacheForTesting() const { fPipelineStateCache->release(); }
+#endif
+
 private:
 
 #ifdef SK_DEBUG

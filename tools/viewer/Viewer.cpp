@@ -1949,8 +1949,20 @@ void Viewer::drawImGui() {
                 }
             }
 
-            if (Window::kNativeGL_BackendType == fBackendType &&
-                ImGui::CollapsingHeader("Shaders")) {
+            bool backendIsGL = Window::kNativeGL_BackendType == fBackendType
+#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
+                            || Window::kANGLE_BackendType == fBackendType
+#endif
+                ;
+
+            // HACK: If we get here when SKSL caching isn't enabled, and we're on a backend other
+            // than GL, we need to force it on. Just do that on the first frame after the backend
+            // switch, then resume normal operation.
+            if (!backendIsGL && !params.fGrContextOptions.fCacheSKSL) {
+                params.fGrContextOptions.fCacheSKSL = true;
+                paramsChanged = true;
+                fPersistentCache.reset();
+            } else if (ImGui::CollapsingHeader("Shaders")) {
                 // To re-load shaders from the currently active programs, we flush all caches on one
                 // frame, then set a flag to poll the cache on the next frame.
                 static bool gLoadPending = false;
@@ -1977,11 +1989,14 @@ void Viewer::drawImGui() {
                 // Defer actually doing the load/save logic so that we can trigger a save when we
                 // start or finish hovering on a tree node in the list below:
                 bool doLoad = ImGui::Button("Load"); ImGui::SameLine();
-                bool doSave = ImGui::Button("Save"); ImGui::SameLine();
-                if (ImGui::Checkbox("SkSL", &params.fGrContextOptions.fCacheSKSL)) {
-                    paramsChanged = true;
-                    doLoad = true;
-                    fDeferredActions.push_back([=]() { fPersistentCache.reset(); });
+                bool doSave = ImGui::Button("Save");
+                if (backendIsGL) {
+                    ImGui::SameLine();
+                    if (ImGui::Checkbox("SkSL", &params.fGrContextOptions.fCacheSKSL)) {
+                        paramsChanged = true;
+                        doLoad = true;
+                        fDeferredActions.push_back([=]() { fPersistentCache.reset(); });
+                    }
                 }
 
                 ImGui::BeginChild("##ScrollingRegion");
