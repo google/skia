@@ -2213,10 +2213,8 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
         return;
     }
 
-    GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
-    // this should only be called internally when we know we have a
-    // stencil buffer.
-    SkASSERT(sb);
+    // this should only be called internally when we know we have a stencil buffer.
+    SkASSERT(target->renderTargetPriv().getStencilAttachment());
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
     this->flushRenderTargetNoColorWrites(glRT);
@@ -2228,9 +2226,71 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
     GL_CALL(ClearStencil(clearValue));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
     fHWStencilSettings.invalidate();
-    if (!clearValue) {
-        sb->cleared();
+}
+
+void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, const ColorLoadAndStoreInfo& colorLoadStore,
+                                 const StencilLoadAndStoreInfo& stencilLoadStore) {
+    SkASSERT(!fIsExecutingCommandBuffer_DebugOnly);
+
+    auto glRT = static_cast<GrGLRenderTarget*>(rt);
+    this->flushRenderTarget(glRT);
+    SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = true);
+
+    GrGLbitfield clearMask = 0;
+    if (GrLoadOp::kClear == colorLoadStore.fLoadOp) {
+        SkASSERT(!this->caps()->performColorClearsAsDraws());
+        const SkPMColor4f& clearColor = colorLoadStore.fClearColor;
+        this->flushClearColor(clearColor.fR, clearColor.fG, clearColor.fB, clearColor.fA);
+        clearMask |= GR_GL_COLOR_BUFFER_BIT;
     }
+    if (GrLoadOp::kClear == stencilLoadStore.fLoadOp) {
+        SkASSERT(!this->caps()->performStencilClearsAsDraws());
+        GL_CALL(StencilMask(0xffffffff));
+        GL_CALL(ClearStencil(0));
+        clearMask |= GR_GL_STENCIL_BUFFER_BIT;
+    }
+    if (clearMask) {
+        this->disableScissor();
+        this->disableWindowRectangles();
+        GL_CALL(Clear(clearMask));
+    }
+}
+
+void GrGLGpu::endCommandBuffer(GrRenderTarget* rt, const ColorLoadAndStoreInfo& colorLoadStore,
+                               const StencilLoadAndStoreInfo& stencilLoadStore) {
+    SkASSERT(fIsExecutingCommandBuffer_DebugOnly);
+
+    if (rt->uniqueID() != fHWBoundRenderTargetUniqueID) {
+        SkDebugf("WARNING: endCommandBuffer() called for a render target that is not currently "
+                 "bound. This will have disastrous impact on performance. endCommandBuffer() "
+                 "should be called before unbinding the framebuffer.");
+        return;
+    }
+
+    if (this->caps()->discardRenderTargetSupport()) {
+        auto glRT = static_cast<GrGLRenderTarget*>(rt);
+
+        SkSTArray<2, GrGLenum> discardAttachments;
+        if (GrStoreOp::kStore != colorLoadStore.fStoreOp) {
+            discardAttachments.push_back(
+                    (0 == glRT->renderFBOID()) ? GR_GL_COLOR : GR_GL_COLOR_ATTACHMENT0);
+        }
+        if (GrStoreOp::kStore != stencilLoadStore.fStoreOp) {
+            discardAttachments.push_back(
+                    (0 == glRT->renderFBOID()) ? GR_GL_STENCIL : GR_GL_STENCIL_ATTACHMENT);
+        }
+
+        if (GrGLCaps::kInvalidate_InvalidateFBType == this->glCaps().invalidateFBType()) {
+            GL_CALL(InvalidateFramebuffer(GR_GL_FRAMEBUFFER, discardAttachments.count(),
+                                          discardAttachments.begin()));
+        } else {
+            SkASSERT(GrGLCaps::kDiscard_InvalidateFBType == this->glCaps().invalidateFBType());
+            GL_CALL(DiscardFramebuffer(GR_GL_FRAMEBUFFER, discardAttachments.count(),
+                                       discardAttachments.begin()));
+        }
+    }
+
+    SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = false);
 }
 
 void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
@@ -3277,6 +3337,13 @@ void GrGLGpu::onFBOChanged() {
         this->caps()->workarounds().restore_scissor_on_fbo_change) {
         GL_CALL(Flush());
     }
+
+#ifdef SK_DEBUG
+    if (fIsExecutingCommandBuffer_DebugOnly) {
+        SkDebugf("WARNING: the framebuffer was changed in the middle of executing a command "
+                 "buffer. This will have disastrous impact on performance.");
+    }
+#endif
 }
 
 void GrGLGpu::bindFramebuffer(GrGLenum target, GrGLuint fboid) {
