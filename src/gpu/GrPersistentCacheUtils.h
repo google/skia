@@ -20,46 +20,42 @@
 // put the serialization logic here, to be shared by the backend code and the tool code.
 namespace GrPersistentCacheUtils {
 
-static inline sk_sp<SkData> PackCachedGLSL(const SkSL::Program::Inputs& inputs,
-                                           const SkSL::String glsl[]) {
-    SkWriter32 writer;
-    writer.writePad(&inputs, sizeof(inputs));
-    for (int i = 0; i < kGrShaderTypeCount; ++i) {
-        writer.writeString(glsl[i].c_str(), glsl[i].size());
-    }
-    return writer.snapshotAsData();
-}
+static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
+                                              const SkSL::String shaders[],
+                                              const SkSL::Program::Inputs inputs[],
+                                              int numInputs) {
+    // For consistency (so tools can blindly pack and unpack cached shaders), we always write
+    // kGrShaderTypeCount inputs. If the backend gives us fewer, we just replicate the last one.
+    SkASSERT(numInputs >= 1 && numInputs <= kGrShaderTypeCount);
 
-static inline void UnpackCachedGLSL(const SkData* data, SkSL::Program::Inputs* inputs,
-                                    SkSL::String glsl[]) {
-    SkReader32 reader(data->data(), data->size());
-    reader.read(inputs, sizeof(*inputs));
-    for (int i = 0; i < kGrShaderTypeCount; ++i) {
-        size_t stringLen = 0;
-        const char* string = reader.readString(&stringLen);
-        glsl[i] = SkSL::String(string, stringLen);
-    }
-}
-
-static inline sk_sp<SkData> PackCachedSPIRV(const SkSL::String shaders[],
-                                            const SkSL::Program::Inputs inputs[]) {
     SkWriter32 writer;
+    writer.write32(shaderType);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         writer.writeString(shaders[i].c_str(), shaders[i].size());
-        writer.writePad(&inputs[i], sizeof(inputs[i]));
+        writer.writePad(&inputs[SkTMin(i, numInputs - 1)], sizeof(SkSL::Program::Inputs));
     }
     return writer.snapshotAsData();
 }
 
-static inline void UnpackCachedSPIRV(const SkData* data, SkSL::String shaders[],
-                                     SkSL::Program::Inputs inputs[]) {
+static inline SkFourByteTag UnpackCachedShaders(const SkData* data,
+                                                SkSL::String shaders[],
+                                                SkSL::Program::Inputs inputs[],
+                                                int numInputs) {
     SkReader32 reader(data->data(), data->size());
+    SkFourByteTag shaderType = reader.readU32();
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         size_t stringLen = 0;
         const char* string = reader.readString(&stringLen);
         shaders[i] = SkSL::String(string, stringLen);
-        reader.read(&inputs[i], sizeof(inputs[i]));
+
+        // GL, for example, only wants one set of Inputs
+        if (i < numInputs) {
+            reader.read(&inputs[i], sizeof(inputs[i]));
+        } else {
+            reader.skip(sizeof(SkSL::Program::Inputs));
+        }
     }
+    return shaderType;
 }
 
 }

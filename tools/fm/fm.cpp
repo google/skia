@@ -16,7 +16,6 @@
 #include "src/core/SkOSFile.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
-#include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/CrashHandler.h"
 #include "tools/HashAndEncode.h"

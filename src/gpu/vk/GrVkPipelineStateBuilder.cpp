@@ -101,6 +101,8 @@ bool GrVkPipelineStateBuilder::installVkShaderModule(VkShaderStageFlagBits stage
     return true;
 }
 
+static constexpr SkFourByteTag kSPIRV_Tag = SkSetFourByteTag('S', 'P', 'R', 'V');
+
 int GrVkPipelineStateBuilder::loadShadersFromCache(const SkData& cached,
                                                    VkShaderModule* outVertShaderModule,
                                                    VkShaderModule* outFragShaderModule,
@@ -109,7 +111,7 @@ int GrVkPipelineStateBuilder::loadShadersFromCache(const SkData& cached,
     SkSL::String shaders[kGrShaderTypeCount];
     SkSL::Program::Inputs inputs[kGrShaderTypeCount];
 
-    GrPersistentCacheUtils::UnpackCachedSPIRV(&cached, shaders, inputs);
+    GrPersistentCacheUtils::UnpackCachedShaders(&cached, shaders, inputs, kGrShaderTypeCount);
 
     SkAssertResult(this->installVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                                fVS,
@@ -142,7 +144,8 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
                                                    const SkSL::Program::Inputs inputs[]) {
     Desc* desc = static_cast<Desc*>(this->desc());
     sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
-    sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedSPIRV(shaders, inputs);
+    sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(kSPIRV_Tag, shaders,
+                                                                   inputs, kGrShaderTypeCount);
     this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
 

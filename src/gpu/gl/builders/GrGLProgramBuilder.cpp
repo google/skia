@@ -152,8 +152,11 @@ void GrGLProgramBuilder::addInputVars(const SkSL::Program::Inputs& inputs) {
     }
 }
 
+static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
+static constexpr SkFourByteTag kGLSL_Tag = SkSetFourByteTag('G', 'L', 'S', 'L');
+
 void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
-                                            const SkSL::String glsl[]) {
+                                            const SkSL::String shaders[], bool isSkSL) {
     if (!this->gpu()->getContext()->priv().getPersistentCache()) {
         return;
     }
@@ -177,7 +180,8 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
         }
     } else {
         // source cache
-        auto data = GrPersistentCacheUtils::PackCachedGLSL(inputs, glsl);
+        auto data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kGLSL_Tag,
+                                                              shaders, &inputs, 1);
         this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
     }
 }
@@ -250,14 +254,25 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             }
 #if GR_TEST_UTILS
         } else if (fGpu->getContext()->priv().options().fCacheSKSL) {
-            GrPersistentCacheUtils::UnpackCachedGLSL(fCached.get(), &inputs, cached_sksl);
-            for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                sksl[i] = &cached_sksl[i];
+            // Only switch to the stored SkSL if it unpacks correctly
+            if (kSKSL_Tag == GrPersistentCacheUtils::UnpackCachedShaders(fCached.get(),
+                                                                         cached_sksl,
+                                                                         &inputs, 1)) {
+                for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                    sksl[i] = &cached_sksl[i];
+                }
             }
 #endif
         } else {
             // source cache hit, we don't need to compile the SkSL->GLSL
-            GrPersistentCacheUtils::UnpackCachedGLSL(fCached.get(), &inputs, glsl);
+            // It's unlikely, but if we get the wrong kind of shader back, don't use the strings
+            if (kGLSL_Tag != GrPersistentCacheUtils::UnpackCachedShaders(fCached.get(),
+                                                                         glsl,
+                                                                         &inputs, 1)) {
+                for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                    glsl[i].clear();
+                }
+            }
         }
     }
     if (!cached || !fGpu->glCaps().programBinarySupport()) {
@@ -370,14 +385,16 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 
     this->cleanupShaders(shadersToDelete);
     if (!cached) {
+        bool isSkSL = false;
 #if GR_TEST_UTILS
         if (fGpu->getContext()->priv().options().fCacheSKSL) {
             for (int i = 0; i < kGrShaderTypeCount; ++i) {
                 glsl[i] = GrSKSLPrettyPrint::PrettyPrint(*sksl[i]);
             }
+            isSkSL = true;
         }
 #endif
-        this->storeShaderInCache(inputs, programID, glsl);
+        this->storeShaderInCache(inputs, programID, glsl, isSkSL);
     }
     return this->createProgram(programID);
 }
