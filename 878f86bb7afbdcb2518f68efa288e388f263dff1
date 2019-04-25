@@ -22,6 +22,23 @@
       "revId": "878f86bb7afbdcb2518f68efa288e388f263dff1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcb2f621_8b37a3d0",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-25T19:04:34Z",
+      "side": 1,
+      "message": "Something normally complains when python has lines longer than 80 chars.",
+      "revId": "878f86bb7afbdcb2518f68efa288e388f263dff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
