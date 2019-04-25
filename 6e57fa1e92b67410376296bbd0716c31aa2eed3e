@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "27062bef_438bf56e",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-25T19:47:58Z",
+      "side": 1,
+      "message": "I guess technically by the contract it doesn\u0027t really matter what Skia returns here. If we return no it just means the client still owns the non-existent semaphores and if we return yes then skia owns the non existent semaphores. Either way the caller doesn\u0027t have anything to do.\n\nSaying that, it looks like internally we may be a little inconsistent on what we return if no semaphores are provided. I could go back in and add logic to make it consistent one way or the other, but it really shouldn\u0027t change much on the client side. I really want to keep this return value only having real meaning if semaphores were passed in. I can at least make the comments here more descriptive to say if no semaphores are passed in the return value should be ignored.",
+      "parentUuid": "1f981d08_99a1754a",
+      "range": {
+        "startLine": 277,
+        "startChar": 28,
+        "endLine": 277,
+        "endChar": 54
+      },
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e71a7b08_161a5efd",
         "filename": "include/gpu/GrTypes.h",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2019-04-25T19:29:49Z",
       "side": 1,
       "message": "Will skia also transfer the layout back?",
+      "range": {
+        "startLine": 307,
+        "startChar": 32,
+        "endLine": 307,
+        "endChar": 55
+      },
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60a4f522_d0fe7a47",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-25T19:47:58Z",
+      "side": 1,
+      "message": "Hmm I hadn\u0027t thought about this (I don\u0027t think this was specifically requested). Currently we don\u0027t store what the original layout was so we\u0027d have to add that. It is also awkward if someone tells us the original was undefined when they wrap it (which is fine and legal), but we cannot transfer back to undefined. Also I think it is a lot harder for clients when originally wrapping the VkImages to think about what layout they will eventually want. Like if you wrap a VkImage in an SkSurface you may have it in ColorAttachment but when you export for external you may be using it as Sampled?\n\nAnyways, do you think you guys need things to be in a specific layout before you export things? An easy thing to do would be to make all SkImages go to Sampled layout and all SkSurfaces go to ColorAttachment layout or some blanket thing like that. If we need something more fine grained then that we\u0027ll have to think of some backend opaque way to pass in a layout for every image and surface in this struct as well. Some GrBackendExternalRequestInfo struct of some kind. Which in Vulkan will have a requested layout.",
+      "parentUuid": "e71a7b08_161a5efd",
       "range": {
         "startLine": 307,
         "startChar": 32,
