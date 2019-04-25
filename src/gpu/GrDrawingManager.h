@@ -148,7 +148,8 @@ private:
 
     GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
                                 SkSurface::BackendSurfaceAccess access,
-                                const GrFlushInfo&);
+                                const GrFlushInfo&,
+                                const GrPrepareForExternalIORequests&);
 
     SkDEBUGCODE(void validate() const);
 
