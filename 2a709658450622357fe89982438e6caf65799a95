@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4286a4cd_0963610f",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 2463,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-25T20:15:08Z",
+      "side": 1,
+      "message": "Huh.  Needing to do this feels like the deps of something else must be wrong, eh?  Probably :sk_app?",
+      "revId": "2a709658450622357fe89982438e6caf65799a95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
