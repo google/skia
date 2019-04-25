@@ -418,8 +418,6 @@
       "image",
       "_",
       ".SRW",
-      "--match",
-      "~FloatingPointTextureTest$",
       "--nonativeFonts",
       "--verbose"
     ],
