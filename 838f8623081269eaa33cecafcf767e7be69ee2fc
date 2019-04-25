@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23426dcd_6fd28772",
+        "filename": "src/gpu/mtl/GrMtlDepthStencil.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-25T20:47:12Z",
+      "side": 1,
+      "message": "do you need this at all? In vulkan I have a uniqueID on the sampler cause I use it when I have a ycbcr conversion and I have to add that key to GrProgramDesc key. I don\u0027t think metal has that same issue.",
+      "range": {
+        "startLine": 73,
+        "startChar": 29,
+        "endLine": 73,
+        "endChar": 38
+      },
+      "revId": "838f8623081269eaa33cecafcf767e7be69ee2fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8b46399_60f8437f",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-25T20:47:12Z",
+      "side": 1,
+      "message": "don\u0027t think you need the comment here as well as the header",
+      "range": {
+        "startLine": 62,
+        "startChar": 2,
+        "endLine": 62,
+        "endChar": 76
+      },
+      "revId": "838f8623081269eaa33cecafcf767e7be69ee2fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87b6f3dd_dea695de",
+        "filename": "src/gpu/mtl/GrMtlSampler.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-25T20:47:12Z",
+      "side": 1,
+      "message": "ditto as depthstencil comment",
+      "range": {
+        "startLine": 55,
+        "startChar": 24,
+        "endLine": 55,
+        "endChar": 34
+      },
+      "revId": "838f8623081269eaa33cecafcf767e7be69ee2fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
