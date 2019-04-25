@@ -2454,15 +2454,17 @@ if (skia_enable_tools) {
     }
   }
 
-  test_app("editor") {
-    is_shared_library = is_android
-    sources = [
-      "experimental/editor/editor_application.cpp",
-    ]
-    deps = [
-      ":sk_app",
-      ":skia",
-      "modules/skshaper",
-    ]
+  if (!is_mac || !skia_use_vulkan) {
+    test_app("editor") {
+      is_shared_library = is_android
+      sources = [
+        "experimental/editor/editor_application.cpp",
+      ]
+      deps = [
+        ":sk_app",
+        ":skia",
+        "modules/skshaper",
+      ]
+    }
   }
 }
