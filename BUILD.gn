@@ -2462,6 +2462,7 @@ if (skia_enable_tools) {
       "experimental/editor/editor_application.cpp",
     ]
     deps = [
+      ":gpu_tool_utils",
       ":sk_app",
       ":skia",
       "modules/skshaper",
