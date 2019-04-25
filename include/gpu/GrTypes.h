@@ -13,6 +13,8 @@
 #include "include/gpu/GrConfig.h"
 
 class GrBackendSemaphore;
+class SkImage;
+class SkSurface;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -295,6 +297,25 @@ struct GrFlushInfo {
 enum class GrSemaphoresSubmitted : bool {
     kNo = false,
     kYes = true
+};
+
+/**
+ * Array of SkImages and SkSurfaces which Skia will prepare for external use when passed into a
+ * flush call on GrContext. All the SkImages and SkSurfaces must be GPU backed.
+ *
+ * Currently this only has an effect if the backend API is Vulkan. In this case, all the underlying
+ * VkImages associated with the SkImages and SkSurfaces will be transitioned into the VkQueueFamily
+ * in which they were originally wrapped or created with. This allows a client to wrap a VkImage
+ * from a queue which is different from the graphics queue and then have Skia transition it back to
+ * that queue without needing to delete the SkImage or SkSurface.
+ */
+struct GrPrepareForExternalIORequests {
+    int fNumImages = 0;
+    SkImage** fImages = nullptr;
+    int fNumSurfaces = 0;
+    SkSurface** fSurfaces = nullptr;
+
+    bool hasRequests() const { return fNumImages || fNumSurfaces; }
 };
 
 #endif
