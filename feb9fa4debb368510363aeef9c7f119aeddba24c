@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b2949a3_7b7e04c2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-25T17:33:13Z",
+      "side": 1,
+      "message": "I should say, take \"users\" lightly.  The main use case I\u0027m thinking of is writing a smattering of small targets in Google3 that depend on Skia and  register one decoder each at pre-main() module init time.  That way you can depend on, say, [\"skia_lite\"], [\"skia_with_png\"], [\"skia_with_jpeg\"], [\"skia_with_png\", \"skia_with_jpeg\"], etc.",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 5
+      },
+      "revId": "feb9fa4debb368510363aeef9c7f119aeddba24c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
