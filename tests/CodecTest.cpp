@@ -1802,3 +1802,25 @@ DEF_TEST(Codec_crbug807324, r) {
         }
     }
 }
+
+DEF_TEST(Codec_Register, r) {
+    const char encoded[] = "pony0123456789abcdefghijklmnopqrstuvwxyz";
+
+    SkCodec::Result res;
+    REPORTER_ASSERT(r, nullptr ==
+            SkCodec::MakeFromStream(SkMemoryStream::MakeDirect(encoded, SK_ARRAY_COUNT(encoded)),
+                                    &res));
+    REPORTER_ASSERT(r, res == SkCodec::kUnimplemented);
+
+    SkCodec::Register(
+            [](const void* ptr, size_t len) { return len >= 4 && 0 == memcmp(ptr, "pony", 4); },
+            [](std::unique_ptr<SkStream>, SkCodec::Result* res) -> std::unique_ptr<SkCodec> {
+                *res = (SkCodec::Result)42;
+                return nullptr;
+            });
+
+    REPORTER_ASSERT(r, nullptr ==
+            SkCodec::MakeFromStream(SkMemoryStream::MakeDirect(encoded, SK_ARRAY_COUNT(encoded)),
+                                    &res));
+    REPORTER_ASSERT(r, res == (SkCodec::Result)42);
+}

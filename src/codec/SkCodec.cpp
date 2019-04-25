@@ -9,6 +9,8 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/private/SkHalf.h"
+#include "include/private/SkMutex.h"
+#include "src/core/SkSharedMutex.h"
 #include "src/codec/SkBmpCodec.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkFrameHolder.h"
@@ -35,27 +37,44 @@ struct DecoderProc {
     std::unique_ptr<SkCodec> (*MakeFromStream)(std::unique_ptr<SkStream>, SkCodec::Result*);
 };
 
-static constexpr DecoderProc gDecoderProcs[] = {
-#ifdef SK_HAS_JPEG_LIBRARY
-    { SkJpegCodec::IsJpeg, SkJpegCodec::MakeFromStream },
-#endif
-#ifdef SK_HAS_WEBP_LIBRARY
-    { SkWebpCodec::IsWebp, SkWebpCodec::MakeFromStream },
-#endif
-#ifdef SK_HAS_WUFFS_LIBRARY
-    { SkWuffsCodec_IsFormat, SkWuffsCodec_MakeFromStream },
-#else
-    { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },
-#endif
-#ifdef SK_HAS_PNG_LIBRARY
-    { SkIcoCodec::IsIco, SkIcoCodec::MakeFromStream },
-#endif
-    { SkBmpCodec::IsBmp, SkBmpCodec::MakeFromStream },
-    { SkWbmpCodec::IsWbmp, SkWbmpCodec::MakeFromStream },
-#ifdef SK_HAS_HEIF_LIBRARY
-    { SkHeifCodec::IsHeif, SkHeifCodec::MakeFromStream },
-#endif
-};
+// Wish we had SK_DECLARE_STATIC_SHARED_MUTEX.
+static SkSharedMutex* decoders_mutex() {
+    static SkSharedMutex* mutex = new SkSharedMutex;
+    return mutex;
+}
+
+static std::vector<DecoderProc>* decoders() {
+    static auto* decoders = new std::vector<DecoderProc> {
+    #ifdef SK_HAS_JPEG_LIBRARY
+        { SkJpegCodec::IsJpeg, SkJpegCodec::MakeFromStream },
+    #endif
+    #ifdef SK_HAS_WEBP_LIBRARY
+        { SkWebpCodec::IsWebp, SkWebpCodec::MakeFromStream },
+    #endif
+    #ifdef SK_HAS_WUFFS_LIBRARY
+        { SkWuffsCodec_IsFormat, SkWuffsCodec_MakeFromStream },
+    #else
+        { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },
+    #endif
+    #ifdef SK_HAS_PNG_LIBRARY
+        { SkIcoCodec::IsIco, SkIcoCodec::MakeFromStream },
+    #endif
+        { SkBmpCodec::IsBmp, SkBmpCodec::MakeFromStream },
+        { SkWbmpCodec::IsWbmp, SkWbmpCodec::MakeFromStream },
+    #ifdef SK_HAS_HEIF_LIBRARY
+        { SkHeifCodec::IsHeif, SkHeifCodec::MakeFromStream },
+    #endif
+    };
+    return decoders;
+}
+
+void SkCodec::Register(
+            bool                     (*peek)(const void*, size_t),
+            std::unique_ptr<SkCodec> (*make)(std::unique_ptr<SkStream>, SkCodec::Result*)) {
+    SkAutoExclusive lock{*decoders_mutex()};
+    decoders()->push_back(DecoderProc{peek, make});
+}
+
 
 std::unique_ptr<SkCodec> SkCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
                                                  Result* outResult, SkPngChunkReader* chunkReader) {
@@ -105,7 +124,8 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromStream(std::unique_ptr<SkStream> strea
     } else
 #endif
     {
-        for (DecoderProc proc : gDecoderProcs) {
+        SkAutoSharedMutexShared lock{*decoders_mutex()};
+        for (DecoderProc proc : *decoders()) {
             if (proc.IsFormat(buffer, bytesRead)) {
                 return proc.MakeFromStream(std::move(stream), outResult);
             }
