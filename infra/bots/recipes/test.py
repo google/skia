@@ -213,6 +213,12 @@ def dm_flags(api, bot):
         # skbug.com/7376
         blacklist('_ test _ ProcessorCloneTest')
 
+    if 'AndroidOne' in bot or ('Nexus' in bot and 'Nexus5x' not in bot):
+      # skbug.com/9019
+      blacklist('_ test _ ProcessorCloneTest')
+      blacklist('_ test _ GLPrograms')
+      blacklist('_ test _ ProcessorOptimizationValidationTest')
+
     # Vulkan bot *only* runs the vk config.
     if 'Vulkan' in bot:
       configs = ['vk']
