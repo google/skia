@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7f5e140_f43f9df4",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-25T20:51:32Z",
+      "side": 1,
+      "message": "this essentially means that the attachment is used both as a color attachment and sampled in the same render pass? Does metal allow this by default without needing some sort of barrier?",
+      "range": {
+        "startLine": 61,
+        "startChar": 51,
+        "endLine": 61,
+        "endChar": 80
+      },
+      "revId": "9dd5b2d389792038c7c2587b015de2f9d9db3814",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
