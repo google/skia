@@ -183,6 +183,11 @@
   },
   {
     "cmd": [
+      "powershell",
+      "-ExecutionPolicy",
+      "Unrestricted",
+      "-File",
+      "RECIPE_MODULE[skia::flavor]\\resources\\win_run_and_check_log.ps1",
       "[START_DIR]\\procdump_win\\procdump64.exe",
       "-accepteula",
       "-mp",
