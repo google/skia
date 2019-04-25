@@ -656,7 +656,8 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
 
     GrFlushInfo info;
     info.fFlags = kSyncCpu_GrFlushFlag;
-    drawingManager->flush(proxy.get(), SkSurface::BackendSurfaceAccess::kNoAccess, info);
+    drawingManager->flush(proxy.get(), SkSurface::BackendSurfaceAccess::kNoAccess, info,
+                          GrPrepareForExternalIORequests());
 
     return image;
 }
