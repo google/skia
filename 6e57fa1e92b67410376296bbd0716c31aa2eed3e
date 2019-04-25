@@ -93,6 +93,30 @@
       "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b5c6c68_e8c55f32",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 7952
+      },
+      "writtenOn": "2019-04-25T20:02:11Z",
+      "side": 1,
+      "message": "One use case is for swapchain. Currently, we submit two extra command buffers for every frame.\nOne cb switches vk image to color attachment for skia to use, another one switches it back to present src for presentation.  To get rid of them, we need a skia API for it. See [1], I am working on a CL to get rid of them. But skia API is not working as my expectation, I thought sk_surface-\u003eflush(kPresent) will transfer the layout back.\n\n[1] https://chromium-review.googlesource.com/c/chromium/src/+/1582447/5/components/viz/service/display_embedder/skia_output_device_vulkan.cc#119",
+      "parentUuid": "60a4f522_d0fe7a47",
+      "range": {
+        "startLine": 307,
+        "startChar": 32,
+        "endLine": 307,
+        "endChar": 55
+      },
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
