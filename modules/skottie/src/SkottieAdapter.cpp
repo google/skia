@@ -119,8 +119,6 @@ SkMatrix44 CameraAdapter::totalMatrix() const {
     //   * point of interest -> anchor point attribute
     //   * orientation       -> rotation attribute
     //
-    // Note: the orientation is specified post position/POI adjustment.
-    //
     SkPoint3 pos = { this->getPosition().fX,
                      this->getPosition().fY,
                     -this->getPosition().fZ },
@@ -129,9 +127,11 @@ SkMatrix44 CameraAdapter::totalMatrix() const {
                     -this->getAnchorPoint().fZ },
               up = { 0, 1, 0 };
 
+    // Initial camera vector.
     SkMatrix44 cam_t;
     Sk3LookAt(&cam_t, pos, poi, up);
 
+    // Rotation origin is camera position.
     {
         SkMatrix44 rot;
         rot.setRotateDegreesAbout(1, 0, 0,  this->getRotation().fX);
@@ -142,6 +142,9 @@ SkMatrix44 CameraAdapter::totalMatrix() const {
         cam_t.postConcat(rot);
     }
 
+    // Flip world Z, as it is opposite of what Sk3D expects.
+    cam_t.preScale(1, 1, -1);
+
     // View parameters:
     //
     //   * size     -> composition size (TODO: AE seems to base it on width only?)
@@ -151,13 +154,13 @@ SkMatrix44 CameraAdapter::totalMatrix() const {
                view_distance = this->getZoom(),
                view_angle    = std::atan(view_size * 0.5f / view_distance);
 
-    SkMatrix44 view_t;
-    Sk3Perspective(&view_t, 0, view_distance, 2 * view_angle);
-    view_t.postScale(view_size * 0.5f, view_size * 0.5f, 1);
+    SkMatrix44 persp_t;
+    Sk3Perspective(&persp_t, 0, view_distance, 2 * view_angle);
+    persp_t.postScale(view_size * 0.5f, view_size * 0.5f, 1);
 
     SkMatrix44 t;
     t.setTranslate(fViewportSize.width() * 0.5f, fViewportSize.height() * 0.5f, 0);
-    t.preConcat(view_t);
+    t.preConcat(persp_t);
     t.preConcat(cam_t);
 
     return t;

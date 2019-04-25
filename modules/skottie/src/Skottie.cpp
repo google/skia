@@ -118,7 +118,8 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix2D(const skjson::ObjectValu
 sk_sp<sksg::Transform> AnimationBuilder::attachMatrix3D(const skjson::ObjectValue& t,
                                                         AnimatorScope* ascope,
                                                         sk_sp<sksg::Transform> parent,
-                                                        sk_sp<TransformAdapter3D> adapter) const {
+                                                        sk_sp<TransformAdapter3D> adapter,
+                                                        bool precompose_parent) const {
     static const VectorValue g_default_vec_0   = {  0,   0,   0},
                              g_default_vec_100 = {100, 100, 100};
 
@@ -167,9 +168,13 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix3D(const skjson::ObjectValu
 
     // TODO: dispatch 3D transform properties
 
-    return (bound)
-        ? sksg::Transform::MakeConcat(std::move(parent), adapter->refTransform())
-        : parent;
+    if (!bound) {
+        return parent;
+    }
+
+    return precompose_parent
+        ? sksg::Transform::MakeConcat(adapter->refTransform(), std::move(parent))
+        : sksg::Transform::MakeConcat(std::move(parent), adapter->refTransform());
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValue& jtransform,

@@ -474,9 +474,17 @@ private:
                     camera_adapter->setZoom(pe);
                 });
 
+            // parent_transform applies to the camera itself => it pre-composes inverted to the
+            // camera/view/adapter transform.
+            //
+            //   T_camera' = T_camera x Inv(parent_transform)
+            //
+            parent_transform = sksg::Transform::MakeInverse(std::move(parent_transform));
+
             return abuilder->attachMatrix3D(*jtransform, fScope,
                                             std::move(parent_transform),
-                                            std::move(camera_adapter));
+                                            std::move(camera_adapter),
+                                            true); // pre-compose parent
         }
 
         return (ParseDefault<int>(jlayer["ddd"], 0) == 0)

@@ -1,0 +1,76 @@
+diff --git a/modules/skottie/src/SkottieAdapter.cpp b/modules/skottie/src/SkottieAdapter.cpp
+index a3c8be4e89..527cb1daf9 100644
+--- a/modules/skottie/src/SkottieAdapter.cpp
++++ b/modules/skottie/src/SkottieAdapter.cpp
+@@ -89,7 +89,7 @@ SkMatrix44 TransformAdapter3D::totalMatrix() const {
+ 
+     t.setTranslate(-this->getAnchorPoint().fX,
+                    -this->getAnchorPoint().fY,
+-                   -this->getAnchorPoint().fZ);
++                    this->getAnchorPoint().fZ);
+ 
+     t.postScale(this->getScale().fX / 100,
+                 this->getScale().fY / 100,
+@@ -105,7 +105,7 @@ SkMatrix44 TransformAdapter3D::totalMatrix() const {
+ 
+     t.postTranslate(this->getPosition().fX,
+                     this->getPosition().fY,
+-                    this->getPosition().fZ);
++                   -this->getPosition().fZ);
+ 
+     return t;
+ }
+diff --git a/modules/sksg/src/SkSGTransform.cpp b/modules/sksg/src/SkSGTransform.cpp
+index f3b8d4e48d..7083075d05 100644
+--- a/modules/sksg/src/SkSGTransform.cpp
++++ b/modules/sksg/src/SkSGTransform.cpp
+@@ -110,12 +110,36 @@ SkMatrix44 CameraTransform::asMatrix44() const {
+ }
+ 
+ SkRect CameraTransform::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
++    float pos[4] = { fPosition.fX, fPosition.fY, fPosition.fZ, 0 },
++          poi[4] = { fPOI.fX, fPOI.fY, fPOI.fZ };
++
++    auto parent_t = SkMatrix44::I();
+     if (fParentTransform) {
+         fParentTransform->revalidate(ic, ctm);
++
++        const auto t = TransformPriv::As<SkMatrix44>(fParentTransform);
++        t.mapScalars(pos, pos);
++        t.mapScalars(poi, poi);
++//        parent_t.dump();
++        SkMatrix44 inv;
++        t.invert(&inv);
++
++        fprintf(stderr, "***\n");
++
++        parent_t.set4x4(
++            1/t.get(0,0),   t.get(1,0),   t.get(2,0), t.get(3,0),
++              t.get(0,1), 1/t.get(1,1),   t.get(2,1), t.get(3,1),
++              t.get(0,2),   t.get(1,2), 1/t.get(2,2), t.get(3,2),
++             -t.get(0,3),  -t.get(1,3),  -t.get(2,3), t.get(3,3));
++
++        t.invert(&parent_t);
+     }
+ 
+     SkMatrix44 cam_t;
+-    Sk3LookAt(&cam_t, fPosition, fPOI, { 0, 1, 0 });
++    Sk3LookAt(&cam_t,
++              { pos[0], pos[1], pos[2] },
++              { poi[0], poi[1], poi[2] },
++              { 0, 1, 0 });
+     {
+         SkMatrix44 rot;
+         rot.setRotateDegreesAbout(1, 0, 0, this->getRotation().fX);
+@@ -132,7 +156,10 @@ SkRect CameraTransform::onRevalidate(InvalidationController* ic, const SkMatrix&
+     const auto view_size_half = fViewDistance * std::tan(fViewAngle * 0.5f);
+     view_t.postScale(view_size_half, view_size_half, 1);
+ 
+-    fCameraMatrix.setConcat(view_t, cam_t);
++//    fCameraMatrix.setConcat(view_t, cam_t);
++    fCameraMatrix = view_t;
++    fCameraMatrix.preConcat(cam_t);
++    fCameraMatrix.preConcat(parent_t);
+ 
+     return SkRect::MakeEmpty();
+ }
