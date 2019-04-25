@@ -115,9 +115,15 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
             return nullptr;
         }
     } else {
-        // None of our current GrVkExtension flags actually affect the vulkan backend so we just
-        // make an empty GrVkExtensions and pass that to the GrVkInterface.
         GrVkExtensions extensions;
+        // The only extension flag that may effect the vulkan backend is the swapchain extension. We
+        // need to know if this is enabled to know if we can transition to a present layout when
+        // flushing a surface.
+        if (backendContext.fExtensions & kKHR_swapchain_GrVkExtensionFlag) {
+            const char* swapChainExtName = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+            extensions.init(backendContext.fGetProc, backendContext.fInstance,
+                            backendContext.fPhysicalDevice, 0, nullptr, 1, &swapChainExtName);
+        }
         interface.reset(new GrVkInterface(backendContext.fGetProc,
                                           backendContext.fInstance,
                                           backendContext.fDevice,
