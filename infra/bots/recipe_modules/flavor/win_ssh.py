@@ -116,7 +116,14 @@ class WinSSHFlavor(ssh.SSHFlavor):
     # directory). For simplicity, just copy the entire dir to the device.
     self.copy_directory_contents_to_device(self.host_dirs.bin_dir,
                                            self.device_dirs.bin_dir)
+    device_bin = self.device_path_join(self.device_dirs.bin_dir, cmd[0])
 
-    cmd[0] = self.device_path_join(self.device_dirs.bin_dir, cmd[0])
+    # Copy PowerShell script to device.
+    ps = 'win_run_and_check_log.ps1'
+    device_ps = self.device_path_join(self.device_dirs.bin_dir, ps)
+    self.copy_file_to_device(self.module.resource(ps), device_ps)
+
+    cmd = ['powershell', '-ExecutionPolicy', 'Unrestricted', '-File', device_ps,
+           device_bin] + cmd[1:]
     self._cmd(name, subprocess.list2cmdline(map(str, cmd)),
               infra_step=infra_step, **kwargs)
