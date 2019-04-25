@@ -1966,8 +1966,8 @@ void Viewer::drawImGui() {
                             entry.fKeyString.appendf("%02x", digest.data[i]);
                         }
 
-                        GrPersistentCacheUtils::UnpackCachedGLSL(data.get(), &entry.fInputs,
-                                                                 entry.fShader);
+                        entry.fShaderType = GrPersistentCacheUtils::UnpackCachedShaders(
+                                data.get(), entry.fShader, entry.fInputs, kGrShaderTypeCount);
                     };
                     fCachedGLSL.reset();
                     fPersistentCache.foreach(collectShaders);
@@ -2026,8 +2026,10 @@ void Viewer::drawImGui() {
                             entry.fShader[kFragment_GrShaderType] = highlight;
                         }
 
-                        auto data = GrPersistentCacheUtils::PackCachedGLSL(entry.fInputs,
-                                                                           entry.fShader);
+                        auto data = GrPersistentCacheUtils::PackCachedShaders(entry.fShaderType,
+                                                                              entry.fShader,
+                                                                              entry.fInputs,
+                                                                              kGrShaderTypeCount);
                         fPersistentCache.store(*entry.fKey, *data);
 
                         entry.fShader[kFragment_GrShaderType] = backup;
