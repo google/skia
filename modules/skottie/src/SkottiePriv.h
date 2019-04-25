@@ -79,7 +79,8 @@ public:
                                           sk_sp<sksg::Transform>) const;
     sk_sp<sksg::Transform> attachMatrix3D(const skjson::ObjectValue&, AnimatorScope*,
                                           sk_sp<sksg::Transform>,
-                                          sk_sp<TransformAdapter3D> = nullptr) const;
+                                          sk_sp<TransformAdapter3D> = nullptr,
+                                          bool precompose_parent = false) const;
     sk_sp<sksg::RenderNode> attachOpacity(const skjson::ObjectValue&, AnimatorScope*,
                                       sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::Path> attachPath(const skjson::Value&, AnimatorScope*) const;
