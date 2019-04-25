@@ -32,7 +32,7 @@
     "cmd": [
       "cmake",
       "-DBUILD_TESTS=OFF",
-      "-DWARNINGS_AS_ERRORS=0",
+      "-DCMAKE_CXX_FLAGS=\"-w\"",
       "[START_DIR]/cache/work/skia/third_party/externals/swiftshader",
       "-GNinja"
     ],
