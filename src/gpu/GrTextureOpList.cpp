@@ -139,7 +139,7 @@ void GrTextureOpList::endFlush() {
 // stores extra data with the op
 bool GrTextureOpList::copySurface(GrRecordingContext* context,
                                   GrSurfaceProxy* dst,
-                                  GrSurfaceProxy* src,
+                                  GrTextureProxy* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
     SkASSERT(dst == fTarget.get());

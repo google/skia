@@ -104,7 +104,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
     sk_sp<GrTextureProxy> srcProxy = rtc->asTextureProxyRef();
 
     if (subset) {
-        srcProxy = GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), rtc->mipMapped(), *subset,
+        srcProxy = GrSurfaceProxy::Copy(ctx, rtc->asTextureProxy(), rtc->mipMapped(), *subset,
                                         SkBackingFit::kExact, budgeted);
     } else if (!srcProxy || rtc->priv().refsWrappedObjects()) {
         // If the original render target is a buffer originally created by the client, then we don't
@@ -112,7 +112,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
         // copy-on-write.
         SkASSERT(rtc->origin() == rtc->asSurfaceProxy()->origin());
 
-        srcProxy = GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), rtc->mipMapped(),
+        srcProxy = GrSurfaceProxy::Copy(ctx, rtc->asTextureProxy(), rtc->mipMapped(),
                                         SkBackingFit::kExact, budgeted);
     }
 
