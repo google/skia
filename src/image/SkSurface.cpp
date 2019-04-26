@@ -5,12 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include <atomic>
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontLCDConfig.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkImagePriv.h"
 #include "src/image/SkSurface_Base.h"
-#include <atomic>
 
 static SkPixelGeometry compute_default_geometry() {
     SkFontLCDConfig::LCDOrder order = SkFontLCDConfig::GetSubpixelOrder();
@@ -84,6 +85,16 @@ void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPa
     if (image) {
         canvas->drawImage(image, x, y, paint);
     }
+}
+
+void SkSurface_Base::onAsyncReadPixels(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
+                                       const SkIRect& rect, ReadPixelsCallback callback,
+                                       ReadPixelsContext context) {
+    auto info = SkImageInfo::Make(this->width(), this->height(), ct, at, std::move(cs));
+    SkAutoPixmapStorage pm;
+    pm.alloc(info);
+    this->readPixels(pm, 0, 0);
+    callback(context, pm.addr(), pm.rowBytes());
 }
 
 bool SkSurface_Base::outstandingImageSnapshot() const {
@@ -205,6 +216,18 @@ bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t d
 bool SkSurface::readPixels(const SkBitmap& bitmap, int srcX, int srcY) {
     SkPixmap pm;
     return bitmap.peekPixels(&pm) && this->readPixels(pm, srcX, srcY);
+}
+
+void SkSurface::asyncReadPixels(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
+                                const SkIRect& srcRect, ReadPixelsCallback callback,
+                                ReadPixelsContext context) {
+    auto dstII = SkImageInfo::Make(srcRect.width(), srcRect.height(), ct, at, cs);
+    if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) ||
+        !SkImageInfoIsValid(dstII)) {
+        callback(context, nullptr, 0);
+        return;
+    }
+    asSB(this)->onAsyncReadPixels(ct, at, std::move(cs), srcRect, callback, context);
 }
 
 void SkSurface::writePixels(const SkPixmap& pmap, int x, int y) {

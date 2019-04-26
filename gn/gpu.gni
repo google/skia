@@ -306,6 +306,8 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrTessellatingPathRenderer.h",
   "$_src/gpu/ops/GrTextureOp.cpp",
   "$_src/gpu/ops/GrTextureOp.h",
+  "$_src/gpu/ops/GrTransferFromOp.cpp",
+  "$_src/gpu/ops/GrTransferFromOp.h",
 
   "$_src/gpu/effects/GrCoverageSetOpXP.cpp",
   "$_src/gpu/effects/GrCoverageSetOpXP.h",
