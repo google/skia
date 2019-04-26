@@ -225,7 +225,9 @@ def dm_flags(api, bot):
       if 'Android' in bot or 'iOS' in bot:
         configs.append('vkmsaa4')
       else:
-        configs.append('vkmsaa8')
+        if ('IntelHD405' not in bot and
+            'IntelIris655' not in bot):
+          configs.append('vkmsaa8')
 
     if 'Metal' in bot:
       configs = ['mtl']
