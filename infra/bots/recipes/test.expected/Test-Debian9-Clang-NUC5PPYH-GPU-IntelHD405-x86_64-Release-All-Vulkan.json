@@ -263,7 +263,6 @@
       "--nocpu",
       "--config",
       "vk",
-      "vkmsaa8",
       "--src",
       "tests",
       "gm",
