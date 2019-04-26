@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01526821_63c23ff2",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 2475,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-26T14:37:37Z",
+      "side": 1,
+      "message": "The file experimental/app_test/app_test.cpp includes headers with \"tools/sk_app/Something.h\", so it needs \".\" on the include path in order to resolve those paths.  I\u0027d say it\u0027s probably :sk_app\u0027s job to export that to its users, but if we have to remember to tack include_dirs onto every test_lib, it\u0027ll get tedious.  I think the most straightforward way is probably to add `include_dirs \u003d [\".\"]` to the target_name + \"_config\" config inside the test_lib template?  That way everyone exports it automatically.\n\nNow if you do that, you\u0027ll run into something like this:\n\nIn file included from ../experimental/app_test/app_test.cpp:5:\nIn file included from ../tools/sk_app/Window.h:14:\nIn file included from ../tools/sk_app/DisplayParams.h:10:\nIn file included from ../include/core/SkImageInfo.h:11:\n../include/core/SkColorSpace.h:13:10: fatal error: \u0027skcms.h\u0027 file not found\n#include \"skcms.h\"\n\nWhat\u0027s going on here is that sk_app\u0027s headers use headers from its dependency (:skia), but doesn\u0027t re-export that dependency to its transitive users using public_deps.  That\u0027s just a little easy to overlook detail.  If you rewrite sk_app\u0027s deps to something like\n\n+     public_deps \u003d [\n+       \":skia\",\n+     ]\n      deps \u003d [\n_       \":gpu_tool_utils\",\n        \":tool_utils\",\n      ]\n\nThen you should see it compile, picking up the need for -Ithird_party/skcms from :skia and passing it along to not just :sk_app (as in deps) but also to the direct dependencies of :sk_app like :app_test.",
+      "revId": "49567e4a0a73283ede71194a8600931a79ebada9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
