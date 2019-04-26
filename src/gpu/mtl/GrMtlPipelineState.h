@@ -106,7 +106,7 @@ private:
     void setDepthStencilState(id<MTLRenderCommandEncoder> renderCmdEncoder);
 
     struct SamplerBindings {
-        id<MTLSamplerState> fSampler;
+        GrMtlSampler*  fSampler;
         id<MTLTexture> fTexture;
 
         SamplerBindings(const GrSamplerState& state, GrTexture* texture, GrMtlGpu*);

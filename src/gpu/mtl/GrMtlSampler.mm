@@ -61,5 +61,27 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, const GrSamplerState& sa
     samplerDesc.normalizedCoordinates = true;
     samplerDesc.compareFunction = MTLCompareFunctionNever;
 
-    return new GrMtlSampler([gpu->device() newSamplerStateWithDescriptor: samplerDesc]);
+    return new GrMtlSampler([gpu->device() newSamplerStateWithDescriptor: samplerDesc],
+                            GenerateKey(samplerState, maxMipLevel));
+}
+
+GrMtlSampler::Key GrMtlSampler::GenerateKey(const GrSamplerState& samplerState,
+                                           uint32_t maxMipLevel) {
+    const int kTileModeXShift = 2;
+    const int kTileModeYShift = 4;
+    const int kMipLevelShift = 6;
+
+    SkASSERT(static_cast<int>(samplerState.filter()) <= 3);
+    Key samplerKey = static_cast<uint16_t>(samplerState.filter());
+
+    SkASSERT(static_cast<int>(samplerState.wrapModeX()) <= 3);
+    samplerKey |= (static_cast<uint16_t>(samplerState.wrapModeX()) << kTileModeXShift);
+
+    SkASSERT(static_cast<int>(samplerState.wrapModeY()) <= 3);
+    samplerKey |= (static_cast<uint16_t>(samplerState.wrapModeY()) << kTileModeYShift);
+
+    bool useMipMaps = GrSamplerState::Filter::kMipMap == samplerState.filter() && maxMipLevel > 0;
+    samplerKey |= (!useMipMaps ? 0 : (uint16_t) maxMipLevel) << kMipLevelShift;
+
+    return samplerKey;
 }
