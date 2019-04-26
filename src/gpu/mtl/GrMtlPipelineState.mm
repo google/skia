@@ -18,17 +18,14 @@
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
 #include "src/gpu/mtl/GrMtlBuffer.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
-#include "src/gpu/mtl/GrMtlSampler.h"
 #include "src/gpu/mtl/GrMtlTexture.h"
 
 GrMtlPipelineState::SamplerBindings::SamplerBindings(const GrSamplerState& state,
                                                      GrTexture* texture,
                                                      GrMtlGpu* gpu)
         : fTexture(static_cast<GrMtlTexture*>(texture)->mtlTexture()) {
-    // TODO: use resource provider to get sampler.
-    std::unique_ptr<GrMtlSampler> sampler(
-            GrMtlSampler::Create(gpu, state, texture->texturePriv().maxMipMapLevel()));
-    fSampler = sampler->mtlSamplerState();
+    uint32_t maxMipMapLevel = texture->texturePriv().maxMipMapLevel();
+    fSampler = gpu->resourceProvider().findOrCreateCompatibleSampler(state, maxMipMapLevel);
 }
 
 GrMtlPipelineState::GrMtlPipelineState(
@@ -126,7 +123,7 @@ void GrMtlPipelineState::bind(id<MTLRenderCommandEncoder> renderCmdEncoder) {
     for (int index = 0; index < fNumSamplers; ++index) {
         [renderCmdEncoder setFragmentTexture: fSamplerBindings[index].fTexture
                                      atIndex: index];
-        [renderCmdEncoder setFragmentSamplerState: fSamplerBindings[index].fSampler
+        [renderCmdEncoder setFragmentSamplerState: fSamplerBindings[index].fSampler->mtlSampler()
                                           atIndex: index];
     }
 }
@@ -188,85 +185,20 @@ void GrMtlPipelineState::setBlendConstants(id<MTLRenderCommandEncoder> renderCmd
     }
 }
 
-MTLStencilOperation skia_stencil_op_to_mtl(GrStencilOp op) {
-    switch (op) {
-        case GrStencilOp::kKeep:
-            return MTLStencilOperationKeep;
-        case GrStencilOp::kZero:
-            return MTLStencilOperationZero;
-        case GrStencilOp::kReplace:
-            return MTLStencilOperationReplace;
-        case GrStencilOp::kInvert:
-            return MTLStencilOperationInvert;
-        case GrStencilOp::kIncWrap:
-            return MTLStencilOperationIncrementWrap;
-        case GrStencilOp::kDecWrap:
-            return MTLStencilOperationDecrementWrap;
-        case GrStencilOp::kIncClamp:
-            return MTLStencilOperationIncrementClamp;
-        case GrStencilOp::kDecClamp:
-            return MTLStencilOperationDecrementClamp;
-    }
-}
-
-MTLStencilDescriptor* skia_stencil_to_mtl(GrStencilSettings::Face face) {
-    MTLStencilDescriptor* result = [[MTLStencilDescriptor alloc] init];
-    switch (face.fTest) {
-        case GrStencilTest::kAlways:
-            result.stencilCompareFunction = MTLCompareFunctionAlways;
-            break;
-        case GrStencilTest::kNever:
-            result.stencilCompareFunction = MTLCompareFunctionNever;
-            break;
-        case GrStencilTest::kGreater:
-            result.stencilCompareFunction = MTLCompareFunctionGreater;
-            break;
-        case GrStencilTest::kGEqual:
-            result.stencilCompareFunction = MTLCompareFunctionGreaterEqual;
-            break;
-        case GrStencilTest::kLess:
-            result.stencilCompareFunction = MTLCompareFunctionLess;
-            break;
-        case GrStencilTest::kLEqual:
-            result.stencilCompareFunction = MTLCompareFunctionLessEqual;
-            break;
-        case GrStencilTest::kEqual:
-            result.stencilCompareFunction = MTLCompareFunctionEqual;
-            break;
-        case GrStencilTest::kNotEqual:
-            result.stencilCompareFunction = MTLCompareFunctionNotEqual;
-            break;
-    }
-    result.readMask = face.fTestMask;
-    result.writeMask = face.fWriteMask;
-    result.depthStencilPassOperation = skia_stencil_op_to_mtl(face.fPassOp);
-    result.stencilFailureOperation = skia_stencil_op_to_mtl(face.fFailOp);
-    return result;
-}
-
 void GrMtlPipelineState::setDepthStencilState(id<MTLRenderCommandEncoder> renderCmdEncoder) {
-    if (fStencil.isDisabled()) {
-        MTLDepthStencilDescriptor* desc = [[MTLDepthStencilDescriptor alloc] init];
-        id<MTLDepthStencilState> state = [fGpu->device() newDepthStencilStateWithDescriptor:desc];
-        [renderCmdEncoder setDepthStencilState:state];
-    }
-    else {
-        MTLDepthStencilDescriptor* desc = [[MTLDepthStencilDescriptor alloc] init];
-        GrSurfaceOrigin origin = fRenderTargetState.fRenderTargetOrigin;
+    const GrSurfaceOrigin& origin = fRenderTargetState.fRenderTargetOrigin;
+    GrMtlDepthStencil* state =
+            fGpu->resourceProvider().findOrCreateCompatibleDepthStencilState(fStencil, origin);
+    if (!fStencil.isDisabled()) {
         if (fStencil.isTwoSided()) {
-            desc.frontFaceStencil = skia_stencil_to_mtl(fStencil.front(origin));
-            desc.backFaceStencil = skia_stencil_to_mtl(fStencil.back(origin));
             [renderCmdEncoder setStencilFrontReferenceValue:fStencil.front(origin).fRef
                               backReferenceValue:fStencil.back(origin).fRef];
         }
         else {
-            desc.frontFaceStencil = skia_stencil_to_mtl(fStencil.frontAndBack());
-            desc.backFaceStencil = desc.frontFaceStencil;
             [renderCmdEncoder setStencilReferenceValue:fStencil.frontAndBack().fRef];
         }
-        id<MTLDepthStencilState> state = [fGpu->device() newDepthStencilStateWithDescriptor:desc];
-        [renderCmdEncoder setDepthStencilState:state];
     }
+    [renderCmdEncoder setDepthStencilState:state->mtlDepthStencil()];
 }
 
 void GrMtlPipelineState::SetDynamicScissorRectState(id<MTLRenderCommandEncoder> renderCmdEncoder,

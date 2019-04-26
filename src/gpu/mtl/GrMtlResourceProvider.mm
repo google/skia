@@ -14,7 +14,6 @@
 
 #include "src/sksl/SkSLCompiler.h"
 
-
 GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
     : fGpu(gpu) {
     fPipelineStateCache.reset(new PipelineStateCache(gpu));
@@ -43,6 +42,33 @@ GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
         const GrTextureProxy* const primProcProxies[], GrPrimitiveType primType) {
     return fPipelineStateCache->refPipelineState(renderTarget, origin, proc, primProcProxies,
                                                  pipeline, primType);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+GrMtlDepthStencil* GrMtlResourceProvider::findOrCreateCompatibleDepthStencilState(
+        const GrStencilSettings& stencil, GrSurfaceOrigin origin) {
+    GrMtlDepthStencil* depthStencilState;
+    GrMtlDepthStencil::Key key = GrMtlDepthStencil::GenerateKey(stencil, origin);
+    depthStencilState = fDepthStencilStates.find(key);
+    if (!depthStencilState) {
+        depthStencilState = GrMtlDepthStencil::Create(fGpu, stencil, origin);
+        fDepthStencilStates.add(depthStencilState);
+    }
+    SkASSERT(depthStencilState);
+    return depthStencilState;
+}
+
+GrMtlSampler* GrMtlResourceProvider::findOrCreateCompatibleSampler(const GrSamplerState& params,
+                                                                   uint32_t maxMipLevel) {
+    GrMtlSampler* sampler;
+    sampler = fSamplers.find(GrMtlSampler::GenerateKey(params, maxMipLevel));
+    if (!sampler) {
+        sampler = GrMtlSampler::Create(fGpu, params, maxMipLevel);
+        fSamplers.add(sampler);
+    }
+    SkASSERT(sampler);
+    return sampler;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
