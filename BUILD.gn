@@ -2468,4 +2468,18 @@ if (skia_enable_tools) {
       "modules/skshaper",
     ]
   }
+  test_app("app_test") {
+
+    ## WHY DO I NEED THE FOLLOWING LINE?????
+    include_dirs = [ ".", "third_party/skcms" ]
+    ## WON'T COMPILE WITHOUT IT.
+
+    is_shared_library = is_android
+    sources = [
+      "experimental/app_test/app_test.cpp",
+    ]
+    deps = [
+      ":sk_app",
+    ]
+  }
 }
