@@ -50,10 +50,9 @@ sk_sp<SkFlattenable> SkColorFilter_Matrix::CreateProc(SkReadBuffer& buffer) {
     return nullptr;
 }
 
-bool SkColorFilter_Matrix::asColorMatrix(float matrix[20]) const {
+bool SkColorFilter_Matrix::onAsAColorMatrix(float matrix[20]) const {
     if (matrix) {
         memcpy(matrix, fMatrix, 20 * sizeof(float));
-        scale_last_column(matrix, 255);
     }
     return true;
 }

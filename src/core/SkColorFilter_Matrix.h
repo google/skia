@@ -17,7 +17,6 @@ public:
     explicit SkColorFilter_Matrix(const float array[20]);
 
     uint32_t getFlags() const override;
-    bool asColorMatrix(float matrix[20]) const override;
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
@@ -28,6 +27,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
+    bool onAsAColorMatrix(float matrix[20]) const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkColorFilter_Matrix)
