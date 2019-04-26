@@ -689,13 +689,6 @@ public:
         return this->onGetRepetitionCount();
     }
 
-    // Register a decoder at runtime by passing two function pointers:
-    //    - peek() to return true if the span of bytes appears to be your encoded format;
-    //    - make() to attempt to create an SkCodec from the given stream.
-    static void Register(
-            bool                     (*peek)(const void*, size_t),
-            std::unique_ptr<SkCodec> (*make)(std::unique_ptr<SkStream>, SkCodec::Result*));
-
 protected:
     const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }
 
