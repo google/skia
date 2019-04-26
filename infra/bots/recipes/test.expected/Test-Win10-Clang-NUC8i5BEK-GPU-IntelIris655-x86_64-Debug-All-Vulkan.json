@@ -258,6 +258,7 @@
       "--nocpu",
       "--config",
       "vk",
+      "vkmsaa",
       "--src",
       "tests",
       "gm",

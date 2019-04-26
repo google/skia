@@ -222,6 +222,7 @@ def dm_flags(api, bot):
     # Vulkan bot *only* runs the vk config.
     if 'Vulkan' in bot:
       configs = ['vk']
+      configs.append('vkmsaa' + sample_count)
 
     if 'Metal' in bot:
       configs = ['mtl']
