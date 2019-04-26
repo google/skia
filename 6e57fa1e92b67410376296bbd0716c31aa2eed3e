@@ -168,6 +168,30 @@
     },
     {
       "key": {
+        "uuid": "d26a9f2c_0c4b73d5",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2019-04-26T17:18:08Z",
+      "side": 1,
+      "message": "I definitely agree that the swapchain/present case Peng mentions seems like something that\u0027s useful to get working.\n\nPeng, are there other cases you\u0027re aware of where we care about layout? In the interop cases I\u0027ve been dealing with we don\u0027t really care about resetting the layout, just about knowing what it is (in fact, we typically pass it in as UNDEFINED, which is another thing we *may* want to clean up in some cases, but will probably be correct for FOREIGN Queue cases).",
+      "parentUuid": "29758eb1_6c29a8be",
+      "range": {
+        "startLine": 307,
+        "startChar": 32,
+        "endLine": 307,
+        "endChar": 55
+      },
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15139915_60e7d5df",
         "filename": "include/gpu/GrTypes.h",
         "patchSetId": 5
@@ -179,6 +203,24 @@
       "writtenOn": "2019-04-26T13:54:14Z",
       "side": 1,
       "message": "Maybe worth mentioning that subsequently using the images/surfaces may transition them back to graphics? (At least that\u0027s how I assume it works).",
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a580703d_53bca921",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2019-04-26T17:18:08Z",
+      "side": 1,
+      "message": "That\u0027s how we\u0027ve been assuming things as well :D",
+      "parentUuid": "15139915_60e7d5df",
       "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
