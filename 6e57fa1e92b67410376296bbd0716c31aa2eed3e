@@ -192,6 +192,30 @@
     },
     {
       "key": {
+        "uuid": "3e00ea3c_a324295a",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-26T21:05:29Z",
+      "side": 1,
+      "message": "Peng and I chaatted offline. The present issue should get fixed by https://skia-review.googlesource.com/c/skia/+/210429. I mentioned to Peng about updating to the newest GrVkBackendContext API so that we don\u0027t run into similar things like this again (and to make sure we can use the full set of features and extensions).",
+      "parentUuid": "d26a9f2c_0c4b73d5",
+      "range": {
+        "startLine": 307,
+        "startChar": 32,
+        "endLine": 307,
+        "endChar": 55
+      },
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15139915_60e7d5df",
         "filename": "include/gpu/GrTypes.h",
         "patchSetId": 5
