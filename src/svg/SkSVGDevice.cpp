@@ -338,7 +338,7 @@ Resources SkSVGDevice::AutoElement::addResources(const MxCp& mc, const SkPaint& 
     if (const SkColorFilter* cf = paint.getColorFilter()) {
         // TODO: Implement skia color filters for blend modes other than SrcIn
         SkBlendMode mode;
-        if (cf->asColorMode(nullptr, &mode) && mode == SkBlendMode::kSrcIn) {
+        if (cf->asAColorMode(nullptr, &mode) && mode == SkBlendMode::kSrcIn) {
             this->addColorFilterResources(*cf, &resources);
         }
     }
@@ -381,8 +381,8 @@ void SkSVGDevice::AutoElement::addColorFilterResources(const SkColorFilter& cf,
 
         SkColor filterColor;
         SkBlendMode mode;
-        bool asColorMode = cf.asColorMode(&filterColor, &mode);
-        SkAssertResult(asColorMode);
+        bool asAColorMode = cf.asAColorMode(&filterColor, &mode);
+        SkAssertResult(asAColorMode);
         SkASSERT(mode == SkBlendMode::kSrcIn);
 
         {

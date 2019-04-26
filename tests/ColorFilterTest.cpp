@@ -82,7 +82,7 @@ DEF_TEST(ColorFilter, reporter) {
 
 //        SkDebugf("--- mc [%d %x] ", mode, color);
 
-        REPORTER_ASSERT(reporter, cf->asColorMode(&c, (SkBlendMode*)&m));
+        REPORTER_ASSERT(reporter, cf->asAColorMode(&c, (SkBlendMode*)&m));
         // handle special-case folding by the factory
         if (SkBlendMode::kClear == (SkBlendMode)mode) {
             if (c != expectedColor) {
@@ -104,7 +104,7 @@ DEF_TEST(ColorFilter, reporter) {
 
             SkColor c2 = ~color;
             SkBlendMode m2 = ILLEGAL_MODE;
-            REPORTER_ASSERT(reporter, cf2->asColorMode(&c2, (SkBlendMode*)&m2));
+            REPORTER_ASSERT(reporter, cf2->asAColorMode(&c2, (SkBlendMode*)&m2));
             REPORTER_ASSERT(reporter, c2 == expectedColor);
             REPORTER_ASSERT(reporter, m2 == expectedMode);
         }
