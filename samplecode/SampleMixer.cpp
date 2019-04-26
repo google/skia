@@ -16,7 +16,7 @@
 #include "src/core/SkUtils.h"
 #include "tools/Resources.h"
 
-const SkScalar gMat[] = {
+const float gMat[] = {
     .3f, .6f, .1f, 0, 0,
     .3f, .6f, .1f, 0, 0,
     .3f, .6f, .1f, 0, 0,
@@ -58,7 +58,7 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         if (!fImg) {
             fImg = GetResourceAsImage("images/mandrill_256.png");
-            fCF0 = SkColorFilters::MatrixRowMajor255(gMat);
+            fCF0 = SkColorFilters::Matrix(gMat);
             fCF1 = SkColorFilters::Blend(0xFF44CC88, SkBlendMode::kScreen);
         }
 

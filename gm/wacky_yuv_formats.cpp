@@ -784,13 +784,13 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,
 
 static sk_sp<SkColorFilter> yuv_to_rgb_colorfilter() {
     static const float kJPEGConversionMatrix[20] = {
-        1.0f,  0.0f,       1.402f,    0.0f, -180.0f,
-        1.0f, -0.344136f, -0.714136f, 0.0f,  136.0f,
-        1.0f,  1.772f,     0.0f,      0.0f, -227.6f,
+        1.0f,  0.0f,       1.402f,    0.0f, -180.0f/255,
+        1.0f, -0.344136f, -0.714136f, 0.0f,  136.0f/255,
+        1.0f,  1.772f,     0.0f,      0.0f, -227.6f/255,
         0.0f,  0.0f,       0.0f,      1.0f,    0.0f
     };
 
-    return SkColorFilters::MatrixRowMajor255(kJPEGConversionMatrix);
+    return SkColorFilters::Matrix(kJPEGConversionMatrix);
 }
 
 namespace skiagm {
