@@ -219,13 +219,15 @@ def dm_flags(api, bot):
       blacklist('_ test _ GLPrograms')
       blacklist('_ test _ ProcessorOptimizationValidationTest')
 
-    # Vulkan bot *only* runs the vk config.
     if 'Vulkan' in bot:
       configs = ['vk']
       if 'Android' in bot or 'iOS' in bot:
         configs.append('vkmsaa4')
       else:
-        configs.append('vkmsaa8')
+        # skbug.com/9023
+        if ('IntelHD405' not in bot and
+            'IntelIris655' not in bot):
+          configs.append('vkmsaa8')
 
     if 'Metal' in bot:
       configs = ['mtl']
