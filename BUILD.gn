@@ -2468,4 +2468,14 @@ if (skia_enable_tools) {
       "modules/skshaper",
     ]
   }
+  test_app("app_test") {
+    include_dirs = [ ".", "third_party/skcms" ]
+    is_shared_library = is_android
+    sources = [
+      "experimental/app_test/app_test.cpp",
+    ]
+    deps = [
+      ":sk_app",
+    ]
+  }
 }
