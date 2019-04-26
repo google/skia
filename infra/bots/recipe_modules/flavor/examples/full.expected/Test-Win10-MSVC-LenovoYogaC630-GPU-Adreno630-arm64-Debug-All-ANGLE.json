@@ -894,11 +894,24 @@
   },
   {
     "cmd": [
+      "scp",
+      "RECIPE_MODULE[skia::flavor]/resources/win_run_and_check_log.ps1",
+      "foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\bin\\win_run_and_check_log.ps1"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp RECIPE_MODULE[skia::flavor]/resources/win_run_and_check_log.ps1 foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\bin\\win_run_and_check_log.ps1"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
       "foo@127.0.0.1",
-      "C:\\Users\\chrome-bot\\botdata\\bin\\dm --some-flag",
+      "powershell -ExecutionPolicy Unrestricted -File C:\\Users\\chrome-bot\\botdata\\bin\\win_run_and_check_log.ps1 C:\\Users\\chrome-bot\\botdata\\bin\\dm --some-flag",
       "1"
     ],
     "env": {
