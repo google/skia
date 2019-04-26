@@ -22,6 +22,30 @@
       "revId": "9dd5b2d389792038c7c2587b015de2f9d9db3814",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ddea4f1_4ecc1be8",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-04-26T15:01:55Z",
+      "side": 1,
+      "message": "I think starting a new RenderCommandEncoder acts as the barrier. The first draw writes to the attachment, we start a new encoder, and the second reads from it. Or are you concerned about a single draw overwriting what it\u0027s reading?",
+      "parentUuid": "b7f5e140_f43f9df4",
+      "range": {
+        "startLine": 61,
+        "startChar": 51,
+        "endLine": 61,
+        "endChar": 80
+      },
+      "revId": "9dd5b2d389792038c7c2587b015de2f9d9db3814",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
