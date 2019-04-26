@@ -165,6 +165,23 @@
       "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15139915_60e7d5df",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-26T13:54:14Z",
+      "side": 1,
+      "message": "Maybe worth mentioning that subsequently using the images/surfaces may transition them back to graphics? (At least that\u0027s how I assume it works).",
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
