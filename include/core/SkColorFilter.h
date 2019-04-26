@@ -32,19 +32,28 @@ class SkString;
  */
 class SK_API SkColorFilter : public SkFlattenable {
 public:
-    /** DEPRECATED. skbug.com/8941
-     *  If the filter can be represented by a source color plus Mode, this
+    // DEPRECATED. skbug.com/8941
+
+    bool asColorMode(SkColor* color, SkBlendMode* mode) const {
+        return this->onAsAColorMode(color, mode);
+    }
+    bool asColorMatrix(float rowMajor255[20]) const;
+
+    /** If the filter can be represented by a source color plus Mode, this
      *  returns true, and sets (if not NULL) the color and mode appropriately.
      *  If not, this returns false and ignores the parameters.
      */
-    virtual bool asColorMode(SkColor* color, SkBlendMode* bmode) const;
+    bool asAColorMode(SkColor* color, SkBlendMode* mode) const {
+        return this->onAsAColorMode(color, mode);
+    }
 
-    /** DEPRECATED. skbug.com/8941
-     *  If the filter can be represented by a 5x4 matrix, this
+    /** If the filter can be represented by a 5x4 matrix, this
      *  returns true, and sets the matrix appropriately.
      *  If not, this returns false and ignores the parameter.
      */
-    virtual bool asColorMatrix(float rowMajor255[20]) const;
+    bool asAColorMatrix(float matrix[20]) const {
+        return this->onAsAColorMatrix(matrix);
+    }
 
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const;
 
@@ -108,6 +117,9 @@ public:
 
 protected:
     SkColorFilter() {}
+
+    virtual bool onAsAColorMatrix(float[20]) const;
+    virtual bool onAsAColorMode(SkColor* color, SkBlendMode* bmode) const;
 
 private:
     /*

@@ -28,7 +28,7 @@ SkModeColorFilter::SkModeColorFilter(SkColor color, SkBlendMode mode) {
     fMode = mode;
 }
 
-bool SkModeColorFilter::asColorMode(SkColor* color, SkBlendMode* mode) const {
+bool SkModeColorFilter::onAsAColorMode(SkColor* color, SkBlendMode* mode) const {
     if (color) {
         *color = fColor;
     }
