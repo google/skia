@@ -12,14 +12,12 @@
 #include "include/c/sk_paint.h"
 #include "include/c/sk_path.h"
 #include "include/c/sk_surface.h"
+#include "include/c/sk_imageinfo.h"
 
 static sk_surface_t* make_surface(int32_t w, int32_t h) {
-    sk_imageinfo_t info;
-    info.width = w;
-    info.height = h;
-    info.colorType = sk_colortype_get_default_8888();
-    info.alphaType = PREMUL_SK_ALPHATYPE;
-    return sk_surface_new_raster(&info, NULL);
+    sk_imageinfo_t* info = sk_imageinfo_new(w, h, RGBA_8888_SK_COLORTYPE,
+                                            PREMUL_SK_ALPHATYPE, NULL);
+    return sk_surface_new_raster(info, NULL);
 }
 
 static void emit_png(const char* path, sk_surface_t* surface) {
