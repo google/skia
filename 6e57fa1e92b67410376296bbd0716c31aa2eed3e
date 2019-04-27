@@ -216,6 +216,30 @@
     },
     {
       "key": {
+        "uuid": "69c0b0d8_b2a76db8",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 7952
+      },
+      "writtenOn": "2019-04-27T11:53:42Z",
+      "side": 1,
+      "message": "Yes. We discussed it. With current API and the fix, it should work,",
+      "parentUuid": "3e00ea3c_a324295a",
+      "range": {
+        "startLine": 307,
+        "startChar": 32,
+        "endLine": 307,
+        "endChar": 55
+      },
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15139915_60e7d5df",
         "filename": "include/gpu/GrTypes.h",
         "patchSetId": 5
@@ -245,6 +269,24 @@
       "side": 1,
       "message": "That\u0027s how we\u0027ve been assuming things as well :D",
       "parentUuid": "15139915_60e7d5df",
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f16b4bbb_825ea0e9",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 7952
+      },
+      "writtenOn": "2019-04-27T11:53:42Z",
+      "side": 1,
+      "message": "I am thinking another use case.\n1. render a frame to swapchain image\n2. flush swapchain image (it will change the layout to present)\n3. execute copy request to copy content of swapchian image.\n4. flush the copy request target surface. I think it will change the layout of the swapchain image.\n5. flush the swapchain image again to switch layout back to present again.\n7. present the swapchian image.\n\nIn this case, we have three command buffer submissions. Probably it can be merged to one. Not sure if we want to do it. If we do, probably we need one flush() on gr context, which can switch all surface layout for us.",
+      "parentUuid": "a580703d_53bca921",
       "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
