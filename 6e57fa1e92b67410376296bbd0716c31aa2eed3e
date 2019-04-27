@@ -290,6 +290,24 @@
       "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a4d9b38_9b6788fa",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-27T12:31:56Z",
+      "side": 1,
+      "message": "Does chrome actually copy out a full swapchain image? I would have thought at most tiles are copied out.",
+      "parentUuid": "f16b4bbb_825ea0e9",
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
