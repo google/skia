@@ -2463,6 +2463,8 @@ if (skia_enable_tools) {
     is_shared_library = is_android
     sources = [
       "experimental/editor/editor_application.cpp",
+      "experimental/editor/editor.cpp",
+      "experimental/editor/editor.h",
     ]
     deps = [
       ":sk_app",

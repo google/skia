@@ -4,22 +4,37 @@
 // [Work In Progress] Proof of principle of a text editor written with Skia & SkShaper.
 // https://bugs.skia.org/9020
 
-#include "include/core/SkExecutor.h"
-#include "include/core/SkPath.h"
-#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
-#include "include/effects/SkGradientShader.h"
-#include "modules/skshaper/include/SkShaper.h"
+
 #include "tools/sk_app/Application.h"
-#include "tools/sk_app/CommandSet.h"
 #include "tools/sk_app/Window.h"
 
-#include <fstream>
-#include <iostream>
+#include "editor.h"
+
 #include <memory>
-#include <string>
-#include <vector>
+
+static const char* key_name(sk_app::Window::Key k) {
+    switch (k) {
+        #define M(X) case sk_app::Window::Key::k ## X: return #X
+        M(NONE); M(LeftSoftKey); M(RightSoftKey); M(Home); M(Back); M(Send); M(End); M(0); M(1);
+        M(2); M(3); M(4); M(5); M(6); M(7); M(8); M(9); M(Star); M(Hash); M(Up); M(Down); M(Left);
+        M(Right); M(Tab); M(PageUp); M(PageDown); M(Delete); M(Escape); M(Shift); M(Ctrl);
+        M(Option); M(A); M(C); M(V); M(X); M(Y); M(Z); M(OK); M(VolUp); M(VolDown); M(Power);
+        M(Camera);
+        #undef M
+        default: return "?";
+    }
+}
+
+static SkString modifiers_desc(uint32_t m) {
+    SkString s;
+    #define M(X) if (m & sk_app::Window::k ## X ##_ModifierKey) { s.append(" {" #X "}"); }
+    M(Shift) M(Control) M(Option) M(Command) M(FirstPress)
+    #undef M
+    return s;
+}
 
 namespace {
 
@@ -30,90 +45,27 @@ struct Timer {
     ~Timer() { SkDebugf("%s: %d ms\n", fDesc, (int)((SkTime::GetNSecs() - fTime) * 1e-6)); }
 };
 
-struct TextLine {
-    TextLine(std::string s) : fText(std::move(s)) {}
-    std::string fText;
-    float fHeight = 0;
-    sk_sp<const SkTextBlob> fBlob;
-    bool fSelected = false;  // Will allow selection of subset of text later.
-    // Also will track presence of cursor.
-
-    void shape(const SkFont& font, const SkShaper* shaper, float width) {
-        SkTextBlobBuilderRunHandler textBlobBuilder(fText.c_str(), {0, 0});
-        shaper->shape(fText.c_str(), fText.size(), font, true, width, &textBlobBuilder);
-        fHeight = std::max(textBlobBuilder.endPoint().y(), font.getSpacing());
-        fBlob = textBlobBuilder.makeBlob();
-    }
-};
-
-std::vector<TextLine> read_file(const char* path) {
-    std::vector<TextLine> ret;
-    if (path) {
-        std::ifstream stream(path);
-        for (std::string line; std::getline(stream, line);) {
-            ret.push_back(TextLine(line));
-        }
-    }
-    return ret;
-}
 
 struct EditorLayer : public sk_app::Window::Layer {
     sk_app::Window* fParent = nullptr;
-    std::vector<TextLine> fLines;
-    const SkShaper* fShaper = nullptr;
-    int fMargin = 10;
-    int fPos = 10;
-    int fWidth = 0;
-    int fHeight = 0;
-    SkFont fFont{nullptr, 24};
+    editor::Editor fEditor;
+    int fPos = 0;  // window pixel position in file
+    int fWidth = 0;  // window width
+    int fHeight = 0;  // window height
 
-    EditorLayer(std::vector<TextLine> lines, SkShaper* shaper)
-        : fLines(std::move(lines)), fShaper(shaper) {}
-
-    void onPaint(SkSurface* surface) override {
-        Timer timer("painting");
-        SkColor background = SkColorSetARGB(0xFF, 0xCC, 0xCC, 0xCC);
-        SkColor foreground = SkColorSetARGB(0xFF, 0x00, 0x00, 0x00);
-        SkCanvas* c = surface->getCanvas();
-        c->clipRect({0, 0, (float)fWidth, (float)fHeight});
-        c->clear(background);
-        float y = fPos;
-        SkPaint p;
-        p.setColor(foreground);
-        SkPaint diff;
-        diff.setColor(SK_ColorWHITE);
-        diff.setBlendMode(SkBlendMode::kDifference);
-        float width = (float)(fWidth - 2 * fMargin);
-        for (const TextLine& line : fLines) {
-            if (line.fBlob) {
-                c->drawTextBlob(line.fBlob.get(), fMargin, y, p);
-            }
-            if (line.fSelected) {
-                c->drawRect(SkRect{(float)fMargin, y, width, y + line.fHeight}, diff);
-            }
-            y += line.fHeight;
+    void loadFile(const char* path) {
+        if (sk_sp<SkData> data = SkData::MakeFromFileName(path)) {
+            fEditor.setText((const char*)data->data(), data->size());
         }
     }
 
-    void reshape() {
-        Timer timer("shaping");
-        float width = (float)(fWidth - 2 * fMargin);
-        #ifdef SK_EDITOR_GO_FAST
-        SkSemaphore semaphore;
-        std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool(100);
-        for (TextLine& line : fLines) {
-            executor->add([&]() {
-                auto shaper = SkShaper::Make();
-                line.shape(fFont, shaper.get(), width);
-                semaphore.signal();
-            });
-        }
-        for (const TextLine& l : fLines) { semaphore.wait(); }
-        #else
-        for (TextLine& line : fLines) {
-            line.shape(fFont, fShaper, width);
-        }
-        #endif
+    void onPaint(SkSurface* surface) override {
+        Timer timer("painting");
+        SkCanvas* c = surface->getCanvas();
+        SkAutoCanvasRestore acr(c, true);
+        c->clipRect({0, 0, (float)fWidth, (float)fHeight});
+        c->translate(0, -(float)fPos);
+        fEditor.paint(c);
     }
 
     void onResize(int width, int height) override {
@@ -121,7 +73,8 @@ struct EditorLayer : public sk_app::Window::Layer {
             fHeight = height;
             if (width != fWidth) {
                 fWidth = width;
-                this->reshape();
+                Timer timer("shaping");
+                fEditor.setWidth(fWidth);
             }
             if (fParent) {
                 fParent->inval();
@@ -131,63 +84,86 @@ struct EditorLayer : public sk_app::Window::Layer {
 
     void onAttach(sk_app::Window* w) override { fParent = w; }
 
-    bool onMouseWheel(float delta, uint32_t modifiers) override {
-        int newpos = std::min(fPos + (int)(delta * fFont.getSpacing()), fMargin);
+
+    void scroll(int delta) {
+        int maxPos = std::max(0, fEditor.getHeight() - fHeight / 2);
+        int newpos = std::max(0, std::min(fPos + delta, maxPos));
         if (newpos != fPos) {
             fPos = newpos;
             if (fParent) { fParent->inval(); }
-            return true;
         }
-        return false;
+    }
+
+    bool onMouseWheel(float delta, uint32_t modifiers) override {
+        this->scroll(-(int)(delta * fEditor.font().getSpacing()));
+        return true;
     }
 
     bool onMouse(int x, int y, sk_app::Window::InputState state, uint32_t modifiers) override {
         if (sk_app::Window::kDown_InputState == state) {
-            y -= fPos;
+            y += fPos;
+            y -= fEditor.getMargin();
             if (y >= 0) {
-                for (TextLine& line : fLines) {
-                    if (y < line.fHeight) {
-                        line.fSelected = !line.fSelected;
-                        SkDebugf("  %d %d\n", x - (int)fMargin, y);
+                for (size_t i = 0; i < fEditor.lineCount(); ++i) {
+                    int height = fEditor.lineHeight(i);
+                    if (y < height) {
+                        fEditor.select(i);
+                        SkDebugf("select:  line:%d x:%d y:%d\n", i, x - fEditor.getMargin(), y);
                         fParent->inval();
                         break;
                     }
-                    y -= line.fHeight;
+                    y -= height;
                 }
             }
             return true;
         }
         return false;
     }
+
+    bool onChar(SkUnichar c, uint32_t modifiers) override {
+        SkString m = modifiers_desc(modifiers);
+        SkDebugf("char: %c (0x%08X)%s\n", (char)(c & 0xFF), (unsigned)c, m.c_str());
+        return true;
+    }
+    bool onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers) override {
+        if (state == sk_app::Window::kDown_InputState) {
+            if (key == sk_app::Window::Key::kPageDown) {
+                this->scroll(fHeight * 4 / 5);
+                return true;
+            }
+            if (key == sk_app::Window::Key::kPageUp) {
+                this->scroll(-fHeight * 4 / 5);
+                return true;
+            }
+            SkString m = modifiers_desc(modifiers);
+            SkDebugf("key: %s%s\n", key_name(key), m.c_str());
+        }
+        return true;
+    }
+
 };
 
 struct EditorApplication : public sk_app::Application {
-    std::unique_ptr<SkShaper> fShaper;
     std::unique_ptr<sk_app::Window> fWindow;
-    std::unique_ptr<EditorLayer> fLayer;
-    sk_app::CommandSet fCommandSet;
+    EditorLayer fLayer;
 
     EditorApplication(const char* path, void* platformData)
-        : fShaper(SkShaper::Make())
-        , fWindow(sk_app::Window::CreateNativeWindow(platformData))
+        : fWindow(sk_app::Window::CreateNativeWindow(platformData))
     {
-        fWindow->attach(sk_app::Window::kRaster_BackendType);
-        fLayer.reset(new EditorLayer(read_file(path), fShaper.get()));
-        fWindow->pushLayer(fLayer.get());
-        fCommandSet.attach(fWindow.get());
+        //sk_app::Window::BackendType backendType = sk_app::Window::kRaster_BackendType;
+        sk_app::Window::BackendType backendType = sk_app::Window::kNativeGL_BackendType;
+        fWindow->attach(backendType);
+        fLayer.loadFile(path);
+        fWindow->pushLayer(&fLayer);
         fWindow->show();
-        fLayer->onResize(fWindow->width(), fWindow->height());
+        fLayer.onResize(fWindow->width(), fWindow->height());
     }
     ~EditorApplication() override { fWindow->detach(); }
 
     void onIdle() override {}
 };
-
 }  // namespace
 
 sk_app::Application* sk_app::Application::Create(int argc, char** argv, void* dat) {
-    if (argc > 1) {
-        return new EditorApplication(argv[1], dat);
-    }
-    return new EditorApplication(nullptr, dat);
+    return new EditorApplication(argc > 1 ? argv[1] : nullptr, dat);
 }
