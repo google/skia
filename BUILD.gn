@@ -102,7 +102,6 @@ config("skia_public") {
   include_dirs = [
     ".",
     "third_party/skcms",
-    "include/third_party/vulkan",
   ]
   defines = []
   if (is_component_build) {
@@ -1438,6 +1437,7 @@ if (skia_enable_tools) {
 
   test_lib("gpu_tool_utils") {
     public_defines = []
+    include_dirs = [ "include/third_party/vulkan" ]
 
     defines = []
     if (skia_enable_discrete_gpu) {
