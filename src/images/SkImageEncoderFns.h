@@ -8,11 +8,11 @@
 #ifndef SkImageEncoderFns_DEFINED
 #define SkImageEncoderFns_DEFINED
 
-#include "skcms.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkICC.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"
+#include "include/third_party/skcms/skcms.h"
 
 typedef void (*transform_scanline_proc)(char* dst, const char* src, int width, int bpp);
 
