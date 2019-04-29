@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "skcms.h"
 #include "include/core/SkColorSpace.h"
+#include "include/third_party/skcms/skcms.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "tests/Test.h"
 

@@ -762,8 +762,9 @@ source_set("skcms") {
   }
 
   public = [
-    "third_party/skcms/skcms.h",
+    "include/third_party/skcms/skcms.h",
   ]
+  include_dirs = [ "include/third_party/skcms" ]
   sources = rebase_path(skcms_sources, ".", "third_party/skcms")
 }
 

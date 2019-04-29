@@ -9,11 +9,10 @@
 
 #include "include/core/SkICC.h"
 #include "include/core/SkString.h"
+#include "include/third_party/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
-
-#include "skcms.h"
 
 DEF_TEST(AdobeRGB, r) {
     if (sk_sp<SkData> profile = GetResourceAsData("icc_profiles/AdobeRGB1998.icc")) {

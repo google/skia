@@ -5,12 +5,12 @@
 * found in the LICENSE file.
 */
 
-#include "skcms.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
+#include "include/third_party/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 
 static void write_png(const char* path, sk_sp<SkImage> img) {

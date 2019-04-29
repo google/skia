@@ -10,7 +10,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
-#include "skcms.h"
+#include "include/third_party/skcms/skcms.h"
 
 struct SkEncodedInfo {
 public:

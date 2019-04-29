@@ -419,6 +419,7 @@ INCLUDES = [
     "include/pathops",
     "include/ports",
     "include/private",
+    "include/third_party/skcms",
     "include/utils",
     "include/utils/mac",
     "src/codec",
@@ -436,7 +437,6 @@ INCLUDES = [
     "src/sksl",
     "src/utils",
     "third_party/gif",
-    "third_party/skcms",
 ]
 
 ################################################################################

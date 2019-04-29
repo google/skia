@@ -26,6 +26,7 @@
 #include "include/ports/SkImageGeneratorWIC.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkTLogic.h"
+#include "include/third_party/skcms/skcms.h"
 #include "include/utils/SkNullCanvas.h"
 #include "include/utils/SkRandom.h"
 #include "src/codec/SkCodecImageGenerator.h"
@@ -73,8 +74,6 @@
 
 #include <cmath>
 #include <functional>
-
-#include "skcms.h"
 
 static DEFINE_bool(multiPage, false,
                    "For document-type backends, render the source into multiple pages");
