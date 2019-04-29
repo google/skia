@@ -49,8 +49,13 @@ class GrGLGpuRTCommandBuffer : public GrGpuRTCommandBuffer {
 public:
     GrGLGpuRTCommandBuffer(GrGLGpu* gpu) : fGpu(gpu) {}
 
-    void begin() override;
-    void end() override {}
+    void begin() override {
+        fGpu->beginCommandBuffer(fRenderTarget, fColorLoadAndStoreInfo, fStencilLoadAndStoreInfo);
+    }
+
+    void end() override {
+        fGpu->endCommandBuffer(fRenderTarget, fColorLoadAndStoreInfo, fStencilLoadAndStoreInfo);
+    }
 
     void discard() override { }
 
@@ -67,9 +72,8 @@ public:
         fGpu->copySurface(fRenderTarget, fOrigin, src, srcOrigin, srcRect, dstPoint);
     }
 
-    void set(GrRenderTarget*, GrSurfaceOrigin,
-             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&);
+    void set(GrRenderTarget*, GrSurfaceOrigin, const LoadAndStoreInfo&,
+             const StencilLoadAndStoreInfo&);
 
     void reset() {
         fRenderTarget = nullptr;
