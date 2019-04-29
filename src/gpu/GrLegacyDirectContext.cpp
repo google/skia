@@ -24,6 +24,12 @@
 #include "src/gpu/vk/GrVkGpu.h"
 #endif
 
+#ifdef SK_DISABLE_REDUCE_OPLIST_SPLITTING
+static const bool kDefaultReduceOpListSplitting = false;
+#else
+static const bool kDefaultReduceOpListSplitting = true;
+#endif
+
 class SK_API GrLegacyDirectContext : public GrContext {
 public:
     GrLegacyDirectContext(GrBackendApi backend, const GrContextOptions& options)
@@ -73,7 +79,16 @@ protected:
             return false;
         }
 
-        this->setupDrawingManager(true);
+        bool reduceOpListSplitting = true;
+        if (GrContextOptions::Enable::kNo == this->options().fReduceOpListSplitting) {
+            reduceOpListSplitting = false;
+        } else if (GrContextOptions::Enable::kYes == this->options().fReduceOpListSplitting) {
+            reduceOpListSplitting = true;
+        } else {
+            reduceOpListSplitting = kDefaultReduceOpListSplitting;
+        }
+
+        this->setupDrawingManager(true, reduceOpListSplitting);
 
         SkASSERT(this->caps());
 

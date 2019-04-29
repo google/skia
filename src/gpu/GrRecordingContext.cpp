@@ -64,7 +64,7 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCac
     return true;
 }
 
-void GrRecordingContext::setupDrawingManager(bool sortOpLists) {
+void GrRecordingContext::setupDrawingManager(bool sortOpLists, bool reduceOpListSplitting) {
     GrPathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
 #if GR_TEST_UTILS
@@ -103,7 +103,7 @@ void GrRecordingContext::setupDrawingManager(bool sortOpLists) {
                                                prcOptions,
                                                textContextOptions,
                                                sortOpLists,
-                                               this->options().fReduceOpListSplitting));
+                                               reduceOpListSplitting, 0));
 }
 
 void GrRecordingContext::abandonContext() {
