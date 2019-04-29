@@ -102,7 +102,6 @@ config("skia_public") {
   include_dirs = [
     ".",
     "third_party/skcms",
-    "include/third_party/vulkan",
   ]
   defines = []
   if (is_component_build) {
@@ -1208,21 +1207,24 @@ if (skia_enable_tools) {
     }
   }
 
+  config("our_vulkan_headers") {
+    # We add this directory to simulate the client already have
+    # vulkan/vulkan_core.h on their path.
+    include_dirs = [ "include/third_party/vulkan" ]
+  }
+
   source_set("public_headers_warnings_check") {
     sources = [
       "tools/public_headers_warnings_check.cpp",
     ]
     configs -= [ "//gn:warnings_except_public_headers" ]
+    configs += [ ":our_vulkan_headers" ]
     deps = [
       ":skia",
       ":skia.h",
       "modules/skottie",
       "modules/skshaper",
     ]
-
-    # We add this directory to simulate the client already have
-    # vulkan/vulkan_core.h on their path.
-    include_dirs = [ "include/third_party/vulkan" ]
   }
 
   template("test_lib") {
@@ -1230,9 +1232,12 @@ if (skia_enable_tools) {
       if (defined(invoker.public_defines)) {
         defines = invoker.public_defines
       }
+      if (defined(invoker.public_configs)) {
+        configs = invoker.public_configs
+      }
     }
     source_set(target_name) {
-      forward_variables_from(invoker, "*", [])
+      forward_variables_from(invoker, "*", [ "public_configs" ])
       check_includes = false
       public_configs = [
         ":" + target_name + "_config",
@@ -1437,7 +1442,7 @@ if (skia_enable_tools) {
   }
 
   test_lib("gpu_tool_utils") {
-    public_defines = []
+    public_configs = [ ":our_vulkan_headers" ]
 
     defines = []
     if (skia_enable_discrete_gpu) {
