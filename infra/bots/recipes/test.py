@@ -219,6 +219,14 @@ def dm_flags(api, bot):
       blacklist('_ test _ GLPrograms')
       blacklist('_ test _ ProcessorOptimizationValidationTest')
 
+    # skbug.com/9033 - these devices run out of memory on this test
+    # when opList splitting reduction is enabled
+    if 'GPU' in bot and ('Nexus7' in bot or
+                         'NexusPlayer' in bot or
+                         'NVIDIA_Shield' in bot or
+                         'Nexus5x' in bot):
+      blacklist(['_', 'gm', '_', 'savelayer_clipmask'])
+
     if 'Vulkan' in bot:
       configs = ['vk']
       if 'Android' in bot or 'iOS' in bot:
