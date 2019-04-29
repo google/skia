@@ -25,41 +25,7 @@ DEPS = [
 def RunSteps(api):
   api.vars.setup()
 
-  # Check out code.
-  bot_update = True
-  checkout_root = api.checkout.default_checkout_root
-  checkout_chromium = False
-  checkout_flutter = False
-  extra_gclient_env = {}
-  flutter_android = False
-  parent_rev = False
-
-  if 'NoDEPS' in api.properties['buildername']:
-    bot_update = False
-    checkout_root = api.path['start_dir']
-  if 'CommandBuffer' in api.vars.builder_name:
-    checkout_chromium = True
-  if 'Flutter' in api.vars.builder_name:
-    checkout_root = checkout_root.join('flutter')
-    checkout_flutter = True
-    if 'Android' in api.vars.builder_name:
-      flutter_android = True
-  if 'ParentRevision' in api.vars.builder_name:
-    parent_rev = True
-
-  if bot_update:
-    api.checkout.bot_update(
-        checkout_root=checkout_root,
-        checkout_chromium=checkout_chromium,
-        checkout_flutter=checkout_flutter,
-        extra_gclient_env=extra_gclient_env,
-        flutter_android=flutter_android,
-        parent_rev=parent_rev)
-  else:
-    api.checkout.git(checkout_root=checkout_root)
-
-  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-
+  checkout_root = api.path['start_dir']
   out_dir = checkout_root.join(
       'skia', 'out', api.vars.builder_name, api.vars.configuration)
   if 'Flutter' in api.vars.builder_name:
