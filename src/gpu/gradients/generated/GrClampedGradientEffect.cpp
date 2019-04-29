@@ -35,24 +35,22 @@ public:
                                                               kHalf4_GrSLType, "leftBorderColor");
         rightBorderColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
                                                                kHalf4_GrSLType, "rightBorderColor");
-        SkString _child1("_child1");
-        this->emitChild(_outer.gradLayout_index, &_child1, args);
+        fragBuilder->codeAppendf("half4 _child1;");
+        this->invokeChild(_outer.gradLayout_index, "_child1", args);
         fragBuilder->codeAppendf(
-                "half4 t = %s;\nif (!%s && t.y < 0.0) {\n    %s = half4(0.0);\n} else if (t.x < "
-                "0.0) {\n    %s = %s;\n} else if (t.x > 1.0) {\n    %s = %s;\n} else {",
-                _child1.c_str(),
+                "half4 t = _child1;\nif (!%s && t.y < 0.0) {\n    %s = half4(0.0);\n} else if (t.x "
+                "< 0.0) {\n    %s = %s;\n} else if (t.x > 1.0) {\n    %s = %s;\n} else {",
                 (_outer.childProcessor(_outer.gradLayout_index).preservesOpaqueInput() ? "true"
                                                                                        : "false"),
                 args.fOutputColor, args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(leftBorderColorVar), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(rightBorderColorVar));
         SkString _input0("t");
-        SkString _child0("_child0");
-        this->emitChild(_outer.colorizer_index, _input0.c_str(), &_child0, args);
-        fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
-                                 args.fOutputColor, _child0.c_str(),
-                                 (_outer.makePremul ? "true" : "false"), args.fOutputColor,
-                                 args.fOutputColor);
+        fragBuilder->codeAppendf("half4 _child0;");
+        this->invokeChild(_outer.colorizer_index, _input0.c_str(), "_child0", args);
+        fragBuilder->codeAppendf("\n    %s = _child0;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
+                                 args.fOutputColor, (_outer.makePremul ? "true" : "false"),
+                                 args.fOutputColor, args.fOutputColor);
     }
 
 private:

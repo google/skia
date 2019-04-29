@@ -1035,6 +1035,7 @@ void GLSLCodeGenerator::writeSetting(const Setting& s) {
 }
 
 void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
+    fSetupFragCoordWorkaround = false;
     if (fProgramKind != Program::kPipelineStage_Kind) {
         this->writeTypePrecision(f.fDeclaration.fReturnType);
         this->writeType(f.fDeclaration.fReturnType);

@@ -28,19 +28,17 @@ public:
         weightVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "weight");
         SkString _input0 = SkStringPrintf("%s", args.fInputColor);
-        SkString _child0("_child0");
-        this->emitChild(_outer.fp0_index, _input0.c_str(), &_child0, args);
-        fragBuilder->codeAppendf("half4 in0 = %s;", _child0.c_str());
+        fragBuilder->codeAppendf("half4 _child0;");
+        this->invokeChild(_outer.fp0_index, _input0.c_str(), "_child0", args);
+        fragBuilder->codeAppendf("half4 in0 = _child0;");
         SkString _input1 = SkStringPrintf("%s", args.fInputColor);
-        SkString _child1("_child1");
+        fragBuilder->codeAppendf("half4 _child1;");
         if (_outer.fp1_index >= 0) {
-            this->emitChild(_outer.fp1_index, _input1.c_str(), &_child1, args);
-        } else {
-            fragBuilder->codeAppendf("half4 %s;", _child1.c_str());
+            this->invokeChild(_outer.fp1_index, _input1.c_str(), "_child1", args);
         }
-        fragBuilder->codeAppendf("\nhalf4 in1 = %s ? %s : %s;\n%s = mix(in0, in1, %s);\n",
-                                 _outer.fp1_index >= 0 ? "true" : "false", _child1.c_str(),
-                                 args.fInputColor, args.fOutputColor,
+        fragBuilder->codeAppendf("\nhalf4 in1 = %s ? _child1 : %s;\n%s = mix(in0, in1, %s);\n",
+                                 _outer.fp1_index >= 0 ? "true" : "false", args.fInputColor,
+                                 args.fOutputColor,
                                  args.fUniformHandler->getUniformCStr(weightVar));
     }
 

@@ -530,7 +530,6 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
         fScaleUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType, "scale",
                                                    &scaleName);
     }
-
     // The uniforms with the inv squared radii are highp to prevent underflow.
     switch (erre.getRRect().getType()) {
         case SkRRect::kSimple_Type: {
