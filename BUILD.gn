@@ -101,7 +101,6 @@ if (defined(skia_settings)) {
 config("skia_public") {
   include_dirs = [
     ".",
-    "third_party/skcms",
     "include/third_party/vulkan",
   ]
   defines = []
