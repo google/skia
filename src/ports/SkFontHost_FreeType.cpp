@@ -129,6 +129,7 @@ public:
         , fGetVarAxisFlags(nullptr)
         , fLibrary(nullptr)
         , fIsLCDSupported(false)
+        , fLightHintingIsYOnly(false)
         , fLCDExtra(0)
     {
         if (FT_New_Library(&gFTMemory, &fLibrary)) {
@@ -176,6 +177,16 @@ public:
         }
 #endif
 
+// The 'light' hinting is vertical only starting in 2.8.0.
+#if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02080000
+        fLightHintingIsYOnly = true;
+#else
+        if (major > 2 || ((major == 2 && minor > 8) || (major == 2 && minor == 8 && patch >= 0))) {
+            fLightHintingIsYOnly = true;
+        }
+#endif
+
+
 #if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02080100
         fGetVarAxisFlags = FT_Get_Var_Axis_Flags;
 #elif SK_FREETYPE_MINIMUM_RUNTIME_VERSION & SK_FREETYPE_DLOPEN
@@ -205,6 +216,7 @@ public:
     FT_Library library() { return fLibrary; }
     bool isLCDSupported() { return fIsLCDSupported; }
     int lcdExtra() { return fLCDExtra; }
+    bool lightHintingIsYOnly() { return fLightHintingIsYOnly; }
 
     // FT_Get_{MM,Var}_{Blend,Design}_Coordinates were added in FreeType 2.7.1.
     // Prior to this there was no way to get the coordinates out of the FT_Face.
@@ -222,6 +234,7 @@ public:
 private:
     FT_Library fLibrary;
     bool fIsLCDSupported;
+    bool fLightHintingIsYOnly;
     int fLCDExtra;
 
     // FT_Library_SetLcdFilterWeights was introduced in FreeType 2.4.0.
@@ -864,6 +877,9 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
                 break;
             case kSlight_SkFontHinting:
                 loadFlags = FT_LOAD_TARGET_LIGHT;  // This implies FORCE_AUTOHINT
+                if (gFTLibrary->lightHintingIsYOnly()) {
+                    linearMetrics = true;
+                }
                 break;
             case kNormal_SkFontHinting:
                 loadFlags = FT_LOAD_TARGET_NORMAL;
