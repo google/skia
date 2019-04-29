@@ -207,7 +207,20 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
                                            coords,
                                            textureSamplers);
 
+    fFS.nextStage();
+    fFS.codeAppendf("half4 %s;", output.c_str());
     fragProc->emitCode(args);
+    fFS.codeAppendf("return %s;", output.c_str());
+    SkString funcName;
+    GrShaderVar inColor(input.c_str(), kHalf4_GrSLType);
+    fFS.emitFunction(kHalf4_GrSLType,
+                     "stage",
+                     1,
+                     &inColor,
+                     fFS.code().c_str(),
+                     &funcName);
+    fFS.deleteStage();
+    fFS.codeAppendf("%s = %s(%s);", output.c_str(), funcName.c_str(), inColor.c_str());
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
