@@ -99,10 +99,8 @@ if (defined(skia_settings)) {
 
 # Skia public API, generally provided by :skia.
 config("skia_public") {
-  include_dirs = [
-    ".",
-    "include/third_party/vulkan",
-  ]
+  include_dirs = [ "." ]
+
   defines = []
   if (is_component_build) {
     defines += [ "SKIA_DLL" ]
