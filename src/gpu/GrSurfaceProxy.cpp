@@ -457,6 +457,9 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
         fProxy->fHeight = surface->height();
     }
 
+    SkASSERT(fProxy->fWidth <= surface->width());
+    SkASSERT(fProxy->fHeight <= surface->height());
+
     bool needsStencil = fProxy->asRenderTargetProxy()
                                         ? fProxy->asRenderTargetProxy()->needsStencil()
                                         : false;
