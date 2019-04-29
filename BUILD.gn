@@ -99,10 +99,8 @@ if (defined(skia_settings)) {
 
 # Skia public API, generally provided by :skia.
 config("skia_public") {
-  include_dirs = [
-    ".",
-    "include/third_party/vulkan",
-  ]
+  include_dirs = [ "." ]
+
   defines = []
   if (is_component_build) {
     defines += [ "SKIA_DLL" ]
@@ -1206,21 +1204,24 @@ if (skia_enable_tools) {
     }
   }
 
+  config("our_vulkan_headers") {
+    # We add this directory to simulate the client already have
+    # vulkan/vulkan_core.h on their path.
+    include_dirs = [ "include/third_party/vulkan" ]
+  }
+
   source_set("public_headers_warnings_check") {
     sources = [
       "tools/public_headers_warnings_check.cpp",
     ]
     configs -= [ "//gn:warnings_except_public_headers" ]
+    configs += [ ":our_vulkan_headers" ]
     deps = [
       ":skia",
       ":skia.h",
       "modules/skottie",
       "modules/skshaper",
     ]
-
-    # We add this directory to simulate the client already have
-    # vulkan/vulkan_core.h on their path.
-    include_dirs = [ "include/third_party/vulkan" ]
   }
 
   template("test_lib") {
@@ -1436,6 +1437,10 @@ if (skia_enable_tools) {
 
   test_lib("gpu_tool_utils") {
     public_defines = []
+
+    # Bots and even devs may not have Vulkan headers, so put
+    # include/third_party/vulkan on our path so they're always available.
+    all_dependent_configs = [ ":our_vulkan_headers" ]
 
     defines = []
     if (skia_enable_discrete_gpu) {
