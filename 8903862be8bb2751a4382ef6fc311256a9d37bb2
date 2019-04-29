@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7dc2fab7_9b9cb208",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-29T16:41:37Z",
+      "side": 1,
+      "message": "For methods like this, while it\u0027s totally fine to call them like skvx::min(x), I believe you can also call them just as min(x), any(x), etc.  Argument-dependent lookup should take care of figuring out which min() to use.\n\nThe only ones that really can\u0027t be inferred are ones where you need to pass another template argument, like cast and shuffle.",
+      "range": {
+        "startLine": 89,
+        "startChar": 16,
+        "endLine": 89,
+        "endChar": 70
+      },
+      "revId": "8903862be8bb2751a4382ef6fc311256a9d37bb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8e85818_2ee84b89",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-29T16:41:37Z",
+      "side": 1,
+      "message": "Might want to spell this as skvx::Vec\u003c4, int\u003e?",
+      "revId": "8903862be8bb2751a4382ef6fc311256a9d37bb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
