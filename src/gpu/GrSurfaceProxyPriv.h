@@ -42,6 +42,8 @@ public:
     // Don't. Just don't.
     void exactify();
 
+    void setLazySize(int width, int height) { fProxy->setLazySize(width, height); }
+
     bool doLazyInstantiation(GrResourceProvider*);
 
     GrSurfaceProxy::LazyInstantiationType lazyInstantiationType() const {
