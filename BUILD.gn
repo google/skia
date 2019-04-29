@@ -164,9 +164,7 @@ config("skia_private") {
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
 config("skia_library") {
   visibility = [ ":*" ]
-  if (is_component_build) {
-    defines = [ "SKIA_IMPLEMENTATION=1" ]
-  }
+  defines = [ "SKIA_IMPLEMENTATION=1" ]
 }
 
 skia_library_configs = [
