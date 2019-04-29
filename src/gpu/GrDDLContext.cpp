@@ -52,7 +52,8 @@ protected:
             return false;
         }
 
-        this->setupDrawingManager(true);  // DDL contexts/drawing managers always sort the oplists.
+        // DDL contexts/drawing managers always sort the oplists and reduceOpListSplitting
+        this->setupDrawingManager(true, true);
 
         SkASSERT(this->caps());
 
