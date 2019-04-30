@@ -326,6 +326,24 @@
       "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "917ba218_dcc0dd05",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 8589
+      },
+      "writtenOn": "2019-04-30T13:57:03Z",
+      "side": 1,
+      "message": "Yes. It is very common for fullscreen sharing (e.g. go/present). We copy out the entire framebuffer to be shared.",
+      "parentUuid": "0b96ef2a_1817ee61",
+      "revId": "6e57fa1e92b67410376296bbd0716c31aa2eed3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
