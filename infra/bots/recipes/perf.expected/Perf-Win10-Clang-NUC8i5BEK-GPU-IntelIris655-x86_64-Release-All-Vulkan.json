@@ -180,7 +180,6 @@
       "--nocpu",
       "--config",
       "vk",
-      "--reduceOpListSplitting",
       "--match",
       "~^GM_varied_text_clipped_lcd$",
       "~^GM_varied_text_ignorable_clip_lcd$",
