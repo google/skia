@@ -189,9 +189,17 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         if (backendContext.fFeatures & kSampleRateShading_GrVkFeatureFlag) {
             features.features.sampleRateShading = true;
         }
+        GrVkExtensions extensions;
+        // The only extension flag that may effect the vulkan backend is the swapchain extension. We
+        // need to know if this is enabled to know if we can transition to a present layout when
+        // flushing a surface.
+        if (backendContext.fExtensions & kKHR_swapchain_GrVkExtensionFlag) {
+            const char* swapChainExtName = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+            extensions.init(backendContext.fGetProc, backendContext.fInstance,
+                            backendContext.fPhysicalDevice, 0, nullptr, 1, &swapChainExtName);
+        }
         fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                                   features, instanceVersion, physicalDeviceVersion,
-                                   GrVkExtensions()));
+                                   features, instanceVersion, physicalDeviceVersion, extensions));
     }
     fCaps.reset(SkRef(fVkCaps.get()));
 

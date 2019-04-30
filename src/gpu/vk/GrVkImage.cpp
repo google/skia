@@ -129,7 +129,6 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     } else if (releaseFamilyQueue) {
         // We are releasing the image so we must transfer the image back to its original queue
         // family.
-        SkASSERT(fInfo.fCurrentQueueFamily == gpu->queueIndex());
         srcQueueFamilyIndex = fInfo.fCurrentQueueFamily;
         dstQueueFamilyIndex = fInitialQueueFamily;
         fInfo.fCurrentQueueFamily = fInitialQueueFamily;
