@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "df8b9c62_e6ccb18b",
+        "filename": "gm/3dgm.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-30T18:05:20Z",
+      "side": 1,
+      "message": "Actually, even pulling in SkTypes above the ifdef isn\u0027t quite right here, since SK_ENABLE_SKOTTIE is only ever a build flag. The intent was to make iwyu happy no matter the defines. It seems more like this file just shouldn\u0027t be built by the build system if there isn\u0027t any skottie. In fact, it seems we already have a //modules/skottie:gm target for skottie gms. Maybe this should just go there without this define.",
+      "parentUuid": "2c686d04_4ad66040",
+      "revId": "05bf6a751df751092892df9fd255a5630c504784",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c87b3d88_24684565",
         "filename": "gm/arcto.cpp",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2019-04-30T17:49:20Z",
       "side": 1,
       "message": "I feel pretty fine about always including SkOSFile if that makes things easier.",
+      "revId": "05bf6a751df751092892df9fd255a5630c504784",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a26a1d19_528b5a51",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-30T18:05:20Z",
+      "side": 1,
+      "message": "Heh, that actually makes things a little iffier, since if GENERATE_SVG_REFERENCE is false-y then this file doesn\u0027t need SkOSFile.h, so iwyu says we should remove it and the file is no longer iwyu clean. So I just left things the way they were (but moved the ifdef up here from halfway down the file).",
+      "parentUuid": "c87b3d88_24684565",
       "revId": "05bf6a751df751092892df9fd255a5630c504784",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
