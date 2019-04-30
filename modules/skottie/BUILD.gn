@@ -124,6 +124,7 @@ if (skia_enable_skottie) {
 
         configs += [ "../..:skia_private" ]
         sources = [
+          "gm/3dgm.cpp",
           "gm/SkottieGM.cpp",
         ]
 
