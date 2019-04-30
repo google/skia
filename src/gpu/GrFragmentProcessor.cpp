@@ -18,6 +18,8 @@
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
+#include "src/sksl/SkSLString.h"
+
 bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
     if (this->classID() != that.classID()) {
         return false;
@@ -241,7 +243,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
             public:
                 void emitCode(EmitArgs& args) override {
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-                    this->emitChild(0, args);
+                    this->invokeChild(0, args);
                     fragBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
                                                                 args.fInputColor);
                     fragBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
@@ -284,6 +286,88 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
         std::unique_ptr<GrFragmentProcessor> fp, const SkPMColor4f& color, bool useUniform) {
+    class ReplaceInputFragmentProcessor : public GrFragmentProcessor {
+    public:
+        static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child,
+                                                         const SkPMColor4f& color) {
+            return std::unique_ptr<GrFragmentProcessor>(
+                    new ReplaceInputFragmentProcessor(std::move(child), color));
+        }
+
+        const char* name() const override { return "Replace Color"; }
+
+        std::unique_ptr<GrFragmentProcessor> clone() const override {
+            return Make(this->childProcessor(0).clone(), fColor);
+        }
+
+    private:
+        GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+            class GLFP : public GrGLSLFragmentProcessor {
+            public:
+                GLFP() : fHaveSetColor(false) {}
+                void emitCode(EmitArgs& args) override {
+                    const char* colorName;
+                    fColorUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                                 kHalf4_GrSLType,
+                                                                 "Color", &colorName);
+                    this->invokeChild(0, colorName, args);
+                }
+
+            private:
+                void onSetData(const GrGLSLProgramDataManager& pdman,
+                               const GrFragmentProcessor& fp) override {
+                    SkPMColor4f color = fp.cast<ReplaceInputFragmentProcessor>().fColor;
+                    if (!fHaveSetColor || color != fPreviousColor) {
+                        pdman.set4fv(fColorUni, 1, color.vec());
+                        fPreviousColor = color;
+                        fHaveSetColor = true;
+                    }
+                }
+
+                GrGLSLProgramDataManager::UniformHandle fColorUni;
+                bool        fHaveSetColor;
+                SkPMColor4f fPreviousColor;
+            };
+
+            return new GLFP;
+        }
+
+        ReplaceInputFragmentProcessor(std::unique_ptr<GrFragmentProcessor> child,
+                                      const SkPMColor4f& color)
+                : INHERITED(kReplaceInputFragmentProcessor_ClassID, OptFlags(child.get(), color))
+                , fColor(color) {
+            this->registerChildProcessor(std::move(child));
+        }
+
+        static OptimizationFlags OptFlags(const GrFragmentProcessor* child,
+                                          const SkPMColor4f& color) {
+            OptimizationFlags childFlags = child->optimizationFlags();
+            OptimizationFlags flags = kNone_OptimizationFlags;
+            if (childFlags & kConstantOutputForConstantInput_OptimizationFlag) {
+                flags |= kConstantOutputForConstantInput_OptimizationFlag;
+            }
+            if ((childFlags & kPreservesOpaqueInput_OptimizationFlag) && color.isOpaque()) {
+                flags |= kPreservesOpaqueInput_OptimizationFlag;
+            }
+            return flags;
+        }
+
+        void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override
+        {}
+
+        bool onIsEqual(const GrFragmentProcessor& that) const override {
+            return fColor == that.cast<ReplaceInputFragmentProcessor>().fColor;
+        }
+
+        SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override {
+            return ConstantOutputForConstantInput(this->childProcessor(0), fColor);
+        }
+
+        SkPMColor4f fColor;
+
+        typedef GrFragmentProcessor INHERITED;
+    };
+
     if (!fp) {
         return nullptr;
     }
@@ -318,15 +402,19 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
                 void emitCode(EmitArgs& args) override {
                     // First guy's input might be nil.
                     SkString temp("out0");
-                    this->emitChild(0, args.fInputColor, &temp, args);
+                    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+                    fragBuilder->codeAppendf("half4 %s;\n", temp.c_str());
+                    this->invokeChild(0, args.fInputColor, temp.c_str(), args);
                     SkString input = temp;
                     for (int i = 1; i < this->numChildProcessors() - 1; ++i) {
                         temp.printf("out%d", i);
-                        this->emitChild(i, input.c_str(), &temp, args);
+                        fragBuilder->codeAppendf("half4 %s;\n", temp.c_str());
+                        this->invokeChild(i, input.c_str(), temp.c_str(), args);
                         input = temp;
                     }
                     // Last guy writes to our output variable.
-                    this->emitChild(this->numChildProcessors() - 1, input.c_str(), args);
+                    this->invokeChild(this->numChildProcessors() - 1, input.c_str(),
+                                      args.fOutputColor, args);
                 }
             };
             return new GLFP;
