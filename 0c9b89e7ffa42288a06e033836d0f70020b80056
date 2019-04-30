@@ -39,6 +39,30 @@
       "revId": "0c9b89e7ffa42288a06e033836d0f70020b80056",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31e803d9_d291f528",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-04-30T19:58:24Z",
+      "side": 1,
+      "message": "Yeah. That\u0027s what I was thinking too. I\u0027ll figure out a good way to ensure that we have one.",
+      "parentUuid": "1a9d47e0_2368ee00",
+      "range": {
+        "startLine": 93,
+        "startChar": 8,
+        "endLine": 101,
+        "endChar": 9
+      },
+      "revId": "0c9b89e7ffa42288a06e033836d0f70020b80056",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
