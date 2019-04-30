@@ -11,11 +11,11 @@
 
 // This GM renders correctly in 8888, but fails in PDF
 DEF_SIMPLE_GM(fadefilter, canvas, 256, 256) {
-    SkScalar matrix[20] = { 1, 0, 0, 0, 128.0f,
-                            0, 1, 0, 0, 128.0f,
-                            0, 0, 1, 0, 128.0f,
-                            0, 0, 0, 1, 0 };
-    sk_sp<SkColorFilter> colorFilter(SkColorFilters::MatrixRowMajor255(matrix));
+    float matrix[20] = { 1, 0, 0, 0, 0.5f,
+                         0, 1, 0, 0, 0.5f,
+                         0, 0, 1, 0, 0.5f,
+                         0, 0, 0, 1, 0 };
+    sk_sp<SkColorFilter> colorFilter(SkColorFilters::Matrix(matrix));
     SkPaint layerPaint;
     layerPaint.setImageFilter(SkColorFilterImageFilter::Make(std::move(colorFilter), nullptr));
     canvas->drawRect(SkRect::MakeLTRB(64, 64, 192, 192), layerPaint);
