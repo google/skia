@@ -183,7 +183,6 @@
       "angle_d3d11_es2_msaa8",
       "angle_gl_es2",
       "angle_gl_es2_msaa8",
-      "--reduceOpListSplitting",
       "--match",
       "~inc0.gif",
       "~inc1.gif",
