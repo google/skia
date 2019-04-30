@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa1f9a38_9496bea3",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-04-30T19:08:23Z",
+      "side": 1,
+      "message": "This is a really minimal interface, curious how others feel about this:\n\n1) In Chromium, we actually skip checking for errors during compile \u0026 link. Do we want options like that as part of this interface (so that Chromium can get all the behavior they want by customizing this object?), or maybe just convert that into a GrContextOption instead (orthogonal to the reporting behavior that\u0027s abstracted by this interface)?\n\n2) Linking failures currently print the error message, then go through a bunch of other code to print out the shaders for each stage. I can probably try to rearrange everything so that if linking fails, we marshal everything into this form (with \"shader\" being the concatenation of all the stages?). Is that stretching this too far? (vs. having the interface more complex and capturing meta-information about what\u0027s failing vs. auxiliary information)?\n\n3) Finally, separate from all of this - feels like maybe I should try to put the SkDebugf code into a default implementation of this interface, and *always* have one supplied by the context?",
+      "revId": "0c9b89e7ffa42288a06e033836d0f70020b80056",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
