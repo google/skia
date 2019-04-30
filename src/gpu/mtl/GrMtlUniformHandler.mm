@@ -188,9 +188,7 @@ static void get_ubo_aligned_offset(uint32_t* uniformOffset,
     *uniformOffset = *currentOffset + offsetDiff;
     SkASSERT(sizeof(float) == 4);
     if (arrayCount) {
-        uint32_t elementSize = SkTMax<uint32_t>(16, grsltype_to_mtl_size(type));
-        SkASSERT(0 == (elementSize & 0xF));
-        *currentOffset = *uniformOffset + elementSize * arrayCount;
+        *currentOffset = *uniformOffset + grsltype_to_mtl_size(type) * arrayCount;
     } else {
         *currentOffset = *uniformOffset + grsltype_to_mtl_size(type);
     }

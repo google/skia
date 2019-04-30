@@ -103,11 +103,7 @@ void GrMtlPipelineStateDataManager::set1fv(UniformHandle u,
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
-    for (int i = 0; i < arrayCount; ++i) {
-        const float* curVec = &v[i];
-        memcpy(buffer, curVec, sizeof(float));
-        buffer = static_cast<char*>(buffer) + 4*sizeof(float);
-    }
+    memcpy(buffer, v, arrayCount * sizeof(float));
 }
 
 void GrMtlPipelineStateDataManager::set2i(UniformHandle u, int32_t i0, int32_t i1) const {
@@ -130,11 +126,7 @@ void GrMtlPipelineStateDataManager::set2iv(UniformHandle u,
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(int32_t) == 4);
-    for (int i = 0; i < arrayCount; ++i) {
-        const int32_t* curVec = &v[2 * i];
-        memcpy(buffer, curVec, 2 * sizeof(int32_t));
-        buffer = static_cast<char*>(buffer) + 4*sizeof(int32_t);
-    }
+    memcpy(buffer, v, arrayCount*sizeof(int32_t));
 }
 
 void GrMtlPipelineStateDataManager::set2f(UniformHandle u, float v0, float v1) const {
@@ -158,11 +150,7 @@ void GrMtlPipelineStateDataManager::set2fv(UniformHandle u,
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
-    for (int i = 0; i < arrayCount; ++i) {
-        const float* curVec = &v[2 * i];
-        memcpy(buffer, curVec, 2 * sizeof(float));
-        buffer = static_cast<char*>(buffer) + 4*sizeof(float);
-    }
+    memcpy(buffer, v, arrayCount * 2 * sizeof(float));
 }
 
 void GrMtlPipelineStateDataManager::set3i(UniformHandle u,
@@ -247,11 +235,7 @@ void GrMtlPipelineStateDataManager::set4iv(UniformHandle u,
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(int32_t) == 4);
-    for (int i = 0; i < arrayCount; ++i) {
-        const int32_t* curVec = &v[4 * i];
-        memcpy(buffer, curVec, 4 * sizeof(int32_t));
-        buffer = static_cast<char*>(buffer) + 4*sizeof(int32_t);
-    }
+    memcpy(buffer, v, arrayCount * 4 * sizeof(int32_t));
 }
 
 void GrMtlPipelineStateDataManager::set4f(UniformHandle u,
