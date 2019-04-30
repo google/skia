@@ -85,17 +85,17 @@ protected:
         }
 
         {
-            SkScalar matrix[20] = { SK_Scalar1, 0, 0, 0, 0,
-                                    0, SK_Scalar1, 0, 0, 0,
-                                    0, 0, SK_Scalar1, 0, 0,
-                                    0, 0, 0, SK_Scalar1, 0 };
+            float matrix[20] = { 1, 0, 0, 0, 0,
+                                 0, 1, 0, 0, 0,
+                                 0, 0, 1, 0, 0,
+                                 0, 0, 0, 1, 0 };
 
             SkRect srcRect = SkRect::MakeWH(SkIntToScalar(fBitmap->width()),
                                             SkIntToScalar(fBitmap->height()));
             SkRect dstRect = SkRect::MakeWH(SkIntToScalar(fBitmap->width() * 2),
                                             SkIntToScalar(fBitmap->height() * 2));
             sk_sp<SkImageFilter> tile(SkTileImageFilter::Make(srcRect, dstRect, nullptr));
-            sk_sp<SkColorFilter> cf(SkColorFilters::MatrixRowMajor255(matrix));
+            sk_sp<SkColorFilter> cf(SkColorFilters::Matrix(matrix));
 
             SkPaint paint;
             paint.setImageFilter(SkColorFilterImageFilter::Make(std::move(cf), std::move(tile)));

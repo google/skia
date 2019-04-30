@@ -50,11 +50,11 @@ DEF_SIMPLE_GM(imagefilterscropexpand, canvas, 730, 650) {
     // This color matrix saturates the green component but only partly increases the opacity.
     // For the opaque checkerboard, the opacity boost doesn't matter but it does impact the
     // area outside the checkerboard.
-    SkScalar matrix[20] = { 1, 0, 0, 0, 0,
-                            0, 1, 0, 0, 255,
-                            0, 0, 1, 0, 0,
-                            0, 0, 0, 1, 32 };
-    sk_sp<SkColorFilter> cfAlphaTrans(SkColorFilters::MatrixRowMajor255(matrix));
+    float matrix[20] = { 1, 0, 0, 0, 0,
+                         0, 1, 0, 0, 1,
+                         0, 0, 1, 0, 0,
+                         0, 0, 0, 1, 32.0f/255 };
+    sk_sp<SkColorFilter> cfAlphaTrans(SkColorFilters::Matrix(matrix));
 
     SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
     SkScalar MARGIN = SkIntToScalar(12);

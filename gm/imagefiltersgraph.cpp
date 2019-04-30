@@ -62,12 +62,12 @@ protected:
         {
             sk_sp<SkImageFilter> morph(SkDilateImageFilter::Make(5, 5, nullptr));
 
-            SkScalar matrix[20] = { SK_Scalar1, 0, 0, 0, 0,
-                                    0, SK_Scalar1, 0, 0, 0,
-                                    0, 0, SK_Scalar1, 0, 0,
-                                    0, 0, 0, 0.5f, 0 };
+            float matrix[20] = { 1, 0, 0, 0, 0,
+                                 0, 1, 0, 0, 0,
+                                 0, 0, 1, 0, 0,
+                                 0, 0, 0, 0.5f, 0 };
 
-            sk_sp<SkColorFilter> matrixFilter(SkColorFilters::MatrixRowMajor255(matrix));
+            sk_sp<SkColorFilter> matrixFilter(SkColorFilters::Matrix(matrix));
             sk_sp<SkImageFilter> colorMorph(SkColorFilterImageFilter::Make(std::move(matrixFilter),
                                                                            std::move(morph)));
             SkPaint paint;
@@ -78,11 +78,11 @@ protected:
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
-            SkScalar matrix[20] = { SK_Scalar1, 0, 0, 0, 0,
-                                    0, SK_Scalar1, 0, 0, 0,
-                                    0, 0, SK_Scalar1, 0, 0,
-                                    0, 0, 0, 0.5f, 0 };
-            sk_sp<SkColorFilter> matrixCF(SkColorFilters::MatrixRowMajor255(matrix));
+            float matrix[20] = { 1, 0, 0, 0, 0,
+                                 0, 1, 0, 0, 0,
+                                 0, 0, 1, 0, 0,
+                                 0, 0, 0, 0.5f, 0 };
+            sk_sp<SkColorFilter> matrixCF(SkColorFilters::Matrix(matrix));
             sk_sp<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Make(std::move(matrixCF),
                                                                              nullptr));
             sk_sp<SkImageFilter> offsetFilter(SkOffsetImageFilter::Make(10.0f, 10.f,

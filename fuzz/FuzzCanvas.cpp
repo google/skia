@@ -127,9 +127,9 @@ static sk_sp<SkColorFilter> make_fuzz_colorfilter(Fuzz* fuzz, int depth) {
             return outer->makeComposed(std::move(inner));
         }
         case 3: {
-            SkScalar array[20];
+            float array[20];
             fuzz->nextN(array, SK_ARRAY_COUNT(array));
-            return SkColorFilters::MatrixRowMajor255(array);
+            return SkColorFilters::Matrix(array);
         }
         case 4: {
             SkColor mul, add;

@@ -98,22 +98,21 @@ private:
 };
 
 static sk_sp<SkColorFilter> make_brightness(float amount) {
-    SkScalar amount255 = amount * 255;
-    SkScalar matrix[20] = { 1, 0, 0, 0, amount255,
-                            0, 1, 0, 0, amount255,
-                            0, 0, 1, 0, amount255,
+    SkScalar matrix[20] = { 1, 0, 0, 0, amount,
+                            0, 1, 0, 0, amount,
+                            0, 0, 1, 0, amount,
                             0, 0, 0, 1, 0 };
-    return SkColorFilters::MatrixRowMajor255(matrix);
+    return SkColorFilters::Matrix(matrix);
 }
 
 static sk_sp<SkColorFilter> make_grayscale() {
-    SkScalar matrix[20];
-    memset(matrix, 0, 20 * sizeof(SkScalar));
+    float matrix[20];
+    memset(matrix, 0, 20 * sizeof(float));
     matrix[0] = matrix[5] = matrix[10] = 0.2126f;
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    return SkColorFilters::MatrixRowMajor255(matrix);
+    return SkColorFilters::Matrix(matrix);
 }
 
 class MatrixCollapseBench: public BaseImageFilterCollapseBench {

@@ -26,12 +26,12 @@ static SkBitmap make_alpha_image(int w, int h) {
 }
 
 static sk_sp<SkColorFilter> make_color_filter() {
-    SkScalar colorMatrix[20] = {
+    float colorMatrix[20] = {
         1, 0, 0,   0,   0,
         0, 1, 0,   0,   0,
         0, 0, 0.5, 0.5, 0,
         0, 0, 0.5, 0.5, 0}; // mix G and A.
-    return SkColorFilters::MatrixRowMajor255(colorMatrix);
+    return SkColorFilters::Matrix(colorMatrix);
 }
 
 DEF_SIMPLE_GM(alpha_image, canvas, 256, 256) {

@@ -214,14 +214,14 @@ public:
         blit.setFilterQuality(scale > 1.f ? kNone_SkFilterQuality : kMedium_SkFilterQuality);
         if (debugMode) {
             // Makes anything that's > 1/255 alpha fully opaque and sets color to medium green.
-            static constexpr SkScalar kFilter[] = {
-                0.f, 0.f, 0.f, 0.f, 16.f,
-                0.f, 0.f, 0.f, 0.f, 200.f,
-                0.f, 0.f, 0.f, 0.f, 16.f,
+            static constexpr float kFilter[] = {
+                0.f, 0.f, 0.f, 0.f, 16.f/255,
+                0.f, 0.f, 0.f, 0.f, 200.f/255,
+                0.f, 0.f, 0.f, 0.f, 16.f/255,
                 0.f, 0.f, 0.f, 255.f, 0.f
             };
 
-            blit.setColorFilter(SkColorFilters::MatrixRowMajor255(kFilter));
+            blit.setColorFilter(SkColorFilters::Matrix(kFilter));
         }
 
         canvas->scale(scale, scale);

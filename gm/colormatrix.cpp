@@ -17,8 +17,8 @@ static void set_color_matrix(SkPaint* paint, const SkColorMatrix& matrix) {
     paint->setColorFilter(SkColorFilters::Matrix(matrix));
 }
 
-static void set_array(SkPaint* paint, const SkScalar array[]) {
-    paint->setColorFilter(SkColorFilters::MatrixRowMajor255(array));
+static void set_array(SkPaint* paint, const float array[]) {
+    paint->setColorFilter(SkColorFilters::Matrix(array));
 }
 
 class ColorMatrixGM : public skiagm::GM {
@@ -121,14 +121,12 @@ protected:
             set_color_matrix(&paint, matrix);
             canvas->drawImage(bmps[i], 80, 160, &paint);
 
-            SkScalar s1 = SK_Scalar1;
-            SkScalar s255 = SkIntToScalar(255);
             // Move red into alpha, set color to white
-            SkScalar data[20] = {
-                0,  0, 0, 0, s255,
-                0,  0, 0, 0, s255,
-                0,  0, 0, 0, s255,
-                s1, 0, 0, 0, 0,
+            float data[20] = {
+                0,  0, 0, 0, 1,
+                0,  0, 0, 0, 1,
+                0,  0, 0, 0, 1,
+                1, 0, 0, 0, 0,
             };
 
             set_array(&paint, data);
