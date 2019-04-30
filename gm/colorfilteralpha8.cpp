@@ -35,9 +35,9 @@ protected:
                 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
                 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
                 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-                0.0f, 0.0f, 0.0f, 0.0f, 255.0f
+                0.0f, 0.0f, 0.0f, 0.0f, 1.0f
         };
-        paint.setColorFilter(SkColorFilters::MatrixRowMajor255(opaqueGrayMatrix));
+        paint.setColorFilter(SkColorFilters::Matrix(opaqueGrayMatrix));
 
         canvas->drawBitmap(bitmap, 100.0f, 100.0f, &paint);
     }

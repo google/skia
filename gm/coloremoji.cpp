@@ -31,13 +31,13 @@ static sk_sp<SkShader> MakeLinear() {
 }
 
 static sk_sp<SkImageFilter> make_grayscale(sk_sp<SkImageFilter> input) {
-    SkScalar matrix[20];
-    memset(matrix, 0, 20 * sizeof(SkScalar));
+    float matrix[20];
+    memset(matrix, 0, 20 * sizeof(float));
     matrix[0] = matrix[5] = matrix[10] = 0.2126f;
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    sk_sp<SkColorFilter> filter(SkColorFilters::MatrixRowMajor255(matrix));
+    sk_sp<SkColorFilter> filter(SkColorFilters::Matrix(matrix));
     return SkColorFilterImageFilter::Make(std::move(filter), std::move(input));
 }
 
