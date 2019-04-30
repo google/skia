@@ -244,18 +244,32 @@ static void outset_projected_vertices(const V4f& x2d, const V4f& y2d,
                                 skvx::if_then_else(useC1x, c1x, c1y)),  /* A & !B  */
                         skvx::if_then_else(bMask,
                                 skvx::if_then_else(useC2x, c2x, c2y),   /* !A & B  */
-                                V4f(1.f)));                                  /* !A & !B */
+                                V4f(1.f)));                             /* !A & !B */
 
         a = skvx::if_then_else(aMask,
                     skvx::if_then_else(bMask,
                             c2x * c3y - c3x * c2y,                      /* A & B   */
                             skvx::if_then_else(useC1x, -c3x, -c3y)),    /* A & !B  */
-                    V4f(0.f)) / denom;                                       /* !A      */
+                    V4f(0.f)) / denom;                                  /* !A      */
         b = skvx::if_then_else(bMask,
                     skvx::if_then_else(aMask,
                             c3x * c1y - c1x * c3y,                      /* A & B   */
                             skvx::if_then_else(useC2x, -c3x, -c3y)),    /* !A & B  */
-                    V4f(0.f)) / denom;                                       /* !B      */
+                    V4f(0.f)) / denom;                                  /* !B      */
+    }
+
+    V4f newW = quad->fW + a * e1w + b * e2w;
+    // If newW < 0, scale a and b such that the point reaches the infinity plane instead of crossing
+    // This breaks orthogonality of inset/outsets, but GPUs don't handle negative Ws well so this
+    // is far less visually disturbing (likely not noticeable since it's at extreme perspective).
+    // The alternative correction (multiply xyw by -1) has the disadvantage of changing how local
+    // coordinates would be interpolated.
+    static const float kMinW = 1e-6f;
+    if (skvx::any(newW < 0.f)) {
+        V4f scale = skvx::if_then_else(newW < kMinW,
+                (kMinW - quad->fW) / (newW - quad->fW), V4f(1.f));
+        a *= scale;
+        b *= scale;
     }
 
     quad->fX += a * e1x + b * e2x;
