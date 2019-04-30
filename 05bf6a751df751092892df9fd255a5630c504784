@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c87b3d88_24684565",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-30T17:49:20Z",
+      "side": 1,
+      "message": "I feel pretty fine about always including SkOSFile if that makes things easier.",
+      "revId": "05bf6a751df751092892df9fd255a5630c504784",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
