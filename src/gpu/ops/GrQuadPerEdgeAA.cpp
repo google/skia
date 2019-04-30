@@ -258,6 +258,19 @@ static void outset_projected_vertices(const V4f& x2d, const V4f& y2d,
                     V4f(0.f)) / denom;                            /* !B      */
     }
 
+    V4f newW = quad->fW + a * e1w + b * e2w;
+    // If newW < 0, scale a and b such that the point reaches the infinity plane instead of crossing
+    // This breaks orthogonality of inset/outsets, but GPUs don't handle negative Ws well so this
+    // is far less visually disturbing (likely not noticeable since it's at extreme perspective).
+    // The alternative correction (multiply xyw by -1) has the disadvantage of changing how local
+    // coordinates would be interpolated.
+    static const float kMinW = 1e-6f;
+    if (any(newW < 0.f)) {
+        V4f scale = if_then_else(newW < kMinW, (kMinW - quad->fW) / (newW - quad->fW), V4f(1.f));
+        a *= scale;
+        b *= scale;
+    }
+
     quad->fX += a * e1x + b * e2x;
     quad->fY += a * e1y + b * e2y;
     quad->fW += a * e1w + b * e2w;
