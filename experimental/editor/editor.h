@@ -11,6 +11,7 @@
 #include <vector>
 
 class SkCanvas;
+class SkShaper;
 
 // TODO: modulize this; editor::Editor becomes SkEditor ?
 
@@ -40,6 +41,7 @@ public:
 private:
     struct TextLine {
         SkString fText;
+        std::vector<SkRect> fCursorPos;
         int fHeight = 0;
         sk_sp<const SkTextBlob> fBlob;
         bool fSelected = false;  // Will allow selection of subset of text later.
@@ -52,9 +54,11 @@ private:
     int fMargin = 10;
     int fWidth = 0;
     int fHeight = 0;
-    SkFont fFont{nullptr, 24};
+    SkFont fFont{nullptr, 48};
     SkColor4f fBackgroundColor = {0.8f, 0.8f, 0.8f, 1};
     SkColor4f fForegroundColor = {0, 0, 0, 1};
+
+    static void Shape(TextLine*, SkShaper*, float width, const SkFont&);
 };
 }  // namespace editor
 #endif  // editor_DEFINED
