@@ -58,7 +58,8 @@ private:
                                  GrGLenum type,
                                  SkTDArray<GrGLuint>* shaderIds,
                                  const SkSL::Program::Settings& settings,
-                                 const SkSL::Program::Inputs& inputs);
+                                 const SkSL::Program::Inputs& inputs,
+                                 GrContextOptions::ShaderErrorHandler* errorHandler);
 
     void computeCountsAndStrides(GrGLuint programID, const GrPrimitiveProcessor& primProc,
                                  bool bindAttribLocations);

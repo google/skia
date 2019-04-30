@@ -63,7 +63,8 @@ void print_shader_banner(GrGLenum type) {
 std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum type,
                                             const SkSL::String& sksl,
                                             const SkSL::Program::Settings& settings,
-                                            SkSL::String* glsl) {
+                                            SkSL::String* glsl,
+                                            GrContextOptions::ShaderErrorHandler* errorHandler) {
     // Trace event for shader preceding driver compilation
     bool traceShader;
     TRACE_EVENT_CATEGORY_GROUP_ENABLED("skia.gpu", &traceShader);
@@ -89,10 +90,15 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum
     }
     program = compiler->convertProgram(programKind, sksl, settings);
     if (!program || !compiler->toGLSL(*program, glsl)) {
-        SkDebugf("SKSL compilation error\n----------------------\n");
-        print_sksl_line_by_line(sksl);
-        SkDebugf("\nErrors:\n%s\n", compiler->errorText().c_str());
-        SkDEBUGFAIL("SKSL compilation failed!\n");
+        if (errorHandler) {
+            errorHandler->compileError(GrSKSLPrettyPrint::PrettyPrint(sksl).c_str(),
+                                       compiler->errorText().c_str());
+        } else {
+            SkDebugf("SKSL compilation error\n----------------------\n");
+            print_sksl_line_by_line(sksl);
+            SkDebugf("\nErrors:\n%s\n", compiler->errorText().c_str());
+            SkDEBUGFAIL("SKSL compilation failed!\n");
+        }
         return nullptr;
     }
     if (gPrintSKSL) {
@@ -108,7 +114,8 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     const char* glsl,
                                     int glslLength,
                                     GrGpu::Stats* stats,
-                                    const SkSL::Program::Settings& settings) {
+                                    const SkSL::Program::Settings& settings,
+                                    GrContextOptions::ShaderErrorHandler* errorHandler) {
     const GrGLInterface* gli = glCtx.interface();
 
     // Specify GLSL source to the driver.
@@ -132,8 +139,6 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
         GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_COMPILE_STATUS, &compiled));
 
         if (!compiled) {
-            SkDebugf("GLSL compilation error\n----------------------\n");
-            print_glsl_line_by_line(glsl);
             GrGLint infoLen = GR_GL_INIT_ZERO;
             GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_INFO_LOG_LENGTH, &infoLen));
             SkAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
@@ -142,12 +147,19 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                 // buffer param validation.
                 GrGLsizei length = GR_GL_INIT_ZERO;
                 GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1, &length, (char*)log.get()));
-                SkDebugf("Errors:\n%s\n", (const char*) log.get());
             }
-            // In Chrome we may have failed due to context-loss. So we should just continue along
-            // wihthout asserting until the GrContext gets abandoned.
-            if (kChromium_GrGLDriver != glCtx.driver()) {
-                SkDEBUGFAIL("GLSL compilation failed!");
+            const char* logStr = infoLen > 0 ? (const char*)log.get() : "";
+            if (errorHandler) {
+                errorHandler->compileError(glsl, logStr);
+            } else {
+                SkDebugf("GLSL compilation error\n----------------------\n");
+                print_glsl_line_by_line(glsl);
+                SkDebugf("Errors:\n%s\n", logStr);
+                // In Chrome we may have failed due to context-loss. So we should just continue
+                // along wihthout asserting until the GrContext gets abandoned.
+                if (kChromium_GrGLDriver != glCtx.driver()) {
+                    SkDEBUGFAIL("GLSL compilation failed!");
+                }
             }
             GR_GL_CALL(gli, DeleteShader(shaderId));
             return 0;
@@ -171,7 +183,7 @@ void GrGLPrintShader(const GrGLContext& context, GrGLenum type, const SkSL::Stri
                      const SkSL::Program::Settings& settings) {
     print_sksl_line_by_line(sksl);
     SkSL::String glsl;
-    if (GrSkSLtoGLSL(context, type, sksl, settings, &glsl)) {
+    if (GrSkSLtoGLSL(context, type, sksl, settings, &glsl, nullptr)) {
         print_glsl_line_by_line(glsl);
     }
 }
