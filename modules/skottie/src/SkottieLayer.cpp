@@ -24,6 +24,7 @@
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGPath.h"
 #include "modules/sksg/include/SkSGRect.h"
+#include "modules/sksg/include/SkSGRenderEffect.h"
 #include "modules/sksg/include/SkSGTransform.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/utils/SkJSON.h"
@@ -72,14 +73,16 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
     if (!jmask) return childNode;
 
     struct MaskRecord {
-        sk_sp<sksg::Path>  mask_path;  // for clipping and masking
-        sk_sp<sksg::Color> mask_paint; // for masking
-        sksg::Merge::Mode  merge_mode; // for clipping
+        sk_sp<sksg::Path>            mask_path;  // for clipping and masking
+        sk_sp<sksg::Color>           mask_paint; // for masking
+        sk_sp<sksg::BlurImageFilter> mask_blur;  // for masking
+        sksg::Merge::Mode            merge_mode; // for clipping
     };
 
     SkSTArray<4, MaskRecord, true> mask_stack;
 
-    bool has_opacity = false;
+    bool has_effect = false;
+    auto blur_effect = sksg::BlurImageFilter::Make();
 
     for (const skjson::ObjectValue* m : *jmask) {
         if (!m) continue;
@@ -120,19 +123,37 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
         mask_paint->setBlendMode(mask_stack.empty() ? SkBlendMode::kSrc
                                                     : mask_info->fBlendMode);
 
-        has_opacity |= abuilder->bindProperty<ScalarValue>((*m)["o"], ascope,
+        has_effect |= abuilder->bindProperty<ScalarValue>((*m)["o"], ascope,
             [mask_paint](const ScalarValue& o) {
                 mask_paint->setOpacity(o * 0.01f);
         }, 100.0f);
 
-        mask_stack.push_back({mask_path, mask_paint, mask_info->fMergeMode});
+        static const VectorValue default_feather = { 0, 0 };
+        if (abuilder->bindProperty<VectorValue>((*m)["f"], ascope,
+            [blur_effect](const VectorValue& feather) {
+                // Close enough to AE.
+                static constexpr SkScalar kFeatherToSigma = 0.38f;
+                auto sX = feather.size() > 0 ? feather[0] * kFeatherToSigma : 0,
+                     sY = feather.size() > 1 ? feather[1] * kFeatherToSigma : 0;
+                blur_effect->setSigma({ sX, sY });
+            }, default_feather)) {
+
+            has_effect = true;
+            mask_stack.push_back({ mask_path,
+                                   mask_paint,
+                                   std::move(blur_effect),
+                                   mask_info->fMergeMode});
+            blur_effect = sksg::BlurImageFilter::Make();
+        } else {
+            mask_stack.push_back({mask_path, mask_paint, nullptr, mask_info->fMergeMode});
+        }
     }
 
     if (mask_stack.empty())
         return childNode;
 
     // If the masks are fully opaque, we can clip.
-    if (!has_opacity) {
+    if (!has_effect) {
         sk_sp<sksg::GeometryNode> clip_node;
 
         if (mask_stack.count() == 1) {
@@ -153,17 +174,22 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
         return sksg::ClipEffect::Make(std::move(childNode), std::move(clip_node), true);
     }
 
+    const auto make_mask = [](const MaskRecord& rec) {
+        auto mask = sksg::Draw::Make(std::move(rec.mask_path),
+                                     std::move(rec.mask_paint));
+        // Optional mask blur (feather).
+        return sksg::ImageFilterEffect::Make(std::move(mask), std::move(rec.mask_blur));
+    };
+
     sk_sp<sksg::RenderNode> maskNode;
     if (mask_stack.count() == 1) {
         // no group needed for single mask
-        maskNode = sksg::Draw::Make(std::move(mask_stack.front().mask_path),
-                                    std::move(mask_stack.front().mask_paint));
+        maskNode = make_mask(mask_stack.front());
     } else {
         std::vector<sk_sp<sksg::RenderNode>> masks;
         masks.reserve(SkToSizeT(mask_stack.count()));
         for (auto& rec : mask_stack) {
-            masks.push_back(sksg::Draw::Make(std::move(rec.mask_path),
-                                             std::move(rec.mask_paint)));
+            masks.push_back(make_mask(rec));
         }
 
         maskNode = sksg::Group::Make(std::move(masks));
