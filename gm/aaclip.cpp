@@ -6,9 +6,17 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkMakeUnique.h"
 #include "tools/ToolUtils.h"
 
 static void do_draw(SkCanvas* canvas, const SkRect& r) {

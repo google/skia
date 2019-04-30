@@ -7,8 +7,17 @@
 
 #include "gm/gm.h"
 #include "include/core/SkAnnotation.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+
+#include <string.h>
 
 static void draw_url_annotated_text_with_box(
         SkCanvas* canvas, const void* text,

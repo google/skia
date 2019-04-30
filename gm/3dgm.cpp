@@ -5,19 +5,36 @@
  * found in the LICENSE file.
  */
 
-#include "gm/gm.h"
-
-#include "include/core/SkFont.h"
-#include "include/core/SkPath.h"
-#include "include/core/SkPoint3.h"
-#include "include/utils/Sk3D.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_ENABLE_SKOTTIE
 
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkMatrix44.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/utils/Sk3D.h"
 #include "modules/skottie/include/Skottie.h"
 #include "tools/Resources.h"
 #include "tools/timer/AnimTimer.h"
+
+#include <math.h>
+#include <algorithm>
+#include <memory>
+
+class SkMetaData;
 
 static SkMatrix operator*(const SkMatrix& a, const SkMatrix& b) {
     SkMatrix44 c;
