@@ -7,7 +7,6 @@
 _gm = get_path_info("../gm", "abspath")
 
 gm_sources = [
-  "$_gm/3dgm.cpp",
   "$_gm/aaa.cpp",
   "$_gm/aaclip.cpp",
   "$_gm/aarectmodes.cpp",

@@ -7,16 +7,25 @@
 
 #include "gm/gm.h"
 #include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColor.h"
-#include "include/core/SkFont.h"
-#include "include/core/SkPaint.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkAnimCodecPlayer.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkOSFile.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/timer/AnimTimer.h"
 
+#include <memory>
+#include <utility>
 #include <vector>
 
 static DEFINE_string(animatedGif, "images/test640x479.gif", "Animated gif in resources folder");
@@ -168,10 +177,6 @@ private:
 };
 DEF_GM(return new AnimatedGifGM);
 
-
-#include "include/utils/SkAnimCodecPlayer.h"
-#include "src/core/SkMakeUnique.h"
-#include "src/core/SkOSFile.h"
 
 static std::unique_ptr<SkCodec> load_codec(const char filename[]) {
     return SkCodec::MakeFromData(SkData::MakeFromFileName(filename));
