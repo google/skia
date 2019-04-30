@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df81e24f_5adc75b7",
+        "filename": "specs/web-img-decode/proposed/impl/impl.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-04-30T16:23:12Z",
+      "side": 1,
+      "message": "This is not yet implemented in CanvasKit, but could easily be, assuming there includes a color space option (?)",
+      "revId": "4dd6ec4f783fcf08161d2c449daed463e5a2de6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a42be9df_fd35d945",
+        "filename": "specs/web-img-decode/proposed/index.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-04-30T16:23:12Z",
+      "side": 1,
+      "message": "This is the new proposed API",
+      "range": {
+        "startLine": 58,
+        "startChar": 26,
+        "endLine": 58,
+        "endChar": 48
+      },
+      "revId": "4dd6ec4f783fcf08161d2c449daed463e5a2de6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
