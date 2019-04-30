@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "2c686d04_4ad66040",
+        "filename": "gm/3dgm.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-30T17:51:08Z",
+      "side": 1,
+      "message": "Think it\u0027d be possible to end up with a pattern of all includes, then these disabling #ifdef checks?  Are all the headers always safe to bring in?\n\nI don\u0027t mind the pattern of #include Types -\u003e #ifdef checks -\u003e #include other stuff, but it seems like #include everything -\u003e #ifdef checks is a little simpler to remember.",
+      "revId": "05bf6a751df751092892df9fd255a5630c504784",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c87b3d88_24684565",
         "filename": "gm/arcto.cpp",
         "patchSetId": 1
