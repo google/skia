@@ -94,8 +94,8 @@ static GrPerspQuad compute_src_quad(GrSurfaceOrigin origin, const GrPerspQuad& s
                                     float iw, float ih, float h) {
     // The src quad should not have any perspective
     SkASSERT(!srcQuad.hasPerspective());
-    Sk4f xs = srcQuad.x4f() * iw;
-    Sk4f ys = srcQuad.y4f() * ih;
+    skvx::Vec<4, float> xs = srcQuad.x4f() * iw;
+    skvx::Vec<4, float> ys = srcQuad.y4f() * ih;
     if (origin == kBottomLeft_GrSurfaceOrigin) {
         ys = h - ys;
     }
