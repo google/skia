@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2e41541_a459670e",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-30T16:20:52Z",
+      "side": 0,
+      "message": "Deleted intentionally?",
+      "range": {
+        "startLine": 147,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 44
+      },
+      "revId": "3d47f37cb5d4426cd47a8e38c0fb18ab9db7093a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
