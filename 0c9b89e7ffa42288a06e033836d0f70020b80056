@@ -16,6 +16,29 @@
       "revId": "0c9b89e7ffa42288a06e033836d0f70020b80056",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a9d47e0_2368ee00",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-04-30T19:53:31Z",
+      "side": 1,
+      "message": "Seems like it might it be a bit cleaner to *always* have an error handler. Then we just have a default implementation which prints the strings and aborts, rather than having to have the extra logic here. What do you think?",
+      "range": {
+        "startLine": 93,
+        "startChar": 8,
+        "endLine": 101,
+        "endChar": 9
+      },
+      "revId": "0c9b89e7ffa42288a06e033836d0f70020b80056",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
