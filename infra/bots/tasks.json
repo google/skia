@@ -21415,7 +21415,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:6"
+          "version": "version:7"
         }
       ],
       "command": [
@@ -21531,7 +21531,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:6"
+          "version": "version:7"
         }
       ],
       "command": [
@@ -21926,7 +21926,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:6"
+          "version": "version:7"
         }
       ],
       "command": [
@@ -22057,7 +22057,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:6"
+          "version": "version:7"
         }
       ],
       "command": [
@@ -22314,7 +22314,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:6"
+          "version": "version:7"
         }
       ],
       "command": [
