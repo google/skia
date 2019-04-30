@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "60250407_2e439797",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-30T15:55:18Z",
+      "side": 1,
+      "message": "Gotcha, I was able to do a lot of clean up with that.",
+      "parentUuid": "7dc2fab7_9b9cb208",
+      "range": {
+        "startLine": 89,
+        "startChar": 16,
+        "endLine": 89,
+        "endChar": 70
+      },
+      "revId": "8903862be8bb2751a4382ef6fc311256a9d37bb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8e85818_2ee84b89",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
         "patchSetId": 5
@@ -39,6 +63,24 @@
       "revId": "8903862be8bb2751a4382ef6fc311256a9d37bb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d90d771_dfea8591",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-30T15:55:18Z",
+      "side": 1,
+      "message": "Done, I wasn\u0027t entirely sure if it was better to be explicit about it, or use the M typdef mapping.",
+      "parentUuid": "a8e85818_2ee84b89",
+      "revId": "8903862be8bb2751a4382ef6fc311256a9d37bb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
