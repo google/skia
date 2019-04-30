@@ -9,42 +9,44 @@
 
 #include "include/private/GrTypesPriv.h"
 
+using V4f = skvx::Vec<4, float>;
+
 static bool aa_affects_rect(float ql, float qt, float qr, float qb) {
     return !SkScalarIsInt(ql) || !SkScalarIsInt(qr) || !SkScalarIsInt(qt) || !SkScalarIsInt(qb);
 }
 
 static void map_rect_translate_scale(const SkRect& rect, const SkMatrix& m,
-                                     Sk4f* xs, Sk4f* ys) {
+                                     V4f* xs, V4f* ys) {
     SkMatrix::TypeMask tm = m.getType();
     SkASSERT(tm <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask));
 
-    Sk4f r = Sk4f::Load(&rect);
+    V4f r = V4f::Load(&rect);
     if (tm > SkMatrix::kIdentity_Mask) {
-        const Sk4f t(m.getTranslateX(), m.getTranslateY(), m.getTranslateX(), m.getTranslateY());
+        const V4f t{m.getTranslateX(), m.getTranslateY(), m.getTranslateX(), m.getTranslateY()};
         if (tm <= SkMatrix::kTranslate_Mask) {
             r += t;
         } else {
-            const Sk4f s(m.getScaleX(), m.getScaleY(), m.getScaleX(), m.getScaleY());
+            const V4f s{m.getScaleX(), m.getScaleY(), m.getScaleX(), m.getScaleY()};
             r = r * s + t;
         }
     }
-    *xs = SkNx_shuffle<0, 0, 2, 2>(r);
-    *ys = SkNx_shuffle<1, 3, 1, 3>(r);
+    *xs = skvx::shuffle<0, 0, 2, 2>(r);
+    *ys = skvx::shuffle<1, 3, 1, 3>(r);
 }
 
-static void map_quad_general(const Sk4f& qx, const Sk4f& qy, const SkMatrix& m,
-                             Sk4f* xs, Sk4f* ys, Sk4f* ws) {
-    static constexpr auto fma = SkNx_fma<4, float>;
-    *xs = fma(m.getScaleX(), qx, fma(m.getSkewX(), qy, m.getTranslateX()));
-    *ys = fma(m.getSkewY(), qx, fma(m.getScaleY(), qy, m.getTranslateY()));
+static void map_quad_general(const V4f& qx, const V4f& qy, const SkMatrix& m,
+                             V4f* xs, V4f* ys, V4f* ws) {
+    *xs = mad(m.getScaleX(), qx, mad(m.getSkewX(), qy, m.getTranslateX()));
+    *ys = mad(m.getSkewY(), qx, mad(m.getScaleY(), qy, m.getTranslateY()));
     if (m.hasPerspective()) {
-        Sk4f w = fma(m.getPerspX(), qx, fma(m.getPerspY(), qy, m.get(SkMatrix::kMPersp2)));
+        V4f w = mad(m.getPerspX(), qx,
+                    mad(m.getPerspY(), qy, m.get(SkMatrix::kMPersp2)));
         if (ws) {
             // Output the calculated w coordinates
             *ws = w;
         } else {
             // Apply perspective division immediately
-            Sk4f iw = w.invert();
+            V4f iw = 1.f / w;
             *xs *= iw;
             *ys *= iw;
         }
@@ -54,17 +56,17 @@ static void map_quad_general(const Sk4f& qx, const Sk4f& qy, const SkMatrix& m,
 }
 
 static void map_rect_general(const SkRect& rect, const SkMatrix& matrix,
-                             Sk4f* xs, Sk4f* ys, Sk4f* ws) {
-    Sk4f rx(rect.fLeft, rect.fLeft, rect.fRight, rect.fRight);
-    Sk4f ry(rect.fTop, rect.fBottom, rect.fTop, rect.fBottom);
+                             V4f* xs, V4f* ys, V4f* ws) {
+    V4f rx{rect.fLeft, rect.fLeft, rect.fRight, rect.fRight};
+    V4f ry{rect.fTop, rect.fBottom, rect.fTop, rect.fBottom};
     map_quad_general(rx, ry, matrix, xs, ys, ws);
 }
 
 // Rearranges (top-left, top-right, bottom-right, bottom-left) ordered skQuadPts into xs and ys
 // ordered (top-left, bottom-left, top-right, bottom-right)
-static void rearrange_sk_to_gr_points(const SkPoint skQuadPts[4], Sk4f* xs, Sk4f* ys) {
-    *xs = Sk4f(skQuadPts[0].fX, skQuadPts[3].fX, skQuadPts[1].fX, skQuadPts[2].fX);
-    *ys = Sk4f(skQuadPts[0].fY, skQuadPts[3].fY, skQuadPts[1].fY, skQuadPts[2].fY);
+static void rearrange_sk_to_gr_points(const SkPoint skQuadPts[4], V4f* xs, V4f* ys) {
+    *xs = V4f{skQuadPts[0].fX, skQuadPts[3].fX, skQuadPts[1].fX, skQuadPts[2].fX};
+    *ys = V4f{skQuadPts[0].fY, skQuadPts[3].fY, skQuadPts[1].fY, skQuadPts[2].fY};
 }
 
 template <typename Q>
@@ -138,7 +140,7 @@ GrQuadType GrQuadTypeForPoints(const SkPoint pts[4], const SkMatrix& matrix) {
 }
 
 GrQuad GrQuad::MakeFromRect(const SkRect& rect, const SkMatrix& m) {
-    Sk4f x, y;
+    V4f x, y;
     SkMatrix::TypeMask tm = m.getType();
     if (tm <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
         map_rect_translate_scale(rect, m, &x, &y);
@@ -149,12 +151,12 @@ GrQuad GrQuad::MakeFromRect(const SkRect& rect, const SkMatrix& m) {
 }
 
 GrQuad GrQuad::MakeFromSkQuad(const SkPoint pts[4], const SkMatrix& matrix) {
-    Sk4f xs, ys;
+    V4f xs, ys;
     rearrange_sk_to_gr_points(pts, &xs, &ys);
     if (matrix.isIdentity()) {
         return GrQuad(xs, ys);
     } else {
-        Sk4f mx, my;
+        V4f mx, my;
         map_quad_general(xs, ys, matrix, &mx, &my, nullptr);
         return GrQuad(mx, my);
     }
@@ -172,7 +174,7 @@ GrPerspQuad::GrPerspQuad(const float* xs, const float* ys, const float* ws) {
 }
 
 GrPerspQuad GrPerspQuad::MakeFromRect(const SkRect& rect, const SkMatrix& m) {
-    Sk4f x, y, w;
+    V4f x, y, w;
     SkMatrix::TypeMask tm = m.getType();
     if (tm <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
         map_rect_translate_scale(rect, m, &x, &y);
@@ -184,12 +186,12 @@ GrPerspQuad GrPerspQuad::MakeFromRect(const SkRect& rect, const SkMatrix& m) {
 }
 
 GrPerspQuad GrPerspQuad::MakeFromSkQuad(const SkPoint pts[4], const SkMatrix& matrix) {
-    Sk4f xs, ys;
+    V4f xs, ys;
     rearrange_sk_to_gr_points(pts, &xs, &ys);
     if (matrix.isIdentity()) {
         return GrPerspQuad(xs, ys, 1.f);
     } else {
-        Sk4f mx, my, mw;
+        V4f mx, my, mw;
         map_quad_general(xs, ys, matrix, &mx, &my, &mw);
         return GrPerspQuad(mx, my, mw);
     }
