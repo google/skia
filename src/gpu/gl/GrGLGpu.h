@@ -121,6 +121,15 @@ public:
     // stencil buffer as not dirty?
     void clearStencil(GrRenderTarget*, int clearValue);
 
+    using ColorLoadAndStoreInfo = GrGpuRTCommandBuffer::LoadAndStoreInfo;
+    using StencilLoadAndStoreInfo = GrGpuRTCommandBuffer::StencilLoadAndStoreInfo;
+
+    void beginCommandBuffer(
+            GrRenderTarget*, const ColorLoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
+
+    void endCommandBuffer(
+            GrRenderTarget*, const ColorLoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
+
     GrGpuRTCommandBuffer* getCommandBuffer(
             GrRenderTarget*, GrSurfaceOrigin, const SkRect&,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
@@ -664,6 +673,8 @@ private:
 
     std::unique_ptr<GrGLGpuRTCommandBuffer>      fCachedRTCommandBuffer;
     std::unique_ptr<GrGLGpuTextureCommandBuffer> fCachedTexCommandBuffer;
+
+    SkDEBUGCODE(bool fIsExecutingCommandBuffer_DebugOnly = false);
 
     friend class GrGLPathRendering; // For accessing setTextureUnit.
 

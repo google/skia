@@ -548,6 +548,8 @@ private:
     SkSurfaceProps fSurfaceProps;
     bool fManagedOpList;
 
+    bool fHasInitializedStencil = false;
+
     typedef GrSurfaceContext INHERITED;
 };
 
