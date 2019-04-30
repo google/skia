@@ -43,7 +43,7 @@ public:
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
     int maxRenderTargetSampleCount(GrPixelConfig config) const override;
 
-    bool surfaceSupportsReadPixels(const GrSurface*) const override;
+    ReadFlags surfaceSupportsReadPixels(const GrSurface*) const override;
 
     bool isConfigTexturableLinearly(GrPixelConfig config) const {
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fLinearFlags);

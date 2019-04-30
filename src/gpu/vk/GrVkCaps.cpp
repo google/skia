@@ -775,14 +775,21 @@ int GrVkCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
     return table[table.count() - 1];
 }
 
-bool GrVkCaps::surfaceSupportsReadPixels(const GrSurface* surface) const {
+GrCaps::ReadFlags GrVkCaps::surfaceSupportsReadPixels(const GrSurface* surface) const {
+    if (auto rt = surface->asRenderTarget()) {
+        auto backendRT = rt->getBackendRenderTarget();
+        GrVkImageInfo info;
+        if (backendRT.getVkImageInfo(&info) && info.fIsProtected) {
+            return kProtected_ReadFlag;
+        }
+    }
     if (auto tex = static_cast<const GrVkTexture*>(surface->asTexture())) {
         // We can't directly read from a VkImage that has a ycbcr sampler.
         if (tex->ycbcrConversionInfo().isValid()) {
-            return false;
+            return kRequiresCopy_ReadFlag;
         }
     }
-    return true;
+    return kSupported_ReadFlag;
 }
 
 bool GrVkCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {

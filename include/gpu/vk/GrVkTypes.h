@@ -136,6 +136,7 @@ struct GrVkImageInfo {
     uint32_t                 fLevelCount;
     uint32_t                 fCurrentQueueFamily;
     GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
+    bool                     fIsProtected;
 
     GrVkImageInfo()
             : fImage(VK_NULL_HANDLE)
@@ -145,12 +146,14 @@ struct GrVkImageInfo {
             , fFormat(VK_FORMAT_UNDEFINED)
             , fLevelCount(0)
             , fCurrentQueueFamily(VK_QUEUE_FAMILY_IGNORED)
-            , fYcbcrConversionInfo() {}
+            , fYcbcrConversionInfo()
+            , fIsProtected(false) {}
 
     GrVkImageInfo(VkImage image, GrVkAlloc alloc, VkImageTiling imageTiling, VkImageLayout layout,
                   VkFormat format, uint32_t levelCount,
                   uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED,
-                  GrVkYcbcrConversionInfo ycbcrConversionInfo = GrVkYcbcrConversionInfo())
+                  GrVkYcbcrConversionInfo ycbcrConversionInfo = GrVkYcbcrConversionInfo(),
+                  bool isProtected = false)
             : fImage(image)
             , fAlloc(alloc)
             , fImageTiling(imageTiling)
@@ -158,7 +161,8 @@ struct GrVkImageInfo {
             , fFormat(format)
             , fLevelCount(levelCount)
             , fCurrentQueueFamily(currentQueueFamily)
-            , fYcbcrConversionInfo(ycbcrConversionInfo) {}
+            , fYcbcrConversionInfo(ycbcrConversionInfo)
+            , fIsProtected(isProtected) {}
 
     GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout)
             : fImage(info.fImage)
@@ -168,7 +172,8 @@ struct GrVkImageInfo {
             , fFormat(info.fFormat)
             , fLevelCount(info.fLevelCount)
             , fCurrentQueueFamily(info.fCurrentQueueFamily)
-            , fYcbcrConversionInfo(info.fYcbcrConversionInfo) {}
+            , fYcbcrConversionInfo(info.fYcbcrConversionInfo)
+            , fIsProtected(info.fIsProtected) {}
 
     // This gives a way for a client to update the layout of the Image if they change the layout
     // while we're still holding onto the wrapped texture. They will first need to get a handle
