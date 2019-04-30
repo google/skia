@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "ca2dce65_3ae467e0",
+        "filename": "gm/3dgm.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-30T18:08:35Z",
+      "side": 1,
+      "message": "Yeah, that makes sense.",
+      "parentUuid": "df8b9c62_e6ccb18b",
+      "revId": "05bf6a751df751092892df9fd255a5630c504784",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c87b3d88_24684565",
         "filename": "gm/arcto.cpp",
         "patchSetId": 1
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "Heh, that actually makes things a little iffier, since if GENERATE_SVG_REFERENCE is false-y then this file doesn\u0027t need SkOSFile.h, so iwyu says we should remove it and the file is no longer iwyu clean. So I just left things the way they were (but moved the ifdef up here from halfway down the file).",
       "parentUuid": "c87b3d88_24684565",
+      "revId": "05bf6a751df751092892df9fd255a5630c504784",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a11ae962_d2721932",
+        "filename": "gm/arcto.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-30T18:08:35Z",
+      "side": 1,
+      "message": "Oh interesting.  What if we make GENERATE_SVG_REFERENCE a runtime bool instead of a #define?",
+      "parentUuid": "a26a1d19_528b5a51",
       "revId": "05bf6a751df751092892df9fd255a5630c504784",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
