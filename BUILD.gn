@@ -2467,6 +2467,8 @@ if (skia_enable_tools) {
       "experimental/editor/editor_application.cpp",
       "experimental/editor/editor.cpp",
       "experimental/editor/editor.h",
+      "experimental/editor/run_handler.cpp",
+      "experimental/editor/run_handler.h",
     ]
     deps = [
       ":sk_app",

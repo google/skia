@@ -42,7 +42,7 @@ struct Timer {
     double fTime;
     const char* fDesc;
     Timer(const char* desc = "") : fTime(SkTime::GetNSecs()), fDesc(desc) {}
-    ~Timer() { SkDebugf("%s: %d ms\n", fDesc, (int)((SkTime::GetNSecs() - fTime) * 1e-6)); }
+    ~Timer() { SkDebugf("%s: %5d μs\n", fDesc, (int)((SkTime::GetNSecs() - fTime) * 1e-3)); }
 };
 
 
