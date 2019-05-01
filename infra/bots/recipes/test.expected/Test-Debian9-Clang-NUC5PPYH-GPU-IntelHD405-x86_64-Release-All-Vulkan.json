@@ -449,7 +449,6 @@
       "~^WritePixels_Gpu$",
       "~^WritePixelsMSAA_Gpu$",
       "--nonativeFonts",
-      "--reduceOpListSplitting",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",

@@ -603,7 +603,6 @@
       "_",
       "textblobmixedsizes_df",
       "--nonativeFonts",
-      "--reduceOpListSplitting",
       "--verbose"
     ],
     "env": {

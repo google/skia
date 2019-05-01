@@ -421,7 +421,6 @@
       "_",
       ".SRW",
       "--nonativeFonts",
-      "--reduceOpListSplitting",
       "--verbose"
     ],
     "env": {

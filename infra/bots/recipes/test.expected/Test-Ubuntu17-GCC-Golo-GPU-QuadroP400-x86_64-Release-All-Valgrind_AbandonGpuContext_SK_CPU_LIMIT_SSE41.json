@@ -337,7 +337,6 @@
       "--match",
       "~Threaded",
       "--nonativeFonts",
-      "--reduceOpListSplitting",
       "--verbose",
       "--abandonGpuContext"
     ],
