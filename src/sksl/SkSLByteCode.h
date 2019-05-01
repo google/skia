@@ -14,6 +14,7 @@ namespace SkSL {
 
 enum class ByteCodeInstruction : uint8_t {
     kInvalid,
+    kNop,
     // B = bool, F = float, I = int, S = signed, U = unsigned
     kAddF,
     kAddI,

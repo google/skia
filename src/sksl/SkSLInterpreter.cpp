@@ -75,17 +75,15 @@ uint8_t Interpreter::read8() {
 }
 
 uint16_t Interpreter::read16() {
-    uint16_t result = (fCurrentFunction->fCode[fIP ] << 8) +
-                       fCurrentFunction->fCode[fIP + 1];
+    SkASSERT(fIP % 2 == 0);
+    uint16_t result = *(uint16_t*) &fCurrentFunction->fCode[fIP];
     fIP += 2;
     return result;
 }
 
 uint32_t Interpreter::read32() {
-    uint32_t result = (fCurrentFunction->fCode[fIP]     << 24) +
-                      (fCurrentFunction->fCode[fIP + 1] << 16) +
-                      (fCurrentFunction->fCode[fIP + 2] <<  8) +
-                       fCurrentFunction->fCode[fIP + 3];
+    SkASSERT(fIP % 4 == 0);
+    uint32_t result = *(uint32_t*) &fCurrentFunction->fCode[fIP];
     fIP += 4;
     return result;
 }
@@ -215,180 +213,6 @@ void Interpreter::dumpStack() {
         break;                           \
     }
 
-void Interpreter::next() {
-#ifdef TRACE
-    printf("at %d\n", fIP);
-#endif
-    ByteCodeInstruction inst = (ByteCodeInstruction) this->read8();
-    switch (inst) {
-        BINARY_OP(kAddI, int32_t, fSigned, +)
-        BINARY_OP(kAddF, float, fFloat, +)
-        case ByteCodeInstruction::kBranch:
-            fIP = this->read16();
-            break;
-        BINARY_OP(kCompareIEQ, int32_t, fSigned, ==)
-        BINARY_OP(kCompareFEQ, float, fFloat, ==)
-        BINARY_OP(kCompareINEQ, int32_t, fSigned, !=)
-        BINARY_OP(kCompareFNEQ, float, fFloat, !=)
-        BINARY_OP(kCompareSGT, int32_t, fSigned, >)
-        BINARY_OP(kCompareUGT, uint32_t, fUnsigned, >)
-        BINARY_OP(kCompareFGT, float, fFloat, >)
-        BINARY_OP(kCompareSGTEQ, int32_t, fSigned, >=)
-        BINARY_OP(kCompareUGTEQ, uint32_t, fUnsigned, >=)
-        BINARY_OP(kCompareFGTEQ, float, fFloat, >=)
-        BINARY_OP(kCompareSLT, int32_t, fSigned, <)
-        BINARY_OP(kCompareULT, uint32_t, fUnsigned, <)
-        BINARY_OP(kCompareFLT, float, fFloat, <)
-        BINARY_OP(kCompareSLTEQ, int32_t, fSigned, <=)
-        BINARY_OP(kCompareULTEQ, uint32_t, fUnsigned, <=)
-        BINARY_OP(kCompareFLTEQ, float, fFloat, <=)
-        case ByteCodeInstruction::kConditionalBranch: {
-            int target = this->read16();
-            if (this->pop().fBool) {
-                fIP = target;
-            }
-            break;
-        }
-        case ByteCodeInstruction::kDebugPrint: {
-            Value v = this->pop();
-            printf("Debug: %d(int), %d(uint), %f(float)\n", v.fSigned, v.fUnsigned, v.fFloat);
-            break;
-        }
-        BINARY_OP(kDivideS, int32_t, fSigned, /)
-        BINARY_OP(kDivideU, uint32_t, fUnsigned, /)
-        BINARY_OP(kDivideF, float, fFloat, /)
-        case ByteCodeInstruction::kDup:
-            this->push(fStack.back());
-            break;
-        case ByteCodeInstruction::kDupDown: {
-            int count = this->read8();
-            for (int i = 0; i < count; ++i) {
-                fStack.insert(fStack.end() - i - count - 1, fStack[fStack.size() - i - 1]);
-            }
-            break;
-        }
-        case ByteCodeInstruction::kFloatToInt: {
-            Value& top = fStack.back();
-            top.fSigned = (int) top.fFloat;
-            break;
-        }
-        case ByteCodeInstruction::kSignedToFloat: {
-            Value& top = fStack.back();
-            top.fFloat = (float) top.fSigned;
-            break;
-        }
-        case ByteCodeInstruction::kUnsignedToFloat: {
-            Value& top = fStack.back();
-            top.fFloat = (float) top.fUnsigned;
-            break;
-        }
-        case ByteCodeInstruction::kLoad: {
-            int target = this->pop().fSigned;
-            SkASSERT(target < (int) fStack.size());
-            this->push(fStack[target]);
-            break;
-        }
-        case ByteCodeInstruction::kLoadGlobal: {
-            int target = this->read8();
-            SkASSERT(target < (int) fGlobals.size());
-            this->push(fGlobals[target]);
-            break;
-        }
-        case ByteCodeInstruction::kLoadSwizzle: {
-            Value target = this->pop();
-            int count = read8();
-            for (int i = 0; i < count; ++i) {
-                SkASSERT(target.fSigned + fCurrentFunction->fCode[fIP + i] < (int) fStack.size());
-                this->push(fStack[target.fSigned + fCurrentFunction->fCode[fIP + i]]);
-            }
-            fIP += count;
-            break;
-        }
-        BINARY_OP(kMultiplyS, int32_t, fSigned, *)
-        BINARY_OP(kMultiplyU, uint32_t, fUnsigned, *)
-        BINARY_OP(kMultiplyF, float, fFloat, *)
-        case ByteCodeInstruction::kNot: {
-            Value& top = fStack.back();
-            top.fBool = !top.fBool;
-            break;
-        }
-        case ByteCodeInstruction::kNegateF: {
-            Value& top = fStack.back();
-            top.fFloat = -top.fFloat;
-            break;
-        }
-        case ByteCodeInstruction::kNegateS: {
-            Value& top = fStack.back();
-            top.fSigned = -top.fSigned;
-            break;
-        }
-        case ByteCodeInstruction::kPop:
-            for (int i = read8(); i > 0; --i) {
-                this->pop();
-            }
-            break;
-        case ByteCodeInstruction::kPushImmediate:
-            this->push(Value((int) read32()));
-            break;
-        BINARY_OP(kRemainderS, int32_t, fSigned, %)
-        BINARY_OP(kRemainderU, uint32_t, fUnsigned, %)
-        case ByteCodeInstruction::kReturn: {
-            int count = this->read8();
-            for (int i = 0; i < count; ++i) {
-                fStack[i] = fStack[fStack.size() - count + i];
-            }
-            fIP = (int) fCurrentFunction->fCode.size();
-            break;
-        }
-        case ByteCodeInstruction::kStore: {
-            Value value = this->pop();
-            int target = this->pop().fSigned;
-            SkASSERT(target < (int) fStack.size());
-            fStack[target] = value;
-            break;
-        }
-        case ByteCodeInstruction::kStoreGlobal: {
-            Value value = this->pop();
-            int target = this->pop().fSigned;
-            SkASSERT(target < (int) fGlobals.size());
-            fGlobals[target] = value;
-            break;
-        }
-        case ByteCodeInstruction::kStoreSwizzle: {
-            int count = read8();
-            int target = fStack[fStack.size() - count - 1].fSigned;
-            for (int i = count - 1; i >= 0; --i) {
-                SkASSERT(target + fCurrentFunction->fCode[fIP + i] < (int) fStack.size());
-                fStack[target + fCurrentFunction->fCode[fIP + i]] = this->pop();
-            }
-            this->pop();
-            fIP += count;
-            break;
-        }
-        BINARY_OP(kSubtractI, int32_t, fSigned, -)
-        BINARY_OP(kSubtractF, float, fFloat, -)
-        case ByteCodeInstruction::kSwizzle: {
-            Value vec[4];
-            for (int i = this->read8() - 1; i >= 0; --i) {
-                vec[i] = this->pop();
-            }
-            for (int i = this->read8() - 1; i >= 0; --i) {
-                this->push(vec[this->read8()]);
-            }
-            break;
-        }
-        case ByteCodeInstruction::kVector:
-            this->nextVector(this->read8());
-            break;
-        default:
-            printf("unsupported instruction %d\n", (int) inst);
-            SkASSERT(false);
-    }
-#ifdef TRACE
-    this->dumpStack();
-#endif
-}
-
 static constexpr int VECTOR_MAX = 16;
 
 #define VECTOR_BINARY_OP(inst, type, field, op)               \
@@ -406,7 +230,7 @@ static constexpr int VECTOR_MAX = 16;
         break;                                                \
     }
 
-void Interpreter::nextVector(int count) {
+void Interpreter::vectorOp(int count) {
     ByteCodeInstruction inst = (ByteCodeInstruction) this->read8();
     switch (inst) {
         VECTOR_BINARY_OP(kAddI, int32_t, fSigned, +)
@@ -490,8 +314,6 @@ void Interpreter::nextVector(int count) {
         }
         VECTOR_BINARY_OP(kSubtractI, int32_t, fSigned, -)
         VECTOR_BINARY_OP(kSubtractF, float, fFloat, -)
-        case ByteCodeInstruction::kVector:
-            this->nextVector(this->read8());
         default:
             printf("unsupported instruction %d\n", (int) inst);
             SkASSERT(false);
@@ -500,7 +322,179 @@ void Interpreter::nextVector(int count) {
 
 void Interpreter::run() {
     while (fIP < (int) fCurrentFunction->fCode.size()) {
-        next();
+#ifdef TRACE
+        printf("at %d\n", fIP);
+#endif
+        ByteCodeInstruction inst = (ByteCodeInstruction) this->read8();
+        switch (inst) {
+            BINARY_OP(kAddI, int32_t, fSigned, +)
+            BINARY_OP(kAddF, float, fFloat, +)
+            case ByteCodeInstruction::kBranch:
+                fIP = this->read16();
+                break;
+            BINARY_OP(kCompareIEQ, int32_t, fSigned, ==)
+            BINARY_OP(kCompareFEQ, float, fFloat, ==)
+            BINARY_OP(kCompareINEQ, int32_t, fSigned, !=)
+            BINARY_OP(kCompareFNEQ, float, fFloat, !=)
+            BINARY_OP(kCompareSGT, int32_t, fSigned, >)
+            BINARY_OP(kCompareUGT, uint32_t, fUnsigned, >)
+            BINARY_OP(kCompareFGT, float, fFloat, >)
+            BINARY_OP(kCompareSGTEQ, int32_t, fSigned, >=)
+            BINARY_OP(kCompareUGTEQ, uint32_t, fUnsigned, >=)
+            BINARY_OP(kCompareFGTEQ, float, fFloat, >=)
+            BINARY_OP(kCompareSLT, int32_t, fSigned, <)
+            BINARY_OP(kCompareULT, uint32_t, fUnsigned, <)
+            BINARY_OP(kCompareFLT, float, fFloat, <)
+            BINARY_OP(kCompareSLTEQ, int32_t, fSigned, <=)
+            BINARY_OP(kCompareULTEQ, uint32_t, fUnsigned, <=)
+            BINARY_OP(kCompareFLTEQ, float, fFloat, <=)
+            case ByteCodeInstruction::kConditionalBranch: {
+                int target = this->read16();
+                if (this->pop().fBool) {
+                    fIP = target;
+                }
+                break;
+            }
+            case ByteCodeInstruction::kDebugPrint: {
+                Value v = this->pop();
+                printf("Debug: %d(int), %d(uint), %f(float)\n", v.fSigned, v.fUnsigned, v.fFloat);
+                break;
+            }
+            BINARY_OP(kDivideS, int32_t, fSigned, /)
+            BINARY_OP(kDivideU, uint32_t, fUnsigned, /)
+            BINARY_OP(kDivideF, float, fFloat, /)
+            case ByteCodeInstruction::kDup:
+                this->push(fStack.back());
+                break;
+            case ByteCodeInstruction::kDupDown: {
+                int count = this->read8();
+                for (int i = 0; i < count; ++i) {
+                    fStack.insert(fStack.end() - i - count - 1, fStack[fStack.size() - i - 1]);
+                }
+                break;
+            }
+            case ByteCodeInstruction::kFloatToInt: {
+                Value& top = fStack.back();
+                top.fSigned = (int) top.fFloat;
+                break;
+            }
+            case ByteCodeInstruction::kSignedToFloat: {
+                Value& top = fStack.back();
+                top.fFloat = (float) top.fSigned;
+                break;
+            }
+            case ByteCodeInstruction::kUnsignedToFloat: {
+                Value& top = fStack.back();
+                top.fFloat = (float) top.fUnsigned;
+                break;
+            }
+            case ByteCodeInstruction::kLoad: {
+                int target = this->pop().fSigned;
+                SkASSERT(target < (int) fStack.size());
+                this->push(fStack[target]);
+                break;
+            }
+            case ByteCodeInstruction::kLoadGlobal: {
+                int target = this->read8();
+                SkASSERT(target < (int) fGlobals.size());
+                this->push(fGlobals[target]);
+                break;
+            }
+            case ByteCodeInstruction::kLoadSwizzle: {
+                Value target = this->pop();
+                int count = read8();
+                for (int i = 0; i < count; ++i) {
+                    SkASSERT(target.fSigned + fCurrentFunction->fCode[fIP + i] < (int) fStack.size());
+                    this->push(fStack[target.fSigned + fCurrentFunction->fCode[fIP + i]]);
+                }
+                fIP += count;
+                break;
+            }
+            BINARY_OP(kMultiplyS, int32_t, fSigned, *)
+            BINARY_OP(kMultiplyU, uint32_t, fUnsigned, *)
+            BINARY_OP(kMultiplyF, float, fFloat, *)
+            case ByteCodeInstruction::kNot: {
+                Value& top = fStack.back();
+                top.fBool = !top.fBool;
+                break;
+            }
+            case ByteCodeInstruction::kNegateF: {
+                Value& top = fStack.back();
+                top.fFloat = -top.fFloat;
+                break;
+            }
+            case ByteCodeInstruction::kNegateS: {
+                Value& top = fStack.back();
+                top.fSigned = -top.fSigned;
+                break;
+            }
+            case ByteCodeInstruction::kNop:
+                break;
+            case ByteCodeInstruction::kPop:
+                for (int i = read8(); i > 0; --i) {
+                    this->pop();
+                }
+                break;
+            case ByteCodeInstruction::kPushImmediate:
+                this->push(Value((int) read32()));
+                break;
+            BINARY_OP(kRemainderS, int32_t, fSigned, %)
+            BINARY_OP(kRemainderU, uint32_t, fUnsigned, %)
+            case ByteCodeInstruction::kReturn: {
+                int count = this->read8();
+                for (int i = 0; i < count; ++i) {
+                    fStack[i] = fStack[fStack.size() - count + i];
+                }
+                fIP = (int) fCurrentFunction->fCode.size();
+                break;
+            }
+            case ByteCodeInstruction::kStore: {
+                Value value = this->pop();
+                int target = this->pop().fSigned;
+                SkASSERT(target < (int) fStack.size());
+                fStack[target] = value;
+                break;
+            }
+            case ByteCodeInstruction::kStoreGlobal: {
+                Value value = this->pop();
+                int target = this->pop().fSigned;
+                SkASSERT(target < (int) fGlobals.size());
+                fGlobals[target] = value;
+                break;
+            }
+            case ByteCodeInstruction::kStoreSwizzle: {
+                int count = read8();
+                int target = fStack[fStack.size() - count - 1].fSigned;
+                for (int i = count - 1; i >= 0; --i) {
+                    SkASSERT(target + fCurrentFunction->fCode[fIP + i] < (int) fStack.size());
+                    fStack[target + fCurrentFunction->fCode[fIP + i]] = this->pop();
+                }
+                this->pop();
+                fIP += count;
+                break;
+            }
+            BINARY_OP(kSubtractI, int32_t, fSigned, -)
+            BINARY_OP(kSubtractF, float, fFloat, -)
+            case ByteCodeInstruction::kSwizzle: {
+                Value vec[4];
+                for (int i = this->read8() - 1; i >= 0; --i) {
+                    vec[i] = this->pop();
+                }
+                for (int i = this->read8() - 1; i >= 0; --i) {
+                    this->push(vec[this->read8()]);
+                }
+                break;
+            }
+            case ByteCodeInstruction::kVector:
+                this->vectorOp(this->read8());
+                break;
+            default:
+                printf("unsupported instruction %d\n", (int) inst);
+                SkASSERT(false);
+        }
+#ifdef TRACE
+        this->dumpStack();
+#endif
     }
 }
 
