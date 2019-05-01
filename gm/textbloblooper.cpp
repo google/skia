@@ -6,18 +6,40 @@
  */
 
 #include "gm/gm.h"
-#include "tools/ToolUtils.h"
-
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkGraphics.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkDrawLooper.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/Sk2DPathEffect.h"
 #include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkLayerDrawLooper.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/core/SkBlurMask.h"
+#include "tools/ToolUtils.h"
+
+#include <string.h>
 
 namespace skiagm {
 

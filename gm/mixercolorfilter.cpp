@@ -6,13 +6,27 @@
  */
 
 #include "gm/gm.h"
-
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkLumaColorFilter.h"
-#include "include/effects/SkTableColorFilter.h"
+#include "tools/Resources.h"
 #include "tools/timer/AnimTimer.h"
+
+#include <math.h>
 
 // A tint filter maps colors to a given range (gradient), based on the input luminance:
 //
@@ -110,8 +124,6 @@ private:
 
 } // namespace
 DEF_GM( return new MixerCFGM(SkSize::Make(200, 250), 5); )
-
-#include "tools/Resources.h"
 
 static sk_sp<SkShader> make_resource_shader(const char path[], int size) {
     auto img = GetResourceAsImage(path);

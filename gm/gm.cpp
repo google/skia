@@ -6,11 +6,26 @@
  */
 
 #include "gm/gm.h"
-
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
 #include "include/gpu/GrContext.h"
 #include "src/core/SkTraceEvent.h"
 #include "tools/ToolUtils.h"
+
+#include <stdarg.h>
+
+class GrRenderTargetContext;
+
 using namespace skiagm;
 
 constexpr char GM::kErrorMsg_DrawSkippedGpuOnly[];

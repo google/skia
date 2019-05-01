@@ -6,10 +6,19 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/encode/SkJpegEncoder.h"
-#include "include/private/SkImageInfoPriv.h"
-
+#include "include/private/SkTemplates.h"
 #include "tools/Resources.h"
 
 namespace skiagm {

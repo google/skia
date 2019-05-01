@@ -6,10 +6,14 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "tools/ToolUtils.h"
+#include "include/core/SkScalar.h"
 
 /**
  * This test exercises bug 1719. An anti-aliased blurred path is rendered through a soft clip. On

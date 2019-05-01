@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "gm/gm.h"
-#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 
 // Repro case for skia:7674.  Requires lots of RAM to run, and currently triggers UB:
 // ../include/private/SkTDArray.h:382:26:
 //   runtime error: signed integer overflow: 2147483644 + 4 cannot be represented in type 'int'
 
-#if 0
-DEF_SIMPLE_GM(PathMeasure_explosion, canvas, 500,500) {
+static SK_UNUSED void path_measure_explosion(SkCanvas* canvas) {
     SkPaint p;
     p.setAntiAlias(false);
     float intervals[] = { 0, 10e9f };
@@ -52,5 +52,11 @@ DEF_SIMPLE_GM(PathMeasure_explosion, canvas, 500,500) {
         }
     }
     canvas->drawPath(path, p);
+}
+
+#if 0
+#include "gm/gm.h"
+DEF_SIMPLE_GM(PathMeasure_explosion, canvas, 500,500) {
+    path_measure_explosion(canvas);
 }
 #endif
