@@ -145,7 +145,7 @@ def nanobench_flags(api, bot):
     args.extend(['--keepAlive', 'true'])
 
   # skia:9036
-  if 'NVIDIA_Shield' in bot:
+  if 'NVIDIA_Shield' in bot or 'Chorizo' in bot:
     args.extend(['--dontReduceOpListSplitting'])
 
   # Some people don't like verbose output.
