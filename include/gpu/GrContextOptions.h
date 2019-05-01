@@ -178,6 +178,12 @@ struct SK_API GrContextOptions {
      */
      bool fDisallowGLSLBinaryCaching = false;
 
+     /**
+      * Some clients want to ignore shader compilation failures (which might be caused by loss of
+      * context, for example).
+      */
+     bool fAssertOnShaderCompileFailure = true;
+
 #if GR_TEST_UTILS
     /**
      * Private options that are only meant for testing within Skia's tools.

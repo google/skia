@@ -61,7 +61,8 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
                                     GrGLenum type,
                                     const SkSL::String& glsl,
-                                    GrGpu::Stats* stats) {
+                                    GrGpu::Stats* stats,
+                                    bool assertOnFailure) {
     const GrGLInterface* gli = glCtx.interface();
 
     // Specify GLSL source to the driver.
@@ -101,7 +102,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
             }
             // In Chrome we may have failed due to context-loss. So we should just continue along
             // wihthout asserting until the GrContext gets abandoned.
-            if (kChromium_GrGLDriver != glCtx.driver()) {
+            if (assertOnFailure && kChromium_GrGLDriver != glCtx.driver()) {
                 SkDEBUGFAIL("GLSL compilation failed!");
             }
             GR_GL_CALL(gli, DeleteShader(shaderId));

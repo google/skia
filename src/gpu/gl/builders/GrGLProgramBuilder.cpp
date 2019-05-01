@@ -91,11 +91,13 @@ bool GrGLProgramBuilder::compileAndAttachShaders(const SkSL::String& glsl,
                                                  SkTDArray<GrGLuint>* shaderIds,
                                                  const SkSL::Program::Inputs& inputs) {
     GrGLGpu* gpu = this->gpu();
+    bool assertOnCompileFailure = gpu->getContext()->priv().options().fAssertOnShaderCompileFailure;
     GrGLuint shaderId = GrGLCompileAndAttachShader(gpu->glContext(),
                                                    programId,
                                                    type,
                                                    glsl,
-                                                   gpu->stats());
+                                                   gpu->stats(),
+                                                   assertOnCompileFailure);
     if (!shaderId) {
         return false;
     }
