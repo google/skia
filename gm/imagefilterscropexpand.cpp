@@ -6,24 +6,32 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
-#include "include/core/SkColorPriv.h"
-#include "include/core/SkShader.h"
-
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkBlurImageFilter.h"
 #include "include/effects/SkColorFilterImageFilter.h"
-#include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkDisplacementMapEffect.h"
 #include "include/effects/SkDropShadowImageFilter.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageSource.h"
 #include "include/effects/SkLightingImageFilter.h"
-#include "include/effects/SkMergeImageFilter.h"
 #include "include/effects/SkMorphologyImageFilter.h"
 #include "include/effects/SkOffsetImageFilter.h"
+
+#include <utility>
 
 namespace {
 

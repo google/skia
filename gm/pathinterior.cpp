@@ -7,11 +7,13 @@
 
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkGraphics.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/effects/SkBlurMaskFilter.h"
-#include "include/effects/SkLayerDrawLooper.h"
-#include "include/utils/SkRandom.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "tools/ToolUtils.h"
 
 static SkRect inset(const SkRect& r) {

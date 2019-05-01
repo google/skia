@@ -6,20 +6,54 @@
  */
 
 #include "gm/gm.h"
-#include "tools/ToolUtils.h"
-
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkColorPriv.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageGenerator.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
 #include "include/core/SkYUVAIndex.h"
-#include "include/utils/SkTextUtils.h"
-
-#if SK_SUPPORT_GPU
+#include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrConfig.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkTextUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
-#include "src/image/SkImage_GpuYUVA.h"
-#endif
+#include "tools/ToolUtils.h"
+
+#include <math.h>
+#include <string.h>
+#include <initializer_list>
+#include <memory>
+#include <utility>
+
+class GrRenderTargetContext;
 
 static const int kTileWidthHeight = 128;
 static const int kLabelWidth = 64;

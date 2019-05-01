@@ -6,8 +6,16 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkImageFilter.h"
-#include "include/utils/SkRandom.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
 #include "tools/ToolUtils.h"
 
 #define WIDTH 640

@@ -6,10 +6,16 @@
  */
 
 #include "gm/gm.h"
-#include "include/core/SkPath.h"
-#include "include/effects/SkBlurMaskFilter.h"
-#include "src/core/SkBlurMask.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkRandom.h"
 #include "tools/ToolUtils.h"
+
+class AnimTimer;
 
 class SimpleRectGM : public skiagm::GM {
 public:

@@ -6,18 +6,31 @@
  */
 
 #include "gm/gm.h"
-#include "tools/ToolUtils.h"
-
 #include "include/core/SkCanvas.h"
-#include "include/core/SkStream.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
-#include "include/effects/SkGradientShader.h"
-#include "tools/Resources.h"
+#include "include/gpu/GrContext.h"
+#include "tools/ToolUtils.h"
 #include "tools/fonts/RandomScalerContext.h"
 
-#include "include/gpu/GrContext.h"
+#include <string.h>
+#include <utility>
+
+class GrRenderTargetContext;
 
 namespace skiagm {
 class TextBlobRandomFont : public GpuGM {

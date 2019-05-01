@@ -7,8 +7,16 @@
 
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
+
+#include <utility>
 
 static SkPath generate_square(SkScalar cx, SkScalar cy, SkScalar w) {
     SkRect rect = SkRect::MakeXYWH(cx - w / 2, cy - w / 2, w, w);

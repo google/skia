@@ -13,6 +13,8 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContext.h"
 
+class GrRenderTargetContext;
+
 // This test exercises Ganesh's drawing of tiled bitmaps. In particular, that the offsets and the
 // extents of the tiles don't causes gaps between tiles.
 static void draw_tile_bitmap_with_fractional_offset(GrContext* context, SkCanvas* canvas,

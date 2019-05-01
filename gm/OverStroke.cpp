@@ -22,12 +22,18 @@
  * See crbug.com/589769 skbug.com/5405 skbug.com/5406
  */
 
-
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathMeasure.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
 #include "src/core/SkPointPriv.h"
+
+#include <cstddef>
 
 const SkScalar OVERSTROKE_WIDTH = 500.0f;
 const SkScalar NORMALSTROKE_WIDTH = 3.0f;
