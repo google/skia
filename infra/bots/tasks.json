@@ -22159,7 +22159,7 @@
         {
           "name": "skia/bots/go_deps",
           "path": "go_deps",
-          "version": "version:226"
+          "version": "version:227"
         }
       ],
       "command": [
