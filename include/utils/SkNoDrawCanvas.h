@@ -49,6 +49,7 @@ protected:
                      const SkPaint&) override {}
 
     void onDrawPaint(const SkPaint&) override {}
+    void onDrawBehind(const SkPaint&) override {}
     void onDrawPoints(PointMode, size_t, const SkPoint[], const SkPaint&) override {}
     void onDrawRect(const SkRect&, const SkPaint&) override {}
     void onDrawEdgeAARect(const SkRect&, SkCanvas::QuadAAFlags, SkColor, SkBlendMode) override {}

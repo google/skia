@@ -25,6 +25,7 @@ public:
     void onDrawPatch(const SkPoint[12], const SkColor[4], const SkPoint[4], SkBlendMode,
                      const SkPaint&) override;
     void onDrawPaint(const SkPaint&) override;
+    void onDrawBehind(const SkPaint& paint) override;
     void onDrawRect(const SkRect&, const SkPaint&) override;
     void onDrawEdgeAARect(const SkRect&, SkCanvas::QuadAAFlags, SkColor, SkBlendMode) override;
     void onDrawRegion(const SkRegion&, const SkPaint&) override;

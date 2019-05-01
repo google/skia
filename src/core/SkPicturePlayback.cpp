@@ -368,6 +368,14 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawPaint(*paint);
             }
         } break;
+        case DRAW_BEHIND_PAINT: {
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            BREAK_ON_READ_ERROR(reader);
+
+            if (paint) {
+                SkCanvasPriv::DrawBehind(canvas, *paint);
+            }
+        } break;
         case DRAW_PATCH: {
             const SkPaint* paint = fPictureData->getPaint(reader);
 

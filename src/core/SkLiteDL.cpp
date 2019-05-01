@@ -52,7 +52,7 @@ namespace {
     M(Flush) M(Save) M(Restore) M(SaveLayer) M(SaveBehind)                             \
     M(Concat) M(SetMatrix) M(Translate)                                                \
     M(ClipPath) M(ClipRect) M(ClipRRect) M(ClipRegion)                                 \
-    M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawEdgeAARect)                             \
+    M(DrawPaint) M(DrawBehind) M(DrawPath) M(DrawRect) M(DrawEdgeAARect)               \
     M(DrawRegion) M(DrawOval) M(DrawArc)                                               \
     M(DrawRRect) M(DrawDRRect) M(DrawAnnotation) M(DrawDrawable) M(DrawPicture)        \
     M(DrawImage) M(DrawImageNine) M(DrawImageRect) M(DrawImageLattice) M(DrawImageSet) \
@@ -175,6 +175,12 @@ namespace {
         DrawPaint(const SkPaint& paint) : paint(paint) {}
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) const { c->drawPaint(paint); }
+    };
+    struct DrawBehind final : Op {
+        static const auto kType = Type::DrawBehind;
+        DrawBehind(const SkPaint& paint) : paint(paint) {}
+        SkPaint paint;
+        void draw(SkCanvas* c, const SkMatrix&) const { SkCanvasPriv::DrawBehind(c, paint); }
     };
     struct DrawPath final : Op {
         static const auto kType = Type::DrawPath;
@@ -526,6 +532,9 @@ void SkLiteDL::clipRegion(const SkRegion& region, SkClipOp op) {
 
 void SkLiteDL::drawPaint(const SkPaint& paint) {
     this->push<DrawPaint>(0, paint);
+}
+void SkLiteDL::drawBehind(const SkPaint& paint) {
+    this->push<DrawBehind>(0, paint);
 }
 void SkLiteDL::drawPath(const SkPath& path, const SkPaint& paint) {
     this->push<DrawPath>(0, path, paint);

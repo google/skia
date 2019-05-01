@@ -37,6 +37,7 @@ public:
     void onClipRegion(const SkRegion&, SkClipOp) override;
 
     void onDrawPaint (const SkPaint&) override;
+    void onDrawBehind(const SkPaint&) override;
     void onDrawPath  (const SkPath&, const SkPaint&) override;
     void onDrawRect  (const SkRect&, const SkPaint&) override;
     void onDrawEdgeAARect(const SkRect&, SkCanvas::QuadAAFlags, SkColor, SkBlendMode) override;

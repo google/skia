@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include "SkAutoMalloc.h"
+#include "SkCanvasPriv.h"
 #include "SkClipOpPriv.h"
 #include "SkColorFilter.h"
 #include "SkDashPathEffect.h"
@@ -1638,6 +1639,27 @@ void SkDrawPathCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataMana
     writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_PATH); MakeJsonPath(writer, fPath);
     writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_PAINT); MakeJsonPaint(writer, fPaint, urlDataManager);
 }
+
+SkDrawBehindCommand::SkDrawBehindCommand(const SkPaint& paint) : INHERITED(kDrawPaint_OpType) {
+    fPaint = paint;
+}
+
+void SkDrawBehindCommand::execute(SkCanvas* canvas) const {
+    SkCanvasPriv::DrawBehind(canvas, fPaint);
+}
+
+bool SkDrawBehindCommand::render(SkCanvas* canvas) const {
+    canvas->clear(0xFFFFFFFF);
+    SkCanvasPriv::DrawBehind(canvas, fPaint);
+    return true;
+}
+
+void SkDrawBehindCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
+    INHERITED::toJSON(writer, urlDataManager);
+    writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_PAINT);
+    MakeJsonPaint(writer, fPaint, urlDataManager);
+}
+
 
 SkDrawRegionCommand::SkDrawRegionCommand(const SkRegion& region, const SkPaint& paint)
     : INHERITED(kDrawRegion_OpType) {
