@@ -69,6 +69,10 @@ def dm_flags(api, bot):
   if 'Android' not in bot and 'MSAN' not in bot:
     args.append('--randomProcessorTest')
 
+  # skbug.com/9036
+  if 'Chorizo' in bot:
+    args.extend(['--dontReduceOpListSplitting'])
+
   thread_limit = None
   MAIN_THREAD_ONLY = 0
 
