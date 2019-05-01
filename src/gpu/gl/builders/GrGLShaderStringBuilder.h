@@ -24,7 +24,8 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
                                     GrGLenum type,
                                     const SkSL::String& glsl,
-                                    GrGpu::Stats*);
+                                    GrGpu::Stats*,
+                                    bool assertOnFailure);
 
 void GrGLPrintShader(const GrGLContext&, SkSL::Program::Kind programKind, const SkSL::String& sksl,
                      const SkSL::Program::Settings&);
