@@ -27,7 +27,7 @@
 #ifdef SK_DISABLE_REDUCE_OPLIST_SPLITTING
 static const bool kDefaultReduceOpListSplitting = false;
 #else
-static const bool kDefaultReduceOpListSplitting = true;
+static const bool kDefaultReduceOpListSplitting = false;
 #endif
 
 class SK_API GrLegacyDirectContext : public GrContext {
