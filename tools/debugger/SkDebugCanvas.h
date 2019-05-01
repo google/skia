@@ -129,6 +129,7 @@ protected:
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                      const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint) override;
     void onDrawPaint(const SkPaint&) override;
+    void onDrawBehind(const SkPaint&) override;
 
     void onDrawRect(const SkRect&, const SkPaint&) override;
     void onDrawEdgeAARect(const SkRect&, SkCanvas::QuadAAFlags, SkColor, SkBlendMode) override;

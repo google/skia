@@ -113,6 +113,10 @@ void SkOverdrawCanvas::onDrawPaint(const SkPaint& paint) {
     }
 }
 
+void SkOverdrawCanvas::onDrawBehind(const SkPaint& paint) {
+    fList[0]->onDrawBehind(this->overdrawPaint(paint));
+}
+
 void SkOverdrawCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     fList[0]->onDrawRect(rect, this->overdrawPaint(paint));
 }

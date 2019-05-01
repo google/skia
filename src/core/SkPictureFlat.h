@@ -103,7 +103,9 @@ enum DrawType {
 
     DRAW_EDGEAA_RECT,
 
-    LAST_DRAWTYPE_ENUM = DRAW_EDGEAA_RECT,
+    DRAW_BEHIND_PAINT,
+
+    LAST_DRAWTYPE_ENUM = DRAW_BEHIND_PAINT,
 };
 
 enum DrawVertexFlags {

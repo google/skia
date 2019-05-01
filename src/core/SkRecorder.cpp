@@ -139,6 +139,10 @@ void SkRecorder::onDrawPaint(const SkPaint& paint) {
     this->append<SkRecords::DrawPaint>(paint);
 }
 
+void SkRecorder::onDrawBehind(const SkPaint& paint) {
+    this->append<SkRecords::DrawBehind>(paint);
+}
+
 void SkRecorder::onDrawPoints(PointMode mode,
                               size_t count,
                               const SkPoint pts[],

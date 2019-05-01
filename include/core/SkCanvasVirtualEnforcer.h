@@ -20,6 +20,7 @@ public:
 
 protected:
     void onDrawPaint(const SkPaint& paint) override = 0;
+    void onDrawBehind(const SkPaint&) override {} // make zero after android updates
     void onDrawRect(const SkRect& rect, const SkPaint& paint) override = 0;
     void onDrawRRect(const SkRRect& rrect, const SkPaint& paint) override = 0;
     void onDrawDRRect(const SkRRect& outer, const SkRRect& inner,

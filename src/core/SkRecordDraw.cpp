@@ -88,6 +88,10 @@ template <> void Draw::draw(const SaveBehind& r) {
     SkCanvasPriv::SaveBehind(fCanvas, r.subset);
 }
 
+template <> void Draw::draw(const DrawBehind& r) {
+    SkCanvasPriv::DrawBehind(fCanvas, r.paint);
+}
+
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
 DRAW(Concat, concat(r.matrix));
 DRAW(Translate, translate(r.dx, r.dy));
@@ -354,6 +358,7 @@ private:
     Bounds bounds(const Flush&) const { return fCullRect; }
 
     Bounds bounds(const DrawPaint&) const { return fCullRect; }
+    Bounds bounds(const DrawBehind&) const { return fCullRect; }
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
 
     Bounds bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }
