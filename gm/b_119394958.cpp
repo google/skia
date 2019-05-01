@@ -6,6 +6,10 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
 
 DEF_SIMPLE_GM(b_119394958, canvas, 100, 100) {
     // The root cause of this bug was that a stroked arc with round caps was batched with a filled

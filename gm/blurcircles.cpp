@@ -6,10 +6,16 @@
 */
 
 #include "gm/gm.h"
+#include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkBlurMask.h"
 
 class BlurCirclesGM : public skiagm::GM {

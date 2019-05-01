@@ -6,9 +6,23 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
 #include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
 #include "include/effects/SkBlurImageFilter.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+
+#include <stdio.h>
 
 DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
     SkPaint paint;
@@ -50,7 +64,6 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
 
 }
 
-#include "tools/Resources.h"
 DEF_SIMPLE_GM_CAN_FAIL(blur_image, canvas, errorMsg, 500, 500) {
     auto image = GetResourceAsImage("images/mandrill_128.png");
     if (!image) {

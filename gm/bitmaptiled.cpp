@@ -6,7 +6,11 @@
  */
 
 #include "gm/gm.h"
-
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrContext.h"
 
 // This test exercises Ganesh's drawing of tiled bitmaps. In particular, that the offsets and the

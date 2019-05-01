@@ -16,7 +16,6 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 
 static SkBitmap make_alpha_image(int w, int h) {
