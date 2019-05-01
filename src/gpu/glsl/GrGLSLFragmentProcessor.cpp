@@ -16,56 +16,55 @@ void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
     this->onSetData(pdman, processor);
 }
 
-void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor, EmitArgs& args) {
-    this->internalEmitChild(childIndex, inputColor, args.fOutputColor, args);
-}
-
-void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
-                                        SkString* outputColor, EmitArgs& args) {
+void GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor,
+                                          const char* outputColor, EmitArgs& args) {
     SkASSERT(outputColor);
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    outputColor->append(fragBuilder->getMangleString());
-    fragBuilder->codeAppendf("half4 %s;", outputColor->c_str());
-    this->internalEmitChild(childIndex, inputColor, outputColor->c_str(), args);
+    while (childIndex >= (int) fFunctionNames.size()) {
+        fFunctionNames.emplace_back();
+    }
+    if (fFunctionNames[childIndex].size() == 0) {
+        this->internalEmitChild(childIndex, outputColor, args);
+    }
+    fragBuilder->codeAppendf("%s = %s(%s);", outputColor, fFunctionNames[childIndex].c_str(),
+                             inputColor ? inputColor : "half4(1)");
 }
 
-void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inputColor,
-                                                const char* outputColor, EmitArgs& args) {
+void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* outputColor,
+                                                EmitArgs& args) {
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
     fragBuilder->onBeforeChildProcEmitCode();  // call first so mangleString is updated
 
-    // Prepare a mangled input color variable if the default is not used,
-    // inputName remains the empty string if no variable is needed.
-    SkString inputName;
-    if (inputColor&& strcmp("half4(1.0)", inputColor) != 0 && strcmp("half4(1)", inputColor) != 0) {
-        // The input name is based off of the current mangle string, and
-        // since this is called after onBeforeChildProcEmitCode(), it will be
-        // unique to the child processor (exactly what we want for its input).
-        inputName.appendf("_childInput%s", fragBuilder->getMangleString().c_str());
-        fragBuilder->codeAppendf("half4 %s = %s;", inputName.c_str(), inputColor);
-    }
-
     const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
 
-    // emit the code for the child in its own scope
-    fragBuilder->codeAppend("{\n");
-    fragBuilder->codeAppendf("// Child Index %d (mangle: %s): %s\n", childIndex,
-                             fragBuilder->getMangleString().c_str(), childProc.name());
+    // emit the code for the child in its own function
     TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
     TextureSamplers textureSamplers = args.fTexSamplers.childInputs(childIndex);
 
+    fragBuilder->nextStage();
+    const char* input = "_input";
+    const char* output = "_result";
     // EmitArgs properly updates inputColor to half4(1) if it was null
     EmitArgs childArgs(fragBuilder,
                        args.fUniformHandler,
                        args.fShaderCaps,
                        childProc,
-                       outputColor,
-                       inputName.size() > 0 ? inputName.c_str() : nullptr,
+                       output,
+                       input,
                        coordVars,
                        textureSamplers);
+    fragBuilder->codeAppendf("half4 %s;\n", output);
     this->childProcessor(childIndex)->emitCode(childArgs);
-    fragBuilder->codeAppend("}\n");
+    fragBuilder->codeAppendf("return %s;", output);
+    GrShaderVar inColor(input, kHalf4_GrSLType);
+    fragBuilder->emitFunction(kHalf4_GrSLType,
+                              "stage",
+                              1,
+                              &inColor,
+                              fragBuilder->code().c_str(),
+                              &fFunctionNames[childIndex]);
+    fragBuilder->deleteStage();
 
     fragBuilder->onAfterChildProcEmitCode();
 }
