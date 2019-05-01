@@ -9,7 +9,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrShaderCaps.h"
-#include "src/gpu/GrSKSLPrettyPrint.h"
+#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/vk/GrVkDescriptorSetManager.h"
 #include "src/gpu/vk/GrVkGpu.h"
@@ -281,7 +281,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
 #if GR_TEST_UTILS
             if (fGpu->getContext()->priv().options().fCacheSKSL) {
                 for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                    shaders[i] = GrSKSLPrettyPrint::PrettyPrint(*sksl[i]);
+                    shaders[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
                 }
                 isSkSL = true;
             }
