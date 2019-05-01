@@ -224,7 +224,9 @@ def dm_flags(api, bot):
     if 'GPU' in bot and ('Nexus7' in bot or
                          'NexusPlayer' in bot or
                          'NVIDIA_Shield' in bot or
-                         'Nexus5x' in bot):
+                         'Nexus5x' in bot or
+                         ('Win10' in bot and 'GTX660' in bot and 'Vulkan' in bot) or
+                         'Chorizo' in bot):
       blacklist(['_', 'gm', '_', 'savelayer_clipmask'])
 
     if 'Vulkan' in bot:
