@@ -72,7 +72,7 @@ private:
 
     void next();
 
-    void nextVector(int count);
+    inline void nextVector(int count);
 
     void run();
 
