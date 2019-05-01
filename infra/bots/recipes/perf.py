@@ -144,6 +144,10 @@ def nanobench_flags(api, bot):
     # Ensure that the bot framework does not think we have timed out.
     args.extend(['--keepAlive', 'true'])
 
+  # skia:9036
+  if 'NVIDIA_Shield' in bot:
+    args.extend(['--dontReduceOpListSplitting'])
+
   # Some people don't like verbose output.
   verbose = False
 
@@ -155,8 +159,6 @@ def nanobench_flags(api, bot):
     match.append('~desk_carsvg')
   if 'Nexus5' in bot:
     match.append('~keymobi_shop_mobileweb_ebay_com.skp')  # skia:5178
-  if 'NVIDIA_Shield' in bot:
-    match.append('~skinning')  # skia:9036
   if 'iOS' in bot:
     match.append('~blurroundrect')
     match.append('~patch_grid')  # skia:2847
