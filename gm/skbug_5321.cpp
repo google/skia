@@ -6,7 +6,14 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkTextBlob.h"
+
+#include <string.h>
 
 // https://bugs.skia.org/5321
 // two strings should draw the same.  PDF did not.

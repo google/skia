@@ -5,17 +5,19 @@
  * found in the LICENSE file.
  */
 
-
-/* Tests text rendering with LCD and subpixel rendering turned on and off.
- */
-
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkPicture.h"
-#include "include/core/SkPictureRecorder.h"
-#include "include/core/SkSurface.h"
-#include "include/effects/SkPictureImageFilter.h"
-#include "tools/ToolUtils.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
 
 class LcdTextGM : public skiagm::GM {
 public:

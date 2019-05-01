@@ -6,10 +6,22 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
-#include "include/core/SkSurface.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+
+#include <string.h>
+#include <initializer_list>
 
 #ifdef SK_BUILD_FOR_MAC
+
+#include "include/core/SkSurface.h"
 
 #import <ApplicationServices/ApplicationServices.h>
 

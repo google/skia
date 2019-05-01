@@ -8,15 +8,24 @@
 #include "gm/gm.h"
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
 #include "tools/Resources.h"
-#include "tools/ToolUtils.h"
+
+#include <string.h>
+#include <utility>
 
 static void getGlyphPositions(const SkFont& font, const uint16_t glyphs[],
                              int count, SkScalar x, SkScalar y, SkPoint pos[]) {

@@ -6,8 +6,15 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/effects/SkColorFilterImageFilter.h"
-#include "include/effects/SkColorMatrixFilter.h"
+
+#include <utility>
 
 // This GM renders correctly in 8888, but fails in PDF
 DEF_SIMPLE_GM(fadefilter, canvas, 256, 256) {

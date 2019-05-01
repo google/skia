@@ -6,10 +6,17 @@
  */
 
 #include "gm/gm.h"
-
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/gpu/GrContext.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkTArray.h"
 
 /** This tests the GPU backend's caching of path coverage masks */
 class PathMaskCache : public skiagm::GM {

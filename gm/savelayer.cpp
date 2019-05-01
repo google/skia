@@ -6,9 +6,41 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/effects/SkShaderMaskFilter.h"
+#include "include/utils/SkRandom.h"
 #include "src/core/SkCanvasPriv.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+
+#include <string.h>
+#include <initializer_list>
 
 // This GM tests out the deprecated Android-specific unclipped saveLayer "feature".
 // In particular, it attempts to compare the performance of unclipped saveLayers with alternatives.
@@ -103,8 +135,6 @@ DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
     }
 };
 
-#include "tools/Resources.h"
-
 // Test kInitWithPrevious_SaveLayerFlag by drawing an image, save a layer with the flag, which
 // should seed the layer with the image (from below). Then we punch a hole in the layer and
 // restore with kPlus mode, which should show the mandrill super-bright on the outside, but
@@ -122,12 +152,6 @@ DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
     canvas->drawCircle(128, 128, 96, paint);
     canvas->restore();
 };
-
-#include "include/core/SkPicture.h"
-#include "include/core/SkPictureRecorder.h"
-#include "include/core/SkSurface.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkGradientShader.h"
 
 static void draw_mask(SkCanvas* canvas, int size) {
     const SkScalar cx = size * SK_ScalarHalf,
@@ -333,10 +357,6 @@ DEF_SIMPLE_GM(savelayer_clipmask_maskfilter, canvas, 500, 500) {
     canvas->clear(SK_ColorWHITE);
     canvas->restore();
 }
-
-#include "include/core/SkFont.h"
-#include "include/core/SkTextBlob.h"
-#include "include/effects/SkGradientShader.h"
 
 static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkScalar w, SkScalar h,
                       bool useDrawBehind) {

@@ -6,10 +6,10 @@
  */
 
 #include "gm/gm.h"
-
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 #include "tools/Resources.h"
 
 // This gm draws 8 images that are mostly the same when respecting the

@@ -8,9 +8,9 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
-#include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
 #include "tools/Resources.h"
-#include "tools/ToolUtils.h"
 
 DEF_SIMPLE_GM(srgb_colorfilter, canvas, 512, 256*3) {
     auto img = GetResourceAsImage("images/mandrill_256.png");

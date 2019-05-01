@@ -6,7 +6,13 @@
  */
 
 #include "gm/gm.h"
-
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "tools/Resources.h"
 
 DEF_SIMPLE_GM(skbug_8664, canvas, 830, 550) {
