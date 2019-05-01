@@ -70,9 +70,7 @@ private:
 
     uint32_t read32();
 
-    void next();
-
-    void nextVector(int count);
+    inline void vectorOp(int count);
 
     void run();
 
