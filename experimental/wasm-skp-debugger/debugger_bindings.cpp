@@ -26,6 +26,8 @@
 
 using JSColor = int32_t;
 
+const char kMultiMagic[8] = { 'm', 'u', 'l', 't', 'i', 's', 'k', 'p' };
+
 struct SimpleImageInfo {
   int width;
   int height;
@@ -50,47 +52,64 @@ class SkpDebugPlayer {
      * uintptr_t is used here because emscripten will not allow binding of functions with pointers
      * to primitive types. We can instead pass a number and cast it to whatever kind of
      * pointer we're expecting.
+     *
+     * returns
      */
     void loadSkp(uintptr_t cptr, int length) {
-      const auto* data = reinterpret_cast<const uint8_t*>(cptr);
-      // note overloaded = operator that actually does a move
-      fPicture = SkPicture::MakeFromData(data, length);
-      if (!fPicture) {
-        SkDebugf("Unable to parse SKP file.\n");
-        return;
+      const uint8_t* data = reinterpret_cast<const uint8_t*>(cptr);
+      char magic[8];
+      // Both traditional and multi-frame skp files have an 8 byte magic word
+      SkDebugf("loadSkp\n");
+      SkMemoryStream stream(data, length);
+      SkDebugf("make stream at %p, with %d bytes\n",data, length);
+      if (memcmp(data, kMultiMagic, sizeof(kMultiMagic)) == 0) {
+        SkDebugf("Try reading as a multi-frame skp\n");
+        loadMultiFrame(&stream);
+      } else {
+        SkDebugf("Try reading as single-frame skp\n");
+        frames.push_back(loadSingleFrame(&stream));
       }
-      SkDebugf("Parsed SKP file.\n");
-      // Make debug canvas using bounds from SkPicture
-      fBounds = fPicture->cullRect().roundOut();
-      fDebugCanvas.reset(new DebugCanvas(fBounds));
-      SkDebugf("DebugCanvas created.\n");
-
-      // Only draw picture to the debug canvas once.
-      fDebugCanvas->drawPicture(fPicture);
-      SkDebugf("Added picture with %d commands.\n", fDebugCanvas->getSize());
     }
 
     /* drawTo asks the debug canvas to draw from the beginning of the picture
      * to the given command and flush the canvas.
      */
     void drawTo(SkSurface* surface, int32_t index) {
-      fDebugCanvas->drawTo(surface->getCanvas(), index);
+      int cmdlen = frames[fp]->getSize();
+      if (cmdlen == 0) {
+        SkDebugf("Zero commands to execute");
+        return;
+      }
+      if (index >= cmdlen) {
+        SkDebugf("Constrained command index (%d) within list bound (%d)\n", index, cmdlen);
+        index = cmdlen-1;
+      }
+      frames[fp]->drawTo(surface->getCanvas(), index);
       surface->getCanvas()->flush();
     }
 
     const SkIRect& getBounds() { return fBounds; }
 
-    void setOverdrawVis(bool on) { fDebugCanvas->setOverdrawViz(on); }
+    void setOverdrawVis(bool on) {
+      frames[fp]->setOverdrawViz(on);
+    }
     void setGpuOpBounds(bool on) {
-      fDebugCanvas->setDrawGpuOpBounds(on);
+      frames[fp]->setDrawGpuOpBounds(on);
     }
     void setClipVizColor(JSColor color) {
-      fDebugCanvas->setClipVizColor(SkColor(color));
+      frames[fp]->setClipVizColor(SkColor(color));
     }
-    int getSize() const { return fDebugCanvas->getSize(); }
-    void deleteCommand(int index) { fDebugCanvas->deleteDrawCommandAt(index); }
+    void deleteCommand(int index) {
+      frames[fp]->deleteDrawCommandAt(index);
+    }
     void setCommandVisibility(int index, bool visible) {
-      fDebugCanvas->toggleCommand(index, visible);
+      frames[fp]->toggleCommand(index, visible);
+    }
+    int getSize() const {
+      return frames[fp]->getSize();
+    }
+    int getFrameCount() const {
+      return frames.size();
     }
 
     // Return the command list in JSON representation as a string
@@ -101,7 +120,7 @@ class SkpDebugPlayer {
       // this will be prepended to any links that are created in the json command list.
       UrlDataManager udm(SkString("/"));
       writer.beginObject(); // root
-      fDebugCanvas->toJSON(writer, udm, getSize(), surface->getCanvas());
+      frames[fp]->toJSON(writer, udm, getSize(), surface->getCanvas());
       writer.endObject(); // root
       writer.flush();
       auto skdata = stream.detachAsData();
@@ -113,8 +132,8 @@ class SkpDebugPlayer {
 
     // Gets the clip and matrix of the last command drawn
     std::string lastCommandInfo() {
-      SkMatrix vm = fDebugCanvas->getCurrentMatrix();
-      SkIRect clip = fDebugCanvas->getCurrentClip();
+      SkMatrix vm = frames[fp]->getCurrentMatrix();
+      SkIRect clip = frames[fp]->getCurrentClip();
 
       SkDynamicMemoryWStream stream;
       SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
@@ -135,10 +154,84 @@ class SkpDebugPlayer {
       return std::string(data_view);
     }
 
+    void changeFrame(int index) {
+      fp = index;
+    }
+
   private:
-      std::unique_ptr<DebugCanvas> fDebugCanvas;
-      sk_sp<SkPicture>             fPicture;
-      SkIRect                      fBounds;
+
+      // Loads a sigle frame (traditional) skp file from the provided data stream and returns
+      // a newly allocated DebugCanvas initialized with the SkPicture that was in the file.
+      std::unique_ptr<DebugCanvas> loadSingleFrame(SkMemoryStream* stream) {
+        // TODO how to return error?
+        // TODO should this be in skia code?
+        // TODO: Do we need to retain ownership of picture beyond this scope?
+        // note overloaded = operator that actually does a move
+        //sk_sp<SkPicture> picture = SkPicture::MakeFromData(data, length);
+        sk_sp<SkPicture> picture = SkPicture::MakeFromStream(stream);
+        //if (!picture) {
+        //  SkDebugf("Unable to parse SKP file.\n");
+        //  return;
+        //}
+        SkDebugf("Parsed SKP file.\n");
+        // Make debug canvas using bounds from SkPicture
+        fBounds = picture->cullRect().roundOut();
+        std::unique_ptr<DebugCanvas> debugDanvas = std::make_unique<DebugCanvas>(fBounds);
+        SkDebugf("DebugCanvas created.\n");
+
+        // Only draw picture to the debug canvas once.
+        debugDanvas->drawPicture(picture);
+        SkDebugf("Added picture with %d commands.\n", debugDanvas->getSize());
+        return debugDanvas;
+      }
+
+      // Read files written by SkMultiSkpWriter.cpp
+      // TODO import the structs
+
+      struct FileHeader {
+        public:
+          char fMagic[8];
+          int32_t numFrames;
+      };
+      struct FrameHeader {
+        public:
+          int32_t hardwareBufferBytes;
+          int32_t bufferAge;
+      };
+
+      void loadMultiFrame(SkMemoryStream* stream) {
+          //uint8_t* framePointer = data;
+          FileHeader fileheader;
+          stream->read(&fileheader, sizeof(fileheader));
+          //framePointer += sizeof(fileheader);
+          // release stream?
+          SkDebugf("Expecting %d frames\n", fileheader.numFrames);
+          for (int i; i < fileheader.numFrames; i++){
+            FrameHeader frameheader;
+            stream->read(&frameheader, sizeof(frameheader));
+            //framePointer += sizeof(frameheader);
+            // read one frame as if it were a traditional skp file.\
+            // TODO be able to re-use the stream I've already created.
+            auto frame = std::move(loadSingleFrame(stream));
+            if (frame->getSize() <=0 ){
+              SkDebugf("Skipped corrupted frame, had %d commands \n", frame->getSize());
+              continue;
+            }
+            frame->setOverdrawViz(false);
+            frame->setDrawGpuOpBounds(false);
+            frame->setClipVizColor(SK_ColorTRANSPARENT);
+            frames.push_back(std::move(frame));
+            //framePointer += frameheader.frameLength;
+          }
+
+      }
+
+      // A vector of DebugCanvas, each one initialized to a frame of the animation.
+      std::vector<std::unique_ptr<DebugCanvas>> frames;
+      // The index of the current frame (into the vector above)
+      int fp = 0;
+      // The width and height of the animation. (in practice the bounds of the last loaded frame)
+      SkIRect fBounds;
 };
 
 #if SK_SUPPORT_GPU
@@ -218,7 +311,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("setCommandVisibility", &SkpDebugPlayer::setCommandVisibility)
     .function("setGpuOpBounds",       &SkpDebugPlayer::setGpuOpBounds)
     .function("jsonCommandList",      &SkpDebugPlayer::jsonCommandList, allow_raw_pointers())
-    .function("lastCommandInfo",      &SkpDebugPlayer::lastCommandInfo);
+    .function("lastCommandInfo",      &SkpDebugPlayer::lastCommandInfo)
+    .function("changeFrame",          &SkpDebugPlayer::changeFrame)
+    .function("getFrameCount",        &SkpDebugPlayer::getFrameCount);
 
   // Structs used as arguments or returns to the functions above
   value_object<SkIRect>("SkIRect")
