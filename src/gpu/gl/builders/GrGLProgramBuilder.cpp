@@ -18,8 +18,8 @@
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrProgramDesc.h"
-#include "src/gpu/GrSKSLPrettyPrint.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLProgram.h"
@@ -85,21 +85,17 @@ const GrCaps* GrGLProgramBuilder::caps() const {
     return fGpu->caps();
 }
 
-bool GrGLProgramBuilder::compileAndAttachShaders(const char* glsl,
-                                                 int length,
+bool GrGLProgramBuilder::compileAndAttachShaders(const SkSL::String& glsl,
                                                  GrGLuint programId,
                                                  GrGLenum type,
                                                  SkTDArray<GrGLuint>* shaderIds,
-                                                 const SkSL::Program::Settings& settings,
                                                  const SkSL::Program::Inputs& inputs) {
     GrGLGpu* gpu = this->gpu();
     GrGLuint shaderId = GrGLCompileAndAttachShader(gpu->glContext(),
                                                    programId,
                                                    type,
                                                    glsl,
-                                                   length,
-                                                   gpu->stats(),
-                                                   settings);
+                                                   gpu->stats());
     if (!shaderId) {
         return false;
     }
@@ -283,7 +279,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                 settings.fForceHighPrecision = true;
             }
             std::unique_ptr<SkSL::Program> fs = GrSkSLtoGLSL(gpu()->glContext(),
-                                                             GR_GL_FRAGMENT_SHADER,
+                                                             SkSL::Program::kFragment_Kind,
                                                              *sksl[kFragment_GrShaderType],
                                                              settings,
                                                              &glsl[kFragment_GrShaderType]);
@@ -298,10 +294,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             this->addInputVars(inputs);
             this->computeCountsAndStrides(programID, primProc, false);
         }
-        if (!this->compileAndAttachShaders(glsl[kFragment_GrShaderType].c_str(),
-                                           glsl[kFragment_GrShaderType].size(), programID,
-                                           GR_GL_FRAGMENT_SHADER, &shadersToDelete, settings,
-                                           inputs)) {
+        if (!this->compileAndAttachShaders(glsl[kFragment_GrShaderType], programID,
+                                           GR_GL_FRAGMENT_SHADER, &shadersToDelete, inputs)) {
             this->cleanupProgram(programID, shadersToDelete);
             return nullptr;
         }
@@ -309,7 +303,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         if (glsl[kVertex_GrShaderType].empty()) {
             // Don't have cached GLSL, need to compile SkSL->GLSL
             std::unique_ptr<SkSL::Program> vs = GrSkSLtoGLSL(gpu()->glContext(),
-                                                             GR_GL_VERTEX_SHADER,
+                                                             SkSL::Program::kVertex_Kind,
                                                              *sksl[kVertex_GrShaderType],
                                                              settings,
                                                              &glsl[kVertex_GrShaderType]);
@@ -318,10 +312,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                 return nullptr;
             }
         }
-        if (!this->compileAndAttachShaders(glsl[kVertex_GrShaderType].c_str(),
-                                           glsl[kVertex_GrShaderType].size(), programID,
-                                           GR_GL_VERTEX_SHADER, &shadersToDelete, settings,
-                                           inputs)) {
+        if (!this->compileAndAttachShaders(glsl[kVertex_GrShaderType], programID,
+                                           GR_GL_VERTEX_SHADER, &shadersToDelete, inputs)) {
             this->cleanupProgram(programID, shadersToDelete);
             return nullptr;
         }
@@ -337,7 +329,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                 // Don't have cached GLSL, need to compile SkSL->GLSL
                 std::unique_ptr<SkSL::Program> gs;
                 gs = GrSkSLtoGLSL(gpu()->glContext(),
-                                  GR_GL_GEOMETRY_SHADER,
+                                  SkSL::Program::kGeometry_Kind,
                                   *sksl[kGeometry_GrShaderType],
                                   settings,
                                   &glsl[kGeometry_GrShaderType]);
@@ -346,10 +338,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                     return nullptr;
                 }
             }
-            if (!this->compileAndAttachShaders(glsl[kGeometry_GrShaderType].c_str(),
-                                               glsl[kGeometry_GrShaderType].size(), programID,
-                                               GR_GL_GEOMETRY_SHADER, &shadersToDelete, settings,
-                                               inputs)) {
+            if (!this->compileAndAttachShaders(glsl[kGeometry_GrShaderType], programID,
+                                               GR_GL_GEOMETRY_SHADER, &shadersToDelete, inputs)) {
                 this->cleanupProgram(programID, shadersToDelete);
                 return nullptr;
             }
@@ -360,21 +350,18 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         if (checkLinked) {
             if (!this->checkLinkStatus(programID)) {
                 GL_CALL(DeleteProgram(programID));
-                SkDebugf("VS:\n");
                 GrGLPrintShader(fGpu->glContext(),
-                                GR_GL_VERTEX_SHADER,
+                                SkSL::Program::kVertex_Kind,
                                 fVS.fCompilerString,
                                 settings);
                 if (primProc.willUseGeoShader()) {
-                    SkDebugf("\nGS:\n");
                     GrGLPrintShader(fGpu->glContext(),
-                                    GR_GL_GEOMETRY_SHADER,
+                                    SkSL::Program::kGeometry_Kind,
                                     fGS.fCompilerString,
                                     settings);
                 }
-                SkDebugf("\nFS:\n");
                 GrGLPrintShader(fGpu->glContext(),
-                                GR_GL_FRAGMENT_SHADER,
+                                SkSL::Program::kFragment_Kind,
                                 fFS.fCompilerString,
                                 settings);
                 return nullptr;
@@ -389,7 +376,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 #if GR_TEST_UTILS
         if (fGpu->getContext()->priv().options().fCacheSKSL) {
             for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                glsl[i] = GrSKSLPrettyPrint::PrettyPrint(*sksl[i]);
+                glsl[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
             }
             isSkSL = true;
         }

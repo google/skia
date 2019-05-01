@@ -1,13 +1,15 @@
 /*
- * Copyright 2014 Google Inc.
+ * Copyright 2019 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/gpu/GrSKSLPrettyPrint.h"
+
+#include "include/core/SkString.h"
+#include "src/gpu/GrShaderUtils.h"
 #include "src/sksl/SkSLString.h"
 
-namespace GrSKSLPrettyPrint {
+namespace GrShaderUtils {
 
 class GLSLPrettyPrint {
 public:
@@ -186,4 +188,15 @@ SkSL::String PrettyPrint(const SkSL::String& string) {
     return pp.prettify(string);
 }
 
-}  // namespace GrSKSLPrettyPrint
+// Prints shaders one line at the time. This ensures they don't get truncated by the adb log.
+void PrintLineByLine(const char* header, const SkSL::String& text) {
+    SkSL::String pretty = PrettyPrint(text);
+    SkDebugf("%s\n", header);
+    SkTArray<SkString> lines;
+    SkStrSplit(pretty.c_str(), "\n", kStrict_SkStrSplitMode, &lines);
+    for (int i = 0; i < lines.count(); ++i) {
+        SkDebugf("%4i\t%s\n", i + 1, lines[i].c_str());
+    }
+}
+
+}  // namespace

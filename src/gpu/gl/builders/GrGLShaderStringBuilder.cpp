@@ -6,109 +6,62 @@
  */
 
 #include "src/core/SkAutoMalloc.h"
-#include "src/core/SkTraceEvent.h"
-#include "src/gpu/GrSKSLPrettyPrint.h"
+#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/builders/GrGLShaderStringBuilder.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLGLSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
-#define GL_CALL(X) GR_GL_CALL(gpu->glInterface(), X)
-#define GL_CALL_RET(R, X) GR_GL_CALL_RET(gpu->glInterface(), R, X)
-
 // Print the source code for all shaders generated.
 static const bool gPrintSKSL = false;
 static const bool gPrintGLSL = false;
 
-static void print_source_lines_with_numbers(const char* source,
-                                            std::function<void(const char*)> println) {
-    SkTArray<SkString> lines;
-    SkStrSplit(source, "\n", kStrict_SkStrSplitMode, &lines);
-    for (int i = 0; i < lines.count(); ++i) {
-        SkString& line = lines[i];
-        line.prependf("%4i\t", i + 1);
-        println(line.c_str());
-    }
-}
-
-// Prints shaders one line at the time. This ensures they don't get truncated by the adb log.
-static void print_sksl_line_by_line(const SkSL::String& sksl,
-                                    std::function<void(const char*)> println = [](const char* ln) {
-                                        SkDebugf("%s\n", ln);
-                                    }) {
-    SkSL::String pretty = GrSKSLPrettyPrint::PrettyPrint(sksl);
-    println("SKSL:");
-    print_source_lines_with_numbers(pretty.c_str(), println);
-}
-
-static void print_glsl_line_by_line(const SkSL::String& glsl,
-                                    std::function<void(const char*)> println = [](const char* ln) {
-                                        SkDebugf("%s\n", ln);
-                                    }) {
-    println("GLSL:");
-    print_source_lines_with_numbers(glsl.c_str(), println);
-}
-
-void print_shader_banner(GrGLenum type) {
+void print_shader_banner(SkSL::Program::Kind programKind) {
     const char* typeName = "Unknown";
-    switch (type) {
-        case GR_GL_VERTEX_SHADER: typeName = "Vertex"; break;
-        case GR_GL_GEOMETRY_SHADER: typeName = "Geometry"; break;
-        case GR_GL_FRAGMENT_SHADER: typeName = "Fragment"; break;
+    switch (programKind) {
+        case SkSL::Program::kVertex_Kind:   typeName = "Vertex";   break;
+        case SkSL::Program::kGeometry_Kind: typeName = "Geometry"; break;
+        case SkSL::Program::kFragment_Kind: typeName = "Fragment"; break;
+        default: break;
     }
     SkDebugf("---- %s shader ----------------------------------------------------\n", typeName);
 }
 
-std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum type,
+std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context,
+                                            SkSL::Program::Kind programKind,
                                             const SkSL::String& sksl,
                                             const SkSL::Program::Settings& settings,
                                             SkSL::String* glsl) {
-    // Trace event for shader preceding driver compilation
-    bool traceShader;
-    TRACE_EVENT_CATEGORY_GROUP_ENABLED("skia.gpu", &traceShader);
-    if (traceShader) {
-        SkString shaderDebugString;
-        print_sksl_line_by_line(sksl, [&](const char* ln) {
-            shaderDebugString.append(ln);
-            shaderDebugString.append("\n");
-        });
-        TRACE_EVENT_INSTANT1("skia.gpu", "skia_gpu::GLShader",
-                             TRACE_EVENT_SCOPE_THREAD, "shader",
-                             TRACE_STR_COPY(shaderDebugString.c_str()));
-    }
-
     SkSL::Compiler* compiler = context.compiler();
     std::unique_ptr<SkSL::Program> program;
-    SkSL::Program::Kind programKind;
-    switch (type) {
-        case GR_GL_VERTEX_SHADER:   programKind = SkSL::Program::kVertex_Kind;   break;
-        case GR_GL_FRAGMENT_SHADER: programKind = SkSL::Program::kFragment_Kind; break;
-        case GR_GL_GEOMETRY_SHADER: programKind = SkSL::Program::kGeometry_Kind; break;
-        default: SK_ABORT("unsupported shader kind");
-    }
     program = compiler->convertProgram(programKind, sksl, settings);
     if (!program || !compiler->toGLSL(*program, glsl)) {
         SkDebugf("SKSL compilation error\n----------------------\n");
-        print_sksl_line_by_line(sksl);
+        GrShaderUtils::PrintLineByLine("SKSL:", sksl);
         SkDebugf("\nErrors:\n%s\n", compiler->errorText().c_str());
         SkDEBUGFAIL("SKSL compilation failed!\n");
         return nullptr;
     }
-    if (gPrintSKSL) {
-        print_shader_banner(type);
-        print_sksl_line_by_line(sksl);
+
+    if (gPrintSKSL || gPrintGLSL) {
+        print_shader_banner(programKind);
+        if (gPrintSKSL) {
+            GrShaderUtils::PrintLineByLine("SKSL:", sksl);
+        }
+        if (gPrintGLSL) {
+            GrShaderUtils::PrintLineByLine("GLSL:", *glsl);
+        }
     }
+
     return program;
 }
 
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
                                     GrGLenum type,
-                                    const char* glsl,
-                                    int glslLength,
-                                    GrGpu::Stats* stats,
-                                    const SkSL::Program::Settings& settings) {
+                                    const SkSL::String& glsl,
+                                    GrGpu::Stats* stats) {
     const GrGLInterface* gli = glCtx.interface();
 
     // Specify GLSL source to the driver.
@@ -117,7 +70,9 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     if (0 == shaderId) {
         return 0;
     }
-    GR_GL_CALL(gli, ShaderSource(shaderId, 1, &glsl, &glslLength));
+    const GrGLchar* source = glsl.c_str();
+    GrGLint sourceLength = glsl.size();
+    GR_GL_CALL(gli, ShaderSource(shaderId, 1, &source, &sourceLength));
 
     stats->incShaderCompilations();
     GR_GL_CALL(gli, CompileShader(shaderId));
@@ -133,7 +88,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
 
         if (!compiled) {
             SkDebugf("GLSL compilation error\n----------------------\n");
-            print_glsl_line_by_line(glsl);
+            GrShaderUtils::PrintLineByLine("GLSL:", glsl);
             GrGLint infoLen = GR_GL_INIT_ZERO;
             GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_INFO_LOG_LENGTH, &infoLen));
             SkAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
@@ -154,11 +109,6 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
         }
     }
 
-    if (gPrintGLSL) {
-        print_shader_banner(type);
-        print_glsl_line_by_line(glsl);
-    }
-
     // Attach the shader, but defer deletion until after we have linked the program.
     // This works around a bug in the Android emulator's GLES2 wrapper which
     // will immediately delete the shader object and free its memory even though it's
@@ -167,11 +117,12 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     return shaderId;
 }
 
-void GrGLPrintShader(const GrGLContext& context, GrGLenum type, const SkSL::String& sksl,
-                     const SkSL::Program::Settings& settings) {
-    print_sksl_line_by_line(sksl);
+void GrGLPrintShader(const GrGLContext& context, SkSL::Program::Kind programKind,
+                     const SkSL::String& sksl, const SkSL::Program::Settings& settings) {
+    print_shader_banner(programKind);
+    GrShaderUtils::PrintLineByLine("SKSL:", sksl);
     SkSL::String glsl;
-    if (GrSkSLtoGLSL(context, type, sksl, settings, &glsl)) {
-        print_glsl_line_by_line(glsl);
+    if (GrSkSLtoGLSL(context, programKind, sksl, settings, &glsl)) {
+        GrShaderUtils::PrintLineByLine("GLSL:", glsl);
     }
 }
