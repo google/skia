@@ -74,7 +74,7 @@ private:
 
     void run();
 
-    void push(Value v);
+    inline void push(Value v) { fStack.push_back(v); }
 
     Value pop();
 

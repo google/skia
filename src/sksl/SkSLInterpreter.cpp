@@ -88,9 +88,11 @@ uint32_t Interpreter::read32() {
     return result;
 }
 
+#if 0
 void Interpreter::push(Value v) {
     fStack.push_back(v);
 }
+#endif
 
 Interpreter::Value Interpreter::pop() {
     Value v = fStack.back();
@@ -320,12 +322,18 @@ void Interpreter::vectorOp(int count) {
     }
 }
 
+#define READ8() (code[fIP++])
+
 void Interpreter::run() {
-    while (fIP < (int) fCurrentFunction->fCode.size()) {
+    auto currFunc = fCurrentFunction;
+    auto& code = currFunc->fCode;
+    int codeSize = code.size();
+
+    while (fIP < codeSize) {
 #ifdef TRACE
         printf("at %d\n", fIP);
 #endif
-        ByteCodeInstruction inst = (ByteCodeInstruction) this->read8();
+        ByteCodeInstruction inst = (ByteCodeInstruction) READ8();
         switch (inst) {
             BINARY_OP(kAddI, int32_t, fSigned, +)
             BINARY_OP(kAddF, float, fFloat, +)
@@ -367,7 +375,7 @@ void Interpreter::run() {
                 this->push(fStack.back());
                 break;
             case ByteCodeInstruction::kDupDown: {
-                int count = this->read8();
+                int count = READ8();
                 for (int i = 0; i < count; ++i) {
                     fStack.insert(fStack.end() - i - count - 1, fStack[fStack.size() - i - 1]);
                 }
@@ -395,7 +403,7 @@ void Interpreter::run() {
                 break;
             }
             case ByteCodeInstruction::kLoadGlobal: {
-                int target = this->read8();
+                int target = READ8();
                 SkASSERT(target < (int) fGlobals.size());
                 this->push(fGlobals[target]);
                 break;
@@ -404,8 +412,8 @@ void Interpreter::run() {
                 Value target = this->pop();
                 int count = read8();
                 for (int i = 0; i < count; ++i) {
-                    SkASSERT(target.fSigned + fCurrentFunction->fCode[fIP + i] < (int) fStack.size());
-                    this->push(fStack[target.fSigned + fCurrentFunction->fCode[fIP + i]]);
+                    SkASSERT(target.fSigned + code[fIP + i] < (int) fStack.size());
+                    this->push(fStack[target.fSigned + code[fIP + i]]);
                 }
                 fIP += count;
                 break;
@@ -441,11 +449,11 @@ void Interpreter::run() {
             BINARY_OP(kRemainderS, int32_t, fSigned, %)
             BINARY_OP(kRemainderU, uint32_t, fUnsigned, %)
             case ByteCodeInstruction::kReturn: {
-                int count = this->read8();
+                int count = READ8();
                 for (int i = 0; i < count; ++i) {
                     fStack[i] = fStack[fStack.size() - count + i];
                 }
-                fIP = (int) fCurrentFunction->fCode.size();
+                fIP = codeSize;
                 break;
             }
             case ByteCodeInstruction::kStore: {
@@ -466,8 +474,8 @@ void Interpreter::run() {
                 int count = read8();
                 int target = fStack[fStack.size() - count - 1].fSigned;
                 for (int i = count - 1; i >= 0; --i) {
-                    SkASSERT(target + fCurrentFunction->fCode[fIP + i] < (int) fStack.size());
-                    fStack[target + fCurrentFunction->fCode[fIP + i]] = this->pop();
+                    SkASSERT(target + code[fIP + i] < (int) fStack.size());
+                    fStack[target + code[fIP + i]] = this->pop();
                 }
                 this->pop();
                 fIP += count;
@@ -477,16 +485,16 @@ void Interpreter::run() {
             BINARY_OP(kSubtractF, float, fFloat, -)
             case ByteCodeInstruction::kSwizzle: {
                 Value vec[4];
-                for (int i = this->read8() - 1; i >= 0; --i) {
+                for (int i = READ8() - 1; i >= 0; --i) {
                     vec[i] = this->pop();
                 }
-                for (int i = this->read8() - 1; i >= 0; --i) {
-                    this->push(vec[this->read8()]);
+                for (int i = READ8() - 1; i >= 0; --i) {
+                    this->push(vec[READ8()]);
                 }
                 break;
             }
             case ByteCodeInstruction::kVector:
-                this->vectorOp(this->read8());
+                this->vectorOp(READ8());
                 break;
             default:
                 printf("unsupported instruction %d\n", (int) inst);
