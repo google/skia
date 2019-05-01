@@ -227,6 +227,13 @@ def dm_flags(api, bot):
                          'Nexus5x' in bot):
       blacklist(['_', 'gm', '_', 'savelayer_clipmask'])
 
+    # skbug.com/9043 - these devices render this test incorrectly
+    # when opList splitting reduction is enabled
+    if 'GPU' in bot and 'Vulkan' in bot and ('MoltenVK' in bot or
+                                             'RadeonR9M470X' in bot or
+                                             'RadeonHD7770' in bot):
+      blacklist(['_', 'tests', '_', 'AdvancedBlendTest'])
+
     if 'Vulkan' in bot:
       configs = ['vk']
       if 'Android' in bot or 'iOS' in bot:
