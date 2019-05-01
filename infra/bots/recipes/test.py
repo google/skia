@@ -69,6 +69,9 @@ def dm_flags(api, bot):
   if 'Android' not in bot and 'MSAN' not in bot:
     args.append('--randomProcessorTest')
 
+  if 'Pixel3' in bot and 'Vulkan' in bot:
+    args.extend(['--dontReduceOpListSplitting'])
+
   thread_limit = None
   MAIN_THREAD_ONLY = 0
 
@@ -1029,6 +1032,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android',
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan',
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm-Debug-All-Android_ASAN',
+  'Test-Android-Clang-Pixel3-GPU-Adreno630-arm64-Debug-All-Android_Vulkan',
   ('Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-'
    'arm-Debug-All'),
   'Test-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Release-All',
