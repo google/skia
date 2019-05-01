@@ -16,6 +16,12 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
+static void scale_last_column(float rowMajor[20], float scale) {
+    for (int i = 0; i < 4; ++i) {
+        rowMajor[5*i + 4] *= scale;
+    }
+}
+
 void SkColorFilter_Matrix::initState() {
     const float* srcA = fMatrix + 15;
     fFlags = (srcA[0] == 0 && srcA[1] == 0 && srcA[2] == 0 && srcA[3] == 1 && srcA[4] == 0)
@@ -197,6 +203,14 @@ sk_sp<SkColorFilter> SkColorFilters::Matrix(const SkColorMatrix& cm) {
     return Matrix(cm.fMat);
 }
 
+// DEPRECATED
+sk_sp<SkColorFilter> SkColorFilters::MatrixRowMajor255(const float array[20]) {
+    float tmp[20];
+    memcpy(tmp, array, sizeof(tmp));
+    scale_last_column(tmp, 1.0f/255);
+    return Matrix(tmp);
+}
+
 void SkColorFilter_Matrix::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkColorFilter_Matrix);
 
@@ -205,10 +219,7 @@ void SkColorFilter_Matrix::RegisterFlattenables() {
                             [](SkReadBuffer& buffer) -> sk_sp<SkFlattenable> {
         float matrix[20];
         if (buffer.readScalarArray(matrix, 20)) {
-            matrix[ 4] *= (1.0f/255);
-            matrix[ 9] *= (1.0f/255);
-            matrix[14] *= (1.0f/255);
-            matrix[19] *= (1.0f/255);
+            scale_last_column(matrix, 1.0f/255);
             return SkColorFilters::Matrix(matrix);
         }
         return nullptr;
