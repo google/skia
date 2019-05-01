@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4382423f_ca640b5a",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-01T16:30:55Z",
+      "side": 1,
+      "message": "Depending on how specific you need to be, it may be less brittle to do:\n\n(\u0027Win\u0027 in bot and \u0027GTX660\u0027 in bot) or",
+      "range": {
+        "startLine": 228,
+        "startChar": 26,
+        "endLine": 228,
+        "endChar": 62
+      },
+      "revId": "b7e85f3d164ba4f85fbff7214afff54e531e1928",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
