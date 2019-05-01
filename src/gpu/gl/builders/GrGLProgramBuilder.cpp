@@ -89,13 +89,15 @@ bool GrGLProgramBuilder::compileAndAttachShaders(const SkSL::String& glsl,
                                                  GrGLuint programId,
                                                  GrGLenum type,
                                                  SkTDArray<GrGLuint>* shaderIds,
-                                                 const SkSL::Program::Inputs& inputs) {
+                                                 const SkSL::Program::Inputs& inputs,
+                                                 GrContextOptions::ShaderErrorHandler* errHandler) {
     GrGLGpu* gpu = this->gpu();
     GrGLuint shaderId = GrGLCompileAndAttachShader(gpu->glContext(),
                                                    programId,
                                                    type,
                                                    glsl,
-                                                   gpu->stats());
+                                                   gpu->stats(),
+                                                   errHandler);
     if (!shaderId) {
         return false;
     }
@@ -200,12 +202,13 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     this->finalizeShaders();
 
     // compile shaders and bind attributes / uniforms
+    auto errorHandler = this->gpu()->getContext()->priv().getShaderErrorHandler();
     const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
     SkSL::Program::Settings settings;
     settings.fCaps = this->gpu()->glCaps().shaderCaps();
     settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures =
-                    this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
+            this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
     settings.fFragColorIsInOut = this->fragColorIsInOut();
 
     SkSL::Program::Inputs inputs;
@@ -249,7 +252,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                 cached = false;
             }
 #if GR_TEST_UTILS
-        } else if (fGpu->getContext()->priv().options().fCacheSKSL) {
+        } else if (this->gpu()->getContext()->priv().options().fCacheSKSL) {
             // Only switch to the stored SkSL if it unpacks correctly
             if (kSKSL_Tag == GrPersistentCacheUtils::UnpackCachedShaders(fCached.get(),
                                                                          cached_sksl,
@@ -282,7 +285,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                                                              SkSL::Program::kFragment_Kind,
                                                              *sksl[kFragment_GrShaderType],
                                                              settings,
-                                                             &glsl[kFragment_GrShaderType]);
+                                                             &glsl[kFragment_GrShaderType],
+                                                             errorHandler);
             if (!fs) {
                 this->cleanupProgram(programID, shadersToDelete);
                 return nullptr;
@@ -295,7 +299,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             this->computeCountsAndStrides(programID, primProc, false);
         }
         if (!this->compileAndAttachShaders(glsl[kFragment_GrShaderType], programID,
-                                           GR_GL_FRAGMENT_SHADER, &shadersToDelete, inputs)) {
+                                           GR_GL_FRAGMENT_SHADER, &shadersToDelete, inputs,
+                                           errorHandler)) {
             this->cleanupProgram(programID, shadersToDelete);
             return nullptr;
         }
@@ -306,14 +311,16 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                                                              SkSL::Program::kVertex_Kind,
                                                              *sksl[kVertex_GrShaderType],
                                                              settings,
-                                                             &glsl[kVertex_GrShaderType]);
+                                                             &glsl[kVertex_GrShaderType],
+                                                             errorHandler);
             if (!vs) {
                 this->cleanupProgram(programID, shadersToDelete);
                 return nullptr;
             }
         }
         if (!this->compileAndAttachShaders(glsl[kVertex_GrShaderType], programID,
-                                           GR_GL_VERTEX_SHADER, &shadersToDelete, inputs)) {
+                                           GR_GL_VERTEX_SHADER, &shadersToDelete, inputs,
+                                           errorHandler)) {
             this->cleanupProgram(programID, shadersToDelete);
             return nullptr;
         }
@@ -332,14 +339,16 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                                   SkSL::Program::kGeometry_Kind,
                                   *sksl[kGeometry_GrShaderType],
                                   settings,
-                                  &glsl[kGeometry_GrShaderType]);
+                                  &glsl[kGeometry_GrShaderType],
+                                  errorHandler);
                 if (!gs) {
                     this->cleanupProgram(programID, shadersToDelete);
                     return nullptr;
                 }
             }
             if (!this->compileAndAttachShaders(glsl[kGeometry_GrShaderType], programID,
-                                               GR_GL_GEOMETRY_SHADER, &shadersToDelete, inputs)) {
+                                               GR_GL_GEOMETRY_SHADER, &shadersToDelete, inputs,
+                                               errorHandler)) {
                 this->cleanupProgram(programID, shadersToDelete);
                 return nullptr;
             }
@@ -374,7 +383,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     if (!cached) {
         bool isSkSL = false;
 #if GR_TEST_UTILS
-        if (fGpu->getContext()->priv().options().fCacheSKSL) {
+        if (this->gpu()->getContext()->priv().options().fCacheSKSL) {
             for (int i = 0; i < kGrShaderTypeCount; ++i) {
                 glsl[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
             }

@@ -33,6 +33,17 @@
 #include <atomic>
 #include <unordered_map>
 
+class GrDefaultShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
+public:
+    void compileError(const char* shader, const char* errors) {
+        SkDebugf("Shader compilation error\n"
+                 "------------------------\n");
+
+    }
+
+    bool fDebugFailOnError = false;
+};
+
 #define ASSERT_OWNED_PROXY(P) \
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == this)
 
@@ -92,6 +103,10 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     }
 
     fPersistentCache = this->options().fPersistentCache;
+    fShaderErrorHandler = this->options().fShaderErrorHandler;
+    if (!fShaderErrorHandler) {
+        fShaderErrorHandler = &gDefaultShaderErrorHandler;
+    }
 
     return true;
 }

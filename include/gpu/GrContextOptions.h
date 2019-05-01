@@ -48,6 +48,17 @@ struct SK_API GrContextOptions {
         virtual void store(const SkData& key, const SkData& data) = 0;
     };
 
+    /**
+     * Abstract class to report errors when compiling shaders. If fShaderErrorHandler is present,
+     * it will be called to report any compilation failures. Otherwise, failures will be reported
+     * via SkDebugf and asserts.
+     */
+    class SK_API ShaderErrorHandler {
+    public:
+        virtual ~ShaderErrorHandler() {}
+        virtual void compileError(const char* shader, const char* errors) = 0;
+    };
+
     GrContextOptions() {}
 
     // Suppress prints for the GrContext.
@@ -177,6 +188,11 @@ struct SK_API GrContextOptions {
      * significant amount of CPU work when a GL program is created.
      */
      bool fDisallowGLSLBinaryCaching = false;
+
+     /**
+      * If present, use this object to report shader compilation failures.
+      */
+     ShaderErrorHandler* fShaderErrorHandler = nullptr;
 
 #if GR_TEST_UTILS
     /**
