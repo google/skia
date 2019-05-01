@@ -621,6 +621,8 @@ def base_defines(os_conditions):
         "SK_BUILD_FOR_GOOGLE3",
         # Required for building dm.
         "GR_TEST_UTILS",
+        # Google3 probably doesn't want this feature yet
+        "SK_DISABLE_REDUCE_OPLIST_SPLITTING",
         # Staging flags for API changes
         # Should remove after we update golden images
         "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",

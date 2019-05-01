@@ -151,7 +151,7 @@ GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
                                    const GrTextContext::Options& optionsForTextContext,
                                    bool sortOpLists,
-                                   GrContextOptions::Enable reduceOpListSplitting)
+                                   bool reduceOpListSplitting)
         : fContext(context)
         , fOptionsForPathRendererChain(optionsForPathRendererChain)
         , fOptionsForTextContext(optionsForTextContext)
@@ -159,16 +159,8 @@ GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
         , fTextContext(nullptr)
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
-        , fFlushing(false) {
-    if (GrContextOptions::Enable::kNo == reduceOpListSplitting) {
-        fReduceOpListSplitting = false;
-    } else if (GrContextOptions::Enable::kYes == reduceOpListSplitting) {
-        fReduceOpListSplitting = true;
-    } else {
-        // For now, this is only turned on when explicitly enabled. Once mini-flushes are
-        // implemented it should be enabled whenever sorting is enabled.
-        fReduceOpListSplitting = false; // sortOpLists
-    }
+        , fFlushing(false)
+        , fReduceOpListSplitting(reduceOpListSplitting) {
 }
 
 void GrDrawingManager::cleanup() {
