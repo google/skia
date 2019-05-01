@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c186fafc_dafeed7f",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-01T20:18:25Z",
+      "side": 1,
+      "message": "Do we know the number of children when the GrGLSLFragmentProcessor is created? Then we could reserve the right amount of space, and/or fill it with empty strings every time a child processor is registered?\n\nBut if that is ugly, this is fine too.",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 5
+      },
+      "revId": "3ad8a769df2bcf264f009244801b17f7bc27e892",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aaaef3ec_b76f299f",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-01T20:18:25Z",
+      "side": 1,
+      "message": "Maybe something like \n\"outputColor is LHS to hold result of the child invocation and must have been declared in the caller\u0027s block. The actual child function will have an inout parameter with a mangled name.\"?\n\nRight now it kind of suggests that invokeChild will declare the variable for you.",
+      "range": {
+        "startLine": 147,
+        "startChar": 59,
+        "endLine": 148,
+        "endChar": 90
+      },
+      "revId": "3ad8a769df2bcf264f009244801b17f7bc27e892",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "149d067b_955c0b18",
+        "filename": "src/gpu/glsl/GrGLSLProgramBuilder.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-01T20:18:25Z",
+      "side": 1,
+      "message": "Does the root fragment processor lifted into a function? It probably is best for the sake of consistency, but then maybe we can share this code with that in GrGLSLFragmentProcessor:45-67, since they are so similar?",
+      "range": {
+        "startLine": 210,
+        "startChar": 0,
+        "endLine": 223,
+        "endChar": 87
+      },
+      "revId": "3ad8a769df2bcf264f009244801b17f7bc27e892",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0aa28f7_085ea926",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-01T20:18:25Z",
+      "side": 1,
+      "message": "Is this because now each function from a child FP will have to calculate its own local coords/frag coords?",
+      "range": {
+        "startLine": 1038,
+        "startChar": 3,
+        "endLine": 1039,
+        "endChar": 38
+      },
+      "revId": "3ad8a769df2bcf264f009244801b17f7bc27e892",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
