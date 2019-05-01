@@ -83,6 +83,8 @@ public:
 
     bool generateCode() override;
 
+    void align(int divisor, int remainder);
+
     void write8(uint8_t b);
 
     void write16(uint16_t b);
@@ -122,8 +124,8 @@ private:
         void set() {
             int target = fGenerator.fCode->size();
             SkASSERT(target <= 65535);
-            (*fGenerator.fCode)[fOffset] = target >> 8;
-            (*fGenerator.fCode)[fOffset + 1] = target;
+            (*fGenerator.fCode)[fOffset] = target;
+            (*fGenerator.fCode)[fOffset + 1] = target >> 8;
 #ifdef SK_DEBUG
             fSet = true;
 #endif
