@@ -7,6 +7,7 @@
 
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 
 DEF_SIMPLE_GM(crbug_884166, canvas, 300, 300) {

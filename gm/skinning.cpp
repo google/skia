@@ -6,12 +6,17 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/core/SkVertices.h"
 
-#include <iostream>
-#include <vector>
+#include <stdint.h>
 
 using namespace skiagm;
 

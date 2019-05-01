@@ -6,15 +6,22 @@
  */
 
 #include "gm/gm.h"
-#include "tools/ToolUtils.h"
-
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkFontPriv.h"
+#include "tools/ToolUtils.h"
+
+#include <string.h>
 
 static void strokePath(SkCanvas* canvas, const SkPath& path) {
     SkPaint paint;

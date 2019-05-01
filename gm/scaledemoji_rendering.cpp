@@ -6,14 +6,23 @@
 */
 
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkFontMetrics.h"
-#include "include/core/SkStream.h"
-#include "include/core/SkTypeface.h"
-#include "include/private/SkTo.h"
-#include "tools/Resources.h"
+#include <string.h>
+#include <initializer_list>
 
 namespace skiagm {
 class ScaledEmojiRenderingGM : public GM {

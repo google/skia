@@ -6,7 +6,13 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
 #include "include/utils/SkTextUtils.h"
+
+#include <initializer_list>
+
+class SkCanvas;
 
 // http://bug.skia.org/7315
 DEF_SIMPLE_GM(text_scale_skew, canvas, 256, 128) {

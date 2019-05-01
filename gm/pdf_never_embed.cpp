@@ -6,10 +6,18 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkTo.h"
 #include "tools/Resources.h"
+
+#include <string.h>
 
 static void excercise_draw_pos_text(SkCanvas* canvas,
                                     const char* text,

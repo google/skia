@@ -6,24 +6,32 @@
  */
 
 #include "gm/gm.h"
-#include "tools/ToolUtils.h"
-
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/effects/SkArithmeticImageFilter.h"
 #include "include/effects/SkBlurImageFilter.h"
 #include "include/effects/SkColorFilterImageFilter.h"
-#include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkImageSource.h"
 #include "include/effects/SkMatrixConvolutionImageFilter.h"
 #include "include/effects/SkMergeImageFilter.h"
 #include "include/effects/SkMorphologyImageFilter.h"
 #include "include/effects/SkOffsetImageFilter.h"
 #include "include/effects/SkXfermodeImageFilter.h"
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkSpecialImage.h"
-#include "src/core/SkSpecialSurface.h"
-#include "src/core/SkWriteBuffer.h"
+#include "tools/ToolUtils.h"
+
+#include <utility>
 
 class ImageFiltersGraphGM : public skiagm::GM {
 public:
