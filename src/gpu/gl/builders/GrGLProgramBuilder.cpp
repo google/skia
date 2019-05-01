@@ -18,8 +18,8 @@
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrProgramDesc.h"
-#include "src/gpu/GrSKSLPrettyPrint.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLProgram.h"
@@ -389,7 +389,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 #if GR_TEST_UTILS
         if (fGpu->getContext()->priv().options().fCacheSKSL) {
             for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                glsl[i] = GrSKSLPrettyPrint::PrettyPrint(*sksl[i]);
+                glsl[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
             }
             isSkSL = true;
         }
