@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4616058_34dbf1a4",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-01T15:07:40Z",
+      "side": 1,
+      "message": "FWIW, I think the dm_includes.add() line can probably be removed now, but we can follow up.",
+      "revId": "187ba14dee3ff799ac40595c52340985d7d8f5eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
