@@ -37,6 +37,7 @@ public:
     bool asColorMode(SkColor* color, SkBlendMode* mode) const {
         return this->onAsAColorMode(color, mode);
     }
+    bool asColorMatrix(float rowMajor255[20]) const;
 
     /** If the filter can be represented by a source color plus Mode, this
      *  returns true, and sets (if not NULL) the color and mode appropriately.
@@ -139,6 +140,9 @@ private:
 
 class SK_API SkColorFilters {
 public:
+    // Deprecated: use Matrix(...) with 0...1 values for translate
+    static sk_sp<SkColorFilter> MatrixRowMajor255(const float array[20]);
+
     static sk_sp<SkColorFilter> Compose(sk_sp<SkColorFilter> outer, sk_sp<SkColorFilter> inner) {
         return outer ? outer->makeComposed(inner) : inner;
     }

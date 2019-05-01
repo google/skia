@@ -32,6 +32,21 @@ bool SkColorFilter::onAsAColorMatrix(float matrix[20]) const {
     return false;
 }
 
+// DEPRECATED
+bool SkColorFilter::asColorMatrix(float rowMajor255[20]) const {
+    if (this->asAColorMatrix(rowMajor255)) {
+        if (rowMajor255) {
+            rowMajor255[ 4] *= 255;
+            rowMajor255[ 9] *= 255;
+            rowMajor255[14] *= 255;
+            rowMajor255[19] *= 255;
+        }
+        return true;
+    }
+    return false;
+}
+
+
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(
         GrRecordingContext*, const GrColorSpaceInfo&) const {
