@@ -297,7 +297,6 @@
       "_",
       ".SRW",
       "--nonativeFonts",
-      "--reduceOpListSplitting",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",

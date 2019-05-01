@@ -433,7 +433,6 @@
       "~BlurMaskBiggerThanDest",
       "~^ProcessorOptimizationValidationTest$",
       "--nonativeFonts",
-      "--reduceOpListSplitting",
       "--verbose"
     ],
     "env": {
