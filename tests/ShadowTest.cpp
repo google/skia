@@ -42,7 +42,7 @@ void tessellate_shadow(skiatest::Reporter* reporter, const SkPath& path, const S
     verts = SkShadowTessellator::MakeAmbient(path, ctm, heightParams, false);
     check_result(reporter, verts, expectVerts, expectSuccess);
 
-    verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, false);
+    verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, true);
     check_result(reporter, verts, expectVerts, expectSuccess);
 
     verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, false);
