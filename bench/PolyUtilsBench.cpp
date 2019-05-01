@@ -70,9 +70,13 @@ protected:
             case Type::kOffsetSimple:
                 if (SkIsSimplePolygon(poly.begin(), poly.count())) {
                     SkTDArray<SkPoint> result;
+                    SkRect bounds;
+                    bounds.setBounds(poly.begin(), poly.count());
                     for (int i = 0; i < loops; i++) {
-                        (void)SkOffsetSimplePolygon(poly.begin(), poly.count(), 10, &result);
-                        (void)SkOffsetSimplePolygon(poly.begin(), poly.count(), -10, &result);
+                        (void)SkOffsetSimplePolygon(poly.begin(), poly.count(), bounds, 10,
+                                                    &result);
+                        (void)SkOffsetSimplePolygon(poly.begin(), poly.count(), bounds, -10,
+                                                    &result);
                     }
                 }
                 break;
