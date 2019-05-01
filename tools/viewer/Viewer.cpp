@@ -56,6 +56,24 @@
     #include "tools/viewer/NIMASlide.h"
 #endif
 
+class CapturingShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
+public:
+    void compileError(const char* shader, const char* errors) override {
+        fShaders.push_back(SkString(shader));
+        fErrors.push_back(SkString(errors));
+    }
+
+    void reset() {
+        fShaders.reset();
+        fErrors.reset();
+    }
+
+    SkTArray<SkString> fShaders;
+    SkTArray<SkString> fErrors;
+};
+
+static CapturingShaderErrorHandler gShaderErrorHandler;
+
 using namespace sk_app;
 
 static std::map<GpuPathRenderers, std::string> gPathRendererNames;
@@ -281,6 +299,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SetCtxOptionsFromCommonFlags(&displayParams.fGrContextOptions);
     displayParams.fGrContextOptions.fPersistentCache = &fPersistentCache;
     displayParams.fGrContextOptions.fDisallowGLSLBinaryCaching = true;
+    displayParams.fGrContextOptions.fShaderErrorHandler = &gShaderErrorHandler;
+    displayParams.fGrContextOptions.fSuppressPrints = true;
     fWindow->setRequestedDisplayParams(displayParams);
 
     // Configure timers
@@ -2060,6 +2080,17 @@ void Viewer::drawImGui() {
             });
         }
         ImGui::End();
+    }
+
+    if (gShaderErrorHandler.fErrors.count()) {
+        ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
+        ImGui::Begin("Shader Errors");
+        for (int i = 0; i < gShaderErrorHandler.fErrors.count(); ++i) {
+            ImGui::TextWrapped("%s", gShaderErrorHandler.fErrors[i].c_str());
+            ImGui::TextWrapped("%s", gShaderErrorHandler.fShaders[i].c_str());
+        }
+        ImGui::End();
+        gShaderErrorHandler.reset();
     }
 
     if (fShowZoomWindow && fLastImage) {

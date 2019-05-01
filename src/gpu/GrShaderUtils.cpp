@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkString.h"
+#include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrShaderUtils.h"
 #include "src/sksl/SkSLString.h"
 
@@ -198,5 +199,16 @@ void PrintLineByLine(const char* header, const SkSL::String& text) {
         SkDebugf("%4i\t%s\n", i + 1, lines[i].c_str());
     }
 }
+
+class GrDefaultShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
+public:
+    void compileError(const char* shader, const char* errors) {
+        SkDebugf("Shader compilation error\n"
+                 "------------------------\n");
+
+    }
+
+    bool fDebugFailOnError = false;
+};
 
 }  // namespace

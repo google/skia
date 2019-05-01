@@ -92,6 +92,10 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     }
 
     fPersistentCache = this->options().fPersistentCache;
+    fShaderErrorHandler = this->options().fShaderErrorHandler;
+    if (!fShaderErrorHandler) {
+        fShaderErrorHandler = &gDefaultShaderErrorHandler;
+    }
 
     return true;
 }

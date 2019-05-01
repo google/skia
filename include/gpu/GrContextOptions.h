@@ -48,6 +48,17 @@ struct SK_API GrContextOptions {
         virtual void store(const SkData& key, const SkData& data) = 0;
     };
 
+    /**
+     * Abstract class to report errors when compiling shaders. If fShaderErrorHandler is present,
+     * it will be called to report any compilation failures. Otherwise, failures will be reported
+     * via SkDebugf and asserts.
+     */
+    class SK_API ShaderErrorHandler {
+    public:
+        virtual ~ShaderErrorHandler() {}
+        virtual void compileError(const char* shader, const char* errors) = 0;
+    };
+
     GrContextOptions() {}
 
     // Suppress prints for the GrContext.
@@ -183,6 +194,12 @@ struct SK_API GrContextOptions {
       * context, for example).
       */
      bool fAssertOnShaderCompileFailure = true;
+
+     /**
+      * If present, use this object to report shader compilation failures. If not, report failures
+      * via SkDebugf, and (optionally) assert, based on fAssertOnShaderCompileFailure.
+      */
+     ShaderErrorHandler* fShaderErrorHandler = nullptr;
 
 #if GR_TEST_UTILS
     /**
