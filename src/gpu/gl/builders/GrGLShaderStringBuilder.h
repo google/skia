@@ -22,10 +22,8 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
                                     GrGLenum type,
-                                    const char* glsl,
-                                    int glslLength,
-                                    GrGpu::Stats*,
-                                    const SkSL::Program::Settings& settings);
+                                    const SkSL::String& glsl,
+                                    GrGpu::Stats*);
 
 void GrGLPrintShader(const GrGLContext&, GrGLenum type, const SkSL::String& sksl,
                      const SkSL::Program::Settings&);
