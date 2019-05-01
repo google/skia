@@ -6,9 +6,20 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkOverdrawCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkOverdrawColorFilter.h"
-#include "tools/ToolUtils.h"
 
 #define WIDTH 500
 #define HEIGHT 500

@@ -7,15 +7,28 @@
 
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkGraphics.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkFontPriv.h"
 #include "src/utils/SkMetaData.h"
 #include "tools/ToolUtils.h"
-#include "tools/flags/CommandLineFlags.h"
+
+#include <utility>
 
 // limit this just so we don't take too long to draw
 #define MAX_FAMILIES    30

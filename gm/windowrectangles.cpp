@@ -6,20 +6,45 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
-#include "include/utils/SkTextUtils.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkColorData.h"
+#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkClipStack.h"
-#include "tools/ToolUtils.h"
-
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrPaint.h"
 #include "src/gpu/GrReducedClip.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
-#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrStencilClip.h"
+#include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/effects/GrTextureDomain.h"
+#include "tools/ToolUtils.h"
+
+#include <utility>
+
+class GrRecordingContext;
 
 constexpr static SkIRect kDeviceRect = {0, 0, 600, 600};
 constexpr static SkIRect kCoverRect = {50, 50, 550, 550};

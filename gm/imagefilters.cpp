@@ -6,12 +6,31 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFilterQuality.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkColorMatrixFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkColorMatrix.h"
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/effects/SkMorphologyImageFilter.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+
+#include <utility>
 
 /**
  *  Test drawing a primitive w/ an imagefilter (in this case, just matrix w/ identity) to see
@@ -104,13 +123,6 @@ DEF_SIMPLE_GM(fast_slow_blurimagefilter, canvas, 620, 260) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "include/core/SkRRect.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkColorFilterImageFilter.h"
-#include "include/effects/SkColorMatrixFilter.h"
-#include "include/effects/SkMatrixConvolutionImageFilter.h"
-#include "include/effects/SkMorphologyImageFilter.h"
-#include "tools/Resources.h"
 
 static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count) {
     const SkRect r = SkRect::MakeXYWH(30, 30, 200, 200);

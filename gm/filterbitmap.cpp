@@ -6,12 +6,22 @@
  */
 
 #include "gm/gm.h"
-#include "tools/ToolUtils.h"
-
-#include "include/core/SkStream.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/core/SkTypes.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 static void setTypeface(SkFont* font, const char name[], SkFontStyle style) {
     font->setTypeface(ToolUtils::create_portable_typeface(name, style));

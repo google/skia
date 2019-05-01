@@ -6,10 +6,19 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkRSXform.h"
-#include "include/core/SkSurface.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/effects/SkBlurImageFilter.h"
+
+#include <utility>
 
 static void make_bm(SkBitmap* bm) {
     bm->allocN32Pixels(100, 100);

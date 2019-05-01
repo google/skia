@@ -6,12 +6,20 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFilterQuality.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkPath.h"
-#include "include/core/SkSurface.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 #include "tools/Resources.h"
-#include "tools/ToolUtils.h"
+
+#include <initializer_list>
 
 static sk_sp<SkImage> make_image1() { return GetResourceAsImage("images/mandrill_128.png"); }
 

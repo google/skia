@@ -6,6 +6,10 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
 #include "include/utils/SkParsePath.h"
 
 DEF_SIMPLE_GM_CAN_FAIL(crbug_691386, canvas, errorMsg, 256, 256) {

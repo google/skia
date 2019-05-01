@@ -6,10 +6,24 @@
  */
 
 #include "gm/gm.h"
-#include "include/core/SkImage.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
 #include "tools/ToolUtils.h"
+
+#include <string.h>
 
 static void rotated_checkerboard_shader(SkPaint* paint,
                                         SkColor c1,

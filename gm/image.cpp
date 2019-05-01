@@ -6,17 +6,41 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorPriv.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/core/SkStream.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
-#include "include/utils/SkRandom.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 #include "tools/ToolUtils.h"
 
 #include <functional>
+#include <utility>
+
+class GrContext;
+class GrRenderTargetContext;
 
 static void drawContents(SkSurface* surface, SkColor fillC) {
     SkSize size = SkSize::Make(SkIntToScalar(surface->width()),
@@ -153,8 +177,6 @@ private:
 DEF_GM( return new ImageGM; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "include/core/SkPictureRecorder.h"
 
 static void draw_pixmap(SkCanvas* canvas, const SkPixmap& pmap) {
     SkBitmap bitmap;
@@ -383,8 +405,6 @@ static sk_sp<SkImage> make_lazy_image(SkSurface* surf) {
     return SkImage::MakeFromEncoded(std::move(data));
 }
 
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkWriteBuffer.h"
 static sk_sp<SkImage> serial_deserial(SkImage* img) {
     SkBinaryWriteBuffer writer;
     writer.writeImage(img);

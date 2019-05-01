@@ -8,16 +8,18 @@
 #ifndef skiagm_DEFINED
 #define skiagm_DEFINED
 
-#include "include/core/SkBitmap.h"
-#include "include/core/SkCanvas.h"
-#include "include/core/SkPaint.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkMacros.h"
-#include "src/core/SkClipOpPriv.h"
 #include "tools/Registry.h"
 
 class AnimTimer;
+class GrContext;
+class GrRenderTargetContext;
+class SkCanvas;
 class SkMetaData;
 struct GrContextOptions;
 

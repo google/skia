@@ -1,7 +1,17 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+
 #include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
 #include "tools/Resources.h"
+
 // http://crbug.com/957275
 DEF_SIMPLE_GM(tilemodes_alpha, canvas, 512, 512) {
     sk_sp<SkImage> image = GetResourceAsImage("images/mandrill_64.png");

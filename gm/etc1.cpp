@@ -5,21 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "gm/gm.h"
-#include "include/core/SkImage.h"
-#include "include/utils/SkRandom.h"
-#include "tools/ToolUtils.h"
+#include "include/core/SkTypes.h" // IWYU pragma: keep
 
-#if SK_SUPPORT_GPU && !defined(SK_BUILD_FOR_GOOGLE3)
+#if !defined(SK_BUILD_FOR_GOOGLE3)
+
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "third_party/etc1/etc1.h"
 
-#include "include/gpu/GrContext.h"
-#include "include/private/GrTextureProxy.h"
-#include "src/gpu/GrGpu.h"
-#include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
-#include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
-#include "src/gpu/ops/GrFillRectOp.h"
+class GrContext;
+class GrRenderTargetContext;
 
 // Basic test of Ganesh's ETC1 support
 class ETC1GM : public skiagm::GpuGM {

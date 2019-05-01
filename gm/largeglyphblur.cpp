@@ -6,12 +6,19 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkBlurMask.h"
 #include "tools/ToolUtils.h"
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkMaskFilter.h"
-#include "include/core/SkTextBlob.h"
-#include "src/core/SkBlurMask.h"
+#include <string.h>
 
 // This test ensures that glyphs whose point size is less than the SkStrike's maxmium, but
 // who have a large blur, are still handled correctly

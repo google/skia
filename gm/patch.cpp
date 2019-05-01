@@ -6,10 +6,21 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "src/utils/SkPatchUtils.h"
+#include "tools/Resources.h"
 
 static sk_sp<SkShader> make_shader() {
     const SkColor colors[] = {
@@ -147,7 +158,6 @@ DEF_SIMPLE_GM(patch_primitive, canvas, 1500, 1100) {
     };
     dopatch(canvas, colors);
 }
-#include "tools/Resources.h"
 DEF_SIMPLE_GM(patch_image, canvas, 1500, 1100) {
     const SkColor colors[SkPatchUtils::kNumCorners] = {
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorCYAN

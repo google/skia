@@ -6,7 +6,9 @@
  */
 
 #include "gm/gm.h"
-#include "include/core/SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkRefCnt.h"
 #include "tools/Resources.h"
 
 DEF_SIMPLE_GM(makeRasterImage, canvas, 128,128) {

@@ -14,17 +14,27 @@
 // the Plot with the first set of text will not get overwritten by the new large text.
 
 #include "gm/gm.h"
-
-#include "gm/gm.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkGraphics.h"
-#include "include/core/SkImage.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkTemplates.h"
 #include "src/gpu/GrContextPriv.h"
-
 #include "tools/ToolUtils.h"
+
+class GrRenderTargetContext;
 
 static sk_sp<SkTextBlob> make_blob(const SkString& text, const SkFont& font) {
     size_t len = text.size();

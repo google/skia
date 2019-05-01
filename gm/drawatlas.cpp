@@ -6,13 +6,40 @@
  */
 
 #include "gm/gm.h"
-
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRSXform.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkVertices.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkAutoMalloc.h"
+#include "src/core/SkFontPriv.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+
+#include <initializer_list>
 
 class DrawAtlasGM : public skiagm::GM {
     static sk_sp<SkImage> MakeAtlas(SkCanvas* caller, const SkRect& target) {
@@ -99,10 +126,6 @@ private:
 DEF_GM( return new DrawAtlasGM; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "include/core/SkFont.h"
-#include "include/core/SkPath.h"
-#include "include/core/SkPathMeasure.h"
-#include "src/core/SkFontPriv.h"
 
 static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
                               const SkPoint xy[], const SkPath& path, const SkFont& font, const SkPaint& paint,
@@ -153,7 +176,6 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
     }
 }
 
-#include "include/effects/SkGradientShader.h"
 static sk_sp<SkShader> make_shader() {
     SkPoint pts[2] = {{0, 0}, {220, 0}};
     SkColor colors[2] = {SK_ColorRED, SK_ColorBLUE};
@@ -236,10 +258,6 @@ DEF_SIMPLE_GM(blob_rsxform, canvas, 500, 100) {
     paint.setColor(SK_ColorBLACK);
     canvas->drawTextBlob(blob, offset.fX, offset.fY, paint);
 }
-
-#include "include/core/SkColorFilter.h"
-#include "include/core/SkVertices.h"
-#include "tools/Resources.h"
 
 static sk_sp<SkVertices> make_vertices(sk_sp<SkImage> image, const SkRect& r,
                                        SkColor color) {

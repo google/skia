@@ -6,13 +6,30 @@
  */
 
 #include "gm/gm.h"
-
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrContext.h"
+#include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrClip.h"
+#include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/SkGr.h"
+
+#include <utility>
 
 static constexpr SkScalar kTileWidth = 40;
 static constexpr SkScalar kTileHeight = 30;

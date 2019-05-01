@@ -6,8 +6,10 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
 
 // The root cause of this bug was that when dual source blending was not supported and we made a
 // copy of the destination to perform blending we would clip the copy bounds to the current clip.

@@ -9,16 +9,24 @@
 // It's not necessary to run this with CPU configs
 
 #include "gm/gm.h"
-
-#include "gm/gm.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkGraphics.h"
-#include "include/core/SkImage.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "tools/ToolUtils.h"
+
+class GrRenderTargetContext;
 
 static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
                            SkScalar y, const SkFont& font) {
