@@ -22,6 +22,30 @@
       "revId": "b7e85f3d164ba4f85fbff7214afff54e531e1928",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8796808e_ec4c91a8",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-01T16:55:12Z",
+      "side": 1,
+      "message": "Done\n\nThis is only needed on the following bots:\n\nTest-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Debug-All-Vulkan\nTest-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan",
+      "parentUuid": "4382423f_ca640b5a",
+      "range": {
+        "startLine": 228,
+        "startChar": 26,
+        "endLine": 228,
+        "endChar": 62
+      },
+      "revId": "b7e85f3d164ba4f85fbff7214afff54e531e1928",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
