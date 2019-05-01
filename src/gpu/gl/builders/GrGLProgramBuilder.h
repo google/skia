@@ -52,8 +52,7 @@ private:
                        const GrTextureProxy* const primProcProxies[], GrProgramDesc*);
 
     void addInputVars(const SkSL::Program::Inputs& inputs);
-    bool compileAndAttachShaders(const char* glsl,
-                                 int length,
+    bool compileAndAttachShaders(const SkSL::String& glsl,
                                  GrGLuint programId,
                                  GrGLenum type,
                                  SkTDArray<GrGLuint>* shaderIds,
