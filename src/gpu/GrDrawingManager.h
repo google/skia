@@ -137,7 +137,7 @@ private:
     GrDrawingManager(GrRecordingContext*, const GrPathRendererChain::Options&,
                      const GrTextContext::Options&,
                      bool sortOpLists,
-                     GrContextOptions::Enable reduceOpListSplitting);
+                     bool reduceOpListSplitting);
 
     bool wasAbandoned() const;
 
