@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "10e121a8_2a3f0f94",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-02T19:38:04Z",
+      "side": 1,
+      "message": "Unfortunately the children are added after creation; I don\u0027t think there\u0027s a straightforward way to know in advance how many there are going to be.",
+      "parentUuid": "c186fafc_dafeed7f",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 5
+      },
+      "revId": "3ad8a769df2bcf264f009244801b17f7bc27e892",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aaaef3ec_b76f299f",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.h",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "3ad8a769df2bcf264f009244801b17f7bc27e892",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6e9adc9_054dc765",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-02T19:38:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aaaef3ec_b76f299f",
+      "range": {
+        "startLine": 147,
+        "startChar": 59,
+        "endLine": 148,
+        "endChar": 90
+      },
+      "revId": "3ad8a769df2bcf264f009244801b17f7bc27e892",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "2e87d66d_7c95aee3",
+        "filename": "src/gpu/glsl/GrGLSLProgramBuilder.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-02T19:38:04Z",
+      "side": 1,
+      "message": "Thanks for the suggestion; I have unified these two implementations.",
+      "parentUuid": "149d067b_955c0b18",
+      "range": {
+        "startLine": 210,
+        "startChar": 0,
+        "endLine": 223,
+        "endChar": 87
+      },
+      "revId": "3ad8a769df2bcf264f009244801b17f7bc27e892",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0aa28f7_085ea926",
         "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
         "patchSetId": 7
@@ -82,6 +154,30 @@
       "writtenOn": "2019-05-01T20:18:25Z",
       "side": 1,
       "message": "Is this because now each function from a child FP will have to calculate its own local coords/frag coords?",
+      "range": {
+        "startLine": 1038,
+        "startChar": 3,
+        "endLine": 1039,
+        "endChar": 38
+      },
+      "revId": "3ad8a769df2bcf264f009244801b17f7bc27e892",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b742428d_d21541e6",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-02T19:38:04Z",
+      "side": 1,
+      "message": "Okay... so, it turns out that the frag coordinate stuff never actually fully worked. It would break in some configurations if you accessed sk_FragCoord from two different functions, because it would perform the setup in function 1, and then function 2 wouldn\u0027t be able to access the local variables created in function 1, so we\u0027d produce invalid GLSL.\n\nWe never noticed this before because we just weren\u0027t actually doing that. But this CL pushes a whole lot of things into separate functions, which means suddenly we need this to work. This was the simplest way to make it happen, by forcing it to set the locals up in each individual function.\n\nIt\u0027s not a completely ideal change because it means we do some of the calculations twice, but it\u0027s rare that we use sk_FragCoord from multiple functions, most configurations don\u0027t need the workarounds that cause this problem (and therefore the extra calculations) in the first place, and so given how big this change already was I thought a real fix could wait.",
+      "parentUuid": "d0aa28f7_085ea926",
       "range": {
         "startLine": 1038,
         "startChar": 3,
