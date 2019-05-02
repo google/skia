@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkString.h"
+#include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrShaderUtils.h"
 #include "src/sksl/SkSLString.h"
 
@@ -190,13 +191,31 @@ SkSL::String PrettyPrint(const SkSL::String& string) {
 
 // Prints shaders one line at the time. This ensures they don't get truncated by the adb log.
 void PrintLineByLine(const char* header, const SkSL::String& text) {
+    if (header) {
+        SkDebugf("%s\n", header);
+    }
     SkSL::String pretty = PrettyPrint(text);
-    SkDebugf("%s\n", header);
     SkTArray<SkString> lines;
     SkStrSplit(pretty.c_str(), "\n", kStrict_SkStrSplitMode, &lines);
     for (int i = 0; i < lines.count(); ++i) {
         SkDebugf("%4i\t%s\n", i + 1, lines[i].c_str());
     }
+}
+
+GrContextOptions::ShaderErrorHandler* DefaultShaderErrorHandler() {
+    class GrDefaultShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
+    public:
+        void compileError(const char* shader, const char* errors) override {
+            SkDebugf("Shader compilation error\n"
+                     "------------------------\n");
+            PrintLineByLine(nullptr, shader);
+            SkDebugf("Errors:\n%s\n", errors);
+            SkDEBUGFAIL("Shader compilation failed!");
+        }
+    };
+
+    static GrDefaultShaderErrorHandler gHandler;
+    return &gHandler;
 }
 
 }  // namespace

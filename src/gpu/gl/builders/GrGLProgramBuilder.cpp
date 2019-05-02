@@ -89,15 +89,15 @@ bool GrGLProgramBuilder::compileAndAttachShaders(const SkSL::String& glsl,
                                                  GrGLuint programId,
                                                  GrGLenum type,
                                                  SkTDArray<GrGLuint>* shaderIds,
-                                                 const SkSL::Program::Inputs& inputs) {
+                                                 const SkSL::Program::Inputs& inputs,
+                                                 GrContextOptions::ShaderErrorHandler* errHandler) {
     GrGLGpu* gpu = this->gpu();
-    bool assertOnCompileFailure = gpu->getContext()->priv().options().fAssertOnShaderCompileFailure;
     GrGLuint shaderId = GrGLCompileAndAttachShader(gpu->glContext(),
                                                    programId,
                                                    type,
                                                    glsl,
                                                    gpu->stats(),
-                                                   assertOnCompileFailure);
+                                                   errHandler);
     if (!shaderId) {
         return false;
     }
@@ -202,6 +202,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     this->finalizeShaders();
 
     // compile shaders and bind attributes / uniforms
+    auto errorHandler = this->gpu()->getContext()->priv().getShaderErrorHandler();
     const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
     SkSL::Program::Settings settings;
     settings.fCaps = this->gpu()->glCaps().shaderCaps();
@@ -284,7 +285,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                                                              SkSL::Program::kFragment_Kind,
                                                              *sksl[kFragment_GrShaderType],
                                                              settings,
-                                                             &glsl[kFragment_GrShaderType]);
+                                                             &glsl[kFragment_GrShaderType],
+                                                             errorHandler);
             if (!fs) {
                 this->cleanupProgram(programID, shadersToDelete);
                 return nullptr;
@@ -297,7 +299,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             this->computeCountsAndStrides(programID, primProc, false);
         }
         if (!this->compileAndAttachShaders(glsl[kFragment_GrShaderType], programID,
-                                           GR_GL_FRAGMENT_SHADER, &shadersToDelete, inputs)) {
+                                           GR_GL_FRAGMENT_SHADER, &shadersToDelete, inputs,
+                                           errorHandler)) {
             this->cleanupProgram(programID, shadersToDelete);
             return nullptr;
         }
@@ -308,14 +311,16 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                                                              SkSL::Program::kVertex_Kind,
                                                              *sksl[kVertex_GrShaderType],
                                                              settings,
-                                                             &glsl[kVertex_GrShaderType]);
+                                                             &glsl[kVertex_GrShaderType],
+                                                             errorHandler);
             if (!vs) {
                 this->cleanupProgram(programID, shadersToDelete);
                 return nullptr;
             }
         }
         if (!this->compileAndAttachShaders(glsl[kVertex_GrShaderType], programID,
-                                           GR_GL_VERTEX_SHADER, &shadersToDelete, inputs)) {
+                                           GR_GL_VERTEX_SHADER, &shadersToDelete, inputs,
+                                           errorHandler)) {
             this->cleanupProgram(programID, shadersToDelete);
             return nullptr;
         }
@@ -334,14 +339,16 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                                   SkSL::Program::kGeometry_Kind,
                                   *sksl[kGeometry_GrShaderType],
                                   settings,
-                                  &glsl[kGeometry_GrShaderType]);
+                                  &glsl[kGeometry_GrShaderType],
+                                  errorHandler);
                 if (!gs) {
                     this->cleanupProgram(programID, shadersToDelete);
                     return nullptr;
                 }
             }
             if (!this->compileAndAttachShaders(glsl[kGeometry_GrShaderType], programID,
-                                               GR_GL_GEOMETRY_SHADER, &shadersToDelete, inputs)) {
+                                               GR_GL_GEOMETRY_SHADER, &shadersToDelete, inputs,
+                                               errorHandler)) {
                 this->cleanupProgram(programID, shadersToDelete);
                 return nullptr;
             }
