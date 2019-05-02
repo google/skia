@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40817e56_bd342fa3",
+        "filename": "tests/ShaperTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-02T21:12:43Z",
+      "side": 1,
+      "message": "Why not just vectors?",
+      "range": {
+        "startLine": 12,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 42
+      },
+      "revId": "e45958d4c3f1d5505df518af60e2916a2eb33792",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
