@@ -5,6 +5,7 @@
 
 skcms_sources = [
   "skcms.cc",
+  "skcms.h",
   "skcms_internal.h",
   "src/Transform_inl.h",
 ]
