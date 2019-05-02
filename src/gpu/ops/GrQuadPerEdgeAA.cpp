@@ -1002,8 +1002,8 @@ public:
                         args.fFragBuilder->codeAppendf("float coverage = %s * sk_FragCoord.w;",
                                                         coverage.fsIn());
                     } else {
-                        args.fVertBuilder->codeAppendf("%s = %s.z;",
-                                                       coverage.vsOut(), gp.fPosition.name());
+                        args.fVertBuilder->codeAppendf("%s = %s;",
+                                                       coverage.vsOut(), gp.fCoverage.name());
                         args.fFragBuilder->codeAppendf("float coverage = %s;", coverage.fsIn());
                     }
 
@@ -1068,7 +1068,8 @@ private:
             if (fNeedsPerspective) {
                 fPosition = {"positionWithCoverage", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
             } else {
-                fPosition = {"positionWithCoverage", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+                fPosition = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+                fCoverage = {"coverage", kFloat_GrVertexAttribType, kFloat_GrSLType};
             }
         } else {
             if (fNeedsPerspective) {
@@ -1101,12 +1102,13 @@ private:
             fTexDomain = {"texDomain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
         }
 
-        this->setVertexAttributes(&fPosition, 5);
+        this->setVertexAttributes(&fPosition, 6);
     }
 
     const TextureSampler& onTextureSampler(int) const override { return fSampler; }
 
     Attribute fPosition; // May contain coverage as last channel
+    Attribute fCoverage; // Used for non-perspective position to avoid Intel Metal issues
     Attribute fColor; // May have coverage modulated in if the FPs support it
     Attribute fLocalCoord;
     Attribute fGeomDomain; // Screen-space bounding box on geometry+aa outset
