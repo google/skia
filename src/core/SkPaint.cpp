@@ -56,6 +56,14 @@ SkPaint::SkPaint()
     static_assert(sizeof(fBitfields) == sizeof(fBitfieldsUInt), "");
 }
 
+SkPaint::SkPaint(const SkColor4f& color, SkColorSpace* colorSpace = nullptr) : SkPaint() {
+    this->setColor4f(color, colorSpace);
+}
+
+SkPaint::SkPaint(SkColor color) : SkPaint() {
+    this->setColor(color);
+}
+
 SkPaint::SkPaint(const SkPaint& src) = default;
 
 SkPaint::SkPaint(SkPaint&& src) = default;
