@@ -940,6 +940,7 @@ def test_steps(api):
       '--images', api.flavor.device_path_join(
           api.flavor.device_dirs.resource_dir, 'images', 'color_wheel.jpg'),
       '--nameByHash',
+      '--dontReduceOpListSplitting',
       '--properties'
     ] + properties
   else:

@@ -321,6 +321,7 @@
       "--skps",
       "/cache/skia/skps",
       "--pre_log",
+      "--dontReduceOpListSplitting",
       "--match",
       "~matrixconvolution",
       "~blur_image_filter",
