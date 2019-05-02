@@ -43,6 +43,19 @@ public:
     */
     SkPaint();
 
+    /** Constructs SkPaint with default values and the given color.
+
+        Sets alpha and RGB used when stroking and filling. The color is four floating
+        point values, unpremultiplied. The color values are interpreted as being in
+        the colorSpace. If colorSpace is nullptr, then color is assumed to be in the
+        sRGB color space.
+
+        @param color       unpremultiplied RGBA
+        @param colorSpace  SkColorSpace describing the encoding of color
+        @return            SkPaint with the given color
+    */
+    explicit SkPaint(const SkColor4f& color, SkColorSpace* colorSpace = nullptr);
+
     /** Makes a shallow copy of SkPaint. SkPathEffect, SkShader,
         SkMaskFilter, SkColorFilter, SkDrawLooper, and SkImageFilter are shared
         between the original paint and the copy. Objects containing SkRefCnt increment

@@ -73,21 +73,17 @@ static SkBitmap make_bitmap(SkColorType ct) {
 
 static void draw_center_letter(char c, const SkFont& font, SkColor color,
                                SkScalar x, SkScalar y, SkCanvas* canvas) {
-    SkPaint paint;
-    paint.setColor(color);
     SkRect bounds;
     font.measureText(&c, 1, kUTF8_SkTextEncoding, &bounds);
     canvas->drawSimpleText(&c, 1, kUTF8_SkTextEncoding,
                            x - bounds.centerX(), y - bounds.centerY(),
-                           font, paint);
+                           font, SkPaint(SkColor4f::FromColor(color)));
 }
 
 static void color_wheel_native(SkCanvas* canvas) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, true);
     canvas->translate(0.5f * SCALE, 0.5f * SCALE);
-    SkPaint p;
-    p.setColor(SK_ColorWHITE);
-    canvas->drawCircle(0.0f, 0.0f, SCALE * 0.5f, p);
+    canvas->drawCircle(0.0f, 0.0f, SCALE * 0.5f, SkPaint(SkColors::kWhite));
 
     const double sqrt_3_over_2 = 0.8660254037844387;
     const SkScalar Z = 0.0f;
@@ -131,8 +127,7 @@ static void draw(SkCanvas* canvas,
 
 DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, true);
-    SkPaint p;
-    p.setColor(SK_ColorBLACK);
+    SkPaint p(SkColors::kBlack);
     p.setAntiAlias(true);
 
     SkFont font(ToolUtils::create_portable_typeface());
