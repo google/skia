@@ -16,6 +16,24 @@
       "revId": "05d77ced22de1c87c18a5f715e0262edacb1fcce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83878db1_70dc3be6",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-02T19:18:40Z",
+      "side": 1,
+      "message": "lgtm",
+      "parentUuid": "cc064d7a_47a03aeb",
+      "revId": "05d77ced22de1c87c18a5f715e0262edacb1fcce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
