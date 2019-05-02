@@ -7,7 +7,7 @@
 
 #include "include/effects/SkColorMatrixFilter.h"
 
-static SkScalar byte_to_scale(U8CPU byte) {
+static SkScalar byte_to_unit_float(U8CPU byte) {
     if (0xFF == byte) {
         // want to get this exact
         return 1;
@@ -24,13 +24,13 @@ sk_sp<SkColorFilter> SkColorMatrixFilter::MakeLightingFilter(SkColor mul, SkColo
     }
 
     SkColorMatrix matrix;
-    matrix.setScale(byte_to_scale(SkColorGetR(mul)),
-                    byte_to_scale(SkColorGetG(mul)),
-                    byte_to_scale(SkColorGetB(mul)),
+    matrix.setScale(byte_to_unit_float(SkColorGetR(mul)),
+                    byte_to_unit_float(SkColorGetG(mul)),
+                    byte_to_unit_float(SkColorGetB(mul)),
                     1);
-    matrix.postTranslate255(SkIntToScalar(SkColorGetR(add)),
-                         SkIntToScalar(SkColorGetG(add)),
-                         SkIntToScalar(SkColorGetB(add)),
+    matrix.postTranslate(byte_to_unit_float(SkColorGetR(add)),
+                         byte_to_unit_float(SkColorGetG(add)),
+                         byte_to_unit_float(SkColorGetB(add)),
                          0);
     return SkColorFilters::Matrix(matrix);
 }

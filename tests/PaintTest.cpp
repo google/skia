@@ -239,7 +239,7 @@ DEF_TEST(Paint_nothingToDraw, r) {
     paint.setColorFilter(SkColorFilters::Matrix(cm));
     REPORTER_ASSERT(r, paint.nothingToDraw());
 
-    cm.postTranslate255(0, 0, 0, 1);    // wacks alpha
+    cm.postTranslate(0, 0, 0, 1.0f/255);    // wacks alpha
     paint.setColorFilter(SkColorFilters::Matrix(cm));
     REPORTER_ASSERT(r, !paint.nothingToDraw());
 }
