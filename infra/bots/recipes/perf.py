@@ -330,6 +330,7 @@ def perf_steps(api):
           api.flavor.device_dirs.resource_dir, 'images', 'color_wheel.jpg'),
       '--skps',  api.flavor.device_dirs.skp_dir,
       '--pre_log',
+      '--dontReduceOpListSplitting',
       '--match', # skia:6687
       '~matrixconvolution',
       '~blur_image_filter',
