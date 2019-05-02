@@ -18,6 +18,8 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkUtils.h"
 
+#include <limits.h>
+
 // Wuffs ships as a "single file C library" or "header file library" as per
 // https://github.com/nothings/stb/blob/master/docs/stb_howto.txt
 //
