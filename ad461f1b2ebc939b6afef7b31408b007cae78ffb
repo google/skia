@@ -1,0 +1,458 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ceeedd9_f04a02f7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "nit: its",
+      "range": {
+        "startLine": 9,
+        "startChar": 26,
+        "endLine": 9,
+        "endChar": 30
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7c19729_912aaa86",
+        "filename": "experimental/multi-skp/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "I\u0027d probably leave this out (at least without more details). I suspect this varies from device to device and based on what\u0027s being drawn.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 47
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e67c4a4_e5f4c0e6",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "Let\u0027s use SkDebugf, so it can be used on other platforms. (I think ALOGE is an Android-only macro?)",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 22
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "104418c1_0b19867b",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "Why not make this actual code instead of a comment?",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 79
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92916e14_680ea18a",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "nit: No need for this temporary variable.",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 20
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26e15c8c_40c930d3",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "nit: a lot of times in Skia we\u0027ll align this with \"bounds\" above. That might put you over the width limit, though. Also I think it would be acceptable to just indent this a level (4 more spaces compared to the line above).",
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d435864c_218c889c",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "You\u0027ll eventually want something that\u0027s platform independent, anyway.\n\nI had been thinking you\u0027d want to use Android\u0027s ThreadBase. To do that you\u0027d need to leave it up to the client somehow to handle threading. If you want this to all live in Skia, though, perhaps you\u0027ll want to use SkExecutor::MakeFIFOThreadPool, which takes care of the queue behavior.\n\nIt doesn\u0027t appear to (currently) do anything regarding priority, though.",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 59
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a4d7291_4fe1769e",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "nit: space between \"while\" and \"(\"",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 74,
+        "endChar": 10
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff7a953f_69246880",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "Maybe we should fail earlier than this? Like when we created the SkMultiSkpWriter? That way we don\u0027t waste a bunch of time serializing when there\u0027s no place to save it.\n\nI\u0027d suggest making this class use a factory instead of a public constructor. The creation would look something like:\n\n  std::unique_ptr\u003cSkMultiSkpWriter\u003e SkMultiSkpWriter::Make(int frames, SkString filename) {\n      auto stream \u003d new SkFILEWStream(filename.c_str());\n      if (!stream-\u003eisValid()) {\n          return nullptr;\n      }\n\n      return new SkMultiSkpWriter(frames, std::move(stream));\n  }",
+      "range": {
+        "startLine": 110,
+        "startChar": 4,
+        "endLine": 110,
+        "endChar": 28
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32b18776_704ed508",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "I don\u0027t think we have a Skia equivalent of this, but you may not need it if you use SkExecutor, as I suggest elsewhere.",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 29
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f8c112d_e6fbe4d0",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "Typically I think we\u0027d use SkMutex.",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 16
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa67c925_ad9d3582",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "Can we move this into the cpp file?\n\nAh, we don\u0027t have a reader yet, which will need this knowledge, and might be in a different cpp file?",
+      "range": {
+        "startLine": 22,
+        "startChar": 7,
+        "endLine": 22,
+        "endChar": 17
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "494a5110_5614c9b8",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "nit: This is redundant with \"struct\", but I suppose it doesn\u0027t hurt anything.",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 7
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a459522e_ff5f84d5",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "nit: unnecessary comma.",
+      "range": {
+        "startLine": 43,
+        "startChar": 43,
+        "endLine": 43,
+        "endChar": 44
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e627678b_9eb6a90e",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "SkPictInfo?",
+      "range": {
+        "startLine": 45,
+        "startChar": 54,
+        "endLine": 45,
+        "endChar": 58
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c56ec707_d6b7563c",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "nit: I pronounce this \"an ess-kay\" (so this is missing an \"n\"), though I think others are content with \"a\" here.",
+      "range": {
+        "startLine": 50,
+        "startChar": 22,
+        "endLine": 50,
+        "endChar": 26
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "27885bbb_6174ba69",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "We probably want to use SkString, which is Skia\u0027s string class.",
+      "range": {
+        "startLine": 55,
+        "startChar": 33,
+        "endLine": 55,
+        "endChar": 50
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2118538e_bbdd3246",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "nit: Unnecessary line.\n\nThat said, you may want to mention that it must be called on the same thread as startFrame.",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 6
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ab4c2eb_5e60f64a",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "In Skia, we name member variables like \"fName\". So this should be \"fFilename\". See https://skia.org/dev/contrib/style",
+      "range": {
+        "startLine": 73,
+        "startChar": 16,
+        "endLine": 73,
+        "endChar": 24
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4387c297_43012745",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-02T17:40:20Z",
+      "side": 1,
+      "message": "fRecorder etc",
+      "range": {
+        "startLine": 84,
+        "startChar": 39,
+        "endLine": 84,
+        "endChar": 48
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
