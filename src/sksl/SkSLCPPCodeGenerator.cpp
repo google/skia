@@ -425,40 +425,31 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
         // Set to the empty string when no input color parameter should be emitted, which means this
         // must be properly formatted with a prefixed comma when the parameter should be inserted
-        // into the emitChild() parameter list.
+        // into the invokeChild() parameter list.
         String inputArg;
         if (c.fArguments.size() > 1) {
             SkASSERT(c.fArguments.size() == 2);
-            // Use the emitChild() variant that accepts an input color, so convert the 2nd
+            // Use the invokeChild() variant that accepts an input color, so convert the 2nd
             // argument's expression into C++ code that produces sksl stored in an SkString.
             String inputName = "_input" + to_string(index);
             addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments[1], inputName));
 
-            // emitChild() needs a char*
+            // invokeChild() needs a char*
             inputArg = ", " + inputName + ".c_str()";
         }
 
         // Write the output handling after the possible input handling
-        String childName = "_child" + to_string(index);
-        addExtraEmitCodeLine("SkString " + childName + "(\"" + childName + "\");");
+        String childName = "_process" + to_string(c.fOffset);
+        addExtraEmitCodeLine("fragBuilder->codeAppendf(\"half4 " + childName + ";\");");
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
             addExtraEmitCodeLine("if (_outer." + String(child.fName) + "_index >= 0) {\n    ");
         }
-        addExtraEmitCodeLine("this->emitChild(_outer." + String(child.fName) + "_index" +
-                             inputArg + ", &" + childName + ", args);");
+        addExtraEmitCodeLine("this->invokeChild(_outer." + String(child.fName) + "_index" +
+                             inputArg + ", \"" + childName + "\", args);");
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
-            // Null FPs are not emitted, but their output can still be referenced in dependent
-            // expressions - thus we always declare the variable.
-            // Note: this is essentially dead code required to satisfy the compiler, because
-            // 'process' function calls should always be guarded at a higher level, in the .fp
-            // source.
-            addExtraEmitCodeLine(
-                "} else {"
-                "   fragBuilder->codeAppendf(\"half4 %s;\", " + childName + ".c_str());"
-                "}");
+            addExtraEmitCodeLine("}");
         }
-        this->write("%s");
-        fFormatArgs.push_back(childName + ".c_str()");
+        this->write(childName);
         return;
     }
     INHERITED::writeFunctionCall(c);

@@ -49,10 +49,11 @@ private:
             fXformUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat2x2_GrSLType,
                                                    "Xform", &xformUniName);
 
-            SkString dstNormalColorName("dstNormalColor");
-            this->emitChild(0, &dstNormalColorName, args);
+            const char* dstNormalColorName = "dstNormalColor";
+            fragBuilder->codeAppendf("half4 %s;\n", dstNormalColorName);
+            this->invokeChild(0, dstNormalColorName, args);
             fragBuilder->codeAppendf("float3 normal = normalize(%s.rgb - float3(0.5));",
-                                     dstNormalColorName.c_str());
+                                     dstNormalColorName);
 
             // If there's no x & y components, return (0, 0, +/- 1) instead to avoid division by 0
             fragBuilder->codeAppend( "if (abs(normal.z) > 0.999) {");

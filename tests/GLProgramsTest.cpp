@@ -117,7 +117,7 @@ private:
     class GLFP : public GrGLSLFragmentProcessor {
     public:
         void emitCode(EmitArgs& args) override {
-            this->emitChild(0, args);
+            this->invokeChild(0, args);
         }
 
     private:
