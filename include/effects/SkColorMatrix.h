@@ -35,12 +35,6 @@ public:
     void setRGB2YUV();
     void setYUV2RGB();
 
-    // DEPRECATED: use postTranslate()
-    void postTranslate255(float r, float g, float b, float a = 0) {
-        const float scale = 1.0f / 255;
-        this->postTranslate(r * scale, g * scale, b * scale, a * scale);
-    }
-
     bool operator==(const SkColorMatrix& other) const {
         return 0 == memcmp(fMat, other.fMat, sizeof(fMat));
     }
