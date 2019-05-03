@@ -51,7 +51,7 @@ struct RunHandler final : public SkShaper::RunHandler {
 };
 }  // namespace
 
-static void shaper_cluster_test(skiatest::Reporter* reporter, const char* resource) {
+static void cluster_test(skiatest::Reporter* reporter, const char* resource) {
     constexpr float kWidth = 400;
     if (auto shaper = SkShaper::Make()) {
         if (auto data = GetResourceAsData(resource)) {
@@ -62,41 +62,43 @@ static void shaper_cluster_test(skiatest::Reporter* reporter, const char* resour
     }
 }
 
-DEF_TEST(Shaper_cluster_arabic,     r) { shaper_cluster_test(r, "text/arabic.txt"); }
-DEF_TEST(Shaper_cluster_armenian,   r) { shaper_cluster_test(r, "text/armenian.txt"); }
-DEF_TEST(Shaper_cluster_balinese,   r) { shaper_cluster_test(r, "text/balinese.txt"); }
-DEF_TEST(Shaper_cluster_buginese,   r) { shaper_cluster_test(r, "text/buginese.txt"); }
-DEF_TEST(Shaper_cluster_cherokee,   r) { shaper_cluster_test(r, "text/cherokee.txt"); }
-DEF_TEST(Shaper_cluster_cyrillic,   r) { shaper_cluster_test(r, "text/cyrillic.txt"); }
-DEF_TEST(Shaper_cluster_emoji,      r) { shaper_cluster_test(r, "text/emoji.txt"); }
-DEF_TEST(Shaper_cluster_english,    r) { shaper_cluster_test(r, "text/english.txt"); }
-DEF_TEST(Shaper_cluster_ethiopic,   r) { shaper_cluster_test(r, "text/ethiopic.txt"); }
-DEF_TEST(Shaper_cluster_greek,      r) { shaper_cluster_test(r, "text/greek.txt"); }
-DEF_TEST(Shaper_cluster_hangul,     r) { shaper_cluster_test(r, "text/hangul.txt"); }
-DEF_TEST(Shaper_cluster_han_s,      r) { shaper_cluster_test(r, "text/han-simplified.txt"); }
-DEF_TEST(Shaper_cluster_han_t,      r) { shaper_cluster_test(r, "text/han-traditional.txt"); }
-DEF_TEST(Shaper_cluster_hebrew,     r) { shaper_cluster_test(r, "text/hebrew.txt"); }
-DEF_TEST(Shaper_cluster_javanese,   r) { shaper_cluster_test(r, "text/javanese.txt"); }
-DEF_TEST(Shaper_cluster_kana,       r) { shaper_cluster_test(r, "text/kana.txt"); }
-DEF_TEST(Shaper_cluster_lao,        r) { shaper_cluster_test(r, "text/lao.txt"); }
-DEF_TEST(Shaper_cluster_mandaic,    r) { shaper_cluster_test(r, "text/mandaic.txt"); }
-DEF_TEST(Shaper_cluster_newtailue,  r) { shaper_cluster_test(r, "text/newtailue.txt"); }
-DEF_TEST(Shaper_cluster_nko,        r) { shaper_cluster_test(r, "text/nko.txt"); }
-DEF_TEST(Shaper_cluster_sinhala,    r) { shaper_cluster_test(r, "text/sinhala.txt"); }
-DEF_TEST(Shaper_cluster_sundanese,  r) { shaper_cluster_test(r, "text/sundanese.txt"); }
-DEF_TEST(Shaper_cluster_syriac,     r) { shaper_cluster_test(r, "text/syriac.txt"); }
-DEF_TEST(Shaper_cluster_thaana,     r) { shaper_cluster_test(r, "text/thaana.txt"); }
-DEF_TEST(Shaper_cluster_thai,       r) { shaper_cluster_test(r, "text/thai.txt"); }
-DEF_TEST(Shaper_cluster_tibetan,    r) { shaper_cluster_test(r, "text/tibetan.txt"); }
-DEF_TEST(Shaper_cluster_tifnagh,    r) { shaper_cluster_test(r, "text/tifnagh.txt"); }
-DEF_TEST(Shaper_cluster_vai,        r) { shaper_cluster_test(r, "text/vai.txt"); }
+#define SHAPER_TEST(X) DEF_TEST(Shaper_cluster_ ## X, r) { cluster_test(r, "text/" #X ".txt"); }
+SHAPER_TEST(arabic)
+SHAPER_TEST(armenian)
+SHAPER_TEST(balinese)
+SHAPER_TEST(buginese)
+SHAPER_TEST(cherokee)
+SHAPER_TEST(cyrillic)
+SHAPER_TEST(emoji)
+SHAPER_TEST(english)
+SHAPER_TEST(ethiopic)
+SHAPER_TEST(greek)
+SHAPER_TEST(hangul)
+SHAPER_TEST(han_simplified)
+SHAPER_TEST(han_traditional)
+SHAPER_TEST(hebrew)
+SHAPER_TEST(javanese)
+SHAPER_TEST(kana)
+SHAPER_TEST(lao)
+SHAPER_TEST(mandaic)
+SHAPER_TEST(newtailue)
+SHAPER_TEST(nko)
+SHAPER_TEST(sinhala)
+SHAPER_TEST(sundanese)
+SHAPER_TEST(syriac)
+SHAPER_TEST(thaana)
+SHAPER_TEST(thai)
+SHAPER_TEST(tibetan)
+SHAPER_TEST(tifnagh)
+SHAPER_TEST(vai)
 
 // TODO(bungeman): fix these broken tests. (https://bugs.skia.org/9050)
-//DEF_TEST(Shaper_cluster_bengali,    r) { shaper_cluster_test(r, "text/bengali.txt"); }
-//DEF_TEST(Shaper_cluster_devanagari, r) { shaper_cluster_test(r, "text/devanagari.txt"); }
-//DEF_TEST(Shaper_cluster_khmer,      r) { shaper_cluster_test(r, "text/khmer.txt"); }
-//DEF_TEST(Shaper_cluster_myanmar,    r) { shaper_cluster_test(r, "text/myanmar.txt"); }
-//DEF_TEST(Shaper_cluster_taitham,    r) { shaper_cluster_test(r, "text/taitham.txt"); }
-//DEF_TEST(Shaper_cluster_tamil,      r) { shaper_cluster_test(r, "text/tamil.txt"); }
+//SHAPER_TEST(bengali)
+//SHAPER_TEST(devanagari)
+//SHAPER_TEST(khmer)
+//SHAPER_TEST(myanmar)
+//SHAPER_TEST(taitham)
+//SHAPER_TEST(tamil)
+#undef SHAPER_TEST
 
 #endif  // !SK_BUILD_FOR_ANDROID_FRAMEWORK
