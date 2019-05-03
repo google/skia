@@ -32,6 +32,7 @@ if command -v lsb_release > /dev/null ; then
 		libgif-dev
 		libgl1-mesa-dev
 		libglu1-mesa-dev
+		libharfbuzz-dev
 		libicu-dev
 		libjpeg-dev
 		libpng-dev
