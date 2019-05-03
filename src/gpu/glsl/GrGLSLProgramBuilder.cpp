@@ -206,8 +206,8 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
                                            input.c_str(),
                                            coords,
                                            textureSamplers);
-
-    fragProc->emitCode(args);
+    SkString funcName = fFS.writeProcessorFunction(fragProc, args);
+    fFS.codeAppendf("%s = %s(%s);", output.c_str(), funcName.c_str(), input.c_str());
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
