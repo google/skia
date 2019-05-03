@@ -387,16 +387,16 @@ template <> SK_API SkColor   SkColor4f::toSkColor() const;
 
 namespace SkColors {
 constexpr SkColor4f kTransparent = {0, 0, 0, 0};
-constexpr SkColor4f kBlack       = {1, 0, 0, 0};
-constexpr SkColor4f kDkGray      = {1, 0.25f, 0.25f, 0.25f};
-constexpr SkColor4f kGray        = {1, 0.50f, 0.50f, 0.50f};
-constexpr SkColor4f kLtGray      = {1, 0.75f, 0.75f, 0.75f};
+constexpr SkColor4f kBlack       = {0, 0, 0, 1};
+constexpr SkColor4f kDkGray      = {0.25f, 0.25f, 0.25f, 1};
+constexpr SkColor4f kGray        = {0.50f, 0.50f, 0.50f, 1};
+constexpr SkColor4f kLtGray      = {0.75f, 0.75f, 0.75f, 1};
 constexpr SkColor4f kWhite       = {1, 1, 1, 1};
-constexpr SkColor4f kRed         = {1, 1, 0, 0};
-constexpr SkColor4f kGreen       = {1, 0, 1, 0};
-constexpr SkColor4f kBlue        = {1, 0, 0, 1};
-constexpr SkColor4f kYellow      = {1, 1, 1, 0};
-constexpr SkColor4f kCyan        = {1, 0, 1, 1};
-constexpr SkColor4f kMagenta     = {1, 1, 0, 1};
+constexpr SkColor4f kRed         = {1, 0, 0, 1};
+constexpr SkColor4f kGreen       = {0, 1, 0, 1};
+constexpr SkColor4f kBlue        = {0, 0, 1, 1};
+constexpr SkColor4f kYellow      = {1, 1, 0, 1};
+constexpr SkColor4f kCyan        = {0, 1, 1, 1};
+constexpr SkColor4f kMagenta     = {1, 0, 1, 1};
 }  // namespace SkColors
 #endif
