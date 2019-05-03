@@ -686,6 +686,95 @@ def base_linkopts(os_conditions):
     )
 
 ################################################################################
+## sksg_lib
+################################################################################
+
+SKSG_LIB_HDRS = [
+    "modules/sksg/include/SkSGClipEffect.h",
+    "modules/sksg/include/SkSGColorFilter.h",
+    "modules/sksg/include/SkSGDraw.h",
+    "modules/sksg/include/SkSGEffectNode.h",
+    "modules/sksg/include/SkSGGeometryNode.h",
+    "modules/sksg/include/SkSGGeometryTransform.h",
+    "modules/sksg/include/SkSGGradient.h",
+    "modules/sksg/include/SkSGGroup.h",
+    "modules/sksg/include/SkSGImage.h",
+    "modules/sksg/include/SkSGInvalidationController.h",
+    "modules/sksg/include/SkSGMaskEffect.h",
+    "modules/sksg/include/SkSGMerge.h",
+    "modules/sksg/include/SkSGNode.h",
+    "modules/sksg/include/SkSGOpacityEffect.h",
+    "modules/sksg/include/SkSGPaint.h",
+    "modules/sksg/include/SkSGPath.h",
+    "modules/sksg/include/SkSGPlane.h",
+    "modules/sksg/include/SkSGRect.h",
+    "modules/sksg/include/SkSGRenderEffect.h",
+    "modules/sksg/include/SkSGRenderNode.h",
+    "modules/sksg/include/SkSGRoundEffect.h",
+    "modules/sksg/include/SkSGScene.h",
+    "modules/sksg/include/SkSGText.h",
+    "modules/sksg/include/SkSGTransform.h",
+    "modules/sksg/include/SkSGTrimEffect.h",
+]
+
+SKSG_LIB_SRCS = [
+    "modules/sksg/src/SkSGClipEffect.cpp",
+    "modules/sksg/src/SkSGColorFilter.cpp",
+    "modules/sksg/src/SkSGDraw.cpp",
+    "modules/sksg/src/SkSGEffectNode.cpp",
+    "modules/sksg/src/SkSGGeometryNode.cpp",
+    "modules/sksg/src/SkSGGeometryTransform.cpp",
+    "modules/sksg/src/SkSGGradient.cpp",
+    "modules/sksg/src/SkSGGroup.cpp",
+    "modules/sksg/src/SkSGImage.cpp",
+    "modules/sksg/src/SkSGInvalidationController.cpp",
+    "modules/sksg/src/SkSGMaskEffect.cpp",
+    "modules/sksg/src/SkSGMerge.cpp",
+    "modules/sksg/src/SkSGNode.cpp",
+    "modules/sksg/src/SkSGOpacityEffect.cpp",
+    "modules/sksg/src/SkSGPaint.cpp",
+    "modules/sksg/src/SkSGPath.cpp",
+    "modules/sksg/src/SkSGPlane.cpp",
+    "modules/sksg/src/SkSGRect.cpp",
+    "modules/sksg/src/SkSGRenderEffect.cpp",
+    "modules/sksg/src/SkSGRenderNode.cpp",
+    "modules/sksg/src/SkSGRoundEffect.cpp",
+    "modules/sksg/src/SkSGScene.cpp",
+    "modules/sksg/src/SkSGText.cpp",
+    "modules/sksg/src/SkSGTransform.cpp",
+    "modules/sksg/src/SkSGTrimEffect.cpp",
+]
+
+################################################################################
+## skottie_lib
+################################################################################
+
+SKOTTIE_LIB_HDRS = [
+    "modules/skottie/include/Skottie.h",
+    "modules/skottie/include/SkottieProperty.h",
+]
+
+SKOTTIE_LIB_SRCS = [
+    "modules/skottie/src/Skottie.cpp",
+    "modules/skottie/src/SkottieAdapter.cpp",
+    "modules/skottie/src/SkottieAdapter.h",
+    "modules/skottie/src/SkottieAnimator.cpp",
+    "modules/skottie/src/SkottieJson.cpp",
+    "modules/skottie/src/SkottieJson.h",
+    "modules/skottie/src/SkottieLayer.cpp",
+    "modules/skottie/src/SkottieLayerEffect.cpp",
+    "modules/skottie/src/SkottiePrecompLayer.cpp",
+    "modules/skottie/src/SkottiePriv.h",
+    "modules/skottie/src/SkottieProperty.cpp",
+    "modules/skottie/src/SkottieShapeLayer.cpp",
+    "modules/skottie/src/SkottieShaper.cpp",
+    "modules/skottie/src/SkottieShaper.h",
+    "modules/skottie/src/SkottieTextLayer.cpp",
+    "modules/skottie/src/SkottieValue.cpp",
+    "modules/skottie/src/SkottieValue.h",
+]
+
+################################################################################
 ## skottie_tool
 ################################################################################
 
