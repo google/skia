@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59613406_db1c1298",
+        "filename": "infra/bots/go.mod",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-03T14:54:07Z",
+      "side": 1,
+      "message": "There\u0027s actually Go code sprinkled throughout this repo.  Would it be a better idea to make a single root-level module?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 44
+      },
+      "revId": "4887d11840149c19d51d5de915b850f0b87bb810",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
