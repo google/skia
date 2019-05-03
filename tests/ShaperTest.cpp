@@ -3,7 +3,7 @@
 
 #include "tests/Test.h"
 
-#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && !defined(SK_BUILD_FOR_GOOGLE3)
 
 #include "modules/skshaper/include/SkShaper.h"
 #include "tools/Resources.h"
@@ -101,4 +101,4 @@ SHAPER_TEST(vai)
 //SHAPER_TEST(tamil)
 #undef SHAPER_TEST
 
-#endif  // !SK_BUILD_FOR_ANDROID_FRAMEWORK
+#endif  // !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && !defined(SK_BUILD_FOR_GOOGLE3)
