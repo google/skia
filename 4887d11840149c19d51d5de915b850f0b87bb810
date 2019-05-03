@@ -46,6 +46,30 @@
       "revId": "4887d11840149c19d51d5de915b850f0b87bb810",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e5f16bf_38378bd3",
+        "filename": "infra/bots/go.mod",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-03T16:42:11Z",
+      "side": 1,
+      "message": "Yeah, and reading this I\u0027m seeing that it\u0027s probably Not A Good Idea to have multiple modules: https://github.com/golang/go/wiki/Modules#should-i-have-multiple-modules-in-a-single-repository\n\nI\u0027m working on moving this to the root of the repo, but there are a LOT of fixes to be made.",
+      "parentUuid": "7be34657_dfbce3ec",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 44
+      },
+      "revId": "4887d11840149c19d51d5de915b850f0b87bb810",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
