@@ -3,12 +3,15 @@
 #ifndef editor_DEFINED
 #define editor_DEFINED
 
+#include "stringslice.h"
+
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 
 #include <vector>
+#include <climits>
 
 class SkCanvas;
 class SkShaper;
@@ -22,9 +25,10 @@ public:
     void setText(const char* text, size_t len);
     int getHeight() const { return fHeight; }
     int getMargin() const { return fMargin; }
-    void paint(SkCanvas* canvas);
+
     void setWidth(int w); // may force re-shape
     const SkFont& font() const { return fFont; }
+    void setFont(SkFont font);
 
     // query buffer:
     struct Str {
@@ -35,30 +39,74 @@ public:
     Str line(size_t index) const { return fLines[index].text(); }
     int lineHeight(size_t index) const { return fLines[index].fHeight; }
 
-    // experimental interface
-    void select(unsigned lineIndex) { fLines[lineIndex].fSelected = !fLines[lineIndex].fSelected; }
+    struct TextPosition {
+        unsigned fColumn = UINT_MAX;
+        unsigned fLine = UINT_MAX;
+    };
+    enum class Movement {
+        kNowhere,
+        kLeft,
+        kUp,
+        kRight,
+        kDown,
+        kHome,
+        kEnd,
+    };
+    TextPosition move(Editor::Movement move, Editor::TextPosition pos);
+    TextPosition getPosition(SkIPoint);
+    TextPosition insert(TextPosition, const char* utf8Text, size_t byteLen);
+    TextPosition remove(TextPosition, TextPosition);
+    StringSlice copy(TextPosition, TextPosition);
+
+    struct PaintOpts {
+        SkColor4f fBackgroundColor = {1, 1, 1, 1};
+        SkColor4f fForegroundColor = {0, 0, 0, 1};
+        SkColor4f fSelectionColor = {0.729f, 0.827f, 0.988f, 1};
+        SkColor4f fCursorColor = {1, 0, 0, 1};
+        TextPosition fSelectionBegin;
+        TextPosition fSelectionEnd;
+        TextPosition fCursor;
+    };
+    void paint(SkCanvas* canvas, PaintOpts);
 
 private:
     struct TextLine {
-        SkString fText;
+        StringSlice fText;
         std::vector<SkRect> fCursorPos;
+        SkIPoint fOrigin = {0, 0};
         int fHeight = 0;
         sk_sp<const SkTextBlob> fBlob;
         bool fSelected = false;  // Will allow selection of subset of text later.
         // Also will track presence of cursor.
 
-        TextLine(SkString s) : fText(std::move(s)) {}
-        Str text() const { return Str{fText.c_str(), fText.size()}; }
+        TextLine(const char* str, size_t len) : fText(str, len) {}
+        Str text() const { return Str{fText.begin(), fText.size()}; }
     };
     std::vector<TextLine> fLines;
     int fMargin = 10;
     int fWidth = 0;
     int fHeight = 0;
-    SkFont fFont{nullptr, 48};
-    SkColor4f fBackgroundColor = {0.8f, 0.8f, 0.8f, 1};
-    SkColor4f fForegroundColor = {0, 0, 0, 1};
+    SkFont fFont;
+    SkRect fSpaceBounds = {0, 0, 0, 0};
+    bool fNeedsReshape = false;
 
-    static void Shape(TextLine*, SkShaper*, float width, const SkFont&);
+    static void Shape(TextLine*, SkShaper*, float width, const SkFont&, SkRect);
+    void markAllDirty();
+    void reshapeAll();
 };
 }  // namespace editor
+
+static inline bool operator==(const editor::Editor::TextPosition& u,
+                              const editor::Editor::TextPosition& v) {
+    return u.fLine == v.fLine && u.fColumn == v.fColumn;
+}
+static inline bool operator!=(const editor::Editor::TextPosition& u,
+                              const editor::Editor::TextPosition& v) { return !(u == v); }
+
+static inline bool operator<(const editor::Editor::TextPosition& u,
+                             const editor::Editor::TextPosition& v) {
+    return u.fLine < v.fLine || (u.fLine == v.fLine && u.fColumn < v.fColumn);
+}
+
+
 #endif  // editor_DEFINED
