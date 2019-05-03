@@ -536,37 +536,6 @@ def dm_srcs(os_conditions):
     )
 
 ################################################################################
-## DM_INCLUDES
-################################################################################
-
-DM_INCLUDES = [
-    ".",
-    "dm",
-    "gm",
-    "experimental/pipe",
-    "experimental/svg/model",
-    "src/codec",
-    "src/core",
-    "src/effects",
-    "src/fonts",
-    "src/images",
-    "src/pathops",
-    "src/pipe/utils",
-    "src/ports",
-    "src/shaders",
-    "src/shaders/gradients",
-    "src/xml",
-    "tests",
-    "tools",
-    "tools/debugger",
-    "tools/flags",
-    "tools/fonts",
-    "tools/gpu",
-    "tools/timer",
-    "tools/trace",
-]
-
-################################################################################
 ## DM_ARGS
 ################################################################################
 
@@ -686,14 +655,49 @@ def base_linkopts(os_conditions):
     )
 
 ################################################################################
-## skottie_tool
+## sksg_lib
 ################################################################################
 
-SKOTTIE_TOOL_INCLUDES = [
-    ".",
-    "modules/skottie/utils",
-    "tools/flags",
+def sksg_lib_hdrs():
+    return native.glob(["modules/sksg/include/*.h"])
+
+def sksg_lib_srcs():
+    return native.glob(["modules/sksg/src/*.cpp"])
+
+################################################################################
+## skottie_lib
+################################################################################
+
+def skottie_lib_hdrs():
+    return native.glob("modules/skottie/include/*.h")
+
+def skottie_lib_srcs():
+    return native.glob(
+        [
+            "modules/skottie/src/*.cpp",
+            "modules/skottie/src/*.h",
+        ],
+        exclude = [
+            "modules/skottie/src/SkottieTest.cpp",
+            "modules/skottie/src/SkottieTool.cpp",
+        ],
+    )
+
+################################################################################
+## skottie_shaper
+################################################################################
+
+SKOTTIE_SHAPER_HDRS = [
+    "modules/skottie/src/SkottieShaper.h",
 ]
+
+SKOTTIE_SHAPER_SRCS = [
+    "modules/skottie/src/SkottieShaper.cpp",
+]
+
+################################################################################
+## skottie_tool
+################################################################################
 
 SKOTTIE_TOOL_SRCS = [
     "modules/skottie/src/SkottieTool.cpp",
@@ -707,11 +711,6 @@ SKOTTIE_TOOL_SRCS = [
 ################################################################################
 ## SkShaper
 ################################################################################
-
-SKSHAPER_INCLUDES = [
-    ".",
-    "modules/skshaper/include",
-]
 
 SKSHAPER_HARFBUZZ_SRCS = [
     "modules/skshaper/include/SkShaper.h",
