@@ -159,12 +159,14 @@ public:
                                                                    SkSL::String(v->fName).c_str()));
             }
         }
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         std::vector<SkString> childNames;
         for (int i = 0; i < this->numChildProcessors(); ++i) {
-            childNames.push_back(SkStringPrintf("_child%d", i));
-            this->emitChild(i, &childNames[i], args);
+            SkString name = SkStringPrintf("_child%d", i);
+            fragBuilder->codeAppendf("half4 %s;\n", name.c_str());
+            childNames.push_back(std::move(name));
+            this->invokeChild(i, childNames[i].c_str(), args);
         }
-        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         int substringStartIndex = 0;
         int formatArgIndex = 0;
         for (size_t i = 0; i < fGLSL.length(); ++i) {
