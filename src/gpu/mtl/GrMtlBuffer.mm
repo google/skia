@@ -106,7 +106,7 @@ void GrMtlBuffer::internalMap(size_t sizeInBytes) {
     VALIDATE();
     SkASSERT(!this->isMapped());
     if (fIsDynamic) {
-        fMtlBuffer = this->mtlGpu()->bufferManager().getDynamicAllocation(sizeInBytes, &fOffset);
+        fMtlBuffer = this->mtlGpu()->resourceProvider().getDynamicBuffer(sizeInBytes, &fOffset);
         fMappedBuffer = fMtlBuffer;
         fMapPtr = static_cast<char*>(fMtlBuffer.contents) + fOffset;
     } else {
@@ -171,96 +171,3 @@ void GrMtlBuffer::validate() const {
              fMappedBuffer.length <= fMtlBuffer.length);
 }
 #endif
-
-id<MTLBuffer> GrMtlBufferManager::getDynamicAllocation(size_t size, size_t* offset) {
-    static size_t kSharedDynamicBufferSize = 16*1024;
-
-    // The idea here is that we create a ring buffer which is used for all dynamic allocations
-    // below a certain size. When a dynamic GrMtlBuffer is mapped, it grabs a portion of this
-    // buffer and uses it. On a subsequent map it will grab a different portion of the buffer.
-    // This prevents the buffer from overwriting itself before it's submitted to the command
-    // stream.
-
-    // Create a new buffer if we need to.
-    // If the requested size is larger than the shared buffer size, then we'll
-    // just make the allocation and the owning GrMtlBuffer will manage it (this
-    // only happens with buffers created by GrBufferAllocPool).
-    //
-    // TODO: By sending addCompletedHandler: to MTLCommandBuffer we can track when buffers
-    // are no longer in use and recycle them rather than creating a new one each time.
-    if (fAllocationSize - fNextOffset < size) {
-        size_t allocSize = (size >= kSharedDynamicBufferSize) ? size : kSharedDynamicBufferSize;
-        id<MTLBuffer> buffer;
-        SK_BEGIN_AUTORELEASE_BLOCK
-        buffer = [fGpu->device() newBufferWithLength: allocSize
-#ifdef SK_BUILD_FOR_MAC
-                                             options: MTLResourceStorageModeManaged];
-#else
-                                             options: MTLResourceStorageModeShared];
-#endif
-        SK_END_AUTORELEASE_BLOCK
-        if (nil == buffer) {
-            return nil;
-        }
-
-        if (size >= kSharedDynamicBufferSize) {
-            *offset = 0;
-            return buffer;
-        }
-
-        fBufferAllocation = buffer;
-        fNextOffset = 0;
-        fAllocationSize = kSharedDynamicBufferSize;
-    }
-
-    // Grab the next available block
-    *offset = fNextOffset;
-    fNextOffset += size;
-    // Uniform buffer offsets need to be aligned to the nearest 256-byte boundary.
-    fNextOffset = GrSizeAlignUp(fNextOffset, 256);
-
-    return fBufferAllocation;
-}
-
-void GrMtlBufferManager::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
-                                         const GrMtlBuffer* buffer,
-                                         size_t index) {
-    SkASSERT(index < 4);
-    id<MTLBuffer> mtlVertexBuffer = buffer->mtlBuffer();
-    SkASSERT(mtlVertexBuffer);
-    // Apple recommends using setVertexBufferOffset: when changing the offset
-    // for a currently bound vertex buffer, rather than setVertexBuffer:
-    if (fBufferBindings[index] != mtlVertexBuffer) {
-        [encoder setVertexBuffer: mtlVertexBuffer
-                          offset: 0
-                         atIndex: index];
-        fBufferBindings[index] = mtlVertexBuffer;
-    }
-    [encoder setVertexBufferOffset: buffer->offset()
-                           atIndex: index];
-}
-
-void GrMtlBufferManager::setFragmentBuffer(id<MTLRenderCommandEncoder> encoder,
-                                           const GrMtlBuffer* buffer,
-                                           size_t index) {
-    SkASSERT(index < kNumBindings);
-    id<MTLBuffer> mtlFragmentBuffer = buffer->mtlBuffer();
-    // Apple recommends using setFragmentBufferOffset: when changing the offset
-    // for a currently bound fragment buffer, rather than setFragmentBuffer:
-    if (mtlFragmentBuffer) {
-        if (fBufferBindings[index] != mtlFragmentBuffer) {
-            [encoder setFragmentBuffer: mtlFragmentBuffer
-                                offset: 0
-                               atIndex: index];
-            fBufferBindings[index] = mtlFragmentBuffer;
-        }
-        [encoder setFragmentBufferOffset: buffer->offset()
-                                 atIndex: index];
-    }
-}
-
-void GrMtlBufferManager::resetBindings() {
-    for (size_t i = 0; i < kNumBindings; ++i) {
-        fBufferBindings[i] = nil;
-    }
-}
