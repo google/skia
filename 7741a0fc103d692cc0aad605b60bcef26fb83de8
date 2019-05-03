@@ -22,6 +22,30 @@
       "revId": "7741a0fc103d692cc0aad605b60bcef26fb83de8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c798ad50_e05964f6",
+        "filename": "tools/install_dependencies.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-05-03T21:26:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbcf6aee_f21e260b",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 5
+      },
+      "revId": "7741a0fc103d692cc0aad605b60bcef26fb83de8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
