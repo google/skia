@@ -22,6 +22,30 @@
       "revId": "a5081eccc2d8a32f33a46abb1537e45e567130ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f90c1d57_aaad5e10",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-03T16:59:27Z",
+      "side": 1,
+      "message": "Because I made those two changes separately, and... well, I\u0027m not very smart ;-)",
+      "parentUuid": "55697ba6_ee45411e",
+      "range": {
+        "startLine": 77,
+        "startChar": 19,
+        "endLine": 77,
+        "endChar": 35
+      },
+      "revId": "a5081eccc2d8a32f33a46abb1537e45e567130ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
