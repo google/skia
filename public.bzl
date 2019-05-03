@@ -669,7 +669,7 @@ def sksg_lib_srcs():
 ################################################################################
 
 def skottie_lib_hdrs():
-    return native.glob("modules/skottie/include/*.h")
+    return native.glob(["modules/skottie/include/*.h"])
 
 def skottie_lib_srcs():
     return native.glob(
