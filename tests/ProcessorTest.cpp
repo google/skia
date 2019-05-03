@@ -714,6 +714,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
         static constexpr int kTimesToInvokeFactory = 10;
         for (int j = 0; j < kTimesToInvokeFactory; ++j) {
             auto fp = GrFragmentProcessorTestFactory::MakeIdx(i, &testData);
+            SkDebugf("processor: %s, count: %d\n", fp->name(), j);
             auto clone = fp->clone();
             if (!clone) {
                 ERRORF(reporter, "Clone of processor %s failed.", fp->name());
@@ -753,6 +754,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                     }
                 }
             }
+            SkDebugf("FINISHED: processor: %s, count: %d\n", fp->name(), j);
         }
     }
 }
