@@ -49,9 +49,14 @@ struct Timer {
 struct EditorLayer : public sk_app::Window::Layer {
     sk_app::Window* fParent = nullptr;
     editor::Editor fEditor;
+    editor::Editor::TextPosition fTextPos;
     int fPos = 0;  // window pixel position in file
     int fWidth = 0;  // window width
     int fHeight = 0;  // window height
+
+    EditorLayer() {
+        fEditor.setFont(SkFont(nullptr, 24));
+    }
 
     void loadFile(const char* path) {
         if (sk_sp<SkData> data = SkData::MakeFromFileName(path)) {
@@ -64,8 +69,15 @@ struct EditorLayer : public sk_app::Window::Layer {
         SkCanvas* c = surface->getCanvas();
         SkAutoCanvasRestore acr(c, true);
         c->clipRect({0, 0, (float)fWidth, (float)fHeight});
-        c->translate(0, -(float)fPos);
-        fEditor.paint(c);
+
+        editor::Editor::PaintOpts options;
+        options.fCursor = fTextPos;
+//            TextPosition fSelectionBegin;
+//            TextPosition fSelectionEnd;
+//            TextPosition fCursor;
+//        };
+
+        fEditor.paint(c, options);
     }
 
     void onResize(int width, int height) override {
@@ -90,9 +102,11 @@ struct EditorLayer : public sk_app::Window::Layer {
         int newpos = std::max(0, std::min(fPos + delta, maxPos));
         if (newpos != fPos) {
             fPos = newpos;
-            if (fParent) { fParent->inval(); }
+            this->inval();
         }
     }
+
+    void inval() { if (fParent) { fParent->inval(); } }
 
     bool onMouseWheel(float delta, uint32_t modifiers) override {
         this->scroll(-(int)(delta * fEditor.font().getSpacing()));
@@ -107,9 +121,7 @@ struct EditorLayer : public sk_app::Window::Layer {
                 for (size_t i = 0; i < fEditor.lineCount(); ++i) {
                     int height = fEditor.lineHeight(i);
                     if (y < height) {
-                        fEditor.select(i);
                         SkDebugf("select:  line:%d x:%d y:%d\n", i, x - fEditor.getMargin(), y);
-                        fParent->inval();
                         break;
                     }
                     y -= height;
@@ -127,13 +139,31 @@ struct EditorLayer : public sk_app::Window::Layer {
     }
     bool onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers) override {
         if (state == sk_app::Window::kDown_InputState) {
-            if (key == sk_app::Window::Key::kPageDown) {
-                this->scroll(fHeight * 4 / 5);
-                return true;
-            }
-            if (key == sk_app::Window::Key::kPageUp) {
-                this->scroll(-fHeight * 4 / 5);
-                return true;
+            switch (key) {
+                case sk_app::Window::Key::kPageDown:
+                    this->scroll(fHeight * 4 / 5);
+                    return true;
+                case sk_app::Window::Key::kPageUp:
+                    this->scroll(-fHeight * 4 / 5);
+                    return true;
+                case sk_app::Window::Key::kLeft:
+                    fTextPos = fEditor.move(editor::Editor::Movement::kLeft, fTextPos);
+                    this->inval();
+                    return true;
+                case sk_app::Window::Key::kRight:
+                    fTextPos = fEditor.move(editor::Editor::Movement::kRight, fTextPos);
+                    this->inval();
+                    return true;
+                case sk_app::Window::Key::kUp:
+                    fTextPos = fEditor.move(editor::Editor::Movement::kUp, fTextPos);
+                    this->inval();
+                    return true;
+                case sk_app::Window::Key::kDown:
+                    fTextPos = fEditor.move(editor::Editor::Movement::kDown, fTextPos);
+                    this->inval();
+                    return true;
+                default:
+                    break;
             }
             SkString m = modifiers_desc(modifiers);
             SkDebugf("key: %s%s\n", key_name(key), m.c_str());
