@@ -127,3 +127,26 @@ DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
         canvas->translate(0, r.height() * 6 / 5);
     }
 }
+
+static constexpr int kSize = 16;
+static constexpr SkColor4f kColors[11] = {
+    SkColors::kBlack,
+    SkColors::kDkGray,
+    SkColors::kGray,
+    SkColors::kLtGray,
+    SkColors::kWhite,
+    SkColors::kRed,
+    SkColors::kGreen,
+    SkColors::kBlue,
+    SkColors::kYellow,
+    SkColors::kCyan,
+    SkColors::kMagenta,
+};
+DEF_SIMPLE_GM(color_constants, canvas, 128, kSize * SK_ARRAY_COUNT(kColors)) {
+    float y = 0;
+    for (const auto& c : kColors) {
+        canvas->drawRect(SkRect{0, y, 128, y + kSize}, SkPaint(c));
+        y += (float)kSize;
+    }
+}
+
