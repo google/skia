@@ -203,14 +203,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
     }
 
     if (glVer >= GR_GL_VER(2,0)) {
-        GET_PROC(ClientWaitSync);
-        GET_PROC(DeleteSync);
-        GET_PROC(FenceSync);
-        GET_PROC(IsSync);
-        GET_PROC(WaitSync);
-    }
-
-    if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(BindSampler);
         GET_PROC(DeleteSamplers);
         GET_PROC(GenSamplers);
