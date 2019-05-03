@@ -28,7 +28,6 @@ static SkRect selection_box(const SkFontMetrics& metrics,
                   pos.y() + metrics.fDescent}.makeSorted();
 }
 
-
 void callback_fn(void* context,
                  const char* utf8Text,
                  size_t utf8TextBytes,
@@ -105,16 +104,24 @@ void callback_fn(void* context,
     }
 }
 
-void Editor::Shape(TextLine* line, SkShaper* shaper, float width, const SkFont& font) {
+void Editor::Shape(TextLine* line, SkShaper* shaper, float width, const SkFont& font,
+                   SkRect space) {
     SkASSERT(line);
     SkASSERT(shaper);
-    line->fCursorPos.resize(line->fText.size());
+    line->fCursorPos.resize(line->fText.size() + 1);
     for (SkRect& c : line->fCursorPos) {
         c = kUnsetRect;
     }
     RunHandler runHandler(line->fText.c_str(), line->fText.size());
     runHandler.setRunCallback(callback_fn, line->fCursorPos.data());
     shaper->shape(line->fText.c_str(), line->fText.size(), font, true, width, &runHandler);
+    SkRect& last = line->fCursorPos[line->fText.size()];
+    last = space;
+    if (line->fText.size() > 0) {
+        last = line->fCursorPos[line->fText.size() - 1];
+        last.fLeft = last.fRight;
+        last.fRight = last.fLeft + space.width();
+    }
     float h = std::max(runHandler.endPoint().y(), font.getSpacing());
     line->fHeight = (int)ceilf(h);
     line->fBlob = runHandler.makeBlob();
@@ -145,72 +152,238 @@ void Editor::setText(const char* data, size_t length) {
         });
     }
     fLines = lines;
+    this->markAllDirty();
 }
 
-void Editor::paint(SkCanvas* c) {
-    SkPaint background;
-    background.setBlendMode(SkBlendMode::kSrc);
-    background.setColor4f(fBackgroundColor, nullptr);
-    c->drawPaint(background);
-    int y = fMargin;
-    SkPaint p;
-    p.setColor4f(fForegroundColor, nullptr);
-    //SkPaint diff;
-    //diff.setColor(SK_ColorWHITE);
-    //diff.setBlendMode(SkBlendMode::kDifference);
-    float left = (float)fMargin;
-    //float right = (float)(fWidth - fMargin);
-    SkPaint stroke;
-    stroke.setStyle(SkPaint::kStroke_Style);
-    stroke.setColor(SkColorSetARGB(0xFF, 0xFF, 0xFF, 0xFF));
-    SkRect lastRect = kUnsetRect;
-    for (const TextLine& line : fLines) {
-        if (line.fSelected) {
-            SkPath path;
-            for (unsigned i = 0; i < line.fText.size(); ++i) {
-                SkRect r = line.fCursorPos[i];
-                if (r == kUnsetRect) {
+void Editor::setFont(SkFont font) {
+    if (font != fFont) {
+        fFont = font;
+        auto shaper = SkShaper::Make();
+        TextLine textLine(SkString(" "));
+        Editor::Shape(&textLine, shaper.get(), FLT_MAX, fFont, SkRect{0, 0, 0, 0});
+        fSpaceBounds = textLine.fCursorPos[0];
+        this->markAllDirty();
+    }
+}
+
+
+//SkRect Editor::cursor(TextPosition textPos) const {
+//    unsigned column = textPos.fColumn, line = textPos.fLine;
+//    line = std::min(SkToUInt(fLines.size() - 1), line);
+//    int x = fMargin, y = fMargin;
+//    for (size_t i = 0; i < line; ++i) { y += fLines[i].fHeight; }
+//    const TextLine& textLine = fLines[line];
+//    SkASSERT(column <= textLine.fText.size());
+//    if (0 == textLine.fText.size()) {
+//        return fSpaceBounds.makeOffset((float)x, (float)y);
+//    } else if (column >= textLine.fText.size()) {
+//        float last = textLine.fCursorPos[textLine.fText.size() - 1].right();
+//        return fSpaceBounds.makeOffset((float)x + last, (float)y);
+//    }
+//    while (column > 0 && textLine.fCursorPos[column] == kUnsetRect) {
+//        --column;
+//    }
+//    return textLine.fCursorPos[column].makeOffset((float)x, (float)y);
+//}
+
+Editor::TextPosition Editor::getPosition(SkIPoint xy) {
+    this->reshapeAll();
+    for (unsigned j = 0; j < SkToUInt(fLines.size()); ++j) {
+        const TextLine& line = fLines[j];
+        if (!line.fBlob) { continue; }
+        SkIRect b = line.fBlob->bounds().roundOut().makeOffset(line.fOrigin.x(), line.fOrigin.y());
+        if (b.contains(xy.x(), xy.y())) {
+            xy -= line.fOrigin;
+            const std::vector<SkRect>& pos = line.fCursorPos;
+            for (unsigned i = 0; i < SkToUInt(pos.size()); ++i) {
+                if (pos[i] == kUnsetRect) {
                     continue;
                 }
-                r.offset(left, (float)y);
-                if (r != lastRect) {
-                    path.addRect(r);
-                    //c->drawRect(r, stroke);
-                    lastRect = r;
+                if (pos[i].contains((float)xy.x(), (float)xy.y())) {
+                    return Editor::TextPosition{i, j};
                 }
             }
-            c->drawPath(path, stroke);
         }
+    }
+    return Editor::TextPosition();
+}
+
+static inline bool is_utf8_continuation(char v) {
+    return ((unsigned char)v & 0b11000000) ==
+                               0b10000000;
+}
+
+static const char* next_utf8(const char* p, const char* end) {
+    if (p < end) {
+        do {
+            ++p;
+        } while (p < end && is_utf8_continuation(*p));
+    }
+    return p;
+}
+
+static const char* align_utf8(const char* p, const char* begin) {
+    while (p > begin && is_utf8_continuation(*p)) {
+        --p;
+    }
+    return p;
+}
+
+static const char* prev_utf8(const char* p, const char* begin) {
+    return p > begin ? align_utf8(p - 1, begin) : begin;
+}
+
+
+static inline const char* begin(const SkString& s) { return s.c_str(); }
+
+static inline const char* end(const SkString& s) { return s.c_str() + s.size(); }
+
+static unsigned align_column(const SkString& str, unsigned p) {
+    if (p >= str.size()) {
+        return str.size();
+    }
+    return align_utf8(begin(str) + p, begin(str)) - begin(str);
+}
+
+Editor::TextPosition Editor::move(Editor::Movement move, Editor::TextPosition pos) {
+    pos.fLine = std::min(pos.fLine, SkToUInt(fLines.size()));
+    pos.fColumn = align_column(fLines[pos.fLine].fText, pos.fColumn);
+    switch (move) {
+        case Editor::Movement::kNowhere:
+            break;
+        case Editor::Movement::kLeft:
+            if (0 == pos.fColumn) {
+                if (pos.fLine > 0) {
+                    --pos.fLine;
+                    pos.fColumn = fLines[pos.fLine].fText.size();
+                }
+            } else {
+                const auto& str = fLines[pos.fLine].fText;
+                pos.fColumn = prev_utf8(begin(str) + pos.fColumn, begin(str)) - begin(str);
+            }
+            break;
+        case Editor::Movement::kRight:
+            if (fLines[pos.fLine].fText.size() == pos.fColumn) {
+                if (pos.fLine + 1 < fLines.size()) {
+                    ++pos.fLine;
+                    pos.fColumn = 0;
+                }
+            } else {
+                const auto& str = fLines[pos.fLine].fText;
+                pos.fColumn = next_utf8(begin(str) + pos.fColumn, end(str)) - begin(str);
+            }
+            break;
+        case Editor::Movement::kHome:
+            pos.fColumn = 0;
+            break;
+        case Editor::Movement::kEnd:
+            pos.fColumn = fLines[pos.fLine].fText.size();
+            break;
+        case Editor::Movement::kUp:
+            if (pos.fLine > 0) {
+                --pos.fLine;
+                pos.fColumn = align_column(fLines[pos.fLine].fText, pos.fColumn);
+            }
+            break;
+        case Editor::Movement::kDown:
+            if (pos.fLine + 1 < fLines.size()) {
+                ++pos.fLine;
+                pos.fColumn = align_column(fLines[pos.fLine].fText, pos.fColumn);
+            }
+            break;
+    }
+    return pos;
+}
+
+static inline SkRect offset(SkRect r, SkIPoint p) {
+    r.offset((float)p.x(), (float)p.y());
+    return r;
+}
+
+void Editor::paint(SkCanvas* c, PaintOpts options) {
+    this->reshapeAll();
+
+    c->drawPaint(SkPaint(options.fBackgroundColor));
+
+    SkPaint selection = SkPaint(options.fSelectionColor);
+    auto cmp = [](const Editor::TextPosition& u, const Editor::TextPosition& v) { return u < v; };
+    for (TextPosition pos = std::min(options.fSelectionBegin, options.fSelectionEnd, cmp),
+                      end = std::max(options.fSelectionBegin, options.fSelectionEnd, cmp);
+         pos < end;
+         pos = this->move(Editor::Movement::kRight, pos))
+    {
+        SkASSERT(pos.fLine < fLines.size());
+        const TextLine& l = fLines[pos.fLine];
+        c->drawRect(offset(l.fCursorPos[pos.fColumn], l.fOrigin), selection);
+    }
+
+    if (fLines.size() > 0) {
+        const TextLine& cLine = fLines[options.fCursor.fLine];
+        SkRect pos = fSpaceBounds;
+        if (options.fCursor.fColumn < cLine.fText.size()) {
+            pos = cLine.fCursorPos[options.fCursor.fColumn];
+        } else if (cLine.fText.size() > 0 ) {
+            pos = cLine.fCursorPos[cLine.fText.size() - 1];
+            pos.fLeft = pos.fRight;
+        }
+        pos.fRight = pos.fLeft + 1;
+        pos.fLeft -= 1;
+        c->drawRect(offset(pos, cLine.fOrigin), SkPaint(options.fCursorColor));
+    }
+
+    SkPaint foreground = SkPaint(options.fForegroundColor);
+    for (const TextLine& line : fLines) {
         if (line.fBlob) {
-            c->drawTextBlob(line.fBlob.get(), left, (float)y, p);
+            c->drawTextBlob(line.fBlob.get(), line.fOrigin.x(), line.fOrigin.y(), foreground);
         }
-        y += line.fHeight;
+    }
+}
+
+void Editor::markAllDirty() {
+    for (TextLine& line : fLines) {
+        line.fBlob = nullptr;
+    }
+    fNeedsReshape = true;
+};
+
+void Editor::reshapeAll() {
+    if (fNeedsReshape) {
+        float shape_width = (float)(fWidth - 2 * fMargin);
+        #ifdef SK_EDITOR_GO_FAST
+        SkSemaphore semaphore;
+        std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool(100);
+        int jobCount = 0;
+        for (TextLine& line : fLines) {
+            if (!line.textBlob()) {
+                executor->add([&]() {
+                    Editor::Shape(&line, SkShaper::Make().get(), shape_width, fFont, fSpaceBounds);
+                    semaphore.signal();
+                }
+                ++jobCount;
+            });
+        }
+        while (jobCount-- > 0) { semaphore.wait(); }
+        #else
+        auto shaper = SkShaper::Make();
+        for (TextLine& line : fLines) {
+            if (!line.fBlob) {
+                Editor::Shape(&line, shaper.get(), shape_width, fFont, fSpaceBounds);
+            }
+        }
+        #endif
+        int y = fMargin;
+        for (TextLine& line : fLines) {
+            line.fOrigin = {fMargin, y};
+            y += line.fHeight;
+        }
+        fHeight = y + fMargin;
+        fNeedsReshape = false;
     }
 }
 
 void Editor::setWidth(int w) {
-    fWidth = w;
-    float shape_width = (float)(fWidth - 2 * fMargin);
-    #ifdef SK_EDITOR_GO_FAST
-    SkSemaphore semaphore;
-    std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool(100);
-    for (TextLine& line : fLines) {
-        executor->add([&]() {
-            auto shaper = SkShaper::Make();
-            Editor::Shape(&line, shaper.get(), shape_width, fFont);
-            semaphore.signal();
-        });
+    if (fWidth != w) {
+        fWidth = w;
+        this->markAllDirty();
     }
-    for (const TextLine& l : fLines) { semaphore.wait(); }
-    #else
-    auto shaper = SkShaper::Make();
-    for (TextLine& line : fLines) {
-        Editor::Shape(&line, shaper.get(), shape_width, fFont);
-    }
-    #endif
-    float h = 2.0f * fMargin;
-    for (TextLine& line : fLines) {
-        h += line.fHeight;
-    }
-    fHeight = (int)ceilf(h);
 }
