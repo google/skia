@@ -22,6 +22,30 @@
       "revId": "4887d11840149c19d51d5de915b850f0b87bb810",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7be34657_dfbce3ec",
+        "filename": "infra/bots/go.mod",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-05-03T16:39:20Z",
+      "side": 1,
+      "message": "Oh, hmm. Housekeeper-PerCommit-CheckGeneratedFiles will probably fail without a go.mod in tools/gpu/gl/interface.",
+      "parentUuid": "59613406_db1c1298",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 44
+      },
+      "revId": "4887d11840149c19d51d5de915b850f0b87bb810",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
