@@ -3,7 +3,7 @@
 
 #include "bench/Benchmark.h"
 
-#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && !defined(SK_BUILD_FOR_GOOGLE3)
 
 #include "modules/skshaper/include/SkShaper.h"
 #include "tools/Resources.h"
@@ -72,4 +72,4 @@ DEF_BENCH(return new ShaperBench("text/tibetan.txt",         "shaper_tibetan");)
 DEF_BENCH(return new ShaperBench("text/tifnagh.txt",         "shaper_tifnagh");)
 DEF_BENCH(return new ShaperBench("text/vai.txt",             "shaper_vai");)
 
-#endif  // !SK_BUILD_FOR_ANDROID_FRAMEWORK
+#endif  // !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && !defined(SK_BUILD_FOR_GOOGLE3)
