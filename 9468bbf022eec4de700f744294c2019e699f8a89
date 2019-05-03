@@ -22,6 +22,30 @@
       "revId": "9468bbf022eec4de700f744294c2019e699f8a89",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ec1f258_f7d59667",
+        "filename": "tests/ShaperTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-05-03T13:29:29Z",
+      "side": 1,
+      "message": "this is what I get for trying to work after the kids are in bed.",
+      "parentUuid": "745e5db9_41881969",
+      "range": {
+        "startLine": 6,
+        "startChar": 8,
+        "endLine": 6,
+        "endChar": 37
+      },
+      "revId": "9468bbf022eec4de700f744294c2019e699f8a89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
