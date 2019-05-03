@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb7de9c0_dbdf56d6",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-03T18:44:00Z",
+      "side": 1,
+      "message": "I think I forgot to suggest this in the last review - we\u0027ll probably want a version number at some point, which may be independent of SkPictInfo\u0027s version number.",
+      "range": {
+        "startLine": 20,
+        "startChar": 7,
+        "endLine": 20,
+        "endChar": 17
+      },
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad5d5d6b_f581a747",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-03T18:44:00Z",
+      "side": 1,
+      "message": "I meant something more like:\n\n    return fRecorder-\u003ebeginRecording(bounds, nullptr,\n                                     SkPictureRecorder::kPlaybackDrawPicture_RecordFlag);\n\nor\n\n    return fRecorder-\u003ebeginRecording(bounds, nullptr,\n            SkPictureRecorder::kPlaybackDrawPicture_RecordFlag);\n\n(Looking again at 4 extra spaces, I think we want 8, though this isn\u0027t explicit anywhere.)",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 77
+      },
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "398a3b4c_7ec5a3d0",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-03T18:44:00Z",
+      "side": 1,
+      "message": "I think you can achieve that with SkExecutor and only one thread.",
+      "range": {
+        "startLine": 93,
+        "startChar": 7,
+        "endLine": 93,
+        "endChar": 91
+      },
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bce5e9d7_71b7f9dc",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-03T18:44:00Z",
+      "side": 1,
+      "message": "Would it be clearer to move the waiting up to here, rather than putting it in tryPop?",
+      "range": {
+        "startLine": 102,
+        "startChar": 8,
+        "endLine": 103,
+        "endChar": 21
+      },
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59fa2109_68ea282f",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-03T18:44:00Z",
+      "side": 1,
+      "message": "Is this safe to call while the mutex is unlocked?",
+      "range": {
+        "startLine": 106,
+        "startChar": 16,
+        "endLine": 106,
+        "endChar": 32
+      },
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f02d18b4_e7b7f9e3",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-03T18:44:00Z",
+      "side": 1,
+      "message": "nit: spaces between operator and operands.",
+      "range": {
+        "startLine": 121,
+        "startChar": 40,
+        "endLine": 121,
+        "endChar": 58
+      },
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b27504b_b331bfb9",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-03T18:44:00Z",
+      "side": 1,
+      "message": "Is it possible that recorder is null?",
+      "range": {
+        "startLine": 125,
+        "startChar": 8,
+        "endLine": 125,
+        "endChar": 49
+      },
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59757e1a_0054e191",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-03T18:44:00Z",
+      "side": 1,
+      "message": "I don\u0027t think you need to check for this, since you already checked at creation time.\n\nBut even if you did, I think you\u0027d want to skip more work than just writing to the stream? Why serialize (or finish recording even) if you\u0027re not going to do anything with the serialized result?",
+      "range": {
+        "startLine": 137,
+        "startChar": 4,
+        "endLine": 137,
+        "endChar": 29
+      },
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb41b395_bc18ed14",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-03T18:44:00Z",
+      "side": 1,
+      "message": "Why not make it private? We do this in other places by just manually wrapping in an std::unique_ptr. Comments are easy to ignore and suffer the consequences, but making it private prevents that.",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 59
+      },
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0b2d69e_77544917",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-03T18:44:00Z",
+      "side": 1,
+      "message": "It looks like we no longer need this one.",
+      "range": {
+        "startLine": 53,
+        "startChar": 4,
+        "endLine": 53,
+        "endChar": 26
+      },
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

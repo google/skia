@@ -436,6 +436,30 @@
     },
     {
       "key": {
+        "uuid": "487cddf1_ddcfe785",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-03T18:44:00Z",
+      "side": 1,
+      "message": "It will simplify your code, which no longer has to worry about creating a thread, waking it up, etc.",
+      "parentUuid": "278ce4e4_f15c8c6a",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 29
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7f8c112d_e6fbe4d0",
         "filename": "experimental/multi-skp/SkMultiSkp.h",
         "patchSetId": 3
@@ -471,6 +495,30 @@
       "side": 1,
       "message": "What makes it different?",
       "parentUuid": "7f8c112d_e6fbe4d0",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 16
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e511ac1d_6a73bb80",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-03T18:44:00Z",
+      "side": 1,
+      "message": "I\u0027m not sure about the specific differences for SkMutex. As I understand it, generally Skia has some of these utility classes because at the time they were written there wasn\u0027t a standard multiplatform version that was performant for our needs. It\u0027s possible that that has become less true in some cases.",
+      "parentUuid": "7aad4964_86687810",
       "range": {
         "startLine": 13,
         "startChar": 0,
