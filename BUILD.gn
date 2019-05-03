@@ -2178,8 +2178,8 @@ if (skia_enable_tools) {
 
   test_lib("sk_app") {
     public_deps = [
-      ":skia",
       ":gpu_tool_utils",
+      ":skia",
     ]
     sources = [
       "tools/sk_app/CommandSet.cpp",
@@ -2464,11 +2464,13 @@ if (skia_enable_tools) {
   test_app("editor") {
     is_shared_library = is_android
     sources = [
-      "experimental/editor/editor_application.cpp",
       "experimental/editor/editor.cpp",
       "experimental/editor/editor.h",
+      "experimental/editor/editor_application.cpp",
       "experimental/editor/run_handler.cpp",
       "experimental/editor/run_handler.h",
+      "experimental/editor/stringslice.cpp",
+      "experimental/editor/stringslice.h",
     ]
     deps = [
       ":sk_app",
