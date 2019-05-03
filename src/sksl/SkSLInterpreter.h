@@ -64,11 +64,8 @@ public:
 private:
     StackIndex stackAlloc(int count);
 
-    void run();
+    void run(Value* stackPtr);
 
-    void push(Value v);
-
-    Value pop();
 
     void swizzle();
 
@@ -80,7 +77,6 @@ private:
     std::unique_ptr<ByteCode> fByteCode;
     const ByteCodeFunction* fCurrentFunction;
     std::vector<Value> fGlobals;
-    std::vector<Value> fStack;
 };
 
 } // namespace

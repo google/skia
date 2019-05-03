@@ -32,24 +32,32 @@ static constexpr int UNINITIALIZED = 0xDEADBEEF;
 Interpreter::Value* Interpreter::run(const ByteCodeFunction& f, Interpreter::Value args[],
                                     Interpreter::Value inputs[]) {
     fCurrentFunction = &f;
+    std::vector<Value> fStack;
+    Value stack[128];
+    Value* stackPtr = &stack[128];
+
+    auto push = [&](Value v) {
+        *(--stackPtr) = v;
+    };
+
     fStack.clear();
     fGlobals.clear();
 #ifdef TRACE
     this->disassemble(f);
 #endif
     for (int i = 0; i < f.fParameterCount; ++i) {
-        this->push(args[i]);
+        push(args[i]);
     }
     for (int i = 0; i < f.fLocalCount; ++i) {
-        this->push(Value((int) UNINITIALIZED));
+        push(Value((int) UNINITIALIZED));
     }
     for (int i = 0; i < f.fOwner.fGlobalCount; ++i) {
-        fGlobals.push_back(Value((int) UNINITIALIZED));
+        fGlobals.emplace_back(Value((int) UNINITIALIZED));
     }
     for (int i = f.fOwner.fInputSlots.size() - 1; i >= 0; --i) {
         fGlobals[f.fOwner.fInputSlots[i]] = inputs[i];
     }
-    run();
+    run(stackPtr);
     int offset = 0;
     for (const auto& p : f.fDeclaration.fParameters) {
         if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
@@ -61,7 +69,7 @@ Interpreter::Value* Interpreter::run(const ByteCodeFunction& f, Interpreter::Val
             offset += p->fType.columns() * p->fType.rows();
         }
     }
-    return fStack.data();
+    return stack;
 }
 
 struct CallbackCtx : public SkRasterPipeline_CallbackCtx {
@@ -81,15 +89,6 @@ struct CallbackCtx : public SkRasterPipeline_CallbackCtx {
      ip += 4,                                                     \
      *(uint32_t*) &code[ip - 4])
 
-void Interpreter::push(Value v) {
-    fStack.push_back(v);
-}
-
-Interpreter::Value Interpreter::pop() {
-    Value v = fStack.back();
-    fStack.pop_back();
-    return v;
-}
 
 static String value_string(uint32_t v) {
     union { uint32_t u; float f; } pun = { v };
@@ -190,6 +189,7 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
     }
 }
 
+/*
 void Interpreter::dumpStack() {
     printf("STACK:");
     for (size_t i = 0; i < fStack.size(); ++i) {
@@ -197,11 +197,12 @@ void Interpreter::dumpStack() {
     }
     printf("\n");
 }
+ */
 
 #define BINARY_OP(inst, type, field, op) \
     case ByteCodeInstruction::inst: {    \
-        type b = this->pop().field;      \
-        Value* a = &fStack.back();       \
+        type b = pop().field;            \
+        Value* a = stackPtr;             \
         *a = Value(a->field op b);       \
         break;                           \
     }
@@ -212,18 +213,26 @@ static constexpr int VECTOR_MAX = 16;
     case ByteCodeInstruction::inst: {                         \
         Value result[VECTOR_MAX];                             \
         for (int i = count - 1; i >= 0; --i) {                \
-            result[i] = this->pop();                          \
+            result[i] = pop();                                \
         }                                                     \
         for (int i = count - 1; i >= 0; --i) {                \
-            result[i] = this->pop().field op result[i].field; \
+            result[i] = pop().field op result[i].field;       \
         }                                                     \
         for (int i = 0; i < count; ++i) {                     \
-            this->push(result[i]);                            \
+            push(result[i]);                                  \
         }                                                     \
         break;                                                \
     }
 
-void Interpreter::run() {
+void Interpreter::run(Value* stackPtr) {
+    auto push = [&stackPtr](Value v) {
+        *(--stackPtr) = v;
+    };
+
+    auto pop = [&stackPtr]() {
+        return *stackPtr++;
+    };
+
     int ip = 0;
     const uint8_t* code = fCurrentFunction->fCode.data();
     for (;;) {
@@ -255,13 +264,13 @@ void Interpreter::run() {
             BINARY_OP(kCompareFLTEQ, float, fFloat, <=)
             case ByteCodeInstruction::kConditionalBranch: {
                 int target = READ16();
-                if (this->pop().fBool) {
+                if (pop().fBool) {
                     ip = target;
                 }
                 break;
             }
             case ByteCodeInstruction::kDebugPrint: {
-                Value v = this->pop();
+                Value v = pop();
                 printf("Debug: %d(int), %d(uint), %f(float)\n", v.fSigned, v.fUnsigned, v.fFloat);
                 break;
             }
@@ -269,48 +278,44 @@ void Interpreter::run() {
             BINARY_OP(kDivideU, uint32_t, fUnsigned, /)
             BINARY_OP(kDivideF, float, fFloat, /)
             case ByteCodeInstruction::kDup:
-                this->push(fStack.back());
+                push(*stackPtr);
                 break;
             case ByteCodeInstruction::kDupDown: {
                 int count = READ8();
                 for (int i = 0; i < count; ++i) {
-                    fStack.insert(fStack.end() - i - count - 1, fStack[fStack.size() - i - 1]);
+                    *stackPtr = stackPtr[count + 1];
+                    stackPtr--;
                 }
                 break;
             }
             case ByteCodeInstruction::kFloatToInt: {
-                Value& top = fStack.back();
-                top.fSigned = (int) top.fFloat;
+                stackPtr->fSigned = (int) stackPtr->fFloat;
                 break;
             }
             case ByteCodeInstruction::kSignedToFloat: {
-                Value& top = fStack.back();
-                top.fFloat = (float) top.fSigned;
+                stackPtr->fFloat = (float) stackPtr->fSigned;
                 break;
             }
             case ByteCodeInstruction::kUnsignedToFloat: {
-                Value& top = fStack.back();
-                top.fFloat = (float) top.fUnsigned;
+                stackPtr->fFloat = (float) stackPtr->fUnsigned;
                 break;
             }
             case ByteCodeInstruction::kLoad: {
-                int target = this->pop().fSigned;
-                SkASSERT(target < (int) fStack.size());
-                this->push(fStack[target]);
+                int target = pop().fSigned;
+                push(stackPtr[target]);
                 break;
             }
             case ByteCodeInstruction::kLoadGlobal: {
                 int target = READ8();
                 SkASSERT(target < (int) fGlobals.size());
-                this->push(fGlobals[target]);
+                push(fGlobals[target]);
                 break;
             }
             case ByteCodeInstruction::kLoadSwizzle: {
-                Value target = this->pop();
+                Value target = pop();
                 int count = READ8();
                 for (int i = 0; i < count; ++i) {
-                    SkASSERT(target.fSigned + fCurrentFunction->fCode[ip + i] < (int) fStack.size());
-                    this->push(fStack[target.fSigned + fCurrentFunction->fCode[ip + i]]);
+                    push(stackPtr[target.fSigned + fCurrentFunction->fCode[ip + i]]);
                 }
                 ip += count;
                 break;
@@ -319,61 +324,55 @@ void Interpreter::run() {
             BINARY_OP(kMultiplyU, uint32_t, fUnsigned, *)
             BINARY_OP(kMultiplyF, float, fFloat, *)
             case ByteCodeInstruction::kNot: {
-                Value& top = fStack.back();
-                top.fBool = !top.fBool;
+                stackPtr->fBool = !stackPtr->fBool;
                 break;
             }
             case ByteCodeInstruction::kNegateF: {
-                Value& top = fStack.back();
-                top.fFloat = -top.fFloat;
+                stackPtr->fFloat = -stackPtr->fFloat;
                 break;
             }
             case ByteCodeInstruction::kNegateS: {
-                Value& top = fStack.back();
-                top.fSigned = -top.fSigned;
+                stackPtr->fSigned = -stackPtr->fSigned;
                 break;
             }
             case ByteCodeInstruction::kNop:
                 break;
             case ByteCodeInstruction::kPop:
                 for (int i = READ8(); i > 0; --i) {
-                    this->pop();
+                    pop();
                 }
                 break;
             case ByteCodeInstruction::kPushImmediate:
-                this->push(Value((int) READ32()));
+                push(Value((int) READ32()));
                 break;
             BINARY_OP(kRemainderS, int32_t, fSigned, %)
             BINARY_OP(kRemainderU, uint32_t, fUnsigned, %)
             case ByteCodeInstruction::kReturn: {
                 int count = READ8();
                 for (int i = 0; i < count; ++i) {
-                    fStack[i] = fStack[fStack.size() - count + i];
+                    stackPtr[i] = stackPtr[count + i];
                 }
                 return;
             }
             case ByteCodeInstruction::kStore: {
-                Value value = this->pop();
-                int target = this->pop().fSigned;
-                SkASSERT(target < (int) fStack.size());
-                fStack[target] = value;
+                Value value = pop();
+                int target = pop().fSigned;
+                stackPtr[target] = value;
                 break;
             }
             case ByteCodeInstruction::kStoreGlobal: {
-                Value value = this->pop();
-                int target = this->pop().fSigned;
-                SkASSERT(target < (int) fGlobals.size());
-                fGlobals[target] = value;
+                Value value = pop();
+                int target = pop().fSigned;
+                stackPtr[target] = value;
                 break;
             }
             case ByteCodeInstruction::kStoreSwizzle: {
                 int count = READ8();
-                int target = fStack[fStack.size() - count - 1].fSigned;
+                int target = stackPtr[count - 1].fSigned;
                 for (int i = count - 1; i >= 0; --i) {
-                    SkASSERT(target + fCurrentFunction->fCode[ip + i] < (int) fStack.size());
-                    fStack[target + fCurrentFunction->fCode[ip + i]] = this->pop();
+                    stackPtr[target + fCurrentFunction->fCode[ip + i]] = pop();
                 }
-                this->pop();
+                pop();
                 ip += count;
                 break;
             }
@@ -382,10 +381,10 @@ void Interpreter::run() {
             case ByteCodeInstruction::kSwizzle: {
                 Value vec[4];
                 for (int i = READ8() - 1; i >= 0; --i) {
-                    vec[i] = this->pop();
+                    vec[i] = pop();
                 }
                 for (int i = READ8() - 1; i >= 0; --i) {
-                    this->push(vec[READ8()]);
+                    push(vec[READ8()]);
                 }
                 break;
             }
@@ -416,7 +415,7 @@ void Interpreter::run() {
                     VECTOR_BINARY_OP(kCompareFLTEQ, float, fFloat, <=)
                     case ByteCodeInstruction::kConditionalBranch: {
                         int target = READ16();
-                        if (this->pop().fBool) {
+                        if (pop().fBool) {
                             ip = target;
                         }
                         break;
@@ -426,37 +425,36 @@ void Interpreter::run() {
                     VECTOR_BINARY_OP(kDivideF, float, fFloat, /)
                     case ByteCodeInstruction::kFloatToInt: {
                         for (int i = 0; i < count; ++i) {
-                            Value& v = fStack[fStack.size() - i - 1];
+                            Value& v = stackPtr[i - 1];
                             v.fSigned = (int) v.fFloat;
                         }
                         break;
                     }
                     case ByteCodeInstruction::kSignedToFloat: {
                         for (int i = 0; i < count; ++i) {
-                            Value& v = fStack[fStack.size() - i - 1];
+                            Value& v = stackPtr[i - 1];
                             v.fFloat = (float) v.fSigned;
                         }
                         break;
                     }
                     case ByteCodeInstruction::kUnsignedToFloat: {
                         for (int i = 0; i < count; ++i) {
-                            Value& v = fStack[fStack.size() - i - 1];
+                            Value& v = stackPtr[i - 1];
                             v.fFloat = (float) v.fUnsigned;
                         }
                         break;
                     }
                     case ByteCodeInstruction::kLoad: {
-                        int target = this->pop().fSigned;
+                        int target = pop().fSigned;
                         for (int i = 0; i < count; ++i) {
-                            SkASSERT(target < (int) fStack.size());
-                            this->push(fStack[target++]);
+                            push(stackPtr[target++]);
                         }
                         break;
                     }
                     case ByteCodeInstruction::kLoadGlobal: {
                         int target = READ8();
                         SkASSERT(target < (int) fGlobals.size());
-                        this->push(fGlobals[target]);
+                        push(fGlobals[target]);
                         break;
                     }
                     VECTOR_BINARY_OP(kMultiplyS, int32_t, fSigned, *)
@@ -465,10 +463,9 @@ void Interpreter::run() {
                     VECTOR_BINARY_OP(kRemainderS, int32_t, fSigned, %)
                     VECTOR_BINARY_OP(kRemainderU, uint32_t, fUnsigned, %)
                     case ByteCodeInstruction::kStore: {
-                        int target = fStack[fStack.size() - count - 1].fSigned + count;
+                        int target = stackPtr[count - 1].fSigned + count;
                         for (int i = count - 1; i >= 0; --i) {
-                            SkASSERT(target < (int) fStack.size());
-                            fStack[--target] = this->pop();
+                            stackPtr[--target] = pop();
                         }
                         break;
                     }
