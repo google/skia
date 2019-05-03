@@ -21,7 +21,7 @@
           preserveDrawingBuffer: get(attrs, 'preserveDrawingBuffer', 0),
           preferLowPowerToHighPerformance: get(attrs, 'preferLowPowerToHighPerformance', 0),
           failIfMajorPerformanceCaveat: get(attrs, 'failIfMajorPerformanceCaveat', 0),
-          majorVersion: get(attrs, 'majorVersion', 1),
+          majorVersion: get(attrs, 'majorVersion', 2), // FIXME: Don't land this
           minorVersion: get(attrs, 'minorVersion', 0),
           enableExtensionsByDefault: get(attrs, 'enableExtensionsByDefault', 1),
           explicitSwapControl: get(attrs, 'explicitSwapControl', 0),

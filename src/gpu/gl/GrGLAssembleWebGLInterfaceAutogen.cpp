@@ -12,7 +12,9 @@
 #include "include/gpu/gl/GrGLAssembleHelpers.h"
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "src/gpu/gl/GrGLUtil.h"
+#include <emscripten.h>
 
+#define GET_PROC_EXACT(F, N) functions->f##F = (GrGL##F##Fn*)get(ctx, #N)
 #define GET_PROC(F) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F)
 #define GET_PROC_SUFFIX(F, S) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F #S)
 #define GET_PROC_LOCAL(F) GrGL##F##Fn* F = (GrGL##F##Fn*)get(ctx, "gl" #F)
@@ -169,7 +171,10 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
 
     if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(DrawBuffers);
-        GET_PROC(ReadBuffer);
+        GET_PROC_EXACT(ReadBuffer, readBuffer);
+        EM_ASM_({
+            console.log('ctx', $0)
+        }, ctx);
     }
 
     if (glVer >= GR_GL_VER(2,0)) {
@@ -200,14 +205,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
 
     if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(RenderbufferStorageMultisample);
-    }
-
-    if (glVer >= GR_GL_VER(2,0)) {
-        GET_PROC(ClientWaitSync);
-        GET_PROC(DeleteSync);
-        GET_PROC(FenceSync);
-        GET_PROC(IsSync);
-        GET_PROC(WaitSync);
     }
 
     if (glVer >= GR_GL_VER(2,0)) {
