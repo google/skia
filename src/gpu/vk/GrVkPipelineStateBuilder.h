@@ -91,10 +91,7 @@ private:
                                 Desc*);
 
     // returns number of shader stages
-    int loadShadersFromCache(const SkData& cached,
-                             VkShaderModule* outVertShaderModule,
-                             VkShaderModule* outFragShaderModule,
-                             VkShaderModule* outGeomShaderModule,
+    int loadShadersFromCache(const SkData& cached, VkShaderModule outShaderModules[],
                              VkPipelineShaderStageCreateInfo* outStageInfo);
 
     void storeShadersInCache(const SkSL::String shaders[], const SkSL::Program::Inputs inputs[],
