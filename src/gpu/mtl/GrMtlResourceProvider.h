@@ -42,6 +42,8 @@ public:
     // Finds or creates a compatible MTLSamplerState based on the GrSamplerState.
     GrMtlSampler* findOrCreateCompatibleSampler(const GrSamplerState&, uint32_t maxMipLevel);
 
+    id<MTLBuffer> getDynamicBuffer(size_t size, size_t* offset);
+
 private:
 #ifdef SK_DEBUG
 #define GR_PIPELINE_STATE_CACHE_STATS
@@ -92,6 +94,14 @@ private:
 
     SkTDynamicHash<GrMtlSampler, GrMtlSampler::Key> fSamplers;
     SkTDynamicHash<GrMtlDepthStencil, GrMtlDepthStencil::Key> fDepthStencilStates;
+
+    // Buffer state
+    struct BufferState {
+        id<MTLBuffer> fAllocation;
+        size_t        fAllocationSize;
+        size_t        fNextOffset;
+    };
+    BufferState fBufferState;
 };
 
 #endif

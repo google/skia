@@ -54,27 +54,4 @@ private:
     typedef GrGpuBuffer INHERITED;
 };
 
-class GrMtlBufferManager {
-public:
-    GrMtlBufferManager(GrMtlGpu* gpu)
-         : fGpu(gpu), fBufferAllocation(nil), fAllocationSize(0), fNextOffset(0) {}
-
-    ~GrMtlBufferManager() {
-        fBufferAllocation = nil; // Just to be sure
-    }
-
-    id<MTLBuffer> getDynamicAllocation(size_t size, size_t* offset);
-    void setVertexBuffer(id<MTLRenderCommandEncoder>, const GrMtlBuffer*, size_t index);
-    void setFragmentBuffer(id<MTLRenderCommandEncoder>, const GrMtlBuffer*, size_t index);
-    void resetBindings();
-
-private:
-    GrMtlGpu*     fGpu;
-    id<MTLBuffer> fBufferAllocation;
-    size_t        fAllocationSize;
-    size_t        fNextOffset;
-    static constexpr size_t kNumBindings = GrMtlUniformHandler::kLastUniformBinding + 3;
-    id<MTLBuffer> fBufferBindings[kNumBindings];
-};
-
 #endif
