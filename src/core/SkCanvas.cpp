@@ -938,13 +938,17 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
     draw.fMatrix = &SkMatrix::I();
     draw.fRC = &rc;
 
-    SkPaint p;
-    if (filter) {
-        p.setImageFilter(filter->makeWithLocalMatrix(ctm));
-    }
-
     int x = src->getOrigin().x() - dstOrigin.x();
     int y = src->getOrigin().y() - dstOrigin.y();
+
+    SkPaint p;
+    if (filter) {
+        SkMatrix actm = ctm;
+        // Account for the origin offset in the local matrix
+        actm.postTranslate(x, y);
+        p.setImageFilter(filter->makeWithLocalMatrix(actm));
+    }
+
     auto special = src->snapSpecial();
     if (special) {
         dst->drawSpecial(special.get(), x, y, p, nullptr, SkMatrix::I());
