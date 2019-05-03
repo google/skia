@@ -3,7 +3,7 @@
 
 #include "tests/Test.h"
 
-#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || ! defined(SK_BUILD_FOR_GOOGLE3)
 
 #include "modules/skshaper/include/SkShaper.h"
 #include "tools/Resources.h"
@@ -99,4 +99,4 @@ DEF_TEST(Shaper_cluster_vai,        r) { shaper_cluster_test(r, "text/vai.txt");
 //DEF_TEST(Shaper_cluster_taitham,    r) { shaper_cluster_test(r, "text/taitham.txt"); }
 //DEF_TEST(Shaper_cluster_tamil,      r) { shaper_cluster_test(r, "text/tamil.txt"); }
 
-#endif  // !SK_BUILD_FOR_ANDROID_FRAMEWORK
+#endif  // !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || ! defined(SK_BUILD_FOR_GOOGLE3)
