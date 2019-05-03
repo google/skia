@@ -13,7 +13,6 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrSemaphore.h"
 
-#include "src/gpu/mtl/GrMtlBuffer.h"
 #include "src/gpu/mtl/GrMtlCaps.h"
 #include "src/gpu/mtl/GrMtlCopyManager.h"
 #include "src/gpu/mtl/GrMtlResourceProvider.h"
@@ -48,8 +47,6 @@ public:
     id<MTLDevice> device() const { return fDevice; }
 
     GrMtlResourceProvider& resourceProvider() { return fResourceProvider; }
-
-    GrMtlBufferManager& bufferManager() { return fBufferManager; }
 
     GrMtlCommandBuffer* commandBuffer();
 
@@ -230,7 +227,6 @@ private:
 
     GrMtlCopyManager      fCopyManager;
     GrMtlResourceProvider fResourceProvider;
-    GrMtlBufferManager    fBufferManager;
 
     bool fDisconnected;
 

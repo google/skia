@@ -16,6 +16,7 @@
 #import <metal/metal.h>
 
 typedef uint32_t GrColor;
+class GrMtlBuffer;
 class GrMtlPipelineState;
 class GrMtlRenderTarget;
 
@@ -121,6 +122,9 @@ private:
                                        const GrBuffer* instanceBuffer, int instanceCount,
                                        int baseInstance, GrPrimitiveRestart) final;
 
+    void setVertexBuffer(id<MTLRenderCommandEncoder>, const GrMtlBuffer*, size_t index);
+    void resetBufferBindings();
+
     GrMtlGpu*                                     fGpu;
     // GrRenderTargetProxy bounds
 #ifdef SK_DEBUG
@@ -137,6 +141,9 @@ private:
     };
 
     CommandBufferInfo fCommandBufferInfo;
+
+    static constexpr size_t kNumBindings = GrMtlUniformHandler::kLastUniformBinding + 3;
+    id<MTLBuffer> fBufferBindings[kNumBindings];
 
     typedef GrGpuRTCommandBuffer INHERITED;
 };
