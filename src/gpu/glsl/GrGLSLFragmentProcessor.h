@@ -136,28 +136,31 @@ public:
         return fChildProcessors[index];
     }
 
-    // Invoke the child with the default input color (solid white)
-    inline void invokeChild(int childIndex, const char* outputColor, EmitArgs& parentArgs) {
-        this->invokeChild(childIndex, nullptr, outputColor, parentArgs);
+    // Emit the child with the default input color (solid white)
+    inline void emitChild(int childIndex, SkString* outputColor, EmitArgs& parentArgs) {
+        this->emitChild(childIndex, nullptr, outputColor, parentArgs);
     }
 
     /** Will emit the code of a child proc in its own scope. Pass in the parent's EmitArgs and
-     *  invokeChild will automatically extract the coords and samplers of that child and pass them
+     *  emitChild will automatically extract the coords and samplers of that child and pass them
      *  on to the child's emitCode(). Also, any uniforms or functions emitted by the child will
-     *  have their names mangled to prevent redefinitions. The outputColor is the name of a
-     *  variable in which to store the resulting color. It is assumed to have already been declared
-     *  and is not declared by invokeChild. It is legal to pass nullptr as inputColor, since all
-     *  fragment processors are required to work without an input color.
+     *  have their names mangled to prevent redefinitions. The output color name is also mangled
+     *  therefore in an in/out param. It will be declared in mangled form by emitChild(). It is
+     *  legal to pass nullptr as inputColor, since all fragment processors are required to work
+     *  without an input color.
      */
-    void invokeChild(int childIndex, const char* inputColor, const char* outputColor,
-                     EmitArgs& parentArgs);
+    void emitChild(int childIndex, const char* inputColor, SkString* outputColor,
+                   EmitArgs& parentArgs);
 
     // Use the parent's output color to hold child's output, and use the
     // default input color of solid white
-    inline void invokeChild(int childIndex, EmitArgs& args) {
+    inline void emitChild(int childIndex, EmitArgs& args) {
         // null pointer cast required to disambiguate the function call
-        this->invokeChild(childIndex, args.fOutputColor, args);
+        this->emitChild(childIndex, (const char*) nullptr, args);
     }
+
+    /** Variation that uses the parent's output color variable to hold the child's output.*/
+    void emitChild(int childIndex, const char* inputColor, EmitArgs& parentArgs);
 
     /**
      * Pre-order traversal of a GLSLFP hierarchy, or of multiple trees with roots in an array of
@@ -186,10 +189,7 @@ protected:
     virtual void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) {}
 
 private:
-    void internalEmitChild(int, const char*, EmitArgs&);
-
-    // one per child; either not present or empty string if not yet emitted
-    SkTArray<SkString> fFunctionNames;
+    void internalEmitChild(int, const char*, const char*, EmitArgs&);
 
     SkTArray<GrGLSLFragmentProcessor*, true> fChildProcessors;
 

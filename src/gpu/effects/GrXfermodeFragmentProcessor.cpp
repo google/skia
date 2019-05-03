@@ -220,18 +220,20 @@ void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
     }
 
     // declare outputColor and emit the code for each of the two children
-    const char* srcColor = "xfer_src";
-    fragBuilder->codeAppendf("half4 %s;\n", srcColor);
-    this->invokeChild(0, inputColor, srcColor, args);
+    SkString srcColor("xfer_src");
+    this->emitChild(0, inputColor, &srcColor, args);
 
-    const char* dstColor = "xfer_dst";
-    fragBuilder->codeAppendf("half4 %s;\n", dstColor);
-    this->invokeChild(1, inputColor, dstColor, args);
+    SkString dstColor("xfer_dst");
+    this->emitChild(1, inputColor, &dstColor, args);
 
     // emit blend code
     SkBlendMode mode = cs.getMode();
     fragBuilder->codeAppendf("// Compose Xfer Mode: %s\n", SkBlendMode_Name(mode));
-    GrGLSLBlend::AppendMode(fragBuilder, srcColor, dstColor, args.fOutputColor, mode);
+    GrGLSLBlend::AppendMode(fragBuilder,
+                            srcColor.c_str(),
+                            dstColor.c_str(),
+                            args.fOutputColor,
+                            mode);
 
     // re-multiply the output color by the input color's alpha
     if (args.fInputColor) {
@@ -436,18 +438,16 @@ public:
         SkBlendMode mode = args.fFp.cast<ComposeOneFragmentProcessor>().mode();
         ComposeOneFragmentProcessor::Child child =
             args.fFp.cast<ComposeOneFragmentProcessor>().child();
-        const char* childColor = "child";
-        fragBuilder->codeAppendf("half4 %s;\n", childColor);
-        this->invokeChild(0, childColor, args);
+        SkString childColor("child");
+        this->emitChild(0, &childColor, args);
 
         // emit blend code
         fragBuilder->codeAppendf("// Compose Xfer Mode: %s\n", SkBlendMode_Name(mode));
+        const char* childStr = childColor.c_str();
         if (ComposeOneFragmentProcessor::kDst_Child == child) {
-            GrGLSLBlend::AppendMode(fragBuilder, args.fInputColor, childColor, args.fOutputColor,
-                                    mode);
+            GrGLSLBlend::AppendMode(fragBuilder, args.fInputColor, childStr, args.fOutputColor, mode);
         } else {
-            GrGLSLBlend::AppendMode(fragBuilder, childColor, args.fInputColor, args.fOutputColor,
-                                    mode);
+            GrGLSLBlend::AppendMode(fragBuilder, childStr, args.fInputColor, args.fOutputColor, mode);
         }
     }
 

@@ -27,19 +27,23 @@ public:
         (void)weight;
         weightVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType, "weight");
-        fragBuilder->codeAppendf("half4 _process284;");
+        SkString _child0("_child0");
         if (_outer.child1_index >= 0) {
-            this->invokeChild(_outer.child1_index, "_process284", args);
+            this->emitChild(_outer.child1_index, &_child0, args);
+        } else {
+            fragBuilder->codeAppendf("half4 %s;", _child0.c_str());
         }
-        fragBuilder->codeAppendf("half4 _process353;");
+        SkString _child1("_child1");
         if (_outer.child2_index >= 0) {
-            this->invokeChild(_outer.child2_index, "_process353", args);
+            this->emitChild(_outer.child2_index, &_child1, args);
+        } else {
+            fragBuilder->codeAppendf("half4 %s;", _child1.c_str());
         }
-        fragBuilder->codeAppendf(
-                "%s = mix(%s ? _process284 : %s, %s ? _process353 : %s, half(%s));\n",
-                args.fOutputColor, _outer.child1_index >= 0 ? "true" : "false", args.fInputColor,
-                _outer.child2_index >= 0 ? "true" : "false", args.fInputColor,
-                args.fUniformHandler->getUniformCStr(weightVar));
+        fragBuilder->codeAppendf("%s = mix(%s ? %s : %s, %s ? %s : %s, half(%s));\n",
+                                 args.fOutputColor, _outer.child1_index >= 0 ? "true" : "false",
+                                 _child0.c_str(), args.fInputColor,
+                                 _outer.child2_index >= 0 ? "true" : "false", _child1.c_str(),
+                                 args.fInputColor, args.fUniformHandler->getUniformCStr(weightVar));
     }
 
 private:
