@@ -64,14 +64,6 @@ public:
 private:
     StackIndex stackAlloc(int count);
 
-    uint8_t read8();
-
-    uint16_t read16();
-
-    uint32_t read32();
-
-    inline void vectorOp(int count);
-
     void run();
 
     void push(Value v);
@@ -86,7 +78,6 @@ private:
 
     std::unique_ptr<Program> fProgram;
     std::unique_ptr<ByteCode> fByteCode;
-    int fIP;
     const ByteCodeFunction* fCurrentFunction;
     std::vector<Value> fGlobals;
     std::vector<Value> fStack;
