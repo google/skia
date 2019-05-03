@@ -57,6 +57,8 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
     }
     fCode = &result->fCode;
     this->writeStatement(*f.fBody);
+    this->write(ByteCodeInstruction::kReturn);
+    this->write8(0);
     result->fParameterCount = fParameterCount;
     result->fLocalCount = fLocals.size();
     fLocals.clear();
