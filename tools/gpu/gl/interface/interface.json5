@@ -142,6 +142,11 @@
 
     "functions": [
       "DrawBuffers", "ReadBuffer",
+    ],
+    // WASM webgl2 is supposed to have ReadBuffer, but it doesn't (always?)
+    // This is fine, because Skia doesn't actually use ReadBuffer atm.
+    "optional": [
+      "ReadBuffer",
     ]
   },
 
@@ -557,7 +562,6 @@
               {/*    else if      */  "ext": "GL_ARB_sync"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_APPLE_sync"}],
-    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
       "ClientWaitSync", "DeleteSync", "FenceSync",
