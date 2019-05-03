@@ -20,6 +20,38 @@
 
 namespace SkSL {
 
+    template <typename T> class MikeStack {
+        T fStorage[1000];
+        T* fPtr = &fStorage[0];
+
+    public:
+        MikeStack() {}
+
+        T& operator[](int index) {
+            SkASSERT(index >= 0 && index < (int)this->size());
+            return fStorage[index];
+        }
+        T* data() { return fStorage; }
+        T* end() { return fPtr; }
+
+        size_t size() const {
+            SkASSERT(fPtr >= fStorage);
+            return fPtr - fStorage;
+        }
+
+        void clear() { fPtr = &fStorage[0]; }
+        void push_back(T v) { *fPtr++ = v; }
+        void pop_back() { --fPtr; }
+        T& back() { return fPtr[-1]; }
+        void insert(T* cursor, T value) {
+            if (cursor < fPtr) {
+                memmove(cursor + 1, cursor, (fPtr - cursor) * sizeof(T));
+            }
+            *cursor = value;
+            fPtr += 1;
+        }
+    };
+
 class Interpreter {
     typedef int StackIndex;
 
@@ -80,7 +112,7 @@ private:
     std::unique_ptr<ByteCode> fByteCode;
     const ByteCodeFunction* fCurrentFunction;
     std::vector<Value> fGlobals;
-    std::vector<Value> fStack;
+    MikeStack<Value> fStack;
 };
 
 } // namespace
