@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55697ba6_ee45411e",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-03T16:07:04Z",
+      "side": 1,
+      "message": "why not use \"code\" here as well, instead of fCurrentFunction-\u003efCode?",
+      "range": {
+        "startLine": 77,
+        "startChar": 19,
+        "endLine": 77,
+        "endChar": 35
+      },
+      "revId": "a5081eccc2d8a32f33a46abb1537e45e567130ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
