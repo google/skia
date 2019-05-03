@@ -16,7 +16,7 @@ import (
 	"log"
 	"os"
 
-	skia "skia.googlesource.com/skia/experimental/go-skia"
+	skia "go.skia.org/skia/experimental/go-skia"
 )
 
 func main() {
