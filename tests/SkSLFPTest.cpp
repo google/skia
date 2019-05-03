@@ -465,10 +465,10 @@ DEF_TEST(SkSLFPChildProcessors, r) {
             "this->registerChildProcessor(std::move(child2));"
          },
          {
-            "fragBuilder->codeAppendf(\"half4 _process87;\");",
-            "this->invokeChild(_outer.child1_index, \"_process87\", args);",
-            "fragBuilder->codeAppendf(\"half4 _process105;\");",
-            "this->invokeChild(_outer.child2_index, \"_process105\", args);",
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(_outer.child1_index, &_child0, args);",
+            "SkString _child1(\"_child1\");",
+            "this->emitChild(_outer.child2_index, &_child1, args);",
             "this->registerChildProcessor(src.childProcessor(child1_index).clone());",
             "this->registerChildProcessor(src.childProcessor(child2_index).clone());"
          });
@@ -491,11 +491,11 @@ DEF_TEST(SkSLFPChildProcessorsWithInput, r) {
          },
          {
             "SkString _input0(\"childIn\");",
-            "fragBuilder->codeAppendf(\"half4 _process122;\");",
-            "this->invokeChild(_outer.child1_index, _input0.c_str(), \"_process122\", args);",
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(_outer.child1_index, _input0.c_str(), &_child0, args);",
             "SkString _input1(\"childOut1\");",
-            "fragBuilder->codeAppendf(\"half4 _process169;\");",
-            "this->invokeChild(_outer.child2_index, _input1.c_str(), \"_process169\", args);",
+            "SkString _child1(\"_child1\");",
+            "this->emitChild(_outer.child2_index, _input1.c_str(), &_child1, args);",
             "this->registerChildProcessor(src.childProcessor(child1_index).clone());",
             "this->registerChildProcessor(src.childProcessor(child2_index).clone());"
          });
@@ -513,8 +513,8 @@ DEF_TEST(SkSLFPChildProcessorWithInputExpression, r) {
          },
          {
             "SkString _input0 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
-            "fragBuilder->codeAppendf(\"half4 _process58;\");",
-            "this->invokeChild(_outer.child_index, _input0.c_str(), \"_process58\", args);",
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(_outer.child_index, _input0.c_str(), &_child0, args);",
             "this->registerChildProcessor(src.childProcessor(child_index).clone());",
          });
 }
@@ -533,11 +533,11 @@ DEF_TEST(SkSLFPNestedChildProcessors, r) {
          },
          {
             "SkString _input0 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
-            "fragBuilder->codeAppendf(\"half4 _process116;\");",
-            "this->invokeChild(_outer.child1_index, _input0.c_str(), \"_process116\", args);",
-            "SkString _input1 = SkStringPrintf(\"%s * _process116\", args.fInputColor);",
-            "fragBuilder->codeAppendf(\"half4 _process87;\");",
-            "this->invokeChild(_outer.child2_index, _input1.c_str(), \"_process87\", args);",
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(_outer.child1_index, _input0.c_str(), &_child0, args);",
+            "SkString _input1 = SkStringPrintf(\"%s * %s\", args.fInputColor, _child0.c_str());",
+            "SkString _child1(\"_child1\");",
+            "this->emitChild(_outer.child2_index, _input1.c_str(), &_child1, args);",
             "this->registerChildProcessor(src.childProcessor(child1_index).clone());",
             "this->registerChildProcessor(src.childProcessor(child2_index).clone());"
          });
@@ -563,10 +563,10 @@ DEF_TEST(SkSLFPChildFPAndGlobal, r) {
             "fragBuilder->codeAppendf(\"bool hasCap = %s;\\nif (hasCap) {\", "
                     "(hasCap ? \"true\" : \"false\"));",
             "SkString _input0 = SkStringPrintf(\"%s\", args.fInputColor);",
-            "fragBuilder->codeAppendf(\"half4 _process124;\");",
-            "this->invokeChild(_outer.child_index, _input0.c_str(), \"_process124\", args);",
-            "fragBuilder->codeAppendf(\"\\n    %s = _process124;\\n} else {\\n"
-                    "    %s = half4(1.0);\\n}\\n\", args.fOutputColor, args.fOutputColor);",
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(_outer.child_index, _input0.c_str(), &_child0, args);",
+            "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(1.0);\\n}"
+                    "\\n\", args.fOutputColor, _child0.c_str(), args.fOutputColor);",
             "this->registerChildProcessor(src.childProcessor(child_index).clone());"
          });
 }
@@ -590,10 +590,10 @@ DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
                     "(_outer.childProcessor(_outer.child_index).preservesOpaqueInput() ? "
                     "\"true\" : \"false\"));",
             "SkString _input0 = SkStringPrintf(\"%s\", args.fInputColor);",
-            "fragBuilder->codeAppendf(\"half4 _process99;\");",
-            "this->invokeChild(_outer.child_index, _input0.c_str(), \"_process99\", args);",
-            "fragBuilder->codeAppendf(\"\\n    %s = _process99;\\n} else {\\n"
-                    "    %s = half4(1.0);\\n}\\n\", args.fOutputColor, args.fOutputColor);",
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(_outer.child_index, _input0.c_str(), &_child0, args);",
+            "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(1.0);\\n}\\n\""
+                    ", args.fOutputColor, _child0.c_str(), args.fOutputColor);",
             "this->registerChildProcessor(src.childProcessor(child_index).clone());"
          });
 }
@@ -617,10 +617,10 @@ DEF_TEST(SkSLFPChildProcessorFieldAccess, r) {
             "opaque = _outer.childProcessor(_outer.child_index).preservesOpaqueInput();",
             "fragBuilder->codeAppendf(\"bool opaque = %s;\\nif (opaque) {\", "
                     "(opaque ? \"true\" : \"false\"));",
-            "fragBuilder->codeAppendf(\"half4 _process120;\");",
-            "this->invokeChild(_outer.child_index, \"_process120\", args);",
-            "fragBuilder->codeAppendf(\"\\n    %s = _process120;\\n} else {\\n"
-                    "    %s = half4(0.5);\\n}\\n\", args.fOutputColor, args.fOutputColor);",
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(_outer.child_index, &_child0, args);",
+            "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(0.5);\\n}\\n\""
+                    ", args.fOutputColor, _child0.c_str(), args.fOutputColor);",
             "this->registerChildProcessor(src.childProcessor(child_index).clone());"
          });
 }
@@ -638,14 +638,13 @@ DEF_TEST(SkSLFPNullableChildProcessor, r) {
          *SkSL::ShaderCapsFactory::Default(),
          {},
          {
+            "SkString _child0(\"_child0\");",
             "if (_outer.child_index >= 0) {",
-                "fragBuilder->codeAppendf(\"half4 _process87;\");",
-                "this->invokeChild(_outer.child_index, \"_process87\", args);",
+                "this->emitChild(_outer.child_index, &_child0, args);",
             "} else {",
-                "fragBuilder->codeAppendf(\"half4 _process87;\");",
+                "fragBuilder->codeAppendf(\"half4 %s;\", _child0.c_str());",
             "}",
-            "fragBuilder->codeAppendf(\"\\n    %s = _process87;\\n} else {\\n"
-                    "    %s = half4(0.5);\\n}\\n\""
-                    ", args.fOutputColor, args.fOutputColor);",
+            "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(0.5);\\n}\\n\""
+                    ", args.fOutputColor, _child0.c_str(), args.fOutputColor);",
          });
 }

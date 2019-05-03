@@ -23,20 +23,24 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrComposeLerpRedEffect& _outer = args.fFp.cast<GrComposeLerpRedEffect>();
         (void)_outer;
-        fragBuilder->codeAppendf("half4 _process286;");
+        SkString _child0("_child0");
         if (_outer.child1_index >= 0) {
-            this->invokeChild(_outer.child1_index, "_process286", args);
+            this->emitChild(_outer.child1_index, &_child0, args);
+        } else {
+            fragBuilder->codeAppendf("half4 %s;", _child0.c_str());
         }
-        fragBuilder->codeAppendf("half4 _process355;");
+        SkString _child1("_child1");
         if (_outer.child2_index >= 0) {
-            this->invokeChild(_outer.child2_index, "_process355", args);
+            this->emitChild(_outer.child2_index, &_child1, args);
+        } else {
+            fragBuilder->codeAppendf("half4 %s;", _child1.c_str());
         }
-        fragBuilder->codeAppendf("half4 _process407;");
-        this->invokeChild(_outer.lerp_index, "_process407", args);
-        fragBuilder->codeAppendf(
-                "%s = mix(%s ? _process286 : %s, %s ? _process355 : %s, _process407.x);\n",
-                args.fOutputColor, _outer.child1_index >= 0 ? "true" : "false", args.fInputColor,
-                _outer.child2_index >= 0 ? "true" : "false", args.fInputColor);
+        SkString _child2("_child2");
+        this->emitChild(_outer.lerp_index, &_child2, args);
+        fragBuilder->codeAppendf("%s = mix(%s ? %s : %s, %s ? %s : %s, %s.x);\n", args.fOutputColor,
+                                 _outer.child1_index >= 0 ? "true" : "false", _child0.c_str(),
+                                 args.fInputColor, _outer.child2_index >= 0 ? "true" : "false",
+                                 _child1.c_str(), args.fInputColor, _child2.c_str());
     }
 
 private:

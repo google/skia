@@ -156,26 +156,6 @@ void GrGLSLFragmentShaderBuilder::applyFnToMultisampleMask(
     this->codeAppendf("}");
 }
 
-SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor* fp,
-                                                         GrGLSLFragmentProcessor::EmitArgs& args) {
-    this->onBeforeChildProcEmitCode();
-    this->nextStage();
-    this->codeAppendf("half4 %s;\n", args.fOutputColor);
-    fp->emitCode(args);
-    this->codeAppendf("return %s;", args.fOutputColor);
-    GrShaderVar inColor(args.fInputColor, kHalf4_GrSLType);
-    SkString result;
-    this->emitFunction(kHalf4_GrSLType,
-                       "stage",
-                       1,
-                       &inColor,
-                       this->code().c_str(),
-                       &result);
-    this->deleteStage();
-    this->onAfterChildProcEmitCode();
-    return result;
-}
-
 const char* GrGLSLFragmentShaderBuilder::dstColor() {
     SkDEBUGCODE(fHasReadDstColorThisStage_DebugOnly = true;)
 

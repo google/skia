@@ -16,27 +16,42 @@ void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
     this->onSetData(pdman, processor);
 }
 
-void GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor,
-                                          const char* outputColor, EmitArgs& args) {
-    SkASSERT(outputColor);
-    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    while (childIndex >= (int) fFunctionNames.size()) {
-        fFunctionNames.emplace_back();
-    }
-    if (fFunctionNames[childIndex].size() == 0) {
-        this->internalEmitChild(childIndex, outputColor, args);
-    }
-    fragBuilder->codeAppendf("%s = %s(%s);", outputColor, fFunctionNames[childIndex].c_str(),
-                             inputColor ? inputColor : "half4(1)");
+void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor, EmitArgs& args) {
+    this->internalEmitChild(childIndex, inputColor, args.fOutputColor, args);
 }
 
-void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* outputColor,
-                                                EmitArgs& args) {
+void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
+                                        SkString* outputColor, EmitArgs& args) {
+    SkASSERT(outputColor);
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+    outputColor->append(fragBuilder->getMangleString());
+    fragBuilder->codeAppendf("half4 %s;", outputColor->c_str());
+    this->internalEmitChild(childIndex, inputColor, outputColor->c_str(), args);
+}
+
+void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inputColor,
+                                                const char* outputColor, EmitArgs& args) {
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+
+    fragBuilder->onBeforeChildProcEmitCode();  // call first so mangleString is updated
+
+    // Prepare a mangled input color variable if the default is not used,
+    // inputName remains the empty string if no variable is needed.
+    SkString inputName;
+    if (inputColor&& strcmp("half4(1.0)", inputColor) != 0 && strcmp("half4(1)", inputColor) != 0) {
+        // The input name is based off of the current mangle string, and
+        // since this is called after onBeforeChildProcEmitCode(), it will be
+        // unique to the child processor (exactly what we want for its input).
+        inputName.appendf("_childInput%s", fragBuilder->getMangleString().c_str());
+        fragBuilder->codeAppendf("half4 %s = %s;", inputName.c_str(), inputColor);
+    }
 
     const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
 
-    // emit the code for the child in its own function
+    // emit the code for the child in its own scope
+    fragBuilder->codeAppend("{\n");
+    fragBuilder->codeAppendf("// Child Index %d (mangle: %s): %s\n", childIndex,
+                             fragBuilder->getMangleString().c_str(), childProc.name());
     TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
     TextureSamplers textureSamplers = args.fTexSamplers.childInputs(childIndex);
 
@@ -45,13 +60,14 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* outp
                        args.fUniformHandler,
                        args.fShaderCaps,
                        childProc,
-                       "_result",
-                       "_input",
+                       outputColor,
+                       inputName.size() > 0 ? inputName.c_str() : nullptr,
                        coordVars,
                        textureSamplers);
-    fFunctionNames[childIndex] = fragBuilder->writeProcessorFunction(
-                                                                   this->childProcessor(childIndex),
-                                                                   childArgs);
+    this->childProcessor(childIndex)->emitCode(childArgs);
+    fragBuilder->codeAppend("}\n");
+
+    fragBuilder->onAfterChildProcEmitCode();
 }
 
 //////////////////////////////////////////////////////////////////////////////

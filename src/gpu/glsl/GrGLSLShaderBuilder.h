@@ -152,18 +152,6 @@ public:
         GrGLSLShaderBuilder* fBuilder;
     };
 
-    void nextStage() {
-        fShaderStrings.push_back();
-        fCodeIndex++;
-    }
-
-    void deleteStage() {
-        fShaderStrings.pop_back();
-        fCodeIndex--;
-    }
-
-    SkString& code() { return fShaderStrings[fCodeIndex]; }
-
 protected:
     typedef GrTAllocator<GrShaderVar> VarArray;
     void appendDecls(const VarArray& vars, SkString* out) const;
@@ -205,6 +193,11 @@ protected:
 
     void compileAndAppendLayoutQualifiers();
 
+    void nextStage() {
+        fShaderStrings.push_back();
+        fCodeIndex++;
+    }
+
     SkString& versionDecl() { return fShaderStrings[kVersionDecl]; }
     SkString& extensions() { return fShaderStrings[kExtensions]; }
     SkString& definitions() { return fShaderStrings[kDefinitions]; }
@@ -215,6 +208,7 @@ protected:
     SkString& outputs() { return fShaderStrings[kOutputs]; }
     SkString& functions() { return fShaderStrings[kFunctions]; }
     SkString& main() { return fShaderStrings[kMain]; }
+    SkString& code() { return fShaderStrings[fCodeIndex]; }
 
     virtual void onFinalize() = 0;
 
@@ -237,6 +231,9 @@ protected:
     GrGLSLProgramBuilder* fProgramBuilder;
     SkSL::String fCompilerString;
     SkSTArray<kPrealloc, SkString> fShaderStrings;
+    SkString fCode;
+    SkString fFunctions;
+    SkString fExtensions;
 
     VarArray fInputs;
     VarArray fOutputs;
