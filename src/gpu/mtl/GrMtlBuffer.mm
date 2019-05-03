@@ -139,6 +139,11 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
         // TODO: need to make sure offset and size have valid alignments.
         [fMtlBuffer didModifyRange: NSMakeRange(fOffset, sizeInBytes)];
 #endif
+        // TODO: this seems squirrely -- how do we know this isn't being tracked in the resource provider?
+        if (sizeInBytes == fMtlBuffer.length) {
+            // set this buffer up to be recycled once the command buffer finishes
+            this->mtlGpu()->resourceProvider().recycleBuffer(fMtlBuffer);
+        }
     } else {
         GrMtlCommandBuffer* cmdBuffer = this->mtlGpu()->commandBuffer();
         id<MTLBlitCommandEncoder> blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();

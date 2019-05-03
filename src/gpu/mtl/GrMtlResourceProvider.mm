@@ -15,9 +15,11 @@
 
 #include "src/sksl/SkSLCompiler.h"
 
+static size_t kSharedDynamicBufferSize = 16*1024;
+
 GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
     : fGpu(gpu)
-    , fBufferState({nil, 0, 0}) {
+    , fNextBufferOffset(kSharedDynamicBufferSize) {
     fPipelineStateCache.reset(new PipelineStateCache(gpu));
 }
 
@@ -155,8 +157,6 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
 }
 
 id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offset) {
-    static size_t kSharedDynamicBufferSize = 16*1024;
-
     // The idea here is that we create a ring buffer which is used for all dynamic allocations
     // below a certain size. When a dynamic GrMtlBuffer is mapped, it grabs a portion of this
     // buffer and uses it. On a subsequent map it will grab a different portion of the buffer.
@@ -170,17 +170,30 @@ id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offse
     //
     // TODO: By sending addCompletedHandler: to MTLCommandBuffer we can track when buffers
     // are no longer in use and recycle them rather than creating a new one each time.
-    if (fBufferState.fAllocationSize - fBufferState.fNextOffset < size) {
+    if (kSharedDynamicBufferSize - fNextBufferOffset < size) {
         size_t allocSize = (size >= kSharedDynamicBufferSize) ? size : kSharedDynamicBufferSize;
         id<MTLBuffer> buffer;
-        SK_BEGIN_AUTORELEASE_BLOCK
-        buffer = [fGpu->device() newBufferWithLength: allocSize
+        {
+            SkAutoMutexAcquire autoMutexAcquire(fMutex);
+            for (int i = 0; i < fAvailableBuffers.count(); ++i) {
+                if (fAvailableBuffers[i].length == allocSize && allocSize == 32*1024) {
+                    buffer = fAvailableBuffers[i];
+                    fAvailableBuffers[i] = fAvailableBuffers[fAvailableBuffers.count()-1];
+                    fAvailableBuffers.pop_back();
+                    break;
+                }
+            }
+        }
+        if (nil == buffer) {
+            SK_BEGIN_AUTORELEASE_BLOCK
+            buffer = [fGpu->device() newBufferWithLength: allocSize
 #ifdef SK_BUILD_FOR_MAC
-                                             options: MTLResourceStorageModeManaged];
+                                                 options: MTLResourceStorageModeManaged];
 #else
-                                             options: MTLResourceStorageModeShared];
+                                                 options: MTLResourceStorageModeShared];
 #endif
-        SK_END_AUTORELEASE_BLOCK
+            SK_END_AUTORELEASE_BLOCK
+        }
         if (nil == buffer) {
             return nil;
         }
@@ -190,16 +203,33 @@ id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offse
             return buffer;
         }
 
-        fBufferState.fAllocation = buffer;
-        fBufferState.fNextOffset = 0;
-        fBufferState.fAllocationSize = kSharedDynamicBufferSize;
+        fGpu->resourceProvider().recycleBuffer(fCurrentSharedBuffer);
+        fCurrentSharedBuffer = buffer;
+        fNextBufferOffset = 0;
     }
 
     // Grab the next available block
-    *offset = fBufferState.fNextOffset;
-    fBufferState.fNextOffset += size;
+    *offset = fNextBufferOffset;
+    fNextBufferOffset += size;
     // Uniform buffer offsets need to be aligned to the nearest 256-byte boundary.
-    fBufferState.fNextOffset = GrSizeAlignUp(fBufferState.fNextOffset, 256);
+    // TODO: we're not using this for uniform buffers -- fix this
+    fNextBufferOffset = GrSizeAlignUp(fNextBufferOffset, 256);
 
-    return fBufferState.fAllocation;
+    return fCurrentSharedBuffer;
+}
+
+void GrMtlResourceProvider::processRecycledResources() {
+    SkAutoMutexAcquire autoMutexAcquire(fMutex);
+    for (int i = 0; i < fRecyclingBuffers.count(); ++i) {
+        fAvailableBuffers.push_back() = fRecyclingBuffers[i];
+    }
+    fRecyclingBuffers.reset();
+}
+
+void GrMtlResourceProvider::recycleBuffer(id<MTLBuffer> buffer) {
+    if (!buffer) {
+        return;
+    }
+    SkAutoMutexAcquire autoMutexAcquire(fMutex);
+    fRecyclingBuffers.push_back() = buffer;
 }

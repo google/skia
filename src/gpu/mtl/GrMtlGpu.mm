@@ -168,6 +168,11 @@ GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
 
 void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     if (fCmdBuffer) {
+        __block GrMtlResourceProvider* resourceProvider = &this->resourceProvider();
+        fCmdBuffer->addCompletedHandler(^(id <MTLCommandBuffer>commandBuffer) {
+            resourceProvider->processRecycledResources();
+        });
+
         fCmdBuffer->commit(SyncQueue::kForce_SyncQueue == sync);
         delete fCmdBuffer;
         fCmdBuffer = nullptr;

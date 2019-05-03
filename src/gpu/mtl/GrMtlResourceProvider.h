@@ -18,6 +18,7 @@
 #import <metal/metal.h>
 
 class GrMtlGpu;
+class GrMtlCommandBuffer;
 
 class GrMtlResourceProvider {
 public:
@@ -43,6 +44,8 @@ public:
     GrMtlSampler* findOrCreateCompatibleSampler(const GrSamplerState&, uint32_t maxMipLevel);
 
     id<MTLBuffer> getDynamicBuffer(size_t size, size_t* offset);
+    void recycleBuffer(id<MTLBuffer>);
+    void processRecycledResources();
 
 private:
 #ifdef SK_DEBUG
@@ -96,12 +99,11 @@ private:
     SkTDynamicHash<GrMtlDepthStencil, GrMtlDepthStencil::Key> fDepthStencilStates;
 
     // Buffer state
-    struct BufferState {
-        id<MTLBuffer> fAllocation;
-        size_t        fAllocationSize;
-        size_t        fNextOffset;
-    };
-    BufferState fBufferState;
+    id<MTLBuffer>                  fCurrentSharedBuffer;
+    size_t                         fNextBufferOffset;
+    SkTArray<id<MTLBuffer>>        fRecyclingBuffers;
+    SkTArray<id<MTLBuffer>>        fAvailableBuffers;
+    SkMutex                        fMutex;
 };
 
 #endif
