@@ -56,7 +56,8 @@ private:
                                  GrGLuint programId,
                                  GrGLenum type,
                                  SkTDArray<GrGLuint>* shaderIds,
-                                 const SkSL::Program::Inputs& inputs);
+                                 const SkSL::Program::Inputs& inputs,
+                                 GrContextOptions::ShaderErrorHandler* errorHandler);
 
     void computeCountsAndStrides(GrGLuint programID, const GrPrimitiveProcessor& primProc,
                                  bool bindAttribLocations);
@@ -64,7 +65,8 @@ private:
                             const SkSL::String shaders[], bool isSkSL);
     GrGLProgram* finalize();
     void bindProgramResourceLocations(GrGLuint programID);
-    bool checkLinkStatus(GrGLuint programID);
+    bool checkLinkStatus(GrGLuint programID, GrContextOptions::ShaderErrorHandler* errorHandler,
+                         SkSL::String* sksl[], const SkSL::String glsl[]);
     void resolveProgramResourceLocations(GrGLuint programID);
     void cleanupProgram(GrGLuint programID, const SkTDArray<GrGLuint>& shaderIDs);
     void cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs);

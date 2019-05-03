@@ -32,15 +32,14 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context,
                                             SkSL::Program::Kind programKind,
                                             const SkSL::String& sksl,
                                             const SkSL::Program::Settings& settings,
-                                            SkSL::String* glsl) {
+                                            SkSL::String* glsl,
+                                            GrContextOptions::ShaderErrorHandler* errorHandler) {
     SkSL::Compiler* compiler = context.compiler();
     std::unique_ptr<SkSL::Program> program;
     program = compiler->convertProgram(programKind, sksl, settings);
     if (!program || !compiler->toGLSL(*program, glsl)) {
-        SkDebugf("SKSL compilation error\n----------------------\n");
-        GrShaderUtils::PrintLineByLine("SKSL:", sksl);
-        SkDebugf("\nErrors:\n%s\n", compiler->errorText().c_str());
-        SkDEBUGFAIL("SKSL compilation failed!\n");
+        errorHandler->compileError(GrShaderUtils::PrettyPrint(sksl).c_str(),
+                                   compiler->errorText().c_str());
         return nullptr;
     }
 
@@ -62,7 +61,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLenum type,
                                     const SkSL::String& glsl,
                                     GrGpu::Stats* stats,
-                                    bool assertOnFailure) {
+                                    GrContextOptions::ShaderErrorHandler* errorHandler) {
     const GrGLInterface* gli = glCtx.interface();
 
     // Specify GLSL source to the driver.
@@ -88,8 +87,6 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
         GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_COMPILE_STATUS, &compiled));
 
         if (!compiled) {
-            SkDebugf("GLSL compilation error\n----------------------\n");
-            GrShaderUtils::PrintLineByLine("GLSL:", glsl);
             GrGLint infoLen = GR_GL_INIT_ZERO;
             GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_INFO_LOG_LENGTH, &infoLen));
             SkAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
@@ -98,13 +95,8 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                 // buffer param validation.
                 GrGLsizei length = GR_GL_INIT_ZERO;
                 GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1, &length, (char*)log.get()));
-                SkDebugf("Errors:\n%s\n", (const char*) log.get());
             }
-            // In Chrome we may have failed due to context-loss. So we should just continue along
-            // wihthout asserting until the GrContext gets abandoned.
-            if (assertOnFailure && kChromium_GrGLDriver != glCtx.driver()) {
-                SkDEBUGFAIL("GLSL compilation failed!");
-            }
+            errorHandler->compileError(glsl.c_str(), infoLen > 0 ? (const char*)log.get() : "");
             GR_GL_CALL(gli, DeleteShader(shaderId));
             return 0;
         }
@@ -116,14 +108,4 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     // attached to a program, which then causes glLinkProgram to fail.
     GR_GL_CALL(gli, AttachShader(programId, shaderId));
     return shaderId;
-}
-
-void GrGLPrintShader(const GrGLContext& context, SkSL::Program::Kind programKind,
-                     const SkSL::String& sksl, const SkSL::Program::Settings& settings) {
-    print_shader_banner(programKind);
-    GrShaderUtils::PrintLineByLine("SKSL:", sksl);
-    SkSL::String glsl;
-    if (GrSkSLtoGLSL(context, programKind, sksl, settings, &glsl)) {
-        GrShaderUtils::PrintLineByLine("GLSL:", glsl);
-    }
 }

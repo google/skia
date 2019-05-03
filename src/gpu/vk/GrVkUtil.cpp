@@ -7,6 +7,7 @@
 
 #include "src/gpu/vk/GrVkUtil.h"
 
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/sksl/SkSLCompiler.h"
 
@@ -207,16 +208,18 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
                              const SkSL::Program::Settings& settings,
                              SkSL::String* outSPIRV,
                              SkSL::Program::Inputs* outInputs) {
+    auto errorHandler = gpu->getContext()->priv().getShaderErrorHandler();
     std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(
             vk_shader_stage_to_skiasl_kind(stage), shaderString, settings);
     if (!program) {
-        printf("%s\n", shaderString.c_str());
-        SkDebugf("SkSL error:\n%s\n", gpu->shaderCompiler()->errorText().c_str());
-        SkASSERT(false);
+        errorHandler->compileError(shaderString.c_str(),
+                                   gpu->shaderCompiler()->errorText().c_str());
+        return false;
     }
     *outInputs = program->fInputs;
     if (!gpu->shaderCompiler()->toSPIRV(*program, outSPIRV)) {
-        SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
+        errorHandler->compileError(shaderString.c_str(),
+                                   gpu->shaderCompiler()->errorText().c_str());
         return false;
     }
 

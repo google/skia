@@ -253,6 +253,9 @@ public:
     void copyOpListsFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
 
     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
+    GrContextOptions::ShaderErrorHandler* getShaderErrorHandler() const {
+        return fContext->fShaderErrorHandler;
+    }
 
 #ifdef SK_ENABLE_DUMP_GPU
     /** Returns a string with detailed information about the context & GPU, in JSON format. */

@@ -21,6 +21,7 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
@@ -92,6 +93,10 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     }
 
     fPersistentCache = this->options().fPersistentCache;
+    fShaderErrorHandler = this->options().fShaderErrorHandler;
+    if (!fShaderErrorHandler) {
+        fShaderErrorHandler = GrShaderUtils::DefaultShaderErrorHandler();
+    }
 
     return true;
 }
