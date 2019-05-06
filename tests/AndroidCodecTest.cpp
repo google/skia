@@ -9,6 +9,7 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImageGenerator.h"
@@ -17,13 +18,16 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/third_party/skcms/skcms.h"
 #include "src/codec/SkCodecImageGenerator.h"
 #include "src/core/SkPixmapPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
-#include <algorithm>
+#include <string.h>
+#include <initializer_list>
 #include <memory>
+#include <utility>
 
 static SkISize times(const SkISize& size, float factor) {
     return { (int) (size.width() * factor), (int) (size.height() * factor) };

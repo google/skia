@@ -5,20 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
 #include "include/private/GrTextureProxy.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkIPoint16.h"
+#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrDrawOpAtlas.h"
@@ -27,16 +30,16 @@
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/ops/GrOp.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrTextContext.h"
-#include "src/gpu/text/GrTextTarget.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
 #include <memory>
+#include <utility>
 
 class GrResourceProvider;
 

@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
+#include "include/core/SkDocument.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -89,7 +90,6 @@ DEF_TEST(Annotation_PdfDefineNamedDestination, reporter) {
 
 #if defined(SK_XML)
     #include "include/svg/SkSVGCanvas.h"
-    #include "src/xml/SkXMLWriter.h"
 
     DEF_TEST(Annotation_SvgLink, reporter) {
         SkDynamicMemoryWStream outStream;

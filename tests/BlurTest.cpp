@@ -20,6 +20,7 @@
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
@@ -35,16 +36,17 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMathPriv.h"
-#include "src/core/SkRectPriv.h"
 #include "src/effects/SkEmbossMaskFilter.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
-
 #include "tools/gpu/GrContextFactory.h"
 
 #include <math.h>
 #include <string.h>
+#include <initializer_list>
 #include <utility>
+
+class GrContext;
 
 #define WRITE_CSV 0
 

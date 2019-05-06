@@ -15,6 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkMatrixUtils.h"

@@ -24,8 +24,9 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-#include <algorithm>
+#include <initializer_list>
 #include <memory>
+#include <utility>
 #include <vector>
 
 DEF_TEST(AnimatedImage_scaled, r) {

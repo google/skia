@@ -14,6 +14,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
@@ -30,6 +31,7 @@
 #include "include/encode/SkWebpEncoder.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
+#include "include/third_party/skcms/skcms.h"
 #include "include/utils/SkFrontBufferedStream.h"
 #include "include/utils/SkRandom.h"
 #include "src/codec/SkCodecImageGenerator.h"
@@ -42,10 +44,12 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+
 #include "png.h"
 
 #include <setjmp.h>
 #include <cstring>
+#include <initializer_list>
 #include <memory>
 #include <utility>
 #include <vector>

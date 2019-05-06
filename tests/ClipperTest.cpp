@@ -157,8 +157,6 @@ DEF_TEST(Clipper, reporter) {
     test_hairclipping(reporter);
 }
 
-#include "src/core/SkLineClipper.h"
-
 DEF_TEST(LineClipper_skbug_7981, r) {
     SkPoint src[] = {{ -5.77698802E+17f, -1.81758057E+23f}, {38127, 2}};
     SkPoint dst[2];

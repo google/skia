@@ -6,7 +6,10 @@
  */
 
 #include "include/core/SkCubicMap.h"
-#include "include/utils/SkRandom.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkNx.h"
 #include "src/core/SkGeometry.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "tests/Test.h"
