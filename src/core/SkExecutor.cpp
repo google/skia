@@ -37,14 +37,24 @@ class SkTrivialExecutor final : public SkExecutor {
     }
 };
 
-static SkTrivialExecutor gTrivial;
-static SkExecutor* gDefaultExecutor = &gTrivial;
+static SkExecutor* gDefaultExecutor = nullptr;
 
+void SetDefaultTrivialExecutor() {
+    static SkTrivialExecutor *gTrivial = new SkTrivialExecutor();
+    gDefaultExecutor = gTrivial;
+}
 SkExecutor& SkExecutor::GetDefault() {
+    if (!gDefaultExecutor) {
+        SetDefaultTrivialExecutor();
+    }
     return *gDefaultExecutor;
 }
 void SkExecutor::SetDefault(SkExecutor* executor) {
-    gDefaultExecutor = executor ? executor : &gTrivial;
+    if (executor) {
+        gDefaultExecutor = executor;
+    } else {
+        SetDefaultTrivialExecutor();
+    }
 }
 
 // We'll always push_back() new work, but pop from the front of deques or the back of SkTArray.
