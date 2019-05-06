@@ -104,19 +104,17 @@ public:
 
     void submit(GrGpuCommandBuffer* buffer) override;
 
-    GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
-    bool waitFence(GrFence, uint64_t) override { return true; }
-    void deleteFence(GrFence) const override {}
+    GrFence SK_WARN_UNUSED_RESULT insertFence() override;
+    bool waitFence(GrFence, uint64_t) override;
+    void deleteFence(GrFence) const override;
 
-    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override {
-        return nullptr;
-    }
+    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
     sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
                                             GrResourceProvider::SemaphoreWrapType wrapType,
-                                            GrWrapOwnership ownership) override { return nullptr; }
-    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override {}
-    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
-    sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
+                                            GrWrapOwnership ownership) override;
+    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override;
+    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
+    sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
     // When the Metal backend actually uses indirect command buffers, this function will actually do
     // what it says. For now, every command is encoded directly into the primary command buffer, so
