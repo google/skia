@@ -440,7 +440,8 @@ public:
                 for (int i = 0; i < active_pixels; i++) {
                     ctx->interpreter->run(*ctx->main,
                                           (SkSL::Interpreter::Value*) (ctx->rgba + i * 4),
-                                          (SkSL::Interpreter::Value*) ctx->inputs);
+                                          (SkSL::Interpreter::Value*) ctx->inputs,
+                                          nullptr);
                 }
             };
             rec.fPipeline->append(SkRasterPipeline::callback, ctx);

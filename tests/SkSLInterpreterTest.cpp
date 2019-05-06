@@ -27,7 +27,9 @@ void test(skiatest::Reporter* r, const char* src, SkSL::Interpreter::Value* in, 
         }
         SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
         SkSL::Interpreter interpreter(std::move(program), std::move(byteCode));
-        SkSL::Interpreter::Value* out = interpreter.run(*main, in, nullptr);
+        SkSL::Interpreter::Value* out = (SkSL::Interpreter::Value*) alloca(expectedCount *
+                                                                  sizeof(SkSL::Interpreter::Value));
+        interpreter.run(*main, in, nullptr, out);
         bool valid = !memcmp(out, expected, sizeof(SkSL::Interpreter::Value) * expectedCount);
         if (!valid) {
             printf("for program: %s\n", src);
@@ -69,7 +71,7 @@ void test(skiatest::Reporter* r, const char* src, float inR, float inG, float in
         SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
         SkSL::Interpreter interpreter(std::move(program), std::move(byteCode));
         float inoutColor[4] = { inR, inG, inB, inA };
-        interpreter.run(*main, (SkSL::Interpreter::Value*) inoutColor, nullptr);
+        interpreter.run(*main, (SkSL::Interpreter::Value*) inoutColor, nullptr, nullptr);
         if (inoutColor[0] != expectedR || inoutColor[1] != expectedG ||
             inoutColor[2] != expectedB || inoutColor[3] != expectedA) {
             printf("for program: %s\n", src);

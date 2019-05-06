@@ -102,6 +102,8 @@ struct ByteCodeFunction {
     const FunctionDeclaration& fDeclaration;
     int fParameterCount = 0;
     int fLocalCount = 0;
+    int fStackCount = 32;
+    int fReturnCount = 0;
     std::vector<uint8_t> fCode;
 };
 
