@@ -27,6 +27,7 @@ def RunSteps(api):
     repo_name = repo_name[:-len('.git')]
   with api.context(cwd=checkout_root.join(repo_name),
                    env=api.infra.go_env):
+    api.step('go build', cmd=['go', 'build', './...'])
     api.step('infra_tests', cmd=['make', '-C', 'infra/bots', 'test'])
 
 
