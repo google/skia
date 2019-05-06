@@ -47,6 +47,8 @@ public:
 
     void submit(GrGpuCommandBuffer* buffer) override;
 
+    void checkFinishProcs() override {}
+
 private:
     GrMockGpu(GrContext* context, const GrMockOptions&, const GrContextOptions&);
 
