@@ -30,6 +30,7 @@ static DEFINE_string(pr, "",
 static DEFINE_bool(disableDriverCorrectnessWorkarounds, false,
                    "Disables all GPU driver correctness workarounds");
 
+static DEFINE_bool(reduceOpListSplitting, false, "Improve opList sorting");
 static DEFINE_bool(dontReduceOpListSplitting, false, "Allow more opList splitting");
 
 
@@ -91,7 +92,10 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fGpuPathRenderers                    = collect_gpu_path_renderers_from_flags();
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
 
-    if (FLAGS_dontReduceOpListSplitting) {
+    if (FLAGS_reduceOpListSplitting) {
+        SkASSERT(!FLAGS_dontReduceOpListSplitting);
+        ctxOptions->fReduceOpListSplitting = GrContextOptions::Enable::kYes;
+    } else if (FLAGS_dontReduceOpListSplitting) {
         ctxOptions->fReduceOpListSplitting = GrContextOptions::Enable::kNo;
     }
 }
