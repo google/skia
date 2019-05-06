@@ -323,6 +323,15 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fSupportsAHardwareBufferImages = true;
 #endif
 
+    if (GR_IS_GR_GL(standard)) {
+        fDrawBuffersSupport = true;
+    } else if (GR_IS_GR_GL_ES(standard)) {
+        fDrawBuffersSupport = (version >= GR_GL_VER(3, 0)) ||
+                              ctxInfo.hasExtension("GL_EXT_draw_buffers");
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        fDrawBuffersSupport = version >= GR_GL_VER(2, 0);
+    }
+
     /**************************************************************************
     * GrShaderCaps fields
     **************************************************************************/
