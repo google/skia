@@ -13,6 +13,7 @@
 #include "include/c/sk_types.h"
 #include "tests/Test.h"
 
+#include <stddef.h>
 #include <stdint.h>
 
 static void shader_test(skiatest::Reporter* reporter) {

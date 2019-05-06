@@ -20,30 +20,32 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTemplates.h"
-#include "include/utils/SkRandom.h"
-#include "src/core/SkClipOpPriv.h"
-#include "src/core/SkClipStack.h"
-#include "tests/Test.h"
-
 #include "include/gpu/GrConfig.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTexture.h"
 #include "include/private/GrResourceKey.h"
 #include "include/private/GrTextureProxy.h"
-#include "src/gpu/GrCaps.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkClipStack.h"
+#include "src/core/SkTLList.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrClipStackClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrReducedClip.h"
 #include "src/gpu/GrResourceCache.h"
-#include "src/gpu/GrSurfaceProxyPriv.h"
+#include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
-typedef GrReducedClip::ElementList ElementList;
-typedef GrReducedClip::InitialState InitialState;
 
 #include <cstring>
+#include <initializer_list>
 #include <new>
+
+class GrCaps;
+
+typedef GrReducedClip::ElementList ElementList;
+typedef GrReducedClip::InitialState InitialState;
 
 static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     SkClipStack s;

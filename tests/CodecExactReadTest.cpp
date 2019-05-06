@@ -17,6 +17,7 @@
 #include "tools/Resources.h"
 
 #include <cstring>
+#include <initializer_list>
 #include <memory>
 #include <utility>
 

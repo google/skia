@@ -5,11 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include <initializer_list>
-#include <memory>
-#include <utility>
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkImage.h"
@@ -21,8 +19,10 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/GrRenderTargetProxy.h"
@@ -34,17 +34,16 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/SkGpuDevice.h"
-#include "src/gpu/gl/GrGLCaps.h"
 #include "src/gpu/gl/GrGLDefines.h"
-#include "src/image/SkImage_Gpu.h"
+#include "src/image/SkImage_GpuBase.h"
 #include "src/image/SkSurface_Gpu.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
-#ifdef SK_VULKAN
-#include <vulkan/vulkan_core.h>
-#endif
+
+#include <initializer_list>
+#include <memory>
+#include <utility>
 
 class SurfaceParameters {
 public:

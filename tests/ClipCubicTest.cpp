@@ -171,8 +171,6 @@ DEF_TEST(ClipCubic, reporter) {
     test_giantClip();
 }
 
-#include "include/core/SkSurface.h"
-
 DEF_TEST(test_fuzz_crbug_698714, reporter) {
     auto surface(SkSurface::MakeRasterN32Premul(500, 500));
     SkCanvas* canvas = surface->getCanvas();

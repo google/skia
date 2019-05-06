@@ -19,6 +19,7 @@
 
 #include "png.h"
 
+#include <string.h>
 #include <memory>
 #include <utility>
 

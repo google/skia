@@ -17,16 +17,17 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "tests/Test.h"
-
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTexture.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
+#include <initializer_list>
 #include <vector>
 
 struct Results { int diffs, diffs_0x00, diffs_0xff, diffs_by_1; };

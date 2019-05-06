@@ -22,7 +22,6 @@
 #include <cstdio>
 #include <cstring>
 #include <memory>
-#include <utility>
 
 static void test_is_equal(skiatest::Reporter* reporter,
                           const SkDataTable* a, const SkDataTable* b) {

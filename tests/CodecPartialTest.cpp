@@ -11,6 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkMakeUnique.h"
 #include "tests/CodecPriv.h"
@@ -19,6 +20,7 @@
 #include "tools/Resources.h"
 
 #include <cstring>
+#include <initializer_list>
 #include <memory>
 #include <utility>
 #include <vector>
