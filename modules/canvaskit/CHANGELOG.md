@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Basic `SkPicture` support. `SkSurface.captureFrameAsSkPicture` is a helper function to
    capture an `SkPicture`, which can be dumped to disk (for debugging) with
    `SkPicture.DEBUGONLY_saveAsFile`.
+ - `SkImage.readPixels`
 
 ### Changed
  - Better `GrGLCaps` support for WebGL - this shouldn't have any impacts on APIs or

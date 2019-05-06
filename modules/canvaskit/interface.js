@@ -393,6 +393,45 @@ CanvasKit.onRuntimeInitialized = function() {
     }
   }
 
+  CanvasKit.SkImage.prototype.readPixels = function(imageInfo, srcX, srcY) {
+    var rowBytes;
+    switch (imageInfo.colorType){
+      case CanvasKit.ColorType.RGBA_8888:
+        rowBytes = imageInfo.width * 4; // 1 byte per channel == 4 bytes per pixel in 8888
+        break;
+      case CanvasKit.ColorType.RGBA_F32:
+        rowBytes = imageInfo.width * 16; // 4 bytes per channel == 16 bytes per pixel in F32
+        break;
+      default:
+        SkDebug("Colortype not yet supported");
+        return;
+    }
+    var pBytes = rowBytes * imageInfo.height;
+    var pPtr = CanvasKit._malloc(pBytes);
+
+    if (!this._readPixels(imageInfo, pPtr, rowBytes, srcX, srcY)) {
+      SkDebug("Could not read pixels with the given inputs");
+      return null;
+    }
+
+    // Put those pixels into a typed array of the right format and then
+    // make a copy with slice() that we can return.
+    var retVal = null;
+    switch (imageInfo.colorType){
+      case CanvasKit.ColorType.RGBA_8888:
+        retVal = new Uint8Array(CanvasKit.buffer, pPtr, pBytes).slice();
+        break;
+      case CanvasKit.ColorType.RGBA_F32:
+        retVal = new Float32Array(CanvasKit.buffer, pPtr, pBytes).slice();
+        break;
+    }
+
+    // Free the allocated pixels in the WASM memory
+    CanvasKit._free(pPtr);
+    return retVal;
+
+  }
+
   // atlas is an SkImage, e.g. from CanvasKit.MakeImageFromEncoded
   // srcRects and dstXforms should be CanvasKit.SkRectBuilder and CanvasKit.RSXFormBuilder
   // or just arrays of floats in groups of 4.
