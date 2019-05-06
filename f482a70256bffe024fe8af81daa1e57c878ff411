@@ -34,6 +34,24 @@
       "revId": "f482a70256bffe024fe8af81daa1e57c878ff411",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd2907b6_7d0b9d48",
+        "filename": "src/core/SkExecutor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 6025
+      },
+      "writtenOn": "2019-05-06T16:59:33Z",
+      "side": 1,
+      "message": "A different approach for avoiding the global dtor would be:\n\n```\nvoid SetDTE() {\n  static SkTrivialE *gTrivial \u003d new SkTrivialE;\n  gDefE \u003d gTrivial;\n}\n```\n\nIt means it lives on the heap, but unless there\u0027s a reason for not doing that it\u0027s a bit simpler.",
+      "parentUuid": "638871bb_c5abbe87",
+      "revId": "f482a70256bffe024fe8af81daa1e57c878ff411",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
