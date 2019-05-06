@@ -68,7 +68,8 @@ SkIRect SkComposeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix&
     SkImageFilter* inner = this->getInput(1);
 
     const SkIRect innerRect = inner->filterBounds(src, ctm, dir, inputRect);
-    return outer->filterBounds(innerRect, ctm, dir, &innerRect);
+    return outer->filterBounds(innerRect, ctm, dir,
+                               kReverse_MapDirection == dir ? &innerRect : nullptr);
 }
 
 sk_sp<SkFlattenable> SkComposeImageFilter::CreateProc(SkReadBuffer& buffer) {
