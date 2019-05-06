@@ -16,6 +16,24 @@
       "revId": "f482a70256bffe024fe8af81daa1e57c878ff411",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "638871bb_c5abbe87",
+        "filename": "src/core/SkExecutor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 8160
+      },
+      "writtenOn": "2019-05-06T16:51:26Z",
+      "side": 1,
+      "message": "Unfortunately that would introduce a global destructor :(  We could get around this with base::NoDestructor, but that\u0027s not available in Skia afaik",
+      "parentUuid": "9f497f87_b94613a8",
+      "revId": "f482a70256bffe024fe8af81daa1e57c878ff411",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
