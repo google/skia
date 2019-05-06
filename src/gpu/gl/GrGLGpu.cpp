@@ -4278,15 +4278,35 @@ void GrGLGpu::onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess acc
                             const GrFlushInfo& info) {
     // If we inserted semaphores during the flush, we need to call GLFlush.
     bool insertedSemaphore = info.fNumSemaphores > 0 && this->caps()->fenceSyncSupport();
-    if (insertedSemaphore) {
-        GL_CALL(Flush());
-    }
-    if (info.fFlags & kSyncCpu_GrFlushFlag) {
+    // We call finish if the client told us to sync or if we have a finished proc but don't support
+    // GLsync objects.
+    bool finish = (info.fFlags & kSyncCpu_GrFlushFlag) ||
+                  (info.fFinishedProc && !this->caps()->fenceSyncSupport());
+    if (finish) {
         GL_CALL(Finish());
-    }
-    // TODO: We should have GL actually wait until the GPU has finished work on the GPU.
-    if (info.fFinishedProc) {
-        info.fFinishedProc(info.fFinishedContext);
+        // After a finish everything previously sent to GL is done.
+        for (const auto& cb : fFinishCallbacks) {
+            cb.fCallback(cb.fContext);
+            this->deleteSync(cb.fSync);
+        }
+        fFinishCallbacks.clear();
+        if (info.fFinishedProc) {
+            info.fFinishedProc(info.fFinishedContext);
+        }
+    } else {
+        if (info.fFinishedProc) {
+            FinishCallback callback;
+            callback.fCallback = info.fFinishedProc;
+            callback.fContext = info.fFinishedContext;
+            callback.fSync = (GrGLsync)this->insertFence();
+            fFinishCallbacks.push_back(callback);
+            GL_CALL(Flush());
+        } else if (insertedSemaphore) {
+            // Must call flush after semaphores in case they are waited on another GL context.
+            GL_CALL(Flush());
+        }
+        // See if any previously inserted finish procs are good to go.
+        this->checkFinishProcs();
     }
 }
 
@@ -4308,10 +4328,15 @@ GrFence SK_WARN_UNUSED_RESULT GrGLGpu::insertFence() {
     return (GrFence)sync;
 }
 
-bool GrGLGpu::waitFence(GrFence fence, uint64_t timeout) {
+bool GrGLGpu::waitSync(GrGLsync sync, uint64_t timeout, bool flush) {
+    GrGLbitfield flags = flush ? GR_GL_SYNC_FLUSH_COMMANDS_BIT : 0;
     GrGLenum result;
-    GL_CALL_RET(result, ClientWaitSync((GrGLsync)fence, GR_GL_SYNC_FLUSH_COMMANDS_BIT, timeout));
-    return (GR_GL_CONDITION_SATISFIED == result);
+    GL_CALL_RET(result, ClientWaitSync(sync, flags, timeout));
+    return (GR_GL_CONDITION_SATISFIED == result || GR_GL_ALREADY_SIGNALED == result);
+}
+
+bool GrGLGpu::waitFence(GrFence fence, uint64_t timeout) {
+    return this->waitSync((GrGLsync)fence, timeout, /* flush = */ true);
 }
 
 void GrGLGpu::deleteFence(GrFence fence) const {
@@ -4342,6 +4367,16 @@ void GrGLGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
     GrGLSemaphore* glSem = static_cast<GrGLSemaphore*>(semaphore.get());
 
     GL_CALL(WaitSync(glSem->sync(), 0, GR_GL_TIMEOUT_IGNORED));
+}
+
+void GrGLGpu::checkFinishProcs() {
+    // Bail after the first unfinished sync since we expect they signal in the order inserted.
+    while (!fFinishCallbacks.empty() && this->waitSync(fFinishCallbacks.front().fSync,
+                                                       /* timeout = */ 0, /* flush  = */ false)) {
+        fFinishCallbacks.front().fCallback(fFinishCallbacks.front().fContext);
+        this->deleteSync(fFinishCallbacks.front().fSync);
+        fFinishCallbacks.pop_front();
+    }
 }
 
 void GrGLGpu::deleteSync(GrGLsync sync) const {

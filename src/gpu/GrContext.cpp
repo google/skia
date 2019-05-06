@@ -270,6 +270,14 @@ GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void GrContext::checkAsyncWorkCompletion() {
+    if (fGpu) {
+        fGpu->checkFinishProcs();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void GrContext::storeVkPipelineCacheData() {
     if (fGpu) {
         fGpu->storeVkPipelineCacheData();

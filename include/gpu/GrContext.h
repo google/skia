@@ -296,6 +296,11 @@ public:
         return this->flush(info);
     }
 
+    /**
+     * Checks whether any asynchronous work is complete and if so calls related callbacks.
+     */
+    void checkAsyncWorkCompletion();
+
     // Provides access to functions that aren't part of the public API.
     GrContextPriv priv();
     const GrContextPriv priv() const;
