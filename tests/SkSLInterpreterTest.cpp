@@ -27,7 +27,9 @@ void test(skiatest::Reporter* r, const char* src, SkSL::Interpreter::Value* in, 
         }
         SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
         SkSL::Interpreter interpreter(std::move(program), std::move(byteCode));
-        SkSL::Interpreter::Value* out = interpreter.run(*main, in, nullptr);
+        SkSL::Interpreter::Value* out = (SkSL::Interpreter::Value*) alloca(expectedCount *
+                                                                  sizeof(SkSL::Interpreter::Value));
+        interpreter.run(*main, in, out);
         bool valid = !memcmp(out, expected, sizeof(SkSL::Interpreter::Value) * expectedCount);
         if (!valid) {
             printf("for program: %s\n", src);
