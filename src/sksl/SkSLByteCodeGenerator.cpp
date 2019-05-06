@@ -61,6 +61,10 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
     this->write8(0);
     result->fParameterCount = fParameterCount;
     result->fLocalCount = fLocals.size();
+    const Type& returnType = f.fDeclaration.fReturnType;
+    if (returnType != *fContext.fVoid_Type) {
+        result->fReturnCount = returnType.columns() * returnType.rows();
+    }
     fLocals.clear();
     fFunction = nullptr;
     return result;
