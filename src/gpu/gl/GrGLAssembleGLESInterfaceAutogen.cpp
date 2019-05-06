@@ -187,11 +187,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
 
     if (glVer >= GR_GL_VER(3,0)) {
         GET_PROC(DrawBuffers);
-    } else if (extensions.has("GL_EXT_draw_buffers")) {
-        GET_PROC_SUFFIX(DrawBuffers, EXT);
-    }
-
-    if (glVer >= GR_GL_VER(3,0)) {
         GET_PROC(ReadBuffer);
     }
 

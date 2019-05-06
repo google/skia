@@ -137,21 +137,11 @@
   },
   { // ES 3.0 has glDrawBuffers but not glDrawBuffer
     "GL":    [{"ext": "<core>"}],
-    "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
-              {/*    else if      */  "ext": "GL_EXT_draw_buffers"}],
-    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
-
-    "functions": [
-      "DrawBuffers",
-    ]
-  },
-  { // ES 2.0 w/GL_EXT_draw_buffers has glDrawBuffers but not glReadBuffer
-    "GL":    [{"ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
     "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
-      "ReadBuffer",
+      "DrawBuffers", "ReadBuffer",
     ]
   },
 

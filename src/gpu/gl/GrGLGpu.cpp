@@ -3124,22 +3124,13 @@ void GrGLGpu::onResetTextureBindings() {
 void GrGLGpu::flushColorWrite(bool writeColor) {
     if (!writeColor) {
         if (kNo_TriState != fHWWriteToColor) {
-            if (this->glCaps().drawBuffersSupport()) {
-                const GrGLenum drawBuffer = GR_GL_NONE;
-                GL_CALL(DrawBuffers(1, &drawBuffer));
-            } else {
-                GL_CALL(ColorMask(GR_GL_FALSE, GR_GL_FALSE, GR_GL_FALSE, GR_GL_FALSE));
-            }
+            GL_CALL(ColorMask(GR_GL_FALSE, GR_GL_FALSE,
+                              GR_GL_FALSE, GR_GL_FALSE));
             fHWWriteToColor = kNo_TriState;
         }
     } else {
         if (kYes_TriState != fHWWriteToColor) {
-            if (this->glCaps().drawBuffersSupport()) {
-                const GrGLenum drawBuffer = GR_GL_COLOR_ATTACHMENT0;
-                GL_CALL(DrawBuffers(1, &drawBuffer));
-            } else {
-                GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
-            }
+            GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
             fHWWriteToColor = kYes_TriState;
         }
     }
