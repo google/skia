@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>In-Browser Greyscale converter</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/canvaskit-wasm@0.6.0/bin/canvaskit.js"></script>
+  <script type="text/javascript" src="/impl/impl.js"></script>
+  <style>
+    canvas {
+      border: 1px dashed black;
+      width: 400px;
+      height: 400px;
+    }
+    #original {
+      display:none;
+    }
+  </style>
+
+<body>
+   <input type=file name=file id=file @change=${ele._onFileChange}/>
+   <canvas id=original></canvas>
+
+   <canvas id=grey></canvas>
+
+  <script type="text/javascript" charset="utf-8">
+    loadPolyfill().then(() => {
+      function drawImageAndGreyscaleImg(imgData) {
+        const gCanvas = document.querySelector('#grey');
+        gCanvas.width = imgData.width;
+        gCanvas.height = imgData.height;
+        const gCtx = gCanvas.getContext('2d');
+
+        const pixels = imgData.data;
+
+        for (let y = 0; y < imgData.height; y++) {
+          for (let x = 0; x < imgData.width; x++) {
+            const offset = 4*(x + imgData.width*y)
+            const r = pixels[offset], g = pixels[offset + 1], b = pixels[offset + 2];
+            const grey = (r + g + b)/3;
+            pixels[offset    ] = grey;
+            pixels[offset + 1] = grey;
+            pixels[offset + 2] = grey;
+          }
+        }
+
+        const greyData = new ImageData(pixels, imgData.width, imgData.height);
+
+        gCtx.putImageData(greyData, 0, 0);
+      }
+      document.querySelector('#file').addEventListener('change', (e) => {
+        const blobToLoad = e.target.files[0];
+        // A browser implementation would be able to directly take the blob
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+          const bytes = reader.result;
+          const imgData = window.createImageData(bytes, {
+            // Specify the destination properties, that is, what format to translate
+            // the pixels in the image to.
+            pixelWidth: "uint8",
+            premul: true,
+            colorSpace: "srgb",
+          });
+          requestAnimationFrame(() => {
+            drawImageAndGreyscaleImg(imgData);
+          });
+        });
+        reader.addEventListener('error', () => {
+          console.error('Failed to load '+ blobToLoad.name);
+        });
+        reader.readAsArrayBuffer(blobToLoad);
+      });
+    });
+
+  </script>
+<body>
+</html>
