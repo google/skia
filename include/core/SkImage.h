@@ -763,7 +763,7 @@ public:
         and does not exceed SkImage (width(), height()).
 
         dstInfo specifies width, height, SkColorType, SkAlphaType, and SkColorSpace of
-        destination. dstRowBytes specifics the gap from one destination row to the next.
+        destination. dstRowBytes specifies the gap from one destination row to the next.
         Returns true if pixels are copied. Returns false if:
         - dstInfo.addr() equals nullptr
         - dstRowBytes is less than dstInfo.minRowBytes()

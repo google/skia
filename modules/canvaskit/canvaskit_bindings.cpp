@@ -932,6 +932,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkMatrix localMatrix = toSkMatrix(lm);
 
             return self->makeShader(tx, ty, &localMatrix);
+        }), allow_raw_pointers())
+        .function("_readPixels", optional_override([](sk_sp<SkImage> self,
+                                 SimpleImageInfo sii, uintptr_t /* uint8_t*  */ pPtr,
+                                 size_t dstRowBytes, int srcX, int srcY)->bool {
+                                    // See comment above for uintptr_t explanation
+            uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
+            SkImageInfo ii = toSkImageInfo(sii);
+
+            return self->readPixels(ii, pixels, dstRowBytes, srcX, srcY);
         }), allow_raw_pointers());
 
     class_<SkMaskFilter>("SkMaskFilter")

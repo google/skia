@@ -41,8 +41,9 @@
       for (let y = 0; y < img.height; y++) {
         for (let x = 0; x < img.width; x++) {
           const offset = 4*(x + img.width*y)
-          const r = pixels[offset], g = pixels[offset + 1], b = pixels[offset + 2];
-          const grey = (r + g + b)/3;
+          const r = pixels[offset], g = pixels[offset + 1],
+                b = pixels[offset + 2], a = pixels[offset + 3];
+          const grey = a*(r + g + b)/3;
           pixels[offset    ] = grey;
           pixels[offset + 1] = grey;
           pixels[offset + 2] = grey;
