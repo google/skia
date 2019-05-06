@@ -141,7 +141,6 @@
   "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All",
   "Calmbench-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
   "Housekeeper-Nightly-RecreateSKPs_Canary",
-  "Housekeeper-Nightly-UpdateGoDEPS",
   "Housekeeper-OnDemand-Presubmit",
   "Housekeeper-PerCommit",
   "Housekeeper-PerCommit-BundleRecipes",
