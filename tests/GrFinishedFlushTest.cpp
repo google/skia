@@ -7,6 +7,7 @@
 
 #include "tests/Test.h"
 
+#include <chrono>
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrContextPriv.h"
@@ -17,6 +18,21 @@ using namespace sk_gpu_test;
 static void testing_finished_proc(void* ctx) {
     int* count = (int*)ctx;
     *count += 1;
+}
+
+static void busy_wait_for_callback(int* count, int expectedValue, GrContext* ctx,
+                                   skiatest::Reporter* reporter) {
+    // Busy waiting should detect that the work is done.
+    auto begin = std::chrono::steady_clock::now();
+    auto end = begin;
+    do {
+        ctx->checkAsyncWorkCompletion();
+        end = std::chrono::steady_clock::now();
+    } while (*count != expectedValue && (end - begin) < std::chrono::seconds(1));
+    if (*count != expectedValue) {
+        ERRORF(reporter, "Expected count failed to reach %d within 1 second of busy waiting.",
+               expectedValue);
+    }
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
@@ -39,17 +55,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     GrFlushInfo flushInfoFinishedProc;
     flushInfoFinishedProc.fFinishedProc = testing_finished_proc;
     flushInfoFinishedProc.fFinishedContext = (void*)&count;
-    // There is no work on the surface so flushing should immediately call the finished proc.
+    // There is no work on the surface so flushing may immediately call the finished proc.
     surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfoFinishedProc);
-
-    REPORTER_ASSERT(reporter, count == 1);
+    REPORTER_ASSERT(reporter, count == 0 || count == 1);
+    // Busy waiting should detect that the work is done.
+    busy_wait_for_callback(&count, 1, ctx, reporter);
 
     canvas->clear(SK_ColorRED);
 
     surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfoFinishedProc);
 
-    bool isVulkan = ctx->backend() == GrBackendApi::kVulkan;
-    if (isVulkan) {
+    bool expectAsyncCallback =
+            ctx->backend() == GrBackendApi::kVulkan ||
+            ((ctx->backend() == GrBackendApi::kOpenGL) && ctx->priv().caps()->fenceSyncSupport());
+    if (expectAsyncCallback) {
         // On Vulkan the command buffer we just submitted may or may not have finished immediately
         // so the finish proc may not have been called.
         REPORTER_ASSERT(reporter, count == 1 || count == 2);
@@ -62,7 +81,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     // Test flushing via the GrContext
     canvas->clear(SK_ColorBLUE);
     ctx->flush(flushInfoFinishedProc);
-    if (isVulkan) {
+    if (expectAsyncCallback) {
         // On Vulkan the command buffer we just submitted may or may not have finished immediately
         // so the finish proc may not have been called.
         REPORTER_ASSERT(reporter, count == 2 || count == 3);
@@ -72,9 +91,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     ctx->flush(flushInfoSyncCpu);
     REPORTER_ASSERT(reporter, count == 3);
 
-    // There is no work on the surface so flushing should immediately call the finished proc.
+    // There is no work on the surface so flushing may immediately call the finished proc.
     ctx->flush(flushInfoFinishedProc);
-    REPORTER_ASSERT(reporter, count == 4);
+    REPORTER_ASSERT(reporter, count == 3 || count == 4);
+    busy_wait_for_callback(&count, 4, ctx, reporter);
 
     count = 0;
     int count2 = 0;
@@ -84,8 +104,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     // finished call from this proc isn't called till the previous surface flush also is finished.
     flushInfoFinishedProc.fFinishedContext = (void*)&count2;
     ctx->flush(flushInfoFinishedProc);
-
-    REPORTER_ASSERT(reporter, count == count2);
+    REPORTER_ASSERT(reporter, count <= 1 && count2 <= count);
 
     ctx->flush(flushInfoSyncCpu);
 
