@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f497f87_b94613a8",
+        "filename": "src/core/SkExecutor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-06T14:44:37Z",
+      "side": 1,
+      "message": "could this not just be:\n\nvoid SetDefaultTrivialExecutor() {\n    static SkTrivialExecutor gTrivial;\n    gDefaultExecutor \u003d \u0026gTrivial;\n}\n\n?",
+      "revId": "f482a70256bffe024fe8af81daa1e57c878ff411",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
