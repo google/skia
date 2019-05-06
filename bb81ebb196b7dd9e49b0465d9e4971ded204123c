@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f63524aa_74f3c464",
+        "filename": "tests/GrFinishedFlushTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-06T20:39:02Z",
+      "side": 1,
+      "message": "Greg, wanted to call out to you that I changed this expectation. AFAICT no one is depending on the current behavior. It\u0027d be somewhat complicated to make this work with GL while also maintaining the current contract requirement that all previous flushes have also completed.",
+      "range": {
+        "startLine": 58,
+        "startChar": 1,
+        "endLine": 62,
+        "endChar": 53
+      },
+      "revId": "bb81ebb196b7dd9e49b0465d9e4971ded204123c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
