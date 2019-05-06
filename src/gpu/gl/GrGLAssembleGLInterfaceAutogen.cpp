@@ -194,7 +194,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     }
 
     GET_PROC(DrawBuffers);
-
     GET_PROC(ReadBuffer);
 
     if (glVer >= GR_GL_VER(4,0)) {

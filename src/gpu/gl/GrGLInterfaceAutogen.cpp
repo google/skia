@@ -220,21 +220,11 @@ bool GrGLInterface::validate() const {
 
     if (GR_IS_GR_GL(fStandard) ||
        (GR_IS_GR_GL_ES(fStandard) && (
-          (glVer >= GR_GL_VER(3,0)) ||
-          fExtensions.has("GL_EXT_draw_buffers"))) ||
-       (GR_IS_GR_WEBGL(fStandard) && (
-          (glVer >= GR_GL_VER(2,0))))) {
-        if (!fFunctions.fDrawBuffers) {
-            RETURN_FALSE_INTERFACE;
-        }
-    }
-
-    if (GR_IS_GR_GL(fStandard) ||
-       (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)))) ||
        (GR_IS_GR_WEBGL(fStandard) && (
           (glVer >= GR_GL_VER(2,0))))) {
-        if (!fFunctions.fReadBuffer) {
+        if (!fFunctions.fDrawBuffers ||
+            !fFunctions.fReadBuffer) {
             RETURN_FALSE_INTERFACE;
         }
     }

@@ -169,9 +169,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
 
     if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(DrawBuffers);
-    }
-
-    if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(ReadBuffer);
     }
 
