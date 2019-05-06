@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.6.0] - 2019-05-06
+
 ### Added
  - `SkSurface.grContext` now exposed. `GrContext` has new methods for monitoring/setting
    the cache limits; tweaking these may lead to better performance in some cases.
