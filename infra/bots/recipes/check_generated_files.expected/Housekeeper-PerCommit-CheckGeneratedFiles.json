@@ -132,9 +132,9 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "GOCACHE": "[START_DIR]/cache/go_cache",
-      "GOPATH": "[START_DIR]/go_deps",
+      "GOPATH": "[START_DIR]/cache/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps/bin:<PATH>"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/cache/gopath/bin:<PATH>"
     },
     "name": "generate gl interfaces"
   },

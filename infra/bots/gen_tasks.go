@@ -32,7 +32,6 @@ import (
 const (
 	BUNDLE_RECIPES_NAME        = "Housekeeper-PerCommit-BundleRecipes"
 	ISOLATE_GCLOUD_LINUX_NAME  = "Housekeeper-PerCommit-IsolateGCloudLinux"
-	ISOLATE_GO_DEPS_NAME       = "Housekeeper-PerCommit-IsolateGoDeps"
 	ISOLATE_SKIMAGE_NAME       = "Housekeeper-PerCommit-IsolateSkImage"
 	ISOLATE_SKP_NAME           = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME           = "Housekeeper-PerCommit-IsolateSVG"
@@ -127,6 +126,10 @@ var (
 		&specs.Cache{
 			Name: "go_cache",
 			Path: "cache/go_cache",
+		},
+		&specs.Cache{
+			Name: "gopath",
+			Path: "cache/gopath",
 		},
 	}
 	CACHES_WORKDIR = []*specs.Cache{
@@ -708,10 +711,6 @@ var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
 		cipdPkg: "gcloud_linux",
 		path:    "gcloud_linux",
 	},
-	ISOLATE_GO_DEPS_NAME: {
-		cipdPkg: "go_deps",
-		path:    "go_deps",
-	},
 	ISOLATE_SKIMAGE_NAME: {
 		cipdPkg: "skimage",
 		path:    "skimage",
@@ -787,11 +786,9 @@ func usesGit(t *specs.TaskSpec, name string) {
 
 // usesGo adds attributes to tasks which use go. Recipes should use
 // "with api.context(env=api.infra.go_env)".
-// (Not needed for tasks that just want to run Go code from the infra repo -- instead use go_deps.)
 func usesGo(b *specs.TasksCfgBuilder, t *specs.TaskSpec) {
 	t.Caches = append(t.Caches, CACHES_GO...)
 	t.CipdPackages = append(t.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
-	t.Dependencies = append(t.Dependencies, isolateCIPDAsset(b, ISOLATE_GO_DEPS_NAME))
 }
 
 // usesDocker adds attributes to tasks which use docker.
@@ -937,18 +934,6 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	usesGo(b, task)
 	timeout(task, 4*time.Hour)
-	b.MustAddTask(name, task)
-	return name
-}
-
-// updateGoDEPS generates an UpdateGoDEPS task. Returns the name of the last
-// task in the generated chain of tasks, which the Job should add as a
-// dependency.
-func updateGoDEPS(b *specs.TasksCfgBuilder, name string) string {
-	dims := linuxGceDimensions(MACHINE_TYPE_LARGE)
-	task := kitchenTask(name, "update_go_deps", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPDATE_GO_DEPS, dims, nil, OUTPUT_NONE)
-	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
-	usesGo(b, task)
 	b.MustAddTask(name, task)
 	return name
 }
@@ -1277,11 +1262,6 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	// RecreateSKPs.
 	if strings.Contains(name, "RecreateSKPs") {
 		deps = append(deps, recreateSKPs(b, name))
-	}
-
-	// Update Go DEPS.
-	if strings.Contains(name, "UpdateGoDEPS") {
-		deps = append(deps, updateGoDEPS(b, name))
 	}
 
 	// Infra tests.
