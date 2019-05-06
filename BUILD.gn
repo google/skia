@@ -9,6 +9,7 @@ import("gn/shared_sources.gni")
 import("gn/skia.gni")
 
 if (is_fuchsia) {
+  import("//build/fuchsia/sdk.gni")
   import("//build/vulkan/config.gni")
 }
 
@@ -406,9 +407,13 @@ optional("fontmgr_fontconfig") {
 optional("fontmgr_fuchsia") {
   enabled = skia_enable_fontmgr_fuchsia
 
-  deps = [
-    "//sdk/fidl/fuchsia.fonts",
-  ]
+  deps = []
+
+  if (is_fuchsia && using_fuchsia_sdk) {
+    deps += [ "$fuchsia_sdk_root/fidl:fuchsia.fonts" ]
+  } else {
+    deps += [ "//sdk/fidl/fuchsia.fonts" ]
+  }
   sources = [
     "src/ports/SkFontMgr_fuchsia.cpp",
     "src/ports/SkFontMgr_fuchsia.h",
@@ -626,8 +631,12 @@ optional("gpu") {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
     if (is_fuchsia) {
-      public_deps +=
-          [ "//third_party/vulkan_loader_and_validation_layers:vulkan" ]
+      if (using_fuchsia_sdk) {
+        public_deps += [ "$fuchsia_sdk_root/pkg:vulkan" ]
+      } else {
+        public_deps +=
+            [ "//third_party/vulkan_loader_and_validation_layers:vulkan" ]
+      }
     }
   }
 
