@@ -116,6 +116,8 @@ public:
                                             GrWrapOwnership ownership) override { return nullptr; }
     void insertSemaphore(sk_sp<GrSemaphore> semaphore) override {}
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
+    // We currently call finish procs immediately in onFinishFlush().
+    void checkFinishProcs() override {}
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
 
     // When the Metal backend actually uses indirect command buffers, this function will actually do
