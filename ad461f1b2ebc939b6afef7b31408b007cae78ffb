@@ -460,6 +460,30 @@
     },
     {
       "key": {
+        "uuid": "daed99e3_1b8d9e6f",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-07T13:34:59Z",
+      "side": 1,
+      "message": "We tend to use SkSemaphore for this sort of thing where you\u0027d use a condition variable.  See e.g. the implementation of SkThreadPool.\n\nI\u0027m coming in late at this.  Are we all confident that this code reflects a plan we like?",
+      "parentUuid": "487cddf1_ddcfe785",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 29
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7f8c112d_e6fbe4d0",
         "filename": "experimental/multi-skp/SkMultiSkp.h",
         "patchSetId": 3
@@ -519,6 +543,30 @@
       "side": 1,
       "message": "I\u0027m not sure about the specific differences for SkMutex. As I understand it, generally Skia has some of these utility classes because at the time they were written there wasn\u0027t a standard multiplatform version that was performant for our needs. It\u0027s possible that that has become less true in some cases.",
       "parentUuid": "7aad4964_86687810",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 16
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b4031c5_b8201c68",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-07T13:34:59Z",
+      "side": 1,
+      "message": "The single most valuable property of all the types we\u0027ve implemented ourselves is consistency.  We run on many platforms, with a fairly wide spread of compiler quality and an even wider spread of STL quality.  When you use the standard library types, you\u0027re really kind of dealing with the superposition of five or six different implementations of that type, in code you cannot change and whose bugs you cannot fix.  We have experienced problems with, I think, literally every std:: type we\u0027ve ever used, from std::unique_ptr to std::vector to std::map to std::function to std::deque... many of these issues have been ironed out, but some of these types are still traps in waiting.",
+      "parentUuid": "e511ac1d_6a73bb80",
       "range": {
         "startLine": 13,
         "startChar": 0,

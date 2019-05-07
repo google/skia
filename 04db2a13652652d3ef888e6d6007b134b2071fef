@@ -49,6 +49,23 @@
     },
     {
       "key": {
+        "uuid": "e864740c_1bd556a6",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-07T13:34:59Z",
+      "side": 1,
+      "message": "Doesn\u0027t Hal already have some sort of mskp hack?  Is this the same?",
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad5d5d6b_f581a747",
         "filename": "experimental/multi-skp/SkMultiSkp.cpp",
         "patchSetId": 4
@@ -143,6 +160,30 @@
     },
     {
       "key": {
+        "uuid": "ab0f0ae4_805e4046",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-07T13:34:59Z",
+      "side": 1,
+      "message": "Right, std::functions can be copied, so they cannot close over anything that cannot be copied like std::unique_ptr.",
+      "parentUuid": "1bc98f51_664407db",
+      "range": {
+        "startLine": 93,
+        "startChar": 7,
+        "endLine": 93,
+        "endChar": 91
+      },
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bce5e9d7_71b7f9dc",
         "filename": "experimental/multi-skp/SkMultiSkp.cpp",
         "patchSetId": 4
@@ -225,6 +266,30 @@
       "side": 1,
       "message": "The worst that can happen is the queue looks empty and we go to sleep a few instructions later, but during that short time, the cv is notified while we\u0027re not listening and it dissappears. If that was the notification of the last frame and it doesn\u0027t wake up this thread, then the last frame of the file will never be written (at least until a spurious wakeup of the thread). Encountering that situation would require that we finish serializing all but the last frame a new nanoseconds before the last frame is recorded. We can\u0027t serialize that fast. I think we serialize about 10x slower than we record. It\u0027s very improbable, but it does exist.\n\nI\u0027ve tried to fix this by tucking away all the locking and the inner loop inside tryPop. PTAL.",
       "parentUuid": "59fa2109_68ea282f",
+      "range": {
+        "startLine": 106,
+        "startChar": 16,
+        "endLine": 106,
+        "endChar": 32
+      },
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bfc45612_3cf32549",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-07T13:34:59Z",
+      "side": 1,
+      "message": "Ok, so the answer to the first question is just \"no\".  It\u0027s not safe to read data protected by a mutex when not holding the mutex.\n\nIf you find yourself measuring how fast things are in your head to wonder if they race, you have a race condition.  Please do not write willfully non thread safe code.",
+      "parentUuid": "4bd8d403_9ddaa566",
       "range": {
         "startLine": 106,
         "startChar": 16,
