@@ -12,6 +12,7 @@
 #include "include/private/GrTextureProxy.h"
 #include "include/utils/SkBase64.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/SkGr.h"
@@ -127,6 +128,37 @@ void fill_pixel_data(int width, int height, GrColor* data) {
             data[i + j * width] = GrColorPackRGBA(red - (red >> 8), green - (green >> 8),
                                                   0xff, 0xff);
         }
+    }
+}
+
+bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
+                            const SkImageInfo& ii, GrMipMapped mipMapped, SkColor color) {
+
+    auto* gpu = context->priv().getGpu();
+
+    GrColorType grCT = SkColorTypeToGrColorType(ii.colorType());
+    if (GrColorType::kUnknown == grCT) {
+        return false;
+    }
+
+    SkBitmap bm;
+    bm.allocPixels(ii);
+    bm.eraseColor(color);
+
+    *backendTex = gpu->createTestingOnlyBackendTexture(bm.getPixels(), ii.width(), ii.height(),
+                                                       grCT, false, mipMapped, bm.rowBytes());
+    if (!backendTex->isValid() || !gpu->isTestingOnlyBackendTexture(*backendTex)) {
+        return false;
+    }
+
+    return true;
+}
+
+void delete_backend_texture(GrContext* context, const GrBackendTexture& backendTex) {
+    auto* gpu = context->priv().getGpu();
+
+    if (backendTex.isValid()) {
+        gpu->deleteTestingOnlyBackendTexture(backendTex);
     }
 }
 

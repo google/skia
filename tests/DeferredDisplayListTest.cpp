@@ -41,6 +41,7 @@
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkSurface_Gpu.h"
 #include "tests/Test.h"
+#include "tests/TestUtils.h"
 #include "tools/gpu/GrContextFactory.h"
 #ifdef SK_VULKAN
 #include <vulkan/vulkan_core.h>
@@ -697,6 +698,92 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLFlushWhileRecording, reporter, ctxInfo) {
     SkCanvas* canvas = recorder.getCanvas();
 
     canvas->getGrContext()->flush();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Test that flushing a DDL via SkSurface::flush works
+
+struct FulfillInfo {
+    sk_sp<SkPromiseImageTexture> fTex;
+    bool fFulfilled = false;
+    bool fReleased  = false;
+    bool fDone      = false;
+};
+
+static sk_sp<SkPromiseImageTexture> counting_fulfill_proc(void* context) {
+    FulfillInfo* info = (FulfillInfo*) context;
+    info->fFulfilled = true;
+    return info->fTex;
+}
+
+static void counting_release_proc(void* context) {
+    FulfillInfo* info = (FulfillInfo*) context;
+    info->fReleased = true;
+}
+
+static void counting_done_proc(void* context) {
+    FulfillInfo* info = (FulfillInfo*) context;
+    info->fDone = true;
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    SkImageInfo ii = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
+
+    SkSurfaceCharacterization characterization;
+    SkAssertResult(s->characterize(&characterization));
+
+    GrBackendTexture backendTexture;
+
+    if (!create_backend_texture(context, &backendTexture, ii, GrMipMapped::kNo, SK_ColorCYAN)) {
+        return;
+    }
+
+    FulfillInfo fulfillInfo;
+    fulfillInfo.fTex = SkPromiseImageTexture::Make(backendTexture);
+
+    std::unique_ptr<SkDeferredDisplayList> ddl;
+
+    {
+        SkDeferredDisplayListRecorder recorder(characterization);
+
+        const GrCaps* caps = context->priv().caps();
+        GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+
+        sk_sp<SkImage> promiseImage = recorder.makePromiseTexture(
+                format, 32, 32, GrMipMapped::kNo,
+                kTopLeft_GrSurfaceOrigin,
+                kRGBA_8888_SkColorType,
+                kPremul_SkAlphaType, nullptr,
+                counting_fulfill_proc,
+                counting_release_proc,
+                counting_done_proc,
+                &fulfillInfo,
+                SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
+
+        SkCanvas* canvas = recorder.getCanvas();
+
+        canvas->clear(SK_ColorRED);
+        canvas->drawImage(promiseImage, 0, 0);
+        ddl = recorder.detach();
+    }
+
+    s->draw(ddl.get());
+
+    GrFlushInfo flushInfo;
+    auto result = s->flush(SkSurface::BackendSurfaceAccess::kPresent, flushInfo);
+    REPORTER_ASSERT(reporter, GrSemaphoresSubmitted::kYes == result);
+
+    REPORTER_ASSERT(reporter, fulfillInfo.fFulfilled);
+    REPORTER_ASSERT(reporter, fulfillInfo.fReleased);
+    REPORTER_ASSERT(reporter, fulfillInfo.fDone);
+
+    REPORTER_ASSERT(reporter, fulfillInfo.fTex->unique());
+    fulfillInfo.fTex.reset();
+
+    delete_backend_texture(context, backendTexture);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
