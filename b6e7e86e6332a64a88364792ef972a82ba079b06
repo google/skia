@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a52f651_33afc7d4",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-07T21:04:03Z",
+      "side": 1,
+      "message": "Looks like we only do this once for every glyph. Are we guaranteed to always have the same |maxDimension| passed in for a strike? I\u0027m thinking about a case where we generate and send a mask for a glyph but a later call to prepareForDrawing sets |maxDimension| such that we need to use a path now.",
+      "range": {
+        "startLine": 633,
+        "startChar": 8,
+        "endLine": 633,
+        "endChar": 48
+      },
+      "revId": "b6e7e86e6332a64a88364792ef972a82ba079b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
