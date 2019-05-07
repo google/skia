@@ -76,9 +76,13 @@ const SkGlyph& SkStrike::getGlyphIDMetrics(uint16_t glyphID) {
 }
 
 const SkGlyph& SkStrike::getGlyphIDMetrics(uint16_t glyphID, SkFixed x, SkFixed y) {
-    VALIDATE();
     SkPackedGlyphID packedGlyphID(glyphID, x, y);
-    return *this->lookupByPackedGlyphID(packedGlyphID, kFull_MetricsType);
+    return this->getGlyphIDMetrics(packedGlyphID);
+}
+
+const SkGlyph& SkStrike::getGlyphIDMetrics(SkPackedGlyphID id) {
+    VALIDATE();
+    return *this->lookupByPackedGlyphID(id, kFull_MetricsType);
 }
 
 void SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
