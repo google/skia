@@ -104,6 +104,8 @@ DEF_TEST(SkSLInterpreterSubtract, r) {
     test(r, "void main(inout half4 color) { color -= half4(1, 2, 3, 4); }", 5, 5, 5, 5, 4, 3, 2, 1);
     test(r, "void main(inout half4 color) { half4 c = color; color -= c; }", 4, 3, 2, 1,
          0, 0, 0, 0);
+    test(r, "void main(inout half4 color) { color.x = -color.x; }", 4, 3, 2, 1, -4, 3, 2, 1);
+    test(r, "void main(inout half4 color) { color = -color; }", 4, 3, 2, 1, -4, -3, -2, -1);
     test(r, "void main(inout half4 color) { int a = 3; int b = 1; color.r = a - b; }", 0, 0, 0, 0,
          2, 0, 0, 0);
 }

@@ -464,6 +464,20 @@ void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
                         PUSH(fGlobals[target]);
                         break;
                     }
+                    case ByteCodeInstruction::kNegateS: {
+                        for (int i = 0; i < count; ++i) {
+                            Value& v = sp[-i];
+                            v.fSigned = -v.fSigned;
+                        }
+                        break;
+                    }
+                    case ByteCodeInstruction::kNegateF: {
+                        for (int i = 0; i < count; ++i) {
+                            Value& v = sp[-i];
+                            v.fFloat = -v.fFloat;
+                        }
+                        break;
+                    }
                     VECTOR_BINARY_OP(kMultiplyS, int32_t, fSigned, *)
                     VECTOR_BINARY_OP(kMultiplyU, uint32_t, fUnsigned, *)
                     VECTOR_BINARY_OP(kMultiplyF, float, fFloat, *)
