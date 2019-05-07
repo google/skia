@@ -615,8 +615,12 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
         int maxDimension,
         PreparationDetail detail,
         SkGlyphPos results[]) {
-    size_t glyphsToSendCount = 0;
     for (size_t i = 0; i < n; i++) {
+        // The results array does not need to be filled in because all changes are tracked
+        // directly in this method. As a result, the call to
+        // SkGlyphRunListPainter::processGlyphRunList is passed a process parameter of nullptr
+        // skipping all results[] processing.
+        (void)results;
         SkPoint glyphPos = positions[i];
         SkGlyphID glyphID = glyphIDs[i];
         SkIPoint lookupPoint = SkStrikeCommon::SubpixelLookup(fAxisAlignmentForHText, glyphPos);
@@ -636,10 +640,7 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
             fContext->getMetrics(glyphPtr);
 
             if (glyphPtr->maxDimension() <= maxDimension) {
-
-                // The mask/SDF will fit in the cache.
-                // TODO: no need to do this once code base converted over to bulk.
-                results[glyphsToSendCount++] = {i, glyphPtr, glyphPos};
+                // do nothing
             } else if (glyphPtr->fMaskFormat != SkMask::kARGB32_Format) {
 
                 // The glyph is too big for the atlas, but it is not color, so it is handled with a
@@ -668,7 +669,7 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
         }
 
     }
-    return SkSpan<const SkGlyphPos>(results, glyphsToSendCount);
+    return SkSpan<const SkGlyphPos>{};
 }
 
 // SkStrikeClient -----------------------------------------
