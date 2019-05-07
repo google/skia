@@ -16,6 +16,24 @@
       "revId": "9cf5f7ac527a311d1e28a2d258894ae8d52d096f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "505e324c_15f914c5",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-07T14:15:36Z",
+      "side": 1,
+      "message": "I think I did what you\u0027re suggesting:\n\ndiff --git a/src/sksl/SkSLInterpreter.cpp b/src/sksl/SkSLInterpreter.cpp\nindex c9f9c58fa8..c2a9268b15 100644\n--- a/src/sksl/SkSLInterpreter.cpp\n+++ b/src/sksl/SkSLInterpreter.cpp\n@@ -27,14 +27,6 @@\n \n namespace SkSL {\n \n-#ifdef SK_BUILD_FOR_WIN\n-    #define ALLOCA malloc\n-    #define FREE_ALLOCA free\n-#else\n-    #define ALLOCA alloca\n-    #define FREE_ALLOCA(x)\n-#endif\n-\n static constexpr int UNINITIALIZED \u003d 0xDEADBEEF;\n \n Interpreter::Interpreter(std::unique_ptr\u003cProgram\u003e program, std::unique_ptr\u003cByteCode\u003e byteCode,\n@@ -55,14 +47,15 @@ void Interpreter::run(const ByteCodeFunction\u0026 f, Interpreter::Value args[],\n #ifdef TRACE\n     this-\u003edisassemble(f);\n #endif\n-    Value* stack \u003d (Value*) ALLOCA(fCurrentFunction-\u003efStackCount * sizeof(Value));\n-    run(stack, args, outReturn);\n-    FREE_ALLOCA(stack);\n+    static constexpr int DEFAULT_STACK_SIZE \u003d 32;\n+    SkSTArray\u003cDEFAULT_STACK_SIZE, Value\u003e stack;\n+    stack.reserve(fCurrentFunction-\u003efStackCount);\n+    run(stack.data(), args, outReturn);\n     int offset \u003d 0;\n     for (const auto\u0026 p : f.fDeclaration.fParameters) {\n         if (p-\u003efModifiers.fFlags \u0026 Modifiers::kOut_Flag) {\n             for (int i \u003d p-\u003efType.columns() * p-\u003efType.rows() - 1; i \u003e\u003d 0; --i) {\n-                args[offset] \u003d stack[offset];\n+                args[offset] \u003d stack.data()[offset];\n                 ++offset;\n             }\n         } else {\n\n...and found that this made things dramatically slower. Am I doing something wrong?",
+      "parentUuid": "2f7e3603_a68c0c03",
+      "revId": "9cf5f7ac527a311d1e28a2d258894ae8d52d096f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
