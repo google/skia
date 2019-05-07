@@ -886,7 +886,7 @@ static SkFont fuzz_font(Fuzz* fuzz) {
     font.setEmbeddedBitmaps(    make_fuzz_t<bool>(fuzz));
     font.setForceAutoHinting(   make_fuzz_t<bool>(fuzz));
     font.setEmbolden(           make_fuzz_t<bool>(fuzz));
-    font.setHinting(            make_fuzz_t_range<SkFontHinting>(fuzz, 0, kFull_SkFontHinting));
+    font.setHinting(            make_fuzz_t_range<SkFontHinting>(fuzz, 0, SkFontHinting::kFull));
     font.setEdging(             make_fuzz_t_range<SkFont::Edging>(fuzz, 0,
                                                       (int)SkFont::Edging::kSubpixelAntiAlias));
     return font;

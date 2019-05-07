@@ -442,20 +442,20 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fCommands.addCommand('H', "Font", "Hinting mode", [this]() {
         if (!fFontOverrides.fHinting) {
             fFontOverrides.fHinting = true;
-            fFont.setHinting(kNo_SkFontHinting);
+            fFont.setHinting(SkFontHinting::kNone);
         } else {
             switch (fFont.getHinting()) {
-                case kNo_SkFontHinting:
-                    fFont.setHinting(kSlight_SkFontHinting);
+                case SkFontHinting::kNone:
+                    fFont.setHinting(SkFontHinting::kSlight);
                     break;
-                case kSlight_SkFontHinting:
-                    fFont.setHinting(kNormal_SkFontHinting);
+                case SkFontHinting::kSlight:
+                    fFont.setHinting(SkFontHinting::kNormal);
                     break;
-                case kNormal_SkFontHinting:
-                    fFont.setHinting(kFull_SkFontHinting);
+                case SkFontHinting::kNormal:
+                    fFont.setHinting(SkFontHinting::kFull);
                     break;
-                case kFull_SkFontHinting:
-                    fFont.setHinting(kNo_SkFontHinting);
+                case SkFontHinting::kFull:
+                    fFont.setHinting(SkFontHinting::kNone);
                     fFontOverrides.fHinting = false;
                     break;
             }
@@ -834,16 +834,16 @@ void Viewer::updateTitle() {
 
     if (fFontOverrides.fHinting) {
         switch (fFont.getHinting()) {
-            case kNo_SkFontHinting:
+            case SkFontHinting::kNone:
                 paintTitle.append("No Hinting");
                 break;
-            case kSlight_SkFontHinting:
+            case SkFontHinting::kSlight:
                 paintTitle.append("Slight Hinting");
                 break;
-            case kNormal_SkFontHinting:
+            case SkFontHinting::kNormal:
                 paintTitle.append("Normal Hinting");
                 break;
-            case kFull_SkFontHinting:
+            case SkFontHinting::kFull:
                 paintTitle.append("Full Hinting");
                 break;
         }
@@ -1752,7 +1752,7 @@ void Viewer::drawImGui() {
                 {
                     if (hintingIdx == 0) {
                         fFontOverrides.fHinting = false;
-                        fFont.setHinting(kNo_SkFontHinting);
+                        fFont.setHinting(SkFontHinting::kNone);
                     } else {
                         fFont.setHinting(SkTo<SkFontHinting>(hintingIdx - 1));
                         fFontOverrides.fHinting = true;

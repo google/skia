@@ -110,7 +110,7 @@ void TestTypeface::getPath(SkGlyphID glyphID, SkPath* path) {
 }
 
 void TestTypeface::onFilterRec(SkScalerContextRec* rec) const {
-    rec->setHinting(kNo_SkFontHinting);
+    rec->setHinting(SkFontHinting::kNone);
 }
 
 void TestTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {

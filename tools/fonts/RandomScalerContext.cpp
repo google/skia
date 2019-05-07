@@ -152,7 +152,7 @@ SkScalerContext* SkRandomTypeface::onCreateScalerContext(const SkScalerContextEf
 
 void SkRandomTypeface::onFilterRec(SkScalerContextRec* rec) const {
     fProxy->filterRec(rec);
-    rec->setHinting(kNo_SkFontHinting);
+    rec->setHinting(SkFontHinting::kNone);
     rec->fMaskFormat = SkMask::kARGB32_Format;
 }
 

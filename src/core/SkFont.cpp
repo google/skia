@@ -121,7 +121,7 @@ SkScalar SkFont::setupForAsPaths(SkPaint* paint) {
                                        kForceAutoHinting_PrivFlag;
 
     fFlags = (fFlags & ~flagsToIgnore) | kSubpixel_PrivFlag;
-    this->setHinting(kNo_SkFontHinting);
+    this->setHinting(SkFontHinting::kNone);
 
     if (this->getEdging() == Edging::kSubpixelAntiAlias) {
         this->setEdging(Edging::kAntiAlias);
@@ -597,7 +597,7 @@ bool SkFontPriv::Unflatten(SkFont* font, SkReadBuffer& buffer) {
     font->fEdging = SkToU8(edging);
 
     unsigned hinting = (packed >> kShift_For_Hinting) & kMask_For_Hinting;
-    if (hinting > (unsigned)kFull_SkFontHinting) {
+    if (hinting > (unsigned)SkFontHinting::kFull) {
         hinting = 0;
     }
     font->fHinting = SkToU8(hinting);

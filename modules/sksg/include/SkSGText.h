@@ -63,7 +63,7 @@ private:
     SkScalar                fSkewX    = 0;
     SkTextUtils::Align      fAlign    = SkTextUtils::kLeft_Align;
     SkFont::Edging          fEdging   = SkFont::Edging::kAntiAlias;
-    SkFontHinting           fHinting  = kNormal_SkFontHinting;
+    SkFontHinting           fHinting  = SkFontHinting::kNormal;
 
     sk_sp<SkTextBlob> fBlob; // cached text blob
 

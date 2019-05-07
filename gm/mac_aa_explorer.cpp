@@ -165,7 +165,7 @@ DEF_SIMPLE_GM(macaa_colors, canvas, 800, 500) {
             for (bool lcd : {false, true}) {
                 font.setEdging(lcd ? SkFont::Edging::kSubpixelAntiAlias
                                    : SkFont::Edging::kAntiAlias);
-                for (auto h : {kNo_SkFontHinting, kNormal_SkFontHinting}) {
+                for (auto h : {SkFontHinting::kNone, SkFontHinting::kNormal}) {
                     font.setHinting(h);
 
                     y += font.getSpacing() + 2;

@@ -1039,7 +1039,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
     // the point of linear-text.
     SkFontHinting hinting = (SkFontHinting)font.getHinting();
     if (font.isLinearMetrics()) {
-        hinting = kNo_SkFontHinting;
+        hinting = SkFontHinting::kNone;
     }
     rec->setHinting(font.getHinting());
 #else
