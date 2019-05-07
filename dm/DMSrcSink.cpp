@@ -1384,6 +1384,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
     GrBackendTexture backendTexture;
     GrBackendRenderTarget backendRT;
+    auto grColorType = SkColorTypeToGrColorType(info.colorType());
     switch (fSurfType) {
         case SkCommandLineConfigGpu::SurfType::kDefault:
             surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, fSampleCount,
@@ -1391,19 +1392,18 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendTexture:
             backendTexture = context->priv().getGpu()->createTestingOnlyBackendTexture(
-                    nullptr, info.width(), info.height(), info.colorType(), true, GrMipMapped::kNo);
-            surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
-                                                        kTopLeft_GrSurfaceOrigin, fSampleCount,
-                                                        fColorType, info.refColorSpace(), &props);
+                    nullptr, info.width(), info.height(), grColorType, true, GrMipMapped::kNo);
+            surface = SkSurface::MakeFromBackendTexture(
+                        context, backendTexture, kTopLeft_GrSurfaceOrigin, fSampleCount,
+                        info.colorType(), info.refColorSpace(), &props);
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendRenderTarget:
             if (1 == fSampleCount) {
-                auto colorType = SkColorTypeToGrColorType(info.colorType());
                 backendRT = context->priv().getGpu()->createTestingOnlyBackendRenderTarget(
-                        info.width(), info.height(), colorType);
+                        info.width(), info.height(), grColorType);
                 surface = SkSurface::MakeFromBackendRenderTarget(
-                        context, backendRT, kBottomLeft_GrSurfaceOrigin, info.colorType(),
-                        info.refColorSpace(), &props);
+                        context, backendRT, kBottomLeft_GrSurfaceOrigin,
+                        info.colorType(), info.refColorSpace(), &props);
             }
             break;
     }
