@@ -31,7 +31,9 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
 
     // The following are disabled due to the unfinished Metal backend, not because Metal itself
     // doesn't support it.
-    fFenceSyncSupport = false;           // Fences are not implemented yet
+#if SK_METAL_VERSION < 2
+    fFenceSyncSupport = false;           // FenceSync not supported in older Metal versions
+#endif
     fMultisampleDisableSupport = true;   // MSAA and resolving not implemented yet
     fDiscardRenderTargetSupport = false; // GrMtlGpuCommandBuffer::discard() not implemented
     fCrossContextTextureSupport = false; // GrMtlGpu::prepareTextureForCrossContextUsage() not impl

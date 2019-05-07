@@ -16,6 +16,20 @@
 class GrMtlGpu;
 class GrSurface;
 
+#if defined(SK_BUILD_FOR_MAC)
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101400
+#define SK_METAL_VERSION 2
+#else
+#define SK_METAL_VERSION 1
+#endif
+#else
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __TV_OS_VERSION_MAX_ALLOWED >= 120000
+#define SK_METAL_VERSION 2
+#else
+#define SK_METAL_VERSION 1
+#endif
+#endif
+
 /**
  * Returns the Metal texture format for the given GrPixelConfig
  */
