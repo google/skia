@@ -148,6 +148,7 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             case ByteCodeInstruction::kMultiplyU: printf("multiplyu"); break;
             case ByteCodeInstruction::kNegateF: printf("negatef"); break;
             case ByteCodeInstruction::kNegateS: printf("negates"); break;
+            case ByteCodeInstruction::kNop: printf("nop"); break;
             case ByteCodeInstruction::kNot: printf("not"); break;
             case ByteCodeInstruction::kOrB: printf("orb"); break;
             case ByteCodeInstruction::kOrI: printf("ori"); break;
