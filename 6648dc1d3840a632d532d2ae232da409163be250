@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aed8b930_2ff837e0",
+        "filename": "experimental/editor/editor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-07T14:13:13Z",
+      "side": 1,
+      "message": "Just wondering what happens if this returns nullptr, it isn\u0027t immediately clear from context. (Just checking, since std::vector::begin() had issues so std::vector::data( exists).)",
+      "range": {
+        "startLine": 115,
+        "startChar": 38,
+        "endLine": 115,
+        "endChar": 43
+      },
+      "revId": "6648dc1d3840a632d532d2ae232da409163be250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f37e5750_d1472c40",
+        "filename": "experimental/editor/editor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-07T14:13:13Z",
+      "side": 1,
+      "message": "fTextByteOffset, or something better?",
+      "range": {
+        "startLine": 43,
+        "startChar": 17,
+        "endLine": 43,
+        "endChar": 24
+      },
+      "revId": "6648dc1d3840a632d532d2ae232da409163be250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe5e51d9_6949578a",
+        "filename": "experimental/editor/editor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-07T14:13:13Z",
+      "side": 1,
+      "message": "size_t",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 43,
+        "endChar": 16
+      },
+      "revId": "6648dc1d3840a632d532d2ae232da409163be250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18886a76_584f8cea",
+        "filename": "experimental/editor/editor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-07T14:13:13Z",
+      "side": 1,
+      "message": "fParagraphIndex, or something?",
+      "range": {
+        "startLine": 44,
+        "startChar": 17,
+        "endLine": 44,
+        "endChar": 22
+      },
+      "revId": "6648dc1d3840a632d532d2ae232da409163be250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
