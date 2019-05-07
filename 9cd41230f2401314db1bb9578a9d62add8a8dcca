@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1418e2fd_96676ecc",
+        "filename": "tests/TestUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-07T19:15:46Z",
+      "side": 1,
+      "message": "SkBitmap::eraseColor exists. Also, this code is wrong unless the image info\u0027s color type happens to be identical to SkColor\u0027s layout. Of course, the old code didn\u0027t seem to care, and also didn\u0027t premul the colors. Calling eraseColor will premul.",
+      "revId": "9cd41230f2401314db1bb9578a9d62add8a8dcca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
