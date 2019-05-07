@@ -16,6 +16,24 @@
       "revId": "5982a992a38809b28fab899c5a70297afdab6247",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c5a4c75_414e707c",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-07T20:10:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1810efc1_7673a19e",
+      "revId": "5982a992a38809b28fab899c5a70297afdab6247",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
