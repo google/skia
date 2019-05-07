@@ -61,7 +61,7 @@ protected:
         const char* text = "O";
 
         SkRect bounds;
-        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+        font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
 
         SkScalar yOffset = bounds.height();
         ToolUtils::add_to_text_blob(&builder, text, font, 10, yOffset);
@@ -79,7 +79,7 @@ protected:
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         font.setSubpixel(true);
         text = "LCD!!!!!";
-        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+        font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
         ToolUtils::add_to_text_blob(&builder,
                                     text,
                                     font,
@@ -91,7 +91,7 @@ protected:
             font.setEdging(SkFont::Edging::kAlias);
             font.setSubpixel(false);
             font.setTypeface(fEmojiTypeface);
-            font.measureText(fEmojiText, strlen(fEmojiText), kUTF8_SkTextEncoding, &bounds);
+            font.measureText(fEmojiText, strlen(fEmojiText), SkTextEncoding::kUTF8, &bounds);
             ToolUtils::add_to_text_blob(&builder, fEmojiText, font, xOffset, yOffset);
         }
 

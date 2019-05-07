@@ -111,7 +111,7 @@ protected:
         }
         for (unsigned i = 0; i < NUM_CONFIGS; i++) {
             const char* name = color_type_name(src.colorType());
-            SkScalar textWidth = font.measureText(name, strlen(name), kUTF8_SkTextEncoding);
+            SkScalar textWidth = font.measureText(name, strlen(name), SkTextEncoding::kUTF8);
             if (textWidth > width) {
                 width = textWidth;
             }
@@ -124,10 +124,10 @@ protected:
             canvas->save();
             // Draw destination config name
             const char* name = color_type_name(fDst[i].colorType());
-            SkScalar textWidth = font.measureText(name, strlen(name), kUTF8_SkTextEncoding);
+            SkScalar textWidth = font.measureText(name, strlen(name), SkTextEncoding::kUTF8);
             SkScalar x = (width - textWidth) / SkScalar(2);
             SkScalar y = font.getSpacing() / SkScalar(2);
-            canvas->drawSimpleText(name, strlen(name), kUTF8_SkTextEncoding, x, y, font, paint);
+            canvas->drawSimpleText(name, strlen(name), SkTextEncoding::kUTF8, x, y, font, paint);
 
             // Draw destination bitmap
             canvas->translate(0, vertOffset);

@@ -169,7 +169,7 @@ DEF_TEST(Paint_regression_measureText, reporter) {
     r.setLTRB(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
 
     // test that the rect was reset
-    font.measureText("", 0, kUTF8_SkTextEncoding, &r);
+    font.measureText("", 0, SkTextEncoding::kUTF8, &r);
     REPORTER_ASSERT(reporter, r.isEmpty());
 }
 
@@ -247,10 +247,10 @@ DEF_TEST(Paint_nothingToDraw, r) {
 DEF_TEST(Font_getpos, r) {
     SkFont font;
     const char text[] = "Hamburgefons!@#!#23425,./;'[]";
-    int count = font.countText(text, strlen(text), kUTF8_SkTextEncoding);
+    int count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
     SkAutoTArray<uint16_t> glyphStorage(count);
     uint16_t* glyphs = glyphStorage.get();
-    (void)font.textToGlyphs(text, strlen(text), kUTF8_SkTextEncoding, glyphs, count);
+    (void)font.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, glyphs, count);
 
     SkAutoTArray<SkScalar> widthStorage(count);
     SkAutoTArray<SkScalar> xposStorage(count);

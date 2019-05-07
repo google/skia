@@ -5427,7 +5427,7 @@ DEF_TEST(path_last_move_to_index, r) {
     SkGlyphID glyphs[len];
 
     SkFont font;
-    font.textToGlyphs(text, len, kUTF8_SkTextEncoding, glyphs, len);
+    font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs, len);
 
     SkPath copyPath;
     SkFont().getPaths(glyphs, len, [](const SkPath* src, const SkMatrix& mx, void* ctx) {

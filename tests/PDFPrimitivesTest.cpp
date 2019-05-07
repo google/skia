@@ -87,7 +87,7 @@ static void test_issue1083() {
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
 
     uint16_t glyphID = 65000;
-    canvas->drawSimpleText(&glyphID, 2, kGlyphID_SkTextEncoding, 0, 0, SkFont(), SkPaint());
+    canvas->drawSimpleText(&glyphID, 2, SkTextEncoding::kGlyphID, 0, 0, SkFont(), SkPaint());
 
     doc->close();
 }

@@ -61,14 +61,14 @@ static void drawFadingText(SkCanvas* canvas,
     SkFontMetrics fm;
 
     font.getMetrics(&fm);
-    bounds.set(x, y + fm.fTop, x + font.measureText(text, len, kUTF8_SkTextEncoding), y + fm.fBottom);
+    bounds.set(x, y + fm.fTop, x + font.measureText(text, len, SkTextEncoding::kUTF8), y + fm.fBottom);
 
     // may need to outset bounds a little, to account for hinting and/or
     // antialiasing
     bounds.inset(-SkIntToScalar(2), -SkIntToScalar(2));
 
     canvas->saveLayer(&bounds, nullptr);
-    canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x, y, font, paint);
+    canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, x, y, font, paint);
 
     const SkPoint pts[] = {
         { bounds.fLeft, y },
@@ -100,17 +100,18 @@ static void test_text(SkCanvas* canvas) {
     SkScalar x = 20;
     SkScalar y = 20;
 
-    canvas->drawSimpleText(str, len, kUTF8_SkTextEncoding, x, y, font, paint);
+    canvas->drawSimpleText(str, len, SkTextEncoding::kUTF8, x, y, font, paint);
 
     y += 20;
 
-    const SkPoint pts[] = { { x, y }, { x + font.measureText(str, len, kUTF8_SkTextEncoding), y } };
+    const SkPoint pts[] = { { x                                                    , y },
+                            { x + font.measureText(str, len, SkTextEncoding::kUTF8), y } };
     const SkColor colors[] = { SK_ColorBLACK, SK_ColorBLACK, 0 };
     const SkScalar pos[] = { 0, 0.9f, 1 };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos,
                                                  SK_ARRAY_COUNT(colors),
                                                  SkTileMode::kClamp));
-    canvas->drawSimpleText(str, len, kUTF8_SkTextEncoding, x, y, font, paint);
+    canvas->drawSimpleText(str, len, SkTextEncoding::kUTF8, x, y, font, paint);
 
     y += 20;
     paint.setShader(nullptr);
@@ -189,7 +190,7 @@ protected:
         paint.setColor(hilite ? SK_ColorRED : 0x40FF0000);
         SkFont font;
         font.setSize(SkIntToScalar(20));
-        canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, loc.fX, loc.fY, font, paint);
+        canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, loc.fX, loc.fY, font, paint);
     }
 
     void drawPredicates(SkCanvas* canvas, const SkPoint pts[]) {
@@ -316,7 +317,7 @@ protected:
         canvas->translate(0, SkIntToScalar(200));
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
-            canvas->drawSimpleText(gOps[op].fName, strlen(gOps[op].fName), kUTF8_SkTextEncoding,
+            canvas->drawSimpleText(gOps[op].fName, strlen(gOps[op].fName), SkTextEncoding::kUTF8,
                                    SkIntToScalar(75), SkIntToScalar(50), font, SkPaint());
 
             this->drawRgnOped(canvas, gOps[op].fOp, gOps[op].fColor);

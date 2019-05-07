@@ -46,9 +46,9 @@ protected:
             textSize += delta;
 
             font.setEdging(SkFont::Edging::kAntiAlias);
-            canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x0, y, font, paint);
+            canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, x0, y, font, paint);
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
-            canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x1, y, font, paint);
+            canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, x1, y, font, paint);
 
             y += font.getSpacing();
         }

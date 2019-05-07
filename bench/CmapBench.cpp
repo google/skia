@@ -34,7 +34,7 @@ static void textToGlyphs_proc(const Rec& r) {
     SkASSERT(r.fCount <= NGLYPHS);
 
     for (int i = 0; i < r.fLoops; ++i) {
-        r.fFont.textToGlyphs(r.fText, r.fCount*4, kUTF32_SkTextEncoding, glyphs, NGLYPHS);
+        r.fFont.textToGlyphs(r.fText, r.fCount*4, SkTextEncoding::kUTF32, glyphs, NGLYPHS);
     }
 }
 

@@ -99,7 +99,7 @@ void HelloWorld::onPaint(SkSurface* surface) {
     canvas->rotate(fRotationAngle);
 
     // Draw the text
-    canvas->drawSimpleText(message, strlen(message), kUTF8_SkTextEncoding, 0, 0, font, paint);
+    canvas->drawSimpleText(message, strlen(message), SkTextEncoding::kUTF8, 0, 0, font, paint);
 
     canvas->restore();
 }

@@ -55,8 +55,8 @@ static void draw_label(SkCanvas* canvas, const SkHighContrastConfig& config) {
 
     size_t len = strlen(labelBuffer);
 
-    SkScalar width = font.measureText(labelBuffer, len, kUTF8_SkTextEncoding);
-    canvas->drawSimpleText(labelBuffer, len, kUTF8_SkTextEncoding, 0.5f - width / 2, 0.16f, font, SkPaint());
+    SkScalar width = font.measureText(labelBuffer, len, SkTextEncoding::kUTF8);
+    canvas->drawSimpleText(labelBuffer, len, SkTextEncoding::kUTF8, 0.5f - width / 2, 0.16f, font, SkPaint());
 }
 
 static void draw_scene(SkCanvas* canvas, const SkHighContrastConfig& config) {

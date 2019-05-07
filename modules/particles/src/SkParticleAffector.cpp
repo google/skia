@@ -356,7 +356,7 @@ private:
         // Use the font manager's default font
         SkFont font(nullptr, fFontSize);
         SkPath path;
-        SkTextUtils::GetPath(fText.c_str(), fText.size(), kUTF8_SkTextEncoding, 0, 0, font, &path);
+        SkTextUtils::GetPath(fText.c_str(), fText.size(), SkTextEncoding::kUTF8, 0, 0, font, &path);
         SkContourMeasureIter iter(path, false);
         while (auto contour = iter.next()) {
             fContours.push_back(contour);

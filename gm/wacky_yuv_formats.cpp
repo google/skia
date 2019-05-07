@@ -740,14 +740,14 @@ static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaq
     SkString colLabel;
 
     colLabel.printf("%s", kYUVColorSpaceNames[yuvColorSpace]);
-    font.measureText(colLabel.c_str(), colLabel.size(), kUTF8_SkTextEncoding, &textRect);
+    font.measureText(colLabel.c_str(), colLabel.size(), SkTextEncoding::kUTF8, &textRect);
     int y = textRect.height();
 
     SkTextUtils::DrawString(canvas, colLabel.c_str(), x, y, font, paint, SkTextUtils::kCenter_Align);
 
     colLabel.printf("%s", opaque ? "Opaque" : "Transparent");
 
-    font.measureText(colLabel.c_str(), colLabel.size(), kUTF8_SkTextEncoding, &textRect);
+    font.measureText(colLabel.c_str(), colLabel.size(), SkTextEncoding::kUTF8, &textRect);
     y += textRect.height();
 
     SkTextUtils::DrawString(canvas, colLabel.c_str(), x, y, font, paint, SkTextUtils::kCenter_Align);
@@ -765,7 +765,7 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     SkString rowLabel;
 
     rowLabel.printf("%s", kYUVFormatNames[yuvFormat]);
-    font.measureText(rowLabel.c_str(), rowLabel.size(), kUTF8_SkTextEncoding, &textRect);
+    font.measureText(rowLabel.c_str(), rowLabel.size(), SkTextEncoding::kUTF8, &textRect);
     y += kTileWidthHeight/2 + textRect.height()/2;
 
     canvas->drawString(rowLabel, 0, y, font, paint);

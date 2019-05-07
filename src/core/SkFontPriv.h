@@ -85,7 +85,7 @@ public:
 class SkAutoToGlyphs {
 public:
     SkAutoToGlyphs(const SkFont& font, const void* text, size_t length, SkTextEncoding encoding) {
-        if (encoding == kGlyphID_SkTextEncoding || length == 0) {
+        if (encoding == SkTextEncoding::kGlyphID || length == 0) {
             fGlyphs = reinterpret_cast<const uint16_t*>(text);
             fCount = length >> 1;
         } else {

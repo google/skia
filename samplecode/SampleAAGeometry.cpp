@@ -540,7 +540,7 @@ struct Button {
             return;
         }
         canvas->drawRect(fBounds, paints.fStates[fState]);
-        SkTextUtils::Draw(canvas, &fLabel, 1, kUTF8_SkTextEncoding, fBounds.centerX(), fBounds.fBottom - 5,
+        SkTextUtils::Draw(canvas, &fLabel, 1, SkTextEncoding::kUTF8, fBounds.centerX(), fBounds.fBottom - 5,
                           paints.fLabelFont, SkPaint(), SkTextUtils::kCenter_Align);
     }
 

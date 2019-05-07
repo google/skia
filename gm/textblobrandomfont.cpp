@@ -63,7 +63,7 @@ protected:
 
         SkScalar y = 0;
         SkRect bounds;
-        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+        font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
         y -= bounds.fTop;
         ToolUtils::add_to_text_blob(&builder, text, font, 0, y);
         y += bounds.fBottom;
@@ -74,12 +74,12 @@ protected:
         font.setSize(160);
         font.setSubpixel(false);
         font.setEdging(SkFont::Edging::kAntiAlias);
-        font.measureText(bigtext1, strlen(bigtext1), kUTF8_SkTextEncoding, &bounds);
+        font.measureText(bigtext1, strlen(bigtext1), SkTextEncoding::kUTF8, &bounds);
         y -= bounds.fTop;
         ToolUtils::add_to_text_blob(&builder, bigtext1, font, 0, y);
         y += bounds.fBottom;
 
-        font.measureText(bigtext2, strlen(bigtext2), kUTF8_SkTextEncoding, &bounds);
+        font.measureText(bigtext2, strlen(bigtext2), SkTextEncoding::kUTF8, &bounds);
         y -= bounds.fTop;
         ToolUtils::add_to_text_blob(&builder, bigtext2, font, 0, y);
         y += bounds.fBottom;
@@ -88,7 +88,7 @@ protected:
         if (sk_sp<SkTypeface> origEmoji = ToolUtils::emoji_typeface()) {
             font.setTypeface(sk_make_sp<SkRandomTypeface>(origEmoji, paint, false));
             const char* emojiText = ToolUtils::emoji_sample_text();
-            font.measureText(emojiText, strlen(emojiText), kUTF8_SkTextEncoding, &bounds);
+            font.measureText(emojiText, strlen(emojiText), SkTextEncoding::kUTF8, &bounds);
             y -= bounds.fTop;
             ToolUtils::add_to_text_blob(&builder, emojiText, font, 0, y);
             y += bounds.fBottom;

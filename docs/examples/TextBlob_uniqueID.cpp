@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
         uint16_t glyphs[len];
         SkPaint paint;
         paint.textToGlyphs(bunny, len, glyphs);
-        paint.setTextEncoding(kGlyphID_SkTextEncoding);
+        paint.setTextEncoding(SkTextEncoding::kGlyphID);
         paint.setTextScaleX(0.5);
         SkFont font;
         font.setScaleX(0.5);

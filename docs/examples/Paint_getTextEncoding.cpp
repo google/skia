@@ -6,11 +6,11 @@
 REG_FIDDLE(Paint_getTextEncoding, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkDebugf("kUTF8_SkTextEncoding %c= text encoding\n",
-            kUTF8_SkTextEncoding == paint.getTextEncoding() ? '=' : '!');
-    paint.setTextEncoding(kGlyphID_SkTextEncoding);
-    SkDebugf("kGlyphID_SkTextEncoding %c= text encoding\n",
-            kGlyphID_SkTextEncoding == paint.getTextEncoding() ? '=' : '!');
+    SkDebugf("SkTextEncoding::kUTF8 %c= text encoding\n",
+            SkTextEncoding::kUTF8 == paint.getTextEncoding() ? '=' : '!');
+    paint.setTextEncoding(SkTextEncoding::kGlyphID);
+    SkDebugf("SkTextEncoding::kGlyphID %c= text encoding\n",
+            SkTextEncoding::kGlyphID == paint.getTextEncoding() ? '=' : '!');
 }
 }  // END FIDDLE
 #endif  // Disabled until updated to use current API.

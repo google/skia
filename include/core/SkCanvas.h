@@ -1948,7 +1948,7 @@ public:
     */
     void drawString(const char str[], SkScalar x, SkScalar y, const SkFont& font,
                     const SkPaint& paint) {
-        this->drawSimpleText(str, strlen(str), kUTF8_SkTextEncoding, x, y, font, paint);
+        this->drawSimpleText(str, strlen(str), SkTextEncoding::kUTF8, x, y, font, paint);
     }
 
     /** Draws SkString, with origin at (x, y), using clip, SkMatrix, SkFont font,
@@ -1977,7 +1977,7 @@ public:
     */
     void drawString(const SkString& str, SkScalar x, SkScalar y, const SkFont& font,
                     const SkPaint& paint) {
-        this->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding, x, y, font, paint);
+        this->drawSimpleText(str.c_str(), str.size(), SkTextEncoding::kUTF8, x, y, font, paint);
     }
 
     /** Draws SkTextBlob blob at (x, y), using clip, SkMatrix, and SkPaint paint.
@@ -1988,7 +1988,7 @@ public:
         SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
         and SkPaint subpixel text.
 
-        SkTextEncoding must be set to kGlyphID_SkTextEncoding.
+        SkTextEncoding must be set to SkTextEncoding::kGlyphID.
 
         Elements of paint: anti-alias, SkBlendMode, color including alpha,
         SkColorFilter, SkPaint dither, SkDrawLooper, SkMaskFilter, SkPathEffect, SkShader, and
@@ -2011,7 +2011,7 @@ public:
         SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
         and SkPaint subpixel text.
 
-        SkTextEncoding must be set to kGlyphID_SkTextEncoding.
+        SkTextEncoding must be set to SkTextEncoding::kGlyphID.
 
         Elements of paint: SkPathEffect, SkMaskFilter, SkShader, SkColorFilter,
         SkImageFilter, and SkDrawLooper; apply to blob.

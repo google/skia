@@ -41,7 +41,7 @@ protected:
         const char* text = "AB";
 
         SkRect bounds;
-        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+        font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
 
         SkScalar yOffset = bounds.height();
         ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset - 30);

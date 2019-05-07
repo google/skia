@@ -90,7 +90,7 @@ protected:
             canvas->translate(x, y);
             canvas->scale(scales[i], scales[i]);
             font.setSize(textSizes[i]);
-            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
+            canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, 0, 0, font, paint);
             y += font.getMetrics(nullptr)*scales[i];
         }
 
@@ -104,7 +104,7 @@ protected:
             canvas->rotate(SkIntToScalar(i * 5), rotX, rotY);
             for (int ps = 6; ps <= 32; ps += 3) {
                 font.setSize(SkIntToScalar(ps));
-                canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, rotX, rotY, font, paint);
+                canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, rotX, rotY, font, paint);
                 rotY += font.getMetrics(nullptr);
             }
         }
@@ -120,7 +120,7 @@ protected:
             SkScalar scaleFactor = SkScalarInvert(scales[arraySize - i - 1]);
             canvas->scale(scaleFactor, scaleFactor);
             font.setSize(textSizes[i]);
-            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
+            canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, 0, 0, font, paint);
             y += font.getMetrics(nullptr)*scaleFactor;
         }
 
@@ -131,13 +131,13 @@ protected:
             canvas->scale(2.0f, 2.0f);
 
             SkAutoTArray<SkGlyphID> glyphs(SkToInt(textLen));
-            int count = font.textToGlyphs(text, textLen, kUTF8_SkTextEncoding, glyphs.get(), textLen);
+            int count = font.textToGlyphs(text, textLen, SkTextEncoding::kUTF8, glyphs.get(), textLen);
             SkAutoTArray<SkPoint>  pos(count);
             font.setSize(textSizes[0]);
             font.getPos(glyphs.get(), count, pos.get(), {340, 75});
 
             auto blob = SkTextBlob::MakeFromPosText(glyphs.get(), count * sizeof(SkGlyphID),
-                                                    pos.get(), font, kGlyphID_SkTextEncoding);
+                                                    pos.get(), font, SkTextEncoding::kGlyphID);
             canvas->drawTextBlob(blob, 0, 0, paint);
         }
 
@@ -160,7 +160,7 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
             paint.setColor(fg[i]);
 
-            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, x, y, font, paint);
+            canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, x, y, font, paint);
             y += font.getMetrics(nullptr);
         }
 
@@ -174,7 +174,7 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
             paint.setColor(fg[i]);
 
-            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, x, y, font, paint);
+            canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, x, y, font, paint);
             y += font.getMetrics(nullptr);
         }
 
@@ -184,14 +184,14 @@ protected:
             SkAutoCanvasRestore acr(canvas, true);
             canvas->skew(0.0f, 0.151515f);
             font.setSize(SkIntToScalar(32));
-            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 745, 70, font, paint);
+            canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, 745, 70, font, paint);
         }
         {
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
             SkAutoCanvasRestore acr(canvas, true);
             canvas->skew(0.5f, 0.0f);
             font.setSize(SkIntToScalar(32));
-            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 580, 125, font, paint);
+            canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, 580, 125, font, paint);
         }
 
         // check perspective
@@ -205,7 +205,7 @@ protected:
             canvas->concat(persp);
             canvas->translate(1100, -295);
             font.setSize(37.5f);
-            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
+            canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, 0, 0, font, paint);
         }
         {
             font.setSubpixel(false);
@@ -219,7 +219,7 @@ protected:
             canvas->translate(1075, -245);
             canvas->scale(375, 375);
             font.setSize(0.1f);
-            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
+            canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, 0, 0, font, paint);
         }
 
         // check color emoji
@@ -228,7 +228,7 @@ protected:
             emoiFont.setSubpixel(true);
             emoiFont.setTypeface(fEmojiTypeface);
             emoiFont.setSize(SkIntToScalar(19));
-            canvas->drawSimpleText(fEmojiText, strlen(fEmojiText), kUTF8_SkTextEncoding, 670, 90, emoiFont, paint);
+            canvas->drawSimpleText(fEmojiText, strlen(fEmojiText), SkTextEncoding::kUTF8, 670, 90, emoiFont, paint);
         }
 
         // render offscreen buffer

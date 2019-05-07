@@ -17,7 +17,7 @@ static void call_measure() {
     SkRandom rand;
 
     paint.setAntiAlias(true);
-    paint.setTextEncoding(kUTF16_SkTextEncoding);
+    paint.setTextEncoding(SkTextEncoding::kUTF16);
     for (int j = 0; j < SK_ARRAY_COUNT(text); j++)
         text[j] = (uint16_t)((rand.nextU() & 0xFF) + 32);
 
@@ -36,7 +36,7 @@ static void call_draw(SkCanvas* canvas) {
     SkRandom rand;
 
     paint.setAntiAlias(true);
-    paint.setTextEncoding(kUTF16_SkTextEncoding);
+    paint.setTextEncoding(SkTextEncoding::kUTF16);
     for (int j = 0; j < SK_ARRAY_COUNT(text); j++)
         text[j] = (uint16_t)((rand.nextU() & 0xFF) + 32);
 

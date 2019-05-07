@@ -169,7 +169,7 @@ DEF_SIMPLE_GM(macaa_colors, canvas, 800, 500) {
                     font.setHinting(h);
 
                     y += font.getSpacing() + 2;
-                    canvas->drawSimpleText(str, len, kUTF8_SkTextEncoding, x, y, font, paint);
+                    canvas->drawSimpleText(str, len, SkTextEncoding::kUTF8, x, y, font, paint);
                 }
             }
             y += 8;
