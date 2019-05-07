@@ -41,7 +41,7 @@ public:
     */
     constexpr SkMatrix()
         : fMat{1,0,0, 0,1,0, 0,0,1}
-        , fTypeMask{kIdentity_Mask} {}
+        , fTypeMask{kIdentity_Mask | kRectStaysRect_Mask} {}
 
     /** Sets SkMatrix to scale by (sx, sy). Returned matrix is:
 
@@ -53,10 +53,9 @@ public:
         @param sy  vertical scale factor
         @return    SkMatrix with scale
     */
-    static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy) {
-        SkMatrix m;
-        m.setScale(sx, sy);
-        return m;
+    static constexpr SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy) {
+        return SkMatrix(sx, 0, 0, 0, sy, 0, 0, 0, 1,
+                        (sx == 1 && sy == 1 ? kIdentity_Mask : kScale_Mask) | kRectStaysRect_Mask);
     }
 
     /** Sets SkMatrix to scale by (scale, scale). Returned matrix is:
@@ -68,10 +67,9 @@ public:
         @param scale  horizontal and vertical scale factor
         @return       SkMatrix with scale
     */
-    static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar scale) {
-        SkMatrix m;
-        m.setScale(scale, scale);
-        return m;
+    static constexpr SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar scale) {
+        return SkMatrix(scale, 0, 0, 0, scale, 0, 0, 0, 1,
+                        (scale == 1 ? kIdentity_Mask : kScale_Mask) | kRectStaysRect_Mask);
     }
 
     /** Sets SkMatrix to translate by (dx, dy). Returned matrix is:
@@ -84,12 +82,46 @@ public:
         @param dy  vertical translation
         @return    SkMatrix with translation
     */
-    static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy) {
-        SkMatrix m;
-        m.setTranslate(dx, dy);
-        return m;
+    static constexpr SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy) {
+        return SkMatrix(1, 0, dx, 0, 1, dy, 0, 0, 1,
+                        (((dx != 0) | (dy != 0)) ? kTranslate_Mask : kIdentity_Mask) |
+                        kRectStaysRect_Mask);
     }
 
+    /** Sets SkMatrix to scale by sx and sy, about a pivot point at (px, py).
+        The pivot point is unchanged when mapped with SkMatrix.
+
+        @param sx  horizontal scale factor
+        @param sy  vertical scale factor
+        @param px  pivot on x-axis
+        @param py  pivot on y-axis
+        @return    SkMatrix with scale arouns pivor.
+    */
+    static constexpr SkMatrix MakeScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
+        return SkMatrix(sx, 0, px - sx * px, 0, sy, py - sy * py, 0, 0, 1,
+                        ((sx != 1 || sy != 1) ? kScale_Mask : 0) |
+                        ((px - sx * px) || (py - sy * py) ? kTranslate_Mask : 0) |
+                        kRectStaysRect_Mask);
+    }
+
+    /** Sets SkMatrix with scale and translate elements.  Returned matrix is:
+
+            | sx  0 tx |
+            |  0 sy ty |
+            |  0  0  1 |
+
+        @param sx  horizontal scale factor to store
+        @param sy  vertical scale factor to store
+        @param tx  horizontal translation to store
+        @param ty  vertical translation to store
+        @return    SkMatrix with scale and translation
+    */
+    static constexpr SkMatrix MakeScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty) {
+        return SkMatrix(sx, 0, tx, 0, sy, ty, 0, 0, 1,
+                        ((sx != 1 || sy != 1) ? kScale_Mask : 0) |
+                        ((tx || ty) ? kTranslate_Mask : 0) |
+                        kRectStaysRect_Mask);
+    }
     /** Sets SkMatrix to:
 
             | scaleX  skewX transX |
@@ -107,12 +139,12 @@ public:
         @param pers2   perspective scale factor
         @return        SkMatrix constructed from parameters
     */
-    static SkMatrix SK_WARN_UNUSED_RESULT MakeAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
-                                                  SkScalar skewY,  SkScalar scaleY, SkScalar transY,
-                                                  SkScalar pers0, SkScalar pers1, SkScalar pers2) {
-        SkMatrix m;
-        m.setAll(scaleX, skewX, transX, skewY, scaleY, transY, pers0, pers1, pers2);
-        return m;
+    static constexpr SkMatrix SK_WARN_UNUSED_RESULT MakeAll(
+            SkScalar scaleX, SkScalar skewX,  SkScalar transX,
+            SkScalar skewY,  SkScalar scaleY, SkScalar transY,
+            SkScalar pers0, SkScalar pers1, SkScalar pers2) {
+        return SkMatrix(scaleX, skewX, transX, skewY, scaleY, transY, pers0, pers1, pers2,
+                        kUnknown_Mask);
     }
 
     /** \enum SkMatrix::TypeMask
@@ -475,16 +507,9 @@ public:
     void setAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
                 SkScalar skewY,  SkScalar scaleY, SkScalar transY,
                 SkScalar persp0, SkScalar persp1, SkScalar persp2) {
-        fMat[kMScaleX] = scaleX;
-        fMat[kMSkewX]  = skewX;
-        fMat[kMTransX] = transX;
-        fMat[kMSkewY]  = skewY;
-        fMat[kMScaleY] = scaleY;
-        fMat[kMTransY] = transY;
-        fMat[kMPersp0] = persp0;
-        fMat[kMPersp1] = persp1;
-        fMat[kMPersp2] = persp2;
-        this->setTypeMask(kUnknown_Mask);
+        *this = SkMatrix::MakeAll(scaleX, skewX, transX,
+                                  skewY, scaleY, transY,
+                                  persp0, persp1, persp2);
     }
 
     /** Copies nine scalar values contained by SkMatrix into buffer, in member value
@@ -513,7 +538,11 @@ public:
 
         @param buffer  nine scalar values
     */
-    void set9(const SkScalar buffer[9]);
+    void set9(const SkScalar buffer[9]) {
+        *this = SkMatrix::MakeAll(buffer[0], buffer[1], buffer[2],
+                                  buffer[3], buffer[4], buffer[5],
+                                  buffer[6], buffer[7], buffer[8]);
+    }
 
     /** Sets SkMatrix to identity; which has no effect on mapped SkPoint. Sets SkMatrix to:
 
@@ -524,7 +553,7 @@ public:
         Also called setIdentity(); use the one that provides better inline
         documentation.
     */
-    void reset();
+    void reset() { *this = SkMatrix(); }
 
     /** Sets SkMatrix to identity; which has no effect on mapped SkPoint. Sets SkMatrix to:
 
@@ -535,20 +564,20 @@ public:
         Also called reset(); use the one that provides better inline
         documentation.
     */
-    void setIdentity() { this->reset(); }
+    void setIdentity() { *this = SkMatrix(); }
 
     /** Sets SkMatrix to translate by (dx, dy).
 
         @param dx  horizontal translation
         @param dy  vertical translation
     */
-    void setTranslate(SkScalar dx, SkScalar dy);
+    void setTranslate(SkScalar dx, SkScalar dy) { *this = SkMatrix::MakeTrans(dx, dy); }
 
     /** Sets SkMatrix to translate by (v.fX, v.fY).
 
         @param v  vector containing horizontal and vertical translation
     */
-    void setTranslate(const SkVector& v) { this->setTranslate(v.fX, v.fY); }
+    void setTranslate(const SkVector& v) { *this = SkMatrix::MakeTrans(v.fX, v.fY); }
 
     /** Sets SkMatrix to scale by sx and sy, about a pivot point at (px, py).
         The pivot point is unchanged when mapped with SkMatrix.
@@ -558,14 +587,16 @@ public:
         @param px  pivot on x-axis
         @param py  pivot on y-axis
     */
-    void setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py);
+    void setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
+        *this = SkMatrix::MakeScale(sx, sy, px, py);
+    }
 
     /** Sets SkMatrix to scale by sx and sy about at pivot point at (0, 0).
 
         @param sx  horizontal scale factor
         @param sy  vertical scale factor
     */
-    void setScale(SkScalar sx, SkScalar sy);
+    void setScale(SkScalar sx, SkScalar sy) { *this = SkMatrix::MakeScale(sx, sy); }
 
     /** Sets SkMatrix to rotate by degrees about a pivot point at (px, py).
         The pivot point is unchanged when mapped with SkMatrix.
@@ -1673,26 +1704,7 @@ public:
         @param ty  vertical translation to store
     */
     void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty) {
-        fMat[kMScaleX] = sx;
-        fMat[kMSkewX]  = 0;
-        fMat[kMTransX] = tx;
-
-        fMat[kMSkewY]  = 0;
-        fMat[kMScaleY] = sy;
-        fMat[kMTransY] = ty;
-
-        fMat[kMPersp0] = 0;
-        fMat[kMPersp1] = 0;
-        fMat[kMPersp2] = 1;
-
-        unsigned mask = 0;
-        if (sx != 1 || sy != 1) {
-            mask |= kScale_Mask;
-        }
-        if (tx || ty) {
-            mask |= kTranslate_Mask;
-        }
-        this->setTypeMask(mask | kRectStaysRect_Mask);
+        *this = SkMatrix::MakeScaleTranslate(sx, sy, tx, ty);
     }
 
     /** Returns true if all elements of the matrix are finite. Returns false if any
@@ -1731,6 +1743,12 @@ private:
 
     SkScalar         fMat[9];
     mutable uint32_t fTypeMask;
+
+    constexpr SkMatrix(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
+                       SkScalar skewY,  SkScalar scaleY, SkScalar transY,
+                       SkScalar pers0, SkScalar pers1, SkScalar pers2, uint32_t typeMask)
+        : fMat{scaleX, skewX,  transX, skewY,  scaleY, transY, pers0, pers1, pers2}
+        , fTypeMask(typeMask) {}
 
     static void ComputeInv(SkScalar dst[9], const SkScalar src[9], double invDet, bool isPersp);
 
