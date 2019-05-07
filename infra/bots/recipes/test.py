@@ -140,7 +140,7 @@ def dm_flags(api, bot):
       configs.extend([gl_prefix,
                       gl_prefix + 'dft',
                       gl_prefix + 'srgb'])
-      if sample_count is not '':
+      if sample_count:
         configs.append(gl_prefix + 'msaa' + sample_count)
 
     # The NP produces a long error stream when we run with MSAA. The Tegra3 just
@@ -203,13 +203,13 @@ def dm_flags(api, bot):
         # LenovoYogaC630 only supports D3D11, not GL.
         configs = ['angle_d3d11_es2',
                    'angle_d3d11_es3']
-      if sample_count is not '':
+      if sample_count:
         configs.append('angle_d3d11_es2_msaa' + sample_count)
         configs.append('angle_d3d11_es3_msaa' + sample_count)
       if 'GTX' in bot or 'Quadro' in bot:
         # See skia:7823 and chromium:693090.
         configs.append('angle_gl_es3')
-        if sample_count is not '':
+        if sample_count:
           configs.append('angle_gl_es2_msaa' + sample_count)
           configs.append('angle_gl_es3_msaa' + sample_count)
       if 'NUC5i7RYH' in bot:
@@ -605,7 +605,7 @@ def dm_flags(api, bot):
     blacklist(['_',            'gm', '_', 'imageresizetiled'])
     blacklist(['_',            'gm', '_', 'matrixconvolution'])
     blacklist(['_',            'gm', '_', 'strokedlines'])
-    if sample_count is not '':
+    if sample_count:
       gl_msaa_config = gl_prefix + 'msaa' + sample_count
       blacklist([gl_msaa_config, 'gm', '_', 'imageblurtiled'])
       blacklist([gl_msaa_config, 'gm', '_', 'imagefiltersbase'])

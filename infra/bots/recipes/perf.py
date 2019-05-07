@@ -96,7 +96,7 @@ def nanobench_flags(api, bot):
       gl_prefix = 'gles'
 
     configs.extend([gl_prefix, gl_prefix + 'srgb'])
-    if sample_count is not '':
+    if sample_count:
       configs.append(gl_prefix + 'msaa' + sample_count)
       if ('TegraX1' in bot or
           'Quadro' in bot or
@@ -117,12 +117,12 @@ def nanobench_flags(api, bot):
     if 'ANGLE' in bot:
       # Test only ANGLE configs.
       configs = ['angle_d3d11_es2']
-      if sample_count is not '':
+      if sample_count:
         configs.append('angle_d3d11_es2_msaa' + sample_count)
       if 'QuadroP400' in bot:
         # See skia:7823 and chromium:693090.
         configs.append('angle_gl_es2')
-        if sample_count is not '':
+        if sample_count:
           configs.append('angle_gl_es2_msaa' + sample_count)
 
     if 'ChromeOS' in bot:
