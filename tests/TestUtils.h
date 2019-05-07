@@ -35,6 +35,18 @@ void test_copy_to_surface(skiatest::Reporter*, GrContext*,
 // Fills data with a red-green gradient
 void fill_pixel_data(int width, int height, GrColor* data);
 
+enum class Renderable : bool {
+    kNo = false,
+    kYes = true
+};
+
+// Create a solid colored backend texture
+bool create_backend_texture(GrContext*, GrBackendTexture* backendTex,
+                            const SkImageInfo& ii, GrMipMapped mipMapped, SkColor color,
+                            Renderable);
+
+void delete_backend_texture(GrContext*, const GrBackendTexture& backendTex);
+
 // Checks srcBuffer and dstBuffer contain the same colors
 bool does_full_buffer_contain_correct_color(GrColor* srcBuffer, GrColor* dstBuffer, int width,
                                             int height);
