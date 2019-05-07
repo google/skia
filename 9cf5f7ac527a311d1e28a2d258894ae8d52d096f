@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f7e3603_a68c0c03",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-07T13:42:06Z",
+      "side": 1,
+      "message": "I think we\u0027ve found that a static alloc + dynamic fallback strategy like SkSTArray is safer and just as performant as alloca().",
+      "revId": "9cf5f7ac527a311d1e28a2d258894ae8d52d096f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
