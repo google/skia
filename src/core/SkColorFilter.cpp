@@ -434,13 +434,14 @@ public:
             }
             std::unique_ptr<SkSL::ByteCode> byteCode = c.toByteCode(*prog);
             ctx->main = byteCode->fFunctions[0].get();
-            ctx->interpreter.reset(new SkSL::Interpreter(std::move(prog), std::move(byteCode)));
+            ctx->interpreter.reset(new SkSL::Interpreter(std::move(prog), std::move(byteCode),
+                                                         (SkSL::Interpreter::Value*) ctx->inputs));
             ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
                 auto ctx = (InterpreterCtx*)arg;
                 for (int i = 0; i < active_pixels; i++) {
                     ctx->interpreter->run(*ctx->main,
                                           (SkSL::Interpreter::Value*) (ctx->rgba + i * 4),
-                                          (SkSL::Interpreter::Value*) ctx->inputs);
+                                          nullptr);
                 }
             };
             rec.fPipeline->append(SkRasterPipeline::callback, ctx);

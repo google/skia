@@ -37,8 +37,10 @@ const char* SKSL_TEST_SRC = R"(
 )";
 
 static void runtimeCpuFunc(float color[4], const void* context) {
-    std::swap(color[0], color[1]);
-    color[2] = *(float*) context;
+    color[3] = color[0]*0.3 + color[1]*0.6 + color[2]*0.1;
+    color[0] = 0;
+    color[1] = 0;
+    color[2] = 0;
 }
 
 DEF_SIMPLE_GPU_GM(runtimecolorfilter, context, rtc, canvas, 768, 256) {
