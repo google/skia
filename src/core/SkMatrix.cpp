@@ -63,20 +63,6 @@ static void normalize_perspective(SkScalar mat[9]) {
         [persp-0    persp-1     persp-2]   [1]   [1 ]
 */
 
-void SkMatrix::reset() {
-    fMat[kMScaleX] = fMat[kMScaleY] = fMat[kMPersp2] = 1;
-    fMat[kMSkewX]  = fMat[kMSkewY] =
-    fMat[kMTransX] = fMat[kMTransY] =
-    fMat[kMPersp0] = fMat[kMPersp1] = 0;
-    this->setTypeMask(kIdentity_Mask | kRectStaysRect_Mask);
-}
-
-void SkMatrix::set9(const SkScalar buffer[]) {
-    memcpy(fMat, buffer, 9 * sizeof(SkScalar));
-    normalize_perspective(fMat);
-    this->setTypeMask(kUnknown_Mask);
-}
-
 void SkMatrix::setAffine(const SkScalar buffer[]) {
     fMat[kMScaleX] = buffer[kAScaleX];
     fMat[kMSkewX]  = buffer[kASkewX];
@@ -273,21 +259,6 @@ static inline SkScalar scross(SkScalar a, SkScalar b, SkScalar c, SkScalar d) {
     return a * b - c * d;
 }
 
-void SkMatrix::setTranslate(SkScalar dx, SkScalar dy) {
-    if ((dx != 0) | (dy != 0)) {
-        fMat[kMTransX] = dx;
-        fMat[kMTransY] = dy;
-
-        fMat[kMScaleX] = fMat[kMScaleY] = fMat[kMPersp2] = 1;
-        fMat[kMSkewX]  = fMat[kMSkewY] =
-        fMat[kMPersp0] = fMat[kMPersp1] = 0;
-
-        this->setTypeMask(kTranslate_Mask | kRectStaysRect_Mask);
-    } else {
-        this->reset();
-    }
-}
-
 void SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
     const unsigned mask = this->getType();
 
@@ -319,30 +290,6 @@ void SkMatrix::postTranslate(SkScalar dx, SkScalar dy) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void SkMatrix::setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
-    if (1 == sx && 1 == sy) {
-        this->reset();
-    } else {
-        this->setScaleTranslate(sx, sy, px - sx * px, py - sy * py);
-    }
-}
-
-void SkMatrix::setScale(SkScalar sx, SkScalar sy) {
-    if (1 == sx && 1 == sy) {
-        this->reset();
-    } else {
-        fMat[kMScaleX] = sx;
-        fMat[kMScaleY] = sy;
-        fMat[kMPersp2] = 1;
-
-        fMat[kMTransX] = fMat[kMTransY] =
-        fMat[kMSkewX]  = fMat[kMSkewY] =
-        fMat[kMPersp0] = fMat[kMPersp1] = 0;
-
-        this->setTypeMask(kScale_Mask | kRectStaysRect_Mask);
-    }
-}
 
 void SkMatrix::preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
     if (1 == sx && 1 == sy) {
