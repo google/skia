@@ -27,8 +27,8 @@ void test(skiatest::Reporter* r, const char* src, SkSL::Interpreter::Value* in, 
         }
         SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
         SkSL::Interpreter interpreter(std::move(program), std::move(byteCode));
-        std::unique_ptr<SkSL::Interpreter::Value> out = std::unique_ptr<SkSL::Interpreter::Value>(
-                                                       new SkSL::Interpreter::Value[expectedCount]);
+        std::unique_ptr<SkSL::Interpreter::Value[]> out =
+           std::unique_ptr<SkSL::Interpreter::Value[]>(new SkSL::Interpreter::Value[expectedCount]);
         interpreter.run(*main, in, out.get());
         bool valid = !memcmp(out.get(), expected, sizeof(SkSL::Interpreter::Value) * expectedCount);
         if (!valid) {
