@@ -405,12 +405,19 @@ void ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p) {
             lvalue->store();
             break;
         }
-        case Token::Kind::MINUS:
+        case Token::Kind::MINUS: {
+            this->writeExpression(*p.fOperand);
+            int count = slot_count(p.fOperand->fType);
+            if (count > 1) {
+                this->write(ByteCodeInstruction::kVector);
+                this->write8(count);
+            }
             this->writeTypedInstruction(p.fType,
                                         ByteCodeInstruction::kNegateS,
                                         ByteCodeInstruction::kInvalid,
                                         ByteCodeInstruction::kNegateF);
             break;
+        }
         default:
             SkASSERT(false);
     }
