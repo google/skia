@@ -58,8 +58,14 @@ config("common") {
     # Allow noexcept, even though we build without exceptions
     cflags_cc += [ "/wd4577" ]
     if (is_clang) {
-      # utilities.cpp includes an 'unsigned long' <= UINT_MAX check
-      cflags_cc += [ "-Wno-tautological-constant-compare" ]
+      cflags_cc += [
+        # utilities.cpp includes an 'unsigned long' <= UINT_MAX check
+        "-Wno-tautological-constant-compare",
+
+        # With distributed Windows builds, files may lose their case during copy, causing
+        # case-sensitivity mismatch on remote machines.
+        "-Wno-nonportable-include-path",
+      ]
     }
   }
 }
