@@ -774,19 +774,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
     s->draw(ddl.get());
 
     GrFlushInfo flushInfo;
-    auto result = s->flush(SkSurface::BackendSurfaceAccess::kPresent, flushInfo);
-    REPORTER_ASSERT(reporter, GrSemaphoresSubmitted::kYes == result);
+    s->flush(SkSurface::BackendSurfaceAccess::kPresent, flushInfo);
 
     REPORTER_ASSERT(reporter, fulfillInfo.fFulfilled);
     REPORTER_ASSERT(reporter, fulfillInfo.fReleased);
 
-    if (GrBackendApi::kVulkan == context->backend()) {
+    if (GrBackendApi::kVulkan == context->backend() ||
+        GrBackendApi::kMetal  == context->backend()) {
         // In order to recieve the done callback with Vulkan we need to perform the equivalent
         // of a glFinish
         GrFlushInfo flushInfoSyncCpu;
         flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
-        result = s->flush(SkSurface::BackendSurfaceAccess::kPresent, flushInfoSyncCpu);
-        REPORTER_ASSERT(reporter, GrSemaphoresSubmitted::kYes == result);
+        s->flush(SkSurface::BackendSurfaceAccess::kPresent, flushInfoSyncCpu);
     }
 
     REPORTER_ASSERT(reporter, fulfillInfo.fDone);
