@@ -22,6 +22,30 @@
       "revId": "ebc21f64cd88c9122766fc1b6a9263fdd5cfdb67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cfc8d4a_bd8a8840",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-07T19:48:42Z",
+      "side": 0,
+      "message": "These can be implemented with MTLSharedEvent as well -- I\u0027ll add that to this CL. We could probably use MTLFence on platforms that don\u0027t support MTLSharedEvent, but I\u0027m not sure its worth the complexity.",
+      "parentUuid": "8c4ed7e3_0a352e15",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 31
+      },
+      "revId": "ebc21f64cd88c9122766fc1b6a9263fdd5cfdb67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
