@@ -66,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "817dbcd5_9679a043",
+        "filename": "experimental/multi-skp/SkMultiSkp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-05-07T17:56:26Z",
+      "side": 1,
+      "message": "I spoke with him and yes, and it was not one of the two multi skp hacks I was familiar with.\nIt\u0027s in skia/src/utils/SkMultiPictureDocument.cpp and is almost perfect for handling multiple frames in the compact way that I was investigating in my design.\nI\u0027ve added a section about this in the design and will likely use it.",
+      "parentUuid": "e864740c_1bd556a6",
+      "revId": "04db2a13652652d3ef888e6d6007b134b2071fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad5d5d6b_f581a747",
         "filename": "experimental/multi-skp/SkMultiSkp.cpp",
         "patchSetId": 4

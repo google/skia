@@ -484,6 +484,30 @@
     },
     {
       "key": {
+        "uuid": "4d1c7221_2da3fc40",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-05-07T17:56:26Z",
+      "side": 1,
+      "message": "In the time that this review has been ongoing, I have learned a lot, so no.\nThere are several potential threading options other than the standard library, (some in libhwui, some in skia) and I\u0027ve learned that maybe this use case has more in common with the callback method Android Studio uses than the properties-triggered capture we\u0027re used to, and If I piggyback on that I\u0027ll be forced into whatever thread system it uses (John Reck tells me most of the logic is on the Java side of Android)\n\nThe number of options is growing at a rate far faster than I can investigate and rule them out ;)\n\nI\u0027m going to have to put this CL on hold until I\u0027ve settled the design a bit more.\nhttps://docs.google.com/document/d/1FO2V_93vVT6LkMSu0urR9DgI1hyQr2FAE-sSBJI6Kgg/edit#",
+      "parentUuid": "daed99e3_1b8d9e6f",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 29
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7f8c112d_e6fbe4d0",
         "filename": "experimental/multi-skp/SkMultiSkp.h",
         "patchSetId": 3
@@ -576,6 +600,30 @@
       "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98c3dc54_808971f8",
+        "filename": "experimental/multi-skp/SkMultiSkp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-05-07T17:56:26Z",
+      "side": 1,
+      "message": "Makes sense. thank you for the explanation. I\u0027ll use skia types wherever possible.",
+      "parentUuid": "7b4031c5_b8201c68",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 16
+      },
+      "revId": "ad461f1b2ebc939b6afef7b31408b007cae78ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
