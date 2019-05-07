@@ -184,7 +184,7 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
-    void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
+    void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo& info) override {
         if (info.fFlags & kSyncCpu_GrFlushFlag) {
             this->submitCommandBuffer(kForce_SyncQueue);
