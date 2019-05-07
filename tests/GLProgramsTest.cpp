@@ -313,7 +313,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
-    drawingManager->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+    drawingManager->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
 
     const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
@@ -342,7 +342,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
             auto blockFP = BlockInputFragmentProcessor::Make(std::move(fp));
             paint.addColorFragmentProcessor(std::move(blockFP));
             GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
-            drawingManager->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
+            drawingManager->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
                                   GrFlushInfo());
         }
     }
