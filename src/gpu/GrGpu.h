@@ -394,9 +394,11 @@ public:
     void dumpJSON(SkJSONWriter*) const;
 
 #if GR_TEST_UTILS
+#if 0
     GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
                                                      SkColorType, bool isRenderTarget,
                                                      GrMipMapped, size_t rowBytes = 0);
+#endif
 
     /** Creates a texture directly in the backend API without wrapping it in a GrTexture. This is
         only to be used for testing (particularly for testing the methods that import an externally

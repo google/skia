@@ -456,6 +456,8 @@ void GrGpu::dumpJSON(SkJSONWriter* writer) const { }
 #endif
 
 #if GR_TEST_UTILS
+
+#if 0
 GrBackendTexture GrGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
                                                         SkColorType colorType, bool isRenderTarget,
                                                         GrMipMapped isMipped, size_t rowBytes) {
@@ -464,6 +466,7 @@ GrBackendTexture GrGpu::createTestingOnlyBackendTexture(const void* pixels, int 
     return this->createTestingOnlyBackendTexture(pixels, w, h, grCT, isRenderTarget, isMipped,
                                                  rowBytes);
 }
+#endif
 
 #if GR_GPU_STATS
 void GrGpu::Stats::dump(SkString* out) {
