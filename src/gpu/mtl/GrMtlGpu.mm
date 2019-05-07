@@ -174,6 +174,37 @@ void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     }
 }
 
+GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
+    return 0;
+}
+
+bool GrMtlGpu::waitFence(GrFence, uint64_t) {
+    return true;
+}
+
+void GrMtlGpu::deleteFence(GrFence) const {
+}
+
+sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrMtlGpu::makeSemaphore(bool isOwned) {
+    return nullptr;
+}
+
+sk_sp<GrSemaphore> GrMtlGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                        GrResourceProvider::SemaphoreWrapType wrapType,
+                                        GrWrapOwnership ownership) {
+    return nullptr;
+}
+
+void GrMtlGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {
+}
+
+void GrMtlGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
+}
+
+sk_sp<GrSemaphore> GrMtlGpu::prepareTextureForCrossContextUsage(GrTexture*) {
+    return nullptr;
+}
+
 sk_sp<GrGpuBuffer> GrMtlGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
                                             GrAccessPattern accessPattern, const void* data) {
     return GrMtlBuffer::Make(this, size, type, accessPattern, data);
