@@ -771,6 +771,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
         ddl = recorder.detach();
     }
 
+    context->flush();
+
     s->draw(ddl.get());
 
     GrFlushInfo flushInfo;
@@ -781,7 +783,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
 
     if (GrBackendApi::kVulkan == context->backend() ||
         GrBackendApi::kMetal  == context->backend()) {
-        // In order to recieve the done callback with Vulkan we need to perform the equivalent
+        // In order to receive the done callback with Vulkan we need to perform the equivalent
         // of a glFinish
         GrFlushInfo flushInfoSyncCpu;
         flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;

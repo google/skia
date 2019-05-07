@@ -209,7 +209,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxy,
     SkDEBUGCODE(this->validate());
 
     if (kNone_GrFlushFlags == info.fFlags && !info.fNumSemaphores && !info.fFinishedProc &&
-            proxy && !fDAG.isUsed(proxy)) {
+            proxy && !this->isDDLTarget(proxy) && !fDAG.isUsed(proxy)) {
         return GrSemaphoresSubmitted::kNo;
     }
 
@@ -338,6 +338,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxy,
     }
 #endif
     fDAG.reset();
+    this->clearDDLTargets();
 
 #ifdef SK_DEBUG
     // In non-DDL mode this checks that all the flushed ops have been freed from the memory pool.
@@ -552,6 +553,8 @@ void GrDrawingManager::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
         fActiveOpList->makeClosed(*fContext->priv().caps());
         fActiveOpList = nullptr;
     }
+
+    this->addDDLTarget(newDest);
 
     // Here we jam the proxy that backs the current replay SkSurface into the LazyProxyData.
     // The lazy proxy that references it (in the copied opLists) will steal its GrTexture.
