@@ -94,15 +94,15 @@ public:
     */
     bool isEmbeddedBitmaps() const { return SkToBool(fFlags & kEmbeddedBitmaps_PrivFlag); }
 
-    /** Returns true if glyphs at different sub-pixel positions may differ on pixel edge coverage.
+    /** Returns true if glyphs may be drawn at sub-pixel offsets.
 
-        @return  true if glyph positioned in pixel using transparency
+        @return  true if glyphs may be drawn at sub-pixel offsets.
     */
     bool isSubpixel() const { return SkToBool(fFlags & kSubpixel_PrivFlag); }
 
-    /** Returns true if text is converted to SkPath before drawing and measuring.
+    /** Returns true if font and glyph metrics are requested to be linearly scalable.
 
-        @return  true glyph hints are never applied
+        @return  true if font and glyph metrics are requested to be linearly scalable.
     */
     bool isLinearMetrics() const { return SkToBool(fFlags & kLinearMetrics_PrivFlag); }
 
@@ -134,10 +134,12 @@ public:
     */
     void setSubpixel(bool subpixel);
 
-    /** Requests, but does not require, that glyphs are converted to SkPath
-        before drawing and measuring.
+    /** Requests, but does not require, linearly scalable font and glyph metrics.
 
-        @param linearMetrics  setting for converting glyphs to paths
+        For outline fonts 'true' means font and glyph metrics should ignore hinting and rounding.
+        Note that some bitmap formats may not be able to scale linearly and will ignore this flag.
+
+        @param linearMetrics  setting for linearly scalable font and glyph metrics.
     */
     void setLinearMetrics(bool linearMetrics);
 
