@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d7d5092_c12f9ff7",
+        "filename": "third_party/angle2/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-07T15:23:04Z",
+      "side": 1,
+      "message": "We might want to just grab the pattern from third_party/third_party.gni?\n\n      if (is_win) {\n        cflags \u003d [ \"/w\" ]\n      } else {\n        cflags \u003d [ \"-w\" ]\n      }\n\nShut it all up?",
+      "revId": "1dc70a6900690278e5176ff35b8df729c9300c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
