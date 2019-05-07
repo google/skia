@@ -24,10 +24,10 @@ static void excercise_draw_pos_text(SkCanvas* canvas,
                                     SkScalar x, SkScalar y,
                                     const SkFont& font,
                                     const SkPaint& paint) {
-    const int count = font.countText(text, strlen(text), kUTF8_SkTextEncoding);
+    const int count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
     SkTextBlobBuilder builder;
     auto rec = builder.allocRunPos(font, count);
-    font.textToGlyphs(text, strlen(text), kUTF8_SkTextEncoding, rec.glyphs, count);
+    font.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, rec.glyphs, count);
     font.getPos(rec.glyphs, count, rec.points());
     canvas->drawTextBlob(builder.make(), x, y, paint);
 }
@@ -61,7 +61,7 @@ DEF_SIMPLE_GM_CAN_FAIL(pdf_never_embed, canvas, errorMsg, 512, 512) {
 
     canvas->scale(1.0, 0.5);
     p.setColor(0xF0000080);
-    canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 30, 700, font, p);
+    canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 30, 700, font, p);
     return skiagm::DrawResult::kOk;
 }
 

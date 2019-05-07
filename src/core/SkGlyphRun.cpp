@@ -162,7 +162,7 @@ SkSpan<const SkGlyphID> SkGlyphIDSet::uniquifyGlyphIDs(
 // -- SkGlyphRunBuilder ----------------------------------------------------------------------------
 void SkGlyphRunBuilder::drawTextUTF8(const SkPaint& paint, const SkFont& font, const void* bytes,
                                      size_t byteLength, SkPoint origin) {
-    auto glyphIDs = textToGlyphIDs(font, bytes, byteLength, kUTF8_SkTextEncoding);
+    auto glyphIDs = textToGlyphIDs(font, bytes, byteLength, SkTextEncoding::kUTF8);
     if (!glyphIDs.empty()) {
         this->initialize(glyphIDs.size());
         this->simplifyDrawText(font, glyphIDs, origin, fPositions);
@@ -258,7 +258,7 @@ void SkGlyphRunBuilder::initialize(size_t totalRunSize) {
 
 SkSpan<const SkGlyphID> SkGlyphRunBuilder::textToGlyphIDs(
         const SkFont& font, const void* bytes, size_t byteLength, SkTextEncoding encoding) {
-    if (encoding != kGlyphID_SkTextEncoding) {
+    if (encoding != SkTextEncoding::kGlyphID) {
         int count = font.countText(bytes, byteLength, encoding);
         if (count > 0) {
             fScratchGlyphIDs.resize(count);

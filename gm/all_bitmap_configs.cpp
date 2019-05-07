@@ -74,8 +74,8 @@ static SkBitmap make_bitmap(SkColorType ct) {
 static void draw_center_letter(char c, const SkFont& font, SkColor color,
                                SkScalar x, SkScalar y, SkCanvas* canvas) {
     SkRect bounds;
-    font.measureText(&c, 1, kUTF8_SkTextEncoding, &bounds);
-    canvas->drawSimpleText(&c, 1, kUTF8_SkTextEncoding,
+    font.measureText(&c, 1, SkTextEncoding::kUTF8, &bounds);
+    canvas->drawSimpleText(&c, 1, SkTextEncoding::kUTF8,
                            x - bounds.centerX(), y - bounds.centerY(),
                            font, SkPaint(SkColor4f::FromColor(color)));
 }
@@ -122,7 +122,7 @@ static void draw(SkCanvas* canvas,
                  const char text[]) {
     SkASSERT(src.colorType() == colorType);
     canvas->drawBitmap(src, 0.0f, 0.0f);
-    canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0.0f, 12.0f, font, p);
+    canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 0.0f, 12.0f, font, p);
 }
 
 DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {

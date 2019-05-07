@@ -53,14 +53,14 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
 
     SkPath path;
     SkRect iBox, skiBox, skiaBox;
-    SkTextUtils::GetPath("SKI", 3, kUTF8_SkTextEncoding, 0, 0, font, &path);
+    SkTextUtils::GetPath("SKI", 3, SkTextEncoding::kUTF8, 0, 0, font, &path);
     TightBounds(path, &skiBox);
-    SkTextUtils::GetPath("I", 1, kUTF8_SkTextEncoding, 0, 0, font, &path);
+    SkTextUtils::GetPath("I", 1, SkTextEncoding::kUTF8, 0, 0, font, &path);
     TightBounds(path, &iBox);
     iBox.offsetTo(skiBox.fRight - iBox.width(), iBox.fTop);
 
     const size_t textLen = strlen(kSkiaStr);
-    SkTextUtils::GetPath(kSkiaStr, textLen, kUTF8_SkTextEncoding, 0, 0, font, &path);
+    SkTextUtils::GetPath(kSkiaStr, textLen, SkTextEncoding::kUTF8, 0, 0, font, &path);
     TightBounds(path, &skiaBox);
     skiaBox.outset(0, 2 * iBox.width() * (kVerticalSpacing + 1));
 
@@ -112,7 +112,7 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     SkASSERT(SK_ARRAY_COUNT(pos2) == SK_ARRAY_COUNT(colors2));
     paint.setShader(SkGradientShader::MakeLinear(pts2, colors2, pos2, SK_ARRAY_COUNT(pos2),
                                                  SkTileMode::kClamp));
-    canvas->drawSimpleText(kSkiaStr, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
+    canvas->drawSimpleText(kSkiaStr, textLen, SkTextEncoding::kUTF8, 0, 0, font, paint);
 }
 
 // This GM exercises SkPictureImageGenerator features

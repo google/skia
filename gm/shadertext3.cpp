@@ -122,7 +122,7 @@ protected:
                 constexpr char kText[] = "B";
                 canvas->drawString(kText, 0, 0, font, fillPaint);
                 canvas->drawString(kText, 0, 0, font, outlinePaint);
-                SkScalar w = font.measureText(kText, strlen(kText), kUTF8_SkTextEncoding);
+                SkScalar w = font.measureText(kText, strlen(kText), SkTextEncoding::kUTF8);
                 canvas->translate(w + 10.f, 0.f);
                 ++i;
                 if (!(i % 2)) {

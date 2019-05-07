@@ -73,7 +73,7 @@ protected:
             SkString label;
             label.printf("%d", i);
             SkRect labelBounds;
-            font.measureText(label.c_str(), label.size(), kUTF8_SkTextEncoding, &labelBounds);
+            font.measureText(label.c_str(), label.size(), SkTextEncoding::kUTF8, &labelBounds);
             SkScalar labelX = 0.5f * kPosterSize - 0.5f * labelBounds.width();
             SkScalar labelY = 0.5f * kPosterSize + 0.5f * labelBounds.height();
 

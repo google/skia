@@ -40,7 +40,7 @@ protected:
                 font.setSize(random.nextRangeScalar(12, 96));
                 SkScalar x = random.nextRangeScalar(0, (SkScalar)size.fWidth),
                          y = random.nextRangeScalar(0, (SkScalar)size.fHeight);
-                auto blob = SkTextBlob::MakeFromText(text, len, font, kUTF8_SkTextEncoding);
+                auto blob = SkTextBlob::MakeFromText(text, len, font, SkTextEncoding::kUTF8);
                 for (int j = 0; j < 1000; ++j) {
                     canvas->drawTextBlob(blob, x, y, paint);
                 }

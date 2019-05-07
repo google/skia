@@ -229,7 +229,8 @@ static void test_advances(skiatest::Reporter* reporter) {
     };
 
     SkFont font;
-    char txt[] = "long.text.with.lots.of.dots.";
+    char const * const txt = "long.text.with.lots.of.dots.";
+    size_t textLen = strlen(txt);
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(faces); i++) {
         font.setTypeface(SkTypeface::MakeFromName(faces[i], SkFontStyle()));
@@ -247,10 +248,10 @@ static void test_advances(skiatest::Reporter* reporter) {
 
                 // For no hinting and light hinting this should take the
                 // optimized generateAdvance path.
-                SkScalar width1 = font.measureText(txt, strlen(txt), kUTF8_SkTextEncoding);
+                SkScalar width1 = font.measureText(txt, textLen, SkTextEncoding::kUTF8);
 
                 // Requesting the bounds forces a generateMetrics call.
-                SkScalar width2 = font.measureText(txt, strlen(txt), kUTF8_SkTextEncoding, &bounds);
+                SkScalar width2 = font.measureText(txt, textLen, SkTextEncoding::kUTF8, &bounds);
 
                 // SkDebugf("Font: %s, generateAdvance: %f, generateMetrics: %f\n",
                 //    faces[i], SkScalarToFloat(width1), SkScalarToFloat(width2));

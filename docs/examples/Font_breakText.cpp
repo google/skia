@@ -14,7 +14,7 @@ void draw(SkCanvas* canvas) {
     SkScalar measuredWidth;
     SkFont font;
     font.setSize(50);
-    int partialBytes = font.breakText(str, count, kUTF8_SkTextEncoding,
+    int partialBytes = font.breakText(str, count, SkTextEncoding::kUTF8,
             100, &measuredWidth);
     canvas->drawText(str, partialBytes, 25, 100, paint);
     canvas->drawLine(25, 60, 25 + 100, 60, paint);

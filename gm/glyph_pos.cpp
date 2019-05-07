@@ -104,7 +104,7 @@ static void drawTestCase(SkCanvas* canvas,
 
     SkRect bounds;
     if (drawRef) {
-        SkScalar advance = font.measureText(kText, sizeof(kText) - 1, kUTF8_SkTextEncoding,
+        SkScalar advance = font.measureText(kText, sizeof(kText) - 1, SkTextEncoding::kUTF8,
                                             &bounds, &paint);
 
         paint.setStrokeWidth(0.0f);
@@ -123,12 +123,13 @@ static void drawTestCase(SkCanvas* canvas,
     paint.setColor(SK_ColorBLACK);
     paint.setStrokeWidth(strokeWidth);
     paint.setStyle(strokeStyle);
-    canvas->drawSimpleText(kText, sizeof(kText) - 1, kUTF8_SkTextEncoding, 0.0f, 0.0f, font, paint);
+    canvas->drawSimpleText(kText, sizeof(kText) - 1, SkTextEncoding::kUTF8,
+                           0.0f, 0.0f, font, paint);
 
     if (drawRef) {
         const size_t len = sizeof(kText) - 1;
         SkGlyphID glyphs[len];
-        const int count = font.textToGlyphs(kText, len, kUTF8_SkTextEncoding, glyphs, len);
+        const int count = font.textToGlyphs(kText, len, SkTextEncoding::kUTF8, glyphs, len);
         SkScalar widths[len]; // len is conservative. we really only need 'count'
         font.getWidthsBounds(glyphs, count, widths, nullptr, &paint);
 

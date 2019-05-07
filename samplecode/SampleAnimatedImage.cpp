@@ -38,10 +38,10 @@ protected:
                 kPauseKey, kResetKey);
         const char* text = str.c_str();
         SkRect bounds;
-        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+        font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
         fYOffset = bounds.height();
 
-        canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 5, fYOffset, font, SkPaint());
+        canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 5, fYOffset, font, SkPaint());
         fYOffset *= 2;
     }
 

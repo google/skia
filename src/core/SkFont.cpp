@@ -479,13 +479,13 @@ SkRect SkFontPriv::GetFontBounds(const SkFont& font) {
 
 int SkFontPriv::CountTextElements(const void* text, size_t byteLength, SkTextEncoding encoding) {
     switch (encoding) {
-        case kUTF8_SkTextEncoding:
+        case SkTextEncoding::kUTF8:
             return SkUTF::CountUTF8(reinterpret_cast<const char*>(text), byteLength);
-        case kUTF16_SkTextEncoding:
+        case SkTextEncoding::kUTF16:
             return SkUTF::CountUTF16(reinterpret_cast<const uint16_t*>(text), byteLength);
-        case kUTF32_SkTextEncoding:
+        case SkTextEncoding::kUTF32:
             return byteLength >> 2;
-        case kGlyphID_SkTextEncoding:
+        case SkTextEncoding::kGlyphID:
             return byteLength >> 1;
     }
     SkASSERT(false);

@@ -1401,7 +1401,7 @@
         "stdout": "[  1.0000   0.0000   3.0000][  0.0000   2.0000   4.0000][  0.0000   0.0000   1.0000]\\n"
     },
         "SkPaint_containsText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const uint16_t goodGlyph = 511;\n    const uint16_t zeroGlyph = 0;\n    const uint16_t badGlyph = 65535; // larger than glyph count in font\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    SkDebugf(\"0x%04x %c= has glyph\\n\", goodGlyph,\n            paint.containsText(&goodGlyph, 2) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has glyph\\n\", zeroGlyph,\n            paint.containsText(&zeroGlyph, 2) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has glyph\\n\", badGlyph,\n            paint.containsText(&badGlyph, 2) ? '=' : '!');\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const uint16_t goodGlyph = 511;\n    const uint16_t zeroGlyph = 0;\n    const uint16_t badGlyph = 65535; // larger than glyph count in font\n    paint.setTextEncoding(SkTextEncoding::kGlyphID);\n    SkDebugf(\"0x%04x %c= has glyph\\n\", goodGlyph,\n            paint.containsText(&goodGlyph, 2) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has glyph\\n\", zeroGlyph,\n            paint.containsText(&zeroGlyph, 2) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has glyph\\n\", badGlyph,\n            paint.containsText(&badGlyph, 2) ? '=' : '!');\n}",
     "hash": "6a68cb3c8b81a5976c81ee004f559247",
     "file": "SkPaint_Reference",
     "name": "SkPaint::containsText",
@@ -1576,11 +1576,11 @@
         "stdout": "SkPaint::kFill_Style == paint.getStyle()\\n"
     },
         "SkPaint_getTextEncoding": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"kUTF8_SkTextEncoding %c= text encoding\\n\",\n            kUTF8_SkTextEncoding == paint.getTextEncoding() ? '=' : '!');\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    SkDebugf(\"kGlyphID_SkTextEncoding %c= text encoding\\n\",\n            kGlyphID_SkTextEncoding == paint.getTextEncoding() ? '=' : '!');\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"SkTextEncoding::kUTF8 %c= text encoding\\n\",\n            SkTextEncoding::kUTF8 == paint.getTextEncoding() ? '=' : '!');\n    paint.setTextEncoding(SkTextEncoding::kGlyphID);\n    SkDebugf(\"SkTextEncoding::kGlyphID %c= text encoding\\n\",\n            SkTextEncoding::kGlyphID == paint.getTextEncoding() ? '=' : '!');\n}",
     "hash": "0d21e968e9a4c78c902ae3ef494941a0",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getTextEncoding",
-        "stdout": "kUTF8_SkTextEncoding == text encoding\\nkGlyphID_SkTextEncoding == text encoding\\n"
+        "stdout": "SkTextEncoding::kUTF8 == text encoding\\nSkTextEncoding::kGlyphID == text encoding\\n"
     },
         "SkPaint_getTextScaleX": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"1 %c= default text scale x\\n\", 1 == paint.getTextScaleX() ? '=' : '!');\n}",
@@ -3564,7 +3564,7 @@
         "stdout": "blob equals nullptr"
     },
         "SkTextBlobBuilder_make": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    sk_sp<SkTextBlob> blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    SkPaint paint;\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    SkFont font;\n    paint.textToGlyphs(\"x\", 1, builder.allocRun(font, 1, 20, 20).glyphs);\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    sk_sp<SkTextBlob> blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    SkPaint paint;\n    paint.setTextEncoding(SkTextEncoding::kGlyphID);\n    SkFont font;\n    paint.textToGlyphs(\"x\", 1, builder.allocRun(font, 1, 20, 20).glyphs);\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n}",
     "hash": "34c37c0212cc0aef670d96945d08fe24",
     "file": "SkTextBlobBuilder_Reference",
     "name": "SkTextBlobBuilder::make()",
@@ -4245,7 +4245,7 @@
     "name": "Stroke_Width"
 },
     "Paint_Text_Encoding": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const char hello8[] = \"Hello\" \"\\xE2\" \"\\x98\" \"\\xBA\";\n    const uint16_t hello16[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };\n    const uint32_t hello32[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };\n    paint.setTextSize(24);\n    canvas->drawText(hello8, sizeof(hello8) - 1, 10, 30, paint);\n    paint.setTextEncoding(kUTF16_SkTextEncoding);\n    canvas->drawText(hello16, sizeof(hello16), 10, 60, paint);\n    paint.setTextEncoding(kUTF32_SkTextEncoding);\n    canvas->drawText(hello32, sizeof(hello32), 10, 90, paint);\n    uint16_t glyphs[SK_ARRAY_COUNT(hello32)];\n    paint.textToGlyphs(hello32, sizeof(hello32), glyphs);\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    canvas->drawText(glyphs, sizeof(glyphs), 10, 120, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const char hello8[] = \"Hello\" \"\\xE2\" \"\\x98\" \"\\xBA\";\n    const uint16_t hello16[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };\n    const uint32_t hello32[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };\n    paint.setTextSize(24);\n    canvas->drawText(hello8, sizeof(hello8) - 1, 10, 30, paint);\n    paint.setTextEncoding(SkTextEncoding::kUTF16);\n    canvas->drawText(hello16, sizeof(hello16), 10, 60, paint);\n    paint.setTextEncoding(SkTextEncoding::kUTF32);\n    canvas->drawText(hello32, sizeof(hello32), 10, 90, paint);\n    uint16_t glyphs[SK_ARRAY_COUNT(hello32)];\n    paint.textToGlyphs(hello32, sizeof(hello32), glyphs);\n    paint.setTextEncoding(SkTextEncoding::kGlyphID);\n    canvas->drawText(glyphs, sizeof(glyphs), 10, 120, paint);\n}\n",
     "width": 256,
     "height": 128,
     "hash": "767fa4e7b6300e16a419f9881f0f9d3d",
@@ -5237,7 +5237,7 @@
     "name": "SkCanvas::drawText"
 },
     "SkCanvas_drawTextBlob": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    SkFont font;\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 100 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        font.setSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkTextEncoding::kGlyphID);\n    SkFont font;\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 100 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        font.setSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
     "width": 256,
     "height": 120,
     "hash": "005502b502c1282cb8d306d6c8d998fb",
@@ -7437,7 +7437,7 @@
     "name": "SkPaint::getTextWidths"
 },
     "SkPaint_glyphsToUnichars": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const char hello[] = \"Hello!\";\n    const int count = sizeof(hello) - 1;\n    SkGlyphID glyphs[count];\n    if (count != paint.textToGlyphs(hello, count, glyphs)) {\n        return;\n    }\n    SkUnichar unichars[count];\n    paint.glyphsToUnichars(glyphs, count, unichars);\n    paint.setTextEncoding(kUTF32_SkTextEncoding);\n    canvas->drawText(unichars, sizeof(unichars), 10, 30, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const char hello[] = \"Hello!\";\n    const int count = sizeof(hello) - 1;\n    SkGlyphID glyphs[count];\n    if (count != paint.textToGlyphs(hello, count, glyphs)) {\n        return;\n    }\n    SkUnichar unichars[count];\n    paint.glyphsToUnichars(glyphs, count, unichars);\n    paint.setTextEncoding(SkTextEncoding::kUTF32);\n    canvas->drawText(unichars, sizeof(unichars), 10, 30, paint);\n}\n",
     "width": 256,
     "height": 64,
     "hash": "79c550ec6c34054ab60fbcd1b81adc03",
@@ -7541,7 +7541,7 @@
     "name": "SkPaint::setTypeface"
 },
     "SkPaint_textToGlyphs": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const uint8_t utf8[] = { 0x24, 0xC2, 0xA2, 0xE2, 0x82, 0xAC, 0xC2, 0xA5, 0xC2, 0xA3 };\n    std::vector<SkGlyphID> glyphs;\n    int count = paint.textToGlyphs(utf8, sizeof(utf8), nullptr);\n    glyphs.resize(count);\n    (void) paint.textToGlyphs(utf8, sizeof(utf8), &glyphs.front());\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    paint.setTextSize(32);\n    canvas->drawText(&glyphs.front(), glyphs.size() * sizeof(SkGlyphID), 10, 40, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const uint8_t utf8[] = { 0x24, 0xC2, 0xA2, 0xE2, 0x82, 0xAC, 0xC2, 0xA5, 0xC2, 0xA3 };\n    std::vector<SkGlyphID> glyphs;\n    int count = paint.textToGlyphs(utf8, sizeof(utf8), nullptr);\n    glyphs.resize(count);\n    (void) paint.textToGlyphs(utf8, sizeof(utf8), &glyphs.front());\n    paint.setTextEncoding(SkTextEncoding::kGlyphID);\n    paint.setTextSize(32);\n    canvas->drawText(&glyphs.front(), glyphs.size() * sizeof(SkGlyphID), 10, 40, paint);\n}\n",
     "width": 256,
     "height": 64,
     "hash": "d11136d8a74f63009da2a7f550710823",
@@ -9333,7 +9333,7 @@
     "name": "SkTextBlob::MakeFromText"
 },
     "SkTextBlob_bounds": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    SkFont font;\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 50 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        font.setSize(1 == runLen ? 20 : 50);\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRect(blob->bounds(), paint);\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkTextEncoding::kGlyphID);\n    SkFont font;\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 50 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        font.setSize(1 == runLen ? 20 : 50);\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRect(blob->bounds(), paint);\n}",
     "width": 256,
     "height": 70,
     "hash": "fb8b2502bbe52d2029aecdf569dd9fdb",
@@ -9357,7 +9357,7 @@
     "name": "SkTextBlob::serialize_2"
 },
     "SkTextBlob_uniqueID": {
-    "code": "void draw(SkCanvas* canvas) {\n    for (int index = 0; index < 2; ++index) {\n        SkTextBlobBuilder textBlobBuilder;\n        const char bunny[] = \"/(^x^)\\\\\";\n        const int len = sizeof(bunny) - 1;\n        uint16_t glyphs[len];\n        SkPaint paint;\n        paint.textToGlyphs(bunny, len, glyphs);\n        paint.setTextEncoding(kGlyphID_SkTextEncoding);\n        paint.setTextScaleX(0.5);\n        SkFont font;\n        font.setScaleX(0.5);\n        int runs[] = { 3, 1, 3 };\n        SkPoint textPos = { 20, 50 };\n        int glyphIndex = 0;\n        for (auto runLen : runs) {\n            font.setSize(1 == runLen ? 20 : 50);\n            paint.setTextSize(1 == runLen ? 20 : 50);\n            const SkTextBlobBuilder::RunBuffer& run =\n                    textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n            memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n            textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n            glyphIndex += runLen;\n        }\n        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n        paint.reset();\n        canvas->drawTextBlob(blob.get(), 0, 0, paint);\n        std::string id = \"unique ID:\" + std::to_string(blob->uniqueID());\n        canvas->drawString(id.c_str(), 30, blob->bounds().fBottom + 15, paint);\n        canvas->translate(blob->bounds().fRight + 10, 0);\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    for (int index = 0; index < 2; ++index) {\n        SkTextBlobBuilder textBlobBuilder;\n        const char bunny[] = \"/(^x^)\\\\\";\n        const int len = sizeof(bunny) - 1;\n        uint16_t glyphs[len];\n        SkPaint paint;\n        paint.textToGlyphs(bunny, len, glyphs);\n        paint.setTextEncoding(SkTextEncoding::kGlyphID);\n        paint.setTextScaleX(0.5);\n        SkFont font;\n        font.setScaleX(0.5);\n        int runs[] = { 3, 1, 3 };\n        SkPoint textPos = { 20, 50 };\n        int glyphIndex = 0;\n        for (auto runLen : runs) {\n            font.setSize(1 == runLen ? 20 : 50);\n            paint.setTextSize(1 == runLen ? 20 : 50);\n            const SkTextBlobBuilder::RunBuffer& run =\n                    textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n            memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n            textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n            glyphIndex += runLen;\n        }\n        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n        paint.reset();\n        canvas->drawTextBlob(blob.get(), 0, 0, paint);\n        std::string id = \"unique ID:\" + std::to_string(blob->uniqueID());\n        canvas->drawString(id.c_str(), 30, blob->bounds().fBottom + 15, paint);\n        canvas->translate(blob->bounds().fRight + 10, 0);\n    }\n}",
     "width": 256,
     "height": 256,
     "hash": "6e12cceca981ddabc0fc18c380543f34",

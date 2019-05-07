@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
     int count = paint.textToGlyphs(utf8, sizeof(utf8), nullptr);
     glyphs.resize(count);
     (void) paint.textToGlyphs(utf8, sizeof(utf8), &glyphs.front());
-    paint.setTextEncoding(kGlyphID_SkTextEncoding);
+    paint.setTextEncoding(SkTextEncoding::kGlyphID);
     paint.setTextSize(32);
     canvas->drawText(&glyphs.front(), glyphs.size() * sizeof(SkGlyphID), 10, 40, paint);
 }

@@ -14,9 +14,9 @@ class <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a> final : public <a
     int <a href='#SkTextBlob_getIntercepts'>getIntercepts</a>(const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a> intervals[],
                       const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a> = nullptr) const;
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromText'>MakeFromText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>,
-                                      <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding = <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>);
+                                      <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding = <a href='undocumented#SkTextEncoding::kUTF8'>SkTextEncoding::kUTF8</a>);
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromString'>MakeFromString</a>(const char* <a href='undocumented#String'>string</a>, const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>,
-                                    <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding = <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>);
+                                    <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding = <a href='undocumented#SkTextEncoding::kUTF8'>SkTextEncoding::kUTF8</a>);
     size_t <a href='#SkTextBlob_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>& procs, void* memory, size_t memory_size) const;
     <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkData'>SkData</a>> <a href='#SkTextBlob_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>& procs) const;
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_Deserialize'>Deserialize</a>(const void* <a href='undocumented#Data'>data</a>, size_t <a href='undocumented#Size'>size</a>,
@@ -125,7 +125,7 @@ number of intersections; may be zero
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlob_MakeFromText'>MakeFromText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>,
-                                      <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding = <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>)
+                                      <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding = <a href='undocumented#SkTextEncoding::kUTF8'>SkTextEncoding::kUTF8</a>)
 </pre>
 
 Creates <a href='#Text_Blob'>Text_Blob</a> with a single run. <a href='#SkTextBlob_MakeFromText_text'>text</a> meaning depends on <a href='#Text_Encoding'>Text_Encoding</a>;
@@ -149,8 +149,8 @@ and <a href='#Font_Subpixel'>Font_Subpixel</a>
     <td><a href='#SkTextBlob_MakeFromText_text'>text</a> <a href='undocumented#Size'>size</a>, <a href='undocumented#Typeface'>typeface</a>,  <a href='#SkTextBlob_MakeFromText_text'>text scale</a>, and so on, used to draw</td>
   </tr>
   <tr>    <td><a name='SkTextBlob_MakeFromText_encoding'><code><strong>encoding</strong></code></a></td>
-    <td>one of: <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>, <a href='undocumented#kUTF16_SkTextEncoding'>kUTF16_SkTextEncoding</a>,
-<a href='undocumented#kUTF32_SkTextEncoding'>kUTF32_SkTextEncoding</a>, <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a>
+    <td>one of: <a href='undocumented#SkTextEncoding::kUTF8'>SkTextEncoding::kUTF8</a>, <a href='undocumented#SkTextEncoding::kUTF16'>SkTextEncoding::kUTF16</a>,
+<a href='undocumented#SkTextEncoding::kUTF32'>SkTextEncoding::kUTF32</a>, <a href='undocumented#SkTextEncoding::kGlyphID'>SkTextEncoding::kGlyphID</a>
 </td>
   </tr>
 </table>
@@ -173,7 +173,7 @@ and <a href='#Font_Subpixel'>Font_Subpixel</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlob_MakeFromString'>MakeFromString</a>(const char* <a href='undocumented#String'>string</a>, const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>,
-                                        <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding = <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>)
+                                        <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding = <a href='undocumented#SkTextEncoding::kUTF8'>SkTextEncoding::kUTF8</a>)
 </pre>
 
 Creates <a href='#Text_Blob'>Text_Blob</a> with a single run. <a href='#SkTextBlob_MakeFromString_string'>string</a> meaning depends on <a href='#Text_Encoding'>Text_Encoding</a>;
@@ -194,8 +194,8 @@ and <a href='#Font_Subpixel'>Font_Subpixel</a>
     <td><a href='undocumented#Text'>text</a> <a href='undocumented#Size'>size</a>, <a href='undocumented#Typeface'>typeface</a>,  <a href='undocumented#Text'>text scale</a>, and so on, used to draw</td>
   </tr>
   <tr>    <td><a name='SkTextBlob_MakeFromString_encoding'><code><strong>encoding</strong></code></a></td>
-    <td>one of: <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>, <a href='undocumented#kUTF16_SkTextEncoding'>kUTF16_SkTextEncoding</a>,
-<a href='undocumented#kUTF32_SkTextEncoding'>kUTF32_SkTextEncoding</a>, <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a>
+    <td>one of: <a href='undocumented#SkTextEncoding::kUTF8'>SkTextEncoding::kUTF8</a>, <a href='undocumented#SkTextEncoding::kUTF16'>SkTextEncoding::kUTF16</a>,
+<a href='undocumented#SkTextEncoding::kUTF32'>SkTextEncoding::kUTF32</a>, <a href='undocumented#SkTextEncoding::kGlyphID'>SkTextEncoding::kGlyphID</a>
 </td>
   </tr>
 </table>

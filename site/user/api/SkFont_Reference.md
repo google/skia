@@ -948,7 +948,7 @@ Does not check <a href='#SkFont_textToGlyphs_text'>text</a> for valid character 
 If <a href='#SkFont_textToGlyphs_byteLength'>byteLength</a> equals zero, returns zero.
 If <a href='#SkFont_textToGlyphs_byteLength'>byteLength</a> includes a partial character, the partial character is ignored.
 
-If <a href='#SkFont_textToGlyphs_encoding'>encoding</a> is <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a> and <a href='#SkFont_textToGlyphs_text'>text</a> contains an invalid UTF-8 sequence,
+If <a href='#SkFont_textToGlyphs_encoding'>encoding</a> is <a href='undocumented#SkTextEncoding::kUTF8'>SkTextEncoding::kUTF8</a> and <a href='#SkFont_textToGlyphs_text'>text</a> contains an invalid UTF-8 sequence,
 zero is returned.
 
 If <a href='#SkFont_textToGlyphs_maxGlyphCount'>maxGlyphCount</a> is not sufficient to store all the <a href='#SkFont_textToGlyphs_glyphs'>glyphs</a>, no <a href='#SkFont_textToGlyphs_glyphs'>glyphs</a> are copied.
@@ -963,11 +963,11 @@ The total <a href='undocumented#Glyph'>glyph</a> count is returned for subsequen
     <td>length of character storage in bytes</td>
   </tr>
   <tr>    <td><a name='SkFont_textToGlyphs_encoding'><code><strong>encoding</strong></code></a></td>
-    <td>one of: <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>, <a href='undocumented#kUTF16_SkTextEncoding'>kUTF16_SkTextEncoding</a>,</td>
+    <td>one of: <a href='undocumented#SkTextEncoding::kUTF8'>SkTextEncoding::kUTF8</a>, <a href='undocumented#SkTextEncoding::kUTF16'>SkTextEncoding::kUTF16</a>,</td>
   </tr>
 </table>
 
-<a href='undocumented#kUTF32_SkTextEncoding'>kUTF32_SkTextEncoding</a>, <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a>
+<a href='undocumented#SkTextEncoding::kUTF32'>SkTextEncoding::kUTF32</a>, <a href='undocumented#SkTextEncoding::kGlyphID'>SkTextEncoding::kGlyphID</a>
 
 ### Parameters
 
@@ -1039,11 +1039,11 @@ Returns number of <a href='undocumented#Glyph'>glyphs</a> represented by <a href
     <td>length of character storage in bytes</td>
   </tr>
   <tr>    <td><a name='SkFont_countText_encoding'><code><strong>encoding</strong></code></a></td>
-    <td>one of: <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>, <a href='undocumented#kUTF16_SkTextEncoding'>kUTF16_SkTextEncoding</a>,</td>
+    <td>one of: <a href='undocumented#SkTextEncoding::kUTF8'>SkTextEncoding::kUTF8</a>, <a href='undocumented#SkTextEncoding::kUTF16'>SkTextEncoding::kUTF16</a>,</td>
   </tr>
 </table>
 
-<a href='undocumented#kUTF32_SkTextEncoding'>kUTF32_SkTextEncoding</a>, <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a>
+<a href='undocumented#SkTextEncoding::kUTF32'>SkTextEncoding::kUTF32</a>, <a href='undocumented#SkTextEncoding::kGlyphID'>SkTextEncoding::kGlyphID</a>
 
 ### Return Value
 
@@ -1069,7 +1069,7 @@ Returns true if all <a href='#SkFont_containsText_text'>text</a> corresponds to 
 Returns false if any characters in <a href='#SkFont_containsText_text'>text</a> are not supported in
 <a href='undocumented#SkTypeface'>SkTypeface</a>.
 
-If <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> is <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a>,
+If <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> is <a href='undocumented#SkTextEncoding::kGlyphID'>SkTextEncoding::kGlyphID</a>,
 returns true if all <a href='undocumented#Glyph'>glyph</a> indices in <a href='#SkFont_containsText_text'>text</a> are non-zero;
 does not check to see if <a href='#SkFont_containsText_text'>text</a> contains valid <a href='undocumented#Glyph'>glyph</a> indices for <a href='undocumented#SkTypeface'>SkTypeface</a>.
 
@@ -1172,11 +1172,11 @@ Returns the bounding box of <a href='#SkFont_measureText_text'>text</a> if <a hr
     <td>length of character storage in bytes</td>
   </tr>
   <tr>    <td><a name='SkFont_measureText_encoding'><code><strong>encoding</strong></code></a></td>
-    <td>one of: <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>, <a href='undocumented#kUTF16_SkTextEncoding'>kUTF16_SkTextEncoding</a>,</td>
+    <td>one of: <a href='undocumented#SkTextEncoding::kUTF8'>SkTextEncoding::kUTF8</a>, <a href='undocumented#SkTextEncoding::kUTF16'>SkTextEncoding::kUTF16</a>,</td>
   </tr>
 </table>
 
-<a href='undocumented#kUTF32_SkTextEncoding'>kUTF32_SkTextEncoding</a>, <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a>
+<a href='undocumented#SkTextEncoding::kUTF32'>SkTextEncoding::kUTF32</a>, <a href='undocumented#SkTextEncoding::kGlyphID'>SkTextEncoding::kGlyphID</a>
 
 ### Parameters
 

@@ -50,17 +50,17 @@ private:
 
 void AutoCallLua::pushEncodedText(SkTextEncoding enc, const void* text, size_t length) {
     switch (enc) {
-        case kUTF8_SkTextEncoding:
+        case SkTextEncoding::kUTF8:
             this->pushString((const char*)text, length, "text");
             break;
-        case kUTF16_SkTextEncoding:
+        case SkTextEncoding::kUTF16:
             this->pushString(SkStringFromUTF16((const uint16_t*)text, length), "text");
             break;
-        case kGlyphID_SkTextEncoding:
+        case SkTextEncoding::kGlyphID:
             this->pushArrayU16((const uint16_t*)text, SkToInt(length >> 1),
                                "glyphs");
             break;
-        case kUTF32_SkTextEncoding:
+        case SkTextEncoding::kUTF32:
             break;
     }
 }

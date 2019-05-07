@@ -94,7 +94,7 @@ protected:
             fFont.setTypeface(fTypefaces[fTypefaceIndices[i]]);
             fFont.setSize(fPtSizes[i]);
 
-            fFont.measureText(fStrings[i].c_str(), fStrings[i].size(), kUTF8_SkTextEncoding, &r);
+            fFont.measureText(fStrings[i].c_str(), fStrings[i].size(), SkTextEncoding::kUTF8, &r);
             // safeRect is set of x,y positions where we can draw the string without hitting
             // the GM's border.
             SkRect safeRect = SkRect::MakeLTRB(-r.fLeft, -r.fTop, w - r.fRight, h - r.fBottom);
@@ -125,7 +125,7 @@ protected:
             canvas->save();
                 canvas->clipRect(fClipRects[i]);
                 canvas->translate(fPositions[i].fX, fPositions[i].fY);
-                canvas->drawSimpleText(fStrings[i].c_str(), fStrings[i].size(), kUTF8_SkTextEncoding,
+                canvas->drawSimpleText(fStrings[i].c_str(), fStrings[i].size(), SkTextEncoding::kUTF8,
                                        0, 0, fFont, fPaint);
             canvas->restore();
         }

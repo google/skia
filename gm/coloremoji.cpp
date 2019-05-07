@@ -92,7 +92,8 @@ protected:
         canvas->drawColor(SK_ColorGRAY);
 
         SkFont font(emojiFont.typeface);
-        const char* text = emojiFont.text;
+        char const * const text = emojiFont.text;
+        size_t textLen = strlen(text);
 
         // draw text at different point sizes
         constexpr SkScalar textSizes[] = { 10, 30, 50, };
@@ -104,7 +105,8 @@ protected:
                 font.setSize(textSize);
                 font.getMetrics(&metrics);
                 y += -metrics.fAscent;
-                canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 10, y, font, SkPaint());
+                canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8,
+                                       10, y, font, SkPaint());
                 y += metrics.fDescent + metrics.fLeading;
             }
         }
@@ -141,7 +143,7 @@ protected:
                             shaderFont.setSize(30);
                             shaderFont.getMetrics(&metrics);
                             y += -metrics.fAscent;
-                            canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 380, y,
+                            canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, 380, y,
                                                    shaderFont, shaderPaint);
                             y += metrics.fDescent + metrics.fLeading;
                         }
@@ -155,7 +157,7 @@ protected:
 
         // compute the bounds of the text
         SkRect bounds;
-        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+        font.measureText(text, textLen, SkTextEncoding::kUTF8, &bounds);
 
         const SkScalar boundsHalfWidth = bounds.width() * SK_ScalarHalf;
         const SkScalar boundsHalfHeight = bounds.height() * SK_ScalarHalf;
@@ -181,10 +183,10 @@ protected:
             canvas->save();
             canvas->drawRect(clipRect, clipHairline);
             paint.setAlpha(0x20);
-            canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0, 0, font, paint);
+            canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, 0, 0, font, paint);
             canvas->clipRect(clipRect);
             paint.setAlphaf(1.0f);
-            canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0, 0, font, paint);
+            canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, 0, 0, font, paint);
             canvas->restore();
             canvas->translate(0, SkIntToScalar(25));
         }

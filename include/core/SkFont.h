@@ -272,7 +272,7 @@ public:
         If byteLength equals zero, returns zero.
         If byteLength includes a partial character, the partial character is ignored.
 
-        If encoding is kUTF8_SkTextEncoding and text contains an invalid UTF-8 sequence,
+        If encoding is SkTextEncoding::kUTF8 and text contains an invalid UTF-8 sequence,
         zero is returned.
 
         When encoding is SkTextEncoding::kUTF8, SkTextEncoding::kUTF16, or
@@ -286,8 +286,8 @@ public:
 
         @param text          character storage encoded with SkTextEncoding
         @param byteLength    length of character storage in bytes
-        @param encoding      one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
-                             kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
+        @param encoding      one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
+                             SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @param glyphs        storage for glyph indices; may be nullptr
         @param maxGlyphCount storage capacity
         @return              number of glyphs represented by text of length byteLength
@@ -308,14 +308,14 @@ public:
 
     /** Returns number of glyphs represented by text.
 
-        If encoding is kUTF8_SkTextEncoding, kUTF16_SkTextEncoding, or
-        kUTF32_SkTextEncoding; then each Unicode codepoint is mapped to a
+        If encoding is SkTextEncoding::kUTF8, SkTextEncoding::kUTF16, or
+        SkTextEncoding::kUTF32; then each Unicode codepoint is mapped to a
         single glyph.
 
         @param text          character storage encoded with SkTextEncoding
         @param byteLength    length of character storage in bytes
-        @param encoding      one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
-                             kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
+        @param encoding      one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
+                             SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @return              number of glyphs represented by text of length byteLength
     */
     int countText(const void* text, size_t byteLength, SkTextEncoding encoding) const {
@@ -328,8 +328,8 @@ public:
 
         @param text        character storage encoded with SkTextEncoding
         @param byteLength  length of character storage in bytes
-        @param encoding    one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
-                           kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
+        @param encoding    one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
+                           SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @param bounds      returns bounding box relative to (0, 0) if not nullptr
         @return            number of glyphs represented by text of length byteLength
     */
@@ -345,8 +345,8 @@ public:
 
         @param text        character storage encoded with SkTextEncoding
         @param byteLength  length of character storage in bytes
-        @param encoding    one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
-                           kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
+        @param encoding    one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
+                           SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @param bounds      returns bounding box relative to (0, 0) if not nullptr
         @param paint       optional; may be nullptr
         @return            number of glyphs represented by text of length byteLength

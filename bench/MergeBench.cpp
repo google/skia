@@ -24,7 +24,7 @@ static sk_sp<SkImage> make_bitmap() {
     paint.setColor(0xFF884422);
     SkFont font;
     font.setSize(SkIntToScalar(96));
-    surface->getCanvas()->drawSimpleText("g", 1, kUTF8_SkTextEncoding, 15, 55, font, paint);
+    surface->getCanvas()->drawSimpleText("g", 1, SkTextEncoding::kUTF8, 15, 55, font, paint);
     return surface->makeImageSnapshot();
 }
 

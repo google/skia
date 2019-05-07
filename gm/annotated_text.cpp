@@ -24,14 +24,14 @@ static void draw_url_annotated_text_with_box(
         SkScalar x, SkScalar y, const SkFont& font, const char* url) {
     size_t byteLength = strlen(static_cast<const char*>(text));
     SkRect bounds;
-    (void)font.measureText(text, byteLength, kUTF8_SkTextEncoding, &bounds);
+    (void)font.measureText(text, byteLength, SkTextEncoding::kUTF8, &bounds);
     bounds.offset(x, y);
     sk_sp<SkData> urlData(SkData::MakeWithCString(url));
     SkAnnotateRectWithURL(canvas, bounds, urlData.get());
     SkPaint shade;
     shade.setColor(0x80346180);
     canvas->drawRect(bounds, shade);
-    canvas->drawSimpleText(text, byteLength, kUTF8_SkTextEncoding, x, y, font, SkPaint());
+    canvas->drawSimpleText(text, byteLength, SkTextEncoding::kUTF8, x, y, font, SkPaint());
 }
 
 DEF_SIMPLE_GM(annotated_text, canvas, 512, 512) {

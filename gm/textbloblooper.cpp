@@ -52,8 +52,8 @@ static void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const
     SkTDArray<uint16_t> glyphs;
 
     size_t len = strlen(text);
-    glyphs.append(font.countText(text, len, kUTF8_SkTextEncoding));
-    font.textToGlyphs(text, len, kUTF8_SkTextEncoding, glyphs.begin(), glyphs.count());
+    glyphs.append(font.countText(text, len, SkTextEncoding::kUTF8));
+    font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs.begin(), glyphs.count());
 
     const SkScalar advanceX = font.getSize() * 0.85f;
     const SkScalar advanceY = font.getSize() * 1.5f;

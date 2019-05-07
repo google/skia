@@ -137,7 +137,7 @@ create_string_bitmap(int w, int h, SkColor c, int x, int y, int textSize, const 
     canvas.clear(0x00000000);
     canvas.drawSimpleText(str,
                           strlen(str),
-                          kUTF8_SkTextEncoding,
+                          SkTextEncoding::kUTF8,
                           SkIntToScalar(x),
                           SkIntToScalar(y),
                           font,
@@ -168,7 +168,7 @@ void add_to_text_blob(SkTextBlobBuilder* builder,
                       const SkFont&      font,
                       SkScalar           x,
                       SkScalar           y) {
-    add_to_text_blob_w_len(builder, text, strlen(text), kUTF8_SkTextEncoding, font, x, y);
+    add_to_text_blob_w_len(builder, text, strlen(text), SkTextEncoding::kUTF8, font, x, y);
 }
 
 void get_text_path(const SkFont&  font,

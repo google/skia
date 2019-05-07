@@ -80,7 +80,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     };
 
     auto drawString = [&](const char str[], SkScalar x, SkScalar y) {
-        canvas->drawSimpleText(str, strlen(str), kUTF8_SkTextEncoding, x, y, font, textPaint);
+        canvas->drawSimpleText(str, strlen(str), SkTextEncoding::kUTF8, x, y, font, textPaint);
     };
 
     auto nextRect = [&](const char* label, const char* label2) {

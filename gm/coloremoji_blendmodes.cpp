@@ -147,13 +147,13 @@ protected:
                 const char* text    = ToolUtils::emoji_sample_text();
                 SkUnichar unichar = SkUTF::NextUTF8(&text, text + strlen(text));
                 SkASSERT(unichar >= 0);
-                canvas->drawSimpleText(&unichar, 4, kUTF32_SkTextEncoding, x+ w/10.f, y + 7.f*h/8.f,
-                                       textFont, textP);
+                canvas->drawSimpleText(&unichar, 4, SkTextEncoding::kUTF32,
+                                       x+ w/10.f, y + 7.f*h/8.f, textFont, textP);
             }
 #if 1
             const char* label = SkBlendMode_Name(gModes[i]);
-            SkTextUtils::DrawString(canvas, label, x + w/2, y - labelFont.getSize()/2, labelFont, SkPaint(),
-                                    SkTextUtils::kCenter_Align);
+            SkTextUtils::DrawString(canvas, label, x + w/2, y - labelFont.getSize()/2,
+                                    labelFont, SkPaint(), SkTextUtils::kCenter_Align);
 #endif
             x += w + SkIntToScalar(10);
             if ((i % W) == W - 1) {

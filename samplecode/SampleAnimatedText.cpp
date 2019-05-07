@@ -27,7 +27,7 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length, SkSc
                         const SkFont& font, const SkPaint& paint) {
     SkFont f(font);
     f.setSubpixel(true);
-    canvas->drawSimpleText(text, length, kUTF8_SkTextEncoding, x, y, f, paint);
+    canvas->drawSimpleText(text, length, SkTextEncoding::kUTF8, x, y, f, paint);
 }
 
 // This sample demonstrates the cache behavior of bitmap vs. distance field text

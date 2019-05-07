@@ -127,7 +127,7 @@ void test_whitespace_pos(skiatest::Reporter* reporter,
 
     {
         auto svgCanvas = MakeDOMCanvas(&dom);
-        svgCanvas->drawSimpleText(txt, len, kUTF8_SkTextEncoding, offset.x(), offset.y(),
+        svgCanvas->drawSimpleText(txt, len, SkTextEncoding::kUTF8, offset.x(), offset.y(),
                                   font, paint);
     }
     check_text_node(reporter, dom, dom.finishParsing(), offset, 2, expected);

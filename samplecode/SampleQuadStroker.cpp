@@ -509,7 +509,7 @@ protected:
         paint.setStyle(SkPaint::kFill_Style);
         SkFont font;
         font.setSize(25.0f);
-        SkTextUtils::Draw(canvas, &button.fLabel, 1, kUTF8_SkTextEncoding,
+        SkTextUtils::Draw(canvas, &button.fLabel, 1, SkTextEncoding::kUTF8,
                 button.fBounds.centerX(), button.fBounds.fBottom - 5,
                 font, paint, SkTextUtils::kCenter_Align);
     }
@@ -682,7 +682,7 @@ protected:
             path.reset();
             SkFont font;
             font.setSize(fTextSize);
-            SkTextUtils::GetPath(fText.c_str(), fText.size(), kUTF8_SkTextEncoding,
+            SkTextUtils::GetPath(fText.c_str(), fText.size(), SkTextEncoding::kUTF8,
                                  0, fTextSize, font, &path);
             setForText();
             draw_stroke(canvas, path, width * fWidthScale / fTextSize, fTextSize, true);

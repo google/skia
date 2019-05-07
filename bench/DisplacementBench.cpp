@@ -41,7 +41,7 @@ protected:
 
         SkFont font;
         font.setSize(SkIntToScalar(96));
-        canvas.drawSimpleText("g", 1, kUTF8_SkTextEncoding, SkIntToScalar(15), SkIntToScalar(55), font, paint);
+        canvas.drawSimpleText("g", 1, SkTextEncoding::kUTF8, SkIntToScalar(15), SkIntToScalar(55), font, paint);
     }
 
     void makeCheckerboard() {

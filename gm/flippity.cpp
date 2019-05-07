@@ -90,7 +90,7 @@ static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkCo
     font.setSize(32);
 
     SkRect bounds;
-    font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+    font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
     const SkMatrix mat = SkMatrix::MakeRectToRect(bounds, SkRect::MakeWH(kLabelSize, kLabelSize),
                                                   SkMatrix::kFill_ScaleToFit);
 
@@ -101,7 +101,7 @@ static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkCo
 
     canvas->clear(SK_ColorWHITE);
     canvas->concat(mat);
-    canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0, 0, font, paint);
+    canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 0, 0, font, paint);
 
     sk_sp<SkImage> image = surf->makeImageSnapshot();
 

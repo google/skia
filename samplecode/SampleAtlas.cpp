@@ -57,7 +57,7 @@ static sk_sp<SkImage> make_atlas(int atlasSize, int cellSize) {
             paint.setColor(rand.nextU());
             paint.setAlpha(0xFF);
             int index = i % strlen(s);
-            SkTextUtils::Draw(canvas, &s[index], 1, kUTF8_SkTextEncoding,
+            SkTextUtils::Draw(canvas, &s[index], 1, SkTextEncoding::kUTF8,
                               x + half, y + half + half/2, font, paint,
                               SkTextUtils::kCenter_Align);
             i += 1;

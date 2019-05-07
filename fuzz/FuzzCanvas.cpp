@@ -900,7 +900,7 @@ constexpr int kMaxGlyphCount = 30;
 
 static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextEncoding encoding) {
     SkTDArray<uint8_t> array;
-    if (kGlyphID_SkTextEncoding == encoding) {
+    if (SkTextEncoding::kGlyphID == encoding) {
         int glyphRange = font.getTypefaceOrDefault()->countGlyphs();
         if (glyphRange == 0) {
             // Some fuzzing environments have no fonts, so empty array is the best
@@ -941,7 +941,7 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextE
         }
     }
     switch (encoding) {
-        case kUTF8_SkTextEncoding: {
+        case SkTextEncoding::kUTF8: {
             size_t utf8len = 0;
             for (int j = 0; j < length; ++j) {
                 utf8len += SkUTF::ToUTF8(buffer[j], nullptr);
@@ -951,7 +951,7 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextE
                 ptr += SkUTF::ToUTF8(buffer[j], ptr);
             }
         } break;
-        case kUTF16_SkTextEncoding: {
+        case SkTextEncoding::kUTF16: {
             size_t utf16len = 0;
             for (int j = 0; j < length; ++j) {
                 utf16len += SkUTF::ToUTF16(buffer[j]);
@@ -961,7 +961,7 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextE
                 ptr += SkUTF::ToUTF16(buffer[j], ptr);
             }
         } break;
-        case kUTF32_SkTextEncoding:
+        case SkTextEncoding::kUTF32:
             memcpy(array.append(length * sizeof(SkUnichar)), buffer, length * sizeof(SkUnichar));
             break;
         default:

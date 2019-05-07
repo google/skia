@@ -43,17 +43,17 @@ protected:
         SkFont font(ToolUtils::create_portable_typeface(), 1500);
 
         SkRect r;
-        (void)font.measureText("/", 1, kUTF8_SkTextEncoding, &r);
+        (void)font.measureText("/", 1, SkTextEncoding::kUTF8, &r);
         SkPoint pos = {
             this->width()/2 - r.centerX(),
             this->height()/2 - r.centerY()
         };
 
         paint.setColor(SK_ColorRED);
-        canvas->drawSimpleText("/", 1, kUTF8_SkTextEncoding, pos.fX, pos.fY, font, paint);
+        canvas->drawSimpleText("/", 1, SkTextEncoding::kUTF8, pos.fX, pos.fY, font, paint);
 
         paint.setColor(SK_ColorBLUE);
-        canvas->drawSimpleText("\\", 1, kUTF8_SkTextEncoding, pos.fX, pos.fY, font, paint);
+        canvas->drawSimpleText("\\", 1, SkTextEncoding::kUTF8, pos.fX, pos.fY, font, paint);
     }
 
 private:

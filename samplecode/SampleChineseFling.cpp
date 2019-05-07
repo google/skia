@@ -95,7 +95,7 @@ private:
             ToolUtils::add_to_text_blob_w_len(&builder,
                                               (const char*)glyphs,
                                               kWordLength * 4,
-                                              kUTF32_SkTextEncoding,
+                                              SkTextEncoding::kUTF32,
                                               font,
                                               0,
                                               0);
@@ -224,7 +224,7 @@ private:
                 ToolUtils::add_to_text_blob_w_len(&builder,
                                                   (const char*)glyphs,
                                                   currentLineLength * 4,
-                                                  kUTF32_SkTextEncoding,
+                                                  SkTextEncoding::kUTF32,
                                                   font,
                                                   0,
                                                   y);

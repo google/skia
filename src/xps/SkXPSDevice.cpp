@@ -1905,10 +1905,10 @@ HRESULT SkXPSDevice::AddGlyphs(IXpsOMObjectFactory* xpsFactory,
 }
 
 static int num_glyph_guess(SkTextEncoding encoding, const void* text, size_t byteLength) {
-    static_assert((int)SkTypeface::kUTF8_Encoding  == (int)kUTF8_SkTextEncoding,  "");
-    static_assert((int)SkTypeface::kUTF16_Encoding == (int)kUTF16_SkTextEncoding, "");
-    static_assert((int)SkTypeface::kUTF32_Encoding == (int)kUTF32_SkTextEncoding, "");
-    if (encoding == kGlyphID_SkTextEncoding) {
+    static_assert((int)SkTypeface::kUTF8_Encoding  == (int)SkTextEncoding::kUTF8,  "");
+    static_assert((int)SkTypeface::kUTF16_Encoding == (int)SkTextEncoding::kUTF16, "");
+    static_assert((int)SkTypeface::kUTF32_Encoding == (int)SkTextEncoding::kUTF32, "");
+    if (encoding == SkTextEncoding::kGlyphID) {
         return SkToInt(byteLength / 2);
     }
     return SkUTFN_CountUnichars((SkTypeface::Encoding)encoding, text, byteLength);

@@ -227,25 +227,25 @@ void <a href='#SkDrawable_draw'>draw</a>(<a href='SkCanvas_Reference#SkCanvas'>S
 <th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kUTF8_SkTextEncoding'><code>kUTF8_SkTextEncoding</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkTextEncoding::kUTF8'><code>SkTextEncoding::kUTF8</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 </td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kUTF16_SkTextEncoding'><code>kUTF16_SkTextEncoding</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkTextEncoding::kUTF16'><code>SkTextEncoding::kUTF16</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 </td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kUTF32_SkTextEncoding'><code>kUTF32_SkTextEncoding</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkTextEncoding::kUTF32'><code>SkTextEncoding::kUTF32</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 </td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kGlyphID_SkTextEncoding'><code>kGlyphID_SkTextEncoding</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkTextEncoding::kGlyphID'><code>SkTextEncoding::kGlyphID</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 </td>

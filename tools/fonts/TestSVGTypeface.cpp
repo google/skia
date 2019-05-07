@@ -759,7 +759,7 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
             surface->peekPixels(&pix);
             canvas->drawSimpleText(&gid,
                                    sizeof(gid),
-                                   kGlyphID_SkTextEncoding,
+                                   SkTextEncoding::kGlyphID,
                                    -bounds.fLeft,
                                    -bounds.fTop,
                                    font,
@@ -981,7 +981,7 @@ void TestSVGTypeface::exportTtxSbix(SkWStream* out, SkSpan<unsigned> strikeSizes
             surface->peekPixels(&pix);
             canvas->drawSimpleText(&gid,
                                    sizeof(gid),
-                                   kGlyphID_SkTextEncoding,
+                                   SkTextEncoding::kGlyphID,
                                    -bounds.fLeft,
                                    -bounds.fTop,
                                    font,
