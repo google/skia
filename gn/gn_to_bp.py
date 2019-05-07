@@ -13,6 +13,8 @@ import string
 import subprocess
 import tempfile
 
+asdfasedf
+
 import gn_to_bp_utils
 
 # First we start off with a template for Android.bp,
