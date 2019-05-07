@@ -50,7 +50,7 @@ DEF_TEST(GlyphRunBlob, reporter) {
 
     SkFont font;
     font.setTypeface(tf);
-    font.setHinting(kNormal_SkFontHinting);
+    font.setHinting(SkFontHinting::kNormal);
     font.setSize(1u);
 
     SkTextBlobBuilder blobBuilder;

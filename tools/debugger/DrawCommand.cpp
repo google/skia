@@ -729,16 +729,16 @@ static void apply_font_hinting(const SkFont& font, SkJSONWriter& writer) {
     SkFontHinting hinting = font.getHinting();
     if (hinting != SkPaintDefaults_Hinting) {
         switch (hinting) {
-            case kNo_SkFontHinting:
+            case SkFontHinting::kNone:
                 writer.appendString(DEBUGCANVAS_ATTRIBUTE_HINTING, DEBUGCANVAS_HINTING_NONE);
                 break;
-            case kSlight_SkFontHinting:
+            case SkFontHinting::kSlight:
                 writer.appendString(DEBUGCANVAS_ATTRIBUTE_HINTING, DEBUGCANVAS_HINTING_SLIGHT);
                 break;
-            case kNormal_SkFontHinting:
+            case SkFontHinting::kNormal:
                 writer.appendString(DEBUGCANVAS_ATTRIBUTE_HINTING, DEBUGCANVAS_HINTING_NORMAL);
                 break;
-            case kFull_SkFontHinting:
+            case SkFontHinting::kFull:
                 writer.appendString(DEBUGCANVAS_ATTRIBUTE_HINTING, DEBUGCANVAS_HINTING_FULL);
                 break;
         }

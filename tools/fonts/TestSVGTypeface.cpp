@@ -127,7 +127,7 @@ void TestSVGTypeface::getAdvance(SkGlyph* glyph) const {
 void TestSVGTypeface::getFontMetrics(SkFontMetrics* metrics) const { *metrics = fFontMetrics; }
 
 void TestSVGTypeface::onFilterRec(SkScalerContextRec* rec) const {
-    rec->setHinting(kNo_SkFontHinting);
+    rec->setHinting(SkFontHinting::kNone);
 }
 
 void TestSVGTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {

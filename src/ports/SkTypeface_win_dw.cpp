@@ -350,8 +350,8 @@ void DWriteFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
 
     SkFontHinting h = rec->getHinting();
     // DirectWrite2 allows for hinting to be turned off. Force everything else to normal.
-    if (h != kNo_SkFontHinting || !fFactory2 || !fDWriteFontFace2) {
-        h = kNormal_SkFontHinting;
+    if (h != SkFontHinting::kNone || !fFactory2 || !fDWriteFontFace2) {
+        h = SkFontHinting::kNormal;
     }
     rec->setHinting(h);
 

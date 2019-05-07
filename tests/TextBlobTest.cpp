@@ -178,7 +178,7 @@ public:
         font.setScaleX(4.2f);
         font.setTypeface(ToolUtils::create_portable_typeface());
         font.setSkewX(0.42f);
-        font.setHinting(kFull_SkFontHinting);
+        font.setHinting(SkFontHinting::kFull);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         font.setEmbolden(true);
         font.setLinearMetrics(true);

@@ -914,7 +914,7 @@ SkTextBaseIter::SkTextBaseIter(const SkGlyphID glyphs[], int count, const SkFont
     // can't use our canonical size if we need to apply patheffects
     if (fPaint.getPathEffect() == nullptr) {
         // If the wrong size is going to be used, don't hint anything.
-        fFont.setHinting(kNo_SkFontHinting);
+        fFont.setHinting(SkFontHinting::kNone);
         fFont.setSubpixel(true);
         fScale = fFont.getSize() / SkFontPriv::kCanonicalTextSizeForPaths;
         fFont.setSize(SkIntToScalar(SkFontPriv::kCanonicalTextSizeForPaths));

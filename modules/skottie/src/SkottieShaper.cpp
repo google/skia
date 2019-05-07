@@ -53,7 +53,7 @@ public:
         , fHAlignFactor(HAlignFactor(fDesc.fHAlign))
         , fFont(fDesc.fTypeface, fDesc.fTextSize)
         , fShaper(SkShaper::Make()) {
-        fFont.setHinting(kNo_SkFontHinting);
+        fFont.setHinting(SkFontHinting::kNone);
         fFont.setSubpixel(true);
         fFont.setLinearMetrics(true);
         fFont.setEdging(SkFont::Edging::kAntiAlias);

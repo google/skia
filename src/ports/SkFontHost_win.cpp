@@ -88,7 +88,7 @@ static bool needToRenderWithSkia(const SkScalerContextRec& rec) {
         return true;
     }
 #endif
-    return rec.getHinting() == kNo_SkFontHinting || rec.getHinting() == kSlight_SkFontHinting;
+    return rec.getHinting() == SkFontHinting::kNone || rec.getHinting() == SkFontHinting::kSlight;
 }
 
 static void tchar_to_skstring(const TCHAR t[], SkString* s) {
@@ -637,7 +637,7 @@ SkScalerContext_GDI::SkScalerContext_GDI(sk_sp<LogFontTypeface> rawTypeface,
     // When GDI hinting, remove the entire Y scale from sA and GsA. (Prevents 'linear' metrics.)
     // When not hinting, remove only the integer Y scale from sA and GsA. (Applied by GDI.)
     SkScalerContextRec::PreMatrixScale scaleConstraints =
-        (fRec.getHinting() == kNo_SkFontHinting || fRec.getHinting() == kSlight_SkFontHinting)
+        (fRec.getHinting() == SkFontHinting::kNone || fRec.getHinting() == SkFontHinting::kSlight)
                    ? SkScalerContextRec::kVerticalInteger_PreMatrixScale
                    : SkScalerContextRec::kVertical_PreMatrixScale;
     SkVector scale;
@@ -1486,7 +1486,7 @@ bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
 
     //GDI only uses hinted outlines when axis aligned.
     UINT format = GGO_NATIVE | GGO_GLYPH_INDEX;
-    if (fRec.getHinting() == kNo_SkFontHinting || fRec.getHinting() == kSlight_SkFontHinting){
+    if (fRec.getHinting() == SkFontHinting::kNone || fRec.getHinting() == SkFontHinting::kSlight){
         format |= GGO_UNHINTED;
     }
     SkAutoSTMalloc<BUFFERSIZE, uint8_t> glyphbuf(BUFFERSIZE);
@@ -1495,7 +1495,7 @@ bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
         return false;
     }
 
-    if (fRec.getHinting() != kSlight_SkFontHinting) {
+    if (fRec.getHinting() != SkFontHinting::kSlight) {
         sk_path_from_gdi_path(path, glyphbuf, total_size);
     } else {
         //GDI only uses hinted outlines when axis aligned.
@@ -2079,21 +2079,21 @@ void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
 
     SkFontHinting h = rec->getHinting();
     switch (h) {
-        case kNo_SkFontHinting:
+        case SkFontHinting::kNone:
             break;
-        case kSlight_SkFontHinting:
+        case SkFontHinting::kSlight:
             // Only do slight hinting when axis aligned.
             // TODO: re-enable slight hinting when FontHostTest can pass.
             //if (!isAxisAligned(*rec)) {
-                h = kNo_SkFontHinting;
+                h = SkFontHinting::kNone;
             //}
             break;
-        case kNormal_SkFontHinting:
-        case kFull_SkFontHinting:
+        case SkFontHinting::kNormal:
+        case SkFontHinting::kFull:
             // TODO: need to be able to distinguish subpixel positioned glyphs
             // and linear metrics.
             //rec->fFlags &= ~SkScalerContext::kSubpixelPositioning_Flag;
-            h = kNormal_SkFontHinting;
+            h = SkFontHinting::kNormal;
             break;
         default:
             SkDEBUGFAIL("unknown hinting");

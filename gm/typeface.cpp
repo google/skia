@@ -191,10 +191,10 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
     constexpr SkScalar textSizes[] = { 9, 10, 11, 12, 13, 14, 15, 16 };
 
     constexpr SkFontHinting hintingTypes[] = {
-        kNo_SkFontHinting,
-        kSlight_SkFontHinting,
-        kNormal_SkFontHinting,
-        kFull_SkFontHinting
+        SkFontHinting::kNone,
+        SkFontHinting::kSlight,
+        SkFontHinting::kNormal,
+        SkFontHinting::kFull
     };
 
     struct SubpixelType {

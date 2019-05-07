@@ -113,7 +113,7 @@ private:
 sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
     SkFont font;
     font.setTypeface(tf);
-    font.setHinting(kNormal_SkFontHinting);
+    font.setHinting(SkFontHinting::kNormal);
     font.setSize(1u);
     font.setEdging(SkFont::Edging::kAntiAlias);
     font.setSubpixel(true);
@@ -482,7 +482,7 @@ sk_sp<SkTextBlob> make_blob_causing_fallback(
     SkFont font;
     font.setSubpixel(true);
     font.setSize(96);
-    font.setHinting(kNormal_SkFontHinting);
+    font.setHinting(SkFontHinting::kNormal);
     font.setTypeface(targetTf);
 
     REPORTER_ASSERT(reporter, !SkDraw::ShouldDrawTextAsPaths(font, SkPaint(), SkMatrix::I()));
@@ -575,7 +575,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsSDFTWithAllARGBF
         SkFont font;
         font.setSubpixel(true);
         font.setSize(96);
-        font.setHinting(kNormal_SkFontHinting);
+        font.setHinting(SkFontHinting::kNormal);
         font.setTypeface(typeface);
 
         REPORTER_ASSERT(reporter, !SkDraw::ShouldDrawTextAsPaths(font, SkPaint(), SkMatrix::I()));

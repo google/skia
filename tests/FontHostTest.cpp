@@ -206,15 +206,15 @@ static void test_advances(skiatest::Reporter* reporter) {
         bool            linear;
         bool            subpixel;
     } settings[] = {
-        { kNo_SkFontHinting,     false, false },
-        { kNo_SkFontHinting,     true,  false },
-        { kNo_SkFontHinting,     false, true  },
-        { kSlight_SkFontHinting, false, false },
-        { kSlight_SkFontHinting, true,  false },
-        { kSlight_SkFontHinting, false, true  },
-        { kNormal_SkFontHinting, false, false },
-        { kNormal_SkFontHinting, true,  false },
-        { kNormal_SkFontHinting, false, true  },
+        { SkFontHinting::kNone,   false, false },
+        { SkFontHinting::kNone,   true,  false },
+        { SkFontHinting::kNone,   false, true  },
+        { SkFontHinting::kSlight, false, false },
+        { SkFontHinting::kSlight, true,  false },
+        { SkFontHinting::kSlight, false, true  },
+        { SkFontHinting::kNormal, false, false },
+        { SkFontHinting::kNormal, true,  false },
+        { SkFontHinting::kNormal, false, true  },
     };
 
     static const struct {

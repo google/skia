@@ -40,7 +40,7 @@ protected:
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         //With freetype the default (normal hinting) can be really ugly.
         //Most distros now set slight (vertical hinting only) in any event.
-        font.setHinting(kSlight_SkFontHinting);
+        font.setHinting(SkFontHinting::kSlight);
 
         const char* text = "Hamburgefons ooo mmm";
         const size_t textLen = strlen(text);

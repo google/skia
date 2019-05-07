@@ -262,7 +262,7 @@ DEF_TEST(Font_getpos, r) {
 
     for (bool subpix : { false, true }) {
         font.setSubpixel(subpix);
-        for (auto hint : { kNo_SkFontHinting, kSlight_SkFontHinting, kNormal_SkFontHinting, kFull_SkFontHinting}) {
+        for (auto hint : { SkFontHinting::kNone, SkFontHinting::kSlight, SkFontHinting::kNormal, SkFontHinting::kFull}) {
             font.setHinting(hint);
             for (auto size : { 1.0f, 12.0f, 100.0f }) {
                 font.setSize(size);
