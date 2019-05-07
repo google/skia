@@ -31,28 +31,29 @@ public:
     GrTextStrike(const SkDescriptor& fontScalerKey);
 
     GrGlyph* getGlyph(const SkGlyph& skGlyph) {
-        GrGlyph* glyph = fCache.find(skGlyph.getPackedID());
-        if (!glyph) {
-            glyph = this->generateGlyph(skGlyph);
+        GrGlyph* grGlyph = fCache.find(skGlyph.getPackedID());
+        if (grGlyph == nullptr) {
+            grGlyph = fAlloc.make<GrGlyph>(skGlyph);
+            fCache.add(grGlyph);
         }
-        return glyph;
+        return grGlyph;
     }
 
     // This variant of the above function is called by GrAtlasTextOp. At this point, it is possible
     // that the maskformat of the glyph differs from what we expect.  In these cases we will just
     // draw a clear square.
     // skbug:4143 crbug:510931
-    GrGlyph* getGlyph(SkPackedGlyphID packed,
-                      SkStrike* cache) {
-        GrGlyph* glyph = fCache.find(packed);
-        if (!glyph) {
+    GrGlyph* getGlyph(SkPackedGlyphID packed, SkStrike* skStrike) {
+        GrGlyph* grGlyph = fCache.find(packed);
+        if (grGlyph == nullptr) {
             // We could return this to the caller, but in practice it adds code complexity for
             // potentially little benefit(ie, if the glyph is not in our font cache, then its not
             // in the atlas and we're going to be doing a texture upload anyways).
-            const SkGlyph& skGlyph = GrToSkGlyph(cache, packed);
-            glyph = this->generateGlyph(skGlyph);
+            const SkGlyph& skGlyph = skStrike->getGlyphIDMetrics(packed);
+            grGlyph = fAlloc.make<GrGlyph>(skGlyph);
+            fCache.add(grGlyph);
         }
-        return glyph;
+        return grGlyph;
     }
 
     // returns true if glyph successfully added to texture atlas, false otherwise.  If the glyph's
@@ -87,12 +88,6 @@ private:
 
     int fAtlasedGlyphs{0};
     bool fIsAbandoned{false};
-
-    static const SkGlyph& GrToSkGlyph(SkStrike* cache, SkPackedGlyphID id) {
-        return cache->getGlyphIDMetrics(id.code(), id.getSubXFixed(), id.getSubYFixed());
-    }
-
-    GrGlyph* generateGlyph(const SkGlyph&);
 
     friend class GrStrikeCache;
 };

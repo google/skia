@@ -64,6 +64,8 @@ public:
     */
     const SkGlyph& getGlyphIDMetrics(uint16_t, SkFixed x, SkFixed y);
 
+    const SkGlyph& getGlyphIDMetrics(SkPackedGlyphID id);
+
     void getAdvances(SkSpan<const SkGlyphID>, SkPoint[]);
 
     /** Returns the number of glyphs for this strike.
