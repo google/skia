@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85f51e8a_166330b7",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-07T20:08:23Z",
+      "side": 1,
+      "message": "I initially thought this was a good idea, but looking at the code now, I\u0027m not sure (unless something else changes). Currently, because of ownership/lifetime, the only thing that can really be cached for repeated application is an SkSL::Interpreter object (dynamically stored via std::unique_ptr\u003cSkSL::Interpreter\u003e, most likely).\n\nBut if you do that, you now need to re-create the interpreter to run the compiled code with different inputs.\n\nI think that either inputs needs to be supplied to run(), or Interpreter should be a short-lived stack object that doesn\u0027t assume ownershop of the program and byte code?",
+      "revId": "dfcad064e97e4e127ffb47e5f924b55ae9d710ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
