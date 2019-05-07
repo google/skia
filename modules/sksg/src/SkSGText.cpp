@@ -57,7 +57,7 @@ SkRect Text::onRevalidate(InvalidationController*, const SkMatrix&) {
     //  1) SkTextBlob has some trouble computing accurate bounds with alignment.
     //  2) SkPaint::Align is slated for deprecation.
 
-    fBlob = SkTextBlob::MakeFromText(fText.c_str(), fText.size(), font, kUTF8_SkTextEncoding);
+    fBlob = SkTextBlob::MakeFromText(fText.c_str(), fText.size(), font, SkTextEncoding::kUTF8);
     if (!fBlob) {
         return SkRect::MakeEmpty();
     }

@@ -145,7 +145,7 @@ protected:
                     SkRect inputLabelBounds;
                     // get the bounds of the text in order to position it
                     labelFont.measureText(inputLabel.c_str(), inputLabel.size(),
-                                          kUTF8_SkTextEncoding, &inputLabelBounds);
+                                          SkTextEncoding::kUTF8, &inputLabelBounds);
                     canvas->drawString(inputLabel, renderRect.fRight + kPad, -inputLabelBounds.fTop,
                                        labelFont, labelPaint);
                     // update the bounds to reflect the offset we used to draw it.
@@ -153,7 +153,7 @@ protected:
 
                     SkRect procLabelBounds;
                     labelFont.measureText(procLabel.c_str(), procLabel.size(),
-                                          kUTF8_SkTextEncoding, &procLabelBounds);
+                                          SkTextEncoding::kUTF8, &procLabelBounds);
                     canvas->drawString(procLabel, renderRect.fRight + kPad,
                                        inputLabelBounds.fBottom + 2.f - procLabelBounds.fTop,
                                        labelFont, labelPaint);

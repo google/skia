@@ -41,8 +41,8 @@ static void draw_label(SkCanvas* canvas, const char* label,
 
     size_t len = strlen(label);
 
-    SkScalar width = font.measureText(label, len, kUTF8_SkTextEncoding);
-    canvas->drawSimpleText(label, len, kUTF8_SkTextEncoding, offset.x() - width / 2, offset.y(),
+    SkScalar width = font.measureText(label, len, SkTextEncoding::kUTF8);
+    canvas->drawSimpleText(label, len, SkTextEncoding::kUTF8, offset.x() - width / 2, offset.y(),
                            font, SkPaint());
 }
 

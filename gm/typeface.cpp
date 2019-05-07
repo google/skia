@@ -54,13 +54,13 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
                          SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint) {
     SkTypeface* face = font.getTypefaceOrDefault();
     if (!face) {
-        canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x, y, font, paint);
+        canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, x, y, font, paint);
         return;
     }
 
     SkAutoSTMalloc<128, uint16_t> glyphStorage(len);
     uint16_t* glyphs = glyphStorage.get();
-    int glyphCount = font.textToGlyphs(text, len, kUTF8_SkTextEncoding, glyphs, len);
+    int glyphCount = font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs, len);
     if (glyphCount < 1) {
         return;
     }
@@ -68,7 +68,7 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
     SkAutoSTMalloc<128, int32_t> adjustmentStorage(glyphCount - 1);
     int32_t* adjustments = adjustmentStorage.get();
     if (!face->getKerningPairAdjustments(glyphs, glyphCount, adjustments)) {
-        canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x, y, font, paint);
+        canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, x, y, font, paint);
         return;
     }
 
@@ -137,7 +137,7 @@ protected:
         SkPaint paint;
         for (int i = 0; i < gStylesCount; i++) {
             font.setTypeface(fFaces[i]);
-            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, x, y, font, paint);
+            canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, x, y, font, paint);
             if (fApplyKerning) {
                 drawKernText(canvas, text, textLen, x + 240, y, font, paint);
             }
@@ -245,12 +245,12 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                                 canvas->rotate(2, x + subpixel.offset.x(),
                                                   y + subpixel.offset.y());
                             }
-                            canvas->drawSimpleText(&character, 1, kUTF8_SkTextEncoding,
+                            canvas->drawSimpleText(&character, 1, SkTextEncoding::kUTF8,
                                                    x + subpixel.offset.x(),
                                                    y + subpixel.offset.y(), font, paint);
 
                             SkScalar dx = SkScalarCeilToScalar(
-                                    font.measureText(&character, 1, kUTF8_SkTextEncoding)) + 5;
+                                    font.measureText(&character, 1, SkTextEncoding::kUTF8)) + 5;
                             x += dx;
                             xMax = SkTMax(x, xMax);
                         }
@@ -295,10 +295,10 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                 for (const StyleTests& style : styleTypes) {
                     paint.setStyle(style.style);
                     paint.setStrokeWidth(style.strokeWidth);
-                    canvas->drawSimpleText(&character, 1, kUTF8_SkTextEncoding, x, y, font, paint);
+                    canvas->drawSimpleText(&character, 1, SkTextEncoding::kUTF8, x, y, font, paint);
 
                     SkScalar dx = SkScalarCeilToScalar(font.measureText(&character, 1,
-                                                                        kUTF8_SkTextEncoding)) + 5;
+                                                                        SkTextEncoding::kUTF8)) + 5;
                     x += dx;
                 }
             }
@@ -345,10 +345,10 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                 }
                 for (const MaskTests& mask : maskTypes) {
                     paint.setMaskFilter(SkMaskFilter::MakeBlur(mask.style, mask.sigma));
-                    canvas->drawSimpleText(&character, 1, kUTF8_SkTextEncoding, x, y, font, paint);
+                    canvas->drawSimpleText(&character, 1, SkTextEncoding::kUTF8, x, y, font, paint);
 
                     SkScalar dx = SkScalarCeilToScalar(font.measureText(&character, 1,
-                                                                        kUTF8_SkTextEncoding)) + 5;
+                                                                        SkTextEncoding::kUTF8)) + 5;
                     x += dx;
                 }
                 paint.setMaskFilter(nullptr);

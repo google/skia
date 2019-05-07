@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     const uint16_t goodGlyph = 511;
     const uint16_t zeroGlyph = 0;
     const uint16_t badGlyph = 65535; // larger than glyph count in font
-    paint.setTextEncoding(kGlyphID_SkTextEncoding);
+    paint.setTextEncoding(SkTextEncoding::kGlyphID);
     SkDebugf("0x%04x %c= has glyph\n", goodGlyph,
             paint.containsText(&goodGlyph, 2) ? '=' : '!');
     SkDebugf("0x%04x %c= has glyph\n", zeroGlyph,

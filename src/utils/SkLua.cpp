@@ -563,7 +563,7 @@ static int lcanvas_drawText(lua_State* L) {
         size_t len;
         const char* text = lua_tolstring(L, 2, &len);
         get_ref<SkCanvas>(L, 1)->drawSimpleText(
-                text, len, kUTF8_SkTextEncoding,
+                text, len, SkTextEncoding::kUTF8,
                 lua2scalar(L, 3), lua2scalar(L, 4),
                 SkFont::LEGACY_ExtractFromPaint(*get_obj<SkPaint>(L, 5)),
                 *get_obj<SkPaint>(L, 5));
@@ -977,7 +977,7 @@ static int lfont_measureText(lua_State* L) {
     if (lua_isstring(L, 2)) {
         size_t len;
         const char* text = lua_tolstring(L, 2, &len);
-        SkLua(L).pushScalar(get_obj<SkFont>(L, 1)->measureText(text, len, kUTF8_SkTextEncoding));
+        SkLua(L).pushScalar(get_obj<SkFont>(L, 1)->measureText(text, len, SkTextEncoding::kUTF8));
         return 1;
     }
     return 0;

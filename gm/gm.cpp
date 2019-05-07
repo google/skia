@@ -42,7 +42,7 @@ static void draw_failure_message(SkCanvas* canvas, const char format[], ...)  {
     canvas->drawColor(SkColorSetRGB(200,0,0));
     SkFont font;
     SkRect bounds;
-    font.measureText(failureMsg.c_str(), failureMsg.size(), kUTF8_SkTextEncoding, &bounds);
+    font.measureText(failureMsg.c_str(), failureMsg.size(), SkTextEncoding::kUTF8, &bounds);
     SkPaint textPaint(SkColors::kWhite);
     canvas->drawString(failureMsg, kOffset, bounds.height() + kOffset, font, textPaint);
 }

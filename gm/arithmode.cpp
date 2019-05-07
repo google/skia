@@ -74,7 +74,7 @@ static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar
     for (int i = 0; i < 4; ++i) {
         SkString str;
         str.appendScalar(k[i]);
-        SkScalar width = font.measureText(str.c_str(), str.size(), kUTF8_SkTextEncoding);
+        SkScalar width = font.measureText(str.c_str(), str.size(), SkTextEncoding::kUTF8);
         canvas->drawString(str, x, y + font.getSize(), font, paint);
         x += width + SkIntToScalar(10);
     }

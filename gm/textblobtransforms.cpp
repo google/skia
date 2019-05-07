@@ -38,7 +38,7 @@ protected:
         const char* text = "A";
 
         SkRect bounds;
-        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+        font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
         ToolUtils::add_to_text_blob(&builder, text, font, 0, 0);
 
         // Medium
@@ -47,7 +47,7 @@ protected:
         text = "B";
         ToolUtils::add_to_text_blob(&builder, text, font, xOffset, 0);
 
-        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+        font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
         SkScalar yOffset = bounds.height();
 
         // Small

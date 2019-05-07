@@ -262,7 +262,7 @@ SkRect SkTextBlobBuilder::TightRunBounds(const SkTextBlob::RunRecord& run) {
 
     if (SkTextBlob::kDefault_Positioning == run.positioning()) {
         font.measureText(run.glyphBuffer(), run.glyphCount() * sizeof(uint16_t),
-                         kGlyphID_SkTextEncoding, &bounds);
+                         SkTextEncoding::kGlyphID, &bounds);
         return bounds.makeOffset(run.offset().x(), run.offset().y());
     }
 

@@ -32,9 +32,9 @@ DEF_TEST(Unicode_textencodings, reporter) {
 
     SkFont font;
 
-    int count8  = font.textToGlyphs(text8,  len8,  kUTF8_SkTextEncoding,  glyphs8,  SK_ARRAY_COUNT(glyphs8));
-    int count16 = font.textToGlyphs(text16, len16, kUTF16_SkTextEncoding, glyphs16, SK_ARRAY_COUNT(glyphs16));
-    int count32 = font.textToGlyphs(text32, len32, kUTF32_SkTextEncoding, glyphs32, SK_ARRAY_COUNT(glyphs32));
+    int count8  = font.textToGlyphs(text8,  len8,  SkTextEncoding::kUTF8,  glyphs8,  SK_ARRAY_COUNT(glyphs8));
+    int count16 = font.textToGlyphs(text16, len16, SkTextEncoding::kUTF16, glyphs16, SK_ARRAY_COUNT(glyphs16));
+    int count32 = font.textToGlyphs(text32, len32, SkTextEncoding::kUTF32, glyphs32, SK_ARRAY_COUNT(glyphs32));
 
     REPORTER_ASSERT(reporter, (int)len8 == count8);
     REPORTER_ASSERT(reporter, (int)len8 == count16);
@@ -57,7 +57,7 @@ DEF_TEST(glyphs_to_unichars, reporter) {
         uni[i + 26] = i + 'a';
     }
     uint16_t glyphs[N];
-    font.textToGlyphs(uni, sizeof(uni), kUTF32_SkTextEncoding, glyphs, N);
+    font.textToGlyphs(uni, sizeof(uni), SkTextEncoding::kUTF32, glyphs, N);
 
     SkUnichar uni2[N];
     SkFontPriv::GlyphsToUnichars(font, glyphs, N, uni2);

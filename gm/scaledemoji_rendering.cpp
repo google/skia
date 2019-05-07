@@ -65,7 +65,7 @@ protected:
                 font.setSubpixel(true);
                 y += -metrics.fAscent;
 
-                canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding,
+                canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8,
                                        10, y, font, paint);
                 y += metrics.fDescent + metrics.fLeading;
             }

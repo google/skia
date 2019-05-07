@@ -161,14 +161,14 @@ static void make_big_bitmap(SkBitmap* bm) {
     SkFont font;
     font.setSize(SkIntToScalar(BIG_H));
 
-    const int BIG_W = SkScalarRoundToInt(font.measureText(gText, strlen(gText), kUTF8_SkTextEncoding));
+    const int BIG_W = SkScalarRoundToInt(font.measureText(gText, strlen(gText), SkTextEncoding::kUTF8));
 
     bm->allocN32Pixels(BIG_W, BIG_H);
     bm->eraseColor(SK_ColorWHITE);
 
     SkCanvas canvas(*bm);
 
-    canvas.drawSimpleText(gText, strlen(gText), kUTF8_SkTextEncoding, 0, font.getSize()*4/5, font, SkPaint());
+    canvas.drawSimpleText(gText, strlen(gText), SkTextEncoding::kUTF8, 0, font.getSize()*4/5, font, SkPaint());
 }
 
 class BitmapRectView2 : public Sample {

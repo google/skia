@@ -43,7 +43,7 @@ protected:
         while (*array != gUniqueGlyphIDs_Sentinel) {
             int count = count_glyphs(array);
             for (int i = 0; i < loops; ++i) {
-                (void)font.measureText(array, count * sizeof(uint16_t), kGlyphID_SkTextEncoding);
+                (void)font.measureText(array, count * sizeof(uint16_t), SkTextEncoding::kGlyphID);
             }
             array += count + 1;    // skip the sentinel
         }

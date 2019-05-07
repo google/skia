@@ -132,7 +132,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
                               float baseline_offset) {
     SkPathMeasure meas(path, false);
 
-    int count = font.countText(text, length, kUTF8_SkTextEncoding);
+    int count = font.countText(text, length, SkTextEncoding::kUTF8);
     size_t size = count * (sizeof(SkRSXform) + sizeof(SkScalar));
     SkAutoSMalloc<512> storage(size);
     SkRSXform* xform = (SkRSXform*)storage.get();
@@ -145,7 +145,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
     const SkRect bounds = path.getBounds().makeOutset(max, max);
 
     SkAutoTArray<SkGlyphID> glyphs(count);
-    font.textToGlyphs(text, length, kUTF8_SkTextEncoding, glyphs.get(), count);
+    font.textToGlyphs(text, length, SkTextEncoding::kUTF8, glyphs.get(), count);
     font.getWidths(glyphs.get(), count, widths);
 
     for (int i = 0; i < count; ++i) {
@@ -166,7 +166,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
     }
 
     canvas->drawTextBlob(SkTextBlob::MakeFromRSXform(glyphs.get(), count * sizeof(SkGlyphID),
-                                         &xform[0], font, kGlyphID_SkTextEncoding),
+                                         &xform[0], font, SkTextEncoding::kGlyphID),
                          0, 0, paint);
 
     if (true) {
@@ -202,7 +202,7 @@ static void drawTextPath(SkCanvas* canvas, bool doStroke) {
     SkScalar x = 0;
     for (int i = 0; i < N; ++i) {
         pos[i].set(x, 0);
-        x += font.measureText(&text0[i], 1, kUTF8_SkTextEncoding, nullptr, &paint);
+        x += font.measureText(&text0[i], 1, SkTextEncoding::kUTF8, nullptr, &paint);
     }
 
     SkPath path;

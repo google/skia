@@ -11,13 +11,13 @@ void draw(SkCanvas* canvas) {
     const uint32_t hello32[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };
     paint.setTextSize(24);
     canvas->drawText(hello8, sizeof(hello8) - 1, 10, 30, paint);
-    paint.setTextEncoding(kUTF16_SkTextEncoding);
+    paint.setTextEncoding(SkTextEncoding::kUTF16);
     canvas->drawText(hello16, sizeof(hello16), 10, 60, paint);
-    paint.setTextEncoding(kUTF32_SkTextEncoding);
+    paint.setTextEncoding(SkTextEncoding::kUTF32);
     canvas->drawText(hello32, sizeof(hello32), 10, 90, paint);
     uint16_t glyphs[SK_ARRAY_COUNT(hello32)];
     paint.textToGlyphs(hello32, sizeof(hello32), glyphs);
-    paint.setTextEncoding(kGlyphID_SkTextEncoding);
+    paint.setTextEncoding(SkTextEncoding::kGlyphID);
     canvas->drawText(glyphs, sizeof(glyphs), 10, 120, paint);
 }
 }  // END FIDDLE

@@ -39,8 +39,8 @@ private:
             SkFont      font(ToolUtils::create_portable_typeface());
             const char* txt = "Blobber";
             size_t txtLen = strlen(txt);
-            fGlyphs.append(font.countText(txt, txtLen, kUTF8_SkTextEncoding));
-            font.textToGlyphs(txt, txtLen, kUTF8_SkTextEncoding, fGlyphs.begin(), fGlyphs.count());
+            fGlyphs.append(font.countText(txt, txtLen, SkTextEncoding::kUTF8));
+            font.textToGlyphs(txt, txtLen, SkTextEncoding::kUTF8, fGlyphs.begin(), fGlyphs.count());
         }
 
         SkFont font;

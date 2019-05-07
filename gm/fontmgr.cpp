@@ -36,7 +36,7 @@
 static SkScalar drawString(SkCanvas* canvas, const SkString& text, SkScalar x,
                            SkScalar y, const SkFont& font) {
     canvas->drawString(text, x, y, font, SkPaint());
-    return x + font.measureText(text.c_str(), text.size(), kUTF8_SkTextEncoding);
+    return x + font.measureText(text.c_str(), text.size(), SkTextEncoding::kUTF8);
 }
 
 static SkScalar drawCharacter(SkCanvas* canvas, uint32_t character, SkScalar x,
@@ -309,7 +309,7 @@ public:
             SkPaint::Style style = path.isEmpty() ? SkPaint::kFill_Style : SkPaint::kStroke_Style;
             SkPaint glyphPaint;
             glyphPaint.setStyle(style);
-            canvas->drawSimpleText(&str[i], sizeof(str[0]), kGlyphID_SkTextEncoding, x, y, font, glyphPaint);
+            canvas->drawSimpleText(&str[i], sizeof(str[0]), SkTextEncoding::kGlyphID, x, y, font, glyphPaint);
 
             if (labelBounds) {
                 SkString glyphStr;

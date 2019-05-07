@@ -26,14 +26,14 @@ DEF_SIMPLE_GM(skbug_5321, canvas, 128, 128) {
     SkScalar x = 20, y = 45;
 
     size_t byteLength = strlen(text);
-    canvas->drawSimpleText(text, byteLength, kUTF8_SkTextEncoding, x, y, font, SkPaint());
+    canvas->drawSimpleText(text, byteLength, SkTextEncoding::kUTF8, x, y, font, SkPaint());
 
     y += font.getMetrics(nullptr);
-    int glyph_count = font.countText(text, byteLength, kUTF8_SkTextEncoding);
+    int glyph_count = font.countText(text, byteLength, SkTextEncoding::kUTF8);
     SkTextBlobBuilder builder;
 
     auto rec = builder.allocRunPosH(font, glyph_count, y);
-    font.textToGlyphs(text, byteLength, kUTF8_SkTextEncoding, rec.glyphs, glyph_count);
+    font.textToGlyphs(text, byteLength, SkTextEncoding::kUTF8, rec.glyphs, glyph_count);
 
     font.getWidths(rec.glyphs, glyph_count, rec.pos);
     for (int i = 0; i < glyph_count; ++i) {
