@@ -780,7 +780,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, fulfillInfo.fFulfilled);
     REPORTER_ASSERT(reporter, fulfillInfo.fReleased);
 
-    if (GrBackendApi::kVulkan == context->backend()) {
+    if (GrBackendApi::kVulkan == context->backend() ||
+        GrBackendApi::kMetal  == context->backend()) {
         // In order to recieve the done callback with Vulkan we need to perform the equivalent
         // of a glFinish
         GrFlushInfo flushInfoSyncCpu;
