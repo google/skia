@@ -1049,6 +1049,8 @@ SkMatrix Viewer::computeMatrix() {
 }
 
 void Viewer::setBackend(sk_app::Window::BackendType backendType) {
+    fPersistentCache.reset();
+    fCachedGLSL.reset();
     fBackendType = backendType;
 
     fWindow->detach();
@@ -2047,8 +2049,14 @@ void Viewer::drawImGui() {
                 }
                 if (doSave) {
                     // The hovered item (if any) gets a special shader to make it identifiable
-                    SkSL::String highlight = ctx->priv().caps()->shaderCaps()->versionDeclString();
-                    const char* f4Type = params.fGrContextOptions.fCacheSKSL ? "half4" : "vec4";
+                    auto shaderCaps = ctx->priv().caps()->shaderCaps();
+                    bool sksl = params.fGrContextOptions.fCacheSKSL;
+
+                    SkSL::String highlight = shaderCaps->versionDeclString();
+                    if (shaderCaps->usesPrecisionModifiers() && !sksl) {
+                        highlight.append("precision mediump float;\n");
+                    }
+                    const char* f4Type = sksl ? "half4" : "vec4";
                     highlight.appendf("out %s sk_FragColor;\n"
                                       "void main() { sk_FragColor = %s(1, 0, 1, 0.5); }",
                                       f4Type, f4Type);
