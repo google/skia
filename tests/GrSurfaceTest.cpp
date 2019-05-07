@@ -19,6 +19,7 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "tests/Test.h"
+#include "tests/TestUtils.h"
 
 // Tests that GrSurface::asTexture(), GrSurface::asRenderTarget(), and static upcasting of texture
 // and render targets to GrSurface all work as expected.
@@ -654,17 +655,22 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
             // is a wrapped-texture backed image.
             surf->getCanvas()->clear(SK_ColorWHITE);
             auto img1 = surf->makeImageSnapshot();
-            auto gpu = context->priv().getGpu();
-            std::unique_ptr<uint32_t[]> pixels(new uint32_t[info.width() * info.height()]);
-            auto backendTexture = gpu->createTestingOnlyBackendTexture(
-                    pixels.get(), info.width(), info.height(), kRGBA_8888_SkColorType, false,
-                    GrMipMapped::kNo);
+
+            GrBackendTexture backendTexture;
+
+            if (!create_backend_texture(context, &backendTexture, info,
+                                        GrMipMapped::kNo, SK_ColorBLACK, Renderable::kNo)) {
+                REPORTER_ASSERT(reporter, false);
+                continue;
+            }
+
             auto img2 = SkImage::MakeFromTexture(context, backendTexture, kTopLeft_GrSurfaceOrigin,
                                                  info.colorType(), info.alphaType(), nullptr);
             surf->getCanvas()->drawImage(std::move(img1), 0, 0);
             surf->getCanvas()->drawImage(std::move(img2), 1, 1);
             idleTexture.reset();
-            gpu->deleteTestingOnlyBackendTexture(backendTexture);
+
+            delete_backend_texture(context, backendTexture);
         }
     }
 }
