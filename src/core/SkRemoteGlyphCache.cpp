@@ -636,10 +636,7 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
             fContext->getMetrics(glyphPtr);
 
             if (glyphPtr->maxDimension() <= maxDimension) {
-
-                // The mask/SDF will fit in the cache.
-                // TODO: no need to do this once code base converted over to bulk.
-                results[glyphsToSendCount++] = {i, glyphPtr, glyphPos};
+                // do nothing
             } else if (glyphPtr->fMaskFormat != SkMask::kARGB32_Format) {
 
                 // The glyph is too big for the atlas, but it is not color, so it is handled with a
@@ -668,7 +665,7 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
         }
 
     }
-    return SkSpan<const SkGlyphPos>(results, glyphsToSendCount);
+    return SkSpan<const SkGlyphPos>{};
 }
 
 // SkStrikeClient -----------------------------------------
