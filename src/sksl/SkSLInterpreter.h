@@ -51,36 +51,32 @@ public:
         kBool_TypeKind
     };
 
-    Interpreter(std::unique_ptr<Program> program, std::unique_ptr<ByteCode> byteCode)
-    : fProgram(std::move(program))
-    , fByteCode(std::move(byteCode)) {}
+    /**
+     * 'inputs' contains the values of global 'in' variables in source order.
+     */
+    Interpreter(std::unique_ptr<Program> program, std::unique_ptr<ByteCode> byteCode,
+                Value inputs[] = nullptr);
 
     /**
-     * Invokes the specified function with the given arguments, returning its return value. 'out'
-     * and 'inout' parameters will result in the 'args' array being modified.
+     * Invokes the specified function with the given arguments. 'out' and 'inout' parameters will
+     * result in the 'args' array being modified. The return value is stored in 'outReturn' (may be
+     * null, in which case the return value is discarded).
      */
-    Value* run(const ByteCodeFunction& f, Value args[], Value inputs[]);
+    void run(const ByteCodeFunction& f, Value args[], Value* outReturn);
 
 private:
     StackIndex stackAlloc(int count);
 
-    void run();
-
-    void push(Value v);
-
-    Value pop();
+    void run(Value* stack, Value args[], Value* outReturn);
 
     void swizzle();
 
     void disassemble(const ByteCodeFunction& f);
 
-    void dumpStack();
-
     std::unique_ptr<Program> fProgram;
     std::unique_ptr<ByteCode> fByteCode;
     const ByteCodeFunction* fCurrentFunction;
     std::vector<Value> fGlobals;
-    std::vector<Value> fStack;
 };
 
 } // namespace
