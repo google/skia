@@ -63,8 +63,9 @@ public:
     void visit(const char* name, SkString& s) override {
         if (fTreeStack.back()) {
             ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackResize;
-            ImGui::InputText(item(name), s.writable_str(), s.size() + 1, flags, InputTextCallback,
-                             &s);
+            ImVec2 boxSize(-1.0f, ImGui::GetTextLineHeight() * 20.0f);
+            ImGui::InputTextMultiline(item(name), s.writable_str(), s.size() + 1, boxSize, flags,
+                                      InputTextCallback, &s);
         }
     }
     void visit(const char* name, int& i, const EnumStringMapping* map, int count) override {

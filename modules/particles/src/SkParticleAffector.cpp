@@ -14,6 +14,8 @@
 #include "include/utils/SkTextUtils.h"
 #include "modules/particles/include/SkCurve.h"
 #include "modules/particles/include/SkParticleData.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLInterpreter.h"
 
 
 void SkParticleAffector::apply(const SkParticleUpdateParams& params,
@@ -433,6 +435,56 @@ private:
     SkColorCurve fCurve;
 };
 
+static const char* kDefaultCode = R"(
+void main(inout float2 pos,
+          inout float2 dir,
+          inout float  scale,
+          inout float2 vel,
+          inout float  spin,
+          inout float4 color,
+          in    float  rand) {
+}
+)";
+
+class SkInterpreterAffector : public SkParticleAffector {
+public:
+    SkInterpreterAffector() : fCode(kDefaultCode) {}
+
+    REFLECTED(SkInterpreterAffector, SkParticleAffector)
+
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+        SkSL::Compiler compiler;
+        SkSL::Program::Settings settings;
+        auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                               SkSL::String(fCode.c_str()), settings);
+        if (!program) {
+            SkDebugf("%s\n", compiler.errorText().c_str());
+            return;
+        }
+
+        auto byteCode = compiler.toByteCode(*program);
+        if (compiler.errorCount()) {
+            SkDebugf("%s\n", compiler.errorText().c_str());
+            return;
+        }
+
+        SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
+        SkSL::Interpreter interpreter(std::move(program), std::move(byteCode));
+
+        for (int i = 0; i < count; ++i) {
+            interpreter.run(*main, (SkSL::Interpreter::Value*)&ps[i].fPose, nullptr);
+        }
+    }
+
+    void visitFields(SkFieldVisitor* v) override {
+        SkParticleAffector::visitFields(v);
+        v->visit("Code", fCode);
+    }
+
+private:
+    SkString fCode;
+};
+
 void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkParticleAffector);
     REGISTER_REFLECTED(SkLinearVelocityAffector);
@@ -445,6 +497,7 @@ void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkSizeAffector);
     REGISTER_REFLECTED(SkFrameAffector);
     REGISTER_REFLECTED(SkColorAffector);
+    REGISTER_REFLECTED(SkInterpreterAffector);
 }
 
 sk_sp<SkParticleAffector> SkParticleAffector::MakeLinearVelocity(const SkCurve& angle,

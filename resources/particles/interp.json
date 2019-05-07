@@ -1,0 +1,58 @@
+{
+   "MaxCount": 128,
+   "Duration": 5,
+   "Rate": 60,
+   "Life": {
+      "Input": {
+         "Source": "Age",
+         "TileMode": "Repeat",
+         "Left": 0,
+         "Right": 1
+      },
+      "XValues": [],
+      "Segments": [
+         {
+            "Type": "Constant",
+            "Ranged": true,
+            "Bidirectional": false,
+            "A0": 1,
+            "A1": 3
+         }
+      ]
+   },
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 2
+   },
+   "Spawn": [
+      {
+         "Type": "SkFrameAffector",
+         "Enabled": true,
+         "Curve": {
+            "Input": {
+               "Source": "Random",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Linear",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0,
+                  "D0": 1
+               }
+            ]
+         }
+      }
+   ],
+   "Update": [
+      {
+         "Type": "SkInterpreterAffector",
+         "Enabled": true,
+         "Code": "\nvoid main(inout float2 pos,\n          inout float2 dir,\n          inout float  scale,\n          inout float2 vel,\n          inout float  spin,\n          inout float4 color,\n          in    float  rand) {\n  pos.x = rand * 100;\n  color.r = rand;\n  color.g = 1 - rand;\n  vel.y = rand * 10;\n//  vel.x = -rand * 20;\n}\n"
+      }
+   ]
+}
