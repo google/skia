@@ -744,9 +744,6 @@
         "Housekeeper-PerCommit-InfraTests"
       ]
     },
-    "Housekeeper-PerCommit-IsolateGoDeps": {
-      "tasks": []
-    },
     "Housekeeper-PerCommit-IsolateSKP": {
       "tasks": [
         "Housekeeper-PerCommit-IsolateSKP"
