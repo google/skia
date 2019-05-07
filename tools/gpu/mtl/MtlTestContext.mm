@@ -23,94 +23,72 @@ namespace {
  * Implements sk_gpu_test::FenceSync for Metal.
  */
 
-// TODO
-#if 0
 class MtlFenceSync : public sk_gpu_test::FenceSync {
 public:
-    MtlFenceSync(sk_sp<const GrVkInterface> vk, VkDevice device, VkQueue queue,
-                uint32_t queueFamilyIndex)
-            : fVk(std::move(vk))
-            , fDevice(device)
-            , fQueue(queue) {
+    MtlFenceSync(id<MTLDevice> device, id<MTLCommandQueue> queue)
+            : fDevice(device)
+            , fQueue(queue)
+            , fLatestEvent(0) {
         SkDEBUGCODE(fUnfinishedSyncs = 0;)
-        VkCommandPoolCreateInfo createInfo;
-        createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-        createInfo.pNext = nullptr;
-        createInfo.flags = 0;
-        createInfo.queueFamilyIndex = queueFamilyIndex;
-        GR_VK_CALL_ERRCHECK(fVk, CreateCommandPool(fDevice, &createInfo, nullptr, &fCommandPool));
-
-        VkCommandBufferAllocateInfo allocateInfo;
-        allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocateInfo.pNext = nullptr;
-        allocateInfo.commandBufferCount = 1;
-        allocateInfo.commandPool = fCommandPool;
-        allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        GR_VK_CALL_ERRCHECK(fVk, AllocateCommandBuffers(fDevice, &allocateInfo, &fCommandBuffer));
-
-        VkCommandBufferBeginInfo beginInfo;
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.pNext = nullptr;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-        beginInfo.pInheritanceInfo = nullptr;
-        GR_VK_CALL_ERRCHECK(fVk, BeginCommandBuffer(fCommandBuffer, &beginInfo));
-        GR_VK_CALL_ERRCHECK(fVk, EndCommandBuffer(fCommandBuffer));
+        SK_BEGIN_AUTORELEASE_BLOCK
+        fSharedEvent = [fDevice newSharedEvent];
+        dispatch_queue_t queue = dispatch_queue_create("MTLFenceSync", NULL);
+        fSharedEventListener = [[MTLSharedEventListener alloc] initWithDispatchQueue:queue];
+        SK_END_AUTORELEASE_BLOCK
     }
 
-    ~VkFenceSync() override {
+    ~MtlFenceSync() override {
         SkASSERT(!fUnfinishedSyncs);
         // If the above assertion is true then the command buffer should not be in flight.
-        GR_VK_CALL(fVk, FreeCommandBuffers(fDevice, fCommandPool, 1, &fCommandBuffer));
-        GR_VK_CALL(fVk, DestroyCommandPool(fDevice, fCommandPool, nullptr));
+        // ARC should take care of these:
+        fSharedEventListener = nil;
+        fSharedEvent = nil;
     }
 
     sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override {
-        VkFence fence;
-        VkFenceCreateInfo info;
-        info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        info.pNext = nullptr;
-        info.flags = 0;
-        GR_VK_CALL_ERRCHECK(fVk, CreateFence(fDevice, &info, nullptr, &fence));
-        VkSubmitInfo submitInfo;
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.pNext = nullptr;
-        submitInfo.waitSemaphoreCount = 0;
-        submitInfo.pWaitSemaphores = nullptr;
-        submitInfo.pWaitDstStageMask = nullptr;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &fCommandBuffer;
-        submitInfo.signalSemaphoreCount = 0;
-        submitInfo.pSignalSemaphores = nullptr;
-        GR_VK_CALL_ERRCHECK(fVk, QueueSubmit(fQueue, 1, &submitInfo, fence));
+        SK_BEGIN_AUTORELEASE_BLOCK
+        id<MTLCommandBuffer> cmdBuffer = [fQueue commandBuffer];
+        ++fLatestEvent;
+        [cmdBuffer encodeSignalEvent:fSharedEvent value:fLatestEvent];
+        [cmdBuffer commit];
+        SK_END_AUTORELEASE_BLOCK
+
         SkDEBUGCODE(++fUnfinishedSyncs;)
-        return (sk_gpu_test::PlatformFence)fence;
+        return (sk_gpu_test::PlatformFence)fLatestEvent;
     }
 
     bool waitFence(sk_gpu_test::PlatformFence opaqueFence) const override {
-        VkFence fence = (VkFence)opaqueFence;
-        static constexpr uint64_t kForever = ~((uint64_t)0);
-        auto result = GR_VK_CALL(fVk, WaitForFences(fDevice, 1, &fence, true, kForever));
-        return result != VK_TIMEOUT;
+        uint64_t value = (uint64_t)opaqueFence;
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
+        __block dispatch_semaphore_t block_sema = semaphore;
+        [fSharedEvent notifyListener: fSharedEventListener
+                             atValue: value
+                               block: ^(id<MTLSharedEvent> sharedEvent, uint64_t value) {
+                                   dispatch_semaphore_signal(block_sema);
+                               }];
+
+        long result = dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+
+        return !result;
     }
 
     void deleteFence(sk_gpu_test::PlatformFence opaqueFence) const override {
-        VkFence fence = (VkFence)opaqueFence;
-        GR_VK_CALL(fVk, DestroyFence(fDevice, fence, nullptr));
+        // TODO: really need to delete anything?
         SkDEBUGCODE(--fUnfinishedSyncs;)
     }
 
 private:
-    sk_sp<const GrVkInterface>  fVk;
-    VkDevice                    fDevice;
-    VkQueue                     fQueue;
-    VkCommandPool               fCommandPool;
-    VkCommandBuffer             fCommandBuffer;
+    id<MTLDevice>               fDevice;
+    id<MTLCommandQueue>         fQueue;
+    id<MTLSharedEvent>          fSharedEvent;
+    MTLSharedEventListener*     fSharedEventListener;
+    mutable uint64_t            fLatestEvent;
     SkDEBUGCODE(mutable int     fUnfinishedSyncs;)
     typedef sk_gpu_test::FenceSync INHERITED;
 };
 
-GR_STATIC_ASSERT(sizeof(VkFence) <= sizeof(sk_gpu_test::PlatformFence));
-#endif
+GR_STATIC_ASSERT(sizeof(uint64_t) <= sizeof(sk_gpu_test::PlatformFence));
 
 class MtlTestContextImpl : public sk_gpu_test::MtlTestContext {
 public:
@@ -152,7 +130,7 @@ public:
 private:
     MtlTestContextImpl(id<MTLDevice> device, id<MTLCommandQueue> queue)
             : INHERITED(), fDevice(device), fQueue(queue) {
-        fFenceSync.reset(nullptr);
+        fFenceSync.reset(new MtlFenceSync(device, queue));
     }
 
     void onPlatformMakeCurrent() const override {}
