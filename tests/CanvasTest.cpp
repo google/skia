@@ -224,6 +224,7 @@ static constexpr SkRect kRect = {0, 0, 2, 1};
 static constexpr SkColor kColor = 0x01020304;
 static constexpr int kWidth = 2;
 static constexpr int kHeight = 2;
+static constexpr SkMatrix kMatrix = SkMatrix::MakeScale(2, 3);
 
 using CanvasTest = void (*)(SkCanvas*, skiatest::Reporter*);
 
@@ -241,10 +242,10 @@ static CanvasTest kCanvasTests[] = {
         c->skew(SkIntToScalar(1), SkIntToScalar(2));
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
-        c->concat(SkMatrix::MakeScale(2, 3));
+        c->concat(kMatrix);
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
-        c->setMatrix(SkMatrix::MakeScale(2, 3));
+        c->setMatrix(kMatrix);
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
         c->clipRect(kRect);
