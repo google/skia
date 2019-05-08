@@ -22,6 +22,30 @@
       "revId": "b6e7e86e6332a64a88364792ef972a82ba079b06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4a804b2_d8a7316f",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-08T15:22:43Z",
+      "side": 1,
+      "message": "For GPU, maxDimension is constant and is the maximum dimension that the atlas can accommodate. I hope when I combine bitmap and GPU this parameter can go away and become a constant.",
+      "parentUuid": "7a52f651_33afc7d4",
+      "range": {
+        "startLine": 633,
+        "startChar": 8,
+        "endLine": 633,
+        "endChar": 48
+      },
+      "revId": "b6e7e86e6332a64a88364792ef972a82ba079b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
