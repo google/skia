@@ -256,6 +256,7 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
             const skottie::Shaper::TextDesc desc = {
                 typeface,
                 tsize.text_size,
+                tsize.text_size,
                 talign.align,
                 skottie::Shaper::VAlign::kTopBaseline,
             };
@@ -315,6 +316,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
         for (const auto& talign : kTestAligns) {
             const skottie::Shaper::TextDesc desc = {
                 typeface,
+                tsize.text_size,
                 tsize.text_size,
                 SkTextUtils::Align::kCenter_Align,
                 talign.align,

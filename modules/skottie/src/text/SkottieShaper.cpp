@@ -102,7 +102,11 @@ public:
     }
 
     void commitLine() override {
-        fOffset += { 0, fMaxRunDescent + fMaxRunLeading - fMaxRunAscent };
+        // Observe explicit line height, if specified; otherwise use line metrics.
+        const auto lh = fDesc.fLineHeight > 0
+                ? fDesc.fLineHeight
+                : fMaxRunDescent + fMaxRunLeading - fMaxRunAscent;
+        fOffset.fY += lh;
     }
 
     Shaper::Result makeBlob() {
