@@ -46,6 +46,30 @@
       "revId": "b6e7e86e6332a64a88364792ef972a82ba079b06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6214c785_25ec140d",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-08T18:24:58Z",
+      "side": 1,
+      "message": "I was actually curious about the SkGlyphRunListPainter::ShouldDrawAsPath case here : https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkGlyphRunPainter.cpp?sq\u003dpackage:chromium\u0026g\u003d0\u0026l\u003d505.\n\nWe use a maxDimension of 0 to indicate a path is needed and I\u0027m not sure if that decision is guaranteed to be the same for all draws using the same strike. If that\u0027s not the case then its possible to have a draw with a mask followed by one with a path and we\u0027d fail to send a path with the code here.",
+      "parentUuid": "b4a804b2_d8a7316f",
+      "range": {
+        "startLine": 633,
+        "startChar": 8,
+        "endLine": 633,
+        "endChar": 48
+      },
+      "revId": "b6e7e86e6332a64a88364792ef972a82ba079b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
