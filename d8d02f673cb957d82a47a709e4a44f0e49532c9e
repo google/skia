@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7e18f17c_6a54e164",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-08T16:09:45Z",
+      "side": 1,
+      "message": "I\u0027ll check.",
+      "parentUuid": "483cce25_cd0d3ef6",
+      "range": {
+        "startLine": 371,
+        "startChar": 39,
+        "endLine": 371,
+        "endChar": 46
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c9fd670e_718b9838",
         "filename": "src/gpu/ccpr/GrCCPathProcessor.h",
         "patchSetId": 2
@@ -48,6 +72,53 @@
     },
     {
       "key": {
+        "uuid": "61dcdc18_0ab603b4",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-08T16:09:45Z",
+      "side": 1,
+      "message": "I chose not to because I didn\u0027t want to give outsiders access to arbitrarily write to fBounds and fBounds45. (See below.)",
+      "parentUuid": "c9fd670e_718b9838",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 42,
+        "endChar": 28
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfa51721_da6ccbe7",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-08T16:09:45Z",
+      "side": 1,
+      "message": "Here we need to write negative/weird values to the bounding boxes that will fail the \"bounds are tight\" assertion.",
+      "range": {
+        "startLine": 103,
+        "startChar": 8,
+        "endLine": 107,
+        "endChar": 36
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e696e88e_765cb90a",
         "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
         "patchSetId": 2
@@ -59,6 +130,30 @@
       "writtenOn": "2019-05-08T12:21:33Z",
       "side": 1,
       "message": "Seems like this could use a new name",
+      "range": {
+        "startLine": 334,
+        "startChar": 16,
+        "endLine": 334,
+        "endChar": 23
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a15345e_204f3440",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-08T16:09:45Z",
+      "side": 1,
+      "message": "Agreed. I\u0027m open to suggestions!",
+      "parentUuid": "e696e88e_765cb90a",
       "range": {
         "startLine": 334,
         "startChar": 16,
@@ -94,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "7d668321_eae8b0b2",
+        "filename": "src/gpu/ccpr/GrOctoBounds.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-08T16:09:45Z",
+      "side": 1,
+      "message": "How so?",
+      "parentUuid": "0d14f601_23dce13c",
+      "range": {
+        "startLine": 44,
+        "startChar": 40,
+        "endLine": 44,
+        "endChar": 63
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9222549f_d8507b6c",
         "filename": "src/gpu/ccpr/GrOctoBounds.h",
         "patchSetId": 2
@@ -108,6 +227,24 @@
       "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8ba4ff5_9b44dde1",
+        "filename": "src/gpu/ccpr/GrOctoBounds.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-08T16:09:45Z",
+      "side": 1,
+      "message": "Octo bounds are still simple in this change. The next CL in flight will use these getters in both OctoBounds.cpp and the unit test.",
+      "parentUuid": "9222549f_d8507b6c",
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
