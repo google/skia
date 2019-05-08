@@ -17,6 +17,7 @@ bool TextValue::operator==(const TextValue &other) const {
         && fText == other.fText
         && fTextSize == other.fTextSize
         && fStrokeWidth == other.fStrokeWidth
+        && fLineHeight == other.fLineHeight
         && fHAlign == other.fHAlign
         && fVAlign == other.fVAlign
         && fBox == other.fBox
@@ -48,6 +49,7 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
     }
     v->fText.set(text->begin(), text->size());
     v->fTextSize = **text_size;
+    v->fLineHeight = ParseDefault<float>((*jtxt)["lh"], 0);
 
     static constexpr SkTextUtils::Align gAlignMap[] = {
         SkTextUtils::kLeft_Align,  // 'j': 0

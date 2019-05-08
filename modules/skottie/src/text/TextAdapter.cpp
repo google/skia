@@ -45,6 +45,7 @@ void TextAdapter::apply() {
     const Shaper::TextDesc text_desc = {
         fText.fTypeface,
         fText.fTextSize,
+        fText.fLineHeight,
         fText.fHAlign,
         fText.fVAlign,
     };

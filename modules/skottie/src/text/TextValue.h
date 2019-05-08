@@ -19,7 +19,8 @@ struct TextValue {
     sk_sp<SkTypeface>  fTypeface;
     SkString           fText;
     float              fTextSize    = 0,
-                       fStrokeWidth = 0;
+                       fStrokeWidth = 0,
+                       fLineHeight  = 0;
     SkTextUtils::Align fHAlign      = SkTextUtils::kLeft_Align;
     Shaper::VAlign     fVAlign      = Shaper::VAlign::kTop;
     SkRect             fBox         = SkRect::MakeEmpty();
