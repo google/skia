@@ -32,7 +32,8 @@
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
       "@@@STEP_LINK@withpatch compilation log link@link1@@@",
-      "@@@STEP_LINK@nopatch compilation log link@link2@@@"
+      "@@@STEP_LINK@nopatch compilation log link@link2@@@",
+      "@@@STEP_LINK@force sync link@https://skia-android-compile.corp.goog/@@@"
     ]
   },
   {
