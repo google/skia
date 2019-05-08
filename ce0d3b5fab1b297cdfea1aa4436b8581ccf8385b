@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e32adb3_dd1834a1",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 729,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T16:11:30Z",
+      "side": 1,
+      "message": "any",
+      "range": {
+        "startLine": 729,
+        "startChar": 16,
+        "endLine": 729,
+        "endChar": 18
+      },
+      "revId": "ce0d3b5fab1b297cdfea1aa4436b8581ccf8385b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3a42e48_6e19d53d",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 735,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T16:11:30Z",
+      "side": 1,
+      "message": "is required ?",
+      "range": {
+        "startLine": 735,
+        "startChar": 22,
+        "endLine": 735,
+        "endChar": 23
+      },
+      "revId": "ce0d3b5fab1b297cdfea1aa4436b8581ccf8385b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a11cd6a2_81b98195",
+        "filename": "src/gpu/GrContextPriv.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T16:11:30Z",
+      "side": 1,
+      "message": "numProxies ?",
+      "range": {
+        "startLine": 192,
+        "startChar": 82,
+        "endLine": 192,
+        "endChar": 83
+      },
+      "revId": "ce0d3b5fab1b297cdfea1aa4436b8581ccf8385b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05bccff9_cb638af6",
+        "filename": "src/gpu/GrContextPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T16:11:30Z",
+      "side": 1,
+      "message": "Do we care about the deleted \"\u0027proxy\u0027 parameter is a hint\" dox ?",
+      "revId": "ce0d3b5fab1b297cdfea1aa4436b8581ccf8385b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb27c94c_c84d7018",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T16:11:30Z",
+      "side": 1,
+      "message": "numProxies ?",
+      "range": {
+        "startLine": 157,
+        "startChar": 36,
+        "endLine": 157,
+        "endChar": 37
+      },
+      "revId": "ce0d3b5fab1b297cdfea1aa4436b8581ccf8385b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d2ccff0_246f5c50",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T16:11:30Z",
+      "side": 1,
+      "message": "\u0027p\u0027 ?",
+      "range": {
+        "startLine": 111,
+        "startChar": 20,
+        "endLine": 111,
+        "endChar": 21
+      },
+      "revId": "ce0d3b5fab1b297cdfea1aa4436b8581ccf8385b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
