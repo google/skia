@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1b7258bd_847e3ccf",
+        "filename": "bench/PolyUtilsBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-08T16:43:33Z",
+      "side": 1,
+      "message": "I don\u0027t see this as necessary for the cherrypick. It\u0027s correct in mainline Skia.",
+      "parentUuid": "f92bde25_7c339d40",
+      "revId": "ead9fea057b79bcffc8e61e4fcf929d6175a8402",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "95d42080_3c2f8cf5",
         "filename": "src/utils/SkShadowTessellator.cpp",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2019-05-08T16:34:46Z",
       "side": 1,
       "message": "why aren\u0027t there .5\u0027s here ?",
+      "range": {
+        "startLine": 916,
+        "startChar": 41,
+        "endLine": 916,
+        "endChar": 46
+      },
+      "revId": "ead9fea057b79bcffc8e61e4fcf929d6175a8402",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ea4b0d9_f319ae6f",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 916,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-08T16:43:33Z",
+      "side": 1,
+      "message": "I\u0027m not sure what\u0027s best here -- I\u0027ll think about it and land a change in mainline Skia.",
+      "parentUuid": "95d42080_3c2f8cf5",
       "range": {
         "startLine": 916,
         "startChar": 41,
