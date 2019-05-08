@@ -40,6 +40,11 @@ enum class Renderable : bool {
     kYes = true
 };
 
+// Create a backend texture with contents from an SkPixmap
+bool create_backend_texture(GrContext*, GrBackendTexture* backendTex,
+                            const SkPixmap&, GrMipMapped mipMapped,
+                            Renderable);
+
 // Create a solid colored backend texture
 bool create_backend_texture(GrContext*, GrBackendTexture* backendTex,
                             const SkImageInfo& ii, GrMipMapped mipMapped, SkColor color,
