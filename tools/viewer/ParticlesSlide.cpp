@@ -43,6 +43,16 @@ static int InputTextCallback(ImGuiInputTextCallbackData* data) {
     return 0;
 }
 
+static int count_lines(const SkString& s) {
+    int lines = 1;
+    for (size_t i = 0; i < s.size(); ++i) {
+        if (s[i] == '\n') {
+            ++lines;
+        }
+    }
+    return lines;
+}
+
 class SkGuiVisitor : public SkFieldVisitor {
 public:
     SkGuiVisitor() {
@@ -62,9 +72,16 @@ public:
     }
     void visit(const char* name, SkString& s) override {
         if (fTreeStack.back()) {
+            int lines = count_lines(s);
             ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackResize;
-            ImGui::InputText(item(name), s.writable_str(), s.size() + 1, flags, InputTextCallback,
-                             &s);
+            if (lines > 1) {
+                ImVec2 boxSize(-1.0f, ImGui::GetTextLineHeight() * (lines + 1));
+                ImGui::InputTextMultiline(item(name), s.writable_str(), s.size() + 1, boxSize,
+                                          flags, InputTextCallback, &s);
+            } else {
+                ImGui::InputText(item(name), s.writable_str(), s.size() + 1, flags,
+                                 InputTextCallback, &s);
+            }
         }
     }
     void visit(const char* name, int& i, const EnumStringMapping* map, int count) override {
