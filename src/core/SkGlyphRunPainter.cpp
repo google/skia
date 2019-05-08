@@ -38,7 +38,6 @@
 #include <limits.h>
 
 // -- SkGlyphCacheCommon ---------------------------------------------------------------------------
-
 SkVector SkStrikeCommon::PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment) {
     if (!isSubpixel) {
         return {SK_ScalarHalf, SK_ScalarHalf};
@@ -424,8 +423,8 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
         if (useSDFT) {
             // Translate all glyphs to the origin.
-            SkMatrix translate = SkMatrix::MakeTrans(origin.x(), origin.y());
-            translate.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
+            SkMatrix::MakeTrans(origin.x(), origin.y())
+                .mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
 
             // Setup distance field runPaint and text ratio
             SkPaint dfPaint = GrTextContext::InitDistanceFieldPaint(runPaint);
@@ -505,8 +504,8 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
         } else if (SkGlyphRunListPainter::ShouldDrawAsPath(runPaint, runFont, viewMatrix)) {
 
             // Translate all glyphs to the origin.
-            SkMatrix translate = SkMatrix::MakeTrans(origin.x(), origin.y());
-            translate.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
+            SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
+                    fPositions, glyphRun.positions().data(), glyphRun.runSize());
 
             // setup our std runPaint, in hopes of getting hits in the cache
             SkPaint pathPaint{runPaint};
