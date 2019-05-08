@@ -71,9 +71,15 @@ public:
 
     static bool ProgramUnitTest(GrContext* context, int maxStages, int maxLevels);
 
-    GrSemaphoresSubmitted flushSurface(GrSurfaceProxy*,
+    GrSemaphoresSubmitted flushSurfaces(GrSurfaceProxy* proxies[],
+                                        int cnt,
+                                        SkSurface::BackendSurfaceAccess access,
+                                        const GrFlushInfo& info);
+    GrSemaphoresSubmitted flushSurface(GrSurfaceProxy* proxy,
                                        SkSurface::BackendSurfaceAccess access,
-                                       const GrFlushInfo& info);
+                                       const GrFlushInfo& info) {
+        return this->flushSurfaces(&proxy, 1, access, info);
+    }
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
@@ -147,7 +153,8 @@ private:
     // return true if any opLists were actually executed; false otherwise
     bool executeOpLists(int startIndex, int stopIndex, GrOpFlushState*, int* numOpListsExecuted);
 
-    GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
+    GrSemaphoresSubmitted flush(GrSurfaceProxy* proxies[],
+                                int numProxies,
                                 SkSurface::BackendSurfaceAccess access,
                                 const GrFlushInfo&);
 
