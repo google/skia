@@ -160,6 +160,7 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             case ByteCodeInstruction::kPushImmediate:
                 printf("pushimmediate %s", value_string(READ32()).c_str());
                 break;
+            case ByteCodeInstruction::kRemainderF: printf("remainderf"); break;
             case ByteCodeInstruction::kRemainderS: printf("remainders"); break;
             case ByteCodeInstruction::kRemainderU: printf("remainderu"); break;
             case ByteCodeInstruction::kReturn: printf("return %d", READ8()); break;
@@ -350,6 +351,12 @@ void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
             case ByteCodeInstruction::kPushImmediate:
                 PUSH(Value((int) READ32()));
                 break;
+            case ByteCodeInstruction::kRemainderF: {
+                float b = POP().fFloat;
+                Value* a = &TOP();
+                *a = Value(fmodf(a->fFloat, b));
+                break;
+            }
             BINARY_OP(kRemainderS, int32_t, fSigned, %)
             BINARY_OP(kRemainderU, uint32_t, fUnsigned, %)
             case ByteCodeInstruction::kReturn: {
@@ -481,6 +488,19 @@ void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
                     VECTOR_BINARY_OP(kMultiplyS, int32_t, fSigned, *)
                     VECTOR_BINARY_OP(kMultiplyU, uint32_t, fUnsigned, *)
                     VECTOR_BINARY_OP(kMultiplyF, float, fFloat, *)
+                    case ByteCodeInstruction::kRemainderF: {
+                        Value result[VECTOR_MAX];
+                        for (int i = count - 1; i >= 0; --i) {
+                            result[i] = POP();
+                        }
+                        for (int i = count - 1; i >= 0; --i) {
+                            result[i] = fmodf(POP().fFloat, result[i].fFloat);
+                        }
+                        for (int i = 0; i < count; ++i) {
+                            PUSH(result[i]);
+                        }
+                        break;
+                    }
                     VECTOR_BINARY_OP(kRemainderS, int32_t, fSigned, %)
                     VECTOR_BINARY_OP(kRemainderU, uint32_t, fUnsigned, %)
                     case ByteCodeInstruction::kStore: {

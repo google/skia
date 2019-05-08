@@ -72,6 +72,7 @@ enum class ByteCodeInstruction : uint8_t {
     kPop,
     // Followed by a 32 bit value containing the value to push
     kPushImmediate,
+    kRemainderF,
     kRemainderS,
     kRemainderU,
     // Followed by a byte indicating the number of slots being returned

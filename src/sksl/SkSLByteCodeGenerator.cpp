@@ -277,7 +277,7 @@ void ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b) {
         case Token::Kind::PERCENT:
             this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kRemainderS,
                                         ByteCodeInstruction::kRemainderU,
-                                        ByteCodeInstruction::kInvalid);
+                                        ByteCodeInstruction::kRemainderF);
             break;
         case Token::Kind::PLUS:
             this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kAddI,
