@@ -11,7 +11,7 @@
 #include "include/core/SkTypeface.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
-#include "modules/skottie/src/SkottieShaper.h"
+#include "modules/skottie/src/text/SkottieShaper.h"
 
 #include "tests/Test.h"
 

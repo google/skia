@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/SkottieShaper.h"
+#include "modules/skottie/src/text/SkottieShaper.h"
 
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkTextBlob.h"

@@ -676,6 +676,8 @@ def skottie_lib_srcs():
         [
             "modules/skottie/src/*.cpp",
             "modules/skottie/src/*.h",
+            "modules/skottie/src/text/*.cpp",
+            "modules/skottie/src/text/*.h",
         ],
         exclude = [
             "modules/skottie/src/SkottieTest.cpp",
@@ -688,11 +690,11 @@ def skottie_lib_srcs():
 ################################################################################
 
 SKOTTIE_SHAPER_HDRS = [
-    "modules/skottie/src/SkottieShaper.h",
+    "modules/skottie/src/text/SkottieShaper.h",
 ]
 
 SKOTTIE_SHAPER_SRCS = [
-    "modules/skottie/src/SkottieShaper.cpp",
+    "modules/skottie/src/text/SkottieShaper.cpp",
 ]
 
 ################################################################################

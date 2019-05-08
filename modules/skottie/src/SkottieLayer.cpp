@@ -7,6 +7,7 @@
 
 #include "modules/skottie/src/SkottiePriv.h"
 
+#include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkImage.h"
