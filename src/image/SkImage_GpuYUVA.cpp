@@ -71,8 +71,12 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpac
         SkASSERT(SkYUVAIndex::AreValidIndices(image->fYUVAIndices, &textureCount));
     SkASSERT(textureCount == fNumProxies);
 
-    for (int i = 0; i < fNumProxies; ++i) {
-        fProxies[i] = image->fProxies[i];  // we ref in this case, not move
+    if (image->fRGBProxy) {
+        fRGBProxy = image->fRGBProxy;  // we ref in this case, not move
+    } else {
+        for (int i = 0; i < fNumProxies; ++i) {
+            fProxies[i] = image->fProxies[i];  // we ref in this case, not move
+        }
     }
     memcpy(fYUVAIndices, image->fYUVAIndices, 4 * sizeof(SkYUVAIndex));
 }
@@ -80,6 +84,8 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpac
 SkImage_GpuYUVA::~SkImage_GpuYUVA() {}
 
 bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
+    // We shouldn't get here if the planes were alreadu flattened to RGBA.
+    SkASSERT(fProxies[0] && !fRGBProxy);
     if (!context || !fContext->priv().matches(context)) {
         return false;
     }
@@ -140,6 +146,9 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef(GrRecordingContext* con
     }
 
     fRGBProxy = renderTargetContext->asTextureProxyRef();
+    for (auto& p : fProxies) {
+        p.reset();
+    }
     return fRGBProxy;
 }
 
