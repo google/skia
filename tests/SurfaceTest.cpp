@@ -785,7 +785,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
             test_surface_clear(reporter, surface, grSurfaceGetter, 0x0);
         }
         // Wrapped RTs are *not* supposed to clear (to allow client to partially update a surface).
-        const SkColor kOrigColor = 0xABABABAB;
+        const SkColor kOrigColor = 0xFFABABAB;
         for (auto& surfaceFunc : {&create_gpu_surface_backend_texture,
                                   &create_gpu_surface_backend_texture_as_render_target}) {
             GrBackendTexture backendTex;
@@ -812,18 +812,15 @@ static void test_surface_draw_partially(
     SkImageInfo readInfo = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkAssertResult(surface->readPixels(readInfo, pixels.get(), kW * sizeof(uint32_t), 0, 0));
     bool stop = false;
-    SkPMColor origColorPM = SkPackARGB_as_RGBA((origColor >> 24 & 0xFF),
-                                               (origColor >>  0 & 0xFF),
-                                               (origColor >>  8 & 0xFF),
-                                               (origColor >> 16 & 0xFF));
-    SkPMColor rectColorPM = SkPackARGB_as_RGBA((kRectColor >> 24 & 0xFF),
-                                               (kRectColor >> 16 & 0xFF),
-                                               (kRectColor >>  8 & 0xFF),
-                                               (kRectColor >>  0 & 0xFF));
+
+    GrColor origColorPM = SkColorToPremulGrColor(origColor);
+    GrColor rectColorPM = SkColorToPremulGrColor(kRectColor);
+
     for (int y = 0; y < kH/2 && !stop; ++y) {
        for (int x = 0; x < kW && !stop; ++x) {
             REPORTER_ASSERT(reporter, rectColorPM == pixels[x + y * kW]);
             if (rectColorPM != pixels[x + y * kW]) {
+                SkDebugf("--- got [%x] expected [%x], x = %d, y = %d\n", pixels[x + y * kW], rectColorPM, x, y);
                 stop = true;
             }
         }
@@ -833,6 +830,7 @@ static void test_surface_draw_partially(
         for (int x = 0; x < kW && !stop; ++x) {
             REPORTER_ASSERT(reporter, origColorPM == pixels[x + y * kW]);
             if (origColorPM != pixels[x + y * kW]) {
+                SkDebugf("--- got [%x] expected [%x], x = %d, y = %d\n", pixels[x + y * kW], origColorPM, x, y);
                 stop = true;
             }
         }
