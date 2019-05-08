@@ -627,9 +627,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // Only in WebGL 2.0
         fFenceSyncSupport = version >= GR_GL_VER(2, 0);
     }
+    // The same objects (GL sync objects) are used to implement GPU/CPU fence syncs and GPU/GPU
+    // semaphores.
+    fSemaphoreSupport = fFenceSyncSupport;
 
-    // Safely moving textures between contexts requires fences.
-    fCrossContextTextureSupport = fFenceSyncSupport;
+    // Safely moving textures between contexts requires semaphores.
+    fCrossContextTextureSupport = fSemaphoreSupport;
 
     // Half float vertex attributes requires GL3 or ES3
     // It can also work with OES_VERTEX_HALF_FLOAT, but that requires a different enum.
