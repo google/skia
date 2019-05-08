@@ -231,6 +231,11 @@ void GrVkImage::prepareForPresent(GrVkGpu* gpu) {
     this->setImageLayout(gpu, layout, 0, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, false, true);
 }
 
+void GrVkImage::prepareForExternal(GrVkGpu* gpu) {
+    this->setImageLayout(gpu, this->currentLayout(), 0, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, false,
+                         true);
+}
+
 void GrVkImage::releaseImage(GrVkGpu* gpu) {
     if (fInfo.fCurrentQueueFamily != fInitialQueueFamily) {
         // The Vulkan spec is vague on what to put for the dstStageMask here. The spec for image

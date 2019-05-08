@@ -4275,7 +4275,7 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
 }
 
 void GrGLGpu::onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
-                            const GrFlushInfo& info) {
+                            const GrFlushInfo& info, const GrPrepareForExternalIORequests&) {
     // If we inserted semaphores during the flush, we need to call GLFlush.
     bool insertedSemaphore = info.fNumSemaphores > 0 && this->caps()->fenceSyncSupport();
     // We call finish if the client told us to sync or if we have a finished proc but don't support

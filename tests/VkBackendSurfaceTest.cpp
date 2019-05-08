@@ -21,10 +21,13 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/GrTextureProxy.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/SkGpuDevice.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkImageLayout.h"
 #include "src/gpu/vk/GrVkTexture.h"
 #include "src/image/SkImage_Base.h"
+#include "src/image/SkSurface_Gpu.h"
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
@@ -202,6 +205,127 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkReleaseExternalQueueTest, reporter, ctxInfo) {
         gpu->deleteTestingOnlyBackendTexture(backendTex);
     }
 }
+
+// Test to make sure we transition to the original queue when requests for prepareforexternalio are
+// in flush calls
+DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkPrepareForExternalIOQueueTransitionTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
+    if (!gpu->vkCaps().supportsExternalMemory()) {
+        return;
+    }
+
+    for (bool useSurface : {false, true}) {
+        for (bool preparePresent : {false, true}) {
+            if (!useSurface && preparePresent) {
+                // We don't set textures to present
+                continue;
+            }
+            GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+                    nullptr, 4, 4, GrColorType::kRGBA_8888, useSurface, GrMipMapped::kNo);
+
+            // Make a backend texture with an external queue family and general layout.
+            GrVkImageInfo vkInfo;
+            if (!backendTex.getVkImageInfo(&vkInfo)) {
+                return;
+            }
+
+            // We can't actually make an external texture in our test. However, we lie and say it is
+            // and then will manually go and swap the queue to the graphics queue once we wrap it.
+            if (preparePresent) {
+                // We don't transition to present to things that are going to external for foreign
+                // queues.
+                vkInfo.fCurrentQueueFamily = gpu->queueIndex();
+            } else {
+                vkInfo.fCurrentQueueFamily = VK_QUEUE_FAMILY_EXTERNAL;
+            }
+
+            GrBackendTexture vkExtTex(1, 1, vkInfo);
+
+            sk_sp<SkImage> image;
+            sk_sp<SkSurface> surface;
+            GrTexture* texture;
+            if (useSurface) {
+                surface = SkSurface::MakeFromBackendTexture(context, vkExtTex,
+                        kTopLeft_GrSurfaceOrigin, 0, kRGBA_8888_SkColorType, nullptr, nullptr);
+                REPORTER_ASSERT(reporter, surface.get());
+                if (!surface) {
+                    continue;
+                }
+                SkSurface_Gpu* gpuSurface = static_cast<SkSurface_Gpu*>(surface.get());
+                auto* rtc = gpuSurface->getDevice()->accessRenderTargetContext();
+                texture = rtc->asTextureProxy()->peekTexture();
+            } else {
+                image = SkImage::MakeFromTexture(context, vkExtTex, kTopLeft_GrSurfaceOrigin,
+                        kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr, nullptr, nullptr);
+
+                REPORTER_ASSERT(reporter, image.get());
+                if (!image) {
+                    continue;
+                }
+
+                texture = image->getTexture();
+            }
+
+            REPORTER_ASSERT(reporter, texture);
+            GrVkTexture* vkTex = static_cast<GrVkTexture*>(texture);
+
+            // Testing helper so we claim that we don't need to transition from our fake external
+            // queue first.
+            vkTex->setCurrentQueueFamilyToGraphicsQueue(gpu);
+
+            GrBackendTexture newBackendTexture;
+            if (useSurface) {
+                newBackendTexture = surface->getBackendTexture(
+                        SkSurface::kFlushRead_TextureHandleAccess);
+            } else {
+                newBackendTexture = image->getBackendTexture(false);
+            }
+            GrVkImageInfo newVkInfo;
+            REPORTER_ASSERT(reporter, newBackendTexture.getVkImageInfo(&newVkInfo));
+            REPORTER_ASSERT(reporter, newVkInfo.fCurrentQueueFamily == gpu->queueIndex());
+            VkImageLayout oldLayout = newVkInfo.fImageLayout;
+
+            GrPrepareForExternalIORequests externalRequests;
+            SkImage* imagePtr;
+            SkSurface* surfacePtr;
+            if (useSurface) {
+                externalRequests.fNumSurfaces = 1;
+                surfacePtr = surface.get();
+                externalRequests.fSurfaces = &surfacePtr;
+                externalRequests.fPrepareSurfaceForPresent = &preparePresent;
+            } else {
+                externalRequests.fNumImages = 1;
+                imagePtr = image.get();
+                externalRequests.fImages = &imagePtr;
+
+            }
+            context->flush(GrFlushInfo(), externalRequests);
+
+            if (useSurface) {
+                newBackendTexture = surface->getBackendTexture(
+                        SkSurface::kFlushRead_TextureHandleAccess);
+            } else {
+                newBackendTexture = image->getBackendTexture(false);
+            }
+            REPORTER_ASSERT(reporter, newBackendTexture.getVkImageInfo(&newVkInfo));
+            if (preparePresent) {
+                REPORTER_ASSERT(reporter, newVkInfo.fCurrentQueueFamily == gpu->queueIndex());
+                REPORTER_ASSERT(reporter,
+                                newVkInfo.fImageLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+            } else {
+                REPORTER_ASSERT(reporter, newVkInfo.fCurrentQueueFamily == VK_QUEUE_FAMILY_EXTERNAL);
+                REPORTER_ASSERT(reporter, newVkInfo.fImageLayout == oldLayout);
+            }
+
+            GrFlushInfo flushInfo;
+            flushInfo.fFlags = kSyncCpu_GrFlushFlag;
+            context->flush(flushInfo);
+            gpu->deleteTestingOnlyBackendTexture(backendTex);
+        }
+    }
+}
+
 
 // Test to make sure we transition from the EXTERNAL queue even when no layout transition is needed.
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxInfo) {
