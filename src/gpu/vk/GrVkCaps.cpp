@@ -36,6 +36,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fOversizedStencilSupport = false; //TODO: figure this out
     fInstanceAttribSupport = true;
 
+    fSemaphoreSupport = true;   // always available in Vulkan
     fFenceSyncSupport = true;   // always available in Vulkan
     fCrossContextTextureSupport = true;
     fHalfFloatVertexAttributeSupport = true;

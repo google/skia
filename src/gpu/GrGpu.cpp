@@ -418,7 +418,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxy,
     this->stats()->incNumFinishFlushes();
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
 
-    if (this->caps()->fenceSyncSupport()) {
+    if (this->caps()->semaphoreSupport()) {
         for (int i = 0; i < info.fNumSemaphores; ++i) {
             sk_sp<GrSemaphore> semaphore;
             if (info.fSignalSemaphores[i].isInitialized()) {
@@ -437,7 +437,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxy,
         }
     }
     this->onFinishFlush(proxy, access, info);
-    return this->caps()->fenceSyncSupport() ? GrSemaphoresSubmitted::kYes
+    return this->caps()->semaphoreSupport() ? GrSemaphoresSubmitted::kYes
                                             : GrSemaphoresSubmitted::kNo;
 }
 

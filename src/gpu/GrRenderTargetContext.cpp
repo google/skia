@@ -1756,7 +1756,7 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    if (numSemaphores && !this->caps()->fenceSyncSupport()) {
+    if (numSemaphores && !this->caps()->semaphoreSupport()) {
         return false;
     }
 
