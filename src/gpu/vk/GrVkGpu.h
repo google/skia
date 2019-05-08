@@ -225,7 +225,7 @@ private:
                        GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
                        const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override;
 
-    void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
+    void onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo&) override;
 
     // Ends and submits the current command buffer to the queue and then creates a new command
