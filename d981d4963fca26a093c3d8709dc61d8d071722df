@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aff7e9a_a2384aaa",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 7952
+      },
+      "writtenOn": "2019-05-08T16:12:43Z",
+      "side": 1,
+      "message": "One question.\n\nFor WebView, this API is fine, However for Non-Webview cases, SkImage is created and used only on compositor thread, we only fulfill it with sk_sp\u003cSkPromiseImageTexture\u003e on GPU thread, we don\u0027t access sk_sp\u003cSkImage\u003e on GPU thread. Is it safe to use the sk_sp\u003cSkImage\u003e from two threads?",
+      "range": {
+        "startLine": 324,
+        "startChar": 4,
+        "endLine": 324,
+        "endChar": 32
+      },
+      "revId": "d981d4963fca26a093c3d8709dc61d8d071722df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
