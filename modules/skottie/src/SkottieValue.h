@@ -13,9 +13,6 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
-#include "include/core/SkTypeface.h"
-#include "include/utils/SkTextUtils.h"
-#include "modules/skottie/src/SkottieShaper.h"
 
 #include <vector>
 
@@ -69,36 +66,6 @@ struct ShapeValue {
     }
 
     bool operator!=(const ShapeValue& other) const { return !(*this == other); }
-};
-
-struct TextValue {
-    sk_sp<SkTypeface>  fTypeface;
-    SkString           fText;
-    float              fTextSize    = 0,
-                       fStrokeWidth = 0;
-    SkTextUtils::Align fHAlign      = SkTextUtils::kLeft_Align;
-    Shaper::VAlign     fVAlign      = Shaper::VAlign::kTop;
-    SkRect             fBox         = SkRect::MakeEmpty();
-    SkColor            fFillColor   = SK_ColorTRANSPARENT,
-                       fStrokeColor = SK_ColorTRANSPARENT;
-    bool               fHasFill   : 1,
-                       fHasStroke : 1;
-
-    bool operator==(const TextValue& other) const {
-        return fTypeface == other.fTypeface
-            && fText == other.fText
-            && fTextSize == other.fTextSize
-            && fStrokeWidth == other.fStrokeWidth
-            && fHAlign == other.fHAlign
-            && fVAlign == other.fVAlign
-            && fBox == other.fBox
-            && fFillColor == other.fFillColor
-            && fStrokeColor == other.fStrokeColor
-            && fHasFill == other.fHasFill
-            && fHasStroke == other.fHasStroke;
-    }
-
-    bool operator!=(const TextValue& other) const { return !(*this == other); }
 };
 
 } // namespace skottie
