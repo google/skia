@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2784e84c_0a9a4c05",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1448,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T20:37:31Z",
+      "side": 1,
+      "message": "Is there some debug assertion we can make that i2 didn\u0027t get flattened in all this?",
+      "revId": "cffc3ab1b8c65ff1aace36a38bcbfe4e61ce2ac8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
