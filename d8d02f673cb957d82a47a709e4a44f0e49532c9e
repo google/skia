@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "483cce25_cd0d3ef6",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T12:21:33Z",
+      "side": 1,
+      "message": "Aren\u0027t these surplus to requirements ?",
+      "range": {
+        "startLine": 371,
+        "startChar": 39,
+        "endLine": 371,
+        "endChar": 46
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9fd670e_718b9838",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T12:21:33Z",
+      "side": 1,
+      "message": "So, we can\u0027t use octobounds here too ?",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 42,
+        "endChar": 28
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e696e88e_765cb90a",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T12:21:33Z",
+      "side": 1,
+      "message": "Seems like this could use a new name",
+      "range": {
+        "startLine": 334,
+        "startChar": 16,
+        "endLine": 334,
+        "endChar": 23
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d14f601_23dce13c",
+        "filename": "src/gpu/ccpr/GrOctoBounds.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T12:21:33Z",
+      "side": 1,
+      "message": "This seems oddly asymmetric",
+      "range": {
+        "startLine": 44,
+        "startChar": 40,
+        "endLine": 44,
+        "endChar": 63
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9222549f_d8507b6c",
+        "filename": "src/gpu/ccpr/GrOctoBounds.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T12:21:33Z",
+      "side": 1,
+      "message": "Do these need to be public ? Only \"#ifdef SK_DEBUG\" ?",
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
