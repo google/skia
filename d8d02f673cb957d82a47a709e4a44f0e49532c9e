@@ -214,6 +214,30 @@
     },
     {
       "key": {
+        "uuid": "865657af_e24e5b6d",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-08T18:00:10Z",
+      "side": 1,
+      "message": "I think this is more clear.",
+      "parentUuid": "f9095a32_c3d6ca3d",
+      "range": {
+        "startLine": 334,
+        "startChar": 16,
+        "endLine": 334,
+        "endChar": 23
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0d14f601_23dce13c",
         "filename": "src/gpu/ccpr/GrOctoBounds.h",
         "patchSetId": 2
