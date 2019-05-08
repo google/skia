@@ -1377,3 +1377,44 @@ DEF_TEST(Image_nonfinite_dst, reporter) {
     }
 }
 
+DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
+    auto c = ctxInfo.grContext();
+    auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    auto s = SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kYes, ii, 1, nullptr);
+    s->getCanvas()->clear(SK_ColorRED);
+    auto i0 = s->makeImageSnapshot();
+    s->getCanvas()->clear(SK_ColorBLUE);
+    auto i1 = s->makeImageSnapshot();
+    s->getCanvas()->clear(SK_ColorGREEN);
+
+    ctxInfo.grContext()->flush();
+    int flushCnt = c->priv().getGpu()->stats()->numFinishFlushes();
+    auto numFlushes = [&flushCnt, c] {
+        int curr = c->priv().getGpu()->stats()->numFinishFlushes();
+        int n = curr - flushCnt;
+        flushCnt = curr;
+        return n;
+    };
+
+    // Images aren't used therefore flush is ignored.
+    i0->flush(c);
+    i1->flush(c);
+    REPORTER_ASSERT(reporter, numFlushes() == 0);
+
+    // Syncing forces the flush to happen even if the images aren't used.
+    GrFlushInfo syncInfo;
+    syncInfo.fFlags = kSyncCpu_GrFlushFlag;
+    i0->flush(c, syncInfo);
+    REPORTER_ASSERT(reporter, numFlushes() == 1);
+    i1->flush(c, syncInfo);
+    REPORTER_ASSERT(reporter, numFlushes() == 1);
+
+    // Use image 1
+    s->getCanvas()->drawImage(i1, 0, 0);
+    // Flushing image 0 should do nothing.
+    i0->flush(c);
+    REPORTER_ASSERT(reporter, numFlushes() == 0);
+    // Flushing image 1 should flush.
+    i1->flush(c);
+    REPORTER_ASSERT(reporter, numFlushes() == 1);
+}
