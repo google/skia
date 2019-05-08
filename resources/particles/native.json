@@ -1,0 +1,126 @@
+{
+   "MaxCount": 600,
+   "Duration": 5,
+   "Rate": 300,
+   "Life": {
+      "Input": {
+         "Source": "Age",
+         "TileMode": "Repeat",
+         "Left": 0,
+         "Right": 1
+      },
+      "XValues": [],
+      "Segments": [
+         {
+            "Type": "Constant",
+            "Ranged": true,
+            "Bidirectional": false,
+            "A0": 2,
+            "A1": 4
+         }
+      ]
+   },
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 2
+   },
+   "Spawn": [
+      {
+         "Type": "SkFrameAffector",
+         "Enabled": true,
+         "Curve": {
+            "Input": {
+               "Source": "Random",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Linear",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0,
+                  "D0": 1
+               }
+            ]
+         }
+      }
+   ],
+   "Update": [
+      {
+         "Type": "SkPositionOnPathAffector",
+         "Enabled": false,
+         "Input": {
+            "Source": "SpriteFrame",
+            "TileMode": "Repeat",
+            "Left": 0,
+            "Right": 1
+         },
+         "SetHeading": true,
+         "Path": "H400"
+      },
+      {
+         "Type": "SkColorAffector",
+         "Enabled": true,
+         "Curve": {
+            "Input": {
+               "Source": "SpriteFrame",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Linear",
+                  "Ranged": false,
+                  "A0": [ 0, 1, 0.501961, 1 ],
+                  "D0": [ 1, 0, 0.501961, 1 ]
+               }
+            ]
+         }
+      },
+      {
+         "Type": "SkLinearVelocityAffector",
+         "Enabled": true,
+         "Force": false,
+         "Frame": "World",
+         "Angle": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 180
+               }
+            ]
+         },
+         "Strength": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 50
+               }
+            ]
+         }
+      }
+   ]
+}
