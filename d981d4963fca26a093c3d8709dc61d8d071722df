@@ -22,6 +22,30 @@
       "revId": "d981d4963fca26a093c3d8709dc61d8d071722df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0abaf672_dc0bd572",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-08T17:08:43Z",
+      "side": 1,
+      "message": "Can you explain a little more. Which threads are calling flush? Regardless of this API, if you\u0027re calling flush on a GrContext that is accessing an SkImage (or internally really its underlying GrTexture) you need to make sure there is no other thread also touching that resource at the same time. So if what you are doing is already safe in that regards, I don\u0027t think it should be an issue to be passing in the SkImage on the flush call.",
+      "parentUuid": "1aff7e9a_a2384aaa",
+      "range": {
+        "startLine": 324,
+        "startChar": 4,
+        "endLine": 324,
+        "endChar": 32
+      },
+      "revId": "d981d4963fca26a093c3d8709dc61d8d071722df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
