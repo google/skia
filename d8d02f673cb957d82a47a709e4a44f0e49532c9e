@@ -317,6 +317,24 @@
       "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae7022b6_c8b3175a",
+        "filename": "src/gpu/ccpr/GrOctoBounds.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T16:28:09Z",
+      "side": 1,
+      "message": "Maybe make them public somehow when TEST_UTILS is set - dunno.",
+      "parentUuid": "a8ba4ff5_9b44dde1",
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
