@@ -561,7 +561,9 @@ protected:
             if (fConvexOnly) {
                 result = SkInsetConvexPolygon(data.get(), numPts, offset, &offsetPoly);
             } else {
-                result = SkOffsetSimplePolygon(data.get(), numPts, offset, &offsetPoly);
+                SkRect bounds;
+                bounds.setBoundsCheck(data.get(), numPts);
+                result = SkOffsetSimplePolygon(data.get(), numPts, bounds, offset, &offsetPoly);
             }
             if (result) {
                 SkPath path;
