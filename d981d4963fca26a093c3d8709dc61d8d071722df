@@ -46,6 +46,30 @@
       "revId": "d981d4963fca26a093c3d8709dc61d8d071722df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e68190c_4f3f260b",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 7952
+      },
+      "writtenOn": "2019-05-08T17:27:08Z",
+      "side": 1,
+      "message": "the current pattern is:\n1, We only create, use and destroy promise SkImages on compositor thread.The sk images are only used for recording DDLs.\n2. We replay recorded DDLs , fulfill promise sk images and call flush on GPU thread. We never touch the sk_sp\u003cSkImage\u003e or SkImage* directly on GPU thread.\n\nWith this API, we will need use sk image with this flush() API on GPU thread. Is it OK?",
+      "parentUuid": "0abaf672_dc0bd572",
+      "range": {
+        "startLine": 324,
+        "startChar": 4,
+        "endLine": 324,
+        "endChar": 32
+      },
+      "revId": "d981d4963fca26a093c3d8709dc61d8d071722df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
