@@ -250,7 +250,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
-    auto fillPixels = [](const SkPixmap* p, const std::function<uint32_t(int x, int y)>& f) {
+    auto fillPixels = [](SkPixmap* p, const std::function<uint32_t(int x, int y)>& f) {
         for (int y = 0; y < p->height(); ++y) {
             for (int x = 0; x < p->width(); ++x) {
                 *p->writable_addr32(x, y) = f(x, y);
@@ -271,9 +271,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     };
 
     static constexpr int kSize = 100;
-    SkAutoPixmapStorage pixels;
-    pixels.alloc(SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
-    fillPixels(&pixels, [](int x, int y) {
+    SkImageInfo ii = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    SkAutoPixmapStorage srcPixmap;
+    srcPixmap.alloc(ii);
+
+    fillPixels(&srcPixmap, [](int x, int y) {
         return (0xFFU << 24) | (x << 16) | (y << 8) | uint8_t((x * y) & 0xFF);
     });
 
@@ -284,8 +287,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     // that they'd succeed if the texture wasn't kRead. We want to be sure we're failing with
     // kRead for the right reason.
     for (auto ioType : {kRead_GrIOType, kRW_GrIOType}) {
-        auto backendTex = context->priv().getGpu()->createTestingOnlyBackendTexture(
-                pixels.addr(), kSize, kSize, kRGBA_8888_SkColorType, true, GrMipMapped::kNo);
+        GrBackendTexture backendTex;
+        create_backend_texture(context, &backendTex, srcPixmap, GrMipMapped::kNo, Renderable::kYes);
+
         auto proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                        kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, ioType);
@@ -293,18 +297,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 
         // Read pixels should work with a read-only texture.
         SkAutoPixmapStorage read;
-        read.alloc(pixels.info());
-        auto readResult = surfContext->readPixels(pixels.info(), read.writable_addr(), 0, 0, 0);
+        read.alloc(ii);
+        auto readResult = surfContext->readPixels(ii, read.writable_addr(), 0, 0, 0);
         REPORTER_ASSERT(reporter, readResult);
         if (readResult) {
-            comparePixels(pixels, read, reporter);
+            comparePixels(srcPixmap, read, reporter);
         }
 
         // Write pixels should not work with a read-only texture.
         SkAutoPixmapStorage write;
-        write.alloc(pixels.info());
-        fillPixels(&write, [&pixels](int x, int y) { return ~*pixels.addr32(); });
-        auto writeResult = surfContext->writePixels(pixels.info(), pixels.addr(), 0, 0, 0);
+        write.alloc(ii);
+        fillPixels(&write, [&srcPixmap](int x, int y) { return ~*srcPixmap.addr32(); });
+        auto writeResult = surfContext->writePixels(ii, write.addr(), 0, 0, 0);
         REPORTER_ASSERT(reporter, writeResult == (ioType == kRW_GrIOType));
         // Try the low level write.
         context->flush();
@@ -330,7 +334,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         // Mip regen should not work with a read only texture.
         if (context->priv().caps()->mipMapSupport()) {
             backendTex = context->priv().getGpu()->createTestingOnlyBackendTexture(
-                    nullptr, kSize, kSize, kRGBA_8888_SkColorType, true, GrMipMapped::kYes);
+                    nullptr, kSize, kSize, GrColorType::kRGBA_8888, true, GrMipMapped::kYes);
             proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                       kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
                                                       ioType);
