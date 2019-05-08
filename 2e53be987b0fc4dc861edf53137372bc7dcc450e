@@ -1,0 +1,222 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0cb9cc5d_53a6ec69",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 780,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-08T20:29:27Z",
+      "side": 1,
+      "message": "With changes I mentioned in the high level reply, you can just query protected directly from the GrSurface",
+      "range": {
+        "startLine": 780,
+        "startChar": 8,
+        "endLine": 780,
+        "endChar": 54
+      },
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cac0c117_1de23405",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-08T20:29:27Z",
+      "side": 1,
+      "message": "I don\u0027t all the details about protected images, but are you not allowed to copy an unprotected buffer of data to a protected image? Another way to ask this is can you sample an unprotected image into a protected image (I could just upload the data here to an unprotected image and then draw that image to the protected one).\n\n\nAssuming you can\u0027t do this transfer, this check should be if the texture itself is protected, not the context.\n\nHowever, talking to some folks here, I think the better thing to do here is have GrCaps::transferFromOffsetAlignment(...) take a GrSurface instead of a GrColorType (the GrColorType can be retrieved from the GrSurface via the GrPixelConfig and calling GrPixelConfigToColorType()). Then you can query if the GrSurface is protected and if so return 0 which is the unsupported return value here. Then in this function we can just assert that the GrTexture is not protected.",
+      "range": {
+        "startLine": 451,
+        "startChar": 4,
+        "endLine": 451,
+        "endChar": 28
+      },
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6f474d6_ee0f05a5",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-08T20:29:27Z",
+      "side": 1,
+      "message": "I think this is the call that needs the check you added above.",
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7326486e_f920f626",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-08T20:29:27Z",
+      "side": 1,
+      "message": "if we can\u0027t upload data to protected textures, we need a check in here. I assume this one should definitely fail since we actually map the texture in this version which would allow us read the data.",
+      "range": {
+        "startLine": 627,
+        "startChar": 13,
+        "endLine": 627,
+        "endChar": 33
+      },
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcca28d7_1a0a61ae",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-08T20:29:27Z",
+      "side": 1,
+      "message": "if we can\u0027t upload data to protected textures, we need a check in here.",
+      "range": {
+        "startLine": 682,
+        "startChar": 14,
+        "endLine": 682,
+        "endChar": 34
+      },
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d88a08fa_70b9b26b",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-08T20:29:27Z",
+      "side": 1,
+      "message": "ditto on if we can upload data",
+      "range": {
+        "startLine": 879,
+        "startChar": 14,
+        "endLine": 879,
+        "endChar": 38
+      },
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89d4b4e4_72e4d973",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1004,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-08T20:29:27Z",
+      "side": 1,
+      "message": "I think GrSurfaceDesc will need as isProtected bool so we can create protected textures and RT if needed.",
+      "range": {
+        "startLine": 1004,
+        "startChar": 48,
+        "endLine": 1004,
+        "endChar": 61
+      },
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "538378d8_891ef7ea",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1056,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-08T20:29:27Z",
+      "side": 1,
+      "message": "both MakeNewTextureRenderTarget and MakeNewTexture implementations will need to have support for create protected images (these will get used for offscreen images used in save layer and dst copies).",
+      "range": {
+        "startLine": 1052,
+        "startChar": 0,
+        "endLine": 1056,
+        "endChar": 90
+      },
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d51bdf3d_a0e25d75",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1213,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-08T20:29:27Z",
+      "side": 1,
+      "message": "would this really not be allowed? I feel like we could do draws into a non-protected RT while using protected queues, command buffers, etc. Maybe this check is more meant to be:\n\n// with changes you\u0027ll query the isProtected directly from the backendRT\nif (info.fIsProtected \u0026\u0026 !fProtectedContext) { \n    return false;\n}\n\nAdditionally we should probably add the same check to all the other onWrap calls in GrVkGpu.",
+      "range": {
+        "startLine": 1213,
+        "startChar": 8,
+        "endLine": 1213,
+        "endChar": 49
+      },
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98f26bcf_cd6d49ae",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2166,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-08T20:29:27Z",
+      "side": 1,
+      "message": "We should assert in here that we don\u0027t have a protected surface.",
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
