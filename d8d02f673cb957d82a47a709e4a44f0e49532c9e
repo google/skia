@@ -333,6 +333,30 @@
     },
     {
       "key": {
+        "uuid": "b0120f1b_6d9c5bef",
+        "filename": "src/gpu/ccpr/GrOctoBounds.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T21:05:47Z",
+      "side": 1,
+      "message": "Can that blurb be a comment somewhere?",
+      "parentUuid": "d3167787_0cbc834b",
+      "range": {
+        "startLine": 44,
+        "startChar": 40,
+        "endLine": 44,
+        "endChar": 63
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9222549f_d8507b6c",
         "filename": "src/gpu/ccpr/GrOctoBounds.h",
         "patchSetId": 2
@@ -398,6 +422,24 @@
       "side": 1,
       "message": "I don\u0027t think they\u0027re hurting anything by being public, and I worry some judo to try and hide these sometimes might be confusing. In fact, anybody might want to use these when building octo bounds.\n\ne.g.;\n\n bounds.join(pt.x, pt.y);\n bounds45.join(Get_x45(pt.x, pt.y), Get_y45(py.x, pt.y));\n octobounds.set(bounds, bounds45);",
       "parentUuid": "ae7022b6_c8b3175a",
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53620348_ea1651e4",
+        "filename": "src/gpu/ccpr/GrOctoBounds.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-08T21:05:47Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "7924335d_bf897dda",
       "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
