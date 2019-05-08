@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19f66ba0_6a206530",
+        "filename": "infra/bots/recipes/android_compile.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-08T18:34:53Z",
+      "side": 1,
+      "message": "style nit: I\u0027d prefer something like:\napi.step.active_result.presentation.links[\u0027force sync link\u0027] \u003d (\n    \u0027https://skia-android-compile.corp.goog/\u0027)",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 78,
+        "endChar": 70
+      },
+      "revId": "7204358ec86040246d039b90a6a26d83bdfa808d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
