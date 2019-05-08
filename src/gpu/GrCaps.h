@@ -263,7 +263,12 @@ public:
 
     bool wireframeMode() const { return fWireframeMode; }
 
+    /** Supports using GrFence. */
     bool fenceSyncSupport() const { return fFenceSyncSupport; }
+
+    /** Supports using GrSemaphore. */
+    bool semaphoreSupport() const { return fSemaphoreSupport; }
+
     bool crossContextTextureSupport() const { return fCrossContextTextureSupport; }
     /**
      * Returns whether or not we will be able to do a copy given the passed in params
@@ -391,8 +396,8 @@ protected:
     // On some platforms it's better to make more triangles than to use the sample mask (MSAA only).
     bool fPreferTrianglesOverSampleMask              : 1;
 
-    // TODO: this may need to be an enum to support different fence types
     bool fFenceSyncSupport                           : 1;
+    bool fSemaphoreSupport                           : 1;
 
     // Requires fence sync support in GL.
     bool fCrossContextTextureSupport                 : 1;
