@@ -13,6 +13,8 @@
 #include "SkTDArray.h"
 #include "SkPoint.h"
 
+struct SkRect;
+
 /**
  * Generates a polygon that is inset a constant from the boundary of a given convex polygon.
  *
@@ -33,6 +35,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
  *
  * @param inputPolygonVerts  Array of points representing the vertices of the original polygon.
  * @param inputPolygonSize  Number of vertices in the original polygon.
+ * @param bounds Bounding rectangle for the original polygon.
  * @param offset How far we wish to offset the polygon.
  *   Positive values indicate insetting, negative values outsetting.
  * @param offsetPolgon  The resulting offset polygon, if any.
@@ -40,7 +43,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
  * @return true if an offset simple polygon exists, false otherwise.
  */
 bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
-                           SkScalar offset, SkTDArray<SkPoint>* offsetPolygon,
+                           const SkRect& bounds, SkScalar offset, SkTDArray<SkPoint>* offsetPolygon,
                            SkTDArray<int>* polygonIndices = nullptr);
 
 /**
