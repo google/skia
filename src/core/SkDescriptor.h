@@ -74,13 +74,15 @@ private:
     uint32_t fCount;
 };
 
-class SkAutoDescriptor : SkNoncopyable {
+class SkAutoDescriptor {
 public:
     SkAutoDescriptor();
-    SkAutoDescriptor(size_t size);
-    SkAutoDescriptor(const SkDescriptor& desc);
+    explicit SkAutoDescriptor(size_t size);
+    explicit SkAutoDescriptor(const SkDescriptor& desc);
+    SkAutoDescriptor(const SkAutoDescriptor& ad);
+    SkAutoDescriptor& operator= (const SkAutoDescriptor& ad);
     SkAutoDescriptor(SkAutoDescriptor&&) = delete;
-    SkAutoDescriptor& operator =(SkAutoDescriptor&&) = delete;
+    SkAutoDescriptor& operator= (SkAutoDescriptor&&) = delete;
 
     ~SkAutoDescriptor();
 

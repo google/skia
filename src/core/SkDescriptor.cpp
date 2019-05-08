@@ -104,6 +104,14 @@ bool SkDescriptor::isValid() const {
 SkAutoDescriptor::SkAutoDescriptor() = default;
 SkAutoDescriptor::SkAutoDescriptor(size_t size) { this->reset(size); }
 SkAutoDescriptor::SkAutoDescriptor(const SkDescriptor& desc) { this->reset(desc); }
+SkAutoDescriptor::SkAutoDescriptor(const SkAutoDescriptor& ad) {
+    this->reset(*ad.getDesc());
+}
+SkAutoDescriptor& SkAutoDescriptor::operator=(const SkAutoDescriptor& ad) {
+    this->reset(*ad.getDesc());
+    return *this;
+}
+
 SkAutoDescriptor::~SkAutoDescriptor() { this->free(); }
 
 void SkAutoDescriptor::reset(size_t size) {

@@ -516,6 +516,7 @@ private:
     friend class SkGlyphRunListPainter;
     friend class SkTextBlobCacheDiffCanvas;
     friend class SVGTextBuilder;
+    friend class SkStrikeSpecStorage;
 };
 
 #endif
