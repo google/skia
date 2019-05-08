@@ -195,7 +195,7 @@ void GrContextPriv::flush(GrSurfaceProxy* proxy) {
     ASSERT_OWNED_PROXY_PRIV(proxy);
 
     fContext->drawingManager()->flush(proxy, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                      GrFlushInfo());
+                                      GrFlushInfo(), GrPrepareForExternalIORequests());
 }
 
 void GrContextPriv::flushSurface(GrSurfaceProxy* proxy) {
