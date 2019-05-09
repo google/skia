@@ -75,18 +75,18 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
         }
     }
 
-    // In point mode, the text is baseline-aligned.
-    v->fVAlign = v->fBox.isEmpty() ? Shaper::VAlign::kTopBaseline
-                                   : Shaper::VAlign::kTop;
-
-    // Skia vertical alignment extension "sk_vj":
-    enum {
-        kDefault_VJ = 0, // AE default alignment.
-         kCenter_VJ = 1, // Center-aligned.
-    };
-
-    if (ParseDefault<int>((*jtxt)["sk_vj"], kDefault_VJ) == kCenter_VJ) {
-        v->fVAlign = Shaper::VAlign::kCenter;
+    if (v->fBox.isEmpty()) {
+        // In point mode, the text is always baseline-aligned.
+        v->fVAlign = Shaper::VAlign::kTopBaseline;
+    } else {
+        // Skia vertical alignment extension "sk_vj":
+        static constexpr Shaper::VAlign gVAlignMap[] = {
+            Shaper::VAlign::kTop,         // 'sk_vj': 0
+            Shaper::VAlign::kCenter,      // 'sk_vj': 1
+            Shaper::VAlign::kResizeToFit, // 'sk_vj': 2
+        };
+        v->fVAlign = gVAlignMap[SkTMin<size_t>(ParseDefault<size_t>((*jtxt)["sk_vj"], 0),
+                                               SK_ARRAY_COUNT(gVAlignMap))];
     }
 
     const auto& parse_color = [] (const skjson::ArrayValue* jcolor,
