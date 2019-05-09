@@ -359,6 +359,17 @@ GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
         return nullptr;
     }
 
+    GrScissorTest enableScissorInAtlas;
+    if (clipIBounds.contains(octoBounds->bounds())) {
+        enableScissorInAtlas = GrScissorTest::kDisabled;
+    } else if (octoBounds->clip(clipIBounds)) {
+        enableScissorInAtlas = GrScissorTest::kEnabled;
+    } else {
+        // The clip and octo bounds do not intersect. Draw nothing.
+        SkDEBUGCODE(--fEndPathInstance);
+        return nullptr;
+    }
+
     const SkStrokeRec& stroke = shape.style().strokeRec();
     if (!stroke.isFillStyle()) {
         float r = SkStrokeRec::GetInflationRadius(
@@ -367,24 +378,21 @@ GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
     }
     octoBounds->roundOut(devIBounds);
 
-    GrScissorTest scissorTest;
     SkIRect clippedPathIBounds;
-    if (!this->placeRenderedPathInAtlas(clipIBounds, *devIBounds, &scissorTest, &clippedPathIBounds,
-                                        devToAtlasOffset)) {
-        SkDEBUGCODE(--fEndPathInstance);
-        return nullptr;  // Path was degenerate or clipped away.
-    }
+    octoBounds->roundOut(&clippedPathIBounds);
+    this->placeRenderedPathInAtlas(clippedPathIBounds, enableScissorInAtlas, devToAtlasOffset);
 
     if (stroke.isFillStyle()) {
         SkASSERT(0 == strokeDevWidth);
-        fFiller.parseDeviceSpaceFill(path, fLocalDevPtsBuffer.begin(), scissorTest,
+        fFiller.parseDeviceSpaceFill(path, fLocalDevPtsBuffer.begin(), enableScissorInAtlas,
                                      clippedPathIBounds, *devToAtlasOffset);
     } else {
         // Stroke-and-fill is not yet supported.
         SkASSERT(SkStrokeRec::kStroke_Style == stroke.getStyle() || stroke.isHairlineStyle());
         SkASSERT(!stroke.isHairlineStyle() || 1 == strokeDevWidth);
-        fStroker.parseDeviceSpaceStroke(path, fLocalDevPtsBuffer.begin(), stroke, strokeDevWidth,
-                                        scissorTest, clippedPathIBounds, *devToAtlasOffset);
+        fStroker.parseDeviceSpaceStroke(
+                path, fLocalDevPtsBuffer.begin(), stroke, strokeDevWidth, enableScissorInAtlas,
+                clippedPathIBounds, *devToAtlasOffset);
     }
     return &fRenderedAtlasStack.current();
 }
@@ -398,41 +406,34 @@ const GrCCAtlas* GrCCPerFlushResources::renderDeviceSpacePathInAtlas(
         return nullptr;
     }
 
-    GrScissorTest scissorTest;
+    GrScissorTest enableScissorInAtlas;
     SkIRect clippedPathIBounds;
-    if (!this->placeRenderedPathInAtlas(clipIBounds, devPathIBounds, &scissorTest,
-                                        &clippedPathIBounds, devToAtlasOffset)) {
+    if (clipIBounds.contains(devPathIBounds)) {
+        clippedPathIBounds = devPathIBounds;
+        enableScissorInAtlas = GrScissorTest::kDisabled;
+    } else if (clippedPathIBounds.intersect(clipIBounds, devPathIBounds)) {
+        enableScissorInAtlas = GrScissorTest::kEnabled;
+    } else {
+        // The clip and path bounds do not intersect. Draw nothing.
         return nullptr;
     }
 
-    fFiller.parseDeviceSpaceFill(devPath, SkPathPriv::PointData(devPath), scissorTest,
+    this->placeRenderedPathInAtlas(clippedPathIBounds, enableScissorInAtlas, devToAtlasOffset);
+    fFiller.parseDeviceSpaceFill(devPath, SkPathPriv::PointData(devPath), enableScissorInAtlas,
                                  clippedPathIBounds, *devToAtlasOffset);
     return &fRenderedAtlasStack.current();
 }
 
-bool GrCCPerFlushResources::placeRenderedPathInAtlas(const SkIRect& clipIBounds,
-                                                     const SkIRect& pathIBounds,
-                                                     GrScissorTest* scissorTest,
-                                                     SkIRect* clippedPathIBounds,
-                                                     SkIVector* devToAtlasOffset) {
-    if (clipIBounds.contains(pathIBounds)) {
-        *clippedPathIBounds = pathIBounds;
-        *scissorTest = GrScissorTest::kDisabled;
-    } else if (clippedPathIBounds->intersect(clipIBounds, pathIBounds)) {
-        *scissorTest = GrScissorTest::kEnabled;
-    } else {
-        return false;
-    }
-
+void GrCCPerFlushResources::placeRenderedPathInAtlas(
+        const SkIRect& clippedPathIBounds, GrScissorTest scissorTest, SkIVector* devToAtlasOffset) {
     if (GrCCAtlas* retiredAtlas =
-                fRenderedAtlasStack.addRect(*clippedPathIBounds, devToAtlasOffset)) {
+                fRenderedAtlasStack.addRect(clippedPathIBounds, devToAtlasOffset)) {
         // We did not fit in the previous coverage count atlas and it was retired. Close the path
         // parser's current batch (which does not yet include the path we just parsed). We will
         // render this batch into the retired atlas during finalize().
         retiredAtlas->setFillBatchID(fFiller.closeCurrentBatch());
         retiredAtlas->setStrokeBatchID(fStroker.closeCurrentBatch());
     }
-    return true;
 }
 
 bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,

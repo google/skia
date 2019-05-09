@@ -108,9 +108,15 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
                  paint.getColor4f())
         , fProcessors(std::move(paint)) {  // Paint must be moved after fetching its color above.
     SkDEBUGCODE(fBaseInstance = -1);
-    // FIXME: intersect with clip bounds to (hopefully) improve batching.
-    // (This is nontrivial due to assumptions in generating the octagon cover geometry.)
-    this->setBounds(conservativeDevBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
+    // If the path is clipped, CCPR will only draw the visible portion. This helps improve batching,
+    // since it eliminates the need for scissor when drawing to the main canvas.
+    // FIXME: We should parse the path right here. It will provide a tighter bounding box for us to
+    // give the opList, as well as enabling threaded parsing when using DDL.
+    SkRect clippedDrawBounds;
+    if (!clippedDrawBounds.intersect(conservativeDevBounds, SkRect::Make(maskDevIBounds))) {
+        clippedDrawBounds.setEmpty();
+    }
+    this->setBounds(clippedDrawBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
 }
 
 GrCCDrawPathsOp::~GrCCDrawPathsOp() {
