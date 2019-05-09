@@ -1,0 +1,180 @@
+{
+   "MaxCount": 6000,
+   "Duration": 5,
+   "Rate": 2000,
+   "Life": {
+      "Input": {
+         "Source": "Age",
+         "TileMode": "Repeat",
+         "Left": 0,
+         "Right": 1
+      },
+      "XValues": [],
+      "Segments": [
+         {
+            "Type": "Constant",
+            "Ranged": true,
+            "Bidirectional": false,
+            "A0": 2,
+            "A1": 4
+         }
+      ]
+   },
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 2
+   },
+   "Spawn": [
+      {
+         "Type": "SkFrameAffector",
+         "Enabled": true,
+         "Curve": {
+            "Input": {
+               "Source": "Random",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Linear",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0,
+                  "D0": 1
+               }
+            ]
+         }
+      },
+      {
+         "Type": "SkLinearVelocityAffector",
+         "Enabled": true,
+         "Force": false,
+         "Frame": "World",
+         "Angle": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 80,
+                  "A1": 100
+               }
+            ]
+         },
+         "Strength": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 50,
+                  "A1": 80
+               }
+            ]
+         }
+      }
+   ],
+   "Update": [
+      {
+         "Type": "SkColorAffector",
+         "Enabled": true,
+         "Curve": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Linear",
+                  "Ranged": false,
+                  "A0": [ 0, 1, 1, 1 ],
+                  "D0": [ 1, 0, 1, 1 ]
+               }
+            ]
+         }
+      },
+      {
+         "Type": "SkSizeAffector",
+         "Enabled": true,
+         "Curve": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Cubic",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0.5,
+                  "B0": 1,
+                  "C0": 2,
+                  "D0": 0.5
+               }
+            ]
+         }
+      },
+      {
+         "Type": "SkLinearVelocityAffector",
+         "Enabled": true,
+         "Force": true,
+         "Frame": "World",
+         "Angle": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0
+               }
+            ]
+         },
+         "Strength": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": -20
+               }
+            ]
+         }
+      }
+   ]
+}
