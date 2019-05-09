@@ -282,9 +282,9 @@ void GrCCPerFlushResources::recordCopyPathInstance(const GrCCPathCacheEntry& ent
     emplace_at_memcpy(&fCopyPathRanges, fCurrCopyAtlasRangesIdx, std::move(srcProxy), 1);
 }
 
-static bool transform_path_pts(const SkMatrix& m, const SkPath& path,
-                               const SkAutoSTArray<32, SkPoint>& outDevPts, SkRect* devBounds,
-                               SkRect* devBounds45) {
+static bool transform_path_pts(
+        const SkMatrix& m, const SkPath& path, const SkAutoSTArray<32, SkPoint>& outDevPts,
+        GrOctoBounds* octoBounds) {
     const SkPoint* pts = SkPathPriv::PointData(path);
     int numPts = path.countPoints();
     SkASSERT(numPts + 1 <= outDevPts.count());
@@ -331,16 +331,19 @@ static bool transform_path_pts(const SkMatrix& m, const SkPath& path,
     SkPoint topLeftPts[2], bottomRightPts[2];
     topLeft.store(topLeftPts);
     bottomRight.store(bottomRightPts);
-    devBounds->setLTRB(topLeftPts[0].x(), topLeftPts[0].y(), bottomRightPts[0].x(),
-                       bottomRightPts[0].y());
-    devBounds45->setLTRB(topLeftPts[1].x(), topLeftPts[1].y(), bottomRightPts[1].x(),
-                         bottomRightPts[1].y());
+
+    const SkRect& devBounds = SkRect::MakeLTRB(
+            topLeftPts[0].x(), topLeftPts[0].y(), bottomRightPts[0].x(), bottomRightPts[0].y());
+    const SkRect& devBounds45 = SkRect::MakeLTRB(
+            topLeftPts[1].x(), topLeftPts[1].y(), bottomRightPts[1].x(), bottomRightPts[1].y());
+
+    octoBounds->set(devBounds, devBounds45);
     return true;
 }
 
 GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
         const SkIRect& clipIBounds, const SkMatrix& m, const GrShape& shape, float strokeDevWidth,
-        SkRect* devBounds, SkRect* devBounds45, SkIRect* devIBounds, SkIVector* devToAtlasOffset) {
+        GrOctoBounds* octoBounds, SkIRect* devIBounds, SkIVector* devToAtlasOffset) {
     SkASSERT(this->isMapped());
     SkASSERT(fNextPathInstanceIdx < fEndPathInstance);
 
@@ -350,7 +353,7 @@ GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
         SkDEBUGCODE(--fEndPathInstance);
         return nullptr;
     }
-    if (!transform_path_pts(m, path, fLocalDevPtsBuffer, devBounds, devBounds45)) {
+    if (!transform_path_pts(m, path, fLocalDevPtsBuffer, octoBounds)) {
         // The transformed path had infinite or NaN bounds.
         SkDEBUGCODE(--fEndPathInstance);
         return nullptr;
@@ -358,14 +361,11 @@ GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
 
     const SkStrokeRec& stroke = shape.style().strokeRec();
     if (!stroke.isFillStyle()) {
-        float r = SkStrokeRec::GetInflationRadius(stroke.getJoin(), stroke.getMiter(),
-                                                  stroke.getCap(), strokeDevWidth);
-        devBounds->outset(r, r);
-        // devBounds45 is in (| 1 -1 | * devCoords) space.
-        //                    | 1  1 |
-        devBounds45->outset(r*SK_ScalarSqrt2, r*SK_ScalarSqrt2);
+        float r = SkStrokeRec::GetInflationRadius(
+                stroke.getJoin(), stroke.getMiter(), stroke.getCap(), strokeDevWidth);
+        octoBounds->outset(r);
     }
-    devBounds->roundOut(devIBounds);
+    octoBounds->roundOut(devIBounds);
 
     GrScissorTest scissorTest;
     SkIRect clippedPathIBounds;

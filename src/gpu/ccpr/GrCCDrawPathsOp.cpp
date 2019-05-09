@@ -14,6 +14,7 @@
 #include "src/gpu/ccpr/GrCCPathCache.h"
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
+#include "src/gpu/ccpr/GrOctoBounds.h"
 
 static bool has_coord_transforms(const GrPaint& paint) {
     GrFragmentProcessor::Iter iter(paint);
@@ -361,22 +362,22 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
     // bounding boxes: One in device space, as well as a second one rotated an additional 45
     // degrees. The path vertex shader uses these two bounding boxes to generate an octagon that
     // circumscribes the path.
-    SkRect devBounds, devBounds45;
+    GrOctoBounds octoBounds;
     SkIRect devIBounds;
     SkIVector devToAtlasOffset;
     if (auto atlas = resources->renderShapeInAtlas(
-                fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &devBounds, &devBounds45,
-                &devIBounds, &devToAtlasOffset)) {
+                fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &octoBounds, &devIBounds,
+                &devToAtlasOffset)) {
         op->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
-        resources->appendDrawPathInstance().set(devBounds, devBounds45, devToAtlasOffset,
-                                                SkPMColor4f_toFP16(fColor), doEvenOddFill);
+        resources->appendDrawPathInstance().set(
+                octoBounds, devToAtlasOffset, SkPMColor4f_toFP16(fColor), doEvenOddFill);
 
         if (fDoCachePathMask) {
             SkASSERT(fCacheEntry);
             SkASSERT(!fCacheEntry->cachedAtlas());
             SkASSERT(fShapeConservativeIBounds == fMaskDevIBounds);
-            fCacheEntry->setCoverageCountAtlas(onFlushRP, atlas, devToAtlasOffset, devBounds,
-                                               devBounds45, devIBounds, fCachedMaskShift);
+            fCacheEntry->setCoverageCountAtlas(
+                    onFlushRP, atlas, devToAtlasOffset, octoBounds, devIBounds, fCachedMaskShift);
         }
     }
 }
