@@ -167,8 +167,10 @@ def trigger_and_wait(options):
                'build without the patch succeeded. This means that the patch '
                'causes Android to fail compilation.\n\n'
                'With patch logs are here: %s\n\n'
-               'No patch logs are here: %s\n\n' % (
-                   ret['withpatch_log'], ret['nopatch_log']))
+               'No patch logs are here: %s\n\n'
+               'You can force sync of the checkout if needed here: %s\n\n' % (
+                   ret['withpatch_log'], ret['nopatch_log'],
+                   'https://skia-android-compile.corp.goog/'))
       else:
         print ('Both with patch and no patch builds failed. This means that the'
                ' Android tree is currently broken. Marking this bot as '
