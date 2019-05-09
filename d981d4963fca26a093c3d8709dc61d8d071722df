@@ -70,6 +70,30 @@
       "revId": "d981d4963fca26a093c3d8709dc61d8d071722df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c812b15a_9e5a35e0",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-09T16:36:22Z",
+      "side": 1,
+      "message": "Yes that should all be fine, or at least this shouldn\u0027t add any additional threading issues. In general you should think of it as once you start drawing a DDL into an SkSurface on the gpu thread you should not use any of the associated images on any other threads. In other words the GPU thread sort of implicitly \"owns\" locks on those SkImages until it is done flushing the ddl. So it is safe to use the SkImages on the Gpu thread.",
+      "parentUuid": "7e68190c_4f3f260b",
+      "range": {
+        "startLine": 324,
+        "startChar": 4,
+        "endLine": 324,
+        "endChar": 32
+      },
+      "revId": "d981d4963fca26a093c3d8709dc61d8d071722df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
