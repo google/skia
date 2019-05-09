@@ -72,6 +72,9 @@ public:
     void setColorType(SkColorType ct) { fColorType = ct; }
     void setColorSpace(sk_sp<SkColorSpace> cs) { fColorSpace = std::move(cs); }
     void setTextureable(bool isTextureable) { fIsTextureable = isTextureable; }
+    void setShouldCreateMipMaps(bool shouldCreateMipMaps) {
+        fShouldCreateMipMaps = shouldCreateMipMaps;
+    }
 
     // Modify the SurfaceParameters in just one way
     void modify(int i) {
@@ -535,6 +538,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMakeRenderTargetTest, reporter, ctxInfo) {
             continue;
         }
 
+        if (!context->priv().caps()->mipMapSupport()) {
+            params.setShouldCreateMipMaps(false);
+        }
         sk_sp<SkSurface> s = params.make(context, &backend);
         if (!s) {
             REPORTER_ASSERT(reporter, !c.isValid());
@@ -927,6 +933,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest, reporter, ctxInfo) {
             continue;
         }
 
+        if (!context->priv().caps()->mipMapSupport()) {
+            params.setShouldCreateMipMaps(false);
+        }
         sk_sp<SkSurface> s = params.make(context, &backend);
         REPORTER_ASSERT(reporter, s);
         if (!s) {
