@@ -7,6 +7,8 @@
 
 # Generate Android.bp for Skia from GN configuration.
 
+syntax-error
+
 import os
 import pprint
 import string
