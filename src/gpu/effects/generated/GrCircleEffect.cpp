@@ -29,15 +29,14 @@ public:
         auto radius = _outer.radius;
         (void)radius;
         prevRadius = -1.0;
-        circleVar =
-                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "circle");
+        circleVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                     "circle");
         fragBuilder->codeAppendf(
-                "half2 prevCenter;\nhalf prevRadius = %f;\nhalf d;\n@if (%d == 2 || %d == 3) {\n   "
-                " d = half((length((float2(%s.xy) - sk_FragCoord.xy) * float(%s.w)) - 1.0) * "
-                "float(%s.z));\n} else {\n    d = half((1.0 - length((float2(%s.xy) - "
-                "sk_FragCoord.xy) * float(%s.w))) * float(%s.z));\n}\n@if ((%d == 1 || %d == 3) || "
-                "%d == 4) {\n    d = clamp(d, 0.0, 1.0);\n} else {\n    d = d > 0.5 ? 1.0 : "
-                "0.0;\n}\n%s = %s * d;\n",
+                "float2 prevCenter;\nfloat prevRadius = %f;\nhalf d;\n@if (%d == 2 || %d == 3) {\n "
+                "   d = half((length((%s.xy - sk_FragCoord.xy) * %s.w) - 1.0) * %s.z);\n} else {\n "
+                "   d = half((1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * %s.z);\n}\n@if "
+                "((%d == 1 || %d == 3) || %d == 4) {\n    %s = %s * clamp(d, 0.0, 1.0);\n} else "
+                "{\n    %s = d > 0.5 ? %s : half4(0.0);\n}\n",
                 prevRadius, (int)_outer.edgeType, (int)_outer.edgeType,
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
@@ -45,7 +44,8 @@ public:
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar), (int)_outer.edgeType,
-                (int)_outer.edgeType, (int)_outer.edgeType, args.fOutputColor, args.fInputColor);
+                (int)_outer.edgeType, (int)_outer.edgeType, args.fOutputColor, args.fInputColor,
+                args.fOutputColor, args.fInputColor);
     }
 
 private:
@@ -77,7 +77,7 @@ private:
             prevRadius = radius;
         }
     }
-    SkPoint prevCenter = half2(0);
+    SkPoint prevCenter = float2(0);
     float prevRadius = 0;
     UniformHandle circleVar;
 };
