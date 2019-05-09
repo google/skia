@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkTraceMemoryDump.h"
+#include "include/gpu/GrBackendObject.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrContext.h"
 #include "include/private/GrRenderTargetProxy.h"
@@ -223,6 +224,12 @@ size_t GrContext::ComputeTextureSize(SkColorType type, int width, int height, Gr
     int colorSamplesPerPixel = 1;
     return GrSurface::ComputeSize(SkColorType2GrPixelConfig(type), width, height,
                                   colorSamplesPerPixel, mipMapped, useNextPow2);
+}
+
+sk_sp<GrBackendObject> GrContext::CreateBackendObject(int width, int height,
+                                                      SkColorType colorType,
+                                                      GrMipMapped mipMapped) {
+    return GrBackendObject::Make(this, width, height, colorType, mipMapped);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
