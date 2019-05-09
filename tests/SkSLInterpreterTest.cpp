@@ -254,3 +254,42 @@ DEF_TEST(SkSLInterpreterGeneric, r) {
          (SkSL::Interpreter::Value*) &value2, 2,
          (SkSL::Interpreter::Value*) expected2);
 }
+
+DEF_TEST(SkSLInterpreterSetInputs, r) {
+    const char* src = R"(
+        layout(ctype=float) in uniform float x;
+        float main(float y) { return x + y; }
+    )";
+
+    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+                                                             SkSL::Program::kGeneric_Kind,
+                                                             SkSL::String(src), settings);
+    REPORTER_ASSERT(r, program);
+
+    std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
+    REPORTER_ASSERT(r, !compiler.errorCount());
+
+    SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
+
+    float x = 1.0f;
+    SkSL::Interpreter interpreter(std::move(program), std::move(byteCode),
+                                    (SkSL::Interpreter::Value*)&x);
+    float out = 0.0f;
+    float in  = 2.0f;
+    interpreter.run(*main, (SkSL::Interpreter::Value*)&in, (SkSL::Interpreter::Value*)&out);
+    REPORTER_ASSERT(r, out == 3.0f);
+
+    // External updates should be ignored
+    x = 3.0f;
+    out = 0.0f;
+    interpreter.run(*main, (SkSL::Interpreter::Value*)&in, (SkSL::Interpreter::Value*)&out);
+    REPORTER_ASSERT(r, out == 3.0f);
+
+    // Updating inputs should affect subsequent calls to run
+    out = 0.0f;
+    interpreter.setInputs((SkSL::Interpreter::Value*)&x);
+    interpreter.run(*main, (SkSL::Interpreter::Value*)&in, (SkSL::Interpreter::Value*)&out);
+    REPORTER_ASSERT(r, out == 5.0f);
+}

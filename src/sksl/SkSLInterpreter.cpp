@@ -36,6 +36,10 @@ Interpreter::Interpreter(std::unique_ptr<Program> program, std::unique_ptr<ByteC
     for (int i = 0; i < fByteCode->fGlobalCount; ++i) {
         fGlobals.push_back(Value((int) UNINITIALIZED));
     }
+    this->setInputs(inputs);
+}
+
+void Interpreter::setInputs(Interpreter::Value inputs[]) {
     for (int i = fByteCode->fInputSlots.size() - 1; i >= 0; --i) {
         fGlobals[fByteCode->fInputSlots[i]] = inputs[i];
     }
