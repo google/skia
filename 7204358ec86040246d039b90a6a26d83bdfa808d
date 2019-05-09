@@ -22,6 +22,30 @@
       "revId": "7204358ec86040246d039b90a6a26d83bdfa808d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9eead73_9d2147b7",
+        "filename": "infra/bots/recipes/android_compile.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-05-09T12:29:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19f66ba0_6a206530",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 78,
+        "endChar": 70
+      },
+      "revId": "7204358ec86040246d039b90a6a26d83bdfa808d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
