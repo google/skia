@@ -412,7 +412,8 @@ int GrGpu::findOrAssignSamplePatternKey(GrRenderTarget* renderTarget) {
     return fSamplePatternDictionary.findOrAssignSamplePatternKey(sampleLocations);
 }
 
-GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxy,
+GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
+                                         int n,
                                          SkSurface::BackendSurfaceAccess access,
                                          const GrFlushInfo& info) {
     this->stats()->incNumFinishFlushes();
@@ -436,7 +437,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxy,
             }
         }
     }
-    this->onFinishFlush(proxy, access, info);
+    this->onFinishFlush(proxies, n, access, info);
     return this->caps()->semaphoreSupport() ? GrSemaphoresSubmitted::kYes
                                             : GrSemaphoresSubmitted::kNo;
 }

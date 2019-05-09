@@ -164,22 +164,18 @@ public:
             const SkImageInfo&, const GrVkDrawableInfo&, const SkSurfaceProps* = nullptr);
 
     /**
-     * Call to ensure all drawing to the context has been issued to the
-     * underlying 3D API.
-     * The 'proxy' parameter is a hint. If it is supplied the context will guarantee that
-     * the draws required for that proxy are flushed but it could do more. If no 'proxy' is
-     * provided then all current work will be flushed.
-     */
-    void flush(GrSurfaceProxy*);
-
-    /**
-     * Finalizes all pending reads and writes to the surface and also performs an MSAA resolve
-     * if necessary.
+     * Finalizes all pending reads and writes to the surfaces and also performs an MSAA resolves
+     * if necessary. The GrSurfaceProxy array is treated as a hint. If it is supplied the context
+     * will guarantee that the draws required for those proxies are flushed but it could do more.
+     * If no array is provided then all current work will be flushed.
      *
      * It is not necessary to call this before reading the render target via Skia/GrContext.
      * GrContext will detect when it must perform a resolve before reading pixels back from the
      * surface or using it as a texture.
      */
+    GrSemaphoresSubmitted flushSurfaces(GrSurfaceProxy*[], int numProxies, const GrFlushInfo&);
+
+    /** Version of above that flushes for a single proxy and uses a default GrFlushInfo. */
     void flushSurface(GrSurfaceProxy*);
 
    /**
