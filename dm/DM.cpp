@@ -218,7 +218,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
     vlog("done  %s\n", id.c_str());
     int pending;
     {
-        SkAutoMutexAcquire lock(gMutex);
+        SkAutoSpinlock lock(gMutex);
         for (int i = 0; i < gRunning.count(); i++) {
             if (gRunning[i].id == id) {
                 gRunning.removeShuffle(i);
@@ -236,7 +236,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
         int curr = sk_tools::getCurrResidentSetSizeMB(),
             peak = sk_tools::getMaxResidentSetSizeMB();
 
-        SkAutoMutexAcquire lock(gMutex);
+        SkAutoSpinlock lock(gMutex);
         info("\n%dMB RAM, %dMB peak, %d queued, %d active:\n",
              curr, peak, gPending - gRunning.count(), gRunning.count());
         for (auto& task : gRunning) {
@@ -248,7 +248,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
 static void start(const char* config, const char* src, const char* srcOptions, const char* name) {
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
     vlog("start %s\n", id.c_str());
-    SkAutoMutexAcquire lock(gMutex);
+    SkAutoSpinlock lock(gMutex);
     gRunning.push_back({id,SkGetThreadID()});
 }
 
@@ -278,7 +278,7 @@ static void find_culprit() {
         #undef _
         };
 
-        SkAutoMutexAcquire lock(gMutex);
+        SkAutoSpinlock lock(gMutex);
 
         const DWORD code = e->ExceptionRecord->ExceptionCode;
         info("\nCaught exception %u", code);
@@ -317,7 +317,7 @@ static void find_culprit() {
     static void (*previous_handler[max_of(SIGABRT,SIGBUS,SIGFPE,SIGILL,SIGSEGV,SIGTERM)+1])(int);
 
     static void crash_handler(int sig) {
-        SkAutoMutexAcquire lock(gMutex);
+        SkAutoSpinlock lock(gMutex);
 
         info("\nCaught signal %d [%s] (%dMB RAM, peak %dMB), was running:\n",
              sig, strsignal(sig),
@@ -1453,7 +1453,7 @@ int main(int argc, char** argv) {
         if (src->veto(sink->flags()) ||
             is_blacklisted(sink.tag.c_str(), src.tag.c_str(),
                            src.options.c_str(), src->name().c_str())) {
-            SkAutoMutexAcquire lock(gMutex);
+            SkAutoSpinlock lock(gMutex);
             gPending--;
             continue;
         }

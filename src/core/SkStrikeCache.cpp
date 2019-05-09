@@ -312,7 +312,7 @@ void SkStrikeCache::attachNode(Node* node) {
     if (node == nullptr) {
         return;
     }
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
 
     this->validate();
     node->fStrike.validate();
@@ -326,7 +326,7 @@ SkExclusiveStrikePtr SkStrikeCache::findStrikeExclusive(const SkDescriptor& desc
 }
 
 auto SkStrikeCache::findAndDetachStrike(const SkDescriptor& desc) -> Node* {
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
 
     for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
         if (node->fStrike.getDescriptor() == desc) {
@@ -367,7 +367,7 @@ static bool loose_compare(const SkDescriptor& lhs, const SkDescriptor& rhs) {
 
 bool SkStrikeCache::desperationSearchForImage(const SkDescriptor& desc, SkGlyph* glyph,
                                               SkStrike* targetCache) {
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
 
     SkGlyphID glyphID = glyph->getGlyphID();
     SkFixed targetSubX = glyph->getSubXFixed(),
@@ -398,7 +398,7 @@ bool SkStrikeCache::desperationSearchForImage(const SkDescriptor& desc, SkGlyph*
 
 bool SkStrikeCache::desperationSearchForPath(
         const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path) {
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
 
     // The following is wrong there is subpixel positioning with paths...
     // Paths are only ever at sub-pixel position (0,0), so we can just try that directly rather
@@ -458,22 +458,22 @@ auto SkStrikeCache::createStrike(
 }
 
 void SkStrikeCache::purgeAll() {
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
     this->internalPurge(fTotalMemoryUsed);
 }
 
 size_t SkStrikeCache::getTotalMemoryUsed() const {
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
     return fTotalMemoryUsed;
 }
 
 int SkStrikeCache::getCacheCountUsed() const {
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
     return fCacheCount;
 }
 
 int SkStrikeCache::getCacheCountLimit() const {
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
     return fCacheCountLimit;
 }
 
@@ -483,7 +483,7 @@ size_t SkStrikeCache::setCacheSizeLimit(size_t newLimit) {
         newLimit = minLimit;
     }
 
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
 
     size_t prevLimit = fCacheSizeLimit;
     fCacheSizeLimit = newLimit;
@@ -492,7 +492,7 @@ size_t SkStrikeCache::setCacheSizeLimit(size_t newLimit) {
 }
 
 size_t  SkStrikeCache::getCacheSizeLimit() const {
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
     return fCacheSizeLimit;
 }
 
@@ -501,7 +501,7 @@ int SkStrikeCache::setCacheCountLimit(int newCount) {
         newCount = 0;
     }
 
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
 
     int prevCount = fCacheCountLimit;
     fCacheCountLimit = newCount;
@@ -510,7 +510,7 @@ int SkStrikeCache::setCacheCountLimit(int newCount) {
 }
 
 int SkStrikeCache::getCachePointSizeLimit() const {
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
     return fPointSizeLimit;
 }
 
@@ -519,7 +519,7 @@ int SkStrikeCache::setCachePointSizeLimit(int newLimit) {
         newLimit = 0;
     }
 
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
 
     int prevLimit = fPointSizeLimit;
     fPointSizeLimit = newLimit;
@@ -527,7 +527,7 @@ int SkStrikeCache::setCachePointSizeLimit(int newLimit) {
 }
 
 void SkStrikeCache::forEachStrike(std::function<void(const SkStrike&)> visitor) const {
-    SkAutoExclusive ac(fLock);
+    SkAutoSpinlock ac(fLock);
 
     this->validate();
 
