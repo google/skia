@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "83539c0e_9d3a6e87",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-09T16:23:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e18f17c_6a54e164",
+      "range": {
+        "startLine": 371,
+        "startChar": 39,
+        "endLine": 371,
+        "endChar": 46
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c9fd670e_718b9838",
         "filename": "src/gpu/ccpr/GrCCPathProcessor.h",
         "patchSetId": 2
@@ -96,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "e37d331e_c3fbc6dc",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-09T16:23:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61dcdc18_0ab603b4",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 42,
+        "endChar": 28
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bfa51721_da6ccbe7",
         "filename": "src/gpu/ccpr/GrCCPathProcessor.h",
         "patchSetId": 2
@@ -131,6 +179,30 @@
       "side": 1,
       "message": "Just making stuff up here - could there be some GrOctoBounds::toGeometry call that takes care of this ?",
       "parentUuid": "bfa51721_da6ccbe7",
+      "range": {
+        "startLine": 103,
+        "startChar": 8,
+        "endLine": 107,
+        "endChar": 36
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "482f6484_35d5fd6a",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-09T16:23:28Z",
+      "side": 1,
+      "message": "This stuff is non-intuitive enough, and so specific to this one particular shader that I\u0027d rather keep it out of GrOctoBounds for now.",
+      "parentUuid": "65f32040_574828e3",
       "range": {
         "startLine": 103,
         "startChar": 8,
@@ -235,6 +307,30 @@
       "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "972e8f5e_35d9d39c",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-09T16:23:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "865657af_e24e5b6d",
+      "range": {
+        "startLine": 334,
+        "startChar": 16,
+        "endLine": 334,
+        "endChar": 23
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -357,6 +453,30 @@
     },
     {
       "key": {
+        "uuid": "6dd9ea88_5777e0b0",
+        "filename": "src/gpu/ccpr/GrOctoBounds.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-09T16:23:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0120f1b_6d9c5bef",
+      "range": {
+        "startLine": 44,
+        "startChar": 40,
+        "endLine": 44,
+        "endChar": 63
+      },
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9222549f_d8507b6c",
         "filename": "src/gpu/ccpr/GrOctoBounds.h",
         "patchSetId": 2
@@ -443,6 +563,24 @@
       "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42642b9e_9da949ec",
+        "filename": "src/gpu/ccpr/GrOctoBounds.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-09T16:23:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53620348_ea1651e4",
+      "revId": "d8d02f673cb957d82a47a709e4a44f0e49532c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
