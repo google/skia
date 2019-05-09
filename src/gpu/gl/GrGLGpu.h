@@ -126,7 +126,8 @@ public:
     using StencilLoadAndStoreInfo = GrGpuRTCommandBuffer::StencilLoadAndStoreInfo;
 
     void beginCommandBuffer(
-            GrRenderTarget*, const ColorLoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
+            GrRenderTarget*, const SkIRect& contentBounds, GrSurfaceOrigin,
+            const ColorLoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
 
     void endCommandBuffer(
             GrRenderTarget*, const ColorLoadAndStoreInfo&, const StencilLoadAndStoreInfo&);

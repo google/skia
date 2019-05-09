@@ -12,13 +12,15 @@
 #include "src/gpu/GrRenderTargetPriv.h"
 
 void GrGLGpuRTCommandBuffer::set(
-        GrRenderTarget* rt, GrSurfaceOrigin origin, const LoadAndStoreInfo& colorInfo,
-        const StencilLoadAndStoreInfo& stencilInfo) {
+        GrRenderTarget* rt, const SkIRect& contentBounds, GrSurfaceOrigin origin,
+        const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+        const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
     SkASSERT(fGpu);
     SkASSERT(!fRenderTarget);
     SkASSERT(fGpu == rt->getContext()->priv().getGpu());
 
     this->INHERITED::set(rt, origin);
+    fContentBounds = contentBounds;
     fColorLoadAndStoreInfo = colorInfo;
     fStencilLoadAndStoreInfo = stencilInfo;
 }
