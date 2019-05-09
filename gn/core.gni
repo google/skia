@@ -467,6 +467,7 @@ skia_core_sources = [
   "$_include/private/SkTFitsIn.h",
   "$_include/private/SkTHash.h",
   "$_include/private/SkTInternalLList.h",
+  "$_include/private/SkThreadAnnotations.h",
   "$_include/private/SkThreadID.h",
   "$_include/private/SkTSearch.h",
   "$_include/private/SkTLogic.h",
