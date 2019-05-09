@@ -91,8 +91,9 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
     bool coordsLimitedToConstraintRect,
     const GrSamplerState::Filter* filterOrNullForBicubic) {
 
-    // Check simple cases to see if we need to fall back to flattening the image
-    if (!filterOrNullForBicubic || this->domainNeedsDecal()) {
+    // Check simple cases to see if we need to fall back to flattening the image (or whether it's
+    // already been flattened.)
+    if (!filterOrNullForBicubic || this->domainNeedsDecal() || fImage->fRGBProxy) {
         return this->INHERITED::createFragmentProcessor(textureMatrix, constraintRect,
                                                         filterConstraint,
                                                         coordsLimitedToConstraintRect,
