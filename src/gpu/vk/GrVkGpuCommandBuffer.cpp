@@ -36,7 +36,6 @@ class InlineUpload : public GrVkPrimaryCommandBufferTask {
 public:
     InlineUpload(GrOpFlushState* state, const GrDeferredTextureUploadFn& upload)
             : fFlushState(state), fUpload(upload) {}
-    ~InlineUpload() override = default;
 
     void execute(const Args& args) override { fFlushState->doUpload(fUpload); }
 
@@ -54,7 +53,6 @@ public:
             , fSrcRect(srcRect)
             , fDstPoint(dstPoint)
             , fShouldDiscardDst(shouldDiscardDst) {}
-    ~Copy() override = default;
 
     void execute(const Args& args) override {
         args.fGpu->copySurface(args.fSurface, args.fOrigin, fSrc.get(), fSrcOrigin, fSrcRect,
@@ -70,6 +68,28 @@ private:
     bool fShouldDiscardDst;
 };
 
+class TransferFrom : public GrVkPrimaryCommandBufferTask {
+public:
+    TransferFrom(const SkIRect& srcRect, GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                 size_t offset)
+            : fTransferBuffer(sk_ref_sp(transferBuffer))
+            , fOffset(offset)
+            , fSrcRect(srcRect)
+            , fBufferColorType(bufferColorType) {}
+
+    void execute(const Args& args) override {
+        args.fGpu->transferPixelsFrom(args.fSurface, fSrcRect.fLeft, fSrcRect.fTop,
+                                      fSrcRect.width(), fSrcRect.height(), fBufferColorType,
+                                      fTransferBuffer.get(), fOffset);
+    }
+
+private:
+    sk_sp<GrGpuBuffer> fTransferBuffer;
+    size_t fOffset;
+    SkIRect fSrcRect;
+    GrColorType fBufferColorType;
+};
+
 }  // anonymous namespace
 
 /////////////////////////////////////////////////////////////////////////////
@@ -77,6 +97,11 @@ private:
 void GrVkGpuTextureCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin,
                                        const SkIRect& srcRect, const SkIPoint& dstPoint) {
     fTasks.emplace<Copy>(src, srcOrigin, srcRect, dstPoint, false);
+}
+
+void GrVkGpuTextureCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
+                                               GrGpuBuffer* transferBuffer, size_t offset) {
+    fTasks.emplace<TransferFrom>(srcRect, bufferColorType, transferBuffer, offset);
 }
 
 void GrVkGpuTextureCommandBuffer::insertEventMarker(const char* msg) {
@@ -618,6 +643,16 @@ void GrVkGpuRTCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin, con
         cbInfo.fLoadStoreState = LoadStoreState::kLoadAndStore;
 
     }
+}
+
+void GrVkGpuRTCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
+                                          GrGpuBuffer* transferBuffer, size_t offset) {
+    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
+    if (!cbInfo.fIsEmpty) {
+        this->addAdditionalRenderPass();
+    }
+    fPreCommandBufferTasks.emplace<TransferFrom>(srcRect, bufferColorType, transferBuffer, offset);
+    ++fCommandBufferInfos[fCurrentCmdInfo].fNumPreCmds;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

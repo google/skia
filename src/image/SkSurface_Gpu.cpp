@@ -132,6 +132,19 @@ void SkSurface_Gpu::onWritePixels(const SkPixmap& src, int x, int y) {
     fDevice->writePixels(src, x, y);
 }
 
+void SkSurface_Gpu::onAsyncReadPixels(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
+                                      const SkIRect& srcRect, ReadPixelsCallback callback,
+                                      ReadPixelsContext context) {
+    auto* rtc = fDevice->accessRenderTargetContext();
+    if (!rtc->caps()->transferBufferSupport()) {
+        INHERITED::onAsyncReadPixels(ct, at, cs, srcRect, callback, context);
+        return;
+    }
+    if (!rtc->asyncReadPixels(ct, at, std::move(cs), srcRect, callback, context)) {
+        callback(context, nullptr, 0);
+    }
+}
+
 // Create a new render target and, if necessary, copy the contents of the old
 // render target into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.
