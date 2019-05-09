@@ -160,6 +160,12 @@ bool SkImage::isValid(GrContext* context) const {
     return as_IB(this)->onIsValid(context);
 }
 
+GrSemaphoresSubmitted SkImage::flush(GrContext* context, const GrFlushInfo& flushInfo) {
+    return as_IB(this)->onFlush(context, flushInfo);
+}
+
+void SkImage::flush(GrContext* context) { as_IB(this)->onFlush(context, {}); }
+
 #else
 
 GrTexture* SkImage::getTexture() const { return nullptr; }
@@ -177,6 +183,12 @@ bool SkImage::isValid(GrContext* context) const {
     }
     return as_IB(this)->onIsValid(context);
 }
+
+GrSemaphoresSubmitted SkImage::flush(GrContext*, const GrFlushInfo&) {
+    return GrSemaphoresSubmitted::kNo;
+}
+
+void SkImage::flush(GrContext*) {}
 
 #endif
 

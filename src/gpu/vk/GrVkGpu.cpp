@@ -1889,21 +1889,25 @@ void GrVkGpu::addImageMemoryBarrier(const GrVkResource* resource,
                                        barrier);
 }
 
-void GrVkGpu::onFinishFlush(GrSurfaceProxy* proxy, SkSurface::BackendSurfaceAccess access,
-                            const GrFlushInfo& info) {
+void GrVkGpu::onFinishFlush(GrSurfaceProxy* proxies[], int n,
+                            SkSurface::BackendSurfaceAccess access, const GrFlushInfo& info) {
+    SkASSERT(n >= 0);
+    SkASSERT(!n || proxies);
     // Submit the current command buffer to the Queue. Whether we inserted semaphores or not does
     // not effect what we do here.
-    if (proxy && access == SkSurface::BackendSurfaceAccess::kPresent) {
+    if (n && access == SkSurface::BackendSurfaceAccess::kPresent) {
         GrVkImage* image;
-        SkASSERT(proxy->isInstantiated());
-        if (GrTexture* tex = proxy->peekTexture()) {
-            image = static_cast<GrVkTexture*>(tex);
-        } else {
-            GrRenderTarget* rt = proxy->peekRenderTarget();
-            SkASSERT(rt);
-            image = static_cast<GrVkRenderTarget*>(rt);
+        for (int i = 0; i < n; ++i) {
+            SkASSERT(proxies[i]->isInstantiated());
+            if (GrTexture* tex = proxies[i]->peekTexture()) {
+                image = static_cast<GrVkTexture*>(tex);
+            } else {
+                GrRenderTarget* rt = proxies[i]->peekRenderTarget();
+                SkASSERT(rt);
+                image = static_cast<GrVkRenderTarget*>(rt);
+            }
+            image->prepareForPresent(this);
         }
-        image->prepareForPresent(this);
     }
     if (info.fFlags & kSyncCpu_GrFlushFlag) {
         this->submitCommandBuffer(kForce_SyncQueue, info.fFinishedProc, info.fFinishedContext);

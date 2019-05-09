@@ -64,6 +64,15 @@ SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkAlphaTyp
 
 SkImage_Gpu::~SkImage_Gpu() {}
 
+GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrContext* context, const GrFlushInfo& info) {
+    if (!context || !fContext->priv().matches(context) || fContext->abandoned()) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+
+    GrSurfaceProxy* p[1] = {fProxy.get()};
+    return context->priv().flushSurfaces(p, 1, info);
+}
+
 sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* context,
                                                          SkColorType targetCT,
                                                          sk_sp<SkColorSpace> targetCS) const {
@@ -656,7 +665,8 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
 
     GrFlushInfo info;
     info.fFlags = kSyncCpu_GrFlushFlag;
-    drawingManager->flush(proxy.get(), SkSurface::BackendSurfaceAccess::kNoAccess, info);
+    GrSurfaceProxy* p[1] = {proxy.get()};
+    drawingManager->flush(p, 1, SkSurface::BackendSurfaceAccess::kNoAccess, info);
 
     return image;
 }
