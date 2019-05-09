@@ -573,6 +573,8 @@ skia_ccpr_sources = [
   "$_src/gpu/ccpr/GrCCStroker.h",
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
+  "$_src/gpu/ccpr/GrOctoBounds.cpp",
+  "$_src/gpu/ccpr/GrOctoBounds.h",
 ]
 
 skia_nvpr_sources = [

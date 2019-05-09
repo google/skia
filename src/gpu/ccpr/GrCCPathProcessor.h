@@ -13,6 +13,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrPipeline.h"
+#include "src/gpu/ccpr/GrOctoBounds.h"
 
 class GrCCPathCacheEntry;
 class GrCCPerFlushResources;
@@ -31,13 +32,6 @@ class GrOpFlushState;
  */
 class GrCCPathProcessor : public GrGeometryProcessor {
 public:
-    // Helper to offset the 45-degree bounding box returned by GrCCPathParser::parsePath().
-    static SkRect MakeOffset45(const SkRect& devBounds45, float dx, float dy) {
-        // devBounds45 is in "| 1  -1 | * devCoords" space.
-        //                    | 1   1 |
-        return devBounds45.makeOffset(dx - dy, dx + dy);
-    }
-
     enum class DoEvenOddFill : bool {
         kNo = false,
         kYes = true
@@ -45,13 +39,13 @@ public:
 
     struct Instance {
         SkRect fDevBounds;  // "right < left" indicates even-odd fill type.
-        SkRect fDevBounds45;  // Bounding box in "| 1  -1 | * devCoords" space.
+        SkRect fDevBounds45;  // Bounding box in "| 1  -1 | * devCoords" space. See GrOctoBounds.
                               //                  | 1   1 |
         SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
         uint64_t fColor;  // Color always stored as 4 x fp16
 
-        void set(const SkRect& devBounds, const SkRect& devBounds45,
-                 const SkIVector& devToAtlasOffset, uint64_t, DoEvenOddFill = DoEvenOddFill::kNo);
+        void set(const GrOctoBounds&, const SkIVector& devToAtlasOffset, uint64_t,
+                 DoEvenOddFill = DoEvenOddFill::kNo);
         void set(const GrCCPathCacheEntry&, const SkIVector& shift, uint64_t,
                  DoEvenOddFill = DoEvenOddFill::kNo);
     };
@@ -96,19 +90,21 @@ private:
 };
 
 inline void GrCCPathProcessor::Instance::set(
-        const SkRect& devBounds, const SkRect& devBounds45, const SkIVector& devToAtlasOffset,
-        uint64_t color, DoEvenOddFill doEvenOddFill) {
+        const GrOctoBounds& octoBounds, const SkIVector& devToAtlasOffset, uint64_t color,
+        DoEvenOddFill doEvenOddFill) {
     if (DoEvenOddFill::kNo == doEvenOddFill) {
         // We cover "nonzero" paths with clockwise triangles, which is the default result from
-        // normal bounding boxes.
-        fDevBounds = devBounds;
-        fDevBounds45 = devBounds45;
+        // normal octo bounds.
+        fDevBounds = octoBounds.bounds();
+        fDevBounds45 = octoBounds.bounds45();
     } else {
-        // We cover "even/odd" paths with counterclockwise triangles. Reorder the bounding box
-        // vertices so the output is flipped horizontally.
-        fDevBounds.setLTRB(devBounds.fRight, devBounds.fTop, devBounds.fLeft, devBounds.fBottom);
+        // We cover "even/odd" paths with counterclockwise triangles. Here we reorder the bounding
+        // box vertices so the output is flipped horizontally.
+        fDevBounds.setLTRB(
+                octoBounds.right(), octoBounds.top(), octoBounds.left(), octoBounds.bottom());
         fDevBounds45.setLTRB(
-                devBounds45.fBottom, devBounds45.fRight, devBounds45.fTop, devBounds45.fLeft);
+                octoBounds.bottom45(), octoBounds.right45(), octoBounds.top45(),
+                octoBounds.left45());
     }
     fDevToAtlasOffset = devToAtlasOffset;
     fColor = color;

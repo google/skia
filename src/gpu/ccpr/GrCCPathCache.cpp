@@ -352,8 +352,7 @@ GrCCPathCache::OnFlushEntryRef::~OnFlushEntryRef() {
 
 void GrCCPathCacheEntry::setCoverageCountAtlas(
         GrOnFlushResourceProvider* onFlushRP, GrCCAtlas* atlas, const SkIVector& atlasOffset,
-        const SkRect& devBounds, const SkRect& devBounds45, const SkIRect& devIBounds,
-        const SkIVector& maskShift) {
+        const GrOctoBounds& octoBounds, const SkIRect& devIBounds, const SkIVector& maskShift) {
     SkASSERT(fOnFlushRefCnt > 0);
     SkASSERT(!fCachedAtlas);  // Otherwise we would need to call releaseCachedAtlas().
 
@@ -369,9 +368,7 @@ void GrCCPathCacheEntry::setCoverageCountAtlas(
 
     fAtlasOffset = atlasOffset + maskShift;
 
-    float dx = (float)maskShift.fX, dy = (float)maskShift.fY;
-    fDevBounds = devBounds.makeOffset(-dx, -dy);
-    fDevBounds45 = GrCCPathProcessor::MakeOffset45(devBounds45, -dx, -dy);
+    fOctoBounds.setOffset(octoBounds, -maskShift.fX, -maskShift.fY);
     fDevIBounds = devIBounds.makeOffset(-maskShift.fX, -maskShift.fY);
 }
 

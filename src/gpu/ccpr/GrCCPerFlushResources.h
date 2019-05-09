@@ -16,6 +16,7 @@
 
 class GrCCPathCache;
 class GrCCPathCacheEntry;
+class GrOctoBounds;
 class GrOnFlushResourceProvider;
 class GrShape;
 
@@ -79,9 +80,9 @@ public:
     //
     // strokeDevWidth must be 0 for fills, 1 for hairlines, or the stroke width in device-space
     // pixels for non-hairline strokes (implicitly requiring a rigid-body transform).
-    GrCCAtlas* renderShapeInAtlas(const SkIRect& clipIBounds, const SkMatrix&, const GrShape&,
-                                  float strokeDevWidth, SkRect* devBounds, SkRect* devBounds45,
-                                  SkIRect* devIBounds, SkIVector* devToAtlasOffset);
+    GrCCAtlas* renderShapeInAtlas(
+            const SkIRect& clipIBounds, const SkMatrix&, const GrShape&, float strokeDevWidth,
+            GrOctoBounds*, SkIRect* devIBounds, SkIVector* devToAtlasOffset);
     const GrCCAtlas* renderDeviceSpacePathInAtlas(const SkIRect& clipIBounds, const SkPath& devPath,
                                                   const SkIRect& devPathIBounds,
                                                   SkIVector* devToAtlasOffset);
