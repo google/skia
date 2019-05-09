@@ -435,6 +435,7 @@ private:
     SkColorCurve fCurve;
 };
 
+#if defined(SK_SUPPORT_GPU)
 static const char* kDefaultCode =
     "layout(ctype=float) in uniform float dt;\n"
     "layout(ctype=float) in uniform float effectAge;\n"
@@ -506,6 +507,7 @@ private:
                                                  (SkSL::Interpreter::Value*)&defaultInputs));
     }
 };
+#endif
 
 void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkParticleAffector);
@@ -519,7 +521,9 @@ void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkSizeAffector);
     REGISTER_REFLECTED(SkFrameAffector);
     REGISTER_REFLECTED(SkColorAffector);
+#if defined(SK_SUPPORT_GPU)
     REGISTER_REFLECTED(SkInterpreterAffector);
+#endif
 }
 
 sk_sp<SkParticleAffector> SkParticleAffector::MakeLinearVelocity(const SkCurve& angle,
