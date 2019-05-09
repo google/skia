@@ -71,8 +71,12 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpac
         SkASSERT(SkYUVAIndex::AreValidIndices(image->fYUVAIndices, &textureCount));
     SkASSERT(textureCount == fNumProxies);
 
-    for (int i = 0; i < fNumProxies; ++i) {
-        fProxies[i] = image->fProxies[i];  // we ref in this case, not move
+    if (image->fRGBProxy) {
+        fRGBProxy = image->fRGBProxy;  // we ref in this case, not move
+    } else {
+        for (int i = 0; i < fNumProxies; ++i) {
+            fProxies[i] = image->fProxies[i];  // we ref in this case, not move
+        }
     }
     memcpy(fYUVAIndices, image->fYUVAIndices, 4 * sizeof(SkYUVAIndex));
 }
@@ -80,6 +84,8 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpac
 SkImage_GpuYUVA::~SkImage_GpuYUVA() {}
 
 bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
+    // We shouldn't get here if the planes were already flattened to RGBA.
+    SkASSERT(fProxies[0] && !fRGBProxy);
     if (!context || !fContext->priv().matches(context)) {
         return false;
     }
@@ -108,12 +114,15 @@ GrSemaphoresSubmitted SkImage_GpuYUVA::onFlush(GrContext* context, const GrFlush
         return GrSemaphoresSubmitted::kNo;
     }
 
-    GrSurfaceProxy* proxies[5] = {fProxies[0].get(), fProxies[1].get(),
-                                  fProxies[2].get(), fProxies[3].get(), nullptr};
+    GrSurfaceProxy* proxies[4] = {fProxies[0].get(), fProxies[1].get(),
+                                  fProxies[2].get(), fProxies[3].get()};
     int numProxies = fNumProxies;
     if (fRGBProxy) {
-        proxies[fNumProxies] = fRGBProxy.get();
-        ++numProxies;
+        // Either we've already flushed the flattening draw or the flattening is unflushed. In the
+        // latter case it should still be ok to just pass fRGBProxy because it in turn depends on
+        // the planar proxies and will cause all of their work to flush as well.
+        proxies[0] = fRGBProxy.get();
+        numProxies = 1;
     }
     return context->priv().flushSurfaces(proxies, numProxies, info);
 }
@@ -155,6 +164,9 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef(GrRecordingContext* con
     }
 
     fRGBProxy = renderTargetContext->asTextureProxyRef();
+    for (auto& p : fProxies) {
+        p.reset();
+    }
     return fRGBProxy;
 }
 
