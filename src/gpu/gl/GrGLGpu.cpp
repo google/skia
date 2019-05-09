@@ -3990,6 +3990,9 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, in
         return GrBackendTexture();  // invalid
     }
 
+    if (mipMapped == GrMipMapped::kYes && !this->caps()->mipMapSupport()) {
+        return GrBackendTexture();
+    }
     int bpp = GrColorTypeBytesPerPixel(colorType);
     const size_t trimRowBytes = w * bpp;
     if (!rowBytes) {
