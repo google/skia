@@ -80,13 +80,14 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
                                    : Shaper::VAlign::kTop;
 
     // Skia vertical alignment extension "sk_vj":
-    enum {
-        kDefault_VJ = 0, // AE default alignment.
-         kCenter_VJ = 1, // Center-aligned.
+    static constexpr Shaper::VAlign gVAlignMap[] = {
+        Shaper::VAlign::kTop,         // 'sk_vj': 0
+        Shaper::VAlign::kCenter,      // 'sk_vj': 1
+        Shaper::VAlign::kResizeToFit, // 'sk_vj': 2
     };
-
-    if (ParseDefault<int>((*jtxt)["sk_vj"], kDefault_VJ) == kCenter_VJ) {
-        v->fVAlign = Shaper::VAlign::kCenter;
+    size_t sk_vj;
+    if (Parse((*jtxt)["sk_vj"], &sk_vj) && sk_vj < SK_ARRAY_COUNT(gVAlignMap)) {
+        v->fVAlign = gVAlignMap[sk_vj];
     }
 
     const auto& parse_color = [] (const skjson::ArrayValue* jcolor,

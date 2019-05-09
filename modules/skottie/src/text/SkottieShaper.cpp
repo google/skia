@@ -127,6 +127,9 @@ public:
             const auto bounds = ComputeBlobBounds(blob).makeOffset(pos.x(), pos.y());
             pos.offset(0, fBox.centerY() - bounds.centerY());
         } break;
+        case Shaper::VAlign::kResizeToFit:
+            SkASSERT(false);
+            break;
         }
 
         return {
@@ -196,6 +199,8 @@ private:
 };
 
 Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc, const SkRect& box) {
+    SkASSERT(desc.fVAlign != Shaper::VAlign::kResizeToFit);
+
     const auto& is_line_break = [](SkUnichar uch) {
         // TODO: other explicit breaks?
         return uch == '\r';
@@ -217,14 +222,72 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc, cons
     return blobMaker.makeBlob();
 }
 
+Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc,
+                          const SkRect& box) {
+    SkASSERT(orig_desc.fVAlign == Shaper::VAlign::kResizeToFit);
+
+    Shaper::Result best_result = { nullptr, {0, 0} };
+
+    if (box.isEmpty() || orig_desc.fTextSize <= 0) {
+        return best_result;
+    }
+
+    auto desc = orig_desc;
+    desc.fVAlign = Shaper::VAlign::kCenter;
+
+    float in_size = 0,                                 // maximum size that fits inside
+         out_size = std::numeric_limits<float>::max(), // minimum size that doesn't fit
+         try_size = desc.fTextSize;                    // current probe
+
+    // Perform a binary search for the best vertical fit (SkShaper already handles
+    // horizontal fitting), starting with the specified text size.
+    //
+    // This hybrid loop handles both the binary search (when in/out extremes are known), and an
+    // exponential search for the extremes.
+    static constexpr size_t kMaxIter = 16;
+    for (size_t i = 0; i < kMaxIter; ++i) {
+        SkASSERT(try_size >= in_size && try_size <= out_size);
+        desc.fTextSize = try_size;
+
+        auto res = ShapeImpl(txt, desc, box);
+        auto res_height = res.computeBounds().height();
+
+        if (res_height > box.height()) {
+            out_size = try_size;
+            try_size = (in_size == 0)
+                    ? try_size * 0.5f // initial in_size not found yet - search exponentially
+                    : (in_size + out_size) * 0.5f; // in_size found - binary search
+        } else {
+            // It fits - so it's a candidate.
+            best_result = res;
+            static constexpr float kTolerance = 1;
+            if (box.height() - res_height <= kTolerance) {
+                // Jackpot.
+                break;
+            }
+
+            in_size = try_size;
+            try_size = (out_size == std::numeric_limits<float>::max())
+                    ? try_size * 2 // initial out_size not found yet - search exponentially
+                    : (in_size + out_size) * 0.5f; // out_size found - binary search
+        }
+    }
+
+    return best_result;
+}
+
 } // namespace
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkPoint& point) {
-    return ShapeImpl(txt, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()));
+    return (desc.fVAlign == VAlign::kResizeToFit) // makes no sense in point mode
+            ? Result{ nullptr, {0, 0} }
+            : ShapeImpl(txt, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()));
 }
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkRect& box) {
-    return ShapeImpl(txt, desc, box);
+    return (desc.fVAlign == VAlign::kResizeToFit)
+            ? ShapeToFit(txt, desc, box)
+            : ShapeImpl(txt, desc, box);
 }
 
 SkRect Shaper::Result::computeBounds() const {
