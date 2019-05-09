@@ -3250,6 +3250,47 @@ static GrPixelConfig get_yuva_config(GrGLenum format) {
     return config;
 }
 
+GrColorType getColorTypefromBackendFormat(const GrBackendFormat& format) {
+    const GrGLenum* glFormat = format.getGLFormat();
+    if (!glFormat) {
+        return GrColorType::kUnknown;
+    }
+
+    switch (*glFormat) {
+        case GR_GL_ALPHA8:
+        case GR_GL_R8:
+            return GrColorType::kAlpha_8;
+        case GR_GL_RGB565:
+            return GrColorType::kRGB_565;
+        case GR_GL_RGBA4:
+            return GrColorType::kABGR_4444;
+        case GR_GL_RGBA8:
+            return GrColorType::kRGBA_8888;
+        case GR_GL_RG8:
+            return GrColorType::kRG_88;
+        case GR_GL_BGRA8:
+            return GrColorType::kBGRA_8888;
+        case GR_GL_RGB10_A2:
+            return GrColorType::kRGBA_1010102;
+        case GR_GL_LUMINANCE8:
+        //case GR_GL_R8:
+            return GrColorType::kGray_8;
+        case GR_GL_R16F:
+            return GrColorType::kAlpha_F16;
+        case GR_GL_RGBA16F:
+            return GrColorType::kRGBA_F16;
+        case GR_GL_RGBA32F:
+            return GrColorType::kRGBA_F32;
+        case GR_GL_RG32F:
+            return GrColorType::kRG_F32;
+        case GR_GL_COMPRESSED_ETC1_RGB8:
+            return GrColorType::kRGB_ETC1;
+    }
+
+    return GrColorType::kUnknown;
+}
+
+
 GrPixelConfig GrGLCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const {
     const GrGLenum* glFormat = format.getGLFormat();
     if (!glFormat) {

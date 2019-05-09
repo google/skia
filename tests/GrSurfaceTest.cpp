@@ -54,7 +54,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
 
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-        nullptr, 256, 256, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
+        256, 256, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
 
     sk_sp<GrSurface> texRT2 = resourceProvider->wrapRenderableBackendTexture(
             backendTex, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
@@ -285,7 +285,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     // kRead for the right reason.
     for (auto ioType : {kRead_GrIOType, kRW_GrIOType}) {
         auto backendTex = context->priv().getGpu()->createTestingOnlyBackendTexture(
-                pixels.addr(), kSize, kSize, kRGBA_8888_SkColorType, true, GrMipMapped::kNo);
+                kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes,
+                pixels.addr());
         auto proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                        kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, ioType);
@@ -330,7 +331,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         // Mip regen should not work with a read only texture.
         if (context->priv().caps()->mipMapSupport()) {
             backendTex = context->priv().getGpu()->createTestingOnlyBackendTexture(
-                    nullptr, kSize, kSize, kRGBA_8888_SkColorType, true, GrMipMapped::kYes);
+                    kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kYes, GrRenderable::kYes);
             proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                       kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
                                                       ioType);
@@ -343,11 +344,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     }
 }
 
-static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, bool renderable) {
+static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable renderable) {
     auto backendTexture = context->priv().getGpu()->createTestingOnlyBackendTexture(
-            nullptr, 10, 10, GrColorType::kRGBA_8888, renderable, GrMipMapped::kNo);
+            10, 10, kRGBA_8888_SkColorType, GrMipMapped::kNo, renderable);
     sk_sp<GrTexture> texture;
-    if (renderable) {
+    if (GrRenderable::kYes == renderable) {
         texture = context->priv().resourceProvider()->wrapRenderableBackendTexture(
                 backendTexture, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
     } else {
@@ -383,9 +384,11 @@ static sk_sp<GrTexture> make_normal_texture(GrContext* context, bool renderable)
 
 DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
     // Various ways of making textures.
-    auto makeWrapped = [](GrContext* context) { return make_wrapped_texture(context, false); };
+    auto makeWrapped = [](GrContext* context) {
+        return make_wrapped_texture(context, GrRenderable::kNo);
+    };
     auto makeWrappedRenderable = [](GrContext* context) {
-        return make_wrapped_texture(context, true);
+        return make_wrapped_texture(context, GrRenderable::kYes);
     };
     auto makeNormal = [](GrContext* context) { return make_normal_texture(context, false); };
     auto makeRenderable = [](GrContext* context) { return make_normal_texture(context, true); };

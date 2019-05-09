@@ -81,22 +81,15 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkPixmap& pm,
             }
         }
         tex = gpu->createTestingOnlyBackendTexture(
-            pixels,
-            pm.width(),
-            pm.height(),
+            pm.width(), pm.height(),
             GrColorType::kRG_88,
-            false,
-            GrMipMapped::kNo,
-            2 * pm.width());
+            GrMipMapped::kNo, GrRenderable::kNo,
+            pixels, 2 * pm.width());
     } else {
         tex = gpu->createTestingOnlyBackendTexture(
-            pm.addr(),
-            pm.width(),
-            pm.height(),
-            pm.colorType(),
-            false,
-            GrMipMapped::kNo,
-            pm.rowBytes());
+            pm.width(), pm.height(), pm.colorType(),
+            GrMipMapped::kNo, GrRenderable::kNo,
+            pm.addr(), pm.rowBytes());
     }
     return tex;
 }
@@ -131,12 +124,9 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
             const SkBitmap& bm = info.normalBitmap();
 
             callbackContext->setBackendTexture(gpu->createTestingOnlyBackendTexture(
-                                                                bm.getPixels(),
-                                                                bm.width(),
-                                                                bm.height(),
-                                                                bm.colorType(),
-                                                                false, GrMipMapped::kNo,
-                                                                bm.rowBytes()));
+                                                        bm.width(), bm.height(), bm.colorType(),
+                                                        GrMipMapped::kNo, GrRenderable::kNo,
+                                                        bm.getPixels(), bm.rowBytes()));
             // The GMs sometimes request too large an image
             //SkAssertResult(callbackContext->backendTexture().isValid());
 

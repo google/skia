@@ -20,6 +20,7 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/vk/GrVkAMDMemoryAllocator.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
@@ -1759,15 +1760,18 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     return true;
 }
 
-GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(const void* srcData, int w, int h,
-                                                          GrColorType colorType,
-                                                          bool isRenderTarget,
-                                                          GrMipMapped mipMapped, size_t rowBytes) {
+GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(int w, int h,
+                                                          const GrBackendFormat& format,
+                                                          GrMipMapped mipMapped,
+                                                          GrRenderable renderable,
+                                                          const void* srcData, size_t rowBytes) {
     this->handleDirtyContext();
 
     if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
         return GrBackendTexture();
     }
+
+    GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
 
     GrPixelConfig config = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
     if (!this->caps()->isConfigTexturable(config)) {
@@ -1775,8 +1779,8 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(const void* srcData, i
     }
 
     GrVkImageInfo info;
-    if (!this->createTestingOnlyVkImage(config, w, h, true, isRenderTarget, mipMapped, srcData,
-                                        rowBytes, &info)) {
+    if (!this->createTestingOnlyVkImage(config, w, h, true, GrRenderable::kYes == renderable,
+                                        mipMapped, srcData, rowBytes, &info)) {
         return {};
     }
     GrBackendTexture beTex = GrBackendTexture(w, h, info);

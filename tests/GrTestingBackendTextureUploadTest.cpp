@@ -35,12 +35,11 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
         return;
     }
 
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(srcBuffer,
-                                                                       kWidth,
-                                                                       kHeight,
-                                                                       ct,
-                                                                       renderTarget,
-                                                                       mipMapped);
+    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+                                        kWidth, kHeight, ct,
+                                        mipMapped,
+                                        renderTarget ? GrRenderable::kYes : GrRenderable::kNo,
+                                        srcBuffer);
     if (!backendTex.isValid()) {
         return;
     }
