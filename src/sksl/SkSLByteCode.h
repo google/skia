@@ -8,9 +8,14 @@
 #ifndef SKSL_BYTECODE
 #define SKSL_BYTECODE
 
-#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include <memory>
+#include <vector>
 
 namespace SkSL {
+
+struct ByteCode;
+class  ExternalValue;
+struct FunctionDeclaration;
 
 enum class ByteCodeInstruction : uint8_t {
     kInvalid,
@@ -62,8 +67,7 @@ enum class ByteCodeInstruction : uint8_t {
     kNegateF,
     kNegateS,
     kMultiplyF,
-    kMultiplyS,
-    kMultiplyU,
+    kMultiplyI,
     kNot,
     kOrB,
     kOrI,
@@ -72,6 +76,8 @@ enum class ByteCodeInstruction : uint8_t {
     kPop,
     // Followed by a 32 bit value containing the value to push
     kPushImmediate,
+    // Followed by a byte indicating external value to read
+    kReadExternal,
     kRemainderF,
     kRemainderS,
     kRemainderU,
@@ -92,9 +98,9 @@ enum class ByteCodeInstruction : uint8_t {
     // Followed by a byte indicating vector count. Modifies the next instruction to operate on the
     // indicated number of columns, e.g. kVector 2 kMultiplyf performs a float2 * float2 operation.
     kVector,
+    // Followed by a byte indicating external value to write
+    kWriteExternal,
 };
-
-struct ByteCode;
 
 struct ByteCodeFunction {
     ByteCodeFunction(const ByteCode* owner, const FunctionDeclaration* declaration)
@@ -118,6 +124,7 @@ struct ByteCode {
     // one entry per input slot, contains the global slot to which the input slot maps
     std::vector<uint8_t> fInputSlots;
     std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;
+    std::vector<ExternalValue*> fExternalValues;
 };
 
 }

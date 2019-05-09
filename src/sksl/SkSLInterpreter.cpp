@@ -8,6 +8,7 @@
 #ifndef SKSL_STANDALONE
 
 #include "src/core/SkRasterPipeline.h"
+#include "src/sksl/SkSLExternalValue.h"
 #include "src/sksl/SkSLInterpreter.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
@@ -149,8 +150,7 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
                 break;
             }
             case ByteCodeInstruction::kMultiplyF: printf("multiplyf"); break;
-            case ByteCodeInstruction::kMultiplyS: printf("multiplys"); break;
-            case ByteCodeInstruction::kMultiplyU: printf("multiplyu"); break;
+            case ByteCodeInstruction::kMultiplyI: printf("multiplyi"); break;
             case ByteCodeInstruction::kNegateF: printf("negatef"); break;
             case ByteCodeInstruction::kNegateS: printf("negates"); break;
             case ByteCodeInstruction::kNop1: printf("nop1"); break;
@@ -164,6 +164,7 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             case ByteCodeInstruction::kPushImmediate:
                 printf("pushimmediate %s", value_string(READ32()).c_str());
                 break;
+            case ByteCodeInstruction::kReadExternal: printf("readexternal %d", READ8()); break;
             case ByteCodeInstruction::kRemainderF: printf("remainderf"); break;
             case ByteCodeInstruction::kRemainderS: printf("remainders"); break;
             case ByteCodeInstruction::kRemainderU: printf("remainderu"); break;
@@ -192,6 +193,7 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             }
             case ByteCodeInstruction::kUnsignedToFloat: printf("unsignedtofloat"); break;
             case ByteCodeInstruction::kVector: printf("vector%d", READ8()); break;
+            case ByteCodeInstruction::kWriteExternal: printf("writeexternal %d", READ8()); break;
             default: printf("unknown(%d)\n", *(ip - 1)); SkASSERT(false);
         }
         printf("\n");
@@ -321,8 +323,7 @@ void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
                 ip += count;
                 break;
             }
-            BINARY_OP(kMultiplyS, int32_t, fSigned, *)
-            BINARY_OP(kMultiplyU, uint32_t, fUnsigned, *)
+            BINARY_OP(kMultiplyI, int32_t, fSigned, *)
             BINARY_OP(kMultiplyF, float, fFloat, *)
             case ByteCodeInstruction::kNot: {
                 Value& top = TOP();
@@ -355,6 +356,12 @@ void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
             case ByteCodeInstruction::kPushImmediate:
                 PUSH(Value((int) READ32()));
                 break;
+            case ByteCodeInstruction::kReadExternal: {
+                int target = READ8();
+                ++sp;
+                fByteCode->fExternalValues[target]->read(sp);
+                break;
+            }
             case ByteCodeInstruction::kRemainderF: {
                 float b = POP().fFloat;
                 Value* a = &TOP();
@@ -489,8 +496,7 @@ void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
                         }
                         break;
                     }
-                    VECTOR_BINARY_OP(kMultiplyS, int32_t, fSigned, *)
-                    VECTOR_BINARY_OP(kMultiplyU, uint32_t, fUnsigned, *)
+                    VECTOR_BINARY_OP(kMultiplyI, int32_t, fSigned, *)
                     VECTOR_BINARY_OP(kMultiplyF, float, fFloat, *)
                     case ByteCodeInstruction::kRemainderF: {
                         Value result[VECTOR_MAX];
@@ -505,6 +511,12 @@ void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
                         }
                         break;
                     }
+                    case ByteCodeInstruction::kReadExternal: {
+                        sp += count;
+                        int target = READ8();
+                        fByteCode->fExternalValues[target]->read(sp);
+                        break;
+                    }
                     VECTOR_BINARY_OP(kRemainderS, int32_t, fSigned, %)
                     VECTOR_BINARY_OP(kRemainderU, uint32_t, fUnsigned, %)
                     case ByteCodeInstruction::kStore: {
@@ -515,10 +527,22 @@ void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
                     }
                     VECTOR_BINARY_OP(kSubtractI, int32_t, fSigned, -)
                     VECTOR_BINARY_OP(kSubtractF, float, fFloat, -)
+                    case ByteCodeInstruction::kWriteExternal: {
+                        int target = READ8();
+                        fByteCode->fExternalValues[target]->write(sp);
+                        POP();
+                        break;
+                    }
                     default:
                         printf("unsupported instruction %d\n", (int) inst);
                         SkASSERT(false);
                 }
+                break;
+            }
+            case ByteCodeInstruction::kWriteExternal: {
+                int target = READ8();
+                fByteCode->fExternalValues[target]->write(sp);
+                POP();
                 break;
             }
             default:
