@@ -73,6 +73,9 @@ def RunSteps(api):
     if task_json.get('nopatch_log'):
       api.step.active_result.presentation.links[
           'nopatch compilation log link'] = task_json['nopatch_log']
+    # Add link to force sync of the Android checkout.
+    api.step.active_result.presentation.links['force sync link'] = (
+        'https://skia-android-compile.corp.goog/')
     raise e
 
 
