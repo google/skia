@@ -29,8 +29,6 @@ public:
                     GrSurfaceOrigin, sk_sp<SkColorSpace>);
     ~SkImage_GpuYUVA() override;
 
-    GrSemaphoresSubmitted onFlush(GrContext*, const GrFlushInfo&) override;
-
     // This returns the single backing proxy if the YUV channels have already been flattened but
     // nullptr if they have not.
     GrTextureProxy* peekProxy() const override;
@@ -57,8 +55,6 @@ public:
 
     // Returns a ref-ed texture proxy with miplevels
     sk_sp<GrTextureProxy> asMippedTextureProxyRef(GrRecordingContext*) const;
-
-    bool testingOnly_IsFlattened() const { return SkToBool(fRGBProxy); }
 
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makeYUVAPromiseTexture.

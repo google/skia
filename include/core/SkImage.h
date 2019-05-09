@@ -726,23 +726,6 @@ public:
     */
     bool isValid(GrContext* context) const;
 
-    /** Flushes any pending uses of texture-backed images in the GPU backend. If the image is not
-        texture-backed (including promise texture images) or if the the GrContext does not
-        have the same context ID as the context backing the image then this is a no-op.
-
-        If the image was not used in any non-culled draws recorded on the passed GrContext then
-        this is a no-op unless the GrFlushInfo contains semaphores, a finish proc, or uses
-        kSyncCpu_GrFlushFlag. Those are respected even when the image has not been used.
-
-        @param context  the context on which to flush pending usages of the image.
-        @param info     flush options
-        @return         one of: GrSemaphoresSubmitted::kYes, GrSemaphoresSubmitted::kNo
-     */
-    GrSemaphoresSubmitted flush(GrContext* context, const GrFlushInfo& flushInfo);
-
-    /** Version of flush() that uses a default GrFlushInfo. */
-    void flush(GrContext*);
-
     /** Retrieves the back-end texture. If SkImage has no back-end texture, an invalid
         object is returned. Call GrBackendTexture::isValid to determine if the result
         is valid.

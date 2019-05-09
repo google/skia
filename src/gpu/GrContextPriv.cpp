@@ -24,12 +24,12 @@
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
 
-#define ASSERT_OWNED_PROXY(P) \
+#define ASSERT_OWNED_PROXY_PRIV(P) \
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == fContext)
-#define ASSERT_SINGLE_OWNER \
+#define ASSERT_SINGLE_OWNER_PRIV \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->singleOwner());)
-#define RETURN_VALUE_IF_ABANDONED(value) if (fContext->abandoned()) { return (value); }
-#define RETURN_IF_ABANDONED RETURN_VALUE_IF_ABANDONED(void)
+#define RETURN_IF_ABANDONED_PRIV if (fContext->abandoned()) { return; }
+#define RETURN_FALSE_IF_ABANDONED_PRIV if (fContext->abandoned()) { return false; }
 
 sk_sp<const GrCaps> GrContextPriv::refCaps() const {
     return fContext->refCaps();
@@ -103,7 +103,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithF
 sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackendTexture& tex,
                                                                  GrSurfaceOrigin origin,
                                                                  sk_sp<SkColorSpace> colorSpace) {
-    ASSERT_SINGLE_OWNER
+    ASSERT_SINGLE_OWNER_PRIV
 
     sk_sp<GrSurfaceProxy> proxy = this->proxyProvider()->wrapBackendTexture(
             tex, origin, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
@@ -122,7 +122,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
                                                                    const SkSurfaceProps* props,
                                                                    ReleaseProc releaseProc,
                                                                    ReleaseContext releaseCtx) {
-    ASSERT_SINGLE_OWNER
+    ASSERT_SINGLE_OWNER_PRIV
     SkASSERT(sampleCnt > 0);
 
     sk_sp<GrTextureProxy> proxy(this->proxyProvider()->wrapRenderableBackendTexture(
@@ -143,7 +143,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
                                                 const SkSurfaceProps* surfaceProps,
                                                 ReleaseProc releaseProc,
                                                 ReleaseContext releaseCtx) {
-    ASSERT_SINGLE_OWNER
+    ASSERT_SINGLE_OWNER_PRIV
 
     sk_sp<GrSurfaceProxy> proxy = this->proxyProvider()->wrapBackendRenderTarget(
             backendRT, origin, releaseProc, releaseCtx);
@@ -162,7 +162,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
                                                      int sampleCnt,
                                                      sk_sp<SkColorSpace> colorSpace,
                                                      const SkSurfaceProps* props) {
-    ASSERT_SINGLE_OWNER
+    ASSERT_SINGLE_OWNER_PRIV
     SkASSERT(sampleCnt > 0);
     sk_sp<GrSurfaceProxy> proxy(
             this->proxyProvider()->wrapBackendTextureAsRenderTarget(tex, origin, sampleCnt));
@@ -177,7 +177,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeVulkanSecondaryCBRenderTargetContext(
         const SkImageInfo& imageInfo, const GrVkDrawableInfo& vkInfo, const SkSurfaceProps* props) {
-    ASSERT_SINGLE_OWNER
+    ASSERT_SINGLE_OWNER_PRIV
     sk_sp<GrSurfaceProxy> proxy(
             this->proxyProvider()->wrapVulkanSecondaryCBAsRenderTarget(imageInfo, vkInfo));
     if (!proxy) {
@@ -189,22 +189,23 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeVulkanSecondaryCBRenderTargetCon
                                                            props);
 }
 
-GrSemaphoresSubmitted GrContextPriv::flushSurfaces(GrSurfaceProxy* proxies[], int numProxies,
-                                                   const GrFlushInfo& info) {
-    ASSERT_SINGLE_OWNER
-    RETURN_VALUE_IF_ABANDONED(GrSemaphoresSubmitted::kNo)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "flushSurfaces", fContext);
-    SkASSERT(numProxies >= 0);
-    SkASSERT(!numProxies || proxies);
-    for (int i = 0; i < numProxies; ++i) {
-        SkASSERT(proxies[i]);
-        ASSERT_OWNED_PROXY(proxies[i]);
-    }
-    return fContext->drawingManager()->flushSurfaces(
-            proxies, numProxies, SkSurface::BackendSurfaceAccess::kNoAccess, info);
+void GrContextPriv::flush(GrSurfaceProxy* proxy) {
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_IF_ABANDONED_PRIV
+    ASSERT_OWNED_PROXY_PRIV(proxy);
+
+    fContext->drawingManager()->flush(proxy, SkSurface::BackendSurfaceAccess::kNoAccess,
+                                      GrFlushInfo());
 }
 
-void GrContextPriv::flushSurface(GrSurfaceProxy* proxy) { this->flushSurfaces(&proxy, 1, {}); }
+void GrContextPriv::flushSurface(GrSurfaceProxy* proxy) {
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_IF_ABANDONED_PRIV
+    SkASSERT(proxy);
+    ASSERT_OWNED_PROXY_PRIV(proxy);
+    fContext->drawingManager()->flushSurface(proxy,
+            SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+}
 
 static bool valid_premul_color_type(GrColorType ct) {
     switch (ct) {
@@ -276,11 +277,11 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
                                       int height, GrColorType dstColorType,
                                       SkColorSpace* dstColorSpace, void* buffer, size_t rowBytes,
                                       uint32_t pixelOpsFlags) {
-    ASSERT_SINGLE_OWNER
-    RETURN_VALUE_IF_ABANDONED(false)
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_FALSE_IF_ABANDONED_PRIV
     SkASSERT(src);
     SkASSERT(buffer);
-    ASSERT_OWNED_PROXY(src->asSurfaceProxy());
+    ASSERT_OWNED_PROXY_PRIV(src->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels", fContext);
 
     GrSurfaceProxy* srcProxy = src->asSurfaceProxy();
@@ -430,7 +431,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
         sk_bzero(buffer, tempPixmap.computeByteSize());
     }
 
-    this->flushSurface(srcProxy);
+    this->flush(srcProxy);
 
     if (!fContext->fGpu->readPixels(srcSurface, left, top, width, height, allowedColorType, buffer,
                                     rowBytes)) {
@@ -460,11 +461,11 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
                                        int height, GrColorType srcColorType,
                                        SkColorSpace* srcColorSpace, const void* buffer,
                                        size_t rowBytes, uint32_t pixelOpsFlags) {
-    ASSERT_SINGLE_OWNER
-    RETURN_VALUE_IF_ABANDONED(false)
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_FALSE_IF_ABANDONED_PRIV
     SkASSERT(dst);
     SkASSERT(buffer);
-    ASSERT_OWNED_PROXY(dst->asSurfaceProxy());
+    ASSERT_OWNED_PROXY_PRIV(dst->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "writeSurfacePixels", fContext);
 
     if (GrColorType::kUnknown == srcColorType) {
@@ -631,7 +632,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     // giving the drawing manager the chance of skipping the flush (i.e., by passing in the
     // destination proxy)
     // TODO: should this policy decision just be moved into the drawing manager?
-    this->flushSurface(caps->preferVRAMUseOverFlushes() ? dstProxy : nullptr);
+    this->flush(caps->preferVRAMUseOverFlushes() ? dstProxy : nullptr);
 
     return this->getGpu()->writePixels(dstSurface, left, top, width, height, srcColorType, buffer,
                                        rowBytes);
