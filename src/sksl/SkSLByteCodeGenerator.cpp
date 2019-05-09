@@ -290,8 +290,8 @@ void ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b) {
                                         ByteCodeInstruction::kDivideF);
             break;
         case Token::Kind::STAR:
-            this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kMultiplyS,
-                                        ByteCodeInstruction::kMultiplyU,
+            this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kMultiplyI,
+                                        ByteCodeInstruction::kMultiplyI,
                                         ByteCodeInstruction::kMultiplyF);
             break;
         default:
@@ -345,6 +345,19 @@ void ByteCodeGenerator::writeConstructor(const Constructor& c) {
             }
         }
     }
+}
+
+void ByteCodeGenerator::writeExternalValue(const ExternalValueReference& e) {
+    int count = slot_count(e.fValue->type());
+    if (count > 1) {
+        this->write(ByteCodeInstruction::kVector);
+        this->write8(count);
+    }
+    this->write(ByteCodeInstruction::kReadExternal);
+    int index = fOutput->fExternalValues.size();
+    fOutput->fExternalValues.push_back(e.fValue);
+    SkASSERT(index <= 255);
+    this->write8(index);
 }
 
 void ByteCodeGenerator::writeFieldAccess(const FieldAccess& f) {
@@ -489,6 +502,9 @@ void ByteCodeGenerator::writeExpression(const Expression& e) {
         case Expression::kConstructor_Kind:
             this->writeConstructor((Constructor&) e);
             break;
+        case Expression::kExternalValue_Kind:
+            this->writeExternalValue((ExternalValueReference&) e);
+            break;
         case Expression::kFieldAccess_Kind:
             this->writeFieldAccess((FieldAccess&) e);
             break;
@@ -542,6 +558,39 @@ void ByteCodeGenerator::writeTarget(const Expression& e) {
             SkASSERT(false);
     }
 }
+
+class ByteCodeExternalValueLValue : public ByteCodeGenerator::LValue {
+public:
+    ByteCodeExternalValueLValue(ByteCodeGenerator* generator, ExternalValue& value, int index)
+        : INHERITED(*generator)
+        , fCount(slot_count(value.type()))
+        , fIndex(index) {}
+
+    void load() override {
+        if (fCount > 1) {
+            fGenerator.write(ByteCodeInstruction::kVector);
+            fGenerator.write8(fCount);
+        }
+        fGenerator.write(ByteCodeInstruction::kReadExternal);
+        fGenerator.write8(fIndex);
+    }
+
+    void store() override {
+        if (fCount > 1) {
+            fGenerator.write(ByteCodeInstruction::kVector);
+            fGenerator.write8(fCount);
+        }
+        fGenerator.write(ByteCodeInstruction::kWriteExternal);
+        fGenerator.write8(fIndex);
+    }
+
+private:
+    typedef LValue INHERITED;
+
+    int fCount;
+
+    int fIndex;
+};
 
 class ByteCodeSwizzleLValue : public ByteCodeGenerator::LValue {
 public:
@@ -613,6 +662,12 @@ private:
 
 std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Expression& e) {
     switch (e.fKind) {
+        case Expression::kExternalValue_Kind: {
+            ExternalValue* value = ((ExternalValueReference&) e).fValue;
+            int index = fOutput->fExternalValues.size();
+            fOutput->fExternalValues.push_back(value);
+            return std::unique_ptr<LValue>(new ByteCodeExternalValueLValue(this, *value, index));
+        }
         case Expression::kIndex_Kind:
             // not yet implemented
             abort();
