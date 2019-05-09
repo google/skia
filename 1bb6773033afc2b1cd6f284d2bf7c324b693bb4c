@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0999a61b_026703bc",
+        "filename": "src/gpu/effects/GrCircleEffect.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-09T19:35:55Z",
+      "side": 1,
+      "message": "My thought on keeping d as half was that we only really need the values in 0..1 to have high precision for AA quality.",
+      "range": {
+        "startLine": 53,
+        "startChar": 4,
+        "endLine": 59,
+        "endChar": 5
+      },
+      "revId": "1bb6773033afc2b1cd6f284d2bf7c324b693bb4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
