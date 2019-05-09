@@ -26,6 +26,11 @@
  */
 class GrOctoBounds {
 public:
+    GrOctoBounds() = default;
+    GrOctoBounds(const SkRect& bounds, const SkRect& bounds45) {
+        this->set(bounds, bounds45);
+    }
+
     void set(const SkRect& bounds, const SkRect& bounds45) {
         fBounds = bounds;
         fBounds45 = bounds45;
@@ -47,6 +52,11 @@ public:
     float right45() const { return fBounds45.right(); }
     float bottom45() const { return fBounds45.bottom(); }
 
+    bool operator==(const GrOctoBounds& that) {
+        return fBounds == that.fBounds && fBounds45 == that.fBounds45;
+    }
+    bool operator!=(const GrOctoBounds& that) { return !(*this == that); }
+
     void roundOut(SkIRect* out) const { fBounds.roundOut(out); }
 
     GrOctoBounds makeOffset(float dx, float dy) const {
@@ -66,6 +76,13 @@ public:
         fBounds45.outset(radius*SK_ScalarSqrt2, radius*SK_ScalarSqrt2);
         SkDEBUGCODE(this->assertBoundsAreTight());
     }
+
+    // Clips the octo bounds by a clip rect and ensures the resulting bounds are fully tightened.
+    // Returns false if the octagon and clipRect do not intersect at all.
+    //
+    // NOTE: Does not perform a trivial containment test before the clip routine. It is probably a
+    // good idea to not call this method if 'this->bounds()' are fully contained within 'clipRect'.
+    bool SK_WARN_UNUSED_RESULT clip(const SkIRect& clipRect);
 
     // The 45-degree bounding box resides in "| 1  -1 | * coords" space.
     //                                        | 1   1 |

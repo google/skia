@@ -151,6 +151,7 @@ tests_sources = [
   "$_tests/MetaDataTest.cpp",
   "$_tests/MipMapTest.cpp",
   "$_tests/NonlinearBlendingTest.cpp",
+  "$_tests/OctoBoundsTest.cpp",
   "$_tests/OSPathTest.cpp",
   "$_tests/OffsetSimplePolyTest.cpp",
   "$_tests/OnFlushCallbackTest.cpp",
