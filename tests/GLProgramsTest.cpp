@@ -262,6 +262,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     sk_sp<GrTextureProxy> proxies[2];
 
     // setup dummy textures
+    GrMipMapped mipMapped = GrMipMapped(context->priv().caps()->mipMapSupport());
     {
         GrSurfaceDesc dummyDesc;
         dummyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -271,8 +272,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
         proxies[0] = proxyProvider->createProxy(format, dummyDesc, kBottomLeft_GrSurfaceOrigin,
-                                                GrMipMapped::kYes, SkBackingFit::kExact,
-                                                SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
+                                                mipMapped, SkBackingFit::kExact, SkBudgeted::kNo,
+                                                GrInternalSurfaceFlags::kNone);
     }
     {
         GrSurfaceDesc dummyDesc;
@@ -283,8 +284,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
         proxies[1] = proxyProvider->createProxy(format, dummyDesc, kTopLeft_GrSurfaceOrigin,
-                                                GrMipMapped::kYes, SkBackingFit::kExact,
-                                                SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
+                                                mipMapped, SkBackingFit::kExact, SkBudgeted::kNo,
+                                                GrInternalSurfaceFlags::kNone);
     }
 
     if (!proxies[0] || !proxies[1]) {
