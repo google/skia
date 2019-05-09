@@ -264,7 +264,7 @@ GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info) {
         return GrSemaphoresSubmitted::kNo;
     }
 
-    return this->drawingManager()->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
+    return this->drawingManager()->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
                                          info);
 }
 

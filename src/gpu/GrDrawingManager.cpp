@@ -194,12 +194,9 @@ void GrDrawingManager::freeGpuResources() {
 }
 
 // MDB TODO: make use of the 'proxy' parameter.
-GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[],
-                                              int numProxies,
+GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxy,
                                               SkSurface::BackendSurfaceAccess access,
                                               const GrFlushInfo& info) {
-    SkASSERT(numProxies >= 0);
-    SkASSERT(!numProxies || proxies);
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
     if (fFlushing || this->wasAbandoned()) {
@@ -211,14 +208,9 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[],
 
     SkDEBUGCODE(this->validate());
 
-    if (kNone_GrFlushFlags == info.fFlags && !info.fNumSemaphores && !info.fFinishedProc) {
-        bool canSkip = numProxies > 0;
-        for (int i = 0; i < numProxies && canSkip; ++i) {
-            canSkip = !fDAG.isUsed(proxies[i]) && !this->isDDLTarget(proxies[i]);
-        }
-        if (canSkip) {
-            return GrSemaphoresSubmitted::kNo;
-        }
+    if (kNone_GrFlushFlags == info.fFlags && !info.fNumSemaphores && !info.fFinishedProc &&
+            proxy && !this->isDDLTarget(proxy) && !fDAG.isUsed(proxy)) {
+        return GrSemaphoresSubmitted::kNo;
     }
 
     auto direct = fContext->priv().asDirectContext();
@@ -357,7 +349,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[],
     opMemoryPool->isEmpty();
 #endif
 
-    GrSemaphoresSubmitted result = gpu->finishFlush(proxies, numProxies, access, info);
+    GrSemaphoresSubmitted result = gpu->finishFlush(proxy, access, info);
 
     flushState.deinstantiateProxyTracker()->deinstantiateAllProxies();
 
@@ -440,7 +432,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
         onFlushOpList = nullptr;
         (*numOpListsExecuted)++;
         if (*numOpListsExecuted >= kMaxOpListsBeforeFlush) {
-            flushState->gpu()->finishFlush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
+            flushState->gpu()->finishFlush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
                                            GrFlushInfo());
             *numOpListsExecuted = 0;
         }
@@ -458,7 +450,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
         }
         (*numOpListsExecuted)++;
         if (*numOpListsExecuted >= kMaxOpListsBeforeFlush) {
-            flushState->gpu()->finishFlush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
+            flushState->gpu()->finishFlush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
                                            GrFlushInfo());
             *numOpListsExecuted = 0;
         }
@@ -477,15 +469,13 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
     return anyOpListsExecuted;
 }
 
-GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[], int n,
-                                                      SkSurface::BackendSurfaceAccess access,
-                                                      const GrFlushInfo& info) {
+GrSemaphoresSubmitted GrDrawingManager::flushSurface(
+        GrSurfaceProxy* proxy, SkSurface::BackendSurfaceAccess access, const GrFlushInfo& info) {
     if (this->wasAbandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }
     SkDEBUGCODE(this->validate());
-    SkASSERT(proxies);
-    SkASSERT(n > 0);
+    SkASSERT(proxy);
 
     auto direct = fContext->priv().asDirectContext();
     if (!direct) {
@@ -498,25 +488,21 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
     }
 
     // TODO: It is important to upgrade the drawingmanager to just flushing the
-    // portion of the DAG required by 'proxies' in order to restore some of the
+    // portion of the DAG required by 'proxy' in order to restore some of the
     // semantics of this method.
-    GrSemaphoresSubmitted result = this->flush(proxies, n, access, info);
-    for (int i = 0; i < n; ++i) {
-        if (!proxies[i]->isInstantiated()) {
-            return result;
-        }
+    GrSemaphoresSubmitted result = this->flush(proxy, access, info);
+    if (!proxy->isInstantiated()) {
+        return result;
     }
 
-    for (int i = 0; i < n; ++i) {
-        GrSurface* surface = proxies[i]->peekSurface();
-        if (auto* rt = surface->asRenderTarget()) {
-            gpu->resolveRenderTarget(rt);
-        }
-        if (auto* tex = surface->asTexture()) {
-            if (tex->texturePriv().mipMapped() == GrMipMapped::kYes &&
-                tex->texturePriv().mipMapsAreDirty()) {
-                gpu->regenerateMipMapLevels(tex);
-            }
+    GrSurface* surface = proxy->peekSurface();
+    if (auto* rt = surface->asRenderTarget()) {
+        gpu->resolveRenderTarget(rt);
+    }
+    if (auto* tex = surface->asTexture()) {
+        if (tex->texturePriv().mipMapped() == GrMipMapped::kYes &&
+            tex->texturePriv().mipMapsAreDirty()) {
+            gpu->regenerateMipMapLevels(tex);
         }
     }
 
@@ -745,7 +731,7 @@ void GrDrawingManager::flushIfNecessary() {
 
     auto resourceCache = direct->priv().getResourceCache();
     if (resourceCache && resourceCache->requestsFlush()) {
-        this->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+        this->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
         resourceCache->purgeAsNeeded();
     }
 }

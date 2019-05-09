@@ -43,9 +43,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
-    canvas->clear(SK_ColorGREEN);
-    auto image = surface->makeImageSnapshot();
-
+    // We flush the surface first just to get rid of any discards/clears that got recorded from
+    // making the surface.
+    surface->flush();
     GrFlushInfo flushInfoSyncCpu;
     flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
     ctx->flush(flushInfoSyncCpu);
@@ -78,9 +78,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     ctx->flush(flushInfoSyncCpu);
     REPORTER_ASSERT(reporter, count == 2);
 
-    // Test flushing via the SkImage
-    canvas->drawImage(image, 0, 0);
-    image->flush(ctx, flushInfoFinishedProc);
+    // Test flushing via the GrContext
+    canvas->clear(SK_ColorBLUE);
+    ctx->flush(flushInfoFinishedProc);
     if (expectAsyncCallback) {
         // On Vulkan the command buffer we just submitted may or may not have finished immediately
         // so the finish proc may not have been called.
@@ -91,23 +91,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     ctx->flush(flushInfoSyncCpu);
     REPORTER_ASSERT(reporter, count == 3);
 
-    // Test flushing via the GrContext
-    canvas->clear(SK_ColorBLUE);
-    ctx->flush(flushInfoFinishedProc);
-    if (expectAsyncCallback) {
-        // On Vulkan the command buffer we just submitted may or may not have finished immediately
-        // so the finish proc may not have been called.
-        REPORTER_ASSERT(reporter, count == 3 || count == 4);
-    } else {
-        REPORTER_ASSERT(reporter, count == 4);
-    }
-    ctx->flush(flushInfoSyncCpu);
-    REPORTER_ASSERT(reporter, count == 4);
-
     // There is no work on the surface so flushing may immediately call the finished proc.
     ctx->flush(flushInfoFinishedProc);
-    REPORTER_ASSERT(reporter, count == 4 || count == 5);
-    busy_wait_for_callback(&count, 5, ctx, reporter);
+    REPORTER_ASSERT(reporter, count == 3 || count == 4);
+    busy_wait_for_callback(&count, 4, ctx, reporter);
 
     count = 0;
     int count2 = 0;
