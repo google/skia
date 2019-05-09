@@ -1376,6 +1376,19 @@ DEF_TEST(Image_nonfinite_dst, reporter) {
     }
 }
 
+static sk_sp<SkImage> make_yuva_image(GrContext* c) {
+    SkAutoPixmapStorage pm;
+    pm.alloc(SkImageInfo::Make(1, 1, kAlpha_8_SkColorType, kPremul_SkAlphaType));
+    const SkPixmap pmaps[] = {pm, pm, pm, pm};
+    SkYUVAIndex indices[] = {{0, SkColorChannel::kA},
+                             {1, SkColorChannel::kA},
+                             {2, SkColorChannel::kA},
+                             {3, SkColorChannel::kA}};
+
+    return SkImage::MakeFromYUVAPixmaps(c, kJPEG_SkYUVColorSpace, pmaps, indices,
+                                        SkISize::Make(1, 1), kTopLeft_GrSurfaceOrigin, false);
+}
+
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     auto c = ctxInfo.grContext();
     auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
@@ -1386,15 +1399,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     s->getCanvas()->clear(SK_ColorBLUE);
     auto i1 = s->makeImageSnapshot();
     s->getCanvas()->clear(SK_ColorGREEN);
-
     // Make a YUVA image.
-    SkAutoPixmapStorage pm;
-    pm.alloc(SkImageInfo::Make(1, 1, kAlpha_8_SkColorType, kPremul_SkAlphaType));
-    const SkPixmap pmaps[] = {pm, pm, pm, pm};
-    SkYUVAIndex indices[] = {{0, SkColorChannel::kA}, {1, SkColorChannel::kA},
-                             {2, SkColorChannel::kA}, {3, SkColorChannel::kA}};
-    auto i2 = SkImage::MakeFromYUVAPixmaps(c, kJPEG_SkYUVColorSpace, pmaps, indices,
-                                           SkISize::Make(1, 1), kTopLeft_GrSurfaceOrigin, false);
+    auto i2 = make_yuva_image(c);
 
     // Flush all the setup work we did above and then make little lambda that reports the flush
     // count delta since the last time it was called.
@@ -1448,4 +1454,38 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     // Since we just did a simple image draw it should not have been flattened.
     REPORTER_ASSERT(reporter,
                     !static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->testingOnly_IsFlattened());
+    REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
+
+    // Flatten it and repeat.
+    as_IB(i2.get())->asTextureProxyRef(c);
+    REPORTER_ASSERT(reporter,
+                    static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->testingOnly_IsFlattened());
+    REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
+    s->getCanvas()->drawImage(i2, 0, 0);
+    // Flushing image 0 should do nothing.
+    i0->flush(c);
+    REPORTER_ASSERT(reporter, numFlushes() == 0);
+    // Flushing image 1 do nothing.
+    i1->flush(c);
+    REPORTER_ASSERT(reporter, numFlushes() == 0);
+    // Flushing image 2 should flush.
+    i2->flush(c);
+    REPORTER_ASSERT(reporter, numFlushes() == 1);
+
+    // Test case where flatten happens before the first flush.
+    i2 = make_yuva_image(c);
+    as_IB(i2.get())->asTextureProxyRef(c);
+    REPORTER_ASSERT(reporter,
+                    static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->testingOnly_IsFlattened());
+    REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
+    s->getCanvas()->drawImage(i2, 0, 0);
+    // Flushing image 0 should do nothing.
+    i0->flush(c);
+    REPORTER_ASSERT(reporter, numFlushes() == 0);
+    // Flushing image 1 do nothing.
+    i1->flush(c);
+    REPORTER_ASSERT(reporter, numFlushes() == 0);
+    // Flushing image 2 should flush.
+    i2->flush(c);
+    REPORTER_ASSERT(reporter, numFlushes() == 1);
 }
