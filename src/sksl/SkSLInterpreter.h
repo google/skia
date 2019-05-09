@@ -64,6 +64,11 @@ public:
      */
     void run(const ByteCodeFunction& f, Value args[], Value* outReturn);
 
+    /**
+     * Updates the global inputs.
+     */
+    void setInputs(Value inputs[]);
+
 private:
     StackIndex stackAlloc(int count);
 
