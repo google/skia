@@ -42,19 +42,23 @@ public:
                                                 SkColorType, sk_sp<SkColorSpace>) const final;
 
     virtual bool isYUVA() const override { return true; }
+    virtual bool asYUVATextureProxiesRef(sk_sp<GrTextureProxy> proxies[4],
+                                         SkYUVAIndex yuvaIndices[4],
+                                         SkYUVColorSpace* yuvColorSpace) const override {
+        for (int i = 0; i < 4; ++i) {
+            proxies[i] = fProxies[i];
+            yuvaIndices[i] = fYUVAIndices[i];
+        }
+        *yuvColorSpace = fYUVColorSpace;
+        return true;
+    }
 
     bool setupMipmapsForPlanes(GrRecordingContext*) const;
 
     // Returns a ref-ed texture proxy with miplevels
     sk_sp<GrTextureProxy> asMippedTextureProxyRef(GrRecordingContext*) const;
 
-#if GR_TEST_UTILS
-    bool testingOnly_IsFlattened() const {
-        // We should only have the flattened proxy or the planar proxies at one point in time.
-        SkASSERT(SkToBool(fRGBProxy) != SkToBool(fProxies[0]));
-        return SkToBool(fRGBProxy);
-    }
-#endif
+    bool testingOnly_IsFlattened() const { return SkToBool(fRGBProxy); }
 
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makeYUVAPromiseTexture.
