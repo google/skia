@@ -1,0 +1,63 @@
+{
+   "MaxCount": 6000,
+   "Duration": 5,
+   "Rate": 2000,
+   "Life": {
+      "Input": {
+         "Source": "Age",
+         "TileMode": "Repeat",
+         "Left": 0,
+         "Right": 1
+      },
+      "XValues": [],
+      "Segments": [
+         {
+            "Type": "Constant",
+            "Ranged": true,
+            "Bidirectional": false,
+            "A0": 2,
+            "A1": 4
+         }
+      ]
+   },
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 2
+   },
+   "Spawn": [
+      {
+         "Type": "SkFrameAffector",
+         "Enabled": true,
+         "Curve": {
+            "Input": {
+               "Source": "Random",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Linear",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0,
+                  "D0": 1
+               }
+            ]
+         }
+      },
+      {
+         "Type": "SkInterpreterAffector",
+         "Enabled": true,
+         "Code": "layout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nvoid main(in    float age,\n          in    float invLifetime,\n          inout float2 pos,\n          inout float2 dir,\n          inout float  scale,\n          inout float2 vel,\n          inout float  spin,\n          inout float4 color,\n          in    float  t) {\n  float r = t;\n  vel.x = 50 + (30 * r);\n  r = (r * 7) % 1;\n  vel.y = (r * 20) - 10;\n  r = (r * 11) % 1;\n}\n"
+      }
+   ],
+   "Update": [
+      {
+         "Type": "SkInterpreterAffector",
+         "Enabled": true,
+         "Code": "layout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nvoid main(in    float age,\n          in    float invLifetime,\n          inout float2 pos,\n          inout float2 dir,\n          inout float  scale,\n          inout float2 vel,\n          inout float  spin,\n          inout float4 color,\n          in    float  t) {\n  color.r = age;\n  color.g = 1 - age;\n\n  float x = age;\n  float ix = 1 - age;\n\n  scale = 0.5 * ix*ix*ix + 3*ix*ix*x + 2*3*ix*x*x + 0.5*x*x*x;\n\n  vel.y += 20.0 * dt;\n}\n"
+      }
+   ]
+}

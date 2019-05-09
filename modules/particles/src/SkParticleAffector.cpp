@@ -14,6 +14,8 @@
 #include "include/utils/SkTextUtils.h"
 #include "modules/particles/include/SkCurve.h"
 #include "modules/particles/include/SkParticleData.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLInterpreter.h"
 
 
 void SkParticleAffector::apply(const SkParticleUpdateParams& params,
@@ -433,6 +435,78 @@ private:
     SkColorCurve fCurve;
 };
 
+static const char* kDefaultCode =
+    "layout(ctype=float) in uniform float dt;\n"
+    "layout(ctype=float) in uniform float effectAge;\n"
+    "\n"
+    "void main(in    float age,\n"
+    "          in    float invLifetime,\n"
+    "          inout float2 pos,\n"
+    "          inout float2 dir,\n"
+    "          inout float  scale,\n"
+    "          inout float2 vel,\n"
+    "          inout float  spin,\n"
+    "          inout float4 color,\n"
+    "          in    float  t) {\n"
+    "}\n";
+
+class SkInterpreterAffector : public SkParticleAffector {
+public:
+    SkInterpreterAffector() : fCode(kDefaultCode) {
+        this->rebuild();
+    }
+
+    REFLECTED(SkInterpreterAffector, SkParticleAffector)
+
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+        fInterpreter->setInputs((SkSL::Interpreter::Value*)&params);
+        for (int i = 0; i < count; ++i) {
+            fInterpreter->run(*fMain, (SkSL::Interpreter::Value*)&ps[i].fAge, nullptr);
+        }
+    }
+
+    void visitFields(SkFieldVisitor* v) override {
+        SkString oldCode = fCode;
+
+        SkParticleAffector::visitFields(v);
+        v->visit("Code", fCode);
+
+        if (fCode != oldCode) {
+            this->rebuild();
+        }
+    }
+
+private:
+    SkString fCode;
+
+    // Cached
+    std::unique_ptr<SkSL::Interpreter> fInterpreter;
+    SkSL::ByteCodeFunction* fMain;
+
+    void rebuild() {
+        SkSL::Compiler compiler;
+        SkSL::Program::Settings settings;
+        auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                               SkSL::String(fCode.c_str()), settings);
+        if (!program) {
+            SkDebugf("%s\n", compiler.errorText().c_str());
+            return;
+        }
+
+        auto byteCode = compiler.toByteCode(*program);
+        if (compiler.errorCount()) {
+            SkDebugf("%s\n", compiler.errorText().c_str());
+            return;
+        }
+
+        // These will be replaced with the real inputs in onApply, before running
+        SkParticleUpdateParams defaultInputs = { 0.0f, 0.0f, 0 };
+        fMain = byteCode->fFunctions[0].get();
+        fInterpreter.reset(new SkSL::Interpreter(std::move(program), std::move(byteCode),
+                                                 (SkSL::Interpreter::Value*)&defaultInputs));
+    }
+};
+
 void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkParticleAffector);
     REGISTER_REFLECTED(SkLinearVelocityAffector);
@@ -445,6 +519,7 @@ void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkSizeAffector);
     REGISTER_REFLECTED(SkFrameAffector);
     REGISTER_REFLECTED(SkColorAffector);
+    REGISTER_REFLECTED(SkInterpreterAffector);
 }
 
 sk_sp<SkParticleAffector> SkParticleAffector::MakeLinearVelocity(const SkCurve& angle,
