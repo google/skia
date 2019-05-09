@@ -9,6 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRect.h"
+#include "include/effects/SkComposeImageFilter.h"
 #include "include/private/SkSafe32.h"
 #include "src/core/SkFuzzLogging.h"
 #include "src/core/SkImageFilterCache.h"
@@ -289,7 +290,7 @@ bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
 }
 
 bool SkImageFilter::canHandleComplexCTM() const {
-    if (!this->onCanHandleComplexCTM()) {
+    if (this->cropRectIsSet() || !this->onCanHandleComplexCTM()) {
         return false;
     }
     const int count = this->countInputs();
@@ -444,11 +445,62 @@ sk_sp<SkImageFilter> SkImageFilter::MakeMatrixFilter(const SkMatrix& matrix,
 }
 
 sk_sp<SkImageFilter> SkImageFilter::makeWithLocalMatrix(const SkMatrix& matrix) const {
-    // SkLocalMatrixImageFilter takes SkImage* in its factory, but logically that parameter
-    // is *always* treated as a const ptr. Hence the const-cast here.
-    //
-    SkImageFilter* nonConstThis = const_cast<SkImageFilter*>(this);
-    return SkLocalMatrixImageFilter::Make(matrix, sk_ref_sp<SkImageFilter>(nonConstThis));
+    return SkLocalMatrixImageFilter::Make(matrix, this->refMe());
+}
+
+sk_sp<SkImageFilter> SkImageFilter::applyCTM(const SkMatrix& ctm,
+                                             SkMatrix* remainder,
+                                             bool asBackdrop) const {
+    sk_sp<SkImageFilter> input = this->refMe();
+    if (ctm.isScaleTranslate() || this->canHandleComplexCTM()) {
+        // The filter supports the CTM, so leave it as-is if 'remainder' can store the CTM, or wrap
+        // the filter in a local matrix.
+        if (remainder) {
+            *remainder = ctm;
+            return input;
+        } else {
+            return input->makeWithLocalMatrix(ctm);
+        }
+    }
+
+    // Have a complex CTM and a filter that can't support them, so it needs to use the matrix
+    // transform filter that resamples the image contents. If a 'remainder' is provided, decompose
+    // the simple portion of the ctm into that.
+    SkMatrix ctmToEmbed;
+    SkSize scale;
+    if (remainder && ctm.decomposeScale(&scale, &ctmToEmbed)) {
+        // decomposeScale splits ctm into scale * ctmToEmbed, so bake ctmToEmbed into DAG
+        // with a matrix filter and return scale as the remaining matrix for the real CTM.
+        remainder->setScale(scale.fWidth, scale.fHeight);
+    } else {
+        // Unable to decompose
+        // FIXME Ideally we'd embed the entire CTM as part of the matrix image filter, but
+        // the device <-> src bounds calculations for filters are very brittle under perspective,
+        // and can easily run into precision issues (wrong bounds that clip), or performance issues
+        // (producing large source-space images where 80% of the image is compressed into a few
+        // device pixels). A longer term solution for perspective-space image filtering is needed
+        // see skbug.com/9074
+        if (ctm.hasPerspective()) {
+            if (remainder) {
+                *remainder = ctm;
+            }
+            return input;
+        }
+
+        ctmToEmbed = ctm;
+        if (remainder) {
+            remainder->setIdentity();
+        }
+    }
+
+    if (asBackdrop) {
+        SkMatrix invEmbed;
+        if (ctmToEmbed.invert(&invEmbed)) {
+            input = SkComposeImageFilter::Make(std::move(input),
+                            SkMatrixImageFilter::Make(invEmbed, kLow_SkFilterQuality, nullptr));
+        }
+    }
+    return SkMatrixImageFilter::Make(ctmToEmbed, kLow_SkFilterQuality, std::move(input));
 }
 
 sk_sp<SkSpecialImage> SkImageFilter::filterInput(int index,

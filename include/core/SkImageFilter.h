@@ -245,6 +245,34 @@ public:
     bool canHandleComplexCTM() const;
 
     /**
+     * Return an image filter representing this filter applied with the given ctm. This will modify
+     * the DAG as needed if this filter does not support complex CTMs and 'ctm' is not simple. The
+     * ctm matrix will be decomposed such that ctm = A*B; B will be incorporated directly into the
+     * DAG and A must be the ctm set on the context passed to filterImage(). If non-null,
+     * 'remainder' will be set to A.
+     *
+     * If this filter supports complex ctms, or 'ctm' is not complex, then A = ctm and B = I. If
+     * 'remainder' is null, it forces A = I and B = ctm.  When the filter does not support complex
+     * ctms, the ctm is complex, and 'remainder' is not null, then A represents the extracted simple
+     * portion of the ctm, and the complex portion is baked into a new DAG using a matrix filter. In
+     * this case, if asBackdrop is true, the input to this filter will also be transformed by B^-1
+     * since backdrop content is already in device space and must be transformed back into the CTM's
+     * local space.
+     *
+     * This will never return null.
+     */
+    sk_sp<SkImageFilter> applyCTM(const SkMatrix& ctm, SkMatrix* remainder = nullptr,
+                                  bool asBackdrop = false) const;
+
+    friend SK_API bool operator==(const SkImageFilter& a, const SkImageFilter& b) {
+        return a.fUniqueID == b.fUniqueID;
+    }
+
+    friend SK_API bool operator!=(const SkImageFilter& a, const SkImageFilter& b) {
+        return a.fUniqueID != b.fUniqueID;
+    }
+
+    /**
      * Return an imagefilter which transforms its input by the given matrix.
      */
     static sk_sp<SkImageFilter> MakeMatrixFilter(const SkMatrix& matrix,
