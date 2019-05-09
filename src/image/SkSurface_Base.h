@@ -46,6 +46,13 @@ public:
     virtual void onWritePixels(const SkPixmap&, int x, int y) = 0;
 
     /**
+     * Default implementation does a synchronous read and calls the callback.
+     */
+    virtual void onAsyncReadPixels(SkColorType, SkAlphaType, sk_sp<SkColorSpace>,
+                                   const SkIRect& srcRect, ReadPixelsCallback callback,
+                                   ReadPixelsContext context);
+
+    /**
      *  Default implementation:
      *
      *  image = this->newImageSnapshot();

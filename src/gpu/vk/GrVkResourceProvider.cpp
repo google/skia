@@ -363,6 +363,7 @@ void GrVkResourceProvider::checkCommandBuffers() {
         if (!pool->isOpen()) {
             GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
             if (buffer->finished(fGpu)) {
+                pool->releaseResources(fGpu);
                 fActiveCommandPools.removeShuffle(i);
                 this->backgroundReset(pool);
             }
@@ -521,7 +522,6 @@ void GrVkResourceProvider::abandonResources() {
 
 void GrVkResourceProvider::backgroundReset(GrVkCommandPool* pool) {
     SkASSERT(pool->unique());
-    pool->releaseResources(fGpu);
     SkTaskGroup* taskGroup = fGpu->getContext()->priv().getTaskGroup();
     if (taskGroup) {
         taskGroup->add([this, pool]() {
