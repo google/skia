@@ -258,14 +258,15 @@ bool GrContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info) {
+GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info,
+                                       const GrPrepareForExternalIORequests& externalRequests) {
     ASSERT_SINGLE_OWNER
     if (this->abandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }
 
     return this->drawingManager()->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                         info);
+                                         info, externalRequests);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

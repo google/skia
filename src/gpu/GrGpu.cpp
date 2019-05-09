@@ -415,7 +415,8 @@ int GrGpu::findOrAssignSamplePatternKey(GrRenderTarget* renderTarget) {
 GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
                                          int n,
                                          SkSurface::BackendSurfaceAccess access,
-                                         const GrFlushInfo& info) {
+                                         const GrFlushInfo& info,
+                                         const GrPrepareForExternalIORequests& externalRequests) {
     this->stats()->incNumFinishFlushes();
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
 
@@ -437,7 +438,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
             }
         }
     }
-    this->onFinishFlush(proxies, n, access, info);
+    this->onFinishFlush(proxies, n, access, info, externalRequests);
     return this->caps()->semaphoreSupport() ? GrSemaphoresSubmitted::kYes
                                             : GrSemaphoresSubmitted::kNo;
 }

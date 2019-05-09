@@ -98,6 +98,9 @@ public:
     // family is not external or foreign.
     void prepareForPresent(GrVkGpu* gpu);
 
+    // Returns the image to its original queue family
+    void prepareForExternal(GrVkGpu* gpu);
+
     // This simply updates our tracking of the image layout and does not actually do any gpu work.
     // This is only used for mip map generation where we are manually changing the layouts as we
     // blit each layer, and then at the end need to update our tracking.
