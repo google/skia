@@ -28,12 +28,12 @@
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
+    GrGpu* gpu = context->priv().getGpu();
 
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(nullptr, 1, 1,
-                                                                       GrColorType::kRGBA_8888,
-                                                                       false,
-                                                                       GrMipMapped::kNo);
+    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(1, 1,
+                                                                       kRGBA_8888_SkColorType,
+                                                                       GrMipMapped::kNo,
+                                                                       GrRenderable::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     GrVkImageInfo info;
@@ -129,16 +129,17 @@ static void testing_release_proc(void* ctx) {
 // its original queue family.
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkReleaseExternalQueueTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
-    if (!gpu->vkCaps().supportsExternalMemory()) {
+    GrGpu* gpu = context->priv().getGpu();
+    GrVkGpu* vkGpu = static_cast<GrVkGpu*>(gpu);
+    if (!vkGpu->vkCaps().supportsExternalMemory()) {
         return;
     }
 
     for (bool useExternal : {false, true}) {
-        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(nullptr, 1, 1,
-                                                                           GrColorType::kRGBA_8888,
-                                                                           false,
-                                                                           GrMipMapped::kNo);
+        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(1, 1,
+                                                                           kRGBA_8888_SkColorType,
+                                                                           GrMipMapped::kNo,
+                                                                           GrRenderable::kNo);
         sk_sp<SkImage> image;
         int count = 0;
         if (useExternal) {
@@ -180,7 +181,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkReleaseExternalQueueTest, reporter, ctxInfo) {
         if (useExternal) {
             // Testing helper so we claim that we don't need to transition from our fake external
             // queue first.
-            vkTex->setCurrentQueueFamilyToGraphicsQueue(gpu);
+            vkTex->setCurrentQueueFamilyToGraphicsQueue(vkGpu);
         }
 
         image.reset();
@@ -206,13 +207,14 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkReleaseExternalQueueTest, reporter, ctxInfo) {
 // Test to make sure we transition from the EXTERNAL queue even when no layout transition is needed.
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
-    if (!gpu->vkCaps().supportsExternalMemory()) {
+    GrGpu* gpu = context->priv().getGpu();
+    GrVkGpu* vkGpu = static_cast<GrVkGpu*>(gpu);
+    if (!vkGpu->vkCaps().supportsExternalMemory()) {
         return;
     }
 
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-            nullptr, 1, 1, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
+            1, 1, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
     sk_sp<SkImage> image;
     // Make a backend texture with an external queue family and general layout.
     GrVkImageInfo vkInfo;
@@ -239,14 +241,14 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxInfo)
 
     // Change our backend texture to the internal queue, with the same layout. This should force a
     // queue transition even though the layouts match.
-    vkTex->setImageLayout(gpu, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0,
+    vkTex->setImageLayout(vkGpu, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0,
                           VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, false, false);
 
     // Get our image info again and make sure we transitioned queues.
     GrBackendTexture newBackendTexture = image->getBackendTexture(true);
     GrVkImageInfo newVkInfo;
     REPORTER_ASSERT(reporter, newBackendTexture.getVkImageInfo(&newVkInfo));
-    REPORTER_ASSERT(reporter, newVkInfo.fCurrentQueueFamily == gpu->queueIndex());
+    REPORTER_ASSERT(reporter, newVkInfo.fCurrentQueueFamily == vkGpu->queueIndex());
 
     image.reset();
     gpu->testingOnly_flushGpuAndSync();

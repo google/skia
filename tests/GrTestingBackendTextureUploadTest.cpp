@@ -14,7 +14,7 @@
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 
-void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context, GrColorType ct,
+void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColorType ct,
                                bool renderTarget, bool doDataUpload, GrMipMapped mipMapped) {
     const int kWidth = 16;
     const int kHeight = 16;
@@ -35,12 +35,11 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
         return;
     }
 
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(srcBuffer,
-                                                                       kWidth,
-                                                                       kHeight,
-                                                                       ct,
-                                                                       renderTarget,
-                                                                       mipMapped);
+    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+                                        kWidth, kHeight, ct,
+                                        mipMapped,
+                                        renderTarget ? GrRenderable::kYes : GrRenderable::kNo,
+                                        srcBuffer);
     if (!backendTex.isValid()) {
         return;
     }
@@ -71,7 +70,7 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTestingBackendTextureUploadTest, reporter, ctxInfo) {
-    for (auto colorType: { GrColorType::kRGBA_8888, GrColorType::kBGRA_8888 }) {
+    for (auto colorType: { kRGBA_8888_SkColorType, kBGRA_8888_SkColorType }) {
         for (bool renderable: {true, false}) {
             for (bool doDataUpload: {true, false}) {
                 testing_only_texture_test(reporter, ctxInfo.grContext(), colorType,

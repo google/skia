@@ -428,6 +428,8 @@ public:
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                     GrSRGBEncoded srgbEncoded) const override;
 
+    GrColorType getColorTypefromBackendFormat(const GrBackendFormat& format) const override;
+
 #if GR_TEST_UTILS
     GrGLStandard standard() const { return fStandard; }
 #endif
