@@ -75,6 +75,9 @@ public:
 
     bool sampleVariablesSupport() const { return fSampleVariablesSupport; }
 
+    // On QC the sample mask has issues, but it seems to work when rendering to stencil.
+    bool sampleVariablesStencilSupport() const { return fSampleVariablesStencilSupport; }
+
     bool externalTextureSupport() const { return fExternalTextureSupport; }
 
     bool vertexIDSupport() const { return fVertexIDSupport; }
@@ -264,6 +267,7 @@ private:
     bool fPreferFlatInterpolation           : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
     bool fSampleVariablesSupport            : 1;
+    bool fSampleVariablesStencilSupport     : 1;  // QC sample mask isn't broken drawing to stencil.
     bool fExternalTextureSupport            : 1;
     bool fVertexIDSupport                   : 1;
     bool fFPManipulationSupport             : 1;
