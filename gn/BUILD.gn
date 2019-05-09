@@ -384,6 +384,7 @@ config("warnings") {
       "-Wno-unused-member-function",
       "-Wno-unused-template",
       "-Wno-zero-as-null-pointer-constant",
+      "-Wno-thread-safety-negative",
     ]
     cflags_cc += [
       "-Wno-abstract-vbase-init",
