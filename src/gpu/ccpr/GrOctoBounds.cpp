@@ -16,7 +16,7 @@ void GrOctoBounds::validateBoundsAreTight() const {
 
 void GrOctoBounds::validateBoundsAreTight(const std::function<void(
         bool cond, const char* file, int line, const char* code)>& validateFn) const {
-    constexpr static float epsilon = 1e-3;
+    constexpr static float epsilon = 1e-3f;
 
     float l=fBounds.left(), l45=fBounds45.left();
     float t=fBounds.top(), t45=fBounds45.top();
