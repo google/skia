@@ -19,6 +19,7 @@
 
 class GrAtlasManager;
 class GrBackendFormat;
+class GrBackendObject;
 class GrBackendSemaphore;
 class GrCaps;
 class GrContextPriv;
@@ -315,6 +316,17 @@ public:
 
     static size_t ComputeTextureSize(SkColorType type, int width, int height, GrMipMapped,
                                      bool useNextPow2 = false);
+
+     /*
+      * Create a backend resource directly without invoking Skia's caching or rendering.
+      */
+     sk_sp<GrBackendObject> CreateBackendObject(int width, int height,
+                                                SkColorType,
+                                                GrMipMapped, GrRenderable);
+     sk_sp<GrBackendObject> CreateBackendObject(int width, int height,
+                                                GrBackendFormat,
+                                                GrMipMapped, GrRenderable);
+
 
 protected:
     GrContext(GrBackendApi, const GrContextOptions&, int32_t contextID = SK_InvalidGenID);
