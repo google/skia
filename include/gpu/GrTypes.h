@@ -13,6 +13,8 @@
 #include "include/gpu/GrConfig.h"
 
 class GrBackendSemaphore;
+class SkImage;
+class SkSurface;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -295,6 +297,36 @@ struct GrFlushInfo {
 enum class GrSemaphoresSubmitted : bool {
     kNo = false,
     kYes = true
+};
+
+/**
+ * Array of SkImages and SkSurfaces which Skia will prepare for external use when passed into a
+ * flush call on GrContext. All the SkImages and SkSurfaces must be GPU backed.
+ *
+ * If fPrepareSurfaceForPresent is not nullptr, then it must be an array the size of fNumSurfaces.
+ * Each entry in the array corresponds to the SkSurface at the same index in the fSurfaces array. If
+ * an entry is true, then that surface will be prepared for both external use and present.
+ *
+ * Currently this only has an effect if the backend API is Vulkan. In this case, all the underlying
+ * VkImages associated with the SkImages and SkSurfaces will be transitioned into the VkQueueFamily
+ * in which they were originally wrapped or created with. This allows a client to wrap a VkImage
+ * from a queue which is different from the graphics queue and then have Skia transition it back to
+ * that queue without needing to delete the SkImage or SkSurface. If the an SkSurface is also
+ * flagged to be prepared for present, then its VkImageLayout will be set to
+ * VK_IMAGE_LAYOUT_PRESENT_SRC_KHR if the VK_KHR_swapchain extension has been enabled for the
+ * GrContext and the original queue is not VK_QUEUE_FAMILY_EXTERNAL or VK_QUEUE_FAMILY_FOREIGN_EXT.
+ *
+ * If an SkSurface or SkImage is used again, it will be transitioned back to the graphics queue and
+ * whatever layout is needed for its use.
+ */
+struct GrPrepareForExternalIORequests {
+    int fNumImages = 0;
+    SkImage** fImages = nullptr;
+    int fNumSurfaces = 0;
+    SkSurface** fSurfaces = nullptr;
+    bool* fPrepareSurfaceForPresent = nullptr;
+
+    bool hasRequests() const { return fNumImages || fNumSurfaces; }
 };
 
 #endif

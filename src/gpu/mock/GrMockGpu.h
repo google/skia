@@ -112,7 +112,7 @@ private:
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
     void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
-                       const GrFlushInfo& info) override {
+                       const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override {
         if (info.fFinishedProc) {
             info.fFinishedProc(info.fFinishedContext);
         }

@@ -18,8 +18,10 @@
 #include "src/gpu/GrGpuResourceCacheAccess.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/SkGpuDevice.h"
 #include "src/gpu/vk/GrVkAMDMemoryAllocator.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
@@ -37,6 +39,8 @@
 #include "src/gpu/vk/GrVkTextureRenderTarget.h"
 #include "src/gpu/vk/GrVkTransferBuffer.h"
 #include "src/gpu/vk/GrVkVertexBuffer.h"
+#include "src/image/SkImage_Gpu.h"
+#include "src/image/SkSurface_Gpu.h"
 #include "src/sksl/SkSLCompiler.h"
 
 #include "include/gpu/vk/GrVkExtensions.h"
@@ -1890,7 +1894,8 @@ void GrVkGpu::addImageMemoryBarrier(const GrVkResource* resource,
 }
 
 void GrVkGpu::onFinishFlush(GrSurfaceProxy* proxies[], int n,
-                            SkSurface::BackendSurfaceAccess access, const GrFlushInfo& info) {
+                            SkSurface::BackendSurfaceAccess access, const GrFlushInfo& info,
+                            const GrPrepareForExternalIORequests& externalRequests) {
     SkASSERT(n >= 0);
     SkASSERT(!n || proxies);
     // Submit the current command buffer to the Queue. Whether we inserted semaphores or not does
@@ -1909,6 +1914,57 @@ void GrVkGpu::onFinishFlush(GrSurfaceProxy* proxies[], int n,
             image->prepareForPresent(this);
         }
     }
+
+    // Handle requests for preparing for external IO
+    for (int i = 0; i < externalRequests.fNumImages; ++i) {
+        SkImage* image = externalRequests.fImages[i];
+        if (!image->isTextureBacked()) {
+            continue;
+        }
+        SkImage_GpuBase* gpuImage = static_cast<SkImage_GpuBase*>(as_IB(image));
+        sk_sp<GrTextureProxy> proxy = gpuImage->asTextureProxyRef(this->getContext());
+        SkASSERT(proxy);
+
+        if (!proxy->isInstantiated()) {
+            auto resourceProvider = this->getContext()->priv().resourceProvider();
+            if (!proxy->instantiate(resourceProvider)) {
+                continue;
+            }
+        }
+
+        GrTexture* tex = proxy->peekTexture();
+        if (!tex) {
+            continue;
+        }
+        GrVkTexture* vkTex = static_cast<GrVkTexture*>(tex);
+        vkTex->prepareForExternal(this);
+    }
+    for (int i = 0; i < externalRequests.fNumSurfaces; ++i) {
+        SkSurface* surface = externalRequests.fSurfaces[i];
+        if (!surface->getCanvas()->getGrContext()) {
+            continue;
+        }
+        SkSurface_Gpu* gpuSurface = static_cast<SkSurface_Gpu*>(surface);
+        auto* rtc = gpuSurface->getDevice()->accessRenderTargetContext();
+        sk_sp<GrRenderTargetProxy> proxy = rtc->asRenderTargetProxyRef();
+        if (!proxy->isInstantiated()) {
+            auto resourceProvider = this->getContext()->priv().resourceProvider();
+            if (!proxy->instantiate(resourceProvider)) {
+                continue;
+            }
+        }
+
+        GrRenderTarget* rt = proxy->peekRenderTarget();
+        SkASSERT(rt);
+        GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
+        if (externalRequests.fPrepareSurfaceForPresent &&
+            externalRequests.fPrepareSurfaceForPresent[i]) {
+            vkRT->prepareForPresent(this);
+        } else {
+            vkRT->prepareForExternal(this);
+        }
+    }
+
     if (info.fFlags & kSyncCpu_GrFlushFlag) {
         this->submitCommandBuffer(kForce_SyncQueue, info.fFinishedProc, info.fFinishedContext);
     } else {
