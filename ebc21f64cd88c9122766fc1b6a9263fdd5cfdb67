@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7516a8f5_0b4ac832",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-05-09T18:50:33Z",
+      "side": 1,
+      "message": "Oops, thanks for fixing my breakages!",
+      "revId": "ebc21f64cd88c9122766fc1b6a9263fdd5cfdb67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

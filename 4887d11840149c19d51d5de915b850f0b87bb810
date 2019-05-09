@@ -70,6 +70,30 @@
       "revId": "4887d11840149c19d51d5de915b850f0b87bb810",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d02d9216_372f238b",
+        "filename": "infra/bots/go.mod",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-05-09T18:50:33Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6e5f16bf_38378bd3",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 44
+      },
+      "revId": "4887d11840149c19d51d5de915b850f0b87bb810",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
