@@ -16,6 +16,24 @@
       "revId": "cffc3ab1b8c65ff1aace36a38bcbfe4e61ce2ac8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23070432_40455ca0",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1448,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-09T13:04:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2784e84c_0a9a4c05",
+      "revId": "cffc3ab1b8c65ff1aace36a38bcbfe4e61ce2ac8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
