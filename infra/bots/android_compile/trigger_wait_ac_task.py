@@ -32,13 +32,10 @@ DEADLINE_SECS = 60 * 60  # 60 minutes.
 
 INFRA_FAILURE_ERROR_MSG = (
       '\n\n'
-      'Your run failed due to infra failures. '
-      'It could be due to any of the following:\n\n'
-      '* Need to rebase\n\n'
-      '* Failure when running "python -c from gn import gn_to_bp"\n\n'
-      '* Problem with syncing Android repository.\n\n'
-      'See go/skia-android-framework-compile-bot-cloud-logs-errors for the '
-      'compile server\'s logs.'
+      'Your run failed due to unknown infrastructure failures.\n'
+      'Please contact rmistry@ or the trooper from '
+      'http://skia-tree-status.appspot.com/trooper\n'
+      'Sorry for the inconvenience!\n'
 )
 
 
@@ -151,7 +148,11 @@ def trigger_and_wait(options):
         time.sleep(waittime)
 
     if ret.get('infra_failure'):
-      raise AndroidCompileException(INFRA_FAILURE_ERROR_MSG)
+      if ret.get('error'):
+        raise AndroidCompileException('Run failed with:\n\n%s\n' % ret['error'])
+      else:
+        # Use a general purpose error message.
+        raise AndroidCompileException(INFRA_FAILURE_ERROR_MSG)
 
     if ret.get('done'):
       if not ret.get('is_master_branch', True):
