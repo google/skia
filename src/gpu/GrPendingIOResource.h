@@ -12,6 +12,42 @@
 #include "include/gpu/GrGpuResource.h"
 #include "include/private/SkNoncopyable.h"
 
+class GrTextureProxy;
+
+class GrPendingIOResource2 : SkNoncopyable {
+public:
+    GrPendingIOResource2() = default;
+    GrPendingIOResource2(GrTextureProxy* resource) { this->reset(resource); }
+//    GrPendingIOResource2(sk_sp<GrTextureProxy> resource) { *this = std::move(resource); }
+    GrPendingIOResource2(const GrPendingIOResource2& that) : GrPendingIOResource2(that.get()) {}
+    ~GrPendingIOResource2() { this->release(); }
+
+#if 0
+    GrPendingIOResource2& operator=(sk_sp<T> resource) {
+        this->reset(resource.get());
+        return *this;
+    }
+#endif
+
+    void reset(GrTextureProxy* resource = nullptr) {
+        this->release();
+        fResource = resource;
+    }
+
+    explicit operator bool() const { return SkToBool(fResource); }
+
+    bool operator==(const GrPendingIOResource2& other) const { return fResource == other.fResource; }
+
+    GrTextureProxy* get() const { return fResource; }
+//    GrTextureProxy* operator*() const { return *fResource; }
+    GrTextureProxy* operator->() const { return fResource; }
+
+private:
+    void release() { }
+
+    GrTextureProxy* fResource = nullptr;
+};
+
 /**
  * Helper for owning a pending read, write, read-write on a GrGpuResource. It never owns a regular
  * ref.

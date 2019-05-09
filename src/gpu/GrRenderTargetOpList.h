@@ -106,7 +106,7 @@ public:
      */
     bool copySurface(GrRecordingContext*,
                      GrSurfaceProxy* dst,
-                     GrSurfaceProxy* src,
+                     GrTextureProxy* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint) override;
 

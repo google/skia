@@ -65,7 +65,7 @@ static bool clip_src_rect_and_dst_point(const GrSurfaceProxy* dst,
 
 std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrRecordingContext* context,
                                             GrSurfaceProxy* dstProxy,
-                                            GrSurfaceProxy* srcProxy,
+                                            GrTextureProxy* srcProxy,
                                             const SkIRect& srcRect,
                                             const SkIPoint& dstPoint) {
     SkASSERT(dstProxy);

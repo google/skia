@@ -331,7 +331,7 @@ void GrSurfaceProxy::validate(GrContext_Base* context) const {
 #endif
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
-                                           GrSurfaceProxy* src,
+                                           GrTextureProxy* src,
                                            GrMipMapped mipMapped,
                                            SkIRect srcRect,
                                            SkBackingFit fit,
@@ -364,7 +364,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
     return dstContext->asTextureProxyRef();
 }
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context, GrSurfaceProxy* src,
+sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context, GrTextureProxy* src,
                                            GrMipMapped mipMapped, SkBackingFit fit,
                                            SkBudgeted budgeted) {
     SkASSERT(LazyState::kFully != src->lazyInstantiationState());
@@ -374,7 +374,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context, GrSurfac
 
 sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrRecordingContext* context,
                                                  const GrSurfaceDesc& dstDesc,
-                                                 GrSurfaceOrigin origin, GrSurfaceProxy* srcProxy) {
+                                                 GrSurfaceOrigin origin, GrTextureProxy* srcProxy) {
     SkASSERT(LazyState::kFully != srcProxy->lazyInstantiationState());
 
     GrBackendFormat format = srcProxy->backendFormat().makeTexture2D();

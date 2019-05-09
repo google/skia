@@ -25,7 +25,7 @@ void test_write_pixels(skiatest::Reporter*,
 // Ensure that the pixels can be copied from 'proxy' to an RGBA 8888 destination (both
 // texture-backed and rendertarget-backed).
 void test_copy_from_surface(skiatest::Reporter*, GrContext*,
-                            GrSurfaceProxy* proxy, uint32_t expectedPixelValues[],
+                            GrTextureProxy* proxy, uint32_t expectedPixelValues[],
                             bool onlyTestRTConfig, const char* testName);
 
 // Ensure that RGBA 8888 pixels can be copied into 'dstContext'

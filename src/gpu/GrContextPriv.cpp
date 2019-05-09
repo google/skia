@@ -379,7 +379,8 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
             tempCtx->asRenderTargetContext()->fillRectToRect(
                     GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
                     SkRect::MakeWH(width, height), SkRect::MakeXYWH(left, top, width, height));
-        } else if (!tempCtx->copy(srcProxy, SkIRect::MakeXYWH(left, top, width, height), {0, 0})) {
+        } else if (!tempCtx->copy(srcProxy->asTextureProxy(),
+                                  SkIRect::MakeXYWH(left, top, width, height), {0, 0})) {
             return false;
         }
         uint32_t flags = canvas2DFastPath ? 0 : pixelOpsFlags;

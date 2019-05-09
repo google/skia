@@ -205,10 +205,9 @@ private:
 
     friend bool operator&(Flags, InputFlags);
 
-    using DstTextureProxy = GrPendingIOResource<GrTextureProxy, kRead_GrIOType>;
     using FragmentProcessorArray = SkAutoSTArray<8, std::unique_ptr<const GrFragmentProcessor>>;
 
-    DstTextureProxy fDstTextureProxy;
+    GrPendingIOResource2 fDstTextureProxy;
     SkIPoint fDstTextureOffset;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;
