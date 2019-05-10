@@ -2566,7 +2566,11 @@ sk_sp<GrSemaphore> GrVkGpu::prepareTextureForCrossContextUsage(GrTexture* textur
                               false);
     this->submitCommandBuffer(kSkip_SyncQueue);
 
-    // The image layout change serves as a barrier, so no semaphore is needed
+    // The image layout change serves as a barrier, so no semaphore is needed.
+    // If we ever decide we need to return a semaphore here, we need to make sure GrVkSemaphore is
+    // thread safe so that only the first thread that tries to use the semaphore actually submits
+    // it. This additionally would also require thread safety in command buffer submissions to
+    // queues in general.
     return nullptr;
 }
 

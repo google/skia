@@ -585,8 +585,6 @@ void GrVkPrimaryCommandBuffer::submitToQueue(
         submit_to_queue(gpu->vkInterface(), queue, fSubmitFence, 0, nullptr, nullptr,
                         1, &fCmdBuffer, 0, nullptr);
     } else {
-        GrVkSemaphore::Resource::AcquireMutex();
-
         SkTArray<VkSemaphore> vkSignalSems(signalCount);
         for (int i = 0; i < signalCount; ++i) {
             if (signalSemaphores[i]->shouldSignal()) {
@@ -608,19 +606,13 @@ void GrVkPrimaryCommandBuffer::submitToQueue(
                         vkWaitSems.count(), vkWaitSems.begin(), vkWaitStages.begin(),
                         1, &fCmdBuffer,
                         vkSignalSems.count(), vkSignalSems.begin());
-        // Since shouldSignal/Wait do not require a mutex to be held, we must make sure that we mark
-        // the semaphores after we've submitted. Thus in the worst case another submit grabs the
-        // mutex and then realizes it doesn't need to submit the semaphore. We will never end up
-        // where a semaphore doesn't think it needs to be submitted (cause of querying
-        // shouldSignal/Wait), but it should need to.
+
         for (int i = 0; i < signalCount; ++i) {
             signalSemaphores[i]->markAsSignaled();
         }
         for (int i = 0; i < waitCount; ++i) {
             waitSemaphores[i]->markAsWaited();
         }
-
-        GrVkSemaphore::Resource::ReleaseMutex();
     }
 
     if (GrVkGpu::kForce_SyncQueue == sync) {

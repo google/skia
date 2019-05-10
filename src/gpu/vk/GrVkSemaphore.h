@@ -43,9 +43,6 @@ public:
 
         VkSemaphore semaphore() const { return fSemaphore; }
 
-        static void AcquireMutex() { GetMutex()->acquire(); }
-        static void ReleaseMutex() { GetMutex()->release(); }
-
         bool shouldSignal() const {
             return !fHasBeenSubmittedToQueueForSignal;
         }
@@ -54,11 +51,9 @@ public:
         }
 
         void markAsSignaled() {
-            GetMutex()->assertHeld();
             fHasBeenSubmittedToQueueForSignal = true;
         }
         void markAsWaited() {
-            GetMutex()->assertHeld();
             fHasBeenSubmittedToQueueForWait = true;
         }
 
@@ -69,11 +64,6 @@ public:
 #endif
     private:
         void freeGPUData(GrVkGpu* gpu) const override;
-
-        static SkMutex* GetMutex() {
-            static SkMutex kMutex;
-            return &kMutex;
-        }
 
         VkSemaphore fSemaphore;
         bool        fHasBeenSubmittedToQueueForSignal;
