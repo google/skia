@@ -45,6 +45,11 @@ bool ByteCodeGenerator::generateCode() {
                 ; // ignore
         }
     }
+    for (auto& call : fCallTargets) {
+        if (!call.set()) {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -359,9 +364,14 @@ void ByteCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
     this->write32(pun.u);
 }
 
+// TODO: Defer indexing for functions not-yet defined! (Pending functions list?)
+
 void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
-    // not yet implemented
-    abort();
+    for (const auto& arg : f.fArguments) {
+        this->writeExpression(*arg);
+    }
+    this->write(ByteCodeInstruction::kCall);
+    fCallTargets.emplace_back(this, f.fFunction);
 }
 
 void ByteCodeGenerator::writeIndexExpression(const IndexExpression& i) {
