@@ -230,7 +230,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
     if (fPages.empty()) {
         // if this is the first page if the document.
         {
-            SkAutoMutexAcquire autoMutexAcquire(fMutex);
+            SkAutoMutexExclusive autoMutexAcquire(fMutex);
             serializeHeader(&fOffsetMap, this->getStream());
 
         }
@@ -557,7 +557,7 @@ void SkPDFDocument::onClose(SkWStream* stream) {
 
     this->waitForJobs();
     {
-        SkAutoMutexAcquire autoMutexAcquire(fMutex);
+        SkAutoMutexExclusive autoMutexAcquire(fMutex);
         serialize_footer(fOffsetMap, this->getStream(), fInfoDict, docCatalogRef, fUUID);
     }
 }

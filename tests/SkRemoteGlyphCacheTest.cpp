@@ -31,14 +31,14 @@ public:
 
     // Server implementation.
     SkDiscardableHandleId createHandle() override {
-        SkAutoMutexAcquire l(&fMutex);
+        SkAutoMutexExclusive l(fMutex);
 
         // Handles starts as locked.
         fLockedHandles.add(++fNextHandleId);
         return fNextHandleId;
     }
     bool lockHandle(SkDiscardableHandleId id) override {
-        SkAutoMutexAcquire l(&fMutex);
+        SkAutoMutexExclusive l(fMutex);
 
         if (id <= fLastDeletedHandleId) return false;
         fLockedHandles.add(id);
@@ -47,50 +47,50 @@ public:
 
     // Client implementation.
     bool deleteHandle(SkDiscardableHandleId id) override {
-        SkAutoMutexAcquire l(&fMutex);
+        SkAutoMutexExclusive l(fMutex);
 
         return id <= fLastDeletedHandleId;
     }
 
     void notifyCacheMiss(SkStrikeClient::CacheMissType type) override {
-        SkAutoMutexAcquire l(&fMutex);
+        SkAutoMutexExclusive l(fMutex);
 
         fCacheMissCount[type]++;
     }
     bool isHandleDeleted(SkDiscardableHandleId id) override {
-        SkAutoMutexAcquire l(&fMutex);
+        SkAutoMutexExclusive l(fMutex);
 
         return id <= fLastDeletedHandleId;
     }
 
     void unlockAll() {
-        SkAutoMutexAcquire l(&fMutex);
+        SkAutoMutexExclusive l(fMutex);
 
         fLockedHandles.reset();
     }
     void unlockAndDeleteAll() {
-        SkAutoMutexAcquire l(&fMutex);
+        SkAutoMutexExclusive l(fMutex);
 
         fLockedHandles.reset();
         fLastDeletedHandleId = fNextHandleId;
     }
     const SkTHashSet<SkDiscardableHandleId>& lockedHandles() const {
-        SkAutoMutexAcquire l(&fMutex);
+        SkAutoMutexExclusive l(fMutex);
 
         return fLockedHandles;
     }
     SkDiscardableHandleId handleCount() {
-        SkAutoMutexAcquire l(&fMutex);
+        SkAutoMutexExclusive l(fMutex);
 
         return fNextHandleId;
     }
     int cacheMissCount(uint32_t type) {
-        SkAutoMutexAcquire l(&fMutex);
+        SkAutoMutexExclusive l(fMutex);
 
         return fCacheMissCount[type];
     }
     bool hasCacheMiss() const {
-        SkAutoMutexAcquire l(&fMutex);
+        SkAutoMutexExclusive l(fMutex);
 
         for (uint32_t i = 0; i <= SkStrikeClient::CacheMissType::kLast; ++i) {
             if (fCacheMissCount[i] > 0) return true;

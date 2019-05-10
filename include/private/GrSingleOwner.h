@@ -28,7 +28,7 @@ public:
 
 private:
      void enter() {
-         SkAutoMutexAcquire lock(fMutex);
+         SkAutoMutexExclusive lock(fMutex);
          SkThreadID self = SkGetThreadID();
          SkASSERT(fOwner == self || fOwner == kIllegalThreadID);
          fReentranceCount++;
@@ -36,7 +36,7 @@ private:
      }
 
      void exit() {
-         SkAutoMutexAcquire lock(fMutex);
+         SkAutoMutexExclusive lock(fMutex);
          SkASSERT(fOwner == SkGetThreadID());
          fReentranceCount--;
          if (fReentranceCount == 0) {

@@ -70,7 +70,7 @@ TestSVGTypeface::TestSVGTypeface(const char*                              name,
 
 template <typename Fn>
 void TestSVGTypeface::Glyph::withSVG(Fn&& fn) const {
-    SkAutoExclusive lock(fSvgMutex);
+    SkAutoMutexExclusive lock(fSvgMutex);
 
     if (!fParsedSvg) {
         fParsedSvg = true;
