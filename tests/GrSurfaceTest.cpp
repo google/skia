@@ -54,7 +54,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
 
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-        nullptr, 256, 256, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
+        256, 256, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
 
     sk_sp<GrSurface> texRT2 = resourceProvider->wrapRenderableBackendTexture(
             backendTex, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
@@ -285,7 +285,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     // kRead for the right reason.
     for (auto ioType : {kRead_GrIOType, kRW_GrIOType}) {
         auto backendTex = context->priv().getGpu()->createTestingOnlyBackendTexture(
-                pixels.addr(), kSize, kSize, kRGBA_8888_SkColorType, true, GrMipMapped::kNo);
+                kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes,
+                pixels.addr());
         auto proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                        kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, ioType);
@@ -330,7 +331,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         // Mip regen should not work with a read only texture.
         if (context->priv().caps()->mipMapSupport()) {
             backendTex = context->priv().getGpu()->createTestingOnlyBackendTexture(
-                    nullptr, kSize, kSize, kRGBA_8888_SkColorType, true, GrMipMapped::kYes);
+                    kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kYes, GrRenderable::kYes);
             proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                       kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
                                                       ioType);
@@ -343,11 +344,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     }
 }
 
-static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, bool renderable) {
+static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable renderable) {
     auto backendTexture = context->priv().getGpu()->createTestingOnlyBackendTexture(
-            nullptr, 10, 10, GrColorType::kRGBA_8888, renderable, GrMipMapped::kNo);
+            10, 10, kRGBA_8888_SkColorType, GrMipMapped::kNo, renderable);
     sk_sp<GrTexture> texture;
-    if (renderable) {
+    if (GrRenderable::kYes == renderable) {
         texture = context->priv().resourceProvider()->wrapRenderableBackendTexture(
                 backendTexture, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
     } else {
@@ -372,23 +373,30 @@ static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, bool renderable
     return texture;
 }
 
-static sk_sp<GrTexture> make_normal_texture(GrContext* context, bool renderable) {
+static sk_sp<GrTexture> make_normal_texture(GrContext* context, GrRenderable renderable) {
     GrSurfaceDesc desc;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth = desc.fHeight = 10;
-    desc.fFlags = renderable ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
+    desc.fFlags = GrRenderable::kYes == renderable ? kRenderTarget_GrSurfaceFlag
+                                                   : kNone_GrSurfaceFlags;
     return context->priv().resourceProvider()->createTexture(
         desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
 }
 
 DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
     // Various ways of making textures.
-    auto makeWrapped = [](GrContext* context) { return make_wrapped_texture(context, false); };
-    auto makeWrappedRenderable = [](GrContext* context) {
-        return make_wrapped_texture(context, true);
+    auto makeWrapped = [](GrContext* context) {
+        return make_wrapped_texture(context, GrRenderable::kNo);
     };
-    auto makeNormal = [](GrContext* context) { return make_normal_texture(context, false); };
-    auto makeRenderable = [](GrContext* context) { return make_normal_texture(context, true); };
+    auto makeWrappedRenderable = [](GrContext* context) {
+        return make_wrapped_texture(context, GrRenderable::kYes);
+    };
+    auto makeNormal = [](GrContext* context) {
+        return make_normal_texture(context, GrRenderable::kNo);
+    };
+    auto makeRenderable = [](GrContext* context) {
+        return make_normal_texture(context, GrRenderable::kYes);
+    };
 
     std::function<sk_sp<GrTexture>(GrContext*)> makers[] = {makeWrapped, makeWrappedRenderable,
                                                             makeNormal, makeRenderable};
@@ -626,8 +634,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcCacheManipulationTest, reporter, con
         for (const auto& otherMaker : {make_wrapped_texture, make_normal_texture}) {
             for (auto idleState :
                  {GrTexture::IdleState::kFlushed, GrTexture::IdleState::kFinished}) {
-                auto idleTexture = idleMaker(context, false);
-                auto otherTexture = otherMaker(context, false);
+                auto idleTexture = idleMaker(context, GrRenderable::kNo);
+                auto otherTexture = otherMaker(context, GrRenderable::kNo);
                 otherTexture->ref();
                 idleTexture->addIdleProc(idleProc, otherTexture.get(), idleState);
                 otherTexture.reset();
@@ -647,7 +655,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
 
     for (const auto& idleMaker : {make_wrapped_texture, make_normal_texture}) {
         for (auto idleState : {GrTexture::IdleState::kFlushed, GrTexture::IdleState::kFinished}) {
-            auto idleTexture = idleMaker(context, false);
+            auto idleTexture = idleMaker(context, GrRenderable::kNo);
             idleTexture->addIdleProc(idleProc, context, idleState);
             auto info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
             auto surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 1, nullptr);
@@ -659,7 +667,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
             GrBackendTexture backendTexture;
 
             if (!create_backend_texture(context, &backendTexture, info,
-                                        GrMipMapped::kNo, SK_ColorBLACK, Renderable::kNo)) {
+                                        GrMipMapped::kNo, SK_ColorBLACK, GrRenderable::kNo)) {
                 REPORTER_ASSERT(reporter, false);
                 continue;
             }
@@ -683,7 +691,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcRerefTest, reporter, contextInfo) {
     auto releaseProc = [](void* isReleased) { *reinterpret_cast<bool*>(isReleased) = true; };
     for (auto idleState : {GrTexture::IdleState::kFlushed, GrTexture::IdleState::kFinished}) {
         bool isReleased = false;
-        auto idleTexture = make_normal_texture(context, false);
+        auto idleTexture = make_normal_texture(context, GrRenderable::kNo);
         // This test assumes the texture won't be cached (or else the release proc doesn't get
         // called).
         idleTexture->resourcePriv().removeScratchKey();
@@ -701,7 +709,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcRerefTest, reporter, contextInfo) {
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleStateTest, reporter, contextInfo) {
     GrContext* context = contextInfo.grContext();
     for (const auto& idleMaker : {make_wrapped_texture, make_normal_texture}) {
-        auto idleTexture = idleMaker(context, false);
+        auto idleTexture = idleMaker(context, GrRenderable::kNo);
 
         uint32_t flags = 0;
         static constexpr uint32_t kFlushFlag = 0x1;
