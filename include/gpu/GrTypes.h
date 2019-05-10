@@ -217,6 +217,14 @@ enum class GrMipMapped : bool {
     kYes = true
 };
 
+/*
+ * Can a GrBackendObject be rendered to?
+ */
+enum class GrRenderable : bool {
+    kNo = false,
+    kYes = true
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
