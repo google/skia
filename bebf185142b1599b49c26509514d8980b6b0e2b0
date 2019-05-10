@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee8e1932_ed92d1fc",
+        "filename": "include/private/SkThreadAnnotations.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-10T13:15:24Z",
+      "side": 1,
+      "message": "nit: We\u0027re an LLC now.",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "bebf185142b1599b49c26509514d8980b6b0e2b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
