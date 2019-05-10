@@ -13,6 +13,7 @@
 #include "include/private/SkHalf.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkConvertPixels.h"
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -688,6 +689,65 @@ DEF_TEST(ReadPixels_ValidConversion, reporter) {
     }
 }
 
+namespace {
+using ComparePixmapsErrorReporter = void(int x, int y, const float diffs[4]);
+}  // anonymous namespace
+
+static void compare_pixmaps(const SkPixmap& a, const SkPixmap& b, const float tol[4],
+                            std::function<ComparePixmapsErrorReporter>& error) {
+    if (a.width() != b.width() || a.height() != b.height()) {
+        static constexpr float kDummyDiffs[4] = {};
+        error(-1, -1, kDummyDiffs);
+        return;
+    }
+    SkAutoPixmapStorage afloat;
+    SkAutoPixmapStorage bfloat;
+    afloat.alloc(a.info().makeColorType(kRGBA_F32_SkColorType));
+    bfloat.alloc(b.info().makeColorType(kRGBA_F32_SkColorType));
+    SkConvertPixels(afloat.info(), afloat.writable_addr(), afloat.rowBytes(), a.info(), a.addr(),
+                    a.rowBytes());
+    SkConvertPixels(bfloat.info(), bfloat.writable_addr(), bfloat.rowBytes(), b.info(), b.addr(),
+                    b.rowBytes());
+    for (int y = 0; y < a.height(); ++y) {
+        for (int x = 0; x < a.width(); ++x) {
+            const float* rgbaA = static_cast<const float*>(afloat.addr(x, y));
+            const float* rgbaB = static_cast<const float*>(bfloat.addr(x, y));
+            float diffs[4];
+            bool bad = false;
+            for (int i = 0; i < 4; ++i) {
+                diffs[i] = rgbaB[i] - rgbaA[i];
+                if (std::abs(diffs[i]) > tol[i]) {
+                    bad = true;
+                }
+            }
+            if (bad) {
+                error(x, y, diffs);
+                return;
+            }
+        }
+    }
+}
+
+static int min_rgb_channel_bits(SkColorType ct) {
+    switch (ct) {
+        case kUnknown_SkColorType:      return 0;
+        case kAlpha_8_SkColorType:      return 8;
+        case kRGB_565_SkColorType:      return 5;
+        case kARGB_4444_SkColorType:    return 4;
+        case kRGBA_8888_SkColorType:    return 8;
+        case kRGB_888x_SkColorType:     return 8;
+        case kBGRA_8888_SkColorType:    return 8;
+        case kRGBA_1010102_SkColorType: return 10;
+        case kRGB_101010x_SkColorType:  return 10;
+        case kGray_8_SkColorType:       return 8;   // counting gray as "rgb"
+        case kRGBA_F16Norm_SkColorType: return 10;  // just counting the mantissa
+        case kRGBA_F16_SkColorType:     return 10;  // just counting the mantissa
+        case kRGBA_F32_SkColorType:     return 23;  // just counting the mantissa
+    }
+    SK_ABORT("Unexpected color type.");
+    return 0;
+}
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
     struct Context {
         SkPixmap* fPixmap = nullptr;
@@ -708,9 +768,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
     for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
         static constexpr int kW = 16;
         static constexpr int kH = 16;
-        for (int c = 0; c <= kLastEnum_SkColorType; ++c) {
-            auto ct = static_cast<SkColorType>(c);
-            auto info = SkImageInfo::Make(kW, kH, ct, kPremul_SkAlphaType, nullptr);
+        for (int sct = 0; sct <= kLastEnum_SkColorType; ++sct) {
+            auto surfCT = static_cast<SkColorType>(sct);
+            auto info = SkImageInfo::Make(kW, kH, surfCT, kPremul_SkAlphaType, nullptr);
             auto surf = SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info, 1,
                                                     origin, nullptr);
             if (!surf) {
@@ -730,38 +790,61 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
             }
             for (const auto& rect : {SkIRect::MakeWH(kW, kH),                  // full size
                                      SkIRect::MakeLTRB(1, 2, kW - 3, kH - 4),  // partial
-                                     SkIRect::MakeXYWH(1, 1, 0, 0),            // zero size - fail
-                                     SkIRect::MakeWH(kW + 1, kH / 2)}) {       // too big - fail
-                SkAutoPixmapStorage pixmap;
-                Context context;
-                context.fPixmap = &pixmap;
-                info = SkImageInfo::Make(rect.width(), rect.height(), ct, kPremul_SkAlphaType,
-                                         nullptr);
-                pixmap.alloc(info);
-                memset(pixmap.writable_addr(), 0xAB, pixmap.computeByteSize());
-                surf->asyncReadPixels(ct, kPremul_SkAlphaType, nullptr, rect, callback, &context);
-                while (!context.fCalled) {
-                    ctxInfo.grContext()->checkAsyncWorkCompletion();
-                }
-                if (rect.isEmpty() || !SkIRect::MakeWH(kW, kH).contains(rect)) {
-                    REPORTER_ASSERT(reporter, !context.fSuceeded);
-                }
-                if (context.fSuceeded) {
-                    // We use a synchronous read as the source of truth.
-                    SkAutoPixmapStorage ref;
-                    ref.alloc(info);
-                    memset(ref.writable_addr(), 0xCD, ref.computeByteSize());
-                    if (!surf->readPixels(ref, rect.fLeft, rect.fTop)) {
-                        continue;
-                    }
-                    const auto* a = static_cast<const char*>(pixmap.addr());
-                    const auto* b = static_cast<const char*>(ref.addr());
-                    for (int j = 0; j < pixmap.height();
-                         ++j, a += pixmap.rowBytes(), b += ref.rowBytes()) {
-                        if (memcmp(a, b, pixmap.width() * SkColorTypeBytesPerPixel(ct))) {
-                            ERRORF(reporter, "Failed. CT: %d, j: %d", ct, j);
-                            break;
+                                     SkIRect::MakeXYWH(1, 1, 0, 0),            // empty: fail
+                                     SkIRect::MakeWH(kW + 1, kH / 2)}) {       // too wide: fail
+                for (int rct = 0; rct <= kLastEnum_SkColorType; ++rct) {
+                    auto readCT = static_cast<SkColorType>(rct);
+                    for (const sk_sp<SkColorSpace>& readCS :
+                         {sk_sp<SkColorSpace>(), SkColorSpace::MakeSRGBLinear()}) {
+                        SkAutoPixmapStorage result;
+                        Context context;
+                        context.fPixmap = &result;
+                        info = SkImageInfo::Make(rect.width(), rect.height(), readCT,
+                                                 kPremul_SkAlphaType, readCS);
+                        result.alloc(info);
+                        memset(result.writable_addr(), 0xAB, result.computeByteSize());
+                        surf->asyncReadPixels(readCT, kPremul_SkAlphaType, readCS, rect, callback,
+                                              &context);
+                        while (!context.fCalled) {
+                            ctxInfo.grContext()->checkAsyncWorkCompletion();
                         }
+                        if (rect.isEmpty() || !SkIRect::MakeWH(kW, kH).contains(rect)) {
+                            REPORTER_ASSERT(reporter, !context.fSuceeded);
+                        }
+                        if (!context.fSuceeded) {
+                            continue;
+                        }
+                        // We use a synchronous read as the source of truth.
+                        SkAutoPixmapStorage ref;
+                        ref.alloc(info);
+                        memset(ref.writable_addr(), 0xCD, ref.computeByteSize());
+                        if (!surf->readPixels(ref, rect.fLeft, rect.fTop)) {
+                            continue;
+                        }
+                        // When there is no conversion, don't allow a difference.
+                        float tol = 0.f;
+                        if (readCS || readCT != surfCT) {
+                            // When there is a conversion allow a diff of two values when no
+                            // color space conversion and three otherwise. Except for alpha where
+                            // we allow no difference. Allow intermediate truncation to an 8 bit per
+                            // channel format.
+                            int rgbBits = std::min({min_rgb_channel_bits(readCT),
+                                                    min_rgb_channel_bits(surfCT), 8});
+
+                            tol = (readCS ? 3.f : 2.f) / (1 << rgbBits);
+                        }
+                        const float tols[4] = {tol, tol, tol, 0};
+                        auto error = std::function<ComparePixmapsErrorReporter>(
+                                [&](int x, int y, const float diffs[4]) {
+                                    ERRORF(reporter,
+                                           "Surf Color Type: %d, Read CT: %d, Rect [%d, %d, %d, %d]"
+                                           ", origin: %d, CS conversion: %d\n"
+                                           "Error at %d, %d. Diff in floats: (%f, %f, %f %f)",
+                                           surfCT, readCT, rect.fLeft, rect.fTop, rect.fRight,
+                                           rect.fBottom, origin, (bool)readCS, x, y, diffs[0],
+                                           diffs[1], diffs[2], diffs[3]);
+                                });
+                        compare_pixmaps(ref, result, tols, error);
                     }
                 }
             }
