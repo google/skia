@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2b90e6f_a7c2193e",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-10T13:52:06Z",
+      "side": 1,
+      "message": "This is moving the stack pointer *before* the read? Shouldn\u0027t this be:\n\nint target \u003d READ8();\nfByteCode-\u003efExternValues[target]-\u003eread(sp + 1);\nsp +\u003d count;",
+      "range": {
+        "startLine": 515,
+        "startChar": 0,
+        "endLine": 519,
+        "endChar": 0
+      },
+      "revId": "4ab271e06f18d23b0c50e9d01f84888218749158",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5b54227_9b5dc9a6",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-10T13:52:06Z",
+      "side": 1,
+      "message": "Similarly here, this is only popping one value off the stack. Should be:\n\nint target \u003d READ8();\nfByteCode-\u003efExternalValues[target]-\u003ewrite(sp - count + 1);\nsp -\u003d count;",
+      "range": {
+        "startLine": 531,
+        "startChar": 0,
+        "endLine": 535,
+        "endChar": 0
+      },
+      "revId": "4ab271e06f18d23b0c50e9d01f84888218749158",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8c9ef3f_6ebb5f23",
+        "filename": "src/sksl/ir/SkSLExternalValueReference.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-10T13:52:06Z",
+      "side": 1,
+      "message": "\"src/sksl/ir/SkSLExpression.h\"",
+      "revId": "4ab271e06f18d23b0c50e9d01f84888218749158",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7052abb0_74da5b2a",
+        "filename": "src/sksl/ir/SkSLExternalValueReference.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-10T13:52:06Z",
+      "side": 1,
+      "message": "This seems unnecessary with the #include above?",
+      "revId": "4ab271e06f18d23b0c50e9d01f84888218749158",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e1380b1_5b476d53",
+        "filename": "src/sksl/ir/SkSLSymbolTable.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-10T13:52:06Z",
+      "side": 1,
+      "message": "Would this be clearer as fSymbols[name] \u003d this-\u003etakeOwnership(std::move(u)); ?",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 0
+      },
+      "revId": "4ab271e06f18d23b0c50e9d01f84888218749158",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
