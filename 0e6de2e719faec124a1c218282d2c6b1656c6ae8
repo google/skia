@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bf6e848_8c3e1524",
+        "filename": "src/gpu/GrShaderCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-10T13:21:39Z",
+      "side": 1,
+      "message": "// Can the sample mask be used on color buffers?\n\n?",
+      "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "355ca84c_c8c0fcb6",
+        "filename": "src/gpu/GrShaderCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-10T13:21:39Z",
+      "side": 1,
+      "message": "// Can the sample mask be used on stencil buffers?\n\n?",
+      "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b14da10_b218a751",
+        "filename": "src/gpu/GrShaderCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-10T13:21:39Z",
+      "side": 1,
+      "message": "maybe rm this comment here ?",
+      "range": {
+        "startLine": 270,
+        "startChar": 50,
+        "endLine": 270,
+        "endChar": 99
+      },
+      "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6191f301_b129d231",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 837,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-10T13:21:39Z",
+      "side": 1,
+      "message": "rm this ?",
+      "range": {
+        "startLine": 835,
+        "startChar": 0,
+        "endLine": 837,
+        "endChar": 28
+      },
+      "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70481ea1_97fc4b62",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-10T13:21:39Z",
+      "side": 1,
+      "message": "// On Qualcomm devices the sample mask works with stencil buffers but not in general (skbug.com/8921)\n\n?",
+      "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62de0a8a_b25a1c71",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-10T13:21:39Z",
+      "side": 1,
+      "message": "// Sample masks are completely broken on Radeon devices (skbug.com/8921)\n\n?",
+      "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
