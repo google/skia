@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4a899a97_86cc157e",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-10T16:43:23Z",
+      "side": 1,
+      "message": "It says that on line 670.",
+      "parentUuid": "7fbfe6e4_9a6ef879",
+      "range": {
+        "startLine": 685,
+        "startChar": 55,
+        "endLine": 685,
+        "endChar": 71
+      },
+      "revId": "58a61dfd30344eb5a7eee79b802ae5451cd35b09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "680fbe48_ab9fd82e",
         "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2019-05-10T16:14:56Z",
       "side": 1,
       "message": "move this out of backgroundReset doesn\u0027t seem to have any functionality change. Is this meant to do something?",
+      "range": {
+        "startLine": 366,
+        "startChar": 16,
+        "endLine": 366,
+        "endChar": 45
+      },
+      "revId": "58a61dfd30344eb5a7eee79b802ae5451cd35b09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c262146_cc2cdf2c",
+        "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-10T16:43:23Z",
+      "side": 1,
+      "message": "I think I did that when I was flailing at why this wasn\u0027t working on Vulkan and didn\u0027t remember that it wasn\u0027t part of what made it work. Restored.",
+      "parentUuid": "680fbe48_ab9fd82e",
       "range": {
         "startLine": 366,
         "startChar": 16,
