@@ -759,7 +759,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
                     for (int j = 0; j < pixmap.height();
                          ++j, a += pixmap.rowBytes(), b += ref.rowBytes()) {
                         if (memcmp(a, b, pixmap.width() * SkColorTypeBytesPerPixel(ct))) {
-                            ERRORF(reporter, "Failed. CT: %d, j: %d", ct, j);
+                            ERRORF(reporter, "Failed. CT: %d, j: %d", (int)ct, j);
                             break;
                         }
                     }
