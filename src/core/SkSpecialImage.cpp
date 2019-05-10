@@ -344,7 +344,8 @@ sk_sp<SkSpecialImage> SkSpecialImage::CopyFromRaster(const SkIRect& subset,
     if (!bm.readPixels(tmp.info(), tmp.getPixels(), tmp.rowBytes(), subset.x(), subset.y())) {
         return nullptr;
     }
-    return sk_make_sp<SkSpecialImage_Raster>(subset, tmp, props);
+    return sk_make_sp<SkSpecialImage_Raster>(
+            SkIRect::MakeWH(subset.width(), subset.height()), tmp, props);
 }
 
 #if SK_SUPPORT_GPU
