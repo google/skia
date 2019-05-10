@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <src/core/SkConvertPixels.h>
 #include <initializer_list>
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
@@ -688,6 +689,43 @@ DEF_TEST(ReadPixels_ValidConversion, reporter) {
     }
 }
 
+namespace {
+using ErrorReport = void(int x, int y, const float diffs[4]);
+}  // anonymous namespace
+static void compare_pixmaps(const SkPixmap& a, const SkPixmap& b, const float tol[4],
+                            std::function<ErrorReport>& error) {
+    if (a.width() != b.width() || a.height() != b.height()) {
+        static constexpr float kDummyDiffs[4] = {};
+        error(-1, -1, kDummyDiffs);
+        return;
+    }
+    SkAutoPixmapStorage afloat;
+    SkAutoPixmapStorage bfloat;
+    afloat.alloc(a.info().makeColorType(kRGBA_F32_SkColorType));
+    bfloat.alloc(b.info().makeColorType(kRGBA_F32_SkColorType));
+    SkConvertPixels(afloat.info(), afloat.writable_addr(), afloat.rowBytes(), a.info(), a.addr(),
+                    a.rowBytes());
+    SkConvertPixels(bfloat.info(), bfloat.writable_addr(), bfloat.rowBytes(), b.info(), b.addr(),
+                    b.rowBytes());
+    bool bad = false;
+    for (int y = 0; y < a.height() && !bad; ++y) {
+        for (int x = 0; x < a.width() && !bad; ++x) {
+            const float* rgbaA = static_cast<const float*>(afloat.addr(x, y));
+            const float* rgbaB = static_cast<const float*>(bfloat.addr(x, y));
+            float diffs[4];
+            for (int i = 0; i < 4; ++i) {
+                diffs[i] = rgbaB[i] - rgbaA[i];
+                if (diffs[i] > tol[i]) {
+                    bad = true;
+                }
+            }
+            if (bad) {
+                error(x, y, diffs);
+            }
+        }
+    }
+}
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
     struct Context {
         SkPixmap* fPixmap = nullptr;
@@ -728,40 +766,53 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
                     surf->getCanvas()->drawRect(SkRect::MakeXYWH(i, j, 1, 1), paint);
                 }
             }
-            for (const auto& rect : {SkIRect::MakeWH(kW, kH),                  // full size
-                                     SkIRect::MakeLTRB(1, 2, kW - 3, kH - 4),  // partial
-                                     SkIRect::MakeXYWH(1, 1, 0, 0),            // zero size - fail
-                                     SkIRect::MakeWH(kW + 1, kH / 2)}) {       // too big - fail
-                SkAutoPixmapStorage pixmap;
-                Context context;
-                context.fPixmap = &pixmap;
-                info = SkImageInfo::Make(rect.width(), rect.height(), ct, kPremul_SkAlphaType,
-                                         nullptr);
-                pixmap.alloc(info);
-                memset(pixmap.writable_addr(), 0xAB, pixmap.computeByteSize());
-                surf->asyncReadPixels(ct, kPremul_SkAlphaType, nullptr, rect, callback, &context);
-                while (!context.fCalled) {
-                    ctxInfo.grContext()->checkAsyncWorkCompletion();
-                }
-                if (rect.isEmpty() || !SkIRect::MakeWH(kW, kH).contains(rect)) {
-                    REPORTER_ASSERT(reporter, !context.fSuceeded);
-                }
-                if (context.fSuceeded) {
-                    // We use a synchronous read as the source of truth.
-                    SkAutoPixmapStorage ref;
-                    ref.alloc(info);
-                    memset(ref.writable_addr(), 0xCD, ref.computeByteSize());
-                    if (!surf->readPixels(ref, rect.fLeft, rect.fTop)) {
-                        continue;
+            for (sk_sp<SkColorSpace> readCS :
+                 {sk_sp<SkColorSpace>(), SkColorSpace::MakeSRGBLinear()}) {
+                for (const auto& rect : {SkIRect::MakeWH(kW, kH),                  // full size
+                                         SkIRect::MakeLTRB(1, 2, kW - 3, kH - 4),  // partial
+                                         SkIRect::MakeXYWH(1, 1, 0, 0),            // empty: fail
+                                         SkIRect::MakeWH(kW + 1, kH / 2)}) {       // too wide: fail
+                    SkAutoPixmapStorage result;
+                    Context context;
+                    context.fPixmap = &result;
+                    info = SkImageInfo::Make(rect.width(), rect.height(), ct, kPremul_SkAlphaType,
+                                             readCS);
+                    result.alloc(info);
+                    memset(result.writable_addr(), 0xAB, result.computeByteSize());
+                    surf->asyncReadPixels(ct, kPremul_SkAlphaType, readCS, rect, callback,
+                                          &context);
+                    while (!context.fCalled) {
+                        ctxInfo.grContext()->checkAsyncWorkCompletion();
                     }
-                    const auto* a = static_cast<const char*>(pixmap.addr());
-                    const auto* b = static_cast<const char*>(ref.addr());
-                    for (int j = 0; j < pixmap.height();
-                         ++j, a += pixmap.rowBytes(), b += ref.rowBytes()) {
-                        if (memcmp(a, b, pixmap.width() * SkColorTypeBytesPerPixel(ct))) {
-                            ERRORF(reporter, "Failed. CT: %d, j: %d", ct, j);
-                            break;
+                    if (rect.isEmpty() || !SkIRect::MakeWH(kW, kH).contains(rect)) {
+                        REPORTER_ASSERT(reporter, !context.fSuceeded);
+                    }
+                    if (context.fSuceeded) {
+                        // We use a synchronous read as the source of truth.
+                        SkAutoPixmapStorage ref;
+                        ref.alloc(info);
+                        memset(ref.writable_addr(), 0xCD, ref.computeByteSize());
+                        if (!surf->readPixels(ref, rect.fLeft, rect.fTop)) {
+                            continue;
                         }
+                        // When there is no conversion, don't allow a difference.
+                        static constexpr float kZeros[4] = {};
+                        // When there is a conversion allow a diff of one value in 4444, except for
+                        // alpha where we allow no difference.
+                        // TODO: make this depend on number of bits per channel in color type?
+                        static constexpr float kTol[4] = {1 / 16.f, 1 / 16.f, 1 / 16.f, 0};
+
+                        auto tol = readCS ? kTol : kZeros;
+                        auto error = [&](int x, int y, const float diffs[4]) {
+                            ERRORF(reporter,
+                                   "Color Type: %d, Rect [%d, %d, %d, %d], origin: %d, CS "
+                                   "conversion: %d\nError at %d, %d. Diff in floats: (%f, %f, %f "
+                                   "%f)",
+                                   ct, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, origin,
+                                   (bool)readCS, x, y, diffs[0], diffs[1], diffs[2], diffs[3]);
+                        };
+                        auto errorFunction = std::function<ErrorReport>(error);
+                        compare_pixmaps(ref, result, tol, errorFunction);
                     }
                 }
             }
