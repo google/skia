@@ -576,7 +576,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     }
 
     GrColorType allowedColorType = fContext->priv().caps()->supportedWritePixelsColorType(
-            dstProxy->config(), srcColorType);
+            dstProxy->config());
     convert = convert || (srcColorType != allowedColorType);
 
     std::unique_ptr<char[]> tempBuffer;

@@ -105,6 +105,94 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
     return false;
 }
 
+bool GrMTLFormatToPixelConfig(MTLPixelFormat format, GrPixelConfig* config);
+    GrPixelConfig dontCare;
+    if (!config) {
+        config = &dontCare;
+    }
+
+    switch (format) {
+        case kUnknown_GrPixelConfig:
+            return false;
+        case kRGBA_8888_GrPixelConfig:
+            *config = MTLPixelFormatRGBA8Unorm;
+            return true;
+        case kRGB_888_GrPixelConfig:
+            *config = MTLPixelFormatRGBA8Unorm;
+            return true;
+        case kRGB_888X_GrPixelConfig:
+            *config = MTLPixelFormatRGBA8Unorm;
+            return true;
+        case kRG_88_GrPixelConfig:
+            *config = MTLPixelFormatRG8Unorm;
+            return true;
+        case kBGRA_8888_GrPixelConfig:
+            *config = MTLPixelFormatBGRA8Unorm;
+            return true;
+        case kSRGBA_8888_GrPixelConfig:
+            *config = MTLPixelFormatRGBA8Unorm_sRGB;
+            return true;
+        case kSBGRA_8888_GrPixelConfig:
+            *config = MTLPixelFormatBGRA8Unorm_sRGB;
+            return true;
+        case kRGBA_1010102_GrPixelConfig:
+            *config = MTLPixelFormatRGB10A2Unorm;
+            return true;
+        case kRGB_565_GrPixelConfig:
+#ifdef SK_BUILD_FOR_IOS
+            *config = MTLPixelFormatB5G6R5Unorm;
+            return true;
+#else
+            return false;
+#endif
+        case kRGBA_4444_GrPixelConfig:
+#ifdef SK_BUILD_FOR_IOS
+            *config = MTLPixelFormatABGR4Unorm;
+            return true;
+#else
+            return false;
+#endif
+        case kAlpha_8_GrPixelConfig: // fall through
+        case kAlpha_8_as_Red_GrPixelConfig:
+            *config = MTLPixelFormatR8Unorm;
+            return true;
+        case kAlpha_8_as_Alpha_GrPixelConfig:
+            return false;
+        case kGray_8_GrPixelConfig: // fall through
+        case kGray_8_as_Red_GrPixelConfig:
+            *config = MTLPixelFormatR8Unorm;
+            return true;
+        case kGray_8_as_Lum_GrPixelConfig:
+            return false;
+        case kRGBA_float_GrPixelConfig:
+            *config = MTLPixelFormatRGBA32Float;
+            return true;
+        case kRG_float_GrPixelConfig:
+            *config = MTLPixelFormatRG32Float;
+            return true;
+        case kRGBA_half_GrPixelConfig:
+            *config = MTLPixelFormatRGBA16Float;
+            return true;
+        case kRGBA_half_Clamped_GrPixelConfig:
+            *config = MTLPixelFormatRGBA16Float;
+            return true;
+        case kAlpha_half_GrPixelConfig: // fall through
+        case kAlpha_half_as_Red_GrPixelConfig:
+            *config = MTLPixelFormatR16Float;
+            return true;
+        case kRGB_ETC1_GrPixelConfig:
+#ifdef SK_BUILD_FOR_IOS
+            *config = MTLPixelFormatETC2_RGB8;
+            return true;
+#else
+            return false;
+#endif
+    }
+    SK_ABORT("Unexpected config");
+    return false;
+}
+
+
 id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership wrapOwnership) {
     if (GrWrapOwnership::kAdopt_GrWrapOwnership == wrapOwnership) {
         return (__bridge_transfer id<MTLTexture>)mtlTexture;
