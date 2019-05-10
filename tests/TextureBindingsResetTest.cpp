@@ -16,7 +16,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
 #define GL(F) GR_GL_CALL(ctxInfo.glContext()->gl(), F)
 
     GrContext* context = ctxInfo.grContext();
-    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
+    GrGpu* gpu = context->priv().getGpu();
+    GrGLGpu* glGpu = static_cast<GrGLGpu*>(context->priv().getGpu());
 
     struct Target {
         GrGLenum fName;
@@ -25,11 +26,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     SkTDArray<Target> targets;
     targets.push_back({GR_GL_TEXTURE_2D, GR_GL_TEXTURE_BINDING_2D});
     bool supportExternal;
-    if ((supportExternal = gpu->glCaps().shaderCaps()->externalTextureSupport())) {
+    if ((supportExternal = glGpu->glCaps().shaderCaps()->externalTextureSupport())) {
         targets.push_back({GR_GL_TEXTURE_EXTERNAL, GR_GL_TEXTURE_BINDING_EXTERNAL});
     }
     bool supportRectangle;
-    if ((supportRectangle = gpu->glCaps().rectangleTextureSupport())) {
+    if ((supportRectangle = glGpu->glCaps().rectangleTextureSupport())) {
         targets.push_back({GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_BINDING_RECTANGLE});
     }
     GrGLint numUnits;
@@ -101,7 +102,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
 
     if (supportExternal) {
         GrBackendTexture texture2D = gpu->createTestingOnlyBackendTexture(
-                nullptr, 10, 10, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
+                10, 10, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
         GrGLTextureInfo info2D;
         REPORTER_ASSERT(reporter, texture2D.getGLTextureInfo(&info2D));
         GrEGLImage eglImage = ctxInfo.glContext()->texture2DToEGLImage(info2D.fID);
