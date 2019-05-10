@@ -118,6 +118,18 @@ private:
 
 #ifdef SK_BUILD_FOR_WIN
 ATOM ANGLEGLContext::gWC = 0;
+
+enum class IsWine { kUnknown, kNo, kYes };
+
+static IsWine is_wine() {
+    HMODULE ntdll = GetModuleHandle("ntdll.dll");
+    if (!ntdll) {
+        SkDebugf("No ntdll.dll on Windows?!\n");
+        return IsWine::kUnknown;
+    }
+    return GetProcAddress(ntdll, "wine_get_version") == nullptr ? IsWine::kNo : IsWine::kYes;
+}
+
 #endif
 
 ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
@@ -130,6 +142,14 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
 #ifdef SK_BUILD_FOR_WIN
     fWindow = nullptr;
     fDeviceContext = nullptr;
+
+    static IsWine gIsWine = is_wine();
+    if (gIsWine == IsWine::kYes && type != ANGLEBackend::kOpenGL) {
+        // D3D backends of ANGLE don't really work well under Wine with our tests and are likely to
+        // crash. This makes it easier to test using the GL ANGLE backend under Wine on Linux
+        // without lots of spurious Wine debug spew and crashes.
+        return;
+    }
 
     if (EGL_NO_DISPLAY == fDisplay) {
         HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(nullptr);
