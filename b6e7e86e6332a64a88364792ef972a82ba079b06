@@ -70,6 +70,30 @@
       "revId": "b6e7e86e6332a64a88364792ef972a82ba079b06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "952ea758_102503bd",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-10T13:08:43Z",
+      "side": 1,
+      "message": "Ok. I initial thought it would be no problem because the two different recs will be created on either side of the ShouldDrawAsPath calculation. But, MakeRecAndEffects uses sk_relax on some matrix entries. This could cause problem by having inputs that would be on either side of the ShouldDrawAsPath create the same rec. I will talk to Ben about ways of handling this. We could just remove the sk_relax, or add a bit to the key that indicates path. At this point, I think the chances of this aliasing are very small.",
+      "parentUuid": "6214c785_25ec140d",
+      "range": {
+        "startLine": 633,
+        "startChar": 8,
+        "endLine": 633,
+        "endChar": 48
+      },
+      "revId": "b6e7e86e6332a64a88364792ef972a82ba079b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
