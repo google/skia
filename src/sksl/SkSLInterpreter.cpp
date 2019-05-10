@@ -112,6 +112,7 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             case ByteCodeInstruction::kAndB: printf("andb"); break;
             case ByteCodeInstruction::kAndI: printf("andi"); break;
             case ByteCodeInstruction::kBranch: printf("branch %d", READ16()); break;
+            case ByteCodeInstruction::kCall: printf("call %d", READ8()); break;
             case ByteCodeInstruction::kCompareIEQ: printf("comparei eq"); break;
             case ByteCodeInstruction::kCompareINEQ: printf("comparei neq"); break;
             case ByteCodeInstruction::kCompareFEQ: printf("comparef eq"); break;
@@ -238,6 +239,14 @@ void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
             BINARY_OP(kAddF, float, fFloat, +)
             case ByteCodeInstruction::kBranch: {
                 ip = code + READ16();
+                break;
+            }
+            case ByteCodeInstruction::kCall: {
+                int target = READ8();
+                const ByteCodeFunction* fun = fByteCode->fFunctions[target].get();
+                this->run(*fun, sp - fun->fParameterCount + 1, sp - fun->fParameterCount + 1);
+                sp -= fun->fParameterCount;
+                sp += fun->fReturnCount;
                 break;
             }
             BINARY_OP(kCompareIEQ, int32_t, fSigned, ==)
