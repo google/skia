@@ -75,6 +75,46 @@ bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     return true;
 }
 
+static int get_compatible_format_class(GrPixelConfig config) {
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:
+        case kAlpha_8_as_Red_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
+            return 1;
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kRG_88_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+        case kAlpha_half_as_Red_GrPixelConfig:
+            return 2;
+        case kRGB_888_GrPixelConfig:
+            return 3;
+        case kRGBA_8888_GrPixelConfig:
+        case kRGB_888X_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+        case kRGBA_1010102_GrPixelConfig:
+            return 4;
+        case kRGBA_half_GrPixelConfig:
+        case kRGBA_half_Clamped_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
+            return 5;
+        case kRGBA_float_GrPixelConfig:
+            return 6;
+        case kRGB_ETC1_GrPixelConfig:
+            return 7;
+        case kUnknown_GrPixelConfig:
+        case kAlpha_8_as_Alpha_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+            SK_ABORT("Unsupported Vulkan pixel config");
+            return 0;
+    }
+    SK_ABORT("Invalid pixel config");
+    return 0;
+}
+
 bool GrVkCaps::canCopyImage(GrPixelConfig dstConfig, int dstSampleCnt, GrSurfaceOrigin dstOrigin,
                             bool dstHasYcbcr, GrPixelConfig srcConfig, int srcSampleCnt,
                             GrSurfaceOrigin srcOrigin, bool srcHasYcbcr) const {
@@ -88,7 +128,8 @@ bool GrVkCaps::canCopyImage(GrPixelConfig dstConfig, int dstSampleCnt, GrSurface
 
     // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src
     // as image usage flags.
-    if (srcOrigin != dstOrigin || GrBytesPerPixel(srcConfig) != GrBytesPerPixel(dstConfig)) {
+    if (srcOrigin != dstOrigin ||
+        get_compatible_format_class(srcConfig) != get_compatible_format_class(dstConfig)) {
         return false;
     }
 
