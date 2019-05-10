@@ -3970,10 +3970,11 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 }
 
 #if GR_TEST_UTILS
-GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                          GrColorType colorType, bool /*isRT*/,
+GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(int w, int h,
+                                                          const GrBackendFormat& format,
                                                           GrMipMapped mipMapped,
-                                                          size_t rowBytes) {
+                                                          GrRenderable renderable,
+                                                          const void* pixels, size_t rowBytes) {
     this->handleDirtyContext();
 
     GrPixelConfig config = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);

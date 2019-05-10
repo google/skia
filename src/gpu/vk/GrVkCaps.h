@@ -168,6 +168,10 @@ public:
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                     GrSRGBEncoded srgbEncoded) const override;
 
+    GrColorType getColorTypefromBackendFormat(const GrBackendFormat& format) const override {
+         return GrColorType::kUnknown;
+    }
+
 private:
     enum VkVendor {
         kAMD_VkVendor = 4098,

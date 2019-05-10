@@ -106,6 +106,61 @@ public:
         return GrBackendFormat::MakeMock(config);
     }
 
+    GrColorType getColorTypefromBackendFormat(const GrBackendFormat& format) const override {
+        const GrPixelConfig* mockFormat = format.getMockFormat();
+        if (!mockFormat) {
+            return GrColorType::kUnknown;
+        }
+
+        switch (*mockFormat) {
+            case kUnknown_GrPixelConfig:
+                return GrColorType::kUnknown;
+            case kAlpha_8_GrPixelConfig:                   // fall through
+            case kAlpha_8_as_Alpha_GrPixelConfig:          // fall through
+            case kAlpha_8_as_Red_GrPixelConfig:
+                return GrColorType::kAlpha_8;
+            case kGray_8_GrPixelConfig:                    // fall through
+            case kGray_8_as_Lum_GrPixelConfig:             // fall through
+            case kGray_8_as_Red_GrPixelConfig:
+                return GrColorType::kGray_8;
+            case kRGB_565_GrPixelConfig:
+                return GrColorType::kRGB_565;
+            case kRGBA_4444_GrPixelConfig:
+                return GrColorType::kABGR_4444;
+            case kRGBA_8888_GrPixelConfig:
+                return GrColorType::kRGBA_8888;
+            case kRGB_888_GrPixelConfig:
+                return GrColorType::kUnknown;
+            case kRGB_888X_GrPixelConfig:
+                return GrColorType::kRGB_888x;
+            case kRG_88_GrPixelConfig:
+                return GrColorType::kRG_88;
+            case kBGRA_8888_GrPixelConfig:
+                return GrColorType::kBGRA_8888;
+            case kSRGBA_8888_GrPixelConfig:
+                return GrColorType::kRGBA_8888;  // losing sRGB-ness
+            case kSBGRA_8888_GrPixelConfig:
+                return GrColorType::kBGRA_8888;  // losing sRGB-ness
+            case kRGBA_1010102_GrPixelConfig:
+                return GrColorType::kRGBA_1010102;
+            case kRGBA_float_GrPixelConfig:
+                return GrColorType::kRGBA_F32;
+            case kRG_float_GrPixelConfig:
+                return GrColorType::kRG_F32;
+            case kAlpha_half_GrPixelConfig:                // fall through
+            case kAlpha_half_as_Red_GrPixelConfig:
+                return GrColorType::kAlpha_F16;
+            case kRGBA_half_GrPixelConfig:
+                return GrColorType::kRGBA_F16;
+            case kRGBA_half_Clamped_GrPixelConfig:
+                return GrColorType::kRGBA_F16_Clamped;
+            case kRGB_ETC1_GrPixelConfig:
+                return GrColorType::kRGB_ETC1;
+        }
+
+        return GrColorType::kUnknown;
+    }
+
 private:
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override { return true; }
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
