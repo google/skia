@@ -359,9 +359,25 @@ void ByteCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
     this->write32(pun.u);
 }
 
+// TODO: Defer indexing for functions not-yet defined! (Pending functions list?)
+
 void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
-    // not yet implemented
-    abort();
+    size_t idx;
+    for (idx = 0; idx < fOutput->fFunctions.size(); ++idx) {
+        if (f.fFunction.matches(fOutput->fFunctions[idx]->fDeclaration)) {
+            break;
+        }
+    }
+    SkASSERT(idx <= 255);
+    if (idx >= fOutput->fFunctions.size()) {
+        // Function not defined yet
+        abort();
+    }
+    for (const auto& arg : f.fArguments) {
+        this->writeExpression(*arg);
+    }
+    this->write(ByteCodeInstruction::kCall);
+    this->write8(idx);
 }
 
 void ByteCodeGenerator::writeIndexExpression(const IndexExpression& i) {

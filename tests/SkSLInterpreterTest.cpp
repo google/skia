@@ -293,3 +293,37 @@ DEF_TEST(SkSLInterpreterSetInputs, r) {
     interpreter.run(*main, (SkSL::Interpreter::Value*)&in, (SkSL::Interpreter::Value*)&out);
     REPORTER_ASSERT(r, out == 5.0f);
 }
+
+DEF_TEST(SkSLInterpreterFunctions, r) {
+    const char* src = R"(
+      float sub(float x, float y) { return x - y; }
+      float sqr(float x) { return x * x; }
+      float main(float x) { return sub(sqr(x), x); }
+    )";
+
+    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+                                                             SkSL::Program::kGeneric_Kind,
+                                                             SkSL::String(src), settings);
+    REPORTER_ASSERT(r, program);
+
+    std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
+    REPORTER_ASSERT(r, !compiler.errorCount());
+
+    auto sub = byteCode->getFunction("sub");
+    auto sqr = byteCode->getFunction("sqr");
+    auto main = byteCode->getFunction("main");
+    auto tan = byteCode->getFunction("tan");
+
+    REPORTER_ASSERT(r, sub);
+    REPORTER_ASSERT(r, sqr);
+    REPORTER_ASSERT(r, main);
+    REPORTER_ASSERT(r, !tan);
+
+    SkSL::Interpreter interpreter(std::move(program), std::move(byteCode), nullptr);
+    float out = 0.0f;
+    float in = 3.0f;
+    interpreter.run(*main, (SkSL::Interpreter::Value*)&in, (SkSL::Interpreter::Value*)&out);
+    REPORTER_ASSERT(r, out = 6.0f);
+}
