@@ -1761,14 +1761,12 @@ bool GrRenderTargetContext::asyncReadPixels(SkColorType ct, SkAlphaType at, sk_s
         return false;
     }
 
-    // TODO(bsalomon): Support color space conversion.
-    if (!SkColorSpace::Equals(cs.get(), this->colorSpaceInfo().colorSpace())) {
-        return false;
-    }
+    sk_sp<GrColorSpaceXform> xform = GrColorSpaceXform::Make(this->colorSpaceInfo().colorSpace(),
+                                                             kPremul_SkAlphaType, cs.get(), at);
 
     // Insert a draw to a temporary surface if we need to do a y-flip (and in future for a color
     // space conversion.)
-    if (this->origin() == kBottomLeft_GrSurfaceOrigin) {
+    if (this->origin() == kBottomLeft_GrSurfaceOrigin || xform) {
         sk_sp<GrTextureProxy> texProxy = sk_ref_sp(fRenderTargetProxy->asTextureProxy());
         const auto& backendFormat = fRenderTargetProxy->backendFormat();
         SkRect srcRectToDraw = SkRect::Make(srcRect);
@@ -1801,7 +1799,7 @@ bool GrRenderTargetContext::asyncReadPixels(SkColorType ct, SkAlphaType at, sk_s
                          SkBlendMode::kSrc, SK_PMColor4fWHITE, srcRectToDraw,
                          SkRect::MakeWH(srcRect.width(), srcRect.height()), GrAA::kNo,
                          GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(),
-                         /* colorSpaceXform = */ nullptr);
+                         std::move(xform));
         return rtc->asyncReadPixels(ct, at, std::move(cs),
                                     SkIRect::MakeWH(srcRect.width(), srcRect.height()), callback,
                                     context);
