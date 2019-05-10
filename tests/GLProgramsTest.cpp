@@ -5,11 +5,9 @@
  * found in the LICENSE file.
  */
 
-// This is a GPU-backend specific test. It relies on static intializers to work
+// This is a GPU-backend specific test.
 
 #include "include/core/SkTypes.h"
-
-#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 #include "include/private/SkChecksum.h"
 #include "include/utils/SkRandom.h"
@@ -189,7 +187,9 @@ static std::unique_ptr<GrFragmentProcessor> create_random_proc_tree(GrProcessorT
             std::unique_ptr<GrFragmentProcessor> fp;
             while (true) {
                 fp = GrFragmentProcessorTestFactory::Make(d);
-                SkASSERT(fp);
+                if (!fp) {
+                    return nullptr;
+                }
                 if (0 == fp->numChildProcessors()) {
                     break;
                 }
@@ -205,6 +205,9 @@ static std::unique_ptr<GrFragmentProcessor> create_random_proc_tree(GrProcessorT
     }
     auto minLevelsChild = create_random_proc_tree(d, minLevels, maxLevels - 1);
     std::unique_ptr<GrFragmentProcessor> otherChild(create_random_proc_tree(d, 1, maxLevels - 1));
+    if (!minLevelsChild || !otherChild) {
+        return nullptr;
+    }
     SkBlendMode mode = static_cast<SkBlendMode>(d->fRandom->nextRangeU(0,
                                                                (int)SkBlendMode::kLastMode));
     std::unique_ptr<GrFragmentProcessor> fp;
@@ -235,17 +238,17 @@ static void set_random_color_coverage_stages(GrPaint* paint,
         int numProcs = d->fRandom->nextULessThan(maxStages + 1);
         int numColorProcs = d->fRandom->nextULessThan(numProcs + 1);
 
-        for (int s = 0; s < numProcs;) {
+        for (int s = 0; s < numProcs; ++s) {
             std::unique_ptr<GrFragmentProcessor> fp(GrFragmentProcessorTestFactory::Make(d));
-            SkASSERT(fp);
-
+            if (!fp) {
+                continue;
+            }
             // finally add the stage to the correct pipeline in the drawstate
             if (s < numColorProcs) {
                 paint->addColorFragmentProcessor(std::move(fp));
             } else {
                 paint->addCoverageFragmentProcessor(std::move(fp));
             }
-            ++s;
         }
     }
 }
@@ -426,4 +429,3 @@ DEF_GPUTEST(GLPrograms, reporter, options) {
                                      opts);
 }
 
-#endif

@@ -227,9 +227,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     }
 }
 
-// This test uses the random GrFragmentProcessor test factory, which relies on static initializers.
-#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-
 #include "tools/flags/CommandLineFlags.h"
 static DEFINE_bool(randomProcessorTest, false,
                    "Use non-deterministic seed for random processor tests?");
@@ -758,4 +755,3 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
 }
 
 #endif  // GR_TEST_UTILS
-#endif  // SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
