@@ -325,8 +325,12 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
             fContext->priv().caps()->isConfigRenderable(kRGBA_8888_GrPixelConfig) &&
             fContext->validPMUPMConversionExists();
 
-    if (!fContext->priv().caps()->surfaceSupportsReadPixels(srcSurface) ||
-        canvas2DFastPath) {
+    auto readFlag = fContext->priv().caps()->surfaceSupportsReadPixels(srcSurface);
+    if (readFlag == GrCaps::kProtected_ReadFlag) {
+        return false;
+    }
+
+    if (readFlag == GrCaps::kRequiresCopy_ReadFlag || canvas2DFastPath) {
         GrSurfaceDesc desc;
         desc.fWidth = width;
         desc.fHeight = height;

@@ -157,7 +157,8 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         , fQueue(backendContext.fQueue)
         , fQueueIndex(backendContext.fGraphicsQueueIndex)
         , fResourceProvider(this)
-        , fDisconnected(false) {
+        , fDisconnected(false)
+        , fProtectedContext(backendContext.fProtectedContext) {
     SkASSERT(!backendContext.fOwnsInstanceAndDevice);
 
     if (!fMemoryAllocator) {
@@ -458,6 +459,10 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
                                  size_t bufferOffset, size_t rowBytes) {
     // Can't transfer compressed data
     SkASSERT(!GrPixelConfigIsCompressed(texture->config()));
+
+    if (fProtectedContext) {
+        return false;
+    }
 
     // Vulkan only supports 4-byte aligned offsets
     if (SkToBool(bufferOffset & 0x2)) {
@@ -1217,6 +1222,10 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
+    if (backendRT.isProtected() != fProtectedContext) {
+        return nullptr;
+    }
+
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = backendRT.width();
@@ -1718,10 +1727,18 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     err = VK_CALL(CreateFence(fDevice, &fenceInfo, nullptr, &fence));
     SkASSERT(!err);
 
+    VkProtectedSubmitInfo protectedSubmitInfo;
+    if (fProtectedContext) {
+      memset(&protectedSubmitInfo, 0, sizeof(VkProtectedSubmitInfo));
+      protectedSubmitInfo.sType = VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO;
+      protectedSubmitInfo.pNext = nullptr;
+      protectedSubmitInfo.protectedSubmit = VK_TRUE;
+    }
+
     VkSubmitInfo submitInfo;
     memset(&submitInfo, 0, sizeof(VkSubmitInfo));
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.pNext = nullptr;
+    submitInfo.pNext = fProtectedContext ? &protectedSubmitInfo : nullptr;
     submitInfo.waitSemaphoreCount = 0;
     submitInfo.pWaitSemaphores = nullptr;
     submitInfo.pWaitDstStageMask = 0;
