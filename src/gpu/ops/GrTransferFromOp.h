@@ -34,7 +34,7 @@ public:
         string.appendf(
                 "bufferID:: %d offset: %zu, color type: %d\n"
                 "srcRect: [ L: %d, T: %d, R: %d, B: %d ]\n",
-                fDstBuffer->uniqueID().asUInt(), fDstOffset, fDstColorType, fSrcRect.fLeft,
+                fDstBuffer->uniqueID().asUInt(), fDstOffset, (int)fDstColorType, fSrcRect.fLeft,
                 fSrcRect.fTop, fSrcRect.fRight, fSrcRect.fBottom);
         return string;
     }
