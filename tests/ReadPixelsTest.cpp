@@ -8,19 +8,18 @@
 #include <initializer_list>
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrContext.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMathPriv.h"
-#include "tests/Test.h"
-
-#include "include/gpu/GrContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/SkGr.h"
+#include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/ProxyUtils.h"
-
 
 static const int DEV_W = 100, DEV_H = 100;
 static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
@@ -681,6 +680,87 @@ DEF_TEST(ReadPixels_ValidConversion, reporter) {
                             test_conversion(reporter,
                                             SkImageInfo::Make(kNumPixels, 1, dstCT, dstAT, dstCS),
                                             SkImageInfo::Make(kNumPixels, 1, srcCT, srcAT, srcCS));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
+    struct Context {
+        SkPixmap* fPixmap = nullptr;
+        bool fSuceeded = false;
+        bool fCalled = false;
+    };
+    auto callback = [](SkSurface::ReleaseContext context, const void* data, size_t rowBytes) {
+        auto* pm = static_cast<Context*>(context)->fPixmap;
+        static_cast<Context*>(context)->fCalled = true;
+        if ((static_cast<Context*>(context)->fSuceeded = SkToBool(data))) {
+            auto dst = static_cast<char*>(pm->writable_addr());
+            const auto* src = static_cast<const char*>(data);
+            for (int y = 0; y < pm->height(); ++y, src += rowBytes, dst += pm->rowBytes()) {
+                memcpy(dst, src, pm->width() * SkColorTypeBytesPerPixel(pm->colorType()));
+            }
+        }
+    };
+    for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
+        static constexpr int kW = 16;
+        static constexpr int kH = 16;
+        for (int c = 0; c <= kLastEnum_SkColorType; ++c) {
+            auto ct = static_cast<SkColorType>(c);
+            auto info = SkImageInfo::Make(kW, kH, ct, kPremul_SkAlphaType, nullptr);
+            auto surf = SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info, 1,
+                                                    origin, nullptr);
+            if (!surf) {
+                continue;
+            }
+            float d = std::sqrt((float)surf->width() * surf->width() +
+                                (float)surf->height() * surf->height());
+            for (int j = 0; j < surf->height(); ++j) {
+                for (int i = 0; i < surf->width(); ++i) {
+                    float r = i / (float)surf->width();
+                    float g = 1.f - i / (float)surf->height();
+                    float b = std::sqrt((float)i * i + (float)j * j) / d;
+                    SkPaint paint;
+                    paint.setColor4f(SkColor4f{r, g, b, 1.f}, nullptr);
+                    surf->getCanvas()->drawRect(SkRect::MakeXYWH(i, j, 1, 1), paint);
+                }
+            }
+            for (const auto& rect : {SkIRect::MakeWH(kW, kH),                  // full size
+                                     SkIRect::MakeLTRB(1, 2, kW - 3, kH - 4),  // partial
+                                     SkIRect::MakeXYWH(1, 1, 0, 0),            // zero size - fail
+                                     SkIRect::MakeWH(kW + 1, kH / 2)}) {       // too big - fail
+                SkAutoPixmapStorage pixmap;
+                Context context;
+                context.fPixmap = &pixmap;
+                info = SkImageInfo::Make(rect.width(), rect.height(), ct, kPremul_SkAlphaType,
+                                         nullptr);
+                pixmap.alloc(info);
+                memset(pixmap.writable_addr(), 0xAB, pixmap.computeByteSize());
+                surf->asyncReadPixels(ct, kPremul_SkAlphaType, nullptr, rect, callback, &context);
+                while (!context.fCalled) {
+                    ctxInfo.grContext()->checkAsyncWorkCompletion();
+                }
+                if (rect.isEmpty() || !SkIRect::MakeWH(kW, kH).contains(rect)) {
+                    REPORTER_ASSERT(reporter, !context.fSuceeded);
+                }
+                if (context.fSuceeded) {
+                    // We use a synchronous read as the source of truth.
+                    SkAutoPixmapStorage ref;
+                    ref.alloc(info);
+                    memset(ref.writable_addr(), 0xCD, ref.computeByteSize());
+                    if (!surf->readPixels(ref, rect.fLeft, rect.fTop)) {
+                        continue;
+                    }
+                    const auto* a = static_cast<const char*>(pixmap.addr());
+                    const auto* b = static_cast<const char*>(ref.addr());
+                    for (int j = 0; j < pixmap.height();
+                         ++j, a += pixmap.rowBytes(), b += ref.rowBytes()) {
+                        if (memcmp(a, b, pixmap.width() * SkColorTypeBytesPerPixel(ct))) {
+                            ERRORF(reporter, "Failed. CT: %d, j: %d", ct, j);
+                            break;
                         }
                     }
                 }

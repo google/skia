@@ -660,6 +660,33 @@ public:
     */
     bool readPixels(const SkBitmap& dst, int srcX, int srcY);
 
+    /** Makes pixel data available to caller, possibly asynchronously.
+
+        Currently asynchronous reads are only supported on the GPU backend and only when the
+        underlying 3D API supports transfer buffers and CPU/GPU synchronization primitives. In all
+        other cases this operates synchronously.
+
+        When the pixel data is ready the caller's ReadPixelsCallback is called with a pointer to
+        the data in the requested color type, alpha type, and color space. The data pointer is
+        only valid for the duration of the callback.
+
+        Upon failure the the callback is called with nullptr as the data pointer.
+
+        If the src rectangle is not contained by the bounds of the surface then failure occurs.
+
+        @param ct       color type of the read data
+        @param at       alpha type of the read data
+        @param cs       color space of the read data
+        @param srcRect  a subrectangle of the surface to read
+        @param callback function to call with result of the read.
+        @param context  passed to callback.
+     */
+    using ReadPixelsContext = void*;
+    using ReadPixelsCallback = void(ReadPixelsContext, const void* data, size_t rowBytes);
+    void asyncReadPixels(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
+                         const SkIRect& srcRect, ReadPixelsCallback callback,
+                         ReadPixelsContext context);
+
     /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
 
         Source SkRect corners are (0, 0) and (src.width(), src.height()).

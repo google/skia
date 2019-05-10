@@ -649,7 +649,6 @@ bool GrVkPrimaryCommandBuffer::finished(const GrVkGpu* gpu) {
     VkResult err = GR_VK_CALL(gpu->vkInterface(), GetFenceStatus(gpu->device(), fSubmitFence));
     switch (err) {
         case VK_SUCCESS:
-            fFinishedProcs.reset();
             return true;
 
         case VK_NOT_READY:
@@ -672,6 +671,7 @@ void GrVkPrimaryCommandBuffer::onReleaseResources(GrVkGpu* gpu) {
     for (int i = 0; i < fSecondaryCommandBuffers.count(); ++i) {
         fSecondaryCommandBuffers[i]->releaseResources(gpu);
     }
+    fFinishedProcs.reset();
 }
 
 void GrVkPrimaryCommandBuffer::recycleSecondaryCommandBuffers() {
