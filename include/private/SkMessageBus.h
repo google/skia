@@ -74,7 +74,7 @@ template<typename Message>
 SkMessageBus<Message>::Inbox::Inbox(uint32_t uniqueID) : fUniqueID(uniqueID) {
     // Register ourselves with the corresponding message bus.
     SkMessageBus<Message>* bus = SkMessageBus<Message>::Get();
-    SkAutoMutexAcquire lock(bus->fInboxesMutex);
+    SkAutoMutexExclusive lock(bus->fInboxesMutex);
     bus->fInboxes.push_back(this);
 }
 
@@ -82,7 +82,7 @@ template<typename Message>
 SkMessageBus<Message>::Inbox::~Inbox() {
     // Remove ourselves from the corresponding message bus.
     SkMessageBus<Message>* bus = SkMessageBus<Message>::Get();
-    SkAutoMutexAcquire lock(bus->fInboxesMutex);
+    SkAutoMutexExclusive lock(bus->fInboxesMutex);
     // This is a cheaper fInboxes.remove(fInboxes.find(this)) when order doesn't matter.
     for (int i = 0; i < bus->fInboxes.count(); i++) {
         if (this == bus->fInboxes[i]) {
@@ -94,7 +94,7 @@ SkMessageBus<Message>::Inbox::~Inbox() {
 
 template<typename Message>
 void SkMessageBus<Message>::Inbox::receive(const Message& m) {
-    SkAutoMutexAcquire lock(fMessagesMutex);
+    SkAutoMutexExclusive lock(fMessagesMutex);
     fMessages.push_back(m);
 }
 
@@ -102,7 +102,7 @@ template<typename Message>
 void SkMessageBus<Message>::Inbox::poll(SkTArray<Message>* messages) {
     SkASSERT(messages);
     messages->reset();
-    SkAutoMutexAcquire lock(fMessagesMutex);
+    SkAutoMutexExclusive lock(fMessagesMutex);
     fMessages.swap(*messages);
 }
 
@@ -114,7 +114,7 @@ SkMessageBus<Message>::SkMessageBus() {}
 template <typename Message>
 /*static*/ void SkMessageBus<Message>::Post(const Message& m) {
     SkMessageBus<Message>* bus = SkMessageBus<Message>::Get();
-    SkAutoMutexAcquire lock(bus->fInboxesMutex);
+    SkAutoMutexExclusive lock(bus->fInboxesMutex);
     for (int i = 0; i < bus->fInboxes.count(); i++) {
         if (SkShouldPostMessageToBus(m, bus->fInboxes[i]->fUniqueID)) {
             bus->fInboxes[i]->receive(m);

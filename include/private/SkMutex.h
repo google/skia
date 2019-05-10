@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkSemaphore.h"
+#include "include/private/SkThreadAnnotations.h"
 #include "include/private/SkThreadID.h"
 
 #define SK_DECLARE_STATIC_MUTEX(name) static SkBaseMutex name;
@@ -39,10 +40,28 @@ protected:
     SkDEBUGCODE(SkThreadID fOwner{kIllegalThreadID};)
 };
 
-class SkMutex : public SkBaseMutex {
+class SK_CAPABILITY("mutex") SkMutex {
 public:
-    using SkBaseMutex::SkBaseMutex;
-    ~SkMutex() { fSemaphore.cleanup(); }
+    constexpr SkMutex() = default;
+
+    void acquire() SK_ACQUIRE() {
+        fSemaphore.wait();
+        SkDEBUGCODE(fOwner = SkGetThreadID();)
+    }
+
+    void release() SK_RELEASE_CAPABILITY() {
+        this->assertHeld();
+        SkDEBUGCODE(fOwner = kIllegalThreadID;)
+        fSemaphore.signal();
+    }
+
+    void assertHeld() SK_ASSERT_CAPABILITY(this) {
+        SkASSERT(fOwner == SkGetThreadID());
+    }
+
+private:
+    SkSemaphore fSemaphore{1};
+    SkDEBUGCODE(SkThreadID fOwner{kIllegalThreadID};)
 };
 
 class SkAutoMutexAcquire {
@@ -73,22 +92,15 @@ private:
 };
 #define SkAutoMutexAcquire(...) SK_REQUIRE_LOCAL_VAR(SkAutoMutexAcquire)
 
-// SkAutoExclusive is a lighter weight version of SkAutoMutexAcquire.
-// It assumes that there is a valid mutex, obviating the null check.
-class SkAutoExclusive {
+class SK_SCOPED_CAPABILITY SkAutoMutexExclusive {
 public:
-    template <typename T>
-    SkAutoExclusive(T& mutex) : fMutex(&mutex) {
-        mutex.acquire();
-
-        fRelease = [](void* mutex) { ((T*)mutex)->release(); };
-    }
-    ~SkAutoExclusive() { fRelease(fMutex); }
+    SkAutoMutexExclusive(SkMutex& mutex) SK_ACQUIRE(mutex) : fMutex(mutex) { fMutex.acquire(); }
+    ~SkAutoMutexExclusive() SK_RELEASE_CAPABILITY() { fMutex.release(); }
 
 private:
-    void* fMutex;
-    void (*fRelease)(void*);
+    SkMutex& fMutex;
 };
-#define SkAutoExclusive(...) SK_REQUIRE_LOCAL_VAR(SkAutoExclusive)
+
+#define SkAutoMutexExclusive(...) SK_REQUIRE_LOCAL_VAR(SkAutoMutexExclusive)
 
 #endif//SkMutex_DEFINED

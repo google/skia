@@ -59,7 +59,7 @@ uint8_t* SkEventTracingCategories::getCategoryGroupEnabled(const char* name) {
     // Chrome's implementation of this API does a two-phase lookup (once without a lock, then again
     // with a lock. But the tracing macros avoid calling these functions more than once per site,
     // so just do something simple (and easier to reason about):
-    SkAutoMutexAcquire lock(&fMutex);
+    SkAutoMutexExclusive lock(fMutex);
     for (int i = 0; i < fNumCategories; ++i) {
         if (0 == strcmp(name, fCategories[i].fName)) {
             return reinterpret_cast<uint8_t*>(&fCategories[i]);

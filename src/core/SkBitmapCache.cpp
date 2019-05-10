@@ -91,7 +91,7 @@ public:
         return sizeof(fKey) + fInfo.computeByteSize(fRowBytes);
     }
     bool canBePurged() override {
-        SkAutoMutexAcquire ama(fMutex);
+        SkAutoMutexExclusive ama(fMutex);
         return fExternalCounter == 0;
     }
     void postAddInstall(void* payload) override {
@@ -105,7 +105,7 @@ public:
 
     static void ReleaseProc(void* addr, void* ctx) {
         Rec* rec = static_cast<Rec*>(ctx);
-        SkAutoMutexAcquire ama(rec->fMutex);
+        SkAutoMutexExclusive ama(rec->fMutex);
 
         SkASSERT(rec->fExternalCounter > 0);
         rec->fExternalCounter -= 1;
@@ -121,7 +121,7 @@ public:
     }
 
     bool install(SkBitmap* bitmap) {
-        SkAutoMutexAcquire ama(fMutex);
+        SkAutoMutexExclusive ama(fMutex);
 
         if (!fDM && !fMalloc) {
             return false;

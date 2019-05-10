@@ -80,6 +80,7 @@ public:
 
     template <typename T>
     void emitStream(const SkPDFDict& dict, T writeStream, SkPDFIndirectReference ref) {
+        SkAutoMutexExclusive lock(fMutex);
         SkWStream* stream = this->beginObject(ref);
         dict.emitObject(stream);
         stream->writeText(" stream\n");

@@ -1576,7 +1576,7 @@ void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
     // can be very slow. If we do need to compute a new glyphID, then
     // access those freetype objects and continue the loop.
 
-    SkAutoMutexAcquire ama(fC2GCacheMutex);
+    SkAutoMutexExclusive ama(fC2GCacheMutex);
 
     int i;
     for (i = 0; i < count; ++i) {
@@ -1824,7 +1824,7 @@ FT_Face SkTypeface_FreeType::Scanner::openFace(SkStreamAsset* stream, int ttcInd
 }
 
 bool SkTypeface_FreeType::Scanner::recognizedFont(SkStreamAsset* stream, int* numFaces) const {
-    SkAutoMutexAcquire libraryLock(fLibraryMutex);
+    SkAutoMutexExclusive libraryLock(fLibraryMutex);
 
     FT_StreamRec streamRec;
     FT_Face face = this->openFace(stream, -1, &streamRec);
@@ -1843,7 +1843,7 @@ bool SkTypeface_FreeType::Scanner::scanFont(
     SkStreamAsset* stream, int ttcIndex,
     SkString* name, SkFontStyle* style, bool* isFixedPitch, AxisDefinitions* axes) const
 {
-    SkAutoMutexAcquire libraryLock(fLibraryMutex);
+    SkAutoMutexExclusive libraryLock(fLibraryMutex);
 
     FT_StreamRec streamRec;
     FT_Face face = this->openFace(stream, ttcIndex, &streamRec);

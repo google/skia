@@ -81,7 +81,7 @@ SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& i
         return nullptr;
     }
 
-    SkAutoMutexAcquire ama(fDataCacheMutex);
+    SkAutoMutexExclusive ama(fDataCacheMutex);
 
     sk_sp<SkTypeface> dataTypeface;
     int dataTypefaceIndex = 0;

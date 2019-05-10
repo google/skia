@@ -169,7 +169,7 @@ std::unique_ptr<SkDiscardableMemory> DiscardableMemoryPool::make(size_t bytes) {
         return nullptr;
     }
     auto dm = skstd::make_unique<PoolDiscardableMemory>(sk_ref_sp(this), std::move(addr), bytes);
-    SkAutoMutexAcquire autoMutexAcquire(fMutex);
+    SkAutoMutexExclusive autoMutexAcquire(fMutex);
     fList.addToHead(dm.get());
     fUsed += bytes;
     this->dumpDownTo(fBudget);
@@ -177,7 +177,7 @@ std::unique_ptr<SkDiscardableMemory> DiscardableMemoryPool::make(size_t bytes) {
 }
 
 void DiscardableMemoryPool::removeFromPool(PoolDiscardableMemory* dm) {
-    SkAutoMutexAcquire autoMutexAcquire(fMutex);
+    SkAutoMutexExclusive autoMutexAcquire(fMutex);
     // This is called by dm's destructor.
     if (dm->fPointer != nullptr) {
         SkASSERT(fUsed >= dm->fBytes);
@@ -190,7 +190,7 @@ void DiscardableMemoryPool::removeFromPool(PoolDiscardableMemory* dm) {
 
 bool DiscardableMemoryPool::lock(PoolDiscardableMemory* dm) {
     SkASSERT(dm != nullptr);
-    SkAutoMutexAcquire autoMutexAcquire(fMutex);
+    SkAutoMutexExclusive autoMutexAcquire(fMutex);
     if (nullptr == dm->fPointer) {
         // May have been purged while waiting for lock.
         #if SK_LAZY_CACHE_STATS
@@ -209,7 +209,7 @@ bool DiscardableMemoryPool::lock(PoolDiscardableMemory* dm) {
 
 void DiscardableMemoryPool::unlock(PoolDiscardableMemory* dm) {
     SkASSERT(dm != nullptr);
-    SkAutoMutexAcquire autoMutexAcquire(fMutex);
+    SkAutoMutexExclusive autoMutexAcquire(fMutex);
     dm->fLocked = false;
     this->dumpDownTo(fBudget);
 }
@@ -218,12 +218,12 @@ size_t DiscardableMemoryPool::getRAMUsed() {
     return fUsed;
 }
 void DiscardableMemoryPool::setRAMBudget(size_t budget) {
-    SkAutoMutexAcquire autoMutexAcquire(fMutex);
+    SkAutoMutexExclusive autoMutexAcquire(fMutex);
     fBudget = budget;
     this->dumpDownTo(fBudget);
 }
 void DiscardableMemoryPool::dumpPool() {
-    SkAutoMutexAcquire autoMutexAcquire(fMutex);
+    SkAutoMutexExclusive autoMutexAcquire(fMutex);
     this->dumpDownTo(0);
 }
 

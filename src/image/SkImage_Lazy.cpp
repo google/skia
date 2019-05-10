@@ -117,7 +117,7 @@ public:
 
 private:
     const sk_sp<SharedGenerator>& fSharedGenerator;
-    SkAutoExclusive               fAutoAquire;
+    SkAutoMutexExclusive          fAutoAquire;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -263,7 +263,7 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(GrRecordingContext* context,
 sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(GrRecordingContext*,
                                                           SkColorType targetCT,
                                                           sk_sp<SkColorSpace> targetCS) const {
-    SkAutoExclusive autoAquire(fOnMakeColorTypeAndSpaceMutex);
+    SkAutoMutexExclusive autoAquire(fOnMakeColorTypeAndSpaceMutex);
     if (fOnMakeColorTypeAndSpaceResult &&
         targetCT == fOnMakeColorTypeAndSpaceResult->colorType() &&
         SkColorSpace::Equals(targetCS.get(), fOnMakeColorTypeAndSpaceResult->colorSpace())) {

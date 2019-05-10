@@ -699,7 +699,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
      */
     sk_sp<SkTypeface> createTypefaceFromFcPattern(FcPattern* pattern) const {
         FCLocker::AssertHeld();
-        SkAutoMutexAcquire ama(fTFCacheMutex);
+        SkAutoMutexExclusive ama(fTFCacheMutex);
         sk_sp<SkTypeface> face = fTFCache.findByProcAndRef(FindByFcPattern, pattern);
         if (!face) {
             FcPatternReference(pattern);

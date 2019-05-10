@@ -713,7 +713,7 @@ void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
         return;
     }
 
-    SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
+    SkAutoMutexExclusive lock(fGenIDChangeListenersMutex);
 
     // Clean out any stale listeners before we append the new one.
     for (int i = 0; i < fGenIDChangeListeners.count(); ++i) {
@@ -729,7 +729,7 @@ void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
 
 // we need to be called *before* the genID gets changed or zerod
 void SkPathRef::callGenIDChangeListeners() {
-    SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
+    SkAutoMutexExclusive lock(fGenIDChangeListenersMutex);
     for (GenIDChangeListener* listener : fGenIDChangeListeners) {
         if (!listener->shouldUnregisterFromPath()) {
             listener->onChange();

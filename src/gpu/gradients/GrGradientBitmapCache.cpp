@@ -198,7 +198,7 @@ void GrGradientBitmapCache::getGradient(const SkPMColor4f* colors, const SkScala
     ///////////////////////////////////
 
     // acquire lock for checking/adding to cache
-    SkAutoExclusive ama(fMutex);
+    SkAutoMutexExclusive ama(fMutex);
     size_t size = keyCount * sizeof(int32_t);
     if (!this->find(storage.get(), size, bitmap)) {
         SkImageInfo info = SkImageInfo::Make(fResolution, 1, colorType, alphaType);

@@ -129,7 +129,7 @@
         int currentSharedCount;
         int waitingExclusiveCount;
         {
-            SkAutoMutexAcquire l(&fMu);
+            SkAutoMutexExclusive l(fMu);
 
             SkASSERTF(!fCurrentShared->find(threadID),
                       "Thread %lx already has an shared lock\n", threadID);
@@ -159,7 +159,7 @@
         int exclusiveWaitingCount;
         int sharedQueueSelect;
         {
-            SkAutoMutexAcquire l(&fMu);
+            SkAutoMutexExclusive l(fMu);
             SkASSERT(0 == fCurrentShared->count());
             if (!fWaitingExclusive->tryRemove(threadID)) {
                 SkDEBUGFAILF("Thread %lx did not have the lock held.\n", threadID);
@@ -182,7 +182,7 @@
 
     void SkSharedMutex::assertHeld() const {
         SkThreadID threadID(SkGetThreadID());
-        SkAutoMutexAcquire l(&fMu);
+        SkAutoMutexExclusive l(fMu);
         SkASSERT(0 == fCurrentShared->count());
         SkASSERT(fWaitingExclusive->find(threadID));
     }
@@ -192,7 +192,7 @@
         int exclusiveWaitingCount;
         int sharedQueueSelect;
         {
-            SkAutoMutexAcquire l(&fMu);
+            SkAutoMutexExclusive l(fMu);
             exclusiveWaitingCount = fWaitingExclusive->count();
             if (exclusiveWaitingCount > 0) {
                 if (!fWaitingShared->tryAdd(threadID)) {
@@ -220,7 +220,7 @@
         int currentSharedCount;
         int waitingExclusiveCount;
         {
-            SkAutoMutexAcquire l(&fMu);
+            SkAutoMutexExclusive l(fMu);
             if (!fCurrentShared->tryRemove(threadID)) {
                 SkDEBUGFAILF("Thread %lx does not hold a shared lock.\n", threadID);
             }
@@ -235,7 +235,7 @@
 
     void SkSharedMutex::assertHeldShared() const {
         SkThreadID threadID(SkGetThreadID());
-        SkAutoMutexAcquire l(&fMu);
+        SkAutoMutexExclusive l(fMu);
         SkASSERT(fCurrentShared->find(threadID));
     }
 

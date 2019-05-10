@@ -58,7 +58,7 @@ public:
     };
 
     sk_sp<SkSpecialImage> get(const Key& key, SkIPoint* offset) const override {
-        SkAutoMutexAcquire mutex(fMutex);
+        SkAutoMutexExclusive mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
             *offset = v->fOffset;
             if (v != fLRU.head()) {
@@ -71,7 +71,7 @@ public:
     }
 
     void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset, const SkImageFilter* filter) override {
-        SkAutoMutexAcquire mutex(fMutex);
+        SkAutoMutexExclusive mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
             this->removeInternal(v);
         }
@@ -96,7 +96,7 @@ public:
     }
 
     void purge() override {
-        SkAutoMutexAcquire mutex(fMutex);
+        SkAutoMutexExclusive mutex(fMutex);
         while (fCurrentBytes > 0) {
             Value* tail = fLRU.tail();
             SkASSERT(tail);
@@ -105,7 +105,7 @@ public:
     }
 
     void purgeByImageFilter(const SkImageFilter* filter) override {
-        SkAutoMutexAcquire mutex(fMutex);
+        SkAutoMutexExclusive mutex(fMutex);
         auto* values = fImageFilterValues.find(filter);
         if (!values) {
             return;

@@ -93,7 +93,7 @@ public:
     virtual void add(std::function<void(void)> work) override {
         // Add some work to our pile of work to do.
         {
-            SkAutoExclusive lock(fWorkLock);
+            SkAutoMutexExclusive lock(fWorkLock);
             fWork.emplace_back(std::move(work));
         }
         // Tell the Loop() threads to pick it up.
@@ -112,7 +112,7 @@ private:
     bool do_work() {
         std::function<void(void)> work;
         {
-            SkAutoExclusive lock(fWorkLock);
+            SkAutoMutexExclusive lock(fWorkLock);
             SkASSERT(!fWork.empty());        // TODO: if (fWork.empty()) { return true; } ?
             work = pop(&fWork);
         }

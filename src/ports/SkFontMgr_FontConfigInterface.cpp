@@ -193,7 +193,7 @@ protected:
     SkTypeface* onMatchFamilyStyle(const char requestedFamilyName[],
                                    const SkFontStyle& requestedStyle) const override
     {
-        SkAutoMutexAcquire ama(fMutex);
+        SkAutoMutexExclusive ama(fMutex);
 
         SkFontConfigInterface::FontIdentity identity;
         SkString outFamilyName;
@@ -294,7 +294,7 @@ protected:
     sk_sp<SkTypeface> onLegacyMakeTypeface(const char requestedFamilyName[],
                                            SkFontStyle requestedStyle) const override
     {
-        SkAutoMutexAcquire ama(fMutex);
+        SkAutoMutexExclusive ama(fMutex);
 
         // Check if this request is already in the request cache.
         using Request = SkFontRequestCache::Request;

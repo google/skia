@@ -58,7 +58,7 @@ private:
                    "Failed to re-convert to IDWriteFontFileLoader.",
                    SkFontIdentity::kInvalidDataId);
 
-        SkAutoMutexAcquire ama(fDataIdCacheMutex);
+        SkAutoMutexExclusive ama(fDataIdCacheMutex);
         int count = fDataIdCache.count();
         int i;
         for (i = 0; i < count; ++i) {
@@ -417,7 +417,7 @@ public:
     }
 
     SkStreamAsset* getData(int dataId) const override {
-        SkAutoMutexAcquire ama(fDataIdCacheMutex);
+        SkAutoMutexExclusive ama(fDataIdCacheMutex);
         if (dataId >= fDataIdCache.count()) {
             return nullptr;
         }
