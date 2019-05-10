@@ -61,9 +61,11 @@ public:
     void submitCommandBuffer(SyncQueue sync);
 
 #if GR_TEST_UTILS
-    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                     GrColorType colorType, bool isRT,
-                                                     GrMipMapped, size_t rowBytes = 0) override;
+    GrBackendTexture createTestingOnlyBackendTexture(int w, int h,
+                                                     const GrBackendFormat& format,
+                                                     GrMipMapped mipMapped,
+                                                     GrRenderable renderable,
+                                                     const void* pixels, size_t rowBytes) override;
 
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
@@ -212,7 +214,8 @@ private:
                                                                 int height) override;
 
 #if GR_TEST_UTILS
-    bool createTestingOnlyMtlTextureInfo(GrColorType colorType, int w, int h, bool texturable,
+    bool createTestingOnlyMtlTextureInfo(GrPixelConfig, GrMTLPixelFormat,
+                                         int w, int h, bool texturable,
                                          bool renderable, GrMipMapped mipMapped,
                                          const void* srcData, size_t rowBytes,
                                          GrMtlTextureInfo* info);
