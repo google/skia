@@ -338,7 +338,8 @@ public:
     /** These are used when creating a new texture internally. */
     virtual GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                             GrSRGBEncoded srgbEncoded) const = 0;
-    GrBackendFormat getBackendFormatFromColorType(SkColorType ct) const;
+    GrBackendFormat getBackendFormatFromColorType(SkColorType ct,
+                                                  GrSRGBEncoded = GrSRGBEncoded::kNo) const;
 
     /**
      * The CLAMP_TO_BORDER wrap mode for texture coordinates was added to desktop GL in 1.3, and

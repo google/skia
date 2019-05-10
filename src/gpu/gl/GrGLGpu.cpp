@@ -3970,13 +3970,24 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 }
 
 #if GR_TEST_UTILS
-GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                          GrColorType colorType, bool /*isRT*/,
+GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(int w, int h,
+                                                          const GrBackendFormat& format,
                                                           GrMipMapped mipMapped,
-                                                          size_t rowBytes) {
+                                                          GrRenderable renderable,
+                                                          const void* pixels, size_t rowBytes) {
     this->handleDirtyContext();
 
-    GrPixelConfig config = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
+    const GrGLenum* glFormat = format.getGLFormat();
+    if (!glFormat) {
+        return GrBackendTexture();  // invalid
+    }
+
+    GrPixelConfig config;
+
+    if (!GrGLFormatToPixelConfig(*glFormat, &config)) {
+        return GrBackendTexture();  // invalid
+    }
+
     if (!this->caps()->isConfigTexturable(config)) {
         return GrBackendTexture();  // invalid
     }
@@ -3993,7 +4004,7 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, in
     if (mipMapped == GrMipMapped::kYes && !this->caps()->mipMapSupport()) {
         return GrBackendTexture();
     }
-    int bpp = GrColorTypeBytesPerPixel(colorType);
+    int bpp = GrBytesPerPixel(config);
     const size_t trimRowBytes = w * bpp;
     if (!rowBytes) {
         rowBytes = trimRowBytes;
