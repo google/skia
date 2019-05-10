@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "eef086b5_ca6b2613",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-10T18:18:07Z",
+      "side": 1,
+      "message": "Actually, even more, it should probably be calling read() in a loop, right? Like:\n\nint target \u003d READ8();\nfor (int i \u003d 0; i \u003c count; ++i) {\n  fByteCode-\u003efExternValues[target]-\u003eread(++sp);\n}",
+      "parentUuid": "e2b90e6f_a7c2193e",
+      "range": {
+        "startLine": 515,
+        "startChar": 0,
+        "endLine": 519,
+        "endChar": 0
+      },
+      "revId": "4ab271e06f18d23b0c50e9d01f84888218749158",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a5b54227_9b5dc9a6",
         "filename": "src/sksl/SkSLInterpreter.cpp",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2019-05-10T13:52:06Z",
       "side": 1,
       "message": "Similarly here, this is only popping one value off the stack. Should be:\n\nint target \u003d READ8();\nfByteCode-\u003efExternalValues[target]-\u003ewrite(sp - count + 1);\nsp -\u003d count;",
+      "range": {
+        "startLine": 531,
+        "startChar": 0,
+        "endLine": 535,
+        "endChar": 0
+      },
+      "revId": "4ab271e06f18d23b0c50e9d01f84888218749158",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e55ed138_afb8bfb9",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-10T18:18:07Z",
+      "side": 1,
+      "message": "... and here, write in a loop? I\u0027m not even sure what it means to have a kVector prefix on one of these, I guess.",
+      "parentUuid": "a5b54227_9b5dc9a6",
       "range": {
         "startLine": 531,
         "startChar": 0,
