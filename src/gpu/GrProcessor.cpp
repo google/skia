@@ -27,7 +27,6 @@ GrProxyProvider* GrProcessorTestData::proxyProvider() {
 
 const GrCaps* GrProcessorTestData::caps() { return fContext->priv().caps(); }
 
-#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 class GrFragmentProcessor;
 class GrGeometryProcessor;
 
@@ -57,9 +56,15 @@ SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() 
  * we verify the count is as expected.  If a new factory is added, then these numbers must be
  * manually adjusted.
  */
+#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 static const int kFPFactoryCount = 36;
 static const int kGPFactoryCount = 14;
 static const int kXPFactoryCount = 4;
+#else
+static const int kFPFactoryCount = 0;
+static const int kGPFactoryCount = 0;
+static const int kXPFactoryCount = 0;
+#endif
 
 template <>
 void GrFragmentProcessorTestFactory::VerifyFactoryCount() {
@@ -87,7 +92,6 @@ void GrXPFactoryTestFactory::VerifyFactoryCount() {
     }
 }
 
-#endif
 #endif
 
 
