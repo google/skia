@@ -63,9 +63,8 @@ static GrSurfaceProxy* make_backend(GrContext* context, const ProxyParams& p,
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrGpu* gpu = context->priv().getGpu();
 
-    *backendTex = gpu->createTestingOnlyBackendTexture(nullptr, p.fSize, p.fSize,
-                                                       p.fColorType, false,
-                                                       GrMipMapped::kNo);
+    *backendTex = gpu->createTestingOnlyBackendTexture(p.fSize, p.fSize, p.fColorType,
+                                                       GrMipMapped::kNo, GrRenderable::kNo);
     if (!backendTex->isValid()) {
         return nullptr;
     }

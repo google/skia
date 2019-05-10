@@ -105,6 +105,71 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
     return false;
 }
 
+bool GrMTLFormatToPixelConfig(MTLPixelFormat format, GrPixelConfig* config) {
+    GrPixelConfig dontCare;
+    if (!config) {
+        config = &dontCare;
+    }
+
+    switch (format) {
+        case MTLPixelFormatInvalid:
+            *config = kUnknown_GrPixelConfig;
+            return false;
+        case MTLPixelFormatRGBA8Unorm:
+            *config = kRGBA_8888_GrPixelConfig;
+            return true;
+        case MTLPixelFormatRG8Unorm:
+            *config = kRG_88_GrPixelConfig;
+            return true;
+        case MTLPixelFormatBGRA8Unorm:
+            *config = kBGRA_8888_GrPixelConfig;
+            return true;
+        case MTLPixelFormatRGBA8Unorm_sRGB:
+            *config = kSRGBA_8888_GrPixelConfig;
+            return true;
+        case MTLPixelFormatBGRA8Unorm_sRGB:
+            *config = kSBGRA_8888_GrPixelConfig;
+            return true;
+        case MTLPixelFormatRGB10A2Unorm:
+            *config = kRGBA_1010102_GrPixelConfig;
+            return true;
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatB5G6R5Unorm:
+            *config = kRGB_565_GrPixelConfig;
+            return true;
+        case MTLPixelFormatABGR4Unorm:
+            *config = kRGBA_4444_GrPixelConfig;
+            return true;
+#endif
+        case MTLPixelFormatR8Unorm:
+            *config = kAlpha_8_GrPixelConfig;
+            return true;
+        case MTLPixelFormatRGBA32Float:
+            *config = kRGBA_float_GrPixelConfig;
+            return true;
+        case MTLPixelFormatRG32Float:
+            *config = kRG_float_GrPixelConfig;
+            return true;
+        case MTLPixelFormatRGBA16Float:
+            *config = kRGBA_half_GrPixelConfig;
+            return true;
+        case MTLPixelFormatR16Float:
+            *config = kAlpha_half_GrPixelConfig;
+            return true;
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatETC2_RGB8:
+            *config = kRGB_ETC1_GrPixelConfig;
+            return true;
+#endif
+        default:
+            return false;
+    }
+
+    SK_ABORT("Unexpected config");
+    return false;
+}
+
+
 id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership wrapOwnership) {
     if (GrWrapOwnership::kAdopt_GrWrapOwnership == wrapOwnership) {
         return (__bridge_transfer id<MTLTexture>)mtlTexture;
