@@ -47,18 +47,17 @@ void Interpreter::setInputs(Interpreter::Value inputs[]) {
 
 void Interpreter::run(const ByteCodeFunction& f, Interpreter::Value args[],
                       Interpreter::Value* outReturn) {
-    fCurrentFunction = &f;
 #ifdef TRACE
     this->disassemble(f);
 #endif
     Value smallStack[128];
     std::unique_ptr<Value[]> largeStack;
     Value* stack = smallStack;
-    if ((int) SK_ARRAY_COUNT(smallStack) < fCurrentFunction->fStackCount) {
-        largeStack.reset(new Value[fCurrentFunction->fStackCount]);
+    if ((int) SK_ARRAY_COUNT(smallStack) < f.fStackCount) {
+        largeStack.reset(new Value[f.fStackCount]);
         stack = largeStack.get();
     }
-    run(stack, args, outReturn);
+    run(f, stack, args, outReturn);
     int offset = 0;
     for (const auto& p : f.fDeclaration.fParameters) {
         if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
@@ -112,6 +111,7 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             case ByteCodeInstruction::kAndB: printf("andb"); break;
             case ByteCodeInstruction::kAndI: printf("andi"); break;
             case ByteCodeInstruction::kBranch: printf("branch %d", READ16()); break;
+            case ByteCodeInstruction::kCall: printf("call %d", READ8()); break;
             case ByteCodeInstruction::kCompareIEQ: printf("comparei eq"); break;
             case ByteCodeInstruction::kCompareINEQ: printf("comparei neq"); break;
             case ByteCodeInstruction::kCompareFEQ: printf("comparef eq"); break;
@@ -223,11 +223,11 @@ static constexpr int VECTOR_MAX = 16;
         break;                                                \
     }
 
-void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
-    const uint8_t* code = fCurrentFunction->fCode.data();
+void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Value* outReturn) {
+    const uint8_t* code = f.fCode.data();
     const uint8_t* ip = code;
-    memcpy(stack, args, fCurrentFunction->fParameterCount * sizeof(Value));
-    Value* sp = stack + fCurrentFunction->fParameterCount + fCurrentFunction->fLocalCount - 1;
+    memcpy(stack, args, f.fParameterCount * sizeof(Value));
+    Value* sp = stack + f.fParameterCount + f.fLocalCount - 1;
     for (;;) {
         ByteCodeInstruction inst = (ByteCodeInstruction) READ8();
 #ifdef TRACE
@@ -238,6 +238,14 @@ void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
             BINARY_OP(kAddF, float, fFloat, +)
             case ByteCodeInstruction::kBranch: {
                 ip = code + READ16();
+                break;
+            }
+            case ByteCodeInstruction::kCall: {
+                int target = READ8();
+                const ByteCodeFunction* fun = fByteCode->fFunctions[target].get();
+                this->run(*fun, sp - fun->fParameterCount + 1, sp - fun->fParameterCount + 1);
+                sp -= fun->fParameterCount;
+                sp += fun->fReturnCount;
                 break;
             }
             BINARY_OP(kCompareIEQ, int32_t, fSigned, ==)
