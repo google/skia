@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrRenderTargetContext.h"
 #include "include/core/SkDrawable.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrRenderTarget.h"
@@ -31,7 +32,6 @@
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrQuad.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrShape.h"
@@ -60,6 +60,7 @@
 #include "src/gpu/ops/GrStencilPathOp.h"
 #include "src/gpu/ops/GrStrokeRectOp.h"
 #include "src/gpu/ops/GrTextureOp.h"
+#include "src/gpu/ops/GrTransferFromOp.h"
 #include "src/gpu/text/GrTextContext.h"
 #include "src/gpu/text/GrTextTarget.h"
 
@@ -1733,6 +1734,114 @@ void GrRenderTargetContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHand
     std::unique_ptr<GrOp> op(GrDrawableOp::Make(fContext, std::move(drawable), bounds));
     SkASSERT(op);
     this->getRTOpList()->addOp(std::move(op), *this->caps());
+}
+
+bool GrRenderTargetContext::asyncReadPixels(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
+                                            const SkIRect& srcRect, ReadPixelsCallback callback,
+                                            ReadPixelsContext context) {
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return false;
+    }
+    if (!this->caps()->transferBufferSupport()) {
+        return false;
+    }
+    if (fRenderTargetProxy->wrapsVkSecondaryCB()) {
+        return false;
+    }
+    // We currently don't know our own alpha type, we assume it's premul if we have an alpha channel
+    // and opaque otherwise.
+    if (!GrPixelConfigIsAlphaOnly(fRenderTargetProxy->config()) && at != kPremul_SkAlphaType) {
+        return false;
+    }
+    // TODO(bsalomon): Enhance support for reading to different color types.
+    auto dstCT = SkColorTypeToGrColorType(ct);
+    auto readCT = this->caps()->supportedReadPixelsColorType(fRenderTargetProxy->config(), dstCT);
+    if (readCT != dstCT) {
+        return false;
+    }
+    if (!this->caps()->transferFromOffsetAlignment(readCT)) {
+        return false;
+    }
+
+    // TODO(bsalomon): Support color space conversion.
+    if (!SkColorSpace::Equals(cs.get(), this->colorSpaceInfo().colorSpace())) {
+        return false;
+    }
+
+    // Insert a draw to a temporary surface if we need to do a y-flip (and in future for a color
+    // space conversion.)
+    if (this->origin() == kBottomLeft_GrSurfaceOrigin) {
+        sk_sp<GrTextureProxy> texProxy = sk_ref_sp(fRenderTargetProxy->asTextureProxy());
+        const auto& backendFormat = fRenderTargetProxy->backendFormat();
+        SkRect srcRectToDraw = SkRect::Make(srcRect);
+        // If the src is not texturable first try to make a copy to a texture.
+        if (!texProxy) {
+            GrSurfaceDesc desc;
+            desc.fWidth = srcRect.width();
+            desc.fHeight = srcRect.height();
+            desc.fConfig = fRenderTargetProxy->config();
+            auto sContext = direct->priv().makeDeferredSurfaceContext(
+                    backendFormat, desc, this->origin(), GrMipMapped::kNo, SkBackingFit::kApprox,
+                    SkBudgeted::kNo, this->colorSpaceInfo().refColorSpace());
+            if (!sContext) {
+                return false;
+            }
+            if (!sContext->copy(fRenderTargetProxy.get(), srcRect, {0, 0})) {
+                return false;
+            }
+            texProxy = sk_ref_sp(sContext->asTextureProxy());
+            SkASSERT(texProxy);
+            srcRectToDraw = SkRect::MakeWH(srcRect.width(), srcRect.height());
+        }
+        auto rtc = direct->priv().makeDeferredRenderTargetContext(
+                backendFormat, SkBackingFit::kApprox, srcRect.width(), srcRect.height(),
+                fRenderTargetProxy->config(), cs, 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+        if (!rtc) {
+            return false;
+        }
+        rtc->drawTexture(GrNoClip(), std::move(texProxy), GrSamplerState::Filter::kNearest,
+                         SkBlendMode::kSrc, SK_PMColor4fWHITE, srcRectToDraw,
+                         SkRect::MakeWH(srcRect.width(), srcRect.height()), GrAA::kNo,
+                         GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(),
+                         /* colorSpaceXform = */ nullptr);
+        return rtc->asyncReadPixels(ct, at, std::move(cs),
+                                    SkIRect::MakeWH(srcRect.width(), srcRect.height()), callback,
+                                    context);
+    }
+    size_t rowBytes = GrColorTypeBytesPerPixel(dstCT) * srcRect.width();
+    size_t size = rowBytes * srcRect.height();
+    auto buffer = direct->priv().resourceProvider()->createBuffer(
+            size, GrGpuBufferType::kXferGpuToCpu, GrAccessPattern::kStream_GrAccessPattern);
+    if (!buffer) {
+        return false;
+    }
+    this->getRTOpList()->addOp(GrTransferFromOp::Make(fContext, srcRect, dstCT, buffer, 0),
+                               *this->caps());
+    struct FinishContext {
+        ReadPixelsCallback* fClientCallback;
+        ReadPixelsContext fClientContext;
+        sk_sp<GrGpuBuffer> fBuffer;
+        size_t fRowBytes;
+    };
+    // Assumption is that the caller would like to flush. We could take a parameter or require an
+    // explicit flush from the caller. We'd have to have a way to defer attaching the finish
+    // callback to GrGpu until after the next flush that flushes our op list, though.
+    auto* finishContext = new FinishContext{callback, context, buffer, rowBytes};
+    auto finishCallback = [](GrGpuFinishedContext c) {
+        auto context = reinterpret_cast<const FinishContext*>(c);
+        void* data = context->fBuffer->map();
+        (*context->fClientCallback)(context->fClientContext, data, data ? context->fRowBytes : 0);
+        if (data) {
+            context->fBuffer->unmap();
+        }
+        delete context;
+    };
+    GrFlushInfo flushInfo;
+    flushInfo.fFinishedContext = finishContext;
+    flushInfo.fFinishedProc = finishCallback;
+    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    return true;
 }
 
 GrSemaphoresSubmitted GrRenderTargetContext::flush(SkSurface::BackendSurfaceAccess access,
