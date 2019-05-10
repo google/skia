@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7fbfe6e4_9a6ef879",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-10T16:14:56Z",
+      "side": 1,
+      "message": "is there a need to say that the pointer to this data is only valid during the lifetime of the callback?",
+      "range": {
+        "startLine": 685,
+        "startChar": 55,
+        "endLine": 685,
+        "endChar": 71
+      },
+      "revId": "58a61dfd30344eb5a7eee79b802ae5451cd35b09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "680fbe48_ab9fd82e",
+        "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-10T16:14:56Z",
+      "side": 1,
+      "message": "move this out of backgroundReset doesn\u0027t seem to have any functionality change. Is this meant to do something?",
+      "range": {
+        "startLine": 366,
+        "startChar": 16,
+        "endLine": 366,
+        "endChar": 45
+      },
+      "revId": "58a61dfd30344eb5a7eee79b802ae5451cd35b09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
