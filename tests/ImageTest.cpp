@@ -488,7 +488,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter
         bool can = ctxInfo.grContext()->colorTypeSupportedAsImage(colorType);
         auto* gpu = ctxInfo.grContext()->priv().getGpu();
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, kSize, kSize, colorType, false, GrMipMapped::kNo);
+                kSize, kSize, colorType, GrMipMapped::kNo, GrRenderable::kNo);
         auto img =
                 SkImage::MakeFromTexture(ctxInfo.grContext(), backendTex, kTopLeft_GrSurfaceOrigin,
                                          colorType, kOpaque_SkAlphaType, nullptr);
@@ -833,7 +833,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     GrBackendTexture backendTex;
 
     if (!create_backend_texture(ctx, &backendTex, ii, GrMipMapped::kNo, SK_ColorRED,
-                                Renderable::kNo)) {
+                                GrRenderable::kNo)) {
         ERRORF(reporter, "couldn't create backend texture\n");
     }
 

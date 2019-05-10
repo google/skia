@@ -208,8 +208,7 @@ public:
      * Given a dst pixel config and a src color type what color type must the caller coax the
      * the data into in order to use GrGpu::writePixels().
      */
-    virtual GrColorType supportedWritePixelsColorType(GrPixelConfig config,
-                                                      GrColorType /*srcColorType*/) const {
+    virtual GrColorType supportedWritePixelsColorType(GrPixelConfig config) const {
         return GrPixelConfigToColorType(config);
     }
 
@@ -339,6 +338,8 @@ public:
     virtual GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                             GrSRGBEncoded srgbEncoded) const = 0;
     GrBackendFormat getBackendFormatFromColorType(SkColorType ct) const;
+
+    virtual GrColorType getColorTypefromBackendFormat(const GrBackendFormat& format) const = 0;
 
     /**
      * The CLAMP_TO_BORDER wrap mode for texture coordinates was added to desktop GL in 1.3, and
