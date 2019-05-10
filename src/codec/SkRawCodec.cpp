@@ -113,10 +113,10 @@ public:
                 try {
                     task.ProcessOnThread(taskIndex, taskAreas[taskIndex], tileSize, this->Sniffer());
                 } catch (dng_exception& exception) {
-                    SkAutoMutexAcquire lock(mutex);
+                    SkAutoMutexExclusive lock(mutex);
                     exceptions.push_back(exception);
                 } catch (...) {
-                    SkAutoMutexAcquire lock(mutex);
+                    SkAutoMutexExclusive lock(mutex);
                     exceptions.push_back(dng_exception(dng_error_unknown));
                 }
             });
