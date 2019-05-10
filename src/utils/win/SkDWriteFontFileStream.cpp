@@ -198,7 +198,7 @@ HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::ReadFileFragment(
 
     } else {
         // May be called from multiple threads.
-        SkAutoMutexAcquire ama(fStreamMutex);
+        SkAutoMutexExclusive ama(fStreamMutex);
 
         *fragmentStart = nullptr;
         *fragmentContext = nullptr;

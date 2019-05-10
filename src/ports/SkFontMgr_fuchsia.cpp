@@ -388,7 +388,7 @@ static bool FindByTypefaceId(SkTypeface* cachedTypeface, void* ctx) {
 
 sk_sp<SkTypeface> SkFontMgr_Fuchsia::GetOrCreateTypeface(TypefaceId id,
                                                          const fuchsia::mem::Buffer& buffer) const {
-    SkAutoMutexAcquire mutexLock(fCacheMutex);
+    SkAutoMutexExclusive mutexLock(fCacheMutex);
 
     sk_sp<SkTypeface> cached = fTypefaceCache.findByProcAndRef(FindByTypefaceId, &id);
     if (cached) return cached;
