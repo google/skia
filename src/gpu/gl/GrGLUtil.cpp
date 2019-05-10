@@ -560,3 +560,61 @@ GrGLenum GrToGLStencilFunc(GrStencilTest test) {
     return gTable[(int)test];
 }
 
+bool GrGLFormatToPixelConfig(GrGLenum format, GrPixelConfig* config) {
+    GrPixelConfig dontCare;
+    if (!config) {
+        config = &dontCare;
+    }
+
+    switch (format) {
+        case GR_GL_RGBA8:
+            *config = kRGBA_8888_GrPixelConfig;
+            return true;
+        case GR_GL_RGB8:
+            *config = kRGB_888_GrPixelConfig;
+            return true;
+        case GR_GL_RG8:
+            *config = kRG_88_GrPixelConfig;
+            return true;
+        case GR_GL_BGRA8:
+            *config = kBGRA_8888_GrPixelConfig;
+            return true;
+        case GR_GL_LUMINANCE8:
+            *config = kGray_8_GrPixelConfig;
+            return true;
+        case GR_GL_SRGB8_ALPHA8:
+            *config = kSRGBA_8888_GrPixelConfig; // aliasing kSBGRA_8888 here
+            return true;
+        case GR_GL_RGB10_A2:
+            *config = kRGBA_1010102_GrPixelConfig;
+            return true;
+        case GR_GL_RGB565:
+            *config = kRGB_565_GrPixelConfig;
+            return true;
+        case GR_GL_RGBA4:
+            *config = kRGBA_4444_GrPixelConfig;
+            return true;
+        case GR_GL_ALPHA8: // fall through
+        case GR_GL_R8:
+            *config = kAlpha_8_GrPixelConfig;
+            return true;
+        case GR_GL_RGBA32F:
+            *config = kRGBA_float_GrPixelConfig;
+            return true;
+        case GR_GL_RG32F:
+            *config = kRG_float_GrPixelConfig;
+            return true;
+        case GR_GL_RGBA16F:
+            *config = kRGBA_half_GrPixelConfig;
+            return true;
+        case GR_GL_COMPRESSED_RGB8_ETC2:
+            *config = kRGB_ETC1_GrPixelConfig;
+            return true;
+        case GR_GL_R16F:
+            *config = kAlpha_half_GrPixelConfig;
+            return true;
+    }
+
+    SK_ABORT("Unexpected config");
+    return false;
+}
