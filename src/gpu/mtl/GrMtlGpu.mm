@@ -609,7 +609,8 @@ bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
 }
 
 #if GR_TEST_UTILS
-bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrColorType colorType, int w, int h, bool texturable,
+bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, GrMTLPixelFormat format,
+                                               int w, int h, bool texturable,
                                                bool renderable, GrMipMapped mipMapped,
                                                const void* srcData, size_t srcRowBytes,
                                                GrMtlTextureInfo* info) {
@@ -619,12 +620,6 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrColorType colorType, int w, int
         SkASSERT(!srcData);
     }
 
-    GrPixelConfig config = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
-
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(config, &format)) {
-        return false;
-    }
     if (texturable && !fMtlCaps->isConfigTexturable(config)) {
         return false;
     }
@@ -708,19 +703,32 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrColorType colorType, int w, int
     return true;
 }
 
-GrBackendTexture GrMtlGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                           GrColorType colorType, bool isRT,
-                                                           GrMipMapped mipMapped, size_t rowBytes) {
+GrBackendTexture GrMtlGpu::createTestingOnlyBackendTexture(int w, int h,
+                                                           const GrBackendFormat& format,
+                                                           GrMipMapped mipMapped,
+                                                           GrRenderable renderable,
+                                                           const void* pixels, size_t rowBytes) {
     if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
         return GrBackendTexture();
     }
-    GrMtlTextureInfo info;
-    if (!this->createTestingOnlyMtlTextureInfo(colorType, w, h, true, isRT, mipMapped, pixels,
-                                               rowBytes, &info)) {
-        return {};
+
+    const GrMTLPixelFormat* mtlFormat = format.getMtlFormat();
+    if (!mtlFormat) {
+        return GrBackendTexture();
     }
 
-    GrPixelConfig config = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
+    GrPixelConfig config;
+
+    if (!GrMtlFormatToPixelConfig(*mtlFormat, &config)) {
+        return GrBackendTexture();
+    }
+
+    GrMtlTextureInfo info;
+    if (!this->createTestingOnlyMtlTextureInfo(config, *mtlFormat, w, h, true,
+                                               GrRenderable::kYes == renderable, mipMapped,
+                                               pixels, rowBytes, &info)) {
+        return {};
+    }
 
     GrBackendTexture backendTex(w, h, mipMapped, info);
     backendTex.fConfig = config;
@@ -757,13 +765,18 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
         return GrBackendRenderTarget();
     }
 
-    GrMtlTextureInfo info;
-    if (!this->createTestingOnlyMtlTextureInfo(ct, w, h, false, true, GrMipMapped::kNo, nullptr,
-                                               0, &info)) {
-        return {};
+    GrPixelConfig config = GrColorTypeToPixelConfig(ct, GrSRGBEncoded::kNo);
+
+    MTLPixelFormat format;
+    if (!GrPixelConfigToMTLFormat(config, &format)) {
+        return GrBackendRenderTarget();
     }
 
-    GrPixelConfig config = GrColorTypeToPixelConfig(ct, GrSRGBEncoded::kNo);
+    GrMtlTextureInfo info;
+    if (!this->createTestingOnlyMtlTextureInfo(config, format, w, h, false, true,
+                                               GrMipMapped::kNo, nullptr, 0, &info)) {
+        return {};
+    }
 
     GrBackendRenderTarget backendRT(w, h, 1, info);
     backendRT.fConfig = config;

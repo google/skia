@@ -539,9 +539,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
 
     // On the GPU we will also try reading back from a non-renderable texture.
     for (auto origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
-        for (auto isRT : {false, true}) {
+        for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             sk_sp<GrTextureProxy> proxy = sk_gpu_test::MakeTextureProxyFromData(
-                    context, isRT, DEV_W, DEV_H, bmp.colorType(), origin, bmp.getPixels(),
+                    context, renderable, DEV_W, DEV_H, bmp.colorType(), origin, bmp.getPixels(),
                     bmp.rowBytes());
             sk_sp<GrSurfaceContext> sContext = context->priv().makeWrappedSurfaceContext(
                                                                                 std::move(proxy));

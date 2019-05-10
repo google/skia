@@ -34,6 +34,7 @@ class GrSurface;
  * Returns the Metal texture format for the given GrPixelConfig
  */
 bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format);
+bool GrMTLFormatToPixelConfig(MTLPixelFormat format, GrPixelConfig* config);
 
 /**
  * Returns a id<MTLTexture> to the MTLTexture pointed at by the const void*. Will use
