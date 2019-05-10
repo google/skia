@@ -1025,27 +1025,13 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
     if (font.isForceAutoHinting()) {
         flags |= SkScalerContext::kForceAutohinting_Flag;
     }
-#ifdef SK_IGNORE_LINEAR_METRICS_FIX
-    if (font.isSubpixel()) {
-#else
     if (font.isLinearMetrics()) {
-#endif
         flags |= SkScalerContext::kLinearMetrics_Flag;
     }
     rec->fFlags = SkToU16(flags);
 
-#ifdef SK_IGNORE_LINEAR_METRICS_FIX
-    // if linear-text is on, then we force hinting to be off (since that's sort of
-    // the point of linear-text.
-    SkFontHinting hinting = (SkFontHinting)font.getHinting();
-    if (font.isLinearMetrics()) {
-        hinting = SkFontHinting::kNone;
-    }
-    rec->setHinting(font.getHinting());
-#else
     // these modify fFlags, so do them after assigning fFlags
     rec->setHinting(font.getHinting());
-#endif
     rec->setLuminanceColor(SkPaintPriv::ComputeLuminanceColor(paint));
 
     // For now always set the paint gamma equal to the device gamma.
