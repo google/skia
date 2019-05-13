@@ -325,10 +325,6 @@ public:
 
         /* EXT_window_rectangles */
         GrGLFunction<GrGLWindowRectanglesFn> fWindowRectangles;
-
-        /* EGL functions */
-        GrGLFunction<GrEGLCreateImageFn> fEGLCreateImage;
-        GrGLFunction<GrEGLDestroyImageFn> fEGLDestroyImage;
     } fFunctions;
 
 #if GR_TEST_UTILS
