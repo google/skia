@@ -350,3 +350,58 @@ void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
                                       this->getTextBlobCache()->usedBytes());
 }
 
+//////////////////////////////////////////////////////////////////////////////
+GrBackendTexture GrContext::createBackendTexture(int width, int height,
+                                                 GrBackendFormat backendFormat,
+                                                 GrMipMapped mipMapped,
+                                                 GrRenderable renderable) {
+    if (!this->priv().asDirectContext()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    if (!backendFormat.isValid()) {
+        return GrBackendTexture();
+    }
+
+    GrGpu* gpu = this->priv().getGpu();
+
+    return gpu->createTestingOnlyBackendTexture(width, height, backendFormat,
+                                                mipMapped, renderable,
+                                                nullptr, 0);
+}
+
+void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
+    if (this->abandoned() || !backendTex.isValid()) {
+        return;
+    }
+
+    GrGpu* gpu = this->priv().getGpu();
+
+    gpu->deleteTestingOnlyBackendTexture(backendTex);
+}
+
+#if GR_TEST_UTILS
+GrBackendTexture GrContext::createBackendTexture(int width, int height,
+                                                 SkColorType colorType,
+                                                 GrMipMapped mipMapped,
+                                                 GrRenderable renderable) {
+    if (!this->priv().asDirectContext()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    GrBackendFormat format = this->priv().caps()->getBackendFormatFromColorType(colorType);
+    if (!format.isValid()) {
+        return GrBackendTexture();
+    }
+
+    return this->createBackendTexture(width, height, format, mipMapped, renderable);
+}
+#endif
