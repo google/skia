@@ -266,8 +266,14 @@ int DDLPromiseImageHelper::findImage(SkImage* image) const {
 int DDLPromiseImageHelper::addImage(SkImage* image) {
     SkImage_Base* ib = as_IB(image);
 
+    SkASSERT(image->colorType() == kRGBA_8888_SkColorType ||
+             image->colorType() == kBGRA_8888_SkColorType);
+
     SkImageInfo overallII = SkImageInfo::Make(image->width(), image->height(),
-                                              image->colorType(), image->alphaType(),
+                                              image->colorType() == kBGRA_8888_SkColorType
+                                                        ? kRGBA_8888_SkColorType
+                                                        : image->colorType(),
+                                              image->alphaType(),
                                               image->refColorSpace());
 
     PromiseImageInfo& newImageInfo = fImageInfo.emplace_back(fImageInfo.count(),
