@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "059551ad_3f716711",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-13T13:21:53Z",
+      "side": 1,
+      "message": "I disagree with this ws change. it aligns with the fMtlFormat and fMockFormat. If anything you can move the fVk to align with those if you want.",
+      "range": {
+        "startLine": 119,
+        "startChar": 25,
+        "endLine": 119,
+        "endChar": 37
+      },
+      "revId": "139acb8858b52f5b503d7f65bf573ee8935b8cde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "916224ce_85ed2c51",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-13T13:21:53Z",
+      "side": 1,
+      "message": "why was this added? When will we ever be in a situation where we have an SkColorType and an ecoded. I think we intentionally left it so that we wouldn\u0027t have this version of the function (you can always get a GrColorType from an SkColorType).",
+      "range": {
+        "startLine": 342,
+        "startChar": 50,
+        "endLine": 342,
+        "endChar": 84
+      },
+      "revId": "139acb8858b52f5b503d7f65bf573ee8935b8cde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6f60cba_07ab33de",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 3976,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-13T13:21:53Z",
+      "side": 1,
+      "message": "can we comment out this variable here to make it clear it isn\u0027t used?",
+      "range": {
+        "startLine": 3976,
+        "startChar": 71,
+        "endLine": 3976,
+        "endChar": 81
+      },
+      "revId": "139acb8858b52f5b503d7f65bf573ee8935b8cde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "943839fb_8d30d58b",
+        "filename": "src/gpu/gl/GrGLUtil.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-13T13:21:53Z",
+      "side": 1,
+      "message": "can we make this testing only?",
+      "range": {
+        "startLine": 262,
+        "startChar": 0,
+        "endLine": 262,
+        "endChar": 69
+      },
+      "revId": "139acb8858b52f5b503d7f65bf573ee8935b8cde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "020d5f2e_8f46f46a",
+        "filename": "src/gpu/mtl/GrMtlUtil.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-13T13:21:53Z",
+      "side": 1,
+      "message": "testing only?",
+      "range": {
+        "startLine": 37,
+        "startChar": 1,
+        "endLine": 37,
+        "endChar": 29
+      },
+      "revId": "139acb8858b52f5b503d7f65bf573ee8935b8cde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61f6586a_d1f29858",
+        "filename": "src/gpu/vk/GrVkUtil.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-13T13:21:53Z",
+      "side": 1,
+      "message": "testing only? So looking at all these calls (in each backend), do we really need the actual GrPixelConfig here? Can we create this textures directly from the GrBackendFormat. Like we use to have this helper function and I specifically made a pass to get rid of all uses of it to help remove any dependencies on GrPixelConfig.",
+      "range": {
+        "startLine": 35,
+        "startChar": 3,
+        "endLine": 35,
+        "endChar": 69
+      },
+      "revId": "139acb8858b52f5b503d7f65bf573ee8935b8cde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
