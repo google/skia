@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e26ca2f_1180004a",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 729,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-13T13:13:36Z",
+      "side": 1,
+      "message": "I factored all this comparison stuff out thinking that it may evolve into a reusable utility for other unit tests. Currently it doesn\u0027t do anything to rectify color space differences between a and b (assumes they\u0027re in the same color space since it compares values between them).",
+      "range": {
+        "startLine": 692,
+        "startChar": 0,
+        "endLine": 729,
+        "endChar": 1
+      },
+      "revId": "06723c3b2086b333638e740a59f523eebbce4435",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
