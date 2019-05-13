@@ -35,11 +35,11 @@ void GrDrawOpAtlas::instantiate(GrOnFlushResourceProvider* onFlushResourceProvid
 
 std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvider,
                                                    const GrBackendFormat& format,
-                                                   GrColorType colorType, int width,
+                                                   GrPixelConfig config, int width,
                                                    int height, int plotWidth, int plotHeight,
                                                    AllowMultitexturing allowMultitexturing,
                                                    GrDrawOpAtlas::EvictionFunc func, void* data) {
-    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(proxyProvider, format, colorType, width,
+    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(proxyProvider, format, config, width,
                                                            height, plotWidth, plotHeight,
                                                            allowMultitexturing));
     if (!atlas->getProxies()[0]) {
@@ -56,7 +56,7 @@ static bool gDumpAtlasData = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY,
-                          int width, int height, GrColorType colorType)
+                          int width, int height, GrPixelConfig config)
         : fLastUpload(GrDeferredUploadToken::AlreadyFlushedToken())
         , fLastUse(GrDeferredUploadToken::AlreadyFlushedToken())
         , fFlushesSinceLastUse(0)
@@ -71,8 +71,8 @@ GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, uint64_t genID, int offX
         , fY(offY)
         , fRects(nullptr)
         , fOffset(SkIPoint16::Make(fX * fWidth, fY * fHeight))
-        , fColorType(colorType)
-        , fBytesPerPixel(GrColorTypeBytesPerPixel(colorType))
+        , fConfig(config)
+        , fBytesPerPixel(GrBytesPerPixel(config))
 #ifdef SK_DEBUG
         , fDirty(false)
 #endif
@@ -150,9 +150,10 @@ void GrDrawOpAtlas::Plot::uploadToTexture(GrDeferredTextureUploadWritePixelsFn& 
     // Set up dataPtr
     dataPtr += rowBytes * fDirtyRect.fTop;
     dataPtr += fBytesPerPixel * fDirtyRect.fLeft;
-
+    // TODO: Make GrDrawOpAtlas store a GrColorType rather than GrPixelConfig.
+    auto colorType = GrPixelConfigToColorType(fConfig);
     writePixels(proxy, fOffset.fX + fDirtyRect.fLeft, fOffset.fY + fDirtyRect.fTop,
-                fDirtyRect.width(), fDirtyRect.height(), fColorType, dataPtr, rowBytes);
+                fDirtyRect.width(), fDirtyRect.height(), colorType, dataPtr, rowBytes);
     fDirtyRect.setEmpty();
     SkDEBUGCODE(fDirty = false;)
 }
@@ -179,10 +180,10 @@ void GrDrawOpAtlas::Plot::resetRects() {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendFormat& format,
-                             GrColorType colorType, int width, int height,
+                             GrPixelConfig config, int width, int height,
                              int plotWidth, int plotHeight, AllowMultitexturing allowMultitexturing)
         : fFormat(format)
-        , fColorType(colorType)
+        , fPixelConfig(config)
         , fTextureWidth(width)
         , fTextureHeight(height)
         , fPlotWidth(plotWidth)
@@ -523,7 +524,7 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
     }
     desc.fWidth = fTextureWidth;
     desc.fHeight = fTextureHeight;
-    desc.fConfig = GrColorTypeToPixelConfig(fColorType, GrSRGBEncoded::kNo);
+    desc.fConfig = fPixelConfig;
 
     int numPlotsX = fTextureWidth/fPlotWidth;
     int numPlotsY = fTextureHeight/fPlotHeight;
@@ -545,7 +546,7 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
             for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
                 uint32_t plotIndex = r * numPlotsX + c;
                 currPlot->reset(new Plot(i, plotIndex, 1, x, y, fPlotWidth, fPlotHeight,
-                                         fColorType));
+                                         fPixelConfig));
 
                 // build LRU list
                 fPages[i].fPlotList.addToHead(currPlot->get());
