@@ -26,11 +26,21 @@
  */
 class GrOctoBounds {
 public:
+    GrOctoBounds() = default;
+    GrOctoBounds(const SkRect& bounds, const SkRect& bounds45) {
+        this->set(bounds, bounds45);
+    }
+
     void set(const SkRect& bounds, const SkRect& bounds45) {
         fBounds = bounds;
         fBounds45 = bounds45;
         SkDEBUGCODE(this->validateBoundsAreTight());
     }
+
+    bool operator==(const GrOctoBounds& that) const {
+        return fBounds == that.fBounds && fBounds45 == that.fBounds45;
+    }
+    bool operator!=(const GrOctoBounds& that) const { return !(*this == that); }
 
     const SkRect& bounds() const { return fBounds; }
     float left() const { return fBounds.left(); }
@@ -72,6 +82,13 @@ public:
         SkDEBUGCODE(this->validateBoundsAreTight());
     }
 
+    // Clips the octo bounds by a clip rect and ensures the resulting bounds are fully tightened.
+    // Returns false if the octagon and clipRect do not intersect at all.
+    //
+    // NOTE: Does not perform a trivial containment test before the clip routine. It is probably a
+    // good idea to not call this method if 'this->bounds()' are fully contained within 'clipRect'.
+    bool SK_WARN_UNUSED_RESULT clip(const SkIRect& clipRect);
+
     // The 45-degree bounding box resides in "| 1  -1 | * coords" space.
     //                                        | 1   1 |
     //
@@ -84,7 +101,7 @@ public:
     constexpr static float Get_x(float x45, float y45) { return (x45 + y45) * .5f; }
     constexpr static float Get_y(float x45, float y45) { return (y45 - x45) * .5f; }
 
-#ifdef SK_DEBUG
+#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
     void validateBoundsAreTight() const;
     void validateBoundsAreTight(const std::function<void(
             bool cond, const char* file, int line, const char* code)>& validateFn) const;
