@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "a64eff28_fdddc1df",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-13T21:53:57Z",
+      "side": 1,
+      "message": "Make sure this refers to the store op.",
+      "range": {
+        "startLine": 244,
+        "startChar": 31,
+        "endLine": 244,
+        "endChar": 51
+      },
+      "revId": "08c76526658e4cee02f308b029ca52031e02d98c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c22873fa_0c373296",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 8
@@ -25,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "059de0f3_d60dd342",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2256,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-13T21:53:57Z",
+      "side": 1,
+      "message": "I put it here because we also need to clear the flag on early return. But now that I think about it I might like clearing the flag twice.",
+      "parentUuid": "c22873fa_0c373296",
+      "range": {
+        "startLine": 2256,
+        "startChar": 4,
+        "endLine": 2256,
+        "endChar": 61
+      },
+      "revId": "08c76526658e4cee02f308b029ca52031e02d98c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6963fbac_803dcbbd",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 8
@@ -45,6 +92,47 @@
       "revId": "08c76526658e4cee02f308b029ca52031e02d98c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75d6c66f_87b5b9c2",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2278,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-13T21:53:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6963fbac_803dcbbd",
+      "range": {
+        "startLine": 2278,
+        "startChar": 20,
+        "endLine": 2278,
+        "endChar": 41
+      },
+      "revId": "08c76526658e4cee02f308b029ca52031e02d98c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f45c4c96_5e1bf16e",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 3345,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-13T21:53:57Z",
+      "side": 1,
+      "message": "I realized that a lot of the problems will arise from fHWBoundRenderTargetUniqueID.makeInvalid(), which this print might not just catch. I went ahead and moved the print back to endCommandBuffer.",
+      "revId": "08c76526658e4cee02f308b029ca52031e02d98c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
