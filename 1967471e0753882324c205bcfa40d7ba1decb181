@@ -22,6 +22,30 @@
       "revId": "1967471e0753882324c205bcfa40d7ba1decb181",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a62bcd6_9909dc39",
+        "filename": "src/core/SkStrikeSpec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-13T20:30:15Z",
+      "side": 1,
+      "message": "The whole SK_IGNORE_LINEAR_METRICS_FIX system was removed in \nhttps://skia-review.googlesource.com/c/skia/+/213135",
+      "parentUuid": "71c774d6_e5453fff",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 7
+      },
+      "revId": "1967471e0753882324c205bcfa40d7ba1decb181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
