@@ -877,7 +877,7 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
                         kAlpha_8_SkColorType);
         fAtlas = GrDrawOpAtlas::Make(args.fContext->priv().proxyProvider(),
                                      format,
-                                     kAlpha_8_GrPixelConfig,
+                                     GrColorType::kAlpha_8,
                                      ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                      PLOT_WIDTH, PLOT_HEIGHT,
                                      GrDrawOpAtlas::AllowMultitexturing::kYes,
@@ -966,7 +966,7 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
         const GrBackendFormat format =
                 context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
         gTestStruct.fAtlas = GrDrawOpAtlas::Make(context->priv().proxyProvider(),
-                                                 format, kAlpha_8_GrPixelConfig,
+                                                 format, GrColorType::kAlpha_8,
                                                  ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                  PLOT_WIDTH, PLOT_HEIGHT,
                                                  GrDrawOpAtlas::AllowMultitexturing::kYes,
