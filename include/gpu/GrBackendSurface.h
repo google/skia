@@ -116,7 +116,7 @@ private:
     bool         fValid;
 
     union {
-        GrGLenum         fGLFormat; // the sized, internal format of the GL resource
+        GrGLenum                     fGLFormat; // the sized, internal format of the GL resource
         struct {
             VkFormat                 fFormat;
             GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
