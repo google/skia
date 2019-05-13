@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2855ec5b_d9678185",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 780,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-13T21:39:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0cb9cc5d_53a6ec69",
+      "range": {
+        "startLine": 780,
+        "startChar": 8,
+        "endLine": 780,
+        "endChar": 54
+      },
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cac0c117_1de23405",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2019-05-08T20:29:27Z",
       "side": 1,
       "message": "I don\u0027t all the details about protected images, but are you not allowed to copy an unprotected buffer of data to a protected image? Another way to ask this is can you sample an unprotected image into a protected image (I could just upload the data here to an unprotected image and then draw that image to the protected one).\n\n\nAssuming you can\u0027t do this transfer, this check should be if the texture itself is protected, not the context.\n\nHowever, talking to some folks here, I think the better thing to do here is have GrCaps::transferFromOffsetAlignment(...) take a GrSurface instead of a GrColorType (the GrColorType can be retrieved from the GrSurface via the GrPixelConfig and calling GrPixelConfigToColorType()). Then you can query if the GrSurface is protected and if so return 0 which is the unsupported return value here. Then in this function we can just assert that the GrTexture is not protected.",
+      "range": {
+        "startLine": 451,
+        "startChar": 4,
+        "endLine": 451,
+        "endChar": 28
+      },
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b451c4b_17c93818",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-13T21:39:14Z",
+      "side": 1,
+      "message": "My bad, I somehow though this function was doing image to buffer transfer. Unprotected buffer to protected image copy is allowed from a protected context. In the docs below, every detail is listed and it doesnt have any constraints on src for a copy.\n\"If commandBuffer is a protected command buffer, then dstImage must not be an unprotected image\"\nhttps://www.khronos.org/registry/vulkan/specs/1.1-extensions/man/html/vkCmdCopyBufferToImage.html\n\nGrCaps::transferFromOffsetAlignment section done.",
+      "parentUuid": "cac0c117_1de23405",
       "range": {
         "startLine": 451,
         "startChar": 4,
@@ -62,6 +110,24 @@
       "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "202db7f2_8d94ec44",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-13T21:39:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6f474d6_ee0f05a5",
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +223,30 @@
     },
     {
       "key": {
+        "uuid": "b1e7bcf6_a1ddacc2",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1004,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-13T21:39:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89d4b4e4_72e4d973",
+      "range": {
+        "startLine": 1004,
+        "startChar": 48,
+        "endLine": 1004,
+        "endChar": 61
+      },
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "538378d8_891ef7ea",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 3
@@ -168,6 +258,30 @@
       "writtenOn": "2019-05-08T20:29:27Z",
       "side": 1,
       "message": "both MakeNewTextureRenderTarget and MakeNewTexture implementations will need to have support for create protected images (these will get used for offscreen images used in save layer and dst copies).",
+      "range": {
+        "startLine": 1052,
+        "startChar": 0,
+        "endLine": 1056,
+        "endChar": 90
+      },
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88af6839_e08cddff",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1056,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-13T21:39:14Z",
+      "side": 1,
+      "message": "Done. Passed the info via fMemProps as it looked appropriate.",
+      "parentUuid": "538378d8_891ef7ea",
       "range": {
         "startLine": 1052,
         "startChar": 0,
@@ -203,6 +317,30 @@
     },
     {
       "key": {
+        "uuid": "fb771bd1_35cf76da",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1213,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-13T21:39:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d51bdf3d_a0e25d75",
+      "range": {
+        "startLine": 1213,
+        "startChar": 8,
+        "endLine": 1213,
+        "endChar": 49
+      },
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "98f26bcf_cd6d49ae",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 3
@@ -217,6 +355,24 @@
       "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "700a7a1d_2205d305",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2166,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-13T21:39:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98f26bcf_cd6d49ae",
+      "revId": "2e53be987b0fc4dc861edf53137372bc7dcc450e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
