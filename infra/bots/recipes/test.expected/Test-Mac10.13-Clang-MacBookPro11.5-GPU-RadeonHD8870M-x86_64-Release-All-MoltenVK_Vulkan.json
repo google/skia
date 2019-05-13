@@ -509,6 +509,7 @@
       "~^TextureIdleProcFlushTest$",
       "~^TextureStripAtlasManagerColorFilterTest$",
       "~^WritePixelsNonTextureMSAA_Gpu$",
+      "~^AsyncReadPixels$",
       "--nonativeFonts",
       "--verbose"
     ],
