@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d49ac265_947122eb",
+        "filename": "include/gpu/GrBackendObject.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-13T17:00:58Z",
+      "side": 1,
+      "message": "if this is for testing can we wrap it in testing define? I don\u0027t want to expose a version not taking GrBackendFormat to public.",
+      "range": {
+        "startLine": 32,
+        "startChar": 1,
+        "endLine": 38,
+        "endChar": 66
+      },
+      "revId": "2213520a1248ca883fcdf75115d5e83a6ee66857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c50c174_995c78c2",
+        "filename": "include/gpu/GrBackendObject.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-13T17:00:58Z",
+      "side": 1,
+      "message": "Do we want a version that takes data to upload?",
+      "range": {
+        "startLine": 41,
+        "startChar": 40,
+        "endLine": 44,
+        "endChar": 64
+      },
+      "revId": "2213520a1248ca883fcdf75115d5e83a6ee66857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
