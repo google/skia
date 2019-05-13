@@ -185,8 +185,8 @@ public:
                                                           fColorType, fColorSpace, &fSurfaceProps);
         }
 
-        *backend = gpu->createTestingOnlyBackendTexture(nullptr, fWidth, fHeight,
-                                                        fColorType, true, mipmapped);
+        *backend = gpu->createTestingOnlyBackendTexture(fWidth, fHeight, fColorType,
+                                                        mipmapped, GrRenderable::kYes);
         if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
             return nullptr;
         }
@@ -584,7 +584,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrGpu* gpu = context->priv().getGpu();
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-            nullptr, kSize, kSize, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
+            kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
     if (!backendTex.isValid()) {
         return;
     }
@@ -743,7 +743,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
     GrBackendTexture backendTexture;
 
     if (!create_backend_texture(context, &backendTexture, ii, GrMipMapped::kNo, SK_ColorCYAN,
-                                Renderable::kNo)) {
+                                GrRenderable::kNo)) {
         REPORTER_ASSERT(reporter, false);
         return;
     }

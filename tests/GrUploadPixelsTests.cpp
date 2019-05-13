@@ -20,7 +20,7 @@
 using sk_gpu_test::GrContextFactory;
 
 void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColorType ct,
-                        bool renderTarget) {
+                        GrRenderable renderable) {
     const int kWidth = 16;
     const int kHeight = 16;
     SkAutoTMalloc<GrColor> srcBuffer(kWidth*kHeight);
@@ -28,7 +28,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
 
     fill_pixel_data(kWidth, kHeight, srcBuffer.get());
 
-    auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, renderTarget, kWidth, kHeight, ct,
+    auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, renderable, kWidth, kHeight, ct,
                                                        kTopLeft_GrSurfaceOrigin, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
@@ -58,7 +58,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
                                                                          2));
     }
 
-    proxy = sk_gpu_test::MakeTextureProxyFromData(context, renderTarget, kWidth, kHeight, ct,
+    proxy = sk_gpu_test::MakeTextureProxyFromData(context, renderable, kWidth, kHeight, ct,
                                                   kBottomLeft_GrSurfaceOrigin, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
@@ -92,10 +92,10 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrUploadPixelsTests, reporter, ctxInfo) {
     // RGBA
-    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_SkColorType, false);
-    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_SkColorType, true);
+    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_SkColorType, GrRenderable::kNo);
+    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_SkColorType, GrRenderable::kYes);
 
     // BGRA
-    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_SkColorType, false);
-    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_SkColorType, true);
+    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_SkColorType, GrRenderable::kNo);
+    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_SkColorType, GrRenderable::kYes);
 }

@@ -59,6 +59,8 @@ sk_sp<SkData> DDLPromiseImageHelper::deflateSKP(const SkPicture* inputPicture) {
 // needed until we have SkRG_88_ColorType;
 static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkPixmap& pm,
                                             const SkYUVAIndex yuvaIndices[4], int texIndex) {
+    const GrCaps* caps = gpu->caps();
+
     SkASSERT(texIndex >= 0 && texIndex <= 3);
     int channelCount = 0;
     for (int i = 0; i < SkYUVAIndex::kIndexCount; ++i) {
@@ -80,23 +82,18 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkPixmap& pm,
                 currPixel += 2;
             }
         }
+
+        GrBackendFormat format = caps->getBackendFormatFromGrColorType(GrColorType::kRG_88,
+                                                                       GrSRGBEncoded::kNo);
         tex = gpu->createTestingOnlyBackendTexture(
-            pixels,
-            pm.width(),
-            pm.height(),
-            GrColorType::kRG_88,
-            false,
-            GrMipMapped::kNo,
-            2 * pm.width());
+            pm.width(), pm.height(), format,
+            GrMipMapped::kNo, GrRenderable::kNo,
+            pixels, 2 * pm.width());
     } else {
         tex = gpu->createTestingOnlyBackendTexture(
-            pm.addr(),
-            pm.width(),
-            pm.height(),
-            pm.colorType(),
-            false,
-            GrMipMapped::kNo,
-            pm.rowBytes());
+            pm.width(), pm.height(), pm.colorType(),
+            GrMipMapped::kNo, GrRenderable::kNo,
+            pm.addr(), pm.rowBytes());
     }
     return tex;
 }
@@ -131,12 +128,9 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
             const SkBitmap& bm = info.normalBitmap();
 
             callbackContext->setBackendTexture(gpu->createTestingOnlyBackendTexture(
-                                                                bm.getPixels(),
-                                                                bm.width(),
-                                                                bm.height(),
-                                                                bm.colorType(),
-                                                                false, GrMipMapped::kNo,
-                                                                bm.rowBytes()));
+                                                        bm.width(), bm.height(), bm.colorType(),
+                                                        GrMipMapped::kNo, GrRenderable::kNo,
+                                                        bm.getPixels(), bm.rowBytes()));
             // The GMs sometimes request too large an image
             //SkAssertResult(callbackContext->backendTexture().isValid());
 

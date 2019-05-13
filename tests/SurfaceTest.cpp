@@ -102,7 +102,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
 
         auto* gpu = ctxInfo.grContext()->priv().getGpu();
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, kSize, kSize, colorType, true, GrMipMapped::kNo);
+                kSize, kSize, colorType, GrMipMapped::kNo, GrRenderable::kYes);
         surf = SkSurface::MakeFromBackendTexture(ctxInfo.grContext(), backendTex,
                                                  kTopLeft_GrSurfaceOrigin, 0, colorType, nullptr,
                                                  nullptr);
@@ -129,8 +129,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, can: %d, surf: %d",
                         colorType, can, SkToBool(surf));
 
-        backendTex = gpu->createTestingOnlyBackendTexture(nullptr, kSize, kSize, colorType, true,
-                                                          GrMipMapped::kNo);
+        backendTex = gpu->createTestingOnlyBackendTexture(kSize, kSize, colorType,
+                                                          GrMipMapped::kNo, GrRenderable::kYes);
         surf = SkSurface::MakeFromBackendTexture(ctxInfo.grContext(), backendTex,
                                                  kTopLeft_GrSurfaceOrigin, kSampleCnt, colorType,
                                                  nullptr, nullptr);
@@ -197,7 +197,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
         }
         auto* gpu = ctxInfo.grContext()->priv().getGpu();
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, kSize, kSize, colorType, true, GrMipMapped::kNo);
+                kSize, kSize, colorType, GrMipMapped::kNo, GrRenderable::kYes);
         if (!backendTex.isValid()) {
             continue;
         }
@@ -682,7 +682,8 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
                                        kPremul_SkAlphaType);
 
-    if (!create_backend_texture(ctx, outTexture, ii, GrMipMapped::kNo, color, Renderable::kYes)) {
+    if (!create_backend_texture(ctx, outTexture, ii, GrMipMapped::kNo, color,
+                                GrRenderable::kYes)) {
         return nullptr;
     }
 
@@ -706,7 +707,8 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
                                        kPremul_SkAlphaType);
 
-    if (!create_backend_texture(ctx, outTexture, ii, GrMipMapped::kNo, color, Renderable::kYes)) {
+    if (!create_backend_texture(ctx, outTexture, ii, GrMipMapped::kNo, color,
+                                GrRenderable::kYes)) {
         return nullptr;
     }
 
@@ -889,7 +891,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceWrappedWithRelease_Gpu, reporter, ctxI
             SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
                                                kPremul_SkAlphaType);
             if (!create_backend_texture(ctx, &backendTex, ii, GrMipMapped::kNo, SK_ColorRED,
-                                        Renderable::kYes)) {
+                                        GrRenderable::kYes)) {
                 continue;
             }
 

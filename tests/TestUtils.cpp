@@ -110,11 +110,11 @@ void test_copy_to_surface(skiatest::Reporter* reporter,
         }
     }
 
-    for (auto isRT : {false, true}) {
+    for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
         for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
             auto src = sk_gpu_test::MakeTextureProxyFromData(
-                    context, isRT, dstContext->width(),
-                    dstContext->height(), GrColorType::kRGBA_8888, origin, pixels.get(), 0);
+                    context, renderable, dstContext->width(),
+                    dstContext->height(), kRGBA_8888_SkColorType, origin, pixels.get(), 0);
             dstContext->copy(src.get());
             test_read_pixels(reporter, dstContext, pixels.get(), testName);
         }
@@ -134,14 +134,9 @@ void fill_pixel_data(int width, int height, GrColor* data) {
 
 bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
                             const SkImageInfo& ii, GrMipMapped mipMapped, SkColor color,
-                            Renderable renderable) {
-    auto* gpu = context->priv().getGpu();
+                            GrRenderable renderable) {
+    GrGpu* gpu = context->priv().getGpu();
     if (!gpu) {
-        return false;
-    }
-
-    GrColorType grCT = SkColorTypeToGrColorType(ii.colorType());
-    if (GrColorType::kUnknown == grCT) {
         return false;
     }
 
@@ -150,9 +145,9 @@ bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
     // TODO: a SkBitmap::eraseColor would be better here
     sk_memset32(bm.getAddr32(0, 0), color, ii.width() * ii.height());
 
-    *backendTex = gpu->createTestingOnlyBackendTexture(bm.getPixels(), ii.width(), ii.height(),
-                                                       grCT, Renderable::kYes == renderable,
-                                                       mipMapped, bm.rowBytes());
+    *backendTex = gpu->createTestingOnlyBackendTexture(ii.width(), ii.height(), ii.colorType(),
+                                                       mipMapped, renderable,
+                                                       bm.getPixels(), bm.rowBytes());
     if (!backendTex->isValid() || !gpu->isTestingOnlyBackendTexture(*backendTex)) {
         return false;
     }

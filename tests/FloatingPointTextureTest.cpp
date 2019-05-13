@@ -46,8 +46,9 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context, T min, T max, T
     }
 
     for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-        auto fpProxy = sk_gpu_test::MakeTextureProxyFromData(context, true, DEV_W, DEV_H, colorType,
-                                                             origin, controlPixelData.begin(), 0);
+        auto fpProxy = sk_gpu_test::MakeTextureProxyFromData(context, GrRenderable::kYes,
+                                                             DEV_W, DEV_H, colorType, origin,
+                                                             controlPixelData.begin(), 0);
         // Floating point textures are NOT supported everywhere
         if (!fpProxy) {
             continue;

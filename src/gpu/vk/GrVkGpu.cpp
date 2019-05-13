@@ -22,6 +22,7 @@
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/SkGpuDevice.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/vk/GrVkAMDMemoryAllocator.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
@@ -1774,24 +1775,100 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     return true;
 }
 
-GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(const void* srcData, int w, int h,
-                                                          GrColorType colorType,
-                                                          bool isRenderTarget,
-                                                          GrMipMapped mipMapped, size_t rowBytes) {
+static bool vk_format_to_pixel_config(VkFormat format, GrPixelConfig* config) {
+    GrPixelConfig dontCare;
+    if (!config) {
+        config = &dontCare;
+    }
+
+    switch (format) {
+        case VK_FORMAT_UNDEFINED:
+            *config = kUnknown_GrPixelConfig;
+            return false;
+        case VK_FORMAT_R8G8B8A8_UNORM:
+            *config = kRGBA_8888_GrPixelConfig;
+            return true;
+        case VK_FORMAT_R8G8B8_UNORM:
+            *config = kRGB_888_GrPixelConfig;
+            return true;
+        case VK_FORMAT_R8G8_UNORM:
+            *config = kRG_88_GrPixelConfig;
+            return true;
+        case VK_FORMAT_B8G8R8A8_UNORM:
+            *config = kBGRA_8888_GrPixelConfig;
+            return true;
+        case VK_FORMAT_R8G8B8A8_SRGB:
+            *config = kSRGBA_8888_GrPixelConfig;
+            return true;
+        case VK_FORMAT_B8G8R8A8_SRGB:
+            *config = kSBGRA_8888_GrPixelConfig;
+            return true;
+        case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
+            *config = kRGBA_1010102_GrPixelConfig;
+            return true;
+        case VK_FORMAT_R5G6B5_UNORM_PACK16:
+            *config = kRGB_565_GrPixelConfig;
+            return true;
+        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
+            *config = kRGBA_4444_GrPixelConfig; // we're swizzling in this case
+            return true;
+        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
+            *config = kRGBA_4444_GrPixelConfig;
+            return true;
+        case VK_FORMAT_R8_UNORM:
+            *config = kAlpha_8_GrPixelConfig;
+            return true;
+        case VK_FORMAT_R32G32B32A32_SFLOAT:
+            *config = kRGBA_float_GrPixelConfig;
+            return true;
+        case VK_FORMAT_R32G32_SFLOAT:
+            *config = kRG_float_GrPixelConfig;
+            return true;
+        case VK_FORMAT_R16G16B16A16_SFLOAT:
+            *config = kRGBA_half_GrPixelConfig;
+            return true;
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+            *config = kRGB_ETC1_GrPixelConfig;
+            return true;
+        case VK_FORMAT_R16_SFLOAT:
+            *config = kAlpha_half_GrPixelConfig;
+            return true;
+        default:
+            return false;
+    }
+    SK_ABORT("Unexpected config");
+    return false;
+}
+
+GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(int w, int h,
+                                                          const GrBackendFormat& format,
+                                                          GrMipMapped mipMapped,
+                                                          GrRenderable renderable,
+                                                          const void* srcData, size_t rowBytes) {
     this->handleDirtyContext();
+
 
     if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
         return GrBackendTexture();
     }
 
-    GrPixelConfig config = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
+    const VkFormat* vkFormat = format.getVkFormat();
+    if (!vkFormat) {
+        return GrBackendTexture();
+    }
+
+    GrPixelConfig config;
+
+    if (!vk_format_to_pixel_config(*vkFormat, &config)) {
+        return GrBackendTexture();
+    }
     if (!this->caps()->isConfigTexturable(config)) {
         return GrBackendTexture();
     }
 
     GrVkImageInfo info;
-    if (!this->createTestingOnlyVkImage(config, w, h, true, isRenderTarget, mipMapped, srcData,
-                                        rowBytes, &info)) {
+    if (!this->createTestingOnlyVkImage(config, w, h, true, GrRenderable::kYes == renderable,
+                                        mipMapped, srcData, rowBytes, &info)) {
         return {};
     }
     GrBackendTexture beTex = GrBackendTexture(w, h, info);
