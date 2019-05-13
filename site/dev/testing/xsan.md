@@ -26,7 +26,7 @@ This requires gsutil, part of the [gcloud sdk](https://cloud.google.com/sdk/down
 <!--?prettify lang=sh?-->
 
     CLANGDIR="${HOME}/clang"
-    python infra/bots/assets/clang_linux/download.py -t $CLANGDIR
+    python2 infra/bots/assets/clang_linux/download.py -t $CLANGDIR
 
 Building Clang binaries from scratch (Other users)
 ---------------------------
@@ -35,7 +35,7 @@ Building Clang binaries from scratch (Other users)
 
     CLANGDIR="${HOME}/clang"
 
-    python tools/git-sync-deps
+    python2 tools/git-sync-deps
     CC= CXX= infra/bots/assets/clang_linux/create.py -t "$CLANGDIR"
 
 Configure and Compile Skia with MSAN
@@ -57,7 +57,7 @@ Configure and Compile Skia with MSAN
         sanitize = "MSAN"
         skia_use_fontconfig = false
     EOF
-    python tools/git-sync-deps
+    python2 tools/git-sync-deps
     bin/gn gen out/msan
     ninja -C out/msan
 
@@ -74,7 +74,7 @@ Configure and Compile Skia with ASAN
         sanitize = "ASAN"
         extra_ldflags = [ "-fuse-ld=lld", "-Wl,-rpath,${CLANGDIR}/lib" ]
     EOF
-    python tools/git-sync-deps
+    python2 tools/git-sync-deps
     bin/gn gen out/asan
     ninja -C out/asan
 
@@ -92,7 +92,7 @@ Configure and Compile Skia with TSAN
         is_debug = false
         extra_ldflags = [ "-Wl,-rpath,${CLANGDIR}/lib" ]
     EOF
-    python tools/git-sync-deps
+    python2 tools/git-sync-deps
     bin/gn gen out/tsan
     ninja -C out/tsan
 

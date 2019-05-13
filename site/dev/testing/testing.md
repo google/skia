@@ -6,7 +6,7 @@ This is a quickstart to building and running DM.
 
 <!--?prettify lang=sh?-->
 
-    python tools/git-sync-deps
+    python2 tools/git-sync-deps
     bin/gn gen out/Debug
     ninja -C out/Debug dm
     out/Debug/dm -v -w dm_output

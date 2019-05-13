@@ -9,7 +9,7 @@ We assume you have already synced Skia's dependecies and set up Skia's build sys
 
 <!--?prettify lang=sh?-->
 
-    python tools/git-sync-deps
+    python2 tools/git-sync-deps
     bin/gn gen out/Debug
     bin/gn gen out/Release --args='is_debug=false'
 
