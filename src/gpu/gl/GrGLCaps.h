@@ -311,7 +311,7 @@ public:
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
-    bool surfaceSupportsReadPixels(const GrSurface*) const override;
+    ReadFlags surfaceSupportsReadPixels(const GrSurface*) const override;
     GrColorType supportedReadPixelsColorType(GrPixelConfig, GrColorType) const override;
 
     /// Does ReadPixels support reading readConfig pixels from a FBO that is surfaceConfig?
