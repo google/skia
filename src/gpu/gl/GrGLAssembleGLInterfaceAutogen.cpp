@@ -394,14 +394,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
         GET_PROC_SUFFIX(WindowRectangles, EXT);
     }
 
-    if (extensions.has("EGL_KHR_image")) {
-        GET_EGL_PROC_SUFFIX(CreateImage, KHR);
-        GET_EGL_PROC_SUFFIX(DestroyImage, KHR);
-    } else if (extensions.has("EGL_KHR_image_base")) {
-        GET_EGL_PROC_SUFFIX(CreateImage, KHR);
-        GET_EGL_PROC_SUFFIX(DestroyImage, KHR);
-    }
-
     if (glVer >= GR_GL_VER(3,2)) {
         GET_PROC(ClientWaitSync);
         GET_PROC(DeleteSync);
