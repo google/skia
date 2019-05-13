@@ -1445,6 +1445,45 @@ bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc
     return true;
 }
 
+size_t VkBytesPerPixel(VkFormat vkFormat) {
+    switch (vkFormat) {
+        case VK_FORMAT_R8_UNORM:
+            return 1;
+
+        case VK_FORMAT_R5G6B5_UNORM_PACK16:
+        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
+        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
+        case VK_FORMAT_R8G8_UNORM:
+        case VK_FORMAT_R16_SFLOAT:
+            return 2;
+
+        case VK_FORMAT_R8G8B8_UNORM:
+            return 3;
+
+        case VK_FORMAT_R8G8B8A8_UNORM:
+        case VK_FORMAT_R8G8B8A8_SRGB:
+        case VK_FORMAT_B8G8R8A8_UNORM:
+        case VK_FORMAT_B8G8R8A8_SRGB:
+        case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
+            return 4;
+
+        case VK_FORMAT_R16G16B16A16_SFLOAT:
+        case VK_FORMAT_R32G32_SFLOAT:
+            return 8;
+
+        case VK_FORMAT_R32G32B32A32_SFLOAT:
+            return 16;
+
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+        default:
+            SK_ABORT("Invalid Vk format");
+            return 0;
+    }
+
+    SK_ABORT("Invalid Vk format");
+    return 0;
+}
+
 #if GR_TEST_UTILS
 bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool texturable,
                                        bool renderable, GrMipMapped mipMapped, const void* srcData,
@@ -1454,8 +1493,8 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         SkASSERT(GrMipMapped::kNo == mipMapped);
         SkASSERT(!srcData);
     }
-    VkFormat pixelFormat;
-    if (!GrPixelConfigToVkFormat(config, &pixelFormat)) {
+    VkFormat vkFormat;
+    if (!GrPixelConfigToVkFormat(config, &vkFormat)) {
         return false;
     }
 
@@ -1503,7 +1542,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
             nullptr,                              // pNext
             0,                                    // VkImageCreateFlags
             VK_IMAGE_TYPE_2D,                     // VkImageType
-            pixelFormat,                          // VkFormat
+            vkFormat,                             // VkFormat
             {(uint32_t)w, (uint32_t)h, 1},        // VkExtent3D
             mipLevels,                            // mipLevels
             1,                                    // arrayLayers
@@ -1555,7 +1594,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     err = VK_CALL(BeginCommandBuffer(cmdBuffer, &cmdBufferBeginInfo));
     SkASSERT(!err);
 
-    size_t bpp = GrBytesPerPixel(config);
+    size_t bpp = VkBytesPerPixel(vkFormat);
     SkASSERT(w && h);
 
     const size_t trimRowBytes = w * bpp;
@@ -1769,7 +1808,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     info->fAlloc = alloc;
     info->fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     info->fImageLayout = initialLayout;
-    info->fFormat = pixelFormat;
+    info->fFormat = vkFormat;
     info->fLevelCount = mipLevels;
 
     return true;
