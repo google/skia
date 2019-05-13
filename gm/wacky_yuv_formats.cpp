@@ -773,6 +773,8 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
 
 static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,
                                             SkYUVAIndex yuvaIndices[4], int texIndex) {
+    const GrCaps* caps = gpu->caps();
+
     SkASSERT(texIndex >= 0 && texIndex <= 3);
     int channelCount = 0;
     for (int i = 0; i < SkYUVAIndex::kIndexCount; ++i) {
@@ -794,24 +796,22 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,
                 currPixel += 2;
             }
         }
+        GrBackendFormat format = caps->getBackendFormatFromGrColorType(GrColorType::kRG_88,
+                                                                       GrSRGBEncoded::kNo);
         tex = gpu->createTestingOnlyBackendTexture(
-            pixels,
             bm.width(),
             bm.height(),
-            GrColorType::kRG_88,
-            false,
-            GrMipMapped::kNo,
-            2*bm.width());
+            format,
+            GrMipMapped::kNo, GrRenderable::kNo,
+            pixels, 2*bm.width());
     }
     if (!tex.isValid()) {
         tex = gpu->createTestingOnlyBackendTexture(
-            bm.getPixels(),
             bm.width(),
             bm.height(),
             bm.colorType(),
-            false,
-            GrMipMapped::kNo,
-            bm.rowBytes());
+            GrMipMapped::kNo, GrRenderable::kNo,
+            bm.getPixels(), bm.rowBytes());
     }
     return tex;
 }

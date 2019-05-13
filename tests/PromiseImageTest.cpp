@@ -168,7 +168,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     GrGpu* gpu = ctx->priv().getGpu();
 
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+            kWidth, kHeight, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     GrBackendFormat backendFormat = backendTex.getBackendFormat();
@@ -243,11 +243,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
     GrGpu* gpu = ctx->priv().getGpu();
 
     GrBackendTexture backendTex1 = gpu->createTestingOnlyBackendTexture(
-            nullptr, kWidth, kHeight, GrColorType::kGray_8, false, GrMipMapped::kNo);
+            kWidth, kHeight, kGray_8_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
     REPORTER_ASSERT(reporter, backendTex1.isValid());
 
     GrBackendTexture backendTex2 = gpu->createTestingOnlyBackendTexture(
-            nullptr, kWidth, kHeight, GrColorType::kAlpha_8, false, GrMipMapped::kNo);
+            kWidth, kHeight, kAlpha_8_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
     REPORTER_ASSERT(reporter, backendTex2.isValid());
     if (backendTex1.getBackendFormat() != backendTex2.getBackendFormat()) {
         gpu->deleteTestingOnlyBackendTexture(backendTex1);
@@ -354,7 +354,7 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
             GrGpu* gpu = ctx->priv().getGpu();
 
             GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                    nullptr, kWidth, kHeight, GrColorType::kAlpha_8, false, GrMipMapped::kNo);
+                    kWidth, kHeight, kAlpha_8_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
             REPORTER_ASSERT(reporter, backendTex.isValid());
 
             SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
@@ -393,7 +393,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     GrGpu* gpu = ctx->priv().getGpu();
 
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-            nullptr, kWidth, kHeight, GrColorType::kAlpha_8, false, GrMipMapped::kNo);
+            kWidth, kHeight, kAlpha_8_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     SkImageInfo info =
@@ -457,7 +457,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
 
     // Do all this just to get a valid backend format for the image.
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+            kWidth, kHeight, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes);
     REPORTER_ASSERT(reporter, backendTex.isValid());
     GrBackendFormat backendFormat = backendTex.getBackendFormat();
     REPORTER_ASSERT(reporter, backendFormat.isValid());

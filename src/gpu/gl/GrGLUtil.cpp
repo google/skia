@@ -559,4 +559,3 @@ GrGLenum GrToGLStencilFunc(GrStencilTest test) {
 
     return gTable[(int)test];
 }
-
