@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrRenderTarget.h"
 #include "include/private/GrAuditTrail.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkExchange.h"
@@ -18,7 +19,9 @@
 #include "src/gpu/GrRect.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetOpList.h"
+#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrResourceAllocator.h"
+#include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/ops/GrClearOp.h"
 #include "src/gpu/ops/GrCopySurfaceOp.h"
 
@@ -373,6 +376,9 @@ GrRenderTargetOpList::~GrRenderTargetOpList() {
 void GrRenderTargetOpList::dump(bool printDependencies) const {
     INHERITED::dump(printDependencies);
 
+    SkDebugf("fStencilLoadOp: %s\n", GrLoadOpName(fStencilLoadOp));
+    SkDebugf("fStencilStoreOp: %s\n", GrStoreOpName(fStencilStoreOp));
+
     SkDebugf("ops (%d):\n", fOpChains.count());
     for (int i = 0; i < fOpChains.count(); ++i) {
         SkDebugf("*******************************\n");
@@ -428,13 +434,10 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
     }
 }
 
-static GrGpuRTCommandBuffer* create_command_buffer(GrGpu* gpu,
-                                                   GrRenderTarget* rt,
-                                                   GrSurfaceOrigin origin,
-                                                   const SkRect& bounds,
-                                                   GrLoadOp colorLoadOp,
-                                                   const SkPMColor4f& loadClearColor,
-                                                   GrLoadOp stencilLoadOp) {
+static GrGpuRTCommandBuffer* create_command_buffer(
+        GrGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
+        GrLoadOp colorLoadOp, const SkPMColor4f& loadClearColor, GrLoadOp stencilLoadOp, GrStoreOp
+        stencilStoreOp) {
     const GrGpuRTCommandBuffer::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,
         GrStoreOp::kStore,
@@ -448,7 +451,7 @@ static GrGpuRTCommandBuffer* create_command_buffer(GrGpu* gpu,
     // lower level (inside the VK command buffer).
     const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo stencilLoadAndStoreInfo {
         stencilLoadOp,
-        GrStoreOp::kStore,
+        stencilStoreOp,
     };
 
     return gpu->getCommandBuffer(rt, origin, bounds, kColorLoadStoreInfo, stencilLoadAndStoreInfo);
@@ -472,22 +475,25 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
     SkASSERT(fTarget.get()->peekRenderTarget());
     TRACE_EVENT0("skia", TRACE_FUNC);
 
-    // TODO: at the very least, we want the stencil store op to always be discard (at this
-    // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.
-
     // Make sure load ops are not kClear if the GPU needs to use draws for clears
     SkASSERT(fColorLoadOp != GrLoadOp::kClear ||
              !flushState->gpu()->caps()->performColorClearsAsDraws());
     SkASSERT(fStencilLoadOp != GrLoadOp::kClear ||
              !flushState->gpu()->caps()->performStencilClearsAsDraws());
+
+    GrRenderTarget* renderTarget = fTarget.get()->peekRenderTarget();
+    GrStencilAttachment* stencil = renderTarget->renderTargetPriv().getStencilAttachment();
+    GrLoadOp stencilLoadOp = fStencilLoadOp;
+    if (stencil && GrLoadOp::kClear == stencilLoadOp && !stencil->userBitsAreDirty()) {
+        if (!flushState->caps().preferFullscreenClears()) {
+            stencilLoadOp = GrLoadOp::kLoad;
+        }
+    }
+
     GrGpuRTCommandBuffer* commandBuffer = create_command_buffer(
-                                                    flushState->gpu(),
-                                                    fTarget.get()->peekRenderTarget(),
-                                                    fTarget.get()->origin(),
-                                                    fTarget.get()->getBoundsRect(),
-                                                    fColorLoadOp,
-                                                    fLoadClearColor,
-                                                    fStencilLoadOp);
+            flushState->gpu(), renderTarget, fTarget.get()->origin(),
+            fTarget.get()->getBoundsRect(), fColorLoadOp, fLoadClearColor, stencilLoadOp,
+            fStencilStoreOp);
     flushState->setCommandBuffer(commandBuffer);
     commandBuffer->begin();
 
@@ -516,6 +522,16 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
     flushState->gpu()->submit(commandBuffer);
     flushState->setCommandBuffer(nullptr);
 
+    if (stencil && GrStoreOp::kStore == fStencilStoreOp) {
+        // The user stencil bits are always initialized and kept at zero for the duration of a
+        // command buffer. So if we store the stencil, we know we're storing clean user bits.
+        stencil->userBitsCleared();
+    }
+    // FIXME: We don't currently have a way to flag command buffers that don't use stencil at all.
+    // In that case, their store op will be discard, and we currently make the assumption that a
+    // store op of "discard" will not invalidate what's already in main memory. This is probably ok
+    // for now, but certainly something we want to address soon.
+
     return true;
 }
 
@@ -533,10 +549,6 @@ void GrRenderTargetOpList::discard() {
         fColorLoadOp = GrLoadOp::kDiscard;
         fStencilLoadOp = GrLoadOp::kDiscard;
     }
-}
-
-void GrRenderTargetOpList::setStencilLoadOp(GrLoadOp op) {
-    fStencilLoadOp = op;
 }
 
 void GrRenderTargetOpList::setColorLoadOp(GrLoadOp op, const SkPMColor4f& color) {
