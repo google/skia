@@ -259,4 +259,6 @@ void GrGLClearErr(const GrGLInterface* gl);
 
 GrGLenum GrToGLStencilFunc(GrStencilTest test);
 
+bool GrGLFormatToPixelConfig(GrGLenum format, GrPixelConfig* config);
+
 #endif
