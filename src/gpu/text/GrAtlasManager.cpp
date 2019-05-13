@@ -21,18 +21,33 @@ GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrStrikeCache* gl
 
 GrAtlasManager::~GrAtlasManager() = default;
 
-static GrColorType mask_format_to_gr_color_type(GrMaskFormat format) {
+static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format) {
     switch (format) {
         case kA8_GrMaskFormat:
-            return GrColorType::kAlpha_8;
+            return kAlpha_8_GrPixelConfig;
         case kA565_GrMaskFormat:
-            return GrColorType::kRGB_565;
+            return kRGB_565_GrPixelConfig;
         case kARGB_GrMaskFormat:
-            return GrColorType::kRGBA_8888;
+            return kRGBA_8888_GrPixelConfig;
         default:
             SkDEBUGFAIL("unsupported GrMaskFormat");
-            return GrColorType::kAlpha_8;
+            return kAlpha_8_GrPixelConfig;
     }
+}
+
+static SkColorType mask_format_to_color_type(GrMaskFormat format) {
+    switch (format) {
+        case kA8_GrMaskFormat:
+            return kAlpha_8_SkColorType;
+        case kA565_GrMaskFormat:
+            return kRGB_565_SkColorType;
+        case kARGB_GrMaskFormat:
+            return kRGBA_8888_SkColorType;
+        default:
+            SkDEBUGFAIL("unsupported GrMaskFormat");
+            return kAlpha_8_SkColorType;
+    }
+
 }
 
 void GrAtlasManager::freeAll() {
@@ -160,18 +175,17 @@ void GrAtlasManager::setAtlasSizesToMinimum_ForTesting() {
 bool GrAtlasManager::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (fAtlases[index] == nullptr) {
-        GrColorType grColorType = mask_format_to_gr_color_type(format);
+        GrPixelConfig config = mask_format_to_pixel_config(format);
+        SkColorType colorType = mask_format_to_color_type(format);
         SkISize atlasDimensions = fAtlasConfig.atlasDimensions(format);
         SkISize plotDimensions = fAtlasConfig.plotDimensions(format);
 
-        const GrBackendFormat format = fCaps->getBackendFormatFromGrColorType(grColorType,
-                                                                              GrSRGBEncoded::kNo);
+        const GrBackendFormat format = fCaps->getBackendFormatFromColorType(colorType);
 
         fAtlases[index] = GrDrawOpAtlas::Make(
-                fProxyProvider, format, grColorType,
-                atlasDimensions.width(), atlasDimensions.height(),
-                plotDimensions.width(), plotDimensions.height(),
-                fAllowMultitexturing, &GrStrikeCache::HandleEviction, fGlyphCache);
+                fProxyProvider, format, config, atlasDimensions.width(), atlasDimensions.height(),
+                plotDimensions.width(), plotDimensions.height(), fAllowMultitexturing,
+                &GrStrikeCache::HandleEviction, fGlyphCache);
         if (!fAtlases[index]) {
             return false;
         }

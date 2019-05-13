@@ -1573,43 +1573,6 @@ static GrGLTexture::SamplerParams set_initial_texture_params(const GrGLInterface
     return params;
 }
 
-size_t GLBytesPerPixel(GrGLenum glFormat) {
-    switch (glFormat) {
-        case GR_GL_LUMINANCE8:
-        case GR_GL_ALPHA8:
-        case GR_GL_R8:
-            return 1;
-
-        case GR_GL_RGB565:
-        case GR_GL_RGBA4:
-        case GR_GL_RG8:
-        case GR_GL_R16F:
-            return 2;
-
-        case GR_GL_RGB8:
-            return 3;
-
-        case GR_GL_RGBA8:
-        case GR_GL_SRGB8_ALPHA8:
-        case GR_GL_BGRA8:
-        case GR_GL_RGB10_A2:
-            return 4;
-
-        case GR_GL_RGBA16F:
-        case GR_GL_RG32F:
-            return 8;
-
-        case GR_GL_RGBA32F:
-            return 16;
-
-        case GR_GL_COMPRESSED_RGB8_ETC2:
-            return 0;
-    }
-
-    SK_ABORT("Invalid GL format");
-    return 0;
-}
-
 sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
                                           SkBudgeted budgeted,
                                           const GrMipLevel texels[],
@@ -1620,8 +1583,6 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
         return return_null_texture();
     }
 
-    GrGLenum glFormat = this->glCaps().configSizedInternalFormat(desc.fConfig);
-
     bool performClear = (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
                         !GrPixelConfigIsCompressed(desc.fConfig);
 
@@ -1629,7 +1590,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     std::unique_ptr<uint8_t[]> zeros;
     if (performClear && !this->glCaps().clearTextureSupport() &&
         !this->glCaps().canConfigBeFBOColorAttachment(desc.fConfig)) {
-        size_t rowSize = GLBytesPerPixel(glFormat) * desc.fWidth;
+        size_t rowSize = GrBytesPerPixel(desc.fConfig) * desc.fWidth;
         size_t size = rowSize * desc.fHeight;
         zeros.reset(new uint8_t[size]);
         memset(zeros.get(), 0, size);

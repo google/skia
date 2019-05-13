@@ -77,7 +77,7 @@ public:
     /**
      * Returns a GrDrawOpAtlas. This function can be called anywhere, but the returned atlas
      * should only be used inside of GrMeshDrawOp::onPrepareDraws.
-     *  @param GrColorType      The colorType which this atlas will store
+     *  @param GrPixelConfig    The pixel config which this atlas will store
      *  @param width            width in pixels of the atlas
      *  @param height           height in pixels of the atlas
      *  @param numPlotsX        The number of plots the atlas should be broken up into in the X
@@ -93,7 +93,7 @@ public:
      */
     static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider*,
                                                const GrBackendFormat& format,
-                                               GrColorType,
+                                               GrPixelConfig,
                                                int width, int height,
                                                int plotWidth, int plotHeight,
                                                AllowMultitexturing allowMultitexturing,
@@ -246,7 +246,7 @@ public:
     void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
-    GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, GrColorType, int width,
+    GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, GrPixelConfig, int width,
                   int height, int plotWidth, int plotHeight,
                   AllowMultitexturing allowMultitexturing);
 
@@ -296,8 +296,8 @@ private:
         void incFlushesSinceLastUsed() { fFlushesSinceLastUse++; }
 
     private:
-        Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY,
-             int width, int height, GrColorType colorType);
+        Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY, int width, int height,
+             GrPixelConfig config);
 
         ~Plot() override;
 
@@ -306,8 +306,7 @@ private:
          * the atlas
          */
         Plot* clone() const {
-            return new Plot(fPageIndex, fPlotIndex, fGenID + 1, fX, fY, fWidth, fHeight,
-                            fColorType);
+            return new Plot(fPageIndex, fPlotIndex, fGenID + 1, fX, fY, fWidth, fHeight, fConfig);
         }
 
         static GrDrawOpAtlas::AtlasID CreateId(uint32_t pageIdx, uint32_t plotIdx,
@@ -337,7 +336,7 @@ private:
         const int fY;
         GrRectanizer* fRects;
         const SkIPoint16 fOffset;  // the offset of the plot in the backing texture
-        const GrColorType fColorType;
+        const GrPixelConfig fConfig;
         const size_t fBytesPerPixel;
         SkIRect fDirtyRect;
         SkDEBUGCODE(bool fDirty);
@@ -386,7 +385,7 @@ private:
     }
 
     GrBackendFormat       fFormat;
-    GrColorType           fColorType;
+    GrPixelConfig         fPixelConfig;
     int                   fTextureWidth;
     int                   fTextureHeight;
     int                   fPlotWidth;
