@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71c774d6_e5453fff",
+        "filename": "src/core/SkStrikeSpec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-13T19:49:46Z",
+      "side": 1,
+      "message": "This might be clearer with a variable to name the condition?\n\n    bool draw_as_path \u003d SkDraw::ShouldDrawTextAsPaths(...);\n#ifdef SK_IGNORE_LINEAR_METRICS_FIX\n    draw_as_path |\u003d font.isLinearMetrics();\n#endif\n    if (draw_as_path) {\n       ...\n    }\n\n?",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 7
+      },
+      "revId": "1967471e0753882324c205bcfa40d7ba1decb181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
