@@ -55,7 +55,7 @@ Run GN to generate your build files.
 
 If you find you don't have `bin/gn`, make sure you've run
 
-    python tools/git-sync-deps
+    python2 tools/git-sync-deps
 
 GN allows fine-grained settings for developers and special situations.
 
@@ -92,9 +92,9 @@ NDK](https://developer.android.com/ndk/index.html).
 If you do not have an NDK and have access to CIPD, you
 can use one of these commands to fetch the NDK our bots use:
 
-    python infra/bots/assets/android_ndk_linux/download.py  -t /tmp/ndk
-    python infra/bots/assets/android_ndk_darwin/download.py -t /tmp/ndk
-    python infra/bots/assets/android_ndk_windows/download.py -t C:/ndk
+    python2 infra/bots/assets/android_ndk_linux/download.py  -t /tmp/ndk
+    python2 infra/bots/assets/android_ndk_darwin/download.py -t /tmp/ndk
+    python2 infra/bots/assets/android_ndk_windows/download.py -t C:/ndk
 
 When generating your GN build files, pass the path to your `ndk` and your
 desired `target_cpu`:
@@ -128,10 +128,10 @@ To compile Skia for an x86 ChromeOS device, one only needs Clang and the lib fil
 
 If you have access to CIPD, you can fetch all of these as follows:
 
-    python infra/bots/assets/clang_linux/download.py  -t /opt/clang
-    python infra/bots/assets/armhf_sysroot/download.py -t /opt/armhf_sysroot
-    python infra/bots/assets/chromebook_arm_gles/download.py -t /opt/chromebook_arm_gles
-    python infra/bots/assets/chromebook_x86_64_gles/download.py -t /opt/chromebook_x86_64_gles
+    python2 infra/bots/assets/clang_linux/download.py  -t /opt/clang
+    python2 infra/bots/assets/armhf_sysroot/download.py -t /opt/armhf_sysroot
+    python2 infra/bots/assets/chromebook_arm_gles/download.py -t /opt/chromebook_arm_gles
+    python2 infra/bots/assets/chromebook_x86_64_gles/download.py -t /opt/chromebook_x86_64_gles
 
 If you don't have authorization to use those assets, then see the README.md files for
 [armhf_sysroot](https://skia.googlesource.com/skia/+/master/infra/bots/assets/armhf_sysroot/README.md),
@@ -253,7 +253,7 @@ Skia can be compiled with the free [Build Tools for Visual Studio
 
 The bots use a packaged 2017 toolchain, which Googlers can download like this:
 
-    python infra/bots/assets/win_toolchain/download.py -t C:/toolchain
+    python2 infra/bots/assets/win_toolchain/download.py -t C:/toolchain
 
 You can then pass the VC and SDK paths to GN by setting your GN args:
 
@@ -289,7 +289,7 @@ there is a helper script. It requires that all of your GN directories be inside
 the `out` directory. First, create all of your GN configurations as usual.
 Pass `--ide=vs` when running `bin/gn gen` for each one. Then:
 
-    python gn/gn_meta_sln.py
+    python2 gn/gn_meta_sln.py
 
 This creates a new dedicated output directory and solution file
 `out/sln/skia.sln`. It has one solution configuration for each GN configuration,
