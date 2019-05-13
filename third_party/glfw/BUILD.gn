@@ -1,0 +1,57 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+import("../third_party.gni")
+
+third_party("glfw") {
+  public_include_dirs = [ "../externals/glfw/include" ]
+
+  include_dirs = [ "." ]
+  sources = [
+    "../externals/glfw/src/context.c",
+    "../externals/glfw/src/init.c",
+    "../externals/glfw/src/input.c",
+    "../externals/glfw/src/monitor.c",
+    "../externals/glfw/src/vulkan.c",
+    "../externals/glfw/src/window.c",
+  ]
+  defines = [
+    "GLFW_VERSION_MAJOR=3",
+    "GLFW_VERSION_MINOR=2",
+    "GLFW_VERSION_PATCH=1",
+    "GLFW_VERSION_EXTRA",
+    "GLFW_VERSION=3.2",
+    "GLFW_VERSION_FULL=3.2.1",
+    "LIB_SUFFIX=64",
+  ]
+  libs = []
+
+  if (is_mac) {
+    sources += [
+      "../externals/glfw/src/cocoa_init.m",
+      "../externals/glfw/src/cocoa_joystick.m",
+      "../externals/glfw/src/cocoa_monitor.m",
+      "../externals/glfw/src/cocoa_time.c",
+      "../externals/glfw/src/cocoa_window.m",
+      "../externals/glfw/src/nsgl_context.m",
+      "../externals/glfw/src/posix_tls.c",
+    ]
+    defines += [
+      "_GLFW_COCOA=1",
+      "_GLFW_USE_CHDIR=1",
+      "_GLFW_USE_MENUBAR=1",
+      "_GFLW_USE_RETINA=1",
+    ]
+    libs += [
+      "Cocoa.framework",
+      "Foundation.framework",
+      "IOKit.framework",
+      "CoreVideo.framework",
+    ]
+  }
+}

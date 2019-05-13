@@ -9,7 +9,7 @@
 #ifndef WindowContextFactory_mac_DEFINED
 #define WindowContextFactory_mac_DEFINED
 
-#include <Cocoa/Cocoa.h>
+#include "GLFW/glfw3.h"
 
 namespace sk_app {
 
@@ -19,7 +19,7 @@ struct DisplayParams;
 namespace window_context_factory {
 
 struct MacWindowInfo {
-    NSView*   fMainView;
+    GLFWwindow*   fWindow;
 };
 
 #ifdef SK_VULKAN
