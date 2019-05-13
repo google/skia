@@ -53,7 +53,7 @@
 
 // For symmetry with SK_RELEASE_CAPABILITY.
 #define SK_RELEASE_SHARED_CAPABILITY(...) \
-  SK_THREAD_ANNOTATION_ATTRIBUTE(release_shared_capability(__VA_ARGS__))
+  SK_THREAD_ANNOTATION_ATTRIBUTE(unlock_function(__VA_ARGS__))
 
 #define SK_TRY_ACQUIRE(...) \
   SK_THREAD_ANNOTATION_ATTRIBUTE(try_acquire_capability(__VA_ARGS__))
