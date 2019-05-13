@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkSemaphore.h"
+#include "include/private/SkThreadAnnotations.h"
 #include <atomic>
 
 #ifdef SK_DEBUG
@@ -26,27 +27,27 @@
 //
 // This lock does not obey strict queue ordering. It will always alternate between readers and
 // a single writer.
-class SkSharedMutex {
+class SK_CAPABILITY("mutex") SkSharedMutex {
 public:
     SkSharedMutex();
     ~SkSharedMutex();
     // Acquire lock for exclusive use.
-    void acquire();
+    void acquire() SK_ACQUIRE();
 
     // Release lock for exclusive use.
-    void release();
+    void release() SK_RELEASE_CAPABILITY();
 
     // Fail if exclusive is not held.
-    void assertHeld() const;
+    void assertHeld() const SK_ASSERT_CAPABILITY(this);
 
     // Acquire lock for shared use.
-    void acquireShared();
+    void acquireShared() SK_ACQUIRE_SHARED();
 
     // Release lock for shared use.
-    void releaseShared();
+    void releaseShared() SK_RELEASE_SHARED_CAPABILITY();
 
     // Fail if shared lock not held.
-    void assertHeldShared() const;
+    void assertHeldShared() const SK_ASSERT_SHARED_CAPABILITY(this);
 
 private:
 #ifdef SK_DEBUG
