@@ -2279,6 +2279,8 @@ if (skia_enable_tools) {
       deps += [ "//third_party/native_app_glue" ]
     } else if (is_ios) {
       deps += [ "//third_party/libsdl" ]
+    } else if (is_mac) {
+      deps += [ "//third_party/glfw" ]
     }
     if (skia_use_angle) {
       deps += [ "//third_party/angle2" ]

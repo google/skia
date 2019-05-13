@@ -9,22 +9,64 @@
 #include "tools/sk_app/mac/WindowContextFactory_mac.h"
 #include "tools/sk_app/mac/Window_mac.h"
 
-@interface WindowDelegate : NSObject<NSWindowDelegate>
-
-- (WindowDelegate*)initWithWindow:(sk_app::Window_mac*)initWindow;
-
-@end
-
-@interface MainView : NSView
-@end
-
 ///////////////////////////////////////////////////////////////////////////////
 
 using sk_app::Window;
+int gWindowCount = 0;
 
 namespace sk_app {
 
-SkTDynamicHash<Window_mac, NSInteger> Window_mac::gWindowMap;
+SkTDynamicHash<Window_mac, int> Window_mac::gWindowMap;
+
+void closeWindowCallback(GLFWwindow* window) {
+    --gWindowCount;
+}
+void resizeWindowCallback(GLFWwindow* window, int w, int h) {
+    sk_app::Window_mac* macWindow =
+        reinterpret_cast<sk_app::Window_mac*>(glfwGetWindowUserPointer(window));
+    macWindow->onResize(w, h);
+}
+
+void refreshWindowCallback(GLFWwindow* window) {
+    sk_app::Window_mac* macWindow =
+        reinterpret_cast<sk_app::Window_mac*>(glfwGetWindowUserPointer(window));
+    macWindow->onPaint();
+}
+
+//void resizeFramebufferWindowCallback(GLFWwindow* window, int w, int h) {
+//    sk_app::Window_mac* macWindow = reinterpret_cast<sk_app::Window_mac*>(glfwGetWindowUserPointer(fWindow));
+//    macWindow->onResize(w, h);
+//}
+
+void keyWindowCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+}
+
+void charWindowCallback(GLFWwindow* window, unsigned int codepoint) {
+    sk_app::Window_mac* macWindow =
+        reinterpret_cast<sk_app::Window_mac*>(glfwGetWindowUserPointer(window));
+    macWindow->onChar((SkUnichar) codepoint, 0);
+}
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    sk_app::Window_mac* macWindow =
+        reinterpret_cast<sk_app::Window_mac*>(glfwGetWindowUserPointer(window));
+
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        macWindow->onMouse(x, y, Window::kDown_InputState, 0);
+    } else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+        macWindow->onMouse(x, y, Window::kUp_InputState, 0);
+    }
+}
+
+void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
+    sk_app::Window_mac* macWindow =
+        reinterpret_cast<sk_app::Window_mac*>(glfwGetWindowUserPointer(window));
+
+    macWindow->onMouse(xpos, ypos, Window::kMove_InputState, 0);
+}
 
 Window* Window::CreateNativeWindow(void*) {
     Window_mac* window = new Window_mac();
@@ -32,6 +74,8 @@ Window* Window::CreateNativeWindow(void*) {
         delete window;
         return nullptr;
     }
+
+    ++gWindowCount;
 
     return window;
 }
@@ -49,65 +93,46 @@ bool Window_mac::initWindow() {
     constexpr int initialWidth = 1280;
     constexpr int initialHeight = 960;
 
-    NSUInteger windowStyle = (NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask |
-                              NSMiniaturizableWindowMask);
-
-    NSRect windowRect = NSMakeRect(100, 100, initialWidth, initialHeight);
-    fWindow = [[NSWindow alloc] initWithContentRect:windowRect styleMask:windowStyle
-                                backing:NSBackingStoreBuffered defer:NO];
-    if (nil == fWindow) {
-        return false;
-    }
-    [fWindow setAcceptsMouseMovedEvents:YES];
-
-    WindowDelegate* delegate = [[WindowDelegate alloc] initWithWindow:this];
-    [fWindow setDelegate:delegate];
-    [delegate release];
-
-    // create view
-    MainView* view = [[MainView alloc] initWithFrame:NSMakeRect(0, 0, 1, 1)] ;
-    if (nil == view) {
-        [fWindow release];
-        fWindow = nil;
+    fWindow = glfwCreateWindow(initialWidth, initialHeight, "App", nullptr, nullptr);
+    fWindowNumber = gWindowCount;
+    if (!fWindow) {
         return false;
     }
 
-    // attach view to window
-    [fWindow setContentView:view];
+    glfwSetWindowUserPointer(fWindow, this);
 
-    fWindowNumber = fWindow.windowNumber;
+    glfwSetWindowSizeCallback(fWindow, resizeWindowCallback);
+//        glfwSetWindowFramebufferSizeCallback(fWindow, resizeFramebufferWindowCallback);
+    glfwSetWindowCloseCallback(fWindow, closeWindowCallback);
+    glfwSetWindowRefreshCallback(fWindow, refreshWindowCallback);
+    glfwSetKeyCallback(fWindow, keyWindowCallback);
+    glfwSetCharCallback(fWindow, charWindowCallback);
+    glfwSetMouseButtonCallback(fWindow, mouseButtonCallback);
+    glfwSetCursorPosCallback(fWindow, cursorPositionCallback);
+
     gWindowMap.add(this);
 
     return true;
 }
 
 void Window_mac::closeWindow() {
-    if (nil != fWindow) {
-        gWindowMap.remove(fWindowNumber);
-        if (sk_app::Window_mac::gWindowMap.count() < 1) {
-            [NSApp terminate:fWindow];
-        }
-        [fWindow release];
-        fWindow = nil;
-    }
+    glfwDestroyWindow(fWindow);
+    fWindow = nullptr;
 }
 
 void Window_mac::setTitle(const char* title) {
-    NSString *titleString = [NSString stringWithCString:title encoding:NSUTF8StringEncoding];
-    [fWindow setTitle:titleString];
+    glfwSetWindowTitle(fWindow, title);
 }
 
 void Window_mac::show() {
-    [NSApp activateIgnoringOtherApps:YES];
-
-    [fWindow makeKeyAndOrderFront:NSApp];
+    glfwShowWindow(fWindow);
 }
 
 bool Window_mac::attach(BackendType attachType) {
     this->initWindow();
 
     window_context_factory::MacWindowInfo info;
-    info.fMainView = [fWindow contentView];
+    info.fWindow = fWindow;
     switch (attachType) {
         case kRaster_BackendType:
             fWindowContext = NewRasterForMac(info, fRequestedDisplayParams);
@@ -132,6 +157,30 @@ bool Window_mac::attach(BackendType attachType) {
     return (SkToBool(fWindowContext));
 }
 
+void Window_mac::onInval() {
+//    [[fWindow contentView] setNeedsDisplay:YES];
+    // MacOS already queues a single drawRect event for multiple invalidations
+    // so we don't need to use our invalidation method (and it can mess things up
+    // if for some reason MacOS skips a drawRect when we need one).
+//    this->markInvalProcessed();
+}
+
+void Window_mac::PaintWindows() {
+    SkTDynamicHash<Window_mac, int>::Iter iter(&gWindowMap);
+    while (!iter.done()) {
+        if ((*iter).fIsContentInvalidated) {
+            (*iter).onPaint();
+        }
+        ++iter;
+    }
+}
+
+
+}   // namespace sk_app
+
+///////////////////////////////////////////////////////////////////////////////
+
+/*
 static Window::Key get_key(unsigned short vk) {
     // This will work with an ANSI QWERTY keyboard.
     // Something more robust would be needed to support alternate keyboards.
@@ -194,16 +243,6 @@ static uint32_t get_modifiers(const NSEvent* event) {
     }
 
     return modifiers;
-}
-
-void Window_mac::PaintWindows() {
-    SkTDynamicHash<Window_mac, NSInteger>::Iter iter(&gWindowMap);
-    while (!iter.done()) {
-        if ((*iter).fIsContentInvalidated) {
-            (*iter).onPaint();
-        }
-        ++iter;
-    }
 }
 
 void Window_mac::HandleWindowEvent(const NSEvent* event) {
@@ -337,11 +376,9 @@ void Window_mac::resetMouse() {
     return YES;
 }
 
+
 // We keep these around to prevent beeping when the system can't determine
 // where the focus for key events is.
 - (void)keyDown:(NSEvent *)event {
 }
-
-- (void)keyUp:(NSEvent *)event {
-}
-@end
+*/
