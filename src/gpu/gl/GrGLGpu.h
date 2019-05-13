@@ -122,6 +122,15 @@ public:
     // stencil buffer as not dirty?
     void clearStencil(GrRenderTarget*, int clearValue);
 
+    using ColorLoadAndStoreInfo = GrGpuRTCommandBuffer::LoadAndStoreInfo;
+    using StencilLoadAndStoreInfo = GrGpuRTCommandBuffer::StencilLoadAndStoreInfo;
+
+    void beginCommandBuffer(
+            GrRenderTarget*, const ColorLoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
+
+    void endCommandBuffer(
+            GrRenderTarget*, const ColorLoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
+
     GrGpuRTCommandBuffer* getCommandBuffer(
             GrRenderTarget*, GrSurfaceOrigin, const SkRect&,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
@@ -352,7 +361,7 @@ private:
     };
 
     void flushColorWrite(bool writeColor);
-    void flushClearColor(GrGLfloat r, GrGLfloat g, GrGLfloat b, GrGLfloat a);
+    void flushClearColor(const SkPMColor4f&);
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
@@ -676,6 +685,9 @@ private:
         GrGLsync fSync;
     };
     std::list<FinishCallback> fFinishCallbacks;
+
+    SkDEBUGCODE(bool fIsExecutingCommandBuffer_DebugOnly = false);
+
     friend class GrGLPathRendering; // For accessing setTextureUnit.
 
     typedef GrGpu INHERITED;

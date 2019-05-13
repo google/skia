@@ -71,6 +71,11 @@ public:
     // initialize each tile with a constant value rather than loading each pixel from memory.
     bool preferFullscreenClears() const { return fPreferFullscreenClears; }
 
+    // On tilers we can save memory bandwidth by clearing the stencil buffer at the beginning of
+    // a command buffer, and discarding it at the end. This encourages the driver to only use fast,
+    // on-chip tile memory and never actually transfer stencil values to and from main memory.
+    bool discardStencilAfterCommandBuffer() const { return fDiscardStencilAfterCommandBuffer; }
+
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
     bool preferTrianglesOverSampleMask() const { return fPreferTrianglesOverSampleMask; }
@@ -374,6 +379,7 @@ protected:
     bool fUsePrimitiveRestart                        : 1;
     bool fPreferClientSideDynamicBuffers             : 1;
     bool fPreferFullscreenClears                     : 1;
+    bool fDiscardStencilAfterCommandBuffer           : 1;
     bool fMustClearUploadedBufferData                : 1;
     bool fShouldInitializeTextures                   : 1;
     bool fSupportsAHardwareBufferImages              : 1;

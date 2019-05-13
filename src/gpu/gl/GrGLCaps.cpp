@@ -170,6 +170,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         kImagination_GrGLVendor == ctxInfo.vendor() ||
         kQualcomm_GrGLVendor == ctxInfo.vendor() ) {
         fPreferFullscreenClears = true;
+        fDiscardStencilAfterCommandBuffer = true;
     }
 
     if (GR_IS_GR_GL(standard)) {

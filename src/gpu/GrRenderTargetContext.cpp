@@ -234,7 +234,21 @@ GrRenderTargetOpList* GrRenderTargetContext::getRTOpList() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy, fManagedOpList);
+        sk_sp<GrRenderTargetOpList> newOpList =
+                this->drawingManager()->newRTOpList(fRenderTargetProxy, fManagedOpList);
+        if (fHasInitializedStencil) {
+            SkASSERT(fOpList);
+            // Always load/store stencil between opList splits. (We know this must be a split
+            // because the stencil is already initialized.)
+            // FIXME: In addition to simply reducing the split frequency, we might want to think
+            // about cases where we can safely skip this heavy-handed load/store solution.
+            fOpList->setStencilStoreOp(GrStoreOp::kStore);  // Store stencil after previous opList.
+            newOpList->setStencilLoadOp(GrLoadOp::kLoad);  // Load stencil before next opList.
+            if (!this->caps()->discardStencilAfterCommandBuffer()) {
+                newOpList->setStencilStoreOp(GrStoreOp::kStore);
+            }
+        }
+        fOpList = std::move(newOpList);
     }
 
     return fOpList.get();
@@ -843,9 +857,6 @@ void GrRenderTargetContext::internalStencilClear(const GrFixedClip& clip, bool i
         paint.setColor4f({0.f, 0.f, 0.f, 0.f});
         paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
 
-        // Mark stencil usage here before addDrawOp() so that it doesn't try to re-call
-        // internalStencilClear() just because the op has stencil settings.
-        this->setNeedsStencil();
         this->addDrawOp(clip, GrFillRectOp::Make(fContext, std::move(paint),
                         GrAAType::kNone, SkMatrix::I(), rtRect, ss));
     } else {
@@ -882,8 +893,6 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
                     &bounds)) {
         return;
     }
-
-    fRenderTargetContext->setNeedsStencil();
 
     std::unique_ptr<GrOp> op = GrStencilPathOp::Make(fRenderTargetContext->fContext,
                                                      viewMatrix,
@@ -2252,20 +2261,26 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
         return;
     }
 
-    if (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil ||
-        appliedClip.hasStencilClip()) {
-        if (this->caps()->performStencilClearsAsDraws()) {
-            // Must use an op to perform the clear of the stencil buffer before this op, but only
-            // have to clear the first time any draw needs it (this also ensures we don't loop
-            // forever when the internal stencil clear adds a draw op that has stencil settings).
-            if (!fRenderTargetProxy->needsStencil()) {
-                // Send false so that the stencil buffer is fully cleared to 0
+    if (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil) {
+        if (!fHasInitializedStencil) {
+            GrRenderTargetOpList* opList = this->getRTOpList();
+
+            // Do this first, to ensure we don't recurse forever if the internal stencil clear gets
+            // triggered and adds a draw op that has stencil settings.
+            fHasInitializedStencil = true;
+
+            if (this->caps()->performStencilClearsAsDraws()) {
+                // Send false so that the stencil buffer is fully cleared to 0.
                 this->internalStencilClear(GrFixedClip::Disabled(), /* inside mask */ false);
+            } else {
+                opList->setStencilLoadOp(GrLoadOp::kClear);
             }
-        } else {
-            // Just make sure the stencil buffer is cleared before the draw op, easy to do it as
-            // a load at the start
-            this->getRTOpList()->setStencilLoadOp(GrLoadOp::kClear);
+
+            if (!this->caps()->discardStencilAfterCommandBuffer()) {
+                // Preserve stencil data if we aren't on a tiler. The opList will notice this, track
+                // that the user bits are clean, and potentially skip future clear-on-load ops.
+                opList->setStencilStoreOp(GrStoreOp::kStore);
+            }
         }
 
         this->setNeedsStencil();

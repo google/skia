@@ -187,9 +187,6 @@ bool GrOpList::isFullyInstantiated() const {
 }
 
 #ifdef SK_DEBUG
-static const char* op_to_name(GrLoadOp op) {
-    return GrLoadOp::kLoad == op ? "load" : GrLoadOp::kClear == op ? "clear" : "discard";
-}
 
 void GrOpList::dump(bool printDependencies) const {
     SkDebugf("--------------------------------------------------------------\n");
@@ -198,10 +195,9 @@ void GrOpList::dump(bool printDependencies) const {
              fTarget.get() && fTarget.get()->peekSurface()
                      ? fTarget.get()->peekSurface()->uniqueID().asUInt()
                      : -1);
-    SkDebugf("ColorLoadOp: %s %x StencilLoadOp: %s\n",
-             op_to_name(fColorLoadOp),
-             GrLoadOp::kClear == fColorLoadOp ? fLoadClearColor.toBytes_RGBA() : 0x0,
-             op_to_name(fStencilLoadOp));
+    SkDebugf("ColorLoadOp: %s %x\n",
+             GrLoadOpName(fColorLoadOp),
+             GrLoadOp::kClear == fColorLoadOp ? fLoadClearColor.toBytes_RGBA() : 0x0);
 
     if (printDependencies) {
         SkDebugf("I rely On (%d): ", fDependencies.count());

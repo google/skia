@@ -1646,7 +1646,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
             this->disableScissor();
             this->disableWindowRectangles();
             this->flushColorWrite(true);
-            this->flushClearColor(0, 0, 0, 0);
+            this->flushClearColor({0, 0, 0, 0});
             GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
             this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, tex.get());
             fHWBoundRenderTargetUniqueID.makeInvalid();
@@ -2194,16 +2194,7 @@ void GrGLGpu::clear(const GrFixedClip& clip, const SkPMColor4f& color,
     this->flushScissor(clip.scissorState(), glRT->getViewport(), origin);
     this->flushWindowRectangles(clip.windowRectsState(), glRT, origin);
     this->flushColorWrite(true);
-
-    GrGLfloat r = color.fR, g = color.fG, b = color.fB, a = color.fA;
-    if (this->glCaps().clearToBoundaryValuesIsBroken() &&
-        (1 == r || 0 == r) && (1 == g || 0 == g) && (1 == b || 0 == b) && (1 == a || 0 == a)) {
-        static const GrGLfloat safeAlpha1 = nextafter(1.f, 2.f);
-        static const GrGLfloat safeAlpha0 = nextafter(0.f, -1.f);
-        a = (1 == a) ? safeAlpha1 : safeAlpha0;
-    }
-    this->flushClearColor(r, g, b, a);
-
+    this->flushClearColor(color);
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
 }
 
@@ -2214,10 +2205,8 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
         return;
     }
 
-    GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
-    // this should only be called internally when we know we have a
-    // stencil buffer.
-    SkASSERT(sb);
+    // this should only be called internally when we know we have a stencil buffer.
+    SkASSERT(target->renderTargetPriv().getStencilAttachment());
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
     this->flushRenderTargetNoColorWrites(glRT);
@@ -2229,9 +2218,79 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
     GL_CALL(ClearStencil(clearValue));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
     fHWStencilSettings.invalidate();
-    if (!clearValue) {
-        sb->cleared();
+}
+
+void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, const ColorLoadAndStoreInfo& colorLoadStore,
+                                 const StencilLoadAndStoreInfo& stencilLoadStore) {
+    SkASSERT(!fIsExecutingCommandBuffer_DebugOnly);
+
+    this->handleDirtyContext();
+
+    auto glRT = static_cast<GrGLRenderTarget*>(rt);
+    this->flushRenderTarget(glRT);
+    SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = true);
+
+    GrGLbitfield clearMask = 0;
+    if (GrLoadOp::kClear == colorLoadStore.fLoadOp) {
+        SkASSERT(!this->caps()->performColorClearsAsDraws());
+        this->flushClearColor(colorLoadStore.fClearColor);
+        this->flushColorWrite(true);
+        clearMask |= GR_GL_COLOR_BUFFER_BIT;
     }
+    if (GrLoadOp::kClear == stencilLoadStore.fLoadOp) {
+        SkASSERT(!this->caps()->performStencilClearsAsDraws());
+        GL_CALL(StencilMask(0xffffffff));
+        GL_CALL(ClearStencil(0));
+        clearMask |= GR_GL_STENCIL_BUFFER_BIT;
+    }
+    if (clearMask) {
+        this->disableScissor();
+        this->disableWindowRectangles();
+        GL_CALL(Clear(clearMask));
+    }
+}
+
+void GrGLGpu::endCommandBuffer(GrRenderTarget* rt, const ColorLoadAndStoreInfo& colorLoadStore,
+                               const StencilLoadAndStoreInfo& stencilLoadStore) {
+    SkASSERT(fIsExecutingCommandBuffer_DebugOnly);
+
+    this->handleDirtyContext();
+
+    if (rt->uniqueID() != fHWBoundRenderTargetUniqueID) {
+#ifdef SK_DEBUG
+        SkDebugf("WARNING: GL framebuffer changed in the middle of a command buffer. This will "
+                 "kill performance.\n");
+        fIsExecutingCommandBuffer_DebugOnly = false;
+#endif
+        return;
+    }
+
+    if (this->caps()->discardRenderTargetSupport()) {
+        auto glRT = static_cast<GrGLRenderTarget*>(rt);
+
+        SkSTArray<2, GrGLenum> discardAttachments;
+        if (GrStoreOp::kStore != colorLoadStore.fStoreOp) {
+            discardAttachments.push_back(
+                    (0 == glRT->renderFBOID()) ? GR_GL_COLOR : GR_GL_COLOR_ATTACHMENT0);
+        }
+        if (GrStoreOp::kStore != stencilLoadStore.fStoreOp) {
+            discardAttachments.push_back(
+                    (0 == glRT->renderFBOID()) ? GR_GL_STENCIL : GR_GL_STENCIL_ATTACHMENT);
+        }
+
+        if (!discardAttachments.empty()) {
+            if (GrGLCaps::kInvalidate_InvalidateFBType == this->glCaps().invalidateFBType()) {
+                GL_CALL(InvalidateFramebuffer(GR_GL_FRAMEBUFFER, discardAttachments.count(),
+                                              discardAttachments.begin()));
+            } else {
+                SkASSERT(GrGLCaps::kDiscard_InvalidateFBType == this->glCaps().invalidateFBType());
+                GL_CALL(DiscardFramebuffer(GR_GL_FRAMEBUFFER, discardAttachments.count(),
+                                           discardAttachments.begin()));
+            }
+        }
+    }
+
+    SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = false);
 }
 
 void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
@@ -3136,7 +3195,14 @@ void GrGLGpu::flushColorWrite(bool writeColor) {
     }
 }
 
-void GrGLGpu::flushClearColor(GrGLfloat r, GrGLfloat g, GrGLfloat b, GrGLfloat a) {
+void GrGLGpu::flushClearColor(const SkPMColor4f& color) {
+    GrGLfloat r = color.fR, g = color.fG, b = color.fB, a = color.fA;
+    if (this->glCaps().clearToBoundaryValuesIsBroken() &&
+        (1 == r || 0 == r) && (1 == g || 0 == g) && (1 == b || 0 == b) && (1 == a || 0 == a)) {
+        static const GrGLfloat safeAlpha1 = nextafter(1.f, 2.f);
+        static const GrGLfloat safeAlpha0 = nextafter(0.f, -1.f);
+        a = (1 == a) ? safeAlpha1 : safeAlpha0;
+    }
     if (r != fHWClearColor[0] || g != fHWClearColor[1] ||
         b != fHWClearColor[2] || a != fHWClearColor[3]) {
         GL_CALL(ClearColor(r, g, b, a));

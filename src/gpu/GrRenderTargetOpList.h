@@ -127,8 +127,10 @@ private:
 
     bool onIsUsed(GrSurfaceProxy*) const override;
 
-    // Must only be called if native stencil buffer clearing is enabled
-    void setStencilLoadOp(GrLoadOp op);
+    // Load op must not be kClear if caps.performStencilClearsAsDraws() is true.
+    void setStencilLoadOp(GrLoadOp op) { fStencilLoadOp = op; }
+    void setStencilStoreOp(GrStoreOp op) { fStencilStoreOp = op; }
+
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, const SkPMColor4f& color);
     // Sets the clear color to transparent black
@@ -224,9 +226,12 @@ private:
 
     void forwardCombine(const GrCaps&);
 
-    uint32_t                       fLastClipStackGenID;
-    SkIRect                        fLastDevClipBounds;
-    int                            fLastClipNumAnalyticFPs;
+    uint32_t fLastClipStackGenID;
+    SkIRect fLastDevClipBounds;
+    int fLastClipNumAnalyticFPs;
+
+    GrLoadOp fStencilLoadOp = GrLoadOp::kDiscard;
+    GrStoreOp fStencilStoreOp = GrStoreOp::kDiscard;
 
     // We must track if we have a wait op so that we don't delete the op when we have a full clear.
     bool fHasWaitOp = false;;
@@ -236,8 +241,8 @@ private:
 
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.
-    SkArenaAlloc                   fClipAllocator{4096};
-    SkDEBUGCODE(int                fNumClips;)
+    SkArenaAlloc fClipAllocator{4096};
+    SkDEBUGCODE(int fNumClips;)
 
     typedef GrOpList INHERITED;
 };
