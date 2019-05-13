@@ -122,8 +122,7 @@ public:
 private:
     void recordCopyPathInstance(const GrCCPathCacheEntry&, const SkIVector& newAtlasOffset,
                                 GrCCPathProcessor::DoEvenOddFill, sk_sp<GrTextureProxy> srcProxy);
-    bool placeRenderedPathInAtlas(const SkIRect& clipIBounds, const SkIRect& pathIBounds,
-                                  GrScissorTest*, SkIRect* clippedPathIBounds,
+    void placeRenderedPathInAtlas(const SkIRect& clippedPathIBounds, GrScissorTest,
                                   SkIVector* devToAtlasOffset);
 
     const SkAutoSTArray<32, SkPoint> fLocalDevPtsBuffer;
