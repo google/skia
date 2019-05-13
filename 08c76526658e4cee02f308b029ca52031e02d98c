@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c22873fa_0c373296",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2256,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-13T13:04:25Z",
+      "side": 1,
+      "message": "should this move to the end of the function, since we may still do a little work on it in the code below?",
+      "range": {
+        "startLine": 2256,
+        "startChar": 4,
+        "endLine": 2256,
+        "endChar": 61
+      },
+      "revId": "08c76526658e4cee02f308b029ca52031e02d98c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6963fbac_803dcbbd",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2278,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-13T13:04:25Z",
+      "side": 1,
+      "message": "Is there significant overhead to call this and DiscardFramebuffer with a count of 0 versus checking for that first and just not calling the functions?",
+      "range": {
+        "startLine": 2278,
+        "startChar": 20,
+        "endLine": 2278,
+        "endChar": 41
+      },
+      "revId": "08c76526658e4cee02f308b029ca52031e02d98c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
