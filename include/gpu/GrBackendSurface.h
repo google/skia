@@ -113,14 +113,14 @@ private:
     GrBackendFormat(const GrPixelConfig config);
 
     GrBackendApi fBackend;
-    bool      fValid;
+    bool         fValid;
 
     union {
         GrGLenum         fGLFormat; // the sized, internal format of the GL resource
         struct {
             VkFormat                 fFormat;
             GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
-        } fVk;
+        }                fVk;
 #ifdef SK_METAL
         GrMTLPixelFormat fMtlFormat;
 #endif
