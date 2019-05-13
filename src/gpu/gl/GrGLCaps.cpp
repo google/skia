@@ -831,11 +831,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
             shaderCaps->fSampleVariablesExtensionString = "GL_OES_sample_variables";
         }
     }
+    shaderCaps->fSampleVariablesStencilSupport = shaderCaps->fSampleVariablesSupport;
 
-    // FIXME: The sample mask round rect op draws nothing on several Adreno and Radeon bots.
-    // Temporarily disable while we investigate.
-    // http://skbug.com/8921
     if (kQualcomm_GrGLVendor == ctxInfo.vendor() || kATI_GrGLVendor == ctxInfo.vendor()) {
+        // FIXME: The sample mask round rect op draws nothing on several Adreno and Radeon bots.
+        // Other ops that use sample mask while rendering to stencil seem to work fine. Temporarily
+        // disable sample mask on color buffers while we investigate.
+        // http://skbug.com/8921
         shaderCaps->fSampleVariablesSupport = false;
     }
 
