@@ -561,6 +561,16 @@ static bool crop_filled_rect(int width, int height, const GrClip& clip,
     return rect->intersect(clipBounds);
 }
 
+GrQuadAAFlags set_edge_flag(GrQuadAAFlags currentFlags, GrQuadAAFlags edge, GrAA edgeState) {
+    if (edgeState == GrAA::kNo) {
+        // Turn off 'edge' in currentFlags
+        return currentFlags & (~edge);
+    } else {
+        // Turn on 'edge' in currentFlags
+        return currentFlags | edge;
+    }
+}
+
 bool GrRenderTargetContext::drawFilledRectAsClear(const GrClip& clip, GrPaint&& paint, GrAA aa,
                                                   const SkMatrix& viewMatrix, const SkRect& rect) {
     // Rules for a filled rect to become a clear [+scissor]:
@@ -597,19 +607,46 @@ bool GrRenderTargetContext::drawFilledRectAsClear(const GrClip& clip, GrPaint&& 
         if (!clip.isRRect(rtRect, &clipRRect, &clipAA) || !clipRRect.isRect()) {
             return false;
         }
-        combinedRect = clipRRect.rect();
+
+        if (clipAA == GrAA::kNo) {
+            // Must round the coordinates to be consistent with GrReducedClip's non-aa clip rect
+            // to scissor rect code.
+            SkIRect rounded;
+            clipRRect.rect().round(&rounded);
+            combinedRect = SkRect::Make(rounded);
+        } else {
+            combinedRect = clipRRect.rect();
+        }
     } else {
         // The clip is outside the render target, so the clip can be ignored
         clipAA = GrAA::kNo;
     }
 
+    GrQuadAAFlags edgeFlags; // To account for clip and draw mixing AA modes
     if (viewMatrix.rectStaysRect()) {
         // Skip the extra overhead of inverting the view matrix to see if rtRect is contained in the
         // drawn rectangle, and instead just intersect rtRect with the transformed rect. It will be
         // the new clear region.
-        if (!combinedRect.intersect(viewMatrix.mapRect(rect))) {
+        SkRect drawRect = viewMatrix.mapRect(rect);
+        if (!combinedRect.intersect(drawRect)) {
             // No intersection means nothing should be drawn, so return true but don't add an op
             return true;
+        }
+
+        // In this case, edge flags start based on draw's AA and then switch per-edge to the clip's
+        // AA setting if that edge was inset.
+        edgeFlags = aa == GrAA::kNo ? GrQuadAAFlags::kNone : GrQuadAAFlags::kAll;
+        if (combinedRect.fLeft > drawRect.fLeft) {
+            edgeFlags = set_edge_flag(edgeFlags, GrQuadAAFlags::kLeft, clipAA);
+        }
+        if (combinedRect.fTop > drawRect.fTop) {
+            edgeFlags = set_edge_flag(edgeFlags, GrQuadAAFlags::kTop, clipAA);
+        }
+        if (combinedRect.fRight < drawRect.fRight) {
+            edgeFlags = set_edge_flag(edgeFlags, GrQuadAAFlags::kRight, clipAA);
+        }
+        if (combinedRect.fBottom < drawRect.fBottom) {
+            edgeFlags = set_edge_flag(edgeFlags, GrQuadAAFlags::kBottom, clipAA);
         }
     } else {
         // If the transformed rectangle does not contain the combined rt and clip, the draw is too
@@ -619,17 +656,26 @@ bool GrRenderTargetContext::drawFilledRectAsClear(const GrClip& clip, GrPaint&& 
             return false;
         }
         // The clip region in the rect's local space, so the test becomes the local rect containing
-        // the quad's points.
-        GrQuad quad = GrQuad::MakeFromRect(rtRect, invM);
+        // the quad's points. If clip is non-AA, test rounded out region to avoid the scenario where
+        // the draw contains the unrounded non-aa clip, but does not contain the rounded version. Be
+        // conservative since we don't know how the GPU would round.
+        SkRect conservative;
+        if (clipAA == GrAA::kNo) {
+            conservative = SkRect::Make(combinedRect.roundOut());
+        } else {
+            conservative = combinedRect;
+        }
+        GrQuad quad = GrQuad::MakeFromRect(conservative, invM);
         if (!rect_contains_inclusive(rect, quad.point(0)) ||
             !rect_contains_inclusive(rect, quad.point(1)) ||
             !rect_contains_inclusive(rect, quad.point(2)) ||
             !rect_contains_inclusive(rect, quad.point(3))) {
-            // No containment, so rtRect can't be filled by a solid color
+            // No containment, so combinedRect can't be filled by a solid color
             return false;
         }
         // combinedRect can be filled by a solid color but doesn't need to be modified since it's
-        // inside the quad to be drawn.
+        // inside the quad to be drawn, which also means the edge AA flags respect the clip AA
+        edgeFlags = clipAA == GrAA::kNo ? GrQuadAAFlags::kNone : GrQuadAAFlags::kAll;
     }
 
     // Almost every condition is met; now it requires that the combined rect align with pixel
@@ -655,15 +701,11 @@ bool GrRenderTargetContext::drawFilledRectAsClear(const GrClip& clip, GrPaint&& 
     // mostly to avoid mismatches in rounding logic on the CPU vs. the GPU, which frequently appears
     // when drawing and clipping something to the same non-AA rect that never-the-less has
     // non-integer coordinates.
-
-    // For AA, use non-AA only when both clip and draw are non-AA.
-    if (clipAA == GrAA::kYes) {
-        aa = GrAA::kYes;
-    }
+    aa = edgeFlags == GrQuadAAFlags::kNone ? GrAA::kNo : GrAA::kYes;
     GrAAType aaType = this->chooseAAType(aa);
     this->addDrawOp(GrFixedClip::Disabled(),
-                    GrFillRectOp::Make(fContext, std::move(paint), aaType, SkMatrix::I(),
-                                       combinedRect));
+                    GrFillRectOp::MakePerEdge(fContext, std::move(paint), aaType, edgeFlags,
+                                              SkMatrix::I(), combinedRect));
     return true;
 }
 
