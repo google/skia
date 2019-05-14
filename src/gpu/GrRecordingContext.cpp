@@ -197,7 +197,8 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
                                                         GrMipMapped mipMapped,
                                                         GrSurfaceOrigin origin,
                                                         const SkSurfaceProps* surfaceProps,
-                                                        SkBudgeted budgeted) {
+                                                        SkBudgeted budgeted,
+                                                        bool isProtected) {
     SkASSERT(sampleCnt > 0);
     if (this->abandoned()) {
         return nullptr;
@@ -207,6 +208,7 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = width;
     desc.fHeight = height;
+    desc.fIsProtected = isProtected;
     desc.fConfig = config;
     desc.fSampleCnt = sampleCnt;
 

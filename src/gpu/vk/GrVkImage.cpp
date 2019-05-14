@@ -173,10 +173,14 @@ bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, Gr
     SkASSERT(VK_IMAGE_TILING_OPTIMAL == imageDesc.fImageTiling ||
              VK_SAMPLE_COUNT_1_BIT == vkSamples);
 
+    const bool isProtected =
+        (imageDesc.fMemProps & VK_MEMORY_PROPERTY_PROTECTED_BIT) ==
+        VK_MEMORY_PROPERTY_PROTECTED_BIT;
+    VkImageCreateFlags createflags = isProtected ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
     const VkImageCreateInfo imageCreateInfo = {
         VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,         // sType
         nullptr,                                     // pNext
-        0,                                           // VkImageCreateFlags
+        createflags,                                 // VkImageCreateFlags
         imageDesc.fImageType,                        // VkImageType
         imageDesc.fFormat,                           // VkFormat
         { imageDesc.fWidth, imageDesc.fHeight, 1 },  // VkExtent3D
