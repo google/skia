@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29322a8b_706a37b0",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-14T20:04:58Z",
+      "side": 1,
+      "message": "isFormatRenderable?",
+      "revId": "e92d562ba44cf41f4f6d8e263f8b6ee73a1ff06d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
