@@ -231,8 +231,6 @@ skia_core_sources = [
   "$_src/core/SkImageInfo.cpp",
   "$_src/core/SkImageGenerator.cpp",
   "$_src/core/SkLineClipper.cpp",
-  "$_src/core/SkLiteDL.cpp",
-  "$_src/core/SkLiteRecorder.cpp",
   "$_src/core/SkLocalMatrixImageFilter.cpp",
   "$_src/core/SkLocalMatrixImageFilter.h",
   "$_src/core/SkMD5.cpp",

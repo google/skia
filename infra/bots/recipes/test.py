@@ -114,7 +114,7 @@ def dm_flags(api, bot):
       configs.extend([
         'pdf',
         'g8', '565',
-        'pic-8888', 'tiles_rt-8888', 'lite-8888', 'serialize-8888',
+        'pic-8888', 'tiles_rt-8888', 'serialize-8888',
         'f16', 'srgb', 'esrgb', 'narrow', 'enarrow',
         'p3', 'ep3', 'rec2020', 'erec2020'])
 
@@ -543,7 +543,6 @@ def dm_flags(api, bot):
   # skia:4769
   for test in ['drawfilter']:
     blacklist([   'pic-8888', 'gm', '_', test])
-    blacklist([  'lite-8888', 'gm', '_', test])
   # skia:4703
   for test in ['image-cacherator-from-picture',
                'image-cacherator-from-raster',
@@ -554,7 +553,6 @@ def dm_flags(api, bot):
   # GM that requires raster-backed canvas
   for test in ['complexclip4_bw', 'complexclip4_aa', 'p3']:
     blacklist([      'pic-8888', 'gm', '_', test])
-    blacklist([     'lite-8888', 'gm', '_', test])
     blacklist(['serialize-8888', 'gm', '_', test])
 
   # GM that not support tiles_rt
