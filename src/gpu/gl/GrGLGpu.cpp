@@ -4133,6 +4133,7 @@ static bool gl_format_to_pixel_config(GrGLenum format, GrPixelConfig* config) {
     SK_ABORT("Unexpected config");
     return false;
 }
+#if GR_TEST_UTILS
 
 GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(int w, int h,
                                                           const GrBackendFormat& format,
@@ -4264,6 +4265,17 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(int w, int h,
     return beTex;
 }
 
+void GrGLGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
+    SkASSERT(GrBackendApi::kOpenGL == tex.backend());
+
+    GrGLTextureInfo info;
+    if (tex.getGLTextureInfo(&info)) {
+        GL_CALL(DeleteTextures(1, &info.fID));
+    }
+}
+
+#if GR_TEST_UTILS
+
 bool GrGLGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(GrBackendApi::kOpenGL == tex.backend());
 
@@ -4276,15 +4288,6 @@ bool GrGLGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     GL_CALL_RET(result, IsTexture(info.fID));
 
     return (GR_GL_TRUE == result);
-}
-
-void GrGLGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
-    SkASSERT(GrBackendApi::kOpenGL == tex.backend());
-
-    GrGLTextureInfo info;
-    if (tex.getGLTextureInfo(&info)) {
-        GL_CALL(DeleteTextures(1, &info.fID));
-    }
 }
 
 GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h,
