@@ -34,6 +34,24 @@
       "revId": "696f7ee220e9f66432b46142150679d2047df1e4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "013c1971_11dc1d3f",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-14T20:14:33Z",
+      "side": 1,
+      "message": "There is actually an excellent reason to do this. Doing it this way, I have totally encapsulated the creation and use of SkDescriptor and SkScalerContextEffects. Using this methodology, I have already removed the need for effects outside this class. When I get to the point where I can remove the descriptor() call from this class then the descriptor is fully encapsulated too, and I can stop using SkDescriptors, and move over to SkScalerContextRec.",
+      "parentUuid": "e6ebc410_39b46b58",
+      "revId": "696f7ee220e9f66432b46142150679d2047df1e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
