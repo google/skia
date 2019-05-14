@@ -1580,7 +1580,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         return false;
     }
 
-    if (renderable && !fVkCaps->isConfigRenderable(config)) {
+    if (renderable && !fVkCaps->isConfigRenderable(vkFormat)) {
         return false;
     }
 
