@@ -1522,6 +1522,7 @@ size_t VkBytesPerPixel(VkFormat vkFormat) {
     return 0;
 }
 
+#if GR_TEST_UTILS
 static size_t compute_combined_buffer_size(GrPixelConfig config, size_t bpp, int w, int h,
                                            SkTArray<size_t>* individualMipOffsets,
                                            uint32_t mipLevels) {
@@ -1562,7 +1563,6 @@ static size_t compute_combined_buffer_size(GrPixelConfig config, size_t bpp, int
     return combinedBufferSize;
 }
 
-#if GR_TEST_UTILS
 bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool texturable,
                                        bool renderable, GrMipMapped mipMapped, const void* srcData,
                                        size_t srcRowBytes, GrVkImageInfo* info) {
