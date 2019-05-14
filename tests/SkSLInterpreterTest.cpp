@@ -145,6 +145,32 @@ DEF_TEST(SkSLInterpreterRemainder, r) {
          0, 2, 4, 0, 0);
 }
 
+DEF_TEST(SkSLInterpreterCast, r) {
+    SkSL::Interpreter::Value input[2];
+    SkSL::Interpreter::Value expected[2];
+
+    input[0].fSigned = 3;
+    input[1].fSigned = -5;
+    expected[0].fFloat = 3.0f;
+    expected[1].fFloat = -5.0f;
+    test(r, "float  main(int  x) { return float (x); }", input, 1, expected);
+    test(r, "float2 main(int2 x) { return float2(x); }", input, 2, expected);
+
+    input[0].fUnsigned = 3;
+    input[1].fUnsigned = 5;
+    expected[0].fFloat = 3.0f;
+    expected[1].fFloat = 5.0f;
+    test(r, "float  main(uint  x) { return float (x); }", input, 1, expected);
+    test(r, "float2 main(uint2 x) { return float2(x); }", input, 2, expected);
+
+    input[0].fFloat = 3.0f;
+    input[1].fFloat = -5.0f;
+    expected[0].fSigned = 3;
+    expected[1].fSigned = -5;
+    test(r, "int  main(float  x) { return int (x); }", input, 1, expected);
+    test(r, "int2 main(float2 x) { return int2(x); }", input, 2, expected);
+}
+
 DEF_TEST(SkSLInterpreterIf, r) {
     test(r, "void main(inout half4 color) { if (color.r > color.g) color.a = 1; }", 5, 3, 0, 0,
          5, 3, 0, 1);

@@ -458,7 +458,7 @@ void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
                     }
                     case ByteCodeInstruction::kUnsignedToFloat: {
                         for (int i = 0; i < count; ++i) {
-                            Value& v = stack[-i];
+                            Value& v = sp[-i];
                             v.fFloat = (float) v.fUnsigned;
                         }
                         break;
