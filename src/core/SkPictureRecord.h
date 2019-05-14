@@ -12,6 +12,7 @@
 #include "include/core/SkCanvasVirtualEnforcer.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkPicture.h"
+#include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"

@@ -254,8 +254,6 @@ skia_core_sources = [
   "$_src/core/SkMatrixUtils.h",
   "$_src/core/SkMipMap.cpp",
   "$_src/core/SkMipMap.h",
-  "$_src/core/SkMiniRecorder.cpp",
-  "$_src/core/SkMiniRecorder.h",
   "$_src/core/SkModeColorFilter.cpp",
   "$_src/core/SkNextID.h",
   "$_src/core/SkLatticeIter.cpp",

@@ -11,6 +11,7 @@
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
@@ -29,7 +30,6 @@
 #include "src/core/SkBBoxHierarchy.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkClipOpPriv.h"
-#include "src/core/SkMiniRecorder.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkRectPriv.h"
 #include "tests/Test.h"
@@ -758,16 +758,6 @@ DEF_TEST(Picture_getRecordingCanvas, r) {
     }
 }
 
-DEF_TEST(MiniRecorderLeftHanging, r) {
-    // Any shader or other ref-counted effect will do just fine here.
-    SkPaint paint;
-    paint.setShader(SkShaders::Color(SK_ColorRED));
-
-    SkMiniRecorder rec;
-    REPORTER_ASSERT(r, rec.drawRect(SkRect::MakeWH(20,30), paint));
-    // Don't call rec.detachPicture().  Test succeeds by not asserting or leaking the shader.
-}
-
 DEF_TEST(Picture_preserveCullRect, r) {
     SkPictureRecorder recorder;
 
@@ -793,7 +783,7 @@ DEF_TEST(Picture_preserveCullRect, r) {
 // bounds of those ops, we should trim down the picture cull to the ops' bounds.
 // If we're not using an SkBBH, we shouldn't change it.
 DEF_TEST(Picture_UpdatedCull_1, r) {
-    // Testing 1 draw exercises SkMiniPicture.
+    // Testing 1 draw exercised SkMiniPicture, which no longer exists, but still a fine test.
     SkRTreeFactory factory;
     SkPictureRecorder recorder;
 
