@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkShaperJSONWriter.h"
+#include "src/utils/SkShaperJSONWriter.h"
 
 #include <algorithm>
 #include <limits>

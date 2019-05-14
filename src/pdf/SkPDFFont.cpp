@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "src/pdf/SkPDFFont.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFont.h"
@@ -36,6 +35,7 @@
 #include "src/core/SkStrike.h"
 #include "src/pdf/SkPDFBitmap.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
+#include "src/pdf/SkPDFFont.h"
 #include "src/pdf/SkPDFMakeCIDGlyphWidthsArray.h"
 #include "src/pdf/SkPDFMakeToUnicodeCmap.h"
 #include "src/pdf/SkPDFSubsetFont.h"

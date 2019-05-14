@@ -11,7 +11,7 @@
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/Window.h"
 
-#include "editor.h"
+#include "experimental/editor/editor.h"
 
 #include <memory>
 
