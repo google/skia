@@ -1086,9 +1086,7 @@
   },
   {
     "failure": {
-      "failure": {
-        "step": ""
-      },
+      "failure": {},
       "humanReason": "Failed build steps: dump log"
     },
     "name": "$result"

@@ -38,9 +38,7 @@
   },
   {
     "failure": {
-      "failure": {
-        "step": "Trigger and wait for task on android compile server"
-      },
+      "failure": {},
       "humanReason": "Step('Trigger and wait for task on android compile server') failed with return_code 1"
     },
     "name": "$result"

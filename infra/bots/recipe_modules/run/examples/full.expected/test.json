@@ -281,9 +281,7 @@
   },
   {
     "failure": {
-      "failure": {
-        "step": ""
-      },
+      "failure": {},
       "humanReason": "Failed build steps: fail, fail again, retry fail, retry fail (attempt 2), retry fail (attempt 3), retry fail (attempt 4), retry fail (attempt 5)"
     },
     "name": "$result"
