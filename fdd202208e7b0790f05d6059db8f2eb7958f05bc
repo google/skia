@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a73fc82_6cd05f6a",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1564,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-14T20:38:08Z",
+      "side": 1,
+      "message": "#endif ?",
+      "range": {
+        "startLine": 1564,
+        "startChar": 0,
+        "endLine": 1564,
+        "endChar": 1
+      },
+      "revId": "fdd202208e7b0790f05d6059db8f2eb7958f05bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
