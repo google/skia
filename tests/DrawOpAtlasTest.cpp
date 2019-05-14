@@ -144,7 +144,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
     std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make(
                                                 proxyProvider,
                                                 format,
-                                                kAlpha_8_GrPixelConfig,
+                                                GrColorType::kAlpha_8,
                                                 kAtlasSize, kAtlasSize,
                                                 kAtlasSize/kNumPlots, kAtlasSize/kNumPlots,
                                                 GrDrawOpAtlas::AllowMultitexturing::kYes,
