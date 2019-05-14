@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "620e4c1d_9c4f534c",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1051,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-14T18:29:43Z",
+      "side": 1,
+      "message": "Hmm looks like fMemProps isn\u0027t actually used anymore. I think I\u0027ll just delete that quickly and then you can just add an fIsProtected bool to imageDesc.",
+      "range": {
+        "startLine": 1051,
+        "startChar": 17,
+        "endLine": 1051,
+        "endChar": 27
+      },
+      "revId": "34eb8fc8b19ed8ac7f7ac77213fac7b40635f3f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3613a641_9367a804",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1230,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-14T18:29:43Z",
+      "side": 1,
+      "message": "lets add this to the other onWrap* functions (onWrapBackendTexture, onWrapRenderableBackendTexture, and onWrapBackendTextureAsRenderTarget",
+      "range": {
+        "startLine": 1228,
+        "startChar": 3,
+        "endLine": 1230,
+        "endChar": 5
+      },
+      "revId": "34eb8fc8b19ed8ac7f7ac77213fac7b40635f3f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "348dcf58_9efc41c9",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-14T18:29:43Z",
+      "side": 1,
+      "message": "I think you can just write this as SkASSERT(!src-\u003eisProtected() || fGpu-\u003eprotectedContext());\n\nHowever, don\u0027t we need to check the dst is protected (i.e. fTexture).\n\nSo maybe, SkASSERT(!src-\u003eisProtected() || (fTexture-\u003eisProtected() \u0026\u0026 fGpu-\u003eprotectedContext()));",
+      "range": {
+        "startLine": 79,
+        "startChar": 2,
+        "endLine": 79,
+        "endChar": 86
+      },
+      "revId": "34eb8fc8b19ed8ac7f7ac77213fac7b40635f3f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2e92eb6_e2ba22d0",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-14T18:29:43Z",
+      "side": 1,
+      "message": "same as comment above but with fRenderTarget instead of fTexture.",
+      "range": {
+        "startLine": 605,
+        "startChar": 8,
+        "endLine": 606,
+        "endChar": 62
+      },
+      "revId": "34eb8fc8b19ed8ac7f7ac77213fac7b40635f3f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a77bf739_09d4ff5d",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-14T18:29:43Z",
+      "side": 1,
+      "message": "we generally double tab if we extend on to the next line, so keep as it was.",
+      "range": {
+        "startLine": 608,
+        "startChar": 12,
+        "endLine": 608,
+        "endChar": 13
+      },
+      "revId": "34eb8fc8b19ed8ac7f7ac77213fac7b40635f3f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b52ad0b8_f76015dd",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-14T18:29:43Z",
+      "side": 1,
+      "message": "We don\u0027t need this to be equal. For example fRenderTarget can be protected and texture can be unprotected. I think this should look similar to the copy asserts,\n\nSkASSERT(!texture-\u003eisProtected() || (fRenderTarget-\u003eisProtected() \u0026\u0026 fGpu-\u003eprotectedContext()));",
+      "range": {
+        "startLine": 764,
+        "startChar": 17,
+        "endLine": 764,
+        "endChar": 71
+      },
+      "revId": "34eb8fc8b19ed8ac7f7ac77213fac7b40635f3f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
