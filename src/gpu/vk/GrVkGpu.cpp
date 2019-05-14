@@ -1161,12 +1161,12 @@ static bool check_image_info(const GrVkCaps& caps,
 
 static bool check_tex_image_info(const GrVkCaps& caps, const GrVkImageInfo& info) {
     if (info.fImageTiling == VK_IMAGE_TILING_OPTIMAL) {
-        if (!caps.isConfigTexturable(info.fFormat)) {
+        if (!caps.isFormatTexturable(info.fFormat)) {
             return false;
         }
     } else {
         SkASSERT(info.fImageTiling == VK_IMAGE_TILING_LINEAR);
-        if (!caps.isConfigTexturableLinearly(info.fFormat)) {
+        if (!caps.isFormatTexturableLinearly(info.fFormat)) {
             return false;
         }
     }
@@ -1522,7 +1522,6 @@ size_t VkBytesPerPixel(VkFormat vkFormat) {
     return 0;
 }
 
-#if GR_TEST_UTILS
 static size_t compute_combined_buffer_size(GrPixelConfig config, size_t bpp, int w, int h,
                                            SkTArray<size_t>* individualMipOffsets,
                                            uint32_t mipLevels) {
@@ -1580,7 +1579,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         return false;
     }
 
-    if (renderable && !fVkCaps->isConfigRenderable(config)) {
+    if (renderable && !fVkCaps->isFormatRenderable(vkFormat)) {
         return false;
     }
 
@@ -1963,12 +1962,24 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(int w, int h,
         return {};
     }
     GrBackendTexture beTex = GrBackendTexture(w, h, info);
+#if GR_TEST_UTILS
     // Lots of tests don't go through Skia's public interface which will set the config so for
     // testing we make sure we set a config here.
     beTex.setPixelConfig(config);
+#endif
     return beTex;
 }
 
+void GrVkGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
+    SkASSERT(GrBackendApi::kVulkan == tex.fBackend);
+
+    GrVkImageInfo info;
+    if (tex.getVkImageInfo(&info)) {
+        GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(&info));
+    }
+}
+
+#if GR_TEST_UTILS
 bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(GrBackendApi::kVulkan == tex.fBackend);
 
@@ -1989,15 +2000,6 @@ bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     }
 
     return false;
-}
-
-void GrVkGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
-    SkASSERT(GrBackendApi::kVulkan == tex.fBackend);
-
-    GrVkImageInfo info;
-    if (tex.getVkImageInfo(&info)) {
-        GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(&info));
-    }
 }
 
 GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h, GrColorType ct) {
