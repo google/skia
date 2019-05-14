@@ -16,6 +16,24 @@
       "revId": "e8921b8f3b51d2f4625935f088fff49de401f28b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca73136b_f268956a",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-14T17:43:40Z",
+      "side": 1,
+      "message": "Yes. The stack grows upward, starting at \u0027stack\u0027. The first things pushed are the parameters, then space for the locals. \u0027sp\u0027 is then the top of the stack.\n\nI noticed this while changing my function-call CL to do the work without a recursive call, and looking for usage of \u0027stack\u0027 within the interpreter.",
+      "parentUuid": "62571e58_5758d09f",
+      "revId": "e8921b8f3b51d2f4625935f088fff49de401f28b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
