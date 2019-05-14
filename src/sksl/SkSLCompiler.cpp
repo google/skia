@@ -296,6 +296,8 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
                                 (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                 definitions);
             break;
+        case Expression::kExternalValue_Kind:
+            break;
         default:
             // not an lvalue, can't happen
             SkASSERT(false);
@@ -464,6 +466,8 @@ static bool is_dead(const Expression& lvalue) {
             const TernaryExpression& t = (TernaryExpression&) lvalue;
             return !t.fTest->hasSideEffects() && is_dead(*t.fIfTrue) && is_dead(*t.fIfFalse);
         }
+        case Expression::kExternalValue_Kind:
+            return false;
         default:
             ABORT("invalid lvalue: %s\n", lvalue.description().c_str());
     }
@@ -1230,6 +1234,14 @@ void Compiler::scanCFG(FunctionDefinition& f) {
             this->error(f.fOffset, String("function can exit without returning a value"));
         }
     }
+}
+
+void Compiler::registerExternalValue(ExternalValue* value) {
+    fIRGenerator->fRootSymbolTable->addWithoutOwnership(value->fName, value);
+}
+
+Symbol* Compiler::takeOwnership(std::unique_ptr<Symbol> symbol) {
+    return fIRGenerator->fRootSymbolTable->takeOwnership(std::move(symbol));
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,

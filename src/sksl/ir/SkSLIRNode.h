@@ -9,6 +9,7 @@
 #define SKSL_IRNODE
 
 #include "src/sksl/SkSLLexer.h"
+#include "src/sksl/SkSLString.h"
 
 namespace SkSL {
 
