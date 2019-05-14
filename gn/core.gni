@@ -375,6 +375,7 @@ skia_core_sources = [
   "$_src/core/SkTraceEvent.h",
   "$_src/core/SkTraceEventCommon.h",
   "$_src/core/SkTSearch.cpp",
+  "$_src/core/SkTSearch.h",
   "$_src/core/SkTSort.h",
   "$_src/core/SkTTopoSort.h",
   "$_src/core/SkTypeface.cpp",
@@ -467,7 +468,6 @@ skia_core_sources = [
   "$_include/private/SkTInternalLList.h",
   "$_include/private/SkThreadAnnotations.h",
   "$_include/private/SkThreadID.h",
-  "$_include/private/SkTSearch.h",
   "$_include/private/SkTLogic.h",
   "$_include/private/SkWeakRefCnt.h",
 ]

@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "src/sfnt/SkOTTable_name.h"
-
-#include "include/private/SkTSearch.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkStringUtils.h"
+#include "src/core/SkTSearch.h"
 #include "src/core/SkUtils.h"
+#include "src/sfnt/SkOTTable_name.h"
 
 static SkUnichar next_unichar_UTF16BE(const uint8_t** srcPtr, size_t* length) {
     SkASSERT(srcPtr && *srcPtr && length);

@@ -6,17 +6,17 @@
  */
 
 #include "include/gpu/GrContextOptions.h"
-#include "include/private/SkTSearch.h"
+#include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
+#include "src/gpu/gl/GrGLCaps.h"
+#include "src/gpu/gl/GrGLContext.h"
+#include "src/gpu/gl/GrGLRenderTarget.h"
+#include "src/gpu/gl/GrGLTexture.h"
 #include "src/gpu/GrRenderTargetProxyPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/gl/GrGLCaps.h"
-#include "src/gpu/gl/GrGLContext.h"
-#include "src/gpu/gl/GrGLRenderTarget.h"
-#include "src/gpu/gl/GrGLTexture.h"
 #include "src/utils/SkJSONWriter.h"
 
 GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,

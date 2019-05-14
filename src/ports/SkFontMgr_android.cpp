@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
-
 #include "include/core/SkData.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
@@ -14,15 +12,16 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/ports/SkFontMgr_android.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
-#include "include/private/SkTSearch.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkOSFile.h"
+#include "src/core/SkTSearch.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/ports/SkFontHost_FreeType_common.h"
 #include "src/ports/SkFontMgr_android_parser.h"

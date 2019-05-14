@@ -22,8 +22,8 @@
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMakeUnique.h"
-#include "src/core/SkMask.h"
 #include "src/core/SkMaskGamma.h"
+#include "src/core/SkMask.h"
 #include "src/core/SkScalerContext.h"
 #include "src/ports/SkFontHost_FreeType_common.h"
 #include "src/sfnt/SkOTUtils.h"
@@ -1838,7 +1838,7 @@ bool SkTypeface_FreeType::Scanner::recognizedFont(SkStreamAsset* stream, int* nu
     return true;
 }
 
-#include "include/private/SkTSearch.h"
+#include "src/core/SkTSearch.h"
 bool SkTypeface_FreeType::Scanner::scanFont(
     SkStreamAsset* stream, int ttcIndex,
     SkString* name, SkFontStyle* style, bool* isFixedPitch, AxisDefinitions* axes) const

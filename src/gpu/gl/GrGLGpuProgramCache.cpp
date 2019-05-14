@@ -7,13 +7,13 @@
 
 #include "src/gpu/gl/GrGLGpu.h"
 
-#include "include/private/SkTSearch.h"
-#include "src/gpu/GrProcessor.h"
-#include "src/gpu/GrProgramDesc.h"
-#include "src/gpu/gl/GrGLPathRendering.h"
+#include "src/core/SkTSearch.h"
 #include "src/gpu/gl/builders/GrGLProgramBuilder.h"
+#include "src/gpu/gl/GrGLPathRendering.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/GrProcessor.h"
+#include "src/gpu/GrProgramDesc.h"
 
 #ifdef PROGRAM_CACHE_STATS
 // Display program cache usage
