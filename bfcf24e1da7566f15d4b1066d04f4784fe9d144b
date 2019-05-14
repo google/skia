@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba3aacde_d03c6832",
+        "filename": "tests/GLProgramsTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-14T16:13:41Z",
+      "side": 1,
+      "message": "My only concern is that now it\u0027s possible for the factories to start failing, and we\u0027ll never know - these tests will just quickly (and quietly) terminate?",
+      "revId": "bfcf24e1da7566f15d4b1066d04f4784fe9d144b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
