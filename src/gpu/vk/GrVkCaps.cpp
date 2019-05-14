@@ -144,10 +144,15 @@ bool GrVkCaps::canCopyImage(GrPixelConfig dstConfig, int dstSampleCnt, GrSurface
 bool GrVkCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt, bool dstIsLinear,
                              bool dstHasYcbcr, GrPixelConfig srcConfig, int srcSampleCnt,
                              bool srcIsLinear, bool srcHasYcbcr) const {
+
+    VkFormat dstFormat;
+    SkAssertResult(GrPixelConfigToVkFormat(dstConfig, &dstFormat));
+    VkFormat srcFormat;
+    SkAssertResult(GrPixelConfigToVkFormat(srcConfig, &srcFormat));
     // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src
     // as image usage flags.
-    if (!this->configCanBeDstofBlit(dstConfig, dstIsLinear) ||
-        !this->configCanBeSrcofBlit(srcConfig, srcIsLinear)) {
+    if (!this->formatCanBeDstofBlit(dstFormat, dstIsLinear) ||
+        !this->formatCanBeSrcofBlit(srcFormat, srcIsLinear)) {
         return false;
     }
 
@@ -433,7 +438,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fPreferTrianglesOverSampleMask = true;
     }
 
-    this->initConfigTable(vkInterface, physDev, properties);
+    this->initFormatTable(vkInterface, physDev, properties);
     this->initStencilFormat(vkInterface, physDev);
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
@@ -688,33 +693,85 @@ void GrVkCaps::initStencilFormat(const GrVkInterface* interface, VkPhysicalDevic
     }
 }
 
-void GrVkCaps::initConfigTable(const GrVkInterface* interface, VkPhysicalDevice physDev,
+static bool format_is_srgb(VkFormat format) {
+    switch (format) {
+        case VK_FORMAT_R8G8B8A8_SRGB:
+        case VK_FORMAT_B8G8R8A8_SRGB:
+            return true;
+        case VK_FORMAT_R8G8B8A8_UNORM:
+        case VK_FORMAT_B8G8R8A8_UNORM:
+        case VK_FORMAT_R8G8B8A8_SINT:
+        case VK_FORMAT_R8G8B8_UNORM:
+        case VK_FORMAT_R8G8_UNORM:
+        case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
+        case VK_FORMAT_R5G6B5_UNORM_PACK16:
+        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
+        case VK_FORMAT_R8_UNORM:
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+        case VK_FORMAT_R32G32B32A32_SFLOAT:
+        case VK_FORMAT_R32G32_SFLOAT:
+        case VK_FORMAT_R16G16B16A16_SFLOAT:
+        case VK_FORMAT_R16_SFLOAT:
+            return false;
+        default:
+            SK_ABORT("Unsupported VkFormat");
+            return false;
+    }
+}
+
+// These are all the valid VkFormats that we support in Skia. They are roughly order from most
+// frequently used to least to improve look up times in arrays.
+static constexpr VkFormat kVkFormats[] = {
+    VK_FORMAT_R8G8B8A8_UNORM,
+    VK_FORMAT_R8_UNORM,
+    VK_FORMAT_B8G8R8A8_UNORM,
+    VK_FORMAT_R5G6B5_UNORM_PACK16,
+    VK_FORMAT_R16G16B16A16_SFLOAT,
+    VK_FORMAT_R16_SFLOAT,
+    VK_FORMAT_R8G8B8A8_SINT,
+    VK_FORMAT_R8G8B8_UNORM,
+    VK_FORMAT_R8G8_UNORM,
+    VK_FORMAT_A2B10G10R10_UNORM_PACK32,
+    VK_FORMAT_B4G4R4A4_UNORM_PACK16,
+    VK_FORMAT_R32G32B32A32_SFLOAT,
+    VK_FORMAT_R32G32_SFLOAT,
+    VK_FORMAT_R8G8B8A8_SRGB,
+    VK_FORMAT_B8G8R8A8_SRGB,
+    VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK
+};
+
+const GrVkCaps::FormatInfo& GrVkCaps::getFormatInfo(VkFormat format) const {
+    static_assert(SK_ARRAY_COUNT(kVkFormats) == GrVkCaps::kNumVkFormats,
+                  "Size of VkFormats array must match static value in header");
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kVkFormats); ++i) {
+        if (kVkFormats[i] == format) {
+            return fFormatTable[i];
+        }
+    }
+    SK_ABORT("Invalid VkFormat");
+    static const FormatInfo kInvalidConfig;
+    return kInvalidConfig;
+}
+
+void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice physDev,
                                const VkPhysicalDeviceProperties& properties) {
-    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
-        VkFormat format;
-        if (GrPixelConfigToVkFormat(static_cast<GrPixelConfig>(i), &format)) {
-            if (!GrPixelConfigIsSRGB(static_cast<GrPixelConfig>(i)) || fSRGBSupport) {
-                bool disableRendering = false;
-                if (static_cast<GrPixelConfig>(i) == kRGB_888X_GrPixelConfig) {
-                    // Currently we don't allow RGB_888X to be renderable because we don't have a
-                    // way to handle blends that reference dst alpha when the values in the dst
-                    // alpha channel are uninitialized.
-                    disableRendering = true;
-                }
-                fConfigTable[i].init(interface, physDev, properties, format, disableRendering);
-            }
+    static_assert(SK_ARRAY_COUNT(kVkFormats) == GrVkCaps::kNumVkFormats,
+                  "Size of VkFormats array must match static value in header");
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kVkFormats); ++i) {
+        VkFormat format = kVkFormats[i];
+        if (!format_is_srgb(format) || fSRGBSupport) {
+            fFormatTable[i].init(interface, physDev, properties, format);
         }
     }
 }
 
-void GrVkCaps::ConfigInfo::InitConfigFlags(VkFormatFeatureFlags vkFlags, uint16_t* flags,
-                                           bool disableRendering) {
+void GrVkCaps::FormatInfo::InitConfigFlags(VkFormatFeatureFlags vkFlags, uint16_t* flags) {
     if (SkToBool(VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT & vkFlags) &&
         SkToBool(VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT & vkFlags)) {
         *flags = *flags | kTextureable_Flag;
 
         // Ganesh assumes that all renderable surfaces are also texturable
-        if (SkToBool(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT & vkFlags) & !disableRendering) {
+        if (SkToBool(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT & vkFlags)) {
             *flags = *flags | kRenderable_Flag;
         }
     }
@@ -728,7 +785,7 @@ void GrVkCaps::ConfigInfo::InitConfigFlags(VkFormatFeatureFlags vkFlags, uint16_
     }
 }
 
-void GrVkCaps::ConfigInfo::initSampleCounts(const GrVkInterface* interface,
+void GrVkCaps::FormatInfo::initSampleCounts(const GrVkInterface* interface,
                                             VkPhysicalDevice physDev,
                                             const VkPhysicalDeviceProperties& physProps,
                                             VkFormat format) {
@@ -772,45 +829,94 @@ void GrVkCaps::ConfigInfo::initSampleCounts(const GrVkInterface* interface,
     }
 }
 
-void GrVkCaps::ConfigInfo::init(const GrVkInterface* interface,
+void GrVkCaps::FormatInfo::init(const GrVkInterface* interface,
                                 VkPhysicalDevice physDev,
                                 const VkPhysicalDeviceProperties& properties,
-                                VkFormat format,
-                                bool disableRendering) {
+                                VkFormat format) {
     VkFormatProperties props;
     memset(&props, 0, sizeof(VkFormatProperties));
     GR_VK_CALL(interface, GetPhysicalDeviceFormatProperties(physDev, format, &props));
-    InitConfigFlags(props.linearTilingFeatures, &fLinearFlags, disableRendering);
-    InitConfigFlags(props.optimalTilingFeatures, &fOptimalFlags, disableRendering);
+    InitConfigFlags(props.linearTilingFeatures, &fLinearFlags);
+    InitConfigFlags(props.optimalTilingFeatures, &fOptimalFlags);
     if (fOptimalFlags & kRenderable_Flag) {
         this->initSampleCounts(interface, physDev, properties, format);
     }
 }
 
+bool GrVkCaps::isConfigTexturable(VkFormat format) const {
+    if (!GrVkFormatIsSupported(format)) {
+        return false;
+    }
+
+    const FormatInfo& info = this->getFormatInfo(format);
+    return SkToBool(FormatInfo::kTextureable_Flag & info.fOptimalFlags);
+}
+
+bool GrVkCaps::isConfigTexturable(GrPixelConfig config) const {
+    VkFormat format;
+    if (!GrPixelConfigToVkFormat(config, &format)) {
+        return false;
+    }
+    return this->isConfigTexturable(format);
+}
+
 int GrVkCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
+    // Currently we don't allow RGB_888X to be renderable because we don't have a way to handle
+    // blends that reference dst alpha when the values in the dst alpha channel are uninitialized.
+    if (config == kRGB_888X_GrPixelConfig) {
+        return 0;
+    }
+
+    VkFormat format;
+    if (!GrPixelConfigToVkFormat(config, &format)) {
+        return 0;
+    }
+
+    return this->getRenderTargetSampleCount(requestedCount, format);
+}
+
+int GrVkCaps::getRenderTargetSampleCount(int requestedCount, VkFormat format) const {
     requestedCount = SkTMax(1, requestedCount);
-    int count = fConfigTable[config].fColorSampleCounts.count();
+
+    const FormatInfo& info = this->getFormatInfo(format);
+
+    int count = info.fColorSampleCounts.count();
 
     if (!count) {
         return 0;
     }
 
     if (1 == requestedCount) {
-        SkASSERT(fConfigTable[config].fColorSampleCounts.count() &&
-                 fConfigTable[config].fColorSampleCounts[0] == 1);
+        SkASSERT(info.fColorSampleCounts.count() && info.fColorSampleCounts[0] == 1);
         return 1;
     }
 
     for (int i = 0; i < count; ++i) {
-        if (fConfigTable[config].fColorSampleCounts[i] >= requestedCount) {
-            return fConfigTable[config].fColorSampleCounts[i];
+        if (info.fColorSampleCounts[i] >= requestedCount) {
+            return info.fColorSampleCounts[i];
         }
     }
     return 0;
 }
 
 int GrVkCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
-    const auto& table = fConfigTable[config].fColorSampleCounts;
+    // Currently we don't allow RGB_888X to be renderable because we don't have a way to handle
+    // blends that reference dst alpha when the values in the dst alpha channel are uninitialized.
+    if (config == kRGB_888X_GrPixelConfig) {
+        return 0;
+    }
+
+    VkFormat format;
+    if (!GrPixelConfigToVkFormat(config, &format)) {
+        return 0;
+    }
+    return this->maxRenderTargetSampleCount(format);
+}
+
+int GrVkCaps::maxRenderTargetSampleCount(VkFormat format) const {
+    const FormatInfo& info = this->getFormatInfo(format);
+
+    const auto& table = info.fColorSampleCounts;
     if (!table.count()) {
         return 0;
     }
