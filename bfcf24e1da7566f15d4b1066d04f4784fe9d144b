@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "d82545f2_a5724a98",
+        "filename": "src/gpu/GrProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-14T16:26:00Z",
+      "side": 1,
+      "message": "These ensure the right number of factories are registered...",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 6
+      },
+      "revId": "bfcf24e1da7566f15d4b1066d04f4784fe9d144b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54395bdc_8f1da4c8",
+        "filename": "src/gpu/GrProcessorUnitTest.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-14T16:26:00Z",
+      "side": 1,
+      "message": "This assert (and the one below) are catching if the factory fails.",
+      "range": {
+        "startLine": 108,
+        "startChar": 8,
+        "endLine": 108,
+        "endChar": 28
+      },
+      "revId": "bfcf24e1da7566f15d4b1066d04f4784fe9d144b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76a0a3f9_2ce9ee8f",
+        "filename": "src/gpu/GrProcessorUnitTest.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-14T16:26:00Z",
+      "side": 1,
+      "message": "This assert (and the one above) are catching if the factory fails.",
+      "range": {
+        "startLine": 139,
+        "startChar": 8,
+        "endLine": 139,
+        "endChar": 22
+      },
+      "revId": "bfcf24e1da7566f15d4b1066d04f4784fe9d144b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ba3aacde_d03c6832",
         "filename": "tests/GLProgramsTest.cpp",
         "patchSetId": 1
