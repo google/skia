@@ -1481,6 +1481,87 @@ bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc
     return true;
 }
 
+size_t VkBytesPerPixel(VkFormat vkFormat) {
+    switch (vkFormat) {
+        case VK_FORMAT_R8_UNORM:
+            return 1;
+
+        case VK_FORMAT_R5G6B5_UNORM_PACK16:
+        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
+        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
+        case VK_FORMAT_R8G8_UNORM:
+        case VK_FORMAT_R16_SFLOAT:
+            return 2;
+
+        case VK_FORMAT_R8G8B8_UNORM:
+            return 3;
+
+        case VK_FORMAT_R8G8B8A8_UNORM:
+        case VK_FORMAT_R8G8B8A8_SRGB:
+        case VK_FORMAT_B8G8R8A8_UNORM:
+        case VK_FORMAT_B8G8R8A8_SRGB:
+        case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
+            return 4;
+
+        case VK_FORMAT_R16G16B16A16_SFLOAT:
+        case VK_FORMAT_R32G32_SFLOAT:
+            return 8;
+
+        case VK_FORMAT_R32G32B32A32_SFLOAT:
+            return 16;
+
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+            return 8;
+
+        default:
+            SK_ABORT("Invalid Vk format");
+            return 0;
+    }
+
+    SK_ABORT("Invalid Vk format");
+    return 0;
+}
+
+static size_t compute_combined_buffer_size(GrPixelConfig config, size_t bpp, int w, int h,
+                                           SkTArray<size_t>* individualMipOffsets,
+                                           uint32_t mipLevels) {
+
+    size_t combinedBufferSize = w * bpp * h;
+    if (GrPixelConfigIsCompressed(config)) {
+        combinedBufferSize = GrCompressedFormatDataSize(config, w, h);
+    }
+
+    int currentWidth = w;
+    int currentHeight = h;
+
+    // The Vulkan spec for copying a buffer to an image, requires that the alignment must be at
+    // least 4 bytes and a multiple of the bytes per pixel of the image config.
+    SkASSERT(bpp == 1 || bpp == 2 || bpp == 3 || bpp == 4 || bpp == 8 || bpp == 16);
+    int desiredAlignment = (bpp == 3) ? 12 : (bpp > 4 ? bpp : 4);
+
+    for (uint32_t currentMipLevel = 1; currentMipLevel < mipLevels; currentMipLevel++) {
+        currentWidth = SkTMax(1, currentWidth / 2);
+        currentHeight = SkTMax(1, currentHeight / 2);
+
+        size_t trimmedSize;
+        if (GrPixelConfigIsCompressed(config)) {
+            trimmedSize = GrCompressedFormatDataSize(config, currentWidth, currentHeight);
+        } else {
+            trimmedSize = currentWidth * bpp * currentHeight;
+        }
+        const size_t alignmentDiff = combinedBufferSize % desiredAlignment;
+        if (alignmentDiff != 0) {
+            combinedBufferSize += desiredAlignment - alignmentDiff;
+        }
+        SkASSERT((0 == combinedBufferSize % 4) && (0 == combinedBufferSize % bpp));
+
+        individualMipOffsets->push_back(combinedBufferSize);
+        combinedBufferSize += trimmedSize;
+    }
+
+    return combinedBufferSize;
+}
+
 #if GR_TEST_UTILS
 bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool texturable,
                                        bool renderable, GrMipMapped mipMapped, const void* srcData,
@@ -1490,8 +1571,8 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         SkASSERT(GrMipMapped::kNo == mipMapped);
         SkASSERT(!srcData);
     }
-    VkFormat pixelFormat;
-    if (!GrPixelConfigToVkFormat(config, &pixelFormat)) {
+    VkFormat vkFormat;
+    if (!GrPixelConfigToVkFormat(config, &vkFormat)) {
         return false;
     }
 
@@ -1539,7 +1620,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
             nullptr,                              // pNext
             0,                                    // VkImageCreateFlags
             VK_IMAGE_TYPE_2D,                     // VkImageType
-            pixelFormat,                          // VkFormat
+            vkFormat,                             // VkFormat
             {(uint32_t)w, (uint32_t)h, 1},        // VkExtent3D
             mipLevels,                            // mipLevels
             1,                                    // arrayLayers
@@ -1591,7 +1672,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     err = VK_CALL(BeginCommandBuffer(cmdBuffer, &cmdBufferBeginInfo));
     SkASSERT(!err);
 
-    size_t bpp = GrBytesPerPixel(config);
+    size_t bpp = VkBytesPerPixel(vkFormat);
     SkASSERT(w && h);
 
     const size_t trimRowBytes = w * bpp;
@@ -1601,35 +1682,9 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
 
     SkTArray<size_t> individualMipOffsets(mipLevels);
     individualMipOffsets.push_back(0);
-    size_t combinedBufferSize = w * bpp * h;
-    if (GrPixelConfigIsCompressed(config)) {
-        combinedBufferSize = GrCompressedFormatDataSize(config, w, h);
-        bpp = 4; // we have at least this alignment, which will pass the code below
-    }
-    int currentWidth = w;
-    int currentHeight = h;
-    // The alignment must be at least 4 bytes and a multiple of the bytes per pixel of the image
-    // config. This works with the assumption that the bytes in pixel config is always a power
-    // of 2.
-    SkASSERT((bpp & (bpp - 1)) == 0);
-    const size_t alignmentMask = 0x3 | (bpp - 1);
-    for (uint32_t currentMipLevel = 1; currentMipLevel < mipLevels; currentMipLevel++) {
-        currentWidth = SkTMax(1, currentWidth / 2);
-        currentHeight = SkTMax(1, currentHeight / 2);
 
-        size_t trimmedSize;
-        if (GrPixelConfigIsCompressed(config)) {
-            trimmedSize = GrCompressedFormatDataSize(config, currentWidth, currentHeight);
-        } else {
-            trimmedSize = currentWidth * bpp * currentHeight;
-        }
-        const size_t alignmentDiff = combinedBufferSize & alignmentMask;
-        if (alignmentDiff != 0) {
-            combinedBufferSize += alignmentMask - alignmentDiff + 1;
-        }
-        individualMipOffsets.push_back(combinedBufferSize);
-        combinedBufferSize += trimmedSize;
-    }
+    size_t combinedBufferSize = compute_combined_buffer_size(config, bpp, w, h,
+                                                             &individualMipOffsets, mipLevels);
 
     VkBufferCreateInfo bufInfo;
     memset(&bufInfo, 0, sizeof(VkBufferCreateInfo));
@@ -1660,8 +1715,8 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         return false;
     }
 
-    currentWidth = w;
-    currentHeight = h;
+    int currentWidth = w;
+    int currentHeight = h;
     for (uint32_t currentMipLevel = 0; currentMipLevel < mipLevels; currentMipLevel++) {
         SkASSERT(0 == currentMipLevel || !srcData);
         size_t bufferOffset = individualMipOffsets[currentMipLevel];
@@ -1805,7 +1860,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     info->fAlloc = alloc;
     info->fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     info->fImageLayout = initialLayout;
-    info->fFormat = pixelFormat;
+    info->fFormat = vkFormat;
     info->fLevelCount = mipLevels;
 
     return true;
