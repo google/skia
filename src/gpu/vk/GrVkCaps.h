@@ -32,38 +32,34 @@ public:
              uint32_t instanceVersion, uint32_t physicalDeviceVersion,
              const GrVkExtensions& extensions);
 
-    bool isConfigTexturable(GrPixelConfig config) const override {
-        return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fOptimalFlags);
-    }
+    bool isConfigTexturable(VkFormat) const;
+    bool isConfigTexturable(GrPixelConfig config) const override;
 
     bool isConfigCopyable(GrPixelConfig config) const override {
         return true;
     }
 
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
+    int getRenderTargetSampleCount(int requestedCount, VkFormat) const;
     int maxRenderTargetSampleCount(GrPixelConfig config) const override;
+    int maxRenderTargetSampleCount(VkFormat format) const;
 
     bool surfaceSupportsReadPixels(const GrSurface*) const override;
 
-    bool isConfigTexturableLinearly(GrPixelConfig config) const {
-        return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fLinearFlags);
+    bool isConfigTexturableLinearly(VkFormat format) const {
+        return SkToBool(FormatInfo::kTextureable_Flag & this->getFormatInfo(format).fLinearFlags);
     }
 
-    bool isConfigRenderableLinearly(GrPixelConfig config, bool withMSAA) const {
-        return !withMSAA && SkToBool(ConfigInfo::kRenderable_Flag &
-                                     fConfigTable[config].fLinearFlags);
+    bool formatCanBeDstofBlit(VkFormat format, bool linearTiled) const {
+        const FormatInfo& info = this->getFormatInfo(format);
+        const uint16_t& flags = linearTiled ? info.fLinearFlags : info.fOptimalFlags;
+        return SkToBool(FormatInfo::kBlitDst_Flag & flags);
     }
 
-    bool configCanBeDstofBlit(GrPixelConfig config, bool linearTiled) const {
-        const uint16_t& flags = linearTiled ? fConfigTable[config].fLinearFlags :
-                                              fConfigTable[config].fOptimalFlags;
-        return SkToBool(ConfigInfo::kBlitDst_Flag & flags);
-    }
-
-    bool configCanBeSrcofBlit(GrPixelConfig config, bool linearTiled) const {
-        const uint16_t& flags = linearTiled ? fConfigTable[config].fLinearFlags :
-                                              fConfigTable[config].fOptimalFlags;
-        return SkToBool(ConfigInfo::kBlitSrc_Flag & flags);
+    bool formatCanBeSrcofBlit(VkFormat format, bool linearTiled) const {
+        const FormatInfo& info = this->getFormatInfo(format);
+        const uint16_t& flags = linearTiled ? info.fLinearFlags : info.fOptimalFlags;
+        return SkToBool(FormatInfo::kBlitSrc_Flag & flags);
     }
 
     // On Adreno vulkan, they do not respect the imageOffset parameter at least in
@@ -189,7 +185,7 @@ private:
                     const GrVkExtensions&);
     void initShaderCaps(const VkPhysicalDeviceProperties&, const VkPhysicalDeviceFeatures2&);
 
-    void initConfigTable(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&);
+    void initFormatTable(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&);
     void initStencilFormat(const GrVkInterface* iface, VkPhysicalDevice physDev);
 
     uint8_t getYcbcrKeyFromYcbcrInfo(const GrVkYcbcrConversionInfo& info);
@@ -201,12 +197,12 @@ private:
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
     size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const override;
 
-    struct ConfigInfo {
-        ConfigInfo() : fOptimalFlags(0), fLinearFlags(0) {}
+    struct FormatInfo {
+        FormatInfo() : fOptimalFlags(0), fLinearFlags(0) {}
 
         void init(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&,
-                  VkFormat, bool disableRendering);
-        static void InitConfigFlags(VkFormatFeatureFlags, uint16_t* flags, bool disableRendering);
+                  VkFormat);
+        static void InitConfigFlags(VkFormatFeatureFlags, uint16_t* flags);
         void initSampleCounts(const GrVkInterface*, VkPhysicalDevice,
                               const VkPhysicalDeviceProperties&, VkFormat);
 
@@ -222,7 +218,10 @@ private:
 
         SkTDArray<int> fColorSampleCounts;
     };
-    ConfigInfo fConfigTable[kGrPixelConfigCnt];
+    static const size_t kNumVkFormats = 16;
+    FormatInfo fFormatTable[kNumVkFormats];
+
+    const FormatInfo& getFormatInfo(VkFormat) const;
 
     StencilFormat fPreferredStencilFormat;
 
