@@ -22,6 +22,30 @@
       "revId": "54106e409c59b41d16b8242ded2ef5683299e28c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af2d8d70_be4462da",
+        "filename": "src/core/SkSharedMutex.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-14T13:54:51Z",
+      "side": 1,
+      "message": "The SkSharedMutex uses the SK_RELEASE_SHARED_CAPABILITY annotation which is correct for the mutex. I would like to have the mutex be the source of truth. The difference is that the mutex is a \"capability\" while the Sk_SCOPED_CAPABILTY is a \"fact\". The main reason for the scoped things behaving this way is that they can handle more than one mutex which could be a mixture of exclusive and shared.",
+      "parentUuid": "8dbcb64d_926b0a72",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 81
+      },
+      "revId": "54106e409c59b41d16b8242ded2ef5683299e28c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
