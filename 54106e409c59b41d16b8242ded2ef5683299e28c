@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8dbcb64d_926b0a72",
+        "filename": "src/core/SkSharedMutex.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-14T12:54:33Z",
+      "side": 1,
+      "message": "Think it makes sense to rewrite SK_RELEASE_SHARED_CAPABILITY instead so that this oddity and note can live hidden away there amongst the details, and this code reads as you\u0027d expect?",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 81
+      },
+      "revId": "54106e409c59b41d16b8242ded2ef5683299e28c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
