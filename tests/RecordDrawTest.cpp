@@ -13,7 +13,6 @@
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordDraw.h"
-#include "src/core/SkRecordOpts.h"
 #include "src/core/SkRecorder.h"
 #include "src/core/SkRecords.h"
 #include "tools/debugger/DebugCanvas.h"

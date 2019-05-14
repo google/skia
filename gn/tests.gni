@@ -199,8 +199,6 @@ tests_sources = [
   "$_tests/ReadWriteAlphaTest.cpp",
   "$_tests/Reader32Test.cpp",
   "$_tests/RecordDrawTest.cpp",
-  "$_tests/RecordOptsTest.cpp",
-  "$_tests/RecordPatternTest.cpp",
   "$_tests/RecordTest.cpp",
   "$_tests/RecordTestUtils.h",
   "$_tests/RecorderTest.cpp",

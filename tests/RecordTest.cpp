@@ -78,25 +78,6 @@ DEF_TEST(Record, r) {
     REPORTER_ASSERT(r, summer.area() == 500);
 }
 
-DEF_TEST(Record_defrag, r) {
-    SkRecord record;
-    APPEND(record, SkRecords::Save);
-    APPEND(record, SkRecords::ClipRect);
-    APPEND(record, SkRecords::NoOp);
-    APPEND(record, SkRecords::DrawRect);
-    APPEND(record, SkRecords::NoOp);
-    APPEND(record, SkRecords::NoOp);
-    APPEND(record, SkRecords::Restore);
-    REPORTER_ASSERT(r, record.count() == 7);
-
-    record.defrag();
-    REPORTER_ASSERT(r, record.count() == 4);
-    assert_type<SkRecords::Save    >(r, record, 0);
-    assert_type<SkRecords::ClipRect>(r, record, 1);
-    assert_type<SkRecords::DrawRect>(r, record, 2);
-    assert_type<SkRecords::Restore >(r, record, 3);
-}
-
 #undef APPEND
 
 template <typename T>
