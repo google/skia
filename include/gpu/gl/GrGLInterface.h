@@ -326,6 +326,10 @@ public:
         /* EXT_window_rectangles */
         GrGLFunction<GrGLWindowRectanglesFn> fWindowRectangles;
 
+        /* GL_QCOM_tiled_rendering */
+        GrGLFunction<GrGLStartTilingFn> fStartTiling;
+        GrGLFunction<GrGLEndTilingFn> fEndTiling;
+
         /* EGL functions */
         GrGLFunction<GrEGLCreateImageFn> fEGLCreateImage;
         GrGLFunction<GrEGLDestroyImageFn> fEGLDestroyImage;
