@@ -23,6 +23,8 @@ enum class ByteCodeInstruction : uint8_t {
     kAndB,
     kAndI,
     kBranch,
+    // Followed by a byte indicating the index of the function to call
+    kCall,
     kCompareIEQ,
     kCompareINEQ,
     kCompareFEQ,
@@ -97,11 +99,9 @@ enum class ByteCodeInstruction : uint8_t {
 struct ByteCode;
 
 struct ByteCodeFunction {
-    ByteCodeFunction(const ByteCode* owner, const FunctionDeclaration* declaration)
-        : fOwner(*owner)
-        , fDeclaration(*declaration) {}
+    ByteCodeFunction(const FunctionDeclaration* declaration)
+        : fDeclaration(*declaration) {}
 
-    const ByteCode& fOwner;
     const FunctionDeclaration& fDeclaration;
     int fParameterCount = 0;
     int fLocalCount = 0;
@@ -114,10 +114,18 @@ struct ByteCodeFunction {
 
 struct ByteCode {
     int fGlobalCount = 0;
-    int fInputCount = 0;
     // one entry per input slot, contains the global slot to which the input slot maps
     std::vector<uint8_t> fInputSlots;
     std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;
+
+    const ByteCodeFunction* getFunction(const char* name) const {
+        for (const auto& f : fFunctions) {
+            if (f->fDeclaration.fName == name) {
+                return f.get();
+            }
+        }
+        return nullptr;
+    }
 };
 
 }

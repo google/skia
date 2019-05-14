@@ -45,12 +45,17 @@ bool ByteCodeGenerator::generateCode() {
                 ; // ignore
         }
     }
+    for (auto& call : fCallTargets) {
+        if (!call.set()) {
+            return false;
+        }
+    }
     return true;
 }
 
 std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fFunction = &f;
-    std::unique_ptr<ByteCodeFunction> result(new ByteCodeFunction(fOutput, &f.fDeclaration));
+    std::unique_ptr<ByteCodeFunction> result(new ByteCodeFunction(&f.fDeclaration));
     fParameterCount = 0;
     for (const auto& p : f.fDeclaration.fParameters) {
         fParameterCount += p->fType.columns() * p->fType.rows();
@@ -360,8 +365,11 @@ void ByteCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
 }
 
 void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
-    // not yet implemented
-    abort();
+    for (const auto& arg : f.fArguments) {
+        this->writeExpression(*arg);
+    }
+    this->write(ByteCodeInstruction::kCall);
+    fCallTargets.emplace_back(this, f.fFunction);
 }
 
 void ByteCodeGenerator::writeIndexExpression(const IndexExpression& i) {

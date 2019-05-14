@@ -321,3 +321,62 @@ DEF_TEST(SkSLInterpreterSetInputs, r) {
     interpreter.run(*main, (SkSL::Interpreter::Value*)&in, (SkSL::Interpreter::Value*)&out);
     REPORTER_ASSERT(r, out == 5.0f);
 }
+
+DEF_TEST(SkSLInterpreterFunctions, r) {
+    const char* src =
+        "float sqr(float x) { return x * x; }\n"
+        // Forward declared
+        "float sub(float x, float y);\n"
+        "float main(float x) { return sub(sqr(x), x); }\n"
+        "float sub(float x, float y) { return x - y; }\n"
+
+        // Different signatures
+        "float dot(float2 a, float2 b) { return a.x*b.x + a.y*b.y; }\n"
+        "float dot(float3 a, float3 b) { return a.x*b.x + a.y*b.y + a.z*b.z; }\n"
+        "float dot3_test(float x) { return dot(float3(x, x + 1, x + 2), float3(1, -1, 2)); }\n"
+        "float dot2_test(float x) { return dot(float2(x, x + 1), float2(1, -1)); }\n"
+        "int fib(int i) { if (i < 2) { return 1; } else { return fib(i - 1) + fib(i - 2); } }";
+
+    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+                                                             SkSL::Program::kGeneric_Kind,
+                                                             SkSL::String(src), settings);
+    REPORTER_ASSERT(r, program);
+
+    std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
+    REPORTER_ASSERT(r, !compiler.errorCount());
+
+    auto sub = byteCode->getFunction("sub");
+    auto sqr = byteCode->getFunction("sqr");
+    auto main = byteCode->getFunction("main");
+    auto tan = byteCode->getFunction("tan");
+    auto dot3 = byteCode->getFunction("dot3_test");
+    auto dot2 = byteCode->getFunction("dot2_test");
+    auto fib = byteCode->getFunction("fib");
+
+    REPORTER_ASSERT(r, sub);
+    REPORTER_ASSERT(r, sqr);
+    REPORTER_ASSERT(r, main);
+    REPORTER_ASSERT(r, !tan);
+    REPORTER_ASSERT(r, dot3);
+    REPORTER_ASSERT(r, dot2);
+    REPORTER_ASSERT(r, fib);
+
+    SkSL::Interpreter interpreter(std::move(program), std::move(byteCode), nullptr);
+    float out = 0.0f;
+    float in = 3.0f;
+    interpreter.run(*main, (SkSL::Interpreter::Value*)&in, (SkSL::Interpreter::Value*)&out);
+    REPORTER_ASSERT(r, out = 6.0f);
+
+    interpreter.run(*dot3, (SkSL::Interpreter::Value*)&in, (SkSL::Interpreter::Value*)&out);
+    REPORTER_ASSERT(r, out = 9.0f);
+
+    interpreter.run(*dot2, (SkSL::Interpreter::Value*)&in, (SkSL::Interpreter::Value*)&out);
+    REPORTER_ASSERT(r, out = -1.0f);
+
+    int fibIn = 6;
+    int fibOut = 0;
+    interpreter.run(*fib, (SkSL::Interpreter::Value*)&fibIn, (SkSL::Interpreter::Value*)&fibOut);
+    REPORTER_ASSERT(r, fibOut == 13);
+}
