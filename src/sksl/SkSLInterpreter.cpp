@@ -47,18 +47,17 @@ void Interpreter::setInputs(Interpreter::Value inputs[]) {
 
 void Interpreter::run(const ByteCodeFunction& f, Interpreter::Value args[],
                       Interpreter::Value* outReturn) {
-    fCurrentFunction = &f;
 #ifdef TRACE
     this->disassemble(f);
 #endif
     Value smallStack[128];
     std::unique_ptr<Value[]> largeStack;
     Value* stack = smallStack;
-    if ((int) SK_ARRAY_COUNT(smallStack) < fCurrentFunction->fStackCount) {
-        largeStack.reset(new Value[fCurrentFunction->fStackCount]);
+    if ((int) SK_ARRAY_COUNT(smallStack) < f.fStackCount) {
+        largeStack.reset(new Value[f.fStackCount]);
         stack = largeStack.get();
     }
-    run(stack, args, outReturn);
+    run(f, stack, args, outReturn);
     int offset = 0;
     for (const auto& p : f.fDeclaration.fParameters) {
         if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
@@ -112,6 +111,7 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             case ByteCodeInstruction::kAndB: printf("andb"); break;
             case ByteCodeInstruction::kAndI: printf("andi"); break;
             case ByteCodeInstruction::kBranch: printf("branch %d", READ16()); break;
+            case ByteCodeInstruction::kCall: printf("call %d", READ8()); break;
             case ByteCodeInstruction::kCompareIEQ: printf("comparei eq"); break;
             case ByteCodeInstruction::kCompareINEQ: printf("comparei neq"); break;
             case ByteCodeInstruction::kCompareFEQ: printf("comparef eq"); break;
@@ -223,11 +223,19 @@ static constexpr int VECTOR_MAX = 16;
         break;                                                \
     }
 
-void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
-    const uint8_t* code = fCurrentFunction->fCode.data();
+struct StackFrame {
+    const uint8_t* fCode;
+    const uint8_t* fIP;
+    Interpreter::Value* fStack;
+};
+
+void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Value* outReturn) {
+    const uint8_t* code = f.fCode.data();
     const uint8_t* ip = code;
-    memcpy(stack, args, fCurrentFunction->fParameterCount * sizeof(Value));
-    Value* sp = stack + fCurrentFunction->fParameterCount + fCurrentFunction->fLocalCount - 1;
+    memcpy(stack, args, f.fParameterCount * sizeof(Value));
+    Value* sp = stack + f.fParameterCount + f.fLocalCount - 1;
+    std::vector<StackFrame> frames;
+
     for (;;) {
         ByteCodeInstruction inst = (ByteCodeInstruction) READ8();
 #ifdef TRACE
@@ -238,6 +246,18 @@ void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
             BINARY_OP(kAddF, float, fFloat, +)
             case ByteCodeInstruction::kBranch: {
                 ip = code + READ16();
+                break;
+            }
+            case ByteCodeInstruction::kCall: {
+                // Precursor code has pushed all parameters to the stack. Update our bottom of
+                // stack to point at the first parameter, and our sp to point past those parameters
+                // (plus space for locals).
+                int target = READ8();
+                const ByteCodeFunction* fun = fByteCode->fFunctions[target].get();
+                frames.push_back({ code, ip, stack });
+                ip = code = fun->fCode.data();
+                stack = sp - fun->fParameterCount + 1;
+                sp = stack + fun->fParameterCount + fun->fLocalCount - 1;
                 break;
             }
             BINARY_OP(kCompareIEQ, int32_t, fSigned, ==)
@@ -364,11 +384,27 @@ void Interpreter::run(Value* stack, Value args[], Value* outReturn) {
             BINARY_OP(kRemainderS, int32_t, fSigned, %)
             BINARY_OP(kRemainderU, uint32_t, fUnsigned, %)
             case ByteCodeInstruction::kReturn: {
-                if (outReturn) {
-                    int count = READ8();
-                    memcpy(outReturn, sp - count + 1, count * sizeof(Value));
+                int count = READ8();
+                if (frames.empty()) {
+                    if (outReturn) {
+                        memcpy(outReturn, sp - count + 1, count * sizeof(Value));
+                    }
+                    return;
+                } else {
+                    // When we were called, 'stack' was positioned at the old top-of-stack (where
+                    // our parameters were placed). So copy our return values to that same spot.
+                    memmove(stack, sp - count + 1, count * sizeof(Value));
+
+                    // Now move the stack pointer to the end of the just-pushed return values,
+                    // and restore everything else.
+                    const StackFrame& frame(frames.back());
+                    sp = stack + count - 1;
+                    stack = frame.fStack;
+                    code = frame.fCode;
+                    ip = frame.fIP;
+                    frames.pop_back();
+                    break;
                 }
-                return;
             }
             case ByteCodeInstruction::kStore: {
                 Value value = POP();

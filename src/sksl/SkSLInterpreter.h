@@ -70,17 +70,12 @@ public:
     void setInputs(Value inputs[]);
 
 private:
-    StackIndex stackAlloc(int count);
-
-    void run(Value* stack, Value args[], Value* outReturn);
-
-    void swizzle();
+    void run(const ByteCodeFunction& f, Value* stack, Value args[], Value* outReturn);
 
     void disassemble(const ByteCodeFunction& f);
 
     std::unique_ptr<Program> fProgram;
     std::unique_ptr<ByteCode> fByteCode;
-    const ByteCodeFunction* fCurrentFunction;
     std::vector<Value> fGlobals;
 };
 
