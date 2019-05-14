@@ -67,10 +67,12 @@ for root in roots:
                 and os.path.basename(parts[1]) in headers):
 
               header = headers[os.path.basename(parts[1])]
-              includes.append(parts[0] + '"%s"' % os.path.relpath(header, '.'))
+              includes.append(parts[0] +
+                              '"%s"' % os.path.relpath(header, '.') +
+                              parts[2])
             else:
               for inc in sorted(includes):
-                print >>output, inc
+                print >>output, inc.strip('\n')
               includes = []
               print >>output, line.strip('\n')
 

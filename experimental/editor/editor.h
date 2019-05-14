@@ -3,7 +3,7 @@
 #ifndef editor_DEFINED
 #define editor_DEFINED
 
-#include "stringslice.h"
+#include "experimental/editor/stringslice.h"
 
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"

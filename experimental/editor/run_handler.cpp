@@ -1,13 +1,13 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "run_handler.h"
+#include "experimental/editor/run_handler.h"
 
-#include "SkShaper.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkString.h"
 #include "include/private/SkTFitsIn.h"
+#include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkTextBlobPriv.h"
 
 #include <limits.h>

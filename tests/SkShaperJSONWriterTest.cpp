@@ -7,7 +7,7 @@
 
 #include "src/utils/SkShaperJSONWriter.h"
 
-#include "Test.h"
+#include "tests/Test.h"
 
 #include "src/core/SkSpan.h"
 #include "src/utils/SkJSONWriter.h"

@@ -1,7 +1,7 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "editor.h"
+#include "experimental/editor/editor.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkExecutor.h"
@@ -10,7 +10,7 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/utils/SkUTF.h"
 
-#include "run_handler.h"
+#include "experimental/editor/run_handler.h"
 
 using namespace editor;
 

@@ -8,7 +8,6 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
-#include "src/core/SkOSFile.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
@@ -20,6 +19,7 @@
 #include "include/effects/SkDashPathEffect.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkOSFile.h"
 #include "tools/random_parse_path.h"
 
 #include <stdio.h>

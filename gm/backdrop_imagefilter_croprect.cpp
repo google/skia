@@ -7,9 +7,9 @@
 
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
 #include "include/effects/SkBlurImageFilter.h"
 #include "include/effects/SkColorFilterImageFilter.h"
-#include "include/core/SkPaint.h"
 
 // This draws correctly if there's a small cyan rectangle above a much larger magenta rectangle.
 // There should be no red around the cyan rectangle and no green within the magenta rectangle.
