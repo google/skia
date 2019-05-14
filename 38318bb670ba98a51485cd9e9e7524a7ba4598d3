@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "323acb50_cf7dc1e1",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-14T20:11:33Z",
+      "side": 1,
+      "message": "I\u0027d like a comment that discusses the convention (for the return later one).",
+      "range": {
+        "startLine": 252,
+        "startChar": 20,
+        "endLine": 252,
+        "endChar": 26
+      },
+      "revId": "38318bb670ba98a51485cd9e9e7524a7ba4598d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
