@@ -717,7 +717,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         SkASSERT(tex->config() == kRGB_888_GrPixelConfig);
         // First check that we'll be able to do the copy to the to the R8G8B8 image in the end via a
         // blit or draw.
-        if (!this->vkCaps().configCanBeDstofBlit(kRGB_888_GrPixelConfig, tex->isLinearTiled()) &&
+        if (!this->vkCaps().formatCanBeDstofBlit(VK_FORMAT_R8G8B8_UNORM, tex->isLinearTiled()) &&
             !this->vkCaps().maxRenderTargetSampleCount(kRGB_888_GrPixelConfig)) {
             return false;
         }
@@ -1159,6 +1159,27 @@ static bool check_image_info(const GrVkCaps& caps,
     return true;
 }
 
+static bool check_tex_image_info(const GrVkCaps& caps, const GrVkImageInfo& info) {
+    if (info.fImageTiling == VK_IMAGE_TILING_OPTIMAL) {
+        if (!caps.isConfigTexturable(info.fFormat)) {
+            return false;
+        }
+    } else {
+        SkASSERT(info.fImageTiling == VK_IMAGE_TILING_LINEAR);
+        if (!caps.isConfigTexturableLinearly(info.fFormat)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool check_rt_image_info(const GrVkCaps& caps, const GrVkImageInfo& info) {
+    if (!caps.maxRenderTargetSampleCount(info.fFormat)) {
+        return false;
+    }
+    return true;
+}
+
 sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
                                                GrWrapOwnership ownership, GrWrapCacheable cacheable,
                                                GrIOType ioType) {
@@ -1168,6 +1189,9 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     }
 
     if (!check_image_info(this->vkCaps(), imageInfo, backendTex.config(), false)) {
+        return nullptr;
+    }
+    if (!check_tex_image_info(this->vkCaps(), imageInfo)) {
         return nullptr;
     }
 
@@ -1194,6 +1218,12 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     }
 
     if (!check_image_info(this->vkCaps(), imageInfo, backendTex.config(), false)) {
+        return nullptr;
+    }
+    if (!check_tex_image_info(this->vkCaps(), imageInfo)) {
+        return nullptr;
+    }
+    if (!check_rt_image_info(this->vkCaps(), imageInfo)) {
         return nullptr;
     }
 
@@ -1228,6 +1258,10 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     if (!check_image_info(this->vkCaps(), info, backendRT.config(), true)) {
         return nullptr;
     }
+    if (!check_rt_image_info(this->vkCaps(), info)) {
+        return nullptr;
+    }
+
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -1260,7 +1294,9 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     if (!check_image_info(this->vkCaps(), imageInfo, tex.config(), false)) {
         return nullptr;
     }
-
+    if (!check_rt_image_info(this->vkCaps(), imageInfo)) {
+        return nullptr;
+    }
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -1318,8 +1354,8 @@ bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
 
     // determine if we can blit to and from this format
     const GrVkCaps& caps = this->vkCaps();
-    if (!caps.configCanBeDstofBlit(tex->config(), false) ||
-        !caps.configCanBeSrcofBlit(tex->config(), false) ||
+    if (!caps.formatCanBeDstofBlit(vkTex->imageFormat(), false) ||
+        !caps.formatCanBeSrcofBlit(vkTex->imageFormat(), false) ||
         !caps.mipMapSupport()) {
         return false;
     }
