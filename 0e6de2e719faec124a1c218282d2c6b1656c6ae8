@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d6eed34f_8cffcf7a",
+        "filename": "src/gpu/GrShaderCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-14T00:03:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8bf6e848_8c3e1524",
+      "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "355ca84c_c8c0fcb6",
         "filename": "src/gpu/GrShaderCaps.h",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf932c39_723db22d",
+        "filename": "src/gpu/GrShaderCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-14T00:03:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "355ca84c_c8c0fcb6",
+      "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "a67c029b_49f7d4a0",
+        "filename": "src/gpu/GrShaderCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-14T00:03:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b14da10_b218a751",
+      "range": {
+        "startLine": 270,
+        "startChar": 50,
+        "endLine": 270,
+        "endChar": 99
+      },
+      "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6191f301_b129d231",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "dd31c6fd_f9f3ea86",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 837,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-14T00:03:54Z",
+      "side": 1,
+      "message": "I think we should keep it. I\u0027d like to to hopefully get the sample mask round rect op working still.",
+      "parentUuid": "6191f301_b129d231",
+      "range": {
+        "startLine": 835,
+        "startChar": 0,
+        "endLine": 837,
+        "endChar": 28
+      },
+      "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70481ea1_97fc4b62",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "347b7e4e_6158a6e4",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-14T00:03:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70481ea1_97fc4b62",
+      "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "62de0a8a_b25a1c71",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
@@ -113,6 +215,24 @@
       "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85548141_e8889dae",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-14T00:03:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62de0a8a_b25a1c71",
+      "revId": "0e6de2e719faec124a1c218282d2c6b1656c6ae8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
