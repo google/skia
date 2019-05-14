@@ -16,6 +16,24 @@
       "revId": "696f7ee220e9f66432b46142150679d2047df1e4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6ebc410_39b46b58",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-14T17:53:40Z",
+      "side": 1,
+      "message": "It did, until I figured out that there are three different types of caches (SkStrikeCache, SkRemotGlyphCache and GrStrikeCache) that project out of the strike spec to three different types of strikes. This way is odd compared to the historical implementation. But now, I think of SkStrikeSpec as just the function from cache to strike.",
+      "parentUuid": "61361361_a58c2029",
+      "revId": "696f7ee220e9f66432b46142150679d2047df1e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
