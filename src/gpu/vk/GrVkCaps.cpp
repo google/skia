@@ -861,6 +861,10 @@ bool GrVkCaps::isConfigTexturable(GrPixelConfig config) const {
     return this->isConfigTexturable(format);
 }
 
+bool GrVkCaps::isConfigRenderable(VkFormat format) const {
+    return this->maxRenderTargetSampleCount(format) > 0;
+}
+
 int GrVkCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
     // Currently we don't allow RGB_888X to be renderable because we don't have a way to handle
     // blends that reference dst alpha when the values in the dst alpha channel are uninitialized.

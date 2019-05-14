@@ -292,6 +292,32 @@ public:
     void testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif
 
+    /*
+     * The explicitly allocated backend texture API allows clients to use Skia to create backend
+     * objects outside of Skia proper (i.e., Skia's caching system will not know about them.)
+     *
+     * It is the client's responsibility to delete all these objects (using deleteBackendTexture)
+     * before deleting the GrContext used to create them. Additionally, clients should only
+     * delete these objects on the thread for which that GrContext is active.
+     *
+     * Additionally, the client is responsible for ensuring synchronization between different uses
+     * of the backend object.
+     */
+
+    // Create an uninitialized backend texture
+    GrBackendTexture createBackendTexture(int width, int height,
+                                          GrBackendFormat,
+                                          GrMipMapped, GrRenderable);
+
+    // Create an uninitialized backend texture
+    // This is a helper that is strictly for testing. It is expected that clients will
+    // know the true backend format of their desired resources.
+    GrBackendTexture createBackendTexture(int width, int height,
+                                          SkColorType,
+                                          GrMipMapped, GrRenderable);
+
+    void deleteBackendTexture(GrBackendTexture);
+
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
     GrContextPriv(const GrContextPriv&); // unimpl

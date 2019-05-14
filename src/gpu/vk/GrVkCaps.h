@@ -39,6 +39,8 @@ public:
         return true;
     }
 
+    bool isConfigRenderable(VkFormat) const;
+
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
     int getRenderTargetSampleCount(int requestedCount, VkFormat) const;
     int maxRenderTargetSampleCount(GrPixelConfig config) const override;
