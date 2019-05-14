@@ -12,7 +12,6 @@
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordDraw.h"
-#include "src/core/SkRecordOpts.h"
 #include "src/core/SkRecordedDrawable.h"
 #include "src/core/SkRecorder.h"
 
@@ -68,9 +67,6 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
         return sk_make_sp<SkEmptyPicture>();
     }
 
-    // TODO: delay as much of this work until just before first playback?
-    SkRecordOptimize(fRecord.get());
-
     SkDrawableList* drawableList = fRecorder->getDrawableList();
     SkBigPicture::SnapshotArray* pictList =
         drawableList ? drawableList->newDrawableSnapshot() : nullptr;
@@ -121,8 +117,6 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
 sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable(uint32_t finishFlags) {
     fActivelyRecording = false;
     fRecorder->restoreToCount(1);  // If we were missing any restores, add them now.
-
-    SkRecordOptimize(fRecord.get());
 
     if (fBBH.get()) {
         SkAutoTMalloc<SkRect> bounds(fRecord->count());

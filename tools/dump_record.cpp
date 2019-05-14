@@ -10,7 +10,6 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkStream.h"
 #include "src/core/SkRecordDraw.h"
-#include "src/core/SkRecordOpts.h"
 #include "src/core/SkRecorder.h"
 #include "tools/DumpRecord.h"
 #include "tools/flags/CommandLineFlags.h"
@@ -19,8 +18,6 @@
 
 static DEFINE_string2(skps, r, "", ".SKPs to dump.");
 static DEFINE_string(match, "", "The usual filters on file names to dump.");
-static DEFINE_bool2(optimize, O, false, "Run SkRecordOptimize before dumping.");
-static DEFINE_bool(optimize2, false, "Run SkRecordOptimize2 before dumping.");
 static DEFINE_int(tile, 1000000000, "Simulated tile size.");
 static DEFINE_bool(timeWithCommand, false,
                    "If true, print time next to command, else in first column.");
@@ -33,7 +30,7 @@ static void dump(const char* name, int w, int h, const SkRecord& record) {
     canvas.clipRect(SkRect::MakeWH(SkIntToScalar(FLAGS_tile),
                                    SkIntToScalar(FLAGS_tile)));
 
-    printf("%s %s\n", FLAGS_optimize ? "optimized" : "not-optimized", name);
+    printf("%s\n", name);
 
     DumpRecord(record, &canvas, FLAGS_timeWithCommand);
 }
@@ -62,13 +59,6 @@ int main(int argc, char** argv) {
         SkRecord record;
         SkRecorder canvas(&record, w, h);
         src->playback(&canvas);
-
-        if (FLAGS_optimize) {
-            SkRecordOptimize(&record);
-        }
-        if (FLAGS_optimize2) {
-            SkRecordOptimize2(&record);
-        }
 
         dump(FLAGS_skps[i], w, h, record);
 
