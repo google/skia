@@ -10,7 +10,6 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkPicture.h"
-#include "src/core/SkLiteDL.h"
 
 class PictureCentricBench : public Benchmark {
 public:
@@ -30,13 +29,12 @@ protected:
 
 class RecordingBench : public PictureCentricBench {
 public:
-    RecordingBench(const char* name, const SkPicture*, bool useBBH, bool lite);
+    RecordingBench(const char* name, const SkPicture*, bool useBBH);
 
 protected:
     void onDraw(int loops, SkCanvas*) override;
 
 private:
-    std::unique_ptr<SkLiteDL> fDL;
     bool fUseBBH;
 
     typedef PictureCentricBench INHERITED;

@@ -18,8 +18,6 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkBlurImageFilter.h"
 #include "include/effects/SkGradientShader.h"
-#include "src/core/SkLiteDL.h"
-#include "src/core/SkLiteRecorder.h"
 
 #include <initializer_list>
 
@@ -68,8 +66,8 @@ static void do_draw(SkCanvas* canvas, bool useClip, bool useHintRect) {
 }
 
 /*
- *  Draws a 3x4 grid of sweep circles.
- *  - for a given row, each col should be identical (canvas, picture, litedl)
+ *  Draws a 2x4 grid of sweep circles.
+ *  - for a given row, each col should be identical (canvas, picture)
  *  - row:0     no-hint-rect    no-clip-rect        expect big blur (except inner circle)
  *  - row:1     no-hint-rect    clip-rect           expect small blur (except inner circle)
  *  - row:2     hint-rect       no-clip-rect        expect big blur (except inner circle)
@@ -78,26 +76,18 @@ static void do_draw(SkCanvas* canvas, bool useClip, bool useHintRect) {
  *  The test is that backdrop effects should be independent of the hint-rect, but should
  *  respect the clip-rect.
  */
-DEF_SIMPLE_GM(backdrop_hintrect_clipping, canvas, 768, 1024) {
+DEF_SIMPLE_GM(backdrop_hintrect_clipping, canvas, 512, 1024) {
     for (bool useHintRect : {false, true}) {
         for (bool useClip : {false, true}) {
-            SkAutoCanvasRestore acr(canvas, true);
+            canvas->save();
+                do_draw(canvas, useClip, useHintRect);
 
-            do_draw(canvas, useClip, useHintRect);
+                SkPictureRecorder rec;
+                do_draw(rec.beginRecording(256, 256), useClip, useHintRect);
+                canvas->translate(256, 0);
+                canvas->drawPicture(rec.finishRecordingAsPicture());
+            canvas->restore();
 
-            SkPictureRecorder rec;
-            do_draw(rec.beginRecording(256, 256), useClip, useHintRect);
-            canvas->translate(256, 0);
-            canvas->drawPicture(rec.finishRecordingAsPicture());
-
-            SkLiteDL dl;
-            SkLiteRecorder lite;
-            lite.reset(&dl, {0, 0, 256, 256});
-            do_draw(&lite, useClip, useHintRect);
-            canvas->translate(256, 0);
-            dl.draw(canvas);
-
-            acr.restore();
             canvas->translate(0, 256);
         }
     }

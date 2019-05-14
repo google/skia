@@ -8,8 +8,6 @@
 #include "bench/RecordingBench.h"
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkPictureRecorder.h"
-#include "src/core/SkLiteDL.h"
-#include "src/core/SkLiteRecorder.h"
 
 PictureCentricBench::PictureCentricBench(const char* name, const SkPicture* pic) : fName(name) {
     // Flatten the source picture in case it's trivially nested (useless for timing).
@@ -34,35 +32,17 @@ SkIPoint PictureCentricBench::onGetSize() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-RecordingBench::RecordingBench(const char* name, const SkPicture* pic, bool useBBH, bool lite)
+RecordingBench::RecordingBench(const char* name, const SkPicture* pic, bool useBBH)
     : INHERITED(name, pic)
     , fUseBBH(useBBH)
-{
-    // If we're recording into an SkLiteDL, also record _from_ one.
-    if (lite) {
-        fDL.reset(new SkLiteDL());
-        SkLiteRecorder r;
-        r.reset(fDL.get(), fSrc->cullRect().roundOut());
-        fSrc->playback(&r);
-    }
-}
+{}
 
 void RecordingBench::onDraw(int loops, SkCanvas*) {
-    if (fDL) {
-        SkLiteRecorder rec;
-        while (loops --> 0) {
-            SkLiteDL dl;
-            rec.reset(&dl, fSrc->cullRect().roundOut());
-            fDL->draw(&rec);
-        }
-
-    } else {
-        SkRTreeFactory factory;
-        SkPictureRecorder recorder;
-        while (loops --> 0) {
-            fSrc->playback(recorder.beginRecording(fSrc->cullRect(), fUseBBH ? &factory : nullptr));
-            (void)recorder.finishRecordingAsPicture();
-        }
+    SkRTreeFactory factory;
+    SkPictureRecorder recorder;
+    while (loops --> 0) {
+        fSrc->playback(recorder.beginRecording(fSrc->cullRect(), fUseBBH ? &factory : nullptr));
+        (void)recorder.finishRecordingAsPicture();
     }
 }
 
