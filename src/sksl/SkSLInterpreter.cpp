@@ -448,10 +448,6 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                 switch (inst) {
                     VECTOR_BINARY_OP(kAddI, int32_t, fSigned, +)
                     VECTOR_BINARY_OP(kAddF, float, fFloat, +)
-                    case ByteCodeInstruction::kBranch: {
-                        ip = code + READ16();
-                        break;
-                    }
                     VECTOR_BINARY_OP(kCompareIEQ, int32_t, fSigned, ==)
                     VECTOR_BINARY_OP(kCompareFEQ, float, fFloat, ==)
                     VECTOR_BINARY_OP(kCompareINEQ, int32_t, fSigned, !=)
@@ -468,13 +464,6 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                     VECTOR_BINARY_OP(kCompareSLTEQ, int32_t, fSigned, <=)
                     VECTOR_BINARY_OP(kCompareULTEQ, uint32_t, fUnsigned, <=)
                     VECTOR_BINARY_OP(kCompareFLTEQ, float, fFloat, <=)
-                    case ByteCodeInstruction::kConditionalBranch: {
-                        uint16_t target = READ16();
-                        if (POP().fBool) {
-                            ip = code + target;
-                        }
-                        break;
-                    }
                     VECTOR_BINARY_OP(kDivideS, int32_t, fSigned, /)
                     VECTOR_BINARY_OP(kDivideU, uint32_t, fUnsigned, /)
                     VECTOR_BINARY_OP(kDivideF, float, fFloat, /)
