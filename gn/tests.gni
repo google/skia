@@ -90,7 +90,6 @@ tests_sources = [
   "$_tests/GifTest.cpp",
   "$_tests/GlyphRunTest.cpp",
   "$_tests/GpuDrawPathTest.cpp",
-  "$_tests/GpuLayerCacheTest.cpp",
   "$_tests/GpuRectanizerTest.cpp",
   "$_tests/GrAHardwareBufferTest.cpp",
   "$_tests/GrAllocatorTest.cpp",
