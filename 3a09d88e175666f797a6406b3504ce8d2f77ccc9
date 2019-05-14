@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19cfd551_e8a546c8",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1477,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-14T16:11:10Z",
+      "side": 1,
+      "message": "Make this return 8?",
+      "range": {
+        "startLine": 1477,
+        "startChar": 8,
+        "endLine": 1477,
+        "endChar": 47
+      },
+      "revId": "3a09d88e175666f797a6406b3504ce8d2f77ccc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "464c4b61_92f51d6b",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1501,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-14T16:11:10Z",
+      "side": 1,
+      "message": "Lets word this as \"The Vulkan spec for copying a buffer to an image, requests the alignment....\"",
+      "range": {
+        "startLine": 1501,
+        "startChar": 7,
+        "endLine": 1501,
+        "endChar": 30
+      },
+      "revId": "3a09d88e175666f797a6406b3504ce8d2f77ccc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
