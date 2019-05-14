@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61361361_a58c2029",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-14T16:20:27Z",
+      "side": 1,
+      "message": "Does this read oddly to you, as if it\u0027s a method on the wrong type?  I think would have expected to read,\n\n  SkScopedStrike strike \u003d fStrikeCache.findOrCreateScopedStrike(strikeSpec);",
+      "revId": "696f7ee220e9f66432b46142150679d2047df1e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
