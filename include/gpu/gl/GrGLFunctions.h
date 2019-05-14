@@ -252,6 +252,10 @@ using GrGLObjectLabelFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum identifier, GrGL
 /** EXT_window_rectangles */
 using GrGLWindowRectanglesFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode, GrGLsizei count, const GrGLint box[]);
 
+/** GL_QCOM_tiled_rendering */
+using GrGLStartTilingFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint x, GrGLuint y, GrGLuint width, GrGLuint height, GrGLbitfield preserveMask);
+using GrGLEndTilingFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLbitfield preserveMask);
+
 /** EGL functions */
 using GrEGLQueryStringFn = const char* GR_GL_FUNCTION_TYPE(GrEGLDisplay dpy, GrEGLint name);
 using GrEGLGetCurrentDisplayFn = GrEGLDisplay GR_GL_FUNCTION_TYPE();

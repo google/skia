@@ -2220,8 +2220,10 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
     fHWStencilSettings.invalidate();
 }
 
-void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, const ColorLoadAndStoreInfo& colorLoadStore,
-                                 const StencilLoadAndStoreInfo& stencilLoadStore) {
+void GrGLGpu::beginCommandBuffer(
+        GrRenderTarget* rt, const SkIRect& contentBounds, GrSurfaceOrigin origin,
+        const ColorLoadAndStoreInfo& colorLoadStore,
+        const StencilLoadAndStoreInfo& stencilLoadStore) {
     SkASSERT(!fIsExecutingCommandBuffer_DebugOnly);
 
     this->handleDirtyContext();
@@ -2229,6 +2231,19 @@ void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, const ColorLoadAndStoreInfo
     auto glRT = static_cast<GrGLRenderTarget*>(rt);
     this->flushRenderTarget(glRT);
     SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = true);
+
+    // Only use the tiled rendering extension if we can explicitly clear and discard the stencil.
+    // Otherwise it's faster to just not use it.
+    if (this->glCaps().tiledRenderingSupport() && GrLoadOp::kClear == stencilLoadStore.fLoadOp
+            && GrStoreOp::kDiscard == stencilLoadStore.fStoreOp) {
+        GrGLIRect boundsGL;
+        boundsGL.setRelativeTo(glRT->getViewport(), contentBounds, origin);
+        GrGLbitfield preserveMask = (GrLoadOp::kLoad == colorLoadStore.fLoadOp)
+                ? GR_GL_COLOR_BUFFER_BIT0 : GR_GL_NONE;
+        SkASSERT(GrLoadOp::kLoad != stencilLoadStore.fLoadOp);  // Handled by 'if' above.
+        GL_CALL(StartTiling(boundsGL.fLeft, boundsGL.fBottom, boundsGL.fWidth, boundsGL.fHeight,
+                            preserveMask));
+    }
 
     GrGLbitfield clearMask = 0;
     if (GrLoadOp::kClear == colorLoadStore.fLoadOp) {
@@ -2282,6 +2297,16 @@ void GrGLGpu::endCommandBuffer(GrRenderTarget* rt, const ColorLoadAndStoreInfo& 
             GL_CALL(DiscardFramebuffer(GR_GL_FRAMEBUFFER, discardAttachments.count(),
                                        discardAttachments.begin()));
         }
+    }
+
+    // Only use the tiled rendering extension if we can explicitly clear and discard the stencil.
+    // Otherwise it's faster to just not use it.
+    if (this->glCaps().tiledRenderingSupport() && GrLoadOp::kClear == stencilLoadStore.fLoadOp
+            && GrStoreOp::kDiscard == stencilLoadStore.fStoreOp) {
+        GrGLbitfield preserveMask = (GrStoreOp::kStore == colorLoadStore.fStoreOp)
+                ? GR_GL_COLOR_BUFFER_BIT0 : GR_GL_NONE;
+        SkASSERT(GrStoreOp::kStore != stencilLoadStore.fStoreOp);  // Handled by 'if' above.
+        GL_CALL(EndTiling(preserveMask));
     }
 }
 
@@ -2527,14 +2552,16 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 }
 
 GrGpuRTCommandBuffer* GrGLGpu::getCommandBuffer(
-        GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
+        GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& contentBounds,
         const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
         const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
     if (!fCachedRTCommandBuffer) {
         fCachedRTCommandBuffer.reset(new GrGLGpuRTCommandBuffer(this));
     }
 
-    fCachedRTCommandBuffer->set(rt, origin, colorInfo, stencilInfo);
+    SkIRect contentIBounds;
+    contentBounds.roundOut(&contentIBounds);
+    fCachedRTCommandBuffer->set(rt, contentIBounds, origin, colorInfo, stencilInfo);
     return fCachedRTCommandBuffer.get();
 }
 
