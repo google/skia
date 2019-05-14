@@ -22,6 +22,30 @@
       "revId": "38318bb670ba98a51485cd9e9e7524a7ba4598d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2975b707_2ed9b743",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-14T20:58:52Z",
+      "side": 1,
+      "message": "Added some comments. In the process, I realized that if a called function returns more parameters than it takes, the memcpy during return would have overlapping regions, so I changed that to a memmove as well.",
+      "parentUuid": "323acb50_cf7dc1e1",
+      "range": {
+        "startLine": 252,
+        "startChar": 20,
+        "endLine": 252,
+        "endChar": 26
+      },
+      "revId": "38318bb670ba98a51485cd9e9e7524a7ba4598d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
