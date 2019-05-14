@@ -16,28 +16,50 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "tools/sk_app/MetalWindowContext.h"
+#include "tools/sk_app/mac/WindowContextFactory_mac.h"
+
+using sk_app::DisplayParams;
+using sk_app::MetalWindowContext;
 
 namespace sk_app {
 
 static int kMaxBuffersInFlight = 3;
 
-MetalWindowContext::MetalWindowContext(const DisplayParams& params)
+MetalWindowContext::MetalWindowContext(const MacWindowInfo& info, const DisplayParams& params)
     : WindowContext(params)
-    , fValid(false)
-    , fSurface(nullptr) {
-    fDisplayParams.fMSAASampleCount = GrNextPow2(fDisplayParams.fMSAASampleCount);
+    , fMainView(info.fMainView)
+    , fValid(false) {
+
+    // Multisampling not supported
+    fDisplayParams.fMSAASampleCount = 1;// GrNextPow2(fDisplayParams.fMSAASampleCount);
+
+    this->initializeContext();
 }
 
 void MetalWindowContext::initializeContext() {
     SkASSERT(!fContext);
 
-    // The subclass uses these to initialize their view
     fDevice = MTLCreateSystemDefaultDevice();
     fQueue = [fDevice newCommandQueue];
 
     fInFlightSemaphore = dispatch_semaphore_create(kMaxBuffersInFlight);
 
-    fValid = this->onInitializeContext();
+    fSampleCount = 1;  // we don't support multisampling yet
+    fStencilBits = 8;
+
+    NSRect rect = [fMainView frame];
+
+    fMetalLayer = [CAMetalLayer layer];
+    fMetalLayer.device = fDevice;
+    fMetalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    fMetalLayer.drawableSize = rect.size;
+    fMainView.layer = fMetalLayer;
+    fMainView.wantsLayer = YES;
+
+    fWidth = rect.size.width;
+    fHeight = rect.size.height;
+    fValid = true;
+
     fContext = GrContext::MakeMetal(fDevice, fQueue, fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
@@ -47,8 +69,6 @@ void MetalWindowContext::initializeContext() {
 }
 
 void MetalWindowContext::destroyContext() {
-    fSurface.reset(nullptr);
-
     if (fContext) {
         // in case we have outstanding refs to this guy (lua?)
         fContext->abandonContext();
@@ -58,8 +78,6 @@ void MetalWindowContext::destroyContext() {
     // TODO: Figure out who's releasing this
     // [fQueue release];
     [fDevice release];
-
-    this->onDestroyContext();
 }
 
 sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
@@ -72,9 +90,10 @@ sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
         // for as little time as possible. I'm not sure it matters for our test apps, but
         // you can get better throughput by doing any offscreen renders, texture uploads, or
         // other non-dependant tasks first before grabbing the drawable.
+        fCurrentDrawable = [fMetalLayer nextDrawable];
+
         GrMtlTextureInfo fbInfo;
-        MTLRenderPassDescriptor* descriptor = fMTKView.currentRenderPassDescriptor;
-        fbInfo.fTexture = [[[descriptor colorAttachments] objectAtIndexedSubscript:0] texture];
+        fbInfo.fTexture = fCurrentDrawable.texture;
 
         GrBackendRenderTarget backendRT(fWidth,
                                         fHeight,
@@ -102,9 +121,9 @@ void MetalWindowContext::swapBuffers() {
          dispatch_semaphore_signal(block_sema);
      }];
 
-    id<MTLDrawable> drawable = [fMTKView currentDrawable];
-    [commandBuffer presentDrawable:drawable];
+    [commandBuffer presentDrawable:fCurrentDrawable];
     [commandBuffer commit];
+    fCurrentDrawable = nil;
 }
 
 void MetalWindowContext::resize(int w, int h) {
@@ -116,6 +135,17 @@ void MetalWindowContext::setDisplayParams(const DisplayParams& params) {
     this->destroyContext();
     fDisplayParams = params;
     this->initializeContext();
+}
+
+namespace window_context_factory {
+    WindowContext* NewMetalForMac(const MacWindowInfo& info, const DisplayParams& params) {
+        WindowContext* ctx = new MetalWindowContext(info, params);
+        if (!ctx->isValid()) {
+            delete ctx;
+            return nullptr;
+        }
+        return ctx;
+    }
 }
 
 }   //namespace sk_app

@@ -12,16 +12,20 @@
 #include "include/core/SkSurface.h"
 
 #include "tools/sk_app/WindowContext.h"
+#include "tools/sk_app/mac/WindowContextFactory_mac.h"
 
+#import <Cocoa/Cocoa.h>
 #import <Metal/Metal.h>
-#import <MetalKit/MetalKit.h>
+#import <QuartzCore/CAMetalLayer.h>
 
-class GrContext;
+using sk_app::window_context_factory::MacWindowInfo;
 
 namespace sk_app {
 
 class MetalWindowContext : public WindowContext {
 public:
+    MetalWindowContext(const MacWindowInfo& info, const DisplayParams&);
+
     sk_sp<SkSurface> getBackbufferSurface() override;
 
     bool isValid() override { return fValid; }
@@ -32,25 +36,21 @@ public:
     void setDisplayParams(const DisplayParams& params) override;
 
 protected:
-    MetalWindowContext(const DisplayParams&);
     // This should be called by subclass constructor. It is also called when window/display
-    // parameters change. This will in turn call onInitializeContext().
+    // parameters change.
     void initializeContext();
-    virtual bool onInitializeContext() = 0;
 
     // This should be called by subclass destructor. It is also called when window/display
-    // parameters change prior to initializing a new GL context. This will in turn call
-    // onDestroyContext().
+    // parameters change prior to initializing a new Metal context.
     void destroyContext();
-    virtual void onDestroyContext() = 0;
 
-
+    NSView*                     fMainView;
     bool                        fValid;
     id<MTLDevice>               fDevice;
     id<MTLCommandQueue>         fQueue;
+    CAMetalLayer*               fMetalLayer;
+    id<CAMetalDrawable>         fCurrentDrawable;
     dispatch_semaphore_t        fInFlightSemaphore;
-    MTKView*                    fMTKView;
-    sk_sp<SkSurface>            fSurface;
 };
 
 }   // namespace sk_app
