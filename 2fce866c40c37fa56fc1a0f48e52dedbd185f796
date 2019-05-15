@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bbac910f_4fc7f6f1",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-15T15:44:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "222a97b2_dce35453",
+      "range": {
+        "startLine": 14,
+        "startChar": 28,
+        "endLine": 14,
+        "endChar": 32
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1963c2cb_2f2fea67",
         "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ca33b606_30317566",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-15T15:44:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1963c2cb_2f2fea67",
+      "range": {
+        "startLine": 27,
+        "startChar": 12,
+        "endLine": 27,
+        "endChar": 21
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "beec54ee_69fefc82",
         "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2019-05-15T14:24:31Z",
       "side": 1,
       "message": "Is the goal here to always assert? Would it make sense to use SkDEBUGFAIL instead?\n\n(We would have returned if err \u003e\u003d 0. It looks like av_strerror takes err as a value and AVUNERROR doesn\u0027t do anything to it.)",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 23
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a61bf408_150606a2",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-15T15:44:02Z",
+      "side": 1,
+      "message": "The assert is just for my diagnostics. The goal is to handle it gracefully (i.e. not draw or something).",
+      "parentUuid": "beec54ee_69fefc82",
       "range": {
         "startLine": 37,
         "startChar": 4,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "be74aa04_3aa672d4",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-15T15:44:02Z",
+      "side": 1,
+      "message": ":) this is ganesh\u0027s real API. Speak with them if you\u0027d like changes",
+      "parentUuid": "b6fc7066_323629c3",
+      "range": {
+        "startLine": 54,
+        "startChar": 57,
+        "endLine": 54,
+        "endChar": 59
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3cc335c4_e9c43fa8",
         "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
         "patchSetId": 3
@@ -105,6 +201,30 @@
       "writtenOn": "2019-05-15T14:24:31Z",
       "side": 1,
       "message": "Should this be passed in? Or will this always be Rec709?",
+      "range": {
+        "startLine": 59,
+        "startChar": 44,
+        "endLine": 59,
+        "endChar": 67
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0e8df5e_7cce5470",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-15T15:44:02Z",
+      "side": 1,
+      "message": "Good point -- I need to tunnel in the right colorspace from the codec",
+      "parentUuid": "3cc335c4_e9c43fa8",
       "range": {
         "startLine": 59,
         "startChar": 44,
@@ -163,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "e1f10da2_d1625479",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-15T15:44:02Z",
+      "side": 1,
+      "message": "the packet is returning all streams, as it encounters them (e.g. audio packets as well). I\u0027ll add a comment",
+      "parentUuid": "6be2daf3_4ec68cbc",
+      "range": {
+        "startLine": 85,
+        "startChar": 11,
+        "endLine": 85,
+        "endChar": 49
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f7d38541_113f65af",
         "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
         "patchSetId": 3
@@ -174,6 +318,30 @@
       "writtenOn": "2019-05-15T14:24:31Z",
       "side": 1,
       "message": "Document what\u0027s going on here? This error must be okay?\n\nI think this means that avcodec cannot accept any more input (maybe until you retrieve a frame)?",
+      "range": {
+        "startLine": 90,
+        "startChar": 19,
+        "endLine": 90,
+        "endChar": 34
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13397bc2_d98fe042",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-15T15:44:02Z",
+      "side": 1,
+      "message": "will document",
+      "parentUuid": "f7d38541_113f65af",
       "range": {
         "startLine": 90,
         "startChar": 19,
@@ -209,6 +377,30 @@
     },
     {
       "key": {
+        "uuid": "30ed21e7_66427673",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-15T15:44:02Z",
+      "side": 1,
+      "message": "will add else",
+      "parentUuid": "b7b77187_34c14999",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 9
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "877332c5_48b1d4aa",
         "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
         "patchSetId": 3
@@ -220,6 +412,30 @@
       "writtenOn": "2019-05-15T14:24:31Z",
       "side": 1,
       "message": "Should this set fStreamIndex to -1?",
+      "range": {
+        "startLine": 108,
+        "startChar": 21,
+        "endLine": 108,
+        "endChar": 26
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b28e9720_e5a839a7",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-15T15:44:02Z",
+      "side": 1,
+      "message": "For completeness, yet. I think the only important work done here is to free allocations, and mark *something* to tell us we\u0027re not ready ... fFormatCtx is that sentinel.",
+      "parentUuid": "877332c5_48b1d4aa",
       "range": {
         "startLine": 108,
         "startChar": 21,
