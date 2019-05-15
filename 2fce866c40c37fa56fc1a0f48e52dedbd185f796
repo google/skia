@@ -1,0 +1,510 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "222a97b2_dce35453",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "It looks like this is unused?\n\n(And how is it different from a unique_ptr?)",
+      "range": {
+        "startLine": 14,
+        "startChar": 28,
+        "endLine": 14,
+        "endChar": 32
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1963c2cb_2f2fea67",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "This is currently unused, but maybe we want to use it below?",
+      "range": {
+        "startLine": 27,
+        "startChar": 12,
+        "endLine": 27,
+        "endChar": 21
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "beec54ee_69fefc82",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Is the goal here to always assert? Would it make sense to use SkDEBUGFAIL instead?\n\n(We would have returned if err \u003e\u003d 0. It looks like av_strerror takes err as a value and AVUNERROR doesn\u0027t do anything to it.)",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 23
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6fc7066_323629c3",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Are these all R because we don\u0027t have a sensible API yet?",
+      "range": {
+        "startLine": 54,
+        "startChar": 57,
+        "endLine": 54,
+        "endChar": 59
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cc335c4_e9c43fa8",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Should this be passed in? Or will this always be Rec709?",
+      "range": {
+        "startLine": 59,
+        "startChar": 44,
+        "endLine": 59,
+        "endChar": 67
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2853e057_77b02215",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "This returns an error code on failure, right? Should we call check_err on it?",
+      "range": {
+        "startLine": 84,
+        "startChar": 12,
+        "endLine": 84,
+        "endChar": 25
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6be2daf3_4ec68cbc",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Why would the stream_index not match? Is that an error?",
+      "range": {
+        "startLine": 85,
+        "startChar": 11,
+        "endLine": 85,
+        "endChar": 49
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7d38541_113f65af",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Document what\u0027s going on here? This error must be okay?\n\nI think this means that avcodec cannot accept any more input (maybe until you retrieve a frame)?",
+      "range": {
+        "startLine": 90,
+        "startChar": 19,
+        "endLine": 90,
+        "endChar": 34
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7b77187_34c14999",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Else should we call check_err? If it\u0027s AVERROR(EAGAIN), I\u0027m guessing we want to continue the loop. But if it\u0027s something else, perhaps we want to \"break\"? (Or maybe that\u0027s covered by the next call to av_read_frame?)",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 9
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "877332c5_48b1d4aa",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Should this set fStreamIndex to -1?",
+      "range": {
+        "startLine": 108,
+        "startChar": 21,
+        "endLine": 108,
+        "endChar": 26
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28991268_c728d2b6",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "check_err?",
+      "range": {
+        "startLine": 128,
+        "startChar": 8,
+        "endLine": 128,
+        "endChar": 57
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "647444d6_242964e3",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "check_err?",
+      "range": {
+        "startLine": 145,
+        "startChar": 8,
+        "endLine": 145,
+        "endChar": 67
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc26e98f_34027ae2",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "check_err?",
+      "range": {
+        "startLine": 151,
+        "startChar": 8,
+        "endLine": 151,
+        "endChar": 51
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fecfaa92_d803422c",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Good question. I see av_destruct_packet, but it\u0027s deprecated, and recommends using the \"AVBuffer API\" https://ffmpeg.org/doxygen/2.7/structAVBuffer.html",
+      "range": {
+        "startLine": 159,
+        "startChar": 32,
+        "endLine": 159,
+        "endChar": 58
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8e8dae3_68be2751",
+        "filename": "gm/aaclip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "This CPtr is also unused?",
+      "range": {
+        "startLine": 33,
+        "startChar": 28,
+        "endLine": 33,
+        "endChar": 32
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03d54966_1757635e",
+        "filename": "gm/aaclip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Like the other, won\u0027t this always assert if it\u0027s reached?",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 23
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63facb0e_c0c80535",
+        "filename": "gm/aaclip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "nit: line length",
+      "range": {
+        "startLine": 98,
+        "startChar": 100,
+        "endLine": 98,
+        "endChar": 103
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a1a2767_15e4b3b6",
+        "filename": "gm/aaclip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Do we need this checked in separate from the other version?",
+      "range": {
+        "startLine": 131,
+        "startChar": 12,
+        "endLine": 131,
+        "endChar": 23
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8edcf05c_9ac88ee1",
+        "filename": "gm/aaclip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Put this in its own gm/file?",
+      "range": {
+        "startLine": 282,
+        "startChar": 4,
+        "endLine": 282,
+        "endChar": 24
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98dbc5ce_d42221bf",
+        "filename": "gm/stringart.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Put this in its own file?",
+      "range": {
+        "startLine": 168,
+        "startChar": 6,
+        "endLine": 168,
+        "endChar": 20
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7c0f236_b75f2d52",
+        "filename": "gm/stringart.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Maybe it\u0027s not an issue here, but it seems like it\u0027s possible we\u0027re drawing to a different SkCanvas? Should it be possible to change the GrContext that the SkVideoDecoder is using?\n\n(Otherwise, it looks like we could move this variable into the if (!fDecoder) section?",
+      "range": {
+        "startLine": 185,
+        "startChar": 8,
+        "endLine": 185,
+        "endChar": 47
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46e15dfc_ca430d02",
+        "filename": "gm/stringart.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-05-15T14:24:31Z",
+      "side": 1,
+      "message": "Is it possible to check this in?",
+      "range": {
+        "startLine": 191,
+        "startChar": 38,
+        "endLine": 191,
+        "endChar": 50
+      },
+      "revId": "2fce866c40c37fa56fc1a0f48e52dedbd185f796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
