@@ -32,7 +32,7 @@ SkCanvas* SkPictureRecorder::beginRecording(const SkRect& userCullRect,
     fFlags = recordFlags;
 
     if (bbhFactory) {
-        fBBH.reset((*bbhFactory)(cullRect));
+        fBBH.reset((*bbhFactory)());
         SkASSERT(fBBH.get());
     }
 
