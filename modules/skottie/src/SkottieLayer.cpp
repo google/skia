@@ -397,7 +397,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
 
         ascope->push_back(skstd::make_unique<MultiFrameAnimator>(asset_info->fAsset,
                                                                  image_node,
-                                                                 layer_info.fInPoint,
+                                                                 -layer_info.fInPoint,
                                                                  1 / fFrameRate));
     }
 
