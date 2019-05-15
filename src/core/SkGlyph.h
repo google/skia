@@ -175,6 +175,8 @@ public:
         return fPathData != nullptr && fPathData->fHasPath;
     }
 
+    bool pathGenFailed() const { return fPathData != nullptr && !fPathData->fHasPath; }
+
     int maxDimension() const {
         // width and height are only defined if a metrics call was made.
         SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
