@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53d7d6c5_bb3d3ba3",
+        "filename": "tools/win_lcid.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T13:33:45Z",
+      "side": 1,
+      "message": "This one\u0027s probably best \u003cstdio.h\u003e too, right?",
+      "revId": "1e225cbf9aba419f1645a446053c6fef10c7f58c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
