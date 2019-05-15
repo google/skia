@@ -54,7 +54,6 @@ type FeatureSet struct {
 	TestOnlyFunctions []string `json:"test_functions"`
 
 	Required bool `json:"required"`
-	EGLProc  bool `json:"egl_proc"`
 }
 
 // Requirement lists how we know if a function exists. Extension is the
@@ -126,7 +125,6 @@ func fillAssembleTemplate(template string, features []FeatureSet, getReqs Requir
 		if len(reqs) == 0 {
 			continue
 		}
-		isEGL := feature.EGLProc
 		// blocks holds all the if blocks generated - it will be joined with else
 		// after and appended to content
 		blocks := []string{}
@@ -150,13 +148,13 @@ func fillAssembleTemplate(template string, features []FeatureSet, getReqs Requir
 			// sort for determinism
 			sort.Strings(feature.Functions)
 			for _, function := range feature.Functions {
-				block = assembleFunction(block, ifExpr, function, isEGL, req)
+				block = assembleFunction(block, ifExpr, function, req)
 			}
 			sort.Strings(feature.TestOnlyFunctions)
 			if len(feature.TestOnlyFunctions) > 0 {
 				block += "#if GR_TEST_UTILS\n"
 				for _, function := range feature.TestOnlyFunctions {
-					block = assembleFunction(block, ifExpr, function, isEGL, req)
+					block = assembleFunction(block, ifExpr, function, req)
 				}
 				block += "#endif\n"
 			}
@@ -198,7 +196,7 @@ func fillAssembleTemplate(template string, features []FeatureSet, getReqs Requir
 // assembleFunction is a little helper that will add a function to the interface
 // using an appropriate macro (e.g. if the function is added)
 // with an extension.
-func assembleFunction(block, ifExpr, function string, isEGL bool, req Requirement) string {
+func assembleFunction(block, ifExpr, function string, req Requirement) string {
 	if ifExpr != "" {
 		// extra tab for being in an if statement
 		block += SPACER
@@ -213,9 +211,7 @@ func assembleFunction(block, ifExpr, function string, isEGL bool, req Requiremen
 	if req.SuffixOverride != nil {
 		suffix = *req.SuffixOverride
 	}
-	if isEGL {
-		block = addLine(block, fmt.Sprintf("GET_EGL_PROC_SUFFIX(%s, %s);", function, suffix))
-	} else if req.Extension == CORE_FEATURE || suffix == "" {
+	if req.Extension == CORE_FEATURE || suffix == "" {
 		block = addLine(block, fmt.Sprintf("GET_PROC(%s);", function))
 	} else if req.Extension != "" {
 		block = addLine(block, fmt.Sprintf("GET_PROC_SUFFIX(%s, %s);", function, suffix))
@@ -255,10 +251,9 @@ func requirementIfExpression(req Requirement, isLocal bool) string {
 // driveSuffix returns the suffix of the function associated with the given
 // extension.
 func deriveSuffix(ext string) string {
-	// Some extensions begin with GL_ or EGL_ and then have the actual
+	// Some extensions begin with GL_ and then have the actual
 	// extension like KHR, EXT etc.
 	ext = strings.TrimPrefix(ext, "GL_")
-	ext = strings.TrimPrefix(ext, "EGL_")
 	return strings.Split(ext, "_")[0]
 }
 
@@ -359,22 +354,14 @@ func functionCheck(feature FeatureSet, indentLevel int) string {
 		if in(function, feature.OptionalFunctions) {
 			continue
 		}
-		if feature.EGLProc {
-			checks = append(checks, "!fFunctions.fEGL"+function)
-		} else {
-			checks = append(checks, "!fFunctions.f"+function)
-		}
+		checks = append(checks, "!fFunctions.f"+function)
 	}
 	testOnly := []string{}
 	for _, function := range feature.TestOnlyFunctions {
 		if in(function, feature.OptionalFunctions) {
 			continue
 		}
-		if feature.EGLProc {
-			testOnly = append(testOnly, "!fFunctions.fEGL"+function)
-		} else {
-			testOnly = append(testOnly, "!fFunctions.f"+function)
-		}
+		testOnly = append(testOnly, "!fFunctions.f"+function)
 	}
 	for _, hcf := range feature.HardCodeFunctions {
 		checks = append(checks, "!fFunctions."+hcf.PtrName)
