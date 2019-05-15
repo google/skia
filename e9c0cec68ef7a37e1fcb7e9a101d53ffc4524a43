@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57c0d0bf_a81c6b27",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-15T02:29:43Z",
+      "side": 1,
+      "message": "Is there a typeface I could use in unit-tests for testing this case?",
+      "range": {
+        "startLine": 651,
+        "startChar": 16,
+        "endLine": 651,
+        "endChar": 53
+      },
+      "revId": "e9c0cec68ef7a37e1fcb7e9a101d53ffc4524a43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
