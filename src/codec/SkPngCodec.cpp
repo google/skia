@@ -325,7 +325,7 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo) {
 // Creation
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkPngCodec::IsPng(const char* buf, size_t bytesRead) {
+bool SkPngCodec::IsPng(const void* buf, size_t bytesRead) {
     return !png_sig_cmp((png_bytep) buf, (png_size_t)0, bytesRead);
 }
 

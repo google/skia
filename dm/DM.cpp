@@ -22,6 +22,10 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkTHash.h"
+#include "src/codec/SkIcoCodec.h"
+#include "src/codec/SkJpegCodec.h"
+#include "src/codec/SkPngCodec.h"
+#include "src/codec/SkWebpCodec.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkOSFile.h"
@@ -1384,6 +1388,11 @@ int main(int argc, char** argv) {
     android::ProcessState::self()->startThreadPool();
 #endif
     CommandLineFlags::Parse(argc, argv);
+
+    SkCodec::Register( SkIcoCodec::IsIco ,  SkIcoCodec::MakeFromStream);
+    SkCodec::Register(SkJpegCodec::IsJpeg, SkJpegCodec::MakeFromStream);
+    SkCodec::Register( SkPngCodec::IsPng ,  SkPngCodec::MakeFromStream);
+    SkCodec::Register(SkWebpCodec::IsWebp, SkWebpCodec::MakeFromStream);
 
     initializeEventTracingForTools();
 
