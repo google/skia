@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d28c8f1a_2291373c",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-15T13:43:40Z",
+      "side": 1,
+      "message": "There is no real notion of path generation failing. It is just a fact that some glyph don\u0027t have paths like emoji and bitmap-only glyphs. You can just use the call !hasPath() instead of making a new call.",
+      "range": {
+        "startLine": 178,
+        "startChar": 9,
+        "endLine": 178,
+        "endChar": 22
+      },
+      "revId": "6e26658c77b58e17a9e9cfbf4fb7662e1c8fbb7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7df5ad17_936f84da",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-15T13:43:40Z",
+      "side": 1,
+      "message": "Needs checking for fallback only has to happen when we have never seen the glyph before. The fallback processing will then lookup the glyph on a different strike and send that information. We don\u0027t need to process fallback every single time.\n\nPlease see CL for how I think prepareForDrawing should look:\nhttps://skia-review.googlesource.com/c/skia/+/213822",
+      "range": {
+        "startLine": 638,
+        "startChar": 13,
+        "endLine": 638,
+        "endChar": 26
+      },
+      "revId": "6e26658c77b58e17a9e9cfbf4fb7662e1c8fbb7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ae2f50f_0aa7e9c5",
+        "filename": "src/core/SkTypeface_remote.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-15T13:43:40Z",
+      "side": 1,
+      "message": "!cachedGlyph-\u003ehasPath()",
+      "range": {
+        "startLine": 85,
+        "startChar": 29,
+        "endLine": 85,
+        "endChar": 42
+      },
+      "revId": "6e26658c77b58e17a9e9cfbf4fb7662e1c8fbb7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
