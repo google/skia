@@ -1392,6 +1392,9 @@ int main(int argc, char** argv) {
 #endif
     CommandLineFlags::Parse(argc, argv);
 
+    // TODO(mtklein): remove after fixing weird iOS configuration in Google3.
+#if !defined(SK_BUILD_FOR_IOS)
+
     SkCodec::Register( SkIcoCodec::IsIco ,  SkIcoCodec::MakeFromStream);
     SkCodec::Register(SkJpegCodec::IsJpeg, SkJpegCodec::MakeFromStream);
     SkCodec::Register( SkPngCodec::IsPng ,  SkPngCodec::MakeFromStream);
@@ -1401,6 +1404,7 @@ int main(int argc, char** argv) {
     SkRegisterEncoder(SkEncodedImageFormat::kPNG ,  SkPngEncoder::Encode);
     SkRegisterEncoder(SkEncodedImageFormat::kWEBP, SkWebpEncoder::Encode);
 
+#endif
     initializeEventTracingForTools();
 
 #if !defined(SK_BUILD_FOR_GOOGLE3) && defined(SK_BUILD_FOR_IOS)
