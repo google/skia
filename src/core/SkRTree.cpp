@@ -7,8 +7,7 @@
 
 #include "src/core/SkRTree.h"
 
-SkRTree::SkRTree(SkScalar aspectRatio)
-    : fCount(0), fAspectRatio(isfinite(aspectRatio) ? aspectRatio : 1) {}
+SkRTree::SkRTree() : fCount(0) {}
 
 SkRect SkRTree::getRootBound() const {
     if (fCount) {
@@ -45,7 +44,7 @@ void SkRTree::insert(const SkRect boundsArray[], int N) {
             fRoot.fSubtree = n;
             fRoot.fBounds  = branches[0].fBounds;
         } else {
-            fNodes.setReserve(CountNodes(fCount, fAspectRatio));
+            fNodes.setReserve(CountNodes(fCount));
             fRoot = this->bulkLoad(&branches);
         }
     }
@@ -61,7 +60,7 @@ SkRTree::Node* SkRTree::allocateNodeAtLevel(uint16_t level) {
 }
 
 // This function parallels bulkLoad, but just counts how many nodes bulkLoad would allocate.
-int SkRTree::CountNodes(int branches, SkScalar aspectRatio) {
+int SkRTree::CountNodes(int branches) {
     if (branches == 1) {
         return 1;
     }
@@ -75,30 +74,26 @@ int SkRTree::CountNodes(int branches, SkScalar aspectRatio) {
             remainder = kMinChildren - remainder;
         }
     }
-    int numStrips = SkScalarCeilToInt(SkScalarSqrt(SkIntToScalar(numBranches) / aspectRatio));
-    int numTiles  = SkScalarCeilToInt(SkIntToScalar(numBranches) / SkIntToScalar(numStrips));
     int currentBranch = 0;
     int nodes = 0;
-    for (int i = 0; i < numStrips; ++i) {
-        for (int j = 0; j < numTiles && currentBranch < branches; ++j) {
-            int incrementBy = kMaxChildren;
-            if (remainder != 0) {
-                if (remainder <= kMaxChildren - kMinChildren) {
-                    incrementBy -= remainder;
-                    remainder = 0;
-                } else {
-                    incrementBy = kMinChildren;
-                    remainder -= kMaxChildren - kMinChildren;
-                }
-            }
-            nodes++;
-            currentBranch++;
-            for (int k = 1; k < incrementBy && currentBranch < branches; ++k) {
-                currentBranch++;
+    while (currentBranch < branches) {
+        int incrementBy = kMaxChildren;
+        if (remainder != 0) {
+            if (remainder <= kMaxChildren - kMinChildren) {
+                incrementBy -= remainder;
+                remainder = 0;
+            } else {
+                incrementBy = kMinChildren;
+                remainder -= kMaxChildren - kMinChildren;
             }
         }
+        nodes++;
+        currentBranch++;
+        for (int k = 1; k < incrementBy && currentBranch < branches; ++k) {
+            currentBranch++;
+        }
     }
-    return nodes + CountNodes(nodes, aspectRatio);
+    return nodes + CountNodes(nodes);
 }
 
 SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
@@ -123,40 +118,34 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
         }
     }
 
-    int numStrips = SkScalarCeilToInt(SkScalarSqrt(SkIntToScalar(numBranches) / fAspectRatio));
-    int numTiles  = SkScalarCeilToInt(SkIntToScalar(numBranches) / SkIntToScalar(numStrips));
     int currentBranch = 0;
-
-    for (int i = 0; i < numStrips; ++i) {
-        // Might be worth sorting by X here too.
-        for (int j = 0; j < numTiles && currentBranch < branches->count(); ++j) {
-            int incrementBy = kMaxChildren;
-            if (remainder != 0) {
-                // if need be, omit some nodes to make up for remainder
-                if (remainder <= kMaxChildren - kMinChildren) {
-                    incrementBy -= remainder;
-                    remainder = 0;
-                } else {
-                    incrementBy = kMinChildren;
-                    remainder -= kMaxChildren - kMinChildren;
-                }
+    while (currentBranch < branches->count()) {
+        int incrementBy = kMaxChildren;
+        if (remainder != 0) {
+            // if need be, omit some nodes to make up for remainder
+            if (remainder <= kMaxChildren - kMinChildren) {
+                incrementBy -= remainder;
+                remainder = 0;
+            } else {
+                incrementBy = kMinChildren;
+                remainder -= kMaxChildren - kMinChildren;
             }
-            Node* n = allocateNodeAtLevel(level);
-            n->fNumChildren = 1;
-            n->fChildren[0] = (*branches)[currentBranch];
-            Branch b;
-            b.fBounds = (*branches)[currentBranch].fBounds;
-            b.fSubtree = n;
-            ++currentBranch;
-            for (int k = 1; k < incrementBy && currentBranch < branches->count(); ++k) {
-                b.fBounds.join((*branches)[currentBranch].fBounds);
-                n->fChildren[k] = (*branches)[currentBranch];
-                ++n->fNumChildren;
-                ++currentBranch;
-            }
-            (*branches)[newBranches] = b;
-            ++newBranches;
         }
+        Node* n = allocateNodeAtLevel(level);
+        n->fNumChildren = 1;
+        n->fChildren[0] = (*branches)[currentBranch];
+        Branch b;
+        b.fBounds = (*branches)[currentBranch].fBounds;
+        b.fSubtree = n;
+        ++currentBranch;
+        for (int k = 1; k < incrementBy && currentBranch < branches->count(); ++k) {
+            b.fBounds.join((*branches)[currentBranch].fBounds);
+            n->fChildren[k] = (*branches)[currentBranch];
+            ++n->fNumChildren;
+            ++currentBranch;
+        }
+        (*branches)[newBranches] = b;
+        ++newBranches;
     }
     branches->setCount(newBranches);
     return this->bulkLoad(branches, level + 1);
