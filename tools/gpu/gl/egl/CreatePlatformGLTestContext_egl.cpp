@@ -8,6 +8,7 @@
 #include "tools/gpu/gl/GLTestContext.h"
 
 #define GL_GLEXT_PROTOTYPES
+
 #include <GLES2/gl2.h>
 
 #include <EGL/egl.h>
@@ -66,6 +67,9 @@ private:
     std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
+
+    PFNEGLCREATEIMAGEKHRPROC fEglCreateImageProc = nullptr;
+    PFNEGLDESTROYIMAGEKHRPROC fEglDestroyImageProc = nullptr;
 
     EGLContext fContext;
     EGLDisplay fDisplay;
@@ -207,6 +211,12 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
             this->destroyGLContext();
             continue;
         }
+        const char* extensions = eglQueryString(fDisplay, EGL_EXTENSIONS);
+        if (strstr(extensions, "EGL_KHR_image")) {
+            fEglCreateImageProc = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
+            fEglDestroyImageProc =
+                    (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
+        }
 
         this->init(std::move(gl), EGLFenceSync::MakeIfSupported(fDisplay));
         break;
@@ -240,19 +250,16 @@ void EGLGLTestContext::destroyGLContext() {
 }
 
 GrEGLImage EGLGLTestContext::texture2DToEGLImage(GrGLuint texID) const {
-    if (!this->gl()->hasExtension("EGL_KHR_gl_texture_2D_image")) {
+    if (!this->gl()->hasExtension("EGL_KHR_gl_texture_2D_image") || !fEglCreateImageProc) {
         return GR_EGL_NO_IMAGE;
     }
-    GrEGLImage img;
-    GrEGLint attribs[] = { GR_EGL_GL_TEXTURE_LEVEL, 0, GR_EGL_NONE };
+    EGLint attribs[] = { GR_EGL_GL_TEXTURE_LEVEL, 0, GR_EGL_NONE };
     GrEGLClientBuffer clientBuffer = reinterpret_cast<GrEGLClientBuffer>(texID);
-    GR_GL_CALL_RET(this->gl(), img,
-                   EGLCreateImage(fDisplay, fContext, GR_EGL_GL_TEXTURE_2D, clientBuffer, attribs));
-    return img;
+    return fEglCreateImageProc(fDisplay, fContext, GR_EGL_GL_TEXTURE_2D, clientBuffer, attribs);
 }
 
 void EGLGLTestContext::destroyEGLImage(GrEGLImage image) const {
-    GR_GL_CALL(this->gl(), EGLDestroyImage(fDisplay, image));
+    fEglDestroyImageProc(fDisplay, image);
 }
 
 GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
