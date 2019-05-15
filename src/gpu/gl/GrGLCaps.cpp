@@ -6,7 +6,7 @@
  */
 
 #include "include/gpu/GrContextOptions.h"
-#include "include/private/SkTSearch.h"
+#include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
 #include "src/gpu/GrRenderTargetProxyPriv.h"
 #include "src/gpu/GrShaderCaps.h"

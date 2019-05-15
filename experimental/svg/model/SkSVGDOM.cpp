@@ -28,9 +28,9 @@
 #include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTSearch.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkParsePath.h"
+#include "src/core/SkTSearch.h"
 #include "src/xml/SkDOM.h"
 
 namespace {

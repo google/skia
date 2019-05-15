@@ -1838,7 +1838,7 @@ bool SkTypeface_FreeType::Scanner::recognizedFont(SkStreamAsset* stream, int* nu
     return true;
 }
 
-#include "include/private/SkTSearch.h"
+#include "src/core/SkTSearch.h"
 bool SkTypeface_FreeType::Scanner::scanFont(
     SkStreamAsset* stream, int ttcIndex,
     SkString* name, SkFontStyle* style, bool* isFixedPitch, AxisDefinitions* axes) const

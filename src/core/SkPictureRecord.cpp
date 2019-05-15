@@ -10,12 +10,12 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkTextBlob.h"
-#include "include/private/SkTSearch.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkMatrixPriv.h"
+#include "src/core/SkTSearch.h"
 #include "src/image/SkImage_Base.h"
 #include "src/utils/SkPatchUtils.h"
 
