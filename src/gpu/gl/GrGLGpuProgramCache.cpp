@@ -7,7 +7,7 @@
 
 #include "src/gpu/gl/GrGLGpu.h"
 
-#include "include/private/SkTSearch.h"
+#include "src/core/SkTSearch.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/gl/GrGLPathRendering.h"
