@@ -8,17 +8,20 @@
 #ifndef SkDeferredDisplayList_DEFINED
 #define SkDeferredDisplayList_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceCharacterization.h"
-
-#if SK_SUPPORT_GPU
-#include "include/private/GrCCPerOpListPaths.h"
-#include "include/private/GrOpList.h"
-
-#include <map>
-#endif
+#include "include/core/SkTypes.h"
 
 class SkDeferredDisplayListPriv;
-class SkSurface;
+
+#if SK_SUPPORT_GPU
+#include "include/private/SkTArray.h"
+#include <map>
+class GrOpList;
+class GrRenderTargetProxy;
+struct GrCCPerOpListPaths;
+#endif
+
 /*
  * This class contains pre-processed gpu operations that can be replayed into
  * an SkSurface via draw(SkDeferredDisplayList*).
