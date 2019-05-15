@@ -126,6 +126,7 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
 bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* iter,
                                        Expression* lvalue) {
     switch (lvalue->fKind) {
+        case Expression::kExternalValue_Kind: // fall through
         case Expression::kVariableReference_Kind:
             return true;
         case Expression::kSwizzle_Kind:
@@ -387,12 +388,13 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kExpression_Kind,
                                                          constantPropagate, e, nullptr });
             break;
-        case Expression::kAppendStage_Kind:  // fall through
-        case Expression::kBoolLiteral_Kind:  // fall through
-        case Expression::kFloatLiteral_Kind: // fall through
-        case Expression::kIntLiteral_Kind:   // fall through
+        case Expression::kAppendStage_Kind:   // fall through
+        case Expression::kBoolLiteral_Kind:   // fall through
+        case Expression::kExternalValue_Kind: // fall through
+        case Expression::kFloatLiteral_Kind:  // fall through
+        case Expression::kIntLiteral_Kind:    // fall through
         case Expression::kNullLiteral_Kind:   // fall through
-        case Expression::kSetting_Kind:      // fall through
+        case Expression::kSetting_Kind:       // fall through
         case Expression::kVariableReference_Kind:
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kExpression_Kind,
                                                          constantPropagate, e, nullptr });
@@ -434,6 +436,7 @@ void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
         case Expression::kSwizzle_Kind:
             this->addLValue(cfg, &((Swizzle&) **e).fBase);
             break;
+        case Expression::kExternalValue_Kind: // fall through
         case Expression::kVariableReference_Kind:
             break;
         case Expression::kTernary_Kind:

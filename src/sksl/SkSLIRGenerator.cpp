@@ -28,6 +28,7 @@
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLExternalValueReference.h"
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -307,12 +308,18 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
                     count = -1;
                     name += "[]";
                 }
-                type = new Type(name, Type::kArray_Kind, *type, (int) count);
-                fSymbolTable->takeOwnership((Type*) type);
+                type = (Type*) fSymbolTable->takeOwnership(
+                                                 std::unique_ptr<Symbol>(new Type(name,
+                                                                                  Type::kArray_Kind,
+                                                                                  *type,
+                                                                                  (int) count)));
                 sizes.push_back(std::move(size));
             } else {
-                type = new Type(type->name() + "[]", Type::kArray_Kind, *type, -1);
-                fSymbolTable->takeOwnership((Type*) type);
+                type = (Type*) fSymbolTable->takeOwnership(
+                                               std::unique_ptr<Symbol>(new Type(type->name() + "[]",
+                                                                                Type::kArray_Kind,
+                                                                                *type,
+                                                                                -1)));
                 sizes.push_back(nullptr);
             }
         }
@@ -699,14 +706,19 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
         for (int j = (int) param->fSizes.size() - 1; j >= 0; j--) {
             int size = param->fSizes[j];
             String name = type->name() + "[" + to_string(size) + "]";
-            Type* newType = new Type(std::move(name), Type::kArray_Kind, *type, size);
-            fSymbolTable->takeOwnership(newType);
-            type = newType;
+            type = (Type*) fSymbolTable->takeOwnership(
+                                                 std::unique_ptr<Symbol>(new Type(std::move(name),
+                                                                                  Type::kArray_Kind,
+                                                                                  *type,
+                                                                                  size)));
         }
         StringFragment name = param->fName;
-        Variable* var = new Variable(param->fOffset, param->fModifiers, name, *type,
-                                     Variable::kParameter_Storage);
-        fSymbolTable->takeOwnership(var);
+        Variable* var = (Variable*) fSymbolTable->takeOwnership(
+                               std::unique_ptr<Symbol>(new Variable(param->fOffset,
+                                                                    param->fModifiers,
+                                                                    name,
+                                                                    *type,
+                                                                    Variable::kParameter_Storage)));
         parameters.push_back(var);
     }
 
@@ -904,8 +916,9 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
         }
     }
     this->popSymbolTable();
-    Type* type = new Type(intf.fOffset, intf.fTypeName, fields);
-    old->takeOwnership(type);
+    Type* type = (Type*) old->takeOwnership(std::unique_ptr<Symbol>(new Type(intf.fOffset,
+                                                                             intf.fTypeName,
+                                                                             fields)));
     std::vector<std::unique_ptr<Expression>> sizes;
     for (const auto& size : intf.fSizes) {
         if (size) {
@@ -925,22 +938,30 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
                 count = -1;
                 name += "[]";
             }
-            type = new Type(name, Type::kArray_Kind, *type, (int) count);
-            symbols->takeOwnership((Type*) type);
+            type = (Type*) symbols->takeOwnership(std::unique_ptr<Symbol>(
+                                                                         new Type(name,
+                                                                                  Type::kArray_Kind,
+                                                                                  *type,
+                                                                                  (int) count)));
             sizes.push_back(std::move(converted));
         } else {
-            type = new Type(type->name() + "[]", Type::kArray_Kind, *type, -1);
-            symbols->takeOwnership((Type*) type);
+            type = (Type*) symbols->takeOwnership(std::unique_ptr<Symbol>(
+                                                                       new Type(type->name() + "[]",
+                                                                                Type::kArray_Kind,
+                                                                                *type,
+                                                                                -1)));
             sizes.push_back(nullptr);
         }
     }
-    Variable* var = new Variable(intf.fOffset, intf.fModifiers,
-                                 intf.fInstanceName.fLength ? intf.fInstanceName : intf.fTypeName,
-                                 *type, Variable::kGlobal_Storage);
+    Variable* var = (Variable*) old->takeOwnership(std::unique_ptr<Symbol>(
+                      new Variable(intf.fOffset,
+                                   intf.fModifiers,
+                                   intf.fInstanceName.fLength ? intf.fInstanceName : intf.fTypeName,
+                                   *type,
+                                   Variable::kGlobal_Storage)));
     if (foundRTAdjust) {
         fRTAdjustInterfaceBlock = var;
     }
-    old->takeOwnership(var);
     if (intf.fInstanceName.fLength) {
         old->addWithoutOwnership(intf.fInstanceName, var);
     } else {
@@ -1001,7 +1022,7 @@ void IRGenerator::convertEnum(const ASTEnum& e) {
                                                           value.get()));
         variables.push_back(var.get());
         symbols->add(e.fNames[i], std::move(var));
-        symbols->takeOwnership(value.release());
+        symbols->takeOwnership(std::move(value));
     }
     fProgramElements->push_back(std::unique_ptr<ProgramElement>(new Enum(e.fOffset, e.fTypeName,
                                                                          symbols)));
@@ -1017,9 +1038,10 @@ const Type* IRGenerator::convertType(const ASTType& type) {
                     fErrors.error(type.fOffset, "type '" + type.fName + "' may not be used in "
                                                 "an array");
                 }
-                result = new Type(String(result->fName) + "?", Type::kNullable_Kind,
-                                  (const Type&) *result);
-                fSymbolTable->takeOwnership((Type*) result);
+                result = fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
+                                                               new Type(String(result->fName) + "?",
+                                                                        Type::kNullable_Kind,
+                                                                        (const Type&) *result)));
             } else {
                 fErrors.error(type.fOffset, "type '" + type.fName + "' may not be nullable");
             }
@@ -1031,8 +1053,11 @@ const Type* IRGenerator::convertType(const ASTType& type) {
                 name += to_string(size);
             }
             name += "]";
-            result = new Type(name, Type::kArray_Kind, (const Type&) *result, size);
-            fSymbolTable->takeOwnership((Type*) result);
+            result = (Type*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
+                                                                     new Type(name,
+                                                                              Type::kArray_Kind,
+                                                                              (const Type&) *result,
+                                                                              size)));
         }
         return (const Type*) result;
     }
@@ -1129,6 +1154,11 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTIdentifier& 
             const Type* t = (const Type*) result;
             return std::unique_ptr<TypeReference>(new TypeReference(fContext, identifier.fOffset,
                                                                     *t));
+        }
+        case Symbol::kExternal_Kind: {
+            ExternalValue* r = (ExternalValue*) result;
+            return std::unique_ptr<ExternalValueReference>(
+                                                 new ExternalValueReference(identifier.fOffset, r));
         }
         default:
             ABORT("unsupported symbol type %d\n", result->fKind);
@@ -1950,9 +1980,11 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
         if (index.fKind == ASTExpression::kInt_Kind) {
             const Type& oldType = ((TypeReference&) *base).fValue;
             int64_t size = ((const ASTIntLiteral&) index).fValue;
-            Type* newType = new Type(oldType.name() + "[" + to_string(size) + "]",
-                                     Type::kArray_Kind, oldType, size);
-            fSymbolTable->takeOwnership(newType);
+            Type* newType = (Type*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
+                                              new Type(oldType.name() + "[" + to_string(size) + "]",
+                                                       Type::kArray_Kind,
+                                                       oldType,
+                                                       size)));
             return std::unique_ptr<Expression>(new TypeReference(fContext, base->fOffset,
                                                                  *newType));
 
@@ -1983,6 +2015,16 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
 
 std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression> base,
                                                       StringFragment field) {
+    if (base->fKind == Expression::kExternalValue_Kind) {
+        ExternalValue& ev = *((ExternalValueReference&) *base).fValue;
+        ExternalValue* result = ev.getChild(String(field).c_str());
+        if (!result) {
+            fErrors.error(base->fOffset, "external value does not have a child named '" + field +
+                                         "'");
+            return nullptr;
+        }
+        return std::unique_ptr<Expression>(new ExternalValueReference(base->fOffset, result));
+    }
     auto fields = base->fType.fields();
     for (size_t i = 0; i < fields.size(); i++) {
         if (fields[i].fName == field) {
@@ -2198,9 +2240,11 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
                 return this->convertIndex(std::move(base), *expr);
             } else if (base->fKind == Expression::kTypeReference_Kind) {
                 const Type& oldType = ((TypeReference&) *base).fValue;
-                Type* newType = new Type(oldType.name() + "[]", Type::kArray_Kind, oldType,
-                                         -1);
-                fSymbolTable->takeOwnership(newType);
+                Type* newType = (Type*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
+                                                                     new Type(oldType.name() + "[]",
+                                                                              Type::kArray_Kind,
+                                                                              oldType,
+                                                                              -1)));
                 return std::unique_ptr<Expression>(new TypeReference(fContext, base->fOffset,
                                                                      *newType));
             } else {
@@ -2236,6 +2280,9 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
             if (base->fKind == Expression::kTypeReference_Kind) {
                 return this->convertTypeField(base->fOffset, ((TypeReference&) *base).fValue,
                                               field);
+            }
+            if (base->fKind == Expression::kExternalValue_Kind) {
+                return this->convertField(std::move(base), field);
             }
             switch (base->fType.kind()) {
                 case Type::kVector_Kind:
@@ -2333,6 +2380,14 @@ void IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind 
             TernaryExpression& t = (TernaryExpression&) expr;
             this->setRefKind(*t.fIfTrue, kind);
             this->setRefKind(*t.fIfFalse, kind);
+            break;
+        }
+        case Expression::kExternalValue_Kind: {
+            const ExternalValue& v = *((ExternalValueReference&) expr).fValue;
+            if (!v.canWrite()) {
+                fErrors.error(expr.fOffset,
+                              "cannot modify immutable external value '" + v.fName + "'");
+            }
             break;
         }
         default:

@@ -1792,12 +1792,12 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             Layout layout(0, -1, -1, 1, -1, -1, -1, -1, Layout::Format::kUnspecified,
                           Layout::kUnspecified_Primitive, -1, -1, "", Layout::kNo_Key,
                           Layout::CType::kDefault);
-            Variable* intfVar = new Variable(-1,
-                                             Modifiers(layout, Modifiers::kUniform_Flag),
-                                             name,
-                                             intfStruct,
-                                             Variable::kGlobal_Storage);
-            fSynthetics.takeOwnership(intfVar);
+            Variable* intfVar = (Variable*) fSynthetics.takeOwnership(std::unique_ptr<Symbol>(
+                                           new Variable(-1,
+                                                        Modifiers(layout, Modifiers::kUniform_Flag),
+                                                        name,
+                                                        intfStruct,
+                                                        Variable::kGlobal_Storage)));
             InterfaceBlock intf(-1, intfVar, name, String(""),
                                 std::vector<std::unique_ptr<Expression>>(), st);
             fRTHeightStructId = this->writeInterfaceBlock(intf);

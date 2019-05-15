@@ -37,9 +37,9 @@ public:
 
     void addWithoutOwnership(StringFragment name, const Symbol* symbol);
 
-    Symbol* takeOwnership(Symbol* s);
+    Symbol* takeOwnership(std::unique_ptr<Symbol> s);
 
-    IRNode* takeOwnership(IRNode* n);
+    IRNode* takeOwnership(std::unique_ptr<IRNode> n);
 
     void markAllFunctionsBuiltin();
 
