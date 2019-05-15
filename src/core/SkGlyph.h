@@ -175,6 +175,8 @@ public:
         return fPathData != nullptr && fPathData->fHasPath;
     }
 
+    bool pathGenFailed() const { return fPathData != nullptr && fPathData->fFailed; }
+
     int maxDimension() const {
         // width and height are only defined if a metrics call was made.
         SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
@@ -229,6 +231,7 @@ private:
         Intercept* fIntercept{nullptr};
         SkPath     fPath;
         bool       fHasPath{false};
+        bool       fFailed{false};
     };
 
     // TODO(herb) remove friend statement after SkStrike cleanup.
