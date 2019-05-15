@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a674f409_a0ddf749",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-15T03:24:36Z",
+      "side": 1,
+      "message": "I updated the pathGenFailed to check the correct condition.",
+      "parentUuid": "e94c3a02_54881eef",
+      "range": {
+        "startLine": 234,
+        "startChar": 19,
+        "endLine": 234,
+        "endChar": 26
+      },
+      "revId": "e9c0cec68ef7a37e1fcb7e9a101d53ffc4524a43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "13028240_de764fc8",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "e9c0cec68ef7a37e1fcb7e9a101d53ffc4524a43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02306b4c_fc140784",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-15T03:24:36Z",
+      "side": 1,
+      "message": "Yup, needed some formatting. Done.",
+      "parentUuid": "13028240_de764fc8",
+      "range": {
+        "startLine": 641,
+        "startChar": 11,
+        "endLine": 641,
+        "endChar": 14
+      },
+      "revId": "e9c0cec68ef7a37e1fcb7e9a101d53ffc4524a43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -95,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "37e49e59_c5bb8fe4",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-15T03:24:36Z",
+      "side": 1,
+      "message": "Cool. +bungeman for the typeface question and FYI in case this is related to a bug you\u0027re investigating.",
+      "parentUuid": "ef697ca0_5a43dfa1",
+      "range": {
+        "startLine": 651,
+        "startChar": 16,
+        "endLine": 651,
+        "endChar": 53
+      },
+      "revId": "e9c0cec68ef7a37e1fcb7e9a101d53ffc4524a43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a4807e1f_8f131120",
         "filename": "src/core/SkStrike.cpp",
         "patchSetId": 5
@@ -115,6 +187,30 @@
       "revId": "e9c0cec68ef7a37e1fcb7e9a101d53ffc4524a43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f49681c_d384986c",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-15T03:24:36Z",
+      "side": 1,
+      "message": "I didn\u0027t realize this state of path request failure was already being stored on SkGlyph this way. Done.",
+      "parentUuid": "a4807e1f_8f131120",
+      "range": {
+        "startLine": 191,
+        "startChar": 30,
+        "endLine": 191,
+        "endChar": 37
+      },
+      "revId": "e9c0cec68ef7a37e1fcb7e9a101d53ffc4524a43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
