@@ -540,6 +540,19 @@
   },
 
   {
+    "GL":    [{"ext": "EGL_KHR_image"},
+              {"ext": "EGL_KHR_image_base"}],
+    "GLES":  [{"ext": "EGL_KHR_image"},
+              {"ext": "EGL_KHR_image_base"}],
+    "WebGL": null,
+
+    "functions": [
+      "CreateImage", "DestroyImage",
+    ],
+    "egl_proc": true
+  },
+
+  {
     "GL":    [{"min_version": [3, 2], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_sync"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},

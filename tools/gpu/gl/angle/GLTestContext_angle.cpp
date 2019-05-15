@@ -296,15 +296,21 @@ GrEGLImage ANGLEGLContext::texture2DToEGLImage(GrGLuint texID) const {
     if (!this->gl()->hasExtension("EGL_KHR_gl_texture_2D_image")) {
         return GR_EGL_NO_IMAGE;
     }
-    EGLAttrib attribs[] = { GR_EGL_GL_TEXTURE_LEVEL, 0,
-                            GR_EGL_IMAGE_PRESERVED, GR_EGL_TRUE,
-                            GR_EGL_NONE };
+    GrEGLImage img;
+    GrEGLint attribs[] = { GR_EGL_GL_TEXTURE_LEVEL, 0,
+                           GR_EGL_IMAGE_PRESERVED, GR_EGL_TRUE,
+                           GR_EGL_NONE };
     // 64 bit cast is to shut Visual C++ up about casting 32 bit value to a pointer.
     GrEGLClientBuffer clientBuffer = reinterpret_cast<GrEGLClientBuffer>((uint64_t)texID);
-    return eglCreateImage(fDisplay, fContext, GR_EGL_GL_TEXTURE_2D, clientBuffer, attribs);
+    GR_GL_CALL_RET(this->gl(), img,
+                   EGLCreateImage(fDisplay, fContext, GR_EGL_GL_TEXTURE_2D, clientBuffer,
+                                  attribs));
+    return img;
 }
 
-void ANGLEGLContext::destroyEGLImage(GrEGLImage image) const { eglDestroyImage(fDisplay, image); }
+void ANGLEGLContext::destroyEGLImage(GrEGLImage image) const {
+    GR_GL_CALL(this->gl(), EGLDestroyImage(fDisplay, image));
+}
 
 GrGLuint ANGLEGLContext::eglImageToExternalTexture(GrEGLImage image) const {
     GrGLClearErr(this->gl());
