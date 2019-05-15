@@ -279,7 +279,13 @@ public:
             // We've already been abandoned.
             return;
         }
-        GR_GL_CALL(fGpu->glInterface(), DeleteSamplers(kNumSamplers, fSamplers));
+        for (GrGLuint sampler : fSamplers) {
+            // The spec states that "zero" values should be silently ignored, however they still
+            // trigger GL errors on some NVIDIA platforms.
+            if (sampler) {
+                GR_GL_CALL(fGpu->glInterface(), DeleteSamplers(1, &sampler));
+            }
+        }
     }
 
     void bindSampler(int unitIdx, const GrSamplerState& state) {
