@@ -80,6 +80,22 @@ void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
 }
 
 bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
+    if (fCache) {
+        if (const auto* cachedGlyph = fCache->getRawGlyphByID(glyphID)) {
+            switch (cachedGlyph->getPathState()) {
+                case SkGlyph::PathState::kNotQueried:
+                    // The renderer did not send the requisite path data. This is the only cache
+                    // miss case.
+                    break;
+                case SkGlyph::PathState::kNoPath:
+                    return false;
+                case SkGlyph::PathState::kHasPath:
+                    *path = *cachedGlyph->path();
+                    return true;
+            }
+        }
+    }
+
     TRACE_EVENT1("skia", "generatePath", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
         SkDebugf("GlyphCacheMiss generatePath: %s\n", this->getRec().dump().c_str());
