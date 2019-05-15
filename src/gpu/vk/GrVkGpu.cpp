@@ -426,7 +426,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
         return false;
     }
 
-    SkASSERT(!GrPixelConfigIsCompressed(vkTex->config()));
+    SkASSERT(!GrVkFormatIsCompressed(vkTex->imageFormat()));
     bool success = false;
     bool linearTiling = vkTex->isLinearTiled();
     if (linearTiling) {
@@ -457,9 +457,6 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
 bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
                                  GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
                                  size_t bufferOffset, size_t rowBytes) {
-    // Can't transfer compressed data
-    SkASSERT(!GrPixelConfigIsCompressed(texture->config()));
-
     // Vulkan only supports 4-byte aligned offsets
     if (SkToBool(bufferOffset & 0x2)) {
         return false;
@@ -468,6 +465,10 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     if (!vkTex) {
         return false;
     }
+
+    // Can't transfer compressed data
+    SkASSERT(!GrVkFormatIsCompressed(vkTex->imageFormat()));
+
     GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer);
     if (!vkBuffer) {
         return false;
@@ -922,7 +923,7 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int w
 
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
     individualMipOffsets.push_back(0);
-    size_t combinedBufferSize = GrCompressedFormatDataSize(tex->config(), width, height);
+    size_t combinedBufferSize = GrVkFormatCompressedDataSize(tex->imageFormat(), width, height);
     int currentWidth = width;
     int currentHeight = height;
     if (!texels[0].fPixels) {
@@ -936,7 +937,7 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int w
         currentHeight = SkTMax(1, currentHeight / 2);
 
         if (texels[currentMipLevel].fPixels) {
-            const size_t dataSize = GrCompressedFormatDataSize(tex->config(), currentWidth,
+            const size_t dataSize = GrVkFormatCompressedDataSize(tex->imageFormat(), currentWidth,
                                                                currentHeight);
             individualMipOffsets.push_back(combinedBufferSize);
             combinedBufferSize += dataSize;
@@ -972,8 +973,8 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int w
             SkASSERT(currentHeight == layerHeight);
             SkASSERT(0 == uploadLeft && 0 == uploadTop);
 
-            const size_t dataSize = GrCompressedFormatDataSize(tex->config(), currentWidth,
-                                                               currentHeight);
+            const size_t dataSize = GrVkFormatCompressedDataSize(tex->imageFormat(), currentWidth,
+                                                                 currentHeight);
 
             // copy data into the buffer, skipping the trailing bytes
             char* dst = buffer + individualMipOffsets[currentMipLevel];
@@ -1079,7 +1080,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
         return nullptr;
     }
 
-    bool isCompressed = GrPixelConfigIsCompressed(desc.fConfig);
+    bool isCompressed = GrVkFormatIsCompressed(tex->imageFormat());
     auto colorType = GrPixelConfigToColorType(desc.fConfig);
     if (mipLevelCount) {
         bool success;
@@ -1481,7 +1482,7 @@ bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc
     return true;
 }
 
-size_t VkBytesPerPixel(VkFormat vkFormat) {
+size_t VkBytesPerFormat(VkFormat vkFormat) {
     switch (vkFormat) {
         case VK_FORMAT_R8_UNORM:
             return 1;
@@ -1523,13 +1524,13 @@ size_t VkBytesPerPixel(VkFormat vkFormat) {
 }
 
 #if GR_TEST_UTILS
-static size_t compute_combined_buffer_size(GrPixelConfig config, size_t bpp, int w, int h,
+static size_t compute_combined_buffer_size(VkFormat format, size_t bpp, int w, int h,
                                            SkTArray<size_t>* individualMipOffsets,
                                            uint32_t mipLevels) {
 
     size_t combinedBufferSize = w * bpp * h;
-    if (GrPixelConfigIsCompressed(config)) {
-        combinedBufferSize = GrCompressedFormatDataSize(config, w, h);
+    if (GrVkFormatIsCompressed(format)) {
+        combinedBufferSize = GrVkFormatCompressedDataSize(format, w, h);
     }
 
     int currentWidth = w;
@@ -1545,8 +1546,8 @@ static size_t compute_combined_buffer_size(GrPixelConfig config, size_t bpp, int
         currentHeight = SkTMax(1, currentHeight / 2);
 
         size_t trimmedSize;
-        if (GrPixelConfigIsCompressed(config)) {
-            trimmedSize = GrCompressedFormatDataSize(config, currentWidth, currentHeight);
+        if (GrVkFormatIsCompressed(format)) {
+            trimmedSize = GrVkFormatCompressedDataSize(format, currentWidth, currentHeight);
         } else {
             trimmedSize = currentWidth * bpp * currentHeight;
         }
@@ -1672,7 +1673,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     err = VK_CALL(BeginCommandBuffer(cmdBuffer, &cmdBufferBeginInfo));
     SkASSERT(!err);
 
-    size_t bpp = VkBytesPerPixel(vkFormat);
+    size_t bpp = VkBytesPerFormat(vkFormat);
     SkASSERT(w && h);
 
     const size_t trimRowBytes = w * bpp;
@@ -1683,7 +1684,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     SkTArray<size_t> individualMipOffsets(mipLevels);
     individualMipOffsets.push_back(0);
 
-    size_t combinedBufferSize = compute_combined_buffer_size(config, bpp, w, h,
+    size_t combinedBufferSize = compute_combined_buffer_size(vkFormat, bpp, w, h,
                                                              &individualMipOffsets, mipLevels);
 
     VkBufferCreateInfo bufInfo;
@@ -1721,8 +1722,8 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         SkASSERT(0 == currentMipLevel || !srcData);
         size_t bufferOffset = individualMipOffsets[currentMipLevel];
         bool result;
-        if (GrPixelConfigIsCompressed(config)) {
-            size_t levelSize = GrCompressedFormatDataSize(config, currentWidth, currentHeight);
+        if (GrVkFormatIsCompressed(vkFormat)) {
+            size_t levelSize = GrVkFormatCompressedDataSize(vkFormat, currentWidth, currentHeight);
             size_t currentRowBytes = levelSize / currentHeight;
             result = copy_testing_data(this, srcData, bufferAlloc, bufferOffset, currentRowBytes,
                                        currentRowBytes, currentRowBytes, currentHeight);

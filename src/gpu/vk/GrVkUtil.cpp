@@ -256,3 +256,31 @@ bool GrInstallVkShaderModule(const GrVkGpu* gpu,
 
     return true;
 }
+
+bool GrVkFormatIsCompressed(VkFormat vkFormat) {
+    switch (vkFormat) {
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+            return true;
+        default:
+            return false;
+    }
+    SK_ABORT("Invalid format");
+    return false;
+}
+
+size_t GrVkFormatCompressedDataSize(VkFormat format, int width, int height) {
+    SkASSERT(GrVkFormatIsCompressed(format));
+
+    switch (format) {
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+            SkASSERT((width & 3) == 0);
+            SkASSERT((height & 3) == 0);
+            return (width >> 2) * (height >> 2) * 8;
+        default:
+            SK_ABORT("Unknown compressed format");
+            return 4 * width * height;
+    }
+
+    SK_ABORT("Invalid format");
+    return 4 * width * height;
+}
