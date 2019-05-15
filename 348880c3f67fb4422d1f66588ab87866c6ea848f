@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a78fd11_64458a47",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T13:40:18Z",
+      "side": 0,
+      "message": "Old tools/git-sync-deps state file?",
+      "revId": "348880c3f67fb4422d1f66588ab87866c6ea848f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abde6c39_9e74fa81",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T13:40:18Z",
+      "side": 0,
+      "message": "Can\u0027t be relevant any more.",
+      "revId": "348880c3f67fb4422d1f66588ab87866c6ea848f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91cd4b06_9bb8b40b",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T13:40:18Z",
+      "side": 0,
+      "message": "Moved down with other DEPS\u0027d things.",
+      "revId": "348880c3f67fb4422d1f66588ab87866c6ea848f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68477345_69f4db59",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T13:40:18Z",
+      "side": 0,
+      "message": "Can\u0027t be relevant?",
+      "revId": "348880c3f67fb4422d1f66588ab87866c6ea848f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53101da7_272e5b28",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T13:40:18Z",
+      "side": 0,
+      "message": "Moved down with other DEPS\u0027d things.",
+      "revId": "348880c3f67fb4422d1f66588ab87866c6ea848f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d0392a0_187deba8",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T13:40:18Z",
+      "side": 0,
+      "message": "Moot?",
+      "revId": "348880c3f67fb4422d1f66588ab87866c6ea848f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d982fe04_87097e82",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T13:40:18Z",
+      "side": 0,
+      "message": "No longer DEPS\u0027d.",
+      "revId": "348880c3f67fb4422d1f66588ab87866c6ea848f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3883d5e1_fa1d537e",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T13:40:18Z",
+      "side": 0,
+      "message": "No longer DEPS\u0027d.",
+      "revId": "348880c3f67fb4422d1f66588ab87866c6ea848f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7551af5c_7ee26957",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T13:40:18Z",
+      "side": 0,
+      "message": "No longer DEPS\u0027d.",
+      "revId": "348880c3f67fb4422d1f66588ab87866c6ea848f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17112009_dd30d3fb",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T13:40:18Z",
+      "side": 0,
+      "message": "No longer pulled with bin/fetch-clang-win.",
+      "revId": "348880c3f67fb4422d1f66588ab87866c6ea848f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82f159dd_ed8dd0cb",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T13:40:18Z",
+      "side": 0,
+      "message": "???",
+      "revId": "348880c3f67fb4422d1f66588ab87866c6ea848f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
