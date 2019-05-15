@@ -242,7 +242,9 @@ struct StackFrame {
 void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Value* outReturn) {
     const uint8_t* code = f.fCode.data();
     const uint8_t* ip = code;
-    memcpy(stack, args, f.fParameterCount * sizeof(Value));
+    if (f.fParameterCount) {
+        memcpy(stack, args, f.fParameterCount * sizeof(Value));
+    }
     Value* sp = stack + f.fParameterCount + f.fLocalCount - 1;
     std::vector<StackFrame> frames;
 
