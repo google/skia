@@ -19,6 +19,152 @@
 #include "src/core/SkCanvasPriv.h"
 #include "tools/ToolUtils.h"
 
+extern "C" {
+#include "libavcodec/avcodec.h"
+#include "libavformat/avformat.h"
+#include "libavutil/pixdesc.h"
+}
+
+#include "include/core/SkImage.h"
+#include "include/core/SkYUVAIndex.h"
+
+static SkCanvas* gCanvas;
+
+template <typename T> class CPtr {
+public:
+    CPtr(T* value, void (*deleter)(T*)) : fV(value), fD(deleter) {}
+    ~CPtr() { if (fV) fD(fV); }
+
+    T* get() const { return fV; }
+    T* operator->() const { return fV; }
+
+private:
+    T* fV;
+    void (*fD)(T*);
+};
+
+static void check_err(int err) {
+    if (err >= 0) return;
+
+    char errbuf[128];
+    const char *errbuf_ptr = errbuf;
+
+    if (av_strerror(err, errbuf, sizeof(errbuf)) < 0) {
+        errbuf_ptr = strerror(AVUNERROR(err));
+    }
+    SkDebugf("%s\n", errbuf_ptr);
+    SkASSERT(err >= 0);
+}
+
+static void test_yuv_420(int w, int h, uint8_t* const data[], int const strides[]) {
+    SkImageInfo info[3];
+    info[0] = SkImageInfo::Make(w, h, kGray_8_SkColorType, kOpaque_SkAlphaType);
+    info[1] = SkImageInfo::Make(w/2, h/2, kGray_8_SkColorType, kOpaque_SkAlphaType);
+    info[2] = SkImageInfo::Make(w/2, h/2, kGray_8_SkColorType, kOpaque_SkAlphaType);
+
+    SkPixmap pm[4];
+    for (int i = 0; i < 3; ++i) {
+        pm[i] = SkPixmap(info[i], data[i], strides[i]);
+    }
+    pm[3].reset();  // no alpha
+
+    SkYUVAIndex indices[4];
+    indices[SkYUVAIndex::kY_Index] = {0, SkColorChannel::kR};
+    indices[SkYUVAIndex::kU_Index] = {1, SkColorChannel::kR};
+    indices[SkYUVAIndex::kV_Index] = {2, SkColorChannel::kR};
+    indices[SkYUVAIndex::kA_Index] = {-1, SkColorChannel::kR};
+
+    GrContext* gr = gCanvas->getGrContext();
+    if (gr) {
+        auto img = SkImage::MakeFromYUVAPixmaps(gr, kRec709_SkYUVColorSpace, pm, indices, {w, h},
+                                                kTopLeft_GrSurfaceOrigin, false, false);
+        gCanvas->drawImage(img, 50, 50, nullptr);
+    }
+}
+
+static void test_frame(const AVFrame* frame) {
+    SkDebugf("frame %d x %d format=%d %s\n", frame->width, frame->height,
+             frame->format, av_get_pix_fmt_name((AVPixelFormat)frame->format));
+
+    switch (frame->format) {
+        case AV_PIX_FMT_YUV420P:
+            test_yuv_420(frame->width, frame->height, frame->data, frame->linesize);
+            break;
+        default:
+            SkDebugf("unsupported format (for now)\n");
+    }
+}
+
+static void test_decoder(AVFormatContext* fmt, int stream_index, AVCodecContext* dec, AVStream* strm) {
+    AVFrame* frame = av_frame_alloc();
+    SkASSERT(frame);
+
+    AVPacket pkt;
+    av_init_packet(&pkt);
+
+    int counter = 0;
+    while (!av_read_frame(fmt, &pkt)) {
+        if (pkt.stream_index != stream_index) {
+            continue;
+        }
+
+        int ret = avcodec_send_packet(dec, &pkt);
+        if (ret == AVERROR(EAGAIN)) {
+            ret = 0;
+        }
+        SkDebugf("send_packet %d\n", ret);
+
+        ret = avcodec_receive_frame(dec, frame);
+        if (ret >= 0) {
+            test_frame(frame);
+            if (++counter > 10) {
+                break;
+            }
+        }
+        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+            ret = 0;
+        }
+        SkDebugf("receive_frame %d\n", ret);
+    }
+}
+
+static void test_ffmpeg(SkCanvas* canvas) {
+    gCanvas = canvas;
+
+    const char* filename = "/skia/ice.mp4";
+    auto data = SkData::MakeFromFileName(filename);
+    SkDebugf("movie size %zu\n", data->size());
+
+    avcodec_register_all();
+
+    AVFormatContext* fmt_ctx = nullptr;
+    int err = avformat_open_input(&fmt_ctx, filename, nullptr, nullptr);
+    check_err(err);
+
+//    av_dump_format(fmt_ctx, 0, filename, 0);
+    AVCodec* codec;
+    int stream_index = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
+    if (stream_index >= 0) {
+        SkASSERT(codec);
+        AVStream* strm = fmt_ctx->streams[stream_index];
+
+        SkDebugf("dimensions: %d x %d\n", strm->codecpar->width, strm->codecpar->height);
+
+        AVCodecContext* cd_ctx = avcodec_alloc_context3(codec);
+        SkASSERT(cd_ctx);
+
+        // needed?
+        check_err(avcodec_parameters_to_context(cd_ctx, strm->codecpar));
+
+        check_err(avcodec_open2(cd_ctx, codec, nullptr));
+
+        test_decoder(fmt_ctx, stream_index, cd_ctx, strm);
+
+        avcodec_free_context(&cd_ctx);
+    }
+    avformat_close_input(&fmt_ctx);
+}
+
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
@@ -133,7 +279,9 @@ static void draw_rect_tests(SkCanvas* canvas) {
    border, with no red.
 */
 DEF_SIMPLE_GM(aaclip, canvas, 240, 120) {
-        // Initial pixel-boundary-aligned draw
+    test_ffmpeg(canvas);
+
+    // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 
         // Repeat 4x with .2, .4, .6, .8 px offsets
