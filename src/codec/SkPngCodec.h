@@ -19,17 +19,11 @@ class SkStream;
 
 class SkPngCodec : public SkCodec {
 public:
-    static bool IsPng(const void*, size_t);
+    static bool IsPng(const char*, size_t);
 
     // Assume IsPng was called and returned true.
-    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>,
-                                                   Result*,
-                                                   SkPngChunkReader*);
-
-    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream> stream,
-                                                   Result* result) {
-        return MakeFromStream(std::move(stream), result, nullptr);
-    }
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*,
+                                                   SkPngChunkReader* = nullptr);
 
     // FIXME (scroggo): Temporarily needed by AutoCleanPng.
     void setIdatLength(size_t len) { fIdatLength = len; }
