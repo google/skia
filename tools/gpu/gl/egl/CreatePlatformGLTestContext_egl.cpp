@@ -8,8 +8,6 @@
 #include "tools/gpu/gl/GLTestContext.h"
 
 #define GL_GLEXT_PROTOTYPES
-#define EGL_EGLEXT_PROTOTYPES
-
 #include <GLES2/gl2.h>
 
 #include <EGL/egl.h>
@@ -245,13 +243,16 @@ GrEGLImage EGLGLTestContext::texture2DToEGLImage(GrGLuint texID) const {
     if (!this->gl()->hasExtension("EGL_KHR_gl_texture_2D_image")) {
         return GR_EGL_NO_IMAGE;
     }
-    EGLint attribs[] = { GR_EGL_GL_TEXTURE_LEVEL, 0, GR_EGL_NONE };
+    GrEGLImage img;
+    GrEGLint attribs[] = { GR_EGL_GL_TEXTURE_LEVEL, 0, GR_EGL_NONE };
     GrEGLClientBuffer clientBuffer = reinterpret_cast<GrEGLClientBuffer>(texID);
-    return eglCreateImageKHR(fDisplay, fContext, GR_EGL_GL_TEXTURE_2D, clientBuffer, attribs);
+    GR_GL_CALL_RET(this->gl(), img,
+                   EGLCreateImage(fDisplay, fContext, GR_EGL_GL_TEXTURE_2D, clientBuffer, attribs));
+    return img;
 }
 
 void EGLGLTestContext::destroyEGLImage(GrEGLImage image) const {
-    eglDestroyImageKHR(fDisplay, image);
+    GR_GL_CALL(this->gl(), EGLDestroyImage(fDisplay, image));
 }
 
 GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
