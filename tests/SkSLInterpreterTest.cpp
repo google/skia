@@ -269,6 +269,10 @@ DEF_TEST(SkSLInterpreterSwizzle, r) {
 DEF_TEST(SkSLInterpreterGlobal, r) {
     test(r, "int x; void main(inout half4 color) { x = 10; color.b = x; }", 1, 2, 3, 4, 1, 2, 10,
          4);
+    test(r, "float4 x; void main(inout float4 color) { x = color * 2; color = x; }",
+         1, 2, 3, 4, 2, 4, 6, 8);
+    test(r, "float4 x; void main(inout float4 color) { x = float4(5, 6, 7, 8); color = x.wzyx; }",
+         1, 2, 3, 4, 8, 7, 6, 5);
 }
 
 DEF_TEST(SkSLInterpreterGeneric, r) {
