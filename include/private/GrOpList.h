@@ -105,6 +105,7 @@ protected:
 
     GrLoadOp              fColorLoadOp    = GrLoadOp::kLoad;
     SkPMColor4f           fLoadClearColor = SK_PMColor4fTRANSPARENT;
+    GrLoadOp              fStencilLoadOp  = GrLoadOp::kLoad;
 
     // List of texture proxies whose contents are being prepared on a worker thread
     SkTArray<GrTextureProxy*, true> fDeferredProxies;

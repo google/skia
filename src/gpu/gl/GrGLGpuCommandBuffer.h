@@ -55,13 +55,8 @@ class GrGLGpuRTCommandBuffer : public GrGpuRTCommandBuffer {
 public:
     GrGLGpuRTCommandBuffer(GrGLGpu* gpu) : fGpu(gpu) {}
 
-    void begin() override {
-        fGpu->beginCommandBuffer(fRenderTarget, fColorLoadAndStoreInfo, fStencilLoadAndStoreInfo);
-    }
-
-    void end() override {
-        fGpu->endCommandBuffer(fRenderTarget, fColorLoadAndStoreInfo, fStencilLoadAndStoreInfo);
-    }
+    void begin() override;
+    void end() override {}
 
     void discard() override { }
 
@@ -84,8 +79,9 @@ public:
                                  srcRect.height(), bufferColorType, transferBuffer, offset);
     }
 
-    void set(GrRenderTarget*, GrSurfaceOrigin, const LoadAndStoreInfo&, const
-             StencilLoadAndStoreInfo&);
+    void set(GrRenderTarget*, GrSurfaceOrigin,
+             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&);
 
     void reset() {
         fRenderTarget = nullptr;
