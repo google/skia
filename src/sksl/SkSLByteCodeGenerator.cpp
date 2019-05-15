@@ -464,6 +464,11 @@ void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
 
 void ByteCodeGenerator::writeVariableReference(const VariableReference& v) {
     if (v.fVariable.fStorage == Variable::kGlobal_Storage) {
+        int count = slot_count(v.fType);
+        if (count > 1) {
+            this->write(ByteCodeInstruction::kVector);
+            this->write8(count);
+        }
         this->write(ByteCodeInstruction::kLoadGlobal);
         int location = this->getLocation(v.fVariable);
         SkASSERT(location <= 255);
