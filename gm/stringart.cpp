@@ -161,3 +161,54 @@ private:
 DEF_GM( return new SkottieGM; )
 #endif
 
+/////////////////////////////////////////////////
+
+#include "experimental/ffmpeg/SkVideoDecoder.h"
+
+class VideoDecoderGM : public skiagm::GM {
+    std::unique_ptr<SkVideoDecoder> fDecoder;
+
+public:
+    VideoDecoderGM() {}
+
+protected:
+
+    SkString onShortName() override {
+        return SkString("videodecoder");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(1024, 768);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        GrContext* gr = canvas->getGrContext();
+        if (!gr) {
+            return;
+        }
+        if (!fDecoder) {
+            fDecoder.reset(new SkVideoDecoder(gr));
+            if (!fDecoder->loadFile("/skia/ice.mp4")) {
+                SkDebugf("failed to load movie\n");
+            }
+        }
+        fDecoder->setGrContext(gr);
+
+        auto img = fDecoder->nextImage();
+        if (!img) {
+            img = fDecoder->lastImage();
+        }
+        if (img) {
+            canvas->drawImage(img, 10, 10, nullptr);
+        }
+    }
+
+    bool onAnimate(const AnimTimer& timer) override {
+        return true;
+    }
+
+private:
+    typedef GM INHERITED;
+};
+DEF_GM( return new VideoDecoderGM; )
+
