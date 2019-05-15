@@ -167,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "42d4128e_f4a83dea",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-15T18:00:11Z",
+      "side": 1,
+      "message": "You can use sbix.ttf as a typeface which has glyphs but none of those glyphs have paths. It\u0027s supported by all the native back-ends. You\u0027d use it in a Skia test by making a call to MakeResourceAsTypeface(\"fonts/sbix.ttf\"); . Though make sure you check the return value isn\u0027t nullptr, since the portable font mgr (used by non-native font bots) won\u0027t create it (it can\u0027t do so portably, so it just doesn\u0027t create the typeface).",
+      "parentUuid": "37e49e59_c5bb8fe4",
+      "range": {
+        "startLine": 651,
+        "startChar": 16,
+        "endLine": 651,
+        "endChar": 53
+      },
+      "revId": "e9c0cec68ef7a37e1fcb7e9a101d53ffc4524a43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a4807e1f_8f131120",
         "filename": "src/core/SkStrike.cpp",
         "patchSetId": 5
