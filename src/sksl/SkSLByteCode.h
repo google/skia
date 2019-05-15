@@ -50,9 +50,9 @@ enum class ByteCodeInstruction : uint8_t {
     kDivideU,
     // Duplicates the top stack value
     kDup,
-    // Followed by a byte indicating number of slots to copy below the underlying element.
-    // dupdown 2 yields: ... value3 value2 value1 => .. value2 value1 value3 value2 value2
-    kDupDown,
+    // Followed by a byte indicating number of slots to copy.
+    // DupN 2 yields: ... A B C => ... A B A B C
+    kDupN,
     kFloatToInt,
     kSignedToFloat,
     kUnsignedToFloat,
