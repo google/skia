@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "e94c3a02_54881eef",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-15T03:02:42Z",
+      "side": 1,
+      "message": "Instead of adding a field, can we just say that if glyph-\u003epath() returns nullptr, then the glyph doesn\u0027t have a path?",
+      "range": {
+        "startLine": 234,
+        "startChar": 19,
+        "endLine": 234,
+        "endChar": 26
+      },
+      "revId": "e9c0cec68ef7a37e1fcb7e9a101d53ffc4524a43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13028240_de764fc8",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-15T03:02:42Z",
+      "side": 1,
+      "message": "Indenting is funny here.",
+      "range": {
+        "startLine": 641,
+        "startChar": 11,
+        "endLine": 641,
+        "endChar": 14
+      },
+      "revId": "e9c0cec68ef7a37e1fcb7e9a101d53ffc4524a43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "57c0d0bf_a81c6b27",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 5
@@ -18,6 +64,53 @@
         "startChar": 16,
         "endLine": 651,
         "endChar": 53
+      },
+      "revId": "e9c0cec68ef7a37e1fcb7e9a101d53ffc4524a43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef697ca0_5a43dfa1",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-15T03:02:42Z",
+      "side": 1,
+      "message": "You can ask bungeman. I think we do. This is also probably related to a bug he has recently found.",
+      "parentUuid": "57c0d0bf_a81c6b27",
+      "range": {
+        "startLine": 651,
+        "startChar": 16,
+        "endLine": 651,
+        "endChar": 53
+      },
+      "revId": "e9c0cec68ef7a37e1fcb7e9a101d53ffc4524a43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4807e1f_8f131120",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-15T03:02:42Z",
+      "side": 1,
+      "message": "Could this be glyph-\u003efPathData-\u003efPath \u003d nullptr. See comment in SkGlyph",
+      "range": {
+        "startLine": 191,
+        "startChar": 30,
+        "endLine": 191,
+        "endChar": 37
       },
       "revId": "e9c0cec68ef7a37e1fcb7e9a101d53ffc4524a43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
