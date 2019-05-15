@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2019 Google Inc.
  *
@@ -16,6 +15,12 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "tools/sk_app/MetalWindowContext.h"
+#include "tools/sk_app/mac/WindowContextFactory_mac.h"
+
+using sk_app::DisplayParams;
+using sk_app::MetalWindowContext;
+
+#import <QuartzCore/CAConstraintLayoutManager.h>
 
 namespace sk_app {
 
@@ -23,21 +28,34 @@ static int kMaxBuffersInFlight = 3;
 
 MetalWindowContext::MetalWindowContext(const DisplayParams& params)
     : WindowContext(params)
-    , fValid(false)
-    , fSurface(nullptr) {
-    fDisplayParams.fMSAASampleCount = GrNextPow2(fDisplayParams.fMSAASampleCount);
+    , fValid(false) {
+
+    // Multisampling not supported
+    fDisplayParams.fMSAASampleCount = 1;// GrNextPow2(fDisplayParams.fMSAASampleCount);
+
+    fInFlightSemaphore = dispatch_semaphore_create(kMaxBuffersInFlight);
 }
 
 void MetalWindowContext::initializeContext() {
     SkASSERT(!fContext);
 
-    // The subclass uses these to initialize their view
     fDevice = MTLCreateSystemDefaultDevice();
     fQueue = [fDevice newCommandQueue];
 
-    fInFlightSemaphore = dispatch_semaphore_create(kMaxBuffersInFlight);
+    fSampleCount = 1;  // we don't support multisampling yet
+    fStencilBits = 8;
+
+    fMetalLayer = [CAMetalLayer layer];
+    fMetalLayer.device = fDevice;
+    fMetalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    BOOL useVsync = fDisplayParams.fDisableVsync ? NO : YES;
+    fMetalLayer.displaySyncEnabled = useVsync;
+    fMetalLayer.layoutManager = [CAConstraintLayoutManager layoutManager];
+    fMetalLayer.autoresizingMask = kCALayerHeightSizable | kCALayerWidthSizable;
+    fMetalLayer.contentsGravity = kCAGravityTopLeft;
 
     fValid = this->onInitializeContext();
+
     fContext = GrContext::MakeMetal(fDevice, fQueue, fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
@@ -47,19 +65,20 @@ void MetalWindowContext::initializeContext() {
 }
 
 void MetalWindowContext::destroyContext() {
-    fSurface.reset(nullptr);
-
     if (fContext) {
         // in case we have outstanding refs to this guy (lua?)
         fContext->abandonContext();
         fContext.reset();
     }
 
-    // TODO: Figure out who's releasing this
-    // [fQueue release];
-    [fDevice release];
-
     this->onDestroyContext();
+
+    fMetalLayer = nil;
+    fValid = false;
+
+    // TODO: figure out why we can't release these
+    // [fQueue release];
+    // [fDevice release];
 }
 
 sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
@@ -72,9 +91,10 @@ sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
         // for as little time as possible. I'm not sure it matters for our test apps, but
         // you can get better throughput by doing any offscreen renders, texture uploads, or
         // other non-dependant tasks first before grabbing the drawable.
+        fCurrentDrawable = [fMetalLayer nextDrawable];
+
         GrMtlTextureInfo fbInfo;
-        MTLRenderPassDescriptor* descriptor = fMTKView.currentRenderPassDescriptor;
-        fbInfo.fTexture = [[[descriptor colorAttachments] objectAtIndexedSubscript:0] texture];
+        fbInfo.fTexture = fCurrentDrawable.texture;
 
         GrBackendRenderTarget backendRT(fWidth,
                                         fHeight,
@@ -82,10 +102,10 @@ sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
                                         fbInfo);
 
         surface = SkSurface::MakeFromBackendRenderTarget(fContext.get(), backendRT,
-                                                          kTopLeft_GrSurfaceOrigin,
-                                                          kBGRA_8888_SkColorType,
-                                                          fDisplayParams.fColorSpace,
-                                                          &fDisplayParams.fSurfaceProps);
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         kBGRA_8888_SkColorType,
+                                                         fDisplayParams.fColorSpace,
+                                                         &fDisplayParams.fSurfaceProps);
     }
 
     return surface;
@@ -102,14 +122,9 @@ void MetalWindowContext::swapBuffers() {
          dispatch_semaphore_signal(block_sema);
      }];
 
-    id<MTLDrawable> drawable = [fMTKView currentDrawable];
-    [commandBuffer presentDrawable:drawable];
+    [commandBuffer presentDrawable:fCurrentDrawable];
     [commandBuffer commit];
-}
-
-void MetalWindowContext::resize(int w, int h) {
-    this->destroyContext();
-    this->initializeContext();
+    fCurrentDrawable = nil;
 }
 
 void MetalWindowContext::setDisplayParams(const DisplayParams& params) {
