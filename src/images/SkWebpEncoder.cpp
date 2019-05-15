@@ -16,8 +16,6 @@
 
 #include "src/images/SkImageEncoderPriv.h"
 
-#ifdef SK_HAS_WEBP_LIBRARY
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkUnPreMultiply.h"
@@ -215,5 +213,3 @@ bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Opti
 
     return true;
 }
-
-#endif
