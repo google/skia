@@ -145,6 +145,7 @@ void SkSurface_Gpu::onAsyncReadPixels(SkColorType ct, SkAlphaType at, sk_sp<SkCo
     }
 }
 
+
 // Create a new render target and, if necessary, copy the contents of the old
 // render target into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.
