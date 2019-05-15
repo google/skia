@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f224a8bd_4f2706e3",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T18:18:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9af5abf_2d930659",
+      "range": {
+        "startLine": 52,
+        "startChar": 12,
+        "endLine": 52,
+        "endChar": 29
+      },
+      "revId": "2ad5fbf589870fd06c226cd832996b4c7b59c9a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b25a356e_b3e9ee88",
         "filename": "include/core/SkImageEncoder.h",
         "patchSetId": 3
@@ -83,6 +107,30 @@
       "writtenOn": "2019-05-15T18:14:40Z",
       "side": 1,
       "message": "Should we name this signature?",
+      "range": {
+        "startLine": 53,
+        "startChar": 30,
+        "endLine": 53,
+        "endChar": 79
+      },
+      "revId": "2ad5fbf589870fd06c226cd832996b4c7b59c9a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "964aec4f_621262b6",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-15T18:18:14Z",
+      "side": 1,
+      "message": "To what? and why?",
+      "parentUuid": "b25a356e_b3e9ee88",
       "range": {
         "startLine": 53,
         "startChar": 30,
