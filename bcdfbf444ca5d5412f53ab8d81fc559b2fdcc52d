@@ -68,6 +68,30 @@
       "revId": "bcdfbf444ca5d5412f53ab8d81fc559b2fdcc52d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac93009d_ce6cedb8",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-15T20:46:02Z",
+      "side": 1,
+      "message": "when read_frame fails, we\u0027re EOF of input data. That means we may still have more frames we can \"drain\" from the codec. In that mode, we call receive_frame continually until that too fails, and only then are we \"done\".",
+      "parentUuid": "d3bad32d_db9d2fab",
+      "range": {
+        "startLine": 123,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 62
+      },
+      "revId": "bcdfbf444ca5d5412f53ab8d81fc559b2fdcc52d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
