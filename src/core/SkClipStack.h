@@ -14,8 +14,8 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
-#include "include/private/SkMessageBus.h"
 #include "src/core/SkClipOpPriv.h"
+#include "src/core/SkMessageBus.h"
 #include "src/core/SkTLazy.h"
 
 #if SK_SUPPORT_GPU

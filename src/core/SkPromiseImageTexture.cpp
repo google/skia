@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkPromiseImageTexture.h"
-#include "include/private/SkMessageBus.h"
+#include "src/core/SkMessageBus.h"
 
 #if SK_SUPPORT_GPU
 

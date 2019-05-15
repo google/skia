@@ -9,8 +9,8 @@
 #define SkResourceCache_DEFINED
 
 #include "include/core/SkBitmap.h"
-#include "include/private/SkMessageBus.h"
 #include "include/private/SkTDArray.h"
+#include "src/core/SkMessageBus.h"
 
 class SkCachedData;
 class SkDiscardableMemory;
