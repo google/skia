@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e10c5edc_dc1d4e39",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-05-15T15:52:14Z",
+      "side": 1,
+      "message": "clarify that this means the pixel format was not translatable to an SkImage. (the file container, and video codec were supported, and already read successfully)",
+      "range": {
+        "startLine": 46,
+        "startChar": 33,
+        "endLine": 46,
+        "endChar": 34
+      },
+      "revId": "f6cf8e04b69df9540dfd115a674bbcdf38568397",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df73a49c_3d39816b",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-05-15T15:52:14Z",
+      "side": 1,
+      "message": "I would add a comment here explaining why you have a while loop reading what appears to be more than one frame when the name of the function we\u0027re in says it\u0027s only getting the next image. (it is to skip over the interleaved frames from unwanted streams right?)",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 9
+      },
+      "revId": "f6cf8e04b69df9540dfd115a674bbcdf38568397",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e0af9bf_6424a3c1",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-05-15T15:52:14Z",
+      "side": 1,
+      "message": "comment explaining that this cryptically named function decodes the image data from whatever codec it was in.",
+      "range": {
+        "startLine": 61,
+        "startChar": 18,
+        "endLine": 61,
+        "endChar": 37
+      },
+      "revId": "f6cf8e04b69df9540dfd115a674bbcdf38568397",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8868fdf2_9569ca09",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-05-15T15:52:14Z",
+      "side": 1,
+      "message": "Does this error mean decoding should be retried?",
+      "range": {
+        "startLine": 63,
+        "startChar": 22,
+        "endLine": 63,
+        "endChar": 47
+      },
+      "revId": "f6cf8e04b69df9540dfd115a674bbcdf38568397",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b6566e9_2c09d4c2",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-05-15T15:52:14Z",
+      "side": 1,
+      "message": "I think this function automatically determines the containter type (mkv, mp4, avi, mov and others) and chooses a demuxer to match.\nOut of curiosity, which container and codec combination have you been testing?",
+      "range": {
+        "startLine": 103,
+        "startChar": 14,
+        "endLine": 103,
+        "endChar": 33
+      },
+      "revId": "f6cf8e04b69df9540dfd115a674bbcdf38568397",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
