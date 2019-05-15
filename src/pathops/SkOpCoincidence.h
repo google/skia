@@ -7,8 +7,8 @@
 #ifndef SkOpCoincidence_DEFINED
 #define SkOpCoincidence_DEFINED
 
-#include "include/private/SkArenaAlloc.h"
 #include "include/private/SkTDArray.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/pathops/SkOpSpan.h"
 #include "src/pathops/SkPathOpsTypes.h"
 

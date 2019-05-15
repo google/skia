@@ -10,8 +10,8 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkMalloc.h"
-#include "include/private/SkTInternalLList.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkTInternalLList.h"
 #include <new>
 #include <utility>
 

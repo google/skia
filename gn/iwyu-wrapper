@@ -1,0 +1,11 @@
+#!/bin/sh
+
+IWYU="$1"
+shift
+$IWYU "$@"
+IWYU_RET=$?
+if [ $IWYU_RET -eq 2 ]
+then
+  exit 0
+fi
+exit $IWYU_RET

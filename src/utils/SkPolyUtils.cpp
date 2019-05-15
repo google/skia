@@ -11,10 +11,10 @@
 
 #include "include/private/SkNx.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTInternalLList.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkTDPQueue.h"
+#include "src/core/SkTInternalLList.h"
 
 //////////////////////////////////////////////////////////////////////////////////
 // Helper data structures and functions

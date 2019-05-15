@@ -11,9 +11,9 @@
 #include "include/effects/SkGradientShader.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/private/SkArenaAlloc.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/shaders/SkShaderBase.h"
 
 class SkColorSpace;

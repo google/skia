@@ -10,7 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkMatrixUtils.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"

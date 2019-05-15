@@ -14,10 +14,10 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTHash.h"
-#include "include/private/SkTInternalLList.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkTDynamicHash.h"
+#include "src/core/SkTInternalLList.h"
 
 #ifdef SK_BUILD_FOR_IOS
   enum { kDefaultCacheSize = 2 * 1024 * 1024 };

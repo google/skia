@@ -8,7 +8,7 @@
 #ifndef SkPathOpsQuad_DEFINED
 #define SkPathOpsQuad_DEFINED
 
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/pathops/SkPathOpsTCurve.h"
 
 struct SkOpCurve;

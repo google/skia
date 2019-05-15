@@ -10,7 +10,7 @@
 
 #include <utility>
 #include "include/private/GrRenderTargetProxy.h"
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkArenaAllocList.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrBufferAllocPool.h"

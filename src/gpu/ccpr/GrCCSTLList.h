@@ -8,8 +8,8 @@
 #ifndef GrCCSTLList_DEFINED
 #define GrCCSTLList_DEFINED
 
-#include "include/private/SkArenaAlloc.h"
 #include "include/private/SkNoncopyable.h"
+#include "src/core/SkArenaAlloc.h"
 #include <new>
 
 /**
