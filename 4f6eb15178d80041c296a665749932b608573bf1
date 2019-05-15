@@ -22,6 +22,30 @@
       "revId": "4f6eb15178d80041c296a665749932b608573bf1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4c0f64f_afb4d80e",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-15T02:23:12Z",
+      "side": 0,
+      "message": "Funny enough, that was the next think I was looking at. The page on which this reproed then had a cache miss for that path from the fallback code.\n\nSo turns out only the glyphs returned by prepareForDrawing are processed by the fallback code. So the fallback cases would always result in a cache miss. And adding these glyphs needed to be done in the cache hit case as well, since the fallback processing code in the painter needs to pin and validate the fallback strike.\n\nAlso, I didn\u0027t follow what you meant by using an empty path. The SkGlyph needs to report it has no path for the fallback logic to be used in the painter (so both renderer and GPU side).\n\nOne more thing, I updated this code for consistency. I don\u0027t see us ever hitting this code, only prepareForDrawing. I think this method is only being used by the sw device.",
+      "parentUuid": "569cb6b3_c8525c97",
+      "range": {
+        "startLine": 585,
+        "startChar": 20,
+        "endLine": 585,
+        "endChar": 27
+      },
+      "revId": "4f6eb15178d80041c296a665749932b608573bf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
