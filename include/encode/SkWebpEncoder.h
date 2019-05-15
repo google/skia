@@ -43,6 +43,20 @@ namespace SkWebpEncoder {
      *  Returns true on success.  Returns false on an invalid or unsupported |src|.
      */
     SK_API bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options);
+
+    inline bool Encode(SkWStream* dst, const SkPixmap& src, int quality) {
+          SkWebpEncoder::Options opts;
+          if (quality == 100) {
+              // fQuality acts as a signal for how much time to invest encoding a smaller file.
+              // This value matches blink::ImageEncoder::ComputeWebpOptions and WebPConfigInit.
+              opts.fQuality = 75;
+              opts.fCompression = SkWebpEncoder::Compression::kLossless;
+          } else {
+              opts.fQuality = quality;
+              opts.fCompression = SkWebpEncoder::Compression::kLossy;
+          }
+          return SkWebpEncoder::Encode(dst, src, opts);
+      }
 }
 
 #endif

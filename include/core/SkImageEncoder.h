@@ -45,6 +45,16 @@ inline bool SkEncodeImage(SkWStream* dst, const SkBitmap& src, SkEncodedImageFor
 }
 
 /**
+ * Register an encoder for a given binary image format.
+ *
+ * This encoder may be used by SkEncodeImage / SkEncodePixmap / SkEncodeBitmap.
+ *
+ * Not thread safe.
+ */
+SK_API void SkRegisterEncoder(SkEncodedImageFormat fmt,
+                              bool(*)(SkWStream*, const SkPixmap&, int quality));
+
+/**
  * Encode SkPixmap in the given binary image format.
  *
  * @param  src     source pixels.
