@@ -608,7 +608,6 @@ bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     return true;
 }
 
-#if GR_TEST_UTILS
 bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, MTLPixelFormat format,
                                                int w, int h, bool texturable,
                                                bool renderable, GrMipMapped mipMapped,
@@ -800,6 +799,17 @@ GrBackendTexture GrMtlGpu::createTestingOnlyBackendTexture(int w, int h,
     return backendTex;
 }
 
+void GrMtlGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
+    SkASSERT(GrBackendApi::kMetal == tex.fBackend);
+
+    GrMtlTextureInfo info;
+    if (tex.getMtlTextureInfo(&info)) {
+        // Adopts the metal texture so that ARC will clean it up.
+        GrGetMTLTexture(info.fTexture, GrWrapOwnership::kAdopt_GrWrapOwnership);
+    }
+}
+
+#if GR_TEST_UTILS
 bool GrMtlGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(GrBackendApi::kMetal == tex.backend());
 
@@ -813,16 +823,6 @@ bool GrMtlGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
         return false;
     }
     return mtlTexture.usage & MTLTextureUsageShaderRead;
-}
-
-void GrMtlGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
-    SkASSERT(GrBackendApi::kMetal == tex.fBackend);
-
-    GrMtlTextureInfo info;
-    if (tex.getMtlTextureInfo(&info)) {
-        // Adopts the metal texture so that ARC will clean it up.
-        GrGetMTLTexture(info.fTexture, GrWrapOwnership::kAdopt_GrWrapOwnership);
-    }
 }
 
 GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int h, GrColorType ct) {
