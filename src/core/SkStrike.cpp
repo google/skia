@@ -187,6 +187,11 @@ bool SkStrike::initializePath(SkGlyph* glyph, const volatile void* data, size_t 
     if (glyph->fWidth) {
         SkGlyph::PathData* pathData = fAlloc.make<SkGlyph::PathData>();
         glyph->fPathData = pathData;
+        if (size == 0u) {
+            glyph->fPathData->fFailed = true;
+            return true;
+        }
+
         auto path = skstd::make_unique<SkPath>();
         if (!pathData->fPath.readFromMemory(const_cast<const void*>(data), size)) {
             return false;
