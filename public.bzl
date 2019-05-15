@@ -218,7 +218,8 @@ BASE_SRCS_ALL = struct(
     ],
     exclude = [
         # Exclude platform-dependent files.
-        "src/codec/*",
+        "src/codec/*",    # Decoders
+        "src/images/*",   # Encoders
         "src/device/xps/*",  # Windows-only. Move to ports?
         "src/doc/*_XPS.cpp",  # Windows-only. Move to ports?
         "src/gpu/gl/android/*",
@@ -269,11 +270,11 @@ def codec_srcs(limited):
     exclude = ["src/codec/SkWuffsCodec.cpp", "src/codec/*Raw*.cpp"]
     if limited:
         exclude += [
-            "src/codec/*Ico*.cpp",
-            "src/codec/*Webp*.cpp",
-            "src/codec/*Png*",
+            "src/*/*Ico*.cpp",
+            "src/*/*Webp*.cpp",
+            "src/*/*Png*",
         ]
-    return native.glob(["src/codec/*.cpp", "third_party/gif/*.cpp"], exclude = exclude)
+    return native.glob(["src/codec/*.cpp", "src/images/*.cpp", "third_party/gif/*.cpp"], exclude = exclude)
 
 GL_SRCS_UNIX = struct(
     include = [
