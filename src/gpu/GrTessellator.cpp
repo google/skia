@@ -12,7 +12,7 @@
 #include "src/gpu/GrVertexWriter.h"
 
 #include "include/core/SkPath.h"
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkTDPQueue.h"

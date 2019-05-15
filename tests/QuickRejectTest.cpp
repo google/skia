@@ -11,7 +11,7 @@
 #include "include/core/SkPoint3.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkLightingImageFilter.h"
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "tests/Test.h"
 
 /*

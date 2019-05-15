@@ -8,7 +8,7 @@
 #ifndef GrCCDrawPathsOp_DEFINED
 #define GrCCDrawPathsOp_DEFINED
 
-#include "include/private/SkTInternalLList.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrShape.h"
 #include "src/gpu/ccpr/GrCCPathCache.h"
 #include "src/gpu/ccpr/GrCCSTLList.h"
