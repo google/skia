@@ -100,11 +100,6 @@ public:
     void writeTypedInstruction(const Type& type, ByteCodeInstruction s, ByteCodeInstruction u,
                                ByteCodeInstruction f);
 
-    /**
-     * Pushes the storage location of an lvalue to the stack.
-     */
-    void writeTarget(const Expression& expr);
-
 private:
     // reserves 16 bits in the output code, to be filled in later with an address once we determine
     // it
@@ -272,6 +267,7 @@ private:
 
     friend class DeferredLocation;
     friend class ByteCodeVariableLValue;
+    friend class ByteCodeSwizzleLValue;
 
     typedef CodeGenerator INHERITED;
 };
