@@ -21,7 +21,8 @@ struct Symbol : public IRNode {
         kUnresolvedFunction_Kind,
         kType_Kind,
         kVariable_Kind,
-        kField_Kind
+        kField_Kind,
+        kExternal_Kind
     };
 
     Symbol(int offset, Kind kind, StringFragment name)
