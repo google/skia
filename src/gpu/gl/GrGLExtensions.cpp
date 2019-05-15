@@ -9,8 +9,8 @@
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/gpu/gl/GrGLUtil.h"
 
-#include "include/private/SkTSearch.h"
 #include "src/core/SkMakeUnique.h"
+#include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
 #include "src/utils/SkJSONWriter.h"
 
