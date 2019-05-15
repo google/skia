@@ -9,7 +9,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/private/SkDeferredDisplayList.h"
-#include "include/private/SkMessageBus.h"
+#include "src/core/SkMessageBus.h"
 
 #if !SK_SUPPORT_GPU
 SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization&) {}

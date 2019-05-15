@@ -8,10 +8,10 @@
 #include "src/core/SkResourceCache.h"
 
 #include "include/core/SkTraceMemoryDump.h"
-#include "include/private/SkMessageBus.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkDiscardableMemory.h"
+#include "src/core/SkMessageBus.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkOpts.h"
 
