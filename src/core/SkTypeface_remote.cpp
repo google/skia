@@ -80,6 +80,17 @@ void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
 }
 
 bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
+    if (fCache) {
+        if (const auto* cachedGlyph = fCache->getRawGlyphByID(glyphID)) {
+            if (cachedGlyph->pathGenFailed()) return false;
+
+            if (cachedGlyph->path()) {
+                *path = *cachedGlyph->path();
+                return true;
+            }
+        }
+    }
+
     TRACE_EVENT1("skia", "generatePath", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
         SkDebugf("GlyphCacheMiss generatePath: %s\n", this->getRec().dump().c_str());
