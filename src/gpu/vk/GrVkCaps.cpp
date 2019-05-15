@@ -844,7 +844,7 @@ void GrVkCaps::FormatInfo::init(const GrVkInterface* interface,
     }
 }
 
-bool GrVkCaps::isConfigTexturable(VkFormat format) const {
+bool GrVkCaps::isFormatTexturable(VkFormat format) const {
     if (!GrVkFormatIsSupported(format)) {
         return false;
     }
@@ -858,7 +858,11 @@ bool GrVkCaps::isConfigTexturable(GrPixelConfig config) const {
     if (!GrPixelConfigToVkFormat(config, &format)) {
         return false;
     }
-    return this->isConfigTexturable(format);
+    return this->isFormatTexturable(format);
+}
+
+bool GrVkCaps::isFormatRenderable(VkFormat format) const {
+    return this->maxRenderTargetSampleCount(format) > 0;
 }
 
 int GrVkCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {

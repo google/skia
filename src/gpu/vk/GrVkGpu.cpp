@@ -1161,12 +1161,12 @@ static bool check_image_info(const GrVkCaps& caps,
 
 static bool check_tex_image_info(const GrVkCaps& caps, const GrVkImageInfo& info) {
     if (info.fImageTiling == VK_IMAGE_TILING_OPTIMAL) {
-        if (!caps.isConfigTexturable(info.fFormat)) {
+        if (!caps.isFormatTexturable(info.fFormat)) {
             return false;
         }
     } else {
         SkASSERT(info.fImageTiling == VK_IMAGE_TILING_LINEAR);
-        if (!caps.isConfigTexturableLinearly(info.fFormat)) {
+        if (!caps.isFormatTexturableLinearly(info.fFormat)) {
             return false;
         }
     }
