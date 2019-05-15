@@ -71,6 +71,12 @@ public:
      */
     static bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options);
 
+    static bool Encode(SkWStream* dst, const SkPixmap& src, int quality) {
+        Options options;
+        options.fQuality = quality;
+        return Encode(dst, src, options);
+    }
+
     /**
      *  Create a jpeg encoder that will encode the |src| pixels to the |dst| stream.
      *  |options| may be used to control the encoding behavior.
