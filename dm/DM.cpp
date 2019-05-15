@@ -15,9 +15,6 @@
 #include "include/core/SkDocument.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkGraphics.h"
-#include "include/encode/SkJpegEncoder.h"
-#include "include/encode/SkPngEncoder.h"
-#include "include/encode/SkWebpEncoder.h"
 #include "include/ports/SkTypeface_win.h"
 #include "include/private/SkChecksum.h"
 #include "include/private/SkHalf.h"
@@ -1396,10 +1393,6 @@ int main(int argc, char** argv) {
     SkCodec::Register(SkJpegCodec::IsJpeg, SkJpegCodec::MakeFromStream);
     SkCodec::Register( SkPngCodec::IsPng ,  SkPngCodec::MakeFromStream);
     SkCodec::Register(SkWebpCodec::IsWebp, SkWebpCodec::MakeFromStream);
-
-    SkRegisterEncoder(SkEncodedImageFormat::kJPEG, SkJpegEncoder::Encode);
-    SkRegisterEncoder(SkEncodedImageFormat::kPNG ,  SkPngEncoder::Encode);
-    SkRegisterEncoder(SkEncodedImageFormat::kWEBP, SkWebpEncoder::Encode);
 
     initializeEventTracingForTools();
 

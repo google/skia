@@ -69,10 +69,6 @@ public:
      */
     static bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options);
 
-    static bool Encode(SkWStream* dst, const SkPixmap& src, int /*quality*/) {
-        return Encode(dst, src, Options{});
-    }
-
     /**
      *  Create a png encoder that will encode the |src| pixels to the |dst| stream.
      *  |options| may be used to control the encoding behavior.
