@@ -693,6 +693,20 @@ private:
               RunHandler*) const override;
 };
 
+class ShapeDontWrapOrReorder : public ShaperHarfBuzz {
+public:
+    using ShaperHarfBuzz::ShaperHarfBuzz;
+private:
+    void wrap(char const * const utf8, size_t utf8Bytes,
+              const BiDiRunIterator&,
+              const LanguageRunIterator&,
+              const ScriptRunIterator&,
+              const FontRunIterator&,
+              RunIteratorQueue& runSegmenter,
+              SkScalar width,
+              RunHandler*) const override;
+};
+
 static std::unique_ptr<SkShaper> MakeHarfBuzz(bool correct) {
     #if defined(SK_USING_THIRD_PARTY_ICU)
     if (!SkLoadICU()) {
@@ -1156,6 +1170,53 @@ void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
 }
 }
 
+void ShapeDontWrapOrReorder::wrap(char const * const utf8, size_t utf8Bytes,
+                                  const BiDiRunIterator& bidi,
+                                  const LanguageRunIterator& language,
+                                  const ScriptRunIterator& script,
+                                  const FontRunIterator& font,
+                                  RunIteratorQueue& runSegmenter,
+                                  SkScalar width,
+                                  RunHandler* handler) const
+{
+    sk_ignore_unused_variable(width);
+    SkTArray<ShapedRun> runs;
+
+    const char* utf8Start = nullptr;
+    const char* utf8End = utf8;
+    while (runSegmenter.advanceRuns()) {
+        utf8Start = utf8End;
+        utf8End = utf8 + runSegmenter.endOfCurrentRun();
+
+        runs.emplace_back(shape(utf8, utf8Bytes,
+                                utf8Start, utf8End,
+                                bidi, language, script, font));
+    }
+
+    handler->beginLine();
+    for (const auto& run : runs) {
+        const RunHandler::RunInfo info = {
+            run.fFont,
+            run.fLevel,
+            run.fAdvance,
+            run.fNumGlyphs,
+            run.fUtf8Range
+        };
+        handler->runInfo(info);
+    }
+    handler->commitRunInfo();
+    for (const auto& run : runs) {
+        const RunHandler::RunInfo info = {
+            run.fFont,
+            run.fLevel,
+            run.fAdvance,
+            run.fNumGlyphs,
+            run.fUtf8Range
+        };
+        append(handler, info, run, 0, run.fNumGlyphs);
+    }
+    handler->commitLine();
+}
 
 ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
                                   size_t const utf8Bytes,
@@ -1306,4 +1367,19 @@ std::unique_ptr<SkShaper> SkShaper::MakeShaperDrivenWrapper() {
 }
 std::unique_ptr<SkShaper> SkShaper::MakeShapeThenWrap() {
     return MakeHarfBuzz(false);
+}
+std::unique_ptr<SkShaper> SkShaper::MakeShapeDontWrapOrReorder() {
+    #if defined(SK_USING_THIRD_PARTY_ICU)
+    if (!SkLoadICU()) {
+        SkDEBUGF("SkLoadICU() failed!\n");
+        return nullptr;
+    }
+    #endif
+    HBBuffer buffer(hb_buffer_create());
+    if (!buffer) {
+        SkDEBUGF("Could not create hb_buffer");
+        return nullptr;
+    }
+
+    return skstd::make_unique<ShapeDontWrapOrReorder>(std::move(buffer), nullptr, nullptr);
 }

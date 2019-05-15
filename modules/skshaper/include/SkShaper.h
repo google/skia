@@ -31,6 +31,7 @@ public:
     #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
     static std::unique_ptr<SkShaper> MakeShaperDrivenWrapper();
     static std::unique_ptr<SkShaper> MakeShapeThenWrap();
+    static std::unique_ptr<SkShaper> MakeShapeDontWrapOrReorder();
     #endif
 
     static std::unique_ptr<SkShaper> Make();
