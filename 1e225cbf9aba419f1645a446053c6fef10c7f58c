@@ -16,6 +16,24 @@
       "revId": "1e225cbf9aba419f1645a446053c6fef10c7f58c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76d658a7_7e94c27c",
+        "filename": "tools/win_lcid.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-15T13:41:49Z",
+      "side": 1,
+      "message": "Done. Who did that... oh, yeah, it was me.",
+      "parentUuid": "53d7d6c5_bb3d3ba3",
+      "revId": "1e225cbf9aba419f1645a446053c6fef10c7f58c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
