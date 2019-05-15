@@ -635,28 +635,23 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
             this->ensureScalerContext();
             fContext->getMetrics(glyphPtr);
 
+            // We looked at this glyph; it needs to be analysed by processGlyphRunList for fallback.
+            results[glyphsToSendCount++] = {i, glyphPtr, glyphPos};
+
             if (glyphPtr->maxDimension() <= maxDimension) {
-
-                // The mask/SDF will fit in the cache.
-                // TODO: no need to do this once code base converted over to bulk.
-                results[glyphsToSendCount++] = {i, glyphPtr, glyphPos};
+                // will be sent by setting fPendingGlyphImages below
             } else if (glyphPtr->fMaskFormat != SkMask::kARGB32_Format) {
-
                 // The glyph is too big for the atlas, but it is not color, so it is handled with a
                 // path.
                 if (glyphPtr->fPathData == nullptr) {
-
                     // Never checked for a path before. Add the path now.
                     auto path = const_cast<SkGlyph&>(*glyphPtr).addPath(fContext.get(), &fAlloc);
-                    if (path != nullptr) {
 
-                        // A path was added make sure to send it to the GPU.
-                        fCachedGlyphPaths.add(glyphPtr->getPackedID());
-                        fPendingGlyphPaths.push_back(glyphPtr->getPackedID());
-                    }
+                    // Path data (could be null) was added make sure to send it to the GPU.
+                    fCachedGlyphPaths.add(glyphPtr->getPackedID());
+                    fPendingGlyphPaths.push_back(glyphPtr->getPackedID());
                 }
             } else {
-
                 // This will be handled by the fallback strike.
                 SkASSERT(glyphPtr->maxDimension() > maxDimension
                          && glyphPtr->fMaskFormat == SkMask::kARGB32_Format);
