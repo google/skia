@@ -22,6 +22,30 @@
       "revId": "aa1d1f1e8075c215157327774aaeaa9479ea1827",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b8660b5_1c6e44c8",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2277,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-15T20:47:21Z",
+      "side": 1,
+      "message": "Oops. That was me breaking our style :-)\n\n(I actually don\u0027t like the indentation below because it isn\u0027t obvious where the \"if\" condition ends and where its block begins.)",
+      "parentUuid": "59c10a5b_97d582a7",
+      "range": {
+        "startLine": 2276,
+        "startChar": 8,
+        "endLine": 2277,
+        "endChar": 66
+      },
+      "revId": "aa1d1f1e8075c215157327774aaeaa9479ea1827",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
