@@ -218,8 +218,8 @@ BASE_SRCS_ALL = struct(
     ],
     exclude = [
         # Exclude platform-dependent files.
-        "src/codec/*",    # Decoders
-        "src/images/*",   # Encoders
+        "src/codec/*",  # Decoders
+        "src/images/*",  # Encoders
         "src/device/xps/*",  # Windows-only. Move to ports?
         "src/doc/*_XPS.cpp",  # Windows-only. Move to ports?
         "src/gpu/gl/android/*",
