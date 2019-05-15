@@ -7,8 +7,6 @@
 
 #include "src/images/SkImageEncoderPriv.h"
 
-#ifdef SK_HAS_JPEG_LIBRARY
-
 #include "include/core/SkStream.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/private/SkColorData.h"
@@ -241,5 +239,3 @@ bool SkJpegEncoder::Encode(SkWStream* dst, const SkPixmap& src, const Options& o
     auto encoder = SkJpegEncoder::Make(dst, src, options);
     return encoder.get() && encoder->encodeRows(src.height());
 }
-
-#endif
