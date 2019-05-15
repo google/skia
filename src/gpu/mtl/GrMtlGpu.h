@@ -60,6 +60,7 @@ public:
     // command buffer to finish before creating a new buffer and returning.
     void submitCommandBuffer(SyncQueue sync);
 
+#if GR_TEST_UTILS
     GrBackendTexture createTestingOnlyBackendTexture(int w, int h,
                                                      const GrBackendFormat& format,
                                                      GrMipMapped mipMapped,
@@ -67,12 +68,12 @@ public:
                                                      const void* pixels = nullptr,
                                                      size_t rowBytes = 0) override;
 
-    void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
-
-#if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
+    void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
+
     GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType) override;
+
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
 
     void testingOnly_flushGpuAndSync() override;
@@ -213,11 +214,13 @@ private:
                                                                 int width,
                                                                 int height) override;
 
+#if GR_TEST_UTILS
     bool createTestingOnlyMtlTextureInfo(GrPixelConfig, MTLPixelFormat,
                                          int w, int h, bool texturable,
                                          bool renderable, GrMipMapped mipMapped,
                                          const void* srcData, size_t rowBytes,
                                          GrMtlTextureInfo* info);
+#endif
 
     sk_sp<GrMtlCaps> fMtlCaps;
 
