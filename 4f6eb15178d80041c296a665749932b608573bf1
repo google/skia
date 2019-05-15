@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "569cb6b3_c8525c97",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-15T01:31:41Z",
+      "side": 0,
+      "message": "How about if the path \u003d\u003d nullptr we ad the empty path (new SkPath{}). I\u0027m assuming we got here because some one is using a bitmap/emoji (a font without paths) that is too big. This should latter call the fallbackARGB code? Maybe we just need to erase the null check. We just need to send the glyph info.",
+      "range": {
+        "startLine": 585,
+        "startChar": 20,
+        "endLine": 585,
+        "endChar": 27
+      },
+      "revId": "4f6eb15178d80041c296a665749932b608573bf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
