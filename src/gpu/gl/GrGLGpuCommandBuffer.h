@@ -56,7 +56,8 @@ public:
     GrGLGpuRTCommandBuffer(GrGLGpu* gpu) : fGpu(gpu) {}
 
     void begin() override {
-        fGpu->beginCommandBuffer(fRenderTarget, fColorLoadAndStoreInfo, fStencilLoadAndStoreInfo);
+        fGpu->beginCommandBuffer(fRenderTarget, fContentBounds, fOrigin, fColorLoadAndStoreInfo,
+                                 fStencilLoadAndStoreInfo);
     }
 
     void end() override {
@@ -84,8 +85,8 @@ public:
                                  srcRect.height(), bufferColorType, transferBuffer, offset);
     }
 
-    void set(GrRenderTarget*, GrSurfaceOrigin, const LoadAndStoreInfo&, const
-             StencilLoadAndStoreInfo&);
+    void set(GrRenderTarget*, const SkIRect& contentBounds, GrSurfaceOrigin,
+             const LoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
 
     void reset() {
         fRenderTarget = nullptr;
@@ -113,9 +114,10 @@ private:
         fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget, fOrigin);
     }
 
-    GrGLGpu*                                      fGpu;
-    GrGpuRTCommandBuffer::LoadAndStoreInfo        fColorLoadAndStoreInfo;
-    GrGpuRTCommandBuffer::StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
+    GrGLGpu*                fGpu;
+    SkIRect                 fContentBounds;
+    LoadAndStoreInfo        fColorLoadAndStoreInfo;
+    StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
 
     typedef GrGpuRTCommandBuffer INHERITED;
 };
