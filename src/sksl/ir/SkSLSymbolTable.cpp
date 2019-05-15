@@ -51,7 +51,8 @@ const Symbol* SymbolTable::operator[](StringFragment name) {
                 }
                 if (modified) {
                     SkASSERT(functions.size() > 1);
-                    return this->takeOwnership(new UnresolvedFunction(functions));
+                    return this->takeOwnership(std::unique_ptr<Symbol>(
+                                                                new UnresolvedFunction(functions)));
                 }
             }
         }
@@ -59,19 +60,21 @@ const Symbol* SymbolTable::operator[](StringFragment name) {
     return entry->second;
 }
 
-Symbol* SymbolTable::takeOwnership(Symbol* s) {
-    fOwnedSymbols.emplace_back(s);
-    return s;
+Symbol* SymbolTable::takeOwnership(std::unique_ptr<Symbol> s) {
+    Symbol* result = s.get();
+    fOwnedSymbols.push_back(std::move(s));
+    return result;
 }
 
-IRNode* SymbolTable::takeOwnership(IRNode* n) {
-    fOwnedNodes.emplace_back(n);
-    return n;
+IRNode* SymbolTable::takeOwnership(std::unique_ptr<IRNode> n) {
+    IRNode* result = n.get();
+    fOwnedNodes.push_back(std::move(n));
+    return result;
 }
 
 void SymbolTable::add(StringFragment name, std::unique_ptr<Symbol> symbol) {
     this->addWithoutOwnership(name, symbol.get());
-    this->takeOwnership(symbol.release());
+    this->takeOwnership(std::move(symbol));
 }
 
 void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol) {
@@ -84,18 +87,18 @@ void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol)
             std::vector<const FunctionDeclaration*> functions;
             functions.push_back((const FunctionDeclaration*) oldSymbol);
             functions.push_back((const FunctionDeclaration*) symbol);
-            UnresolvedFunction* u = new UnresolvedFunction(std::move(functions));
-            fSymbols[name] = u;
-            this->takeOwnership(u);
+            std::unique_ptr<Symbol> u = std::unique_ptr<Symbol>(new UnresolvedFunction(std::move(
+                                                                                       functions)));
+            fSymbols[name] = this->takeOwnership(std::move(u));
         } else if (oldSymbol->fKind == Symbol::kUnresolvedFunction_Kind) {
             std::vector<const FunctionDeclaration*> functions;
             for (const auto* f : ((UnresolvedFunction&) *oldSymbol).fFunctions) {
                 functions.push_back(f);
             }
             functions.push_back((const FunctionDeclaration*) symbol);
-            UnresolvedFunction* u = new UnresolvedFunction(std::move(functions));
-            fSymbols[name] = u;
-            this->takeOwnership(u);
+            std::unique_ptr<Symbol> u = std::unique_ptr<Symbol>(new UnresolvedFunction(std::move(
+                                                                                       functions)));
+            fSymbols[name] = this->takeOwnership(std::move(u));
         }
     } else {
         fErrorReporter.error(symbol->fOffset, "symbol '" + name + "' was already defined");
