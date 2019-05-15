@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59c10a5b_97d582a7",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2277,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-15T12:48:55Z",
+      "side": 1,
+      "message": "What\u0027s with this formatting (\u0026\u0026 on the next line and indented)",
+      "range": {
+        "startLine": 2276,
+        "startChar": 8,
+        "endLine": 2277,
+        "endChar": 66
+      },
+      "revId": "aa1d1f1e8075c215157327774aaeaa9479ea1827",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
