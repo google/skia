@@ -14,43 +14,40 @@
 #include "tools/sk_app/WindowContext.h"
 
 #import <Metal/Metal.h>
-#import <MetalKit/MetalKit.h>
-
-class GrContext;
+#import <QuartzCore/CAMetalLayer.h>
 
 namespace sk_app {
 
 class MetalWindowContext : public WindowContext {
 public:
+    MetalWindowContext(const DisplayParams&);
+
     sk_sp<SkSurface> getBackbufferSurface() override;
 
     bool isValid() override { return fValid; }
 
-    void resize(int w, int h) override;
     void swapBuffers() override;
 
     void setDisplayParams(const DisplayParams& params) override;
 
 protected:
-    MetalWindowContext(const DisplayParams&);
     // This should be called by subclass constructor. It is also called when window/display
     // parameters change. This will in turn call onInitializeContext().
     void initializeContext();
     virtual bool onInitializeContext() = 0;
 
     // This should be called by subclass destructor. It is also called when window/display
-    // parameters change prior to initializing a new GL context. This will in turn call
+    // parameters change prior to initializing a new Metal context. This will in turn call
     // onDestroyContext().
     void destroyContext();
     virtual void onDestroyContext() = 0;
 
-
     bool                        fValid;
     id<MTLDevice>               fDevice;
     id<MTLCommandQueue>         fQueue;
+    CAMetalLayer*               fMetalLayer;
+    id<CAMetalDrawable>         fCurrentDrawable;
     dispatch_semaphore_t        fInFlightSemaphore;
-    MTKView*                    fMTKView;
-    sk_sp<SkSurface>            fSurface;
 };
 
 }   // namespace sk_app
