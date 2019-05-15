@@ -7,6 +7,8 @@
 
 #include "src/images/SkImageEncoderPriv.h"
 
+#ifdef SK_HAS_PNG_LIBRARY
+
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/encode/SkPngEncoder.h"
@@ -434,3 +436,5 @@ bool SkPngEncoder::Encode(SkWStream* dst, const SkPixmap& src, const Options& op
     auto encoder = SkPngEncoder::Make(dst, src, options);
     return encoder.get() && encoder->encodeRows(src.height());
 }
+
+#endif
