@@ -148,6 +148,14 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
                 }
                 break;
             }
+            case ByteCodeInstruction::kLoadSwizzleGlobal: {
+                int count = READ8();
+                printf("loadswizzleglobal %d", count);
+                for (int i = 0; i < count; ++i) {
+                    printf(", %d", READ8());
+                }
+                break;
+            }
             case ByteCodeInstruction::kMultiplyF: printf("multiplyf"); break;
             case ByteCodeInstruction::kMultiplyS: printf("multiplys"); break;
             case ByteCodeInstruction::kMultiplyU: printf("multiplyu"); break;
@@ -341,6 +349,16 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                 ip += count;
                 break;
             }
+            case ByteCodeInstruction::kLoadSwizzleGlobal: {
+                int target = READ8();
+                SkASSERT(target < (int) fGlobals.size());
+                int count = READ8();
+                for (int i = 0; i < count; ++i) {
+                    PUSH(fGlobals[target + *(ip + i)]);
+                }
+                ip += count;
+                break;
+            }
             BINARY_OP(kMultiplyS, int32_t, fSigned, *)
             BINARY_OP(kMultiplyU, uint32_t, fUnsigned, *)
             BINARY_OP(kMultiplyF, float, fFloat, *)
@@ -497,7 +515,8 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                     case ByteCodeInstruction::kLoadGlobal: {
                         int target = READ8();
                         SkASSERT(target < (int) fGlobals.size());
-                        PUSH(fGlobals[target]);
+                        memcpy(sp + 1, &fGlobals[target], count * sizeof(Value));
+                        sp += count;
                         break;
                     }
                     case ByteCodeInstruction::kNegateS: {
@@ -535,6 +554,13 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                     case ByteCodeInstruction::kStore: {
                         memcpy(&stack[(sp - count)->fSigned], sp - count + 1,
                                count * sizeof(Value));
+                        sp -= count;
+                        break;
+                    }
+                    case ByteCodeInstruction::kStoreGlobal: {
+                        int target = (sp - count)->fSigned;
+                        SkASSERT(target < (int)fGlobals.size());
+                        memcpy(&fGlobals[target], sp - count + 1, count * sizeof(Value));
                         sp -= count;
                         break;
                     }

@@ -141,6 +141,7 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
                             continue;
                         }
                         if (declVar == &var) {
+                            SkASSERT(offset <= 255);
                             return offset;
                         }
                         offset += slot_count(declVar->fType);
@@ -440,11 +441,15 @@ void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
     switch (s.fBase->fKind) {
         case Expression::kVariableReference_Kind: {
             const Variable& var = ((VariableReference&) *s.fBase).fVariable;
-            int location = this->getLocation(var);
-            this->align(4, 3);
-            this->write(ByteCodeInstruction::kPushImmediate);
-            this->write32(location);
-            this->write(ByteCodeInstruction::kLoadSwizzle);
+            if (var.fStorage == Variable::kGlobal_Storage) {
+                this->write(ByteCodeInstruction::kLoadSwizzleGlobal);
+                this->write8(this->getLocation(var));
+            } else {
+                this->align(4, 3);
+                this->write(ByteCodeInstruction::kPushImmediate);
+                this->write32(this->getLocation(var));
+                this->write(ByteCodeInstruction::kLoadSwizzle);
+            }
             this->write8(s.fComponents.size());
             for (int c : s.fComponents) {
                 this->write8(c);
@@ -464,10 +469,13 @@ void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
 
 void ByteCodeGenerator::writeVariableReference(const VariableReference& v) {
     if (v.fVariable.fStorage == Variable::kGlobal_Storage) {
+        int count = slot_count(v.fType);
+        if (count > 1) {
+            this->write(ByteCodeInstruction::kVector);
+            this->write8(count);
+        }
         this->write(ByteCodeInstruction::kLoadGlobal);
-        int location = this->getLocation(v.fVariable);
-        SkASSERT(location <= 255);
-        this->write8(location);
+        this->write8(this->getLocation(v.fVariable));
     } else {
         this->align(4, 3);
         this->write(ByteCodeInstruction::kPushImmediate);

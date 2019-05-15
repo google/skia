@@ -61,6 +61,7 @@ enum class ByteCodeInstruction : uint8_t {
     kLoadGlobal,
     // Followed by a count byte (1-4), and then one byte per swizzle component (0-3).
     kLoadSwizzle,
+    kLoadSwizzleGlobal,
     kNegateF,
     kNegateS,
     kMultiplyF,
