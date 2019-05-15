@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7fd1e4fa_25ce5ef5",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-15T21:36:44Z",
+      "side": 1,
+      "message": "So I think there is some confusion because fPathData is used to represent the 3 states a path can be in for the glyph.\n\n1) Not queried yet.\n2) Queried but the glyph has no path.\n3) Cached path is available.\n\nThe assert on hasPath says that we should have queried it before calling that method so it should return true if 3) and false if 2). I didn\u0027t realize this earlier since I only looked at the code which safely handles and returned false for the 1) case also.\n\nI\u0027ve replaced hasPath with an enum which explicitly returns one of the 3 states we\u0027re in. More details why are in the SkTypeface_remote code below.",
+      "parentUuid": "d28c8f1a_2291373c",
+      "range": {
+        "startLine": 178,
+        "startChar": 9,
+        "endLine": 178,
+        "endChar": 22
+      },
+      "revId": "6e26658c77b58e17a9e9cfbf4fb7662e1c8fbb7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7df5ad17_936f84da",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 6
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8a266e06_3b28c08f",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-15T21:36:44Z",
+      "side": 1,
+      "message": "The reason it needs to be done everytime is because each time its drawn we need to pin the fallback strike as well. Consider the following case:\n\n1) The first time the glyph is drawn, we find a cache miss here and add it for fallback processing. The painter code creates the fallback strike and adds the glyph that will actually be used for drawing to it.\n\n2) The next time the glyph with no path is cached but the fallback strike has been evicted. If we don\u0027t add the glyph for fallback processing since the no path glyph is cached, we\u0027d never regenerate the fallback strike.\n\nAnother thing I noticed about your change is that we\u0027re adding all glyphs to the returned list (not just the fallback ones). Why is that needed? I don\u0027t see anything else the painter needs to do for the other cases.",
+      "parentUuid": "7df5ad17_936f84da",
+      "range": {
+        "startLine": 638,
+        "startChar": 13,
+        "endLine": 638,
+        "endChar": 26
+      },
+      "revId": "6e26658c77b58e17a9e9cfbf4fb7662e1c8fbb7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8ae2f50f_0aa7e9c5",
         "filename": "src/core/SkTypeface_remote.cpp",
         "patchSetId": 6
@@ -59,6 +107,30 @@
       "writtenOn": "2019-05-15T13:43:40Z",
       "side": 1,
       "message": "!cachedGlyph-\u003ehasPath()",
+      "range": {
+        "startLine": 85,
+        "startChar": 29,
+        "endLine": 85,
+        "endChar": 42
+      },
+      "revId": "6e26658c77b58e17a9e9cfbf4fb7662e1c8fbb7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8193bbe2_9c9e0eb4",
+        "filename": "src/core/SkTypeface_remote.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-15T21:36:44Z",
+      "side": 1,
+      "message": "I can\u0027t use hasPath() because it requires that we must have queried the path before calling the method, and that is not necessarily true here. In fact I want to know if we\u0027re in the queried but no path state to distinguish them from real cache miss cases.\n\nAnother thing is that with the code in this patch which initializes the glyph with an empty path, to forward the renderer\u0027s info that there is no path, then SkStrike shouldn\u0027t call generatePath. The only case where it would happen is the |fGenerateImageFromPath| code in SkScalerContext which doesn\u0027t use the strike cache. I\u0027ve handled that in this patch as well.",
+      "parentUuid": "8ae2f50f_0aa7e9c5",
       "range": {
         "startLine": 85,
         "startChar": 29,
