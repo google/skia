@@ -169,7 +169,10 @@ bool read_path(Deserializer* deserializer, SkGlyph* glyph, SkStrike* cache) {
     uint64_t pathSize = 0u;
     if (!deserializer->read<uint64_t>(&pathSize)) return false;
 
-    if (pathSize == 0u) return true;
+    if (pathSize == 0u) {
+        cache->initializePath(glyph, nullptr, 0u);
+        return true;
+    }
 
     auto* path = deserializer->read(pathSize, kPathAlignment);
     if (!path) return false;
@@ -576,18 +579,10 @@ const SkGlyph& SkStrikeServer::SkGlyphCacheState::getGlyphMetrics(
 // A key reason for no path is the fact that the glyph is a color image or is a bitmap only
 // font.
 void SkStrikeServer::SkGlyphCacheState::generatePath(const SkGlyph& glyph) {
-
     // Check to see if we have processed this glyph for a path before.
     if (glyph.fPathData == nullptr) {
-
-        // Never checked for a path before. Add the path now.
-        auto path = const_cast<SkGlyph&>(glyph).addPath(fContext.get(), &fAlloc);
-        if (path != nullptr) {
-
-            // A path was added make sure to send it to the GPU.
             fCachedGlyphPaths.add(glyph.getPackedID());
             fPendingGlyphPaths.push_back(glyph.getPackedID());
-        }
     }
 }
 
@@ -632,7 +627,6 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
 
         // Has this glyph ever been seen before?
         if (glyphPtr == nullptr) {
-
             // Never seen before. Make a new glyph.
             glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
             fGlyphMap.set(glyphPtr);
@@ -647,17 +641,10 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
                 // path.
                 if (glyphPtr->fPathData == nullptr) {
 
-                    // Never checked for a path before. Add the path now.
-                    auto path = const_cast<SkGlyph&>(*glyphPtr).addPath(fContext.get(), &fAlloc);
-                    if (path != nullptr) {
-
-                        // A path was added make sure to send it to the GPU.
                         fCachedGlyphPaths.add(glyphPtr->getPackedID());
                         fPendingGlyphPaths.push_back(glyphPtr->getPackedID());
-                    }
                 }
             } else {
-
                 // This will be handled by the fallback strike.
                 SkASSERT(glyphPtr->maxDimension() > maxDimension
                          && glyphPtr->fMaskFormat == SkMask::kARGB32_Format);
