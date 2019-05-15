@@ -394,6 +394,7 @@ public:
     Stats* stats() { return &fStats; }
     void dumpJSON(SkJSONWriter*) const;
 
+#if GR_TEST_UTILS
     GrBackendTexture createTestingOnlyBackendTexture(int w, int h, SkColorType,
                                                      GrMipMapped, GrRenderable,
                                                      const void* pixels = nullptr,
@@ -407,15 +408,13 @@ public:
                                                              const void* pixels = nullptr,
                                                              size_t rowBytes = 0) = 0;
 
+    /** Check a handle represents an actual texture in the backend API that has not been freed. */
+    virtual bool isTestingOnlyBackendTexture(const GrBackendTexture&) const = 0;
     /**
      * Frees a texture created by createTestingOnlyBackendTexture(). If ownership of the backend
      * texture has been transferred to a GrContext using adopt semantics this should not be called.
      */
     virtual void deleteTestingOnlyBackendTexture(const GrBackendTexture&) = 0;
-
-#if GR_TEST_UTILS
-    /** Check a handle represents an actual texture in the backend API that has not been freed. */
-    virtual bool isTestingOnlyBackendTexture(const GrBackendTexture&) const = 0;
 
     virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h,
                                                                        GrColorType) = 0;
