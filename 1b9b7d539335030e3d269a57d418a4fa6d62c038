@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85bc7b4a_0f257778",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 6025
+      },
+      "writtenOn": "2019-05-16T14:31:25Z",
+      "side": 1,
+      "message": "FYI: In recent versions of clang-cl, you can use the /clang: switch to access gcc style driver options through the cl-style driver. So /clang:-ffp-contract\u003dfast should be accepted by clang-cl now.",
+      "revId": "1b9b7d539335030e3d269a57d418a4fa6d62c038",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
