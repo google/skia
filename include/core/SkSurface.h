@@ -687,6 +687,14 @@ public:
                          const SkIRect& srcRect, ReadPixelsCallback callback,
                          ReadPixelsContext context);
 
+    enum RescaleLinear : bool {
+        kNo,
+        kYes
+    };
+    void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                   RescaleLinear rescaleLinear, SkFilterQuality rescaleQuality,
+                                   ReadPixelsCallback callback, ReadPixelsContext context);
+
     /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
 
         Source SkRect corners are (0, 0) and (src.width(), src.height()).

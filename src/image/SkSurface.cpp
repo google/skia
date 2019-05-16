@@ -6,6 +6,7 @@
  */
 
 #include <atomic>
+#include <cmath>
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontLCDConfig.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -98,6 +99,81 @@ void SkSurface_Base::onAsyncReadPixels(SkColorType ct, SkAlphaType at, sk_sp<SkC
     } else {
         callback(context, nullptr, 0);
     }
+}
+
+void SkSurface_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
+                                                 const SkIRect& srcRect,
+                                                 RescaleLinear rescaleLinear,
+                                                 SkFilterQuality rescaleQuality,
+                                                 ReadPixelsCallback callback,
+                                                 ReadPixelsContext context) {
+    int srcW = srcRect.width();
+    int srcH = srcRect.height();
+    float sx = (float) info.width() / srcW;
+    float sy  = (float) info.height() / srcH;
+    // How many bilerp/bicubic steps to do in X and Y. +value means upscaling, -value means
+    // downscaling.
+    int stepsX;
+    int stepsY;
+    if (rescaleQuality > kNone_SkFilterQuality) {
+        stepsX = static_cast<int>((sx > 1.f) ? std::ceil(std::log2f(sx))
+                                             : std::floor(std::log2f(sx)));
+        stepsY = static_cast<int>((sy > 1.f) ? std::ceil(std::log2f(sy))
+                                             : std::floor(std::log2f(sy)));
+    } else {
+        stepsX = sx != 1.f;
+        stepsY = sy != 1.f;
+    }
+
+    SkPaint paint;
+    paint.setBlendMode(SkBlendMode::kSrc);
+    if (stepsX < 0 || stepsY < 0) {
+        // Don't trigger MIP generation. We don't currently have a way to trigger bicubic for
+        // downscaling draws.
+        rescaleQuality = std::min(rescaleQuality, kLow_SkFilterQuality);
+    }
+    paint.setFilterQuality(rescaleQuality);
+    sk_sp<SkSurface> src(SkRef(this));
+    int srcX = srcRect.fLeft;
+    int srcY = srcRect.fTop;
+    //SkASSERT(stepsX || stepsY);
+    while (stepsX || stepsY) {
+        int nextW = info.width();
+        int nextH = info.height();
+        if (stepsX < 0) {
+            nextW = info.width() << (-stepsX - 1);
+            stepsX++;
+        } else if (stepsX != 0) {
+            if (stepsX > 1) {
+                nextW = srcW * 2;
+            }
+            --stepsX;
+        }
+        if (stepsY < 0) {
+            nextH = info.height() << (-stepsY - 1);
+            stepsY++;
+        } else if (stepsY != 0) {
+            if (stepsY > 1) {
+                nextH = srcH * 2;
+            }
+            --stepsY;
+        }
+        auto next = this->makeSurface(this->getCanvas()->imageInfo().makeWH(nextW, nextH));
+        if (!next) {
+            callback(context, nullptr, 0);
+            return;
+        }
+        next->getCanvas()->drawImageRect(src->makeImageSnapshot(),
+                                        SkIRect::MakeXYWH(srcX, srcY, srcW, srcH),
+                                        SkRect::MakeWH((float)nextW, (float)nextH),
+                                        &paint, SkCanvas::kFast_SrcRectConstraint);
+        src = std::move(next);
+        srcX = srcY = 0;
+        srcW = nextW;
+        srcH = nextH;
+    }
+    static_cast<SkSurface_Base*>(src.get())->onAsyncReadPixels(info.colorType(), info.alphaType(),
+            info.refColorSpace(), SkIRect::MakeXYWH(srcX, srcY, srcW, srcH), callback, context);
 }
 
 bool SkSurface_Base::outstandingImageSnapshot() const {
@@ -231,6 +307,25 @@ void SkSurface::asyncReadPixels(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpa
         return;
     }
     asSB(this)->onAsyncReadPixels(ct, at, std::move(cs), srcRect, callback, context);
+}
+
+void SkSurface::asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                          RescaleLinear rescaleLinear,
+                                          SkFilterQuality rescaleQuality,
+                                          ReadPixelsCallback callback,
+                                          ReadPixelsContext context) {
+    if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) ||
+        !SkImageInfoIsValid(info)) {
+        callback(context, nullptr, 0);
+        return;
+    }
+    if (info.width() == srcRect.width() && info.height() == srcRect.height()) {
+        asSB(this)->onAsyncReadPixels(info.colorType(), info.alphaType(), info.refColorSpace(),
+                srcRect, callback, context);
+    } else {
+        asSB(this)->onAsyncRescaleAndReadPixels(info, srcRect, rescaleLinear, rescaleQuality,
+                callback, context);
+    }
 }
 
 void SkSurface::writePixels(const SkPixmap& pmap, int x, int y) {
