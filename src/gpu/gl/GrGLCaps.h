@@ -428,6 +428,9 @@ public:
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                     GrSRGBEncoded srgbEncoded) const override;
 
+    GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
+    GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
+
 #if GR_TEST_UTILS
     GrGLStandard standard() const { return fStandard; }
 #endif

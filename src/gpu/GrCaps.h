@@ -346,6 +346,18 @@ public:
      */
     bool clampToBorderSupport() const { return fClampToBorderSupport; }
 
+    /**
+     * Returns the GrSwizzle to use when sampling from a texture with the passed in GrBackendFormat
+     * and GrColorType.
+     */
+    virtual GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const = 0;
+
+    /**
+     * Returns the GrSwizzle to use when outputting to a render target with the passed in
+     * GrBackendFormat and GrColorType.
+     */
+    virtual GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const = 0;
+
     const GrDriverBugWorkarounds& workarounds() const { return fDriverBugWorkarounds; }
 
 protected:

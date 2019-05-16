@@ -706,6 +706,7 @@ static bool format_is_srgb(VkFormat format) {
         case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
         case VK_FORMAT_R5G6B5_UNORM_PACK16:
         case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
+        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
         case VK_FORMAT_R8_UNORM:
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
         case VK_FORMAT_R32G32B32A32_SFLOAT:
@@ -733,6 +734,7 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_R8G8_UNORM,
     VK_FORMAT_A2B10G10R10_UNORM_PACK32,
     VK_FORMAT_B4G4R4A4_UNORM_PACK16,
+    VK_FORMAT_R4G4B4A4_UNORM_PACK16,
     VK_FORMAT_R32G32B32A32_SFLOAT,
     VK_FORMAT_R32G32_SFLOAT,
     VK_FORMAT_R8G8B8A8_SRGB,
@@ -984,7 +986,8 @@ static GrPixelConfig validate_image_info(VkFormat format, SkColorType ct, bool h
             }
             break;
         case kARGB_4444_SkColorType:
-            if (VK_FORMAT_B4G4R4A4_UNORM_PACK16 == format) {
+            if (VK_FORMAT_B4G4R4A4_UNORM_PACK16 == format ||
+                VK_FORMAT_R4G4B4A4_UNORM_PACK16 == format) {
                 return kRGBA_4444_GrPixelConfig;
             }
             break;
@@ -1099,6 +1102,88 @@ GrBackendFormat GrVkCaps::getBackendFormatFromGrColorType(GrColorType ct,
         return GrBackendFormat();
     }
     return GrBackendFormat::MakeVk(format);
+}
+
+#ifdef SK_DEBUG
+static bool format_color_type_valid_pair(VkFormat vkFormat, GrColorType colorType) {
+    switch (colorType) {
+        case GrColorType::kUnknown:
+            return false;
+        case GrColorType::kAlpha_8:
+            return VK_FORMAT_R8_UNORM == vkFormat;
+        case GrColorType::kRGB_565:
+            return VK_FORMAT_R5G6B5_UNORM_PACK16 == vkFormat;
+        case GrColorType::kABGR_4444:
+            return VK_FORMAT_B4G4R4A4_UNORM_PACK16 == vkFormat ||
+                   VK_FORMAT_R4G4B4A4_UNORM_PACK16 == vkFormat;
+        case GrColorType::kRGBA_8888:
+            return VK_FORMAT_R8G8B8A8_UNORM == vkFormat || VK_FORMAT_R8G8B8A8_SRGB == vkFormat;
+        case GrColorType::kRGB_888x:
+            return VK_FORMAT_R8G8B8_UNORM == vkFormat || VK_FORMAT_R8G8B8A8_UNORM == vkFormat;
+        case GrColorType::kRG_88:
+            return VK_FORMAT_R8G8_UNORM == vkFormat;
+        case GrColorType::kBGRA_8888:
+            return VK_FORMAT_B8G8R8A8_UNORM == vkFormat || VK_FORMAT_B8G8R8A8_SRGB == vkFormat;
+        case GrColorType::kRGBA_1010102:
+            return VK_FORMAT_A2B10G10R10_UNORM_PACK32 == vkFormat;
+        case GrColorType::kGray_8:
+            return VK_FORMAT_R8_UNORM == vkFormat;
+        case GrColorType::kAlpha_F16:
+            return VK_FORMAT_R16_SFLOAT == vkFormat;
+        case GrColorType::kRGBA_F16:
+            return VK_FORMAT_R16G16B16A16_SFLOAT == vkFormat;
+        case GrColorType::kRGBA_F16_Clamped:
+            return VK_FORMAT_R16G16B16A16_SFLOAT == vkFormat;
+        case GrColorType::kRG_F32:
+            return VK_FORMAT_R32G32_SFLOAT == vkFormat;
+        case GrColorType::kRGBA_F32:
+            return VK_FORMAT_R32G32B32A32_SFLOAT == vkFormat;
+        case GrColorType::kRGB_ETC1:
+            return VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK == vkFormat;
+    }
+}
+#endif
+
+static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorType,
+                             bool forOutput) {
+    SkASSERT(format.getVkFormat());
+    VkFormat vkFormat = *format.getVkFormat();
+
+    SkASSERT(format_color_type_valid_pair(vkFormat, colorType));
+
+    switch (colorType) {
+        case GrColorType::kAlpha_8: // fall through
+        case GrColorType::kAlpha_F16:
+            if (forOutput) {
+                return GrSwizzle::AAAA();
+            } else {
+                return GrSwizzle::RRRR();
+            }
+        case GrColorType::kGray_8:
+            if (!forOutput) {
+                return GrSwizzle::RRRA();
+            }
+            break;
+        case GrColorType::kABGR_4444:
+            if (VK_FORMAT_B4G4R4A4_UNORM_PACK16 == vkFormat) {
+                return GrSwizzle::BGRA();
+            }
+            break;
+        case GrColorType::kRGB_888x:
+            if (!forOutput) {
+                return GrSwizzle::RGB1();
+            }
+        default:
+            return GrSwizzle::RGBA();
+    }
+    return GrSwizzle::RGBA();
+}
+
+GrSwizzle GrVkCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+    return get_swizzle(format, colorType, false);
+}
+GrSwizzle GrVkCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+    return get_swizzle(format, colorType, true);
 }
 
 size_t GrVkCaps::onTransferFromOffsetAlignment(GrColorType bufferColorType) const {

@@ -166,6 +166,9 @@ public:
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                     GrSRGBEncoded srgbEncoded) const override;
 
+    GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
+    GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
+
 private:
     enum VkVendor {
         kAMD_VkVendor = 4098,
@@ -220,7 +223,7 @@ private:
 
         SkTDArray<int> fColorSampleCounts;
     };
-    static const size_t kNumVkFormats = 16;
+    static const size_t kNumVkFormats = 17;
     FormatInfo fFormatTable[kNumVkFormats];
 
     const FormatInfo& getFormatInfo(VkFormat) const;
