@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "d733f41c_856b0333",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-16T20:46:16Z",
+      "side": 1,
+      "message": "Ah, nevermind. While adding tests for this case in my prefix/postfix CL, I realized that the language doesnn\u0027t allow unary ++/-- on non-scalar types, so I guess the slot_count() below can just be \u00271\u0027 ?",
+      "parentUuid": "5a9f4602_10caefd3",
+      "revId": "dfc9c64b9a10fe30004cf1742b6e9477212a3d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4c17972f_eb912277",
         "filename": "src/sksl/SkSLInterpreter.cpp",
         "patchSetId": 2
