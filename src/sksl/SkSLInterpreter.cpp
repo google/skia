@@ -137,21 +137,22 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             case ByteCodeInstruction::kDivideS: printf("divides"); break;
             case ByteCodeInstruction::kDivideU: printf("divideu"); break;
             case ByteCodeInstruction::kDup: printf("dup"); break;
-            case ByteCodeInstruction::kDupDown: printf("dupdown %d", READ8()); break;
             case ByteCodeInstruction::kFloatToInt: printf("floattoint"); break;
-            case ByteCodeInstruction::kLoad: printf("load"); break;
+            case ByteCodeInstruction::kLoad: printf("load %d", READ8()); break;
             case ByteCodeInstruction::kLoadGlobal: printf("loadglobal %d", READ8()); break;
             case ByteCodeInstruction::kLoadSwizzle: {
+                int target = READ8();
                 int count = READ8();
-                printf("loadswizzle %d", count);
+                printf("loadswizzle %d %d", target, count);
                 for (int i = 0; i < count; ++i) {
                     printf(", %d", READ8());
                 }
                 break;
             }
             case ByteCodeInstruction::kLoadSwizzleGlobal: {
+                int target = READ8();
                 int count = READ8();
-                printf("loadswizzleglobal %d", count);
+                printf("loadswizzleglobal %d %d", target, count);
                 for (int i = 0; i < count; ++i) {
                     printf(", %d", READ8());
                 }
@@ -178,11 +179,21 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             case ByteCodeInstruction::kRemainderU: printf("remainderu"); break;
             case ByteCodeInstruction::kReturn: printf("return %d", READ8()); break;
             case ByteCodeInstruction::kSignedToFloat: printf("signedtofloat"); break;
-            case ByteCodeInstruction::kStore: printf("store"); break;
-            case ByteCodeInstruction::kStoreGlobal: printf("storeglobal"); break;
+            case ByteCodeInstruction::kStore: printf("store %d", READ8()); break;
+            case ByteCodeInstruction::kStoreGlobal: printf("storeglobal %d", READ8()); break;
             case ByteCodeInstruction::kStoreSwizzle: {
+                int target = READ8();
                 int count = READ8();
-                printf("storeswizzle %d", count);
+                printf("storeswizzle %d %d", target, count);
+                for (int i = 0; i < count; ++i) {
+                    printf(", %d", READ8());
+                }
+                break;
+            }
+            case ByteCodeInstruction::kStoreSwizzleGlobal: {
+                int target = READ8();
+                int count = READ8();
+                printf("storeswizzleglobal %d %d", target, count);
                 for (int i = 0; i < count; ++i) {
                     printf(", %d", READ8());
                 }
@@ -308,17 +319,6 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                 PUSH(top);
                 break;
             }
-            case ByteCodeInstruction::kDupDown: {
-                int count = READ8();
-                // before dupdown 4: X A B C D
-                // after dupdown 4:  A B C D X A B C D
-                SkASSERT(sp - count >= stack);
-                memmove(sp, sp - count, sizeof(Value) * (count + 1));
-                sp += count;
-                SkASSERT(sp - count * 2 >= stack);
-                memcpy(sp - count * 2, sp - count + 1, sizeof(Value) * count);
-                break;
-            }
             case ByteCodeInstruction::kFloatToInt: {
                 Value& top = TOP();
                 top.fSigned = (int) top.fFloat;
@@ -335,7 +335,7 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                 break;
             }
             case ByteCodeInstruction::kLoad: {
-                int target = POP().fSigned;
+                int target = READ8();
                 SkASSERT(target < STACK_SIZE());
                 PUSH(stack[target]);
                 break;
@@ -347,10 +347,10 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                 break;
             }
             case ByteCodeInstruction::kLoadSwizzle: {
-                Value target = POP();
+                int target = READ8();
                 int count = READ8();
                 for (int i = 0; i < count; ++i) {
-                    PUSH(stack[target.fSigned + *(ip + i)]);
+                    PUSH(stack[target + *(ip + i)]);
                 }
                 ip += count;
                 break;
@@ -437,25 +437,33 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
             }
             case ByteCodeInstruction::kStore: {
                 Value value = POP();
-                int target = POP().fSigned;
+                int target = READ8();
                 SkASSERT(target < STACK_SIZE());
                 stack[target] = value;
                 break;
             }
             case ByteCodeInstruction::kStoreGlobal: {
                 Value value = POP();
-                int target = POP().fSigned;
+                int target = READ8();
                 SkASSERT(target < (int) fGlobals.size());
                 fGlobals[target] = value;
                 break;
             }
             case ByteCodeInstruction::kStoreSwizzle: {
+                int target = READ8();
                 int count = READ8();
-                int target = (sp - count)->fSigned;
                 for (int i = count - 1; i >= 0; --i) {
                     stack[target + *(ip + i)] = POP();
                 }
-                POP();
+                ip += count;
+                break;
+            }
+            case ByteCodeInstruction::kStoreSwizzleGlobal: {
+                int target = READ8();
+                int count = READ8();
+                for (int i = count - 1; i >= 0; --i) {
+                    fGlobals[target + *(ip + i)] = POP();
+                }
                 ip += count;
                 break;
             }
@@ -524,14 +532,15 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                         break;
                     }
                     case ByteCodeInstruction::kLoad: {
-                        int src = POP().fSigned;
-                        memcpy(sp + 1, &stack[src], count * sizeof(Value));
+                        int target = READ8();
+                        SkASSERT(target + count <= STACK_SIZE());
+                        memcpy(sp + 1, &stack[target], count * sizeof(Value));
                         sp += count;
                         break;
                     }
                     case ByteCodeInstruction::kLoadGlobal: {
                         int target = READ8();
-                        SkASSERT(target < (int) fGlobals.size());
+                        SkASSERT(target + count <= (int) fGlobals.size());
                         memcpy(sp + 1, &fGlobals[target], count * sizeof(Value));
                         sp += count;
                         break;
@@ -577,14 +586,15 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                     VECTOR_BINARY_OP(kRemainderS, int32_t, fSigned, %)
                     VECTOR_BINARY_OP(kRemainderU, uint32_t, fUnsigned, %)
                     case ByteCodeInstruction::kStore: {
-                        memcpy(&stack[(sp - count)->fSigned], sp - count + 1,
-                               count * sizeof(Value));
+                        int target = READ8();
+                        SkASSERT(target + count <= STACK_SIZE());
+                        memcpy(&stack[target], sp - count + 1, count * sizeof(Value));
                         sp -= count;
                         break;
                     }
                     case ByteCodeInstruction::kStoreGlobal: {
-                        int target = (sp - count)->fSigned;
-                        SkASSERT(target < (int)fGlobals.size());
+                        int target = READ8();
+                        SkASSERT(target + count <= (int)fGlobals.size());
                         memcpy(&fGlobals[target], sp - count + 1, count * sizeof(Value));
                         sp -= count;
                         break;
