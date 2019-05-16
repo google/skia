@@ -608,15 +608,7 @@ bool GrRenderTargetContext::drawFilledRectAsClear(const GrClip& clip, GrPaint&& 
             return false;
         }
 
-        if (clipAA == GrAA::kNo) {
-            // Must round the coordinates to be consistent with GrReducedClip's non-aa clip rect
-            // to scissor rect code.
-            SkIRect rounded;
-            clipRRect.rect().round(&rounded);
-            combinedRect = SkRect::Make(rounded);
-        } else {
-            combinedRect = clipRRect.rect();
-        }
+        combinedRect = clipRRect.rect();
     } else {
         // The clip is outside the render target, so the clip can be ignored
         clipAA = GrAA::kNo;
