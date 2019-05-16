@@ -764,3 +764,58 @@ void GrContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCal
     fContext->drawingManager()->testingOnly_removeOnFlushCallbackObject(cb);
 }
 #endif
+
+//////////////////////////////////////////////////////////////////////////////
+GrBackendTexture GrContextPriv::createBackendTexture(int width, int height,
+                                                     GrBackendFormat backendFormat,
+                                                     GrMipMapped mipMapped,
+                                                     GrRenderable renderable) {
+    if (!fContext->asDirectContext()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    if (!backendFormat.isValid()) {
+        return GrBackendTexture();
+    }
+
+    GrGpu* gpu = fContext->fGpu.get();
+
+    return gpu->createTestingOnlyBackendTexture(width, height, backendFormat,
+                                                mipMapped, renderable,
+                                                nullptr, 0);
+}
+
+GrBackendTexture GrContextPriv::createBackendTexture(int width, int height,
+                                                     SkColorType colorType,
+                                                     GrMipMapped mipMapped,
+                                                     GrRenderable renderable) {
+    if (!fContext->asDirectContext()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    GrBackendFormat format = fContext->caps()->getBackendFormatFromColorType(colorType);
+    if (!format.isValid()) {
+        return GrBackendTexture();
+    }
+
+    return this->createBackendTexture(width, height, format, mipMapped, renderable);
+}
+
+void GrContextPriv::deleteBackendTexture(GrBackendTexture backendTex) {
+    if (this->abandoned() || !backendTex.isValid()) {
+        return;
+    }
+
+    GrGpu* gpu = fContext->fGpu.get();
+
+    gpu->deleteTestingOnlyBackendTexture(backendTex);
+}
+

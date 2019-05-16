@@ -15,6 +15,7 @@ tests_sources = [
   "$_tests/ApplyGammaTest.cpp",
   "$_tests/ArenaAllocTest.cpp",
   "$_tests/AsADashTest.cpp",
+  "$_tests/BackendAllocationTest.cpp",
   "$_tests/BadIcoTest.cpp",
   "$_tests/BitSetTest.cpp",
   "$_tests/BitmapCopyTest.cpp",
@@ -304,6 +305,8 @@ tests_sources = [
   "$_tests/YUVCacheTest.cpp",
   "$_tests/YUVTest.cpp",
 ]
+
+metal_tests_sources = [ "$_tests/MtlBackendAllocationTest.mm" ]
 
 pathops_tests_sources = [
   "$_tests/PathOpsAngleIdeas.cpp",

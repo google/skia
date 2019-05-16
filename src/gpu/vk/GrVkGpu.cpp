@@ -1535,11 +1535,11 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         return false;
     }
 
-    if (texturable && !fVkCaps->isConfigTexturable(config)) {
+    if (texturable && !fVkCaps->isFormatTexturable(vkFormat)) {
         return false;
     }
 
-    if (renderable && !fVkCaps->isConfigRenderable(config)) {
+    if (renderable && !fVkCaps->isFormatRenderable(vkFormat)) {
         return false;
     }
 

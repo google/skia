@@ -3198,7 +3198,7 @@ GrPixelConfig validate_sized_format(GrGLenum format, SkColorType ct, GrGLStandar
             }
             break;
     }
-    SkDebugf("Unknown pixel config %d\n", format);
+    SkDebugf("Unknown pixel config 0x%x\n", format);
     return kUnknown_GrPixelConfig;
 }
 
