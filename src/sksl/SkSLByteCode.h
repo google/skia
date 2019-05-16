@@ -19,75 +19,74 @@ struct ByteCode;
 class  ExternalValue;
 struct FunctionDeclaration;
 
+#define VECTOR(name) name, name ## 2, name ## 3, name ## 4
 enum class ByteCodeInstruction : uint8_t {
     kInvalid,
     kNop1,
     kNop2,
     kNop3,
     // B = bool, F = float, I = int, S = signed, U = unsigned
-    kAddF,
-    kAddI,
-    kAndB,
-    kAndI,
+    VECTOR(kAddF),
+    VECTOR(kAddI),
+    VECTOR(kAndB),
+    VECTOR(kAndI),
     kBranch,
     // Followed by a byte indicating the index of the function to call
     kCall,
-    kCompareIEQ,
-    kCompareINEQ,
-    kCompareFEQ,
-    kCompareFGT,
-    kCompareFGTEQ,
-    kCompareFLT,
-    kCompareFLTEQ,
-    kCompareFNEQ,
-    kCompareSGT,
-    kCompareSGTEQ,
-    kCompareSLT,
-    kCompareSLTEQ,
-    kCompareUGT,
-    kCompareUGTEQ,
-    kCompareULT,
-    kCompareULTEQ,
+    VECTOR(kCompareIEQ),
+    VECTOR(kCompareINEQ),
+    VECTOR(kCompareFEQ),
+    VECTOR(kCompareFGT),
+    VECTOR(kCompareFGTEQ),
+    VECTOR(kCompareFLT),
+    VECTOR(kCompareFLTEQ),
+    VECTOR(kCompareFNEQ),
+    VECTOR(kCompareSGT),
+    VECTOR(kCompareSGTEQ),
+    VECTOR(kCompareSLT),
+    VECTOR(kCompareSLTEQ),
+    VECTOR(kCompareUGT),
+    VECTOR(kCompareUGTEQ),
+    VECTOR(kCompareULT),
+    VECTOR(kCompareULTEQ),
     // Followed by a 16 bit address
     kConditionalBranch,
     // Pops and prints the top value from the stack
     kDebugPrint,
-    kDivideF,
-    kDivideS,
-    kDivideU,
+    VECTOR(kDivideF),
+    VECTOR(kDivideS),
+    VECTOR(kDivideU),
     // Duplicates the top stack value
-    kDup,
-    kFloatToInt,
-    kSignedToFloat,
-    kUnsignedToFloat,
+    VECTOR(kDup),
+    VECTOR(kFloatToInt),
+    VECTOR(kSignedToFloat),
+    VECTOR(kUnsignedToFloat),
     // All kLoad* are followed by a byte indicating the local/global slot to load
-    kLoad,
-    kLoadGlobal,
+    VECTOR(kLoad),
+    VECTOR(kLoadGlobal),
     // As above, then a count byte (1-4), and then one byte per swizzle component (0-3).
     kLoadSwizzle,
     kLoadSwizzleGlobal,
-    kNegateF,
-    kNegateS,
-    kMultiplyF,
-    kMultiplyI,
-    kNot,
-    kOrB,
-    kOrI,
-    // Followed by a byte indicating parameter slot to load
-    kParameter,
-    kPop,
+    VECTOR(kNegateF),
+    VECTOR(kNegateS),
+    VECTOR(kMultiplyF),
+    VECTOR(kMultiplyI),
+    VECTOR(kNot),
+    VECTOR(kOrB),
+    VECTOR(kOrI),
+    VECTOR(kPop),
     // Followed by a 32 bit value containing the value to push
     kPushImmediate,
     // Followed by a byte indicating external value to read
-    kReadExternal,
-    kRemainderF,
-    kRemainderS,
-    kRemainderU,
+    VECTOR(kReadExternal),
+    VECTOR(kRemainderF),
+    VECTOR(kRemainderS),
+    VECTOR(kRemainderU),
     // Followed by a byte indicating the number of slots being returned
     kReturn,
     // All kStore* are followed by a byte indicating the local/global slot to store
-    kStore,
-    kStoreGlobal,
+    VECTOR(kStore),
+    VECTOR(kStoreGlobal),
     // As above, then a count byte (1-4), and then one byte per swizzle component (0-3).
     // Expects the stack to look like: ... v1 v2 v3 v4, where the number of 'v's is equal to the
     // number of swizzle components. After the store, all v's are popped from the stack.
@@ -97,14 +96,16 @@ enum class ByteCodeInstruction : uint8_t {
     // count byte provides the current vector size (the vector is the top n stack elements), and the
     // second count byte provides the swizzle component count.
     kSwizzle,
-    kSubtractF,
-    kSubtractI,
-    // Followed by a byte indicating vector count. Modifies the next instruction to operate on the
-    // indicated number of columns, e.g. kVector 2 kMultiplyf performs a float2 * float2 operation.
-    kVector,
+    VECTOR(kSubtractF),
+    VECTOR(kSubtractI),
+    VECTOR(kXorB),
+    VECTOR(kXorI),
     // Followed by a byte indicating external value to write
-    kWriteExternal,
+    VECTOR(kWriteExternal),
+    kLast
 };
+static_assert((int) ByteCodeInstruction::kLast <= 256, "opcodes must fit into a single byte");
+#undef VECTOR
 
 struct ByteCodeFunction {
     ByteCodeFunction(const FunctionDeclaration* declaration)
