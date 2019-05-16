@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2019 Google Inc.
  *
@@ -17,27 +16,50 @@
 #include "src/image/SkImage_Base.h"
 #include "tools/sk_app/MetalWindowContext.h"
 
-namespace sk_app {
+using sk_app::DisplayParams;
+using sk_app::MetalWindowContext;
 
-static int kMaxBuffersInFlight = 3;
+#ifdef SK_BUILD_FOR_MAC
+#import <QuartzCore/CAConstraintLayoutManager.h>
+#endif
+
+namespace sk_app {
 
 MetalWindowContext::MetalWindowContext(const DisplayParams& params)
     : WindowContext(params)
-    , fValid(false)
-    , fSurface(nullptr) {
+    , fValid(false) {
+
     fDisplayParams.fMSAASampleCount = GrNextPow2(fDisplayParams.fMSAASampleCount);
 }
 
 void MetalWindowContext::initializeContext() {
     SkASSERT(!fContext);
 
-    // The subclass uses these to initialize their view
     fDevice = MTLCreateSystemDefaultDevice();
     fQueue = [fDevice newCommandQueue];
 
-    fInFlightSemaphore = dispatch_semaphore_create(kMaxBuffersInFlight);
+    if (fDisplayParams.fMSAASampleCount > 1) {
+        if (![fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {
+            return;
+        }
+    }
+    // TODO: Multisampling not supported
+    fSampleCount = 1; //fDisplayParams.fMSAASampleCount;
+    fStencilBits = 8;
+
+    fMetalLayer = [CAMetalLayer layer];
+    fMetalLayer.device = fDevice;
+    fMetalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+#ifdef SK_BUILD_FOR_MAC
+    BOOL useVsync = fDisplayParams.fDisableVsync ? NO : YES;
+    fMetalLayer.displaySyncEnabled = useVsync;  // TODO: need solution for 10.12 or lower
+    fMetalLayer.layoutManager = [CAConstraintLayoutManager layoutManager];
+    fMetalLayer.autoresizingMask = kCALayerHeightSizable | kCALayerWidthSizable;
+    fMetalLayer.contentsGravity = kCAGravityTopLeft;
+#endif
 
     fValid = this->onInitializeContext();
+
     fContext = GrContext::MakeMetal(fDevice, fQueue, fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
@@ -47,34 +69,33 @@ void MetalWindowContext::initializeContext() {
 }
 
 void MetalWindowContext::destroyContext() {
-    fSurface.reset(nullptr);
-
     if (fContext) {
         // in case we have outstanding refs to this guy (lua?)
         fContext->abandonContext();
         fContext.reset();
     }
 
-    // TODO: Figure out who's releasing this
-    // [fQueue release];
-    [fDevice release];
-
     this->onDestroyContext();
+
+    fMetalLayer = nil;
+    fValid = false;
+
+    // TODO: figure out why we can't release these
+    // [fQueue release];
+    // [fDevice release];
 }
 
 sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
     sk_sp<SkSurface> surface;
     if (fContext) {
-        // Block to ensure we don't try to render to a frame that hasn't finished presenting
-        dispatch_semaphore_wait(fInFlightSemaphore, DISPATCH_TIME_FOREVER);
-
         // TODO: Apple recommends grabbing the drawable (which we're implicitly doing here)
         // for as little time as possible. I'm not sure it matters for our test apps, but
         // you can get better throughput by doing any offscreen renders, texture uploads, or
         // other non-dependant tasks first before grabbing the drawable.
+        fCurrentDrawable = [fMetalLayer nextDrawable];
+
         GrMtlTextureInfo fbInfo;
-        MTLRenderPassDescriptor* descriptor = fMTKView.currentRenderPassDescriptor;
-        fbInfo.fTexture = [[[descriptor colorAttachments] objectAtIndexedSubscript:0] texture];
+        fbInfo.fTexture = fCurrentDrawable.texture;
 
         GrBackendRenderTarget backendRT(fWidth,
                                         fHeight,
@@ -82,34 +103,22 @@ sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
                                         fbInfo);
 
         surface = SkSurface::MakeFromBackendRenderTarget(fContext.get(), backendRT,
-                                                          kTopLeft_GrSurfaceOrigin,
-                                                          kBGRA_8888_SkColorType,
-                                                          fDisplayParams.fColorSpace,
-                                                          &fDisplayParams.fSurfaceProps);
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         kBGRA_8888_SkColorType,
+                                                         fDisplayParams.fColorSpace,
+                                                         &fDisplayParams.fSurfaceProps);
     }
 
     return surface;
 }
 
 void MetalWindowContext::swapBuffers() {
-
     id<MTLCommandBuffer> commandBuffer = [fQueue commandBuffer];
     commandBuffer.label = @"Present";
 
-    __block dispatch_semaphore_t block_sema = fInFlightSemaphore;
-    [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer)
-     {
-         dispatch_semaphore_signal(block_sema);
-     }];
-
-    id<MTLDrawable> drawable = [fMTKView currentDrawable];
-    [commandBuffer presentDrawable:drawable];
+    [commandBuffer presentDrawable:fCurrentDrawable];
     [commandBuffer commit];
-}
-
-void MetalWindowContext::resize(int w, int h) {
-    this->destroyContext();
-    this->initializeContext();
+    fCurrentDrawable = nil;
 }
 
 void MetalWindowContext::setDisplayParams(const DisplayParams& params) {

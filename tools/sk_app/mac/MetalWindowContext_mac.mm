@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2019 Google Inc.
  *
@@ -8,8 +7,6 @@
 
 #include "tools/sk_app/MetalWindowContext.h"
 #include "tools/sk_app/mac/WindowContextFactory_mac.h"
-
-#import <MetalKit/MetalKit.h>
 
 #include <Cocoa/Cocoa.h>
 
@@ -28,13 +25,16 @@ public:
     bool onInitializeContext() override;
     void onDestroyContext() override;
 
+    void resize(int w, int h) override;
+
 private:
     NSView*              fMainView;
 
     typedef MetalWindowContext INHERITED;
 };
 
-MetalWindowContext_mac::MetalWindowContext_mac(const MacWindowInfo& info, const DisplayParams& params)
+MetalWindowContext_mac::MetalWindowContext_mac(const MacWindowInfo& info,
+                                               const DisplayParams& params)
     : INHERITED(params)
     , fMainView(info.fMainView) {
 
@@ -50,60 +50,32 @@ MetalWindowContext_mac::~MetalWindowContext_mac() {
 bool MetalWindowContext_mac::onInitializeContext() {
     SkASSERT(nil != fMainView);
 
-    // create mtkview
-    NSRect rect = fMainView.bounds;
-    fMTKView = [[MTKView alloc] initWithFrame:rect device:fDevice];
-    if (nil == fMTKView) {
-        return false;
-    }
+    NSRect frameRect = [fMainView frame];
+    fMetalLayer.drawableSize = frameRect.size;
+    fMetalLayer.frame = frameRect;
 
-    fMTKView.autoResizeDrawable = NO;
-    fMTKView.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
-    fMTKView.drawableSize = rect.size;
+    fMainView.layer = fMetalLayer;
+    fMainView.wantsLayer = YES;
 
-    if (fDisplayParams.fMSAASampleCount > 1) {
-        if (![fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {
-            return false;
-        }
-    }
-    fMTKView.sampleCount = fDisplayParams.fMSAASampleCount;
-
-    // attach Metal view to main view
-    [fMTKView setTranslatesAutoresizingMaskIntoConstraints:NO];
-
-    [fMainView addSubview:fMTKView];
-    NSDictionary *views = NSDictionaryOfVariableBindings(fMTKView);
-
-    [fMainView addConstraints:
-     [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[fMTKView]|"
-                                             options:0
-                                             metrics:nil
-                                               views:views]];
-
-    [fMainView addConstraints:
-     [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[fMTKView]|"
-                                             options:0
-                                             metrics:nil
-                                               views:views]];
-
-    fSampleCount = [fMTKView sampleCount];
-    fStencilBits = 8;
-
-    CGSize backingSize = [fMTKView drawableSize];
-    fWidth = backingSize.width;
-    fHeight = backingSize.height;
+    fWidth = frameRect.size.width;
+    fHeight = frameRect.size.height;
 
     return true;
 }
 
 void MetalWindowContext_mac::onDestroyContext() {
-    [fMTKView removeFromSuperview];
-    [fMTKView release];
-    fMTKView = nil;
+    fMainView.layer = nil;
+    fMainView.wantsLayer = NO;
+}
+
+void MetalWindowContext_mac::resize(int w, int h) {
+    fMetalLayer.drawableSize = fMainView.frame.size;
+    fMetalLayer.frame = fMainView.frame;
+    fWidth = w;
+    fHeight = h;
 }
 
 }  // anonymous namespace
-
 
 namespace sk_app {
 namespace window_context_factory {

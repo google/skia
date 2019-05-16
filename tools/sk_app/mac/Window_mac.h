@@ -20,8 +20,7 @@ public:
     Window_mac()
             : INHERITED()
             , fWindow(nil)
-            , fMSAASampleCount(1)
-            , fIsMouseDown(false) {}
+            , fMSAASampleCount(1) {}
     ~Window_mac() override {
         this->closeWindow();
     }
@@ -36,7 +35,6 @@ public:
     void onInval() override {}
 
     static void PaintWindows();
-    static void HandleWindowEvent(const NSEvent* event);
 
     static const NSInteger& GetKey(const Window_mac& w) {
         return w.fWindowNumber;
@@ -46,22 +44,13 @@ public:
         return windowNumber;
     }
 
-    bool needsPaint() { return this->fIsContentInvalidated; }
-
     NSWindow* window() { return fWindow; }
     void closeWindow();
 
-    void resetMouse();
-
 private:
-    void handleEvent(const NSEvent* event);
-
     NSWindow*    fWindow;
     NSInteger    fWindowNumber;
     int          fMSAASampleCount;
-    bool         fIsMouseDown;
-    NSPoint      fMouseDownPos;
-    uint32_t     fMouseModifiers;
 
     static SkTDynamicHash<Window_mac, NSInteger> gWindowMap;
 
