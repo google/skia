@@ -36,9 +36,6 @@ public:
         Value(uint32_t u)
         : fUnsigned(u) {}
 
-        Value(bool b)
-        : fBool(b) {}
-
         float fFloat;
         int32_t fSigned;
         uint32_t fUnsigned;
