@@ -147,6 +147,13 @@ DEF_TEST(SkSLInterpreterRemainder, r) {
          0, 2, 4, 0, 0);
 }
 
+DEF_TEST(SkSLInterpreterTernary, r) {
+    test(r, "void main(inout half4 color) { color.r = color.g > color.b ? color.g : color.b; }",
+         0, 1, 2, 0, 2, 1, 2, 0);
+    test(r, "void main(inout half4 color) { color.r = color.g > color.b ? color.g : color.b; }",
+         0, 3, 2, 0, 3, 3, 2, 0);
+}
+
 DEF_TEST(SkSLInterpreterCast, r) {
     SkSL::Interpreter::Value input[2];
     SkSL::Interpreter::Value expected[2];
@@ -344,7 +351,7 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
         "float dot(float3 a, float3 b) { return a.x*b.x + a.y*b.y + a.z*b.z; }\n"
         "float dot3_test(float x) { return dot(float3(x, x + 1, x + 2), float3(1, -1, 2)); }\n"
         "float dot2_test(float x) { return dot(float2(x, x + 1), float2(1, -1)); }\n"
-        "int fib(int i) { if (i < 2) { return 1; } else { return fib(i - 1) + fib(i - 2); } }";
+        "int fib(int i) { return (i < 2) ? 1 : fib(i - 1) + fib(i - 2); }";
 
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;

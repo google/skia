@@ -486,8 +486,17 @@ void ByteCodeGenerator::writeVariableReference(const VariableReference& v) {
 }
 
 void ByteCodeGenerator::writeTernaryExpression(const TernaryExpression& t) {
-    // not yet implemented
-    abort();
+    this->writeExpression(*t.fTest);
+    this->align(2, 1);
+    this->write(ByteCodeInstruction::kConditionalBranch);
+    DeferredLocation trueLocation(this);
+    this->writeExpression(*t.fIfFalse);
+    this->align(2, 1);
+    this->write(ByteCodeInstruction::kBranch);
+    DeferredLocation endLocation(this);
+    trueLocation.set();
+    this->writeExpression(*t.fIfTrue);
+    endLocation.set();
 }
 
 void ByteCodeGenerator::writeExpression(const Expression& e) {
@@ -742,6 +751,8 @@ void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
 }
 
 void ByteCodeGenerator::writeIfStatement(const IfStatement& i) {
+    // TODO: For if-else, reorder the statements to remove kNot.
+    //       For if w/o else, remove the trailing branch.
     this->writeExpression(*i.fTest);
     this->write(ByteCodeInstruction::kNot);
     this->align(2, 1);
