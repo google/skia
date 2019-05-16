@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c6f52791_0b972f21",
+        "filename": "gm/backdrop_imagefilter_croprect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-16T19:28:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b43d047_13911006",
+      "range": {
+        "startLine": 90,
+        "startChar": 45,
+        "endLine": 90,
+        "endChar": 53
+      },
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7035d0a9_3a3cba7c",
         "filename": "gm/backdrop_imagefilter_croprect.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "36934e5d2804eb17ea343a994504decc891b8806",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2030269e_43542262",
+        "filename": "gm/backdrop_imagefilter_croprect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-16T19:28:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7035d0a9_3a3cba7c",
+      "range": {
+        "startLine": 99,
+        "startChar": 45,
+        "endLine": 99,
+        "endChar": 53
+      },
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "538afa97_7ef3b4d6",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-16T19:28:13Z",
+      "side": 1,
+      "message": "Technically yes, since applyCTM mangles the DAG so that real image filters don\u0027t see a matrix with rotation/skew etc. But I will update the comment to reflect the fact that an \"unmodified\" image filter may not be able to directly handle the CTM.",
+      "parentUuid": "0bc75cbf_1eb1a070",
+      "range": {
+        "startLine": 1011,
+        "startChar": 0,
+        "endLine": 1012,
+        "endChar": 77
+      },
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a45a9038_2b395d6c",
         "filename": "src/core/SkImageFilter.cpp",
         "patchSetId": 3
@@ -85,6 +157,24 @@
       "revId": "36934e5d2804eb17ea343a994504decc891b8806",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23d04bb0_9fe04907",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-16T19:28:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a45a9038_2b395d6c",
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "702e79e5_14a99297",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-16T19:28:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4f72926_8fbc1279",
+      "range": {
+        "startLine": 466,
+        "startChar": 7,
+        "endLine": 466,
+        "endChar": 12
+      },
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f7aed105_35c37b07",
         "filename": "src/core/SkImageFilter.cpp",
         "patchSetId": 3
@@ -128,6 +242,24 @@
     },
     {
       "key": {
+        "uuid": "379d7cfe_a2dd169f",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-16T19:28:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7aed105_35c37b07",
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb8064c7_4f0fac38",
         "filename": "src/core/SkSpecialImage.cpp",
         "patchSetId": 3
@@ -142,6 +274,24 @@
       "revId": "36934e5d2804eb17ea343a994504decc891b8806",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb9cb3eb_ce81bcca",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-16T19:28:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb8064c7_4f0fac38",
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
