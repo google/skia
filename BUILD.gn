@@ -42,7 +42,6 @@ declare_args() {
   skia_enable_ccpr = true
   skia_enable_nvpr = !skia_enable_flutter_defines
   skia_enable_discrete_gpu = true
-  skia_enable_nima = false
   skia_enable_pdf = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_skpicture = true
@@ -891,10 +890,6 @@ component("skia") {
     ":wuffs",
     ":xml",
   ]
-
-  if (skia_enable_nima) {
-    deps += [ "//third_party/Nima-Cpp" ]
-  }
 
   # This file (and all GN files in Skia) are designed to work with an
   # empty sources assignment filter; we handle all that explicitly.
@@ -1787,12 +1782,6 @@ if (skia_enable_tools) {
         "modules/skshaper",
       ]
 
-      # NIMA does not build on Windows clang
-      if (!is_win || !is_clang) {
-        sources += [ "experimental/nima/NimaActor.cpp" ]
-        deps += [ "//third_party/Nima-Cpp" ]
-      }
-
       if (skia_use_lua) {
         sources += [ "samplecode/SampleLua.cpp" ]
         deps += [
@@ -1865,11 +1854,6 @@ if (skia_enable_tools) {
         "modules/skottie:utils",
         "modules/sksg",
       ]
-
-      # NIMA does not build on Windows clang
-      if (!is_win || !is_clang) {
-        deps += [ "//third_party/Nima-Cpp" ]
-      }
     }
   }
 
@@ -2341,12 +2325,6 @@ if (skia_enable_tools) {
       "modules/sksg:samples",
       "//third_party/imgui",
     ]
-
-    # NIMA does not build on Windows clang
-    if (!is_win || !is_clang) {
-      sources += [ "tools/viewer/NIMASlide.cpp" ]
-      deps += [ "//third_party/Nima-Cpp" ]
-    }
   }
 
   if (!skia_use_angle && (is_linux || is_win || is_mac)) {

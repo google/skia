@@ -52,10 +52,6 @@
     #include "tools/viewer/SkottieSlide.h"
 #endif
 
-#if !(defined(SK_BUILD_FOR_WIN) && defined(__clang__))
-    #include "tools/viewer/NIMASlide.h"
-#endif
-
 class CapturingShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
 public:
     void compileError(const char* shader, const char* errors) override {
@@ -113,13 +109,11 @@ static DEFINE_string2(match, m, nullptr,
 
 #if defined(SK_BUILD_FOR_ANDROID)
     static DEFINE_string(jpgs, "/data/local/tmp/resources", "Directory to read jpgs from.");
-    static DEFINE_string(nimas, "/data/local/tmp/nimas", "Directory to read NIMA animations from.");
     static DEFINE_string(skps, "/data/local/tmp/skps", "Directory to read skps from.");
     static DEFINE_string(lotties, "/data/local/tmp/lotties",
                          "Directory to read (Bodymovin) jsons from.");
 #else
     static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
-    static DEFINE_string(nimas, "nimas", "Directory to read NIMA animations from.");
     static DEFINE_string(skps, "skps", "Directory to read skps from.");
     static DEFINE_string(lotties, "lotties", "Directory to read (Bodymovin) jsons from.");
 #endif
@@ -610,12 +604,6 @@ void Viewer::initSlides() {
         { ".svg", "svg-dir", FLAGS_svgs,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SvgSlide>(name, path);}
-        },
-#endif
-#if !(defined(SK_BUILD_FOR_WIN) && defined(__clang__))
-        { ".nima", "nima-dir", FLAGS_nimas,
-            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
-                return sk_make_sp<NIMASlide>(name, path);}
         },
 #endif
     };
