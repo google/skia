@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a5afa8c7_df724913",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-16T21:17:09Z",
+      "side": 1,
+      "message": "Relic of a bygone time. Good catch.",
+      "parentUuid": "373363d5_e1ca6afb",
+      "revId": "dfc9c64b9a10fe30004cf1742b6e9477212a3d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a9f4602_10caefd3",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 2
@@ -54,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "54ef3644_e8c7d54c",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-16T21:17:09Z",
+      "side": 1,
+      "message": "++ and -- don\u0027t actually work on vectors, though. The slot_count below is consequently misleading; I\u0027ll change it to 1 (with an assert to be safe) to clear things up.",
+      "parentUuid": "5a9f4602_10caefd3",
+      "revId": "dfc9c64b9a10fe30004cf1742b6e9477212a3d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4c17972f_eb912277",
         "filename": "src/sksl/SkSLInterpreter.cpp",
         "patchSetId": 2
@@ -77,6 +113,30 @@
     },
     {
       "key": {
+        "uuid": "04f74a32_75755892",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-16T21:17:09Z",
+      "side": 1,
+      "message": "I have no idea why I did that everywhere else and not here. I even wrote this code after doing the fallthrough elsewhere! *sigh*",
+      "parentUuid": "4c17972f_eb912277",
+      "range": {
+        "startLine": 366,
+        "startChar": 0,
+        "endLine": 383,
+        "endChar": 22
+      },
+      "revId": "dfc9c64b9a10fe30004cf1742b6e9477212a3d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b4e4a96b_38ae0286",
         "filename": "src/sksl/SkSLInterpreter.cpp",
         "patchSetId": 2
@@ -91,6 +151,24 @@
       "revId": "dfc9c64b9a10fe30004cf1742b6e9477212a3d57",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4b4198f_1f6a49e7",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-16T21:17:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4e4a96b_38ae0286",
+      "revId": "dfc9c64b9a10fe30004cf1742b6e9477212a3d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
