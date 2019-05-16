@@ -106,6 +106,13 @@ public:
         return GrBackendFormat::MakeMock(config);
     }
 
+    GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override {
+        return GrSwizzle();
+    }
+    GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override {
+        return GrSwizzle();
+    }
+
 private:
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override { return true; }
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
