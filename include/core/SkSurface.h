@@ -683,9 +683,10 @@ public:
      */
     using ReadPixelsContext = void*;
     using ReadPixelsCallback = void(ReadPixelsContext, const void* data, size_t rowBytes);
-    void asyncReadPixels(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
-                         const SkIRect& srcRect, ReadPixelsCallback callback,
-                         ReadPixelsContext context);
+    enum RescaleLinear : bool { kNo, kYes };
+    void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                   RescaleLinear rescaleLinear, SkFilterQuality rescaleQuality,
+                                   ReadPixelsCallback callback, ReadPixelsContext context);
 
     /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
 
