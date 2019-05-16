@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b43d047_13911006",
+        "filename": "gm/backdrop_imagefilter_croprect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-16T19:04:38Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 90,
+        "startChar": 45,
+        "endLine": 90,
+        "endChar": 53
+      },
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7035d0a9_3a3cba7c",
+        "filename": "gm/backdrop_imagefilter_croprect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-16T19:04:38Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 99,
+        "startChar": 45,
+        "endLine": 99,
+        "endChar": 53
+      },
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bc75cbf_1eb1a070",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-16T19:04:38Z",
+      "side": 1,
+      "message": "Is this part of the comment still correct ?",
+      "range": {
+        "startLine": 1011,
+        "startChar": 0,
+        "endLine": 1012,
+        "endChar": 77
+      },
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a45a9038_2b395d6c",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-16T19:04:38Z",
+      "side": 1,
+      "message": "// Comment here about crop rect ?\n\nSome reformulation of:\n\nCropRects need to apply in the source coordinate system, but are not\n  aware of complex CTMs when performing clipping. For a simple fix, any\n  filter with a crop rect set cannot support complex CTMs until that\u0027s\n  updated.",
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4f72926_8fbc1279",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-16T19:04:38Z",
+      "side": 1,
+      "message": "We have ?",
+      "range": {
+        "startLine": 466,
+        "startChar": 7,
+        "endLine": 466,
+        "endChar": 12
+      },
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7aed105_35c37b07",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-16T19:04:38Z",
+      "side": 1,
+      "message": "// In the backdrop case we need to ... ?",
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb8064c7_4f0fac38",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-16T19:04:38Z",
+      "side": 1,
+      "message": "// comment ?",
+      "revId": "36934e5d2804eb17ea343a994504decc891b8806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
