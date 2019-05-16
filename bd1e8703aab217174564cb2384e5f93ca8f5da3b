@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c406c5b_728f4cad",
+        "filename": "modules/skparagraph/BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-05-16T14:41:50Z",
+      "side": 1,
+      "message": "Can we build paragraph without needing access to src and src/core?",
+      "revId": "bd1e8703aab217174564cb2384e5f93ca8f5da3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78ffe9f3_4152358e",
+        "filename": "modules/skparagraph/include/SkDartTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-05-16T14:41:50Z",
+      "side": 1,
+      "message": "may want to consider running clang formatting as this should line up with your comment at the 4 space mark with no extra new line below.",
+      "revId": "bd1e8703aab217174564cb2384e5f93ca8f5da3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
