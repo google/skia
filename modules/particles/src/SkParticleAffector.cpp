@@ -14,9 +14,11 @@
 #include "include/utils/SkTextUtils.h"
 #include "modules/particles/include/SkCurve.h"
 #include "modules/particles/include/SkParticleData.h"
+#include "src/core/SkMakeUnique.h"
 
 #if SK_SUPPORT_GPU
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLExternalValue.h"
 #include "src/sksl/SkSLInterpreter.h"
 #endif
 
@@ -439,6 +441,7 @@ private:
 
 #if SK_SUPPORT_GPU
 static const char* kDefaultCode =
+    "// float rand; Every read returns a random float [0 .. 1)\n"
     "layout(ctype=float) in uniform float dt;\n"
     "layout(ctype=float) in uniform float effectAge;\n"
     "\n"
@@ -449,9 +452,23 @@ static const char* kDefaultCode =
     "          inout float  scale,\n"
     "          inout float2 vel,\n"
     "          inout float  spin,\n"
-    "          inout float4 color,\n"
-    "          in    float  t) {\n"
+    "          inout float4 color) {\n"
     "}\n";
+
+class SkRandomExternalValue : public SkSL::ExternalValue {
+public:
+    SkRandomExternalValue(const char* name, SkSL::Compiler& compiler)
+        : INHERITED(name, *compiler.context().fFloat_Type)
+        , fRandom(nullptr) { }
+
+    void setRandom(SkRandom* random) { fRandom = random; }
+    bool canRead() const override { return true; }
+    void read(void* target) override { *(float*)target = fRandom->nextF(); }
+
+private:
+    SkRandom* fRandom;
+    typedef SkSL::ExternalValue INHERITED;
+};
 
 class SkInterpreterAffector : public SkParticleAffector {
 public:
@@ -464,6 +481,7 @@ public:
     void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         fInterpreter->setInputs((SkSL::Interpreter::Value*)&params);
         for (int i = 0; i < count; ++i) {
+            fRandomValue->setRandom(&ps[i].fRandom);
             fInterpreter->run(*fMain, (SkSL::Interpreter::Value*)&ps[i].fAge, nullptr);
         }
     }
@@ -484,11 +502,14 @@ private:
 
     // Cached
     std::unique_ptr<SkSL::Interpreter> fInterpreter;
+    std::unique_ptr<SkRandomExternalValue> fRandomValue;
     SkSL::ByteCodeFunction* fMain;
 
     void rebuild() {
         SkSL::Compiler compiler;
         SkSL::Program::Settings settings;
+        auto rand = skstd::make_unique<SkRandomExternalValue>("rand", compiler);
+        compiler.registerExternalValue(rand.get());
         auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
                                                SkSL::String(fCode.c_str()), settings);
         if (!program) {
@@ -507,6 +528,7 @@ private:
         fMain = byteCode->fFunctions[0].get();
         fInterpreter.reset(new SkSL::Interpreter(std::move(program), std::move(byteCode),
                                                  (SkSL::Interpreter::Value*)&defaultInputs));
+        fRandomValue = std::move(rand);
     }
 };
 #endif
