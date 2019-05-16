@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "373363d5_e1ca6afb",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-16T20:20:37Z",
+      "side": 1,
+      "message": "Unrelated, but I just realized this isn\u0027t used (we treat parameters as locals).",
+      "revId": "dfc9c64b9a10fe30004cf1742b6e9477212a3d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a9f4602_10caefd3",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-16T20:20:37Z",
+      "side": 1,
+      "message": "I think you need to tag PushImmediate with Vector(), and emit the correct number of 1\u0027s here (or do a kDup N-1). (I happen to be looking at this code while implementing writePostfix).",
+      "revId": "dfc9c64b9a10fe30004cf1742b6e9477212a3d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c17972f_eb912277",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-16T20:20:37Z",
+      "side": 1,
+      "message": "For vector unary ops, is it worth it to implement them with fall-through?\ncase kFoo4:\n  sp[-3] \u003d foo(sp[-3]);\ncase kFoo3:\n  sp[-2] \u003d foo(sp[-2]);\n..\nbreak;",
+      "range": {
+        "startLine": 366,
+        "startChar": 0,
+        "endLine": 383,
+        "endChar": 22
+      },
+      "revId": "dfc9c64b9a10fe30004cf1742b6e9477212a3d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4e4a96b_38ae0286",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-16T20:20:37Z",
+      "side": 1,
+      "message": "Other possible shorthand to save typing:\n\ncase kLoad, kLoad2, ...:\nint count \u003d inst - kLoad + 1;\nmemcpy(.., .., count * sizeof(Value));\nsp +\u003d count;\nbreak;\n\n??",
+      "revId": "dfc9c64b9a10fe30004cf1742b6e9477212a3d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc58af2a_5740c0e8",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-16T20:20:37Z",
+      "side": 1,
+      "message": "... ah, you did that here. Yeah, I like the reduced repetition.",
+      "revId": "dfc9c64b9a10fe30004cf1742b6e9477212a3d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
