@@ -98,7 +98,7 @@ public:
      * Based on 'type', writes the s (signed), u (unsigned), or f (float) instruction.
      */
     void writeTypedInstruction(const Type& type, ByteCodeInstruction s, ByteCodeInstruction u,
-                               ByteCodeInstruction f);
+                               ByteCodeInstruction f, int count);
 
 private:
     // reserves 16 bits in the output code, to be filled in later with an address once we determine
