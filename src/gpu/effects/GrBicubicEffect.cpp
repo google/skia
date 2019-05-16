@@ -65,11 +65,36 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
      *
      * This is GLSL, so the matrix is column-major (transposed from standard matrix notation).
      */
+#if 0
     fragBuilder->codeAppend("half4x4 kMitchellCoefficients = half4x4("
                             " 1.0 / 18.0,  16.0 / 18.0,   1.0 / 18.0,  0.0 / 18.0,"
                             "-9.0 / 18.0,   0.0 / 18.0,   9.0 / 18.0,  0.0 / 18.0,"
                             "15.0 / 18.0, -36.0 / 18.0,  27.0 / 18.0, -6.0 / 18.0,"
                             "-7.0 / 18.0,  21.0 / 18.0, -21.0 / 18.0,  7.0 / 18.0);");
+#else
+    fragBuilder->codeAppend("const half a = -.5;"
+                            "const half A = a;"
+                            "const half B = -2 * a;"
+                            "const half C = a;"
+                            "const half D = 0;"
+                            "const half E = a + 2;"
+                            "const half F = -a - 3;"
+                            "const half G = 0;"
+                            "const half H = 1;"
+                            "const half I = -a - 2;"
+                            "const half J = 3 + 2 * a;"
+                            "const half K = -a;"
+                            "const half L = 0;"
+                            "const half M = -a ;"
+                            "const half N = a;"
+                            "const half O = 0;"
+                            "const half P = 0;"
+                            "half4x4 kMitchellCoefficients = half4x4("
+                            "D, H, L, P,"
+                            "C, G, K, O,"
+                            "B, F, J, N,"
+                            "A, E, I, M);");
+#endif
     fragBuilder->codeAppendf("float2 coord = %s - %s * float2(0.5);", coords2D.c_str(), imgInc);
     // We unnormalize the coord in order to determine our fractional offset (f) within the texel
     // We then snap coord to a texel center and renormalize. The snap prevents cases where the
