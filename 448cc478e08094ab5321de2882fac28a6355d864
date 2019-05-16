@@ -2,6 +2,30 @@
   "comments": [
     {
       "key": {
+        "uuid": "fb895291_fb4ea577",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-16T19:44:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f19d2cc8_2fdc6f25",
+      "range": {
+        "startLine": 361,
+        "startChar": 41,
+        "endLine": 361,
+        "endChar": 50
+      },
+      "revId": "448cc478e08094ab5321de2882fac28a6355d864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5246cb84_8afe3a76",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 2
@@ -19,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "d651db14_d30e4818",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 3323,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-16T19:44:08Z",
+      "side": 1,
+      "message": "it really doesn\u0027t make a difference functionally, in that all we really want to make sure is that we write the alpha channel with the value that is in alpha. So using the default RGBA or AAAA would achieve the same thing. By not adding the additional swizzle the shader has more of a chance to be shared by different configs.",
+      "parentUuid": "5246cb84_8afe3a76",
+      "revId": "448cc478e08094ab5321de2882fac28a6355d864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "44d58eaa_71712e75",
         "filename": "src/gpu/mtl/GrMtlCaps.mm",
         "patchSetId": 2
@@ -30,6 +72,24 @@
       "writtenOn": "2019-05-16T19:17:56Z",
       "side": 1,
       "message": "Shouldn\u0027t this differ for A8Unorm vs. R8Unorm?",
+      "revId": "448cc478e08094ab5321de2882fac28a6355d864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dab02b9a_7a355cad",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 665,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-16T19:44:08Z",
+      "side": 1,
+      "message": "Ahhh yes I forgot metal had both...",
+      "parentUuid": "44d58eaa_71712e75",
       "revId": "448cc478e08094ab5321de2882fac28a6355d864",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true

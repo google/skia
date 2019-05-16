@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67df98fe_29d3d9b4",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3350,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-16T19:44:08Z",
+      "side": 1,
+      "message": "for same reasoning I gave to question about AAAA output, I changed this to just use RGBA output as well since we don\u0027t care what gets written into to A (assuming we ever to support this for rendering).",
+      "range": {
+        "startLine": 3350,
+        "startChar": 12,
+        "endLine": 3350,
+        "endChar": 29
+      },
+      "revId": "3d6d958330f764aa7ec0ec4881fd858242f507b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
