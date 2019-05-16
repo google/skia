@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ada017b_6da6768d",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-16T20:23:33Z",
+      "side": 1,
+      "message": "can we make this private (for now)? Look at SkCanvasPriv or SkImageFilterPriv",
+      "range": {
+        "startLine": 264,
+        "startChar": 25,
+        "endLine": 264,
+        "endChar": 33
+      },
+      "revId": "73152e37789553a041d6c42f218bd9a3dce94728",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
