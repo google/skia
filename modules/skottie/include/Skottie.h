@@ -217,6 +217,13 @@ public:
     void seek(SkScalar t);
 
     /**
+     * Updates the animation state for frame # |f|.
+     *
+     * @param f   frame number, which is clamped tp [in_point, out_point]
+     */
+    void seekToFrame(SkScalar f);
+
+    /**
      * Returns the animation duration in seconds.
      */
     SkScalar duration() const { return fDuration; }
