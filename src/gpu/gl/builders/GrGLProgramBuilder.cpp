@@ -8,6 +8,7 @@
 #include "src/gpu/gl/builders/GrGLProgramBuilder.h"
 
 #include "include/gpu/GrContext.h"
+#include "include/private/GrSwizzle.h"
 #include "src/core/SkATrace.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkReader32.h"
@@ -20,7 +21,6 @@
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderUtils.h"
-#include "src/gpu/GrSwizzle.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLProgram.h"
 #include "src/gpu/gl/builders/GrGLProgramBuilder.h"
