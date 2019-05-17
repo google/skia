@@ -21,6 +21,7 @@ declare_args() {
   skia_use_angle = false
   skia_use_egl = false
   skia_use_expat = true
+  skia_use_ffmpeg = false
   skia_use_fontconfig = is_linux
   skia_use_fonthost_mac = is_mac
   skia_use_freetype = is_android || is_fuchsia || is_linux
@@ -1622,6 +1623,20 @@ if (skia_enable_tools) {
     ]
   }
 
+  if (skia_use_ffmpeg) {
+    test_lib("video_decoder") {
+      sources = [
+        "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "experimental/ffmpeg/SkVideoDecoder.h",
+      ]
+      libs = [
+        "avcodec",
+        "avformat",
+        "avutil",
+      ]
+    }
+  }
+
   import("gn/gm.gni")
   test_lib("gm") {
     sources = gm_sources
@@ -1638,6 +1653,11 @@ if (skia_enable_tools) {
     public_deps = [
       ":gpu_tool_utils",
     ]
+
+    if (skia_use_ffmpeg) {
+      deps += [ ":video_decoder" ]
+      sources += [ "gm/video_decoder.cpp" ]
+    }
   }
 
   import("gn/tests.gni")
