@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#ifndef SKSL_EXTERNALVALUE
+#define SKSL_EXTERNALVALUE
+
+#include "SkSLInterpreter.h"
 #include "ir/SkSLSymbol.h"
 
 namespace SkSL {
@@ -14,7 +18,6 @@ class Type;
 
 class ExternalValue : public Symbol {
 public:
-    // if the value does not have a type (i.e. is neither readable nor writable), use fVoid_Type
     ExternalValue(const char* name, const Type& type)
         : INHERITED(-1, kExternal_Kind, name)
         , fType(type) {}
@@ -25,6 +28,36 @@ public:
 
     virtual bool canWrite() const {
         return false;
+    }
+
+    virtual bool canCall() const {
+        return false;
+    }
+
+    /**
+     * Returns the type for purposes of read and write operations.
+     */
+    virtual const Type& type() const {
+        return fType;
+    }
+
+    virtual int callParameterCount() const {
+        return -1;
+    }
+
+    /**
+     * Fills in the outTypes array with pointers to the parameter types. outTypes must be able to
+     * hold callParameterCount() pointers.
+     */
+    virtual void getCallParameterTypes(const Type** outTypes) const {
+        SkASSERT(false);
+    }
+
+    /**
+     * Returns the return type resulting from a call operation.
+     */
+    virtual const Type& callReturnType() const {
+        return fType;
     }
 
     /**
@@ -44,8 +77,14 @@ public:
         SkASSERT(false);
     }
 
-    const Type& type() const {
-        return fType;
+    /**
+     * Calls the value as a function with the specified parameters. arguments must be a pointer to
+     * a structure containing the arguments expected by the external value in source order, and
+     * outResult must be a pointer to a region of sufficient size to hold the function's return
+     * value.
+     */
+    virtual void call(Interpreter::Value* arguments, Interpreter::Value* outResult) {
+        SkASSERT(false);
     }
 
     /**
@@ -71,3 +110,5 @@ private:
 };
 
 } // namespace
+
+#endif
