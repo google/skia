@@ -280,12 +280,11 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
             break;
 
         case SurfaceType::kBackendTexture:
-            backendTexture = context->priv().getGpu()
-                ->createTestingOnlyBackendTexture(info.width(),
-                                                  info.height(),
-                                                  info.colorType(),
-                                                  GrMipMapped::kNo,
-                                                  GrRenderable::kYes);
+            backendTexture = context->priv().createBackendTexture(info.width(),
+                                                                  info.height(),
+                                                                  info.colorType(),
+                                                                  GrMipMapped::kNo,
+                                                                  GrRenderable::kYes);
             surface = SkSurface::MakeFromBackendTexture(context,
                                                         backendTexture,
                                                         kTopLeft_GrSurfaceOrigin,
@@ -332,7 +331,7 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
     if (!context->abandoned()) {
         surface.reset();
         if (backendTexture.isValid()) {
-            context->priv().getGpu()->deleteTestingOnlyBackendTexture(backendTexture);
+            context->priv().deleteBackendTexture(backendTexture);
         }
         if (backendRT.isValid()) {
             context->priv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);

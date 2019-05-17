@@ -27,10 +27,11 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
     }
     SkAutoTMalloc<GrColor> dstBuffer(kWidth * kHeight);
 
+    const GrCaps* caps = context->priv().caps();
     GrGpu* gpu = context->priv().getGpu();
 
     GrPixelConfig config = SkColorType2GrPixelConfig(ct);
-    if (!gpu->caps()->isConfigTexturable(config)) {
+    if (!caps->isConfigTexturable(config)) {
         return;
     }
 
@@ -39,7 +40,7 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
         return;
     }
 
-    if (gpu->caps()->supportedReadPixelsColorType(config, grCT) != grCT) {
+    if (caps->supportedReadPixelsColorType(config, grCT) != grCT) {
         return;
     }
 

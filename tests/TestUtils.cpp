@@ -156,14 +156,7 @@ bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
 }
 
 void delete_backend_texture(GrContext* context, const GrBackendTexture& backendTex) {
-    auto* gpu = context->priv().getGpu();
-    if (!gpu) {
-        return;
-    }
-
-    if (backendTex.isValid()) {
-        gpu->deleteTestingOnlyBackendTexture(backendTex);
-    }
+    context->priv().deleteBackendTexture(backendTex);
 }
 
 bool does_full_buffer_contain_correct_color(GrColor* srcBuffer,

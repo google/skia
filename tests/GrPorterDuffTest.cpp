@@ -989,7 +989,6 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
         return;
     }
 
-    GrGpu* gpu = ctx->priv().getGpu();
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     const GrCaps& caps = *ctx->priv().caps();
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
@@ -998,8 +997,8 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     }
 
     GrBackendTexture backendTex =
-        gpu->createTestingOnlyBackendTexture(100, 100, kRGBA_8888_SkColorType,
-                                             GrMipMapped::kNo, GrRenderable::kNo);
+        ctx->priv().createBackendTexture(100, 100, kRGBA_8888_SkColorType,
+                                         GrMipMapped::kNo, GrRenderable::kNo);
 
     GrXferProcessor::DstProxy fakeDstProxy;
     {
@@ -1031,5 +1030,5 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
             }
         }
     }
-    gpu->deleteTestingOnlyBackendTexture(backendTex);
+    ctx->priv().deleteBackendTexture(backendTex);
 }

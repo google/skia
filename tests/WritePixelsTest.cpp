@@ -450,12 +450,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsMSAA_Gpu, reporter, ctxInfo) {
     test_write_pixels(reporter, ctxInfo.grContext(), 1);
 }
 
-static void test_write_pixels_non_texture(skiatest::Reporter* reporter, GrContext* context,
+static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
+                                          GrContext* context,
                                           int sampleCnt) {
-    GrGpu* gpu = context->priv().getGpu();
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+        GrBackendTexture backendTex = context->priv().createBackendTexture(
                 DEV_W, DEV_H, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes);
         if (!backendTex.isValid()) {
             continue;
@@ -467,7 +467,7 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter, GrContex
             auto ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
             test_write_pixels(reporter, surface.get(), ii);
         }
-        gpu->deleteTestingOnlyBackendTexture(backendTex);
+        context->priv().deleteBackendTexture(backendTex);
     }
 }
 

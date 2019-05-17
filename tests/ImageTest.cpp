@@ -482,25 +482,26 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage, reporter, contex
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    static constexpr int kSize = 10;
+
     for (int ct = 0; ct < kLastEnum_SkColorType; ++ct) {
-        static constexpr int kSize = 10;
         SkColorType colorType = static_cast<SkColorType>(ct);
-        bool can = ctxInfo.grContext()->colorTypeSupportedAsImage(colorType);
-        auto* gpu = ctxInfo.grContext()->priv().getGpu();
-        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+        bool can = context->colorTypeSupportedAsImage(colorType);
+
+        GrBackendTexture backendTex = context->priv().createBackendTexture(
                 kSize, kSize, colorType, GrMipMapped::kNo, GrRenderable::kNo);
-        auto img =
-                SkImage::MakeFromTexture(ctxInfo.grContext(), backendTex, kTopLeft_GrSurfaceOrigin,
-                                         colorType, kOpaque_SkAlphaType, nullptr);
+
+        auto img = SkImage::MakeFromTexture(context, backendTex, kTopLeft_GrSurfaceOrigin,
+                                            colorType, kOpaque_SkAlphaType, nullptr);
         REPORTER_ASSERT(reporter, can == SkToBool(img),
                         "colorTypeSupportedAsImage:%d, actual:%d, ct:%d", can, SkToBool(img),
                         colorType);
 
         img.reset();
-        ctxInfo.grContext()->flush();
-        if (backendTex.isValid()) {
-            gpu->deleteTestingOnlyBackendTexture(backendTex);
-        }
+        context->flush();
+        context->priv().deleteBackendTexture(backendTex);
     }
 }
 

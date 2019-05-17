@@ -31,9 +31,8 @@
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGpu* gpu = context->priv().getGpu();
 
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(1, 1,
+    GrBackendTexture backendTex = context->priv().createBackendTexture(1, 1,
                                                                        kRGBA_8888_SkColorType,
                                                                        GrMipMapped::kNo,
                                                                        GrRenderable::kNo);
@@ -120,7 +119,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, invalidTexture.isValid());
     REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(invalidTexture, invalidTexture));
 
-    gpu->deleteTestingOnlyBackendTexture(backendTex);
+    context->priv().deleteBackendTexture(backendTex);
 }
 
 static void testing_release_proc(void* ctx) {
@@ -139,7 +138,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkReleaseExternalQueueTest, reporter, ctxInfo) {
     }
 
     for (bool useExternal : {false, true}) {
-        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(1, 1,
+        GrBackendTexture backendTex = context->priv().createBackendTexture(1, 1,
                                                                            kRGBA_8888_SkColorType,
                                                                            GrMipMapped::kNo,
                                                                            GrRenderable::kNo);
@@ -203,7 +202,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkReleaseExternalQueueTest, reporter, ctxInfo) {
         // Now that we flushed and waited the release proc should have be triggered.
         REPORTER_ASSERT(reporter, count == 1);
 
-        gpu->deleteTestingOnlyBackendTexture(backendTex);
+        context->priv().deleteBackendTexture(backendTex);
     }
 }
 
@@ -211,8 +210,8 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkReleaseExternalQueueTest, reporter, ctxInfo) {
 // in flush calls
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkPrepareForExternalIOQueueTransitionTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGpu* gpu = context->priv().getGpu();
-    GrVkGpu* vkGpu = static_cast<GrVkGpu*>(gpu);
+
+    GrVkGpu* vkGpu = static_cast<GrVkGpu*>(context->priv().getGpu());
     if (!vkGpu->vkCaps().supportsExternalMemory()) {
         return;
     }
@@ -223,7 +222,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkPrepareForExternalIOQueueTransitionTest, report
                 // We don't set textures to present
                 continue;
             }
-            GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+            GrBackendTexture backendTex = context->priv().createBackendTexture(
                     4, 4, kRGBA_8888_SkColorType, GrMipMapped::kNo,
                     useSurface ? GrRenderable::kYes : GrRenderable::kNo);
 
@@ -324,7 +323,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkPrepareForExternalIOQueueTransitionTest, report
             GrFlushInfo flushInfo;
             flushInfo.fFlags = kSyncCpu_GrFlushFlag;
             context->flush(flushInfo);
-            gpu->deleteTestingOnlyBackendTexture(backendTex);
+            context->priv().deleteBackendTexture(backendTex);
         }
     }
 }
@@ -339,7 +338,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxInfo)
         return;
     }
 
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+    GrBackendTexture backendTex = context->priv().createBackendTexture(
             1, 1, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
     sk_sp<SkImage> image;
     // Make a backend texture with an external queue family and general layout.
@@ -378,7 +377,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxInfo)
 
     image.reset();
     gpu->testingOnly_flushGpuAndSync();
-    gpu->deleteTestingOnlyBackendTexture(backendTex);
+    context->priv().deleteBackendTexture(backendTex);
 }
 
 #endif
