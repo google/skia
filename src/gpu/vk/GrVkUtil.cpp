@@ -314,6 +314,14 @@ size_t GrVkFormatCompressedDataSize(VkFormat format, int width, int height) {
 
     switch (format) {
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+            if (width < 4) {
+                SkASSERT(width == 1 || width == 2);
+                width = 4;
+            }
+            if (height < 4) {
+                SkASSERT(height == 1 || height == 2);
+                height = 4;
+            }
             SkASSERT((width & 3) == 0);
             SkASSERT((height & 3) == 0);
             return (width >> 2) * (height >> 2) * 8;

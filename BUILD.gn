@@ -579,7 +579,7 @@ optional("gpu") {
   if (skia_generate_workarounds) {
     deps += [ ":workaround_list" ]
   }
-  public_defines = []
+  public_defines = [ "SK_GL" ]
   public_configs = []
   public_deps = []
 
