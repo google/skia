@@ -415,7 +415,8 @@ void ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p) {
             lvalue->load();
             this->align(4, 3);
             this->write(ByteCodeInstruction::kPushImmediate);
-            this->write32(1);
+            this->write32(type_category(p.fType) == TypeCategory::kFloat ? 0x3f800000 // 1.0f
+                                                                         : 1);
             SkASSERT(slot_count(p.fOperand->fType) == 1);
             if (p.fOperator == Token::Kind::PLUSPLUS) {
                 this->writeTypedInstruction(p.fType,
@@ -448,8 +449,38 @@ void ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p) {
 }
 
 void ByteCodeGenerator::writePostfixExpression(const PostfixExpression& p) {
-    // not yet implemented
-    abort();
+    switch (p.fOperator) {
+        case Token::Kind::PLUSPLUS: // fall through
+        case Token::Kind::MINUSMINUS: {
+            std::unique_ptr<LValue> lvalue = this->getLValue(*p.fOperand);
+            lvalue->load();
+            this->write(ByteCodeInstruction::kDup);
+            this->align(4, 3);
+            this->write(ByteCodeInstruction::kPushImmediate);
+            this->write32(type_category(p.fType) == TypeCategory::kFloat ? 0x3f800000 // 1.0f
+                                                                         : 1);
+            SkASSERT(slot_count(p.fOperand->fType) == 1);
+            if (p.fOperator == Token::Kind::PLUSPLUS) {
+                this->writeTypedInstruction(p.fType,
+                                            ByteCodeInstruction::kAddI,
+                                            ByteCodeInstruction::kAddI,
+                                            ByteCodeInstruction::kAddF,
+                                            1);
+            } else {
+                this->writeTypedInstruction(p.fType,
+                                            ByteCodeInstruction::kSubtractI,
+                                            ByteCodeInstruction::kSubtractI,
+                                            ByteCodeInstruction::kSubtractF,
+                                            1);
+            }
+            lvalue->store();
+            this->write(ByteCodeInstruction::kPop);
+            this->write8(1);
+            break;
+        }
+        default:
+            SkASSERT(false);
+    }
 }
 
 void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
