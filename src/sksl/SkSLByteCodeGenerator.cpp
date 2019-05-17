@@ -10,7 +10,20 @@
 
 namespace SkSL {
 
-static int slot_count(const Type& type) {
+static int slot_count(const Type& type, bool allowCompund = false) {
+    if (allowCompund) {
+        if (type.kind() == Type::kStruct_Kind) {
+            int slots = 0;
+            for (const auto& f : type.fields()) {
+                slots += slot_count(*f.fType, true);
+            }
+            return slots;
+        } else if (type.kind() == Type::kArray_Kind) {
+            int columns = type.columns();
+            SkASSERT(columns >= 0);
+            return columns * slot_count(type.componentType(), true);
+        }
+    }
     return type.columns() * type.rows();
 }
 
@@ -59,7 +72,7 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
     std::unique_ptr<ByteCodeFunction> result(new ByteCodeFunction(&f.fDeclaration));
     fParameterCount = 0;
     for (const auto& p : f.fDeclaration.fParameters) {
-        fParameterCount += p->fType.columns() * p->fType.rows();
+        fParameterCount += slot_count(p->fType, true);
     }
     fCode = &result->fCode;
     this->writeStatement(*f.fBody);
@@ -116,7 +129,7 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
             }
             int result = fParameterCount + fLocals.size();
             fLocals.push_back(&var);
-            for (int i = 0; i < slot_count(var.fType) - 1; ++i) {
+            for (int i = 0; i < slot_count(var.fType, true) - 1; ++i) {
                 fLocals.push_back(nullptr);
             }
             SkASSERT(result <= 255);
@@ -158,6 +171,49 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
         default:
             SkASSERT(false);
             return 0;
+    }
+}
+
+std::unique_ptr<Expression> ByteCodeGenerator::getLocation(const Expression& expr) {
+    switch (expr.fKind) {
+        case Expression::kFieldAccess_Kind: {
+            const FieldAccess& f = (const FieldAccess&)expr;
+            auto baseAddr = this->getLocation(*f.fBase);
+            int offset = 0;
+            for (int i = 0; i < f.fFieldIndex; ++i) {
+                offset += slot_count(*f.fBase->fType.fields()[i].fType, true);
+            }
+            std::unique_ptr<Expression> offsetExpr(new IntLiteral(fContext, -1, offset));
+            return std::unique_ptr<Expression>(new BinaryExpression(-1,
+                                                                    std::move(baseAddr),
+                                                                    Token::PLUS,
+                                                                    std::move(offsetExpr),
+                                                                    *fContext.fInt_Type));
+        }
+        case Expression::kIndex_Kind: {
+            const IndexExpression& i = (const IndexExpression&)expr;
+            auto baseAddr = this->getLocation(*i.fBase);
+            std::unique_ptr<Expression> strideExpr(new IntLiteral(fContext, -1,
+                                                                  slot_count(i.fType, true)));
+            std::unique_ptr<Expression> offsetExpr(new BinaryExpression(-1,
+                                                                        std::move(strideExpr),
+                                                                        Token::STAR,
+                                                                        i.fIndex->clone(),
+                                                                        *fContext.fInt_Type));
+            return std::unique_ptr<Expression>(new BinaryExpression(-1,
+                                                                    std::move(baseAddr),
+                                                                    Token::PLUS,
+                                                                    std::move(offsetExpr),
+                                                                    *fContext.fInt_Type));
+        }
+        case Expression::kVariableReference_Kind: {
+            const Variable& var = ((const VariableReference&)expr).fVariable;
+            return std::unique_ptr<Expression>(new IntLiteral(fContext, -1,
+                                                              this->getLocation(var)));
+        }
+        default:
+            SkASSERT(false);
+            return nullptr;
     }
 }
 
@@ -373,7 +429,7 @@ void ByteCodeGenerator::writeExternalValue(const ExternalValueReference& e) {
 }
 
 void ByteCodeGenerator::writeFieldAccess(const FieldAccess& f) {
-    // not yet implemented
+    // not yet implemented (Dump entire struct to stack, then pop most of it?)
     abort();
 }
 
