@@ -557,8 +557,7 @@ def dm_flags(api, bot):
                'async_rescale_and_read_text_down',
                'async_rescale_and_read_dog_up',
                'async_rescale_and_read_dog_down',
-               'async_rescale_and_read_rose',
-               'async_rescale_and_read_no_bleed']:
+               'async_rescale_and_read_rose']:
     blacklist([      'pic-8888', 'gm', '_', test])
     blacklist(['serialize-8888', 'gm', '_', test])
 
