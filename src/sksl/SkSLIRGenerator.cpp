@@ -28,6 +28,7 @@
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLExternalFunctionCall.h"
 #include "src/sksl/ir/SkSLExternalValueReference.h"
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -1727,41 +1728,68 @@ int IRGenerator::callCost(const FunctionDeclaration& function,
 std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               std::unique_ptr<Expression> functionValue,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
-    if (functionValue->fKind == Expression::kTypeReference_Kind) {
-        return this->convertConstructor(offset,
-                                        ((TypeReference&) *functionValue).fValue,
-                                        std::move(arguments));
-    }
-    if (functionValue->fKind != Expression::kFunctionReference_Kind) {
-        fErrors.error(offset, "'" + functionValue->description() + "' is not a function");
-        return nullptr;
-    }
-    FunctionReference* ref = (FunctionReference*) functionValue.get();
-    int bestCost = INT_MAX;
-    const FunctionDeclaration* best = nullptr;
-    if (ref->fFunctions.size() > 1) {
-        for (const auto& f : ref->fFunctions) {
-            int cost = this->callCost(*f, arguments);
-            if (cost < bestCost) {
-                bestCost = cost;
-                best = f;
+    switch (functionValue->fKind) {
+        case Expression::kTypeReference_Kind:
+            return this->convertConstructor(offset,
+                                            ((TypeReference&) *functionValue).fValue,
+                                            std::move(arguments));
+        case Expression::kExternalValue_Kind: {
+            ExternalValue* v = ((ExternalValueReference&) *functionValue).fValue;
+            if (!v->canCall()) {
+                fErrors.error(offset, "this external value is not a function");
+                return nullptr;
             }
+            int count = v->callParameterCount();
+            if (count != (int) arguments.size()) {
+                fErrors.error(offset, "external function expected " + to_string(count) +
+                                      " arguments, but found " + to_string((int) arguments.size()));
+                return nullptr;
+            }
+            static constexpr int PARAMETER_MAX = 16;
+            SkASSERT(count < PARAMETER_MAX);
+            const Type* types[PARAMETER_MAX];
+            v->getCallParameterTypes(types);
+            for (int i = 0; i < count; ++i) {
+                arguments[i] = this->coerce(std::move(arguments[i]), *types[i]);
+                if (!arguments[i]) {
+                    return nullptr;
+                }
+            }
+            return std::unique_ptr<Expression>(new ExternalFunctionCall(offset, v->callReturnType(),
+                                                                        v, std::move(arguments)));
         }
-        if (best) {
-            return this->call(offset, *best, std::move(arguments));
+        case Expression::kFunctionReference_Kind: {
+            FunctionReference* ref = (FunctionReference*) functionValue.get();
+            int bestCost = INT_MAX;
+            const FunctionDeclaration* best = nullptr;
+            if (ref->fFunctions.size() > 1) {
+                for (const auto& f : ref->fFunctions) {
+                    int cost = this->callCost(*f, arguments);
+                    if (cost < bestCost) {
+                        bestCost = cost;
+                        best = f;
+                    }
+                }
+                if (best) {
+                    return this->call(offset, *best, std::move(arguments));
+                }
+                String msg = "no match for " + ref->fFunctions[0]->fName + "(";
+                String separator;
+                for (size_t i = 0; i < arguments.size(); i++) {
+                    msg += separator;
+                    separator = ", ";
+                    msg += arguments[i]->fType.description();
+                }
+                msg += ")";
+                fErrors.error(offset, msg);
+                return nullptr;
+            }
+            return this->call(offset, *ref->fFunctions[0], std::move(arguments));
         }
-        String msg = "no match for " + ref->fFunctions[0]->fName + "(";
-        String separator;
-        for (size_t i = 0; i < arguments.size(); i++) {
-            msg += separator;
-            separator = ", ";
-            msg += arguments[i]->fType.description();
-        }
-        msg += ")";
-        fErrors.error(offset, msg);
-        return nullptr;
+        default:
+            fErrors.error(offset, "'" + functionValue->description() + "' is not a function");
+            return nullptr;
     }
-    return this->call(offset, *ref->fFunctions[0], std::move(arguments));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(

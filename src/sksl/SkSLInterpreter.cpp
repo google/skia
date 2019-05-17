@@ -119,6 +119,13 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             case ByteCodeInstruction::kAndI: printf("andi"); break;
             case ByteCodeInstruction::kBranch: printf("branch %d", READ16()); break;
             case ByteCodeInstruction::kCall: printf("call %d", READ8()); break;
+            case ByteCodeInstruction::kCallExternal: {
+                int argumentCount = READ8();
+                int returnCount = READ8();
+                int externalValue = READ8();
+                printf("callexternal %d, %d, %d", argumentCount, returnCount, externalValue);
+                break;
+            }
             VECTOR_DISASSEMBLE(kCompareIEQ, "compareieq")
             VECTOR_DISASSEMBLE(kCompareINEQ, "compareineq")
             VECTOR_DISASSEMBLE(kCompareFEQ, "comparefeq")
@@ -277,7 +284,8 @@ struct StackFrame {
 void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Value* outReturn) {
     const uint8_t* code = f.fCode.data();
     const uint8_t* ip = code;
-    Value tmp[4];
+    static constexpr int TMP_SLOTS = 4;
+    Value tmp[TMP_SLOTS];
     int src;
     int target;
     int count;
@@ -308,6 +316,18 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                 ip = code = fun->fCode.data();
                 stack = sp - fun->fParameterCount + 1;
                 sp = stack + fun->fParameterCount + fun->fLocalCount - 1;
+                break;
+            }
+            case ByteCodeInstruction::kCallExternal: {
+                int argumentCount = READ8();
+                int returnCount = READ8();
+                SkASSERT(returnCount <= TMP_SLOTS);
+                target = READ8();
+                ExternalValue* v = fByteCode->fExternalValues[target];
+                sp -= argumentCount - 1;
+                v->call(sp, tmp);
+                memcpy(sp, tmp, returnCount * sizeof(Value));
+                sp += returnCount - 1;
                 break;
             }
             VECTOR_BINARY_OP(kCompareIEQ, int32_t, fSigned, fBool, ==)

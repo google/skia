@@ -29,6 +29,7 @@ struct Expression : public IRNode {
         kBinary_Kind,
         kBoolLiteral_Kind,
         kConstructor_Kind,
+        kExternalFunctionCall_Kind,
         kExternalValue_Kind,
         kIntLiteral_Kind,
         kFieldAccess_Kind,

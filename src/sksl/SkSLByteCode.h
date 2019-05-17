@@ -30,6 +30,9 @@ enum class ByteCodeInstruction : uint8_t {
     kBranch,
     // Followed by a byte indicating the index of the function to call
     kCall,
+    // Followed by three bytes indicating: the number of argument slots, the number of return slots,
+    // and the index of the external value to call
+    kCallExternal,
     VECTOR(kCompareIEQ),
     VECTOR(kCompareINEQ),
     VECTOR(kCompareFEQ),

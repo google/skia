@@ -565,3 +565,139 @@ DEF_TEST(SkSLInterpreterExternalValuesVector, r) {
         printf("%s\n%s", src, compiler.errorText().c_str());
     }
 }
+
+class FunctionExternalValue : public SkSL::ExternalValue {
+public:
+    FunctionExternalValue(const char* name, float(*function)(float), SkSL::Compiler& compiler)
+        : INHERITED(name, *compiler.context().fFloat_Type)
+        , fCompiler(compiler)
+        , fFunction(function) {}
+
+    bool canCall() const override {
+        return true;
+    }
+
+    int callParameterCount() const override {
+        return 1;
+    }
+
+    void getCallParameterTypes(const SkSL::Type** outTypes) const override {
+        outTypes[0] = fCompiler.context().fFloat_Type.get();
+    }
+
+    void call(SkSL::Interpreter::Value* arguments, SkSL::Interpreter::Value* outReturn) override {
+        outReturn[0].fFloat = fFunction(arguments[0].fFloat);
+    }
+
+private:
+    SkSL::Compiler& fCompiler;
+
+    float (*fFunction)(float);
+
+    typedef SkSL::ExternalValue INHERITED;
+};
+
+DEF_TEST(SkSLInterpreterExternalValuesCall, r) {
+    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
+    const char* src = "float main() {"
+                      "    return external(25);"
+                      "}";
+    compiler.registerExternalValue((SkSL::ExternalValue*) compiler.takeOwnership(
+            std::unique_ptr<SkSL::Symbol>(new FunctionExternalValue("external",
+                                                                    [] (float x) {
+                                                                        return (float) sqrt(x);
+                                                                    },
+                                                                    compiler))));
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                                                     SkSL::String(src),
+                                                                     settings);
+    REPORTER_ASSERT(r, program);
+    if (program) {
+        std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
+        REPORTER_ASSERT(r, !compiler.errorCount());
+        if (compiler.errorCount() > 0) {
+            printf("%s\n%s", src, compiler.errorText().c_str());
+            return;
+        }
+        SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
+        SkSL::Interpreter interpreter(std::move(program), std::move(byteCode));
+        SkSL::Interpreter::Value out;
+        interpreter.run(*main, nullptr, &out);
+        REPORTER_ASSERT(r, out.fFloat == 5.0);
+    } else {
+        printf("%s\n%s", src, compiler.errorText().c_str());
+    }
+}
+
+class VectorFunctionExternalValue : public SkSL::ExternalValue {
+public:
+    VectorFunctionExternalValue(const char* name, void(*function)(float[4], float[4]),
+                                SkSL::Compiler& compiler)
+        : INHERITED(name, *compiler.context().fFloat4_Type)
+        , fCompiler(compiler)
+        , fFunction(function) {}
+
+    bool canCall() const override {
+        return true;
+    }
+
+    int callParameterCount() const override {
+        return 1;
+    }
+
+    void getCallParameterTypes(const SkSL::Type** outTypes) const override {
+        outTypes[0] = fCompiler.context().fFloat4_Type.get();
+    }
+
+    void call(SkSL::Interpreter::Value* arguments, SkSL::Interpreter::Value* outReturn) override {
+        fFunction((float*) arguments, (float*) outReturn);
+    }
+
+private:
+    SkSL::Compiler& fCompiler;
+
+    void (*fFunction)(float[4], float[4]);
+
+    typedef SkSL::ExternalValue INHERITED;
+};
+
+
+DEF_TEST(SkSLInterpreterExternalValuesVectorCall, r) {
+    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
+    const char* src = "float4 main() {"
+                      "    return external(float4(1, 4, 9, 16));"
+                      "}";
+    compiler.registerExternalValue((SkSL::ExternalValue*) compiler.takeOwnership(
+            std::unique_ptr<SkSL::Symbol>(new VectorFunctionExternalValue("external",
+                                                                    [] (float in[4], float out[4]) {
+                                                                        out[0] = sqrt(in[0]);
+                                                                        out[1] = sqrt(in[1]);
+                                                                        out[2] = sqrt(in[2]);
+                                                                        out[3] = sqrt(in[3]);
+                                                                    },
+                                                                    compiler))));
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                                                     SkSL::String(src),
+                                                                     settings);
+    REPORTER_ASSERT(r, program);
+    if (program) {
+        std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
+        REPORTER_ASSERT(r, !compiler.errorCount());
+        if (compiler.errorCount() > 0) {
+            printf("%s\n%s", src, compiler.errorText().c_str());
+            return;
+        }
+        SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
+        SkSL::Interpreter interpreter(std::move(program), std::move(byteCode));
+        SkSL::Interpreter::Value out[4];
+        interpreter.run(*main, nullptr, out);
+        REPORTER_ASSERT(r, out[0].fFloat == 1.0);
+        REPORTER_ASSERT(r, out[1].fFloat == 2.0);
+        REPORTER_ASSERT(r, out[2].fFloat == 3.0);
+        REPORTER_ASSERT(r, out[3].fFloat == 4.0);
+    } else {
+        printf("%s\n%s", src, compiler.errorText().c_str());
+    }
+}

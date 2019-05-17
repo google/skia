@@ -11,6 +11,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLExternalFunctionCall.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
@@ -342,6 +343,15 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         }
         case Expression::kConstructor_Kind: {
             Constructor* c = (Constructor*) e->get();
+            for (auto& arg : c->fArguments) {
+                this->addExpression(cfg, &arg, constantPropagate);
+            }
+            cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kExpression_Kind,
+                                                         constantPropagate, e, nullptr });
+            break;
+        }
+        case Expression::kExternalFunctionCall_Kind: {
+            ExternalFunctionCall* c = (ExternalFunctionCall*) e->get();
             for (auto& arg : c->fArguments) {
                 this->addExpression(cfg, &arg, constantPropagate);
             }

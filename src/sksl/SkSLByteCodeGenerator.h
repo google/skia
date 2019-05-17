@@ -22,6 +22,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLExternalFunctionCall.h"
 #include "src/sksl/ir/SkSLExternalValueReference.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -190,6 +191,8 @@ private:
     void writeFunctionCall(const FunctionCall& c);
 
     void writeConstructor(const Constructor& c);
+
+    void writeExternalFunctionCall(const ExternalFunctionCall& c);
 
     void writeExternalValue(const ExternalValueReference& r);
 

@@ -349,6 +349,22 @@ void ByteCodeGenerator::writeConstructor(const Constructor& c) {
     }
 }
 
+void ByteCodeGenerator::writeExternalFunctionCall(const ExternalFunctionCall& f) {
+    int argumentCount = 0;
+    for (const auto& arg : f.fArguments) {
+        this->writeExpression(*arg);
+        argumentCount += slot_count(arg->fType);
+    }
+    this->write(ByteCodeInstruction::kCallExternal);
+    SkASSERT(argumentCount <= 255);
+    this->write8(argumentCount);
+    this->write8(slot_count(f.fType));
+    int index = fOutput->fExternalValues.size();
+    fOutput->fExternalValues.push_back(f.fFunction);
+    SkASSERT(index <= 255);
+    this->write8(index);
+}
+
 void ByteCodeGenerator::writeExternalValue(const ExternalValueReference& e) {
     this->write(vector_instruction(ByteCodeInstruction::kReadExternal,
                                    slot_count(e.fValue->type())));
@@ -519,6 +535,9 @@ void ByteCodeGenerator::writeExpression(const Expression& e) {
             break;
         case Expression::kConstructor_Kind:
             this->writeConstructor((Constructor&) e);
+            break;
+        case Expression::kExternalFunctionCall_Kind:
+            this->writeExternalFunctionCall((ExternalFunctionCall&) e);
             break;
         case Expression::kExternalValue_Kind:
             this->writeExternalValue((ExternalValueReference&) e);
