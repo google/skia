@@ -1772,8 +1772,8 @@ void GrRenderTargetContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHand
     this->getRTOpList()->addOp(std::move(op), *this->caps());
 }
 
-bool GrRenderTargetContext::asyncReadPixels(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
-                                            const SkIRect& srcRect, ReadPixelsCallback callback,
+bool GrRenderTargetContext::asyncReadPixels(const SkImageInfo& info, int srcX, int srcY,
+                                            ReadPixelsCallback callback,
                                             ReadPixelsContext context) {
     auto direct = fContext->priv().asDirectContext();
     if (!direct) {
@@ -1787,10 +1787,11 @@ bool GrRenderTargetContext::asyncReadPixels(SkColorType ct, SkAlphaType at, sk_s
     }
     // We currently don't know our own alpha type, we assume it's premul if we have an alpha channel
     // and opaque otherwise.
-    if (!GrPixelConfigIsAlphaOnly(fRenderTargetProxy->config()) && at != kPremul_SkAlphaType) {
+    if (!GrPixelConfigIsAlphaOnly(fRenderTargetProxy->config()) &&
+        info.alphaType() != kPremul_SkAlphaType) {
         return false;
     }
-    auto dstCT = SkColorTypeToGrColorType(ct);
+    auto dstCT = SkColorTypeToGrColorType(info.colorType());
     auto readCT = this->caps()->supportedReadPixelsColorType(fRenderTargetProxy->config(), dstCT);
     // Fail if we can't do a CPU conversion from readCT to dstCT.
     if (GrColorTypeToSkColorType(readCT) == kUnknown_SkColorType) {
@@ -1805,9 +1806,10 @@ bool GrRenderTargetContext::asyncReadPixels(SkColorType ct, SkAlphaType at, sk_s
         return false;
     }
 
-    sk_sp<GrColorSpaceXform> xform = GrColorSpaceXform::Make(this->colorSpaceInfo().colorSpace(),
-                                                             kPremul_SkAlphaType, cs.get(), at);
-
+    sk_sp<GrColorSpaceXform> xform =
+            GrColorSpaceXform::Make(this->colorSpaceInfo().colorSpace(), kPremul_SkAlphaType,
+                                    info.colorSpace(), info.alphaType());
+    const auto srcRect = SkIRect::MakeXYWH(srcX, srcY, info.width(), info.height());
     // Insert a draw to a temporary surface if we need to do a y-flip or color space conversion.
     if (this->origin() == kBottomLeft_GrSurfaceOrigin || xform) {
         sk_sp<GrTextureProxy> texProxy = sk_ref_sp(fRenderTargetProxy->asTextureProxy());
@@ -1834,7 +1836,8 @@ bool GrRenderTargetContext::asyncReadPixels(SkColorType ct, SkAlphaType at, sk_s
         }
         auto rtc = direct->priv().makeDeferredRenderTargetContext(
                 backendFormat, SkBackingFit::kApprox, srcRect.width(), srcRect.height(),
-                fRenderTargetProxy->config(), cs, 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+                fRenderTargetProxy->config(), info.refColorSpace(), 1, GrMipMapped::kNo,
+                kTopLeft_GrSurfaceOrigin);
         if (!rtc) {
             return false;
         }
@@ -1843,9 +1846,7 @@ bool GrRenderTargetContext::asyncReadPixels(SkColorType ct, SkAlphaType at, sk_s
                          SkRect::MakeWH(srcRect.width(), srcRect.height()), GrAA::kNo,
                          GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(),
                          std::move(xform));
-        return rtc->asyncReadPixels(ct, at, std::move(cs),
-                                    SkIRect::MakeWH(srcRect.width(), srcRect.height()), callback,
-                                    context);
+        return rtc->asyncReadPixels(info, 0, 0, callback, context);
     }
 
     size_t rowBytes = GrColorTypeBytesPerPixel(readCT) * srcRect.width();
@@ -1865,17 +1866,11 @@ bool GrRenderTargetContext::asyncReadPixels(SkColorType ct, SkAlphaType at, sk_s
         sk_sp<GrGpuBuffer> fBuffer;
         size_t fRowBytes;
     };
+    const auto readInfo = info.makeColorType(GrColorTypeToSkColorType(readCT));
     // Assumption is that the caller would like to flush. We could take a parameter or require an
     // explicit flush from the caller. We'd have to have a way to defer attaching the finish
     // callback to GrGpu until after the next flush that flushes our op list, though.
-    auto* finishContext =
-            new FinishContext{SkImageInfo::Make(srcRect.width(), srcRect.height(),
-                                                GrColorTypeToSkColorType(readCT), at, cs),
-                              SkImageInfo::Make(srcRect.width(), srcRect.height(), ct, at, cs),
-                              callback,
-                              context,
-                              buffer,
-                              rowBytes};
+    auto* finishContext = new FinishContext{readInfo, info, callback, context, buffer, rowBytes};
     auto finishCallback = [](GrGpuFinishedContext c) {
         auto context = reinterpret_cast<const FinishContext*>(c);
         void* data = context->fBuffer->map();

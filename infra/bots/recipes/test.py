@@ -551,7 +551,13 @@ def dm_flags(api, bot):
     blacklist(['serialize-8888', 'gm', '_', test])
 
   # GM that requires raster-backed canvas
-  for test in ['complexclip4_bw', 'complexclip4_aa', 'p3']:
+  for test in ['complexclip4_bw', 'complexclip4_aa', 'p3',
+               'async_rescale_and_read_text_up_large',
+               'async_rescale_and_read_text_up',
+               'async_rescale_and_read_text_down',
+               'async_rescale_and_read_dog_up',
+               'async_rescale_and_read_dog_down',
+               'async_rescale_and_read_rose']:
     blacklist([      'pic-8888', 'gm', '_', test])
     blacklist(['serialize-8888', 'gm', '_', test])
 
