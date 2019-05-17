@@ -593,12 +593,16 @@ void Animation::render(SkCanvas* canvas, const SkRect* dstR, RenderFlags renderF
 }
 
 void Animation::seek(SkScalar t) {
+    this->seekToFrame(fInPoint + SkTPin(t, 0.0f, 1.0f) * (fOutPoint - fInPoint));
+}
+
+void Animation::seekToFrame(SkScalar f) {
     TRACE_EVENT0("skottie", TRACE_FUNC);
 
     if (!fScene)
         return;
 
-    fScene->animate(fInPoint + SkTPin(t, 0.0f, 1.0f) * (fOutPoint - fInPoint));
+    fScene->animate(SkTPin(f, fInPoint, fOutPoint));
 }
 
 sk_sp<Animation> Animation::Make(const char* data, size_t length) {
