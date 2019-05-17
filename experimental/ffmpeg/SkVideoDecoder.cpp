@@ -10,8 +10,6 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkYUVAIndex.h"
 
-#include "libavfilter/colorspace.h"
-
 static SkYUVColorSpace get_yuvspace(AVColorSpace space) {
     // this is pretty incomplete -- TODO: look to convert more AVColorSpaces
     switch (space) {
