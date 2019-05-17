@@ -3306,6 +3306,8 @@ static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType)
         case GrColorType::kRGB_ETC1:
             return GR_GL_COMPRESSED_RGB8_ETC2 == format || GR_GL_COMPRESSED_ETC1_RGB8 == format;
     }
+    SK_ABORT("Unknown color type");
+    return false;
 }
 #endif
 
