@@ -8,6 +8,7 @@
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "include/core/SkSurface.h"
+#include "src/core/SkAutoPixmapStorage.h"
 #include "src/image/SkImage_Base.h"
 #include "tests/Test.h"
 
@@ -75,6 +76,80 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
     context->priv().deleteBackendTexture(backendTex);
 }
 
+static void compare_pixmaps(const SkPixmap& p1, const SkPixmap& p2, skiatest::Reporter* reporter) {
+    SkASSERT(p1.info() == p2.info());
+    for (int y = 0; y < p1.height(); ++y) {
+        for (int x = 0; x < p1.width(); ++x) {
+            REPORTER_ASSERT(reporter, p1.getColor(x, y) == p2.getColor(x, y));
+            if (p1.getColor(x, y) != p2.getColor(x, y)) {
+                return;
+            }
+        }
+    }
+}
+
+// Test initialization of GrBackendObjects to a specific color
+void test_color_init(GrContext* context, skiatest::Reporter* reporter,
+                     std::function<GrBackendTexture (GrContext*, const SkColor4f&, GrMipMapped, GrRenderable)> create,
+                     SkColorType colorType, const SkColor4f& color,
+                     GrMipMapped mipMapped, GrRenderable renderable) {
+
+    GrBackendTexture backendTex = create(context, color, mipMapped, renderable);
+    if (!backendTex.isValid()) {
+        // errors here should be reported by the test_wrapping test
+        return;
+    }
+
+    if (kUnknown_SkColorType != colorType) {
+        // TODO: burrow in and do this manually!
+        context->priv().deleteBackendTexture(backendTex);
+        return;
+    }
+
+    SkImageInfo ii = SkImageInfo::Make(32, 32, colorType, kPremul_SkAlphaType);
+
+    SkAutoPixmapStorage expected, actual;
+    SkAssertResult(expected.tryAlloc(ii));
+    expected.erase(color);
+
+    SkAssertResult(actual.tryAlloc(ii));
+    actual.erase(SkColors::kTransparent);
+
+    if (GrRenderable::kYes == renderable) {
+        sk_sp<SkSurface> surf = SkSurface::MakeFromBackendTexture(context,
+                                                                  backendTex,
+                                                                  kTopLeft_GrSurfaceOrigin,
+                                                                  0,
+                                                                  colorType,
+                                                                  nullptr, nullptr);
+        if (surf) {
+            bool result = surf->readPixels(actual, 0, 0);
+            REPORTER_ASSERT(reporter, result);
+
+            compare_pixmaps(expected, actual, reporter);
+
+            actual.erase(SkColors::kTransparent);
+        }
+    }
+
+    {
+        sk_sp<SkImage> img = SkImage::MakeFromTexture(context,
+                                                      backendTex,
+                                                      kTopLeft_GrSurfaceOrigin,
+                                                      colorType,
+                                                      kPremul_SkAlphaType,
+                                                      nullptr);
+        if (img) {
+            bool result = img->readPixels(actual, 0, 0);
+            REPORTER_ASSERT(reporter, result);
+
+            compare_pixmaps(expected, actual, reporter);
+        }
+    }
+
+    context->priv().deleteBackendTexture(backendTex);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
@@ -83,19 +158,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
     struct {
         SkColorType   fColorType;
         GrPixelConfig fConfig;
+        SkColor4f     fColor;
     } combinations[] = {
-        { kAlpha_8_SkColorType,      kAlpha_8_GrPixelConfig           },
-        { kRGB_565_SkColorType,      kRGB_565_GrPixelConfig           },
-        { kARGB_4444_SkColorType,    kRGBA_4444_GrPixelConfig         },
-        { kRGBA_8888_SkColorType,    kRGBA_8888_GrPixelConfig         },
-        { kRGB_888x_SkColorType,     kRGB_888_GrPixelConfig           },
-        { kBGRA_8888_SkColorType,    kBGRA_8888_GrPixelConfig         },
-        { kRGBA_1010102_SkColorType, kRGBA_1010102_GrPixelConfig      },
-        { kRGB_101010x_SkColorType,  kUnknown_GrPixelConfig           },    // No Ganesh correlate
-        { kGray_8_SkColorType,       kGray_8_GrPixelConfig            },
-        { kRGBA_F16Norm_SkColorType, kRGBA_half_Clamped_GrPixelConfig },
-        { kRGBA_F16_SkColorType,     kRGBA_half_GrPixelConfig         },
-        { kRGBA_F32_SkColorType,     kRGBA_float_GrPixelConfig        },
+        { kAlpha_8_SkColorType,      kAlpha_8_GrPixelConfig,           SkColors::kRed },
+        { kRGB_565_SkColorType,      kRGB_565_GrPixelConfig,           SkColors::kGreen },
+        { kARGB_4444_SkColorType,    kRGBA_4444_GrPixelConfig,         SkColors::kBlue },
+        { kRGBA_8888_SkColorType,    kRGBA_8888_GrPixelConfig,         SkColors::kCyan },
+        { kRGB_888x_SkColorType,     kRGB_888_GrPixelConfig,           SkColors::kMagenta },
+        { kBGRA_8888_SkColorType,    kBGRA_8888_GrPixelConfig,         SkColors::kYellow },
+        { kRGBA_1010102_SkColorType, kRGBA_1010102_GrPixelConfig,      SkColors::kBlack },
+        // The kRGB_101010x_SkColorType has no Ganesh correlate
+        { kRGB_101010x_SkColorType,  kUnknown_GrPixelConfig,           SkColors::kDkGray },
+        { kGray_8_SkColorType,       kGray_8_GrPixelConfig,            SkColors::kGray },
+        { kRGBA_F16Norm_SkColorType, kRGBA_half_Clamped_GrPixelConfig, SkColors::kLtGray },
+        { kRGBA_F16_SkColorType,     kRGBA_half_GrPixelConfig,         { 0, 0, 0, 1 } },
+        { kRGBA_F32_SkColorType,     kRGBA_float_GrPixelConfig,        { 0, 0, 0, 1 } },
     };
 
     SkASSERT(kLastEnum_SkColorType == SK_ARRAY_COUNT(combinations));
@@ -130,15 +207,30 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                     }
                 }
 
-                auto createMtd = [colorType](GrContext* context,
-                                             GrMipMapped mipMapped,
-                                             GrRenderable renderable) {
-                    return context->priv().createBackendTexture(32, 32, colorType,
-                                                                mipMapped, renderable);
-                };
+                {
+                    auto uninitCreateMtd = [colorType](GrContext* context,
+                                                       GrMipMapped mipMapped,
+                                                       GrRenderable renderable) {
+                        return context->priv().createBackendTexture(32, 32, colorType,
+                                                                    mipMapped, renderable);
+                    };
 
-                test_wrapping(context, reporter, createMtd,
-                              colorType, mipMapped, renderable);
+                    test_wrapping(context, reporter, uninitCreateMtd,
+                                  colorType, mipMapped, renderable);
+                }
+
+                {
+                    auto createWithColorMtd = [colorType](GrContext* context,
+                                                          const SkColor4f& color,
+                                                          GrMipMapped mipMapped,
+                                                          GrRenderable renderable) {
+                        return context->priv().createBackendTexture(32, 32, colorType, color,
+                                                                    mipMapped, renderable);
+                    };
+
+                    test_color_init(context, reporter, createWithColorMtd,
+                                    colorType, combo.fColor, mipMapped, renderable);
+                }
             }
         }
     }
