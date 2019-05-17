@@ -1044,7 +1044,7 @@ protected:
                 SkASSERT(gpu);
                 gpu->testingOnly_flushGpuAndSync();
                 for (const auto& tex : fBackendTextures) {
-                    gpu->deleteTestingOnlyBackendTexture(tex);
+                    context->priv().deleteBackendTexture(tex);
                 }
                 fBackendTextures.reset();
             }
@@ -1196,7 +1196,7 @@ protected:
         SkASSERT(gpu);
         gpu->testingOnly_flushGpuAndSync();
         for (const auto& tex : fBackendTextures) {
-            gpu->deleteTestingOnlyBackendTexture(tex);
+            context->priv().deleteBackendTexture(tex);
         }
         fBackendTextures.reset();
     }

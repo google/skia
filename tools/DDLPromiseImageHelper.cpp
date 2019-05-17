@@ -24,8 +24,7 @@ DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext
     SkASSERT(!fTotalFulfills || fDoneCnt);
 
     if (fPromiseImageTexture) {
-        GrGpu* gpu = fContext->priv().getGpu();
-        gpu->deleteTestingOnlyBackendTexture(fPromiseImageTexture->backendTexture());
+        fContext->priv().deleteBackendTexture(fPromiseImageTexture->backendTexture());
     }
 }
 
