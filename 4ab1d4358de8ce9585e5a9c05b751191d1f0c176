@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31278e0d_6f197924",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-17T15:09:28Z",
+      "side": 1,
+      "message": "extra line",
+      "revId": "4ab1d4358de8ce9585e5a9c05b751191d1f0c176",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4dc99faf_406f24cb",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-17T15:09:28Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 17,
+        "startChar": 100,
+        "endLine": 17,
+        "endChar": 101
+      },
+      "revId": "4ab1d4358de8ce9585e5a9c05b751191d1f0c176",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
