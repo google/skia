@@ -81,6 +81,8 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppend("half4 wx = kMitchellCoefficients * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
     fragBuilder->codeAppend("half4 wy = kMitchellCoefficients * half4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);");
     fragBuilder->codeAppend("half4 rowColors[4];");
+    // On some mobile GPUs we can wind up with less than fully opaque results for an opaque input.
+    fragBuilder->codeAppend("half alphaSum = 0;");
     for (int y = 0; y < 4; ++y) {
         for (int x = 0; x < 4; ++x) {
             SkString coord;
@@ -98,16 +100,18 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf(
             "half4 s%d = wx.x * rowColors[0] + wx.y * rowColors[1] + wx.z * rowColors[2] + wx.w * rowColors[3];",
             y);
+        fragBuilder->codeAppend(
+                "alphaSum += rowColors[0].a + rowColors[1].a + rowColors[2].a + rowColors[3].a;");
     }
     fragBuilder->codeAppend("half4 bicubicColor = wy.x * s0 + wy.y * s1 + wy.z * s2 + wy.w * s3;");
+    fragBuilder->codeAppend("bicubicColor.a = (alphaSum == 16) ? 1 : max(0, bicubicColor.a);");
     // Bicubic can send colors out of range, so clamp to get them back in (source) gamut.
     // The kind of clamp we have to do depends on the alpha type.
     if (kPremul_SkAlphaType == bicubicEffect.alphaType()) {
-        fragBuilder->codeAppend("bicubicColor.a = saturate(bicubicColor.a);");
         fragBuilder->codeAppend(
                 "bicubicColor.rgb = max(half3(0.0), min(bicubicColor.rgb, bicubicColor.aaa));");
     } else {
-        fragBuilder->codeAppend("bicubicColor = saturate(bicubicColor);");
+        fragBuilder->codeAppend("bicubicColor.rgb = saturate(bicubicColor.rgb);");
     }
     fragBuilder->codeAppendf("%s = bicubicColor * %s;", args.fOutputColor, args.fInputColor);
 }
