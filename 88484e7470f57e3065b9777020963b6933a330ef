@@ -22,6 +22,30 @@
       "revId": "88484e7470f57e3065b9777020963b6933a330ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4f922ae_bc025e95",
+        "filename": "include/private/GrRecordingContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-17T20:36:24Z",
+      "side": 1,
+      "message": "I went through the callers that code search pointed to. Let me know if there are more that I am missing.",
+      "parentUuid": "024588eb_e57ba7aa",
+      "range": {
+        "startLine": 74,
+        "startChar": 33,
+        "endLine": 74,
+        "endChar": 64
+      },
+      "revId": "88484e7470f57e3065b9777020963b6933a330ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
