@@ -81,6 +81,24 @@
       "revId": "259eea4fbb069e758cc9bea775251efe1baa5839",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1491d89b_a503f211",
+        "filename": "gm/asyncrescaleandread.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-17T16:27:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ca16ddc4_2fcfe7b5",
+      "revId": "259eea4fbb069e758cc9bea775251efe1baa5839",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
