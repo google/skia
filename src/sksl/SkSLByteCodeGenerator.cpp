@@ -475,7 +475,6 @@ void ByteCodeGenerator::writePostfixExpression(const PostfixExpression& p) {
             }
             lvalue->store();
             this->write(ByteCodeInstruction::kPop);
-            this->write8(1);
             break;
         }
         default:
