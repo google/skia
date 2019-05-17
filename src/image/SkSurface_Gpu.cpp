@@ -132,16 +132,15 @@ void SkSurface_Gpu::onWritePixels(const SkPixmap& src, int x, int y) {
     fDevice->writePixels(src, x, y);
 }
 
-void SkSurface_Gpu::onAsyncReadPixels(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
-                                      const SkIRect& srcRect, ReadPixelsCallback callback,
-                                      ReadPixelsContext context) {
+void SkSurface_Gpu::onAsyncReadPixels(const SkImageInfo& info, int srcX, int srcY,
+                                      ReadPixelsCallback callback, ReadPixelsContext context) {
+    SkASSERT(SkIRect::MakeWH(this->width(), this->height())
+                     .contains(SkIRect::MakeXYWH(srcX, srcY, info.width(), info.height())));
     auto* rtc = fDevice->accessRenderTargetContext();
-    if (!rtc->caps()->transferBufferSupport()) {
-        INHERITED::onAsyncReadPixels(ct, at, cs, srcRect, callback, context);
+    if (!rtc->caps()->transferBufferSupport() ||
+        !rtc->asyncReadPixels(info, srcX, srcY, callback, context)) {
+        INHERITED::onAsyncReadPixels(info, srcX, srcY, callback, context);
         return;
-    }
-    if (!rtc->asyncReadPixels(ct, at, std::move(cs), srcRect, callback, context)) {
-        callback(context, nullptr, 0);
     }
 }
 
