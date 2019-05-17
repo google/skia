@@ -10,15 +10,16 @@
 #include "tests/Test.h"
 
 #import <metal/metal.h>
+#include "src/gpu/mtl/GrMtlCaps.h"
 
 // In BackendAllocationTest.cpp
 void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
-                   std::function<GrBackendTexture (GrContext*, GrRenderable)> createMtd,
-                   SkColorType colorType, GrRenderable renderable);
+                   std::function<GrBackendTexture (GrContext*, GrMipMapped, GrRenderable)> create,
+                   SkColorType colorType, GrMipMapped mipMapped, GrRenderable renderable);
 
 DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    const GrCaps* caps = context->priv().caps();
+    const GrMtlCaps* mtlCaps = static_cast<const GrMtlCaps*>(context->priv().caps());
 
     struct {
         SkColorType      fColorType;
@@ -62,7 +63,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
     for (auto combo : combinations) {
         GrBackendFormat format = GrBackendFormat::MakeMtl(combo.fFormat);
 
-        if (!caps->isConfigTexturable(combo.fConfig)) {
+        if (!mtlCaps->isConfigTexturable(combo.fConfig)) {
             continue;
         }
 
@@ -71,24 +72,33 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
             continue;
         }
 
-        for (auto renderable : { GrRenderable::kNo, GrRenderable::kYes }) {
-
-            if (GrRenderable::kYes == renderable) {
-                if (kRGB_888x_SkColorType == combo.fColorType) {
-                    // Ganesh can't perform the blends correctly when rendering this format
-                    continue;
-                }
-                if (!caps->isConfigRenderable(combo.fConfig)) {
-                    continue;
-                }
+        for (auto mipMapped : { GrMipMapped::kNo, GrMipMapped::kYes }) {
+            if (GrMipMapped::kYes == mipMapped && !mtlCaps->mipMapSupport()) {
+                continue;
             }
 
-            auto createMtd = [format](GrContext* context, GrRenderable renderable) {
-                return context->priv().createBackendTexture(32, 32, format,
-                                                            GrMipMapped::kNo, renderable);
-            };
+            for (auto renderable : { GrRenderable::kNo, GrRenderable::kYes }) {
 
-            test_wrapping(context, reporter, createMtd, combo.fColorType, renderable);
+                if (GrRenderable::kYes == renderable) {
+                    if (kRGB_888x_SkColorType == combo.fColorType) {
+                        // Ganesh can't perform the blends correctly when rendering this format
+                        continue;
+                    }
+                    if (!mtlCaps->isConfigRenderable(combo.fConfig)) {
+                        continue;
+                    }
+                }
+
+                auto createMtd = [format](GrContext* context,
+                                          GrMipMapped mipMapped,
+                                          GrRenderable renderable) {
+                    return context->priv().createBackendTexture(32, 32, format,
+                                                                mipMapped, renderable);
+                };
+
+                test_wrapping(context, reporter, createMtd,
+                              combo.fColorType, mipMapped, renderable);
+            }
         }
-    }
+        }
 }
