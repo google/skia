@@ -347,6 +347,15 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     id<MTLFunction> vertexFunction = [vertexLibrary newFunctionWithName: @"vertexMain"];
     id<MTLFunction> fragmentFunction = [fragmentLibrary newFunctionWithName: @"fragmentMain"];
 
+    if (vertexFunction == nil) {
+        SkDebugf("Couldn't find vertexMain() in library\n");
+        return nullptr;
+    }
+    if (fragmentFunction == nil) {
+        SkDebugf("Couldn't find fragmentMain() in library\n");
+        return nullptr;
+    }
+
     pipelineDescriptor.vertexFunction = vertexFunction;
     pipelineDescriptor.fragmentFunction = fragmentFunction;
     pipelineDescriptor.vertexDescriptor = create_vertex_descriptor(primProc);
