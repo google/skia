@@ -87,15 +87,15 @@ struct CallbackCtx : public SkRasterPipeline_CallbackCtx {
 
 #define READ8() (*(ip++))
 
-#define READ16()                                                  \
-    (SkASSERT((intptr_t) ip % 2 == 0),                            \
-     ip += 2,                                                     \
-     *(uint16_t*) (ip - 2))
+template <typename T>
+static T unaligned_load(const void* ptr) {
+    T val;
+    memcpy(&val, ptr, sizeof(val));
+    return val;
+}
 
-#define READ32()                                                  \
-    (SkASSERT((intptr_t) ip % 4 == 0),                            \
-     ip += 4,                                                     \
-     *(uint32_t*) (ip - 4))
+#define READ16() (ip += 2, unaligned_load<uint16_t>(ip - 2))
+#define READ32() (ip += 4, unaligned_load<uint32_t>(ip - 4))
 
 static String value_string(uint32_t v) {
     union { uint32_t u; float f; } pun = { v };
@@ -174,9 +174,6 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             VECTOR_DISASSEMBLE(kMultiplyI, "multiplyi")
             VECTOR_DISASSEMBLE(kNegateF, "negatef")
             VECTOR_DISASSEMBLE(kNegateS, "negates")
-            case ByteCodeInstruction::kNop1: printf("nop1"); break;
-            case ByteCodeInstruction::kNop2: printf("nop2"); break;
-            case ByteCodeInstruction::kNop3: printf("nop3"); break;
             VECTOR_DISASSEMBLE(kNot, "not")
             VECTOR_DISASSEMBLE(kOrB, "orb")
             VECTOR_DISASSEMBLE(kOrI, "ori")
@@ -452,14 +449,6 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
             case ByteCodeInstruction::kNegateS:
                 sp[0].fSigned = -sp[0].fSigned;
                 break;
-            case ByteCodeInstruction::kNop1:
-                continue;
-            case ByteCodeInstruction::kNop2:
-                ++ip;
-                continue;
-            case ByteCodeInstruction::kNop3:
-                ip += 2;
-                continue;
             case ByteCodeInstruction::kPop:
                 POP();
                 break;
