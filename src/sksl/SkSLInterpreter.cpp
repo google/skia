@@ -238,34 +238,46 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
     }
 }
 
-#define VECTOR_BINARY_OP(inst, type, srcField, targetField, op)  \
-    case ByteCodeInstruction::inst:                              \
-        tmp[0] = POP();                                          \
-        sp->targetField = sp->srcField op tmp[0].srcField;       \
-        break;                                                   \
-    case ByteCodeInstruction::inst ## 2:                         \
-        tmp[1] = POP();                                          \
-        tmp[0] = POP();                                          \
-        sp[ 0].targetField = sp[ 0].srcField op tmp[1].srcField; \
-        sp[-1].targetField = sp[-1].srcField op tmp[0].srcField; \
-        break;                                                   \
-    case ByteCodeInstruction::inst ## 3:                         \
-        tmp[2] = POP();                                          \
-        tmp[1] = POP();                                          \
-        tmp[0] = POP();                                          \
-        sp[ 0].targetField = sp[ 0].srcField op tmp[2].srcField; \
-        sp[-1].targetField = sp[-1].srcField op tmp[1].srcField; \
-        sp[-2].targetField = sp[-2].srcField op tmp[0].srcField; \
-        break;                                                   \
-    case ByteCodeInstruction::inst ## 4:                         \
-        tmp[3] = POP();                                          \
-        tmp[2] = POP();                                          \
-        tmp[1] = POP();                                          \
-        tmp[0] = POP();                                          \
-        sp[ 0].targetField = sp[ 0].srcField op tmp[3].srcField; \
-        sp[-1].targetField = sp[-1].srcField op tmp[2].srcField; \
-        sp[-2].targetField = sp[-2].srcField op tmp[1].srcField; \
-        sp[-3].targetField = sp[-3].srcField op tmp[0].srcField; \
+#define VECTOR_BINARY_OP(base, type, src, target, op)             \
+    case ByteCodeInstruction::base ## 4:                          \
+        sp[-4].target = sp[-4].src op sp[0].src;                  \
+        POP();                                                    \
+        /* fall through */                                        \
+    case ByteCodeInstruction::base ## 3:                          \
+        count = (int) ByteCodeInstruction::base - (int) inst - 1; \
+        sp[count].target = sp[count].src op sp[0].src;            \
+        POP();                                                    \
+        /* fall through */                                        \
+    case ByteCodeInstruction::base ## 2:                          \
+        count = (int) ByteCodeInstruction::base - (int) inst - 1; \
+        sp[count].target = sp[count].src op sp[0].src;            \
+        POP();                                                    \
+        /* fall through */                                        \
+    case ByteCodeInstruction::base:                               \
+        count = (int) ByteCodeInstruction::base - (int) inst - 1; \
+        sp[count].target = sp[count].src op sp[0].src;            \
+        POP();                                                    \
+        break;
+
+#define VECTOR_BINARY_FN(base, type, src, target, fn)             \
+    case ByteCodeInstruction::base ## 4:                          \
+        sp[-4].target = fn(sp[-4].src, sp[0].src);                \
+        POP();                                                    \
+        /* fall through */                                        \
+    case ByteCodeInstruction::base ## 3:                          \
+        count = (int) ByteCodeInstruction::base - (int) inst - 1; \
+        sp[count].target = fn(sp[count].src, sp[0].src);          \
+        POP();                                                    \
+        /* fall through */                                        \
+    case ByteCodeInstruction::base ## 2:                          \
+        count = (int) ByteCodeInstruction::base - (int) inst - 1; \
+        sp[count].target = fn(sp[count].src, sp[0].src);          \
+        POP();                                                    \
+        /* fall through */                                        \
+    case ByteCodeInstruction::base:                               \
+        count = (int) ByteCodeInstruction::base - (int) inst - 1; \
+        sp[count].target = fn(sp[count].src, sp[0].src);          \
+        POP();                                                    \
         break;
 
 struct StackFrame {
@@ -473,34 +485,7 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                 fByteCode->fExternalValues[src]->read(sp + 1);
                 sp += count;
                 break;
-            case ByteCodeInstruction::kRemainderF:
-                tmp[0] = POP();
-                TOP().fFloat = fmodf(TOP().fFloat, tmp[0].fFloat);
-                break;
-            case ByteCodeInstruction::kRemainderF2:
-                tmp[1] = POP();
-                tmp[0] = POP();
-                sp[ 0].fFloat = fmodf(sp[ 0].fFloat, tmp[1].fFloat);
-                sp[-1].fFloat = fmodf(sp[-1].fFloat, tmp[0].fFloat);
-                break;
-            case ByteCodeInstruction::kRemainderF3:
-                tmp[2] = POP();
-                tmp[1] = POP();
-                tmp[0] = POP();
-                sp[ 0].fFloat = fmodf(sp[ 0].fFloat, tmp[2].fFloat);
-                sp[-1].fFloat = fmodf(sp[-1].fFloat, tmp[1].fFloat);
-                sp[-2].fFloat = fmodf(sp[-2].fFloat, tmp[0].fFloat);
-                break;
-            case ByteCodeInstruction::kRemainderF4:
-                tmp[3] = POP();
-                tmp[2] = POP();
-                tmp[1] = POP();
-                tmp[0] = POP();
-                sp[ 0].fFloat = fmodf(sp[ 0].fFloat, tmp[3].fFloat);
-                sp[-1].fFloat = fmodf(sp[-1].fFloat, tmp[2].fFloat);
-                sp[-2].fFloat = fmodf(sp[-2].fFloat, tmp[1].fFloat);
-                sp[-3].fFloat = fmodf(sp[-3].fFloat, tmp[0].fFloat);
-                break;
+            VECTOR_BINARY_FN(kRemainderF, int32_t, fFloat, fFloat, fmodf)
             VECTOR_BINARY_OP(kRemainderS, int32_t, fSigned, fSigned, %)
             VECTOR_BINARY_OP(kRemainderU, uint32_t, fUnsigned, fUnsigned, %)
             case ByteCodeInstruction::kReturn:
