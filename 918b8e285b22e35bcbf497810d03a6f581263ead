@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13352c36_7d0b8a59",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-17T17:54:02Z",
+      "side": 1,
+      "message": "I\u0027m not sure I\u0027m excited about hardcoding the bit representation of a float - maybe something like Interpreter::Value(1.0).fSigned instead?",
+      "range": {
+        "startLine": 418,
+        "startChar": 75,
+        "endLine": 418,
+        "endChar": 85
+      },
+      "revId": "918b8e285b22e35bcbf497810d03a6f581263ead",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3cb1197_1df35919",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-17T17:54:02Z",
+      "side": 1,
+      "message": "I know ++/-- only work on values which are 1 slot long, but I\u0027d feel better seeing an assert that the slot_count is 1 here just to be safe (and for clarity).",
+      "range": {
+        "startLine": 457,
+        "startChar": 12,
+        "endLine": 457,
+        "endChar": 51
+      },
+      "revId": "918b8e285b22e35bcbf497810d03a6f581263ead",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd911e10_bd3fa738",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-17T17:54:02Z",
+      "side": 1,
+      "message": "and here",
+      "range": {
+        "startLine": 460,
+        "startChar": 75,
+        "endLine": 460,
+        "endChar": 85
+      },
+      "revId": "918b8e285b22e35bcbf497810d03a6f581263ead",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
