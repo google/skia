@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fb2dab3e_65e40443",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-17T18:27:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13352c36_7d0b8a59",
+      "range": {
+        "startLine": 418,
+        "startChar": 75,
+        "endLine": 418,
+        "endChar": 85
+      },
+      "revId": "918b8e285b22e35bcbf497810d03a6f581263ead",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f3cb1197_1df35919",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "840f0f66_62edf308",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-17T18:27:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3cb1197_1df35919",
+      "range": {
+        "startLine": 457,
+        "startChar": 12,
+        "endLine": 457,
+        "endChar": 51
+      },
+      "revId": "918b8e285b22e35bcbf497810d03a6f581263ead",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fd911e10_bd3fa738",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 3
@@ -65,6 +113,47 @@
         "endLine": 460,
         "endChar": 85
       },
+      "revId": "918b8e285b22e35bcbf497810d03a6f581263ead",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f72207d_31d39966",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-17T18:27:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fd911e10_bd3fa738",
+      "range": {
+        "startLine": 460,
+        "startChar": 75,
+        "endLine": 460,
+        "endChar": 85
+      },
+      "revId": "918b8e285b22e35bcbf497810d03a6f581263ead",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30d52e95_b764ed9a",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-17T18:27:53Z",
+      "side": 1,
+      "message": "^ I had the assert here (same as in the prefix), but I\u0027ve hoisted them to the top of the block in both cases.",
       "revId": "918b8e285b22e35bcbf497810d03a6f581263ead",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
