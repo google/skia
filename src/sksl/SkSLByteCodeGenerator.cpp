@@ -160,29 +160,16 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
     }
 }
 
-void ByteCodeGenerator::align(int divisor, int remainder) {
-    switch (remainder - (int) fCode->size() % divisor) {
-        case 0: return;
-        case 3: this->write(ByteCodeInstruction::kNop3); // fall through
-        case 2: this->write(ByteCodeInstruction::kNop2); // fall through
-        case 1: this->write(ByteCodeInstruction::kNop1);
-                break;
-        default: SkASSERT(false);
-    }
-}
-
 void ByteCodeGenerator::write8(uint8_t b) {
     fCode->push_back(b);
 }
 
 void ByteCodeGenerator::write16(uint16_t i) {
-    SkASSERT(fCode->size() % 2 == 0);
     this->write8(i >> 0);
     this->write8(i >> 8);
 }
 
 void ByteCodeGenerator::write32(uint32_t i) {
-    SkASSERT(fCode->size() % 4 == 0);
     this->write8((i >>  0) & 0xFF);
     this->write8((i >>  8) & 0xFF);
     this->write8((i >> 16) & 0xFF);
@@ -322,7 +309,6 @@ void ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b) {
 }
 
 void ByteCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
-    this->align(4, 3);
     this->write(ByteCodeInstruction::kPushImmediate);
     this->write32(b.fValue ? 1 : 0);
 }
@@ -377,7 +363,6 @@ void ByteCodeGenerator::writeFieldAccess(const FieldAccess& f) {
 }
 
 void ByteCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
-    this->align(4, 3);
     this->write(ByteCodeInstruction::kPushImmediate);
     union { float f; uint32_t u; } pun = { (float) f.fValue };
     this->write32(pun.u);
@@ -397,7 +382,6 @@ void ByteCodeGenerator::writeIndexExpression(const IndexExpression& i) {
 }
 
 void ByteCodeGenerator::writeIntLiteral(const IntLiteral& i) {
-    this->align(4, 3);
     this->write(ByteCodeInstruction::kPushImmediate);
     this->write32(i.fValue);
 }
@@ -413,7 +397,6 @@ void ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p) {
         case Token::Kind::MINUSMINUS: {
             std::unique_ptr<LValue> lvalue = this->getLValue(*p.fOperand);
             lvalue->load();
-            this->align(4, 3);
             this->write(ByteCodeInstruction::kPushImmediate);
             this->write32(1);
             SkASSERT(slot_count(p.fOperand->fType) == 1);
@@ -487,11 +470,9 @@ void ByteCodeGenerator::writeVariableReference(const VariableReference& v) {
 
 void ByteCodeGenerator::writeTernaryExpression(const TernaryExpression& t) {
     this->writeExpression(*t.fTest);
-    this->align(2, 1);
     this->write(ByteCodeInstruction::kConditionalBranch);
     DeferredLocation trueLocation(this);
     this->writeExpression(*t.fIfFalse);
-    this->align(2, 1);
     this->write(ByteCodeInstruction::kBranch);
     DeferredLocation endLocation(this);
     trueLocation.set();
@@ -689,13 +670,11 @@ void ByteCodeGenerator::setContinueTargets() {
 }
 
 void ByteCodeGenerator::writeBreakStatement(const BreakStatement& b) {
-    this->align(2, 1);
     this->write(ByteCodeInstruction::kBranch);
     fBreakTargets.top().emplace_back(this);
 }
 
 void ByteCodeGenerator::writeContinueStatement(const ContinueStatement& c) {
-    this->align(2, 1);
     this->write(ByteCodeInstruction::kBranch);
     fContinueTargets.top().emplace_back(this);
 }
@@ -707,7 +686,6 @@ void ByteCodeGenerator::writeDoStatement(const DoStatement& d) {
     this->writeStatement(*d.fStatement);
     this->setContinueTargets();
     this->writeExpression(*d.fTest);
-    this->align(2, 1);
     this->write(ByteCodeInstruction::kConditionalBranch);
     this->write16(start);
     this->setBreakTargets();
@@ -723,7 +701,6 @@ void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
     if (f.fTest) {
         this->writeExpression(*f.fTest);
         this->write(ByteCodeInstruction::kNot);
-        this->align(2, 1);
         this->write(ByteCodeInstruction::kConditionalBranch);
         DeferredLocation endLocation(this);
         this->writeStatement(*f.fStatement);
@@ -732,7 +709,6 @@ void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
             this->writeExpression(*f.fNext);
             this->write(vector_instruction(ByteCodeInstruction::kPop, slot_count(f.fNext->fType)));
         }
-        this->align(2, 1);
         this->write(ByteCodeInstruction::kBranch);
         this->write16(start);
         endLocation.set();
@@ -743,7 +719,6 @@ void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
             this->writeExpression(*f.fNext);
             this->write(vector_instruction(ByteCodeInstruction::kPop, slot_count(f.fNext->fType)));
         }
-        this->align(2, 1);
         this->write(ByteCodeInstruction::kBranch);
         this->write16(start);
     }
@@ -754,11 +729,9 @@ void ByteCodeGenerator::writeIfStatement(const IfStatement& i) {
     if (i.fIfFalse) {
         // if (test) { ..ifTrue.. } else { .. ifFalse .. }
         this->writeExpression(*i.fTest);
-        this->align(2, 1);
         this->write(ByteCodeInstruction::kConditionalBranch);
         DeferredLocation trueLocation(this);
         this->writeStatement(*i.fIfFalse);
-        this->align(2, 1);
         this->write(ByteCodeInstruction::kBranch);
         DeferredLocation endLocation(this);
         trueLocation.set();
@@ -768,7 +741,6 @@ void ByteCodeGenerator::writeIfStatement(const IfStatement& i) {
         // if (test) { ..ifTrue.. }
         this->writeExpression(*i.fTest);
         this->write(ByteCodeInstruction::kNot);
-        this->align(2, 1);
         this->write(ByteCodeInstruction::kConditionalBranch);
         DeferredLocation endLocation(this);
         this->writeStatement(*i.fIfTrue);
@@ -808,12 +780,10 @@ void ByteCodeGenerator::writeWhileStatement(const WhileStatement& w) {
     size_t start = fCode->size();
     this->writeExpression(*w.fTest);
     this->write(ByteCodeInstruction::kNot);
-    this->align(2, 1);
     this->write(ByteCodeInstruction::kConditionalBranch);
     DeferredLocation endLocation(this);
     this->writeStatement(*w.fStatement);
     this->setContinueTargets();
-    this->align(2, 1);
     this->write(ByteCodeInstruction::kBranch);
     this->write16(start);
     endLocation.set();

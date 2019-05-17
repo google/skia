@@ -87,15 +87,15 @@ struct CallbackCtx : public SkRasterPipeline_CallbackCtx {
 
 #define READ8() (*(ip++))
 
-#define READ16()                                                  \
-    (SkASSERT((intptr_t) ip % 2 == 0),                            \
-     ip += 2,                                                     \
-     *(uint16_t*) (ip - 2))
+template <typename T>
+static T unaligned_load(const void* ptr) {
+    T val;
+    memcpy(&val, ptr, sizeof(val));
+    return val;
+}
 
-#define READ32()                                                  \
-    (SkASSERT((intptr_t) ip % 4 == 0),                            \
-     ip += 4,                                                     \
-     *(uint32_t*) (ip - 4))
+#define READ16() (ip += 2, unaligned_load<uint16_t>(ip - 2))
+#define READ32() (ip += 4, unaligned_load<uint32_t>(ip - 4))
 
 static String value_string(uint32_t v) {
     union { uint32_t u; float f; } pun = { v };
