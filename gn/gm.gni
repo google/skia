@@ -5,6 +5,7 @@
 
 # Things are easiest for everyone if these source paths are absolute.
 _gm = get_path_info("../gm", "abspath")
+_exp = get_path_info("../experimental", "abspath")
 
 gm_sources = [
   "$_gm/aaa.cpp",
@@ -369,4 +370,6 @@ gm_sources = [
   "$_gm/xfermodes2.cpp",
   "$_gm/xfermodes3.cpp",
   "$_gm/yuvtorgbeffect.cpp",
+
+  "$_exp/ffmpeg/SkVideoDecoder.cpp",
 ]
