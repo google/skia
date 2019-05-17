@@ -1138,6 +1138,8 @@ static bool format_color_type_valid_pair(VkFormat vkFormat, GrColorType colorTyp
         case GrColorType::kRGB_ETC1:
             return VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK == vkFormat;
     }
+    SK_ABORT("Unknown color type");
+    return false;
 }
 #endif
 
