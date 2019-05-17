@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2dfe2510_54395c3d",
+        "filename": "gm/asyncrescaleandread.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-17T15:41:18Z",
+      "side": 1,
+      "message": "nit: LLC",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "259eea4fbb069e758cc9bea775251efe1baa5839",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d92b609c_e8f49d56",
+        "filename": "gm/asyncrescaleandread.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-17T15:41:18Z",
+      "side": 1,
+      "message": "Use SrcOver (and add the PNG rose?) so we know that we\u0027re correctly handling transparent sources?",
+      "revId": "259eea4fbb069e758cc9bea775251efe1baa5839",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
