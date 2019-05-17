@@ -22,6 +22,30 @@
       "revId": "73152e37789553a041d6c42f218bd9a3dce94728",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d10cadae_c4060019",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-17T15:26:45Z",
+      "side": 1,
+      "message": "Done, I moved applyCTM and the \u003d\u003d operators into SkImageFilterPriv as static functions. While the operators were simple, I figured their notion of equals was a little contrived, and the comparison needed in SkCanvas will likely go away with your virtual decompose() function on SkImageFilter (this would provide more info directly to SkCanvas so it won\u0027t need to compare filters to determine if it needs to modify its CTM).",
+      "parentUuid": "6ada017b_6da6768d",
+      "range": {
+        "startLine": 264,
+        "startChar": 25,
+        "endLine": 264,
+        "endChar": 33
+      },
+      "revId": "73152e37789553a041d6c42f218bd9a3dce94728",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
