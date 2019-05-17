@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "5ba0aa78_85ee0764",
+        "filename": "modules/skparagraph/include/SkDartTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-17T16:21:09Z",
+      "side": 1,
+      "message": "not sure we use this in skia... look at other headers for how we guard.",
+      "range": {
+        "startLine": 8,
+        "startChar": 1,
+        "endLine": 8,
+        "endChar": 7
+      },
+      "revId": "4d30284ae144a194cbdd928d00a417c506365af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b1e5f38_0c8c9212",
+        "filename": "modules/skparagraph/include/SkDartTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-17T16:21:09Z",
+      "side": 1,
+      "message": "should we place all of these in a namespace or class, to scope them (in case we think a particular enum/type is not universal).",
+      "range": {
+        "startLine": 12,
+        "startChar": 5,
+        "endLine": 12,
+        "endChar": 13
+      },
+      "revId": "4d30284ae144a194cbdd928d00a417c506365af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "63b386fa_005dbf99",
         "filename": "modules/skparagraph/include/SkDartTypes.h",
         "patchSetId": 6
