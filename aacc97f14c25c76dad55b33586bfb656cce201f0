@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93997c9c_868b77c0",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-17T15:47:04Z",
+      "side": 1,
+      "message": "If you delete this line---which it doesn\u0027t seem you need---then this all builds for me out of the box on gLinux after installing headers and such,\n\n  apt install libavcodec-dev libavformat-dev libavfilter-dev\n\nand telling GN to link them with extra_ldflags\n\n  extra_ldflags \u003d [\n     \"-lavcodec\",\n     \"-lavformat\",\n     \"-lavutil\",\n  ]\n\nWhy don\u0027t we start with just using system-installed headers and libraries, rather than deal with the hassle of writing up a GN build this early on?\n\nThe easy good way to integrate this all into our GN today all goes in BUILD.gn, something like:\n\n   declare_args() {\n      ...\n      skia_use_ffmpeg \u003d false\n      ...\n   }\n\n   ...\n\n   if (skia_use_ffpmeg) {\n      test_lib(\"video_decoder\") {\n          sources \u003d [\n             \"experimental/ffmpeg/SkVideoDeocder.cpp\", \n             \"experimental/ffmpeg/SkVideoDecoder.h\",\n          ]\n          libs \u003d [\n              \"avcodec\",\n              \"avformat\",\n              \"avutil\",\n          ]\n      }\n   }\n\n   ...\n\n   test_lib(\"gm\") {\n    ...\n    if (skia_use_ffmpeg) {\n       deps +\u003d [\":video_decoder\"]\n       sources +\u003d [ \"gm/a_new_file_for_your_new_gm.cpp\" ]\n    }\n    ...\n   }\n\nI have uploaded all this as a patch on top of this one at https://skia-review.googlesource.com/c/skia/+/214326, and tested that DM builds both ways (but not run the GM).",
+      "revId": "aacc97f14c25c76dad55b33586bfb656cce201f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
