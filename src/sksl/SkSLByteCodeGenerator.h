@@ -84,8 +84,6 @@ public:
 
     bool generateCode() override;
 
-    void align(int divisor, int remainder);
-
     void write8(uint8_t b);
 
     void write16(uint16_t b);
