@@ -61,7 +61,6 @@ samples_sources = [
   "$_samplecode/SampleLitAtlas.cpp",
   "$_samplecode/SampleManyRects.cpp",
   "$_samplecode/SampleMegaStroke.cpp",
-  "$_samplecode/SampleNima.cpp",
   "$_samplecode/SampleMixer.cpp",
   "$_samplecode/SamplePatch.cpp",
   "$_samplecode/SamplePath.cpp",
@@ -100,7 +99,3 @@ samples_sources = [
   "$_samplecode/SampleXfermodesBlur.cpp",
   "$_samplecode/vertexdump.cpp",
 ]
-
-if (is_win && is_clang) {
-  samples_sources -= [ "$_samplecode/SampleNima.cpp" ]
-}

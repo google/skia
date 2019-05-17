@@ -6,7 +6,7 @@
  */
 
 #include "include/gpu/GrContextOptions.h"
-#include "include/private/SkTSearch.h"
+#include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
 #include "src/gpu/GrRenderTargetProxyPriv.h"
 #include "src/gpu/GrShaderCaps.h"
@@ -170,7 +170,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         kImagination_GrGLVendor == ctxInfo.vendor() ||
         kQualcomm_GrGLVendor == ctxInfo.vendor() ) {
         fPreferFullscreenClears = true;
-        fDiscardStencilAfterCommandBuffer = true;
     }
 
     if (GR_IS_GR_GL(standard)) {
@@ -1626,7 +1625,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     } else {
         fConfigTable[kRG_88_GrPixelConfig].fFlags = 0;
     }
-    fConfigTable[kRG_88_GrPixelConfig].fSwizzle = GrSwizzle::RGRG();
+    fConfigTable[kRG_88_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] =
         GR_GL_BGRA;
@@ -3199,7 +3198,7 @@ GrPixelConfig validate_sized_format(GrGLenum format, SkColorType ct, GrGLStandar
             }
             break;
     }
-    SkDebugf("Unknown pixel config %d\n", format);
+    SkDebugf("Unknown pixel config 0x%x\n", format);
     return kUnknown_GrPixelConfig;
 }
 
@@ -3269,6 +3268,102 @@ GrBackendFormat GrGLCaps::getBackendFormatFromGrColorType(GrColorType ct,
         return GrBackendFormat();
     }
     return GrBackendFormat::MakeGL(this->configSizedInternalFormat(config), GR_GL_TEXTURE_2D);
+}
+
+#ifdef SK_DEBUG
+static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType) {
+    switch (colorType) {
+        case GrColorType::kUnknown:
+            return false;
+        case GrColorType::kAlpha_8:
+            return GR_GL_ALPHA8 == format || GR_GL_R8 == format;
+        case GrColorType::kRGB_565:
+            return GR_GL_RGB565 == format;
+        case GrColorType::kABGR_4444:
+            return GR_GL_RGBA4 == format;
+        case GrColorType::kRGBA_8888:
+            return GR_GL_RGBA8 == format || GR_GL_SRGB8_ALPHA8 == format;
+        case GrColorType::kRGB_888x:
+            return GR_GL_RGB8 == format || GR_GL_RGBA8 == format;
+        case GrColorType::kRG_88:
+            return GR_GL_RG8 == format;
+        case GrColorType::kBGRA_8888:
+            return GR_GL_RGBA8 == format || GR_GL_BGRA8 == format || GR_GL_SRGB8_ALPHA8 == format;
+        case GrColorType::kRGBA_1010102:
+            return GR_GL_RGB10_A2 == format;
+        case GrColorType::kGray_8:
+            return GR_GL_LUMINANCE8 == format || GR_GL_R8 == format;
+        case GrColorType::kAlpha_F16:
+            return GR_GL_R16F == format;
+        case GrColorType::kRGBA_F16:
+            return GR_GL_RGBA16F == format;
+        case GrColorType::kRGBA_F16_Clamped:
+            return GR_GL_RGBA16F == format;
+        case GrColorType::kRG_F32:
+            return GR_GL_RG32F == format;
+        case GrColorType::kRGBA_F32:
+            return GR_GL_RGBA32F == format;
+        case GrColorType::kRGB_ETC1:
+            return GR_GL_COMPRESSED_RGB8_ETC2 == format || GR_GL_COMPRESSED_ETC1_RGB8 == format;
+    }
+    SK_ABORT("Unknown color type");
+    return false;
+}
+#endif
+
+static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorType,
+                             bool forOutput) {
+    SkASSERT(format.getGLFormat());
+    GrGLenum glFormat = *format.getGLFormat();
+
+    SkASSERT(format_color_type_valid_pair(glFormat, colorType));
+
+    // When picking a swizzle for output, we will pick to use RGBA if possible so that it creates
+    // less variations of shaders and those shaders can be used by different configs.
+    switch (colorType) {
+        case GrColorType::kAlpha_8:
+            if (glFormat == GR_GL_ALPHA8) {
+                if (!forOutput) {
+                    return GrSwizzle::AAAA();
+                }
+            } else {
+                SkASSERT(glFormat == GR_GL_R8);
+                if (forOutput) {
+                    return GrSwizzle::AAAA();
+                } else {
+                    return GrSwizzle::RRRR();
+                }
+            }
+            break;
+        case GrColorType::kAlpha_F16:
+            SkASSERT(glFormat == GR_GL_R16F);
+            if (forOutput) {
+                return GrSwizzle::AAAA();
+            } else {
+                return GrSwizzle::RRRR();
+            }
+        case GrColorType::kGray_8:
+            if (glFormat == GR_GL_R8) {
+                if (!forOutput) {
+                    return GrSwizzle::RRRA();
+                }
+            }
+            break;
+        case GrColorType::kRGB_888x:
+            if (!forOutput) {
+                return GrSwizzle::RGB1();
+            }
+        default:
+            return GrSwizzle::RGBA();
+    }
+    return GrSwizzle::RGBA();
+}
+
+GrSwizzle GrGLCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+    return get_swizzle(format, colorType, false);
+}
+GrSwizzle GrGLCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+    return get_swizzle(format, colorType, true);
 }
 
 size_t GrGLCaps::onTransferFromOffsetAlignment(GrColorType bufferColorType) const {

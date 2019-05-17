@@ -322,14 +322,22 @@ template<int N> inline void GrMtlPipelineStateDataManager::setMatrices(
     set_uniform_matrix<N>::set(buffer, uni.fOffset, arrayCount, matrices);
 }
 
-template<int N> struct set_uniform_matrix {
+template<> struct set_uniform_matrix<2> {
+    inline static void set(void* buffer, int uniformOffset, int count, const float matrices[]) {
+        GR_STATIC_ASSERT(sizeof(float) == 4);
+        buffer = static_cast<char*>(buffer) + uniformOffset;
+        memcpy(buffer, matrices, count * 4 * sizeof(float));
+    }
+};
+
+template<> struct set_uniform_matrix<3> {
     inline static void set(void* buffer, int uniformOffset, int count, const float matrices[]) {
         GR_STATIC_ASSERT(sizeof(float) == 4);
         buffer = static_cast<char*>(buffer) + uniformOffset;
         for (int i = 0; i < count; ++i) {
-            const float* matrix = &matrices[N * N * i];
-            for (int j = 0; j < N; ++j) {
-                memcpy(buffer, &matrix[j * N], N * sizeof(float));
+            const float* matrix = &matrices[3 * 3 * i];
+            for (int j = 0; j < 3; ++j) {
+                memcpy(buffer, &matrix[j * 3], 3 * sizeof(float));
                 buffer = static_cast<char*>(buffer) + 4 * sizeof(float);
             }
         }

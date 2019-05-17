@@ -10,7 +10,7 @@
 // Can remove this once we get rid of the extension flags.
 #include "include/gpu/vk/GrVkBackendContext.h"
 
-#include "include/private/SkTSearch.h"
+#include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
 
 // finds the index of ext in infos or a negative result if ext is not found.

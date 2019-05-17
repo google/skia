@@ -279,7 +279,13 @@ public:
             // We've already been abandoned.
             return;
         }
-        GR_GL_CALL(fGpu->glInterface(), DeleteSamplers(kNumSamplers, fSamplers));
+        for (GrGLuint sampler : fSamplers) {
+            // The spec states that "zero" values should be silently ignored, however they still
+            // trigger GL errors on some NVIDIA platforms.
+            if (sampler) {
+                GR_GL_CALL(fGpu->glInterface(), DeleteSamplers(1, &sampler));
+            }
+        }
     }
 
     void bindSampler(int unitIdx, const GrSamplerState& state) {
@@ -1685,7 +1691,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
             this->disableScissor();
             this->disableWindowRectangles();
             this->flushColorWrite(true);
-            this->flushClearColor({0, 0, 0, 0});
+            this->flushClearColor(0, 0, 0, 0);
             GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
             this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, tex.get());
             fHWBoundRenderTargetUniqueID.makeInvalid();
@@ -2233,7 +2239,16 @@ void GrGLGpu::clear(const GrFixedClip& clip, const SkPMColor4f& color,
     this->flushScissor(clip.scissorState(), glRT->getViewport(), origin);
     this->flushWindowRectangles(clip.windowRectsState(), glRT, origin);
     this->flushColorWrite(true);
-    this->flushClearColor(color);
+
+    GrGLfloat r = color.fR, g = color.fG, b = color.fB, a = color.fA;
+    if (this->glCaps().clearToBoundaryValuesIsBroken() &&
+        (1 == r || 0 == r) && (1 == g || 0 == g) && (1 == b || 0 == b) && (1 == a || 0 == a)) {
+        static const GrGLfloat safeAlpha1 = nextafter(1.f, 2.f);
+        static const GrGLfloat safeAlpha0 = nextafter(0.f, -1.f);
+        a = (1 == a) ? safeAlpha1 : safeAlpha0;
+    }
+    this->flushClearColor(r, g, b, a);
+
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
 }
 
@@ -2244,8 +2259,10 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
         return;
     }
 
-    // this should only be called internally when we know we have a stencil buffer.
-    SkASSERT(target->renderTargetPriv().getStencilAttachment());
+    GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
+    // this should only be called internally when we know we have a
+    // stencil buffer.
+    SkASSERT(sb);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
     this->flushRenderTargetNoColorWrites(glRT);
@@ -2257,79 +2274,9 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
     GL_CALL(ClearStencil(clearValue));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
     fHWStencilSettings.invalidate();
-}
-
-void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, const ColorLoadAndStoreInfo& colorLoadStore,
-                                 const StencilLoadAndStoreInfo& stencilLoadStore) {
-    SkASSERT(!fIsExecutingCommandBuffer_DebugOnly);
-
-    this->handleDirtyContext();
-
-    auto glRT = static_cast<GrGLRenderTarget*>(rt);
-    this->flushRenderTarget(glRT);
-    SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = true);
-
-    GrGLbitfield clearMask = 0;
-    if (GrLoadOp::kClear == colorLoadStore.fLoadOp) {
-        SkASSERT(!this->caps()->performColorClearsAsDraws());
-        this->flushClearColor(colorLoadStore.fClearColor);
-        this->flushColorWrite(true);
-        clearMask |= GR_GL_COLOR_BUFFER_BIT;
+    if (!clearValue) {
+        sb->cleared();
     }
-    if (GrLoadOp::kClear == stencilLoadStore.fLoadOp) {
-        SkASSERT(!this->caps()->performStencilClearsAsDraws());
-        GL_CALL(StencilMask(0xffffffff));
-        GL_CALL(ClearStencil(0));
-        clearMask |= GR_GL_STENCIL_BUFFER_BIT;
-    }
-    if (clearMask) {
-        this->disableScissor();
-        this->disableWindowRectangles();
-        GL_CALL(Clear(clearMask));
-    }
-}
-
-void GrGLGpu::endCommandBuffer(GrRenderTarget* rt, const ColorLoadAndStoreInfo& colorLoadStore,
-                               const StencilLoadAndStoreInfo& stencilLoadStore) {
-    SkASSERT(fIsExecutingCommandBuffer_DebugOnly);
-
-    this->handleDirtyContext();
-
-    if (rt->uniqueID() != fHWBoundRenderTargetUniqueID) {
-#ifdef SK_DEBUG
-        SkDebugf("WARNING: GL framebuffer changed in the middle of a command buffer. This will "
-                 "kill performance.\n");
-        fIsExecutingCommandBuffer_DebugOnly = false;
-#endif
-        return;
-    }
-
-    if (this->caps()->discardRenderTargetSupport()) {
-        auto glRT = static_cast<GrGLRenderTarget*>(rt);
-
-        SkSTArray<2, GrGLenum> discardAttachments;
-        if (GrStoreOp::kStore != colorLoadStore.fStoreOp) {
-            discardAttachments.push_back(
-                    (0 == glRT->renderFBOID()) ? GR_GL_COLOR : GR_GL_COLOR_ATTACHMENT0);
-        }
-        if (GrStoreOp::kStore != stencilLoadStore.fStoreOp) {
-            discardAttachments.push_back(
-                    (0 == glRT->renderFBOID()) ? GR_GL_STENCIL : GR_GL_STENCIL_ATTACHMENT);
-        }
-
-        if (!discardAttachments.empty()) {
-            if (GrGLCaps::kInvalidate_InvalidateFBType == this->glCaps().invalidateFBType()) {
-                GL_CALL(InvalidateFramebuffer(GR_GL_FRAMEBUFFER, discardAttachments.count(),
-                                              discardAttachments.begin()));
-            } else {
-                SkASSERT(GrGLCaps::kDiscard_InvalidateFBType == this->glCaps().invalidateFBType());
-                GL_CALL(DiscardFramebuffer(GR_GL_FRAMEBUFFER, discardAttachments.count(),
-                                           discardAttachments.begin()));
-            }
-        }
-    }
-
-    SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = false);
 }
 
 void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
@@ -3234,14 +3181,7 @@ void GrGLGpu::flushColorWrite(bool writeColor) {
     }
 }
 
-void GrGLGpu::flushClearColor(const SkPMColor4f& color) {
-    GrGLfloat r = color.fR, g = color.fG, b = color.fB, a = color.fA;
-    if (this->glCaps().clearToBoundaryValuesIsBroken() &&
-        (1 == r || 0 == r) && (1 == g || 0 == g) && (1 == b || 0 == b) && (1 == a || 0 == a)) {
-        static const GrGLfloat safeAlpha1 = nextafter(1.f, 2.f);
-        static const GrGLfloat safeAlpha0 = nextafter(0.f, -1.f);
-        a = (1 == a) ? safeAlpha1 : safeAlpha0;
-    }
+void GrGLGpu::flushClearColor(GrGLfloat r, GrGLfloat g, GrGLfloat b, GrGLfloat a) {
     if (r != fHWClearColor[0] || g != fHWClearColor[1] ||
         b != fHWClearColor[2] || a != fHWClearColor[3]) {
         GL_CALL(ClearColor(r, g, b, a));
@@ -4074,7 +4014,6 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
     }
 }
 
-#if GR_TEST_UTILS
 static bool gl_format_to_pixel_config(GrGLenum format, GrPixelConfig* config) {
     GrPixelConfig dontCare;
     if (!config) {
@@ -4258,11 +4197,24 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(int w, int h,
     GL_CALL(BindTexture(info.fTarget, 0));
 
     GrBackendTexture beTex = GrBackendTexture(w, h, mipMapped, info);
+#if GR_TEST_UTILS
     // Lots of tests don't go through Skia's public interface which will set the config so for
     // testing we make sure we set a config here.
     beTex.setPixelConfig(config);
+#endif
     return beTex;
 }
+
+void GrGLGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
+    SkASSERT(GrBackendApi::kOpenGL == tex.backend());
+
+    GrGLTextureInfo info;
+    if (tex.getGLTextureInfo(&info)) {
+        GL_CALL(DeleteTextures(1, &info.fID));
+    }
+}
+
+#if GR_TEST_UTILS
 
 bool GrGLGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(GrBackendApi::kOpenGL == tex.backend());
@@ -4276,15 +4228,6 @@ bool GrGLGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     GL_CALL_RET(result, IsTexture(info.fID));
 
     return (GR_GL_TRUE == result);
-}
-
-void GrGLGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
-    SkASSERT(GrBackendApi::kOpenGL == tex.backend());
-
-    GrGLTextureInfo info;
-    if (tex.getGLTextureInfo(&info)) {
-        GL_CALL(DeleteTextures(1, &info.fID));
-    }
 }
 
 GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h,

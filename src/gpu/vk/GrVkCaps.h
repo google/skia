@@ -32,12 +32,14 @@ public:
              uint32_t instanceVersion, uint32_t physicalDeviceVersion,
              const GrVkExtensions& extensions);
 
-    bool isConfigTexturable(VkFormat) const;
+    bool isFormatTexturable(VkFormat) const;
     bool isConfigTexturable(GrPixelConfig config) const override;
 
     bool isConfigCopyable(GrPixelConfig config) const override {
         return true;
     }
+
+    bool isFormatRenderable(VkFormat) const;
 
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
     int getRenderTargetSampleCount(int requestedCount, VkFormat) const;
@@ -46,7 +48,7 @@ public:
 
     bool surfaceSupportsReadPixels(const GrSurface*) const override;
 
-    bool isConfigTexturableLinearly(VkFormat format) const {
+    bool isFormatTexturableLinearly(VkFormat format) const {
         return SkToBool(FormatInfo::kTextureable_Flag & this->getFormatInfo(format).fLinearFlags);
     }
 
@@ -164,6 +166,9 @@ public:
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                     GrSRGBEncoded srgbEncoded) const override;
 
+    GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
+    GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
+
 private:
     enum VkVendor {
         kAMD_VkVendor = 4098,
@@ -218,7 +223,7 @@ private:
 
         SkTDArray<int> fColorSampleCounts;
     };
-    static const size_t kNumVkFormats = 16;
+    static const size_t kNumVkFormats = 17;
     FormatInfo fFormatTable[kNumVkFormats];
 
     const FormatInfo& getFormatInfo(VkFormat) const;

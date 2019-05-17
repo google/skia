@@ -69,18 +69,16 @@ public:
      */
     void setInputs(Value inputs[]);
 
+    /**
+     * Print bytecode disassembly to stdout.
+     */
+    void disassemble(const ByteCodeFunction&);
 private:
-    StackIndex stackAlloc(int count);
+    void run(const ByteCodeFunction& f, Value* stack, Value args[], Value* outReturn);
 
-    void run(Value* stack, Value args[], Value* outReturn);
-
-    void swizzle();
-
-    void disassemble(const ByteCodeFunction& f);
 
     std::unique_ptr<Program> fProgram;
     std::unique_ptr<ByteCode> fByteCode;
-    const ByteCodeFunction* fCurrentFunction;
     std::vector<Value> fGlobals;
 };
 
