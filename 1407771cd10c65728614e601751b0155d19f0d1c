@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "723905fd_f45a245f",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-17T17:51:12Z",
+      "side": 1,
+      "message": "Is this needed, now that you\u0027ve added the kSkip returns?",
+      "range": {
+        "startLine": 555,
+        "startChar": 0,
+        "endLine": 561,
+        "endChar": 0
+      },
+      "revId": "1407771cd10c65728614e601751b0155d19f0d1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
