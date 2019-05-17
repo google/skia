@@ -8,9 +8,9 @@
 #include "src/gpu/ccpr/GrCCClipProcessor.h"
 
 #include "include/gpu/GrTexture.h"
-#include "include/private/GrCCClipPath.h"
 #include "include/private/GrTextureProxy.h"
 #include "src/core/SkMakeUnique.h"
+#include "src/gpu/ccpr/GrCCClipPath.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 

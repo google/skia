@@ -12,7 +12,7 @@
 #include "include/private/GrSurfaceProxy.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTMultiMap.h"
 

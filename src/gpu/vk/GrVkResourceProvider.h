@@ -10,9 +10,9 @@
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTInternalLList.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTDynamicHash.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrResourceHandle.h"
 #include "src/gpu/vk/GrVkDescriptorPool.h"
 #include "src/gpu/vk/GrVkDescriptorSetManager.h"
