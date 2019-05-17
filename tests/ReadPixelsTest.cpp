@@ -803,8 +803,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
                                                  kPremul_SkAlphaType, readCS);
                         result.alloc(info);
                         memset(result.writable_addr(), 0xAB, result.computeByteSize());
-                        surf->asyncReadPixels(readCT, kPremul_SkAlphaType, readCS, rect, callback,
-                                              &context);
+                        // Rescale quality and linearity don't matter since we're doing a non-
+                        // scaling readback.
+                        surf->asyncRescaleAndReadPixels(info, rect, SkSurface::RescaleGamma::kSrc,
+                                                        kNone_SkFilterQuality, callback, &context);
                         while (!context.fCalled) {
                             ctxInfo.grContext()->checkAsyncWorkCompletion();
                         }
