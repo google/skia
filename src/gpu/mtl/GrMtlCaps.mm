@@ -649,6 +649,8 @@ static bool format_color_type_valid_pair(MTLPixelFormat format, GrColorType colo
             return MTLPixelFormatETC2_RGB8 == format;
 #endif
     }
+    SK_ABORT("Unknown color type");
+    return false;
 }
 #endif
 
