@@ -46,6 +46,30 @@
       "revId": "1407771cd10c65728614e601751b0155d19f0d1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d2ae07d_82e4f5e2",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-17T18:25:21Z",
+      "side": 1,
+      "message": "Ah, right. I\u0027m tempted to write a follow-up CL where we change those Sinks to not error if the return value is kSkip (I don\u0027t think we had that capability when all these sinks were written originally).",
+      "parentUuid": "f1659388_b19f9aa1",
+      "range": {
+        "startLine": 555,
+        "startChar": 0,
+        "endLine": 561,
+        "endChar": 0
+      },
+      "revId": "1407771cd10c65728614e601751b0155d19f0d1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
