@@ -165,22 +165,22 @@ void ByteCodeGenerator::write8(uint8_t b) {
 }
 
 void ByteCodeGenerator::write16(uint16_t i) {
-    this->write8(i >> 0);
-    this->write8(i >> 8);
+    size_t n = fCode->size();
+    fCode->resize(n+2);
+    memcpy(fCode->data() + n, &i, 2);
 }
 
 void ByteCodeGenerator::write32(uint32_t i) {
-    this->write8((i >>  0) & 0xFF);
-    this->write8((i >>  8) & 0xFF);
-    this->write8((i >> 16) & 0xFF);
-    this->write8((i >> 24) & 0xFF);
+    size_t n = fCode->size();
+    fCode->resize(n+4);
+    memcpy(fCode->data() + n, &i, 4);
 }
 
 void ByteCodeGenerator::write(ByteCodeInstruction i) {
     this->write8((uint8_t) i);
 }
 
-ByteCodeInstruction vector_instruction(ByteCodeInstruction base, int count) {
+static ByteCodeInstruction vector_instruction(ByteCodeInstruction base, int count) {
     return ((ByteCodeInstruction) ((int) base + count - 1));
 }
 
