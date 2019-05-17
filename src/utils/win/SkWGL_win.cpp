@@ -12,7 +12,7 @@
 
 #include "include/private/SkOnce.h"
 #include "include/private/SkTDArray.h"
-#include "include/private/SkTSearch.h"
+#include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
 
 bool SkWGLExtensions::hasExtension(HDC dc, const char* ext) const {

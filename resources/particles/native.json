@@ -26,28 +26,6 @@
    },
    "Spawn": [
       {
-         "Type": "SkFrameAffector",
-         "Enabled": true,
-         "Curve": {
-            "Input": {
-               "Source": "Random",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Linear",
-                  "Ranged": false,
-                  "Bidirectional": false,
-                  "A0": 0,
-                  "D0": 1
-               }
-            ]
-         }
-      },
-      {
          "Type": "SkLinearVelocityAffector",
          "Enabled": true,
          "Force": false,
@@ -125,13 +103,13 @@
             "XValues": [],
             "Segments": [
                {
-                  "Type": "Cubic",
-                  "Ranged": false,
+                  "Type": "Linear",
+                  "Ranged": true,
                   "Bidirectional": false,
                   "A0": 0.5,
-                  "B0": 1,
-                  "C0": 2,
-                  "D0": 0.5
+                  "D0": 2,
+                  "A1": 1,
+                  "D1": 0.25
                }
             ]
          }

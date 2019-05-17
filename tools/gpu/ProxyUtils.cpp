@@ -34,7 +34,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, GrRenderable 
     sk_sp<GrTextureProxy> proxy;
     if (kBottomLeft_GrSurfaceOrigin == origin) {
         // We (soon will) only support using kBottomLeft with wrapped textures.
-        auto backendTex = context->priv().getGpu()->createTestingOnlyBackendTexture(
+        auto backendTex = context->priv().createBackendTexture(
                 width, height, format, GrMipMapped::kNo, renderable);
         if (!backendTex.isValid()) {
             return nullptr;
@@ -51,7 +51,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, GrRenderable 
         }
 
         if (!proxy) {
-            context->priv().getGpu()->deleteTestingOnlyBackendTexture(backendTex);
+            context->priv().deleteBackendTexture(backendTex);
             return nullptr;
         }
 

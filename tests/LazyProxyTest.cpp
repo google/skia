@@ -448,7 +448,6 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
     GrMockOptions mockOptions;
     sk_sp<GrContext> ctx = GrContext::MakeMock(&mockOptions, GrContextOptions());
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
-    GrGpu* gpu = ctx->priv().getGpu();
 
     GrBackendFormat format =
                 ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
@@ -472,7 +471,7 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
         desc.fHeight = kSize;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+        GrBackendTexture backendTex = ctx->priv().createBackendTexture(
                 kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
 
         sk_sp<GrTextureProxy> lazyProxy = proxyProvider->createLazyProxy(
@@ -526,6 +525,6 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
             REPORTER_ASSERT(reporter, 1 == releaseTestValue);
         }
 
-        gpu->deleteTestingOnlyBackendTexture(backendTex);
+        ctx->priv().deleteBackendTexture(backendTex);
     }
 }

@@ -122,15 +122,6 @@ public:
     // stencil buffer as not dirty?
     void clearStencil(GrRenderTarget*, int clearValue);
 
-    using ColorLoadAndStoreInfo = GrGpuRTCommandBuffer::LoadAndStoreInfo;
-    using StencilLoadAndStoreInfo = GrGpuRTCommandBuffer::StencilLoadAndStoreInfo;
-
-    void beginCommandBuffer(
-            GrRenderTarget*, const ColorLoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
-
-    void endCommandBuffer(
-            GrRenderTarget*, const ColorLoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
-
     GrGpuRTCommandBuffer* getCommandBuffer(
             GrRenderTarget*, GrSurfaceOrigin, const SkRect&,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
@@ -145,16 +136,16 @@ public:
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
                                                                 int width,
                                                                 int height) override;
-#if GR_TEST_UTILS
     GrBackendTexture createTestingOnlyBackendTexture(int w, int h, const GrBackendFormat&,
                                                      GrMipMapped, GrRenderable,
                                                      const void* pixels = nullptr,
                                                      size_t rowBytes = 0) override;
-    bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
     void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
 
-    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType) override;
+#if GR_TEST_UTILS
+    bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
+    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType) override;
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
 
     const GrGLContext* glContextForTesting() const override { return &this->glContext(); }
@@ -361,7 +352,7 @@ private:
     };
 
     void flushColorWrite(bool writeColor);
-    void flushClearColor(const SkPMColor4f&);
+    void flushClearColor(GrGLfloat r, GrGLfloat g, GrGLfloat b, GrGLfloat a);
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
@@ -685,9 +676,6 @@ private:
         GrGLsync fSync;
     };
     std::list<FinishCallback> fFinishCallbacks;
-
-    SkDEBUGCODE(bool fIsExecutingCommandBuffer_DebugOnly = false);
-
     friend class GrGLPathRendering; // For accessing setTextureUnit.
 
     typedef GrGpu INHERITED;

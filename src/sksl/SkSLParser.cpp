@@ -506,8 +506,11 @@ std::unique_ptr<ASTType> Parser::structDeclaration() {
                 }
                 uint64_t columns = ((ASTIntLiteral&) *var.fSizes[i]).fValue;
                 String name = type->name() + "[" + to_string(columns) + "]";
-                type = new Type(name, Type::kArray_Kind, *type, (int) columns);
-                fTypes.takeOwnership((Type*) type);
+                type = (Type*) fTypes.takeOwnership(std::unique_ptr<Symbol>(
+                                                                         new Type(name,
+                                                                                  Type::kArray_Kind,
+                                                                                  *type,
+                                                                                  (int) columns)));
             }
             fields.push_back(Type::Field(decl->fModifiers, var.fName, type));
             if (var.fValue) {

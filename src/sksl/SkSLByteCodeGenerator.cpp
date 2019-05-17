@@ -6,6 +6,7 @@
  */
 
 #include "src/sksl/SkSLByteCodeGenerator.h"
+#include "src/sksl/SkSLInterpreter.h"
 
 namespace SkSL {
 
@@ -45,12 +46,17 @@ bool ByteCodeGenerator::generateCode() {
                 ; // ignore
         }
     }
+    for (auto& call : fCallTargets) {
+        if (!call.set()) {
+            return false;
+        }
+    }
     return true;
 }
 
 std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fFunction = &f;
-    std::unique_ptr<ByteCodeFunction> result(new ByteCodeFunction(fOutput, &f.fDeclaration));
+    std::unique_ptr<ByteCodeFunction> result(new ByteCodeFunction(&f.fDeclaration));
     fParameterCount = 0;
     for (const auto& p : f.fDeclaration.fParameters) {
         fParameterCount += p->fType.columns() * p->fType.rows();
@@ -104,6 +110,7 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
         case Variable::kLocal_Storage: {
             for (int i = fLocals.size() - 1; i >= 0; --i) {
                 if (fLocals[i] == &var) {
+                    SkASSERT(fParameterCount + i <= 255);
                     return fParameterCount + i;
                 }
             }
@@ -112,18 +119,20 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
             for (int i = 0; i < slot_count(var.fType) - 1; ++i) {
                 fLocals.push_back(nullptr);
             }
+            SkASSERT(result <= 255);
             return result;
         }
         case Variable::kParameter_Storage: {
             int offset = 0;
             for (const auto& p : fFunction->fDeclaration.fParameters) {
                 if (p == &var) {
+                    SkASSERT(offset <= 255);
                     return offset;
                 }
                 offset += slot_count(p->fType);
             }
             SkASSERT(false);
-            return -1;
+            return 0;
         }
         case Variable::kGlobal_Storage: {
             int offset = 0;
@@ -136,6 +145,7 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
                             continue;
                         }
                         if (declVar == &var) {
+                            SkASSERT(offset <= 255);
                             return offset;
                         }
                         offset += slot_count(declVar->fType);
@@ -143,22 +153,11 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
                 }
             }
             SkASSERT(false);
-            return -1;
+            return 0;
         }
         default:
             SkASSERT(false);
             return 0;
-    }
-}
-
-void ByteCodeGenerator::align(int divisor, int remainder) {
-    switch (remainder - (int) fCode->size() % divisor) {
-        case 0: return;
-        case 3: this->write(ByteCodeInstruction::kNop3); // fall through
-        case 2: this->write(ByteCodeInstruction::kNop2); // fall through
-        case 1: this->write(ByteCodeInstruction::kNop1);
-                break;
-        default: SkASSERT(false);
     }
 }
 
@@ -167,34 +166,37 @@ void ByteCodeGenerator::write8(uint8_t b) {
 }
 
 void ByteCodeGenerator::write16(uint16_t i) {
-    SkASSERT(fCode->size() % 2 == 0);
-    this->write8(i >> 0);
-    this->write8(i >> 8);
+    size_t n = fCode->size();
+    fCode->resize(n+2);
+    memcpy(fCode->data() + n, &i, 2);
 }
 
 void ByteCodeGenerator::write32(uint32_t i) {
-    SkASSERT(fCode->size() % 4 == 0);
-    this->write8((i >>  0) & 0xFF);
-    this->write8((i >>  8) & 0xFF);
-    this->write8((i >> 16) & 0xFF);
-    this->write8((i >> 24) & 0xFF);
+    size_t n = fCode->size();
+    fCode->resize(n+4);
+    memcpy(fCode->data() + n, &i, 4);
 }
 
 void ByteCodeGenerator::write(ByteCodeInstruction i) {
     this->write8((uint8_t) i);
 }
 
+static ByteCodeInstruction vector_instruction(ByteCodeInstruction base, int count) {
+    return ((ByteCodeInstruction) ((int) base + count - 1));
+}
+
 void ByteCodeGenerator::writeTypedInstruction(const Type& type, ByteCodeInstruction s,
-                                              ByteCodeInstruction u, ByteCodeInstruction f) {
+                                              ByteCodeInstruction u, ByteCodeInstruction f,
+                                              int count) {
     switch (type_category(type)) {
         case TypeCategory::kSigned:
-            this->write(s);
+            this->write(vector_instruction(s, count));
             break;
         case TypeCategory::kUnsigned:
-            this->write(u);
+            this->write(vector_instruction(u, count));
             break;
         case TypeCategory::kFloat:
-            this->write(f);
+            this->write(vector_instruction(f, count));
             break;
         default:
             SkASSERT(false);
@@ -205,8 +207,6 @@ void ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b) {
     if (b.fOperator == Token::Kind::EQ) {
         std::unique_ptr<LValue> lvalue = this->getLValue(*b.fLeft);
         this->writeExpression(*b.fRight);
-        this->write(ByteCodeInstruction::kDupDown);
-        this->write8(slot_count(b.fRight->fType));
         lvalue->store();
         return;
     }
@@ -234,78 +234,82 @@ void ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b) {
         }
     }
     int count = slot_count(b.fType);
-    if (count > 1) {
-        this->write(ByteCodeInstruction::kVector);
-        this->write8(count);
-    }
     switch (op) {
         case Token::Kind::EQEQ:
             this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kCompareIEQ,
                                         ByteCodeInstruction::kCompareIEQ,
-                                        ByteCodeInstruction::kCompareFEQ);
+                                        ByteCodeInstruction::kCompareFEQ,
+                                        count);
             break;
         case Token::Kind::GT:
             this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kCompareSGT,
                                         ByteCodeInstruction::kCompareUGT,
-                                        ByteCodeInstruction::kCompareFGT);
+                                        ByteCodeInstruction::kCompareFGT,
+                                        count);
             break;
         case Token::Kind::GTEQ:
             this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kCompareSGTEQ,
                                         ByteCodeInstruction::kCompareUGTEQ,
-                                        ByteCodeInstruction::kCompareFGTEQ);
+                                        ByteCodeInstruction::kCompareFGTEQ,
+                                        count);
             break;
         case Token::Kind::LT:
             this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kCompareSLT,
                                         ByteCodeInstruction::kCompareULT,
-                                        ByteCodeInstruction::kCompareFLT);
+                                        ByteCodeInstruction::kCompareFLT,
+                                        count);
             break;
         case Token::Kind::LTEQ:
             this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kCompareSLTEQ,
                                         ByteCodeInstruction::kCompareULTEQ,
-                                        ByteCodeInstruction::kCompareFLTEQ);
+                                        ByteCodeInstruction::kCompareFLTEQ,
+                                        count);
             break;
         case Token::Kind::MINUS:
             this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kSubtractI,
                                         ByteCodeInstruction::kSubtractI,
-                                        ByteCodeInstruction::kSubtractF);
+                                        ByteCodeInstruction::kSubtractF,
+                                        count);
             break;
         case Token::Kind::NEQ:
             this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kCompareINEQ,
                                         ByteCodeInstruction::kCompareINEQ,
-                                        ByteCodeInstruction::kCompareFNEQ);
+                                        ByteCodeInstruction::kCompareFNEQ,
+                                        count);
             break;
         case Token::Kind::PERCENT:
             this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kRemainderS,
                                         ByteCodeInstruction::kRemainderU,
-                                        ByteCodeInstruction::kRemainderF);
+                                        ByteCodeInstruction::kRemainderF,
+                                        count);
             break;
         case Token::Kind::PLUS:
             this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kAddI,
                                         ByteCodeInstruction::kAddI,
-                                        ByteCodeInstruction::kAddF);
+                                        ByteCodeInstruction::kAddF,
+                                        count);
             break;
         case Token::Kind::SLASH:
             this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kDivideS,
                                         ByteCodeInstruction::kDivideU,
-                                        ByteCodeInstruction::kDivideF);
+                                        ByteCodeInstruction::kDivideF,
+                                        count);
             break;
         case Token::Kind::STAR:
-            this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kMultiplyS,
-                                        ByteCodeInstruction::kMultiplyU,
-                                        ByteCodeInstruction::kMultiplyF);
+            this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kMultiplyI,
+                                        ByteCodeInstruction::kMultiplyI,
+                                        ByteCodeInstruction::kMultiplyF,
+                                        count);
             break;
         default:
             SkASSERT(false);
     }
     if (lvalue) {
-        this->write(ByteCodeInstruction::kDupDown);
-        this->write8(slot_count(b.fType));
         lvalue->store();
     }
 }
 
 void ByteCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
-    this->align(4, 3);
     this->write(ByteCodeInstruction::kPushImmediate);
     this->write32(b.fValue ? 1 : 0);
 }
@@ -324,21 +328,19 @@ void ByteCodeGenerator::writeConstructor(const Constructor& c) {
         TypeCategory inCategory = type_category(c.fArguments[0]->fType);
         TypeCategory outCategory = type_category(c.fType);
         if (inCategory != outCategory) {
-            int count = c.fType.columns();
-            if (count > 1) {
-                this->write(ByteCodeInstruction::kVector);
-                this->write8(count);
-            }
             if (inCategory == TypeCategory::kFloat) {
                 SkASSERT(outCategory == TypeCategory::kSigned ||
                          outCategory == TypeCategory::kUnsigned);
-                this->write(ByteCodeInstruction::kFloatToInt);
+                this->write(vector_instruction(ByteCodeInstruction::kFloatToInt,
+                                               c.fType.columns()));
             } else if (outCategory == TypeCategory::kFloat) {
                 if (inCategory == TypeCategory::kSigned) {
-                    this->write(ByteCodeInstruction::kSignedToFloat);
+                    this->write(vector_instruction(ByteCodeInstruction::kSignedToFloat,
+                                                   c.fType.columns()));
                 } else {
                     SkASSERT(inCategory == TypeCategory::kUnsigned);
-                    this->write(ByteCodeInstruction::kUnsignedToFloat);
+                    this->write(vector_instruction(ByteCodeInstruction::kUnsignedToFloat,
+                                                   c.fType.columns()));
                 }
             } else {
                 SkASSERT(false);
@@ -347,21 +349,31 @@ void ByteCodeGenerator::writeConstructor(const Constructor& c) {
     }
 }
 
+void ByteCodeGenerator::writeExternalValue(const ExternalValueReference& e) {
+    this->write(vector_instruction(ByteCodeInstruction::kReadExternal,
+                                   slot_count(e.fValue->type())));
+    int index = fOutput->fExternalValues.size();
+    fOutput->fExternalValues.push_back(e.fValue);
+    SkASSERT(index <= 255);
+    this->write8(index);
+}
+
 void ByteCodeGenerator::writeFieldAccess(const FieldAccess& f) {
     // not yet implemented
     abort();
 }
 
 void ByteCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
-    this->align(4, 3);
     this->write(ByteCodeInstruction::kPushImmediate);
-    union { float f; uint32_t u; } pun = { (float) f.fValue };
-    this->write32(pun.u);
+    this->write32(Interpreter::Value((float) f.fValue).fUnsigned);
 }
 
 void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
-    // not yet implemented
-    abort();
+    for (const auto& arg : f.fArguments) {
+        this->writeExpression(*arg);
+    }
+    this->write(ByteCodeInstruction::kCall);
+    fCallTargets.emplace_back(this, f.fFunction);
 }
 
 void ByteCodeGenerator::writeIndexExpression(const IndexExpression& i) {
@@ -370,7 +382,6 @@ void ByteCodeGenerator::writeIndexExpression(const IndexExpression& i) {
 }
 
 void ByteCodeGenerator::writeIntLiteral(const IntLiteral& i) {
-    this->align(4, 3);
     this->write(ByteCodeInstruction::kPushImmediate);
     this->write32(i.fValue);
 }
@@ -384,38 +395,35 @@ void ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p) {
     switch (p.fOperator) {
         case Token::Kind::PLUSPLUS: // fall through
         case Token::Kind::MINUSMINUS: {
+            SkASSERT(slot_count(p.fOperand->fType) == 1);
             std::unique_ptr<LValue> lvalue = this->getLValue(*p.fOperand);
             lvalue->load();
-            this->align(4, 3);
             this->write(ByteCodeInstruction::kPushImmediate);
-            this->write32(1);
+            this->write32(type_category(p.fType) == TypeCategory::kFloat
+                            ? Interpreter::Value(1.0f).fUnsigned : 1);
             if (p.fOperator == Token::Kind::PLUSPLUS) {
                 this->writeTypedInstruction(p.fType,
                                             ByteCodeInstruction::kAddI,
                                             ByteCodeInstruction::kAddI,
-                                            ByteCodeInstruction::kAddF);
+                                            ByteCodeInstruction::kAddF,
+                                            1);
             } else {
                 this->writeTypedInstruction(p.fType,
                                             ByteCodeInstruction::kSubtractI,
                                             ByteCodeInstruction::kSubtractI,
-                                            ByteCodeInstruction::kSubtractF);
+                                            ByteCodeInstruction::kSubtractF,
+                                            1);
             }
-            this->write(ByteCodeInstruction::kDupDown);
-            this->write8(slot_count(p.fType));
             lvalue->store();
             break;
         }
         case Token::Kind::MINUS: {
             this->writeExpression(*p.fOperand);
-            int count = slot_count(p.fOperand->fType);
-            if (count > 1) {
-                this->write(ByteCodeInstruction::kVector);
-                this->write8(count);
-            }
             this->writeTypedInstruction(p.fType,
                                         ByteCodeInstruction::kNegateS,
                                         ByteCodeInstruction::kInvalid,
-                                        ByteCodeInstruction::kNegateF);
+                                        ByteCodeInstruction::kNegateF,
+                                        slot_count(p.fOperand->fType));
             break;
         }
         default:
@@ -424,19 +432,46 @@ void ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p) {
 }
 
 void ByteCodeGenerator::writePostfixExpression(const PostfixExpression& p) {
-    // not yet implemented
-    abort();
+    switch (p.fOperator) {
+        case Token::Kind::PLUSPLUS: // fall through
+        case Token::Kind::MINUSMINUS: {
+            SkASSERT(slot_count(p.fOperand->fType) == 1);
+            std::unique_ptr<LValue> lvalue = this->getLValue(*p.fOperand);
+            lvalue->load();
+            this->write(ByteCodeInstruction::kDup);
+            this->write(ByteCodeInstruction::kPushImmediate);
+            this->write32(type_category(p.fType) == TypeCategory::kFloat
+                            ? Interpreter::Value(1.0f).fUnsigned : 1);
+            if (p.fOperator == Token::Kind::PLUSPLUS) {
+                this->writeTypedInstruction(p.fType,
+                                            ByteCodeInstruction::kAddI,
+                                            ByteCodeInstruction::kAddI,
+                                            ByteCodeInstruction::kAddF,
+                                            1);
+            } else {
+                this->writeTypedInstruction(p.fType,
+                                            ByteCodeInstruction::kSubtractI,
+                                            ByteCodeInstruction::kSubtractI,
+                                            ByteCodeInstruction::kSubtractF,
+                                            1);
+            }
+            lvalue->store();
+            this->write(ByteCodeInstruction::kPop);
+            break;
+        }
+        default:
+            SkASSERT(false);
+    }
 }
 
 void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
     switch (s.fBase->fKind) {
         case Expression::kVariableReference_Kind: {
             const Variable& var = ((VariableReference&) *s.fBase).fVariable;
-            int location = this->getLocation(var);
-            this->align(4, 3);
-            this->write(ByteCodeInstruction::kPushImmediate);
-            this->write32(location);
-            this->write(ByteCodeInstruction::kLoadSwizzle);
+            this->write(var.fStorage == Variable::kGlobal_Storage
+                            ? ByteCodeInstruction::kLoadSwizzleGlobal
+                            : ByteCodeInstruction::kLoadSwizzle);
+            this->write8(this->getLocation(var));
             this->write8(s.fComponents.size());
             for (int c : s.fComponents) {
                 this->write8(c);
@@ -455,27 +490,23 @@ void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
 }
 
 void ByteCodeGenerator::writeVariableReference(const VariableReference& v) {
-    if (v.fVariable.fStorage == Variable::kGlobal_Storage) {
-        this->write(ByteCodeInstruction::kLoadGlobal);
-        int location = this->getLocation(v.fVariable);
-        SkASSERT(location <= 255);
-        this->write8(location);
-    } else {
-        this->align(4, 3);
-        this->write(ByteCodeInstruction::kPushImmediate);
-        this->write32(this->getLocation(v.fVariable));
-        int count = slot_count(v.fType);
-        if (count > 1) {
-            this->write(ByteCodeInstruction::kVector);
-            this->write8(count);
-        }
-        this->write(ByteCodeInstruction::kLoad);
-    }
+    this->write(vector_instruction(v.fVariable.fStorage == Variable::kGlobal_Storage
+                                                                  ? ByteCodeInstruction::kLoadGlobal
+                                                                  : ByteCodeInstruction::kLoad,
+                                   slot_count(v.fType)));
+    this->write8(this->getLocation(v.fVariable));
 }
 
 void ByteCodeGenerator::writeTernaryExpression(const TernaryExpression& t) {
-    // not yet implemented
-    abort();
+    this->writeExpression(*t.fTest);
+    this->write(ByteCodeInstruction::kConditionalBranch);
+    DeferredLocation trueLocation(this);
+    this->writeExpression(*t.fIfFalse);
+    this->write(ByteCodeInstruction::kBranch);
+    DeferredLocation endLocation(this);
+    trueLocation.set();
+    this->writeExpression(*t.fIfTrue);
+    endLocation.set();
 }
 
 void ByteCodeGenerator::writeExpression(const Expression& e) {
@@ -488,6 +519,9 @@ void ByteCodeGenerator::writeExpression(const Expression& e) {
             break;
         case Expression::kConstructor_Kind:
             this->writeConstructor((Constructor&) e);
+            break;
+        case Expression::kExternalValue_Kind:
+            this->writeExternalValue((ExternalValueReference&) e);
             break;
         case Expression::kFieldAccess_Kind:
             this->writeFieldAccess((FieldAccess&) e);
@@ -528,40 +562,52 @@ void ByteCodeGenerator::writeExpression(const Expression& e) {
     }
 }
 
-void ByteCodeGenerator::writeTarget(const Expression& e) {
-    switch (e.fKind) {
-        case Expression::kVariableReference_Kind:
-            this->align(4, 3);
-            this->write(ByteCodeInstruction::kPushImmediate);
-            this->write32(this->getLocation(((VariableReference&) e).fVariable));
-            break;
-        case Expression::kIndex_Kind:
-        case Expression::kTernary_Kind:
-        default:
-            printf("unsupported target %s\n", e.description().c_str());
-            SkASSERT(false);
+class ByteCodeExternalValueLValue : public ByteCodeGenerator::LValue {
+public:
+    ByteCodeExternalValueLValue(ByteCodeGenerator* generator, ExternalValue& value, int index)
+        : INHERITED(*generator)
+        , fCount(slot_count(value.type()))
+        , fIndex(index) {}
+
+    void load() override {
+        fGenerator.write(vector_instruction(ByteCodeInstruction::kReadExternal, fCount));
+        fGenerator.write8(fIndex);
     }
-}
+
+    void store() override {
+        fGenerator.write(vector_instruction(ByteCodeInstruction::kDup, fCount));
+        fGenerator.write(vector_instruction(ByteCodeInstruction::kWriteExternal, fCount));
+        fGenerator.write8(fIndex);
+    }
+
+private:
+    typedef LValue INHERITED;
+
+    int fCount;
+
+    int fIndex;
+};
 
 class ByteCodeSwizzleLValue : public ByteCodeGenerator::LValue {
 public:
     ByteCodeSwizzleLValue(ByteCodeGenerator* generator, const Swizzle& swizzle)
         : INHERITED(*generator)
         , fSwizzle(swizzle) {
-        fGenerator.writeTarget(*swizzle.fBase);
+        SkASSERT(fSwizzle.fBase->fKind == Expression::kVariableReference_Kind);
     }
 
     void load() override {
-        fGenerator.write(ByteCodeInstruction::kDup);
-        fGenerator.write(ByteCodeInstruction::kLoadSwizzle);
-        fGenerator.write8(fSwizzle.fComponents.size());
-        for (int c : fSwizzle.fComponents) {
-            fGenerator.write8(c);
-        }
+        fGenerator.writeSwizzle(fSwizzle);
     }
 
     void store() override {
-        fGenerator.write(ByteCodeInstruction::kStoreSwizzle);
+        const Variable& var = ((VariableReference&)*fSwizzle.fBase).fVariable;
+        fGenerator.write(vector_instruction(ByteCodeInstruction::kDup,
+                                            fSwizzle.fComponents.size()));
+        fGenerator.write(var.fStorage == Variable::kGlobal_Storage
+                            ? ByteCodeInstruction::kStoreSwizzleGlobal
+                            : ByteCodeInstruction::kStoreSwizzle);
+        fGenerator.write8(fGenerator.getLocation(var));
         fGenerator.write8(fSwizzle.fComponents.size());
         for (int c : fSwizzle.fComponents) {
             fGenerator.write8(c);
@@ -579,40 +625,42 @@ public:
     ByteCodeVariableLValue(ByteCodeGenerator* generator, const Variable& var)
         : INHERITED(*generator)
         , fCount(slot_count(var.fType))
+        , fLocation(generator->getLocation(var))
         , fIsGlobal(var.fStorage == Variable::kGlobal_Storage) {
-        fGenerator.align(4, 3);
-        fGenerator.write(ByteCodeInstruction::kPushImmediate);
-        fGenerator.write32(generator->getLocation(var));
     }
 
     void load() override {
-        fGenerator.write(ByteCodeInstruction::kDup);
-        if (fCount > 1) {
-            fGenerator.write(ByteCodeInstruction::kVector);
-            fGenerator.write8(fCount);
-        }
-        fGenerator.write(fIsGlobal ? ByteCodeInstruction::kLoadGlobal : ByteCodeInstruction::kLoad);
+        fGenerator.write(vector_instruction(fIsGlobal ? ByteCodeInstruction::kLoadGlobal
+                                                      : ByteCodeInstruction::kLoad,
+                                            fCount));
+        fGenerator.write8(fLocation);
     }
 
     void store() override {
-        if (fCount > 1) {
-            fGenerator.write(ByteCodeInstruction::kVector);
-            fGenerator.write8(fCount);
-        }
-        fGenerator.write(fIsGlobal ? ByteCodeInstruction::kStoreGlobal
-                                  : ByteCodeInstruction::kStore);
+        fGenerator.write(vector_instruction(ByteCodeInstruction::kDup, fCount));
+        fGenerator.write(vector_instruction(fIsGlobal ? ByteCodeInstruction::kStoreGlobal
+                                                      : ByteCodeInstruction::kStore,
+                                            fCount));
+        fGenerator.write8(fLocation);
     }
 
 private:
     typedef LValue INHERITED;
 
     int fCount;
-
+    int fLocation;
     bool fIsGlobal;
 };
 
 std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Expression& e) {
     switch (e.fKind) {
+        case Expression::kExternalValue_Kind: {
+            ExternalValue* value = ((ExternalValueReference&) e).fValue;
+            int index = fOutput->fExternalValues.size();
+            fOutput->fExternalValues.push_back(value);
+            SkASSERT(index <= 255);
+            return std::unique_ptr<LValue>(new ByteCodeExternalValueLValue(this, *value, index));
+        }
         case Expression::kIndex_Kind:
             // not yet implemented
             abort();
@@ -651,13 +699,11 @@ void ByteCodeGenerator::setContinueTargets() {
 }
 
 void ByteCodeGenerator::writeBreakStatement(const BreakStatement& b) {
-    this->align(2, 1);
     this->write(ByteCodeInstruction::kBranch);
     fBreakTargets.top().emplace_back(this);
 }
 
 void ByteCodeGenerator::writeContinueStatement(const ContinueStatement& c) {
-    this->align(2, 1);
     this->write(ByteCodeInstruction::kBranch);
     fContinueTargets.top().emplace_back(this);
 }
@@ -669,7 +715,6 @@ void ByteCodeGenerator::writeDoStatement(const DoStatement& d) {
     this->writeStatement(*d.fStatement);
     this->setContinueTargets();
     this->writeExpression(*d.fTest);
-    this->align(2, 1);
     this->write(ByteCodeInstruction::kConditionalBranch);
     this->write16(start);
     this->setBreakTargets();
@@ -685,17 +730,14 @@ void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
     if (f.fTest) {
         this->writeExpression(*f.fTest);
         this->write(ByteCodeInstruction::kNot);
-        this->align(2, 1);
         this->write(ByteCodeInstruction::kConditionalBranch);
         DeferredLocation endLocation(this);
         this->writeStatement(*f.fStatement);
         this->setContinueTargets();
         if (f.fNext) {
             this->writeExpression(*f.fNext);
-            this->write(ByteCodeInstruction::kPop);
-            this->write8(slot_count(f.fNext->fType));
+            this->write(vector_instruction(ByteCodeInstruction::kPop, slot_count(f.fNext->fType)));
         }
-        this->align(2, 1);
         this->write(ByteCodeInstruction::kBranch);
         this->write16(start);
         endLocation.set();
@@ -704,10 +746,8 @@ void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
         this->setContinueTargets();
         if (f.fNext) {
             this->writeExpression(*f.fNext);
-            this->write(ByteCodeInstruction::kPop);
-            this->write8(slot_count(f.fNext->fType));
+            this->write(vector_instruction(ByteCodeInstruction::kPop, slot_count(f.fNext->fType)));
         }
-        this->align(2, 1);
         this->write(ByteCodeInstruction::kBranch);
         this->write16(start);
     }
@@ -715,20 +755,26 @@ void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
 }
 
 void ByteCodeGenerator::writeIfStatement(const IfStatement& i) {
-    this->writeExpression(*i.fTest);
-    this->write(ByteCodeInstruction::kNot);
-    this->align(2, 1);
-    this->write(ByteCodeInstruction::kConditionalBranch);
-    DeferredLocation elseLocation(this);
-    this->writeStatement(*i.fIfTrue);
-    this->align(2, 1);
-    this->write(ByteCodeInstruction::kBranch);
-    DeferredLocation endLocation(this);
-    elseLocation.set();
     if (i.fIfFalse) {
+        // if (test) { ..ifTrue.. } else { .. ifFalse .. }
+        this->writeExpression(*i.fTest);
+        this->write(ByteCodeInstruction::kConditionalBranch);
+        DeferredLocation trueLocation(this);
         this->writeStatement(*i.fIfFalse);
+        this->write(ByteCodeInstruction::kBranch);
+        DeferredLocation endLocation(this);
+        trueLocation.set();
+        this->writeStatement(*i.fIfTrue);
+        endLocation.set();
+    } else {
+        // if (test) { ..ifTrue.. }
+        this->writeExpression(*i.fTest);
+        this->write(ByteCodeInstruction::kNot);
+        this->write(ByteCodeInstruction::kConditionalBranch);
+        DeferredLocation endLocation(this);
+        this->writeStatement(*i.fIfTrue);
+        endLocation.set();
     }
-    endLocation.set();
 }
 
 void ByteCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
@@ -749,16 +795,10 @@ void ByteCodeGenerator::writeVarDeclarations(const VarDeclarations& v) {
         // has been allocated
         int location = getLocation(*decl.fVar);
         if (decl.fValue) {
-            this->align(4, 3);
-            this->write(ByteCodeInstruction::kPushImmediate);
-            this->write32(location);
             this->writeExpression(*decl.fValue);
-            int count = slot_count(decl.fValue->fType);
-            if (count > 1) {
-                this->write(ByteCodeInstruction::kVector);
-                this->write8(count);
-            }
-            this->write(ByteCodeInstruction::kStore);
+            this->write(vector_instruction(ByteCodeInstruction::kStore,
+                                           slot_count(decl.fValue->fType)));
+            this->write8(location);
         }
     }
 }
@@ -769,12 +809,10 @@ void ByteCodeGenerator::writeWhileStatement(const WhileStatement& w) {
     size_t start = fCode->size();
     this->writeExpression(*w.fTest);
     this->write(ByteCodeInstruction::kNot);
-    this->align(2, 1);
     this->write(ByteCodeInstruction::kConditionalBranch);
     DeferredLocation endLocation(this);
     this->writeStatement(*w.fStatement);
     this->setContinueTargets();
-    this->align(2, 1);
     this->write(ByteCodeInstruction::kBranch);
     this->write16(start);
     endLocation.set();
@@ -801,8 +839,7 @@ void ByteCodeGenerator::writeStatement(const Statement& s) {
         case Statement::kExpression_Kind: {
             const Expression& expr = *((ExpressionStatement&) s).fExpression;
             this->writeExpression(expr);
-            this->write(ByteCodeInstruction::kPop);
-            this->write8(slot_count(expr.fType));
+            this->write(vector_instruction(ByteCodeInstruction::kPop, slot_count(expr.fType)));
             break;
         }
         case Statement::kFor_Kind:

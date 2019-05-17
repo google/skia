@@ -660,11 +660,15 @@ public:
     */
     bool readPixels(const SkBitmap& dst, int srcX, int srcY);
 
-    /** Makes pixel data available to caller, possibly asynchronously.
+    /** Makes pixel data available to caller, possibly asynchronously. Can perform rescaling.
 
         Currently asynchronous reads are only supported on the GPU backend and only when the
         underlying 3D API supports transfer buffers and CPU/GPU synchronization primitives. In all
         other cases this operates synchronously.
+
+        Data is read from the source rectangle, is optionally converted to a linear gamma, is
+        rescaled to the size indicated by 'info', is then converted to the color space, color type,
+        and alpha type of 'info'.
 
         When the pixel data is ready the caller's ReadPixelsCallback is called with a pointer to
         the data in the requested color type, alpha type, and color space. The data pointer is
@@ -674,18 +678,22 @@ public:
 
         If the src rectangle is not contained by the bounds of the surface then failure occurs.
 
-        @param ct       color type of the read data
-        @param at       alpha type of the read data
-        @param cs       color space of the read data
-        @param srcRect  a subrectangle of the surface to read
-        @param callback function to call with result of the read.
-        @param context  passed to callback.
+        Failure is indicated by calling callback with a nullptr for 'data'.
+
+        @param info             info of the requested pixels
+        @param srcRect          subrectangle of surface to read
+        @param rescaleGamma     controls whether rescaling is done in the surface's gamma or whether
+                                the source data is transformed to a linear gamma before rescaling.
+        @param rescaleQuality   controls the quality (and cost) of the rescaling
+        @param callback         function to call with result of the read
+        @param context          passed to callback
      */
     using ReadPixelsContext = void*;
     using ReadPixelsCallback = void(ReadPixelsContext, const void* data, size_t rowBytes);
-    void asyncReadPixels(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
-                         const SkIRect& srcRect, ReadPixelsCallback callback,
-                         ReadPixelsContext context);
+    enum RescaleGamma : bool { kSrc, kLinear };
+    void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                   RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
+                                   ReadPixelsCallback callback, ReadPixelsContext context);
 
     /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
 

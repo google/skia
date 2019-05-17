@@ -21,6 +21,7 @@ declare_args() {
   skia_use_angle = false
   skia_use_egl = false
   skia_use_expat = true
+  skia_use_ffmpeg = false
   skia_use_fontconfig = is_linux
   skia_use_fonthost_mac = is_mac
   skia_use_freetype = is_android || is_fuchsia || is_linux
@@ -42,7 +43,6 @@ declare_args() {
   skia_enable_ccpr = true
   skia_enable_nvpr = !skia_enable_flutter_defines
   skia_enable_discrete_gpu = true
-  skia_enable_nima = false
   skia_enable_pdf = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_skpicture = true
@@ -579,7 +579,7 @@ optional("gpu") {
   if (skia_generate_workarounds) {
     deps += [ ":workaround_list" ]
   }
-  public_defines = []
+  public_defines = [ "SK_GL" ]
   public_configs = []
   public_deps = []
 
@@ -891,10 +891,6 @@ component("skia") {
     ":wuffs",
     ":xml",
   ]
-
-  if (skia_enable_nima) {
-    deps += [ "//third_party/Nima-Cpp" ]
-  }
 
   # This file (and all GN files in Skia) are designed to work with an
   # empty sources assignment filter; we handle all that explicitly.
@@ -1627,6 +1623,20 @@ if (skia_enable_tools) {
     ]
   }
 
+  if (skia_use_ffmpeg) {
+    test_lib("video_decoder") {
+      sources = [
+        "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "experimental/ffmpeg/SkVideoDecoder.h",
+      ]
+      libs = [
+        "avcodec",
+        "avformat",
+        "avutil",
+      ]
+    }
+  }
+
   import("gn/gm.gni")
   test_lib("gm") {
     sources = gm_sources
@@ -1643,11 +1653,19 @@ if (skia_enable_tools) {
     public_deps = [
       ":gpu_tool_utils",
     ]
+
+    if (skia_use_ffmpeg) {
+      deps += [ ":video_decoder" ]
+      sources += [ "gm/video_decoder.cpp" ]
+    }
   }
 
   import("gn/tests.gni")
   test_lib("tests") {
     sources = tests_sources + pathops_tests_sources
+    if (skia_use_metal) {
+      sources += metal_tests_sources
+    }
     if (!skia_enable_fontmgr_android) {
       sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
     }
@@ -1787,12 +1805,6 @@ if (skia_enable_tools) {
         "modules/skshaper",
       ]
 
-      # NIMA does not build on Windows clang
-      if (!is_win || !is_clang) {
-        sources += [ "experimental/nima/NimaActor.cpp" ]
-        deps += [ "//third_party/Nima-Cpp" ]
-      }
-
       if (skia_use_lua) {
         sources += [ "samplecode/SampleLua.cpp" ]
         deps += [
@@ -1865,11 +1877,6 @@ if (skia_enable_tools) {
         "modules/skottie:utils",
         "modules/sksg",
       ]
-
-      # NIMA does not build on Windows clang
-      if (!is_win || !is_clang) {
-        deps += [ "//third_party/Nima-Cpp" ]
-      }
     }
   }
 
@@ -2341,12 +2348,6 @@ if (skia_enable_tools) {
       "modules/sksg:samples",
       "//third_party/imgui",
     ]
-
-    # NIMA does not build on Windows clang
-    if (!is_win || !is_clang) {
-      sources += [ "tools/viewer/NIMASlide.cpp" ]
-      deps += [ "//third_party/Nima-Cpp" ]
-    }
   }
 
   if (!skia_use_angle && (is_linux || is_win || is_mac)) {

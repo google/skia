@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "windows.h"
+#include <windows.h>
 #include "tools/win_dbghelp.h"
 
 #include <process.h>

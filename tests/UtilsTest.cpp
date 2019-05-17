@@ -6,8 +6,8 @@
  */
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkTSearch.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
 #include "tests/Test.h"
 

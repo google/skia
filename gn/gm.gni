@@ -24,6 +24,7 @@ gm_sources = [
   "$_gm/arcofzorro.cpp",
   "$_gm/arcto.cpp",
   "$_gm/arithmode.cpp",
+  "$_gm/asyncrescaleandread.cpp",
   "$_gm/atlastext.cpp",
   "$_gm/b_119394958.cpp",
   "$_gm/backdrop.cpp",
