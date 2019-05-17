@@ -357,7 +357,12 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
         "float dot(float3 a, float3 b) { return a.x*b.x + a.y*b.y + a.z*b.z; }\n"
         "float dot3_test(float x) { return dot(float3(x, x + 1, x + 2), float3(1, -1, 2)); }\n"
         "float dot2_test(float x) { return dot(float2(x, x + 1), float2(1, -1)); }\n"
-        "int fib(int i) { return (i < 2) ? 1 : fib(i - 1) + fib(i - 2); }";
+        "int fib(int i) { return (i < 2) ? 1 : fib(i - 1) + fib(i - 2); }"
+
+        // Structs
+        "struct S { float a; float b; };\n"
+        "struct T { S a; S b; };\n"
+        "float third(T t) { return t.b.a; }";
 
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;
