@@ -8,7 +8,7 @@
 #include "src/core/SkNormalFlatSource.h"
 
 #include "include/core/SkPoint3.h"
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkNormalSource.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"

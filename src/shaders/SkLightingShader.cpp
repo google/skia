@@ -8,7 +8,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkUnPreMultiply.h"
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapProcState.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkNormalSource.h"

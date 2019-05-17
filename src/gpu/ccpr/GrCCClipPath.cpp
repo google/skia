@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrCCClipPath.h"
+#include "src/gpu/ccpr/GrCCClipPath.h"
 
 #include "include/gpu/GrTexture.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"

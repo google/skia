@@ -7,7 +7,7 @@
 
 #include "src/core/SkGlyph.h"
 
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkScalerContext.h"
 
