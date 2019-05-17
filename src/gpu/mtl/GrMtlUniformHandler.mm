@@ -148,8 +148,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
             return 4 * sizeof(int32_t);
         case kHalf2x2_GrSLType: // fall through
         case kFloat2x2_GrSLType:
-            //TODO: this will be 4 * szof(float) on std430.
-            return 8 * sizeof(float);
+            return 4 * sizeof(float);
         case kHalf3x3_GrSLType: // fall through
         case kFloat3x3_GrSLType:
             return 12 * sizeof(float);
