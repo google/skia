@@ -69,10 +69,13 @@ public:
      */
     void setInputs(Value inputs[]);
 
+    /**
+     * Print bytecode disassembly to stdout.
+     */
+    void disassemble(const ByteCodeFunction&);
 private:
     void run(const ByteCodeFunction& f, Value* stack, Value args[], Value* outReturn);
 
-    void disassemble(const ByteCodeFunction& f);
 
     std::unique_ptr<Program> fProgram;
     std::unique_ptr<ByteCode> fByteCode;

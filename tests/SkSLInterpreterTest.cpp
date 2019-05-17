@@ -80,6 +80,7 @@ void test(skiatest::Reporter* r, const char* src, float inR, float inG, float in
             printf("    expected (%f, %f, %f, %f), but received (%f, %f, %f, %f)\n", expectedR,
                    expectedG, expectedB, expectedA, inoutColor[0], inoutColor[1], inoutColor[2],
                    inoutColor[3]);
+            interpreter.disassemble(*main);
         }
         REPORTER_ASSERT(r, inoutColor[0] == expectedR);
         REPORTER_ASSERT(r, inoutColor[1] == expectedG);
