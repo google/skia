@@ -16,6 +16,24 @@
       "revId": "aacc97f14c25c76dad55b33586bfb656cce201f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0eb04688_d246d1ae",
+        "filename": "experimental/ffmpeg/SkVideoDecoder.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-17T16:16:05Z",
+      "side": 1,
+      "message": "Good point. I guess we don\u0027t care about supporting a custom build of ffmpeg (at least for our tools/testing). I\u0027ll try hacking this into my CL...",
+      "parentUuid": "93997c9c_868b77c0",
+      "revId": "aacc97f14c25c76dad55b33586bfb656cce201f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
