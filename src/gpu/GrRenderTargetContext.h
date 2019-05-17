@@ -404,8 +404,8 @@ public:
 
     using ReadPixelsCallback = SkSurface::ReadPixelsCallback;
     using ReadPixelsContext = SkSurface::ReadPixelsContext;
-    bool asyncReadPixels(SkColorType, SkAlphaType, sk_sp<SkColorSpace>, const SkIRect& srcRect,
-                         ReadPixelsCallback, ReadPixelsContext);
+    bool asyncReadPixels(const SkImageInfo& info, int srcX, int srcY, ReadPixelsCallback,
+                         ReadPixelsContext);
 
     /**
      * After this returns any pending surface IO will be issued to the backend 3D API and
