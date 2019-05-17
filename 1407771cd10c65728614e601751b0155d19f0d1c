@@ -70,6 +70,30 @@
       "revId": "1407771cd10c65728614e601751b0155d19f0d1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5eaf1d4_b6e69337",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-17T18:26:04Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "7d2ae07d_82e4f5e2",
+      "range": {
+        "startLine": 555,
+        "startChar": 0,
+        "endLine": 561,
+        "endChar": 0
+      },
+      "revId": "1407771cd10c65728614e601751b0155d19f0d1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
