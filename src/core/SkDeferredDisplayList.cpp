@@ -5,10 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkDeferredDisplayList.h"
+#include <utility>
+class SkSurfaceCharacterization;
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkSurface.h"
+#if SK_SUPPORT_GPU
+#include "include/private/GrOpList.h"
+#include "src/gpu/ccpr/GrCCPerOpListPaths.h"
+#endif
 
 SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
                                              sk_sp<LazyProxyData> lazyProxyData)

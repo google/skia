@@ -6,7 +6,7 @@
  */
 
 #include "include/effects/SkOverdrawColorFilter.h"
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"

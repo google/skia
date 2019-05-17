@@ -7,7 +7,7 @@
 
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkColorFilterShader.h"

@@ -9,8 +9,8 @@
 #define GrCCPathCache_DEFINED
 
 #include "include/private/SkTHash.h"
-#include "include/private/SkTInternalLList.h"
 #include "src/core/SkExchange.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrShape.h"
 #include "src/gpu/ccpr/GrCCAtlas.h"
 #include "src/gpu/ccpr/GrCCPathProcessor.h"

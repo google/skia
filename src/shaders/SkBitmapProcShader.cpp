@@ -7,7 +7,7 @@
 
 #include "src/shaders/SkBitmapProcShader.h"
 
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapProcState.h"
 #include "src/core/SkBitmapProvider.h"
 #include "src/core/SkXfermodePriv.h"

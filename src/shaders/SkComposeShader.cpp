@@ -7,8 +7,8 @@
 
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkString.h"
-#include "include/private/SkArenaAlloc.h"
 #include "include/private/SkColorData.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"

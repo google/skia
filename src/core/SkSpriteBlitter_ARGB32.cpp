@@ -7,9 +7,9 @@
 
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
-#include "include/private/SkArenaAlloc.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkSpriteBlitter.h"
 #include "src/core/SkXfermodePriv.h"

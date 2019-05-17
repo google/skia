@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapController.h"
 #include "src/core/SkBitmapProvider.h"
 #include "src/core/SkColorSpacePriv.h"

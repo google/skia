@@ -7,7 +7,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkPathPriv.h"
 #include "src/pathops/SkOpEdgeBuilder.h"
 #include "src/pathops/SkPathOpsCommon.h"

@@ -8,11 +8,11 @@
 #include "src/core/SkMaskBlurFilter.h"
 
 #include "include/core/SkColorPriv.h"
-#include "include/private/SkArenaAlloc.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkGaussFilter.h"
 
 #include <cmath>

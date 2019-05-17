@@ -8,8 +8,8 @@
 #ifndef GrStrikeCache_DEFINED
 #define GrStrikeCache_DEFINED
 
-#include "include/private/SkArenaAlloc.h"
 #include "src/codec/SkMasks.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/gpu/GrDrawOpAtlas.h"

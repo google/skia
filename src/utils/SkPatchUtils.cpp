@@ -7,9 +7,9 @@
 
 #include "src/utils/SkPatchUtils.h"
 
-#include "include/private/SkArenaAlloc.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkGeometry.h"

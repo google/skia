@@ -10,10 +10,10 @@
 #include <algorithm>
 
 #include "include/core/SkBitmap.h"
-#include "include/private/SkArenaAlloc.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTFitsIn.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/core/SkImageFilterPriv.h"

@@ -10,7 +10,7 @@
 
 #include "include/private/SkChecksum.h"
 #include "include/private/SkTHash.h"
-#include "include/private/SkTInternalLList.h"
+#include "src/core/SkTInternalLList.h"
 
 /**
  * A generic LRU cache.

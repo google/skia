@@ -9,7 +9,7 @@
 #define SkPathOpsCubic_DEFINED
 
 #include "include/core/SkPath.h"
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/pathops/SkPathOpsTCurve.h"
 
 struct SkDCubicPair;

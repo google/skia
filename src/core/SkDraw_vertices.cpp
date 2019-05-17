@@ -6,8 +6,8 @@
  */
 
 #include "include/core/SkString.h"
-#include "include/private/SkArenaAlloc.h"
 #include "include/private/SkNx.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkAutoBlitterChoose.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkCoreBlitters.h"

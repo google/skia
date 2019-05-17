@@ -10,7 +10,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
-#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 
 bool SkDrawLooper::canComputeFastBounds(const SkPaint& paint) const {
     SkCanvas canvas;

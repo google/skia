@@ -9,9 +9,9 @@
 #define GrCCPerOpListPaths_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/GrCCClipPath.h"
-#include "include/private/SkArenaAlloc.h"
-#include "include/private/SkTInternalLList.h"
+#include "src/core/SkArenaAlloc.h"
+#include "src/core/SkTInternalLList.h"
+#include "src/gpu/ccpr/GrCCClipPath.h"
 
 #include <map>
 
