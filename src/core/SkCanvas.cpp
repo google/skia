@@ -29,6 +29,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
+#include "src/core/SkImageFilterPriv.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMSAN.h"
 #include "src/core/SkMakeUnique.h"
@@ -929,27 +930,42 @@ int SkCanvas::only_axis_aligned_saveBehind(const SkRect* bounds) {
 void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
                                     SkBaseDevice* dst, const SkIPoint& dstOrigin,
                                     const SkMatrix& ctm) {
-    SkDraw draw;
-    SkRasterClip rc;
-    rc.setRect(SkIRect::MakeWH(dst->width(), dst->height()));
-    if (!dst->accessPixels(&draw.fDst)) {
-        draw.fDst.reset(dst->imageInfo(), nullptr, 0);
-    }
-    draw.fMatrix = &SkMatrix::I();
-    draw.fRC = &rc;
-
-    int x = src->getOrigin().x() - dstOrigin.x();
-    int y = src->getOrigin().y() - dstOrigin.y();
-
     SkPaint p;
+    SkIRect snapBounds = SkIRect::MakeXYWH(dstOrigin.x() - src->getOrigin().x(),
+                                           dstOrigin.y() - src->getOrigin().y(),
+                                           dst->width(), dst->height());
+    int x = 0;
+    int y = 0;
+
     if (filter) {
-        SkMatrix actm = ctm;
-        // Account for the origin offset in the local matrix
-        actm.postTranslate(x, y);
-        p.setImageFilter(filter->makeWithLocalMatrix(actm));
+        // Calculate expanded snap bounds
+        SkIRect newBounds = filter->filterBounds(
+                snapBounds, ctm, SkImageFilter::kReverse_MapDirection, &snapBounds);
+        // Must clamp to valid src since the filter or rotations may expand beyond what's readable
+        SkIRect srcR = SkIRect::MakeWH(src->width(), src->height());
+        if (!newBounds.intersect(srcR)) {
+            return;
+        }
+
+        x = newBounds.fLeft - snapBounds.fLeft;
+        y = newBounds.fTop - snapBounds.fTop;
+        snapBounds = newBounds;
+
+        SkMatrix localCTM;
+        sk_sp<SkImageFilter> modifiedFilter = SkApplyCTMToBackdropFilter(filter, ctm, &localCTM);
+        // Account for the origin offset in the CTM
+        localCTM.postTranslate(-dstOrigin.x(), -dstOrigin.y());
+
+        // In this case we always wrap the filter (even when it's the original) with 'localCTM'
+        // since there's no device CTM stack that provides it to the image filter context.
+        // FIXME skbug.com/9074 - once perspective is properly supported, drop the
+        // localCTM.hasPerspective condition from assert.
+        SkASSERT(localCTM.isScaleTranslate() || filter->canHandleComplexCTM() ||
+                 localCTM.hasPerspective());
+        p.setImageFilter(modifiedFilter->makeWithLocalMatrix(localCTM));
     }
 
-    auto special = src->snapSpecial();
+    auto special = src->snapBackImage(snapBounds);
     if (special) {
         dst->drawSpecial(special.get(), x, y, p, nullptr, SkMatrix::I());
     }
@@ -991,36 +1007,41 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     SkImageFilter* imageFilter = paint ? paint->getImageFilter() : nullptr;
     SkMatrix stashedMatrix = fMCRec->fMatrix;
     MCRec* modifiedRec = nullptr;
-    SkMatrix remainder;
-    SkSize scale;
+
     /*
-     *  ImageFilters (so far) do not correctly handle matrices (CTM) that contain rotation/skew/etc.
-     *  but they do handle scaling. To accommodate this, we do the following:
+     *  Many ImageFilters (so far) do not (on their own) correctly handle matrices (CTM) that
+     *  contain rotation/skew/etc. We rely on applyCTM to create a new image filter DAG as needed to
+     *  accommodate this, but it requires update the CTM we use when drawing into the layer.
      *
      *  1. Stash off the current CTM
-     *  2. Decompose the CTM into SCALE and REMAINDER
-     *  3. Wack the CTM to be just SCALE, and wrap the imagefilter with a MatrixImageFilter that
-     *     contains the REMAINDER
+     *  2. Apply the CTM to imagefilter, which decomposes it into simple and complex transforms
+     *     if necessary.
+     *  3. Wack the CTM to be the remaining scale matrix and use the modified imagefilter, which
+     *     is a MatrixImageFilter that contains the complex matrix.
      *  4. Proceed as usual, allowing the client to draw into the layer (now with a scale-only CTM)
-     *  5. During restore, we process the MatrixImageFilter, which applies REMAINDER to the output
+     *  5. During restore, the MatrixImageFilter automatically applies complex stage to the output
      *     of the original imagefilter, and draw that (via drawSprite)
      *  6. Unwack the CTM to its original state (i.e. stashedMatrix)
      *
      *  Perhaps in the future we could augment #5 to apply REMAINDER as part of the draw (no longer
      *  a sprite operation) to avoid the extra buffer/overhead of MatrixImageFilter.
      */
-    if (imageFilter && !stashedMatrix.isScaleTranslate() && !imageFilter->canHandleComplexCTM() &&
-        stashedMatrix.decomposeScale(&scale, &remainder))
-    {
-        // We will restore the matrix (which we are overwriting here) in restore via fStashedMatrix
-        modifiedRec = fMCRec;
-        this->internalSetMatrix(SkMatrix::MakeScale(scale.width(), scale.height()));
-        SkPaint* p = lazyP.set(*paint);
-        p->setImageFilter(SkImageFilter::MakeMatrixFilter(remainder,
-                                                          SkFilterQuality::kLow_SkFilterQuality,
-                                                          sk_ref_sp(imageFilter)));
-        imageFilter = p->getImageFilter();
-        paint = p;
+    if (imageFilter) {
+        SkMatrix modifiedCTM;
+        sk_sp<SkImageFilter> modifiedFilter = SkApplyCTMToFilter(imageFilter, stashedMatrix,
+                                                                 &modifiedCTM);
+        if (!SkIsSameFilter(modifiedFilter.get(), imageFilter)) {
+            // The original filter couldn't support the CTM entirely
+            SkASSERT(modifiedCTM.isScaleTranslate() || imageFilter->canHandleComplexCTM());
+            modifiedRec = fMCRec;
+            this->internalSetMatrix(modifiedCTM);
+            SkPaint* p = lazyP.set(*paint);
+            p->setImageFilter(std::move(modifiedFilter));
+            imageFilter = p->getImageFilter();
+            paint = p;
+        }
+        // Else the filter didn't change, so modifiedCTM == stashedMatrix and there's nothing
+        // left to do since the stack already has that as the CTM.
     }
 
     // do this before we create the layer. We don't call the public save() since
