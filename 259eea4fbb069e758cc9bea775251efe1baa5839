@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b499de40_d225f9cc",
+        "filename": "gm/asyncrescaleandread.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-17T16:06:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2dfe2510_54395c3d",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "259eea4fbb069e758cc9bea775251efe1baa5839",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d92b609c_e8f49d56",
         "filename": "gm/asyncrescaleandread.cpp",
         "patchSetId": 12
@@ -36,6 +60,24 @@
       "writtenOn": "2019-05-17T15:41:18Z",
       "side": 1,
       "message": "Use SrcOver (and add the PNG rose?) so we know that we\u0027re correctly handling transparent sources?",
+      "revId": "259eea4fbb069e758cc9bea775251efe1baa5839",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca16ddc4_2fcfe7b5",
+        "filename": "gm/asyncrescaleandread.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-17T16:06:06Z",
+      "side": 1,
+      "message": "Turns out the webp version also has transparency too.\n\nThis is just getting the original image in to a surface so that we can call the async API. This function returns an SkImage that is rescaled which is then drawn to the actual canvas on line 83 in kSrcOver mode so we can see the transparency against the checkboard.",
+      "parentUuid": "d92b609c_e8f49d56",
       "revId": "259eea4fbb069e758cc9bea775251efe1baa5839",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
