@@ -13,8 +13,8 @@
 
 // In BackendAllocationTest.cpp
 void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
-                   std::function<GrBackendTexture (GrContext*, GrRenderable)> createMtd,
-                   SkColorType colorType, GrRenderable renderable);
+                   std::function<GrBackendTexture (GrContext*, GrMipMapped, GrRenderable)> createMtd,
+                   SkColorType colorType, GrMipMapped mipMapped, GrRenderable renderable);
 
 DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
@@ -71,24 +71,29 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
             continue;
         }
 
-        for (auto renderable : { GrRenderable::kNo, GrRenderable::kYes }) {
+        for (auto mipMapped : { GrMipMapped::kNo, GrMipMapped::kYes }) {
+            for (auto renderable : { GrRenderable::kNo, GrRenderable::kYes }) {
 
-            if (GrRenderable::kYes == renderable) {
-                if (kRGB_888x_SkColorType == combo.fColorType) {
-                    // Ganesh can't perform the blends correctly when rendering this format
-                    continue;
+                if (GrRenderable::kYes == renderable) {
+                    if (kRGB_888x_SkColorType == combo.fColorType) {
+                        // Ganesh can't perform the blends correctly when rendering this format
+                        continue;
+                    }
+                    if (!caps->isConfigRenderable(combo.fConfig)) {
+                        continue;
+                    }
                 }
-                if (!caps->isConfigRenderable(combo.fConfig)) {
-                    continue;
-                }
+
+                auto createMtd = [format](GrContext* context,
+                                          GrMipMapped mipMapped,
+                                          GrRenderable renderable) {
+                    return context->priv().createBackendTexture(32, 32, format,
+                                                                mipMapped, renderable);
+                };
+
+                test_wrapping(context, reporter, createMtd,
+                              combo.fColorType, mipMapped, renderable);
             }
-
-            auto createMtd = [format](GrContext* context, GrRenderable renderable) {
-                return context->priv().createBackendTexture(32, 32, format,
-                                                            GrMipMapped::kNo, renderable);
-            };
-
-            test_wrapping(context, reporter, createMtd, combo.fColorType, renderable);
         }
-    }
+        }
 }
