@@ -447,6 +447,7 @@ protected:
 
 private:
     friend class SkGraphics;
+    friend bool SkIsSameFilter(const SkImageFilter* a, const SkImageFilter* b);
 
     static void PurgeCache();
 

@@ -344,7 +344,12 @@ sk_sp<SkSpecialImage> SkSpecialImage::CopyFromRaster(const SkIRect& subset,
     if (!bm.readPixels(tmp.info(), tmp.getPixels(), tmp.rowBytes(), subset.x(), subset.y())) {
         return nullptr;
     }
-    return sk_make_sp<SkSpecialImage_Raster>(subset, tmp, props);
+
+    // Since we're making a copy of the raster, the resulting special image is the exact size
+    // of the requested subset of the original and no longer needs to be offset by subset's left
+    // and top, since those were relative to the original's buffer.
+    return sk_make_sp<SkSpecialImage_Raster>(
+            SkIRect::MakeWH(subset.width(), subset.height()), tmp, props);
 }
 
 #if SK_SUPPORT_GPU

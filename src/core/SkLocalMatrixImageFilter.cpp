@@ -16,11 +16,12 @@ sk_sp<SkImageFilter> SkLocalMatrixImageFilter::Make(const SkMatrix& localM,
     if (!input) {
         return nullptr;
     }
-    if (localM.getType() & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
-        return nullptr;
-    }
     if (localM.isIdentity()) {
         return input;
+    }
+    if (!input->canHandleComplexCTM() && !localM.isScaleTranslate()) {
+        // Nothing we can do at this point
+        return nullptr;
     }
     return sk_sp<SkImageFilter>(new SkLocalMatrixImageFilter(localM, input));
 }

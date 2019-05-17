@@ -11,10 +11,10 @@
 #include "include/effects/SkBlurImageFilter.h"
 #include "include/effects/SkColorFilterImageFilter.h"
 
-// This draws correctly if there's a small cyan rectangle above a much larger magenta rectangle.
-// There should be no red around the cyan rectangle and no green within the magenta rectangle.
+typedef sk_sp<SkImageFilter> (*FilterFactory)(const SkImageFilter::CropRect* crop);
 
-DEF_SIMPLE_GM(backdrop_imagefilter_croprect, canvas, 600, 500) {
+static void draw_backdrop_filter_gm(SkCanvas* canvas, float outsetX, float outsetY,
+                                    FilterFactory factory) {
     // CTM translates to (150, 150)
     SkPoint origin = SkPoint::Make(150.f, 150.f);
     // The save layer specified after the CTM has negative coordinates, but
@@ -25,20 +25,10 @@ DEF_SIMPLE_GM(backdrop_imagefilter_croprect, canvas, 600, 500) {
     // the layer's image space.
     SkRect cropInLocal = SkRect::MakeLTRB(50.f, 10.f, 250.f, 40.f);
 
-    SkImageFilter::CropRect cropRect(cropInLocal);
-    float matrix[20] = {-1.f, 0.f, 0.f, 0.f, 1.f,
-                        0.f, -1.f, 0.f, 0.f, 1.f,
-                        0.f, 0.f, -1.f, 0.f, 1.f,
-                        0.f, 0.f, 0.f, 1.f, 0.f};
-    sk_sp<SkColorFilter> colorFilter = SkColorFilters::Matrix(matrix);
-    sk_sp<SkImageFilter> imageFilter = SkColorFilterImageFilter::Make(colorFilter, nullptr,
-                                                                      &cropRect);
+    SkImageFilter::CropRect cropRect(cropInLocal.makeOutset(outsetX, outsetY));
+    sk_sp<SkImageFilter> imageFilter = factory(&cropRect);
 
     SkPaint p;
-    SkPaint l;
-    l.setStyle(SkPaint::kStroke_Style);
-    l.setStrokeWidth(0.f);
-
     for (int i = 0; i < 2; ++i) {
         canvas->save();
         canvas->translate(origin.fX, origin.fY);
@@ -76,4 +66,59 @@ DEF_SIMPLE_GM(backdrop_imagefilter_croprect, canvas, 600, 500) {
         canvas->restore();
         origin.fY += 150.f;
     }
+}
+
+static sk_sp<SkImageFilter> make_invert_filter(const SkImageFilter::CropRect* crop) {
+    static const float matrix[20] = {-1.f, 0.f, 0.f, 0.f, 1.f,
+                                      0.f, -1.f, 0.f, 0.f, 1.f,
+                                      0.f, 0.f, -1.f, 0.f, 1.f,
+                                      0.f, 0.f, 0.f, 1.f, 0.f};
+    return SkColorFilterImageFilter::Make(SkColorFilters::Matrix(matrix), nullptr, crop);
+}
+
+static sk_sp<SkImageFilter> make_blur_filter(const SkImageFilter::CropRect* crop) {
+    // Use different sigmas for x and y so rotated CTM is apparent
+    return SkBlurImageFilter::Make(16.f, 4.f, nullptr, crop);
+}
+
+// This draws correctly if there's a small cyan rectangle above a much larger magenta rectangle.
+// There should be no red around the cyan rectangle and no green within the magenta rectangle.
+DEF_SIMPLE_GM(backdrop_imagefilter_croprect, canvas, 600, 500) {
+    draw_backdrop_filter_gm(canvas, 0.f, 0.f, make_invert_filter);
+}
+
+// This draws correctly if there's a blurred red rectangle inside a cyan rectangle, above a blurred
+// green rectangle inside a larger magenta rectangle. All rectangles and the blur direction are
+// consistently rotated.
+DEF_SIMPLE_GM(backdrop_imagefilter_croprect_rotated, canvas, 600, 500) {
+    canvas->translate(140.f, -180.f);
+    canvas->rotate(30.f);
+    draw_backdrop_filter_gm(canvas, 32.f, 32.f, make_blur_filter);
+}
+
+// This draws correctly if there's a blurred red rectangle inside a cyan rectangle, above a blurred
+// green rectangle inside a larger magenta rectangle. All rectangles and the blur direction are
+// under consistent perspective.
+// NOTE: Currently renders incorrectly, see skbug.com/9074
+DEF_SIMPLE_GM(backdrop_imagefilter_croprect_persp, canvas, 600, 500) {
+    SkMatrix persp = SkMatrix::I();
+    persp.setPerspY(0.001f);
+    persp.setSkewX(8.f / 25.f);
+    canvas->concat(persp);
+    draw_backdrop_filter_gm(canvas, 32.f, 32.f, make_blur_filter);
+}
+
+// This draws correctly if there's a small cyan rectangle above a much larger magenta rectangle.
+// There should be no red around the cyan rectangle and no green within the magenta rectangle, and
+// everything should be 50% transparent.
+DEF_SIMPLE_GM(backdrop_imagefilter_croprect_nested, canvas, 600, 500) {
+    SkPaint p;
+    p.setAlphaf(0.5f);
+    // This ensures there is a non-root device on the stack with a non-zero origin.
+    canvas->translate(15.f, 10.f);
+    canvas->clipRect(SkRect::MakeWH(600.f, 500.f));
+
+    canvas->saveLayer(nullptr, &p);
+    draw_backdrop_filter_gm(canvas, 0.f, 0.f, make_invert_filter);
+    canvas->restore();
 }
