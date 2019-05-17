@@ -267,6 +267,11 @@ DEF_TEST(SkSLInterpreterFor, r) {
          495, 0, 0, 0);
 }
 
+DEF_TEST(SkSLInterpreterPrefixPostfix, r) {
+    test(r, "void main(inout half4 color) { color.r = ++color.g; }", 1, 2, 3, 4, 3, 3, 3, 4);
+    test(r, "void main(inout half4 color) { color.r = color.g++; }", 1, 2, 3, 4, 2, 3, 3, 4);
+}
+
 DEF_TEST(SkSLInterpreterSwizzle, r) {
     test(r, "void main(inout half4 color) { color = color.abgr; }", 1, 2, 3, 4, 4, 3, 2, 1);
     test(r, "void main(inout half4 color) { color.rgb = half4(5, 6, 7, 8).bbg; }", 1, 2, 3, 4, 7, 7,
