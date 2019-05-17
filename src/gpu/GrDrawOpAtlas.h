@@ -12,9 +12,9 @@
 
 #include "include/core/SkSize.h"
 #include "include/private/SkTDArray.h"
-#include "include/private/SkTInternalLList.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkIPoint16.h"
+#include "src/core/SkTInternalLList.h"
 
 #include "src/gpu/ops/GrDrawOp.h"
 

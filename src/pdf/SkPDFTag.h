@@ -9,9 +9,9 @@
 #define SkPDFTag_DEFINED
 
 #include "include/docs/SkPDFDocument.h"
-#include "include/private/SkArenaAlloc.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
+#include "src/core/SkArenaAlloc.h"
 
 class SkPDFDocument;
 struct SkPDFTagNode;

@@ -8,9 +8,9 @@
 #define SkEdgeBuilder_DEFINED
 
 #include "include/core/SkRect.h"
-#include "include/private/SkArenaAlloc.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkAnalyticEdge.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkEdge.h"
 
 class SkPath;

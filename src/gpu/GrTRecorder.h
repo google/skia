@@ -9,8 +9,8 @@
 #define GrTRecorder_DEFINED
 
 #include "include/gpu/GrTypes.h"
-#include "include/private/SkArenaAlloc.h"
 #include "include/private/SkTLogic.h"
+#include "src/core/SkArenaAlloc.h"
 
 /**
  * Records a list of items with a common base type, optional associated data, and

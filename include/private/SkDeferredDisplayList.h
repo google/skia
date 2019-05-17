@@ -8,31 +8,34 @@
 #ifndef SkDeferredDisplayList_DEFINED
 #define SkDeferredDisplayList_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceCharacterization.h"
-
-#if SK_SUPPORT_GPU
-#include "include/private/GrCCPerOpListPaths.h"
-#include "include/private/GrOpList.h"
-
-#include <map>
-#endif
+#include "include/core/SkTypes.h"
 
 class SkDeferredDisplayListPriv;
-class SkSurface;
+
+#if SK_SUPPORT_GPU
+#include "include/private/SkTArray.h"
+#include <map>
+class GrOpList;
+class GrRenderTargetProxy;
+struct GrCCPerOpListPaths;
+#endif
+
 /*
  * This class contains pre-processed gpu operations that can be replayed into
  * an SkSurface via draw(SkDeferredDisplayList*).
  *
  * TODO: we probably need to expose this class so users can query it for memory usage.
  */
-class SK_API SkDeferredDisplayList {
+class SkDeferredDisplayList {
 public:
 
 #if SK_SUPPORT_GPU
     // This object is the source from which the lazy proxy backing the DDL will pull its backing
     // texture when the DDL is replayed. It has to be separately ref counted bc the lazy proxy
     // can outlive the DDL.
-    class LazyProxyData : public SkRefCnt {
+    class SK_API LazyProxyData : public SkRefCnt {
     public:
         // Upon being replayed - this field will be filled in (by the DrawingManager) with the proxy
         // backing the destination SkSurface. Note that, since there is no good place to clear it
@@ -40,14 +43,14 @@ public:
         GrRenderTargetProxy*     fReplayDest = nullptr;
     };
 #else
-    class LazyProxyData : public SkRefCnt {};
+    class SK_API LazyProxyData : public SkRefCnt {};
 #endif
 
-    SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
-                          sk_sp<LazyProxyData>);
-    ~SkDeferredDisplayList();
+    SK_API SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
+                                 sk_sp<LazyProxyData>);
+    SK_API ~SkDeferredDisplayList();
 
-    const SkSurfaceCharacterization& characterization() const {
+    SK_API const SkSurfaceCharacterization& characterization() const {
         return fCharacterization;
     }
 
