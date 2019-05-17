@@ -452,6 +452,8 @@ public:
 
     GrContext* grContext() override { return fGrContext.get(); }
 
+    void setProtectedContext(bool protected) { fProtected = protected; }
+
 private:
     bool checkOptimalHardwareBuffer(skiatest::Reporter* reporter);
 
@@ -491,6 +493,8 @@ private:
     VkPhysicalDeviceFeatures2*          fFeatures = nullptr;
     VkDebugReportCallbackEXT            fDebugCallback = VK_NULL_HANDLE;
     PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugCallback = nullptr;
+
+    bool fProtected = false;
 
     // We hold on to the semaphore so we can delete once the GPU is done.
     VkSemaphore fSignalSemaphore = VK_NULL_HANDLE;
@@ -571,6 +575,10 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
     ACQUIRE_DEVICE_VK_PROC(GetSemaphoreFdKHR);
     ACQUIRE_DEVICE_VK_PROC(ImportSemaphoreFdKHR);
     ACQUIRE_DEVICE_VK_PROC(DestroySemaphore);
+
+    if (fProtected) {
+      fBackendContext.fProtectedContext = true;
+    }
 
     fGrContext = GrContext::MakeVulkan(fBackendContext);
     REPORTER_ASSERT(reporter, fGrContext.get());
@@ -1308,6 +1316,37 @@ DEF_GPUTEST(VulkanHardwareBuffer_EGL_Vulkan_Syncs, reporter, options) {
 
 DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_Vulkan_Syncs, reporter, options) {
     run_test(reporter, options, SrcType::kVulkan, DstType::kVulkan, true);
+}
+
+DEF_GPUTEST(
+    VulkanHardwareBuffer_Vulkan_GrContextMatchesVKImageForProtectedContent,
+    reporter, options) {
+  auto srcHelper = std::make_unique<VulkanTestHelper>();
+  srcHelper->setProtectedContext(true);
+  REPORTER_ASSERT(reporter, srcHelper->init(reporter));
+
+  const int kW = 32;
+  const int kH = 32;
+  GrVkGpu* gpu = static_cast<GrVkGpu*>(srcHelper->grContext()->priv().getGpu());
+  GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+      nullptr, kW, kH, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
+  REPORTER_ASSERT(reporter, backendTex.isValid());
+  GrVkImageInfo info;
+  REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
+  GrBackendRenderTarget renderTarget(kW, kH, 0, 0, info);
+  SkSurfaceProps surfaceProps =
+      SkSurfaceProps(0, SkSurfaceProps::kLegacyFontHost_InitType);
+  info.fIsProtected = true;
+  auto surface = SkSurface::MakeFromBackendRenderTarget(
+      srcHelper->grContext(), renderTarget, kTopLeft_GrSurfaceOrigin,
+      kBGRA_8888_SkColorType, nullptr, &surfaceProps);
+  REPORTER_ASSERT(reporter, surface);
+
+  info.fIsProtected = false;
+  auto surface2 = SkSurface::MakeFromBackendRenderTarget(
+      srcHelper->grContext(), renderTarget, kTopLeft_GrSurfaceOrigin,
+      kBGRA_8888_SkColorType, nullptr, &surfaceProps);
+  REPORTER_ASSERT(reporter, !surface2);
 }
 
 #endif

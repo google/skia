@@ -118,7 +118,8 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds, ctx.outputProperties());
+        return DrawWithFP(context, std::move(fp), bounds,
+                          ctx.outputProperties(), inputProxy->isProtected());
     }
 #endif
 
