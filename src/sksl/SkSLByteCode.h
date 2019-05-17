@@ -22,6 +22,9 @@ struct FunctionDeclaration;
 #define VECTOR(name) name, name ## 2, name ## 3, name ## 4
 enum class ByteCodeInstruction : uint8_t {
     kInvalid,
+    kNop1,
+    kNop2,
+    kNop3,
     // B = bool, F = float, I = int, S = signed, U = unsigned
     VECTOR(kAddF),
     VECTOR(kAddI),
