@@ -19,13 +19,20 @@
 
 // Draws the image to a surface, does a asyncRescaleAndReadPixels of the image, and then sticks
 // the result in a raster image.
-static sk_sp<SkImage> do_read_and_scale(SkSurface* surface, const SkIRect& srcRect,
-                                        const SkImageInfo& ii, SkSurface::RescaleGamma rescaleGamma,
-                                        SkFilterQuality quality) {
+static sk_sp<SkImage> do_read_and_scale(
+        SkImage* image, const SkIRect& srcRect, const SkImageInfo& ii,
+        SkSurface::RescaleGamma rescaleGamma, SkFilterQuality quality,
+        std::function<sk_sp<SkSurface>(const SkImageInfo&)> makeSurface) {
     SkBitmap bmp;
     bmp.allocPixels(ii);
+    // Turn the image into a surface in order to call the read and rescale API
+    auto surf = makeSurface(image->imageInfo().makeWH(image->width(), image->height()));
+    if (!surf) {
+        return nullptr;
+    }
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
+    surf->getCanvas()->drawImage(image, 0, 0, &paint);
     struct Context {
         SkPixmap fPixmap;
         bool fCalled = false;
@@ -41,66 +48,52 @@ static sk_sp<SkImage> do_read_and_scale(SkSurface* surface, const SkIRect& srcRe
         SkRectMemcpy(context->fPixmap.writable_addr(), context->fPixmap.rowBytes(), data, rowBytes,
                      context->fPixmap.info().minRowBytes(), context->fPixmap.height());
     };
-    surface->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, quality, callback, &context);
+    surf->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, quality, callback, &context);
     while (!context.fCalled) {
         // Only GPU should actually be asynchronous.
-        SkASSERT(surface->getCanvas()->getGrContext());
-        surface->getCanvas()->getGrContext()->checkAsyncWorkCompletion();
+        SkASSERT(surf->getCanvas()->getGrContext());
+        surf->getCanvas()->getGrContext()->checkAsyncWorkCompletion();
     }
     return SkImage::MakeFromBitmap(bmp);
 }
 
 // Draws a grid of rescales. The columns are none, low, and high filter quality. The rows are
 // rescale in src gamma and rescale in linear gamma.
-static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas, SkSurface* surface,
+static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas, const char* imageFile,
                                           const SkIRect& srcRect, int newW, int newH,
-                                          SkString* errorMsg, int pad = 0) {
+                                          SkString* errorMsg) {
     if (canvas->imageInfo().colorType() == kUnknown_SkColorType) {
         *errorMsg = "Not supported on recording/vector backends.";
         return skiagm::DrawResult::kSkip;
     }
-    const auto ii = canvas->imageInfo().makeWH(newW, newH);
-
-    canvas->save();
-    for (auto linear : {SkSurface::RescaleGamma::kSrc, SkSurface::RescaleGamma::kLinear}) {
-        canvas->save();
-        for (auto quality : {kNone_SkFilterQuality, kLow_SkFilterQuality, kHigh_SkFilterQuality}) {
-            auto rescaled = do_read_and_scale(surface, srcRect, ii, linear, quality);
-            canvas->drawImage(rescaled, 0, 0);
-            canvas->translate(newW + pad, 0);
-        }
-        canvas->restore();
-        canvas->translate(0, newH + pad);
-    }
-    canvas->restore();
-    return skiagm::DrawResult::kOk;
-}
-
-static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas, const char* imageFile,
-                                                const SkIRect& srcRect, int newW, int newH,
-                                                SkString* errorMsg) {
     auto image = GetResourceAsImage(imageFile);
     if (!image) {
         errorMsg->printf("Could not load image file %s.", imageFile);
         return skiagm::DrawResult::kFail;
     }
-    if (canvas->imageInfo().colorType() == kUnknown_SkColorType) {
-        *errorMsg = "Not supported on recording/vector backends.";
-        return skiagm::DrawResult::kSkip;
+    const auto ii = canvas->imageInfo().makeWH(newW, newH);
+    auto makeSurface = [canvas](const SkImageInfo& info) { return canvas->makeSurface(info); };
+
+    canvas->save();
+    for (auto linear : {SkSurface::RescaleGamma::kSrc, SkSurface::RescaleGamma::kLinear}) {
+        canvas->save();
+        for (auto quality : {kNone_SkFilterQuality, kLow_SkFilterQuality, kHigh_SkFilterQuality}) {
+            auto rescaled =
+                    do_read_and_scale(image.get(), srcRect, ii, linear, quality, makeSurface);
+            canvas->drawImage(rescaled, 0, 0);
+            canvas->translate(newW, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, newH);
     }
-    // Turn the image into a surface in order to call the read and rescale API
-    auto surface = canvas->makeSurface(image->imageInfo().makeWH(image->width(), image->height()));
-    if (!surface) {
-        *errorMsg = "Could not create surface for image.";
-        return skiagm::DrawResult::kFail;
-    }
-    return do_rescale_grid(canvas, surface.get(), srcRect, newW, newH, errorMsg);
+    canvas->restore();
+    return skiagm::DrawResult::kOk;
 }
 
 #define DEF_RESCALE_AND_READ_GM(IMAGE_FILE, TAG, SRC_RECT, W, H)                           \
     DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_##TAG, canvas, errorMsg, 3 * W, 2 * H) { \
         ToolUtils::draw_checkerboard(canvas, SK_ColorDKGRAY, SK_ColorLTGRAY, 25);          \
-        return do_rescale_image_grid(canvas, #IMAGE_FILE, SRC_RECT, W, H, errorMsg);       \
+        return do_rescale_grid(canvas, #IMAGE_FILE, SRC_RECT, W, H, errorMsg);             \
     }
 
 DEF_RESCALE_AND_READ_GM(images/yellow_rose.webp, rose, SkIRect::MakeXYWH(100, 20, 100, 100),
@@ -115,40 +108,3 @@ DEF_RESCALE_AND_READ_GM(images/text.png, text_up, SkIRect::MakeWH(637, 105), (in
                         (int)(1.2 * 105))
 DEF_RESCALE_AND_READ_GM(images/text.png, text_up_large, SkIRect::MakeXYWH(300, 0, 300, 105),
                         (int)(2.4 * 300), (int)(2.4 * 105))
-
-DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60) {
-    if (canvas->imageInfo().colorType() == kUnknown_SkColorType) {
-        *errorMsg = "Not supported on recording/vector backends.";
-        return skiagm::DrawResult::kSkip;
-    }
-
-    static constexpr int kBorder = 5;
-    static constexpr int kInner = 5;
-    const auto srcRect = SkIRect::MakeXYWH(kBorder, kBorder, kInner, kInner);
-    auto surfaceII =
-            SkImageInfo::Make(kInner + 2 * kBorder, kInner + 2 * kBorder, kRGBA_8888_SkColorType,
-                              kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
-    auto surface = canvas->makeSurface(surfaceII);
-    surface->getCanvas()->clear(SK_ColorRED);
-    surface->getCanvas()->save();
-    surface->getCanvas()->clipRect(SkRect::Make(srcRect), SkClipOp::kIntersect, false);
-    surface->getCanvas()->clear(SK_ColorBLUE);
-    surface->getCanvas()->restore();
-    static constexpr int kPad = 2;
-    canvas->translate(kPad, kPad);
-    skiagm::DrawResult result;
-    auto downW = static_cast<int>(kInner / 2);
-    auto downH = static_cast<int>(kInner / 2);
-    result = do_rescale_grid(canvas, surface.get(), srcRect, downW, downH, errorMsg, kPad);
-    if (result != skiagm::DrawResult::kOk) {
-        return result;
-    }
-    canvas->translate(0, 2 * downH);
-    auto upW = static_cast<int>(kInner * 3.5);
-    auto upH = static_cast<int>(kInner * 4.6);
-    result = do_rescale_grid(canvas, surface.get(), srcRect, upW, upH, errorMsg, kPad);
-    if (result != skiagm::DrawResult::kOk) {
-        return result;
-    }
-    return skiagm::DrawResult::kOk;
-}
