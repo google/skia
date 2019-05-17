@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb79564f_7c8d2d3b",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-17T19:41:19Z",
+      "side": 1,
+      "message": "We probably also want to switch to a fall through based implementation for everything that\u0027s calling memcpy() with a non-constant last argument.  Those won\u0027t be inlined into simple copy instructions... they\u0027ll always be calls out.",
+      "range": {
+        "startLine": 360,
+        "startChar": 16,
+        "endLine": 360,
+        "endChar": 22
+      },
+      "revId": "348594c1aa1462a27ae83e3f36f4e446737119ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
