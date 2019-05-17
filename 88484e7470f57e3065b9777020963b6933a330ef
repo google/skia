@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "024588eb_e57ba7aa",
+        "filename": "include/private/GrRecordingContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-17T14:48:53Z",
+      "side": 1,
+      "message": "Sorry this took me some time to re-wrap my head around which calls we need, but I think the last thing we are missing is handling of blurs and image filters which create offscreens. The main entry points for those are the makeDeferredRenderTargetContext here and the makeDeferredRenderTargetContextWithFallback bellow. I think you just need to see where each of these are called, sadly there are a good amount :(, and update them to use protected if the src is also protected.\n\nLet me know if you need any more guidance on this part, but I do believe this should be the last thing we are missing.",
+      "range": {
+        "startLine": 74,
+        "startChar": 33,
+        "endLine": 74,
+        "endChar": 64
+      },
+      "revId": "88484e7470f57e3065b9777020963b6933a330ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
