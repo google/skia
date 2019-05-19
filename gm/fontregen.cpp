@@ -13,18 +13,28 @@
 // and then enough new large text to spill the entire atlas. What *should* happen is that
 // the Plot with the first set of text will not get overwritten by the new large text.
 
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkTemplates.h"
+#include "src/gpu/GrContextPriv.h"
+#include "tools/ToolUtils.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrContextOptions.h"
-#include "SkCanvas.h"
-#include "SkGraphics.h"
-#include "SkImage.h"
-#include "SkTypeface.h"
-#include "gm.h"
-
-#include "ToolUtils.h"
+class GrRenderTargetContext;
 
 static sk_sp<SkTextBlob> make_blob(const SkString& text, const SkFont& font) {
     size_t len = text.size();

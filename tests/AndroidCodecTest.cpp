@@ -5,25 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkAndroidCodec.h"
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkCodecImageGenerator.h"
-#include "SkColor.h"
-#include "SkData.h"
-#include "SkEncodedImageFormat.h"
-#include "SkImageGenerator.h"
-#include "SkImageInfo.h"
-#include "SkPixmapPriv.h"
-#include "SkRefCnt.h"
-#include "SkSize.h"
-#include "SkString.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/third_party/skcms/skcms.h"
+#include "src/codec/SkCodecImageGenerator.h"
+#include "src/core/SkPixmapPriv.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
 
-#include <algorithm>
+#include <string.h>
+#include <initializer_list>
 #include <memory>
+#include <utility>
 
 static SkISize times(const SkISize& size, float factor) {
     return { (int) (size.width() * factor), (int) (size.height() * factor) };

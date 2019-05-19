@@ -6,23 +6,23 @@
  * found in the LICENSE file.
  */
 
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "gl/GLTestContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "tools/gpu/GrContextFactory.h"
+#include "tools/gpu/gl/GLTestContext.h"
 
 #if SK_ANGLE
-    #include "gl/angle/GLTestContext_angle.h"
+    #include "tools/gpu/gl/angle/GLTestContext_angle.h"
 #endif
-#include "gl/command_buffer/GLTestContext_command_buffer.h"
+#include "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.h"
 #ifdef SK_VULKAN
-#include "vk/VkTestContext.h"
+#include "tools/gpu/vk/VkTestContext.h"
 #endif
 #ifdef SK_METAL
-#include "mtl/MtlTestContext.h"
+#include "tools/gpu/mtl/MtlTestContext.h"
 #endif
-#include "gl/GrGLGpu.h"
-#include "mock/MockTestContext.h"
-#include "GrCaps.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "tools/gpu/mock/MockTestContext.h"
 
 #if defined(SK_BUILD_FOR_WIN) && defined(SK_ENABLE_DISCRETE_GPU)
 extern "C" {

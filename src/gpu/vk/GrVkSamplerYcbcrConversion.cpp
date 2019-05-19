@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkSamplerYcbcrConversion.h"
+#include "src/gpu/vk/GrVkSamplerYcbcrConversion.h"
 
-#include "GrVkGpu.h"
+#include "src/gpu/vk/GrVkGpu.h"
 
 GrVkSamplerYcbcrConversion* GrVkSamplerYcbcrConversion::Create(
         const GrVkGpu* gpu, const GrVkYcbcrConversionInfo& info) {

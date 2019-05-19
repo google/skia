@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "VkTestContext.h"
+#include "tools/gpu/vk/VkTestContext.h"
 
 #ifdef SK_VULKAN
 
-#include "GrContext.h"
-#include "VkTestUtils.h"
-#include "vk/GrVkExtensions.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/vk/GrVkExtensions.h"
+#include "tools/gpu/vk/VkTestUtils.h"
 
 namespace {
 

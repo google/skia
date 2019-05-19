@@ -8,7 +8,7 @@
 #ifndef SkCanvasPriv_DEFINED
 #define SkCanvasPriv_DEFINED
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;
@@ -42,6 +42,9 @@ public:
 
     static int SaveBehind(SkCanvas* canvas, const SkRect* subset) {
         return canvas->only_axis_aligned_saveBehind(subset);
+    }
+    static void DrawBehind(SkCanvas* canvas, const SkPaint& paint) {
+        canvas->drawClippedToSaveBehind(paint);
     }
 
     // The experimental_DrawEdgeAAImageSet API accepts separate dstClips and preViewMatrices arrays,

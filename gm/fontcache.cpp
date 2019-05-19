@@ -8,23 +8,31 @@
 // GM to stress the GPU font cache
 // It's not necessary to run this with CPU configs
 
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrContextPriv.h"
+#include "tools/ToolUtils.h"
 
-#include "GrContext.h"
-#include "GrContextOptions.h"
-#include "GrContextPriv.h"
-#include "SkCanvas.h"
-#include "SkGraphics.h"
-#include "SkImage.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+class GrRenderTargetContext;
 
 static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
                            SkScalar y, const SkFont& font) {
     SkPaint paint;
     canvas->drawString(text, x, y, font, paint);
-    return x + font.measureText(text.c_str(), text.size(), kUTF8_SkTextEncoding);
+    return x + font.measureText(text.c_str(), text.size(), SkTextEncoding::kUTF8);
 }
 
 class FontCacheGM : public skiagm::GpuGM {

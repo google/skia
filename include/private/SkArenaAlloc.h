@@ -8,7 +8,7 @@
 #ifndef SkArenaAlloc_DEFINED
 #define SkArenaAlloc_DEFINED
 
-#include "../private/SkTFitsIn.h"
+#include "include/private/SkTFitsIn.h"
 
 #include <cassert>
 #include <cstddef>

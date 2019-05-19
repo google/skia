@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpaceXformSteps.h"
-#include "SkColorSpacePriv.h"
-#include "SkRasterPipeline.h"
-#include "../../third_party/skcms/skcms.h"
+#include "include/third_party/skcms/skcms.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkRasterPipeline.h"
 
 // TODO(mtklein): explain the logic of this file
 
@@ -158,7 +158,7 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
                    srcTF.d == 0 &&
                    srcTF.e == 0 &&
                    srcTF.f == 0) {
-            p->append(SkRasterPipeline::gamma, &srcTF.g);
+            p->append(SkRasterPipeline::gamma_, &srcTF.g);
         } else {
             p->append(SkRasterPipeline::parametric, &srcTF);
         }
@@ -175,7 +175,7 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
                    dstTFInv.d == 0 &&
                    dstTFInv.e == 0 &&
                    dstTFInv.f == 0) {
-            p->append(SkRasterPipeline::gamma, &dstTFInv.g);
+            p->append(SkRasterPipeline::gamma_, &dstTFInv.g);
         } else {
             p->append(SkRasterPipeline::parametric, &dstTFInv);
         }

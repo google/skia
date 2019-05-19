@@ -8,12 +8,12 @@
 #ifndef GrCCPathCache_DEFINED
 #define GrCCPathCache_DEFINED
 
-#include "GrShape.h"
-#include "SkExchange.h"
-#include "SkTHash.h"
-#include "SkTInternalLList.h"
-#include "ccpr/GrCCAtlas.h"
-#include "ccpr/GrCCPathProcessor.h"
+#include "include/private/SkTHash.h"
+#include "include/private/SkTInternalLList.h"
+#include "src/core/SkExchange.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/ccpr/GrCCAtlas.h"
+#include "src/gpu/ccpr/GrCCPathProcessor.h"
 
 class GrCCPathCacheEntry;
 class GrShape;
@@ -229,9 +229,9 @@ public:
     // Called once our path has been rendered into the mainline CCPR (fp16, coverage count) atlas.
     // The caller will stash this atlas texture away after drawing, and during the next flush,
     // recover it and attempt to copy any paths that got reused into permanent 8-bit atlases.
-    void setCoverageCountAtlas(GrOnFlushResourceProvider*, GrCCAtlas*, const SkIVector& atlasOffset,
-                               const SkRect& devBounds, const SkRect& devBounds45,
-                               const SkIRect& devIBounds, const SkIVector& maskShift);
+    void setCoverageCountAtlas(
+            GrOnFlushResourceProvider*, GrCCAtlas*, const SkIVector& atlasOffset,
+            const GrOctoBounds& octoBounds, const SkIRect& devIBounds, const SkIVector& maskShift);
 
     // Called once our path mask has been copied into a permanent, 8-bit atlas. This method points
     // the entry at the new atlas and updates the GrCCCCachedAtlas data.
@@ -260,8 +260,7 @@ private:
     SkIVector fAtlasOffset;
 
     MaskTransform fMaskTransform;
-    SkRect fDevBounds;
-    SkRect fDevBounds45;
+    GrOctoBounds fOctoBounds;
     SkIRect fDevIBounds;
 
     int fOnFlushRefCnt = 0;
@@ -363,8 +362,8 @@ inline void GrCCPathProcessor::Instance::set(const GrCCPathCacheEntry& entry,
                                              const SkIVector& shift, uint64_t color,
                                              DoEvenOddFill doEvenOddFill) {
     float dx = (float)shift.fX, dy = (float)shift.fY;
-    this->set(entry.fDevBounds.makeOffset(dx, dy), MakeOffset45(entry.fDevBounds45, dx, dy),
-              entry.fAtlasOffset - shift, color, doEvenOddFill);
+    this->set(
+            entry.fOctoBounds.makeOffset(dx, dy), entry.fAtlasOffset - shift, color, doEvenOddFill);
 }
 
 #endif

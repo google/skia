@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "Resources.h"
-#include "SkBlurImageFilter.h"
-#include "SkCanvas.h"
-#include "SkDisplacementMapEffect.h"
-#include "SkImage.h"
-#include "SkMergeImageFilter.h"
-#include "SkOffsetImageFilter.h"
-#include "SkXfermodeImageFilter.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkDisplacementMapEffect.h"
+#include "include/effects/SkMergeImageFilter.h"
+#include "include/effects/SkOffsetImageFilter.h"
+#include "include/effects/SkXfermodeImageFilter.h"
+#include "tools/Resources.h"
 
 // Exercise a blur filter connected to 5 inputs of the same merge filter.
 // This bench shows an improvement in performance once cacheing of re-used

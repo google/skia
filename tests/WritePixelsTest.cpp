@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkColorData.h"
-#include "SkImageInfoPriv.h"
-#include "SkMathPriv.h"
-#include "SkSurface.h"
-#include "Test.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkMathPriv.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrProxyProvider.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrProxyProvider.h"
 
 #include <initializer_list>
 
@@ -273,7 +273,7 @@ static bool check_write(skiatest::Reporter* reporter, SkSurface* surf, SkAlphaTy
     return true;
 }
 
-#include "SkMallocPixelRef.h"
+#include "include/core/SkMallocPixelRef.h"
 
 // This is a tricky pattern, because we have to setConfig+rowBytes AND specify
 // a custom pixelRef (which also has to specify its rowBytes), so we have to be
@@ -450,13 +450,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsMSAA_Gpu, reporter, ctxInfo) {
     test_write_pixels(reporter, ctxInfo.grContext(), 1);
 }
 
-static void test_write_pixels_non_texture(skiatest::Reporter* reporter, GrContext* context,
+static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
+                                          GrContext* context,
                                           int sampleCnt) {
-    GrGpu* gpu = context->priv().getGpu();
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, DEV_W, DEV_H, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+        GrBackendTexture backendTex = context->priv().createBackendTexture(
+                DEV_W, DEV_H, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes);
         if (!backendTex.isValid()) {
             continue;
         }
@@ -467,7 +467,7 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter, GrContex
             auto ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
             test_write_pixels(reporter, surface.get(), ii);
         }
-        gpu->deleteTestingOnlyBackendTexture(backendTex);
+        context->priv().deleteBackendTexture(backendTex);
     }
 }
 
@@ -532,8 +532,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
             context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
         sk_sp<GrTextureProxy> temp = proxyProvider->createProxy(
-                format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes,
-                GrInternalSurfaceFlags::kNoPendingIO);
+                format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
         temp->instantiate(context->priv().resourceProvider());
     }
 

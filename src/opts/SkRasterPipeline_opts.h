@@ -8,7 +8,7 @@
 #ifndef SkRasterPipeline_opts_DEFINED
 #define SkRasterPipeline_opts_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 // Every function in this file should be marked static and inline using SI.
 #if defined(__clang__)
@@ -1562,7 +1562,7 @@ STAGE(parametric, const skcms_TransferFunction* ctx) {
     b = fn(b);
 }
 
-STAGE(gamma, const float* G) {
+STAGE(gamma_, const float* G) {
     auto fn = [&](F v) {
         U32 sign;
         v = strip_sign(v, &sign);
@@ -1903,10 +1903,10 @@ STAGE(matrix_3x4, const float* m) {
     b = B;
 }
 STAGE(matrix_4x5, const float* m) {
-    auto R = mad(r,m[0], mad(g,m[4], mad(b,m[ 8], mad(a,m[12], m[16])))),
-         G = mad(r,m[1], mad(g,m[5], mad(b,m[ 9], mad(a,m[13], m[17])))),
-         B = mad(r,m[2], mad(g,m[6], mad(b,m[10], mad(a,m[14], m[18])))),
-         A = mad(r,m[3], mad(g,m[7], mad(b,m[11], mad(a,m[15], m[19]))));
+    auto R = mad(r,m[ 0], mad(g,m[ 1], mad(b,m[ 2], mad(a,m[ 3], m[ 4])))),
+         G = mad(r,m[ 5], mad(g,m[ 6], mad(b,m[ 7], mad(a,m[ 8], m[ 9])))),
+         B = mad(r,m[10], mad(g,m[11], mad(b,m[12], mad(a,m[13], m[14])))),
+         A = mad(r,m[15], mad(g,m[16], mad(b,m[17], mad(a,m[18], m[19]))));
     r = R;
     g = G;
     b = B;
@@ -3413,7 +3413,7 @@ STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     NOT_IMPLEMENTED(matrix_4x5)  // TODO
     NOT_IMPLEMENTED(matrix_4x3)  // TODO
     NOT_IMPLEMENTED(parametric)
-    NOT_IMPLEMENTED(gamma)
+    NOT_IMPLEMENTED(gamma_)
     NOT_IMPLEMENTED(rgb_to_hsl)
     NOT_IMPLEMENTED(hsl_to_rgb)
     NOT_IMPLEMENTED(gauss_a_to_rgba)  // TODO

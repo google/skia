@@ -8,7 +8,7 @@
 #ifndef SkWebpEncoder_DEFINED
 #define SkWebpEncoder_DEFINED
 
-#include "SkEncoder.h"
+#include "include/encode/SkEncoder.h"
 
 class SkWStream;
 

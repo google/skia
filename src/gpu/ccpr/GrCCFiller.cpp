@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCFiller.h"
+#include "src/gpu/ccpr/GrCCFiller.h"
 
-#include "GrCaps.h"
-#include "GrGpuCommandBuffer.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrOpFlushState.h"
-#include "SkMathPriv.h"
-#include "SkPath.h"
-#include "SkPathPriv.h"
-#include "SkPoint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkPathPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrOpFlushState.h"
 #include <stdlib.h>
 
 using TriPointInstance = GrCCCoverageProcessor::TriPointInstance;
@@ -315,7 +315,7 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     // QuadPointInstance[]. So, reinterpreting the instance data as QuadPointInstance[], we start
     // them on the first index that will not overwrite previous TriPointInstance data.
     int quadBaseIdx =
-            GR_CT_DIV_ROUND_UP(triEndIdx * sizeof(TriPointInstance), sizeof(QuadPointInstance));
+            GrSizeDivRoundUp(triEndIdx * sizeof(TriPointInstance), sizeof(QuadPointInstance));
     fBaseInstances[0].fWeightedTriangles = quadBaseIdx;
     fBaseInstances[1].fWeightedTriangles = fBaseInstances[0].fWeightedTriangles +
                                         fTotalPrimitiveCounts[0].fWeightedTriangles;

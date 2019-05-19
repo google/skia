@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFDocument.h"
-#include "SkPDFDocumentPriv.h"
+#include "include/docs/SkPDFDocument.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
 
-#include "SkMakeUnique.h"
-#include "SkPDFDevice.h"
-#include "SkPDFDocument.h"
-#include "SkPDFFont.h"
-#include "SkPDFGradientShader.h"
-#include "SkPDFGraphicState.h"
-#include "SkPDFShader.h"
-#include "SkPDFTag.h"
-#include "SkPDFUtils.h"
-#include "SkStream.h"
-#include "SkTo.h"
+#include "include/core/SkStream.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/pdf/SkPDFDevice.h"
+#include "src/pdf/SkPDFFont.h"
+#include "src/pdf/SkPDFGradientShader.h"
+#include "src/pdf/SkPDFGraphicState.h"
+#include "src/pdf/SkPDFShader.h"
+#include "src/pdf/SkPDFTag.h"
+#include "src/pdf/SkPDFUtils.h"
 
 #include <utility>
 
@@ -206,20 +206,19 @@ SkPDFDocument::~SkPDFDocument() {
 }
 
 SkPDFIndirectReference SkPDFDocument::emit(const SkPDFObject& object, SkPDFIndirectReference ref){
+    SkAutoMutexExclusive lock(fMutex);
     object.emitObject(this->beginObject(ref));
     this->endObject();
     return ref;
 }
 
-SkWStream* SkPDFDocument::beginObject(SkPDFIndirectReference ref) {
-    fMutex.acquire();
+SkWStream* SkPDFDocument::beginObject(SkPDFIndirectReference ref) SK_REQUIRES(fMutex) {
     begin_indirect_object(&fOffsetMap, ref, this->getStream());
     return this->getStream();
 };
 
-void SkPDFDocument::endObject() {
+void SkPDFDocument::endObject() SK_REQUIRES(fMutex) {
     end_indirect_object(this->getStream());
-    fMutex.release();
 };
 
 static SkSize operator*(SkISize u, SkScalar s) { return SkSize{u.width() * s, u.height() * s}; }
@@ -230,7 +229,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
     if (fPages.empty()) {
         // if this is the first page if the document.
         {
-            SkAutoMutexAcquire autoMutexAcquire(fMutex);
+            SkAutoMutexExclusive autoMutexAcquire(fMutex);
             serializeHeader(&fOffsetMap, this->getStream());
 
         }
@@ -557,7 +556,7 @@ void SkPDFDocument::onClose(SkWStream* stream) {
 
     this->waitForJobs();
     {
-        SkAutoMutexAcquire autoMutexAcquire(fMutex);
+        SkAutoMutexExclusive autoMutexAcquire(fMutex);
         serialize_footer(fOffsetMap, this->getStream(), fInfoDict, docCatalogRef, fUUID);
     }
 }

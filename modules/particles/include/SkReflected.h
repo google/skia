@@ -8,9 +8,9 @@
 #ifndef SkReflected_DEFINED
 #define SkReflected_DEFINED
 
-#include "SkColor.h"
-#include "SkRefCnt.h"
-#include "SkTArray.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTArray.h"
 
 #include <string.h>
 

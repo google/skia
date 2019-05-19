@@ -4,13 +4,27 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include <SkFont.h>
-#include "gm.h"
-#include "Resources.h"
-#include "SkFixed.h"
-#include "SkFontDescriptor.h"
-#include "SkFontMgr.h"
-#include "SkTypeface.h"
+
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontArguments.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "tools/Resources.h"
+
+#include <string.h>
+#include <memory>
+#include <utility>
 
 namespace skiagm {
 
@@ -82,12 +96,13 @@ protected:
 
                 for (int ps = 6; ps <= 22; ps++) {
                     font.setSize(SkIntToScalar(ps));
-                    canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, x, y, font, paint);
+                    canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, x, y, font, paint);
                     y += font.getMetrics(nullptr);
                 }
             }
             canvas->translate(0, SkIntToScalar(360));
             font.setSubpixel(true);
+            font.setLinearMetrics(true);
         }
         return DrawResult::kOk;
     }

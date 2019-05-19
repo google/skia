@@ -5,45 +5,45 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkArithmeticImageFilter.h"
-#include "SkBitmap.h"
-#include "SkBlurImageFilter.h"
-#include "SkCanvas.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkColorMatrixFilter.h"
-#include "SkComposeImageFilter.h"
-#include "SkDisplacementMapEffect.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkImageFilterPriv.h"
-#include "SkImageSource.h"
-#include "SkLightingImageFilter.h"
-#include "SkMatrixConvolutionImageFilter.h"
-#include "SkMergeImageFilter.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkOffsetImageFilter.h"
-#include "SkPaintImageFilter.h"
-#include "SkPerlinNoiseShader.h"
-#include "SkPicture.h"
-#include "SkPictureImageFilter.h"
-#include "SkPictureRecorder.h"
-#include "SkPoint3.h"
-#include "SkReadBuffer.h"
-#include "SkRect.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
-#include "SkSurface.h"
-#include "SkTableColorFilter.h"
-#include "SkTileImageFilter.h"
-#include "SkXfermodeImageFilter.h"
-#include "Test.h"
-#include "ToolUtils.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkArithmeticImageFilter.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/effects/SkComposeImageFilter.h"
+#include "include/effects/SkDisplacementMapEffect.h"
+#include "include/effects/SkDropShadowImageFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkLightingImageFilter.h"
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/effects/SkMergeImageFilter.h"
+#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkOffsetImageFilter.h"
+#include "include/effects/SkPaintImageFilter.h"
+#include "include/effects/SkPerlinNoiseShader.h"
+#include "include/effects/SkPictureImageFilter.h"
+#include "include/effects/SkTableColorFilter.h"
+#include "include/effects/SkTileImageFilter.h"
+#include "include/effects/SkXfermodeImageFilter.h"
+#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkSpecialSurface.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
 
 static const int kBitmapSize = 4;
 
@@ -339,24 +339,24 @@ static sk_sp<SkImage> make_small_image() {
 }
 
 static sk_sp<SkImageFilter> make_scale(float amount, sk_sp<SkImageFilter> input) {
-    SkScalar s = amount;
-    SkScalar matrix[20] = { s, 0, 0, 0, 0,
-                            0, s, 0, 0, 0,
-                            0, 0, s, 0, 0,
-                            0, 0, 0, s, 0 };
-    sk_sp<SkColorFilter> filter(SkColorFilters::MatrixRowMajor255(matrix));
+    float s = amount;
+    float matrix[20] = { s, 0, 0, 0, 0,
+                         0, s, 0, 0, 0,
+                         0, 0, s, 0, 0,
+                         0, 0, 0, s, 0 };
+    sk_sp<SkColorFilter> filter(SkColorFilters::Matrix(matrix));
     return SkColorFilterImageFilter::Make(std::move(filter), std::move(input));
 }
 
 static sk_sp<SkImageFilter> make_grayscale(sk_sp<SkImageFilter> input,
                                            const SkImageFilter::CropRect* cropRect) {
-    SkScalar matrix[20];
-    memset(matrix, 0, 20 * sizeof(SkScalar));
+    float matrix[20];
+    memset(matrix, 0, 20 * sizeof(float));
     matrix[0] = matrix[5] = matrix[10] = 0.2126f;
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    sk_sp<SkColorFilter> filter(SkColorFilters::MatrixRowMajor255(matrix));
+    sk_sp<SkColorFilter> filter(SkColorFilters::Matrix(matrix));
     return SkColorFilterImageFilter::Make(std::move(filter), std::move(input), cropRect);
 }
 
@@ -454,14 +454,14 @@ DEF_TEST(ImageFilter, reporter) {
     {
         // Check that two non-commutative matrices are concatenated in
         // the correct order.
-        SkScalar blueToRedMatrix[20] = { 0 };
-        blueToRedMatrix[2] = blueToRedMatrix[18] = SK_Scalar1;
-        SkScalar redToGreenMatrix[20] = { 0 };
-        redToGreenMatrix[5] = redToGreenMatrix[18] = SK_Scalar1;
-        sk_sp<SkColorFilter> blueToRed(SkColorFilters::MatrixRowMajor255(blueToRedMatrix));
+        float blueToRedMatrix[20] = { 0 };
+        blueToRedMatrix[2] = blueToRedMatrix[18] = 1;
+        float redToGreenMatrix[20] = { 0 };
+        redToGreenMatrix[5] = redToGreenMatrix[18] = 1;
+        sk_sp<SkColorFilter> blueToRed(SkColorFilters::Matrix(blueToRedMatrix));
         sk_sp<SkImageFilter> filter1(SkColorFilterImageFilter::Make(std::move(blueToRed),
                                                                     nullptr));
-        sk_sp<SkColorFilter> redToGreen(SkColorFilters::MatrixRowMajor255(redToGreenMatrix));
+        sk_sp<SkColorFilter> redToGreen(SkColorFilters::Matrix(redToGreenMatrix));
         sk_sp<SkImageFilter> filter2(SkColorFilterImageFilter::Make(std::move(redToGreen),
                                                                     std::move(filter1)));
 
@@ -1557,11 +1557,12 @@ DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
     }
 
     {
-        SkScalar greenMatrix[20] = { 0, 0, 0, 0, 0,
-                                     0, 0, 0, 0, 1,
-                                     0, 0, 0, 0, 0,
-                                     0, 0, 0, 0, 1 };
-        sk_sp<SkColorFilter> greenCF(SkColorFilters::MatrixRowMajor255(greenMatrix));
+        float greenMatrix[20] = { 0, 0, 0, 0, 0,
+                                  0, 0, 0, 0, 1.0f/255,
+                                  0, 0, 0, 0, 0,
+                                  0, 0, 0, 0, 1.0f/255
+        };
+        sk_sp<SkColorFilter> greenCF(SkColorFilters::Matrix(greenMatrix));
         sk_sp<SkImageFilter> green(SkColorFilterImageFilter::Make(greenCF, nullptr));
 
         REPORTER_ASSERT(reporter, greenCF->affectsTransparentBlack());

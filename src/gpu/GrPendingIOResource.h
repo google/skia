@@ -8,9 +8,9 @@
 #ifndef GrPendingIOResource_DEFINED
 #define GrPendingIOResource_DEFINED
 
-#include "GrGpuResource.h"
-#include "SkNoncopyable.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrGpuResource.h"
+#include "include/private/SkNoncopyable.h"
 
 /**
  * Helper for owning a pending read, write, read-write on a GrGpuResource. It never owns a regular

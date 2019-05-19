@@ -8,8 +8,8 @@
 #ifndef SkTTCFHeader_DEFINED
 #define SkTTCFHeader_DEFINED
 
-#include "SkOTTableTypes.h"
-#include "SkSFNTHeader.h"
+#include "src/sfnt/SkOTTableTypes.h"
+#include "src/sfnt/SkSFNTHeader.h"
 
 #pragma pack(push, 1)
 

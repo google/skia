@@ -7,6 +7,7 @@ DEPS = [
   'checkout',
   'recipe_engine/file',
   'recipe_engine/path',
+  'recipe_engine/platform',
   'recipe_engine/properties',
   'run',
   'vars',
@@ -62,7 +63,7 @@ TEST_BUILDERS = [
 
 def GenTests(api):
   for buildername in TEST_BUILDERS:
-    yield (
+    test = (
         api.test(buildername) +
         api.properties(buildername=buildername,
                        repository='https://skia.googlesource.com/skia.git',
@@ -70,6 +71,9 @@ def GenTests(api):
                        path_config='kitchen',
                        swarm_out_dir='[SWARM_OUT_DIR]')
     )
+    if 'Win' in buildername and not 'LenovoYogaC630' in buildername:
+      test += api.platform('win', 64)
+    yield test
 
   buildername = 'Build-Win-Clang-x86_64-Release-ParentRevision'
   yield (
@@ -83,7 +87,8 @@ def GenTests(api):
                      patch_set=12,
                      patch_ref='refs/changes/89/456789/12',
                      patch_repo='https://skia.googlesource.com/skia.git',
-                     patch_storage='gerrit')
+                     patch_storage='gerrit') +
+      api.platform('win', 64)
   )
 
   buildername = 'Build-Debian9-Clang-arm-Release-Flutter_Android'

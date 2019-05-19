@@ -5,23 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkOverdrawCanvas.h"
+#include "include/core/SkOverdrawCanvas.h"
 
-#include "SkColorFilter.h"
-#include "SkDevice.h"
-#include "SkDrawShadowInfo.h"
-#include "SkDrawable.h"
-#include "SkGlyphRunPainter.h"
-#include "SkImagePriv.h"
-#include "SkLatticeIter.h"
-#include "SkPatchUtils.h"
-#include "SkPath.h"
-#include "SkRRect.h"
-#include "SkRSXform.h"
-#include "SkStrikeCache.h"
-#include "SkTextBlob.h"
-#include "SkTextBlobPriv.h"
-#include "SkTo.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkTextBlob.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkImagePriv.h"
+#include "src/core/SkLatticeIter.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/core/SkTextBlobPriv.h"
+#include "src/utils/SkPatchUtils.h"
 
 SkOverdrawCanvas::SkOverdrawCanvas(SkCanvas* canvas)
     : INHERITED(canvas->onImageInfo().width(), canvas->onImageInfo().height())
@@ -34,12 +34,12 @@ SkOverdrawCanvas::SkOverdrawCanvas(SkCanvas* canvas)
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 0.0f, 0.0f, 1.0f/255,
     };
 
     fPaint.setAntiAlias(false);
     fPaint.setBlendMode(SkBlendMode::kPlus);
-    fPaint.setColorFilter(SkColorFilters::MatrixRowMajor255(kIncrementAlpha));
+    fPaint.setColorFilter(SkColorFilters::Matrix(kIncrementAlpha));
 }
 
 namespace {
@@ -92,6 +92,10 @@ void SkOverdrawCanvas::onDrawPaint(const SkPaint& paint) {
     } else {
         fList[0]->onDrawPaint(this->overdrawPaint(paint));
     }
+}
+
+void SkOverdrawCanvas::onDrawBehind(const SkPaint& paint) {
+    fList[0]->onDrawBehind(this->overdrawPaint(paint));
 }
 
 void SkOverdrawCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {

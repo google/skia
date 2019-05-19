@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/utils/SkRandom.h"
 
 #define SMALL   SkIntToScalar(2)
 #define REAL    1.5f

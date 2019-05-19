@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkEdgeClipper.h"
-#include "SkGeometry.h"
-#include "SkLineClipper.h"
-#include "SkMacros.h"
+#include "include/private/SkMacros.h"
+#include "src/core/SkEdgeClipper.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkLineClipper.h"
 
 #include <utility>
 

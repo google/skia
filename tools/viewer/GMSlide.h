@@ -8,8 +8,8 @@
 #ifndef GMSlide_DEFINED
 #define GMSlide_DEFINED
 
-#include "Slide.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "tools/viewer/Slide.h"
 
 class GMSlide : public Slide {
 public:

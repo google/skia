@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapCache.h"
-#include "SkMutex.h"
-#include "SkNextID.h"
-#include "SkPixelRef.h"
-#include "SkTraceEvent.h"
+#include "include/core/SkPixelRef.h"
+#include "include/private/SkMutex.h"
+#include "src/core/SkBitmapCache.h"
+#include "src/core/SkNextID.h"
+#include "src/core/SkTraceEvent.h"
 #include <atomic>
 
 uint32_t SkNextID::ImageID() {
@@ -77,13 +77,13 @@ void SkPixelRef::addGenIDChangeListener(GenIDChangeListener* listener) {
         delete listener;
         return;
     }
-    SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
+    SkAutoMutexExclusive lock(fGenIDChangeListenersMutex);
     *fGenIDChangeListeners.append() = listener;
 }
 
 // we need to be called *before* the genID gets changed or zerod
 void SkPixelRef::callGenIDChangeListeners() {
-    SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
+    SkAutoMutexExclusive lock(fGenIDChangeListenersMutex);
     // We don't invalidate ourselves if we think another SkPixelRef is sharing our genID.
     if (this->genIDIsUnique()) {
         for (int i = 0; i < fGenIDChangeListeners.count(); i++) {

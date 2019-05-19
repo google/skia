@@ -8,14 +8,15 @@
 #ifndef GrCCPerFlushResources_DEFINED
 #define GrCCPerFlushResources_DEFINED
 
-#include "GrNonAtomicRef.h"
-#include "ccpr/GrCCAtlas.h"
-#include "ccpr/GrCCFiller.h"
-#include "ccpr/GrCCStroker.h"
-#include "ccpr/GrCCPathProcessor.h"
+#include "src/gpu/GrNonAtomicRef.h"
+#include "src/gpu/ccpr/GrCCAtlas.h"
+#include "src/gpu/ccpr/GrCCFiller.h"
+#include "src/gpu/ccpr/GrCCPathProcessor.h"
+#include "src/gpu/ccpr/GrCCStroker.h"
 
 class GrCCPathCache;
 class GrCCPathCacheEntry;
+class GrOctoBounds;
 class GrOnFlushResourceProvider;
 class GrShape;
 
@@ -79,9 +80,9 @@ public:
     //
     // strokeDevWidth must be 0 for fills, 1 for hairlines, or the stroke width in device-space
     // pixels for non-hairline strokes (implicitly requiring a rigid-body transform).
-    GrCCAtlas* renderShapeInAtlas(const SkIRect& clipIBounds, const SkMatrix&, const GrShape&,
-                                  float strokeDevWidth, SkRect* devBounds, SkRect* devBounds45,
-                                  SkIRect* devIBounds, SkIVector* devToAtlasOffset);
+    GrCCAtlas* renderShapeInAtlas(
+            const SkIRect& clipIBounds, const SkMatrix&, const GrShape&, float strokeDevWidth,
+            GrOctoBounds*, SkIRect* devIBounds, SkIVector* devToAtlasOffset);
     const GrCCAtlas* renderDeviceSpacePathInAtlas(const SkIRect& clipIBounds, const SkPath& devPath,
                                                   const SkIRect& devPathIBounds,
                                                   SkIVector* devToAtlasOffset);
@@ -121,8 +122,7 @@ public:
 private:
     void recordCopyPathInstance(const GrCCPathCacheEntry&, const SkIVector& newAtlasOffset,
                                 GrCCPathProcessor::DoEvenOddFill, sk_sp<GrTextureProxy> srcProxy);
-    bool placeRenderedPathInAtlas(const SkIRect& clipIBounds, const SkIRect& pathIBounds,
-                                  GrScissorTest*, SkIRect* clippedPathIBounds,
+    void placeRenderedPathInAtlas(const SkIRect& clippedPathIBounds, GrScissorTest,
                                   SkIVector* devToAtlasOffset);
 
     const SkAutoSTArray<32, SkPoint> fLocalDevPtsBuffer;

@@ -8,13 +8,20 @@
 #ifndef SkCharToGlyphCache_DEFINED
 #define SkCharToGlyphCache_DEFINED
 
-#include "SkTypes.h"
-#include "../private/SkTDArray.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTDArray.h"
 
 class SkCharToGlyphCache {
 public:
     SkCharToGlyphCache();
     ~SkCharToGlyphCache();
+
+    // return number of unichars cached
+    int count() const {
+        return fK32.count();
+    }
+
+    void reset();       // forget all cache entries (to save memory)
 
     /**
      *  Given a unichar, return its glyphID (if the return value is positive), else return

@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkBmpCodec.h"
-#include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkData.h"
-#include "SkIcoCodec.h"
-#include "SkPngCodec.h"
-#include "SkStream.h"
-#include "SkTDArray.h"
-#include "SkTSort.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkTDArray.h"
+#include "src/codec/SkBmpCodec.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkIcoCodec.h"
+#include "src/codec/SkPngCodec.h"
+#include "src/core/SkTSort.h"
 
 /*
  * Checks the start of the stream to see if the image is an Ico or Cur

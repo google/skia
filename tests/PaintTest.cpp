@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkBlurMask.h"
-#include "SkFont.h"
-#include "SkLayerDrawLooper.h"
-#include "SkMaskFilter.h"
-#include "SkPaintPriv.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkReadBuffer.h"
-#include "SkTo.h"
-#include "SkTypeface.h"
-#include "SkUTF.h"
-#include "SkWriteBuffer.h"
-#include "Test.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkTypeface.h"
+#include "include/effects/SkLayerDrawLooper.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkBlurMask.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/utils/SkUTF.h"
+#include "tests/Test.h"
 #undef ASSERT
 
 // temparary api for bicubic, just be sure we can set/clear it
@@ -169,7 +169,7 @@ DEF_TEST(Paint_regression_measureText, reporter) {
     r.setLTRB(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
 
     // test that the rect was reset
-    font.measureText("", 0, kUTF8_SkTextEncoding, &r);
+    font.measureText("", 0, SkTextEncoding::kUTF8, &r);
     REPORTER_ASSERT(reporter, r.isEmpty());
 }
 
@@ -218,7 +218,7 @@ DEF_TEST(Paint_getHash, r) {
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 }
 
-#include "SkColorMatrixFilter.h"
+#include "include/effects/SkColorMatrixFilter.h"
 
 DEF_TEST(Paint_nothingToDraw, r) {
     SkPaint paint;
@@ -236,21 +236,21 @@ DEF_TEST(Paint_nothingToDraw, r) {
 
     SkColorMatrix cm;
     cm.setIdentity();   // does not change alpha
-    paint.setColorFilter(SkColorFilters::MatrixRowMajor255(cm.fMat));
+    paint.setColorFilter(SkColorFilters::Matrix(cm));
     REPORTER_ASSERT(r, paint.nothingToDraw());
 
-    cm.postTranslate(0, 0, 0, 1);    // wacks alpha
-    paint.setColorFilter(SkColorFilters::MatrixRowMajor255(cm.fMat));
+    cm.postTranslate(0, 0, 0, 1.0f/255);    // wacks alpha
+    paint.setColorFilter(SkColorFilters::Matrix(cm));
     REPORTER_ASSERT(r, !paint.nothingToDraw());
 }
 
 DEF_TEST(Font_getpos, r) {
     SkFont font;
     const char text[] = "Hamburgefons!@#!#23425,./;'[]";
-    int count = font.countText(text, strlen(text), kUTF8_SkTextEncoding);
+    int count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
     SkAutoTArray<uint16_t> glyphStorage(count);
     uint16_t* glyphs = glyphStorage.get();
-    (void)font.textToGlyphs(text, strlen(text), kUTF8_SkTextEncoding, glyphs, count);
+    (void)font.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, glyphs, count);
 
     SkAutoTArray<SkScalar> widthStorage(count);
     SkAutoTArray<SkScalar> xposStorage(count);
@@ -262,7 +262,7 @@ DEF_TEST(Font_getpos, r) {
 
     for (bool subpix : { false, true }) {
         font.setSubpixel(subpix);
-        for (auto hint : { kNo_SkFontHinting, kSlight_SkFontHinting, kNormal_SkFontHinting, kFull_SkFontHinting}) {
+        for (auto hint : { SkFontHinting::kNone, SkFontHinting::kSlight, SkFontHinting::kNormal, SkFontHinting::kFull}) {
             font.setHinting(hint);
             for (auto size : { 1.0f, 12.0f, 100.0f }) {
                 font.setSize(size);

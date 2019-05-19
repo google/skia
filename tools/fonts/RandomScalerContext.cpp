@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "RandomScalerContext.h"
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkGlyph.h"
-#include "SkMakeUnique.h"
-#include "SkPath.h"
-#include "SkRectPriv.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkRectPriv.h"
+#include "tools/fonts/RandomScalerContext.h"
 
 class SkDescriptor;
 
@@ -152,7 +152,7 @@ SkScalerContext* SkRandomTypeface::onCreateScalerContext(const SkScalerContextEf
 
 void SkRandomTypeface::onFilterRec(SkScalerContextRec* rec) const {
     fProxy->filterRec(rec);
-    rec->setHinting(kNo_SkFontHinting);
+    rec->setHinting(SkFontHinting::kNone);
     rec->fMaskFormat = SkMask::kARGB32_Format;
 }
 

@@ -7,14 +7,18 @@ import os
 import subprocess
 import sys
 
+def spawn(cmd):
+  with open(os.devnull, 'w') as o:
+    subprocess.Popen(cmd, stdout=o, stderr=o)
+
 def sysopen(arg):
   plat = sys.platform
   if plat.startswith('darwin'):
-    subprocess.call(["open", arg])
+    spawn(["open", arg])
   elif plat.startswith('win'):
     os.startfile(arg)
   else:
-    subprocess.call(["xdg-open", arg])
+    spawn(["xdg-open", arg])
 
 if __name__ == '__main__':
   for a in sys.argv[1:]:

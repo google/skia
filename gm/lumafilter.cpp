@@ -5,12 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlendModePriv.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkLumaColorFilter.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkLumaColorFilter.h"
+#include "tools/ToolUtils.h"
+
+#include <string.h>
 
 static SkScalar kSize   = 80;
 static SkScalar kInset  = 10;
@@ -24,8 +41,8 @@ static void draw_label(SkCanvas* canvas, const char* label,
 
     size_t len = strlen(label);
 
-    SkScalar width = font.measureText(label, len, kUTF8_SkTextEncoding);
-    canvas->drawSimpleText(label, len, kUTF8_SkTextEncoding, offset.x() - width / 2, offset.y(),
+    SkScalar width = font.measureText(label, len, SkTextEncoding::kUTF8);
+    canvas->drawSimpleText(label, len, SkTextEncoding::kUTF8, offset.x() - width / 2, offset.y(),
                            font, SkPaint());
 }
 

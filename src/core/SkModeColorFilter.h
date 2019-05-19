@@ -8,8 +8,8 @@
 #ifndef SkModeColorFilter_DEFINED
 #define SkModeColorFilter_DEFINED
 
-#include "SkColorFilter.h"
-#include "SkFlattenable.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFlattenable.h"
 
 class SkModeColorFilter : public SkColorFilter {
 public:
@@ -17,7 +17,6 @@ public:
         return sk_sp<SkColorFilter>(new SkModeColorFilter(color, mode));
     }
 
-    bool asColorMode(SkColor*, SkBlendMode*) const override;
     uint32_t getFlags() const override;
 
 #if SK_SUPPORT_GPU
@@ -29,6 +28,7 @@ protected:
     SkModeColorFilter(SkColor color, SkBlendMode mode);
 
     void flatten(SkWriteBuffer&) const override;
+    bool onAsAColorMode(SkColor*, SkBlendMode*) const override;
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 

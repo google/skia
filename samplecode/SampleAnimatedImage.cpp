@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "SkAndroidCodec.h"
-#include "SkAnimatedImage.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkPaint.h"
-#include "SkPictureRecorder.h"
-#include "SkRect.h"
-#include "SkScalar.h"
-#include "SkString.h"
+#include "include/android/SkAnimatedImage.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
+#include "tools/timer/AnimTimer.h"
 
-#include "Sample.h"
-#include "Resources.h"
+#include "samplecode/Sample.h"
+#include "tools/Resources.h"
 
 static constexpr char kPauseKey = 'p';
 static constexpr char kResetKey = 'r';
@@ -38,10 +38,10 @@ protected:
                 kPauseKey, kResetKey);
         const char* text = str.c_str();
         SkRect bounds;
-        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+        font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
         fYOffset = bounds.height();
 
-        canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 5, fYOffset, font, SkPaint());
+        canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 5, fYOffset, font, SkPaint());
         fYOffset *= 2;
     }
 

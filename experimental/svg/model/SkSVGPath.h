@@ -8,8 +8,8 @@
 #ifndef SkSVGPath_DEFINED
 #define SkSVGPath_DEFINED
 
-#include "SkPath.h"
-#include "SkSVGShape.h"
+#include "experimental/svg/model/SkSVGShape.h"
+#include "include/core/SkPath.h"
 
 class SkSVGPath final : public SkSVGShape {
 public:

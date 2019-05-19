@@ -5,14 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
-#include "SkColorPriv.h"
-#include "SkFont.h"
-#include "SkMath.h"
+#include <string.h>
+#include <initializer_list>
 
 static SkBitmap copy_bitmap(const SkBitmap& src, SkColorType colorType) {
     const SkBitmap* srcPtr = &src;
@@ -59,21 +73,17 @@ static SkBitmap make_bitmap(SkColorType ct) {
 
 static void draw_center_letter(char c, const SkFont& font, SkColor color,
                                SkScalar x, SkScalar y, SkCanvas* canvas) {
-    SkPaint paint;
-    paint.setColor(color);
     SkRect bounds;
-    font.measureText(&c, 1, kUTF8_SkTextEncoding, &bounds);
-    canvas->drawSimpleText(&c, 1, kUTF8_SkTextEncoding,
+    font.measureText(&c, 1, SkTextEncoding::kUTF8, &bounds);
+    canvas->drawSimpleText(&c, 1, SkTextEncoding::kUTF8,
                            x - bounds.centerX(), y - bounds.centerY(),
-                           font, paint);
+                           font, SkPaint(SkColor4f::FromColor(color)));
 }
 
 static void color_wheel_native(SkCanvas* canvas) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, true);
     canvas->translate(0.5f * SCALE, 0.5f * SCALE);
-    SkPaint p;
-    p.setColor(SK_ColorWHITE);
-    canvas->drawCircle(0.0f, 0.0f, SCALE * 0.5f, p);
+    canvas->drawCircle(0.0f, 0.0f, SCALE * 0.5f, SkPaint(SkColors::kWhite));
 
     const double sqrt_3_over_2 = 0.8660254037844387;
     const SkScalar Z = 0.0f;
@@ -112,13 +122,12 @@ static void draw(SkCanvas* canvas,
                  const char text[]) {
     SkASSERT(src.colorType() == colorType);
     canvas->drawBitmap(src, 0.0f, 0.0f);
-    canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0.0f, 12.0f, font, p);
+    canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 0.0f, 12.0f, font, p);
 }
 
 DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, true);
-    SkPaint p;
-    p.setColor(SK_ColorBLACK);
+    SkPaint p(SkColors::kBlack);
     p.setAntiAlias(true);
 
     SkFont font(ToolUtils::create_portable_typeface());

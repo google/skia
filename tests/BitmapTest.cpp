@@ -5,17 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkColor.h"
-#include "SkImageInfo.h"
-#include "SkMallocPixelRef.h"
-#include "SkPixelRef.h"
-#include "SkPixmap.h"
-#include "SkRandom.h"
-#include "SkRefCnt.h"
-#include "SkTypes.h"
-#include "Test.h"
-#include "ToolUtils.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMallocPixelRef.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/utils/SkRandom.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
+
+#include <initializer_list>
 
 static void test_peekpixels(skiatest::Reporter* reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
-#include "SkRefCnt.h"
-#include "gl/GrGLFunctions.h"
-#include "gl/GrGLInterface.h"
-#include "gl/GLTestContext.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/gl/GrGLFunctions.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "tools/gpu/gl/GLTestContext.h"
 
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>

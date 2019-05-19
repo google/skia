@@ -8,9 +8,9 @@
 #ifndef SkMallocPixelRef_DEFINED
 #define SkMallocPixelRef_DEFINED
 
-#include "SkPixelRef.h"
-#include "SkRefCnt.h"
-#include "SkTypes.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 class SkData;
 struct SkImageInfo;
 

@@ -8,7 +8,7 @@
 #ifndef SKSL_ASTIFSTATEMENT
 #define SKSL_ASTIFSTATEMENT
 
-#include "SkSLASTStatement.h"
+#include "src/sksl/ast/SkSLASTStatement.h"
 
 namespace SkSL {
 

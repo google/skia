@@ -8,14 +8,14 @@
 #ifndef GrContext_DEFINED
 #define GrContext_DEFINED
 
-#include "SkMatrix.h"
-#include "SkPathEffect.h"
-#include "SkTypes.h"
-#include "../private/GrRecordingContext.h"
-#include "GrContextOptions.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/private/GrRecordingContext.h"
 
 // We shouldn't need this but currently Android is relying on this being include transitively.
-#include "SkUnPreMultiply.h"
+#include "include/core/SkUnPreMultiply.h"
 
 class GrAtlasManager;
 class GrBackendFormat;
@@ -242,11 +242,21 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
 
+
+    /**
+     * Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
+     * executing any more commands on the GPU. Skia will take ownership of the underlying semaphores
+     * and delete them once they have been signaled and waited on. If this call returns false, then
+     * the GPU back-end will not wait on any passed in semaphores, and the client will still own the
+     * semaphores.
+     */
+    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+
     /**
      * Call to ensure all drawing to the context has been issued to the underlying 3D API.
      */
     void flush() {
-        this->flush(GrFlushInfo());
+        this->flush(GrFlushInfo(), GrPrepareForExternalIORequests());
     }
 
     /**
@@ -255,9 +265,47 @@ public:
      * If this call returns GrSemaphoresSubmitted::kNo, the GPU backend will not have created or
      * added any semaphores to signal on the GPU. Thus the client should not have the GPU wait on
      * any of the semaphores passed in with the GrFlushInfo. However, any pending commands to the
-     * context will still be flushed.
+     * context will still be flushed. It should be emphasized that a return value of
+     * GrSemaphoresSubmitted::kNo does not mean the flush did not happen. It simply means there were
+     * no semaphores submitted to the GPU. A caller should only take this as a failure if they
+     * passed in semaphores to be submitted.
      */
-    GrSemaphoresSubmitted flush(const GrFlushInfo&);
+    GrSemaphoresSubmitted flush(const GrFlushInfo& info) {
+        return this->flush(info, GrPrepareForExternalIORequests());
+    }
+
+    /**
+     * Call to ensure all drawing to the context has been issued to the underlying 3D API.
+     *
+     * If this call returns GrSemaphoresSubmitted::kNo, the GPU backend will not have created or
+     * added any semaphores to signal on the GPU. Thus the client should not have the GPU wait on
+     * any of the semaphores passed in with the GrFlushInfo. However, any pending commands to the
+     * context will still be flushed. It should be emphasized that a return value of
+     * GrSemaphoresSubmitted::kNo does not mean the flush did not happen. It simply means there were
+     * no semaphores submitted to the GPU. A caller should only take this as a failure if they
+     * passed in semaphores to be submitted.
+     *
+     * If the GrPrepareForExternalIORequests contains valid gpu backed SkSurfaces or SkImages, Skia
+     * will put the underlying backend objects into a state that is ready for external uses. See
+     * declaration of GrPreopareForExternalIORequests for more details.
+     */
+    GrSemaphoresSubmitted flush(const GrFlushInfo&, const GrPrepareForExternalIORequests&);
+
+    /**
+     * Deprecated.
+     */
+    GrSemaphoresSubmitted flush(GrFlushFlags flags, int numSemaphores,
+                                GrBackendSemaphore signalSemaphores[],
+                                GrGpuFinishedProc finishedProc = nullptr,
+                                GrGpuFinishedContext finishedContext = nullptr) {
+        GrFlushInfo info;
+        info.fFlags = flags;
+        info.fNumSemaphores = numSemaphores;
+        info.fSignalSemaphores = signalSemaphores;
+        info.fFinishedProc = finishedProc;
+        info.fFinishedContext = finishedContext;
+        return this->flush(info);
+    }
 
     /**
      * Deprecated.
@@ -269,6 +317,11 @@ public:
         info.fSignalSemaphores = signalSemaphores;
         return this->flush(info);
     }
+
+    /**
+     * Checks whether any asynchronous work is complete and if so calls related callbacks.
+     */
+    void checkAsyncWorkCompletion();
 
     // Provides access to functions that aren't part of the public API.
     GrContextPriv priv();
@@ -311,6 +364,7 @@ private:
     bool                                    fPMUPMConversionsRoundTrip;
 
     GrContextOptions::PersistentCache*      fPersistentCache;
+    GrContextOptions::ShaderErrorHandler*   fShaderErrorHandler;
 
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;

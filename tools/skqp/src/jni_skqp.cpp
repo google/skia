@@ -12,11 +12,11 @@
 #include <jni.h>
 #include <sys/stat.h>
 
-#include "ResourceFactory.h"
-#include "SkStream.h"
-#include "SkTo.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTo.h"
+#include "tools/ResourceFactory.h"
 
-#include "skqp.h"
+#include "tools/skqp/src/skqp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 extern "C" {

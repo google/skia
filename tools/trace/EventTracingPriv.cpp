@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "EventTracingPriv.h"
+#include "tools/trace/EventTracingPriv.h"
 
-#include "ChromeTracingTracer.h"
-#include "CommandLineFlags.h"
-#include "SkATrace.h"
-#include "SkDebugfTracer.h"
-#include "SkEventTracer.h"
-#include "SkTraceEvent.h"
+#include "include/utils/SkEventTracer.h"
+#include "src/core/SkATrace.h"
+#include "src/core/SkTraceEvent.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "tools/trace/ChromeTracingTracer.h"
+#include "tools/trace/SkDebugfTracer.h"
 
 static DEFINE_string(trace,
               "",
@@ -59,7 +59,7 @@ uint8_t* SkEventTracingCategories::getCategoryGroupEnabled(const char* name) {
     // Chrome's implementation of this API does a two-phase lookup (once without a lock, then again
     // with a lock. But the tracing macros avoid calling these functions more than once per site,
     // so just do something simple (and easier to reason about):
-    SkAutoMutexAcquire lock(&fMutex);
+    SkAutoMutexExclusive lock(fMutex);
     for (int i = 0; i < fNumCategories; ++i) {
         if (0 == strcmp(name, fCategories[i].fName)) {
             return reinterpret_cast<uint8_t*>(&fCategories[i]);

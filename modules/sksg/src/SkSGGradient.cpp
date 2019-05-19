@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGGradient.h"
+#include "modules/sksg/include/SkSGGradient.h"
 
-#include "SkGradientShader.h"
-#include "SkPaint.h"
+#include "include/core/SkPaint.h"
+#include "include/effects/SkGradientShader.h"
 
 namespace sksg {
 

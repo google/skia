@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCStrokeGeometry.h"
+#include "src/gpu/ccpr/GrCCStrokeGeometry.h"
 
-#include "SkGeometry.h"
-#include "SkMathPriv.h"
-#include "SkNx.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/private/SkNx.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkMathPriv.h"
 
 // This is the maximum distance in pixels that we can stray from the edge of a stroke when
 // converting it to flat line segments.

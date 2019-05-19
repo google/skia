@@ -5,17 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "TestUtils.h"
+#include "tests/TestUtils.h"
 
-#include "GrContextPriv.h"
-#include "GrSurfaceContext.h"
-#include "GrSurfaceContextPriv.h"
-#include "GrSurfaceProxy.h"
-#include "GrTextureProxy.h"
-#include "ProxyUtils.h"
-#include "SkGr.h"
-#include "SkBase64.h"
-#include "SkPngEncoder.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/utils/SkBase64.h"
+#include "src/core/SkUtils.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSurfaceContextPriv.h"
+#include "src/gpu/SkGr.h"
+#include "tools/gpu/ProxyUtils.h"
 
 void test_read_pixels(skiatest::Reporter* reporter,
                       GrSurfaceContext* srcContext, uint32_t expectedPixelValues[],
@@ -108,11 +110,11 @@ void test_copy_to_surface(skiatest::Reporter* reporter,
         }
     }
 
-    for (auto isRT : {false, true}) {
+    for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
         for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
             auto src = sk_gpu_test::MakeTextureProxyFromData(
-                    context, isRT, dstContext->width(),
-                    dstContext->height(), GrColorType::kRGBA_8888, origin, pixels.get(), 0);
+                    context, renderable, dstContext->width(),
+                    dstContext->height(), kRGBA_8888_SkColorType, origin, pixels.get(), 0);
             dstContext->copy(src.get());
             test_read_pixels(reporter, dstContext, pixels.get(), testName);
         }
@@ -128,6 +130,33 @@ void fill_pixel_data(int width, int height, GrColor* data) {
                                                   0xff, 0xff);
         }
     }
+}
+
+bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
+                            const SkImageInfo& ii, GrMipMapped mipMapped, SkColor color,
+                            GrRenderable renderable) {
+    GrGpu* gpu = context->priv().getGpu();
+    if (!gpu) {
+        return false;
+    }
+
+    SkBitmap bm;
+    bm.allocPixels(ii);
+    // TODO: a SkBitmap::eraseColor would be better here
+    sk_memset32(bm.getAddr32(0, 0), color, ii.width() * ii.height());
+
+    *backendTex = gpu->createTestingOnlyBackendTexture(ii.width(), ii.height(), ii.colorType(),
+                                                       mipMapped, renderable,
+                                                       bm.getPixels(), bm.rowBytes());
+    if (!backendTex->isValid() || !gpu->isTestingOnlyBackendTexture(*backendTex)) {
+        return false;
+    }
+
+    return true;
+}
+
+void delete_backend_texture(GrContext* context, const GrBackendTexture& backendTex) {
+    context->priv().deleteBackendTexture(backendTex);
 }
 
 bool does_full_buffer_contain_correct_color(GrColor* srcBuffer,
@@ -183,7 +212,7 @@ bool bitmap_to_base64_data_uri(const SkBitmap& bitmap, SkString* dst) {
     return true;
 }
 
-#include "SkCharToGlyphCache.h"
+#include "src/utils/SkCharToGlyphCache.h"
 
 static SkGlyphID hash_to_glyph(uint32_t value) {
     return SkToU16(((value >> 16) ^ value) & 0xFFFF);

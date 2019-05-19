@@ -1875,6 +1875,7 @@ namespace baseline {
 
 // Now, instantiate any other versions of run_program() we may want for runtime detection.
 #if !defined(SKCMS_PORTABLE) &&                           \
+    !defined(SKCMS_NO_RUNTIME_CPU_DETECTION) &&           \
         (( defined(__clang__) && __clang_major__ >= 5) || \
          (!defined(__clang__) && defined(__GNUC__)))      \
      && defined(__x86_64__)

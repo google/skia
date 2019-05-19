@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkString.h"
-#include "SkTArray.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTArray.h"
+#include "include/utils/SkRandom.h"
 
 enum Flags {
     kStroke_Flag = 1 << 0,
@@ -885,7 +885,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkGeometry.h"
+#include "src/core/SkGeometry.h"
 
 class ConicBench_Chop : public Benchmark {
 protected:
@@ -1175,8 +1175,8 @@ DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::k
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kRoundRect_Type); )
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kOval_Type); )
 
-#include "SkPathOps.h"
-#include "SkPathPriv.h"
+#include "include/pathops/SkPathOps.h"
+#include "src/core/SkPathPriv.h"
 
 DEF_BENCH( return new TightBoundsBench([](const SkPath& path){ return path.computeTightBounds();},
                                        "priv"); )

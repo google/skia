@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkGradientShader.h"
-#include "SkSVGLinearGradient.h"
-#include "SkSVGRenderContext.h"
-#include "SkSVGValue.h"
+#include "experimental/svg/model/SkSVGLinearGradient.h"
+#include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGValue.h"
+#include "include/effects/SkGradientShader.h"
 
 SkSVGLinearGradient::SkSVGLinearGradient() : INHERITED(SkSVGTag::kLinearGradient) {}
 

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilter.h"
-#include "SkFlattenable.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFlattenable.h"
 
 #ifndef SkOverdrawColorFilter_DEFINED
 #define SkOverdrawColorFilter_DEFINED

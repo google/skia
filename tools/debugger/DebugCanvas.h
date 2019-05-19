@@ -8,15 +8,15 @@
 #ifndef SKDEBUGCANVAS_H_
 #define SKDEBUGCANVAS_H_
 
-#include "DrawCommand.h"
-#include "SkCanvas.h"
-#include "SkCanvasVirtualEnforcer.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkString.h"
-#include "SkTArray.h"
-#include "SkVertices.h"
-#include "UrlDataManager.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkCanvasVirtualEnforcer.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
+#include "include/core/SkVertices.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkTArray.h"
+#include "tools/UrlDataManager.h"
+#include "tools/debugger/DrawCommand.h"
 
 class GrAuditTrail;
 class SkNWayCanvas;
@@ -127,6 +127,7 @@ protected:
                      SkBlendMode,
                      const SkPaint& paint) override;
     void onDrawPaint(const SkPaint&) override;
+    void onDrawBehind(const SkPaint&) override;
 
     void onDrawRect(const SkRect&, const SkPaint&) override;
     void onDrawOval(const SkRect&, const SkPaint&) override;

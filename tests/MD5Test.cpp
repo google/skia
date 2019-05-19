@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkMD5.h"
-#include "Test.h"
+#include "src/core/SkMD5.h"
+#include "tests/Test.h"
 
 static bool digests_equal(const SkMD5::Digest& expectedDigest, const SkMD5::Digest& computedDigest) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(expectedDigest.data); ++i) {

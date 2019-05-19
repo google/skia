@@ -5,10 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkBitmap.h"
-#include "SkShader.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "tools/Resources.h"
 
 DEF_SIMPLE_GM_CAN_FAIL(bitmap_subset_shader, canvas, errorMsg, 256, 256) {
     canvas->clear(SK_ColorWHITE);

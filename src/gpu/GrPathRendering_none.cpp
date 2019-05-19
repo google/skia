@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "GrCaps.h"
-#include "GrGpu.h"
-#include "GrPath.h"
-#include "GrPathRenderer.h"
-#include "GrPathRendering.h"
-#include "GrResourceProvider.h"
-#include "SkTypes.h"
-#include "gl/GrGLGpu.h"
-#include "gl/GrGLPathRendering.h"
-#include "ops/GrStencilAndCoverPathRenderer.h"
-#include "ops/GrStencilPathOp.h"
+#include "include/core/SkTypes.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrPath.h"
+#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/GrPathRendering.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLPathRendering.h"
+#include "src/gpu/ops/GrStencilAndCoverPathRenderer.h"
+#include "src/gpu/ops/GrStencilPathOp.h"
 
 class GrRecordingContext;
 

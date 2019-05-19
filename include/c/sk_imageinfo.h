@@ -11,7 +11,7 @@
 #ifndef sk_imageinfo_DEFINED
 #define sk_imageinfo_DEFINED
 
-#include "sk_types.h"
+#include "include/c/sk_types.h"
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
@@ -35,7 +35,7 @@ typedef enum {
  *  Allocate a new imageinfo object. If colorspace is not null, it's owner-count will be
  *  incremented automatically.
  */
-sk_imageinfo_t* sk_imageinfo_new(int width, int height, sk_colortype_t ct, sk_alphatype_t at,
+SK_API sk_imageinfo_t* sk_imageinfo_new(int width, int height, sk_colortype_t ct, sk_alphatype_t at,
                                  sk_colorspace_t* cs);
 
 /**

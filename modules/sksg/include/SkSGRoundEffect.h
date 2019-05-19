@@ -8,9 +8,9 @@
 #ifndef SkSGRoundEffect_DEFINED
 #define SkSGRoundEffect_DEFINED
 
-#include "SkSGGeometryNode.h"
+#include "modules/sksg/include/SkSGGeometryNode.h"
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 
 namespace sksg {
 

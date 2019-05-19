@@ -5,50 +5,51 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 
-#include "SkArenaAlloc.h"
-#include "SkBitmapDevice.h"
-#include "SkCanvasPriv.h"
-#include "SkClipOpPriv.h"
-#include "SkClipStack.h"
-#include "SkColorFilter.h"
-#include "SkDraw.h"
-#include "SkDrawLooper.h"
-#include "SkGlyphRun.h"
-#include "SkImage.h"
-#include "SkImageFilter.h"
-#include "SkImageFilterCache.h"
-#include "SkImage_Base.h"
-#include "SkLatticeIter.h"
-#include "SkMSAN.h"
-#include "SkMakeUnique.h"
-#include "SkMatrixUtils.h"
-#include "SkNoDrawCanvas.h"
-#include "SkNx.h"
-#include "SkPaintPriv.h"
-#include "SkPatchUtils.h"
-#include "SkPathEffect.h"
-#include "SkPicture.h"
-#include "SkRRect.h"
-#include "SkRasterClip.h"
-#include "SkRasterHandleAllocator.h"
-#include "SkSpecialImage.h"
-#include "SkStrikeCache.h"
-#include "SkString.h"
-#include "SkSurface_Base.h"
-#include "SkTLazy.h"
-#include "SkTextBlob.h"
-#include "SkTextFormatParams.h"
-#include "SkTo.h"
-#include "SkTraceEvent.h"
-#include "SkVertices.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkDrawLooper.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRasterHandleAllocator.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkVertices.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkNx.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkNoDrawCanvas.h"
+#include "src/core/SkBitmapDevice.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkClipStack.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkGlyphRun.h"
+#include "src/core/SkImageFilterCache.h"
+#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkLatticeIter.h"
+#include "src/core/SkMSAN.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkMatrixUtils.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/core/SkTLazy.h"
+#include "src/core/SkTextFormatParams.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/image/SkImage_Base.h"
+#include "src/image/SkSurface_Base.h"
+#include "src/utils/SkPatchUtils.h"
 
 #include <new>
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "SkGr.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/SkGr.h"
 #endif
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
@@ -929,23 +930,42 @@ int SkCanvas::only_axis_aligned_saveBehind(const SkRect* bounds) {
 void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
                                     SkBaseDevice* dst, const SkIPoint& dstOrigin,
                                     const SkMatrix& ctm) {
-    SkDraw draw;
-    SkRasterClip rc;
-    rc.setRect(SkIRect::MakeWH(dst->width(), dst->height()));
-    if (!dst->accessPixels(&draw.fDst)) {
-        draw.fDst.reset(dst->imageInfo(), nullptr, 0);
-    }
-    draw.fMatrix = &SkMatrix::I();
-    draw.fRC = &rc;
-
     SkPaint p;
+    SkIRect snapBounds = SkIRect::MakeXYWH(dstOrigin.x() - src->getOrigin().x(),
+                                           dstOrigin.y() - src->getOrigin().y(),
+                                           dst->width(), dst->height());
+    int x = 0;
+    int y = 0;
+
     if (filter) {
-        p.setImageFilter(filter->makeWithLocalMatrix(ctm));
+        // Calculate expanded snap bounds
+        SkIRect newBounds = filter->filterBounds(
+                snapBounds, ctm, SkImageFilter::kReverse_MapDirection, &snapBounds);
+        // Must clamp to valid src since the filter or rotations may expand beyond what's readable
+        SkIRect srcR = SkIRect::MakeWH(src->width(), src->height());
+        if (!newBounds.intersect(srcR)) {
+            return;
+        }
+
+        x = newBounds.fLeft - snapBounds.fLeft;
+        y = newBounds.fTop - snapBounds.fTop;
+        snapBounds = newBounds;
+
+        SkMatrix localCTM;
+        sk_sp<SkImageFilter> modifiedFilter = SkApplyCTMToBackdropFilter(filter, ctm, &localCTM);
+        // Account for the origin offset in the CTM
+        localCTM.postTranslate(-dstOrigin.x(), -dstOrigin.y());
+
+        // In this case we always wrap the filter (even when it's the original) with 'localCTM'
+        // since there's no device CTM stack that provides it to the image filter context.
+        // FIXME skbug.com/9074 - once perspective is properly supported, drop the
+        // localCTM.hasPerspective condition from assert.
+        SkASSERT(localCTM.isScaleTranslate() || filter->canHandleComplexCTM() ||
+                 localCTM.hasPerspective());
+        p.setImageFilter(modifiedFilter->makeWithLocalMatrix(localCTM));
     }
 
-    int x = src->getOrigin().x() - dstOrigin.x();
-    int y = src->getOrigin().y() - dstOrigin.y();
-    auto special = src->snapSpecial();
+    auto special = src->snapBackImage(snapBounds);
     if (special) {
         dst->drawSpecial(special.get(), x, y, p, nullptr, SkMatrix::I());
     }
@@ -987,36 +1007,41 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     SkImageFilter* imageFilter = paint ? paint->getImageFilter() : nullptr;
     SkMatrix stashedMatrix = fMCRec->fMatrix;
     MCRec* modifiedRec = nullptr;
-    SkMatrix remainder;
-    SkSize scale;
+
     /*
-     *  ImageFilters (so far) do not correctly handle matrices (CTM) that contain rotation/skew/etc.
-     *  but they do handle scaling. To accommodate this, we do the following:
+     *  Many ImageFilters (so far) do not (on their own) correctly handle matrices (CTM) that
+     *  contain rotation/skew/etc. We rely on applyCTM to create a new image filter DAG as needed to
+     *  accommodate this, but it requires update the CTM we use when drawing into the layer.
      *
      *  1. Stash off the current CTM
-     *  2. Decompose the CTM into SCALE and REMAINDER
-     *  3. Wack the CTM to be just SCALE, and wrap the imagefilter with a MatrixImageFilter that
-     *     contains the REMAINDER
+     *  2. Apply the CTM to imagefilter, which decomposes it into simple and complex transforms
+     *     if necessary.
+     *  3. Wack the CTM to be the remaining scale matrix and use the modified imagefilter, which
+     *     is a MatrixImageFilter that contains the complex matrix.
      *  4. Proceed as usual, allowing the client to draw into the layer (now with a scale-only CTM)
-     *  5. During restore, we process the MatrixImageFilter, which applies REMAINDER to the output
+     *  5. During restore, the MatrixImageFilter automatically applies complex stage to the output
      *     of the original imagefilter, and draw that (via drawSprite)
      *  6. Unwack the CTM to its original state (i.e. stashedMatrix)
      *
      *  Perhaps in the future we could augment #5 to apply REMAINDER as part of the draw (no longer
      *  a sprite operation) to avoid the extra buffer/overhead of MatrixImageFilter.
      */
-    if (imageFilter && !stashedMatrix.isScaleTranslate() && !imageFilter->canHandleComplexCTM() &&
-        stashedMatrix.decomposeScale(&scale, &remainder))
-    {
-        // We will restore the matrix (which we are overwriting here) in restore via fStashedMatrix
-        modifiedRec = fMCRec;
-        this->internalSetMatrix(SkMatrix::MakeScale(scale.width(), scale.height()));
-        SkPaint* p = lazyP.set(*paint);
-        p->setImageFilter(SkImageFilter::MakeMatrixFilter(remainder,
-                                                          SkFilterQuality::kLow_SkFilterQuality,
-                                                          sk_ref_sp(imageFilter)));
-        imageFilter = p->getImageFilter();
-        paint = p;
+    if (imageFilter) {
+        SkMatrix modifiedCTM;
+        sk_sp<SkImageFilter> modifiedFilter = SkApplyCTMToFilter(imageFilter, stashedMatrix,
+                                                                 &modifiedCTM);
+        if (!SkIsSameFilter(modifiedFilter.get(), imageFilter)) {
+            // The original filter couldn't support the CTM entirely
+            SkASSERT(modifiedCTM.isScaleTranslate() || imageFilter->canHandleComplexCTM());
+            modifiedRec = fMCRec;
+            this->internalSetMatrix(modifiedCTM);
+            SkPaint* p = lazyP.set(*paint);
+            p->setImageFilter(std::move(modifiedFilter));
+            imageFilter = p->getImageFilter();
+            paint = p;
+        }
+        // Else the filter didn't change, so modifiedCTM == stashedMatrix and there's nothing
+        // left to do since the stack already has that as the CTM.
     }
 
     // do this before we create the layer. We don't call the public save() since
@@ -1141,11 +1166,7 @@ void SkCanvas::internalSaveBehind(const SkRect* localBounds) {
 
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kClear);
-    if (localBounds) {
-        this->drawRect(*localBounds, paint);
-    } else {
-        this->drawPaint(paint);
-    }
+    this->drawClippedToSaveBehind(paint);
 }
 
 void SkCanvas::internalRestore() {
@@ -1710,6 +1731,11 @@ void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
     this->onDrawRect(r.makeSorted(), paint);
 }
 
+void SkCanvas::drawClippedToSaveBehind(const SkPaint& paint) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    this->onDrawBehind(paint);
+}
+
 void SkCanvas::drawRegion(const SkRegion& region, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (region.isEmpty()) {
@@ -2115,6 +2141,40 @@ void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
 
     while (iter.next()) {
         iter.fDevice->drawRegion(region, looper.paint());
+    }
+
+    LOOPER_END
+}
+
+void SkCanvas::onDrawBehind(const SkPaint& paint) {
+    SkIRect bounds;
+    SkDeque::Iter iter(fMCStack, SkDeque::Iter::kBack_IterStart);
+    for (;;) {
+        const MCRec* rec = (const MCRec*)iter.prev();
+        if (!rec) {
+            return; // no backimages, so nothing to draw
+        }
+        if (rec->fBackImage) {
+            bounds = SkIRect::MakeXYWH(rec->fBackImage->fLoc.fX, rec->fBackImage->fLoc.fY,
+                                       rec->fBackImage->fImage->width(),
+                                       rec->fBackImage->fImage->height());
+            break;
+        }
+    }
+
+    LOOPER_BEGIN(paint, nullptr)
+
+    while (iter.next()) {
+        SkBaseDevice* dev = iter.fDevice;
+
+        dev->save();
+        // We use clipRegion because it is already defined to operate in dev-space
+        // (i.e. ignores the ctm). However, it is going to first translate by -origin,
+        // but we don't want that, so we undo that before calling in.
+        SkRegion rgn(bounds.makeOffset(dev->fOrigin.fX, dev->fOrigin.fY));
+        dev->clipRegion(rgn, SkClipOp::kIntersect);
+        dev->drawPaint(looper.paint());
+        dev->restore(fMCRec->fMatrix);
     }
 
     LOOPER_END

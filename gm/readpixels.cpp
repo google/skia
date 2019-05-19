@@ -5,15 +5,31 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "Resources.h"
-#include "SkCodec.h"
-#include "SkColorSpace.h"
-#include "SkColorSpacePriv.h"
-#include "SkHalf.h"
-#include "SkImage.h"
-#include "SkImageInfoPriv.h"
-#include "SkPictureRecorder.h"
+#include "gm/gm.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/third_party/skcms/skcms.h"
+#include "tools/Resources.h"
+
+#include <string.h>
+#include <memory>
+#include <utility>
+
+class GrContext;
 
 static const int kWidth = 64;
 static const int kHeight = 64;

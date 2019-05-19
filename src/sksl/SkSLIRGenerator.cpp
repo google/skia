@@ -5,57 +5,58 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLIRGenerator.h"
+#include "src/sksl/SkSLIRGenerator.h"
 
 #include "limits.h"
 #include <unordered_set>
 
-#include "SkSLCompiler.h"
-#include "SkSLParser.h"
-#include "ast/SkSLASTBoolLiteral.h"
-#include "ast/SkSLASTFieldSuffix.h"
-#include "ast/SkSLASTFloatLiteral.h"
-#include "ast/SkSLASTIndexSuffix.h"
-#include "ast/SkSLASTIntLiteral.h"
-#include "ast/SkSLASTNullLiteral.h"
-#include "ir/SkSLAppendStage.h"
-#include "ir/SkSLBinaryExpression.h"
-#include "ir/SkSLBoolLiteral.h"
-#include "ir/SkSLBreakStatement.h"
-#include "ir/SkSLConstructor.h"
-#include "ir/SkSLContinueStatement.h"
-#include "ir/SkSLDiscardStatement.h"
-#include "ir/SkSLDoStatement.h"
-#include "ir/SkSLEnum.h"
-#include "ir/SkSLExpressionStatement.h"
-#include "ir/SkSLField.h"
-#include "ir/SkSLFieldAccess.h"
-#include "ir/SkSLFloatLiteral.h"
-#include "ir/SkSLForStatement.h"
-#include "ir/SkSLFunctionCall.h"
-#include "ir/SkSLFunctionDeclaration.h"
-#include "ir/SkSLFunctionDefinition.h"
-#include "ir/SkSLFunctionReference.h"
-#include "ir/SkSLIfStatement.h"
-#include "ir/SkSLIndexExpression.h"
-#include "ir/SkSLInterfaceBlock.h"
-#include "ir/SkSLIntLiteral.h"
-#include "ir/SkSLLayout.h"
-#include "ir/SkSLNullLiteral.h"
-#include "ir/SkSLPostfixExpression.h"
-#include "ir/SkSLPrefixExpression.h"
-#include "ir/SkSLReturnStatement.h"
-#include "ir/SkSLSetting.h"
-#include "ir/SkSLSwitchCase.h"
-#include "ir/SkSLSwitchStatement.h"
-#include "ir/SkSLSwizzle.h"
-#include "ir/SkSLTernaryExpression.h"
-#include "ir/SkSLUnresolvedFunction.h"
-#include "ir/SkSLVariable.h"
-#include "ir/SkSLVarDeclarations.h"
-#include "ir/SkSLVarDeclarationsStatement.h"
-#include "ir/SkSLVariableReference.h"
-#include "ir/SkSLWhileStatement.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLParser.h"
+#include "src/sksl/ast/SkSLASTBoolLiteral.h"
+#include "src/sksl/ast/SkSLASTFieldSuffix.h"
+#include "src/sksl/ast/SkSLASTFloatLiteral.h"
+#include "src/sksl/ast/SkSLASTIndexSuffix.h"
+#include "src/sksl/ast/SkSLASTIntLiteral.h"
+#include "src/sksl/ast/SkSLASTNullLiteral.h"
+#include "src/sksl/ir/SkSLAppendStage.h"
+#include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLBoolLiteral.h"
+#include "src/sksl/ir/SkSLBreakStatement.h"
+#include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLContinueStatement.h"
+#include "src/sksl/ir/SkSLDiscardStatement.h"
+#include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLEnum.h"
+#include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLExternalValueReference.h"
+#include "src/sksl/ir/SkSLField.h"
+#include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLFloatLiteral.h"
+#include "src/sksl/ir/SkSLForStatement.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLFunctionReference.h"
+#include "src/sksl/ir/SkSLIfStatement.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLIntLiteral.h"
+#include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLLayout.h"
+#include "src/sksl/ir/SkSLNullLiteral.h"
+#include "src/sksl/ir/SkSLPostfixExpression.h"
+#include "src/sksl/ir/SkSLPrefixExpression.h"
+#include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLSetting.h"
+#include "src/sksl/ir/SkSLSwitchCase.h"
+#include "src/sksl/ir/SkSLSwitchStatement.h"
+#include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/ir/SkSLUnresolvedFunction.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
+#include "src/sksl/ir/SkSLVariable.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/ir/SkSLWhileStatement.h"
 
 namespace SkSL {
 
@@ -307,12 +308,18 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
                     count = -1;
                     name += "[]";
                 }
-                type = new Type(name, Type::kArray_Kind, *type, (int) count);
-                fSymbolTable->takeOwnership((Type*) type);
+                type = (Type*) fSymbolTable->takeOwnership(
+                                                 std::unique_ptr<Symbol>(new Type(name,
+                                                                                  Type::kArray_Kind,
+                                                                                  *type,
+                                                                                  (int) count)));
                 sizes.push_back(std::move(size));
             } else {
-                type = new Type(type->name() + "[]", Type::kArray_Kind, *type, -1);
-                fSymbolTable->takeOwnership((Type*) type);
+                type = (Type*) fSymbolTable->takeOwnership(
+                                               std::unique_ptr<Symbol>(new Type(type->name() + "[]",
+                                                                                Type::kArray_Kind,
+                                                                                *type,
+                                                                                -1)));
                 sizes.push_back(nullptr);
             }
         }
@@ -685,11 +692,6 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     return std::unique_ptr<Statement>(new ExpressionStatement(std::move(result)));
 }
 
-// returns true if the modifiers are (explicitly or implicitly) nothing but 'in'
-static bool is_in(const Modifiers& modifiers) {
-    return (modifiers.fFlags & ~Modifiers::kIn_Flag) == 0;
-}
-
 void IRGenerator::convertFunction(const ASTFunction& f) {
     const Type* returnType = this->convertType(*f.fReturnType);
     if (!returnType) {
@@ -704,14 +706,19 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
         for (int j = (int) param->fSizes.size() - 1; j >= 0; j--) {
             int size = param->fSizes[j];
             String name = type->name() + "[" + to_string(size) + "]";
-            Type* newType = new Type(std::move(name), Type::kArray_Kind, *type, size);
-            fSymbolTable->takeOwnership(newType);
-            type = newType;
+            type = (Type*) fSymbolTable->takeOwnership(
+                                                 std::unique_ptr<Symbol>(new Type(std::move(name),
+                                                                                  Type::kArray_Kind,
+                                                                                  *type,
+                                                                                  size)));
         }
         StringFragment name = param->fName;
-        Variable* var = new Variable(param->fOffset, param->fModifiers, name, *type,
-                                     Variable::kParameter_Storage);
-        fSymbolTable->takeOwnership(var);
+        Variable* var = (Variable*) fSymbolTable->takeOwnership(
+                               std::unique_ptr<Symbol>(new Variable(param->fOffset,
+                                                                    param->fModifiers,
+                                                                    name,
+                                                                    *type,
+                                                                    Variable::kParameter_Storage)));
         parameters.push_back(var);
     }
 
@@ -744,19 +751,8 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
                 }
                 break;
             }
-            case Program::kMixer_Kind: {
-                if (*returnType != *fContext.fVoid_Type ||
-                    parameters.size() != 2 ||
-                    parameters[0]->fType != *fContext.fHalf4_Type ||
-                    !is_in(parameters[0]->fModifiers) ||
-                    parameters[1]->fType != *fContext.fHalf4_Type ||
-                    !is_in(parameters[1]->fModifiers)) {
-                    fErrors.error(f.fOffset, "mixer stage 'main' must be declared void main("
-                                             "half4, half4)");
-                    return;
-                }
+            case Program::kGeneric_Kind:
                 break;
-            }
             default:
                 if (parameters.size()) {
                     fErrors.error(f.fOffset, "shader 'main' must have zero parameters");
@@ -920,8 +916,9 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
         }
     }
     this->popSymbolTable();
-    Type* type = new Type(intf.fOffset, intf.fTypeName, fields);
-    old->takeOwnership(type);
+    Type* type = (Type*) old->takeOwnership(std::unique_ptr<Symbol>(new Type(intf.fOffset,
+                                                                             intf.fTypeName,
+                                                                             fields)));
     std::vector<std::unique_ptr<Expression>> sizes;
     for (const auto& size : intf.fSizes) {
         if (size) {
@@ -941,22 +938,30 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
                 count = -1;
                 name += "[]";
             }
-            type = new Type(name, Type::kArray_Kind, *type, (int) count);
-            symbols->takeOwnership((Type*) type);
+            type = (Type*) symbols->takeOwnership(std::unique_ptr<Symbol>(
+                                                                         new Type(name,
+                                                                                  Type::kArray_Kind,
+                                                                                  *type,
+                                                                                  (int) count)));
             sizes.push_back(std::move(converted));
         } else {
-            type = new Type(type->name() + "[]", Type::kArray_Kind, *type, -1);
-            symbols->takeOwnership((Type*) type);
+            type = (Type*) symbols->takeOwnership(std::unique_ptr<Symbol>(
+                                                                       new Type(type->name() + "[]",
+                                                                                Type::kArray_Kind,
+                                                                                *type,
+                                                                                -1)));
             sizes.push_back(nullptr);
         }
     }
-    Variable* var = new Variable(intf.fOffset, intf.fModifiers,
-                                 intf.fInstanceName.fLength ? intf.fInstanceName : intf.fTypeName,
-                                 *type, Variable::kGlobal_Storage);
+    Variable* var = (Variable*) old->takeOwnership(std::unique_ptr<Symbol>(
+                      new Variable(intf.fOffset,
+                                   intf.fModifiers,
+                                   intf.fInstanceName.fLength ? intf.fInstanceName : intf.fTypeName,
+                                   *type,
+                                   Variable::kGlobal_Storage)));
     if (foundRTAdjust) {
         fRTAdjustInterfaceBlock = var;
     }
-    old->takeOwnership(var);
     if (intf.fInstanceName.fLength) {
         old->addWithoutOwnership(intf.fInstanceName, var);
     } else {
@@ -1017,7 +1022,7 @@ void IRGenerator::convertEnum(const ASTEnum& e) {
                                                           value.get()));
         variables.push_back(var.get());
         symbols->add(e.fNames[i], std::move(var));
-        symbols->takeOwnership(value.release());
+        symbols->takeOwnership(std::move(value));
     }
     fProgramElements->push_back(std::unique_ptr<ProgramElement>(new Enum(e.fOffset, e.fTypeName,
                                                                          symbols)));
@@ -1033,9 +1038,10 @@ const Type* IRGenerator::convertType(const ASTType& type) {
                     fErrors.error(type.fOffset, "type '" + type.fName + "' may not be used in "
                                                 "an array");
                 }
-                result = new Type(String(result->fName) + "?", Type::kNullable_Kind,
-                                  (const Type&) *result);
-                fSymbolTable->takeOwnership((Type*) result);
+                result = fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
+                                                               new Type(String(result->fName) + "?",
+                                                                        Type::kNullable_Kind,
+                                                                        (const Type&) *result)));
             } else {
                 fErrors.error(type.fOffset, "type '" + type.fName + "' may not be nullable");
             }
@@ -1047,8 +1053,11 @@ const Type* IRGenerator::convertType(const ASTType& type) {
                 name += to_string(size);
             }
             name += "]";
-            result = new Type(name, Type::kArray_Kind, (const Type&) *result, size);
-            fSymbolTable->takeOwnership((Type*) result);
+            result = (Type*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
+                                                                     new Type(name,
+                                                                              Type::kArray_Kind,
+                                                                              (const Type&) *result,
+                                                                              size)));
         }
         return (const Type*) result;
     }
@@ -1145,6 +1154,11 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTIdentifier& 
             const Type* t = (const Type*) result;
             return std::unique_ptr<TypeReference>(new TypeReference(fContext, identifier.fOffset,
                                                                     *t));
+        }
+        case Symbol::kExternal_Kind: {
+            ExternalValue* r = (ExternalValue*) result;
+            return std::unique_ptr<ExternalValueReference>(
+                                                 new ExternalValueReference(identifier.fOffset, r));
         }
         default:
             ABORT("unsupported symbol type %d\n", result->fKind);
@@ -1495,13 +1509,11 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     }
     if (left.fType.kind() == Type::kVector_Kind && left.fType.componentType().isFloat() &&
         left.fType == right.fType) {
-        SkASSERT(left.fKind  == Expression::kConstructor_Kind);
-        SkASSERT(right.fKind == Expression::kConstructor_Kind);
         std::vector<std::unique_ptr<Expression>> args;
         #define RETURN_VEC_COMPONENTWISE_RESULT(op)                                    \
             for (int i = 0; i < left.fType.columns(); i++) {                           \
-                float value = ((Constructor&) left).getFVecComponent(i) op             \
-                              ((Constructor&) right).getFVecComponent(i);              \
+                float value = left.getFVecComponent(i) op             \
+                              right.getFVecComponent(i);              \
                 args.emplace_back(new FloatLiteral(fContext, -1, value));              \
             }                                                                          \
             return std::unique_ptr<Expression>(new Constructor(-1, left.fType,         \
@@ -1968,9 +1980,11 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
         if (index.fKind == ASTExpression::kInt_Kind) {
             const Type& oldType = ((TypeReference&) *base).fValue;
             int64_t size = ((const ASTIntLiteral&) index).fValue;
-            Type* newType = new Type(oldType.name() + "[" + to_string(size) + "]",
-                                     Type::kArray_Kind, oldType, size);
-            fSymbolTable->takeOwnership(newType);
+            Type* newType = (Type*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
+                                              new Type(oldType.name() + "[" + to_string(size) + "]",
+                                                       Type::kArray_Kind,
+                                                       oldType,
+                                                       size)));
             return std::unique_ptr<Expression>(new TypeReference(fContext, base->fOffset,
                                                                  *newType));
 
@@ -2001,6 +2015,16 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
 
 std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression> base,
                                                       StringFragment field) {
+    if (base->fKind == Expression::kExternalValue_Kind) {
+        ExternalValue& ev = *((ExternalValueReference&) *base).fValue;
+        ExternalValue* result = ev.getChild(String(field).c_str());
+        if (!result) {
+            fErrors.error(base->fOffset, "external value does not have a child named '" + field +
+                                         "'");
+            return nullptr;
+        }
+        return std::unique_ptr<Expression>(new ExternalValueReference(base->fOffset, result));
+    }
     auto fields = base->fType.fields();
     for (size_t i = 0; i < fields.size(); i++) {
         if (fields[i].fName == field) {
@@ -2216,9 +2240,11 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
                 return this->convertIndex(std::move(base), *expr);
             } else if (base->fKind == Expression::kTypeReference_Kind) {
                 const Type& oldType = ((TypeReference&) *base).fValue;
-                Type* newType = new Type(oldType.name() + "[]", Type::kArray_Kind, oldType,
-                                         -1);
-                fSymbolTable->takeOwnership(newType);
+                Type* newType = (Type*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
+                                                                     new Type(oldType.name() + "[]",
+                                                                              Type::kArray_Kind,
+                                                                              oldType,
+                                                                              -1)));
                 return std::unique_ptr<Expression>(new TypeReference(fContext, base->fOffset,
                                                                      *newType));
             } else {
@@ -2254,6 +2280,9 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
             if (base->fKind == Expression::kTypeReference_Kind) {
                 return this->convertTypeField(base->fOffset, ((TypeReference&) *base).fValue,
                                               field);
+            }
+            if (base->fKind == Expression::kExternalValue_Kind) {
+                return this->convertField(std::move(base), field);
             }
             switch (base->fType.kind()) {
                 case Type::kVector_Kind:
@@ -2305,17 +2334,23 @@ void IRGenerator::checkValid(const Expression& expr) {
     }
 }
 
-static bool has_duplicates(const Swizzle& swizzle) {
+bool IRGenerator::checkSwizzleWrite(const Swizzle& swizzle) {
     int bits = 0;
     for (int idx : swizzle.fComponents) {
-        SkASSERT(idx >= 0 && idx <= 3);
+        if (idx < 0) {
+            fErrors.error(swizzle.fOffset, "cannot write to a swizzle mask containing a constant");
+            return false;
+        }
+        SkASSERT(idx <= 3);
         int bit = 1 << idx;
         if (bits & bit) {
-            return true;
+            fErrors.error(swizzle.fOffset,
+                          "cannot write to the same swizzle field more than once");
+            return false;
         }
         bits |= bit;
     }
-    return false;
+    return true;
 }
 
 void IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind kind) {
@@ -2332,13 +2367,12 @@ void IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind 
         case Expression::kFieldAccess_Kind:
             this->setRefKind(*((FieldAccess&) expr).fBase, kind);
             break;
-        case Expression::kSwizzle_Kind:
-            if (has_duplicates((Swizzle&) expr)) {
-                fErrors.error(expr.fOffset,
-                              "cannot write to the same swizzle field more than once");
-            }
-            this->setRefKind(*((Swizzle&) expr).fBase, kind);
+        case Expression::kSwizzle_Kind: {
+            const Swizzle& swizzle = (Swizzle&) expr;
+            this->checkSwizzleWrite(swizzle);
+            this->setRefKind(*swizzle.fBase, kind);
             break;
+        }
         case Expression::kIndex_Kind:
             this->setRefKind(*((IndexExpression&) expr).fBase, kind);
             break;
@@ -2346,6 +2380,14 @@ void IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind 
             TernaryExpression& t = (TernaryExpression&) expr;
             this->setRefKind(*t.fIfTrue, kind);
             this->setRefKind(*t.fIfFalse, kind);
+            break;
+        }
+        case Expression::kExternalValue_Kind: {
+            const ExternalValue& v = *((ExternalValueReference&) expr).fValue;
+            if (!v.canWrite()) {
+                fErrors.error(expr.fOffset,
+                              "cannot modify immutable external value '" + v.fName + "'");
+            }
             break;
         }
         default:

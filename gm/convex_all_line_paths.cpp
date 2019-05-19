@@ -5,9 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkPolyUtils.h"
-#include "SkPathPriv.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkPathPriv.h"
+
+#include <memory>
 
 static void create_ngon(int n, SkPoint* pts, SkScalar width, SkScalar height) {
     float angleStep = 360.0f / n, angle = 0.0f;
@@ -55,13 +67,9 @@ const SkPoint gPoints3[] = {
 const SkPoint gPoints4[] = {
     { -6.0f, -50.0f },
     { 4.0f, -50.0f },
-#if SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE == 0
     { 5.0f, -25.0f },  // remove if collinear diagonal points are not concave
-#endif
     { 6.0f,   0.0f },
-#if SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE == 0
     { 5.0f,  25.0f },  // remove if collinear diagonal points are not concave
-#endif
     { 4.0f,  50.0f },
     { -4.0f,  50.0f }
 };

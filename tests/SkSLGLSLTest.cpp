@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLCompiler.h"
+#include "src/sksl/SkSLCompiler.h"
 
-#include "Test.h"
+#include "tests/Test.h"
 
 // Note that the optimizer will aggressively kill dead code and substitute constants in place of
 // variables, so we have to jump through a few hoops to ensure that the code in these tests has the

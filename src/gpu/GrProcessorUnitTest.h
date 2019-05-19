@@ -8,13 +8,13 @@
 #ifndef GrProcessorUnitTest_DEFINED
 #define GrProcessorUnitTest_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if GR_TEST_UTILS
 
-#include "../private/GrTextureProxy.h"
-#include "../private/SkTArray.h"
-#include "GrTestUtils.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/private/SkTArray.h"
+#include "src/gpu/GrTestUtils.h"
 
 class SkMatrix;
 class GrCaps;
@@ -73,8 +73,6 @@ private:
     sk_sp<GrTextureProxy> fProxies[2];
 };
 
-#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-
 class GrProcessor;
 class GrTexture;
 
@@ -92,7 +90,9 @@ public:
     /** Pick a random factory function and create a processor.  */
     static ProcessorSmartPtr Make(GrProcessorTestData* data) {
         VerifyFactoryCount();
-        SkASSERT(GetFactories()->count());
+        if (GetFactories()->count() == 0) {
+            return nullptr;
+        }
         uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->count() - 1);
         return MakeIdx(idx, data);
     }
@@ -102,6 +102,7 @@ public:
 
     /** Use factory function at Index idx to create a processor. */
     static ProcessorSmartPtr MakeIdx(int idx, GrProcessorTestData* data) {
+        SkASSERT(idx < GetFactories()->count());
         GrProcessorTestFactory<ProcessorSmartPtr>* factory = (*GetFactories())[idx];
         ProcessorSmartPtr processor = factory->fMakeProc(data);
         SkASSERT(processor);
@@ -130,7 +131,9 @@ public:
 
     static const GrXPFactory* Get(GrProcessorTestData* data) {
         VerifyFactoryCount();
-        SkASSERT(GetFactories()->count());
+        if (GetFactories()->count() == 0) {
+            return nullptr;
+        }
         uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->count() - 1);
         const GrXPFactory* xpf = (*GetFactories())[idx]->fGetProc(data);
         SkASSERT(xpf);
@@ -143,6 +146,8 @@ private:
     GetFn* fGetProc;
     static SkTArray<GrXPFactoryTestFactory*, true>* GetFactories();
 };
+
+#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 /** GrProcessor subclasses should insert this macro in their declaration to be included in the
  *  program generation unit test.

@@ -8,9 +8,9 @@
 
 #include <EGL/egl.h>
 #include <GLES/gl.h>
-#include "../GLWindowContext.h"
-#include "WindowContextFactory_android.h"
-#include "gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "tools/sk_app/GLWindowContext.h"
+#include "tools/sk_app/android/WindowContextFactory_android.h"
 
 using sk_app::GLWindowContext;
 using sk_app::DisplayParams;

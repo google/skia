@@ -5,13 +5,13 @@
 * found in the LICENSE file.
 */
 
-#include "Benchmark.h"
-#include "SkRandom.h"
-#include "SkSize.h"
-#include "SkTDArray.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkSize.h"
+#include "include/private/SkTDArray.h"
+#include "include/utils/SkRandom.h"
 
-#include "GrRectanizer_pow2.h"
-#include "GrRectanizer_skyline.h"
+#include "src/gpu/GrRectanizer_pow2.h"
+#include "src/gpu/GrRectanizer_skyline.h"
 
 /**
  * This bench exercises Ganesh' GrRectanizer classes. It exercises the following

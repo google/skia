@@ -8,8 +8,8 @@
 #ifndef SkSGNode_DEFINED
 #define SkSGNode_DEFINED
 
-#include "SkRect.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 
 #include <vector>
 

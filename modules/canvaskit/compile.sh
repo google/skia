@@ -152,6 +152,7 @@ echo "Compiling bitcode"
   is_debug=false \
   is_official_build=true \
   is_component_build=false \
+  werror=true \
   target_cpu=\"wasm\" \
   \
   skia_use_angle = false \
@@ -195,26 +196,9 @@ echo "Generating final wasm"
 # Emscripten will use LLD, which may relax this requirement.
 ${EMCXX} \
     $RELEASE_CONF \
-    -Iexperimental \
-    -Iinclude/c \
-    -Iinclude/codec \
-    -Iinclude/config \
-    -Iinclude/core \
-    -Iinclude/effects \
-    -Iinclude/gpu \
-    -Iinclude/gpu/gl \
-    -Iinclude/pathops \
-    -Iinclude/private \
-    -Iinclude/utils/ \
-    -Imodules/skottie/include \
-    -Imodules/skottie/utils \
-    -Imodules/sksg/include \
-    -Imodules/skshaper/include \
-    -Imodules/particles/include \
-    -Isrc/core/ \
-    -Isrc/utils/ \
+    -I. \
     -Ithird_party/icu \
-    -Itools \
+    -Ithird_party/skcms \
     -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
     $WASM_GPU \

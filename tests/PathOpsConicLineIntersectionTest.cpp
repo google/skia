@@ -4,14 +4,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsExtendedTest.h"
-#include "PathOpsTestCommon.h"
-#include "SkGeometry.h"
-#include "SkIntersections.h"
-#include "SkPathOpsConic.h"
-#include "SkPathOpsLine.h"
-#include "SkReduceOrder.h"
-#include "Test.h"
+#include "src/core/SkGeometry.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkReduceOrder.h"
+#include "tests/PathOpsExtendedTest.h"
+#include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
 
 #include <utility>
 

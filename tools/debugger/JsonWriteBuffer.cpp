@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "JsonWriteBuffer.h"
+#include "tools/debugger/JsonWriteBuffer.h"
 
-#include "DrawCommand.h"
+#include "tools/debugger/DrawCommand.h"
 
 void JsonWriteBuffer::append(const char* type) {
     SkString fullName = SkStringPrintf("%02d_%s", fCount++, type);

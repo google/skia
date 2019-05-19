@@ -6,21 +6,22 @@
  */
 
 
-#include "SkPDFShader.h"
+#include "src/pdf/SkPDFShader.h"
 
-#include "SkData.h"
-#include "SkPDFDocument.h"
-#include "SkPDFDevice.h"
-#include "SkPDFDocumentPriv.h"
-#include "SkPDFFormXObject.h"
-#include "SkPDFGradientShader.h"
-#include "SkPDFGraphicState.h"
-#include "SkPDFResourceDict.h"
-#include "SkPDFUtils.h"
-#include "SkScalar.h"
-#include "SkStream.h"
-#include "SkSurface.h"
-#include "SkTemplates.h"
+#include "include/core/SkData.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/private/SkTemplates.h"
+#include "src/pdf/SkPDFDevice.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
+#include "src/pdf/SkPDFFormXObject.h"
+#include "src/pdf/SkPDFGradientShader.h"
+#include "src/pdf/SkPDFGraphicState.h"
+#include "src/pdf/SkPDFResourceDict.h"
+#include "src/pdf/SkPDFUtils.h"
 
 
 static void draw_image_matrix(SkCanvas* canvas, const SkImage* img,
@@ -35,6 +36,13 @@ static void draw_bitmap_matrix(SkCanvas* canvas, const SkBitmap& bm,
     SkAutoCanvasRestore acr(canvas, true);
     canvas->concat(matrix);
     canvas->drawBitmap(bm, 0, 0, &paint);
+}
+
+SkColor mix(SkColor c, U8CPU alpha) {
+    return SkColorSetARGB(SkMulDiv255Round(alpha, SkColorGetA(c)),
+                          SkColorGetR(c),
+                          SkColorGetG(c),
+                          SkColorGetB(c));
 }
 
 static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
@@ -81,16 +89,17 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
     // Undo the translation in the final matrix
     finalMatrix.preTranslate(deviceBounds.left(), deviceBounds.top());
 
+    SkPaint paint;
+    paint.setColor(key.fPaintColor);
+
     // If the bitmap is out of bounds (i.e. clamp mode where we only see the
     // stretched sides), canvas will clip this out and the extraneous data
     // won't be saved to the PDF.
-    canvas.drawImage(image, 0, 0);
+    canvas.drawImage(image, 0, 0, &paint);
 
     SkScalar width = SkIntToScalar(image->width());
     SkScalar height = SkIntToScalar(image->height());
 
-    SkPaint paint;
-    paint.setColor(key.fPaintColor);
     // Tiling is implied.  First we handle mirroring.
     if (tileModes[0] == SkTileMode::kMirror) {
         SkMatrix xMirror;
@@ -130,34 +139,35 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
     // (Which are just a rectangles of the corner colors.)
     if (tileModes[0] == SkTileMode::kClamp && tileModes[1] == SkTileMode::kClamp) {
         SkASSERT(!bitmap.drawsNothing());
-        SkPaint paint;
+        U8CPU alpha = SkColorGetA(key.fPaintColor);
+        SkPaint paint2;
         SkRect rect;
         rect = SkRect::MakeLTRB(deviceBounds.left(), deviceBounds.top(), 0, 0);
         if (!rect.isEmpty()) {
-            paint.setColor(bitmap.getColor(0, 0));
-            canvas.drawRect(rect, paint);
+            paint2.setColor(mix(bitmap.getColor(0, 0), alpha));
+            canvas.drawRect(rect, paint2);
         }
 
         rect = SkRect::MakeLTRB(width, deviceBounds.top(),
                                 deviceBounds.right(), 0);
         if (!rect.isEmpty()) {
-            paint.setColor(bitmap.getColor(bitmap.width() - 1, 0));
-            canvas.drawRect(rect, paint);
+            paint2.setColor(mix(bitmap.getColor(bitmap.width() - 1, 0), alpha));
+            canvas.drawRect(rect, paint2);
         }
 
         rect = SkRect::MakeLTRB(width, height,
                                 deviceBounds.right(), deviceBounds.bottom());
         if (!rect.isEmpty()) {
-            paint.setColor(bitmap.getColor(bitmap.width() - 1,
-                                           bitmap.height() - 1));
-            canvas.drawRect(rect, paint);
+            paint2.setColor(mix(bitmap.getColor(bitmap.width() - 1,
+                                                bitmap.height() - 1), alpha));
+            canvas.drawRect(rect, paint2);
         }
 
         rect = SkRect::MakeLTRB(deviceBounds.left(), height,
                                 0, deviceBounds.bottom());
         if (!rect.isEmpty()) {
-            paint.setColor(bitmap.getColor(0, bitmap.height() - 1));
-            canvas.drawRect(rect, paint);
+            paint2.setColor(mix(bitmap.getColor(0, bitmap.height() - 1), alpha));
+            canvas.drawRect(rect, paint2);
         }
     }
 

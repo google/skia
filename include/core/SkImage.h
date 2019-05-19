@@ -8,14 +8,14 @@
 #ifndef SkImage_DEFINED
 #define SkImage_DEFINED
 
-#include "GrTypes.h"
-#include "SkFilterQuality.h"
-#include "SkImageInfo.h"
-#include "SkImageEncoder.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkShader.h"   // can remove once we switch to SkTileMode
-#include "SkTileMode.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/gpu/GrTypes.h"
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 #include <android/hardware_buffer.h>
@@ -726,6 +726,23 @@ public:
     */
     bool isValid(GrContext* context) const;
 
+    /** Flushes any pending uses of texture-backed images in the GPU backend. If the image is not
+        texture-backed (including promise texture images) or if the the GrContext does not
+        have the same context ID as the context backing the image then this is a no-op.
+
+        If the image was not used in any non-culled draws recorded on the passed GrContext then
+        this is a no-op unless the GrFlushInfo contains semaphores, a finish proc, or uses
+        kSyncCpu_GrFlushFlag. Those are respected even when the image has not been used.
+
+        @param context  the context on which to flush pending usages of the image.
+        @param info     flush options
+        @return         one of: GrSemaphoresSubmitted::kYes, GrSemaphoresSubmitted::kNo
+     */
+    GrSemaphoresSubmitted flush(GrContext* context, const GrFlushInfo& flushInfo);
+
+    /** Version of flush() that uses a default GrFlushInfo. */
+    void flush(GrContext*);
+
     /** Retrieves the back-end texture. If SkImage has no back-end texture, an invalid
         object is returned. Call GrBackendTexture::isValid to determine if the result
         is valid.
@@ -763,7 +780,7 @@ public:
         and does not exceed SkImage (width(), height()).
 
         dstInfo specifies width, height, SkColorType, SkAlphaType, and SkColorSpace of
-        destination. dstRowBytes specifics the gap from one destination row to the next.
+        destination. dstRowBytes specifies the gap from one destination row to the next.
         Returns true if pixels are copied. Returns false if:
         - dstInfo.addr() equals nullptr
         - dstRowBytes is less than dstInfo.minRowBytes()

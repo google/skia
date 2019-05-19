@@ -8,11 +8,11 @@
 #ifndef SkColorSpace_DEFINED
 #define SkColorSpace_DEFINED
 
-#include "../private/SkFixed.h"
-#include "../private/SkOnce.h"
-#include "../../third_party/skcms/skcms.h"
-#include "SkMatrix44.h"
-#include "SkRefCnt.h"
+#include "include/core/SkMatrix44.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkOnce.h"
+#include "include/third_party/skcms/skcms.h"
 #include <memory>
 
 class SkData;

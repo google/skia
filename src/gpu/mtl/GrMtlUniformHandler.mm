@@ -5,10 +5,10 @@
 * found in the LICENSE file.
 */
 
-#include "GrMtlUniformHandler.h"
-#include "GrTexture.h"
-#include "GrTexturePriv.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/mtl/GrMtlUniformHandler.h"
 
 // TODO: this class is basically copy and pasted from GrVklUniformHandler so that we can have
 // some shaders working. The SkSL Metal code generator was written to work with GLSL generated for
@@ -148,8 +148,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
             return 4 * sizeof(int32_t);
         case kHalf2x2_GrSLType: // fall through
         case kFloat2x2_GrSLType:
-            //TODO: this will be 4 * szof(float) on std430.
-            return 8 * sizeof(float);
+            return 4 * sizeof(float);
         case kHalf3x3_GrSLType: // fall through
         case kFloat3x3_GrSLType:
             return 12 * sizeof(float);
@@ -188,9 +187,7 @@ static void get_ubo_aligned_offset(uint32_t* uniformOffset,
     *uniformOffset = *currentOffset + offsetDiff;
     SkASSERT(sizeof(float) == 4);
     if (arrayCount) {
-        uint32_t elementSize = SkTMax<uint32_t>(16, grsltype_to_mtl_size(type));
-        SkASSERT(0 == (elementSize & 0xF));
-        *currentOffset = *uniformOffset + elementSize * arrayCount;
+        *currentOffset = *uniformOffset + grsltype_to_mtl_size(type) * arrayCount;
     } else {
         *currentOffset = *uniformOffset + grsltype_to_mtl_size(type);
     }

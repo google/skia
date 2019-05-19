@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkStrike.h"
-#include "SkStrikeCache.h"
-#include "SkTaskGroup.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkStrike.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/core/SkTaskGroup.h"
+#include "tools/ToolUtils.h"
+#include "tools/timer/AnimTimer.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Static text from paths.

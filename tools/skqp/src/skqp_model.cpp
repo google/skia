@@ -5,13 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "skqp_model.h"
-#include "skqp.h"
+#include "tools/skqp/src/skqp.h"
+#include "tools/skqp/src/skqp_model.h"
 
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkStream.h"
+#include "src/utils/SkOSPath.h"
+
+#include <limits.h>
 
 #ifndef SK_SKQP_GLOBAL_ERROR_TOLERANCE
 #define SK_SKQP_GLOBAL_ERROR_TOLERANCE 0

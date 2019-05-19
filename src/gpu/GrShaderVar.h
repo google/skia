@@ -8,8 +8,8 @@
 #ifndef GrShaderVar_DEFINED
 #define GrShaderVar_DEFINED
 
-#include "SkString.h"
-#include "GrTypesPriv.h"
+#include "include/core/SkString.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrShaderCaps;
 

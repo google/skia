@@ -4,10 +4,10 @@
 * Use of this source code is governed by a BSD-style license that can be
 * found in the LICENSE file.
 */
-#include "SkOpContour.h"
-#include "SkPathWriter.h"
-#include "SkReduceOrder.h"
-#include "SkTSort.h"
+#include "src/core/SkTSort.h"
+#include "src/pathops/SkOpContour.h"
+#include "src/pathops/SkPathWriter.h"
+#include "src/pathops/SkReduceOrder.h"
 
 void SkOpContour::toPath(SkPathWriter* path) const {
     if (!this->count()) {

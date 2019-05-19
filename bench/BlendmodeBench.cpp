@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkBlendModePriv.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkString.h"
-#include "SkTextBlob.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkBlendModePriv.h"
 
 // Benchmark that draws non-AA rects or AA text with an SkXfermode::Mode.
 class XfermodeBench : public Benchmark {
@@ -40,7 +40,7 @@ protected:
                 font.setSize(random.nextRangeScalar(12, 96));
                 SkScalar x = random.nextRangeScalar(0, (SkScalar)size.fWidth),
                          y = random.nextRangeScalar(0, (SkScalar)size.fHeight);
-                auto blob = SkTextBlob::MakeFromText(text, len, font, kUTF8_SkTextEncoding);
+                auto blob = SkTextBlob::MakeFromText(text, len, font, SkTextEncoding::kUTF8);
                 for (int j = 0; j < 1000; ++j) {
                     canvas->drawTextBlob(blob, x, y, paint);
                 }

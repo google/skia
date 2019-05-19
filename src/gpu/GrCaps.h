@@ -8,13 +8,13 @@
 #ifndef GrCaps_DEFINED
 #define GrCaps_DEFINED
 
-#include "../private/GrTypesPriv.h"
-#include "GrBlend.h"
-#include "GrDriverBugWorkarounds.h"
-#include "GrShaderCaps.h"
-#include "SkImageInfo.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/gpu/GrBlend.h"
+#include "include/gpu/GrDriverBugWorkarounds.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrShaderCaps.h"
 
 class GrBackendFormat;
 class GrBackendRenderTarget;
@@ -263,7 +263,12 @@ public:
 
     bool wireframeMode() const { return fWireframeMode; }
 
+    /** Supports using GrFence. */
     bool fenceSyncSupport() const { return fFenceSyncSupport; }
+
+    /** Supports using GrSemaphore. */
+    bool semaphoreSupport() const { return fSemaphoreSupport; }
+
     bool crossContextTextureSupport() const { return fCrossContextTextureSupport; }
     /**
      * Returns whether or not we will be able to do a copy given the passed in params
@@ -341,6 +346,18 @@ public:
      */
     bool clampToBorderSupport() const { return fClampToBorderSupport; }
 
+    /**
+     * Returns the GrSwizzle to use when sampling from a texture with the passed in GrBackendFormat
+     * and GrColorType.
+     */
+    virtual GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const = 0;
+
+    /**
+     * Returns the GrSwizzle to use when outputting to a render target with the passed in
+     * GrBackendFormat and GrColorType.
+     */
+    virtual GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const = 0;
+
     const GrDriverBugWorkarounds& workarounds() const { return fDriverBugWorkarounds; }
 
 protected:
@@ -391,8 +408,8 @@ protected:
     // On some platforms it's better to make more triangles than to use the sample mask (MSAA only).
     bool fPreferTrianglesOverSampleMask              : 1;
 
-    // TODO: this may need to be an enum to support different fence types
     bool fFenceSyncSupport                           : 1;
+    bool fSemaphoreSupport                           : 1;
 
     // Requires fence sync support in GL.
     bool fCrossContextTextureSupport                 : 1;

@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrRenderTargetOpList.h"
-#include "Test.h"
-#include "ops/GrOp.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrRenderTargetOpList.h"
+#include "src/gpu/ops/GrOp.h"
+#include "tests/Test.h"
 
 // We create Ops that write a value into a range of a buffer. We create ranges from
 // kNumOpPositions starting positions x kRanges canonical ranges. We repeat each range kNumRepeats
@@ -173,7 +173,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
 
     auto proxy = context->priv().proxyProvider()->createProxy(
             format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
-            SkBudgeted::kNo, GrInternalSurfaceFlags::kNoPendingIO);
+            SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
     SkASSERT(proxy);
     proxy->instantiate(context->priv().resourceProvider());
     int result[result_width()];
@@ -206,8 +206,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                                           context->priv().resourceProvider(),
                                           context->priv().getResourceCache(),
                                           &tracker);
-                GrRenderTargetOpList opList(context->priv().resourceProvider(),
-                                            sk_ref_sp(context->priv().opMemoryPool()),
+                GrRenderTargetOpList opList(sk_ref_sp(context->priv().opMemoryPool()),
                                             sk_ref_sp(proxy->asRenderTargetProxy()),
                                             context->priv().auditTrail());
                 // This assumes the particular values of kRanges.

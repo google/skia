@@ -5,15 +5,40 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlendModePriv.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkMaskFilter.h"
-#include "SkPictureRecorder.h"
-#include "SkShaderMaskFilter.h"
-#include "SkTextUtils.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkCoverageMode.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkShaderMaskFilter.h"
+#include "include/utils/SkTextUtils.h"
+#include "src/core/SkBlendModePriv.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
+
+#include <initializer_list>
 
 static void draw_masked_image(SkCanvas* canvas, const SkImage* image, SkScalar x, SkScalar y,
                               const SkImage* mask, sk_sp<SkMaskFilter> outer, SkBlendMode mode) {
@@ -33,7 +58,6 @@ static void draw_masked_image(SkCanvas* canvas, const SkImage* image, SkScalar x
     canvas->drawImage(image, x, y, &paint);
 }
 
-#include "SkGradientShader.h"
 static sk_sp<SkShader> make_shader(const SkRect& r) {
     const SkPoint pts[] = {
         { r.fLeft, r.fTop }, { r.fRight, r.fBottom },
@@ -57,7 +81,6 @@ DEF_SIMPLE_GM(shadermaskfilter_gradient, canvas, 512, 512) {
     canvas->drawOval(r, paint);
 }
 
-#include "Resources.h"
 DEF_SIMPLE_GM_CAN_FAIL(shadermaskfilter_image, canvas, errorMsg, 560, 370) {
     canvas->scale(1.25f, 1.25f);
 
@@ -85,9 +108,6 @@ DEF_SIMPLE_GM_CAN_FAIL(shadermaskfilter_image, canvas, errorMsg, 560, 370) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "SkPictureRecorder.h"
-#include "SkPath.h"
 
 static sk_sp<SkMaskFilter> make_path_mf(const SkPath& path, unsigned alpha) {
     SkPaint paint;
@@ -172,9 +192,6 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
     canvas->restore();
 }
 
-#include "SkSurface.h"
-#include "SkBlurImageFilter.h"
-#include "SkMaskFilter.h"
 static sk_sp<SkImage> make_circle_image(SkCanvas* canvas, SkScalar radius, int margin) {
     const int n = SkScalarCeilToInt(radius) * 2 + margin * 2;
     auto      surf = ToolUtils::makeSurface(canvas, SkImageInfo::MakeN32Premul(n, n));

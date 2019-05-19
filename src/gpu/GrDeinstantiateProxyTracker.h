@@ -8,8 +8,8 @@
 #ifndef GrDeinstantiateProxyTracker_DEFINED
 #define GrDeinstantiateProxyTracker_DEFINED
 
-#include "GrSurfaceProxy.h"
-#include "SkTArray.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/SkTArray.h"
 
 class GrResourceCache;
 

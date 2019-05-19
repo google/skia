@@ -5,25 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "vk/GrVkVulkan.h"
+#include "include/gpu/vk/GrVkVulkan.h"
 
-#include "GrContextPriv.h"
-#include "GrContextFactory.h"
-#include "Test.h"
+#include "src/gpu/GrContextPriv.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
-#include "GrBackendSemaphore.h"
-#include "GrBackendSurface.h"
-#include "SkCanvas.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/GrBackendSurface.h"
 
-#include "gl/GrGLGpu.h"
-#include "gl/GrGLUtil.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 #ifdef SK_VULKAN
-#include "vk/GrVkCommandPool.h"
-#include "vk/GrVkGpu.h"
-#include "vk/GrVkTypes.h"
-#include "vk/GrVkUtil.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/vk/GrVkCommandPool.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 // windows wants to define this as CreateSemaphoreA or CreateSemaphoreW
@@ -104,13 +104,15 @@ void draw_child(skiatest::Reporter* reporter,
     check_pixels(reporter, bitmap);
 }
 
+enum class FlushType { kSurface, kImage, kContext };
+
 void surface_semaphore_test(skiatest::Reporter* reporter,
                             const sk_gpu_test::ContextInfo& mainInfo,
                             const sk_gpu_test::ContextInfo& childInfo1,
                             const sk_gpu_test::ContextInfo& childInfo2,
-                            bool flushContext) {
+                            FlushType flushType) {
     GrContext* mainCtx = mainInfo.grContext();
-    if (!mainCtx->priv().caps()->fenceSyncSupport()) {
+    if (!mainCtx->priv().caps()->semaphoreSupport()) {
         return;
     }
 
@@ -121,7 +123,11 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
                                                              ii, 0, kTopLeft_GrSurfaceOrigin,
                                                              nullptr));
     SkCanvas* mainCanvas = mainSurface->getCanvas();
-    mainCanvas->clear(SK_ColorBLUE);
+    auto blueSurface = mainSurface->makeSurface(ii);
+    blueSurface->getCanvas()->clear(SK_ColorBLUE);
+    auto blueImage = blueSurface->makeImageSnapshot();
+    blueSurface.reset();
+    mainCanvas->drawImage(blueImage, 0, 0);
 
     SkAutoTArray<GrBackendSemaphore> semaphores(2);
 #ifdef SK_VULKAN
@@ -146,10 +152,16 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     GrFlushInfo info;
     info.fNumSemaphores = 2;
     info.fSignalSemaphores = semaphores.get();
-    if (flushContext) {
-        mainCtx->flush(info);
-    } else {
-        mainSurface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, info);
+    switch (flushType) {
+        case FlushType::kSurface:
+            mainSurface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, info);
+            break;
+        case FlushType::kImage:
+            blueImage->flush(mainCtx, info);
+            break;
+        case FlushType::kContext:
+            mainCtx->flush(info);
+            break;
     }
 
     sk_sp<SkImage> mainImage = mainSurface->makeImageSnapshot();
@@ -179,7 +191,7 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
 #endif
 
     for (int typeInt = 0; typeInt < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++typeInt) {
-        for (auto flushContext : { false, true }) {
+        for (auto flushType : {FlushType::kSurface, FlushType::kImage, FlushType::kContext}) {
             sk_gpu_test::GrContextFactory::ContextType contextType =
                     (sk_gpu_test::GrContextFactory::ContextType) typeInt;
             // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on
@@ -207,7 +219,7 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
                     continue;
                 }
 
-                surface_semaphore_test(reporter, ctxInfo, child1, child2, flushContext);
+                surface_semaphore_test(reporter, ctxInfo, child1, child2, flushType);
             }
         }
     }
@@ -215,7 +227,7 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
-    if (!ctx->priv().caps()->fenceSyncSupport()) {
+    if (!ctx->priv().caps()->semaphoreSupport()) {
         return;
     }
 

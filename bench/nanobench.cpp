@@ -7,47 +7,47 @@
 
 #include <ctype.h>
 
-#include "nanobench.h"
+#include "bench/nanobench.h"
 
-#include "AndroidCodecBench.h"
-#include "Benchmark.h"
-#include "BitmapRegionDecoderBench.h"
-#include "CodecBench.h"
-#include "CodecBenchPriv.h"
-#include "CommonFlags.h"
-#include "CommonFlagsConfig.h"
-#include "CrashHandler.h"
-#include "EventTracingPriv.h"
-#include "GMBench.h"
-#include "ProcStats.h"
-#include "RecordingBench.h"
-#include "ResultsWriter.h"
-#include "SKPAnimationBench.h"
-#include "SKPBench.h"
-#include "SkAndroidCodec.h"
-#include "SkAutoMalloc.h"
-#include "SkBBoxHierarchy.h"
-#include "SkBitmapRegionDecoder.h"
-#include "SkCanvas.h"
-#include "SkCodec.h"
-#include "SkColorSpacePriv.h"
-#include "SkData.h"
-#include "SkDebugfTracer.h"
-#include "SkGraphics.h"
-#include "SkJSONWriter.h"
-#include "SkLeanWindows.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkPictureRecorder.h"
-#include "SkString.h"
-#include "SkSurface.h"
-#include "SkTaskGroup.h"
-#include "SkTraceEvent.h"
-#include "Stats.h"
-#include "ios_utils.h"
+#include "bench/AndroidCodecBench.h"
+#include "bench/Benchmark.h"
+#include "bench/BitmapRegionDecoderBench.h"
+#include "bench/CodecBench.h"
+#include "bench/CodecBenchPriv.h"
+#include "bench/GMBench.h"
+#include "bench/RecordingBench.h"
+#include "bench/ResultsWriter.h"
+#include "bench/SKPAnimationBench.h"
+#include "bench/SKPBench.h"
+#include "include/android/SkBitmapRegionDecoder.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkLeanWindows.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkBBoxHierarchy.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkTaskGroup.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/utils/SkJSONWriter.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/CrashHandler.h"
+#include "tools/ProcStats.h"
+#include "tools/Stats.h"
+#include "tools/flags/CommonFlags.h"
+#include "tools/flags/CommonFlagsConfig.h"
+#include "tools/ios_utils.h"
+#include "tools/trace/EventTracingPriv.h"
+#include "tools/trace/SkDebugfTracer.h"
 
 #ifdef SK_XML
-#include "SkSVGDOM.h"
+#include "experimental/svg/model/SkSVGDOM.h"
 #endif  // SK_XML
 
 #include <stdlib.h>
@@ -60,13 +60,13 @@ extern bool gSkForceRasterPipelineBlitter;
 
 #endif
 
-#include "GrCaps.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "SkGr.h"
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLGpu.h"
-#include "gl/GrGLUtil.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLUtil.h"
+#include "tools/gpu/GrContextFactory.h"
 
 using sk_gpu_test::ContextInfo;
 using sk_gpu_test::GrContextFactory;
@@ -122,7 +122,6 @@ static DEFINE_string(zoom, "1.0,0",
                      "Comma-separated zoomMax,zoomPeriodMs factors for a periodic SKP zoom "
                      "function that ping-pongs between 1.0 and zoomMax.");
 static DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
-static DEFINE_bool(lite, false, "Use SkLiteRecorder in recording benchmarks?");
 static DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
 static DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
 static DEFINE_int(flushEvery, 10, "Flush --outResultsFile every Nth run.");
@@ -780,7 +779,7 @@ public:
             fBenchType  = "recording";
             fSKPBytes = static_cast<double>(pic->approximateBytesUsed());
             fSKPOps   = pic->approximateOpCount();
-            return new RecordingBench(name.c_str(), pic.get(), FLAGS_bbh, FLAGS_lite);
+            return new RecordingBench(name.c_str(), pic.get(), FLAGS_bbh);
         }
 
         // Add all .skps as DeserializePictureBenchs.

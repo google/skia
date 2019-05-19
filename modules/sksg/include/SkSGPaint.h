@@ -8,10 +8,10 @@
 #ifndef SkSGPaint_DEFINED
 #define SkSGPaint_DEFINED
 
-#include "SkSGNode.h"
+#include "modules/sksg/include/SkSGNode.h"
 
-#include "SkColor.h"
-#include "SkPaint.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
 
 namespace sksg {
 

@@ -5,15 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCDrawPathsOp.h"
+#include "src/gpu/ccpr/GrCCDrawPathsOp.h"
 
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "ccpr/GrCCPathCache.h"
-#include "ccpr/GrCCPerFlushResources.h"
-#include "ccpr/GrCoverageCountingPathRenderer.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/ccpr/GrCCPathCache.h"
+#include "src/gpu/ccpr/GrCCPerFlushResources.h"
+#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
+#include "src/gpu/ccpr/GrOctoBounds.h"
 
 static bool has_coord_transforms(const GrPaint& paint) {
     GrFragmentProcessor::Iter iter(paint);
@@ -107,9 +108,15 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
                  paint.getColor4f())
         , fProcessors(std::move(paint)) {  // Paint must be moved after fetching its color above.
     SkDEBUGCODE(fBaseInstance = -1);
-    // FIXME: intersect with clip bounds to (hopefully) improve batching.
-    // (This is nontrivial due to assumptions in generating the octagon cover geometry.)
-    this->setBounds(conservativeDevBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
+    // If the path is clipped, CCPR will only draw the visible portion. This helps improve batching,
+    // since it eliminates the need for scissor when drawing to the main canvas.
+    // FIXME: We should parse the path right here. It will provide a tighter bounding box for us to
+    // give the opList, as well as enabling threaded parsing when using DDL.
+    SkRect clippedDrawBounds;
+    if (!clippedDrawBounds.intersect(conservativeDevBounds, SkRect::Make(maskDevIBounds))) {
+        clippedDrawBounds.setEmpty();
+    }
+    this->setBounds(clippedDrawBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
 }
 
 GrCCDrawPathsOp::~GrCCDrawPathsOp() {
@@ -361,22 +368,22 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
     // bounding boxes: One in device space, as well as a second one rotated an additional 45
     // degrees. The path vertex shader uses these two bounding boxes to generate an octagon that
     // circumscribes the path.
-    SkRect devBounds, devBounds45;
+    GrOctoBounds octoBounds;
     SkIRect devIBounds;
     SkIVector devToAtlasOffset;
     if (auto atlas = resources->renderShapeInAtlas(
-                fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &devBounds, &devBounds45,
-                &devIBounds, &devToAtlasOffset)) {
+                fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &octoBounds, &devIBounds,
+                &devToAtlasOffset)) {
         op->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
-        resources->appendDrawPathInstance().set(devBounds, devBounds45, devToAtlasOffset,
-                                                SkPMColor4f_toFP16(fColor), doEvenOddFill);
+        resources->appendDrawPathInstance().set(
+                octoBounds, devToAtlasOffset, SkPMColor4f_toFP16(fColor), doEvenOddFill);
 
         if (fDoCachePathMask) {
             SkASSERT(fCacheEntry);
             SkASSERT(!fCacheEntry->cachedAtlas());
             SkASSERT(fShapeConservativeIBounds == fMaskDevIBounds);
-            fCacheEntry->setCoverageCountAtlas(onFlushRP, atlas, devToAtlasOffset, devBounds,
-                                               devBounds45, devIBounds, fCachedMaskShift);
+            fCacheEntry->setCoverageCountAtlas(
+                    onFlushRP, atlas, devToAtlasOffset, octoBounds, devIBounds, fCachedMaskShift);
         }
     }
 }
@@ -415,7 +422,11 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     for (const InstanceRange& range : fInstanceRanges) {
         SkASSERT(range.fEndInstanceIdx > baseInstance);
 
-        GrCCPathProcessor pathProc(range.fAtlasProxy, fViewMatrixIfUsingLocalCoords);
+        const GrTextureProxy* atlas = range.fAtlasProxy;
+        SkASSERT(atlas->isInstantiated());
+
+        GrCCPathProcessor pathProc(
+                atlas->peekTexture(), atlas->origin(), fViewMatrixIfUsingLocalCoords);
         GrTextureProxy* atlasProxy = range.fAtlasProxy;
         fixedDynamicState.fPrimitiveProcessorTextures = &atlasProxy;
         pathProc.drawPaths(flushState, pipeline, &fixedDynamicState, *resources, baseInstance,

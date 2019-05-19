@@ -7,16 +7,16 @@
 
 // This is a GPU-backend specific test.
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "GrContextPriv.h"
-#include "GrPendingIOResource.h"
-#include "GrProxyProvider.h"
-#include "GrRenderTargetProxy.h"
-#include "GrResourceProvider.h"
-#include "GrSurfaceProxy.h"
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrRenderTargetProxy.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrPendingIOResource.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrResourceProvider.h"
 
 int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
     if (fTarget) {
@@ -70,8 +70,7 @@ static sk_sp<GrTextureProxy> make_deferred(GrProxyProvider* proxyProvider, const
 
     const GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     return proxyProvider->createProxy(format, desc, kBottomLeft_GrSurfaceOrigin,
-                                      SkBackingFit::kApprox, SkBudgeted::kYes,
-                                      GrInternalSurfaceFlags::kNoPendingIO);
+                                      SkBackingFit::kApprox, SkBudgeted::kYes);
 }
 
 static sk_sp<GrTextureProxy> make_wrapped(GrProxyProvider* proxyProvider, const GrCaps* caps) {

@@ -5,26 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrContextFactory.h"
-#include "GrGpu.h"
-#include "GrGpuResourceCacheAccess.h"
-#include "GrGpuResourcePriv.h"
-#include "GrProxyProvider.h"
-#include "GrRenderTargetPriv.h"
-#include "GrResourceCache.h"
-#include "GrResourceProvider.h"
-#include "GrTexture.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrGpuResourceCacheAccess.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrResourceCache.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "tools/gpu/GrContextFactory.h"
 
-#include "SkCanvas.h"
-#include "SkGr.h"
-#include "SkMessageBus.h"
-#include "SkMipMap.h"
-#include "SkSurface.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkMessageBus.h"
+#include "src/core/SkMipMap.h"
+#include "src/gpu/SkGr.h"
+#include "tests/Test.h"
 
 #include <thread>
 
@@ -209,12 +209,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     static const int kW = 100;
     static const int kH = 100;
 
-    backendTextures[0] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
-                                                              GrColorType::kRGBA_8888,
-                                                              false, GrMipMapped::kNo);
-    backendTextures[1] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
-                                                              GrColorType::kRGBA_8888,
-                                                              false, GrMipMapped::kNo);
+    backendTextures[0] = context->priv().createBackendTexture(kW, kH, kRGBA_8888_SkColorType,
+                                                              GrMipMapped::kNo, GrRenderable::kNo);
+    backendTextures[1] = context->priv().createBackendTexture(kW, kH, kRGBA_8888_SkColorType,
+                                                              GrMipMapped::kNo, GrRenderable::kNo);
     REPORTER_ASSERT(reporter, backendTextures[0].isValid());
     REPORTER_ASSERT(reporter, backendTextures[1].isValid());
     if (!backendTextures[0].isValid() || !backendTextures[1].isValid()) {
@@ -246,10 +244,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     REPORTER_ASSERT(reporter, !adoptedIsAlive);
 
     if (borrowedIsAlive) {
-        gpu->deleteTestingOnlyBackendTexture(backendTextures[0]);
+        context->priv().deleteBackendTexture(backendTextures[0]);
     }
     if (adoptedIsAlive) {
-        gpu->deleteTestingOnlyBackendTexture(backendTextures[1]);
+        context->priv().deleteBackendTexture(backendTextures[1]);
     }
 
     context->resetContext();

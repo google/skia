@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "point_cloud_renderer.h"
-#include "util.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/point_cloud_renderer.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/util.h"
 
 namespace hello_ar {
     namespace {

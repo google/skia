@@ -8,9 +8,9 @@
 #ifndef SkColorPriv_DEFINED
 #define SkColorPriv_DEFINED
 
-#include "../private/SkTo.h"
-#include "SkColor.h"
-#include "SkMath.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMath.h"
+#include "include/private/SkTo.h"
 
 /** Turn 0..255 into 0..256 by adding 1 at the half-way point. Used to turn a
     byte into a scale value, so that we can say scale * value >> 8 instead of
@@ -46,7 +46,7 @@ static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
 
 /*
  *  Skia's 32bit backend only supports 1 swizzle order at a time (compile-time).
- *  This is specified by 4 defines SK_A32_SHIFT, SK_R32_SHIFT, ... for G and B.
+ *  This is specified by SK_R32_SHIFT=0 or SK_R32_SHIFT=16.
  *
  *  For easier compatibility with Skia's GPU backend, we further restrict these
  *  to either (in memory-byte-order) RGBA or BGRA. Note that this "order" does
@@ -56,30 +56,18 @@ static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
  *  Here we enforce this constraint.
  */
 
-#ifdef SK_CPU_BENDIAN
-    #define SK_RGBA_R32_SHIFT   24
-    #define SK_RGBA_G32_SHIFT   16
-    #define SK_RGBA_B32_SHIFT   8
-    #define SK_RGBA_A32_SHIFT   0
+#define SK_RGBA_R32_SHIFT   0
+#define SK_RGBA_G32_SHIFT   8
+#define SK_RGBA_B32_SHIFT   16
+#define SK_RGBA_A32_SHIFT   24
 
-    #define SK_BGRA_B32_SHIFT   24
-    #define SK_BGRA_G32_SHIFT   16
-    #define SK_BGRA_R32_SHIFT   8
-    #define SK_BGRA_A32_SHIFT   0
-#else
-    #define SK_RGBA_R32_SHIFT   0
-    #define SK_RGBA_G32_SHIFT   8
-    #define SK_RGBA_B32_SHIFT   16
-    #define SK_RGBA_A32_SHIFT   24
-
-    #define SK_BGRA_B32_SHIFT   0
-    #define SK_BGRA_G32_SHIFT   8
-    #define SK_BGRA_R32_SHIFT   16
-    #define SK_BGRA_A32_SHIFT   24
-#endif
+#define SK_BGRA_B32_SHIFT   0
+#define SK_BGRA_G32_SHIFT   8
+#define SK_BGRA_R32_SHIFT   16
+#define SK_BGRA_A32_SHIFT   24
 
 #if defined(SK_PMCOLOR_IS_RGBA) || defined(SK_PMCOLOR_IS_BGRA)
-    #error "Configure PMCOLOR by setting SK_R32_SHIFT, etc"
+    #error "Configure PMCOLOR by setting SK_R32_SHIFT."
 #endif
 
 // Deduce which SK_PMCOLOR_IS_ to define from the _SHIFT defines

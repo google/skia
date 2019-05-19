@@ -5,73 +5,73 @@
  * found in the LICENSE file.
  */
 
-#include "Fuzz.h"
-#include "FuzzCommon.h"
+#include "fuzz/Fuzz.h"
+#include "fuzz/FuzzCommon.h"
 
 // CORE
-#include "DebugCanvas.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkFontMgr.h"
-#include "SkImageFilter.h"
-#include "SkMaskFilter.h"
-#include "SkNullCanvas.h"
-#include "SkOSFile.h"
-#include "SkPDFDocument.h"
-#include "SkPathEffect.h"
-#include "SkPicturePriv.h"
-#include "SkPictureRecorder.h"
-#include "SkPoint3.h"
-#include "SkRSXform.h"
-#include "SkRegion.h"
-#include "SkSurface.h"
-#include "SkTo.h"
-#include "SkTypeface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypeface.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkNullCanvas.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkPicturePriv.h"
+#include "tools/debugger/DebugCanvas.h"
 
 // EFFECTS
-#include "Sk1DPathEffect.h"
-#include "Sk2DPathEffect.h"
-#include "SkAlphaThresholdFilter.h"
-#include "SkArithmeticImageFilter.h"
-#include "SkBlurImageFilter.h"
-#include "SkBlurMaskFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkColorMatrixFilter.h"
-#include "SkComposeImageFilter.h"
-#include "SkCornerPathEffect.h"
-#include "SkDashPathEffect.h"
-#include "SkDiscretePathEffect.h"
-#include "SkDisplacementMapEffect.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkGradientShader.h"
-#include "SkHighContrastFilter.h"
-#include "SkImageSource.h"
-#include "SkLightingImageFilter.h"
-#include "SkLumaColorFilter.h"
-#include "SkMagnifierImageFilter.h"
-#include "SkMatrixConvolutionImageFilter.h"
-#include "SkMergeImageFilter.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkOffsetImageFilter.h"
-#include "SkPaintImageFilter.h"
-#include "SkPerlinNoiseShader.h"
-#include "SkPictureImageFilter.h"
-#include "SkReadBuffer.h"
-#include "SkTableColorFilter.h"
-#include "SkTextBlob.h"
-#include "SkTileImageFilter.h"
-#include "SkXfermodeImageFilter.h"
+#include "include/core/SkTextBlob.h"
+#include "include/effects/Sk1DPathEffect.h"
+#include "include/effects/Sk2DPathEffect.h"
+#include "include/effects/SkAlphaThresholdFilter.h"
+#include "include/effects/SkArithmeticImageFilter.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/effects/SkComposeImageFilter.h"
+#include "include/effects/SkCornerPathEffect.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/effects/SkDiscretePathEffect.h"
+#include "include/effects/SkDisplacementMapEffect.h"
+#include "include/effects/SkDropShadowImageFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkHighContrastFilter.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkLightingImageFilter.h"
+#include "include/effects/SkLumaColorFilter.h"
+#include "include/effects/SkMagnifierImageFilter.h"
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/effects/SkMergeImageFilter.h"
+#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkOffsetImageFilter.h"
+#include "include/effects/SkPaintImageFilter.h"
+#include "include/effects/SkPerlinNoiseShader.h"
+#include "include/effects/SkPictureImageFilter.h"
+#include "include/effects/SkTableColorFilter.h"
+#include "include/effects/SkTileImageFilter.h"
+#include "include/effects/SkXfermodeImageFilter.h"
+#include "src/core/SkReadBuffer.h"
 
 // SRC
-#include "CommandLineFlags.h"
-#include "SkUTF.h"
+#include "src/utils/SkUTF.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "gl/GrGLFunctions.h"
-#include "gl/GrGLGpu.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/gl/GrGLFunctions.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLUtil.h"
+#include "tools/gpu/GrContextFactory.h"
 #endif
 
 // MISC
@@ -127,9 +127,9 @@ static sk_sp<SkColorFilter> make_fuzz_colorfilter(Fuzz* fuzz, int depth) {
             return outer->makeComposed(std::move(inner));
         }
         case 3: {
-            SkScalar array[20];
+            float array[20];
             fuzz->nextN(array, SK_ARRAY_COUNT(array));
-            return SkColorFilters::MatrixRowMajor255(array);
+            return SkColorFilters::Matrix(array);
         }
         case 4: {
             SkColor mul, add;
@@ -886,7 +886,7 @@ static SkFont fuzz_font(Fuzz* fuzz) {
     font.setEmbeddedBitmaps(    make_fuzz_t<bool>(fuzz));
     font.setForceAutoHinting(   make_fuzz_t<bool>(fuzz));
     font.setEmbolden(           make_fuzz_t<bool>(fuzz));
-    font.setHinting(            make_fuzz_t_range<SkFontHinting>(fuzz, 0, kFull_SkFontHinting));
+    font.setHinting(            make_fuzz_t_range<SkFontHinting>(fuzz, 0, SkFontHinting::kFull));
     font.setEdging(             make_fuzz_t_range<SkFont::Edging>(fuzz, 0,
                                                       (int)SkFont::Edging::kSubpixelAntiAlias));
     return font;
@@ -900,7 +900,7 @@ constexpr int kMaxGlyphCount = 30;
 
 static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextEncoding encoding) {
     SkTDArray<uint8_t> array;
-    if (kGlyphID_SkTextEncoding == encoding) {
+    if (SkTextEncoding::kGlyphID == encoding) {
         int glyphRange = font.getTypefaceOrDefault()->countGlyphs();
         if (glyphRange == 0) {
             // Some fuzzing environments have no fonts, so empty array is the best
@@ -941,7 +941,7 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextE
         }
     }
     switch (encoding) {
-        case kUTF8_SkTextEncoding: {
+        case SkTextEncoding::kUTF8: {
             size_t utf8len = 0;
             for (int j = 0; j < length; ++j) {
                 utf8len += SkUTF::ToUTF8(buffer[j], nullptr);
@@ -951,7 +951,7 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextE
                 ptr += SkUTF::ToUTF8(buffer[j], ptr);
             }
         } break;
-        case kUTF16_SkTextEncoding: {
+        case SkTextEncoding::kUTF16: {
             size_t utf16len = 0;
             for (int j = 0; j < length; ++j) {
                 utf16len += SkUTF::ToUTF16(buffer[j]);
@@ -961,7 +961,7 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextE
                 ptr += SkUTF::ToUTF16(buffer[j], ptr);
             }
         } break;
-        case kUTF32_SkTextEncoding:
+        case SkTextEncoding::kUTF32:
             memcpy(array.append(length * sizeof(SkUnichar)), buffer, length * sizeof(SkUnichar));
             break;
         default:

@@ -8,9 +8,9 @@
 #ifndef GrVkPipelineLayout_DEFINED
 #define GrVkPipelineLayout_DEFINED
 
-#include "GrTypes.h"
-#include "GrVkResource.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/vk/GrVkResource.h"
 
 class GrVkPipelineLayout : public GrVkResource {
 public:

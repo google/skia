@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "DDLPromiseImageHelper.h"
+#include "tools/DDLPromiseImageHelper.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "SkCachedData.h"
-#include "SkDeferredDisplayListRecorder.h"
-#include "SkImage_Base.h"
-#include "SkImage_GpuYUVA.h"
-#include "SkYUVAIndex.h"
-#include "SkYUVASizeInfo.h"
+#include "include/core/SkDeferredDisplayListRecorder.h"
+#include "include/core/SkYUVAIndex.h"
+#include "include/core/SkYUVASizeInfo.h"
+#include "include/gpu/GrContext.h"
+#include "src/core/SkCachedData.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/image/SkImage_Base.h"
+#include "src/image/SkImage_GpuYUVA.h"
 
 DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext() {
     SkASSERT(fDoneCnt == fNumImages);
@@ -24,8 +24,7 @@ DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext
     SkASSERT(!fTotalFulfills || fDoneCnt);
 
     if (fPromiseImageTexture) {
-        GrGpu* gpu = fContext->priv().getGpu();
-        gpu->deleteTestingOnlyBackendTexture(fPromiseImageTexture->backendTexture());
+        fContext->priv().deleteBackendTexture(fPromiseImageTexture->backendTexture());
     }
 }
 
@@ -59,6 +58,8 @@ sk_sp<SkData> DDLPromiseImageHelper::deflateSKP(const SkPicture* inputPicture) {
 // needed until we have SkRG_88_ColorType;
 static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkPixmap& pm,
                                             const SkYUVAIndex yuvaIndices[4], int texIndex) {
+    const GrCaps* caps = gpu->caps();
+
     SkASSERT(texIndex >= 0 && texIndex <= 3);
     int channelCount = 0;
     for (int i = 0; i < SkYUVAIndex::kIndexCount; ++i) {
@@ -80,23 +81,18 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkPixmap& pm,
                 currPixel += 2;
             }
         }
+
+        GrBackendFormat format = caps->getBackendFormatFromGrColorType(GrColorType::kRG_88,
+                                                                       GrSRGBEncoded::kNo);
         tex = gpu->createTestingOnlyBackendTexture(
-            pixels,
-            pm.width(),
-            pm.height(),
-            GrColorType::kRG_88,
-            false,
-            GrMipMapped::kNo,
-            2 * pm.width());
+            pm.width(), pm.height(), format,
+            GrMipMapped::kNo, GrRenderable::kNo,
+            pixels, 2 * pm.width());
     } else {
         tex = gpu->createTestingOnlyBackendTexture(
-            pm.addr(),
-            pm.width(),
-            pm.height(),
-            pm.colorType(),
-            false,
-            GrMipMapped::kNo,
-            pm.rowBytes());
+            pm.width(), pm.height(), pm.colorType(),
+            GrMipMapped::kNo, GrRenderable::kNo,
+            pm.addr(), pm.rowBytes());
     }
     return tex;
 }
@@ -131,12 +127,9 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
             const SkBitmap& bm = info.normalBitmap();
 
             callbackContext->setBackendTexture(gpu->createTestingOnlyBackendTexture(
-                                                                bm.getPixels(),
-                                                                bm.width(),
-                                                                bm.height(),
-                                                                bm.colorType(),
-                                                                false, GrMipMapped::kNo,
-                                                                bm.rowBytes()));
+                                                        bm.width(), bm.height(), bm.colorType(),
+                                                        GrMipMapped::kNo, GrRenderable::kNo,
+                                                        bm.getPixels(), bm.rowBytes()));
             // The GMs sometimes request too large an image
             //SkAssertResult(callbackContext->backendTexture().isValid());
 
@@ -273,7 +266,10 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
     SkImage_Base* ib = as_IB(image);
 
     SkImageInfo overallII = SkImageInfo::Make(image->width(), image->height(),
-                                              image->colorType(), image->alphaType(),
+                                              image->colorType() == kBGRA_8888_SkColorType
+                                                        ? kRGBA_8888_SkColorType
+                                                        : image->colorType(),
+                                              image->alphaType(),
                                               image->refColorSpace());
 
     PromiseImageInfo& newImageInfo = fImageInfo.emplace_back(fImageInfo.count(),

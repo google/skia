@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-#include "SkPoint.h"
-#include "SkRandom.h"
-#include "Test.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkRandom.h"
+#include "tests/Test.h"
 #include <vector>
 
 #if SK_SUPPORT_GPU
 
-#include "GrSamplePatternDictionary.h"
+#include "src/gpu/GrSamplePatternDictionary.h"
 
 static SkTArray<SkPoint> make_sample_pattern(const std::vector<SkPoint>& sampleLocations) {
     return SkTArray<SkPoint>(sampleLocations.data(), sampleLocations.size());

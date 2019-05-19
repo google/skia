@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkCommandPool.h"
+#include "src/gpu/vk/GrVkCommandPool.h"
 
-#include "GrContextPriv.h"
-#include "GrVkCommandBuffer.h"
-#include "GrVkGpu.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/vk/GrVkCommandBuffer.h"
+#include "src/gpu/vk/GrVkGpu.h"
 
 GrVkCommandPool* GrVkCommandPool::Create(const GrVkGpu* gpu) {
     const VkCommandPoolCreateInfo cmdPoolInfo = {

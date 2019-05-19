@@ -8,9 +8,9 @@
 #ifndef ImGuiLayer_DEFINED
 #define ImGuiLayer_DEFINED
 
-#include "SkPaint.h"
-#include "SkTArray.h"
-#include "sk_app/Window.h"
+#include "include/core/SkPaint.h"
+#include "include/private/SkTArray.h"
+#include "tools/sk_app/Window.h"
 
 #include "imgui.h"
 

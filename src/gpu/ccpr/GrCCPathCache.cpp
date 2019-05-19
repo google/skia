@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPathCache.h"
+#include "src/gpu/ccpr/GrCCPathCache.h"
 
-#include "GrOnFlushResourceProvider.h"
-#include "GrProxyProvider.h"
-#include "SkNx.h"
+#include "include/private/SkNx.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrProxyProvider.h"
 
 static constexpr int kMaxKeyDataCountU32 = 256;  // 1kB of uint32_t's.
 
@@ -352,8 +352,7 @@ GrCCPathCache::OnFlushEntryRef::~OnFlushEntryRef() {
 
 void GrCCPathCacheEntry::setCoverageCountAtlas(
         GrOnFlushResourceProvider* onFlushRP, GrCCAtlas* atlas, const SkIVector& atlasOffset,
-        const SkRect& devBounds, const SkRect& devBounds45, const SkIRect& devIBounds,
-        const SkIVector& maskShift) {
+        const GrOctoBounds& octoBounds, const SkIRect& devIBounds, const SkIVector& maskShift) {
     SkASSERT(fOnFlushRefCnt > 0);
     SkASSERT(!fCachedAtlas);  // Otherwise we would need to call releaseCachedAtlas().
 
@@ -369,9 +368,7 @@ void GrCCPathCacheEntry::setCoverageCountAtlas(
 
     fAtlasOffset = atlasOffset + maskShift;
 
-    float dx = (float)maskShift.fX, dy = (float)maskShift.fY;
-    fDevBounds = devBounds.makeOffset(-dx, -dy);
-    fDevBounds45 = GrCCPathProcessor::MakeOffset45(devBounds45, -dx, -dy);
+    fOctoBounds.setOffset(octoBounds, -maskShift.fX, -maskShift.fY);
     fDevIBounds = devIBounds.makeOffset(-maskShift.fX, -maskShift.fY);
 }
 

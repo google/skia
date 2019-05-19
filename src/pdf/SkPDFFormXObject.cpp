@@ -6,8 +6,8 @@
  */
 
 
-#include "SkPDFFormXObject.h"
-#include "SkPDFUtils.h"
+#include "src/pdf/SkPDFFormXObject.h"
+#include "src/pdf/SkPDFUtils.h"
 
 SkPDFIndirectReference SkPDFMakeFormXObject(SkPDFDocument* doc,
                                             std::unique_ptr<SkStreamAsset> content,

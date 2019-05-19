@@ -5,11 +5,11 @@
 * found in the LICENSE file.
 */
 
-#include "SkCurve.h"
+#include "modules/particles/include/SkCurve.h"
 
-#include "SkParticleData.h"
-#include "SkRandom.h"
-#include "SkReflected.h"
+#include "include/utils/SkRandom.h"
+#include "modules/particles/include/SkParticleData.h"
+#include "modules/particles/include/SkReflected.h"
 
 constexpr SkFieldVisitor::EnumStringMapping gCurveSegmentTypeMapping[] = {
     { kConstant_SegmentType, "Constant" },

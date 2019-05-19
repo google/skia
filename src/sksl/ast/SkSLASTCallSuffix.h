@@ -9,7 +9,7 @@
 #define SKSL_ASTCALLSUFFIX
 
 #include <vector>
-#include "SkSLASTSuffix.h"
+#include "src/sksl/ast/SkSLASTSuffix.h"
 
 namespace SkSL {
 

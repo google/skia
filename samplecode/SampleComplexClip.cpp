@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkPath.h"
-#include "SkClipOpPriv.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPath.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkClipOpPriv.h"
 
 class ComplexClipView : public Sample {
 public:
@@ -129,14 +129,14 @@ protected:
                 SkScalar txtX = SkIntToScalar(55);
                 paint.setColor(colorA);
                 const char* aTxt = invA ? "InverseA " : "A ";
-                canvas->drawSimpleText(aTxt, strlen(aTxt), kUTF8_SkTextEncoding, txtX, SkIntToScalar(220), font, paint);
-                txtX += font.measureText(aTxt, strlen(aTxt), kUTF8_SkTextEncoding);
+                canvas->drawSimpleText(aTxt, strlen(aTxt), SkTextEncoding::kUTF8, txtX, SkIntToScalar(220), font, paint);
+                txtX += font.measureText(aTxt, strlen(aTxt), SkTextEncoding::kUTF8);
                 paint.setColor(SK_ColorBLACK);
-                canvas->drawSimpleText(gOps[op].fName, strlen(gOps[op].fName), kUTF8_SkTextEncoding,
+                canvas->drawSimpleText(gOps[op].fName, strlen(gOps[op].fName), SkTextEncoding::kUTF8,
                                     txtX, 220, font, paint);
-                txtX += font.measureText(gOps[op].fName, strlen(gOps[op].fName), kUTF8_SkTextEncoding);
+                txtX += font.measureText(gOps[op].fName, strlen(gOps[op].fName), SkTextEncoding::kUTF8);
                 paint.setColor(colorB);
-                canvas->drawSimpleText("B", 1, kUTF8_SkTextEncoding, txtX, 220, font, paint);
+                canvas->drawSimpleText("B", 1, SkTextEncoding::kUTF8, txtX, 220, font, paint);
 
                 canvas->translate(SkIntToScalar(250),0);
             }

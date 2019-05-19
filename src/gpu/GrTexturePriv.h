@@ -8,7 +8,7 @@
 #ifndef GrTexturePriv_DEFINED
 #define GrTexturePriv_DEFINED
 
-#include "GrTexture.h"
+#include "include/gpu/GrTexture.h"
 
 /** Class that adds methods to GrTexture that are only intended for use internal to Skia.
     This class is purely a privileged window into GrTexture. It should never have additional data

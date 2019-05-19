@@ -5,25 +5,33 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkArithmeticImageFilter.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/effects/SkMergeImageFilter.h"
+#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkOffsetImageFilter.h"
+#include "include/effects/SkXfermodeImageFilter.h"
+#include "tools/ToolUtils.h"
 
-#include "SkArithmeticImageFilter.h"
-#include "SkBlurImageFilter.h"
-#include "SkColorFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkColorMatrixFilter.h"
-#include "SkImage.h"
-#include "SkImageSource.h"
-#include "SkMatrixConvolutionImageFilter.h"
-#include "SkMergeImageFilter.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkOffsetImageFilter.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
-#include "SkWriteBuffer.h"
-#include "SkXfermodeImageFilter.h"
+#include <utility>
 
 class ImageFiltersGraphGM : public skiagm::GM {
 public:
@@ -62,12 +70,12 @@ protected:
         {
             sk_sp<SkImageFilter> morph(SkDilateImageFilter::Make(5, 5, nullptr));
 
-            SkScalar matrix[20] = { SK_Scalar1, 0, 0, 0, 0,
-                                    0, SK_Scalar1, 0, 0, 0,
-                                    0, 0, SK_Scalar1, 0, 0,
-                                    0, 0, 0, 0.5f, 0 };
+            float matrix[20] = { 1, 0, 0, 0, 0,
+                                 0, 1, 0, 0, 0,
+                                 0, 0, 1, 0, 0,
+                                 0, 0, 0, 0.5f, 0 };
 
-            sk_sp<SkColorFilter> matrixFilter(SkColorFilters::MatrixRowMajor255(matrix));
+            sk_sp<SkColorFilter> matrixFilter(SkColorFilters::Matrix(matrix));
             sk_sp<SkImageFilter> colorMorph(SkColorFilterImageFilter::Make(std::move(matrixFilter),
                                                                            std::move(morph)));
             SkPaint paint;
@@ -78,11 +86,11 @@ protected:
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
-            SkScalar matrix[20] = { SK_Scalar1, 0, 0, 0, 0,
-                                    0, SK_Scalar1, 0, 0, 0,
-                                    0, 0, SK_Scalar1, 0, 0,
-                                    0, 0, 0, 0.5f, 0 };
-            sk_sp<SkColorFilter> matrixCF(SkColorFilters::MatrixRowMajor255(matrix));
+            float matrix[20] = { 1, 0, 0, 0, 0,
+                                 0, 1, 0, 0, 0,
+                                 0, 0, 1, 0, 0,
+                                 0, 0, 0, 0.5f, 0 };
+            sk_sp<SkColorFilter> matrixCF(SkColorFilters::Matrix(matrix));
             sk_sp<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Make(std::move(matrixCF),
                                                                              nullptr));
             sk_sp<SkImageFilter> offsetFilter(SkOffsetImageFilter::Make(10.0f, 10.f,

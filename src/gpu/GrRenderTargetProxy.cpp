@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrRenderTargetProxy.h"
+#include "include/private/GrRenderTargetProxy.h"
 
-#include "GrCaps.h"
-#include "GrGpuResourcePriv.h"
-#include "GrRenderTargetOpList.h"
-#include "GrRenderTargetPriv.h"
-#include "GrResourceProvider.h"
-#include "GrSurfacePriv.h"
-#include "GrTextureRenderTargetProxy.h"
-#include "SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrRenderTargetOpList.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrTextureRenderTargetProxy.h"
 
 // Deferred version
 // TODO: we can probably munge the 'desc' in both the wrapped and deferred
@@ -62,15 +62,14 @@ int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
     return this->glRTFBOIDIs0() ? 0 : caps.maxWindowRectangles();
 }
 
-bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider,
-                                      bool dontForceNoPendingIO) {
+bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (LazyState::kNot != this->lazyInstantiationState()) {
         return false;
     }
     static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
 
     if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNeedsStencil, kDescFlags,
-                               GrMipMapped::kNo, nullptr, dontForceNoPendingIO)) {
+                               GrMipMapped::kNo, nullptr)) {
         return false;
     }
     SkASSERT(fTarget->asRenderTarget());
@@ -79,12 +78,10 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider,
 }
 
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
-    SkASSERT(resourceProvider->explicitlyAllocateGPUResources());
-
     static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt, fNeedsStencil,
-                                                       kDescFlags, GrMipMapped::kNo, true);
+                                                       kDescFlags, GrMipMapped::kNo);
     if (!surface) {
         return nullptr;
     }

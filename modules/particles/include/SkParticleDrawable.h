@@ -8,7 +8,7 @@
 #ifndef SkParticleDrawable_DEFINED
 #define SkParticleDrawable_DEFINED
 
-#include "SkReflected.h"
+#include "modules/particles/include/SkReflected.h"
 
 class SkCanvas;
 struct SkParticleState;

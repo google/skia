@@ -5,30 +5,30 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrShaderCaps.h"
-#include "GrTypes.h"
-#include "SkBitmap.h"
-#include "SkBlendMode.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkColorFilter.h"
-#include "SkColorPriv.h"
-#include "SkImageInfo.h"
-#include "SkPaint.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkSurface.h"
-#include "SkTemplates.h"
-#include "SkUtils.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkUtils.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
 #include <math.h>
+#include <initializer_list>
 
 /** convert 0..1 linear value to 0..1 srgb */
 static float linear_to_srgb(float linear) {

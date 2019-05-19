@@ -5,12 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "SkLightingImageFilter.h"
-#include "SkOffsetImageFilter.h"
-#include "SkPoint3.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkLightingImageFilter.h"
+#include "include/effects/SkOffsetImageFilter.h"
+#include "tools/ToolUtils.h"
+#include "tools/timer/AnimTimer.h"
 
 #define WIDTH 330
 #define HEIGHT 660

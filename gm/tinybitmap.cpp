@@ -4,12 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkShader.h"
-#include "SkUTF.h"
-#include "ToolUtils.h"
-#include "gm.h"
+
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
 
 namespace skiagm {
 

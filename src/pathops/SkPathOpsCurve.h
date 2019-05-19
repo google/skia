@@ -7,10 +7,10 @@
 #ifndef SkPathOpsCurve_DEFINE
 #define SkPathOpsCurve_DEFINE
 
-#include "SkIntersections.h"
+#include "src/pathops/SkIntersections.h"
 
 #ifndef SK_RELEASE
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 #endif
 
 struct SkPathOpsBounds;

@@ -1,7 +1,7 @@
 #if 0  // Disabled until updated to use current API.
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=6e12cceca981ddabc0fc18c380543f34
 REG_FIDDLE(TextBlob_uniqueID, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
         uint16_t glyphs[len];
         SkPaint paint;
         paint.textToGlyphs(bunny, len, glyphs);
-        paint.setTextEncoding(kGlyphID_SkTextEncoding);
+        paint.setTextEncoding(SkTextEncoding::kGlyphID);
         paint.setTextScaleX(0.5);
         SkFont font;
         font.setScaleX(0.5);

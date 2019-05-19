@@ -8,13 +8,13 @@
 #ifndef GrCCCoverageProcessor_DEFINED
 #define GrCCCoverageProcessor_DEFINED
 
-#include "GrCaps.h"
-#include "GrGeometryProcessor.h"
-#include "GrPipeline.h"
-#include "GrShaderCaps.h"
-#include "SkNx.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLVarying.h"
+#include "include/private/SkNx.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
 
 class GrGLSLFPFragmentBuilder;
 class GrGLSLVertexGeoBuilder;
@@ -123,22 +123,28 @@ public:
     // provides details about shape-specific geometry.
     class Shader {
     public:
+        // Returns true if the Impl should not calculate the coverage argument for emitVaryings().
+        // If true, then "coverage" will have a signed magnitude of 1.
+        virtual bool calculatesOwnEdgeCoverage() const { return false; }
+
         // Called before generating geometry. Subclasses may set up internal member variables during
         // this time that will be needed during onEmitVaryings (e.g. transformation matrices).
         //
         // If the 'outHull4' parameter is provided, and there are not 4 input points, the subclass
         // is required to fill it with the name of a 4-point hull around which the Impl can generate
         // its geometry. If it is left unchanged, the Impl will use the regular input points.
-        virtual void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* wind,
-                                   const char** outHull4 = nullptr) const {
+        virtual void emitSetupCode(
+                GrGLSLVertexGeoBuilder*, const char* pts, const char** outHull4 = nullptr) const {
             SkASSERT(!outHull4);
         }
 
-        void emitVaryings(GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope,
-                          SkString* code, const char* position, const char* coverage,
-                          const char* cornerCoverage) {
+        void emitVaryings(
+                GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope, SkString* code,
+                const char* position, const char* coverage, const char* cornerCoverage,
+                const char* wind) {
             SkASSERT(GrGLSLVarying::Scope::kVertToGeo != scope);
-            this->onEmitVaryings(varyingHandler, scope, code, position, coverage, cornerCoverage);
+            this->onEmitVaryings(
+                    varyingHandler, scope, code, position, coverage, cornerCoverage, wind);
         }
 
         void emitFragmentCode(const GrCCCoverageProcessor&, GrGLSLFPFragmentBuilder*,
@@ -148,13 +154,6 @@ public:
         // thin triangles gets rounded to zero.
         static void CalcWind(const GrCCCoverageProcessor&, GrGLSLVertexGeoBuilder*, const char* pts,
                              const char* outputWind);
-
-        // Defines an equation ("dot(float3(pt, 1), distance_equation)") that is -1 on the outside
-        // border of a conservative raster edge and 0 on the inside. 'leftPt' and 'rightPt' must be
-        // ordered clockwise.
-        static void EmitEdgeDistanceEquation(GrGLSLVertexGeoBuilder*, const char* leftPt,
-                                             const char* rightPt,
-                                             const char* outputDistanceEquation);
 
         // Calculates an edge's coverage at a conservative raster vertex. The edge is defined by two
         // clockwise-ordered points, 'leftPt' and 'rightPt'. 'rasterVertexDir' is a pair of +/-1
@@ -188,9 +187,9 @@ public:
         //
         // NOTE: the coverage values are signed appropriately for wind.
         //       'coverage' will only be +1 or -1 on curves.
-        virtual void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                                    const char* position, const char* coverage,
-                                    const char* cornerCoverage) = 0;
+        virtual void onEmitVaryings(
+                GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code, const char* position,
+                const char* coverage, const char* cornerCoverage, const char* wind) = 0;
 
         // Emits the fragment code that calculates a pixel's signed coverage value.
         virtual void onEmitFragmentCode(GrGLSLFPFragmentBuilder*,

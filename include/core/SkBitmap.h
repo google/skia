@@ -8,12 +8,12 @@
 #ifndef SkBitmap_DEFINED
 #define SkBitmap_DEFINED
 
-#include "SkColor.h"
-#include "SkImageInfo.h"
-#include "SkPixmap.h"
-#include "SkPoint.h"
-#include "SkRefCnt.h"
-#include "SkTileMode.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTileMode.h"
 
 struct SkMask;
 struct SkIRect;

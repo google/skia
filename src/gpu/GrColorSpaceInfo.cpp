@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrColorSpaceInfo.h"
-#include "SkColorSpacePriv.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/gpu/GrColorSpaceInfo.h"
 
 GrColorSpaceInfo::GrColorSpaceInfo(sk_sp<SkColorSpace> colorSpace, GrPixelConfig config)
         : fColorSpace(std::move(colorSpace))

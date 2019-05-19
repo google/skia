@@ -8,7 +8,7 @@
 #ifndef GrContextThreadSafeProxyPriv_DEFINED
 #define GrContextThreadSafeProxyPriv_DEFINED
 
-#include "GrContextThreadSafeProxy.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 
 /**
  * Class that adds methods to GrContextThreadSafeProxy that are only intended for use internal to

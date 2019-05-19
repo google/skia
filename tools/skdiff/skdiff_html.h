@@ -8,7 +8,7 @@
 #ifndef skdiff_html_DEFINED
 #define skdiff_html_DEFINED
 
-#include "skdiff.h"
+#include "tools/skdiff/skdiff.h"
 class SkString;
 
 void print_diff_page(const int matchCount,

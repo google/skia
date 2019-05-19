@@ -7,8 +7,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "../Application.h"
-#include "Window_mac.h"
+#include "tools/sk_app/Application.h"
+#include "tools/sk_app/mac/Window_mac.h"
 
 @interface AppDelegate : NSObject<NSApplicationDelegate, NSWindowDelegate>
 
@@ -55,7 +55,7 @@ int main(int argc, char * argv[]) {
 
     //Create the application menu.
     NSMenu* menuBar=[[NSMenu alloc] initWithTitle:@"AMainMenu"];
-    [NSApp setMenu:menuBar];
+    [NSApp setMainMenu:menuBar];
 
     NSMenuItem* item;
     NSMenu* subMenu;
@@ -71,49 +71,40 @@ int main(int argc, char * argv[]) {
     [subMenu release];
 
     // Set AppDelegate to catch certain global events
-    AppDelegate* appDelegate = [[[AppDelegate alloc] init] autorelease];
+    AppDelegate* appDelegate = [[AppDelegate alloc] init];
     [NSApp setDelegate:appDelegate];
-
-    Application* app = Application::Create(argc, argv, nullptr);
 
     // This will run until the application finishes launching, then lets us take over
     [NSApp run];
 
+    Application* app = Application::Create(argc, argv, nullptr);
+
     // Now we process the events
     while (![appDelegate done]) {
-        // Rather than depending on a Mac event to drive this, we treat our window
-        // invalidation flag as a separate event stream. Window::onPaint() will clear
-        // the invalidation flag, effectively removing it from the stream.
-        Window_mac::PaintWindows();
-
         NSEvent* event;
         do {
             event = [NSApp nextEventMatchingMask:NSAnyEventMask
                                        untilDate:[NSDate distantPast]
                                           inMode:NSDefaultRunLoopMode
                                          dequeue:YES];
-            NSEventType type = event.type;
-            switch (type) {
-                case NSEventTypeKeyDown:
-                case NSEventTypeKeyUp:
-                case NSEventTypeLeftMouseDown:
-                case NSEventTypeLeftMouseUp:
-                case NSEventTypeLeftMouseDragged:
-                case NSEventTypeMouseMoved:
-                case NSEventTypeScrollWheel:
-                    Window_mac::HandleWindowEvent(event);
-                    break;
-                default:
-                    break;
-            }
-            // We send all events through the system to catch window close events, drags, etc.
             [NSApp sendEvent:event];
         } while (event != nil);
+
+        [pool drain];
+        pool = [[NSAutoreleasePool alloc] init];
+
+        // Rather than depending on a Mac event to drive this, we treat our window
+        // invalidation flag as a separate event stream. Window::onPaint() will clear
+        // the invalidation flag, effectively removing it from the stream.
+        Window_mac::PaintWindows();
 
         app->onIdle();
     }
 
     delete app;
+
+    [NSApp setDelegate:nil];
+    [appDelegate release];
 
     [menuBar release];
     [pool release];

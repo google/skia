@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "TestUtils.h"
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrShaderCaps.h"
-#include "GrSurfacePriv.h"
-#include "GrTexture.h"
-#include "GrTextureContext.h"
-#include "GrTexturePriv.h"
-#include "GrTextureProxyPriv.h"
-#include "gl/GLTestContext.h"
-#include "gl/GrGLGpu.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrTextureContext.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTextureProxyPriv.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLUtil.h"
+#include "tests/Test.h"
+#include "tests/TestUtils.h"
+#include "tools/gpu/GrContextFactory.h"
+#include "tools/gpu/gl/GLTestContext.h"
 
 using sk_gpu_test::GLTestContext;
 
@@ -30,8 +30,7 @@ static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx
         glctx1->makeCurrent();
         if (grctx1) {
             if (backendTex1 && backendTex1->isValid()) {
-                GrGLGpu* gpu1 = static_cast<GrGLGpu*>(grctx1->priv().getGpu());
-                gpu1->deleteTestingOnlyBackendTexture(*backendTex1);
+                grctx1->priv().deleteBackendTexture(*backendTex1);
             }
         }
         if (GR_EGL_NO_IMAGE != image1) {
@@ -88,8 +87,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     GrGpu* gpu1 = context1->priv().getGpu();
     static const int kSize = 100;
     backendTexture1 =
-        gpu1->createTestingOnlyBackendTexture(nullptr, kSize, kSize, GrColorType::kRGBA_8888,
-                                              false, GrMipMapped::kNo);
+        context1->priv().createBackendTexture(kSize, kSize, kRGBA_8888_SkColorType,
+                                              GrMipMapped::kNo, GrRenderable::kNo);
 
     if (!backendTexture1.isValid() || !gpu1->isTestingOnlyBackendTexture(backendTexture1)) {
         ERRORF(reporter, "Error creating texture for EGL Image");

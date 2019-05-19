@@ -8,19 +8,19 @@
 #ifndef SkCodec_DEFINED
 #define SkCodec_DEFINED
 
-#include "../private/SkNoncopyable.h"
-#include "../private/SkTemplates.h"
-#include "../private/SkEncodedInfo.h"
-#include "SkCodecAnimation.h"
-#include "SkColor.h"
-#include "SkEncodedImageFormat.h"
-#include "SkEncodedOrigin.h"
-#include "SkImageInfo.h"
-#include "SkPixmap.h"
-#include "SkSize.h"
-#include "SkStream.h"
-#include "SkTypes.h"
-#include "SkYUVASizeInfo.h"
+#include "include/codec/SkCodecAnimation.h"
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkYUVASizeInfo.h"
+#include "include/private/SkEncodedInfo.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTemplates.h"
 
 #include <vector>
 
@@ -688,6 +688,14 @@ public:
     int getRepetitionCount() {
         return this->onGetRepetitionCount();
     }
+
+    // Register a decoder at runtime by passing two function pointers:
+    //    - peek() to return true if the span of bytes appears to be your encoded format;
+    //    - make() to attempt to create an SkCodec from the given stream.
+    // Not thread safe.
+    static void Register(
+            bool                     (*peek)(const void*, size_t),
+            std::unique_ptr<SkCodec> (*make)(std::unique_ptr<SkStream>, SkCodec::Result*));
 
 protected:
     const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }

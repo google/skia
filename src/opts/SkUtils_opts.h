@@ -9,7 +9,7 @@
 #define SkUtils_opts_DEFINED
 
 #include <stdint.h>
-#include "SkNx.h"
+#include "include/private/SkNx.h"
 
 namespace SK_OPTS_NS {
 

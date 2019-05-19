@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkDWriteNTDDI_VERSION.h"
+#include "src/utils/win/SkDWriteNTDDI_VERSION.h"
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
 // SkTypes will include Windows.h, which will pull in all of the GDI defines.
@@ -15,21 +15,21 @@
 // not use GDI, undefing GetGlyphIndices makes things less confusing.
 #undef GetGlyphIndices
 
-#include "SkDWrite.h"
-#include "SkDWriteFontFileStream.h"
-#include "SkFontDescriptor.h"
-#include "SkFontStream.h"
-#include "SkOTTable_OS_2.h"
-#include "SkOTTable_fvar.h"
-#include "SkOTTable_head.h"
-#include "SkOTTable_hhea.h"
-#include "SkOTTable_post.h"
-#include "SkOTUtils.h"
-#include "SkScalerContext.h"
-#include "SkScalerContext_win_dw.h"
-#include "SkTo.h"
-#include "SkTypeface_win_dw.h"
-#include "SkUtils.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkFontStream.h"
+#include "src/core/SkScalerContext.h"
+#include "src/core/SkUtils.h"
+#include "src/ports/SkScalerContext_win_dw.h"
+#include "src/ports/SkTypeface_win_dw.h"
+#include "src/sfnt/SkOTTable_OS_2.h"
+#include "src/sfnt/SkOTTable_fvar.h"
+#include "src/sfnt/SkOTTable_head.h"
+#include "src/sfnt/SkOTTable_hhea.h"
+#include "src/sfnt/SkOTTable_post.h"
+#include "src/sfnt/SkOTUtils.h"
+#include "src/utils/win/SkDWrite.h"
+#include "src/utils/win/SkDWriteFontFileStream.h"
 
 void DWriteFontTypeface::onGetFamilyName(SkString* familyName) const {
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
@@ -350,8 +350,8 @@ void DWriteFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
 
     SkFontHinting h = rec->getHinting();
     // DirectWrite2 allows for hinting to be turned off. Force everything else to normal.
-    if (h != kNo_SkFontHinting || !fFactory2 || !fDWriteFontFace2) {
-        h = kNormal_SkFontHinting;
+    if (h != SkFontHinting::kNone || !fFactory2 || !fDWriteFontFace2) {
+        h = SkFontHinting::kNormal;
     }
     rec->setHinting(h);
 

@@ -5,14 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "GrContext.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkPictureRecorder.h"
-#include "SkTableColorFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkPictureImageFilter.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkPictureImageFilter.h"
+#include "include/effects/SkTableColorFilter.h"
+#include "include/gpu/GrContext.h"
 
 constexpr int kTestRectSize = 50;
 constexpr int kDetectorGreenValue = 50;

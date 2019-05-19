@@ -5,10 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkColor.h"
-#include "SkFont.h"
-#include "SkMaskFilter.h"
+#include "gm/gm.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
 
 // GM to check the behavior from chrome bug:745290
 DEF_SIMPLE_GM(blurSmallRadii, canvas, 100, 100) {

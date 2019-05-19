@@ -5,16 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkAndroidCodec.h"
-#include "SkAnimatedImage.h"
-#include "SkCanvas.h"
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
-#include "SkImagePriv.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkPixelRef.h"
+#include "include/android/SkAnimatedImage.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPixelRef.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/core/SkImagePriv.h"
 
+#include <limits.h>
 #include <utility>
 
 sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> codec,

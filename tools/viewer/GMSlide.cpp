@@ -11,8 +11,8 @@
 * found in the LICENSE file.
 */
 
-#include "GMSlide.h"
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
+#include "tools/viewer/GMSlide.h"
 
 GMSlide::GMSlide(skiagm::GM* gm) : fGM(gm) {
     fName.printf("GM_%s", gm->getName());

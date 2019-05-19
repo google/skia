@@ -5,10 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathPriv.h"
-#include "SkPolyUtils.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTDArray.h"
+#include "src/utils/SkPolyUtils.h"
+#include "tools/ToolUtils.h"
+
+#include <functional>
+#include <memory>
 
 static void create_ngon(int n, SkPoint* pts, SkScalar w, SkScalar h, SkPath::Direction dir) {
     float angleStep = 360.0f / n, angle = 0.0f;
@@ -561,7 +574,9 @@ protected:
             if (fConvexOnly) {
                 result = SkInsetConvexPolygon(data.get(), numPts, offset, &offsetPoly);
             } else {
-                result = SkOffsetSimplePolygon(data.get(), numPts, offset, &offsetPoly);
+                SkRect bounds;
+                bounds.setBoundsCheck(data.get(), numPts);
+                result = SkOffsetSimplePolygon(data.get(), numPts, bounds, offset, &offsetPoly);
             }
             if (result) {
                 SkPath path;

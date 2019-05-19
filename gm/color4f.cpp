@@ -5,14 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkShader.h"
-#include "SkSurface.h"
-
-#include "SkColorMatrixFilter.h"
-#include "SkGradientShader.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkColorMatrix.h"
 
 static sk_sp<SkShader> make_opaque_color() {
     return SkShaders::Color(0xFFFF0000);
@@ -29,19 +34,19 @@ static sk_sp<SkColorFilter> make_cf_null() {
 static sk_sp<SkColorFilter> make_cf0() {
     SkColorMatrix cm;
     cm.setSaturation(0.75f);
-    return SkColorFilters::MatrixRowMajor255(cm.fMat);
+    return SkColorFilters::Matrix(cm);
 }
 
 static sk_sp<SkColorFilter> make_cf1() {
     SkColorMatrix cm;
     cm.setSaturation(0.75f);
-    auto a = SkColorFilters::MatrixRowMajor255(cm.fMat);
+    auto a = SkColorFilters::Matrix(cm);
     // CreateComposedFilter will try to concat these two matrices, resulting in a single
     // filter (which is good for speed). For this test, we want to force a real compose of
     // these two, so our inner filter has a scale-up, which disables the optimization of
     // combining the two matrices.
     cm.setScale(1.1f, 0.9f, 1);
-    return a->makeComposed(SkColorFilters::MatrixRowMajor255(cm.fMat));
+    return a->makeComposed(SkColorFilters::Matrix(cm));
 }
 
 static sk_sp<SkColorFilter> make_cf2() {
@@ -88,7 +93,6 @@ DEF_SIMPLE_GM(color4f, canvas, 1024, 260) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkColorSpace.h"
 
 DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
     canvas->translate(10, 10);

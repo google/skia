@@ -8,11 +8,11 @@
 #ifndef GrQuad_DEFINED
 #define GrQuad_DEFINED
 
-#include "SkMatrix.h"
-#include "SkNx.h"
-#include "SkPoint.h"
-#include "SkPoint3.h"
-#include "SkTArray.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkVx.h"
 
 enum class GrAAType : unsigned;
 enum class GrQuadAAFlags;
@@ -62,7 +62,7 @@ public:
             : fX{rect.fLeft, rect.fLeft, rect.fRight, rect.fRight}
             , fY{rect.fTop, rect.fBottom, rect.fTop, rect.fBottom} {}
 
-    GrQuad(const Sk4f& xs, const Sk4f& ys) {
+    GrQuad(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys) {
         xs.store(fX);
         ys.store(fY);
     }
@@ -86,14 +86,14 @@ public:
 
     SkRect bounds() const {
         auto x = this->x4f(), y = this->y4f();
-        return {x.min(), y.min(), x.max(), y.max()};
+        return {min(x), min(y), max(x), max(y)};
     }
 
     float x(int i) const { return fX[i]; }
     float y(int i) const { return fY[i]; }
 
-    Sk4f x4f() const { return Sk4f::Load(fX); }
-    Sk4f y4f() const { return Sk4f::Load(fY); }
+    skvx::Vec<4, float> x4f() const { return skvx::Vec<4, float>::Load(fX); }
+    skvx::Vec<4, float> y4f() const { return skvx::Vec<4, float>::Load(fY); }
 
     // True if anti-aliasing affects this quad. Only valid when quadType == kRect_QuadType
     bool aaHasEffectOnRect() const;
@@ -115,13 +115,14 @@ public:
             , fY{rect.fTop, rect.fBottom, rect.fTop, rect.fBottom}
             , fW{1.f, 1.f, 1.f, 1.f} {}
 
-    GrPerspQuad(const Sk4f& xs, const Sk4f& ys) {
+    GrPerspQuad(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys) {
         xs.store(fX);
         ys.store(fY);
         fW[0] = fW[1] = fW[2] = fW[3] = 1.f;
     }
 
-    GrPerspQuad(const Sk4f& xs, const Sk4f& ys, const Sk4f& ws) {
+    GrPerspQuad(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys,
+                const skvx::Vec<4, float>& ws) {
         xs.store(fX);
         ys.store(fY);
         ws.store(fW);
@@ -139,15 +140,15 @@ public:
     SkPoint3 point(int i) const { return {fX[i], fY[i], fW[i]}; }
 
     SkRect bounds(GrQuadType type) const {
-        Sk4f x = this->x4f();
-        Sk4f y = this->y4f();
+        auto x = this->x4f();
+        auto y = this->y4f();
         if (type == GrQuadType::kPerspective) {
-            Sk4f iw = this->iw4f();
+            auto iw = this->iw4f();
             x *= iw;
             y *= iw;
         }
 
-        return {x.min(), y.min(), x.max(), y.max()};
+        return {min(x), min(y), max(x), max(y)};
     }
 
     float x(int i) const { return fX[i]; }
@@ -155,12 +156,12 @@ public:
     float w(int i) const { return fW[i]; }
     float iw(int i) const { return sk_ieee_float_divide(1.f, fW[i]); }
 
-    Sk4f x4f() const { return Sk4f::Load(fX); }
-    Sk4f y4f() const { return Sk4f::Load(fY); }
-    Sk4f w4f() const { return Sk4f::Load(fW); }
-    Sk4f iw4f() const { return this->w4f().invert(); }
+    skvx::Vec<4, float> x4f() const { return skvx::Vec<4, float>::Load(fX); }
+    skvx::Vec<4, float> y4f() const { return skvx::Vec<4, float>::Load(fY); }
+    skvx::Vec<4, float> w4f() const { return skvx::Vec<4, float>::Load(fW); }
+    skvx::Vec<4, float> iw4f() const { return 1.f / this->w4f(); }
 
-    bool hasPerspective() const { return (w4f() != Sk4f(1.f)).anyTrue(); }
+    bool hasPerspective() const { return any(w4f() != 1.f); }
 
     // True if anti-aliasing affects this quad. Only valid when quadType == kRect_QuadType
     bool aaHasEffectOnRect() const;

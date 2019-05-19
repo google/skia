@@ -4,10 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include <SkFont.h>
-#include "SkTypeface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+
+#include <string.h>
 
 namespace skiagm {
 
@@ -32,7 +40,7 @@ protected:
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         //With freetype the default (normal hinting) can be really ugly.
         //Most distros now set slight (vertical hinting only) in any event.
-        font.setHinting(kSlight_SkFontHinting);
+        font.setHinting(SkFontHinting::kSlight);
 
         const char* text = "Hamburgefons ooo mmm";
         const size_t textLen = strlen(text);
@@ -59,12 +67,13 @@ protected:
 
                 for (int ps = 6; ps <= 22; ps++) {
                     font.setSize(SkIntToScalar(ps));
-                    canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, x, y, font, SkPaint());
+                    canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, x, y, font, SkPaint());
                     y += font.getMetrics(nullptr);
                 }
             }
             canvas->translate(0, SkIntToScalar(360));
             font.setSubpixel(true);
+            font.setLinearMetrics(true);
         }
     }
 

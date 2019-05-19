@@ -7,17 +7,17 @@
 
 // This is a GPU-backend specific test. It relies on static intializers to work
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrResourceProvider.h"
-#include "GrSurfaceProxy.h"
-#include "GrTexture.h"
-#include "SkGr.h"
-#include "SkSurface.h"
-#include "Test.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/SkGr.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
 using sk_gpu_test::GrContextFactory;
 
@@ -275,7 +275,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
         GrFlushInfo flushInfo;
         flushInfo.fFlags = kSyncCpu_GrFlushFlag;
         if (context->priv().caps()->mapBufferFlags() & GrCaps::kAsyncRead_MapFlag) {
-            gpu->finishFlush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+            gpu->finishFlush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo,
+                             GrPrepareForExternalIORequests());
         }
 
         const auto* map = reinterpret_cast<const GrColor*>(buffer->map());
@@ -304,7 +305,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
         ++expectedTransferCnt;
 
         if (context->priv().caps()->mapBufferFlags() & GrCaps::kAsyncRead_MapFlag) {
-            gpu->finishFlush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+            gpu->finishFlush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo,
+                             GrPrepareForExternalIORequests());
         }
 
         map = reinterpret_cast<const GrColor*>(buffer->map());

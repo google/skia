@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "../third_party/skcms/skcms.h"
-#include "SkColorSpace.h"
-#include "SkColorSpaceXformSteps.h"
-#include "Test.h"
+#include "include/core/SkColorSpace.h"
+#include "include/third_party/skcms/skcms.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "tests/Test.h"
 
 DEF_TEST(SkColorSpaceXformSteps_vs_skcms, r) {
     auto srgb = SkColorSpace::MakeSRGB();

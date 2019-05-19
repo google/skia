@@ -8,9 +8,9 @@
 #ifndef SkNoDrawCanvas_DEFINED
 #define SkNoDrawCanvas_DEFINED
 
-#include "SkCanvas.h"
-#include "SkCanvasVirtualEnforcer.h"
-#include "SkVertices.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkCanvasVirtualEnforcer.h"
+#include "include/core/SkVertices.h"
 
 struct SkIRect;
 
@@ -49,6 +49,7 @@ protected:
                      const SkPaint&) override {}
 
     void onDrawPaint(const SkPaint&) override {}
+    void onDrawBehind(const SkPaint&) override {}
     void onDrawPoints(PointMode, size_t, const SkPoint[], const SkPaint&) override {}
     void onDrawRect(const SkRect&, const SkPaint&) override {}
     void onDrawRegion(const SkRegion&, const SkPaint&) override {}

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGGroup.h"
+#include "modules/sksg/include/SkSGGroup.h"
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 
 #include <algorithm>
 

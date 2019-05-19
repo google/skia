@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "DDLTileHelper.h"
+#include "tools/DDLTileHelper.h"
 
-#include "DDLPromiseImageHelper.h"
-#include "SkCanvas.h"
-#include "SkDeferredDisplayListPriv.h"
-#include "SkDeferredDisplayListRecorder.h"
-#include "SkImage_Gpu.h"
-#include "SkPicture.h"
-#include "SkSurface.h"
-#include "SkSurfaceCharacterization.h"
-#include "SkTaskGroup.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkDeferredDisplayListRecorder.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceCharacterization.h"
+#include "src/core/SkDeferredDisplayListPriv.h"
+#include "src/core/SkTaskGroup.h"
+#include "src/image/SkImage_Gpu.h"
+#include "tools/DDLPromiseImageHelper.h"
 
 DDLTileHelper::TileData::TileData(sk_sp<SkSurface> s, const SkIRect& clip)
         : fSurface(std::move(s))

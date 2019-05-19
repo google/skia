@@ -5,46 +5,46 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkDeferredDisplayListRecorder.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPromiseImageTexture.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceCharacterization.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/GrRenderTargetProxy.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkDeferredDisplayList.h"
+#include "src/core/SkDeferredDisplayListPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/SkGpuDevice.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/image/SkImage_GpuBase.h"
+#include "src/image/SkSurface_Gpu.h"
+#include "tests/Test.h"
+#include "tests/TestUtils.h"
+#include "tools/gpu/GrContextFactory.h"
+
 #include <initializer_list>
 #include <memory>
 #include <utility>
-#include "GrBackendSurface.h"
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetProxy.h"
-#include "GrTextureProxy.h"
-#include "GrTextureProxyPriv.h"
-#include "GrTypes.h"
-#include "GrTypesPriv.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColorSpace.h"
-#include "SkDeferredDisplayList.h"
-#include "SkDeferredDisplayListPriv.h"
-#include "SkDeferredDisplayListRecorder.h"
-#include "SkGpuDevice.h"
-#include "SkImage.h"
-#include "SkImageInfo.h"
-#include "SkImage_Gpu.h"
-#include "SkPaint.h"
-#include "SkPromiseImageTexture.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkSurface.h"
-#include "SkSurfaceCharacterization.h"
-#include "SkSurfaceProps.h"
-#include "SkSurface_Gpu.h"
-#include "Test.h"
-#include "gl/GrGLCaps.h"
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLTypes.h"
-#ifdef SK_VULKAN
-#include <vulkan/vulkan_core.h>
-#endif
 
 class SurfaceParameters {
 public:
@@ -72,6 +72,9 @@ public:
     void setColorType(SkColorType ct) { fColorType = ct; }
     void setColorSpace(sk_sp<SkColorSpace> cs) { fColorSpace = std::move(cs); }
     void setTextureable(bool isTextureable) { fIsTextureable = isTextureable; }
+    void setShouldCreateMipMaps(bool shouldCreateMipMaps) {
+        fShouldCreateMipMaps = shouldCreateMipMaps;
+    }
 
     // Modify the SurfaceParameters in just one way
     void modify(int i) {
@@ -182,8 +185,8 @@ public:
                                                           fColorType, fColorSpace, &fSurfaceProps);
         }
 
-        *backend = gpu->createTestingOnlyBackendTexture(nullptr, fWidth, fHeight,
-                                                        fColorType, true, mipmapped);
+        *backend = context->priv().createBackendTexture(fWidth, fHeight, fColorType,
+                                                        mipmapped, GrRenderable::kYes);
         if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
             return nullptr;
         }
@@ -201,7 +204,7 @@ public:
         }
 
         if (!surface) {
-            gpu->deleteTestingOnlyBackendTexture(*backend);
+            this->cleanUpBackEnd(context, *backend);
             return nullptr;
         }
 
@@ -209,13 +212,7 @@ public:
     }
 
     void cleanUpBackEnd(GrContext* context, const GrBackendTexture& backend) const {
-        if (!backend.isValid()) {
-            return;
-        }
-
-        GrGpu* gpu = context->priv().getGpu();
-
-        gpu->deleteTestingOnlyBackendTexture(backend);
+        context->priv().deleteBackendTexture(backend);
     }
 
 private:
@@ -535,6 +532,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMakeRenderTargetTest, reporter, ctxInfo) {
             continue;
         }
 
+        if (!context->priv().caps()->mipMapSupport()) {
+            params.setShouldCreateMipMaps(false);
+        }
         sk_sp<SkSurface> s = params.make(context, &backend);
         if (!s) {
             REPORTER_ASSERT(reporter, !c.isValid());
@@ -576,9 +576,9 @@ enum class DDLStage { kMakeImage, kDrawImage, kDetach, kDrawDDL };
 // This tests the ability to create and use wrapped textures in a DDL world
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGpu* gpu = context->priv().getGpu();
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-            nullptr, kSize, kSize, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
+
+    GrBackendTexture backendTex = context->priv().createBackendTexture(
+            kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
     if (!backendTex.isValid()) {
         return;
     }
@@ -588,7 +588,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
 
     sk_sp<SkSurface> s = params.make(context, &backend);
     if (!s) {
-        gpu->deleteTestingOnlyBackendTexture(backendTex);
+        context->priv().deleteBackendTexture(backendTex);
         return;
     }
 
@@ -601,7 +601,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     if (!canvas) {
         s = nullptr;
         params.cleanUpBackEnd(context, backend);
-        gpu->deleteTestingOnlyBackendTexture(backendTex);
+        context->priv().deleteBackendTexture(backendTex);
         return;
     }
 
@@ -609,7 +609,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     if (!deferredContext) {
         s = nullptr;
         params.cleanUpBackEnd(context, backend);
-        gpu->deleteTestingOnlyBackendTexture(backendTex);
+        context->priv().deleteBackendTexture(backendTex);
         return;
     }
 
@@ -625,7 +625,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
                                      TextureReleaseChecker::Release, &releaseChecker);
     REPORTER_ASSERT(reporter, !image);
 
-    gpu->deleteTestingOnlyBackendTexture(backendTex);
+    context->priv().deleteBackendTexture(backendTex);
 
     s = nullptr;
     params.cleanUpBackEnd(context, backend);
@@ -697,6 +697,105 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLFlushWhileRecording, reporter, ctxInfo) {
     SkCanvas* canvas = recorder.getCanvas();
 
     canvas->getGrContext()->flush();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Test that flushing a DDL via SkSurface::flush works
+
+struct FulfillInfo {
+    sk_sp<SkPromiseImageTexture> fTex;
+    bool fFulfilled = false;
+    bool fReleased  = false;
+    bool fDone      = false;
+};
+
+static sk_sp<SkPromiseImageTexture> tracking_fulfill_proc(void* context) {
+    FulfillInfo* info = (FulfillInfo*) context;
+    info->fFulfilled = true;
+    return info->fTex;
+}
+
+static void tracking_release_proc(void* context) {
+    FulfillInfo* info = (FulfillInfo*) context;
+    info->fReleased = true;
+}
+
+static void tracking_done_proc(void* context) {
+    FulfillInfo* info = (FulfillInfo*) context;
+    info->fDone = true;
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    SkImageInfo ii = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
+
+    SkSurfaceCharacterization characterization;
+    SkAssertResult(s->characterize(&characterization));
+
+    GrBackendTexture backendTexture;
+
+    if (!create_backend_texture(context, &backendTexture, ii, GrMipMapped::kNo, SK_ColorCYAN,
+                                GrRenderable::kNo)) {
+        REPORTER_ASSERT(reporter, false);
+        return;
+    }
+
+    FulfillInfo fulfillInfo;
+    fulfillInfo.fTex = SkPromiseImageTexture::Make(backendTexture);
+
+    std::unique_ptr<SkDeferredDisplayList> ddl;
+
+    {
+        SkDeferredDisplayListRecorder recorder(characterization);
+
+        const GrCaps* caps = context->priv().caps();
+        GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+
+        sk_sp<SkImage> promiseImage = recorder.makePromiseTexture(
+                format, 32, 32, GrMipMapped::kNo,
+                kTopLeft_GrSurfaceOrigin,
+                kRGBA_8888_SkColorType,
+                kPremul_SkAlphaType, nullptr,
+                tracking_fulfill_proc,
+                tracking_release_proc,
+                tracking_done_proc,
+                &fulfillInfo,
+                SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
+
+        SkCanvas* canvas = recorder.getCanvas();
+
+        canvas->clear(SK_ColorRED);
+        canvas->drawImage(promiseImage, 0, 0);
+        ddl = recorder.detach();
+    }
+
+    context->flush();
+
+    s->draw(ddl.get());
+
+    GrFlushInfo flushInfo;
+    s->flush(SkSurface::BackendSurfaceAccess::kPresent, flushInfo);
+
+    REPORTER_ASSERT(reporter, fulfillInfo.fFulfilled);
+    REPORTER_ASSERT(reporter, fulfillInfo.fReleased);
+
+    if (GrBackendApi::kVulkan == context->backend() ||
+        GrBackendApi::kMetal  == context->backend()) {
+        // In order to receive the done callback with Vulkan we need to perform the equivalent
+        // of a glFinish
+        GrFlushInfo flushInfoSyncCpu;
+        flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+        s->flush(SkSurface::BackendSurfaceAccess::kPresent, flushInfoSyncCpu);
+    }
+
+    REPORTER_ASSERT(reporter, fulfillInfo.fDone);
+
+    REPORTER_ASSERT(reporter, fulfillInfo.fTex->unique());
+    fulfillInfo.fTex.reset();
+
+    delete_backend_texture(context, backendTexture);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -828,6 +927,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest, reporter, ctxInfo) {
             continue;
         }
 
+        if (!context->priv().caps()->mipMapSupport()) {
+            params.setShouldCreateMipMaps(false);
+        }
         sk_sp<SkSurface> s = params.make(context, &backend);
         REPORTER_ASSERT(reporter, s);
         if (!s) {

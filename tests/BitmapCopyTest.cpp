@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkColor.h"
-#include "SkColorSpace.h"
-#include "SkImageInfo.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkSize.h"
-#include "SkTypes.h"
-#include "Test.h"
-#include "ToolUtils.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
 static void init_src(const SkBitmap& bitmap) {
     if (bitmap.getPixels()) {
@@ -128,8 +128,8 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
     }
 }
 
-#include "SkColorPriv.h"
-#include "SkUtils.h"
+#include "include/core/SkColorPriv.h"
+#include "src/core/SkUtils.h"
 
 /**
  *  Construct 4x4 pixels where we can look at a color and determine where it should be in the grid.

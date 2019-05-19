@@ -5,14 +5,31 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/core/SkColorSpaceXformSteps.h"
 
-#include "SkColorSpace.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkDashPathEffect.h"
-#include "SkFont.h"
-#include "SkGradientShader.h"
-#include "SkString.h"
+#include <math.h>
+#include <string.h>
 
 static bool nearly_equal(SkColor4f x, SkColor4f y) {
     const float K = 0.01f;

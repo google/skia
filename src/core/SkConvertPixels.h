@@ -8,8 +8,8 @@
 #ifndef SkConvertPixels_DEFINED
 #define SkConvertPixels_DEFINED
 
-#include "SkImageInfo.h"
-#include "SkTemplates.h"
+#include "include/core/SkImageInfo.h"
+#include "include/private/SkTemplates.h"
 
 class SkColorTable;
 

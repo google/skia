@@ -89,7 +89,7 @@ Adding more trace events involves using a set of `TRACE_` macros. The simplest e
 the time spent in a function or other scope, is:
 
 ~~~
-#include <SkTraceEvent.h>
+#include "SkTraceEvent.h"
 ...
 void doSomething() {
   // Add an event for the duration of the current function (or other scope)

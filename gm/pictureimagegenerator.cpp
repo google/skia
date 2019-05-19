@@ -5,19 +5,38 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkFontPriv.h"
-#include "SkGradientShader.h"
-#include "SkImageGenerator.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkTextUtils.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/utils/SkTextUtils.h"
+#include "tools/ToolUtils.h"
+
+#include <string.h>
+#include <memory>
 
 static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     constexpr char kSkiaStr[] = "SKIA";
@@ -34,14 +53,14 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
 
     SkPath path;
     SkRect iBox, skiBox, skiaBox;
-    SkTextUtils::GetPath("SKI", 3, kUTF8_SkTextEncoding, 0, 0, font, &path);
+    SkTextUtils::GetPath("SKI", 3, SkTextEncoding::kUTF8, 0, 0, font, &path);
     TightBounds(path, &skiBox);
-    SkTextUtils::GetPath("I", 1, kUTF8_SkTextEncoding, 0, 0, font, &path);
+    SkTextUtils::GetPath("I", 1, SkTextEncoding::kUTF8, 0, 0, font, &path);
     TightBounds(path, &iBox);
     iBox.offsetTo(skiBox.fRight - iBox.width(), iBox.fTop);
 
     const size_t textLen = strlen(kSkiaStr);
-    SkTextUtils::GetPath(kSkiaStr, textLen, kUTF8_SkTextEncoding, 0, 0, font, &path);
+    SkTextUtils::GetPath(kSkiaStr, textLen, SkTextEncoding::kUTF8, 0, 0, font, &path);
     TightBounds(path, &skiaBox);
     skiaBox.outset(0, 2 * iBox.width() * (kVerticalSpacing + 1));
 
@@ -93,7 +112,7 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     SkASSERT(SK_ARRAY_COUNT(pos2) == SK_ARRAY_COUNT(colors2));
     paint.setShader(SkGradientShader::MakeLinear(pts2, colors2, pos2, SK_ARRAY_COUNT(pos2),
                                                  SkTileMode::kClamp));
-    canvas->drawSimpleText(kSkiaStr, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
+    canvas->drawSimpleText(kSkiaStr, textLen, SkTextEncoding::kUTF8, 0, 0, font, paint);
 }
 
 // This GM exercises SkPictureImageGenerator features

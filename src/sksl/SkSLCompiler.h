@@ -11,13 +11,13 @@
 #include <set>
 #include <unordered_set>
 #include <vector>
-#include "ir/SkSLProgram.h"
-#include "ir/SkSLSymbolTable.h"
-#include "SkSLByteCode.h"
-#include "SkSLCFGGenerator.h"
-#include "SkSLContext.h"
-#include "SkSLErrorReporter.h"
-#include "SkSLLexer.h"
+#include "src/sksl/SkSLByteCode.h"
+#include "src/sksl/SkSLCFGGenerator.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLLexer.h"
+#include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
 #define SK_FRAGCOLOR_BUILTIN           10001
 #define SK_IN_BUILTIN                  10002
@@ -91,6 +91,11 @@ public:
     Compiler(const Compiler&) = delete;
     Compiler& operator=(const Compiler&) = delete;
 
+    /**
+     * Registers an ExternalValue as a top-level symbol which is visible in the global namespace.
+     */
+    void registerExternalValue(ExternalValue* value);
+
     std::unique_ptr<Program> convertProgram(Program::Kind kind, String text,
                                             const Program::Settings& settings);
 
@@ -119,6 +124,11 @@ public:
 
     bool toPipelineStage(const Program& program, String* out,
                          std::vector<FormatArg>* outFormatArgs);
+
+    /**
+     * Takes ownership of the given symbol. It will be destroyed when the compiler is destroyed.
+     */
+    Symbol* takeOwnership(std::unique_ptr<Symbol> symbol);
 
     void error(int offset, String msg) override;
 

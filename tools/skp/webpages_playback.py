@@ -232,7 +232,8 @@ class SkPicturePlayback(object):
 
     # Loop through all page_sets.
     for page_set in self._page_sets:
-
+      if os.path.basename(page_set) == '__init__.py':
+        continue
       page_set_basename = os.path.basename(page_set).split('.')[0]
       page_set_json_name = page_set_basename + '.json'
       wpr_data_file_glob = (

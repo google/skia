@@ -8,9 +8,9 @@
 #ifndef SkMatrix_DEFINED
 #define SkMatrix_DEFINED
 
-#include "../private/SkMacros.h"
-#include "../private/SkTo.h"
-#include "SkRect.h"
+#include "include/core/SkRect.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkTo.h"
 
 struct SkRSXform;
 struct SkPoint3;
@@ -32,6 +32,16 @@ class SkString;
 SK_BEGIN_REQUIRE_DENSE
 class SK_API SkMatrix {
 public:
+
+    /** Creates an identity SkMatrix:
+
+            | 1 0 0 |
+            | 0 1 0 |
+            | 0 0 1 |
+    */
+    constexpr SkMatrix()
+        : fMat{1,0,0, 0,1,0, 0,0,1}
+        , fTypeMask{kIdentity_Mask} {}
 
     /** Sets SkMatrix to scale by (sx, sy). Returned matrix is:
 

@@ -5,8 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkDescriptor.h"
-#include "Test.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkDescriptor.h"
+#include "src/core/SkScalerContext.h"
+#include "tests/Test.h"
+
+#include <memory>
 
 class SkDescriptorTestHelper {
 public:

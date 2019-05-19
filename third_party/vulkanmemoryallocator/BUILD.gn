@@ -10,16 +10,10 @@ config("vulkanmemoryallocator_public") {
 source_set("vulkanmemoryallocator") {
   public_configs = [ ":vulkanmemoryallocator_public" ]
 
-  include_dirs = [ "../../include/third_party/vulkan" ]
-
-  # Need to add this so when we include GrVkDefines.h it internally can find SkTypes.h which is
-  # needed in case the user set defines in SkUserConfig.h.
-  include_dirs += [ "../../include/core" ]
-  include_dirs += [ "../../include/config" ]
-  if (defined(is_skia_standalone) && is_skia_standalone && !is_official_build) {
-    include_dirs += [ "../../tools/gpu/vk" ]
-    include_dirs += [ "../../include/config" ]
-  }
+  include_dirs = [
+    "../..",
+    "../../include/third_party/vulkan",
+  ]
 
   sources = [
     "GrVulkanMemoryAllocator.cpp",

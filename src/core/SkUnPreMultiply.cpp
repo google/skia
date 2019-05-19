@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkUnPreMultiply.h"
-#include "SkColorData.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/private/SkColorData.h"
 
 SkColor SkUnPreMultiply::PMColorToColor(SkPMColor c) {
     const unsigned a = SkGetPackedA32(c);

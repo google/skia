@@ -8,9 +8,9 @@
 #ifndef GrMockCaps_DEFINED
 #define GrMockCaps_DEFINED
 
-#include "GrCaps.h"
-#include "SkGr.h"
-#include "mock/GrMockTypes.h"
+#include "include/gpu/mock/GrMockTypes.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/SkGr.h"
 
 class GrMockCaps : public GrCaps {
 public:
@@ -104,6 +104,13 @@ public:
             return GrBackendFormat();
         }
         return GrBackendFormat::MakeMock(config);
+    }
+
+    GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override {
+        return GrSwizzle();
+    }
+    GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override {
+        return GrSwizzle();
     }
 
 private:

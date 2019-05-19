@@ -3,13 +3,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/cache/work"
+      "[START_DIR]\\cache\\work"
     ],
     "infra_step": true,
     "name": "makedirs checkout_path"
@@ -18,36 +18,36 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "remove",
-      "[START_DIR]/cache/work/.gclient_entries"
+      "[START_DIR]\\cache\\work\\.gclient_entries"
     ],
     "infra_step": true,
-    "name": "remove [START_DIR]/cache/work/.gclient_entries"
+    "name": "remove [START_DIR]\\cache\\work\\.gclient_entries"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
+      "RECIPE_MODULE[depot_tools::bot_update]\\resources\\bot_update.py",
       "--spec-path",
-      "cache_dir = '[START_DIR]/cache/git'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
+      "cache_dir = '[START_DIR]\\\\cache\\\\git'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
       "--patch_root",
       "skia",
       "--revision_mapping_file",
       "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
-      "[START_DIR]/cache/git",
+      "[START_DIR]\\cache\\git",
       "--cleanup-dir",
-      "[CLEANUP]/bot_update",
+      "[CLEANUP]\\bot_update",
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
       "skia@abc123"
     ],
-    "cwd": "[START_DIR]/cache/work",
+    "cwd": "[START_DIR]\\cache\\work",
     "env_prefixes": {
       "PATH": [
         "RECIPE_REPO[depot_tools]"
@@ -97,13 +97,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/tmp"
+      "[START_DIR]\\tmp"
     ],
     "infra_step": true,
     "name": "makedirs tmp_dir"
@@ -112,11 +112,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/clang_win/VERSION",
+      "[START_DIR]\\cache\\work\\skia\\infra\\bots\\assets\\clang_win\\VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -126,27 +126,27 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cache/work/skia/bin/fetch-gn"
+      "[START_DIR]\\cache\\work\\skia\\bin\\fetch-gn"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[START_DIR]\\cache\\work\\skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "fetch-gn"
   },
   {
     "cmd": [
-      "[START_DIR]/cache/work/skia/bin/gn",
+      "[START_DIR]\\cache\\work\\skia\\bin\\gn",
       "gen",
-      "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86-Debug/Debug",
-      "--args=cc=\"clang\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" extra_cflags=[\"-O1\", \"-DDUMMY_clang_win_version=42\"] target_cpu=\"x86\" win_sdk=\"[START_DIR]/win_toolchain/win_sdk\" win_vc=\"[START_DIR]/win_toolchain/VC\""
+      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug\\Debug",
+      "--args=cc=\"clang\" clang_win=\"[START_DIR]\\clang_win\" cxx=\"clang++\" extra_cflags=[\"-O1\", \"-DDUMMY_clang_win_version=42\"] target_cpu=\"x86\" werror=true win_sdk=\"[START_DIR]\\win_toolchain/win_sdk\" win_vc=\"[START_DIR]\\win_toolchain/VC\""
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[START_DIR]\\cache\\work\\skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
   },
@@ -154,12 +154,12 @@
     "cmd": [
       "ninja",
       "-C",
-      "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86-Debug/Debug"
+      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug\\Debug"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[START_DIR]\\cache\\work\\skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
   },
@@ -168,8 +168,8 @@
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'skottie_tool', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86-Debug/Debug",
-      "[START_DIR]/[SWARM_OUT_DIR]"
+      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug\\Debug",
+      "[START_DIR]\\[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
     "name": "copy build products",

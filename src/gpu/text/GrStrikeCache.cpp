@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrStrikeCache.h"
-#include "GrAtlasManager.h"
-#include "GrCaps.h"
-#include "GrColor.h"
-#include "GrDistanceFieldGenFromVector.h"
+#include "include/private/GrColor.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrDistanceFieldGenFromVector.h"
+#include "src/gpu/text/GrAtlasManager.h"
+#include "src/gpu/text/GrStrikeCache.h"
 
-#include "SkAutoMalloc.h"
-#include "SkDistanceFieldGen.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkDistanceFieldGen.h"
 
 GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
         : fPreserveStrike(nullptr)
@@ -39,17 +39,17 @@ void GrStrikeCache::freeAll() {
 }
 
 void GrStrikeCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
-    GrStrikeCache* glyphCache = reinterpret_cast<GrStrikeCache*>(ptr);
+    GrStrikeCache* grStrikeCache = reinterpret_cast<GrStrikeCache*>(ptr);
 
-    StrikeHash::Iter iter(&glyphCache->fCache);
+    StrikeHash::Iter iter(&grStrikeCache->fCache);
     for (; !iter.done(); ++iter) {
         GrTextStrike* strike = &*iter;
         strike->removeID(id);
 
         // clear out any empty strikes.  We will preserve the strike whose call to addToAtlas
         // triggered the eviction
-        if (strike != glyphCache->fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
-            glyphCache->fCache.remove(GrTextStrike::GetKey(*strike));
+        if (strike != grStrikeCache->fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
+            grStrikeCache->fCache.remove(GrTextStrike::GetKey(*strike));
             strike->fIsAbandoned = true;
             strike->unref();
         }
@@ -172,12 +172,6 @@ static bool get_packed_glyph_image(SkStrike* cache, const SkGlyph& glyph, int wi
 GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key) {}
 
-GrGlyph* GrTextStrike::generateGlyph(const SkGlyph& skGlyph) {
-    GrGlyph* grGlyph = fAlloc.make<GrGlyph>(skGlyph);
-    fCache.add(grGlyph);
-    return grGlyph;
-}
-
 void GrTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
     SkTDynamicHash<GrGlyph, SkPackedGlyphID>::Iter iter(&fCache);
     while (!iter.done()) {
@@ -196,11 +190,11 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
                                    GrStrikeCache* glyphCache,
                                    GrAtlasManager* fullAtlasManager,
                                    GrGlyph* glyph,
-                                   SkStrike* cache,
+                                   SkStrike* skStrikeCache,
                                    GrMaskFormat expectedMaskFormat,
                                    bool isScaledGlyph) {
     SkASSERT(glyph);
-    SkASSERT(cache);
+    SkASSERT(skStrikeCache);
     SkASSERT(fCache.find(glyph->fPackedID));
 
     expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
@@ -221,13 +215,13 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
     }
     SkAutoSMalloc<1024> storage(size);
 
-    const SkGlyph& skGlyph = GrToSkGlyph(cache, glyph->fPackedID);
+    const SkGlyph& skGlyph = skStrikeCache->getGlyphIDMetrics(glyph->fPackedID);
     void* dataPtr = storage.get();
     if (addPad) {
         sk_bzero(dataPtr, size);
         dataPtr = (char*)(dataPtr) + rowBytes + bytesPerPixel;
     }
-    if (!get_packed_glyph_image(cache, skGlyph, glyph->width(), glyph->height(),
+    if (!get_packed_glyph_image(skStrikeCache, skGlyph, glyph->width(), glyph->height(),
                                 rowBytes, expectedMaskFormat,
                                 dataPtr, glyphCache->getMasks())) {
         return GrDrawOpAtlas::ErrorCode::kError;

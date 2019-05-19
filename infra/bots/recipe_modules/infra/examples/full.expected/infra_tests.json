@@ -7,9 +7,9 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "GOCACHE": "[START_DIR]/cache/go_cache",
-      "GOPATH": "[START_DIR]/go_deps",
+      "GOPATH": "[START_DIR]/cache/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps/bin:<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/cache/gopath/bin:<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "go version"
   },
@@ -21,9 +21,9 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "GOCACHE": "[START_DIR]/cache/go_cache",
-      "GOPATH": "[START_DIR]/go_deps",
+      "GOPATH": "[START_DIR]/cache/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps/bin:<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/cache/gopath/bin:<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "env go version"
   },

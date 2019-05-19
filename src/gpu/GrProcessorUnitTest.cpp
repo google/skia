@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrProcessorUnitTest.h"
-#include "GrFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrProcessorUnitTest.h"
 
 #if GR_TEST_UTILS
 

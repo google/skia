@@ -8,10 +8,10 @@
 #ifndef SkImageEncoder_DEFINED
 #define SkImageEncoder_DEFINED
 
-#include "SkBitmap.h"
-#include "SkData.h"
-#include "SkEncodedImageFormat.h"
-#include "SkStream.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkStream.h"
 
 /**
  * Encode SkPixmap in the given binary image format.

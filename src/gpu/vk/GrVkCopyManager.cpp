@@ -5,29 +5,29 @@
  * found in the LICENSE file.
 */
 
-#include "GrVkCopyManager.h"
+#include "src/gpu/vk/GrVkCopyManager.h"
 
-#include "GrRenderTargetPriv.h"
-#include "GrSamplerState.h"
-#include "GrShaderCaps.h"
-#include "GrSurface.h"
-#include "GrTexturePriv.h"
-#include "GrVkCommandBuffer.h"
-#include "GrVkCommandPool.h"
-#include "GrVkCopyPipeline.h"
-#include "GrVkDescriptorSet.h"
-#include "GrVkGpu.h"
-#include "GrVkImageView.h"
-#include "GrVkPipelineLayout.h"
-#include "GrVkRenderTarget.h"
-#include "GrVkResourceProvider.h"
-#include "GrVkSampler.h"
-#include "GrVkTexture.h"
-#include "GrVkUniformBuffer.h"
-#include "GrVkVertexBuffer.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkTraceEvent.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/gpu/GrSamplerState.h"
+#include "include/gpu/GrSurface.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/vk/GrVkCommandBuffer.h"
+#include "src/gpu/vk/GrVkCommandPool.h"
+#include "src/gpu/vk/GrVkCopyPipeline.h"
+#include "src/gpu/vk/GrVkDescriptorSet.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImageView.h"
+#include "src/gpu/vk/GrVkPipelineLayout.h"
+#include "src/gpu/vk/GrVkRenderTarget.h"
+#include "src/gpu/vk/GrVkResourceProvider.h"
+#include "src/gpu/vk/GrVkSampler.h"
+#include "src/gpu/vk/GrVkTexture.h"
+#include "src/gpu/vk/GrVkUniformBuffer.h"
+#include "src/gpu/vk/GrVkVertexBuffer.h"
 
 GrVkCopyManager::GrVkCopyManager()
     : fVertShaderModule(VK_NULL_HANDLE)
@@ -41,7 +41,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
 
     const GrShaderCaps* shaderCaps = gpu->caps()->shaderCaps();
     const char* version = shaderCaps->versionDeclString();
-    SkString vertShaderText(version);
+    SkSL::String vertShaderText(version);
     vertShaderText.append(
         "#extension GL_ARB_separate_shader_objects : enable\n"
         "#extension GL_ARB_shading_language_420pack : enable\n"
@@ -61,7 +61,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
         "}"
     );
 
-    SkString fragShaderText(version);
+    SkSL::String fragShaderText(version);
     fragShaderText.append(
         "#extension GL_ARB_separate_shader_objects : enable\n"
         "#extension GL_ARB_shading_language_420pack : enable\n"
@@ -78,7 +78,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
     SkSL::Program::Settings settings;
     SkSL::String spirv;
     SkSL::Program::Inputs inputs;
-    if (!GrCompileVkShaderModule(gpu, vertShaderText.c_str(), VK_SHADER_STAGE_VERTEX_BIT,
+    if (!GrCompileVkShaderModule(gpu, vertShaderText, VK_SHADER_STAGE_VERTEX_BIT,
                                  &fVertShaderModule, &fShaderStageInfo[0], settings, &spirv,
                                  &inputs)) {
         this->destroyResources(gpu);
@@ -86,7 +86,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
     }
     SkASSERT(inputs.isEmpty());
 
-    if (!GrCompileVkShaderModule(gpu, fragShaderText.c_str(), VK_SHADER_STAGE_FRAGMENT_BIT,
+    if (!GrCompileVkShaderModule(gpu, fragShaderText, VK_SHADER_STAGE_FRAGMENT_BIT,
                                  &fFragShaderModule, &fShaderStageInfo[1], settings, &spirv,
                                  &inputs)) {
         this->destroyResources(gpu);

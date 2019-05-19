@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=8c4f7bf73fffa1a812ee8e88e44e639c
 REG_FIDDLE(Bitmap_installPixels, 256, 256, true, 0) {
 static void releaseProc(void* addr, void* ) {

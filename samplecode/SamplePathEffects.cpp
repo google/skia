@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "Sample.h"
-#include "Sk1DPathEffect.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkCornerPathEffect.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
-#include "SkPathMeasure.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUTF.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/effects/Sk1DPathEffect.h"
+#include "include/effects/SkCornerPathEffect.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/Sample.h"
+#include "src/utils/SkUTF.h"
+#include "tools/timer/AnimTimer.h"
 
 #define CORNER_RADIUS   12
 
@@ -65,7 +65,7 @@ static sk_sp<SkPathEffect> make_warp_pe(SkScalar phase) {
 
 ///////////////////////////////////////////////////////////
 
-#include "SkColorFilter.h"
+#include "include/core/SkColorFilter.h"
 
 class PathEffectView : public Sample {
     SkPath  fPath;

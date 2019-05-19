@@ -10,19 +10,19 @@
 
 #include <memory>
 
-#include "SkFont.h"
-#include "SkFontTypes.h"
-#include "SkGlyph.h"
-#include "SkMacros.h"
-#include "SkMask.h"
-#include "SkMaskFilter.h"
-#include "SkMaskGamma.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkStrikeInterface.h"
-#include "SkSurfacePriv.h"
-#include "SkTypeface.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkMacros.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkMaskGamma.h"
+#include "src/core/SkStrikeInterface.h"
+#include "src/core/SkSurfacePriv.h"
+#include "src/core/SkWriteBuffer.h"
 
 class SkAutoDescriptor;
 class SkDescriptor;
@@ -241,6 +241,7 @@ public:
         // Generate A8 from LCD source (for GDI and CoreGraphics).
         // only meaningful if fMaskFormat is kA8
         kGenA8FromLCD_Flag        = 0x0800, // could be 0x200 (bit meaning dependent on fMaskFormat)
+        kLinearMetrics_Flag       = 0x1000,
     };
 
     // computed values
@@ -259,6 +260,10 @@ public:
 
     bool isSubpixel() const {
         return SkToBool(fRec.fFlags & kSubpixelPositioning_Flag);
+    }
+
+     bool isLinearMetrics() const {
+        return SkToBool(fRec.fFlags & kLinearMetrics_Flag);
     }
 
     // DEPRECATED

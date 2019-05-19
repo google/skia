@@ -8,9 +8,9 @@
 #ifndef GrSurfaceProxyPriv_DEFINED
 #define GrSurfaceProxyPriv_DEFINED
 
-#include "GrSurfaceProxy.h"
+#include "include/private/GrSurfaceProxy.h"
 
-#include "GrResourceProvider.h"
+#include "src/gpu/GrResourceProvider.h"
 
 /** Class that adds methods to GrSurfaceProxy that are only intended for use internal to Skia.
     This class is purely a privileged window into GrSurfaceProxy. It should never have additional
@@ -23,6 +23,8 @@ public:
     // depends on the read and write refs (So this method can validly return 0).
     int32_t getProxyRefCnt() const { return fProxy->getProxyRefCnt(); }
 
+    int32_t getTotalRefs() const { return fProxy->getTotalRefs(); }
+
     void computeScratchKey(GrScratchKey* key) const { return fProxy->computeScratchKey(key); }
 
     // Create a GrSurface-derived class that meets the requirements (i.e, desc, renderability)
@@ -34,15 +36,13 @@ public:
     // Assign this proxy the provided GrSurface as its backing surface
     void assign(sk_sp<GrSurface> surface) { fProxy->assign(std::move(surface)); }
 
-    bool requiresNoPendingIO() const {
-        return fProxy->fSurfaceFlags & GrInternalSurfaceFlags::kNoPendingIO;
-    }
-
     // Don't abuse this call!!!!!!!
     bool isExact() const { return SkBackingFit::kExact == fProxy->fFit; }
 
     // Don't. Just don't.
     void exactify();
+
+    void setLazySize(int width, int height) { fProxy->setLazySize(width, height); }
 
     bool doLazyInstantiation(GrResourceProvider*);
 
@@ -57,6 +57,9 @@ public:
 
     static bool SK_WARN_UNUSED_RESULT AttachStencilIfNeeded(GrResourceProvider*, GrSurface*,
                                                             bool needsStencil);
+
+    bool ignoredByResourceAllocator() const { return fProxy->ignoredByResourceAllocator(); }
+    void setIgnoredByResourceAllocator() { fProxy->setIgnoredByResourceAllocator(); }
 
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}

@@ -1,10 +1,10 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "SkPDFType1Font.h"
+#include "src/pdf/SkPDFType1Font.h"
 
-#include "SkTemplates.h"
-#include "SkTo.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 
 #include <ctype.h>
 

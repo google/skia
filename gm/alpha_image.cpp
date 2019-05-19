@@ -5,12 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-
-#include "SkColorFilter.h"
-#include "SkImage.h"
-#include "SkMaskFilter.h"
-#include "SkShader.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
 
 static SkBitmap make_alpha_image(int w, int h) {
     SkBitmap bm;
@@ -26,12 +32,12 @@ static SkBitmap make_alpha_image(int w, int h) {
 }
 
 static sk_sp<SkColorFilter> make_color_filter() {
-    SkScalar colorMatrix[20] = {
+    float colorMatrix[20] = {
         1, 0, 0,   0,   0,
         0, 1, 0,   0,   0,
         0, 0, 0.5, 0.5, 0,
         0, 0, 0.5, 0.5, 0}; // mix G and A.
-    return SkColorFilters::MatrixRowMajor255(colorMatrix);
+    return SkColorFilters::Matrix(colorMatrix);
 }
 
 DEF_SIMPLE_GM(alpha_image, canvas, 256, 256) {

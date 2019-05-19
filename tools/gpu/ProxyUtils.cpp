@@ -5,34 +5,43 @@
  * found in the LICENSE file.
  */
 
-#include "ProxyUtils.h"
-#include "GrBackendSurface.h"
-#include "GrContextPriv.h"
-#include "GrDrawingManager.h"
-#include "GrGpu.h"
-#include "GrProxyProvider.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/SkGr.h"
+#include "tools/gpu/ProxyUtils.h"
 
 namespace sk_gpu_test {
 
-sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT,
+sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, GrRenderable renderable,
                                                int width, int height,
                                                GrColorType colorType, GrSRGBEncoded srgbEncoded,
-                                               GrSurfaceOrigin origin, const void* data,
-                                               size_t rowBytes) {
+                                               GrSurfaceOrigin origin,
+                                               const void* data, size_t rowBytes) {
     if (context->priv().abandoned()) {
+        return nullptr;
+    }
+
+    const GrCaps* caps = context->priv().caps();
+
+    const GrBackendFormat format = caps->getBackendFormatFromGrColorType(colorType, srgbEncoded);
+    if (!format.isValid()) {
         return nullptr;
     }
 
     sk_sp<GrTextureProxy> proxy;
     if (kBottomLeft_GrSurfaceOrigin == origin) {
         // We (soon will) only support using kBottomLeft with wrapped textures.
-        auto backendTex = context->priv().getGpu()->createTestingOnlyBackendTexture(
-                nullptr, width, height, colorType, isRT, GrMipMapped::kNo);
+        auto backendTex = context->priv().createBackendTexture(
+                width, height, format, GrMipMapped::kNo, renderable);
         if (!backendTex.isValid()) {
             return nullptr;
         }
+
         // Adopt ownership so our caller doesn't have to worry about deleting the backend texture.
-        if (isRT) {
+        if (GrRenderable::kYes == renderable) {
             proxy = context->priv().proxyProvider()->wrapRenderableBackendTexture(
                     backendTex, origin, 1, kAdopt_GrWrapOwnership, GrWrapCacheable::kNo, nullptr,
                     nullptr);
@@ -42,7 +51,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT,
         }
 
         if (!proxy) {
-            context->priv().getGpu()->deleteTestingOnlyBackendTexture(backendTex);
+            context->priv().deleteBackendTexture(backendTex);
             return nullptr;
         }
 
@@ -52,24 +61,19 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT,
             return nullptr;
         }
 
-        const GrBackendFormat format =
-                context->priv().caps()->getBackendFormatFromGrColorType(colorType,
-                                                                        srgbEncoded);
-        if (!format.isValid()) {
-            return nullptr;
-        }
-
         GrSurfaceDesc desc;
         desc.fConfig = config;
         desc.fWidth = width;
         desc.fHeight = height;
-        desc.fFlags = isRT ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
+        desc.fFlags = GrRenderable::kYes == renderable ? kRenderTarget_GrSurfaceFlag
+                                                       : kNone_GrSurfaceFlags;
         proxy = context->priv().proxyProvider()->createProxy(
                 format, desc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
         if (!proxy) {
             return nullptr;
         }
     }
+
     auto sContext = context->priv().makeWrappedSurfaceContext(proxy, nullptr);
     if (!sContext) {
         return nullptr;

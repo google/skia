@@ -8,7 +8,7 @@
 #ifndef TestEmptyTypeface_DEFINED
 #define TestEmptyTypeface_DEFINED
 
-#include "SkTypeface.h"
+#include "include/core/SkTypeface.h"
 
 class TestEmptyTypeface : public SkTypeface {
 public:

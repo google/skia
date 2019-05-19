@@ -5,30 +5,30 @@
  * found in the LICENSE file.
  */
 
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkBitmap.h"
-#include "SkCallableTraits.h"
-#include "SkCanvas.h"
-#include "SkColorData.h"
-#include "SkDescriptor.h"
-#include "SkFDot6.h"
-#include "SkFontDescriptor.h"
-#include "SkFontHost_FreeType_common.h"
-#include "SkFontMetrics.h"
-#include "SkGlyph.h"
-#include "SkMakeUnique.h"
-#include "SkMalloc.h"
-#include "SkMask.h"
-#include "SkMaskGamma.h"
-#include "SkMatrix22.h"
-#include "SkMutex.h"
-#include "SkOTUtils.h"
-#include "SkPath.h"
-#include "SkScalerContext.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkDescriptor.h"
+#include "src/core/SkFDot6.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkMaskGamma.h"
+#include "src/core/SkScalerContext.h"
+#include "src/ports/SkFontHost_FreeType_common.h"
+#include "src/sfnt/SkOTUtils.h"
+#include "src/utils/SkCallableTraits.h"
+#include "src/utils/SkMatrix22.h"
 
 #include <memory>
 
@@ -129,6 +129,7 @@ public:
         , fGetVarAxisFlags(nullptr)
         , fLibrary(nullptr)
         , fIsLCDSupported(false)
+        , fLightHintingIsYOnly(false)
         , fLCDExtra(0)
     {
         if (FT_New_Library(&gFTMemory, &fLibrary)) {
@@ -176,6 +177,16 @@ public:
         }
 #endif
 
+// The 'light' hinting is vertical only starting in 2.8.0.
+#if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02080000
+        fLightHintingIsYOnly = true;
+#else
+        if (major > 2 || ((major == 2 && minor > 8) || (major == 2 && minor == 8 && patch >= 0))) {
+            fLightHintingIsYOnly = true;
+        }
+#endif
+
+
 #if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02080100
         fGetVarAxisFlags = FT_Get_Var_Axis_Flags;
 #elif SK_FREETYPE_MINIMUM_RUNTIME_VERSION & SK_FREETYPE_DLOPEN
@@ -205,6 +216,7 @@ public:
     FT_Library library() { return fLibrary; }
     bool isLCDSupported() { return fIsLCDSupported; }
     int lcdExtra() { return fLCDExtra; }
+    bool lightHintingIsYOnly() { return fLightHintingIsYOnly; }
 
     // FT_Get_{MM,Var}_{Blend,Design}_Coordinates were added in FreeType 2.7.1.
     // Prior to this there was no way to get the coordinates out of the FT_Face.
@@ -222,6 +234,7 @@ public:
 private:
     FT_Library fLibrary;
     bool fIsLCDSupported;
+    bool fLightHintingIsYOnly;
     int fLCDExtra;
 
     // FT_Library_SetLcdFilterWeights was introduced in FreeType 2.4.0.
@@ -730,14 +743,14 @@ void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
     }
 
     SkFontHinting h = rec->getHinting();
-    if (kFull_SkFontHinting == h && !isLCD(*rec)) {
+    if (SkFontHinting::kFull == h && !isLCD(*rec)) {
         // collapse full->normal hinting if we're not doing LCD
-        h = kNormal_SkFontHinting;
+        h = SkFontHinting::kNormal;
     }
 
     // rotated text looks bad with hinting, so we disable it as needed
     if (!isAxisAligned(*rec)) {
-        h = kNo_SkFontHinting;
+        h = SkFontHinting::kNone;
     }
     rec->setHinting(h);
 
@@ -845,30 +858,33 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
     fLCDIsVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
 
     // compute the flags we send to Load_Glyph
-    bool linearMetrics = this->isSubpixel();
+    bool linearMetrics = this->isLinearMetrics();
     {
         FT_Int32 loadFlags = FT_LOAD_DEFAULT;
 
         if (SkMask::kBW_Format == fRec.fMaskFormat) {
             // See http://code.google.com/p/chromium/issues/detail?id=43252#c24
             loadFlags = FT_LOAD_TARGET_MONO;
-            if (fRec.getHinting() == kNo_SkFontHinting) {
+            if (fRec.getHinting() == SkFontHinting::kNone) {
                 loadFlags = FT_LOAD_NO_HINTING;
                 linearMetrics = true;
             }
         } else {
             switch (fRec.getHinting()) {
-            case kNo_SkFontHinting:
+            case SkFontHinting::kNone:
                 loadFlags = FT_LOAD_NO_HINTING;
                 linearMetrics = true;
                 break;
-            case kSlight_SkFontHinting:
+            case SkFontHinting::kSlight:
                 loadFlags = FT_LOAD_TARGET_LIGHT;  // This implies FORCE_AUTOHINT
+                if (gFTLibrary->lightHintingIsYOnly()) {
+                    linearMetrics = true;
+                }
                 break;
-            case kNormal_SkFontHinting:
+            case SkFontHinting::kNormal:
                 loadFlags = FT_LOAD_TARGET_NORMAL;
                 break;
-            case kFull_SkFontHinting:
+            case SkFontHinting::kFull:
                 loadFlags = FT_LOAD_TARGET_NORMAL;
                 if (isLCD(fRec)) {
                     if (fLCDIsVert) {
@@ -1549,10 +1565,32 @@ void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkUtils.h"
+#include "src/core/SkUtils.h"
+
+// Just made up, so we don't end up storing 1000s of entries
+constexpr int kMaxC2GCacheCount = 512;
 
 void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
                                           SkGlyphID glyphs[]) const {
+    // Try the cache first, *before* accessing freetype lib/face, as that
+    // can be very slow. If we do need to compute a new glyphID, then
+    // access those freetype objects and continue the loop.
+
+    SkAutoMutexExclusive ama(fC2GCacheMutex);
+
+    int i;
+    for (i = 0; i < count; ++i) {
+        int index = fC2GCache.findGlyphIndex(uni[i]);
+        if (index < 0) {
+            break;
+        }
+        glyphs[i] = SkToU16(index);
+    }
+    if (i == count) {
+        // we're done, no need to access the freetype objects
+        return;
+    }
+
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
@@ -1560,8 +1598,19 @@ void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
         return;
     }
 
-    for (int i = 0; i < count; ++i) {
-        glyphs[i] = SkToU16(FT_Get_Char_Index(face, uni[i]));
+    for (; i < count; ++i) {
+        SkUnichar c = uni[i];
+        int index = fC2GCache.findGlyphIndex(c);
+        if (index >= 0) {
+            glyphs[i] = SkToU16(index);
+        } else {
+            glyphs[i] = SkToU16(FT_Get_Char_Index(face, c));
+            fC2GCache.insertCharAndGlyph(~index, c, glyphs[i]);
+        }
+    }
+
+    if (fC2GCache.count() > kMaxC2GCacheCount) {
+        fC2GCache.reset();
     }
 }
 
@@ -1775,7 +1824,7 @@ FT_Face SkTypeface_FreeType::Scanner::openFace(SkStreamAsset* stream, int ttcInd
 }
 
 bool SkTypeface_FreeType::Scanner::recognizedFont(SkStreamAsset* stream, int* numFaces) const {
-    SkAutoMutexAcquire libraryLock(fLibraryMutex);
+    SkAutoMutexExclusive libraryLock(fLibraryMutex);
 
     FT_StreamRec streamRec;
     FT_Face face = this->openFace(stream, -1, &streamRec);
@@ -1789,12 +1838,12 @@ bool SkTypeface_FreeType::Scanner::recognizedFont(SkStreamAsset* stream, int* nu
     return true;
 }
 
-#include "SkTSearch.h"
+#include "src/core/SkTSearch.h"
 bool SkTypeface_FreeType::Scanner::scanFont(
     SkStreamAsset* stream, int ttcIndex,
     SkString* name, SkFontStyle* style, bool* isFixedPitch, AxisDefinitions* axes) const
 {
-    SkAutoMutexAcquire libraryLock(fLibraryMutex);
+    SkAutoMutexExclusive libraryLock(fLibraryMutex);
 
     FT_StreamRec streamRec;
     FT_Face face = this->openFace(stream, ttcIndex, &streamRec);

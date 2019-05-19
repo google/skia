@@ -12,7 +12,7 @@
 import argparse
 import subprocess
 
-GO_URL = "https://dl.google.com/go/go1.11.linux-amd64.tar.gz"
+GO_URL = "https://dl.google.com/go/go1.12.4.linux-amd64.tar.gz"
 
 def create_asset(target_dir):
   """Create the asset."""

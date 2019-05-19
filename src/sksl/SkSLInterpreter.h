@@ -8,13 +8,13 @@
 #ifndef SKSL_INTERPRETER
 #define SKSL_INTERPRETER
 
-#include "SkSLByteCode.h"
-#include "ir/SkSLAppendStage.h"
-#include "ir/SkSLExpression.h"
-#include "ir/SkSLFunctionCall.h"
-#include "ir/SkSLFunctionDefinition.h"
-#include "ir/SkSLProgram.h"
-#include "ir/SkSLStatement.h"
+#include "src/sksl/SkSLByteCode.h"
+#include "src/sksl/ir/SkSLAppendStage.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLStatement.h"
 
 #include <stack>
 
@@ -51,49 +51,35 @@ public:
         kBool_TypeKind
     };
 
-    Interpreter(std::unique_ptr<Program> program, std::unique_ptr<ByteCode> byteCode)
-    : fProgram(std::move(program))
-    , fByteCode(std::move(byteCode))
-    , fReturnValue(0) {}
+    /**
+     * 'inputs' contains the values of global 'in' variables in source order.
+     */
+    Interpreter(std::unique_ptr<Program> program, std::unique_ptr<ByteCode> byteCode,
+                Value inputs[] = nullptr);
 
     /**
-     * Invokes the specified function with the given arguments, returning its return value. 'out'
-     * and 'inout' parameters will result in the 'args' array being modified.
+     * Invokes the specified function with the given arguments. 'out' and 'inout' parameters will
+     * result in the 'args' array being modified. The return value is stored in 'outReturn' (may be
+     * null, in which case the return value is discarded).
      */
-    Value run(const ByteCodeFunction& f, Value args[], Value inputs[]);
+    void run(const ByteCodeFunction& f, Value args[], Value* outReturn);
 
+    /**
+     * Updates the global inputs.
+     */
+    void setInputs(Value inputs[]);
+
+    /**
+     * Print bytecode disassembly to stdout.
+     */
+    void disassemble(const ByteCodeFunction&);
 private:
-    StackIndex stackAlloc(int count);
+    void run(const ByteCodeFunction& f, Value* stack, Value args[], Value* outReturn);
 
-    uint8_t read8();
-
-    uint16_t read16();
-
-    uint32_t read32();
-
-    void next();
-
-    void nextVector(int count);
-
-    void run();
-
-    void push(Value v);
-
-    Value pop();
-
-    void swizzle();
-
-    void disassemble(const ByteCodeFunction& f);
-
-    void dumpStack();
 
     std::unique_ptr<Program> fProgram;
     std::unique_ptr<ByteCode> fByteCode;
-    int fIP;
-    const ByteCodeFunction* fCurrentFunction;
     std::vector<Value> fGlobals;
-    std::vector<Value> fStack;
-    Value fReturnValue;
 };
 
 } // namespace

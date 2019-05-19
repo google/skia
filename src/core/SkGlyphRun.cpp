@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkGlyphRun.h"
+#include "src/core/SkGlyphRun.h"
 
-#include "SkDevice.h"
-#include "SkFont.h"
-#include "SkFontPriv.h"
-#include "SkPaint.h"
-#include "SkStrike.h"
-#include "SkStrikeCache.h"
-#include "SkTextBlob.h"
-#include "SkTextBlobPriv.h"
-#include "SkTo.h"
-#include "SkUtils.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkTextBlob.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkFontPriv.h"
+#include "src/core/SkStrike.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/core/SkTextBlobPriv.h"
+#include "src/core/SkUtils.h"
 
 // -- SkGlyphRun -----------------------------------------------------------------------------------
 SkGlyphRun::SkGlyphRun(const SkFont& font,
@@ -162,7 +162,7 @@ SkSpan<const SkGlyphID> SkGlyphIDSet::uniquifyGlyphIDs(
 // -- SkGlyphRunBuilder ----------------------------------------------------------------------------
 void SkGlyphRunBuilder::drawTextUTF8(const SkPaint& paint, const SkFont& font, const void* bytes,
                                      size_t byteLength, SkPoint origin) {
-    auto glyphIDs = textToGlyphIDs(font, bytes, byteLength, kUTF8_SkTextEncoding);
+    auto glyphIDs = textToGlyphIDs(font, bytes, byteLength, SkTextEncoding::kUTF8);
     if (!glyphIDs.empty()) {
         this->initialize(glyphIDs.size());
         this->simplifyDrawText(font, glyphIDs, origin, fPositions);
@@ -258,7 +258,7 @@ void SkGlyphRunBuilder::initialize(size_t totalRunSize) {
 
 SkSpan<const SkGlyphID> SkGlyphRunBuilder::textToGlyphIDs(
         const SkFont& font, const void* bytes, size_t byteLength, SkTextEncoding encoding) {
-    if (encoding != kGlyphID_SkTextEncoding) {
+    if (encoding != SkTextEncoding::kGlyphID) {
         int count = font.countText(bytes, byteLength, encoding);
         if (count > 0) {
             fScratchGlyphIDs.resize(count);

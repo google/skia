@@ -6,11 +6,11 @@
  */
 
 
-#include "SkCornerPathEffect.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/effects/SkCornerPathEffect.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 SkCornerPathEffect::SkCornerPathEffect(SkScalar radius) {
     // check with ! to catch NaNs

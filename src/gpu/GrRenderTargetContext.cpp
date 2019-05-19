@@ -5,63 +5,66 @@
  * found in the LICENSE file.
  */
 
-#include "GrRenderTargetContext.h"
-#include "../private/GrAuditTrail.h"
-#include "../private/SkShadowFlags.h"
-#include "GrAppliedClip.h"
-#include "GrBackendSemaphore.h"
-#include "GrBlurUtils.h"
-#include "GrCaps.h"
-#include "GrColor.h"
-#include "GrContextPriv.h"
-#include "GrDrawingManager.h"
-#include "GrFixedClip.h"
-#include "GrGpuResourcePriv.h"
-#include "GrMemoryPool.h"
-#include "GrOpList.h"
-#include "GrPathRenderer.h"
-#include "GrQuad.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetContextPriv.h"
-#include "GrResourceProvider.h"
-#include "GrShape.h"
-#include "GrStencilAttachment.h"
-#include "GrStyle.h"
-#include "GrTracing.h"
-#include "SkDrawable.h"
-#include "SkDrawShadowInfo.h"
-#include "SkGlyphRunPainter.h"
-#include "SkGr.h"
-#include "SkLatticeIter.h"
-#include "SkMatrixPriv.h"
-#include "SkRRectPriv.h"
-#include "SkShadowUtils.h"
-#include "SkSurfacePriv.h"
-#include "effects/GrRRectEffect.h"
-#include "effects/GrTextureDomain.h"
-#include "ops/GrAtlasTextOp.h"
-#include "ops/GrClearOp.h"
-#include "ops/GrClearStencilClipOp.h"
-#include "ops/GrDebugMarkerOp.h"
-#include "ops/GrDrawableOp.h"
-#include "ops/GrDrawAtlasOp.h"
-#include "ops/GrDrawOp.h"
-#include "ops/GrDrawVerticesOp.h"
-#include "ops/GrFillRectOp.h"
-#include "ops/GrFillRRectOp.h"
-#include "ops/GrLatticeOp.h"
-#include "ops/GrOp.h"
-#include "ops/GrOvalOpFactory.h"
-#include "ops/GrRegionOp.h"
-#include "ops/GrSemaphoreOp.h"
-#include "ops/GrShadowRRectOp.h"
-#include "ops/GrStencilPathOp.h"
-#include "ops/GrStrokeRectOp.h"
-#include "ops/GrTextureOp.h"
-#include "text/GrTextContext.h"
-#include "text/GrTextTarget.h"
+#include "include/core/SkDrawable.h"
+#include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "include/private/GrAuditTrail.h"
+#include "include/private/GrColor.h"
+#include "include/private/GrOpList.h"
+#include "include/private/GrRecordingContext.h"
+#include "include/private/SkShadowFlags.h"
+#include "include/utils/SkShadowUtils.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkConvertPixels.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkLatticeIter.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkRRectPriv.h"
+#include "src/core/SkSurfacePriv.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrBlurUtils.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/GrQuad.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/GrStencilAttachment.h"
+#include "src/gpu/GrStyle.h"
+#include "src/gpu/GrTracing.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrRRectEffect.h"
+#include "src/gpu/effects/GrTextureDomain.h"
+#include "src/gpu/ops/GrAtlasTextOp.h"
+#include "src/gpu/ops/GrClearOp.h"
+#include "src/gpu/ops/GrClearStencilClipOp.h"
+#include "src/gpu/ops/GrDebugMarkerOp.h"
+#include "src/gpu/ops/GrDrawAtlasOp.h"
+#include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/ops/GrDrawVerticesOp.h"
+#include "src/gpu/ops/GrDrawableOp.h"
+#include "src/gpu/ops/GrFillRRectOp.h"
+#include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/ops/GrLatticeOp.h"
+#include "src/gpu/ops/GrOp.h"
+#include "src/gpu/ops/GrOvalOpFactory.h"
+#include "src/gpu/ops/GrRegionOp.h"
+#include "src/gpu/ops/GrSemaphoreOp.h"
+#include "src/gpu/ops/GrShadowRRectOp.h"
+#include "src/gpu/ops/GrStencilPathOp.h"
+#include "src/gpu/ops/GrStrokeRectOp.h"
+#include "src/gpu/ops/GrTextureOp.h"
+#include "src/gpu/ops/GrTransferFromOp.h"
+#include "src/gpu/text/GrTextContext.h"
+#include "src/gpu/text/GrTextTarget.h"
 
 class GrRenderTargetContext::TextTarget : public GrTextTarget {
 public:
@@ -144,13 +147,6 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
         , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fManagedOpList(managedOpList) {
-    if (!context->priv().explicitlyAllocateGPUResources()) {
-        // MDB TODO: to ensure all resources still get allocated in the correct order in the hybrid
-        // world we need to get the correct opList here so that it, in turn, can grab and hold
-        // its rendertarget.
-        this->getRTOpList();
-    }
-
     fTextTarget.reset(new TextTarget(this));
     SkDEBUGCODE(this->validate();)
 }
@@ -565,6 +561,16 @@ static bool crop_filled_rect(int width, int height, const GrClip& clip,
     return rect->intersect(clipBounds);
 }
 
+GrQuadAAFlags set_edge_flag(GrQuadAAFlags currentFlags, GrQuadAAFlags edge, GrAA edgeState) {
+    if (edgeState == GrAA::kNo) {
+        // Turn off 'edge' in currentFlags
+        return currentFlags & (~edge);
+    } else {
+        // Turn on 'edge' in currentFlags
+        return currentFlags | edge;
+    }
+}
+
 bool GrRenderTargetContext::drawFilledRectAsClear(const GrClip& clip, GrPaint&& paint, GrAA aa,
                                                   const SkMatrix& viewMatrix, const SkRect& rect) {
     // Rules for a filled rect to become a clear [+scissor]:
@@ -601,19 +607,38 @@ bool GrRenderTargetContext::drawFilledRectAsClear(const GrClip& clip, GrPaint&& 
         if (!clip.isRRect(rtRect, &clipRRect, &clipAA) || !clipRRect.isRect()) {
             return false;
         }
+
         combinedRect = clipRRect.rect();
     } else {
         // The clip is outside the render target, so the clip can be ignored
         clipAA = GrAA::kNo;
     }
 
+    GrQuadAAFlags edgeFlags; // To account for clip and draw mixing AA modes
     if (viewMatrix.rectStaysRect()) {
         // Skip the extra overhead of inverting the view matrix to see if rtRect is contained in the
         // drawn rectangle, and instead just intersect rtRect with the transformed rect. It will be
         // the new clear region.
-        if (!combinedRect.intersect(viewMatrix.mapRect(rect))) {
+        SkRect drawRect = viewMatrix.mapRect(rect);
+        if (!combinedRect.intersect(drawRect)) {
             // No intersection means nothing should be drawn, so return true but don't add an op
             return true;
+        }
+
+        // In this case, edge flags start based on draw's AA and then switch per-edge to the clip's
+        // AA setting if that edge was inset.
+        edgeFlags = aa == GrAA::kNo ? GrQuadAAFlags::kNone : GrQuadAAFlags::kAll;
+        if (combinedRect.fLeft > drawRect.fLeft) {
+            edgeFlags = set_edge_flag(edgeFlags, GrQuadAAFlags::kLeft, clipAA);
+        }
+        if (combinedRect.fTop > drawRect.fTop) {
+            edgeFlags = set_edge_flag(edgeFlags, GrQuadAAFlags::kTop, clipAA);
+        }
+        if (combinedRect.fRight < drawRect.fRight) {
+            edgeFlags = set_edge_flag(edgeFlags, GrQuadAAFlags::kRight, clipAA);
+        }
+        if (combinedRect.fBottom < drawRect.fBottom) {
+            edgeFlags = set_edge_flag(edgeFlags, GrQuadAAFlags::kBottom, clipAA);
         }
     } else {
         // If the transformed rectangle does not contain the combined rt and clip, the draw is too
@@ -623,17 +648,26 @@ bool GrRenderTargetContext::drawFilledRectAsClear(const GrClip& clip, GrPaint&& 
             return false;
         }
         // The clip region in the rect's local space, so the test becomes the local rect containing
-        // the quad's points.
-        GrQuad quad = GrQuad::MakeFromRect(rtRect, invM);
+        // the quad's points. If clip is non-AA, test rounded out region to avoid the scenario where
+        // the draw contains the unrounded non-aa clip, but does not contain the rounded version. Be
+        // conservative since we don't know how the GPU would round.
+        SkRect conservative;
+        if (clipAA == GrAA::kNo) {
+            conservative = SkRect::Make(combinedRect.roundOut());
+        } else {
+            conservative = combinedRect;
+        }
+        GrQuad quad = GrQuad::MakeFromRect(conservative, invM);
         if (!rect_contains_inclusive(rect, quad.point(0)) ||
             !rect_contains_inclusive(rect, quad.point(1)) ||
             !rect_contains_inclusive(rect, quad.point(2)) ||
             !rect_contains_inclusive(rect, quad.point(3))) {
-            // No containment, so rtRect can't be filled by a solid color
+            // No containment, so combinedRect can't be filled by a solid color
             return false;
         }
         // combinedRect can be filled by a solid color but doesn't need to be modified since it's
-        // inside the quad to be drawn.
+        // inside the quad to be drawn, which also means the edge AA flags respect the clip AA
+        edgeFlags = clipAA == GrAA::kNo ? GrQuadAAFlags::kNone : GrQuadAAFlags::kAll;
     }
 
     // Almost every condition is met; now it requires that the combined rect align with pixel
@@ -659,15 +693,11 @@ bool GrRenderTargetContext::drawFilledRectAsClear(const GrClip& clip, GrPaint&& 
     // mostly to avoid mismatches in rounding logic on the CPU vs. the GPU, which frequently appears
     // when drawing and clipping something to the same non-AA rect that never-the-less has
     // non-integer coordinates.
-
-    // For AA, use non-AA only when both clip and draw are non-AA.
-    if (clipAA == GrAA::kYes) {
-        aa = GrAA::kYes;
-    }
+    aa = edgeFlags == GrQuadAAFlags::kNone ? GrAA::kNo : GrAA::kYes;
     GrAAType aaType = this->chooseAAType(aa);
     this->addDrawOp(GrFixedClip::Disabled(),
-                    GrFillRectOp::Make(fContext, std::move(paint), aaType, SkMatrix::I(),
-                                       combinedRect));
+                    GrFillRectOp::MakePerEdge(fContext, std::move(paint), aaType, edgeFlags,
+                                              SkMatrix::I(), combinedRect));
     return true;
 }
 
@@ -1353,8 +1383,9 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
                                                              ambientRRect,
                                                              devSpaceAmbientBlur,
                                                              devSpaceInsetWidth);
-        SkASSERT(op);
-        this->addDrawOp(clip, std::move(op));
+        if (op) {
+            this->addDrawOp(clip, std::move(op));
+        }
     }
 
     if (SkColorGetA(rec.fSpotColor) > 0) {
@@ -1450,8 +1481,9 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
                                                              spotShadowRRect,
                                                              2.0f * devSpaceSpotBlur,
                                                              insetWidth);
-        SkASSERT(op);
-        this->addDrawOp(clip, std::move(op));
+        if (op) {
+            this->addDrawOp(clip, std::move(op));
+        }
     }
 
     return true;
@@ -1740,6 +1772,136 @@ void GrRenderTargetContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHand
     this->getRTOpList()->addOp(std::move(op), *this->caps());
 }
 
+bool GrRenderTargetContext::asyncReadPixels(const SkImageInfo& info, int srcX, int srcY,
+                                            ReadPixelsCallback callback,
+                                            ReadPixelsContext context) {
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return false;
+    }
+    if (!this->caps()->transferBufferSupport()) {
+        return false;
+    }
+    if (fRenderTargetProxy->wrapsVkSecondaryCB()) {
+        return false;
+    }
+    // We currently don't know our own alpha type, we assume it's premul if we have an alpha channel
+    // and opaque otherwise.
+    if (!GrPixelConfigIsAlphaOnly(fRenderTargetProxy->config()) &&
+        info.alphaType() != kPremul_SkAlphaType) {
+        return false;
+    }
+    auto dstCT = SkColorTypeToGrColorType(info.colorType());
+    auto readCT = this->caps()->supportedReadPixelsColorType(fRenderTargetProxy->config(), dstCT);
+    // Fail if we can't do a CPU conversion from readCT to dstCT.
+    if (GrColorTypeToSkColorType(readCT) == kUnknown_SkColorType) {
+        return false;
+    }
+    // Fail if readCT does not have all of readCT's color channels.
+    if (GrColorTypeComponentFlags(dstCT) & ~GrColorTypeComponentFlags(readCT)) {
+        return false;
+    }
+    // Fail if readCT is not supported for transfer buffers.
+    if (!this->caps()->transferFromOffsetAlignment(readCT)) {
+        return false;
+    }
+
+    sk_sp<GrColorSpaceXform> xform =
+            GrColorSpaceXform::Make(this->colorSpaceInfo().colorSpace(), kPremul_SkAlphaType,
+                                    info.colorSpace(), info.alphaType());
+    const auto srcRect = SkIRect::MakeXYWH(srcX, srcY, info.width(), info.height());
+    // Insert a draw to a temporary surface if we need to do a y-flip or color space conversion.
+    if (this->origin() == kBottomLeft_GrSurfaceOrigin || xform) {
+        sk_sp<GrTextureProxy> texProxy = sk_ref_sp(fRenderTargetProxy->asTextureProxy());
+        const auto& backendFormat = fRenderTargetProxy->backendFormat();
+        SkRect srcRectToDraw = SkRect::Make(srcRect);
+        // If the src is not texturable first try to make a copy to a texture.
+        if (!texProxy) {
+            GrSurfaceDesc desc;
+            desc.fWidth = srcRect.width();
+            desc.fHeight = srcRect.height();
+            desc.fConfig = fRenderTargetProxy->config();
+            auto sContext = direct->priv().makeDeferredSurfaceContext(
+                    backendFormat, desc, this->origin(), GrMipMapped::kNo, SkBackingFit::kApprox,
+                    SkBudgeted::kNo, this->colorSpaceInfo().refColorSpace());
+            if (!sContext) {
+                return false;
+            }
+            if (!sContext->copy(fRenderTargetProxy.get(), srcRect, {0, 0})) {
+                return false;
+            }
+            texProxy = sk_ref_sp(sContext->asTextureProxy());
+            SkASSERT(texProxy);
+            srcRectToDraw = SkRect::MakeWH(srcRect.width(), srcRect.height());
+        }
+        auto rtc = direct->priv().makeDeferredRenderTargetContext(
+                backendFormat, SkBackingFit::kApprox, srcRect.width(), srcRect.height(),
+                fRenderTargetProxy->config(), info.refColorSpace(), 1, GrMipMapped::kNo,
+                kTopLeft_GrSurfaceOrigin);
+        if (!rtc) {
+            return false;
+        }
+        rtc->drawTexture(GrNoClip(), std::move(texProxy), GrSamplerState::Filter::kNearest,
+                         SkBlendMode::kSrc, SK_PMColor4fWHITE, srcRectToDraw,
+                         SkRect::MakeWH(srcRect.width(), srcRect.height()), GrAA::kNo,
+                         GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(),
+                         std::move(xform));
+        return rtc->asyncReadPixels(info, 0, 0, callback, context);
+    }
+
+    size_t rowBytes = GrColorTypeBytesPerPixel(readCT) * srcRect.width();
+    size_t size = rowBytes * srcRect.height();
+    auto buffer = direct->priv().resourceProvider()->createBuffer(
+            size, GrGpuBufferType::kXferGpuToCpu, GrAccessPattern::kStream_GrAccessPattern);
+    if (!buffer) {
+        return false;
+    }
+    this->getRTOpList()->addOp(GrTransferFromOp::Make(fContext, srcRect, readCT, buffer, 0),
+                               *this->caps());
+    struct FinishContext {
+        SkImageInfo fReadInfo;
+        SkImageInfo fDstInfo;
+        ReadPixelsCallback* fClientCallback;
+        ReadPixelsContext fClientContext;
+        sk_sp<GrGpuBuffer> fBuffer;
+        size_t fRowBytes;
+    };
+    const auto readInfo = info.makeColorType(GrColorTypeToSkColorType(readCT));
+    // Assumption is that the caller would like to flush. We could take a parameter or require an
+    // explicit flush from the caller. We'd have to have a way to defer attaching the finish
+    // callback to GrGpu until after the next flush that flushes our op list, though.
+    auto* finishContext = new FinishContext{readInfo, info, callback, context, buffer, rowBytes};
+    auto finishCallback = [](GrGpuFinishedContext c) {
+        auto context = reinterpret_cast<const FinishContext*>(c);
+        void* data = context->fBuffer->map();
+        if (!data) {
+            (*context->fClientCallback)(context->fClientContext, nullptr, 0);
+            delete context;
+            return;
+        }
+        SkAutoPixmapStorage pm;
+        const void* callbackData = data;
+        size_t callbackRowBytes = context->fRowBytes;
+        if (context->fDstInfo != context->fReadInfo) {
+            pm.alloc(context->fDstInfo);
+            SkConvertPixels(context->fDstInfo, pm.writable_addr(), pm.rowBytes(),
+                            context->fReadInfo, data, context->fRowBytes);
+            callbackData = pm.addr();
+            callbackRowBytes = pm.rowBytes();
+        }
+        (*context->fClientCallback)(context->fClientContext, callbackData, callbackRowBytes);
+        if (data) {
+            context->fBuffer->unmap();
+        }
+        delete context;
+    };
+    GrFlushInfo flushInfo;
+    flushInfo.fFinishedContext = finishContext;
+    flushInfo.fFinishedProc = finishCallback;
+    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    return true;
+}
+
 GrSemaphoresSubmitted GrRenderTargetContext::flush(SkSurface::BackendSurfaceAccess access,
                                                    const GrFlushInfo& info) {
     ASSERT_SINGLE_OWNER
@@ -1747,7 +1909,7 @@ GrSemaphoresSubmitted GrRenderTargetContext::flush(SkSurface::BackendSurfaceAcce
         return GrSemaphoresSubmitted::kNo;
     }
     SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "prepareForExternalIO", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "flush", fContext);
 
     return this->drawingManager()->flushSurface(fRenderTargetProxy.get(), access, info);
 }
@@ -1761,7 +1923,7 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    if (numSemaphores && !this->caps()->fenceSyncSupport()) {
+    if (numSemaphores && !this->caps()->semaphoreSupport()) {
         return false;
     }
 
@@ -1772,7 +1934,6 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
 
     auto resourceProvider = direct->priv().resourceProvider();
 
-    SkTArray<sk_sp<GrSemaphore>> semaphores(numSemaphores);
     for (int i = 0; i < numSemaphores; ++i) {
         sk_sp<GrSemaphore> sema = resourceProvider->wrapBackendSemaphore(
                 waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait,

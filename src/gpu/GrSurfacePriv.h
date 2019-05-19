@@ -8,7 +8,7 @@
 #ifndef GrSurfacePriv_DEFINED
 #define GrSurfacePriv_DEFINED
 
-#include "GrSurface.h"
+#include "include/gpu/GrSurface.h"
 
 /** Class that adds methods to GrSurface that are only intended for use internal to Skia.
     This class is purely a privileged window into GrSurface. It should never have additional data

@@ -5,16 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkFontPriv.h"
+#include "tools/ToolUtils.h"
 
-#include "SkCanvas.h"
-#include "SkFontPriv.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkTemplates.h"
-#include "SkTextBlob.h"
+#include <string.h>
 
 static void strokePath(SkCanvas* canvas, const SkPath& path) {
     SkPaint paint;
@@ -38,12 +45,12 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
 
     canvas->translate(SkIntToScalar(10), SkIntToScalar(64));
 
-    canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, 0, 0, font, paint);
-    ToolUtils::get_text_path(font, text, len, kUTF8_SkTextEncoding, &path, nullptr);
+    canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, 0, 0, font, paint);
+    ToolUtils::get_text_path(font, text, len, SkTextEncoding::kUTF8, &path, nullptr);
     strokePath(canvas, path);
     path.reset();
 
-    SkAutoToGlyphs atg(font, text, len, kUTF8_SkTextEncoding);
+    SkAutoToGlyphs atg(font, text, len, SkTextEncoding::kUTF8);
     const int count = atg.count();
     SkAutoTArray<SkPoint>  pos(count);
     SkAutoTArray<SkScalar> widths(count);
@@ -60,6 +67,6 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
     canvas->translate(0, SkIntToScalar(64));
 
     canvas->drawTextBlob(SkTextBlob::MakeFromPosText(text, len, &pos[0], font), 0, 0, paint);
-    ToolUtils::get_text_path(font, text, len, kUTF8_SkTextEncoding, &path, &pos[0]);
+    ToolUtils::get_text_path(font, text, len, SkTextEncoding::kUTF8, &path, &pos[0]);
     strokePath(canvas, path);
 }

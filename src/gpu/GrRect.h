@@ -8,9 +8,9 @@
 #ifndef GrRect_DEFINED
 #define GrRect_DEFINED
 
-#include "SkTo.h"
-#include "SkTypes.h"
-#include "SkRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTo.h"
 
 struct GrIRect16 {
     int16_t fLeft, fTop, fRight, fBottom;

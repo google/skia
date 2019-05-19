@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapCache.h"
-#include "SkBitmapProvider.h"
-#include "SkImage.h"
-#include "SkResourceCache.h"
-#include "SkMipMap.h"
-#include "SkPixelRef.h"
-#include "SkRect.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkRect.h"
+#include "src/core/SkBitmapCache.h"
+#include "src/core/SkBitmapProvider.h"
+#include "src/core/SkMipMap.h"
+#include "src/core/SkResourceCache.h"
 
 /**
  *  Use this for bitmapcache and mipmapcache entries.
@@ -53,8 +53,8 @@ public:
 }
 
 //////////////////////
-#include "SkDiscardableMemory.h"
-#include "SkNextID.h"
+#include "src/core/SkDiscardableMemory.h"
+#include "src/core/SkNextID.h"
 
 void SkBitmapCache_setImmutableWithID(SkPixelRef* pr, uint32_t id) {
     pr->setImmutableWithID(id);
@@ -91,7 +91,7 @@ public:
         return sizeof(fKey) + fInfo.computeByteSize(fRowBytes);
     }
     bool canBePurged() override {
-        SkAutoMutexAcquire ama(fMutex);
+        SkAutoMutexExclusive ama(fMutex);
         return fExternalCounter == 0;
     }
     void postAddInstall(void* payload) override {
@@ -105,7 +105,7 @@ public:
 
     static void ReleaseProc(void* addr, void* ctx) {
         Rec* rec = static_cast<Rec*>(ctx);
-        SkAutoMutexAcquire ama(rec->fMutex);
+        SkAutoMutexExclusive ama(rec->fMutex);
 
         SkASSERT(rec->fExternalCounter > 0);
         rec->fExternalCounter -= 1;
@@ -121,7 +121,7 @@ public:
     }
 
     bool install(SkBitmap* bitmap) {
-        SkAutoMutexAcquire ama(fMutex);
+        SkAutoMutexExclusive ama(fMutex);
 
         if (!fDM && !fMalloc) {
             return false;

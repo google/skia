@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
 #ifdef SK_SUPPORT_PDF
 
-#include "SkDeflate.h"
-#include "SkRandom.h"
-#include "SkTo.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkRandom.h"
+#include "src/pdf/SkDeflate.h"
 
 namespace {
 

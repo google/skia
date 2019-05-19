@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkGaussFilter.h"
+#include "src/core/SkGaussFilter.h"
 
 #include <cmath>
 #include <tuple>
 #include <vector>
-#include "Test.h"
+#include "tests/Test.h"
 
 // one part in a million
 static constexpr double kEpsilon = 0.000001;

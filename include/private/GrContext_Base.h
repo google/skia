@@ -8,9 +8,9 @@
 #ifndef GrContext_Base_DEFINED
 #define GrContext_Base_DEFINED
 
-#include "SkRefCnt.h"
-#include "GrContextOptions.h"
-#include "GrTypes.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrTypes.h"
 
 class GrBaseContextPriv;
 class GrCaps;
@@ -56,8 +56,6 @@ protected:
      * The options in effect for this context
      */
     const GrContextOptions& options() const { return fOptions; }
-
-    bool explicitlyAllocateGPUResources() const { return true; }
 
     const GrCaps* caps() const;
     sk_sp<const GrCaps> refCaps() const;

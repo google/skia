@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "Benchmark.h"
-#include "GrMemoryPool.h"
-#include "SkRandom.h"
-#include "SkTDArray.h"
-#include "SkTemplates.h"
+#include "bench/Benchmark.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkRandom.h"
+#include "src/gpu/GrMemoryPool.h"
 
 #include <new>
 

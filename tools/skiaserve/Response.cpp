@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Response.h"
+#include "tools/skiaserve/Response.h"
 
-#include "Request.h"
+#include "tools/skiaserve/Request.h"
 
-#include "CommandLineFlags.h"
-#include "SkData.h"
-#include "SkString.h"
+#include "include/core/SkData.h"
+#include "include/core/SkString.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include "microhttpd.h"
 

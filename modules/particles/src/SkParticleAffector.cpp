@@ -5,16 +5,22 @@
 * found in the LICENSE file.
 */
 
-#include "SkParticleAffector.h"
+#include "modules/particles/include/SkParticleAffector.h"
 
-#include "SkContourMeasure.h"
-#include "SkCurve.h"
-#include "SkParsePath.h"
-#include "SkParticleData.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkTextUtils.h"
+#include "include/core/SkContourMeasure.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkParsePath.h"
+#include "include/utils/SkRandom.h"
+#include "include/utils/SkTextUtils.h"
+#include "modules/particles/include/SkCurve.h"
+#include "modules/particles/include/SkParticleData.h"
+#include "src/core/SkMakeUnique.h"
 
+#if SK_SUPPORT_GPU
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLExternalValue.h"
+#include "src/sksl/SkSLInterpreter.h"
+#endif
 
 void SkParticleAffector::apply(const SkParticleUpdateParams& params,
                                SkParticleState ps[], int count) {
@@ -356,7 +362,7 @@ private:
         // Use the font manager's default font
         SkFont font(nullptr, fFontSize);
         SkPath path;
-        SkTextUtils::GetPath(fText.c_str(), fText.size(), kUTF8_SkTextEncoding, 0, 0, font, &path);
+        SkTextUtils::GetPath(fText.c_str(), fText.size(), SkTextEncoding::kUTF8, 0, 0, font, &path);
         SkContourMeasureIter iter(path, false);
         while (auto contour = iter.next()) {
             fContours.push_back(contour);
@@ -433,6 +439,100 @@ private:
     SkColorCurve fCurve;
 };
 
+#if SK_SUPPORT_GPU
+static const char* kDefaultCode =
+    "// float rand; Every read returns a random float [0 .. 1)\n"
+    "layout(ctype=float) in uniform float dt;\n"
+    "layout(ctype=float) in uniform float effectAge;\n"
+    "\n"
+    "void main(in    float age,\n"
+    "          in    float invLifetime,\n"
+    "          inout float2 pos,\n"
+    "          inout float2 dir,\n"
+    "          inout float  scale,\n"
+    "          inout float2 vel,\n"
+    "          inout float  spin,\n"
+    "          inout float4 color) {\n"
+    "}\n";
+
+class SkRandomExternalValue : public SkSL::ExternalValue {
+public:
+    SkRandomExternalValue(const char* name, SkSL::Compiler& compiler)
+        : INHERITED(name, *compiler.context().fFloat_Type)
+        , fRandom(nullptr) { }
+
+    void setRandom(SkRandom* random) { fRandom = random; }
+    bool canRead() const override { return true; }
+    void read(void* target) override { *(float*)target = fRandom->nextF(); }
+
+private:
+    SkRandom* fRandom;
+    typedef SkSL::ExternalValue INHERITED;
+};
+
+class SkInterpreterAffector : public SkParticleAffector {
+public:
+    SkInterpreterAffector() : fCode(kDefaultCode) {
+        this->rebuild();
+    }
+
+    REFLECTED(SkInterpreterAffector, SkParticleAffector)
+
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+        fInterpreter->setInputs((SkSL::Interpreter::Value*)&params);
+        for (int i = 0; i < count; ++i) {
+            fRandomValue->setRandom(&ps[i].fRandom);
+            fInterpreter->run(*fMain, (SkSL::Interpreter::Value*)&ps[i].fAge, nullptr);
+        }
+    }
+
+    void visitFields(SkFieldVisitor* v) override {
+        SkString oldCode = fCode;
+
+        SkParticleAffector::visitFields(v);
+        v->visit("Code", fCode);
+
+        if (fCode != oldCode) {
+            this->rebuild();
+        }
+    }
+
+private:
+    SkString fCode;
+
+    // Cached
+    std::unique_ptr<SkSL::Interpreter> fInterpreter;
+    std::unique_ptr<SkRandomExternalValue> fRandomValue;
+    SkSL::ByteCodeFunction* fMain;
+
+    void rebuild() {
+        SkSL::Compiler compiler;
+        SkSL::Program::Settings settings;
+        auto rand = skstd::make_unique<SkRandomExternalValue>("rand", compiler);
+        compiler.registerExternalValue(rand.get());
+        auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                               SkSL::String(fCode.c_str()), settings);
+        if (!program) {
+            SkDebugf("%s\n", compiler.errorText().c_str());
+            return;
+        }
+
+        auto byteCode = compiler.toByteCode(*program);
+        if (compiler.errorCount()) {
+            SkDebugf("%s\n", compiler.errorText().c_str());
+            return;
+        }
+
+        // These will be replaced with the real inputs in onApply, before running
+        SkParticleUpdateParams defaultInputs = { 0.0f, 0.0f, 0 };
+        fMain = byteCode->fFunctions[0].get();
+        fInterpreter.reset(new SkSL::Interpreter(std::move(program), std::move(byteCode),
+                                                 (SkSL::Interpreter::Value*)&defaultInputs));
+        fRandomValue = std::move(rand);
+    }
+};
+#endif
+
 void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkParticleAffector);
     REGISTER_REFLECTED(SkLinearVelocityAffector);
@@ -445,6 +545,9 @@ void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkSizeAffector);
     REGISTER_REFLECTED(SkFrameAffector);
     REGISTER_REFLECTED(SkColorAffector);
+#if SK_SUPPORT_GPU
+    REGISTER_REFLECTED(SkInterpreterAffector);
+#endif
 }
 
 sk_sp<SkParticleAffector> SkParticleAffector::MakeLinearVelocity(const SkCurve& angle,

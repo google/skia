@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrSimpleMeshDrawOpHelper.h"
-#include "GrAppliedClip.h"
-#include "GrProcessorSet.h"
-#include "GrRect.h"
-#include "GrUserStencilSettings.h"
-#include "SkGr.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrProcessorSet.h"
+#include "src/gpu/GrRect.h"
+#include "src/gpu/GrUserStencilSettings.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAAType aaType,
                                                    InputFlags inputFlags)
@@ -93,6 +93,13 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
             *geometryColor = overrideColor;
         }
     } else {
+        if (clip) {
+            for (int i = 0; i < clip->numClipCoverageFragmentProcessors(); ++i) {
+                const GrFragmentProcessor* clipFP = clip->clipCoverageFragmentProcessor(i);
+                clipFP->markPendingExecution();
+            }
+        }
+
         analysis = GrProcessorSet::EmptySetAnalysis();
     }
     fUsesLocalCoords = analysis.usesLocalCoords();

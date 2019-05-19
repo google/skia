@@ -8,11 +8,11 @@
 #ifndef GrMtlPipelineState_DEFINED
 #define GrMtlPipelineState_DEFINED
 
-#include "GrMtlBuffer.h"
-#include "GrMtlPipelineStateDataManager.h"
-#include "GrStencilSettings.h"
-#include "GrTypesPriv.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrStencilSettings.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/mtl/GrMtlBuffer.h"
+#include "src/gpu/mtl/GrMtlPipelineStateDataManager.h"
 
 #import <metal/metal.h>
 
@@ -37,8 +37,8 @@ public:
             MTLPixelFormat pixelFormat,
             const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
             const UniformInfoArray& uniforms,
-            sk_sp<GrMtlBuffer> geometryUniformBuffer,
-            sk_sp<GrMtlBuffer> fragmentUniformBuffer,
+            uint32_t geometryUniformBufferSize,
+            uint32_t fragmentUniformBufferSize,
             uint32_t numSamplers,
             std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
             std::unique_ptr<GrGLSLXferProcessor> xferPRocessor,
@@ -57,6 +57,8 @@ public:
                                            const GrRenderTarget* renderTarget,
                                            GrSurfaceOrigin rtOrigin,
                                            SkIRect scissorRect);
+
+    bool doesntSampleAttachment(const MTLRenderPassAttachmentDescriptor*) const;
 
 private:
     /**
@@ -104,7 +106,7 @@ private:
     void setDepthStencilState(id<MTLRenderCommandEncoder> renderCmdEncoder);
 
     struct SamplerBindings {
-        id<MTLSamplerState> fSampler;
+        GrMtlSampler*  fSampler;
         id<MTLTexture> fTexture;
 
         SamplerBindings(const GrSamplerState& state, GrTexture* texture, GrMtlGpu*);
@@ -118,9 +120,6 @@ private:
     GrGLSLBuiltinUniformHandles fBuiltinUniformHandles;
 
     GrStencilSettings fStencil;
-
-    sk_sp<GrMtlBuffer> fGeometryUniformBuffer;
-    sk_sp<GrMtlBuffer> fFragmentUniformBuffer;
 
     int fNumSamplers;
     SkTArray<SamplerBindings> fSamplerBindings;

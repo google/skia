@@ -5,17 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/private/SkNx.h"
+#include "src/core/SkMipMap.h"
+#include "tools/ToolUtils.h"
 
-#include "Resources.h"
-#include "SkColorPriv.h"
-#include "SkGradientShader.h"
-#include "SkTypeface.h"
-#include "SkStream.h"
-#include "SkPaint.h"
-#include "SkMipMap.h"
-#include "Resources.h"
+#include <math.h>
 
 #define SHOW_MIP_COLOR  0xFF000000
 
@@ -51,7 +58,6 @@ static SkBitmap make_bitmap2(int w, int h) {
     return bm;
 }
 
-#include "SkNx.h"
 static SkBitmap make_bitmap3(int w, int h) {
     SkBitmap bm;
     bm.allocN32Pixels(w, h);

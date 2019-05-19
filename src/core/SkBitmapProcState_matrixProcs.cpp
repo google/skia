@@ -13,10 +13,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapProcState.h"
-#include "SkShader.h"
-#include "SkTo.h"
-#include "SkUtils.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBitmapProcState.h"
+#include "src/core/SkUtils.h"
 
 /*
  *  The decal_ functions require that

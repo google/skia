@@ -10,11 +10,11 @@
 #ifndef SkIStream_DEFINED
 #define SkIStream_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_BUILD_FOR_WIN
 
-#include "SkLeanWindows.h"
+#include "include/private/SkLeanWindows.h"
 #include <ole2.h>
 
 class SkStream;

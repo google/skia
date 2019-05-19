@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkMatrix.h"
-#include "SkOpEdgeBuilder.h"
-#include "SkPathPriv.h"
-#include "SkPathOps.h"
-#include "SkPathOpsCommon.h"
+#include "include/core/SkMatrix.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkPathPriv.h"
+#include "src/pathops/SkOpEdgeBuilder.h"
+#include "src/pathops/SkPathOpsCommon.h"
 
 static bool one_contour(const SkPath& path) {
     SkSTArenaAlloc<256> allocator;

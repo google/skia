@@ -8,12 +8,12 @@
 #ifndef GrProgramDesc_DEFINED
 #define GrProgramDesc_DEFINED
 
-#include "GrColor.h"
-#include "GrTypesPriv.h"
-#include "SkOpts.h"
-#include "SkTArray.h"
-#include "SkTo.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "include/private/GrColor.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkOpts.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
 class GrShaderCaps;
 class GrPipeline;

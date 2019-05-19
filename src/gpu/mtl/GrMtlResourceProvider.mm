@@ -5,18 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlResourceProvider.h"
+#include "src/gpu/mtl/GrMtlResourceProvider.h"
 
-#include "GrMtlCopyManager.h"
-#include "GrMtlGpu.h"
-#include "GrMtlPipelineState.h"
-#include "GrMtlUtil.h"
+#include "src/gpu/mtl/GrMtlCommandBuffer.h"
+#include "src/gpu/mtl/GrMtlCopyManager.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlPipelineState.h"
+#include "src/gpu/mtl/GrMtlUtil.h"
 
-#include "SkSLCompiler.h"
-
+#include "src/sksl/SkSLCompiler.h"
 
 GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
-    : fGpu(gpu) {
+    : fGpu(gpu)
+    , fBufferState({nil, 0, 0}) {
     fPipelineStateCache.reset(new PipelineStateCache(gpu));
 }
 
@@ -43,6 +44,33 @@ GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
         const GrTextureProxy* const primProcProxies[], GrPrimitiveType primType) {
     return fPipelineStateCache->refPipelineState(renderTarget, origin, proc, primProcProxies,
                                                  pipeline, primType);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+GrMtlDepthStencil* GrMtlResourceProvider::findOrCreateCompatibleDepthStencilState(
+        const GrStencilSettings& stencil, GrSurfaceOrigin origin) {
+    GrMtlDepthStencil* depthStencilState;
+    GrMtlDepthStencil::Key key = GrMtlDepthStencil::GenerateKey(stencil, origin);
+    depthStencilState = fDepthStencilStates.find(key);
+    if (!depthStencilState) {
+        depthStencilState = GrMtlDepthStencil::Create(fGpu, stencil, origin);
+        fDepthStencilStates.add(depthStencilState);
+    }
+    SkASSERT(depthStencilState);
+    return depthStencilState;
+}
+
+GrMtlSampler* GrMtlResourceProvider::findOrCreateCompatibleSampler(const GrSamplerState& params,
+                                                                   uint32_t maxMipLevel) {
+    GrMtlSampler* sampler;
+    sampler = fSamplers.find(GrMtlSampler::GenerateKey(params, maxMipLevel));
+    if (!sampler) {
+        sampler = GrMtlSampler::Create(fGpu, params, maxMipLevel);
+        fSamplers.add(sampler);
+    }
+    SkASSERT(sampler);
+    return sampler;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,4 +152,54 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         return (*entry)->fPipelineState.get();
     }
     return (*entry)->fPipelineState.get();
+}
+
+id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offset) {
+    static size_t kSharedDynamicBufferSize = 16*1024;
+
+    // The idea here is that we create a ring buffer which is used for all dynamic allocations
+    // below a certain size. When a dynamic GrMtlBuffer is mapped, it grabs a portion of this
+    // buffer and uses it. On a subsequent map it will grab a different portion of the buffer.
+    // This prevents the buffer from overwriting itself before it's submitted to the command
+    // stream.
+
+    // Create a new buffer if we need to.
+    // If the requested size is larger than the shared buffer size, then we'll
+    // just make the allocation and the owning GrMtlBuffer will manage it (this
+    // only happens with buffers created by GrBufferAllocPool).
+    //
+    // TODO: By sending addCompletedHandler: to MTLCommandBuffer we can track when buffers
+    // are no longer in use and recycle them rather than creating a new one each time.
+    if (fBufferState.fAllocationSize - fBufferState.fNextOffset < size) {
+        size_t allocSize = (size >= kSharedDynamicBufferSize) ? size : kSharedDynamicBufferSize;
+        id<MTLBuffer> buffer;
+        SK_BEGIN_AUTORELEASE_BLOCK
+        buffer = [fGpu->device() newBufferWithLength: allocSize
+#ifdef SK_BUILD_FOR_MAC
+                                             options: MTLResourceStorageModeManaged];
+#else
+                                             options: MTLResourceStorageModeShared];
+#endif
+        SK_END_AUTORELEASE_BLOCK
+        if (nil == buffer) {
+            return nil;
+        }
+
+        if (size >= kSharedDynamicBufferSize) {
+            *offset = 0;
+            return buffer;
+        }
+
+        fBufferState.fAllocation = buffer;
+        fBufferState.fNextOffset = 0;
+        fBufferState.fAllocationSize = kSharedDynamicBufferSize;
+    }
+
+    // Grab the next available block
+    *offset = fBufferState.fNextOffset;
+    fBufferState.fNextOffset += size;
+    // Uniform buffer offsets need to be aligned to the nearest 256-byte boundary.
+    fBufferState.fNextOffset = GrSizeAlignUp(fBufferState.fNextOffset, 256);
+
+    return fBufferState.fAllocation;
 }

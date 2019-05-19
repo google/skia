@@ -5,16 +5,16 @@
 * found in the LICENSE file.
 */
 
-#include "GrPathProcessor.h"
+#include "src/gpu/GrPathProcessor.h"
 
-#include "GrShaderCaps.h"
-#include "SkTo.h"
-#include "gl/GrGLGpu.h"
-#include "gl/GrGLVaryingHandler.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLPrimitiveProcessor.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLVarying.h"
+#include "include/private/SkTo.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLVaryingHandler.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
 
 class GrGLPathProcessor : public GrGLSLPrimitiveProcessor {
 public:

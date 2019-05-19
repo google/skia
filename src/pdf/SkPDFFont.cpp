@@ -5,34 +5,52 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFFont.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/private/SkBitmaskEnum.h"
+#include "include/private/SkTHash.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkImagePriv.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkScalerContext.h"
+#include "src/core/SkStrike.h"
+#include "src/pdf/SkPDFBitmap.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
+#include "src/pdf/SkPDFFont.h"
+#include "src/pdf/SkPDFMakeCIDGlyphWidthsArray.h"
+#include "src/pdf/SkPDFMakeToUnicodeCmap.h"
+#include "src/pdf/SkPDFSubsetFont.h"
+#include "src/pdf/SkPDFType1Font.h"
+#include "src/pdf/SkPDFUtils.h"
+#include "src/utils/SkUTF.h"
 
-#include "SkData.h"
-#include "SkFont.h"
-#include "SkImagePriv.h"
-#include "SkMacros.h"
-#include "SkMakeUnique.h"
-#include "SkPDFBitmap.h"
-#include "SkPDFDocument.h"
-#include "SkPDFDevice.h"
-#include "SkPDFDocumentPriv.h"
-#include "SkPDFMakeCIDGlyphWidthsArray.h"
-#include "SkPDFMakeToUnicodeCmap.h"
-#include "SkPDFResourceDict.h"
-#include "SkPDFSubsetFont.h"
-#include "SkPDFUtils.h"
-#include "SkPaint.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkStream.h"
-#include "SkStrike.h"
-#include "SkTo.h"
-#include "SkTypes.h"
-#include "SkUTF.h"
+#include <limits.h>
+#include <initializer_list>
+#include <memory>
+#include <utility>
 
 SkExclusiveStrikePtr SkPDFFont::MakeVectorCache(SkTypeface* face, int* size) {
     SkFont font;
-    font.setHinting(kNo_SkFontHinting);
+    font.setHinting(SkFontHinting::kNone);
     font.setEdging(SkFont::Edging::kAlias);
     font.setTypeface(sk_ref_sp(face));
     int unitsPerEm = face->getUnitsPerEm();
@@ -124,7 +142,7 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface* typefac
 
     if (0 == metrics->fStemV || 0 == metrics->fCapHeight) {
         SkFont font;
-        font.setHinting(kNo_SkFontHinting);
+        font.setHinting(SkFontHinting::kNone);
         font.setTypeface(sk_ref_sp(typeface));
         font.setSize(1000);  // glyph coordinate system
         if (0 == metrics->fStemV) {

@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkDrawShadowInfo.h"
-#include "SkPath.h"
-#include "SkShadowTessellator.h"
-#include "SkShadowUtils.h"
-#include "SkVertices.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkVertices.h"
+#include "include/utils/SkShadowUtils.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/utils/SkShadowTessellator.h"
+#include "tests/Test.h"
 
 enum ExpectVerts {
     kDont_ExpectVerts,
@@ -42,7 +42,7 @@ void tessellate_shadow(skiatest::Reporter* reporter, const SkPath& path, const S
     verts = SkShadowTessellator::MakeAmbient(path, ctm, heightParams, false);
     check_result(reporter, verts, expectVerts, expectSuccess);
 
-    verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, false);
+    verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, true);
     check_result(reporter, verts, expectVerts, expectSuccess);
 
     verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, false);

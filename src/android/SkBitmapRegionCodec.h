@@ -8,9 +8,9 @@
 #ifndef SkBitmapRegionCodec_DEFINED
 #define SkBitmapRegionCodec_DEFINED
 
-#include "SkBitmap.h"
-#include "SkBitmapRegionDecoder.h"
-#include "SkAndroidCodec.h"
+#include "include/android/SkBitmapRegionDecoder.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/core/SkBitmap.h"
 
 /*
  * This class implements SkBitmapRegionDecoder using an SkAndroidCodec.

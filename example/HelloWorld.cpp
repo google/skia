@@ -5,13 +5,13 @@
 * found in the LICENSE file.
 */
 
-#include "HelloWorld.h"
+#include "example/HelloWorld.h"
 
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkGradientShader.h"
-#include "SkGraphics.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkGradientShader.h"
 
 using namespace sk_app;
 
@@ -99,7 +99,7 @@ void HelloWorld::onPaint(SkSurface* surface) {
     canvas->rotate(fRotationAngle);
 
     // Draw the text
-    canvas->drawSimpleText(message, strlen(message), kUTF8_SkTextEncoding, 0, 0, font, paint);
+    canvas->drawSimpleText(message, strlen(message), SkTextEncoding::kUTF8, 0, 0, font, paint);
 
     canvas->restore();
 }

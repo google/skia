@@ -5,32 +5,32 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
-#include "SkBlendMode.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkFont.h"
-#include "SkGeometry.h"
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPathMeasure.h"
-#include "SkPoint.h"
-#include "SkPointPriv.h"
-#include "SkRRect.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkShader.h"
-#include "SkString.h"
-#include "SkStroke.h"
-#include "SkSurface.h"
-#include "SkTArray.h"
-#include "SkTemplates.h"
-#include "SkTextUtils.h"
-#include "SkTypes.h"
-#include "ToolUtils.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkTextUtils.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkStroke.h"
+#include "tools/ToolUtils.h"
 
 #include <cfloat>
 
@@ -509,7 +509,7 @@ protected:
         paint.setStyle(SkPaint::kFill_Style);
         SkFont font;
         font.setSize(25.0f);
-        SkTextUtils::Draw(canvas, &button.fLabel, 1, kUTF8_SkTextEncoding,
+        SkTextUtils::Draw(canvas, &button.fLabel, 1, SkTextEncoding::kUTF8,
                 button.fBounds.centerX(), button.fBounds.fBottom - 5,
                 font, paint, SkTextUtils::kCenter_Align);
     }
@@ -682,7 +682,7 @@ protected:
             path.reset();
             SkFont font;
             font.setSize(fTextSize);
-            SkTextUtils::GetPath(fText.c_str(), fText.size(), kUTF8_SkTextEncoding,
+            SkTextUtils::GetPath(fText.c_str(), fText.size(), SkTextEncoding::kUTF8,
                                  0, fTextSize, font, &path);
             setForText();
             draw_stroke(canvas, path, width * fWidthScale / fTextSize, fTextSize, true);

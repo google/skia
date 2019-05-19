@@ -5,14 +5,41 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkVertices.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkFontPriv.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
-#include "SkAutoMalloc.h"
-#include "SkCanvas.h"
-#include "SkRSXform.h"
-#include "SkSurface.h"
-#include "SkTextBlob.h"
-#include "ToolUtils.h"
+#include <initializer_list>
 
 class DrawAtlasGM : public skiagm::GM {
     static sk_sp<SkImage> MakeAtlas(SkCanvas* caller, const SkRect& target) {
@@ -99,17 +126,13 @@ private:
 DEF_GM( return new DrawAtlasGM; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkFont.h"
-#include "SkFontPriv.h"
-#include "SkPath.h"
-#include "SkPathMeasure.h"
 
 static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
                               const SkPoint xy[], const SkPath& path, const SkFont& font, const SkPaint& paint,
                               float baseline_offset) {
     SkPathMeasure meas(path, false);
 
-    int count = font.countText(text, length, kUTF8_SkTextEncoding);
+    int count = font.countText(text, length, SkTextEncoding::kUTF8);
     size_t size = count * (sizeof(SkRSXform) + sizeof(SkScalar));
     SkAutoSMalloc<512> storage(size);
     SkRSXform* xform = (SkRSXform*)storage.get();
@@ -122,7 +145,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
     const SkRect bounds = path.getBounds().makeOutset(max, max);
 
     SkAutoTArray<SkGlyphID> glyphs(count);
-    font.textToGlyphs(text, length, kUTF8_SkTextEncoding, glyphs.get(), count);
+    font.textToGlyphs(text, length, SkTextEncoding::kUTF8, glyphs.get(), count);
     font.getWidths(glyphs.get(), count, widths);
 
     for (int i = 0; i < count; ++i) {
@@ -143,7 +166,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
     }
 
     canvas->drawTextBlob(SkTextBlob::MakeFromRSXform(glyphs.get(), count * sizeof(SkGlyphID),
-                                         &xform[0], font, kGlyphID_SkTextEncoding),
+                                         &xform[0], font, SkTextEncoding::kGlyphID),
                          0, 0, paint);
 
     if (true) {
@@ -153,7 +176,6 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
     }
 }
 
-#include "SkGradientShader.h"
 static sk_sp<SkShader> make_shader() {
     SkPoint pts[2] = {{0, 0}, {220, 0}};
     SkColor colors[2] = {SK_ColorRED, SK_ColorBLUE};
@@ -180,7 +202,7 @@ static void drawTextPath(SkCanvas* canvas, bool doStroke) {
     SkScalar x = 0;
     for (int i = 0; i < N; ++i) {
         pos[i].set(x, 0);
-        x += font.measureText(&text0[i], 1, kUTF8_SkTextEncoding, nullptr, &paint);
+        x += font.measureText(&text0[i], 1, SkTextEncoding::kUTF8, nullptr, &paint);
     }
 
     SkPath path;
@@ -236,10 +258,6 @@ DEF_SIMPLE_GM(blob_rsxform, canvas, 500, 100) {
     paint.setColor(SK_ColorBLACK);
     canvas->drawTextBlob(blob, offset.fX, offset.fY, paint);
 }
-
-#include "Resources.h"
-#include "SkColorFilter.h"
-#include "SkVertices.h"
 
 static sk_sp<SkVertices> make_vertices(sk_sp<SkImage> image, const SkRect& r,
                                        SkColor color) {

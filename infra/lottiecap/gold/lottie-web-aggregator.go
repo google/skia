@@ -26,7 +26,7 @@ import (
 	"path"
 	"strings"
 
-	"go.skia.org/infra/golden/go/goldingestion"
+	"go.skia.org/infra/golden/go/jsonio"
 )
 
 // This allows us to use upload_dm_results.py out of the box
@@ -36,7 +36,6 @@ var (
 	outDir = flag.String("out_dir", "/OUT/", "location to dump the Gold JSON and pngs")
 	port   = flag.String("port", "8081", "Port to listen on.")
 
-	botId         = flag.String("bot_id", "", "swarming bot id")
 	browser       = flag.String("browser", "Chrome", "Browser Key")
 	buildBucketID = flag.Int64("buildbucket_build_id", 0, "Buildbucket build id key")
 	builder       = flag.String("builder", "", "Builder, like 'Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-PathKit'")
@@ -45,9 +44,8 @@ var (
 	gitHash       = flag.String("git_hash", "-", "The git commit hash of the version being tested")
 	hostOS        = flag.String("host_os", "Debian9", "OS Key")
 	issue         = flag.Int64("issue", 0, "issue (if tryjob)")
-	patch_storage = flag.String("patch_storage", "", "patch storage (if tryjob)")
 	patchset      = flag.Int64("patchset", 0, "patchset (if tryjob)")
-	taskId        = flag.String("task_id", "", "swarming task id")
+	taskId        = flag.String("task_id", "", "Skia task id")
 )
 
 // reportBody is the JSON recieved from the JS side. It represents
@@ -63,7 +61,7 @@ type reportBody struct {
 var defaultKeys map[string]string
 
 // contains all the results reported in through report_gold_data
-var results []*goldingestion.Result
+var results []*jsonio.Result
 
 func main() {
 	flag.Parse()
@@ -78,7 +76,7 @@ func main() {
 		"source_type":      "lottie",
 	}
 
-	results = []*goldingestion.Result{}
+	results = []*jsonio.Result{}
 
 	http.HandleFunc("/report_gold_data", reporter)
 	http.HandleFunc("/dump_json", dumpJSON)
@@ -123,7 +121,7 @@ func reporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results = append(results, &goldingestion.Result{
+	results = append(results, &jsonio.Result{
 		Digest: hash,
 		Key: map[string]string{
 			"name": testOutput.TestName,
@@ -164,17 +162,15 @@ func dumpJSON(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results := goldingestion.DMResults{
-		BuildBucketID:  *buildBucketID,
-		Builder:        *builder,
-		GitHash:        *gitHash,
-		Issue:          *issue,
-		Key:            defaultKeys,
-		PatchStorage:   *patch_storage,
-		Patchset:       *patchset,
-		Results:        results,
-		SwarmingBotID:  *botId,
-		SwarmingTaskID: *taskId,
+	results := jsonio.GoldResults{
+		BuildBucketID: *buildBucketID,
+		Builder:       *builder,
+		GitHash:       *gitHash,
+		Issue:         *issue,
+		Key:           defaultKeys,
+		Patchset:      *patchset,
+		Results:       results,
+		TaskID:        *taskId,
 	}
 
 	enc := json.NewEncoder(outputFile)

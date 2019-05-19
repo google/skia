@@ -8,7 +8,7 @@
 #ifndef SkPicturePriv_DEFINED
 #define SkPicturePriv_DEFINED
 
-#include "SkPicture.h"
+#include "include/core/SkPicture.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;

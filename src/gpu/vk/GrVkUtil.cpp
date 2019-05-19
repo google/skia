@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkUtil.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
-#include "vk/GrVkGpu.h"
-#include "SkSLCompiler.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/sksl/SkSLCompiler.h"
 
 bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
     VkFormat dontCare;
@@ -70,8 +71,6 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             *format = VK_FORMAT_R32G32_SFLOAT;
             return true;
         case kRGBA_half_GrPixelConfig:
-            *format = VK_FORMAT_R16G16B16A16_SFLOAT;
-            return true;
         case kRGBA_half_Clamped_GrPixelConfig:
             *format = VK_FORMAT_R16G16B16A16_SFLOAT;
             return true;
@@ -200,25 +199,25 @@ SkSL::Program::Kind vk_shader_stage_to_skiasl_kind(VkShaderStageFlagBits stage) 
 }
 
 bool GrCompileVkShaderModule(const GrVkGpu* gpu,
-                             const char* shaderString,
+                             const SkSL::String& shaderString,
                              VkShaderStageFlagBits stage,
                              VkShaderModule* shaderModule,
                              VkPipelineShaderStageCreateInfo* stageInfo,
                              const SkSL::Program::Settings& settings,
                              SkSL::String* outSPIRV,
                              SkSL::Program::Inputs* outInputs) {
+    auto errorHandler = gpu->getContext()->priv().getShaderErrorHandler();
     std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(
-                                                              vk_shader_stage_to_skiasl_kind(stage),
-                                                              SkSL::String(shaderString),
-                                                              settings);
+            vk_shader_stage_to_skiasl_kind(stage), shaderString, settings);
     if (!program) {
-        printf("%s\n", shaderString);
-        SkDebugf("SkSL error:\n%s\n", gpu->shaderCompiler()->errorText().c_str());
-        SkASSERT(false);
+        errorHandler->compileError(shaderString.c_str(),
+                                   gpu->shaderCompiler()->errorText().c_str());
+        return false;
     }
     *outInputs = program->fInputs;
     if (!gpu->shaderCompiler()->toSPIRV(*program, outSPIRV)) {
-        SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
+        errorHandler->compileError(shaderString.c_str(),
+                                   gpu->shaderCompiler()->errorText().c_str());
         return false;
     }
 
@@ -257,3 +256,81 @@ bool GrInstallVkShaderModule(const GrVkGpu* gpu,
 
     return true;
 }
+
+size_t GrVkBytesPerFormat(VkFormat vkFormat) {
+    switch (vkFormat) {
+        case VK_FORMAT_R8_UNORM:
+            return 1;
+
+        case VK_FORMAT_R5G6B5_UNORM_PACK16:
+        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
+        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
+        case VK_FORMAT_R8G8_UNORM:
+        case VK_FORMAT_R16_SFLOAT:
+            return 2;
+
+        case VK_FORMAT_R8G8B8_UNORM:
+            return 3;
+
+        case VK_FORMAT_R8G8B8A8_UNORM:
+        case VK_FORMAT_R8G8B8A8_SRGB:
+        case VK_FORMAT_B8G8R8A8_UNORM:
+        case VK_FORMAT_B8G8R8A8_SRGB:
+        case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
+            return 4;
+
+        case VK_FORMAT_R16G16B16A16_SFLOAT:
+        case VK_FORMAT_R32G32_SFLOAT:
+            return 8;
+
+        case VK_FORMAT_R32G32B32A32_SFLOAT:
+            return 16;
+
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+            return 8;
+
+        default:
+            SK_ABORT("Invalid Vk format");
+            return 0;
+    }
+
+    SK_ABORT("Invalid Vk format");
+    return 0;
+}
+
+bool GrVkFormatIsCompressed(VkFormat vkFormat) {
+    switch (vkFormat) {
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+            return true;
+        default:
+            return false;
+    }
+    SK_ABORT("Invalid format");
+    return false;
+}
+
+size_t GrVkFormatCompressedDataSize(VkFormat format, int width, int height) {
+    SkASSERT(GrVkFormatIsCompressed(format));
+
+    switch (format) {
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+            if (width < 4) {
+                SkASSERT(width == 1 || width == 2);
+                width = 4;
+            }
+            if (height < 4) {
+                SkASSERT(height == 1 || height == 2);
+                height = 4;
+            }
+            SkASSERT((width & 3) == 0);
+            SkASSERT((height & 3) == 0);
+            return (width >> 2) * (height >> 2) * 8;
+        default:
+            SK_ABORT("Unknown compressed format");
+            return 4 * width * height;
+    }
+
+    SK_ABORT("Invalid format");
+    return 4 * width * height;
+}
+

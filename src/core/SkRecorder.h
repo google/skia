@@ -8,13 +8,12 @@
 #ifndef SkRecorder_DEFINED
 #define SkRecorder_DEFINED
 
-#include "SkBigPicture.h"
-#include "SkCanvasVirtualEnforcer.h"
-#include "SkMiniRecorder.h"
-#include "SkNoDrawCanvas.h"
-#include "SkRecord.h"
-#include "SkRecords.h"
-#include "SkTDArray.h"
+#include "include/core/SkCanvasVirtualEnforcer.h"
+#include "include/private/SkTDArray.h"
+#include "include/utils/SkNoDrawCanvas.h"
+#include "src/core/SkBigPicture.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecords.h"
 
 class SkBBHFactory;
 
@@ -40,11 +39,11 @@ private:
 class SkRecorder final : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
 public:
     // Does not take ownership of the SkRecord.
-    SkRecorder(SkRecord*, int width, int height, SkMiniRecorder* = nullptr);   // legacy version
-    SkRecorder(SkRecord*, const SkRect& bounds, SkMiniRecorder* = nullptr);
+    SkRecorder(SkRecord*, int width, int height);   // legacy version
+    SkRecorder(SkRecord*, const SkRect& bounds);
 
     enum DrawPictureMode { Record_DrawPictureMode, Playback_DrawPictureMode };
-    void reset(SkRecord*, const SkRect& bounds, DrawPictureMode, SkMiniRecorder* = nullptr);
+    void reset(SkRecord*, const SkRect& bounds, DrawPictureMode);
 
     size_t approxBytesUsedBySubPictures() const { return fApproxBytesUsedBySubPictures; }
 
@@ -77,6 +76,7 @@ public:
                      const SkPaint& paint) override;
 
     void onDrawPaint(const SkPaint&) override;
+    void onDrawBehind(const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
     void onDrawRect(const SkRect&, const SkPaint&) override;
     void onDrawRegion(const SkRegion&, const SkPaint&) override;
@@ -120,8 +120,6 @@ public:
 
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
-    void flushMiniRecorder();
-
 private:
     template <typename T>
     T* copy(const T*);
@@ -136,8 +134,6 @@ private:
     size_t fApproxBytesUsedBySubPictures;
     SkRecord* fRecord;
     std::unique_ptr<SkDrawableList> fDrawableList;
-
-    SkMiniRecorder* fMiniRecorder;
 };
 
 #endif//SkRecorder_DEFINED

@@ -6,49 +6,49 @@
  */
 
 #include "stdio.h"
-#include "SkSLParser.h"
-#include "ast/SkSLASTBinaryExpression.h"
-#include "ast/SkSLASTBlock.h"
-#include "ast/SkSLASTBoolLiteral.h"
-#include "ast/SkSLASTBreakStatement.h"
-#include "ast/SkSLASTCallSuffix.h"
-#include "ast/SkSLASTContinueStatement.h"
-#include "ast/SkSLASTDiscardStatement.h"
-#include "ast/SkSLASTDoStatement.h"
-#include "ast/SkSLASTEnum.h"
-#include "ast/SkSLASTExpression.h"
-#include "ast/SkSLASTExpressionStatement.h"
-#include "ast/SkSLASTExtension.h"
-#include "ast/SkSLASTFieldSuffix.h"
-#include "ast/SkSLASTFloatLiteral.h"
-#include "ast/SkSLASTForStatement.h"
-#include "ast/SkSLASTFunction.h"
-#include "ast/SkSLASTIdentifier.h"
-#include "ast/SkSLASTIfStatement.h"
-#include "ast/SkSLASTIndexSuffix.h"
-#include "ast/SkSLASTInterfaceBlock.h"
-#include "ast/SkSLASTIntLiteral.h"
-#include "ast/SkSLASTModifiersDeclaration.h"
-#include "ast/SkSLASTNullLiteral.h"
-#include "ast/SkSLASTParameter.h"
-#include "ast/SkSLASTPrefixExpression.h"
-#include "ast/SkSLASTReturnStatement.h"
-#include "ast/SkSLASTSection.h"
-#include "ast/SkSLASTStatement.h"
-#include "ast/SkSLASTSuffixExpression.h"
-#include "ast/SkSLASTSwitchCase.h"
-#include "ast/SkSLASTSwitchStatement.h"
-#include "ast/SkSLASTTernaryExpression.h"
-#include "ast/SkSLASTType.h"
-#include "ast/SkSLASTVarDeclaration.h"
-#include "ast/SkSLASTVarDeclarationStatement.h"
-#include "ast/SkSLASTWhileStatement.h"
-#include "ir/SkSLSymbolTable.h"
-#include "ir/SkSLModifiers.h"
-#include "ir/SkSLType.h"
+#include "src/sksl/SkSLParser.h"
+#include "src/sksl/ast/SkSLASTBinaryExpression.h"
+#include "src/sksl/ast/SkSLASTBlock.h"
+#include "src/sksl/ast/SkSLASTBoolLiteral.h"
+#include "src/sksl/ast/SkSLASTBreakStatement.h"
+#include "src/sksl/ast/SkSLASTCallSuffix.h"
+#include "src/sksl/ast/SkSLASTContinueStatement.h"
+#include "src/sksl/ast/SkSLASTDiscardStatement.h"
+#include "src/sksl/ast/SkSLASTDoStatement.h"
+#include "src/sksl/ast/SkSLASTEnum.h"
+#include "src/sksl/ast/SkSLASTExpression.h"
+#include "src/sksl/ast/SkSLASTExpressionStatement.h"
+#include "src/sksl/ast/SkSLASTExtension.h"
+#include "src/sksl/ast/SkSLASTFieldSuffix.h"
+#include "src/sksl/ast/SkSLASTFloatLiteral.h"
+#include "src/sksl/ast/SkSLASTForStatement.h"
+#include "src/sksl/ast/SkSLASTFunction.h"
+#include "src/sksl/ast/SkSLASTIdentifier.h"
+#include "src/sksl/ast/SkSLASTIfStatement.h"
+#include "src/sksl/ast/SkSLASTIndexSuffix.h"
+#include "src/sksl/ast/SkSLASTIntLiteral.h"
+#include "src/sksl/ast/SkSLASTInterfaceBlock.h"
+#include "src/sksl/ast/SkSLASTModifiersDeclaration.h"
+#include "src/sksl/ast/SkSLASTNullLiteral.h"
+#include "src/sksl/ast/SkSLASTParameter.h"
+#include "src/sksl/ast/SkSLASTPrefixExpression.h"
+#include "src/sksl/ast/SkSLASTReturnStatement.h"
+#include "src/sksl/ast/SkSLASTSection.h"
+#include "src/sksl/ast/SkSLASTStatement.h"
+#include "src/sksl/ast/SkSLASTSuffixExpression.h"
+#include "src/sksl/ast/SkSLASTSwitchCase.h"
+#include "src/sksl/ast/SkSLASTSwitchStatement.h"
+#include "src/sksl/ast/SkSLASTTernaryExpression.h"
+#include "src/sksl/ast/SkSLASTType.h"
+#include "src/sksl/ast/SkSLASTVarDeclaration.h"
+#include "src/sksl/ast/SkSLASTVarDeclarationStatement.h"
+#include "src/sksl/ast/SkSLASTWhileStatement.h"
+#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLType.h"
 
 #ifndef SKSL_STANDALONE
-#include "SkOnce.h"
+#include "include/private/SkOnce.h"
 #endif
 
 namespace SkSL {
@@ -506,8 +506,11 @@ std::unique_ptr<ASTType> Parser::structDeclaration() {
                 }
                 uint64_t columns = ((ASTIntLiteral&) *var.fSizes[i]).fValue;
                 String name = type->name() + "[" + to_string(columns) + "]";
-                type = new Type(name, Type::kArray_Kind, *type, (int) columns);
-                fTypes.takeOwnership((Type*) type);
+                type = (Type*) fTypes.takeOwnership(std::unique_ptr<Symbol>(
+                                                                         new Type(name,
+                                                                                  Type::kArray_Kind,
+                                                                                  *type,
+                                                                                  (int) columns)));
             }
             fields.push_back(Type::Field(decl->fModifiers, var.fName, type));
             if (var.fValue) {

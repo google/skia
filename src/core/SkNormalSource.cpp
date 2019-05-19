@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkNormalFlatSource.h"
-#include "SkNormalMapSource.h"
-#include "SkNormalSource.h"
+#include "src/core/SkNormalFlatSource.h"
+#include "src/core/SkNormalMapSource.h"
+#include "src/core/SkNormalSource.h"
 
 // Generating vtable
 SkNormalSource::~SkNormalSource() {}

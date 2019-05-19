@@ -5,12 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkRect.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/pathops/SkPathOps.h"
+#include "tools/ToolUtils.h"
 
 namespace skiagm {
 

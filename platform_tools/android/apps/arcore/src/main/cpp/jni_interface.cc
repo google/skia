@@ -18,7 +18,7 @@
 #include <android/asset_manager_jni.h>
 #include <jni.h>
 
-#include "hello_ar_application.h"
+#include "platform_tools/android/apps/arcore/src/main/cpp/hello_ar_application.h"
 
 #define JNI_METHOD(return_type, method_name) \
   JNIEXPORT return_type JNICALL              \

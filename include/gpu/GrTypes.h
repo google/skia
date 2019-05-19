@@ -8,11 +8,13 @@
 #ifndef GrTypes_DEFINED
 #define GrTypes_DEFINED
 
-#include "SkMath.h"
-#include "SkTypes.h"
-#include "GrConfig.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrConfig.h"
 
 class GrBackendSemaphore;
+class SkImage;
+class SkSurface;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -134,50 +136,42 @@ template<typename TFlags> inline TFlags& operator&=(TFlags& a, GrTFlagsMask<TFla
 /**
  *  divide, rounding up
  */
-static inline int32_t GrIDivRoundUp(int x, int y) {
+static inline constexpr int32_t GrIDivRoundUp(int x, int y) {
     SkASSERT(y > 0);
     return (x + (y-1)) / y;
 }
-static inline uint32_t GrUIDivRoundUp(uint32_t x, uint32_t y) {
+static inline constexpr uint32_t GrUIDivRoundUp(uint32_t x, uint32_t y) {
     return (x + (y-1)) / y;
 }
-static inline size_t GrSizeDivRoundUp(size_t x, size_t y) {
-    return (x + (y-1)) / y;
-}
-
-// compile time, evaluates Y multiple times
-#define GR_CT_DIV_ROUND_UP(X, Y) (((X) + ((Y)-1)) / (Y))
+static inline constexpr size_t GrSizeDivRoundUp(size_t x, size_t y) { return (x + (y - 1)) / y; }
 
 /**
  *  align up
  */
-static inline uint32_t GrUIAlignUp(uint32_t x, uint32_t alignment) {
+static inline constexpr uint32_t GrUIAlignUp(uint32_t x, uint32_t alignment) {
     return GrUIDivRoundUp(x, alignment) * alignment;
 }
-static inline size_t GrSizeAlignUp(size_t x, size_t alignment) {
+static inline constexpr size_t GrSizeAlignUp(size_t x, size_t alignment) {
     return GrSizeDivRoundUp(x, alignment) * alignment;
 }
-
-// compile time, evaluates A multiple times
-#define GR_CT_ALIGN_UP(X, A) (GR_CT_DIV_ROUND_UP((X),(A)) * (A))
 
 /**
  * amount of pad needed to align up
  */
-static inline uint32_t GrUIAlignUpPad(uint32_t x, uint32_t alignment) {
+static inline constexpr uint32_t GrUIAlignUpPad(uint32_t x, uint32_t alignment) {
     return (alignment - x % alignment) % alignment;
 }
-static inline size_t GrSizeAlignUpPad(size_t x, size_t alignment) {
+static inline constexpr size_t GrSizeAlignUpPad(size_t x, size_t alignment) {
     return (alignment - x % alignment) % alignment;
 }
 
 /**
  *  align down
  */
-static inline uint32_t GrUIAlignDown(uint32_t x, uint32_t alignment) {
+static inline constexpr uint32_t GrUIAlignDown(uint32_t x, uint32_t alignment) {
     return (x / alignment) * alignment;
 }
-static inline size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
+static inline constexpr size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
     return (x / alignment) * alignment;
 }
 
@@ -219,6 +213,14 @@ static constexpr GrBackendApi kMock_GrBackend = GrBackendApi::kMock;
  * Used to say whether a texture has mip levels allocated or not.
  */
 enum class GrMipMapped : bool {
+    kNo = false,
+    kYes = true
+};
+
+/*
+ * Can a GrBackendObject be rendered to?
+ */
+enum class GrRenderable : bool {
     kNo = false,
     kYes = true
 };
@@ -303,6 +305,36 @@ struct GrFlushInfo {
 enum class GrSemaphoresSubmitted : bool {
     kNo = false,
     kYes = true
+};
+
+/**
+ * Array of SkImages and SkSurfaces which Skia will prepare for external use when passed into a
+ * flush call on GrContext. All the SkImages and SkSurfaces must be GPU backed.
+ *
+ * If fPrepareSurfaceForPresent is not nullptr, then it must be an array the size of fNumSurfaces.
+ * Each entry in the array corresponds to the SkSurface at the same index in the fSurfaces array. If
+ * an entry is true, then that surface will be prepared for both external use and present.
+ *
+ * Currently this only has an effect if the backend API is Vulkan. In this case, all the underlying
+ * VkImages associated with the SkImages and SkSurfaces will be transitioned into the VkQueueFamily
+ * in which they were originally wrapped or created with. This allows a client to wrap a VkImage
+ * from a queue which is different from the graphics queue and then have Skia transition it back to
+ * that queue without needing to delete the SkImage or SkSurface. If the an SkSurface is also
+ * flagged to be prepared for present, then its VkImageLayout will be set to
+ * VK_IMAGE_LAYOUT_PRESENT_SRC_KHR if the VK_KHR_swapchain extension has been enabled for the
+ * GrContext and the original queue is not VK_QUEUE_FAMILY_EXTERNAL or VK_QUEUE_FAMILY_FOREIGN_EXT.
+ *
+ * If an SkSurface or SkImage is used again, it will be transitioned back to the graphics queue and
+ * whatever layout is needed for its use.
+ */
+struct GrPrepareForExternalIORequests {
+    int fNumImages = 0;
+    SkImage** fImages = nullptr;
+    int fNumSurfaces = 0;
+    SkSurface** fSurfaces = nullptr;
+    bool* fPrepareSurfaceForPresent = nullptr;
+
+    bool hasRequests() const { return fNumImages || fNumSurfaces; }
 };
 
 #endif

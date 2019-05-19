@@ -42,15 +42,17 @@
 // so we will too.
 class SkGifCodec;
 
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
-#include "SkCodecAnimation.h"
-#include "SkColorTable.h"
-#include "SkData.h"
-#include "SkFrameHolder.h"
-#include "SkImageInfo.h"
-#include "SkStreamBuffer.h"
-#include "../private/SkTArray.h"
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkCodecAnimation.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageInfo.h"
+#include "include/private/SkTArray.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkColorTable.h"
+#include "src/codec/SkFrameHolder.h"
+#include "src/codec/SkStreamBuffer.h"
+
+#include <array>
 #include <memory>
 
 typedef SkTArray<unsigned char, true> SkGIFRow;

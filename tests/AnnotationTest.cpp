@@ -5,19 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkAnnotation.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkData.h"
-#include "SkPDFDocument.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkStream.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkAnnotation.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDocument.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "include/docs/SkPDFDocument.h"
+#include "tests/Test.h"
 
 #include <string.h>
 #include <memory>
@@ -88,8 +89,7 @@ DEF_TEST(Annotation_PdfDefineNamedDestination, reporter) {
 }
 
 #if defined(SK_XML)
-    #include "SkSVGCanvas.h"
-    #include "SkXMLWriter.h"
+    #include "include/svg/SkSVGCanvas.h"
 
     DEF_TEST(Annotation_SvgLink, reporter) {
         SkDynamicMemoryWStream outStream;

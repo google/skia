@@ -204,6 +204,11 @@
   },
   {
     "cmd": [
+      "powershell",
+      "-ExecutionPolicy",
+      "Unrestricted",
+      "-File",
+      "RECIPE_MODULE[skia::flavor]\\resources\\win_run_and_check_log.ps1",
       "[START_DIR]\\build\\dm",
       "--resourcePath",
       "[START_DIR]\\skia\\resources",
@@ -428,7 +433,6 @@
       "~BlurMaskBiggerThanDest",
       "~^ProcessorOptimizationValidationTest$",
       "--nonativeFonts",
-      "--reduceOpListSplitting",
       "--verbose"
     ],
     "env": {

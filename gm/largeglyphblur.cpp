@@ -5,13 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkBlurMask.h"
+#include "tools/ToolUtils.h"
 
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkMaskFilter.h"
-#include "SkTextBlob.h"
+#include <string.h>
 
 // This test ensures that glyphs whose point size is less than the SkStrike's maxmium, but
 // who have a large blur, are still handled correctly
@@ -31,6 +38,6 @@ DEF_SIMPLE_GM(largeglyphblur, canvas, 1920, 600) {
     canvas->drawTextBlob(blob, 10, 200, SkPaint());
 
     size_t len = strlen(text);
-    canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, 10, 500, font, blurPaint);
-    canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, 10, 500, font, SkPaint());
+    canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, 10, 500, font, blurPaint);
+    canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, 10, 500, font, SkPaint());
 }

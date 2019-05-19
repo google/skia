@@ -8,8 +8,8 @@
 #ifndef SkPaintFilterCanvas_DEFINED
 #define SkPaintFilterCanvas_DEFINED
 
-#include "SkCanvasVirtualEnforcer.h"
-#include "SkNWayCanvas.h"
+#include "include/core/SkCanvasVirtualEnforcer.h"
+#include "include/utils/SkNWayCanvas.h"
 
 class SkAndroidFrameworkUtils;
 
@@ -51,6 +51,7 @@ protected:
     virtual bool onFilter(SkPaint& paint) const = 0;
 
     void onDrawPaint(const SkPaint&) override;
+    void onDrawBehind(const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
     void onDrawRect(const SkRect&, const SkPaint&) override;
     void onDrawRRect(const SkRRect&, const SkPaint&) override;

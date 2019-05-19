@@ -5,29 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "SkBmpCodec.h"
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
-#include "SkColorSpace.h"
-#include "SkData.h"
-#include "SkFrameHolder.h"
-#include "SkHalf.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
+#include "include/private/SkHalf.h"
+#include "src/codec/SkBmpCodec.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkFrameHolder.h"
 #ifdef SK_HAS_HEIF_LIBRARY
-#include "SkHeifCodec.h"
+#include "src/codec/SkHeifCodec.h"
 #endif
-#include "SkIcoCodec.h"
-#include "SkJpegCodec.h"
+#include "src/codec/SkIcoCodec.h"
+#include "src/codec/SkJpegCodec.h"
 #ifdef SK_HAS_PNG_LIBRARY
-#include "SkPngCodec.h"
+#include "src/codec/SkPngCodec.h"
 #endif
-#include "SkRawCodec.h"
-#include "SkStream.h"
-#include "SkWbmpCodec.h"
-#include "SkWebpCodec.h"
+#include "include/core/SkStream.h"
+#include "src/codec/SkRawCodec.h"
+#include "src/codec/SkWbmpCodec.h"
+#include "src/codec/SkWebpCodec.h"
 #ifdef SK_HAS_WUFFS_LIBRARY
-#include "SkWuffsCodec.h"
+#include "src/codec/SkWuffsCodec.h"
 #else
-#include "SkGifCodec.h"
+#include "src/codec/SkGifCodec.h"
 #endif
 
 struct DecoderProc {
@@ -35,27 +35,37 @@ struct DecoderProc {
     std::unique_ptr<SkCodec> (*MakeFromStream)(std::unique_ptr<SkStream>, SkCodec::Result*);
 };
 
-static constexpr DecoderProc gDecoderProcs[] = {
-#ifdef SK_HAS_JPEG_LIBRARY
-    { SkJpegCodec::IsJpeg, SkJpegCodec::MakeFromStream },
-#endif
-#ifdef SK_HAS_WEBP_LIBRARY
-    { SkWebpCodec::IsWebp, SkWebpCodec::MakeFromStream },
-#endif
-#ifdef SK_HAS_WUFFS_LIBRARY
-    { SkWuffsCodec_IsFormat, SkWuffsCodec_MakeFromStream },
-#else
-    { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },
-#endif
-#ifdef SK_HAS_PNG_LIBRARY
-    { SkIcoCodec::IsIco, SkIcoCodec::MakeFromStream },
-#endif
-    { SkBmpCodec::IsBmp, SkBmpCodec::MakeFromStream },
-    { SkWbmpCodec::IsWbmp, SkWbmpCodec::MakeFromStream },
-#ifdef SK_HAS_HEIF_LIBRARY
-    { SkHeifCodec::IsHeif, SkHeifCodec::MakeFromStream },
-#endif
-};
+static std::vector<DecoderProc>* decoders() {
+    static auto* decoders = new std::vector<DecoderProc> {
+    #ifdef SK_HAS_JPEG_LIBRARY
+        { SkJpegCodec::IsJpeg, SkJpegCodec::MakeFromStream },
+    #endif
+    #ifdef SK_HAS_WEBP_LIBRARY
+        { SkWebpCodec::IsWebp, SkWebpCodec::MakeFromStream },
+    #endif
+    #ifdef SK_HAS_WUFFS_LIBRARY
+        { SkWuffsCodec_IsFormat, SkWuffsCodec_MakeFromStream },
+    #else
+        { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },
+    #endif
+    #ifdef SK_HAS_PNG_LIBRARY
+        { SkIcoCodec::IsIco, SkIcoCodec::MakeFromStream },
+    #endif
+        { SkBmpCodec::IsBmp, SkBmpCodec::MakeFromStream },
+        { SkWbmpCodec::IsWbmp, SkWbmpCodec::MakeFromStream },
+    #ifdef SK_HAS_HEIF_LIBRARY
+        { SkHeifCodec::IsHeif, SkHeifCodec::MakeFromStream },
+    #endif
+    };
+    return decoders;
+}
+
+void SkCodec::Register(
+            bool                     (*peek)(const void*, size_t),
+            std::unique_ptr<SkCodec> (*make)(std::unique_ptr<SkStream>, SkCodec::Result*)) {
+    decoders()->push_back(DecoderProc{peek, make});
+}
+
 
 std::unique_ptr<SkCodec> SkCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
                                                  Result* outResult, SkPngChunkReader* chunkReader) {
@@ -105,7 +115,7 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromStream(std::unique_ptr<SkStream> strea
     } else
 #endif
     {
-        for (DecoderProc proc : gDecoderProcs) {
+        for (DecoderProc proc : *decoders()) {
             if (proc.IsFormat(buffer, bytesRead)) {
                 return proc.MakeFromStream(std::move(stream), outResult);
             }

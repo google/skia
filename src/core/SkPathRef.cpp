@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathRef.h"
+#include "include/private/SkPathRef.h"
 
-#include "SkBuffer.h"
-#include "SkNx.h"
-#include "SkOnce.h"
-#include "SkPath.h"
-#include "SkPathPriv.h"
-#include "SkSafeMath.h"
-#include "SkTo.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkNx.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBuffer.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkSafeMath.h"
 
 // Conic weights must be 0 < weight <= finite
 static bool validate_conic_weights(const SkScalar weights[], int count) {
@@ -713,7 +713,7 @@ void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
         return;
     }
 
-    SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
+    SkAutoMutexExclusive lock(fGenIDChangeListenersMutex);
 
     // Clean out any stale listeners before we append the new one.
     for (int i = 0; i < fGenIDChangeListeners.count(); ++i) {
@@ -729,7 +729,7 @@ void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
 
 // we need to be called *before* the genID gets changed or zerod
 void SkPathRef::callGenIDChangeListeners() {
-    SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
+    SkAutoMutexExclusive lock(fGenIDChangeListenersMutex);
     for (GenIDChangeListener* listener : fGenIDChangeListeners) {
         if (!listener->shouldUnregisterFromPath()) {
             listener->onChange();

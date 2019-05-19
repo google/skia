@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=e626e26bf557857b824aa7d03f723e0f
 REG_FIDDLE(IPoint_subtract_operator, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {

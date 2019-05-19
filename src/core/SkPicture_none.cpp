@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkDrawable.h"
-#include "SkImageGenerator.h"
-#include "SkPicture.h"
-#include "SkPictureData.h"
-#include "SkPictureImageFilter.h"
-#include "SkPicturePlayback.h"
-#include "SkPicturePriv.h"
-#include "SkPictureRecorder.h"
-#include "SkPictureShader.h"
-#include "SkRecordedDrawable.h"
-#include "SkTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkPictureImageFilter.h"
+#include "src/core/SkPictureData.h"
+#include "src/core/SkPicturePlayback.h"
+#include "src/core/SkPicturePriv.h"
+#include "src/core/SkRecordedDrawable.h"
+#include "src/shaders/SkPictureShader.h"
 
 SkPicture::SkPicture() : fUniqueID(0) {}
 

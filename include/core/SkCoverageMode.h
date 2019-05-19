@@ -8,7 +8,7 @@
 #ifndef SkCoverageMode_DEFINED
 #define SkCoverageMode_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 /**
  *  Describes geometric operations (ala SkRegion::Op) that can be applied to coverage bytes.

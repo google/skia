@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLUtil.h"
+#include "src/sksl/SkSLUtil.h"
 
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
@@ -67,7 +67,7 @@ Token::Kind remove_assignment(Token::Kind op) {
         case Token::LOGICALOREQ:  return Token::LOGICALOR;
         case Token::LOGICALXOREQ: return Token::LOGICALXOR;
         case Token::LOGICALANDEQ: return Token::LOGICALAND;
-        default: return Token::INVALID;
+        default: return op;
     }
 }
 

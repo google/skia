@@ -7,12 +7,12 @@
 
 #include <vector>
 
-#include "Benchmark.h"
-#include "SkFont.h"
-#include "SkMakeUnique.h"
-#include "SkTypeface.h"
-#include "SkUTF.h"
-#include "SkUtils.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkUtils.h"
+#include "src/utils/SkUTF.h"
 
 // From Project Guttenberg. This is UTF-8 text.
 static const char* atext[] = {

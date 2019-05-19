@@ -9,7 +9,7 @@
 #ifndef SKFONTCONFIGINTERFACE_DIRECT_H_
 #define SKFONTCONFIGINTERFACE_DIRECT_H_
 
-#include "SkFontConfigInterface.h"
+#include "include/ports/SkFontConfigInterface.h"
 
 #include <fontconfig/fontconfig.h>
 

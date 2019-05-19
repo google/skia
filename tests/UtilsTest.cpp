@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkRandom.h"
-#include "SkRefCnt.h"
-#include "SkTSearch.h"
-#include "SkTSort.h"
-#include "Test.h"
+#include "include/core/SkRefCnt.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkTSearch.h"
+#include "src/core/SkTSort.h"
+#include "tests/Test.h"
 
 class RefClass : public SkRefCnt {
 public:

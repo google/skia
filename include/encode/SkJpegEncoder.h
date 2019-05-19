@@ -8,7 +8,7 @@
 #ifndef SkJpegEncoder_DEFINED
 #define SkJpegEncoder_DEFINED
 
-#include "SkEncoder.h"
+#include "include/encode/SkEncoder.h"
 
 class SkJpegEncoderMgr;
 class SkWStream;

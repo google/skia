@@ -5,13 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkFontMetrics.h"
-#include "SkPath.h"
-#include "SkTextUtils.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/utils/SkTextUtils.h"
+#include "tools/Resources.h"
+
+#include <stdint.h>
 
 class Poly2PolyGM : public skiagm::GM {
 public:
@@ -55,7 +67,7 @@ protected:
         SkScalar x = D/2;
         SkScalar y = D/2 - (fm.fAscent + fm.fDescent)/2;
         uint16_t glyphID = 3; // X
-        SkTextUtils::Draw(canvas, &glyphID, sizeof(glyphID), kGlyphID_SkTextEncoding, x, y,
+        SkTextUtils::Draw(canvas, &glyphID, sizeof(glyphID), SkTextEncoding::kGlyphID, x, y,
                           font, *paint, SkTextUtils::kCenter_Align);
         canvas->restore();
     }

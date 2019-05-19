@@ -5,11 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "SkImage.h"
-#include "SkRRect.h"
-#include "SkTextBlob.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "tools/ToolUtils.h"
+
+#include <string.h>
 
 static void rotated_checkerboard_shader(SkPaint* paint,
                                         SkColor c1,
@@ -30,10 +44,10 @@ static void exercise_draw_pos_text(SkCanvas* canvas,
                                    const char* text,
                                    SkScalar x, SkScalar y,
                                    const SkFont& font, const SkPaint& paint) {
-    const int count = font.countText(text, strlen(text), kUTF8_SkTextEncoding);
+    const int count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
     SkTextBlobBuilder builder;
     auto rec = builder.allocRunPos(font, count);
-    font.textToGlyphs(text, strlen(text), kUTF8_SkTextEncoding, rec.glyphs, count);
+    font.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, rec.glyphs, count);
     font.getPos(rec.glyphs, count, rec.points(), {x, y});
     canvas->drawTextBlob(builder.make(), 0, 0, paint);
 }
@@ -42,10 +56,10 @@ static void exercise_draw_pos_text_h(SkCanvas* canvas,
                                      const char* text,
                                      SkScalar x, SkScalar y,
                                      const SkFont& font, const SkPaint& paint) {
-    const int count = font.countText(text, strlen(text), kUTF8_SkTextEncoding);
+    const int count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
     SkTextBlobBuilder builder;
     auto rec = builder.allocRunPosH(font, count, 0);
-    font.textToGlyphs(text, strlen(text), kUTF8_SkTextEncoding, rec.glyphs, count);
+    font.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, rec.glyphs, count);
     font.getXPos(rec.glyphs, count, rec.pos);
     canvas->drawTextBlob(builder.make(), x, y, paint);
 }
@@ -57,7 +71,7 @@ static void test_text(SkCanvas* canvas, SkScalar size,
     SkPaint type;
     type.setColor(color);
     const char text[] = "HELLO WORLD";
-    canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 32, size / 2 + Y,
+    canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 32, size / 2 + Y,
                            font, type);
     SkScalar lineSpacing = font.getSpacing();
     exercise_draw_pos_text(canvas, text, 32, size / 2 + Y + lineSpacing, font, type);

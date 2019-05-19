@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrMemoryPool.h"
-#include "SkMalloc.h"
-#include "ops/GrOp.h"
+#include "include/private/SkMalloc.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/ops/GrOp.h"
 #ifdef SK_DEBUG
     #include <atomic>
 #endif

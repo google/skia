@@ -8,10 +8,10 @@
 #ifndef SkottieAdapter_DEFINED
 #define SkottieAdapter_DEFINED
 
-#include "SkPoint.h"
-#include "SkRefCnt.h"
-#include "SkSize.h"
-#include "SkottieValue.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "modules/skottie/src/SkottieValue.h"
 
 namespace sksg {
 
@@ -30,7 +30,6 @@ class RadialGradient;
 class RenderNode;
 class RRect;
 class ShaderEffect;
-class TextBlob;
 class Transform;
 class TransformEffect;
 class TrimEffect;
@@ -353,31 +352,6 @@ private:
 
     sk_sp<sksg::ExternalColorFilter> fEffect;
 };
-
-class TextAdapter final : public SkNVRefCnt<TextAdapter> {
-public:
-    explicit TextAdapter(sk_sp<sksg::Group> root);
-    ~TextAdapter();
-
-    ADAPTER_PROPERTY(Text, TextValue, TextValue())
-
-    const sk_sp<sksg::Group>& root() const { return fRoot; }
-
-private:
-    void apply();
-
-    sk_sp<sksg::Group>     fRoot;
-    sk_sp<sksg::TextBlob>  fTextNode;
-    sk_sp<sksg::Color>     fFillColor,
-                           fStrokeColor;
-    sk_sp<sksg::Draw>      fFillNode,
-                           fStrokeNode;
-
-    bool                   fHadFill   : 1, //  - state cached from the prev apply()
-                           fHadStroke : 1; //  /
-};
-
-#undef ADAPTER_PROPERTY
 
 } // namespace skottie
 

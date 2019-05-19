@@ -8,9 +8,9 @@
 #ifndef SKSL_ASTBINARYEXPRESSION
 #define SKSL_ASTBINARYEXPRESSION
 
-#include "SkSLASTExpression.h"
-#include "../SkSLCompiler.h"
-#include "../SkSLLexer.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLLexer.h"
+#include "src/sksl/ast/SkSLASTExpression.h"
 
 namespace SkSL {
 

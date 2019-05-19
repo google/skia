@@ -5,8 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "tools/ToolUtils.h"
 
 DEF_SIMPLE_GM(blend, canvas, 300, 100) {
     SkPaint p;

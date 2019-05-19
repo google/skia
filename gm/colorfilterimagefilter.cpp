@@ -5,38 +5,52 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkColorMatrixFilter.h"
-#include "SkColorPriv.h"
-#include "SkShader.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkColorMatrix.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
+#include "tools/Resources.h"
 
-#include "SkBlurImageFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkTDArray.h"
+#include <string.h>
+#include <utility>
 
 #define FILTER_WIDTH    SkIntToScalar(30)
 #define FILTER_HEIGHT   SkIntToScalar(30)
 #define MARGIN          SkIntToScalar(10)
 
 static sk_sp<SkColorFilter> cf_make_brightness(float brightness) {
-    SkScalar amount255 = brightness * 255;
-    SkScalar matrix[20] = {
-        1, 0, 0, 0, amount255,
-        0, 1, 0, 0, amount255,
-        0, 0, 1, 0, amount255,
+    float matrix[20] = {
+        1, 0, 0, 0, brightness,
+        0, 1, 0, 0, brightness,
+        0, 0, 1, 0, brightness,
         0, 0, 0, 1, 0 };
-    return SkColorFilters::MatrixRowMajor255(matrix);
+    return SkColorFilters::Matrix(matrix);
 }
 
 static sk_sp<SkColorFilter> cf_make_grayscale() {
-    SkScalar matrix[20];
-    memset(matrix, 0, 20 * sizeof(SkScalar));
+    float matrix[20];
+    memset(matrix, 0, 20 * sizeof(float));
     matrix[0] = matrix[5] = matrix[10] = 0.2126f;
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    return SkColorFilters::MatrixRowMajor255(matrix);
+    return SkColorFilters::Matrix(matrix);
 }
 
 static sk_sp<SkColorFilter> cf_make_colorize(SkColor color) {
@@ -50,10 +64,6 @@ static void sk_gm_get_colorfilters(SkTArray<sk_sp<SkColorFilter>>* array) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "Resources.h"
 
 static sk_sp<SkShader> sh_make_lineargradient0() {
     const SkPoint pts[] = { { 0, 0 }, { 100, 100 } };
@@ -178,7 +188,7 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, false);
     SkColorMatrix cm;
     cm.setSaturation(0.0f);
-    sk_sp<SkColorFilter> cf(SkColorFilters::MatrixRowMajor255(cm.fMat));
+    sk_sp<SkColorFilter> cf(SkColorFilters::Matrix(cm));
     SkPaint p;
     p.setImageFilter(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
     canvas->saveLayer(nullptr, &p);
@@ -186,8 +196,6 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "SkGradientShader.h"
 
 template <typename T> class SkTRefArray : public SkTDArray<T> {
 public:

@@ -8,8 +8,8 @@
 #ifndef GrTextureProxy_DEFINED
 #define GrTextureProxy_DEFINED
 
-#include "GrSamplerState.h"
-#include "GrSurfaceProxy.h"
+#include "include/gpu/GrSamplerState.h"
+#include "include/private/GrSurfaceProxy.h"
 
 class GrCaps;
 class GrDeferredProxyUploader;
@@ -25,7 +25,7 @@ public:
     const GrTextureProxy* asTextureProxy() const override { return this; }
 
     // Actually instantiate the backing texture, if necessary
-    bool instantiate(GrResourceProvider*, bool dontForceNoPendingIO = false) override;
+    bool instantiate(GrResourceProvider*) override;
 
     GrSamplerState::Filter highestFilterMode() const;
 

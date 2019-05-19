@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkSemaphore.h"
+#include "src/gpu/vk/GrVkSemaphore.h"
 
-#include "GrBackendSemaphore.h"
-#include "GrVkGpu.h"
-#include "GrVkUtil.h"
+#include "include/gpu/GrBackendSemaphore.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 // windows wants to define this as CreateSemaphoreA or CreateSemaphoreW

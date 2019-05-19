@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkAntiRun.h"
-#include "SkTo.h"
-#include "SkUtils.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkAntiRun.h"
+#include "src/core/SkUtils.h"
 
 void SkAlphaRuns::reset(int width) {
     SkASSERT(width > 0);

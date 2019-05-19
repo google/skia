@@ -1,9 +1,9 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "HashAndEncode.h"
-#include "SkICC.h"
-#include "SkString.h"
+#include "include/core/SkICC.h"
+#include "include/core/SkString.h"
+#include "tools/HashAndEncode.h"
 #include "png.h"
 
 static constexpr skcms_TransferFunction k2020_TF =

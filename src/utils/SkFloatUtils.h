@@ -8,7 +8,7 @@
 #ifndef SkFloatUtils_DEFINED
 #define SkFloatUtils_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #include <limits.h>
 #include <float.h>
 

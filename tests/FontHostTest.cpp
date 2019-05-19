@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkAutoMalloc.h"
-#include "SkEndian.h"
-#include "SkFont.h"
-#include "SkFontStream.h"
-#include "SkOSFile.h"
-#include "SkPaint.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
-#include "Test.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkEndian.h"
+#include "src/core/SkFontStream.h"
+#include "src/core/SkOSFile.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
 
 //#define DUMP_TABLES
 //#define DUMP_TTC_TABLES
@@ -206,15 +206,15 @@ static void test_advances(skiatest::Reporter* reporter) {
         bool            linear;
         bool            subpixel;
     } settings[] = {
-        { kNo_SkFontHinting,     false, false },
-        { kNo_SkFontHinting,     true,  false },
-        { kNo_SkFontHinting,     false, true  },
-        { kSlight_SkFontHinting, false, false },
-        { kSlight_SkFontHinting, true,  false },
-        { kSlight_SkFontHinting, false, true  },
-        { kNormal_SkFontHinting, false, false },
-        { kNormal_SkFontHinting, true,  false },
-        { kNormal_SkFontHinting, false, true  },
+        { SkFontHinting::kNone,   false, false },
+        { SkFontHinting::kNone,   true,  false },
+        { SkFontHinting::kNone,   false, true  },
+        { SkFontHinting::kSlight, false, false },
+        { SkFontHinting::kSlight, true,  false },
+        { SkFontHinting::kSlight, false, true  },
+        { SkFontHinting::kNormal, false, false },
+        { SkFontHinting::kNormal, true,  false },
+        { SkFontHinting::kNormal, false, true  },
     };
 
     static const struct {
@@ -229,7 +229,8 @@ static void test_advances(skiatest::Reporter* reporter) {
     };
 
     SkFont font;
-    char txt[] = "long.text.with.lots.of.dots.";
+    char const * const txt = "long.text.with.lots.of.dots.";
+    size_t textLen = strlen(txt);
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(faces); i++) {
         font.setTypeface(SkTypeface::MakeFromName(faces[i], SkFontStyle()));
@@ -247,10 +248,10 @@ static void test_advances(skiatest::Reporter* reporter) {
 
                 // For no hinting and light hinting this should take the
                 // optimized generateAdvance path.
-                SkScalar width1 = font.measureText(txt, strlen(txt), kUTF8_SkTextEncoding);
+                SkScalar width1 = font.measureText(txt, textLen, SkTextEncoding::kUTF8);
 
                 // Requesting the bounds forces a generateMetrics call.
-                SkScalar width2 = font.measureText(txt, strlen(txt), kUTF8_SkTextEncoding, &bounds);
+                SkScalar width2 = font.measureText(txt, textLen, SkTextEncoding::kUTF8, &bounds);
 
                 // SkDebugf("Font: %s, generateAdvance: %f, generateMetrics: %f\n",
                 //    faces[i], SkScalarToFloat(width1), SkScalarToFloat(width2));

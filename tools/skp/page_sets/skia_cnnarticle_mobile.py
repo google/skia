@@ -33,8 +33,8 @@ class SkiaCnnarticleMobilePageSet(story.StorySet):
 
     urls_list = [
       # go/skia-skps-3-2019
-      ('https://www.cnn.com/2012/10/03/politics/michelle-obama-debate/'
-       'index.html'),
+      ('https://www.cnn.com/2019/05/16/entertainment/'
+       'the-big-bang-theory-series-finale-review/index.html'),
     ]
 
     for url in urls_list:

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrColorSpaceXform.h"
-#include "GrImageTextureMaker.h"
-#include "SkGr.h"
-#include "SkImage_GpuYUVA.h"
-#include "SkImage_Lazy.h"
-#include "effects/GrYUVtoRGBEffect.h"
+#include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrImageTextureMaker.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrYUVtoRGBEffect.h"
+#include "src/image/SkImage_GpuYUVA.h"
+#include "src/image/SkImage_Lazy.h"
 
 GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
                                          SkImage::CachingHint chint, bool useDecal)
@@ -91,8 +91,9 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
     bool coordsLimitedToConstraintRect,
     const GrSamplerState::Filter* filterOrNullForBicubic) {
 
-    // Check simple cases to see if we need to fall back to flattening the image
-    if (!filterOrNullForBicubic || this->domainNeedsDecal()) {
+    // Check simple cases to see if we need to fall back to flattening the image (or whether it's
+    // already been flattened.)
+    if (!filterOrNullForBicubic || this->domainNeedsDecal() || fImage->fRGBProxy) {
         return this->INHERITED::createFragmentProcessor(textureMatrix, constraintRect,
                                                         filterConstraint,
                                                         coordsLimitedToConstraintRect,

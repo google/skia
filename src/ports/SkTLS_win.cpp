@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "SkLeanWindows.h"
-#include "SkMutex.h"
-#include "SkTLS.h"
+#include "include/private/SkLeanWindows.h"
+#include "include/private/SkMutex.h"
+#include "src/core/SkTLS.h"
 
 static bool gOnce = false;
 static DWORD gTlsIndex;

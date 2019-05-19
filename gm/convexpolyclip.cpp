@@ -5,14 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
-
-#include "SkBitmap.h"
-#include "SkFont.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
-#include "SkTLList.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkTLList.h"
+#include "tools/ToolUtils.h"
 
 static SkBitmap make_bmp(int w, int h) {
     SkBitmap bmp;
@@ -64,12 +79,12 @@ static SkBitmap make_bmp(int w, int h) {
     paint.setColor(SK_ColorLTGRAY);
     constexpr char kTxt[] = "Skia";
     SkPoint texPos = { wScalar / 17, hScalar / 2 + font.getSize() / 2.5f };
-    canvas.drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, kUTF8_SkTextEncoding,
+    canvas.drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8,
                           texPos.fX, texPos.fY, font, paint);
     paint.setColor(SK_ColorBLACK);
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SK_Scalar1);
-    canvas.drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, kUTF8_SkTextEncoding,
+    canvas.drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8,
                           texPos.fX, texPos.fY, font, paint);
     return bmp;
 }
@@ -151,7 +166,7 @@ protected:
 
         constexpr char kTxt[] = "Clip Me!";
         SkFont         font(ToolUtils::create_portable_typeface(), 23);
-        SkScalar textW = font.measureText(kTxt, SK_ARRAY_COUNT(kTxt)-1, kUTF8_SkTextEncoding);
+        SkScalar textW = font.measureText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8);
         SkPaint txtPaint;
         txtPaint.setColor(SK_ColorDKGRAY);
 
@@ -202,7 +217,7 @@ protected:
                     canvas->drawPath(closedClipPath, clipOutlinePaint);
                     clip->setOnCanvas(canvas, kIntersect_SkClipOp, SkToBool(aa));
                     canvas->scale(1.f, 1.8f);
-                    canvas->drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, kUTF8_SkTextEncoding,
+                    canvas->drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8,
                                      0, 1.5f * font.getSize(), font, txtPaint);
                     canvas->restore();
                     x += textW + 2 * kMargin;

@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "DebugCanvas.h"
-#include "SkJSONWriter.h"
-#include "SkPicture.h"
-#include "SkSurface.h"
-#include "UrlDataManager.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkSurface.h"
+#include "src/utils/SkJSONWriter.h"
+#include "tools/UrlDataManager.h"
+#include "tools/debugger/DebugCanvas.h"
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
 #if SK_SUPPORT_GPU
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "GrGLInterface.h"
-#include "GrGLTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLTypes.h"
 
 #include <GL/gl.h>
 #include <emscripten/html5.h>

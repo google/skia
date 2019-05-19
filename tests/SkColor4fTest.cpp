@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkColor.h"
-#include "Test.h"
+#include "include/core/SkColor.h"
+#include "tests/Test.h"
 
 DEF_TEST(SkColor4f_FromColor, reporter) {
     const struct {

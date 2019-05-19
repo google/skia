@@ -8,7 +8,7 @@
 #ifndef GrRegionOp_DEFINED
 #define GrRegionOp_DEFINED
 
-#include "GrTypesPriv.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrDrawOp;
 class GrRecordingContext;

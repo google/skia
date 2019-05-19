@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "GrBackendSurface.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrTexture.h"
-#include "SkImage_Gpu.h"
-#include "SkColorFilter.h"
-#include "SkPromiseImageTexture.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkPromiseImageTexture.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/image/SkImage_Gpu.h"
 
 using namespace sk_gpu_test;
 
@@ -167,8 +167,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
     GrGpu* gpu = ctx->priv().getGpu();
 
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+    GrBackendTexture backendTex = ctx->priv().createBackendTexture(
+            kWidth, kHeight, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     GrBackendFormat backendFormat = backendTex.getBackendFormat();
@@ -228,7 +228,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     // Now Done should definitely have been called.
     check_all_done(reporter, promiseChecker);
 
-    gpu->deleteTestingOnlyBackendTexture(backendTex);
+    ctx->priv().deleteBackendTexture(backendTex);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, reporter, ctxInfo) {
@@ -242,19 +242,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
     GrContext* ctx = ctxInfo.grContext();
     GrGpu* gpu = ctx->priv().getGpu();
 
-    GrBackendTexture backendTex1 = gpu->createTestingOnlyBackendTexture(
-            nullptr, kWidth, kHeight, GrColorType::kGray_8, false, GrMipMapped::kNo);
+    GrBackendTexture backendTex1 = ctx->priv().createBackendTexture(
+            kWidth, kHeight, kGray_8_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
     REPORTER_ASSERT(reporter, backendTex1.isValid());
 
-    GrBackendTexture backendTex2 = gpu->createTestingOnlyBackendTexture(
-            nullptr, kWidth, kHeight, GrColorType::kAlpha_8, false, GrMipMapped::kNo);
+    GrBackendTexture backendTex2 = ctx->priv().createBackendTexture(
+            kWidth, kHeight, kAlpha_8_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
     REPORTER_ASSERT(reporter, backendTex2.isValid());
     if (backendTex1.getBackendFormat() != backendTex2.getBackendFormat()) {
-        gpu->deleteTestingOnlyBackendTexture(backendTex1);
+        ctx->priv().deleteBackendTexture(backendTex1);
         return;
     }
     // We only needed this texture to check that alpha and gray color types use the same format.
-    gpu->deleteTestingOnlyBackendTexture(backendTex2);
+    ctx->priv().deleteBackendTexture(backendTex2);
 
     SkImageInfo info =
             SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
@@ -316,7 +316,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
     grayImg.reset();
     ctx->flush(); // We do this to pick up any unref messages that are sent by unref'ing the image.
     check_all_done(reporter, promiseChecker, 2);
-    gpu->deleteTestingOnlyBackendTexture(backendTex1);
+    ctx->priv().deleteBackendTexture(backendTex1);
 }
 
 DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
@@ -351,10 +351,9 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
             if (!ctx) {
                 continue;
             }
-            GrGpu* gpu = ctx->priv().getGpu();
 
-            GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                    nullptr, kWidth, kHeight, GrColorType::kAlpha_8, false, GrMipMapped::kNo);
+            GrBackendTexture backendTex = ctx->priv().createBackendTexture(
+                    kWidth, kHeight, kAlpha_8_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
             REPORTER_ASSERT(reporter, backendTex.isValid());
 
             SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
@@ -390,10 +389,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     const int kHeight = 10;
 
     GrContext* ctx = ctxInfo.grContext();
-    GrGpu* gpu = ctx->priv().getGpu();
 
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-            nullptr, kWidth, kHeight, GrColorType::kAlpha_8, false, GrMipMapped::kNo);
+    GrBackendTexture backendTex = ctx->priv().createBackendTexture(
+            kWidth, kHeight, kAlpha_8_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     SkImageInfo info =
@@ -442,9 +440,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     // Must call these to ensure that all callbacks are performed before the checker is destroyed.
     image.reset();
     ctx->flush();
-    gpu->testingOnly_flushGpuAndSync();
+    ctx->priv().getGpu()->testingOnly_flushGpuAndSync();
 
-    gpu->deleteTestingOnlyBackendTexture(backendTex);
+    ctx->priv().deleteBackendTexture(backendTex);
 }
 
 // Test case where promise image fulfill returns nullptr.
@@ -453,15 +451,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
     const int kHeight = 10;
 
     GrContext* ctx = ctxInfo.grContext();
-    GrGpu* gpu = ctx->priv().getGpu();
 
     // Do all this just to get a valid backend format for the image.
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+    GrBackendTexture backendTex = ctx->priv().createBackendTexture(
+            kWidth, kHeight, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes);
     REPORTER_ASSERT(reporter, backendTex.isValid());
     GrBackendFormat backendFormat = backendTex.getBackendFormat();
     REPORTER_ASSERT(reporter, backendFormat.isValid());
-    gpu->deleteTestingOnlyBackendTexture(backendTex);
+    ctx->priv().deleteBackendTexture(backendTex);
 
     struct Counts {
         int fFulfillCount = 0;

@@ -7,16 +7,40 @@
 
 // This test only works with the GPU backend.
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/gpu/GrConfig.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrColor.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkColorData.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrPaint.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/generated/GrConstColorProcessor.h"
+#include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/ops/GrFillRectOp.h"
+#include "tools/ToolUtils.h"
 
-#include "GrContext.h"
-#include "GrRenderTargetContextPriv.h"
-#include "SkGr.h"
-#include "SkGradientShader.h"
-#include "effects/generated/GrConstColorProcessor.h"
-#include "ops/GrDrawOp.h"
-#include "ops/GrFillRectOp.h"
+#include <utility>
 
 namespace skiagm {
 /**
@@ -121,7 +145,7 @@ protected:
                     SkRect inputLabelBounds;
                     // get the bounds of the text in order to position it
                     labelFont.measureText(inputLabel.c_str(), inputLabel.size(),
-                                          kUTF8_SkTextEncoding, &inputLabelBounds);
+                                          SkTextEncoding::kUTF8, &inputLabelBounds);
                     canvas->drawString(inputLabel, renderRect.fRight + kPad, -inputLabelBounds.fTop,
                                        labelFont, labelPaint);
                     // update the bounds to reflect the offset we used to draw it.
@@ -129,7 +153,7 @@ protected:
 
                     SkRect procLabelBounds;
                     labelFont.measureText(procLabel.c_str(), procLabel.size(),
-                                          kUTF8_SkTextEncoding, &procLabelBounds);
+                                          SkTextEncoding::kUTF8, &procLabelBounds);
                     canvas->drawString(procLabel, renderRect.fRight + kPad,
                                        inputLabelBounds.fBottom + 2.f - procLabelBounds.fTop,
                                        labelFont, labelPaint);

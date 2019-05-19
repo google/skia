@@ -11,10 +11,10 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "SkDescriptor.h"
-#include "SkStrike.h"
-#include "SkSpinlock.h"
-#include "SkTemplates.h"
+#include "include/private/SkSpinlock.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkDescriptor.h"
+#include "src/core/SkStrike.h"
 
 class SkStrike;
 class SkTraceMemoryDump;
@@ -167,7 +167,7 @@ public:
 
 #ifdef SK_DEBUG
     // A simple accounting of what each glyph cache reports and the strike cache total.
-    void validate() const;
+    void validate() const SK_REQUIRES(fLock);
     // Make sure that each glyph cache's memory tracking and actual memory used are in sync.
     void validateGlyphCacheDataSize() const;
 #else
@@ -178,21 +178,21 @@ public:
 private:
 
     // The following methods can only be called when mutex is already held.
-    Node* internalGetHead() const { return fHead; }
-    Node* internalGetTail() const { return fTail; }
-    void internalDetachCache(Node*);
-    void internalAttachToHead(Node*);
+    Node* internalGetHead() const SK_REQUIRES(fLock) { return fHead; }
+    Node* internalGetTail() const SK_REQUIRES(fLock) { return fTail; }
+    void internalDetachCache(Node*) SK_REQUIRES(fLock);
+    void internalAttachToHead(Node*) SK_REQUIRES(fLock);
 
     // Checkout budgets, modulated by the specified min-bytes-needed-to-purge,
     // and attempt to purge caches to match.
     // Returns number of bytes freed.
-    size_t internalPurge(size_t minBytesNeeded = 0);
+    size_t internalPurge(size_t minBytesNeeded = 0) SK_REQUIRES(fLock);
 
     void forEachStrike(std::function<void(const SkStrike&)> visitor) const;
 
     mutable SkSpinlock fLock;
-    Node*              fHead{nullptr};
-    Node*              fTail{nullptr};
+    Node*              fHead SK_GUARDED_BY(fLock) {nullptr};
+    Node*              fTail SK_GUARDED_BY(fLock) {nullptr};
     size_t             fTotalMemoryUsed{0};
     size_t             fCacheSizeLimit{SK_DEFAULT_FONT_CACHE_LIMIT};
     int32_t            fCacheCountLimit{SK_DEFAULT_FONT_CACHE_COUNT_LIMIT};

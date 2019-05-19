@@ -8,9 +8,9 @@
 #ifndef SkFloatingPoint_DEFINED
 #define SkFloatingPoint_DEFINED
 
-#include "../private/SkFloatBits.h"
-#include "SkTypes.h"
-#include "SkSafe_math.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkSafe_math.h"
 #include <float.h>
 #include <math.h>
 #include <cstring>
@@ -27,6 +27,9 @@
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #include <unistd.h>
 #endif
+
+constexpr float SK_FloatSqrt2 = 1.41421356f;
+constexpr float SK_FloatPI    = 3.14159265f;
 
 // C++98 cmath std::pow seems to be the earliest portable way to get float pow.
 // However, on Linux including cmath undefines isfinite.
@@ -56,6 +59,14 @@ static inline float sk_float_pow(float base, float exp) {
 #define sk_float_exp(x)         expf(x)
 #define sk_float_log(x)         logf(x)
 
+constexpr float sk_float_degrees_to_radians(float degrees) {
+    return degrees * (SK_FloatPI / 180);
+}
+
+constexpr float sk_float_radians_to_degrees(float radians) {
+    return radians * (180 / SK_FloatPI);
+}
+
 #define sk_float_round(x) sk_float_floor((x) + 0.5f)
 
 // can't find log2f on android, but maybe that just a tool bug?
@@ -70,6 +81,19 @@ static inline float sk_float_pow(float base, float exp) {
 
 static inline bool sk_float_isfinite(float x) {
     return SkFloatBits_IsFinite(SkFloat2Bits(x));
+}
+
+static inline bool sk_floats_are_finite(float a, float b) {
+    return sk_float_isfinite(a) && sk_float_isfinite(b);
+}
+
+static inline bool sk_floats_are_finite(const float array[], int count) {
+    float prod = 0;
+    for (int i = 0; i < count; ++i) {
+        prod *= array[i];
+    }
+    // At this point, prod will either be NaN or 0
+    return prod == 0;   // if prod is NaN, this check will return false
 }
 
 static inline bool sk_float_isinf(float x) {

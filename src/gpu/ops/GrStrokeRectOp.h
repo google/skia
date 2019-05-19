@@ -8,7 +8,7 @@
 #ifndef GrStrokeRectOp_DEFINED
 #define GrStrokeRectOp_DEFINED
 
-#include "GrTypesPriv.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrDrawOp;
 class GrPaint;

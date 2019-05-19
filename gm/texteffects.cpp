@@ -5,17 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
+#include "tools/ToolUtils.h"
 
-#include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
-#include "SkReadBuffer.h"
-#include "SkTextBlob.h"
-#include "SkTo.h"
-#include "SkWriteBuffer.h"
-
-#include "Sk2DPathEffect.h"
+#include <string.h>
 
 static SkPath create_underline(const SkTDArray<SkScalar>& intersections,
         SkScalar last, SkScalar finalPos,
@@ -42,9 +51,9 @@ namespace {
 
 sk_sp<SkTextBlob> MakeFancyBlob(const SkPaint& paint, const SkFont& font, const char* text) {
     const size_t textLen = strlen(text);
-    const int glyphCount = font.countText(text, textLen, kUTF8_SkTextEncoding);
+    const int glyphCount = font.countText(text, textLen, SkTextEncoding::kUTF8);
     SkAutoTArray<SkGlyphID> glyphs(glyphCount);
-    font.textToGlyphs(text, textLen, kUTF8_SkTextEncoding, glyphs.get(), glyphCount);
+    font.textToGlyphs(text, textLen, SkTextEncoding::kUTF8, glyphs.get(), glyphCount);
     SkAutoTArray<SkScalar> widths(glyphCount);
     font.getWidths(glyphs.get(), glyphCount, widths.get());
 
@@ -141,7 +150,7 @@ DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
 
 static sk_sp<SkTextBlob> make_text(const SkFont& font, const SkGlyphID glyphs[], int count) {
     return SkTextBlob::MakeFromText(glyphs, count * sizeof(SkGlyphID), font,
-                                    kGlyphID_SkTextEncoding);
+                                    SkTextEncoding::kGlyphID);
 }
 
 static sk_sp<SkTextBlob> make_posh(const SkFont& font, const SkGlyphID glyphs[], int count,
@@ -152,7 +161,7 @@ static sk_sp<SkTextBlob> make_posh(const SkFont& font, const SkGlyphID glyphs[],
         xpos[i] += spacing * i;
     }
     return SkTextBlob::MakeFromPosTextH(glyphs, count * sizeof(SkGlyphID), xpos.get(), 0, font,
-                                        kGlyphID_SkTextEncoding);
+                                        SkTextEncoding::kGlyphID);
 }
 
 static sk_sp<SkTextBlob> make_pos(const SkFont& font, const SkGlyphID glyphs[], int count,
@@ -163,7 +172,7 @@ static sk_sp<SkTextBlob> make_pos(const SkFont& font, const SkGlyphID glyphs[], 
         pos[i].fX += spacing * i;
     }
     return SkTextBlob::MakeFromPosText(glyphs, count * sizeof(SkGlyphID), pos.get(), font,
-                                       kGlyphID_SkTextEncoding);
+                                       SkTextEncoding::kGlyphID);
 }
 
 // widen the gaps with a margin (on each side of the gap), elimnating segments that go away
@@ -232,9 +241,9 @@ DEF_SIMPLE_GM(textblob_intercepts, canvas, 940, 800) {
     font.setTypeface(ToolUtils::create_portable_typeface());
     font.setSize(100);
     font.setEdging(SkFont::Edging::kAntiAlias);
-    const int count = font.countText(text, length, kUTF8_SkTextEncoding);
+    const int count = font.countText(text, length, SkTextEncoding::kUTF8);
     SkAutoTArray<SkGlyphID> glyphs(count);
-    font.textToGlyphs(text, length, kUTF8_SkTextEncoding, glyphs.get(), count);
+    font.textToGlyphs(text, length, SkTextEncoding::kUTF8, glyphs.get(), count);
 
     auto b0 = make_text(font, glyphs.get(), count);
 

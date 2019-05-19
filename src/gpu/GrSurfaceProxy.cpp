@@ -5,28 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "GrSurfaceProxy.h"
-#include "GrSurfaceProxyPriv.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
 
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpuResourcePriv.h"
-#include "GrOpList.h"
-#include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrSurfaceContext.h"
-#include "GrSurfacePriv.h"
-#include "GrTexturePriv.h"
-#include "GrTextureRenderTargetProxy.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrOpList.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTextureRenderTargetProxy.h"
 
-#include "SkMathPriv.h"
-#include "SkMipMap.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkMipMap.h"
 
 #ifdef SK_DEBUG
-#include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTargetPriv.h"
 
 static bool is_valid_fully_lazy(const GrSurfaceDesc& desc, SkBackingFit fit) {
     return desc.fWidth <= 0 &&
@@ -127,8 +127,7 @@ bool GrSurfaceProxyPriv::AttachStencilIfNeeded(GrResourceProvider* resourceProvi
 sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceProvider,
                                                    int sampleCnt, bool needsStencil,
                                                    GrSurfaceDescFlags descFlags,
-                                                   GrMipMapped mipMapped,
-                                                   bool forceNoPendingIO) const {
+                                                   GrMipMapped mipMapped) const {
     SkASSERT(GrSurfaceProxy::LazyState::kNot == this->lazyInstantiationState());
     SkASSERT(!fTarget);
     GrSurfaceDesc desc;
@@ -141,12 +140,9 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
     desc.fConfig = fConfig;
     desc.fSampleCnt = sampleCnt;
 
-    GrResourceProvider::Flags resourceProviderFlags = GrResourceProvider::Flags::kNone;
-    if ((fSurfaceFlags & GrInternalSurfaceFlags::kNoPendingIO) || forceNoPendingIO) {
-        // The explicit resource allocator requires that any resources it pulls out of the
-        // cache have no pending IO.
-        resourceProviderFlags = GrResourceProvider::Flags::kNoPendingIO;
-    }
+    // The explicit resource allocator requires that any resources it pulls out of the
+    // cache have no pending IO.
+    GrResourceProvider::Flags resourceProviderFlags = GrResourceProvider::Flags::kNoPendingIO;
 
     sk_sp<GrSurface> surface;
     if (GrMipMapped::kYes == mipMapped) {
@@ -189,6 +185,11 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
 }
 
 bool GrSurfaceProxy::canSkipResourceAllocator() const {
+    if (this->ignoredByResourceAllocator()) {
+        // Usually an atlas or onFlush proxy
+        return true;
+    }
+
     auto peek = this->peekSurface();
     if (!peek) {
         return false;
@@ -223,8 +224,7 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 
 bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
                                      bool needsStencil, GrSurfaceDescFlags descFlags,
-                                     GrMipMapped mipMapped, const GrUniqueKey* uniqueKey,
-                                     bool dontForceNoPendingIO) {
+                                     GrMipMapped mipMapped, const GrUniqueKey* uniqueKey) {
     SkASSERT(LazyState::kNot == this->lazyInstantiationState());
     if (fTarget) {
         if (uniqueKey && uniqueKey->isValid()) {
@@ -234,7 +234,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     }
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, needsStencil,
-                                                       descFlags, mipMapped, !dontForceNoPendingIO);
+                                                       descFlags, mipMapped);
     if (!surface) {
         return false;
     }
@@ -457,6 +457,9 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
         fProxy->fHeight = surface->height();
     }
 
+    SkASSERT(fProxy->fWidth <= surface->width());
+    SkASSERT(fProxy->fHeight <= surface->height());
+
     bool needsStencil = fProxy->asRenderTargetProxy()
                                         ? fProxy->asRenderTargetProxy()->needsStencil()
                                         : false;
@@ -491,11 +494,6 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
 void GrSurfaceProxy::validateSurface(const GrSurface* surface) {
     SkASSERT(surface->config() == fConfig);
 
-    // Assert the flags are the same except for kNoPendingIO which is not passed onto the GrSurface.
-    GrInternalSurfaceFlags proxyFlags = fSurfaceFlags & ~GrInternalSurfaceFlags::kNoPendingIO;
-    GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
-    SkASSERT((proxyFlags & GrInternalSurfaceFlags::kSurfaceMask) ==
-             (surfaceFlags & GrInternalSurfaceFlags::kSurfaceMask));
     this->onValidateSurface(surface);
 }
 #endif

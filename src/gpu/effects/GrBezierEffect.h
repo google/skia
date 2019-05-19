@@ -8,10 +8,10 @@
 #ifndef GrBezierEffect_DEFINED
 #define GrBezierEffect_DEFINED
 
-#include "GrCaps.h"
-#include "GrProcessor.h"
-#include "GrGeometryProcessor.h"
-#include "GrTypesPriv.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrProcessor.h"
 
 /**
  * Shader is based off of Loop-Blinn Quadratic GPU Rendering

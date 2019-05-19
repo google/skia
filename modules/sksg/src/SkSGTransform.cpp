@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGTransform.h"
+#include "modules/sksg/include/SkSGTransform.h"
 
-#include "SkCanvas.h"
-#include "SkSGTransformPriv.h"
+#include "include/core/SkCanvas.h"
+#include "modules/sksg/src/SkSGTransformPriv.h"
 
 namespace sksg {
 
@@ -46,16 +46,64 @@ protected:
     bool is44() const override { return std::is_same<T, SkMatrix44>::value; }
 
     SkMatrix asMatrix() const override {
+        SkASSERT(!this->hasInval());
         return fComposed;
     }
 
     SkMatrix44 asMatrix44() const override {
+        SkASSERT(!this->hasInval());
         return fComposed;
     }
 
 private:
     const sk_sp<Transform> fA, fB;
     T                      fComposed;
+
+    using INHERITED = Transform;
+};
+
+template <typename T>
+class Inverse final : public Transform {
+public:
+    template <typename = std::enable_if<std::is_same<T, SkMatrix  >::value ||
+                                        std::is_same<T, SkMatrix44>::value >>
+    explicit Inverse(sk_sp<Transform> t)
+        : fT(std::move(t)) {
+        SkASSERT(fT);
+
+        this->observeInval(fT);
+    }
+
+    ~Inverse() override {
+        this->unobserveInval(fT);
+    }
+
+protected:
+    SkRect onRevalidate(InvalidationController* ic, const SkMatrix& ctm) override {
+        fT->revalidate(ic, ctm);
+
+        if (!TransformPriv::As<T>(fT).invert(&fInverted)) {
+            fInverted.reset();
+        }
+
+        return SkRect::MakeEmpty();
+    }
+
+    bool is44() const override { return std::is_same<T, SkMatrix44>::value; }
+
+    SkMatrix asMatrix() const override {
+        SkASSERT(!this->hasInval());
+        return fInverted;
+    }
+
+    SkMatrix44 asMatrix44() const override {
+        SkASSERT(!this->hasInval());
+        return fInverted;
+    }
+
+private:
+    const sk_sp<Transform> fT;
+    T                      fInverted;
 
     using INHERITED = Transform;
 };
@@ -77,6 +125,16 @@ sk_sp<Transform> Transform::MakeConcat(sk_sp<Transform> a, sk_sp<Transform> b) {
     return TransformPriv::Is44(a) || TransformPriv::Is44(b)
         ? sk_sp<Transform>(new Concat<SkMatrix44>(std::move(a), std::move(b)))
         : sk_sp<Transform>(new Concat<SkMatrix  >(std::move(a), std::move(b)));
+}
+
+sk_sp<Transform> Transform::MakeInverse(sk_sp<Transform> t) {
+    if (!t) {
+        return nullptr;
+    }
+
+    return TransformPriv::Is44(t)
+        ? sk_sp<Transform>(new Inverse<SkMatrix44>(std::move(t)))
+        : sk_sp<Transform>(new Inverse<SkMatrix  >(std::move(t)));
 }
 
 TransformEffect::TransformEffect(sk_sp<RenderNode> child, sk_sp<Transform> transform)

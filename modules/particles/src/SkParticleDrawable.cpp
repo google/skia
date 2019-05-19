@@ -5,17 +5,17 @@
 * found in the LICENSE file.
 */
 
-#include "SkParticleDrawable.h"
+#include "modules/particles/include/SkParticleDrawable.h"
 
-#include "SkAutoMalloc.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkPaint.h"
-#include "SkParticleData.h"
-#include "SkRect.h"
-#include "SkSurface.h"
-#include "SkString.h"
-#include "SkRSXform.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "modules/particles/include/SkParticleData.h"
+#include "src/core/SkAutoMalloc.h"
 
 static sk_sp<SkImage> make_circle_image(int radius) {
     auto surface = SkSurface::MakeRasterN32Premul(radius * 2, radius * 2);

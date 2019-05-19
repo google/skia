@@ -8,9 +8,9 @@
 #ifndef SkRandom_DEFINED
 #define SkRandom_DEFINED
 
-#include "../private/SkFixed.h"
-#include "../private/SkFloatBits.h"
-#include "SkScalar.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkFloatBits.h"
 
 /** \class SkRandom
 

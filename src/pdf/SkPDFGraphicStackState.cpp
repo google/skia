@@ -1,11 +1,11 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "SkPDFGraphicStackState.h"
+#include "src/pdf/SkPDFGraphicStackState.h"
 
-#include "SkStream.h"
-#include "SkPDFUtils.h"
-#include "SkPathOps.h"
+#include "include/core/SkStream.h"
+#include "include/pathops/SkPathOps.h"
+#include "src/pdf/SkPDFUtils.h"
 
 static SkPath to_path(const SkRect& r) {
     SkPath p;

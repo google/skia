@@ -5,12 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkTypeface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkRandom.h"
+#include "tools/ToolUtils.h"
 
 /**
  * Draws text with random parameters. The text draws each get their own clip rect. It is also
@@ -83,7 +94,7 @@ protected:
             fFont.setTypeface(fTypefaces[fTypefaceIndices[i]]);
             fFont.setSize(fPtSizes[i]);
 
-            fFont.measureText(fStrings[i].c_str(), fStrings[i].size(), kUTF8_SkTextEncoding, &r);
+            fFont.measureText(fStrings[i].c_str(), fStrings[i].size(), SkTextEncoding::kUTF8, &r);
             // safeRect is set of x,y positions where we can draw the string without hitting
             // the GM's border.
             SkRect safeRect = SkRect::MakeLTRB(-r.fLeft, -r.fTop, w - r.fRight, h - r.fBottom);
@@ -114,7 +125,7 @@ protected:
             canvas->save();
                 canvas->clipRect(fClipRects[i]);
                 canvas->translate(fPositions[i].fX, fPositions[i].fY);
-                canvas->drawSimpleText(fStrings[i].c_str(), fStrings[i].size(), kUTF8_SkTextEncoding,
+                canvas->drawSimpleText(fStrings[i].c_str(), fStrings[i].size(), SkTextEncoding::kUTF8,
                                        0, 0, fFont, fPaint);
             canvas->restore();
         }

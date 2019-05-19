@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "CommonFlags.h"
-#include "GrContextOptions.h"
-#include "SkExecutor.h"
+#include "include/core/SkExecutor.h"
+#include "include/gpu/GrContextOptions.h"
+#include "tools/flags/CommonFlags.h"
 
 
 DEFINE_int(gpuThreads,
@@ -31,6 +31,7 @@ static DEFINE_bool(disableDriverCorrectnessWorkarounds, false,
                    "Disables all GPU driver correctness workarounds");
 
 static DEFINE_bool(reduceOpListSplitting, false, "Improve opList sorting");
+static DEFINE_bool(dontReduceOpListSplitting, false, "Allow more opList splitting");
 
 
 static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
@@ -92,6 +93,9 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
 
     if (FLAGS_reduceOpListSplitting) {
+        SkASSERT(!FLAGS_dontReduceOpListSplitting);
         ctxOptions->fReduceOpListSplitting = GrContextOptions::Enable::kYes;
+    } else if (FLAGS_dontReduceOpListSplitting) {
+        ctxOptions->fReduceOpListSplitting = GrContextOptions::Enable::kNo;
     }
 }

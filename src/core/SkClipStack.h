@@ -8,20 +8,20 @@
 #ifndef SkClipStack_DEFINED
 #define SkClipStack_DEFINED
 
-#include "../private/SkMessageBus.h"
-#include "SkCanvas.h"
-#include "SkClipOpPriv.h"
-#include "SkDeque.h"
-#include "SkPath.h"
-#include "SkRRect.h"
-#include "SkRect.h"
-#include "SkRegion.h"
-#include "SkTLazy.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkDeque.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRegion.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkMessageBus.h"
+#include "src/core/SkTLazy.h"
 
 #if SK_SUPPORT_GPU
 class GrProxyProvider;
 
-#include "GrResourceKey.h"
+#include "include/private/GrResourceKey.h"
 #endif
 
 // Because a single save/restore state can have multiple clips, this class

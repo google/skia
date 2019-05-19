@@ -4,17 +4,17 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkExecutor.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkPDFDocument.h"
-#include "SkStream.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkExecutor.h"
+#include "include/core/SkStream.h"
+#include "include/docs/SkPDFDocument.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/Resources.h"
 
-#include "ToolUtils.h"
+#include "tools/ToolUtils.h"
 
 static void test_empty(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;

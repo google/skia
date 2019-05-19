@@ -8,9 +8,9 @@
 #ifndef SkDrawShadowInfo_DEFINED
 #define SkDrawShadowInfo_DEFINED
 
-#include "SkColor.h"
-#include "SkPoint.h"
-#include "SkPoint3.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
 
 class SkMatrix;
 class SkPath;

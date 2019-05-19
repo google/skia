@@ -8,11 +8,11 @@
 #ifndef GrGLGpuCommandBuffer_DEFINED
 #define GrGLGpuCommandBuffer_DEFINED
 
-#include "GrGpuCommandBuffer.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
 
-#include "GrGLGpu.h"
-#include "GrGLRenderTarget.h"
-#include "GrOpFlushState.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLRenderTarget.h"
 
 class GrGLGpu;
 class GrGLRenderTarget;
@@ -24,6 +24,12 @@ public:
     void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
               const SkIPoint& dstPoint) override {
         fGpu->copySurface(fTexture, fOrigin, src, srcOrigin, srcRect, dstPoint);
+    }
+
+    void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
+                      GrGpuBuffer* transferBuffer, size_t offset) override {
+        fGpu->transferPixelsFrom(fTexture, srcRect.fLeft, srcRect.fTop, srcRect.width(),
+                                 srcRect.height(), bufferColorType, transferBuffer, offset);
     }
 
     void insertEventMarker(const char* msg) override {
@@ -65,6 +71,12 @@ public:
     void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
               const SkIPoint& dstPoint) override {
         fGpu->copySurface(fRenderTarget, fOrigin, src, srcOrigin, srcRect, dstPoint);
+    }
+
+    void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
+                      GrGpuBuffer* transferBuffer, size_t offset) override {
+        fGpu->transferPixelsFrom(fRenderTarget, srcRect.fLeft, srcRect.fTop, srcRect.width(),
+                                 srcRect.height(), bufferColorType, transferBuffer, offset);
     }
 
     void set(GrRenderTarget*, GrSurfaceOrigin,

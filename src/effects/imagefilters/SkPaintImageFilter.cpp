@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkPaintImageFilter.h"
-#include "SkCanvas.h"
-#include "SkImageFilterPriv.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkPaintImageFilter.h"
+#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkSpecialSurface.h"
+#include "src/core/SkWriteBuffer.h"
 
 sk_sp<SkImageFilter> SkPaintImageFilter::Make(const SkPaint& paint,
                                               const CropRect* cropRect) {

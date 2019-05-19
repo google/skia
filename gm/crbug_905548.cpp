@@ -5,14 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-
-#include "SkArithmeticImageFilter.h"
-#include "SkBlurImageFilter.h"
-#include "SkImageSource.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkSurface.h"
-#include "SkXfermodeImageFilter.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkArithmeticImageFilter.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkXfermodeImageFilter.h"
 
 DEF_SIMPLE_GM(crbug_905548, canvas, 100, 200) {
     auto surface = canvas->makeSurface(SkImageInfo::MakeN32Premul(100, 100));

@@ -5,6 +5,7 @@
 
 DEPS = [
   'git',
+  'recipe_engine/platform',
   'recipe_engine/step',
 ]
 
@@ -17,3 +18,4 @@ def RunSteps(api):
 
 def GenTests(api):
   yield api.test('test')
+  yield api.test('test-win') + api.platform('win', 64)

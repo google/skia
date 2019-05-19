@@ -13,26 +13,26 @@
         }                                                          \
     } while (0)
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkImageShader.h"
-#include "SkMakeUnique.h"
-#include "SkParse.h"
-#include "SkShader.h"
-#include "SkStream.h"
-#include "SkTo.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkParse.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/shaders/SkImageShader.h"
+#include "tests/Test.h"
 
 #include <string.h>
 
 #ifdef SK_XML
 
-#include "SkDOM.h"
-#include "../src/svg/SkSVGDevice.h"
-#include "SkXMLWriter.h"
+#include "src/svg/SkSVGDevice.h"
+#include "src/xml/SkDOM.h"
+#include "src/xml/SkXMLWriter.h"
 
 static std::unique_ptr<SkCanvas> MakeDOMCanvas(SkDOM* dom) {
     auto svgDevice = SkSVGDevice::Make(SkISize::Make(100, 100),
@@ -127,7 +127,7 @@ void test_whitespace_pos(skiatest::Reporter* reporter,
 
     {
         auto svgCanvas = MakeDOMCanvas(&dom);
-        svgCanvas->drawSimpleText(txt, len, kUTF8_SkTextEncoding, offset.x(), offset.y(),
+        svgCanvas->drawSimpleText(txt, len, SkTextEncoding::kUTF8, offset.x(), offset.y(),
                                   font, paint);
     }
     check_text_node(reporter, dom, dom.finishParsing(), offset, 2, expected);

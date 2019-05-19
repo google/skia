@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLPipelineStageCodeGenerator.h"
+#include "src/sksl/SkSLPipelineStageCodeGenerator.h"
 
-#include "SkSLCompiler.h"
-#include "SkSLHCodeGenerator.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLHCodeGenerator.h"
 
 namespace SkSL {
 
@@ -156,19 +156,6 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                 SkASSERT(found);
                 fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kUniform,
                                                            index));
-            } else if (fProgramKind == Program::kMixer_Kind &&
-                     ref.fVariable.fStorage == Variable::kParameter_Storage &&
-                     fCurrentFunction->fName == "main") {
-                this->write("%s");
-                for (size_t i = 0; i < fCurrentFunction->fParameters.size(); ++i) {
-                    if (fCurrentFunction->fParameters[i] == &ref.fVariable) {
-                        fFormatArgs->push_back(Compiler::FormatArg(
-                                                         Compiler::FormatArg::Kind::kChildProcessor,
-                                                         i));
-                        return;
-                    }
-                }
-                SkASSERT(false);
             } else {
                 this->write(ref.fVariable.fName);
             }

@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "SkBitmapCache.h"
-#include "SkBitmapProvider.h"
-#include "SkCanvas.h"
-#include "SkDiscardableMemoryPool.h"
-#include "SkGraphics.h"
-#include "SkMakeUnique.h"
-#include "SkMipMap.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkResourceCache.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkBitmapCache.h"
+#include "src/core/SkBitmapProvider.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkMipMap.h"
+#include "src/core/SkResourceCache.h"
+#include "src/lazy/SkDiscardableMemoryPool.h"
+#include "tests/Test.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -110,7 +110,7 @@ static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* ca
     }
 }
 
-#include "SkDiscardableMemoryPool.h"
+#include "src/lazy/SkDiscardableMemoryPool.h"
 
 static SkDiscardableMemoryPool* gPool = nullptr;
 static SkDiscardableMemory* pool_factory(size_t bytes) {

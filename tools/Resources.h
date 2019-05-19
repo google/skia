@@ -8,8 +8,8 @@
 #ifndef Resources_DEFINED
 #define Resources_DEFINED
 
-#include "SkImage.h"
-#include "SkString.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkString.h"
 
 class SkBitmap;
 class SkData;

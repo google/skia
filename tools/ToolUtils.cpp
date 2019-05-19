@@ -5,29 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "CommandLineFlags.h"
-#include "SkBitmap.h"
-#include "SkBlendMode.h"
-#include "SkCanvas.h"
-#include "SkColorData.h"
-#include "SkColorPriv.h"
-#include "SkFloatingPoint.h"
-#include "SkFontMgrPriv.h"
-#include "SkFontPriv.h"
-#include "SkImage.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPixelRef.h"
-#include "SkPixmap.h"
-#include "SkPoint3.h"
-#include "SkRRect.h"
-#include "SkShader.h"
-#include "SkSurface.h"
-#include "SkTextBlob.h"
-#include "SkTypeface_win.h"
-#include "TestFontMgr.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
+#include "include/ports/SkTypeface_win.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkFloatingPoint.h"
+#include "src/core/SkFontMgrPriv.h"
+#include "src/core/SkFontPriv.h"
+#include "tools/ToolUtils.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "tools/fonts/TestFontMgr.h"
 
 #include <cmath>
 #include <cstring>
@@ -137,7 +137,7 @@ create_string_bitmap(int w, int h, SkColor c, int x, int y, int textSize, const 
     canvas.clear(0x00000000);
     canvas.drawSimpleText(str,
                           strlen(str),
-                          kUTF8_SkTextEncoding,
+                          SkTextEncoding::kUTF8,
                           SkIntToScalar(x),
                           SkIntToScalar(y),
                           font,
@@ -168,7 +168,7 @@ void add_to_text_blob(SkTextBlobBuilder* builder,
                       const SkFont&      font,
                       SkScalar           x,
                       SkScalar           y) {
-    add_to_text_blob_w_len(builder, text, strlen(text), kUTF8_SkTextEncoding, font, x, y);
+    add_to_text_blob_w_len(builder, text, strlen(text), SkTextEncoding::kUTF8, font, x, y);
 }
 
 void get_text_path(const SkFont&  font,

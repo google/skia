@@ -5,12 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkGradientShader.h"
-#include "SkHighContrastFilter.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkHighContrastFilter.h"
+#include "tools/ToolUtils.h"
+
+#include <stdio.h>
+#include <string.h>
 
 using InvertStyle = SkHighContrastConfig::InvertStyle;
 
@@ -38,8 +55,8 @@ static void draw_label(SkCanvas* canvas, const SkHighContrastConfig& config) {
 
     size_t len = strlen(labelBuffer);
 
-    SkScalar width = font.measureText(labelBuffer, len, kUTF8_SkTextEncoding);
-    canvas->drawSimpleText(labelBuffer, len, kUTF8_SkTextEncoding, 0.5f - width / 2, 0.16f, font, SkPaint());
+    SkScalar width = font.measureText(labelBuffer, len, SkTextEncoding::kUTF8);
+    canvas->drawSimpleText(labelBuffer, len, SkTextEncoding::kUTF8, 0.5f - width / 2, 0.16f, font, SkPaint());
 }
 
 static void draw_scene(SkCanvas* canvas, const SkHighContrastConfig& config) {

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlPipelineStateDataManager.h"
+#include "src/gpu/mtl/GrMtlPipelineStateDataManager.h"
 
-#include "GrMtlBuffer.h"
-#include "GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlBuffer.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
 
 GrMtlPipelineStateDataManager::GrMtlPipelineStateDataManager(const UniformInfoArray& uniforms,
                                                              uint32_t geometryUniformSize,
@@ -103,11 +103,7 @@ void GrMtlPipelineStateDataManager::set1fv(UniformHandle u,
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
-    for (int i = 0; i < arrayCount; ++i) {
-        const float* curVec = &v[i];
-        memcpy(buffer, curVec, sizeof(float));
-        buffer = static_cast<char*>(buffer) + 4*sizeof(float);
-    }
+    memcpy(buffer, v, arrayCount * sizeof(float));
 }
 
 void GrMtlPipelineStateDataManager::set2i(UniformHandle u, int32_t i0, int32_t i1) const {
@@ -130,11 +126,7 @@ void GrMtlPipelineStateDataManager::set2iv(UniformHandle u,
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(int32_t) == 4);
-    for (int i = 0; i < arrayCount; ++i) {
-        const int32_t* curVec = &v[2 * i];
-        memcpy(buffer, curVec, 2 * sizeof(int32_t));
-        buffer = static_cast<char*>(buffer) + 4*sizeof(int32_t);
-    }
+    memcpy(buffer, v, arrayCount*sizeof(int32_t));
 }
 
 void GrMtlPipelineStateDataManager::set2f(UniformHandle u, float v0, float v1) const {
@@ -158,11 +150,7 @@ void GrMtlPipelineStateDataManager::set2fv(UniformHandle u,
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
-    for (int i = 0; i < arrayCount; ++i) {
-        const float* curVec = &v[2 * i];
-        memcpy(buffer, curVec, 2 * sizeof(float));
-        buffer = static_cast<char*>(buffer) + 4*sizeof(float);
-    }
+    memcpy(buffer, v, arrayCount * 2 * sizeof(float));
 }
 
 void GrMtlPipelineStateDataManager::set3i(UniformHandle u,
@@ -247,11 +235,7 @@ void GrMtlPipelineStateDataManager::set4iv(UniformHandle u,
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(int32_t) == 4);
-    for (int i = 0; i < arrayCount; ++i) {
-        const int32_t* curVec = &v[4 * i];
-        memcpy(buffer, curVec, 4 * sizeof(int32_t));
-        buffer = static_cast<char*>(buffer) + 4*sizeof(int32_t);
-    }
+    memcpy(buffer, v, arrayCount * 4 * sizeof(int32_t));
 }
 
 void GrMtlPipelineStateDataManager::set4f(UniformHandle u,
@@ -338,14 +322,22 @@ template<int N> inline void GrMtlPipelineStateDataManager::setMatrices(
     set_uniform_matrix<N>::set(buffer, uni.fOffset, arrayCount, matrices);
 }
 
-template<int N> struct set_uniform_matrix {
+template<> struct set_uniform_matrix<2> {
+    inline static void set(void* buffer, int uniformOffset, int count, const float matrices[]) {
+        GR_STATIC_ASSERT(sizeof(float) == 4);
+        buffer = static_cast<char*>(buffer) + uniformOffset;
+        memcpy(buffer, matrices, count * 4 * sizeof(float));
+    }
+};
+
+template<> struct set_uniform_matrix<3> {
     inline static void set(void* buffer, int uniformOffset, int count, const float matrices[]) {
         GR_STATIC_ASSERT(sizeof(float) == 4);
         buffer = static_cast<char*>(buffer) + uniformOffset;
         for (int i = 0; i < count; ++i) {
-            const float* matrix = &matrices[N * N * i];
-            for (int j = 0; j < N; ++j) {
-                memcpy(buffer, &matrix[j * N], N * sizeof(float));
+            const float* matrix = &matrices[3 * 3 * i];
+            for (int j = 0; j < 3; ++j) {
+                memcpy(buffer, &matrix[j * 3], 3 * sizeof(float));
                 buffer = static_cast<char*>(buffer) + 4 * sizeof(float);
             }
         }
@@ -360,17 +352,26 @@ template<> struct set_uniform_matrix<4> {
     }
 };
 
-void GrMtlPipelineStateDataManager::uploadUniformBuffers(GrMtlGpu* gpu,
-                                                         GrMtlBuffer* geometryBuffer,
-                                                         GrMtlBuffer* fragmentBuffer) const {
-    if (geometryBuffer && fGeometryUniformsDirty) {
-        SkAssertResult(geometryBuffer->updateData(fGeometryUniformData.get(),
-                                                  fGeometryUniformSize));
+void GrMtlPipelineStateDataManager::uploadAndBindUniformBuffers(
+        GrMtlGpu* gpu,
+        id<MTLRenderCommandEncoder> renderCmdEncoder) const {
+    if (fGeometryUniformSize && fGeometryUniformsDirty) {
+        SkASSERT(fGeometryUniformSize < 4*1024);
+        [renderCmdEncoder setVertexBytes: fGeometryUniformData.get()
+                                  length: fGeometryUniformSize
+                                 atIndex: GrMtlUniformHandler::kGeometryBinding];
         fGeometryUniformsDirty = false;
     }
-    if (fragmentBuffer && fFragmentUniformsDirty) {
-        SkAssertResult(fragmentBuffer->updateData(fFragmentUniformData.get(),
-                                                  fFragmentUniformSize));
+    if (fFragmentUniformSize && fFragmentUniformsDirty) {
+        SkASSERT(fFragmentUniformSize < 4*1024);
+        [renderCmdEncoder setFragmentBytes: fFragmentUniformData.get()
+                                    length: fFragmentUniformSize
+                                   atIndex: GrMtlUniformHandler::kFragBinding];
         fFragmentUniformsDirty = false;
     }
+}
+
+void GrMtlPipelineStateDataManager::resetDirtyBits() {
+    fGeometryUniformsDirty = true;
+    fFragmentUniformsDirty = true;
 }

@@ -8,8 +8,8 @@
 #ifndef SkHalf_DEFINED
 #define SkHalf_DEFINED
 
-#include "SkNx.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkNx.h"
 
 // 16-bit floating point value
 // format is 1 bit sign, 5 bits exponent, 10 bits mantissa

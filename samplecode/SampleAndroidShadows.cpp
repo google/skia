@@ -5,19 +5,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "AnimTimer.h"
-#include "Sample.h"
-#include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
-#include "SkCamera.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkPoint3.h"
-#include "SkShadowUtils.h"
-#include "SkUTF.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint3.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/utils/SkCamera.h"
+#include "include/utils/SkShadowUtils.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkBlurMask.h"
+#include "src/utils/SkUTF.h"
+#include "tools/ToolUtils.h"
+#include "tools/timer/AnimTimer.h"
 
 ////////////////////////////////////////////////////////////////////////////
 

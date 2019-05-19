@@ -5,17 +5,31 @@
  * found in the LICENSE file.
  */
 
-#include <SkFont.h>
-#include "SkArithmeticImageFilter.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkImageSource.h"
-#include "SkShader.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkArithmeticImageFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageSource.h"
+#include "tools/ToolUtils.h"
+
+#include <utility>
 
 #define WW  100
 #define HH  32
@@ -60,7 +74,7 @@ static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar
     for (int i = 0; i < 4; ++i) {
         SkString str;
         str.appendScalar(k[i]);
-        SkScalar width = font.measureText(str.c_str(), str.size(), kUTF8_SkTextEncoding);
+        SkScalar width = font.measureText(str.c_str(), str.size(), SkTextEncoding::kUTF8);
         canvas->drawString(str, x, y + font.getSize(), font, paint);
         x += width + SkIntToScalar(10);
     }

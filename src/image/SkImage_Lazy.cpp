@@ -5,27 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "SkImage_Lazy.h"
+#include "src/image/SkImage_Lazy.h"
 
-#include "SkBitmap.h"
-#include "SkBitmapCache.h"
-#include "SkCachedData.h"
-#include "SkData.h"
-#include "SkImageGenerator.h"
-#include "SkImagePriv.h"
-#include "SkNextID.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageGenerator.h"
+#include "src/core/SkBitmapCache.h"
+#include "src/core/SkCachedData.h"
+#include "src/core/SkImagePriv.h"
+#include "src/core/SkNextID.h"
 
 #if SK_SUPPORT_GPU
-#include "GrCaps.h"
-#include "GrGpuResourcePriv.h"
-#include "GrImageTextureMaker.h"
-#include "GrResourceKey.h"
-#include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrSamplerState.h"
-#include "GrYUVProvider.h"
-#include "SkGr.h"
+#include "include/gpu/GrSamplerState.h"
+#include "include/private/GrRecordingContext.h"
+#include "include/private/GrResourceKey.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrImageTextureMaker.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrYUVProvider.h"
+#include "src/gpu/SkGr.h"
 #endif
 
 // Ref-counted tuple(SkImageGenerator, SkMutex) which allows sharing one generator among N images
@@ -117,7 +117,7 @@ public:
 
 private:
     const sk_sp<SharedGenerator>& fSharedGenerator;
-    SkAutoExclusive               fAutoAquire;
+    SkAutoMutexExclusive          fAutoAquire;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -263,7 +263,7 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(GrRecordingContext* context,
 sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(GrRecordingContext*,
                                                           SkColorType targetCT,
                                                           sk_sp<SkColorSpace> targetCS) const {
-    SkAutoExclusive autoAquire(fOnMakeColorTypeAndSpaceMutex);
+    SkAutoMutexExclusive autoAquire(fOnMakeColorTypeAndSpaceMutex);
     if (fOnMakeColorTypeAndSpaceResult &&
         targetCT == fOnMakeColorTypeAndSpaceResult->colorType() &&
         SkColorSpace::Equals(targetCS.get(), fOnMakeColorTypeAndSpaceResult->colorSpace())) {

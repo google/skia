@@ -5,28 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLCompiler.h"
+#include "src/sksl/SkSLCompiler.h"
 
-#include "SkSLByteCodeGenerator.h"
-#include "SkSLCFGGenerator.h"
-#include "SkSLCPPCodeGenerator.h"
-#include "SkSLGLSLCodeGenerator.h"
-#include "SkSLHCodeGenerator.h"
-#include "SkSLIRGenerator.h"
-#include "SkSLMetalCodeGenerator.h"
-#include "SkSLPipelineStageCodeGenerator.h"
-#include "SkSLSPIRVCodeGenerator.h"
-#include "ir/SkSLEnum.h"
-#include "ir/SkSLExpression.h"
-#include "ir/SkSLExpressionStatement.h"
-#include "ir/SkSLFunctionCall.h"
-#include "ir/SkSLIntLiteral.h"
-#include "ir/SkSLModifiersDeclaration.h"
-#include "ir/SkSLNop.h"
-#include "ir/SkSLSymbolTable.h"
-#include "ir/SkSLTernaryExpression.h"
-#include "ir/SkSLUnresolvedFunction.h"
-#include "ir/SkSLVarDeclarations.h"
+#include "src/sksl/SkSLByteCodeGenerator.h"
+#include "src/sksl/SkSLCFGGenerator.h"
+#include "src/sksl/SkSLCPPCodeGenerator.h"
+#include "src/sksl/SkSLGLSLCodeGenerator.h"
+#include "src/sksl/SkSLHCodeGenerator.h"
+#include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/SkSLMetalCodeGenerator.h"
+#include "src/sksl/SkSLPipelineStageCodeGenerator.h"
+#include "src/sksl/SkSLSPIRVCodeGenerator.h"
+#include "src/sksl/ir/SkSLEnum.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLIntLiteral.h"
+#include "src/sksl/ir/SkSLModifiersDeclaration.h"
+#include "src/sksl/ir/SkSLNop.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/ir/SkSLUnresolvedFunction.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
 
 #ifdef SK_ENABLE_SPIRV_VALIDATION
 #include "spirv-tools/libspirv.hpp"
@@ -57,12 +57,8 @@ static const char* SKSL_FP_INCLUDE =
 #include "sksl_fp.inc"
 ;
 
-static const char* SKSL_PIPELINE_STAGE_INCLUDE =
-#include "sksl_pipeline.inc"
-;
-
-static const char* SKSL_MIXER_INCLUDE =
-#include "sksl_mixer.inc"
+static const char* SKSL_GENERIC_INCLUDE =
+#include "sksl_generic.inc"
 ;
 
 namespace SkSL {
@@ -300,6 +296,8 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
                                 (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                 definitions);
             break;
+        case Expression::kExternalValue_Kind:
+            break;
         default:
             // not an lvalue, can't happen
             SkASSERT(false);
@@ -468,6 +466,8 @@ static bool is_dead(const Expression& lvalue) {
             const TernaryExpression& t = (TernaryExpression&) lvalue;
             return !t.fTest->hasSideEffects() && is_dead(*t.fIfTrue) && is_dead(*t.fIfFalse);
         }
+        case Expression::kExternalValue_Kind:
+            return false;
         default:
             ABORT("invalid lvalue: %s\n", lvalue.description().c_str());
     }
@@ -529,7 +529,7 @@ bool is_constant(const Expression& expr, double value) {
             Constructor& c = (Constructor&) expr;
             if (c.fType.kind() == Type::kVector_Kind && c.isConstant()) {
                 for (int i = 0; i < c.fType.columns(); ++i) {
-                    if (!is_constant(c.getVecComponent(i), value)) {
+                    if (!is_constant(*c.getVecComponent(i), value)) {
                         return false;
                     }
                 }
@@ -1236,6 +1236,14 @@ void Compiler::scanCFG(FunctionDefinition& f) {
     }
 }
 
+void Compiler::registerExternalValue(ExternalValue* value) {
+    fIRGenerator->fRootSymbolTable->addWithoutOwnership(value->fName, value);
+}
+
+Symbol* Compiler::takeOwnership(std::unique_ptr<Symbol> symbol) {
+    return fIRGenerator->fRootSymbolTable->takeOwnership(std::move(symbol));
+}
+
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
                                                   const Program::Settings& settings) {
     fErrorText = "";
@@ -1265,18 +1273,12 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
                                          &elements);
             fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
             break;
-        case Program::kPipelineStage_Kind:
+        case Program::kPipelineStage_Kind: // fall through
+        case Program::kGeneric_Kind:
             inherited = nullptr;
             fIRGenerator->start(&settings, nullptr);
-            fIRGenerator->convertProgram(kind, SKSL_PIPELINE_STAGE_INCLUDE,
-                                         strlen(SKSL_PIPELINE_STAGE_INCLUDE), *fTypes, &elements);
-            fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
-            break;
-        case Program::kMixer_Kind:
-            inherited = nullptr;
-            fIRGenerator->start(&settings, nullptr);
-            fIRGenerator->convertProgram(kind, SKSL_MIXER_INCLUDE, strlen(SKSL_MIXER_INCLUDE),
-                                         *fTypes, &elements);
+            fIRGenerator->convertProgram(kind, SKSL_GENERIC_INCLUDE,
+                                         strlen(SKSL_GENERIC_INCLUDE), *fTypes, &elements);
             fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
             break;
     }

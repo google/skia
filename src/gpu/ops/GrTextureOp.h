@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrColor.h"
-#include "GrRenderTargetContext.h"
-#include "GrSamplerState.h"
-#include "GrTypesPriv.h"
-#include "SkCanvas.h"
-#include "SkRefCnt.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrSamplerState.h"
+#include "include/private/GrColor.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
 
 class GrColorSpaceXform;
 class GrDrawOp;

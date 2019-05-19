@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkNWayCanvas.h"
-#include "SkCanvasPriv.h"
+#include "include/utils/SkNWayCanvas.h"
+#include "src/core/SkCanvasPriv.h"
 
 SkNWayCanvas::SkNWayCanvas(int width, int height) : INHERITED(width, height) {}
 
@@ -144,6 +144,13 @@ void SkNWayCanvas::onDrawPaint(const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
         iter->drawPaint(paint);
+    }
+}
+
+void SkNWayCanvas::onDrawBehind(const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        SkCanvasPriv::DrawBehind(iter.get(), paint);
     }
 }
 

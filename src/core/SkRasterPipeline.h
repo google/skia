@@ -8,12 +8,12 @@
 #ifndef SkRasterPipeline_DEFINED
 #define SkRasterPipeline_DEFINED
 
-#include "SkArenaAlloc.h"
-#include "SkColor.h"
-#include "SkImageInfo.h"
-#include "SkNx.h"
-#include "SkTArray.h" // TODO: unused
-#include "SkTypes.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkNx.h"
+#include "include/private/SkTArray.h"
 #include <functional>
 #include <vector>  // TODO: unused
 
@@ -65,7 +65,7 @@
     M(matrix_translate) M(matrix_scale_translate)                  \
     M(matrix_2x3) M(matrix_3x3) M(matrix_3x4) M(matrix_4x5) M(matrix_4x3) \
     M(matrix_perspective)                                          \
-    M(parametric) M(gamma)                                         \
+    M(parametric) M(gamma_)                                        \
     M(mirror_x)   M(repeat_x)                                      \
     M(mirror_y)   M(repeat_y)                                      \
     M(decal_x)    M(decal_y)   M(decal_x_and_y)                    \

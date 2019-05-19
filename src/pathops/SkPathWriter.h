@@ -7,9 +7,9 @@
 #ifndef SkPathWriter_DEFINED
 #define SkPathWriter_DEFINED
 
-#include "SkPath.h"
-#include "SkTArray.h"
-#include "SkTDArray.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 
 class SkOpPtT;
 

@@ -7,11 +7,11 @@
 #ifndef PathOpsThreadedCommon_DEFINED
 #define PathOpsThreadedCommon_DEFINED
 
-#include "SkBitmap.h"
-#include "SkGraphics.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkTDArray.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPath.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkTDArray.h"
 
 #include <string>
 

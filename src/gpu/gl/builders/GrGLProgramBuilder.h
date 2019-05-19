@@ -8,14 +8,14 @@
 #ifndef GrGLProgramBuilder_DEFINED
 #define GrGLProgramBuilder_DEFINED
 
-#include "GrPipeline.h"
-#include "gl/GrGLProgram.h"
-#include "gl/GrGLProgramDataManager.h"
-#include "gl/GrGLUniformHandler.h"
-#include "gl/GrGLVaryingHandler.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "ir/SkSLProgram.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/gl/GrGLProgram.h"
+#include "src/gpu/gl/GrGLProgramDataManager.h"
+#include "src/gpu/gl/GrGLUniformHandler.h"
+#include "src/gpu/gl/GrGLVaryingHandler.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 class GrFragmentProcessor;
 class GrGLContextInfo;
@@ -52,21 +52,21 @@ private:
                        const GrTextureProxy* const primProcProxies[], GrProgramDesc*);
 
     void addInputVars(const SkSL::Program::Inputs& inputs);
-    bool compileAndAttachShaders(const char* glsl,
-                                 int length,
+    bool compileAndAttachShaders(const SkSL::String& glsl,
                                  GrGLuint programId,
                                  GrGLenum type,
                                  SkTDArray<GrGLuint>* shaderIds,
-                                 const SkSL::Program::Settings& settings,
-                                 const SkSL::Program::Inputs& inputs);
+                                 const SkSL::Program::Inputs& inputs,
+                                 GrContextOptions::ShaderErrorHandler* errorHandler);
 
     void computeCountsAndStrides(GrGLuint programID, const GrPrimitiveProcessor& primProc,
                                  bool bindAttribLocations);
     void storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
-                            const SkSL::String glsl[]);
+                            const SkSL::String shaders[], bool isSkSL);
     GrGLProgram* finalize();
     void bindProgramResourceLocations(GrGLuint programID);
-    bool checkLinkStatus(GrGLuint programID);
+    bool checkLinkStatus(GrGLuint programID, GrContextOptions::ShaderErrorHandler* errorHandler,
+                         SkSL::String* sksl[], const SkSL::String glsl[]);
     void resolveProgramResourceLocations(GrGLuint programID);
     void cleanupProgram(GrGLuint programID, const SkTDArray<GrGLuint>& shaderIDs);
     void cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs);

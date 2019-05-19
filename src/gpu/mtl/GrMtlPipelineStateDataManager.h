@@ -8,9 +8,11 @@
 #ifndef GrMtlPipelineStateDataManager_DEFINED
 #define GrMtlPipelineStateDataManager_DEFINED
 
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "GrMtlUniformHandler.h"
-#include "SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/mtl/GrMtlUniformHandler.h"
+
+#import <Metal/Metal.h>
 
 class GrMtlBuffer;
 class GrMtlGpu;
@@ -54,9 +56,9 @@ public:
         SK_ABORT("Only supported in NVPR, which is not in Metal");
     }
 
-    void uploadUniformBuffers(GrMtlGpu* gpu,
-                              GrMtlBuffer* geometryBuffer,
-                              GrMtlBuffer* fragmentBuffer) const;
+    void uploadAndBindUniformBuffers(GrMtlGpu* gpu,
+                                     id<MTLRenderCommandEncoder> renderCmdEncoder) const;
+    void resetDirtyBits();
 
 private:
     struct Uniform {

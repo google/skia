@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkDocument.h"
-#include "SkGraphics.h"
-#include "SkImage.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDocument.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "tools/flags/CommandLineFlags.h"
 
 static DEFINE_string2(outFile, o, "skhello", "The filename to write the image.");
 static DEFINE_string2(text, t, "Hello", "The string to write.");

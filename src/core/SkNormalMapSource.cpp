@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkNormalMapSource.h"
+#include "src/core/SkNormalMapSource.h"
 
-#include "SkArenaAlloc.h"
-#include "SkLightingShader.h"
-#include "SkMatrix.h"
-#include "SkNormalSource.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkMatrix.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkNormalSource.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/shaders/SkLightingShader.h"
 
 #if SK_SUPPORT_GPU
-#include "GrCoordTransform.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "SkGr.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
 class NormalMapFP : public GrFragmentProcessor {
 public:

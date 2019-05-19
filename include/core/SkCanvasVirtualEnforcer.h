@@ -8,7 +8,7 @@
 #ifndef SkCanvasVirtualEnforcer_DEFINED
 #define SkCanvasVirtualEnforcer_DEFINED
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 
 // If you would ordinarily want to inherit from Base (eg SkCanvas, SkNWayCanvas), instead
 // inherit from SkCanvasVirtualEnforcer<Base>, which will make the build fail if you forget
@@ -20,6 +20,7 @@ public:
 
 protected:
     void onDrawPaint(const SkPaint& paint) override = 0;
+    void onDrawBehind(const SkPaint&) override {} // make zero after android updates
     void onDrawRect(const SkRect& rect, const SkPaint& paint) override = 0;
     void onDrawRRect(const SkRRect& rrect, const SkPaint& paint) override = 0;
     void onDrawDRRect(const SkRRect& outer, const SkRRect& inner,

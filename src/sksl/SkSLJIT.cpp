@@ -9,17 +9,17 @@
 
 #ifdef SK_LLVM_AVAILABLE
 
-#include "SkSLJIT.h"
+#include "src/sksl/SkSLJIT.h"
 
-#include "SkCpu.h"
-#include "SkRasterPipeline.h"
-#include "ir/SkSLAppendStage.h"
-#include "ir/SkSLExpressionStatement.h"
-#include "ir/SkSLFunctionCall.h"
-#include "ir/SkSLFunctionReference.h"
-#include "ir/SkSLIndexExpression.h"
-#include "ir/SkSLProgram.h"
-#include "ir/SkSLUnresolvedFunction.h"
+#include "src/core/SkCpu.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/sksl/ir/SkSLAppendStage.h"
+#include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionReference.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "llvm/ExecutionEngine/RTDyldMemoryManager.h"
 
 static constexpr int MAX_VECTOR_COUNT = 16;

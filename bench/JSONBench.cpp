@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkData.h"
-#include "SkJSON.h"
-#include "SkStream.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "src/utils/SkJSON.h"
 
 #if defined(SK_BUILD_FOR_ANDROID)
 static constexpr const char* kBenchFile = "/data/local/tmp/bench.json";

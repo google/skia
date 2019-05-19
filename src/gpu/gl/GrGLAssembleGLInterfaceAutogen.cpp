@@ -9,9 +9,9 @@
  * be overwritten.
  */
 
-#include "gl/GrGLAssembleInterface.h"
-#include "gl/GrGLAssembleHelpers.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/gl/GrGLAssembleHelpers.h"
+#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 #define GET_PROC(F) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F)
 #define GET_PROC_SUFFIX(F, S) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F #S)
@@ -392,14 +392,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
 
     if (extensions.has("GL_EXT_window_rectangles")) {
         GET_PROC_SUFFIX(WindowRectangles, EXT);
-    }
-
-    if (extensions.has("EGL_KHR_image")) {
-        GET_EGL_PROC_SUFFIX(CreateImage, KHR);
-        GET_EGL_PROC_SUFFIX(DestroyImage, KHR);
-    } else if (extensions.has("EGL_KHR_image_base")) {
-        GET_EGL_PROC_SUFFIX(CreateImage, KHR);
-        GET_EGL_PROC_SUFFIX(DestroyImage, KHR);
     }
 
     if (glVer >= GR_GL_VER(3,2)) {

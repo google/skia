@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkShadowTessellator.h"
-#include "SkColorData.h"
-#include "SkDrawShadowInfo.h"
-#include "SkGeometry.h"
-#include "SkPolyUtils.h"
-#include "SkPath.h"
-#include "SkPoint3.h"
-#include "SkPointPriv.h"
-#include "SkVertices.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkVertices.h"
+#include "include/private/SkColorData.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
+#include "src/utils/SkPolyUtils.h"
+#include "src/utils/SkShadowTessellator.h"
 
 #if SK_SUPPORT_GPU
-#include "GrPathUtils.h"
+#include "src/gpu/GrPathUtils.h"
 #endif
 
 
@@ -25,7 +25,7 @@
  */
 class SkBaseShadowTessellator {
 public:
-    SkBaseShadowTessellator(const SkPoint3& zPlaneParams, bool transparent);
+    SkBaseShadowTessellator(const SkPoint3& zPlaneParams, const SkRect& bounds, bool transparent);
     virtual ~SkBaseShadowTessellator() {}
 
     sk_sp<SkVertices> releaseVertices() {
@@ -99,6 +99,7 @@ protected:
     SkTDArray<SkPoint>   fClipPolygon;
     SkTDArray<SkVector>  fClipVectors;
 
+    SkRect              fPathBounds;
     SkPoint             fCentroid;
     SkScalar            fArea;
     SkScalar            fLastArea;
@@ -155,8 +156,10 @@ static SkScalar perp_dot(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2
     return v0.cross(v1);
 }
 
-SkBaseShadowTessellator::SkBaseShadowTessellator(const SkPoint3& zPlaneParams, bool transparent)
+SkBaseShadowTessellator::SkBaseShadowTessellator(const SkPoint3& zPlaneParams, const SkRect& bounds,
+                                                 bool transparent)
         : fZPlaneParams(zPlaneParams)
+        , fPathBounds(bounds)
         , fCentroid({0, 0})
         , fArea(0)
         , fLastArea(0)
@@ -559,7 +562,7 @@ bool SkBaseShadowTessellator::computeConcaveShadow(SkScalar inset, SkScalar outs
     SkTDArray<SkPoint> umbraPolygon;
     SkTDArray<int> umbraIndices;
     umbraIndices.setReserve(fPathPolygon.count());
-    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), inset,
+    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), fPathBounds, inset,
                                &umbraPolygon, &umbraIndices)) {
         // TODO: figure out how to handle this case
         return false;
@@ -570,7 +573,7 @@ bool SkBaseShadowTessellator::computeConcaveShadow(SkScalar inset, SkScalar outs
     SkTDArray<int> penumbraIndices;
     penumbraPolygon.setReserve(umbraPolygon.count());
     penumbraIndices.setReserve(umbraPolygon.count());
-    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), -outset,
+    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), fPathBounds, -outset,
                                &penumbraPolygon, &penumbraIndices)) {
         // TODO: figure out how to handle this case
         return false;
@@ -904,12 +907,14 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
                                                        const SkMatrix& ctm,
                                                        const SkPoint3& zPlaneParams,
                                                        bool transparent)
-        : INHERITED(zPlaneParams, transparent) {
+        : INHERITED(zPlaneParams, path.getBounds(), transparent) {
     // Set base colors
-    auto baseZ = heightFunc(path.getBounds().centerX(), path.getBounds().centerY());
+    auto baseZ = heightFunc(fPathBounds.centerX(), fPathBounds.centerY());
     // umbraColor is the interior value, penumbraColor the exterior value.
     auto outset = SkDrawShadowMetrics::AmbientBlurRadius(baseZ);
     auto inset = outset * SkDrawShadowMetrics::AmbientRecipAlpha(baseZ) - outset;
+    inset = SkScalarPin(inset, 0, SkTMin(path.getBounds().width(),
+                                         path.getBounds().height()));
 
     if (!this->computePathPolygon(path, ctm)) {
         return;
@@ -999,7 +1004,7 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
                                                  const SkPoint3& zPlaneParams,
                                                  const SkPoint3& lightPos, SkScalar lightRadius,
                                                  bool transparent)
-    : INHERITED(zPlaneParams, transparent) {
+    : INHERITED(zPlaneParams, path.getBounds(), transparent) {
 
     // Compute the blur radius, scale and translation for the spot shadow.
     SkMatrix shadowTransform;

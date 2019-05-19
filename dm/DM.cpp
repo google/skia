@@ -5,39 +5,39 @@
  * found in the LICENSE file.
  */
 
-#include "ChromeTracingTracer.h"
-#include "CommonFlags.h"
-#include "CommonFlagsConfig.h"
-#include "DMJsonWriter.h"
-#include "DMSrcSink.h"
-#include "EventTracingPriv.h"
-#include "HashAndEncode.h"
-#include "ProcStats.h"
-#include "Resources.h"
-#include "SkBBHFactory.h"
-#include "SkChecksum.h"
-#include "SkCodec.h"
-#include "SkColorPriv.h"
-#include "SkColorSpace.h"
-#include "SkColorSpacePriv.h"
-#include "SkData.h"
-#include "SkDebugfTracer.h"
-#include "SkDocument.h"
-#include "SkFontMgr.h"
-#include "SkGraphics.h"
-#include "SkHalf.h"
-#include "SkLeanWindows.h"
-#include "SkMD5.h"
-#include "SkMutex.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkSpinlock.h"
-#include "SkTHash.h"
-#include "SkTaskGroup.h"
-#include "SkTypeface_win.h"
-#include "Test.h"
-#include "ToolUtils.h"
-#include "ios_utils.h"
+#include "dm/DMJsonWriter.h"
+#include "dm/DMSrcSink.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDocument.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkGraphics.h"
+#include "include/ports/SkTypeface_win.h"
+#include "include/private/SkChecksum.h"
+#include "include/private/SkHalf.h"
+#include "include/private/SkLeanWindows.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkSpinlock.h"
+#include "include/private/SkTHash.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkMD5.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkTaskGroup.h"
+#include "src/utils/SkOSPath.h"
+#include "tests/Test.h"
+#include "tools/HashAndEncode.h"
+#include "tools/ProcStats.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
+#include "tools/flags/CommonFlags.h"
+#include "tools/flags/CommonFlagsConfig.h"
+#include "tools/ios_utils.h"
+#include "tools/trace/ChromeTracingTracer.h"
+#include "tools/trace/EventTracingPriv.h"
+#include "tools/trace/SkDebugfTracer.h"
 
 #include <vector>
 
@@ -218,7 +218,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
     vlog("done  %s\n", id.c_str());
     int pending;
     {
-        SkAutoMutexAcquire lock(gMutex);
+        SkAutoSpinlock lock(gMutex);
         for (int i = 0; i < gRunning.count(); i++) {
             if (gRunning[i].id == id) {
                 gRunning.removeShuffle(i);
@@ -236,7 +236,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
         int curr = sk_tools::getCurrResidentSetSizeMB(),
             peak = sk_tools::getMaxResidentSetSizeMB();
 
-        SkAutoMutexAcquire lock(gMutex);
+        SkAutoSpinlock lock(gMutex);
         info("\n%dMB RAM, %dMB peak, %d queued, %d active:\n",
              curr, peak, gPending - gRunning.count(), gRunning.count());
         for (auto& task : gRunning) {
@@ -248,7 +248,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
 static void start(const char* config, const char* src, const char* srcOptions, const char* name) {
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
     vlog("start %s\n", id.c_str());
-    SkAutoMutexAcquire lock(gMutex);
+    SkAutoSpinlock lock(gMutex);
     gRunning.push_back({id,SkGetThreadID()});
 }
 
@@ -278,7 +278,7 @@ static void find_culprit() {
         #undef _
         };
 
-        SkAutoMutexAcquire lock(gMutex);
+        SkAutoSpinlock lock(gMutex);
 
         const DWORD code = e->ExceptionRecord->ExceptionCode;
         info("\nCaught exception %u", code);
@@ -317,7 +317,7 @@ static void find_culprit() {
     static void (*previous_handler[max_of(SIGABRT,SIGBUS,SIGFPE,SIGILL,SIGSEGV,SIGTERM)+1])(int);
 
     static void crash_handler(int sig) {
-        SkAutoMutexAcquire lock(gMutex);
+        SkAutoSpinlock lock(gMutex);
 
         info("\nCaught signal %d [%s] (%dMB RAM, peak %dMB), was running:\n",
              sig, strsignal(sig),
@@ -995,7 +995,6 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
 
 static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (tag.equals(t)) return new via(__VA_ARGS__)
-    VIA("lite",      ViaLite,              wrapped);
 #ifdef TEST_VIA_SVG
     VIA("svg",       ViaSVG,               wrapped);
 #endif
@@ -1453,7 +1452,7 @@ int main(int argc, char** argv) {
         if (src->veto(sink->flags()) ||
             is_blacklisted(sink.tag.c_str(), src.tag.c_str(),
                            src.options.c_str(), src->name().c_str())) {
-            SkAutoMutexAcquire lock(gMutex);
+            SkAutoSpinlock lock(gMutex);
             gPending--;
             continue;
         }

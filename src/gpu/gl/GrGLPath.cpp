@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLPath.h"
-#include "GrGLPathRendering.h"
-#include "GrGLGpu.h"
-#include "GrStyle.h"
+#include "src/gpu/GrStyle.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLPath.h"
+#include "src/gpu/gl/GrGLPathRendering.h"
 
 namespace {
 inline GrGLubyte verb_to_gl_path_cmd(SkPath::Verb verb) {

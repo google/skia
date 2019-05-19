@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkFont.h"
-#include "SkFontMgr.h"
-#include "SkPaint.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
-#include "Test.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "tests/Test.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include <initializer_list>
 #include <limits>
@@ -30,11 +30,11 @@ static void test_font(skiatest::Reporter* reporter) {
     sk_bzero(glyphs, sizeof(glyphs));
 
     // Check that no glyphs are copied with insufficient storage.
-    int count = font.textToGlyphs("Hello", 5, kUTF8_SkTextEncoding, glyphs, 2);
+    int count = font.textToGlyphs("Hello", 5, SkTextEncoding::kUTF8, glyphs, 2);
     REPORTER_ASSERT(reporter, 5 == count);
     for (const auto glyph : glyphs) { REPORTER_ASSERT(reporter, glyph == 0); }
 
-    SkAssertResult(font.textToGlyphs("Hello", 5, kUTF8_SkTextEncoding, glyphs,
+    SkAssertResult(font.textToGlyphs("Hello", 5, SkTextEncoding::kUTF8, glyphs,
                                      SK_ARRAY_COUNT(glyphs)) == count);
 
     for (int i = 0; i < count; ++i) {

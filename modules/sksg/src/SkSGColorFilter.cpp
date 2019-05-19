@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGColorFilter.h"
+#include "modules/sksg/include/SkSGColorFilter.h"
 
-#include "SkColorData.h"
-#include "SkColorFilter.h"
-#include "SkSGPaint.h"
-#include "SkTableColorFilter.h"
+#include "include/core/SkColorFilter.h"
+#include "include/effects/SkTableColorFilter.h"
+#include "include/private/SkColorData.h"
+#include "modules/sksg/include/SkSGPaint.h"
 
 #include <cmath>
 
@@ -140,14 +140,14 @@ sk_sp<SkColorFilter> Make2ColorGradient(const sk_sp<Color>& color0, const sk_sp<
     //
     // Composing these two, we get the total tint matrix:
 
-    const SkScalar tint_matrix[] = {
-        dR*SK_LUM_COEFF_R, dR*SK_LUM_COEFF_G, dR*SK_LUM_COEFF_B, 0, c0.fR * 255,
-        dG*SK_LUM_COEFF_R, dG*SK_LUM_COEFF_G, dG*SK_LUM_COEFF_B, 0, c0.fG * 255,
-        dB*SK_LUM_COEFF_R, dB*SK_LUM_COEFF_G, dB*SK_LUM_COEFF_B, 0, c0.fB * 255,
-                        0,                 0,                 0, 1,           0,
+    const float tint_matrix[] = {
+        dR*SK_LUM_COEFF_R, dR*SK_LUM_COEFF_G, dR*SK_LUM_COEFF_B, 0, c0.fR,
+        dG*SK_LUM_COEFF_R, dG*SK_LUM_COEFF_G, dG*SK_LUM_COEFF_B, 0, c0.fG,
+        dB*SK_LUM_COEFF_R, dB*SK_LUM_COEFF_G, dB*SK_LUM_COEFF_B, 0, c0.fB,
+        0,                 0,                 0,                 1, 0,
     };
 
-    return SkColorFilters::MatrixRowMajor255(tint_matrix);
+    return SkColorFilters::Matrix(tint_matrix);
 }
 
 sk_sp<SkColorFilter> MakeNColorGradient(const std::vector<sk_sp<Color>>& colors) {
@@ -191,7 +191,7 @@ sk_sp<SkColorFilter> MakeNColorGradient(const std::vector<sk_sp<Color>>& colors)
     }
     SkASSERT(span_start == 256);
 
-    const SkScalar luminance_matrix[] = {
+    const float luminance_matrix[] = {
         SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B,  0,  0,  // r' = L
         SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B,  0,  0,  // g' = L
         SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B,  0,  0,  // b' = L
@@ -199,7 +199,7 @@ sk_sp<SkColorFilter> MakeNColorGradient(const std::vector<sk_sp<Color>>& colors)
     };
 
     return SkTableColorFilter::MakeARGB(nullptr, rTable, gTable, bTable)
-            ->makeComposed(SkColorFilters::MatrixRowMajor255(luminance_matrix));
+            ->makeComposed(SkColorFilters::Matrix(luminance_matrix));
 }
 
 } // namespace

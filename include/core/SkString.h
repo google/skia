@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkString_DEFINED
 #define SkString_DEFINED
 
-#include "../private/SkTArray.h"
-#include "../private/SkTo.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTo.h"
 
-#include <atomic>
 #include <stdarg.h>
+#include <string.h>
+#include <atomic>
 
-/*  Some helper functions for C strings
-*/
-
+/*  Some helper functions for C strings */
 static bool SkStrStartsWith(const char string[], const char prefixStr[]) {
     SkASSERT(string);
     SkASSERT(prefixStr);

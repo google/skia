@@ -5,22 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCCoverageProcessor.h"
+#include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 
-#include "GrGpuCommandBuffer.h"
-#include "GrOpFlushState.h"
-#include "SkMakeUnique.h"
-#include "ccpr/GrCCConicShader.h"
-#include "ccpr/GrCCCubicShader.h"
-#include "ccpr/GrCCQuadraticShader.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/ccpr/GrCCConicShader.h"
+#include "src/gpu/ccpr/GrCCCubicShader.h"
+#include "src/gpu/ccpr/GrCCQuadraticShader.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 class GrCCCoverageProcessor::TriangleShader : public GrCCCoverageProcessor::Shader {
-    void onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope,
-                        SkString* code, const char* position, const char* coverage,
-                        const char* cornerCoverage) override {
+    void onEmitVaryings(
+            GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope, SkString* code,
+            const char* position, const char* coverage, const char* cornerCoverage,
+            const char* /*wind*/) override {
         if (!cornerCoverage) {
             fCoverages.reset(kHalf_GrSLType, scope);
             varyingHandler->addVarying("coverage", &fCoverages);
@@ -73,19 +74,6 @@ void GrCCCoverageProcessor::Shader::CalcWind(const GrCCCoverageProcessor& proc,
         // thin curve hulls at this point.
         s->codeAppendf("%s = sign(half(area_x2));", outputWind);
     }
-}
-
-void GrCCCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLVertexGeoBuilder* s,
-                                                             const char* leftPt,
-                                                             const char* rightPt,
-                                                             const char* outputDistanceEquation) {
-    s->codeAppendf("float2 n = float2(%s.y - %s.y, %s.x - %s.x);",
-                   rightPt, leftPt, leftPt, rightPt);
-    s->codeAppend ("float nwidth = (abs(n.x) + abs(n.y)) * (bloat * 2);");
-    // When nwidth=0, wind must also be 0 (and coverage * wind = 0). So it doesn't matter what we
-    // come up with here as long as it isn't NaN or Inf.
-    s->codeAppend ("n /= (0 != nwidth) ? nwidth : 1;");
-    s->codeAppendf("%s = float3(-n, dot(n, %s) - .5);", outputDistanceEquation, leftPt);
 }
 
 void GrCCCoverageProcessor::Shader::CalcEdgeCoverageAtBloatVertex(GrGLSLVertexGeoBuilder* s,

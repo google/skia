@@ -8,7 +8,7 @@
 #ifndef GrMtlCopyManager_DEFINED
 #define GrMtlCopyManager_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
 #import <metal/metal.h>
 

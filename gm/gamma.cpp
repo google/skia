@@ -5,12 +5,30 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/effects/SkGradientShader.h"
+#include "tools/ToolUtils.h"
 
-#include "Resources.h"
-#include "SkBlendModePriv.h"
-#include "SkGradientShader.h"
+#include <string.h>
 
 DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     SkPaint p;
@@ -62,7 +80,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     };
 
     auto drawString = [&](const char str[], SkScalar x, SkScalar y) {
-        canvas->drawSimpleText(str, strlen(str), kUTF8_SkTextEncoding, x, y, font, textPaint);
+        canvas->drawSimpleText(str, strlen(str), SkTextEncoding::kUTF8, x, y, font, textPaint);
     };
 
     auto nextRect = [&](const char* label, const char* label2) {

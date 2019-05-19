@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix.h"
+#include "include/core/SkMatrix.h"
 
-#include "SkFloatBits.h"
-#include "SkMathPriv.h"
-#include "SkMatrixPriv.h"
-#include "SkNx.h"
-#include "SkPaint.h"
-#include "SkPoint3.h"
-#include "SkRSXform.h"
-#include "SkString.h"
-#include "SkTo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkString.h"
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkNx.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkMatrixPriv.h"
 
 #include <cstddef>
 #include <utility>
@@ -1639,7 +1639,7 @@ void SkMatrix::dump() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkMatrixUtils.h"
+#include "src/core/SkMatrixUtils.h"
 
 bool SkTreatAsSprite(const SkMatrix& mat, const SkISize& size, const SkPaint& paint) {
     // Our path aa is 2-bits, and our rect aa is 8, so we could use 8,

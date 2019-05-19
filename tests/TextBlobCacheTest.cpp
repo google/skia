@@ -5,27 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
+#include "tools/ToolUtils.h"
 
-#include "RandomScalerContext.h"
-#include "SkCanvas.h"
-#include "SkFontMgr.h"
-#include "SkGlyphRun.h"
-#include "SkGraphics.h"
-#include "SkPaint.h"
-#include "SkPoint.h"
-#include "SkSurface.h"
-#include "SkTextBlob.h"
-#include "SkTypeface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkGlyphRun.h"
+#include "tools/fonts/RandomScalerContext.h"
 
 #ifdef SK_BUILD_FOR_WIN
-    #include "SkTypeface_win.h"
+    #include "include/ports/SkTypeface_win.h"
 #endif
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
 
 static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>& blobs) {
     int yOffset = 0;

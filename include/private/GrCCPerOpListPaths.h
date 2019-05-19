@@ -8,10 +8,10 @@
 #ifndef GrCCPerOpListPaths_DEFINED
 #define GrCCPerOpListPaths_DEFINED
 
-#include "SkArenaAlloc.h"
-#include "SkRefCnt.h"
-#include "SkTInternalLList.h"
-#include "GrCCClipPath.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/GrCCClipPath.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkTInternalLList.h"
 
 #include <map>
 

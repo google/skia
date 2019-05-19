@@ -6,12 +6,12 @@
  */
 
 
-#include "GrGradientBitmapCache.h"
+#include "src/gpu/gradients/GrGradientBitmapCache.h"
 
-#include "SkMalloc.h"
-#include "SkFloatBits.h"
-#include "SkHalf.h"
-#include "SkTemplates.h"
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkHalf.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTemplates.h"
 
 #include <functional>
 
@@ -198,7 +198,7 @@ void GrGradientBitmapCache::getGradient(const SkPMColor4f* colors, const SkScala
     ///////////////////////////////////
 
     // acquire lock for checking/adding to cache
-    SkAutoExclusive ama(fMutex);
+    SkAutoMutexExclusive ama(fMutex);
     size_t size = keyCount * sizeof(int32_t);
     if (!this->find(storage.get(), size, bitmap)) {
         SkImageInfo info = SkImageInfo::Make(fResolution, 1, colorType, alphaType);

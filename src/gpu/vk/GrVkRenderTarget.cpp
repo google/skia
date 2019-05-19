@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkRenderTarget.h"
+#include "src/gpu/vk/GrVkRenderTarget.h"
 
-#include "GrBackendSurface.h"
-#include "GrRenderTargetPriv.h"
-#include "GrVkCommandBuffer.h"
-#include "GrVkFramebuffer.h"
-#include "GrVkGpu.h"
-#include "GrVkImageView.h"
-#include "GrVkResourceProvider.h"
-#include "GrVkUtil.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/vk/GrVkCommandBuffer.h"
+#include "src/gpu/vk/GrVkFramebuffer.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImageView.h"
+#include "src/gpu/vk/GrVkResourceProvider.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 

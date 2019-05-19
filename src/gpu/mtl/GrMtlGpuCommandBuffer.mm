@@ -5,15 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlGpuCommandBuffer.h"
+#include "src/gpu/mtl/GrMtlGpuCommandBuffer.h"
 
-#include "GrColor.h"
-#include "GrFixedClip.h"
-#include "GrMtlPipelineState.h"
-#include "GrMtlPipelineStateBuilder.h"
-#include "GrMtlRenderTarget.h"
-#include "GrRenderTargetPriv.h"
-#include "GrTexturePriv.h"
+#include "include/private/GrColor.h"
+#include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/mtl/GrMtlCommandBuffer.h"
+#include "src/gpu/mtl/GrMtlPipelineState.h"
+#include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
+#include "src/gpu/mtl/GrMtlRenderTarget.h"
 
 GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
         GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
@@ -72,12 +73,10 @@ GrMtlGpuRTCommandBuffer::~GrMtlGpuRTCommandBuffer() {
 
 void GrMtlGpuRTCommandBuffer::addNullCommand() {
     SkASSERT(nil == fActiveRenderCmdEncoder);
-    SK_BEGIN_AUTORELEASE_BLOCK
-    id<MTLRenderCommandEncoder> cmdEncoder =
-            [fGpu->commandBuffer() renderCommandEncoderWithDescriptor:fRenderPassDesc];
+
+    SkDEBUGCODE(id<MTLRenderCommandEncoder> cmdEncoder =)
+            fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr);
     SkASSERT(nil != cmdEncoder);
-    [cmdEncoder endEncoding];
-    SK_END_AUTORELEASE_BLOCK
 }
 
 void GrMtlGpuRTCommandBuffer::submit() {
@@ -95,6 +94,15 @@ void GrMtlGpuRTCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin,
     // command encoder.
     SkASSERT(nil == fActiveRenderCmdEncoder);
     fGpu->copySurface(fRenderTarget, fOrigin, src, srcOrigin, srcRect, dstPoint);
+}
+
+void GrMtlGpuRTCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
+                                           GrGpuBuffer* transferBuffer, size_t offset) {
+    // We cannot have an active encoder when we call transferFrom since it requires its own
+    // command encoder.
+    SkASSERT(nil == fActiveRenderCmdEncoder);
+    fGpu->transferPixelsFrom(fRenderTarget, srcRect.fLeft, srcRect.fTop, srcRect.width(),
+                             srcRect.height(), bufferColorType, transferBuffer, offset);
 }
 
 GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
@@ -176,8 +184,8 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     }
 
     SkASSERT(nil == fActiveRenderCmdEncoder);
-    fActiveRenderCmdEncoder = [fGpu->commandBuffer()
-                               renderCommandEncoderWithDescriptor:fRenderPassDesc];
+    fActiveRenderCmdEncoder = fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc,
+                                                                             pipelineState);
     SkASSERT(fActiveRenderCmdEncoder);
     // TODO: can we set this once somewhere at the beginning of the draw?
     [fActiveRenderCmdEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
@@ -232,8 +240,8 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         mesh.sendToGpu(this);
     }
 
-    [fActiveRenderCmdEncoder endEncoding];
     fActiveRenderCmdEncoder = nil;
+    this->resetBufferBindings();
     fCommandBufferInfo.fBounds.join(bounds);
     SK_END_AUTORELEASE_BLOCK
 }
@@ -330,21 +338,15 @@ void GrMtlGpuRTCommandBuffer::bindGeometry(const GrBuffer* vertexBuffer,
         SkASSERT(!vertexBuffer->isCpuBuffer());
         SkASSERT(!static_cast<const GrGpuBuffer*>(vertexBuffer)->isMapped());
 
-        auto mtlVertexBuffer = static_cast<const GrMtlBuffer*>(vertexBuffer)->mtlBuffer();
-        SkASSERT(mtlVertexBuffer);
-        [fActiveRenderCmdEncoder setVertexBuffer:mtlVertexBuffer
-                                          offset:0
-                                         atIndex:bufferIndex++];
+        const GrMtlBuffer* grMtlBuffer = static_cast<const GrMtlBuffer*>(vertexBuffer);
+        this->setVertexBuffer(fActiveRenderCmdEncoder, grMtlBuffer, bufferIndex++);
     }
     if (instanceBuffer) {
         SkASSERT(!instanceBuffer->isCpuBuffer());
         SkASSERT(!static_cast<const GrGpuBuffer*>(instanceBuffer)->isMapped());
 
-        auto mtlInstanceBuffer = static_cast<const GrMtlBuffer*>(instanceBuffer)->mtlBuffer();
-        SkASSERT(mtlInstanceBuffer);
-        [fActiveRenderCmdEncoder setVertexBuffer:mtlInstanceBuffer
-                                          offset:0
-                                         atIndex:bufferIndex++];
+        const GrMtlBuffer* grMtlBuffer = static_cast<const GrMtlBuffer*>(instanceBuffer);
+        this->setVertexBuffer(fActiveRenderCmdEncoder, grMtlBuffer, bufferIndex++);
     }
 }
 
@@ -397,4 +399,28 @@ void GrMtlGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType prim
                                         baseVertex:baseVertex
                                       baseInstance:baseInstance];
     fGpu->stats()->incNumDraws();
+}
+
+void GrMtlGpuRTCommandBuffer::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
+                                              const GrMtlBuffer* buffer,
+                                              size_t index) {
+    SkASSERT(index < 4);
+    id<MTLBuffer> mtlVertexBuffer = buffer->mtlBuffer();
+    SkASSERT(mtlVertexBuffer);
+    // Apple recommends using setVertexBufferOffset: when changing the offset
+    // for a currently bound vertex buffer, rather than setVertexBuffer:
+    if (fBufferBindings[index] != mtlVertexBuffer) {
+        [encoder setVertexBuffer: mtlVertexBuffer
+                          offset: 0
+                         atIndex: index];
+        fBufferBindings[index] = mtlVertexBuffer;
+    }
+    [encoder setVertexBufferOffset: buffer->offset()
+                           atIndex: index];
+}
+
+void GrMtlGpuRTCommandBuffer::resetBufferBindings() {
+    for (size_t i = 0; i < kNumBindings; ++i) {
+        fBufferBindings[i] = nil;
+    }
 }

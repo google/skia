@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkBlendModePriv.h"
-#include "SkBlitter.h"
-#include "SkColor.h"
-#include "SkColorFilter.h"
-#include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkOpts.h"
-#include "SkPaint.h"
-#include "SkRasterPipeline.h"
-#include "SkShader.h"
-#include "SkShaderBase.h"
-#include "SkTo.h"
-#include "SkUtils.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkUtils.h"
+#include "src/shaders/SkShaderBase.h"
 
 class SkRasterPipelineBlitter final : public SkBlitter {
 public:

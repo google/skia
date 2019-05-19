@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2019 Google Inc.
  *
@@ -8,15 +7,13 @@
 #ifndef MetalWindowContext_DEFINED
 #define MetalWindowContext_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkSurface.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
 
-#include "WindowContext.h"
+#include "tools/sk_app/WindowContext.h"
 
 #import <Metal/Metal.h>
-#import <MetalKit/MetalKit.h>
-
-class GrContext;
+#import <QuartzCore/CAMetalLayer.h>
 
 namespace sk_app {
 
@@ -26,7 +23,6 @@ public:
 
     bool isValid() override { return fValid; }
 
-    void resize(int w, int h) override;
     void swapBuffers() override;
 
     void setDisplayParams(const DisplayParams& params) override;
@@ -39,18 +35,16 @@ protected:
     virtual bool onInitializeContext() = 0;
 
     // This should be called by subclass destructor. It is also called when window/display
-    // parameters change prior to initializing a new GL context. This will in turn call
+    // parameters change prior to initializing a new Metal context. This will in turn call
     // onDestroyContext().
     void destroyContext();
     virtual void onDestroyContext() = 0;
 
-
     bool                        fValid;
     id<MTLDevice>               fDevice;
     id<MTLCommandQueue>         fQueue;
-    dispatch_semaphore_t        fInFlightSemaphore;
-    MTKView*                    fMTKView;
-    sk_sp<SkSurface>            fSurface;
+    CAMetalLayer*               fMetalLayer;
+    id<CAMetalDrawable>         fCurrentDrawable;
 };
 
 }   // namespace sk_app

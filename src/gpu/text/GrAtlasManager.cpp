@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrAtlasManager.h"
+#include "src/gpu/text/GrAtlasManager.h"
 
-#include "GrGlyph.h"
-#include "GrStrikeCache.h"
+#include "src/gpu/GrGlyph.h"
+#include "src/gpu/text/GrStrikeCache.h"
 
 GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrStrikeCache* glyphCache,
                                size_t maxTextureBytes,
@@ -21,33 +21,18 @@ GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrStrikeCache* gl
 
 GrAtlasManager::~GrAtlasManager() = default;
 
-static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format) {
+static GrColorType mask_format_to_gr_color_type(GrMaskFormat format) {
     switch (format) {
         case kA8_GrMaskFormat:
-            return kAlpha_8_GrPixelConfig;
+            return GrColorType::kAlpha_8;
         case kA565_GrMaskFormat:
-            return kRGB_565_GrPixelConfig;
+            return GrColorType::kRGB_565;
         case kARGB_GrMaskFormat:
-            return kRGBA_8888_GrPixelConfig;
+            return GrColorType::kRGBA_8888;
         default:
             SkDEBUGFAIL("unsupported GrMaskFormat");
-            return kAlpha_8_GrPixelConfig;
+            return GrColorType::kAlpha_8;
     }
-}
-
-static SkColorType mask_format_to_color_type(GrMaskFormat format) {
-    switch (format) {
-        case kA8_GrMaskFormat:
-            return kAlpha_8_SkColorType;
-        case kA565_GrMaskFormat:
-            return kRGB_565_SkColorType;
-        case kARGB_GrMaskFormat:
-            return kRGBA_8888_SkColorType;
-        default:
-            SkDEBUGFAIL("unsupported GrMaskFormat");
-            return kAlpha_8_SkColorType;
-    }
-
 }
 
 void GrAtlasManager::freeAll() {
@@ -83,14 +68,14 @@ void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpd
 }
 
 #ifdef SK_DEBUG
-#include "GrContextPriv.h"
-#include "GrSurfaceProxy.h"
-#include "GrSurfaceContext.h"
-#include "GrTextureProxy.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrSurfaceContext.h"
 
-#include "SkBitmap.h"
-#include "SkImageEncoder.h"
-#include "SkStream.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkStream.h"
 #include <stdio.h>
 
 /**
@@ -175,17 +160,18 @@ void GrAtlasManager::setAtlasSizesToMinimum_ForTesting() {
 bool GrAtlasManager::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (fAtlases[index] == nullptr) {
-        GrPixelConfig config = mask_format_to_pixel_config(format);
-        SkColorType colorType = mask_format_to_color_type(format);
+        GrColorType grColorType = mask_format_to_gr_color_type(format);
         SkISize atlasDimensions = fAtlasConfig.atlasDimensions(format);
         SkISize plotDimensions = fAtlasConfig.plotDimensions(format);
 
-        const GrBackendFormat format = fCaps->getBackendFormatFromColorType(colorType);
+        const GrBackendFormat format = fCaps->getBackendFormatFromGrColorType(grColorType,
+                                                                              GrSRGBEncoded::kNo);
 
         fAtlases[index] = GrDrawOpAtlas::Make(
-                fProxyProvider, format, config, atlasDimensions.width(), atlasDimensions.height(),
-                plotDimensions.width(), plotDimensions.height(), fAllowMultitexturing,
-                &GrStrikeCache::HandleEviction, fGlyphCache);
+                fProxyProvider, format, grColorType,
+                atlasDimensions.width(), atlasDimensions.height(),
+                plotDimensions.width(), plotDimensions.height(),
+                fAllowMultitexturing, &GrStrikeCache::HandleEviction, fGlyphCache);
         if (!fAtlases[index]) {
             return false;
         }

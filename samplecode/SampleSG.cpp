@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkFontMetrics.h"
-#include "SkPath.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkPath.h"
+#include "samplecode/Sample.h"
 
-#include "SkSGDraw.h"
-#include "SkSGGroup.h"
-#include "SkSGPaint.h"
-#include "SkSGRect.h"
-#include "SkSGScene.h"
+#include "modules/sksg/include/SkSGDraw.h"
+#include "modules/sksg/include/SkSGGroup.h"
+#include "modules/sksg/include/SkSGPaint.h"
+#include "modules/sksg/include/SkSGRect.h"
+#include "modules/sksg/include/SkSGScene.h"
 
 struct PerNodeInfo {
     // key

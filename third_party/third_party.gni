@@ -11,14 +11,15 @@ template("third_party") {
       if (defined(invoker.public_defines)) {
         defines = invoker.public_defines
       }
-      if (is_win && !is_clang) {
+      if (is_win) {
         include_dirs = invoker.public_include_dirs
-      } else if (is_win && is_clang) {
-        foreach(dir, invoker.public_include_dirs) {
-          cflags += [
-            "/imsvc",
-            rebase_path(dir),
-          ]
+        if (is_clang) {
+          foreach(dir, invoker.public_include_dirs) {
+            cflags += [
+              "/imsvc",
+              rebase_path(dir),
+            ]
+          }
         }
       } else {
         foreach(dir, invoker.public_include_dirs) {

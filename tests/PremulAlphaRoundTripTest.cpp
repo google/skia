@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkSurface.h"
-#include "Test.h"
-#include "ToolUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 
 static uint32_t pack_unpremul_rgba(SkColor c) {
     uint32_t packed;

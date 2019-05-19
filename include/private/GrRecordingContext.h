@@ -8,9 +8,9 @@
 #ifndef GrRecordingContext_DEFINED
 #define GrRecordingContext_DEFINED
 
-#include "GrAuditTrail.h"
-#include "GrImageContext.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/GrAuditTrail.h"
+#include "include/private/GrImageContext.h"
 
 class GrDrawingManager;
 class GrOnFlushCallbackObject;
@@ -32,7 +32,7 @@ protected:
 
     GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
     bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>) override;
-    void setupDrawingManager(bool explicitlyAllocate, bool sortOpLists);
+    void setupDrawingManager(bool sortOpLists, bool reduceOpListSplitting);
 
     void abandonContext() override;
 

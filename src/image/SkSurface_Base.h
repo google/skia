@@ -8,10 +8,10 @@
 #ifndef SkSurface_Base_DEFINED
 #define SkSurface_Base_DEFINED
 
-#include "SkCanvas.h"
-#include "SkImagePriv.h"
-#include "SkSurface.h"
-#include "SkSurfacePriv.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkImagePriv.h"
+#include "src/core/SkSurfacePriv.h"
 
 class SkSurface_Base : public SkSurface {
 public:
@@ -44,6 +44,12 @@ public:
     virtual sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset = nullptr) { return nullptr; }
 
     virtual void onWritePixels(const SkPixmap&, int x, int y) = 0;
+
+    /**
+     * Default implementation does a read and then calls the callback.
+     */
+    virtual void onAsyncReadPixels(const SkImageInfo&, int srcX, int srcY,
+                                   ReadPixelsCallback callback, ReadPixelsContext context);
 
     /**
      *  Default implementation:

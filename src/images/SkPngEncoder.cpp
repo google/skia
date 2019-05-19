@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageEncoderPriv.h"
+#include "src/images/SkImageEncoderPriv.h"
 
 #ifdef SK_HAS_PNG_LIBRARY
 
-#include "SkColorTable.h"
-#include "SkImageEncoderFns.h"
-#include "SkImageInfoPriv.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkPngEncoder.h"
-#include "SkPngPriv.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/codec/SkColorTable.h"
+#include "src/codec/SkPngPriv.h"
+#include "src/images/SkImageEncoderFns.h"
 #include <vector>
 
 #include "png.h"

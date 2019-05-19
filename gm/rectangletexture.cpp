@@ -7,16 +7,42 @@
 
 // This test only works with the GPU backend.
 
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/gl/GrGLFunctions.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/gl/GrGLContext.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "gl/GrGLContext.h"
-#include "SkBitmap.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
+#include <algorithm>
+#include <cstdint>
+#include <memory>
+
+class GrRenderTargetContext;
 
 namespace skiagm {
 class RectangleTexture : public GpuGM {
@@ -34,7 +60,7 @@ protected:
 
     void fillPixels(int width, int height, void *pixels) {
         SkBitmap bmp;
-        bmp.setInfo(SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType), width * 4);
+        bmp.setInfo(SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kOpaque_SkAlphaType));
         bmp.setPixels(pixels);
         SkPaint paint;
         SkCanvas canvas(bmp);
@@ -51,35 +77,14 @@ protected:
     }
 
     static const GrGLContext* GetGLContextIfSupported(GrContext* context) {
-        GrGpu* gpu = context->priv().getGpu();
-        if (!gpu) {
+        if (context->backend() != GrBackendApi::kOpenGL) {
             return nullptr;
         }
-        const GrGLContext* glCtx = gpu->glContextForTesting();
-        if (!glCtx) {
+        auto* caps = static_cast<const GrGLCaps*>(context->priv().caps());
+        if (!caps->rectangleTextureSupport()) {
             return nullptr;
         }
-
-    #if 0 // TODO(bsalomon): use extensions on GLES?
-        bool is_GL31 = glCtx->standard() == kGL_GrGLStandard
-                    && glCtx->version()  >= GR_GL_VER(3, 1);
-        if (!is_GL31
-                && !glCtx->hasExtension("GL_ARB_texture_rectangle")
-                && !glCtx->hasExtension("GL_ANGLE_texture_rectangle")) {
-            return nullptr;
-        }
-    #else
-        if (glCtx->standard() != kGL_GrGLStandard) {
-            return nullptr;
-        }
-        if (glCtx->version() < GR_GL_VER(3,1)
-                && !glCtx->hasExtension("GL_ARB_texture_rectangle")
-                && !glCtx->hasExtension("GL_ANGLE_texture_rectangle")) {
-            return nullptr;
-        }
-    #endif
-
-        return glCtx;
+        return context->priv().getGpu()->glContextForTesting();
     }
 
     sk_sp<SkImage> createRectangleTextureImg(GrContext* context, GrSurfaceOrigin origin, int width,
@@ -87,16 +92,6 @@ protected:
         const GrGLContext* glCtx = GetGLContextIfSupported(context);
         if (!glCtx) {
             return nullptr;
-        }
-
-        // We will always create the GL texture as GL_RGBA, however the pixels uploaded may be
-        // be RGBA or BGRA, depending on how SkPMColor was compiled.
-        GrGLenum format;
-        if (kSkia8888_GrPixelConfig == kBGRA_8888_GrPixelConfig) {
-            format = GR_GL_BGRA;
-        } else {
-            SkASSERT(kSkia8888_GrPixelConfig == kRGBA_8888_GrPixelConfig);
-            format = GR_GL_RGBA;
         }
 
         const GrGLInterface* gl = glCtx->interface();
@@ -118,7 +113,7 @@ protected:
             }
             pixels = tempPixels.get();
         }
-        GR_GL_CALL(gl, TexImage2D(kTarget, 0, GR_GL_RGBA, width, height, 0, format,
+        GR_GL_CALL(gl, TexImage2D(kTarget, 0, GR_GL_RGBA, width, height, 0, GR_GL_RGBA,
                                   GR_GL_UNSIGNED_BYTE, pixels));
 
         context->resetContext();

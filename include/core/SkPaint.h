@@ -8,11 +8,11 @@
 #ifndef SkPaint_DEFINED
 #define SkPaint_DEFINED
 
-#include "../private/SkTo.h"
-#include "SkBlendMode.h"
-#include "SkColor.h"
-#include "SkFilterQuality.h"
-#include "SkRefCnt.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTo.h"
 
 class SkColorFilter;
 class SkColorSpace;
@@ -42,6 +42,19 @@ public:
         @return  default initialized SkPaint
     */
     SkPaint();
+
+    /** Constructs SkPaint with default values and the given color.
+
+        Sets alpha and RGB used when stroking and filling. The color is four floating
+        point values, unpremultiplied. The color values are interpreted as being in
+        the colorSpace. If colorSpace is nullptr, then color is assumed to be in the
+        sRGB color space.
+
+        @param color       unpremultiplied RGBA
+        @param colorSpace  SkColorSpace describing the encoding of color
+        @return            SkPaint with the given color
+    */
+    explicit SkPaint(const SkColor4f& color, SkColorSpace* colorSpace = nullptr);
 
     /** Makes a shallow copy of SkPaint. SkPathEffect, SkShader,
         SkMaskFilter, SkColorFilter, SkDrawLooper, and SkImageFilter are shared

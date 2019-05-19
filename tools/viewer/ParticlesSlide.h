@@ -8,11 +8,11 @@
 #ifndef ParticlesSlide_DEFINED
 #define ParticlesSlide_DEFINED
 
-#include "Slide.h"
+#include "tools/viewer/Slide.h"
 
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkTArray.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkTArray.h"
+#include "include/utils/SkRandom.h"
 
 class AnimTimer;
 class SkParticleEffect;

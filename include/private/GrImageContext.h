@@ -8,8 +8,8 @@
 #ifndef GrImageContext_DEFINED
 #define GrImageContext_DEFINED
 
-#include "GrContext_Base.h"
-#include "../private/GrSingleOwner.h"
+#include "include/private/GrContext_Base.h"
+#include "include/private/GrSingleOwner.h"
 
 class GrImageContextPriv;
 class GrProxyProvider;

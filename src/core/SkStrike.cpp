@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkStrike.h"
+#include "src/core/SkStrike.h"
 
-#include "SkGraphics.h"
-#include "SkMakeUnique.h"
-#include "SkMutex.h"
-#include "SkOnce.h"
-#include "SkPath.h"
-#include "SkTemplates.h"
-#include "SkTypeface.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkMakeUnique.h"
 #include <cctype>
 
 namespace {
@@ -76,9 +76,13 @@ const SkGlyph& SkStrike::getGlyphIDMetrics(uint16_t glyphID) {
 }
 
 const SkGlyph& SkStrike::getGlyphIDMetrics(uint16_t glyphID, SkFixed x, SkFixed y) {
-    VALIDATE();
     SkPackedGlyphID packedGlyphID(glyphID, x, y);
-    return *this->lookupByPackedGlyphID(packedGlyphID, kFull_MetricsType);
+    return this->getGlyphIDMetrics(packedGlyphID);
+}
+
+const SkGlyph& SkStrike::getGlyphIDMetrics(SkPackedGlyphID id) {
+    VALIDATE();
+    return *this->lookupByPackedGlyphID(id, kFull_MetricsType);
 }
 
 void SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
@@ -237,6 +241,7 @@ SkSpan<const SkGlyphPos> SkStrike::prepareForDrawing(const SkGlyphID glyphIDs[],
                                                      const SkPoint positions[],
                                                      size_t n,
                                                      int maxDimension,
+                                                     PreparationDetail detail,
                                                      SkGlyphPos result[]) {
     size_t drawableGlyphCount = 0;
     for (size_t i = 0; i < n; i++) {
@@ -249,7 +254,9 @@ SkSpan<const SkGlyphPos> SkStrike::prepareForDrawing(const SkGlyphID glyphIDs[],
                 result[drawableGlyphCount++] = {i, &glyph, position};
                 if (glyph.maxDimension() <= maxDimension) {
                     // Glyph fits in the atlas, good to go.
-                    this->findImage(glyph);
+                    if (detail == SkStrikeInterface::kImageIfNeeded) {
+                        this->findImage(glyph);
+                    }
                 } else if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
                     // The out of atlas glyph is not color so we can draw it using paths.
                     this->findPath(glyph);
@@ -266,8 +273,8 @@ SkSpan<const SkGlyphPos> SkStrike::prepareForDrawing(const SkGlyphID glyphIDs[],
     return SkSpan<const SkGlyphPos>{result, drawableGlyphCount};
 }
 
-#include "../pathops/SkPathOpsCubic.h"
-#include "../pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsQuad.h"
 
 static bool quad_in_bounds(const SkScalar* pts, const SkScalar bounds[2]) {
     SkScalar min = SkTMin(SkTMin(pts[0], pts[2]), pts[4]);

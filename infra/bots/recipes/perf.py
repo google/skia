@@ -96,7 +96,7 @@ def nanobench_flags(api, bot):
       gl_prefix = 'gles'
 
     configs.extend([gl_prefix, gl_prefix + 'srgb'])
-    if sample_count is not '':
+    if sample_count:
       configs.append(gl_prefix + 'msaa' + sample_count)
       if ('TegraX1' in bot or
           'Quadro' in bot or
@@ -117,12 +117,12 @@ def nanobench_flags(api, bot):
     if 'ANGLE' in bot:
       # Test only ANGLE configs.
       configs = ['angle_d3d11_es2']
-      if sample_count is not '':
+      if sample_count:
         configs.append('angle_d3d11_es2_msaa' + sample_count)
       if 'QuadroP400' in bot:
         # See skia:7823 and chromium:693090.
         configs.append('angle_gl_es2')
-        if sample_count is not '':
+        if sample_count:
           configs.append('angle_gl_es2_msaa' + sample_count)
 
     if 'ChromeOS' in bot:
@@ -144,19 +144,9 @@ def nanobench_flags(api, bot):
     # Ensure that the bot framework does not think we have timed out.
     args.extend(['--keepAlive', 'true'])
 
-  if ('QuadroP400' in bot or
-      'Adreno540' in bot or
-      'IntelHD2000' in bot or   # gen 6 - sandy bridge
-      'IntelHD4400' in bot or   # gen 7 - haswell
-      'IntelHD405' in bot or    # gen 8 - cherryview braswell
-      'IntelIris6100' in bot or # gen 8 - broadwell
-      'IntelIris540' in bot or  # gen 9 - skylake
-      'IntelIris640' in bot or  # gen 9 - kaby lake
-      'IntelIris655' in bot or  # gen 9 - coffee lake
-      'MaliT760' in bot or
-      'MaliT860' in bot or
-      'MaliT880' in bot):
-    args.extend(['--reduceOpListSplitting'])
+  # skia:9036
+  if 'NVIDIA_Shield' in bot or 'Chorizo' in bot:
+    args.extend(['--dontReduceOpListSplitting'])
 
   # Some people don't like verbose output.
   verbose = False
@@ -340,6 +330,7 @@ def perf_steps(api):
           api.flavor.device_dirs.resource_dir, 'images', 'color_wheel.jpg'),
       '--skps',  api.flavor.device_dirs.skp_dir,
       '--pre_log',
+      '--dontReduceOpListSplitting',
       '--match', # skia:6687
       '~matrixconvolution',
       '~blur_image_filter',
@@ -406,6 +397,7 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
   ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-'
    'Android_NoGPUThreads'),
+  'Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android',
   'Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
   'Perf-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Debug-All',
   'Perf-Chromecast-Clang-Chorizo-GPU-Cortex_A7-arm-Release-All',

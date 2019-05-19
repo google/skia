@@ -8,8 +8,8 @@
 #ifndef SKSL_FILEOUTPUTSTREAM
 #define SKSL_FILEOUTPUTSTREAM
 
-#include "SkSLOutputStream.h"
-#include "SkSLUtil.h"
+#include "src/sksl/SkSLOutputStream.h"
+#include "src/sksl/SkSLUtil.h"
 #include <stdio.h>
 
 namespace SkSL {

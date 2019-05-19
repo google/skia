@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlPipelineStateBuilder.h"
+#include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
 
-#include "GrMtlGpu.h"
-#include "GrMtlPipelineState.h"
-#include "GrMtlUtil.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlPipelineState.h"
+#include "src/gpu/mtl/GrMtlUtil.h"
 
-#include "GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTargetPriv.h"
 
 #import <simd/simd.h>
 
@@ -347,6 +347,15 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     id<MTLFunction> vertexFunction = [vertexLibrary newFunctionWithName: @"vertexMain"];
     id<MTLFunction> fragmentFunction = [fragmentLibrary newFunctionWithName: @"fragmentMain"];
 
+    if (vertexFunction == nil) {
+        SkDebugf("Couldn't find vertexMain() in library\n");
+        return nullptr;
+    }
+    if (fragmentFunction == nil) {
+        SkDebugf("Couldn't find fragmentMain() in library\n");
+        return nullptr;
+    }
+
     pipelineDescriptor.vertexFunction = vertexFunction;
     pipelineDescriptor.fragmentFunction = fragmentFunction;
     pipelineDescriptor.vertexDescriptor = create_vertex_descriptor(primProc);
@@ -380,14 +389,8 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
                                   pipelineDescriptor.colorAttachments[0].pixelFormat,
                                   fUniformHandles,
                                   fUniformHandler.fUniforms,
-                                  GrMtlBuffer::Make(fGpu,
-                                                    geomBufferSize,
-                                                    GrGpuBufferType::kVertex,
-                                                    kStatic_GrAccessPattern),
-                                  GrMtlBuffer::Make(fGpu,
-                                                    fragBufferSize,
-                                                    GrGpuBufferType::kVertex,
-                                                    kStatic_GrAccessPattern),
+                                  geomBufferSize,
+                                  fragBufferSize,
                                   (uint32_t)fUniformHandler.numSamplers(),
                                   std::move(fGeometryProcessor),
                                   std::move(fXferProcessor),

@@ -5,31 +5,31 @@
  * found in the LICENSE file.
  */
 
-#include "GrProxyProvider.h"
+#include "src/gpu/GrProxyProvider.h"
 
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrImageContext.h"
-#include "GrImageContextPriv.h"
-#include "GrRenderTarget.h"
-#include "GrResourceKey.h"
-#include "GrResourceProvider.h"
-#include "GrSurfaceProxy.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTexture.h"
-#include "GrTextureProxyCacheAccess.h"
-#include "GrTextureRenderTargetProxy.h"
-#include "../private/GrSingleOwner.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkBitmap.h"
-#include "SkGr.h"
-#include "SkImage.h"
-#include "SkImage_Base.h"
-#include "SkImageInfoPriv.h"
-#include "SkImagePriv.h"
-#include "SkMipMap.h"
-#include "SkTraceEvent.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImage.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrImageContext.h"
+#include "include/private/GrResourceKey.h"
+#include "include/private/GrSingleOwner.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkImagePriv.h"
+#include "src/core/SkMipMap.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrImageContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTextureProxyCacheAccess.h"
+#include "src/gpu/GrTextureRenderTargetProxy.h"
+#include "src/gpu/SkGr.h"
+#include "src/image/SkImage_Base.h"
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fImageContext->priv().singleOwner());)
@@ -247,9 +247,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
             surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
         }
     }
-    if (fImageContext->priv().explicitlyAllocateGPUResources()) {
-        surfaceFlags |= GrInternalSurfaceFlags::kNoPendingIO;
-    }
 
     GrSurfaceDesc desc;
     desc.fWidth = srcImage->width();
@@ -259,17 +256,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     desc.fConfig = config;
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [desc, budgeted, srcImage, fit, surfaceFlags](GrResourceProvider* resourceProvider) {
+            [desc, budgeted, srcImage, fit](GrResourceProvider* resourceProvider) {
                 SkPixmap pixMap;
                 SkAssertResult(srcImage->peekPixels(&pixMap));
                 GrMipLevel mipLevel = { pixMap.addr(), pixMap.rowBytes() };
 
-                auto resourceProviderFlags = GrResourceProvider::Flags::kNone;
-                if (surfaceFlags & GrInternalSurfaceFlags::kNoPendingIO) {
-                    resourceProviderFlags |= GrResourceProvider::Flags::kNoPendingIO;
-                }
                 return LazyInstantiationResult(resourceProvider->createTexture(
-                        desc, budgeted, fit, mipLevel, resourceProviderFlags));
+                        desc, budgeted, fit, mipLevel, GrResourceProvider::Flags::kNoPendingIO));
             },
             format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, surfaceFlags, fit, budgeted);
 
@@ -755,7 +748,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(
         LazyInstantiateCallback&& callback, const GrBackendFormat& format, Renderable renderable,
         GrSurfaceOrigin origin, GrPixelConfig config, const GrCaps& caps, int sampleCnt) {
     GrSurfaceDesc desc;
-    GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNoPendingIO;
+    GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
     if (Renderable::kYes == renderable) {
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
         if (sampleCnt > 1 && caps.usesMixedSamples()) {

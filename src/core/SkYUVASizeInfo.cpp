@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkYUVASizeInfo.h"
-#include "SkTemplates.h"
+#include "include/core/SkYUVASizeInfo.h"
+#include "include/private/SkTemplates.h"
 
 void SkYUVASizeInfo::computePlanes(void* base, void* planes[SkYUVASizeInfo::kMaxCount]) const {
     planes[0] = base;

@@ -8,10 +8,10 @@
 #ifndef SkBuffer_DEFINED
 #define SkBuffer_DEFINED
 
-#include "SkNoncopyable.h"
-#include "SkSafeMath.h"
-#include "SkScalar.h"
-#include "SkTypes.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkNoncopyable.h"
+#include "src/core/SkSafeMath.h"
 
 #include <limits>
 

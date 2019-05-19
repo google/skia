@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkRefCnt.h"
-#include "SkTypes.h"
-#include "SkWeakRefCnt.h"
-#include "Test.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkWeakRefCnt.h"
+#include "tests/Test.h"
 
 #include <thread>
 

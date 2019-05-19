@@ -247,6 +247,7 @@
 #include "../../docs/examples/Color_Type_RGB_101010.cpp"
 #include "../../docs/examples/Color_Type_RGB_565.cpp"
 #include "../../docs/examples/Color_Type_RGB_888.cpp"
+#include "../../docs/examples/Colors.cpp"
 #include "../../docs/examples/Conic_Weight_a.cpp"
 #include "../../docs/examples/Conic_Weight_b.cpp"
 #include "../../docs/examples/Conic_Weight_c.cpp"

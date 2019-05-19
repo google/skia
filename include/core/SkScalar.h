@@ -8,7 +8,7 @@
 #ifndef SkScalar_DEFINED
 #define SkScalar_DEFINED
 
-#include "../private/SkFloatingPoint.h"
+#include "include/private/SkFloatingPoint.h"
 
 #undef SK_SCALAR_IS_FLOAT
 #define SK_SCALAR_IS_FLOAT  1
@@ -17,8 +17,8 @@ typedef float SkScalar;
 
 #define SK_Scalar1                  1.0f
 #define SK_ScalarHalf               0.5f
-#define SK_ScalarSqrt2              1.41421356f
-#define SK_ScalarPI                 3.14159265f
+#define SK_ScalarSqrt2              SK_FloatSqrt2
+#define SK_ScalarPI                 SK_FloatPI
 #define SK_ScalarTanPIOver8         0.414213562f
 #define SK_ScalarRoot2Over2         0.707106781f
 #define SK_ScalarMax                3.402823466e+38f
@@ -71,16 +71,11 @@ static inline bool SkScalarIsNaN(SkScalar x) { return x != x; }
 static inline bool SkScalarIsFinite(SkScalar x) { return sk_float_isfinite(x); }
 
 static inline bool SkScalarsAreFinite(SkScalar a, SkScalar b) {
-    return sk_float_isfinite(a) && sk_float_isfinite(b);
+    return sk_floats_are_finite(a, b);
 }
 
 static inline bool SkScalarsAreFinite(const SkScalar array[], int count) {
-    SkScalar prod = 0;
-    for (int i = 0; i < count; ++i) {
-        prod *= array[i];
-    }
-    // At this point, prod will either be NaN or 0
-    return prod == 0;   // if prod is NaN, this check will return false
+    return sk_floats_are_finite(array, count);
 }
 
 /**

@@ -8,8 +8,8 @@
 #ifndef SkAnalyticEdge_DEFINED
 #define SkAnalyticEdge_DEFINED
 
-#include "SkEdge.h"
-#include "SkTo.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkEdge.h"
 
 #include <utility>
 

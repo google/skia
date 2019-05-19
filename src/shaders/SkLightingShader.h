@@ -8,8 +8,8 @@
 #ifndef SkLightingShader_DEFINED
 #define SkLightingShader_DEFINED
 
-#include "SkLights.h"
-#include "SkShader.h"
+#include "include/core/SkShader.h"
+#include "src/shaders/SkLights.h"
 
 class SkBitmap;
 class SkMatrix;

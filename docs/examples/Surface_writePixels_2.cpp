@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=d77790dd3bc9f678fa4f582347fb8fba
 REG_FIDDLE(Surface_writePixels_2, 256, 96, false, 4) {
 void draw(SkCanvas* canvas) {

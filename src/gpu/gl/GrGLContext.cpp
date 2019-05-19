@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLContext.h"
-#include "GrGLGLSL.h"
-#include "SkSLCompiler.h"
+#include "src/gpu/gl/GrGLContext.h"
+#include "src/gpu/gl/GrGLGLSL.h"
+#include "src/sksl/SkSLCompiler.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

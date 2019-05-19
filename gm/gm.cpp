@@ -5,12 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/gpu/GrContext.h"
+#include "src/core/SkTraceEvent.h"
+#include "tools/ToolUtils.h"
 
-#include "GrContext.h"
-#include "SkShader.h"
-#include "SkTraceEvent.h"
-#include "ToolUtils.h"
+#include <stdarg.h>
+
+class GrRenderTargetContext;
+
 using namespace skiagm;
 
 constexpr char GM::kErrorMsg_DrawSkippedGpuOnly[];
@@ -27,9 +42,8 @@ static void draw_failure_message(SkCanvas* canvas, const char format[], ...)  {
     canvas->drawColor(SkColorSetRGB(200,0,0));
     SkFont font;
     SkRect bounds;
-    font.measureText(failureMsg.c_str(), failureMsg.size(), kUTF8_SkTextEncoding, &bounds);
-    SkPaint textPaint;
-    textPaint.setColor(SK_ColorWHITE);
+    font.measureText(failureMsg.c_str(), failureMsg.size(), SkTextEncoding::kUTF8, &bounds);
+    SkPaint textPaint(SkColors::kWhite);
     canvas->drawString(failureMsg, kOffset, bounds.height() + kOffset, font, textPaint);
 }
 
@@ -39,8 +53,7 @@ static void draw_gpu_only_message(SkCanvas* canvas) {
     SkCanvas bmpCanvas(bmp);
     bmpCanvas.drawColor(SK_ColorWHITE);
     SkFont  font(ToolUtils::create_portable_typeface(), 20);
-    SkPaint paint;
-    paint.setColor(SK_ColorRED);
+    SkPaint paint(SkColors::kRed);
     bmpCanvas.drawString("GPU Only", 20, 40, font, paint);
     SkMatrix localM;
     localM.setRotate(35.f);
@@ -141,12 +154,7 @@ void GM::onSetControls(const SkMetaData&) {}
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
-    SkISize size = this->getISize();
-    SkRect r = SkRect::MakeWH(SkIntToScalar(size.width()),
-                              SkIntToScalar(size.height()));
-    SkPaint paint;
-    paint.setColor(color);
-    canvas->drawRect(r, paint);
+    canvas->drawRect(SkRect::Make(this->getISize()), SkPaint(SkColor4f::FromColor(color)));
 }
 
 // need to explicitly declare this, or we get some weird infinite loop llist
@@ -188,15 +196,12 @@ static void mark(SkCanvas* canvas, SkScalar x, SkScalar y, Fn&& fn) {
 
 void MarkGMGood(SkCanvas* canvas, SkScalar x, SkScalar y) {
     mark(canvas, x,y, [&]{
-        SkPaint paint;
-
         // A green circle.
-        paint.setColor(SkColorSetRGB(27, 158, 119));
-        canvas->drawCircle(0,0, 12, paint);
+        canvas->drawCircle(0, 0, 12, SkPaint(SkColor4f::FromColor(SkColorSetRGB(27, 158, 119))));
 
         // Cut out a check mark.
+        SkPaint paint(SkColors::kTransparent);
         paint.setBlendMode(SkBlendMode::kSrc);
-        paint.setColor(0x00000000);
         paint.setStrokeWidth(2);
         paint.setStyle(SkPaint::kStroke_Style);
         canvas->drawLine(-6, 0,
@@ -208,15 +213,12 @@ void MarkGMGood(SkCanvas* canvas, SkScalar x, SkScalar y) {
 
 void MarkGMBad(SkCanvas* canvas, SkScalar x, SkScalar y) {
     mark(canvas, x,y, [&] {
-        SkPaint paint;
-
         // A red circle.
-        paint.setColor(SkColorSetRGB(231, 41, 138));
-        canvas->drawCircle(0,0, 12, paint);
+        canvas->drawCircle(0,0, 12, SkPaint(SkColor4f::FromColor(SkColorSetRGB(231, 41, 138))));
 
         // Cut out an 'X'.
+        SkPaint paint(SkColors::kTransparent);
         paint.setBlendMode(SkBlendMode::kSrc);
-        paint.setColor(0x00000000);
         paint.setStrokeWidth(2);
         paint.setStyle(SkPaint::kStroke_Style);
         canvas->drawLine(-5,-5,

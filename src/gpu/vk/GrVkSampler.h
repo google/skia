@@ -8,10 +8,10 @@
 #ifndef GrVkSampler_DEFINED
 #define GrVkSampler_DEFINED
 
-#include "GrVkResource.h"
-#include "GrVkSamplerYcbcrConversion.h"
-#include "SkOpts.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/core/SkOpts.h"
+#include "src/gpu/vk/GrVkResource.h"
+#include "src/gpu/vk/GrVkSamplerYcbcrConversion.h"
 #include <atomic>
 
 class GrSamplerState;

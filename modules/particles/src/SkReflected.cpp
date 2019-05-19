@@ -5,9 +5,9 @@
 * found in the LICENSE file.
 */
 
-#include "SkReflected.h"
+#include "modules/particles/include/SkReflected.h"
 
-#include "SkCurve.h"
+#include "modules/particles/include/SkCurve.h"
 
 SkSTArray<16, const SkReflected::Type*, true> SkReflected::gTypes;
 

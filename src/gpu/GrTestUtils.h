@@ -8,19 +8,19 @@
 #ifndef GrTestUtils_DEFINED
 #define GrTestUtils_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if GR_TEST_UTILS
 
-#include "../private/SkTemplates.h"
-#include "GrColor.h"
-#include "GrFPArgs.h"
-#include "GrSamplerState.h"
-#include "SkMacros.h"
-#include "SkPathEffect.h"
-#include "SkRandom.h"
-#include "SkShaderBase.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/gpu/GrSamplerState.h"
+#include "include/private/GrColor.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkRandom.h"
+#include "src/gpu/GrFPArgs.h"
+#include "src/shaders/SkShaderBase.h"
 
 class GrColorSpaceInfo;
 class GrColorSpaceXform;

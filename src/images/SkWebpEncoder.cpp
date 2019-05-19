@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#include "SkImageEncoderPriv.h"
+#include "src/images/SkImageEncoderPriv.h"
 
 #ifdef SK_HAS_WEBP_LIBRARY
 
-#include "SkBitmap.h"
-#include "SkColorData.h"
-#include "SkImageEncoderFns.h"
-#include "SkStream.h"
-#include "SkTemplates.h"
-#include "SkUnPreMultiply.h"
-#include "SkUTF.h"
-#include "SkWebpEncoder.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/encode/SkWebpEncoder.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkTemplates.h"
+#include "src/images/SkImageEncoderFns.h"
+#include "src/utils/SkUTF.h"
 
 // A WebP encoder only, on top of (subset of) libwebp
 // For more information on WebP image format, and libwebp library, see:

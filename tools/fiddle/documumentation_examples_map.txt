@@ -4059,11 +4059,11 @@ static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkDese
 
 [TextBlob_MakeFromString]
 SkTextBlob
-static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkFont& font, SkTextEncoding encoding = kUTF8_SkTextEncoding);
+static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkFont& font, SkTextEncoding encoding = SkTextEncoding::kUTF8);
 
 [TextBlob_MakeFromText]
 SkTextBlob
-static sk_sp<SkTextBlob> MakeFromText(const void* text, size_t byteLength, const SkFont& font, SkTextEncoding encoding = kUTF8_SkTextEncoding);
+static sk_sp<SkTextBlob> MakeFromText(const void* text, size_t byteLength, const SkFont& font, SkTextEncoding encoding = SkTextEncoding::kUTF8);
 
 [TextBlob_bounds]
 SkTextBlob

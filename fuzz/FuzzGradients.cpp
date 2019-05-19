@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "CommandLineFlags.h"
-#include "Fuzz.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkSurface.h"
-#include "SkTLazy.h"
+#include "fuzz/Fuzz.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/core/SkTLazy.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include <algorithm>
 #include <vector>

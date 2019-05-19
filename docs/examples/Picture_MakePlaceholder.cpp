@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "fiddle/examples.h"
+#include "tools/fiddle/examples.h"
 // HASH=0d2cbf82f490ffb180e0b4531afa232c
 REG_FIDDLE(Picture_MakePlaceholder, 256, 256, false, 0) {
 class MyCanvas : public SkCanvas {

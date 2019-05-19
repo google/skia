@@ -9,8 +9,8 @@
 #define GrDeferredUpload_DEFINED
 
 #include <functional>
-#include "GrTypes.h"
-#include "GrTypesPriv.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrTextureProxy;
 

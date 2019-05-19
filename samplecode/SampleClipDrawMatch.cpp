@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkInterpolator.h"
-#include "SkPath.h"
-#include "SkRRect.h"
-#include "SkTime.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkTime.h"
+#include "include/utils/SkInterpolator.h"
+#include "samplecode/Sample.h"
 
 // This slide tests out the match up between BW clipping and rendering. It can
 // draw a large rect through some clip geometry and draw the same geometry

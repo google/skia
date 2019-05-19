@@ -10,9 +10,9 @@
 #ifndef SkResultsWriter_DEFINED
 #define SkResultsWriter_DEFINED
 
-#include "SkJSONWriter.h"
-#include "SkString.h"
-#include "SkTypes.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "src/utils/SkJSONWriter.h"
 
 /**
  NanoJSONResultsWriter helps nanobench writes the test results out in the following format:

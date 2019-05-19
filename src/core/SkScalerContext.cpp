@@ -5,33 +5,33 @@
  * found in the LICENSE file.
  */
 
-#include "SkPaint.h"
-#include "SkScalerContext.h"
+#include "include/core/SkPaint.h"
+#include "src/core/SkScalerContext.h"
 
-#include "SkAutoMalloc.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkColorData.h"
-#include "SkDescriptor.h"
-#include "SkDraw.h"
-#include "SkFontMetrics.h"
-#include "SkFontPriv.h"
-#include "SkGlyph.h"
-#include "SkMakeUnique.h"
-#include "SkMaskFilter.h"
-#include "SkMaskGamma.h"
-#include "SkMatrix22.h"
-#include "SkPaintPriv.h"
-#include "SkPathEffect.h"
-#include "SkPathPriv.h"
-#include "SkRasterClip.h"
-#include "SkReadBuffer.h"
-#include "SkRectPriv.h"
-#include "SkStroke.h"
-#include "SkStrokeRec.h"
-#include "SkSurfacePriv.h"
-#include "SkTextFormatParams.h"
-#include "SkTo.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkDescriptor.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkFontPriv.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkMaskGamma.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkRectPriv.h"
+#include "src/core/SkStroke.h"
+#include "src/core/SkSurfacePriv.h"
+#include "src/core/SkTextFormatParams.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/utils/SkMatrix22.h"
 #include <new>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1025,18 +1025,13 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
     if (font.isForceAutoHinting()) {
         flags |= SkScalerContext::kForceAutohinting_Flag;
     }
+    if (font.isLinearMetrics()) {
+        flags |= SkScalerContext::kLinearMetrics_Flag;
+    }
     rec->fFlags = SkToU16(flags);
 
-    // if linear-text is on, then we force hinting to be off (since that's sort of
-    // the point of linear-text.
-    SkFontHinting hinting = (SkFontHinting)font.getHinting();
-    if (font.isLinearMetrics()) {
-        hinting = kNo_SkFontHinting;
-    }
-
     // these modify fFlags, so do them after assigning fFlags
-    rec->setHinting(hinting);
-
+    rec->setHinting(font.getHinting());
     rec->setLuminanceColor(SkPaintPriv::ComputeLuminanceColor(paint));
 
     // For now always set the paint gamma equal to the device gamma.

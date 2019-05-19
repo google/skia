@@ -8,9 +8,9 @@
 #ifndef GrCoordTransform_DEFINED
 #define GrCoordTransform_DEFINED
 
-#include "SkMatrix.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTextureProxy.h"
+#include "include/core/SkMatrix.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
 
 class GrTexture;
 

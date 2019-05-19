@@ -5,25 +5,33 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkColorPriv.h"
-#include "SkShader.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkDisplacementMapEffect.h"
+#include "include/effects/SkDropShadowImageFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkLightingImageFilter.h"
+#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkOffsetImageFilter.h"
 
-#include "SkBlurImageFilter.h"
-#include "SkColorMatrixFilter.h"
-#include "SkDisplacementMapEffect.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkGradientShader.h"
-#include "SkImageSource.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkLightingImageFilter.h"
-#include "SkMergeImageFilter.h"
-#include "SkOffsetImageFilter.h"
-#include "SkPoint3.h"
-#include "SkSurface.h"
+#include <utility>
 
 namespace {
 
@@ -50,11 +58,11 @@ DEF_SIMPLE_GM(imagefilterscropexpand, canvas, 730, 650) {
     // This color matrix saturates the green component but only partly increases the opacity.
     // For the opaque checkerboard, the opacity boost doesn't matter but it does impact the
     // area outside the checkerboard.
-    SkScalar matrix[20] = { 1, 0, 0, 0, 0,
-                            0, 1, 0, 0, 255,
-                            0, 0, 1, 0, 0,
-                            0, 0, 0, 1, 32 };
-    sk_sp<SkColorFilter> cfAlphaTrans(SkColorFilters::MatrixRowMajor255(matrix));
+    float matrix[20] = { 1, 0, 0, 0, 0,
+                         0, 1, 0, 0, 1,
+                         0, 0, 1, 0, 0,
+                         0, 0, 0, 1, 32.0f/255 };
+    sk_sp<SkColorFilter> cfAlphaTrans(SkColorFilters::Matrix(matrix));
 
     SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
     SkScalar MARGIN = SkIntToScalar(12);

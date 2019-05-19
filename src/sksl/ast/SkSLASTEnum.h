@@ -8,7 +8,7 @@
 #ifndef SKSL_ASTENUM
 #define SKSL_ASTENUM
 
-#include "SkSLASTDeclaration.h"
+#include "src/sksl/ast/SkSLASTDeclaration.h"
 namespace SkSL {
 
 struct ASTEnum : public ASTDeclaration {

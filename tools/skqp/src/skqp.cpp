@@ -5,32 +5,33 @@
  * found in the LICENSE file.
  */
 
-#include "skqp.h"
+#include "tools/skqp/src/skqp.h"
 
-#include "../../../src/core/SkStreamPriv.h"
-#include "../../tools/fonts/TestFontMgr.h"
-#include "GrContext.h"
-#include "GrContextOptions.h"
-#include "GrContextPriv.h"
-#include "SkFontMgrPriv.h"
-#include "SkFontStyle.h"
-#include "SkGraphics.h"
-#include "SkImageInfoPriv.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkPngEncoder.h"
-#include "SkStream.h"
-#include "SkSurface.h"
-#include "Test.h"
-#include "gl/GLTestContext.h"
-#include "gm.h"
-#include "vk/VkTestContext.h"
+#include "gm/gm.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkFontMgrPriv.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkStreamPriv.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/utils/SkOSPath.h"
+#include "tests/Test.h"
+#include "tools/fonts/TestFontMgr.h"
+#include "tools/gpu/gl/GLTestContext.h"
+#include "tools/gpu/vk/VkTestContext.h"
 
+#include <limits.h>
 #include <algorithm>
 #include <cinttypes>
 #include <sstream>
 
-#include "skqp_model.h"
+#include "tools/skqp/src/skqp_model.h"
 
 #define IMAGES_DIRECTORY_PATH "images"
 #define PATH_MAX_PNG "max.png"

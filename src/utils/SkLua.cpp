@@ -5,34 +5,34 @@
  * found in the LICENSE file.
  */
 
-#include "SkLua.h"
+#include "include/utils/SkLua.h"
 
 #if SK_SUPPORT_GPU
-//#include "GrReducedClip.h"
+//#include "src/gpu/GrReducedClip.h"
 #endif
 
-#include "SkBlurImageFilter.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkData.h"
-#include "SkFont.h"
-#include "SkFontMetrics.h"
-#include "SkFontStyle.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkMakeUnique.h"
-#include "SkMatrix.h"
-#include "SkPDFDocument.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPictureRecorder.h"
-#include "SkRRect.h"
-#include "SkShaper.h"
-#include "SkString.h"
-#include "SkSurface.h"
-#include "SkTextBlob.h"
-#include "SkTo.h"
-#include "SkTypeface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/private/SkTo.h"
+#include "modules/skshaper/include/SkShaper.h"
+#include "src/core/SkMakeUnique.h"
 #include <new>
 
 extern "C" {
@@ -563,7 +563,7 @@ static int lcanvas_drawText(lua_State* L) {
         size_t len;
         const char* text = lua_tolstring(L, 2, &len);
         get_ref<SkCanvas>(L, 1)->drawSimpleText(
-                text, len, kUTF8_SkTextEncoding,
+                text, len, SkTextEncoding::kUTF8,
                 lua2scalar(L, 3), lua2scalar(L, 4),
                 SkFont::LEGACY_ExtractFromPaint(*get_obj<SkPaint>(L, 5)),
                 *get_obj<SkPaint>(L, 5));
@@ -977,7 +977,7 @@ static int lfont_measureText(lua_State* L) {
     if (lua_isstring(L, 2)) {
         size_t len;
         const char* text = lua_tolstring(L, 2, &len);
-        SkLua(L).pushScalar(get_obj<SkFont>(L, 1)->measureText(text, len, kUTF8_SkTextEncoding));
+        SkLua(L).pushScalar(get_obj<SkFont>(L, 1)->measureText(text, len, SkTextEncoding::kUTF8));
         return 1;
     }
     return 0;

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGEffectNode.h"
+#include "modules/sksg/include/SkSGEffectNode.h"
 
 namespace sksg {
 

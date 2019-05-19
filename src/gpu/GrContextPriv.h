@@ -8,9 +8,9 @@
 #ifndef GrContextPriv_DEFINED
 #define GrContextPriv_DEFINED
 
-#include "GrContext.h"
-#include "GrSurfaceContext.h"
-#include "text/GrAtlasManager.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/text/GrAtlasManager.h"
 
 class GrBackendFormat;
 class GrBackendRenderTarget;
@@ -37,10 +37,6 @@ public:
     bool matches(GrContext_Base* candidate) const { return fContext->matches(candidate); }
 
     const GrContextOptions& options() const { return fContext->options(); }
-
-    bool explicitlyAllocateGPUResources() const {
-        return fContext->explicitlyAllocateGPUResources();
-    }
 
     const GrCaps* caps() const { return fContext->caps(); }
     sk_sp<const GrCaps> refCaps() const;
@@ -168,22 +164,19 @@ public:
             const SkImageInfo&, const GrVkDrawableInfo&, const SkSurfaceProps* = nullptr);
 
     /**
-     * Call to ensure all drawing to the context has been issued to the
-     * underlying 3D API.
-     * The 'proxy' parameter is a hint. If it is supplied the context will guarantee that
-     * the draws required for that proxy are flushed but it could do more. If no 'proxy' is
-     * provided then all current work will be flushed.
-     */
-    void flush(GrSurfaceProxy*);
-
-    /**
-     * Finalizes all pending reads and writes to the surface and also performs an MSAA resolve
-     * if necessary.
+     * Finalizes all pending reads and writes to the surfaces and also performs an MSAA resolves
+     * if necessary. The GrSurfaceProxy array is treated as a hint. If it is supplied the context
+     * will guarantee that the draws required for those proxies are flushed but it could do more.
+     * If no array is provided then all current work will be flushed.
      *
      * It is not necessary to call this before reading the render target via Skia/GrContext.
      * GrContext will detect when it must perform a resolve before reading pixels back from the
      * surface or using it as a texture.
      */
+    GrSemaphoresSubmitted flushSurfaces(GrSurfaceProxy*[], int numProxies, const GrFlushInfo&);
+
+    /** Version of above that flushes for a single proxy and uses a default GrFlushInfo. Null is
+     * allowed. */
     void flushSurface(GrSurfaceProxy*);
 
    /**
@@ -257,6 +250,9 @@ public:
     void copyOpListsFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
 
     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
+    GrContextOptions::ShaderErrorHandler* getShaderErrorHandler() const {
+        return fContext->fShaderErrorHandler;
+    }
 
 #ifdef SK_ENABLE_DUMP_GPU
     /** Returns a string with detailed information about the context & GPU, in JSON format. */
@@ -295,6 +291,34 @@ public:
 
     void testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif
+
+   /*
+     * The explicitly allocated backend texture API allows clients to use Skia to create backend
+     * objects outside of Skia proper (i.e., Skia's caching system will not know about them.)
+     *
+     * It is the client's responsibility to delete all these objects (using deleteBackendTexture)
+     * before deleting the GrContext used to create them. Additionally, clients should only
+     * delete these objects on the thread for which that GrContext is active.
+     *
+     * Additionally, the client is responsible for ensuring synchronization between different uses
+     * of the backend object.
+     */
+
+    // If possible, create an uninitialized backend texture. The client should ensure that the
+    // returned backend texture is valid.
+    GrBackendTexture createBackendTexture(int width, int height,
+                                          GrBackendFormat,
+                                          GrMipMapped, GrRenderable);
+
+    // If possible, create an uninitialized backend texture. The client should ensure that the
+    // returned backend texture is valid.
+    // If successful, the created backend texture will be compatible with the provided
+    // SkColorType.
+    GrBackendTexture createBackendTexture(int width, int height,
+                                          SkColorType,
+                                          GrMipMapped, GrRenderable);
+
+    void deleteBackendTexture(GrBackendTexture);
 
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}

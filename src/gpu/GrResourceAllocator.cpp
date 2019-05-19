@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "GrResourceAllocator.h"
+#include "src/gpu/GrResourceAllocator.h"
 
-#include "GrDeinstantiateProxyTracker.h"
-#include "GrGpuResourcePriv.h"
-#include "GrOpList.h"
-#include "GrRenderTargetProxy.h"
-#include "GrResourceCache.h"
-#include "GrResourceProvider.h"
-#include "GrSurfacePriv.h"
-#include "GrSurfaceProxy.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTextureProxy.h"
+#include "include/private/GrOpList.h"
+#include "include/private/GrRenderTargetProxy.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrDeinstantiateProxyTracker.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrResourceCache.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
 
 #if GR_TRACK_INTERVAL_CREATION
     #include <atomic>
@@ -37,6 +37,22 @@ void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
     fProxy->priv().assign(std::move(s));
 }
 
+void GrResourceAllocator::determineRecyclability() {
+    for (Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
+        if (cur->proxy()->canSkipResourceAllocator()) {
+            // These types of proxies can slip in here if they require a stencil buffer
+            continue;
+        }
+
+        if (cur->uses() >= cur->proxy()->priv().getTotalRefs()) {
+            // All the refs on the proxy are known to the resource allocator thus no one
+            // should be holding onto it outside of Ganesh.
+            SkASSERT(cur->uses() == cur->proxy()->priv().getTotalRefs());
+            cur->markAsRecyclable();
+        }
+    }
+}
+
 void GrResourceAllocator::markEndOfOpList(int opListIndex) {
     SkASSERT(!fAssigned);      // We shouldn't be adding any opLists after (or during) assignment
 
@@ -55,8 +71,24 @@ GrResourceAllocator::~GrResourceAllocator() {
     SkASSERT(!fIntvlHash.count());
 }
 
-void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end
+void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end,
+                                      ActualUse actualUse
                                       SkDEBUGCODE(, bool isDirectDstRead)) {
+
+    bool needsStencil = proxy->asRenderTargetProxy()
+                                        ? proxy->asRenderTargetProxy()->needsStencil()
+                                        : false;
+
+    // If we're going to need to add a stencil buffer in assign, we
+    // need to add at least a symbolic interval
+    // TODO: adding this interval just to add a stencil buffer is
+    // a bit heavy weight. Is there a simpler way to accomplish this?
+    if (!needsStencil && proxy->canSkipResourceAllocator()) {
+        return;
+    }
+
+    SkASSERT(!proxy->priv().ignoredByResourceAllocator());
+
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
 
@@ -85,6 +117,9 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
                 SkASSERT(intvl->end() <= start && intvl->end() <= end);
             }
 #endif
+            if (ActualUse::kYes == actualUse) {
+                intvl->addUse();
+            }
             intvl->extendEnd(end);
             return;
         }
@@ -98,13 +133,16 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
             newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
         }
 
+        if (ActualUse::kYes == actualUse) {
+            newIntvl->addUse();
+        }
         fIntvlList.insertByIncreasingStart(newIntvl);
         fIntvlHash.add(newIntvl);
     }
 
     // Because readOnly proxies do not get a usage interval we must instantiate them here (since it
     // won't occur in GrResourceAllocator::assign)
-    if (proxy->readOnly() || !fResourceProvider->explicitlyAllocateGPUResources()) {
+    if (proxy->readOnly()) {
         // FIXME: remove this once we can do the lazy instantiation from assign instead.
         if (GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState()) {
             if (proxy->priv().doLazyInstantiation(fResourceProvider)) {
@@ -260,8 +298,8 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
 
     proxy->priv().computeScratchKey(&key);
 
-    auto filter = [&] (const GrSurface* s) {
-        return !proxy->priv().requiresNoPendingIO() || !s->surfacePriv().hasPendingIO();
+    auto filter = [] (const GrSurface* s) {
+        return true;
     };
     sk_sp<GrSurface> surface(fFreePool.findAndRemove(key, filter));
     if (surface) {
@@ -294,10 +332,7 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
         if (temp->wasAssignedSurface()) {
             sk_sp<GrSurface> surface = temp->detachSurface();
 
-            // If the proxy has an actual live ref on it that means someone wants to retain its
-            // contents. In that case we cannot recycle it (until the external holder lets
-            // go of it).
-            if (0 == temp->proxy()->priv().getProxyRefCnt()) {
+            if (temp->isRecyclable()) {
                 this->recycleSurface(std::move(surface));
             }
         }
@@ -341,16 +376,21 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     SkASSERT(outError);
     *outError = AssignError::kNoError;
 
-    fIntvlHash.reset(); // we don't need the interval hash anymore
-    if (fIntvlList.empty()) {
-        return false;          // nothing to render
-    }
-
-    SkASSERT(fCurOpListIndex < fNumOpLists);
     SkASSERT(fNumOpLists == fEndOfOpListOpIndices.count());
+
+    fIntvlHash.reset(); // we don't need the interval hash anymore
+
+    if (fCurOpListIndex >= fEndOfOpListOpIndices.count()) {
+        return false; // nothing to render
+    }
 
     *startIndex = fCurOpListIndex;
     *stopIndex = fEndOfOpListOpIndices.count();
+
+    if (fIntvlList.empty()) {
+        fCurOpListIndex = fEndOfOpListOpIndices.count();
+        return true;          // no resources to assign
+    }
 
 #if GR_ALLOCATION_SPEW
     SkDebugf("assigning opLists %d through %d out of %d numOpLists\n",
@@ -361,11 +401,6 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     }
     SkDebugf("\n");
 #endif
-
-    if (!fResourceProvider->explicitlyAllocateGPUResources()) {
-        fIntvlList.detachAll(); // arena allocator will clean these up for us
-        return true;
-    }
 
     SkDEBUGCODE(fAssigned = true;)
 

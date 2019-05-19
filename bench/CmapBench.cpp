@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkCharToGlyphCache.h"
-#include "SkFont.h"
-#include "SkRandom.h"
-#include "SkTypeface.h"
-#include "SkUTF.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkTypeface.h"
+#include "include/utils/SkRandom.h"
+#include "src/utils/SkCharToGlyphCache.h"
+#include "src/utils/SkUTF.h"
 
 enum {
     NGLYPHS = 100
@@ -34,7 +34,7 @@ static void textToGlyphs_proc(const Rec& r) {
     SkASSERT(r.fCount <= NGLYPHS);
 
     for (int i = 0; i < r.fLoops; ++i) {
-        r.fFont.textToGlyphs(r.fText, r.fCount*4, kUTF32_SkTextEncoding, glyphs, NGLYPHS);
+        r.fFont.textToGlyphs(r.fText, r.fCount*4, SkTextEncoding::kUTF32, glyphs, NGLYPHS);
     }
 }
 

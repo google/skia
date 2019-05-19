@@ -6,16 +6,16 @@
  *
  */
 
-#include "GrBackendSurface.h"
-#include "GrContext.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
 #include "SDL.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkRandom.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkSurface.h"
+#include "include/utils/SkRandom.h"
 
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 #if defined(SK_BUILD_FOR_ANDROID)
 #include <GLES/gl.h>

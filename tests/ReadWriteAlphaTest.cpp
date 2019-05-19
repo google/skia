@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
 // This test is specific to the GPU backend.
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrResourceProvider.h"
-#include "GrSurfaceContext.h"
-#include "GrSurfaceProxy.h"
-#include "GrTextureProxy.h"
-#include "ProxyUtils.h"
-#include "SkCanvas.h"
-#include "SkSurface.h"
-#include "SkTo.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/private/SkTo.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "tools/gpu/ProxyUtils.h"
 
 // This was made indivisible by 4 to ensure we test setting GL_PACK_ALIGNMENT properly.
 static const int X_SIZE = 13;
@@ -159,9 +159,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         GrColorType fColorType;
         GrSRGBEncoded fSRGBEncoded;
     } kInfos[] = {
-            {GrColorType::kRGBA_8888, GrSRGBEncoded::kNo},
-            {GrColorType::kBGRA_8888, GrSRGBEncoded::kNo},
-            {GrColorType::kRGBA_8888, GrSRGBEncoded::kYes},
+            {GrColorType::kRGBA_8888,    GrSRGBEncoded::kNo},
+            {GrColorType::kBGRA_8888,    GrSRGBEncoded::kNo},
+            {GrColorType::kRGBA_8888,    GrSRGBEncoded::kYes},
             {GrColorType::kRGBA_1010102, GrSRGBEncoded::kNo},
     };
 
@@ -178,7 +178,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     // Attempt to read back just alpha from a RGBA/BGRA texture. Once with a texture-only src and
     // once with a render target.
     for (auto info : kInfos) {
-        for (int rt = 0; rt < 2; ++rt) {
+        for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             uint32_t rgbaData[X_SIZE * Y_SIZE];
             // Make the alpha channel of the rgba texture come from alphaData.
             for (int y = 0; y < Y_SIZE; ++y) {
@@ -187,8 +187,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 }
             }
 
-            auto origin = rt ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
-            auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, rt, X_SIZE, Y_SIZE,
+            auto origin = GrRenderable::kYes == renderable ? kBottomLeft_GrSurfaceOrigin
+                                                           : kTopLeft_GrSurfaceOrigin;
+            auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, renderable, X_SIZE, Y_SIZE,
                                                                info.fColorType, info.fSRGBEncoded,
                                                                origin, rgbaData, 0);
             if (!proxy) {
@@ -211,7 +212,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
                 // make sure the original & read back versions match
                 SkString msg;
-                msg.printf("rt:%d, rb:%d 8888", rt, SkToU32(rowBytes));
+                msg.printf("rt:%d, rb:%d 8888", GrRenderable::kYes == renderable,
+                                                SkToU32(rowBytes));
                 validate_alpha_data(reporter, X_SIZE, Y_SIZE, readback.get(), nonZeroRowBytes,
                                     alphaData, msg, info.fColorType);
             }

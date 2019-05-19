@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCClipPath.h"
+#include "include/private/GrCCClipPath.h"
 
-#include "GrOnFlushResourceProvider.h"
-#include "GrProxyProvider.h"
-#include "GrTexture.h"
-#include "ccpr/GrCCPerFlushResources.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
 void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect, int rtWidth,
                         int rtHeight, const GrCaps& caps) {
@@ -26,20 +26,23 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
                 SkASSERT(!fHasAtlasTransform);
 
                 GrTextureProxy* textureProxy = fAtlas ? fAtlas->textureProxy() : nullptr;
+
                 if (!textureProxy || !textureProxy->instantiate(resourceProvider)) {
                     fAtlasScale = fAtlasTranslate = {0, 0};
                     SkDEBUGCODE(fHasAtlasTransform = true);
                     return {};
                 }
 
+                sk_sp<GrTexture> texture = sk_ref_sp(textureProxy->peekTexture());
+                SkASSERT(texture);
                 SkASSERT(kTopLeft_GrSurfaceOrigin == textureProxy->origin());
 
-                fAtlasScale = {1.f / textureProxy->width(), 1.f / textureProxy->height()};
+                fAtlasScale = {1.f / texture->width(), 1.f / texture->height()};
                 fAtlasTranslate.set(fDevToAtlasOffset.fX * fAtlasScale.x(),
                                     fDevToAtlasOffset.fY * fAtlasScale.y());
                 SkDEBUGCODE(fHasAtlasTransform = true);
 
-                return sk_ref_sp(textureProxy->peekTexture());
+                return std::move(texture);
             },
             format, GrProxyProvider::Renderable::kYes, kTopLeft_GrSurfaceOrigin,
             kAlpha_half_GrPixelConfig, caps);

@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCAtlas.h"
+#include "src/gpu/ccpr/GrCCAtlas.h"
 
-#include "GrCaps.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrProxyProvider.h"
-#include "GrRectanizer_skyline.h"
-#include "GrRenderTargetContext.h"
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
-#include "SkIPoint16.h"
-#include "SkMakeUnique.h"
-#include "SkMathPriv.h"
-#include "ccpr/GrCCPathCache.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/core/SkIPoint16.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkMathPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRectanizer_skyline.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/ccpr/GrCCPathCache.h"
 #include <atomic>
 
 class GrCCAtlas::Node {
@@ -97,6 +97,8 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
                     return GrSurfaceProxy::LazyInstantiationResult(fBackingTexture);
             },
             format, GrProxyProvider::Renderable::kYes, kTextureOrigin, pixelConfig, caps);
+
+    fTextureProxy->priv().setIgnoredByResourceAllocator();
 }
 
 GrCCAtlas::~GrCCAtlas() {
@@ -186,6 +188,10 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
     // an atlas larger than maxRenderTargetSize.
     SkASSERT(SkTMax(fHeight, fWidth) <= fMaxTextureSize);
     SkASSERT(fMaxTextureSize <= onFlushRP->caps()->maxRenderTargetSize());
+
+    // Finalize the content size of our proxy. The GPU can potentially make optimizations if it
+    // knows we only intend to write out a smaller sub-rectangle of the backing texture.
+    fTextureProxy->priv().setLazySize(fDrawBounds.width(), fDrawBounds.height());
 
     if (backingTexture) {
         SkASSERT(backingTexture->config() == kAlpha_half_GrPixelConfig);

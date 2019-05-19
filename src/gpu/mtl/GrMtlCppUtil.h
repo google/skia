@@ -8,7 +8,7 @@
 #ifndef GrMtlCppUtil_DEFINED
 #define GrMtlCppUtil_DEFINED
 
-#include "mtl/GrMtlTypes.h"
+#include "include/gpu/mtl/GrMtlTypes.h"
 
 // Utilities that can be used from cpp files (rather than .mm).
 

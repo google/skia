@@ -5,10 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkCharToGlyphCache.h"
-#include "../private/SkTFitsIn.h"
+#include "include/private/SkTFitsIn.h"
+#include "src/utils/SkCharToGlyphCache.h"
 
 SkCharToGlyphCache::SkCharToGlyphCache() {
+    this->reset();
+}
+
+SkCharToGlyphCache::~SkCharToGlyphCache() {}
+
+void SkCharToGlyphCache::reset() {
+    fK32.reset();
+    fV16.reset();
+
     // Add sentinels so we can always rely on these to stop linear searches (in either direction)
     // Neither is a legal unichar, so we don't care what glyphID we use.
     //
@@ -17,8 +26,6 @@ SkCharToGlyphCache::SkCharToGlyphCache() {
 
     fDenom = 0;
 }
-
-SkCharToGlyphCache::~SkCharToGlyphCache() {}
 
 // Determined experimentally. For N much larger, the slope technique is faster.
 // For N much smaller, a simple search is faster.

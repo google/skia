@@ -8,9 +8,9 @@
 #ifndef GrGpuCommandBuffer_DEFINED
 #define GrGpuCommandBuffer_DEFINED
 
-#include "GrPipeline.h"
-#include "SkDrawable.h"
-#include "ops/GrDrawOp.h"
+#include "include/core/SkDrawable.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/ops/GrDrawOp.h"
 
 class GrOpFlushState;
 class GrFixedClip;
@@ -33,6 +33,9 @@ public:
     // GrGpuRenderTargetCommandBuffer.
     virtual void copy(GrSurface* src, GrSurfaceOrigin srcOrigin,
                       const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
+    // Initiates a transfer from the surface owned by the command buffer to the GrGpuBuffer.
+    virtual void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
+                              GrGpuBuffer* transferBuffer, size_t offset) = 0;
 
     virtual void insertEventMarker(const char*) = 0;
 

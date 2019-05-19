@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColorSpace.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
 
 // Time variants of read-pixels
 //  [ colortype ][ alphatype ][ colorspace ]
@@ -62,8 +62,8 @@ DEF_BENCH( return new ReadPixBench(kBGRA_8888_SkColorType, kPremul_SkAlphaType, 
 DEF_BENCH( return new ReadPixBench(kBGRA_8888_SkColorType, kUnpremul_SkAlphaType, SkColorSpace::MakeSRGB()); )
 
 ////////////////////////////////////////////////////////////////////////////////
-#include "SkBitmap.h"
-#include "SkPixmapPriv.h"
+#include "include/core/SkBitmap.h"
+#include "src/core/SkPixmapPriv.h"
 
 class PixmapOrientBench : public Benchmark {
 public:

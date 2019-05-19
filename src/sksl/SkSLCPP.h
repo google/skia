@@ -11,7 +11,7 @@
 // functions used by CPP programs created by skslc
 
 #include <cmath>
-#include "SkPoint.h"
+#include "include/core/SkPoint.h"
 
 using std::abs;
 

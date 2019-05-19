@@ -5,44 +5,44 @@
  * found in the LICENSE file.
  */
 
-#include "TestSVGTypeface.h"
+#include "tools/fonts/TestSVGTypeface.h"
 
 #ifdef SK_XML
 
-#include "Resources.h"
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkData.h"
-#include "SkEncodedImageFormat.h"
-#include "SkFontDescriptor.h"
-#include "SkFontPriv.h"
-#include "SkFontStyle.h"
-#include "SkGeometry.h"
-#include "SkGlyph.h"
-#include "SkImage.h"
-#include "SkImageInfo.h"
-#include "SkMask.h"
-#include "SkMatrix.h"
-#include "SkNoDrawCanvas.h"
-#include "SkOTUtils.h"
-#include "SkPaintPriv.h"
-#include "SkPath.h"
-#include "SkPathEffect.h"
-#include "SkPathOps.h"
-#include "SkPathPriv.h"
-#include "SkPixmap.h"
-#include "SkPointPriv.h"
-#include "SkRRect.h"
-#include "SkSVGDOM.h"
-#include "SkScalerContext.h"
-#include "SkSize.h"
-#include "SkStream.h"
-#include "SkSurface.h"
-#include "SkTDArray.h"
-#include "SkTemplates.h"
-#include "SkUtils.h"
+#include "experimental/svg/model/SkSVGDOM.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkNoDrawCanvas.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkFontPriv.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkScalerContext.h"
+#include "src/core/SkUtils.h"
+#include "src/sfnt/SkOTUtils.h"
+#include "tools/Resources.h"
 
 #include <utility>
 
@@ -70,7 +70,7 @@ TestSVGTypeface::TestSVGTypeface(const char*                              name,
 
 template <typename Fn>
 void TestSVGTypeface::Glyph::withSVG(Fn&& fn) const {
-    SkAutoExclusive lock(fSvgMutex);
+    SkAutoMutexExclusive lock(fSvgMutex);
 
     if (!fParsedSvg) {
         fParsedSvg = true;
@@ -127,7 +127,7 @@ void TestSVGTypeface::getAdvance(SkGlyph* glyph) const {
 void TestSVGTypeface::getFontMetrics(SkFontMetrics* metrics) const { *metrics = fFontMetrics; }
 
 void TestSVGTypeface::onFilterRec(SkScalerContextRec* rec) const {
-    rec->setHinting(kNo_SkFontHinting);
+    rec->setHinting(SkFontHinting::kNone);
 }
 
 void TestSVGTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
@@ -759,7 +759,7 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
             surface->peekPixels(&pix);
             canvas->drawSimpleText(&gid,
                                    sizeof(gid),
-                                   kGlyphID_SkTextEncoding,
+                                   SkTextEncoding::kGlyphID,
                                    -bounds.fLeft,
                                    -bounds.fTop,
                                    font,
@@ -981,7 +981,7 @@ void TestSVGTypeface::exportTtxSbix(SkWStream* out, SkSpan<unsigned> strikeSizes
             surface->peekPixels(&pix);
             canvas->drawSimpleText(&gid,
                                    sizeof(gid),
-                                   kGlyphID_SkTextEncoding,
+                                   SkTextEncoding::kGlyphID,
                                    -bounds.fLeft,
                                    -bounds.fTop,
                                    font,

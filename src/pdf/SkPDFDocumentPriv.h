@@ -7,13 +7,13 @@
 #ifndef SkPDFDocumentPriv_DEFINED
 #define SkPDFDocumentPriv_DEFINED
 
-#include "SkCanvas.h"
-#include "SkMutex.h"
-#include "SkPDFDocument.h"
-#include "SkPDFMetadata.h"
-#include "SkPDFTag.h"
-#include "SkStream.h"
-#include "SkTHash.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkStream.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTHash.h"
+#include "src/pdf/SkPDFMetadata.h"
+#include "src/pdf/SkPDFTag.h"
 
 #include <atomic>
 #include <vector>
@@ -80,6 +80,7 @@ public:
 
     template <typename T>
     void emitStream(const SkPDFDict& dict, T writeStream, SkPDFIndirectReference ref) {
+        SkAutoMutexExclusive lock(fMutex);
         SkWStream* stream = this->beginObject(ref);
         dict.emitObject(stream);
         stream->writeText(" stream\n");

@@ -8,11 +8,11 @@
 #ifndef SkTextBlob_DEFINED
 #define SkTextBlob_DEFINED
 
-#include "../private/SkTemplates.h"
-#include "SkFont.h"
-#include "SkPaint.h"
-#include "SkString.h"
-#include "SkRefCnt.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTemplates.h"
 
 #include <atomic>
 
@@ -77,7 +77,7 @@ public:
         @return            SkTextBlob constructed from one run
     */
     static sk_sp<SkTextBlob> MakeFromText(const void* text, size_t byteLength, const SkFont& font,
-                                          SkTextEncoding encoding = kUTF8_SkTextEncoding);
+                                          SkTextEncoding encoding = SkTextEncoding::kUTF8);
 
     /** Creates SkTextBlob with a single run. string meaning depends on SkTextEncoding;
         by default, string is encoded as UTF-8.
@@ -97,7 +97,7 @@ public:
         @return         SkTextBlob constructed from one run
     */
     static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkFont& font,
-                                            SkTextEncoding encoding = kUTF8_SkTextEncoding) {
+                                            SkTextEncoding encoding = SkTextEncoding::kUTF8) {
         if (!string) {
             return nullptr;
         }
@@ -118,7 +118,7 @@ public:
      */
     static sk_sp<SkTextBlob> MakeFromPosTextH(const void* text, size_t byteLength,
                                       const SkScalar xpos[], SkScalar constY, const SkFont& font,
-                                      SkTextEncoding encoding = kUTF8_SkTextEncoding);
+                                      SkTextEncoding encoding = SkTextEncoding::kUTF8);
 
     /** Returns a textblob built from a single run of text with positions.
         This is equivalent to using SkTextBlobBuilder and calling allocRunPos().
@@ -133,11 +133,11 @@ public:
      */
     static sk_sp<SkTextBlob> MakeFromPosText(const void* text, size_t byteLength,
                                              const SkPoint pos[], const SkFont& font,
-                                             SkTextEncoding encoding = kUTF8_SkTextEncoding);
+                                             SkTextEncoding encoding = SkTextEncoding::kUTF8);
 
     static sk_sp<SkTextBlob> MakeFromRSXform(const void* text, size_t byteLength,
                                              const SkRSXform xform[], const SkFont& font,
-                                             SkTextEncoding encoding = kUTF8_SkTextEncoding);
+                                             SkTextEncoding encoding = SkTextEncoding::kUTF8);
 
     /** Writes data to allow later reconstruction of SkTextBlob. memory points to storage
         to receive the encoded data, and memory_size describes the size of storage.

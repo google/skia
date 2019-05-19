@@ -8,15 +8,7 @@
 #ifndef SkPathPriv_DEFINED
 #define SkPathPriv_DEFINED
 
-#include "SkPath.h"
-
-#define SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE 0
-
-#if SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE
-    #define COLINEAR_DIAGONAL_CONVEXITY kConcave_Convexity
-#else
-    #define COLINEAR_DIAGONAL_CONVEXITY kConvex_Convexity
-#endif
+#include "include/core/SkPath.h"
 
 class SkPathPriv {
 public:

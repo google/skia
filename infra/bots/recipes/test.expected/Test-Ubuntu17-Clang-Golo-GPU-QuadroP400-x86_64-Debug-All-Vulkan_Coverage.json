@@ -183,6 +183,7 @@
       "--nocpu",
       "--config",
       "vk",
+      "vkmsaa8",
       "vk1010102",
       "--src",
       "tests",
@@ -296,7 +297,6 @@
       "_",
       ".SRW",
       "--nonativeFonts",
-      "--reduceOpListSplitting",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",

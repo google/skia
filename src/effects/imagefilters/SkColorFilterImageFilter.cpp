@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilterImageFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
 
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkImageFilterPriv.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkSpecialSurface.h"
+#include "src/core/SkWriteBuffer.h"
 
 sk_sp<SkImageFilter> SkColorFilterImageFilter::Make(sk_sp<SkColorFilter> cf,
                                                     sk_sp<SkImageFilter> input,

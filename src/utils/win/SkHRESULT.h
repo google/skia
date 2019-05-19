@@ -8,10 +8,10 @@
 #ifndef SkHRESULT_DEFINED
 #define SkHRESULT_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #ifdef SK_BUILD_FOR_WIN
 
-#include "SkLeanWindows.h"
+#include "include/private/SkLeanWindows.h"
 
 void SkTraceHR(const char* file, unsigned long line,
                HRESULT hr, const char* msg);

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodec.h"
+#include "include/codec/SkCodec.h"
 
 // Helper class for an SkCodec that supports arbitrary downscaling.
 class SkScalingCodec : public SkCodec {

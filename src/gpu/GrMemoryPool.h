@@ -8,12 +8,12 @@
 #ifndef GrMemoryPool_DEFINED
 #define GrMemoryPool_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 
 #ifdef SK_DEBUG
-#include "SkTHash.h"
+#include "include/private/SkTHash.h"
 #endif
 
 /**
@@ -119,8 +119,8 @@ protected:
     enum {
         // We assume this alignment is good enough for everybody.
         kAlignment    = 8,
-        kHeaderSize   = GR_CT_ALIGN_UP(sizeof(BlockHeader), kAlignment),
-        kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(AllocHeader), kAlignment),
+        kHeaderSize   = GrSizeAlignUp(sizeof(BlockHeader), kAlignment),
+        kPerAllocPad  = GrSizeAlignUp(sizeof(AllocHeader), kAlignment),
     };
 };
 

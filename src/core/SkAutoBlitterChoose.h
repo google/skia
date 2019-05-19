@@ -8,10 +8,10 @@
 #ifndef SkAutoBlitterChoose_DEFINED
 #define SkAutoBlitterChoose_DEFINED
 
-#include "SkArenaAlloc.h"
-#include "SkBlitter.h"
-#include "SkDraw.h"
-#include "SkMacros.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkMacros.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkDraw.h"
 
 class SkMatrix;
 class SkPaint;

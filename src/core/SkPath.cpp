@@ -5,22 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 
-#include "SkBuffer.h"
-#include "SkCubicClipper.h"
-#include "SkData.h"
-#include "SkGeometry.h"
-#include "SkMacros.h"
-#include "SkMath.h"
-#include "SkMatrixPriv.h"
-#include "SkPathPriv.h"
-#include "SkPathRef.h"
-#include "SkPointPriv.h"
-#include "SkRRect.h"
-#include "SkSafeMath.h"
-#include "SkTLazy.h"
-#include "SkTo.h"
+#include "include/core/SkData.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkRRect.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkPathRef.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBuffer.h"
+#include "src/core/SkCubicClipper.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkSafeMath.h"
+#include "src/core/SkTLazy.h"
 
 #include <cmath>
 #include <utility>
@@ -1084,7 +1084,7 @@ SkPath& SkPath::addPoly(const SkPoint pts[], int count, bool close) {
     return *this;
 }
 
-#include "SkGeometry.h"
+#include "src/core/SkGeometry.h"
 
 static bool arc_is_lone_point(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
                               SkPoint* pt) {
@@ -2157,9 +2157,9 @@ SkPath::Verb SkPath::Iter::doNext(SkPoint ptsParam[4]) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkString.h"
-#include "SkStringUtils.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "src/core/SkStringUtils.h"
 
 static void append_params(SkString* str, const char label[], const SkPoint pts[],
                           int count, SkScalarAsStringType strType, SkScalar conicWeight = -12345) {
@@ -2592,7 +2592,6 @@ enum DirChange {
     kLeft_DirChange,
     kRight_DirChange,
     kStraight_DirChange,
-    kConcave_DirChange,   // if cross on diagonal is too small, assume concave
     kBackwards_DirChange, // if double back, allow simple lines to be convex
     kInvalid_DirChange
 };
@@ -2628,8 +2627,9 @@ struct Convexicator {
         }
         fCurrPt = pt;
         if (fPriorPt == fLastPt) {  // should only be true for first non-zero vector
+            fLastVec = fCurrPt - fLastPt;
             fFirstPt = pt;
-        } else if (!this->addVec()) {
+        } else if (!this->addVec(fCurrPt - fLastPt)) {
             return false;
         }
         fPriorPt = fLastPt;
@@ -2686,10 +2686,8 @@ struct Convexicator {
     }
 
 private:
-    DirChange directionChange() {
-        SkVector lastVec = fLastPt - fPriorPt;
-        SkVector curVec = fCurrPt - fLastPt;
-        SkScalar cross = SkPoint::CrossProduct(lastVec, curVec);
+    DirChange directionChange(const SkVector& curVec) {
+        SkScalar cross = SkPoint::CrossProduct(fLastVec, curVec);
         if (!SkScalarIsFinite(cross)) {
                 return kUnknown_DirChange;
         }
@@ -2698,22 +2696,13 @@ private:
         largest = SkTMax(largest, -smallest);
 
         if (almost_equal(largest, largest + cross)) {
-#if SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE
-    // colinear diagonals are not allowed; they aren't numerically stable
-    #define COLINEAR_POINT_DIR_CHANGE kConcave_DirChange
-#else
-    // colinear diagonals are allowed; we can survive dealing with 'close enough'
-    #define COLINEAR_POINT_DIR_CHANGE kStraight_DirChange
-#endif
-
-            SkScalar dot = lastVec.dot(curVec);
-            return dot < 0 ? kBackwards_DirChange : COLINEAR_POINT_DIR_CHANGE;
+            return fLastVec.dot(curVec) < 0 ? kBackwards_DirChange : kStraight_DirChange;
         }
         return 1 == SkScalarSignAsInt(cross) ? kRight_DirChange : kLeft_DirChange;
     }
 
-    bool addVec() {
-        DirChange dir = this->directionChange();
+    bool addVec(const SkVector& curVec) {
+        DirChange dir = this->directionChange(curVec);
         switch (dir) {
             case kLeft_DirChange:       // fall through
             case kRight_DirChange:
@@ -2725,17 +2714,16 @@ private:
                     fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
                     return false;
                 }
+                fLastVec = curVec;
                 break;
             case kStraight_DirChange:
                 break;
-            case kConcave_DirChange:
-                fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
-                return false;
             case kBackwards_DirChange:
                 //  allow path to reverse direction twice
                 //    Given path.moveTo(0, 0); path.lineTo(1, 1);
                 //    - 1st reversal: direction change formed by line (0,0 1,1), line (1,1 0,0)
                 //    - 2nd reversal: direction change formed by line (1,1 0,0), line (0,0 1,1)
+                fLastVec = curVec;
                 return ++fReversals < 3;
             case kUnknown_DirChange:
                 return (fIsFinite = false);
@@ -2750,6 +2738,7 @@ private:
     SkPoint             fPriorPt {0, 0};
     SkPoint             fLastPt {0, 0};
     SkPoint             fCurrPt {0, 0};
+    SkVector            fLastVec {0, 0};
     DirChange           fExpectedDir { kInvalid_DirChange };
     SkPathPriv::FirstDirection   fFirstDirection { SkPathPriv::kUnknown_FirstDirection };
     int                 fReversals { 0 };
@@ -3795,7 +3784,7 @@ void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar st
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkNx.h"
+#include "include/private/SkNx.h"
 
 static int compute_quad_extremas(const SkPoint src[3], SkPoint extremas[3]) {
     SkScalar ts[2];

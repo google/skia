@@ -8,25 +8,25 @@
 #ifndef SkCanvas_DEFINED
 #define SkCanvas_DEFINED
 
-#include "../private/SkMacros.h"
-#include "SkBlendMode.h"
-#include "SkColor.h"
-#include "SkClipOp.h"
-#include "SkDeque.h"
-#include "SkFontTypes.h"
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPoint.h"
-#include "SkRasterHandleAllocator.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkSize.h"
-#include "SkString.h"
-#include "SkSurfaceProps.h"
-#include "SkTypes.h"
-#include "SkVertices.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkDeque.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRasterHandleAllocator.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkVertices.h"
+#include "include/private/SkMacros.h"
 
 #include <cstring>
 #include <memory>
@@ -1948,7 +1948,7 @@ public:
     */
     void drawString(const char str[], SkScalar x, SkScalar y, const SkFont& font,
                     const SkPaint& paint) {
-        this->drawSimpleText(str, strlen(str), kUTF8_SkTextEncoding, x, y, font, paint);
+        this->drawSimpleText(str, strlen(str), SkTextEncoding::kUTF8, x, y, font, paint);
     }
 
     /** Draws SkString, with origin at (x, y), using clip, SkMatrix, SkFont font,
@@ -1977,7 +1977,7 @@ public:
     */
     void drawString(const SkString& str, SkScalar x, SkScalar y, const SkFont& font,
                     const SkPaint& paint) {
-        this->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding, x, y, font, paint);
+        this->drawSimpleText(str.c_str(), str.size(), SkTextEncoding::kUTF8, x, y, font, paint);
     }
 
     /** Draws SkTextBlob blob at (x, y), using clip, SkMatrix, and SkPaint paint.
@@ -1988,7 +1988,7 @@ public:
         SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
         and SkPaint subpixel text.
 
-        SkTextEncoding must be set to kGlyphID_SkTextEncoding.
+        SkTextEncoding must be set to SkTextEncoding::kGlyphID.
 
         Elements of paint: anti-alias, SkBlendMode, color including alpha,
         SkColorFilter, SkPaint dither, SkDrawLooper, SkMaskFilter, SkPathEffect, SkShader, and
@@ -2011,7 +2011,7 @@ public:
         SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
         and SkPaint subpixel text.
 
-        SkTextEncoding must be set to kGlyphID_SkTextEncoding.
+        SkTextEncoding must be set to SkTextEncoding::kGlyphID.
 
         Elements of paint: SkPathEffect, SkMaskFilter, SkShader, SkColorFilter,
         SkImageFilter, and SkDrawLooper; apply to blob.
@@ -2420,6 +2420,7 @@ protected:
     // SkCanvasVirtualEnforcer (in SkCanvasVirtualEnforcer.h). This ensures that subclasses using
     // that mechanism  will be required to implement the new function.
     virtual void onDrawPaint(const SkPaint& paint);
+    virtual void onDrawBehind(const SkPaint& paint);
     virtual void onDrawRect(const SkRect& rect, const SkPaint& paint);
     virtual void onDrawRRect(const SkRRect& rrect, const SkPaint& paint);
     virtual void onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint);
@@ -2627,6 +2628,12 @@ private:
      *  @return depth of save state stack before this call was made.
      */
     int only_axis_aligned_saveBehind(const SkRect* subset);
+
+    /**
+     *  Like drawPaint, but magically clipped to the most recent saveBehind buffer rectangle.
+     *  If there is no active saveBehind, then this draws nothing.
+     */
+    void drawClippedToSaveBehind(const SkPaint&);
 
     void resetForNextPicture(const SkIRect& bounds);
 

@@ -5,42 +5,42 @@
 * found in the LICENSE file.
 */
 
-#include "Viewer.h"
-#include "BisectSlide.h"
-#include "CommandLineFlags.h"
-#include "CommonFlags.h"
-#include "EventTracingPriv.h"
-#include "GMSlide.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrPersistentCacheUtils.h"
-#include "ImageSlide.h"
-#include "ParticlesSlide.h"
-#include "Resources.h"
-#include "SKPSlide.h"
-#include "SampleSlide.h"
-#include "SkCanvas.h"
-#include "SkColorSpacePriv.h"
-#include "SkData.h"
-#include "SkGraphics.h"
-#include "SkImagePriv.h"
-#include "SkJSONWriter.h"
-#include "SkMakeUnique.h"
-#include "SkMD5.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkPaintFilterCanvas.h"
-#include "SkPictureRecorder.h"
-#include "SkScan.h"
-#include "SkStream.h"
-#include "SkSurface.h"
-#include "SkTaskGroup.h"
-#include "SkTo.h"
-#include "SlideDir.h"
-#include "SvgSlide.h"
-#include "ToolUtils.h"
-#include "ccpr/GrCoverageCountingPathRenderer.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkPaintFilterCanvas.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkImagePriv.h"
+#include "src/core/SkMD5.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkScan.h"
+#include "src/core/SkTaskGroup.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrPersistentCacheUtils.h"
+#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
+#include "src/utils/SkJSONWriter.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "tools/flags/CommonFlags.h"
+#include "tools/trace/EventTracingPriv.h"
+#include "tools/viewer/BisectSlide.h"
+#include "tools/viewer/GMSlide.h"
+#include "tools/viewer/ImageSlide.h"
+#include "tools/viewer/ParticlesSlide.h"
+#include "tools/viewer/SKPSlide.h"
+#include "tools/viewer/SampleSlide.h"
+#include "tools/viewer/SlideDir.h"
+#include "tools/viewer/SvgSlide.h"
+#include "tools/viewer/Viewer.h"
 
 #include <stdlib.h>
 #include <map>
@@ -49,12 +49,26 @@
 #include "misc/cpp/imgui_stdlib.h"  // For ImGui support of std::string
 
 #if defined(SK_ENABLE_SKOTTIE)
-    #include "SkottieSlide.h"
+    #include "tools/viewer/SkottieSlide.h"
 #endif
 
-#if !(defined(SK_BUILD_FOR_WIN) && defined(__clang__))
-    #include "NIMASlide.h"
-#endif
+class CapturingShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
+public:
+    void compileError(const char* shader, const char* errors) override {
+        fShaders.push_back(SkString(shader));
+        fErrors.push_back(SkString(errors));
+    }
+
+    void reset() {
+        fShaders.reset();
+        fErrors.reset();
+    }
+
+    SkTArray<SkString> fShaders;
+    SkTArray<SkString> fErrors;
+};
+
+static CapturingShaderErrorHandler gShaderErrorHandler;
 
 using namespace sk_app;
 
@@ -95,13 +109,11 @@ static DEFINE_string2(match, m, nullptr,
 
 #if defined(SK_BUILD_FOR_ANDROID)
     static DEFINE_string(jpgs, "/data/local/tmp/resources", "Directory to read jpgs from.");
-    static DEFINE_string(nimas, "/data/local/tmp/nimas", "Directory to read NIMA animations from.");
     static DEFINE_string(skps, "/data/local/tmp/skps", "Directory to read skps from.");
     static DEFINE_string(lotties, "/data/local/tmp/lotties",
                          "Directory to read (Bodymovin) jsons from.");
 #else
     static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
-    static DEFINE_string(nimas, "nimas", "Directory to read NIMA animations from.");
     static DEFINE_string(skps, "skps", "Directory to read skps from.");
     static DEFINE_string(lotties, "lotties", "Directory to read (Bodymovin) jsons from.");
 #endif
@@ -281,6 +293,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SetCtxOptionsFromCommonFlags(&displayParams.fGrContextOptions);
     displayParams.fGrContextOptions.fPersistentCache = &fPersistentCache;
     displayParams.fGrContextOptions.fDisallowGLSLBinaryCaching = true;
+    displayParams.fGrContextOptions.fShaderErrorHandler = &gShaderErrorHandler;
+    displayParams.fGrContextOptions.fSuppressPrints = true;
     fWindow->setRequestedDisplayParams(displayParams);
 
     // Configure timers
@@ -422,20 +436,20 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fCommands.addCommand('H', "Font", "Hinting mode", [this]() {
         if (!fFontOverrides.fHinting) {
             fFontOverrides.fHinting = true;
-            fFont.setHinting(kNo_SkFontHinting);
+            fFont.setHinting(SkFontHinting::kNone);
         } else {
             switch (fFont.getHinting()) {
-                case kNo_SkFontHinting:
-                    fFont.setHinting(kSlight_SkFontHinting);
+                case SkFontHinting::kNone:
+                    fFont.setHinting(SkFontHinting::kSlight);
                     break;
-                case kSlight_SkFontHinting:
-                    fFont.setHinting(kNormal_SkFontHinting);
+                case SkFontHinting::kSlight:
+                    fFont.setHinting(SkFontHinting::kNormal);
                     break;
-                case kNormal_SkFontHinting:
-                    fFont.setHinting(kFull_SkFontHinting);
+                case SkFontHinting::kNormal:
+                    fFont.setHinting(SkFontHinting::kFull);
                     break;
-                case kFull_SkFontHinting:
-                    fFont.setHinting(kNo_SkFontHinting);
+                case SkFontHinting::kFull:
+                    fFont.setHinting(SkFontHinting::kNone);
                     fFontOverrides.fHinting = false;
                     break;
             }
@@ -590,12 +604,6 @@ void Viewer::initSlides() {
         { ".svg", "svg-dir", FLAGS_svgs,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SvgSlide>(name, path);}
-        },
-#endif
-#if !(defined(SK_BUILD_FOR_WIN) && defined(__clang__))
-        { ".nima", "nima-dir", FLAGS_nimas,
-            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
-                return sk_make_sp<NIMASlide>(name, path);}
         },
 #endif
     };
@@ -814,16 +822,16 @@ void Viewer::updateTitle() {
 
     if (fFontOverrides.fHinting) {
         switch (fFont.getHinting()) {
-            case kNo_SkFontHinting:
+            case SkFontHinting::kNone:
                 paintTitle.append("No Hinting");
                 break;
-            case kSlight_SkFontHinting:
+            case SkFontHinting::kSlight:
                 paintTitle.append("Slight Hinting");
                 break;
-            case kNormal_SkFontHinting:
+            case SkFontHinting::kNormal:
                 paintTitle.append("Normal Hinting");
                 break;
-            case kFull_SkFontHinting:
+            case SkFontHinting::kFull:
                 paintTitle.append("Full Hinting");
                 break;
         }
@@ -1029,6 +1037,8 @@ SkMatrix Viewer::computeMatrix() {
 }
 
 void Viewer::setBackend(sk_app::Window::BackendType backendType) {
+    fPersistentCache.reset();
+    fCachedGLSL.reset();
     fBackendType = backendType;
 
     fWindow->detach();
@@ -1730,7 +1740,7 @@ void Viewer::drawImGui() {
                 {
                     if (hintingIdx == 0) {
                         fFontOverrides.fHinting = false;
-                        fFont.setHinting(kNo_SkFontHinting);
+                        fFont.setHinting(SkFontHinting::kNone);
                     } else {
                         fFont.setHinting(SkTo<SkFontHinting>(hintingIdx - 1));
                         fFontOverrides.fHinting = true;
@@ -1949,8 +1959,20 @@ void Viewer::drawImGui() {
                 }
             }
 
-            if (Window::kNativeGL_BackendType == fBackendType &&
-                ImGui::CollapsingHeader("Shaders")) {
+            bool backendIsGL = Window::kNativeGL_BackendType == fBackendType
+#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
+                            || Window::kANGLE_BackendType == fBackendType
+#endif
+                ;
+
+            // HACK: If we get here when SKSL caching isn't enabled, and we're on a backend other
+            // than GL, we need to force it on. Just do that on the first frame after the backend
+            // switch, then resume normal operation.
+            if (!backendIsGL && !params.fGrContextOptions.fCacheSKSL) {
+                params.fGrContextOptions.fCacheSKSL = true;
+                paramsChanged = true;
+                fPersistentCache.reset();
+            } else if (ImGui::CollapsingHeader("Shaders")) {
                 // To re-load shaders from the currently active programs, we flush all caches on one
                 // frame, then set a flag to poll the cache on the next frame.
                 static bool gLoadPending = false;
@@ -1966,8 +1988,8 @@ void Viewer::drawImGui() {
                             entry.fKeyString.appendf("%02x", digest.data[i]);
                         }
 
-                        GrPersistentCacheUtils::UnpackCachedGLSL(data.get(), &entry.fInputs,
-                                                                 entry.fShader);
+                        entry.fShaderType = GrPersistentCacheUtils::UnpackCachedShaders(
+                                data.get(), entry.fShader, entry.fInputs, kGrShaderTypeCount);
                     };
                     fCachedGLSL.reset();
                     fPersistentCache.foreach(collectShaders);
@@ -1978,6 +2000,14 @@ void Viewer::drawImGui() {
                 // start or finish hovering on a tree node in the list below:
                 bool doLoad = ImGui::Button("Load"); ImGui::SameLine();
                 bool doSave = ImGui::Button("Save");
+                if (backendIsGL) {
+                    ImGui::SameLine();
+                    if (ImGui::Checkbox("SkSL", &params.fGrContextOptions.fCacheSKSL)) {
+                        paramsChanged = true;
+                        doLoad = true;
+                        fDeferredActions.push_back([=]() { fPersistentCache.reset(); });
+                    }
+                }
 
                 ImGui::BeginChild("##ScrollingRegion");
                 for (auto& entry : fCachedGLSL) {
@@ -2007,9 +2037,17 @@ void Viewer::drawImGui() {
                 }
                 if (doSave) {
                     // The hovered item (if any) gets a special shader to make it identifiable
-                    SkSL::String highlight = ctx->priv().caps()->shaderCaps()->versionDeclString();
-                    highlight.append("out vec4 sk_FragColor;\n"
-                                     "void main() { sk_FragColor = vec4(1, 0, 1, 0.5); }");
+                    auto shaderCaps = ctx->priv().caps()->shaderCaps();
+                    bool sksl = params.fGrContextOptions.fCacheSKSL;
+
+                    SkSL::String highlight = shaderCaps->versionDeclString();
+                    if (shaderCaps->usesPrecisionModifiers() && !sksl) {
+                        highlight.append("precision mediump float;\n");
+                    }
+                    const char* f4Type = sksl ? "half4" : "vec4";
+                    highlight.appendf("out %s sk_FragColor;\n"
+                                      "void main() { sk_FragColor = %s(1, 0, 1, 0.5); }",
+                                      f4Type, f4Type);
 
                     fPersistentCache.reset();
                     fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
@@ -2019,8 +2057,10 @@ void Viewer::drawImGui() {
                             entry.fShader[kFragment_GrShaderType] = highlight;
                         }
 
-                        auto data = GrPersistentCacheUtils::PackCachedGLSL(entry.fInputs,
-                                                                           entry.fShader);
+                        auto data = GrPersistentCacheUtils::PackCachedShaders(entry.fShaderType,
+                                                                              entry.fShader,
+                                                                              entry.fInputs,
+                                                                              kGrShaderTypeCount);
                         fPersistentCache.store(*entry.fKey, *data);
 
                         entry.fShader[kFragment_GrShaderType] = backup;
@@ -2036,6 +2076,17 @@ void Viewer::drawImGui() {
             });
         }
         ImGui::End();
+    }
+
+    if (gShaderErrorHandler.fErrors.count()) {
+        ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
+        ImGui::Begin("Shader Errors");
+        for (int i = 0; i < gShaderErrorHandler.fErrors.count(); ++i) {
+            ImGui::TextWrapped("%s", gShaderErrorHandler.fErrors[i].c_str());
+            ImGui::TextWrapped("%s", gShaderErrorHandler.fShaders[i].c_str());
+        }
+        ImGui::End();
+        gShaderErrorHandler.reset();
     }
 
     if (fShowZoomWindow && fLastImage) {

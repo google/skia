@@ -5,11 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurMaskFilter.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkLayerDrawLooper.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
 
 DEF_SIMPLE_GM(crbug_899512, canvas, 520, 520) {
     // comment this line below to solve the problem

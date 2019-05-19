@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkImage.h"
-#include "GrGpuResourcePriv.h"
-#include "GrVkGpu.h"
-#include "GrVkMemory.h"
-#include "GrVkTexture.h"
-#include "GrVkUtil.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImage.h"
+#include "src/gpu/vk/GrVkMemory.h"
+#include "src/gpu/vk/GrVkTexture.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
@@ -129,7 +129,6 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     } else if (releaseFamilyQueue) {
         // We are releasing the image so we must transfer the image back to its original queue
         // family.
-        SkASSERT(fInfo.fCurrentQueueFamily == gpu->queueIndex());
         srcQueueFamilyIndex = fInfo.fCurrentQueueFamily;
         dstQueueFamilyIndex = fInitialQueueFamily;
         fInfo.fCurrentQueueFamily = fInitialQueueFamily;
@@ -230,6 +229,11 @@ void GrVkImage::prepareForPresent(GrVkGpu* gpu) {
         }
     }
     this->setImageLayout(gpu, layout, 0, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, false, true);
+}
+
+void GrVkImage::prepareForExternal(GrVkGpu* gpu) {
+    this->setImageLayout(gpu, this->currentLayout(), 0, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, false,
+                         true);
 }
 
 void GrVkImage::releaseImage(GrVkGpu* gpu) {

@@ -8,8 +8,8 @@
 #ifndef GrMockGpuCommandBuffer_DEFINED
 #define GrMockGpuCommandBuffer_DEFINED
 
-#include "GrGpuCommandBuffer.h"
-#include "GrMockGpu.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/mock/GrMockGpu.h"
 
 class GrMockGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
@@ -21,6 +21,8 @@ public:
 
     void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
               const SkIPoint& dstPoint) override {}
+    void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
+                      GrGpuBuffer* transferBuffer, size_t offset) override {}
     void insertEventMarker(const char*) override {}
 
 private:
@@ -42,6 +44,8 @@ public:
     void end() override {}
     void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
               const SkIPoint& dstPoint) override {}
+    void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
+                      GrGpuBuffer* transferBuffer, size_t offset) override {}
 
     int numDraws() const { return fNumDraws; }
 

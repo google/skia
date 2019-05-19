@@ -8,7 +8,7 @@
 #ifndef SkBitmapProcState_opts_DEFINED
 #define SkBitmapProcState_opts_DEFINED
 
-#include "SkBitmapProcState.h"
+#include "src/core/SkBitmapProcState.h"
 
 // SkBitmapProcState optimized Shader, Sample, or Matrix procs.
 //

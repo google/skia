@@ -5,18 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "GrContextPriv.h"
-#include "SkSurface.h"
-#include "Test.h"
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLGpu.h"
-#include "gl/GrGLUtil.h"
+#include "include/core/SkSurface.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLUtil.h"
+#include "tests/Test.h"
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInfo) {
 #define GL(F) GR_GL_CALL(ctxInfo.glContext()->gl(), F)
 
     GrContext* context = ctxInfo.grContext();
-    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
+    GrGpu* gpu = context->priv().getGpu();
+    GrGLGpu* glGpu = static_cast<GrGLGpu*>(context->priv().getGpu());
 
     struct Target {
         GrGLenum fName;
@@ -25,11 +26,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     SkTDArray<Target> targets;
     targets.push_back({GR_GL_TEXTURE_2D, GR_GL_TEXTURE_BINDING_2D});
     bool supportExternal;
-    if ((supportExternal = gpu->glCaps().shaderCaps()->externalTextureSupport())) {
+    if ((supportExternal = glGpu->glCaps().shaderCaps()->externalTextureSupport())) {
         targets.push_back({GR_GL_TEXTURE_EXTERNAL, GR_GL_TEXTURE_BINDING_EXTERNAL});
     }
     bool supportRectangle;
-    if ((supportRectangle = gpu->glCaps().rectangleTextureSupport())) {
+    if ((supportRectangle = glGpu->glCaps().rectangleTextureSupport())) {
         targets.push_back({GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_BINDING_RECTANGLE});
     }
     GrGLint numUnits;
@@ -100,8 +101,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     context->resetContext();
 
     if (supportExternal) {
-        GrBackendTexture texture2D = gpu->createTestingOnlyBackendTexture(
-                nullptr, 10, 10, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
+        GrBackendTexture texture2D = context->priv().createBackendTexture(
+                10, 10, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
         GrGLTextureInfo info2D;
         REPORTER_ASSERT(reporter, texture2D.getGLTextureInfo(&info2D));
         GrEGLImage eglImage = ctxInfo.glContext()->texture2DToEGLImage(info2D.fID);
@@ -126,7 +127,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
         resetBindings();
         GL(DeleteTextures(1, &infoExternal.fID));
         ctxInfo.glContext()->destroyEGLImage(eglImage);
-        gpu->deleteTestingOnlyBackendTexture(texture2D);
+        context->priv().deleteBackendTexture(texture2D);
         context->resetContext();
     }
 

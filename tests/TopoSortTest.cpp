@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkRandom.h"
-#include "SkTTopoSort.h"
-#include "Test.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkTTopoSort.h"
+#include "tests/Test.h"
 
-#include "ToolUtils.h"
+#include "tools/ToolUtils.h"
 
 typedef void (*CreateGraphPF)(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph);
 

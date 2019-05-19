@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTemplates.h"
-#include "SkTextBlob.h"
-#include "SkTypeface.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkRandom.h"
+#include "tools/Resources.h"
 
-#include "ToolUtils.h"
+#include "tools/ToolUtils.h"
 
 /*
  * A trivial test which benchmarks the performance of a textblob with a single run.
@@ -33,10 +33,10 @@ public:
         // This text seems representative in both length and letter frequency.
         const char* text = "Keep your sentences short, but not overly so.";
 
-        fGlyphs.setCount(fFont.countText(text, strlen(text), kUTF8_SkTextEncoding));
+        fGlyphs.setCount(fFont.countText(text, strlen(text), SkTextEncoding::kUTF8));
         fXPos.setCount(fGlyphs.count());
 
-        fFont.textToGlyphs(text, strlen(text), kUTF8_SkTextEncoding, fGlyphs.begin(), fGlyphs.count());
+        fFont.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, fGlyphs.begin(), fGlyphs.count());
         fFont.getXPos(&fGlyphs[0], fGlyphs.count(), fXPos.begin());
     }
 

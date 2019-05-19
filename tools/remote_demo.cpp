@@ -16,10 +16,10 @@
 #include <thread>
 #include <unistd.h>
 
-#include "SkGraphics.h"
-#include "SkRemoteGlyphCache.h"
-#include "SkScalerContext.h"
-#include "SkSurface.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkRemoteGlyphCache.h"
+#include "src/core/SkScalerContext.h"
 
 static std::string gSkpName;
 static bool gUseGpu = true;

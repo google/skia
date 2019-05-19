@@ -5,12 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "include/core/SkBlendMode.h"
+#include "include/gpu/GrBlend.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkColorData.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrPaint.h"
+#include "src/gpu/GrProcessorAnalysis.h"
+#include "src/gpu/GrProcessorSet.h"
+#include "src/gpu/GrUserStencilSettings.h"
+#include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/effects/GrCustomXfermode.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
-#include "GrContextPriv.h"
-#include "GrPaint.h"
-#include "GrProcessorSet.h"
-#include "effects/GrCustomXfermode.h"
+#include <utility>
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest, reporter, ctxInfo) {
     static constexpr auto opaque = GrProcessorAnalysisColor::Opaque::kYes;

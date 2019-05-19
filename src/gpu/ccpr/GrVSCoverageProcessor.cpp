@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrVSCoverageProcessor.h"
+#include "src/gpu/ccpr/GrVSCoverageProcessor.h"
 
-#include "GrMesh.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/GrMesh.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 // This class implements the coverage processor with vertex shaders.
 class GrVSCoverageProcessor::Impl : public GrGLSLGeometryProcessor {
@@ -280,7 +280,7 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     v->defineConstant("bloat", bloat);
 
     const char* hullPts = "pts";
-    fShader->emitSetupCode(v, "pts", "wind", (4 == fNumSides) ? &hullPts : nullptr);
+    fShader->emitSetupCode(v, "pts", (4 == fNumSides) ? &hullPts : nullptr);
 
     // Reverse all indices if the wind is counter-clockwise: [0, 1, 2] -> [2, 1, 0].
     v->codeAppendf("int clockwise_indices = wind > 0 ? %s : 0x%x - %s;",
@@ -360,8 +360,8 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                            // fallthru.
     v->codeAppend ("}");
 
-    v->codeAppend ("float2 vertex = fma(bloatdir, float2(bloat), corner);");
-    gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");
+    v->codeAppend ("float2 vertexpos = fma(bloatdir, float2(bloat), corner);");
+    gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
 
     // Hulls have a coverage of +1 all around.
     v->codeAppend ("half coverage = +1;");
@@ -385,6 +385,16 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                        kVertexData_InvertNegativeCoverageBit);
         v->codeAppend (    "coverage = -1 - coverage;");
         v->codeAppend ("}");
+    } else if (!fShader->calculatesOwnEdgeCoverage()) {
+        // Determine the amount of coverage to subtract out for the flat edge of the curve.
+        v->codeAppendf("float2 p0 = pts[0], p1 = pts[%i];", numInputPoints - 1);
+        v->codeAppendf("float2 n = float2(p0.y - p1.y, p1.x - p0.x);");
+        v->codeAppend ("float nwidth = bloat*2 * (abs(n.x) + abs(n.y));");
+        // When nwidth=0, wind must also be 0 (and coverage * wind = 0). So it doesn't matter
+        // what we come up with here as long as it isn't NaN or Inf.
+        v->codeAppend ("float d = dot(p0 - vertexpos, n);");
+        v->codeAppend ("d /= (0 != nwidth) ? nwidth : 1;");
+        v->codeAppend ("coverage = half(d) - .5*sign(wind);");
     }
 
     // Non-corner geometry should have zero effect from corner coverage.
@@ -392,16 +402,12 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     v->codeAppendf("if (0 != (%s & %i)) {",  // Are we a corner?
                    proc.fPerVertexData.name(), kVertexData_IsCornerBit);
-                       // We use coverage=-1 to erase what the hull geometry wrote.
-                       //
-                       // In the context of curves, this effectively means "wind = -wind" and
-                       // causes the Shader to erase what it had written previously for the hull.
-                       //
-                       // For triangles it just erases the "+1" value written by the hull geometry.
-    v->codeAppend (    "coverage = -1;");
+                       // Erase what the previous geometry wrote.
+    v->codeAppend (    "wind = -wind;");
     if (3 == fNumSides) {
-                       // Triangle corners also have to erase what the edge geometry wrote.
-        v->codeAppend ("coverage -= left_coverage + right_coverage;");
+        v->codeAppend ("coverage = 1 + left_coverage + right_coverage;");
+    } else if (!fShader->calculatesOwnEdgeCoverage()) {
+        v->codeAppend ("coverage = -coverage;");
     }
 
                        // Corner boxes require attenuated coverage.
@@ -414,16 +420,16 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                        // Shader will calculate the curve's local coverage value, interpolate it
                        // alongside our attenuation parameter, and multiply the two together for a
                        // final coverage value.
-    v->codeAppend (    "corner_coverage = (0 == bloatidx) ? half2(0, attenuation) : half2(1);");
+    v->codeAppend (    "corner_coverage = (0 == bloatidx) ? half2(0, attenuation) : half2(-1,+1);");
 
     if (3 == fNumSides) {
                        // For triangles we also provide the actual coverage values at each vertex of
                        // the corner box.
         v->codeAppend ("if (1 == bloatidx || 2 == bloatidx) {");
-        v->codeAppend (    "corner_coverage.x += right_coverage;");
+        v->codeAppend (    "corner_coverage.x -= right_coverage;");
         v->codeAppend ("}");
         v->codeAppend ("if (bloatidx >= 2) {");
-        v->codeAppend (    "corner_coverage.x += left_coverage;");
+        v->codeAppend (    "corner_coverage.x -= left_coverage;");
         v->codeAppend ("}");
     }
     v->codeAppend ("}");
@@ -432,7 +438,7 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     v->codeAppend ("coverage *= wind;");
     v->codeAppend ("corner_coverage.x *= wind;");
     fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kVertToFrag, &AccessCodeString(v),
-                          gpArgs->fPositionVar.c_str(), "coverage", "corner_coverage");
+                          "vertexpos", "coverage", "corner_coverage", "wind");
 
     varyingHandler->emitAttributes(proc);
     SkASSERT(!args.fFPCoordTransformHandler->nextCoordTransform());

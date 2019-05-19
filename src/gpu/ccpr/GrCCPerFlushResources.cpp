@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPerFlushResources.h"
+#include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
-#include "GrClip.h"
-#include "GrMemoryPool.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrShape.h"
-#include "GrSurfaceContextPriv.h"
-#include "SkMakeUnique.h"
-#include "ccpr/GrCCPathCache.h"
-#include "ccpr/GrGSCoverageProcessor.h"
-#include "ccpr/GrVSCoverageProcessor.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/GrSurfaceContextPriv.h"
+#include "src/gpu/ccpr/GrCCPathCache.h"
+#include "src/gpu/ccpr/GrGSCoverageProcessor.h"
+#include "src/gpu/ccpr/GrVSCoverageProcessor.h"
 
 using FillBatchID = GrCCFiller::BatchID;
 using StrokeBatchID = GrCCStroker::BatchID;
@@ -76,12 +76,15 @@ public:
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         SkASSERT(fSrcProxy);
-        GrPipeline::FixedDynamicState dynamicState;
         auto srcProxy = fSrcProxy.get();
-        dynamicState.fPrimitiveProcessorTextures = &srcProxy;
+        SkASSERT(srcProxy->isInstantiated());
+
+        GrCCPathProcessor pathProc(srcProxy->peekTexture(), srcProxy->origin());
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc);
-        GrCCPathProcessor pathProc(srcProxy);
+        GrPipeline::FixedDynamicState dynamicState;
+        dynamicState.fPrimitiveProcessorTextures = &srcProxy;
+
         pathProc.drawPaths(flushState, pipeline, &dynamicState, *fResources, fBaseInstance,
                            fEndInstance, this->bounds());
     }
@@ -279,9 +282,9 @@ void GrCCPerFlushResources::recordCopyPathInstance(const GrCCPathCacheEntry& ent
     emplace_at_memcpy(&fCopyPathRanges, fCurrCopyAtlasRangesIdx, std::move(srcProxy), 1);
 }
 
-static bool transform_path_pts(const SkMatrix& m, const SkPath& path,
-                               const SkAutoSTArray<32, SkPoint>& outDevPts, SkRect* devBounds,
-                               SkRect* devBounds45) {
+static bool transform_path_pts(
+        const SkMatrix& m, const SkPath& path, const SkAutoSTArray<32, SkPoint>& outDevPts,
+        GrOctoBounds* octoBounds) {
     const SkPoint* pts = SkPathPriv::PointData(path);
     int numPts = path.countPoints();
     SkASSERT(numPts + 1 <= outDevPts.count());
@@ -328,16 +331,19 @@ static bool transform_path_pts(const SkMatrix& m, const SkPath& path,
     SkPoint topLeftPts[2], bottomRightPts[2];
     topLeft.store(topLeftPts);
     bottomRight.store(bottomRightPts);
-    devBounds->setLTRB(topLeftPts[0].x(), topLeftPts[0].y(), bottomRightPts[0].x(),
-                       bottomRightPts[0].y());
-    devBounds45->setLTRB(topLeftPts[1].x(), topLeftPts[1].y(), bottomRightPts[1].x(),
-                         bottomRightPts[1].y());
+
+    const SkRect& devBounds = SkRect::MakeLTRB(
+            topLeftPts[0].x(), topLeftPts[0].y(), bottomRightPts[0].x(), bottomRightPts[0].y());
+    const SkRect& devBounds45 = SkRect::MakeLTRB(
+            topLeftPts[1].x(), topLeftPts[1].y(), bottomRightPts[1].x(), bottomRightPts[1].y());
+
+    octoBounds->set(devBounds, devBounds45);
     return true;
 }
 
 GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
         const SkIRect& clipIBounds, const SkMatrix& m, const GrShape& shape, float strokeDevWidth,
-        SkRect* devBounds, SkRect* devBounds45, SkIRect* devIBounds, SkIVector* devToAtlasOffset) {
+        GrOctoBounds* octoBounds, SkIRect* devIBounds, SkIVector* devToAtlasOffset) {
     SkASSERT(this->isMapped());
     SkASSERT(fNextPathInstanceIdx < fEndPathInstance);
 
@@ -347,7 +353,7 @@ GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
         SkDEBUGCODE(--fEndPathInstance);
         return nullptr;
     }
-    if (!transform_path_pts(m, path, fLocalDevPtsBuffer, devBounds, devBounds45)) {
+    if (!transform_path_pts(m, path, fLocalDevPtsBuffer, octoBounds)) {
         // The transformed path had infinite or NaN bounds.
         SkDEBUGCODE(--fEndPathInstance);
         return nullptr;
@@ -355,33 +361,37 @@ GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
 
     const SkStrokeRec& stroke = shape.style().strokeRec();
     if (!stroke.isFillStyle()) {
-        float r = SkStrokeRec::GetInflationRadius(stroke.getJoin(), stroke.getMiter(),
-                                                  stroke.getCap(), strokeDevWidth);
-        devBounds->outset(r, r);
-        // devBounds45 is in (| 1 -1 | * devCoords) space.
-        //                    | 1  1 |
-        devBounds45->outset(r*SK_ScalarSqrt2, r*SK_ScalarSqrt2);
+        float r = SkStrokeRec::GetInflationRadius(
+                stroke.getJoin(), stroke.getMiter(), stroke.getCap(), strokeDevWidth);
+        octoBounds->outset(r);
     }
-    devBounds->roundOut(devIBounds);
 
-    GrScissorTest scissorTest;
-    SkIRect clippedPathIBounds;
-    if (!this->placeRenderedPathInAtlas(clipIBounds, *devIBounds, &scissorTest, &clippedPathIBounds,
-                                        devToAtlasOffset)) {
+    GrScissorTest enableScissorInAtlas;
+    if (clipIBounds.contains(octoBounds->bounds())) {
+        enableScissorInAtlas = GrScissorTest::kDisabled;
+    } else if (octoBounds->clip(clipIBounds)) {
+        enableScissorInAtlas = GrScissorTest::kEnabled;
+    } else {
+        // The clip and octo bounds do not intersect. Draw nothing.
         SkDEBUGCODE(--fEndPathInstance);
-        return nullptr;  // Path was degenerate or clipped away.
+        return nullptr;
     }
+    octoBounds->roundOut(devIBounds);
+    SkASSERT(clipIBounds.contains(*devIBounds));
+
+    this->placeRenderedPathInAtlas(*devIBounds, enableScissorInAtlas, devToAtlasOffset);
 
     if (stroke.isFillStyle()) {
         SkASSERT(0 == strokeDevWidth);
-        fFiller.parseDeviceSpaceFill(path, fLocalDevPtsBuffer.begin(), scissorTest,
-                                     clippedPathIBounds, *devToAtlasOffset);
+        fFiller.parseDeviceSpaceFill(path, fLocalDevPtsBuffer.begin(), enableScissorInAtlas,
+                                     *devIBounds, *devToAtlasOffset);
     } else {
         // Stroke-and-fill is not yet supported.
         SkASSERT(SkStrokeRec::kStroke_Style == stroke.getStyle() || stroke.isHairlineStyle());
         SkASSERT(!stroke.isHairlineStyle() || 1 == strokeDevWidth);
-        fStroker.parseDeviceSpaceStroke(path, fLocalDevPtsBuffer.begin(), stroke, strokeDevWidth,
-                                        scissorTest, clippedPathIBounds, *devToAtlasOffset);
+        fStroker.parseDeviceSpaceStroke(
+                path, fLocalDevPtsBuffer.begin(), stroke, strokeDevWidth, enableScissorInAtlas,
+                *devIBounds, *devToAtlasOffset);
     }
     return &fRenderedAtlasStack.current();
 }
@@ -395,41 +405,34 @@ const GrCCAtlas* GrCCPerFlushResources::renderDeviceSpacePathInAtlas(
         return nullptr;
     }
 
-    GrScissorTest scissorTest;
+    GrScissorTest enableScissorInAtlas;
     SkIRect clippedPathIBounds;
-    if (!this->placeRenderedPathInAtlas(clipIBounds, devPathIBounds, &scissorTest,
-                                        &clippedPathIBounds, devToAtlasOffset)) {
+    if (clipIBounds.contains(devPathIBounds)) {
+        clippedPathIBounds = devPathIBounds;
+        enableScissorInAtlas = GrScissorTest::kDisabled;
+    } else if (clippedPathIBounds.intersect(clipIBounds, devPathIBounds)) {
+        enableScissorInAtlas = GrScissorTest::kEnabled;
+    } else {
+        // The clip and path bounds do not intersect. Draw nothing.
         return nullptr;
     }
 
-    fFiller.parseDeviceSpaceFill(devPath, SkPathPriv::PointData(devPath), scissorTest,
+    this->placeRenderedPathInAtlas(clippedPathIBounds, enableScissorInAtlas, devToAtlasOffset);
+    fFiller.parseDeviceSpaceFill(devPath, SkPathPriv::PointData(devPath), enableScissorInAtlas,
                                  clippedPathIBounds, *devToAtlasOffset);
     return &fRenderedAtlasStack.current();
 }
 
-bool GrCCPerFlushResources::placeRenderedPathInAtlas(const SkIRect& clipIBounds,
-                                                     const SkIRect& pathIBounds,
-                                                     GrScissorTest* scissorTest,
-                                                     SkIRect* clippedPathIBounds,
-                                                     SkIVector* devToAtlasOffset) {
-    if (clipIBounds.contains(pathIBounds)) {
-        *clippedPathIBounds = pathIBounds;
-        *scissorTest = GrScissorTest::kDisabled;
-    } else if (clippedPathIBounds->intersect(clipIBounds, pathIBounds)) {
-        *scissorTest = GrScissorTest::kEnabled;
-    } else {
-        return false;
-    }
-
+void GrCCPerFlushResources::placeRenderedPathInAtlas(
+        const SkIRect& clippedPathIBounds, GrScissorTest scissorTest, SkIVector* devToAtlasOffset) {
     if (GrCCAtlas* retiredAtlas =
-                fRenderedAtlasStack.addRect(*clippedPathIBounds, devToAtlasOffset)) {
+                fRenderedAtlasStack.addRect(clippedPathIBounds, devToAtlasOffset)) {
         // We did not fit in the previous coverage count atlas and it was retired. Close the path
         // parser's current batch (which does not yet include the path we just parsed). We will
         // render this batch into the retired atlas during finalize().
         retiredAtlas->setFillBatchID(fFiller.closeCurrentBatch());
         retiredAtlas->setStrokeBatchID(fStroker.closeCurrentBatch());
     }
-    return true;
 }
 
 bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,

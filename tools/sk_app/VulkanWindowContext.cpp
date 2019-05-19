@@ -6,18 +6,18 @@
  * found in the LICENSE file.
  */
 
-#include "VulkanWindowContext.h"
+#include "tools/sk_app/VulkanWindowContext.h"
 
-#include "GrBackendSemaphore.h"
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "SkAutoMalloc.h"
-#include "SkSurface.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "src/core/SkAutoMalloc.h"
 
-#include "vk/GrVkExtensions.h"
-#include "vk/GrVkImage.h"
-#include "vk/GrVkTypes.h"
-#include "vk/GrVkUtil.h"
+#include "include/gpu/vk/GrVkExtensions.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/vk/GrVkImage.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 // windows wants to define this as CreateSemaphoreA or CreateSemaphoreW

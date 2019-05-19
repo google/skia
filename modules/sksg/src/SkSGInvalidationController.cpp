@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGInvalidationController.h"
+#include "modules/sksg/include/SkSGInvalidationController.h"
 
-#include "SkRect.h"
-#include "SkTLazy.h"
+#include "include/core/SkRect.h"
+#include "src/core/SkTLazy.h"
 
 namespace sksg {
 

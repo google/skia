@@ -8,10 +8,10 @@
 #ifndef SKSL_VARDECLARATIONS
 #define SKSL_VARDECLARATIONS
 
-#include "SkSLExpression.h"
-#include "SkSLProgramElement.h"
-#include "SkSLStatement.h"
-#include "SkSLVariable.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 namespace SkSL {
 

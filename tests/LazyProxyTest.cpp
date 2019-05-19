@@ -5,26 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "GrClip.h"
-#include "GrContextPriv.h"
-#include "GrMemoryPool.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrProxyProvider.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetContextPriv.h"
-#include "GrSurfaceProxy.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
-#include "GrTextureProxyPriv.h"
-#include "SkExchange.h"
-#include "SkMakeUnique.h"
-#include "SkRectPriv.h"
-#include "mock/GrMockGpu.h"
-#include "mock/GrMockTypes.h"
+#include "include/gpu/GrTexture.h"
+#include "include/gpu/mock/GrMockTypes.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/core/SkExchange.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkRectPriv.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTextureProxyPriv.h"
+#include "src/gpu/mock/GrMockGpu.h"
 
 // This test verifies that lazy proxy callbacks get invoked during flush, after onFlush callbacks,
 // but before Ops are executed. It also ensures that lazy proxy callbacks are invoked both for
@@ -379,7 +379,6 @@ private:
 DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
     GrMockOptions mockOptions;
     sk_sp<GrContext> ctx = GrContext::MakeMock(&mockOptions, GrContextOptions());
-    GrResourceProvider* resourceProvider = ctx->priv().resourceProvider();
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     GrBackendFormat format =
                 ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
@@ -398,13 +397,7 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
         ctx->flush();
 
         if (failInstantiation) {
-            if (resourceProvider->explicitlyAllocateGPUResources()) {
-                REPORTER_ASSERT(reporter, 1 == executeTestValue);
-            } else {
-                // When we disable explicit gpu resource allocation we don't throw away ops that
-                // have uninstantiated proxies.
-                REPORTER_ASSERT(reporter, 2 == executeTestValue);
-            }
+            REPORTER_ASSERT(reporter, 1 == executeTestValue);
         } else {
             REPORTER_ASSERT(reporter, 2 == executeTestValue);
         }
@@ -455,7 +448,6 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
     GrMockOptions mockOptions;
     sk_sp<GrContext> ctx = GrContext::MakeMock(&mockOptions, GrContextOptions());
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
-    GrGpu* gpu = ctx->priv().getGpu();
 
     GrBackendFormat format =
                 ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
@@ -479,8 +471,8 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
         desc.fHeight = kSize;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, kSize, kSize, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
+        GrBackendTexture backendTex = ctx->priv().createBackendTexture(
+                kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
 
         sk_sp<GrTextureProxy> lazyProxy = proxyProvider->createLazyProxy(
                 [instantiatePtr, releasePtr,
@@ -533,6 +525,6 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
             REPORTER_ASSERT(reporter, 1 == releaseTestValue);
         }
 
-        gpu->deleteTestingOnlyBackendTexture(backendTex);
+        ctx->priv().deleteBackendTexture(backendTex);
     }
 }

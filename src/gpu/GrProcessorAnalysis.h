@@ -8,7 +8,7 @@
 #ifndef GrProcessorAnalysis_DEFINED
 #define GrProcessorAnalysis_DEFINED
 
-#include "SkColorData.h"
+#include "include/private/SkColorData.h"
 
 class GrDrawOp;
 class GrFragmentProcessor;

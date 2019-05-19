@@ -5,34 +5,34 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
 #ifdef SK_SUPPORT_PDF
 
-#include "Resources.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkClusterator.h"
-#include "SkData.h"
-#include "SkDeflate.h"
-#include "SkGlyphRun.h"
-#include "SkImageEncoder.h"
-#include "SkImageFilterPriv.h"
-#include "SkMakeUnique.h"
-#include "SkMatrix.h"
-#include "SkPDFDevice.h"
-#include "SkPDFDocumentPriv.h"
-#include "SkPDFFont.h"
-#include "SkPDFTypes.h"
-#include "SkPDFUnion.h"
-#include "SkPDFUtils.h"
-#include "SkReadBuffer.h"
-#include "SkScalar.h"
-#include "SkSpecialImage.h"
-#include "SkStream.h"
-#include "SkTo.h"
-#include "SkTypes.h"
-#include "ToolUtils.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkGlyphRun.h"
+#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/pdf/SkClusterator.h"
+#include "src/pdf/SkDeflate.h"
+#include "src/pdf/SkPDFDevice.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
+#include "src/pdf/SkPDFFont.h"
+#include "src/pdf/SkPDFTypes.h"
+#include "src/pdf/SkPDFUnion.h"
+#include "src/pdf/SkPDFUtils.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 #include <cstdlib>
 #include <cmath>
@@ -87,7 +87,7 @@ static void test_issue1083() {
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
 
     uint16_t glyphID = 65000;
-    canvas->drawSimpleText(&glyphID, 2, kGlyphID_SkTextEncoding, 0, 0, SkFont(), SkPaint());
+    canvas->drawSimpleText(&glyphID, 2, SkTextEncoding::kGlyphID, 0, 0, SkFont(), SkPaint());
 
     doc->close();
 }

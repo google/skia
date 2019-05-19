@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorData.h"
-#include "Test.h"
+#include "include/private/SkColorData.h"
+#include "tests/Test.h"
 
 // our std SkAlpha255To256
 static int test_srcover0(unsigned dst, unsigned alpha) {

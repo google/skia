@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkScanPriv.h"
+#include "src/core/SkScanPriv.h"
 
-#include "SkAntiRun.h"
-#include "SkBlitter.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkPathPriv.h"
-#include "SkRegion.h"
-#include "SkTo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkAntiRun.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkPathPriv.h"
 
 #define SHIFT   SK_SUPERSAMPLE_SHIFT
 #define SCALE   (1 << SHIFT)
@@ -801,7 +801,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkRasterClip.h"
+#include "src/core/SkRasterClip.h"
 
 void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
     if (clip.isEmpty() || !path.isFinite()) {

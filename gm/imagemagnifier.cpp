@@ -5,13 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageSource.h"
-#include "SkMagnifierImageFilter.h"
-#include "SkPixelRef.h"
-#include "SkRandom.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypeface.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkMagnifierImageFilter.h"
+#include "include/utils/SkRandom.h"
+#include "tools/ToolUtils.h"
+
+#include <utility>
 
 #define WIDTH 500
 #define HEIGHT 500

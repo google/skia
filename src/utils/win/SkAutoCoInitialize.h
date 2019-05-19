@@ -8,12 +8,12 @@
 #ifndef SkAutoCo_DEFINED
 #define SkAutoCo_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_BUILD_FOR_WIN
 
-#include "SkLeanWindows.h"
-#include "SkNoncopyable.h"
+#include "include/private/SkLeanWindows.h"
+#include "include/private/SkNoncopyable.h"
 
 /**
  * An instance of this class initializes COM on creation

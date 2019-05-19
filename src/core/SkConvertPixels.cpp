@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorData.h"
-#include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkConvertPixels.h"
-#include "SkHalf.h"
-#include "SkImageInfoPriv.h"
-#include "SkOpts.h"
-#include "SkRasterPipeline.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkHalf.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkConvertPixels.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkRasterPipeline.h"
 
 static bool rect_memcpy(const SkImageInfo& dstInfo,       void* dstPixels, size_t dstRB,
                         const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,

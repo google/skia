@@ -8,10 +8,10 @@
 #ifndef SkSGTransform_DEFINED
 #define SkSGTransform_DEFINED
 
-#include "SkSGEffectNode.h"
+#include "modules/sksg/include/SkSGEffectNode.h"
 
-#include "SkMatrix.h"
-#include "SkMatrix44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkMatrix44.h"
 
 namespace sksg {
 
@@ -20,8 +20,11 @@ namespace sksg {
  */
 class Transform : public Node {
 public:
-    // Compose T = A x B
+    // Compose T' = A x B
     static sk_sp<Transform> MakeConcat(sk_sp<Transform> a, sk_sp<Transform> b);
+
+    // T' = Inv(T)
+    static sk_sp<Transform> MakeInverse(sk_sp<Transform> t);
 
 protected:
     Transform();

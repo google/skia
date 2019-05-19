@@ -74,6 +74,7 @@ echo "Compiling bitcode"
   is_debug=false \
   is_official_build=true \
   is_component_build=false \
+  werror=true \
   target_cpu=\"wasm\" \
   \
   skia_use_angle = false \
@@ -116,25 +117,9 @@ echo "Generating final debugger wasm and javascript"
 # Emscripten will use LLD, which may relax this requirement.
 ${EMCXX} \
     $RELEASE_CONF \
-    -Iexperimental \
-    -Iinclude/c \
-    -Iinclude/codec \
-    -Iinclude/config \
-    -Iinclude/core \
-    -Iinclude/effects \
-    -Iinclude/gpu \
-    -Iinclude/gpu/gl \
-    -Iinclude/pathops \
-    -Iinclude/private \
-    -Iinclude/utils/ \
-    -Isrc/core/ \
-    -Isrc/gpu/ \
-    -Isrc/sfnt/ \
-    -Isrc/shaders/ \
-    -Isrc/utils/ \
+    -I. \
     -Ithird_party/icu \
-    -Itools \
-    -Itools/debugger \
+    -Ithird_party/skcms \
     -DSK_DISABLE_AAA \
     -std=c++17 \
     $WASM_GPU \

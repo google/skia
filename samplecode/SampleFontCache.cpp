@@ -4,10 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkGraphics.h"
-#include "SkRandom.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkGraphics.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/Sample.h"
 
 #include <pthread.h>
 
@@ -17,7 +17,7 @@ static void call_measure() {
     SkRandom rand;
 
     paint.setAntiAlias(true);
-    paint.setTextEncoding(kUTF16_SkTextEncoding);
+    paint.setTextEncoding(SkTextEncoding::kUTF16);
     for (int j = 0; j < SK_ARRAY_COUNT(text); j++)
         text[j] = (uint16_t)((rand.nextU() & 0xFF) + 32);
 
@@ -36,7 +36,7 @@ static void call_draw(SkCanvas* canvas) {
     SkRandom rand;
 
     paint.setAntiAlias(true);
-    paint.setTextEncoding(kUTF16_SkTextEncoding);
+    paint.setTextEncoding(SkTextEncoding::kUTF16);
     for (int j = 0; j < SK_ARRAY_COUNT(text); j++)
         text[j] = (uint16_t)((rand.nextU() & 0xFF) + 32);
 

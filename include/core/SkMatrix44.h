@@ -8,8 +8,8 @@
 #ifndef SkMatrix44_DEFINED
 #define SkMatrix44_DEFINED
 
-#include "SkMatrix.h"
-#include "SkScalar.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkScalar.h"
 
 #include <atomic>
 #include <cstring>

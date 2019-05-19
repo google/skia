@@ -8,11 +8,11 @@
 #ifndef SkSurface_DEFINED
 #define SkSurface_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkImage.h"
-#include "SkSurfaceProps.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 #include <android/hardware_buffer.h>
@@ -660,6 +660,41 @@ public:
     */
     bool readPixels(const SkBitmap& dst, int srcX, int srcY);
 
+    /** Makes pixel data available to caller, possibly asynchronously. Can perform rescaling.
+
+        Currently asynchronous reads are only supported on the GPU backend and only when the
+        underlying 3D API supports transfer buffers and CPU/GPU synchronization primitives. In all
+        other cases this operates synchronously.
+
+        Data is read from the source rectangle, is optionally converted to a linear gamma, is
+        rescaled to the size indicated by 'info', is then converted to the color space, color type,
+        and alpha type of 'info'.
+
+        When the pixel data is ready the caller's ReadPixelsCallback is called with a pointer to
+        the data in the requested color type, alpha type, and color space. The data pointer is
+        only valid for the duration of the callback.
+
+        Upon failure the the callback is called with nullptr as the data pointer.
+
+        If the src rectangle is not contained by the bounds of the surface then failure occurs.
+
+        Failure is indicated by calling callback with a nullptr for 'data'.
+
+        @param info             info of the requested pixels
+        @param srcRect          subrectangle of surface to read
+        @param rescaleGamma     controls whether rescaling is done in the surface's gamma or whether
+                                the source data is transformed to a linear gamma before rescaling.
+        @param rescaleQuality   controls the quality (and cost) of the rescaling
+        @param callback         function to call with result of the read
+        @param context          passed to callback
+     */
+    using ReadPixelsContext = void*;
+    using ReadPixelsCallback = void(ReadPixelsContext, const void* data, size_t rowBytes);
+    enum RescaleGamma : bool { kSrc, kLinear };
+    void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                   RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
+                                   ReadPixelsCallback callback, ReadPixelsContext context);
+
     /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
 
         Source SkRect corners are (0, 0) and (src.width(), src.height()).
@@ -737,7 +772,14 @@ public:
     */
     GrSemaphoresSubmitted flush(BackendSurfaceAccess access, const GrFlushInfo& info);
 
-    /** The below enum and flush call are deprected
+    /** Deprecated
+     */
+    GrSemaphoresSubmitted flush(BackendSurfaceAccess access, GrFlushFlags flags,
+                                int numSemaphores, GrBackendSemaphore signalSemaphores[],
+                                GrGpuFinishedProc finishedProc = nullptr,
+                                GrGpuFinishedContext finishedContext = nullptr);
+
+    /** The below enum and flush call are deprecated
      */
     enum FlushFlags {
         kNone_FlushFlags = 0,

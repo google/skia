@@ -156,6 +156,11 @@
   },
   {
     "cmd": [
+      "powershell",
+      "-ExecutionPolicy",
+      "Unrestricted",
+      "-File",
+      "RECIPE_MODULE[skia::flavor]/resources/win_run_and_check_log.ps1",
       "[START_DIR]/build/nanobench",
       "-i",
       "[START_DIR]/skia/resources",
@@ -176,7 +181,6 @@
       "--config",
       "gl",
       "glsrgb",
-      "--reduceOpListSplitting",
       "--match",
       "~inc0.gif",
       "~inc1.gif",

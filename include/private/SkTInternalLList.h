@@ -8,22 +8,7 @@
 #ifndef SkTInternalLList_DEFINED
 #define SkTInternalLList_DEFINED
 
-#include "../private/SkNoncopyable.h"
-#include "SkTypes.h"
-
-/**
- * Helper class to automatically initialize the doubly linked list created pointers.
- */
-template <typename T> class SkPtrWrapper {
-  public:
-      SkPtrWrapper() : fPtr(nullptr) {}
-      SkPtrWrapper& operator =(T* ptr) { fPtr = ptr; return *this; }
-      operator T*() const { return fPtr; }
-      T* operator->() { return fPtr; }
-  private:
-      T* fPtr;
-};
-
+#include "include/core/SkTypes.h"
 
 /**
  * This macro creates the member variables required by the SkTInternalLList class. It should be
@@ -32,19 +17,16 @@ template <typename T> class SkPtrWrapper {
 #define SK_DECLARE_INTERNAL_LLIST_INTERFACE(ClassName)              \
     friend class SkTInternalLList<ClassName>;                       \
     /* back pointer to the owning list - for debugging */           \
-    SkDEBUGCODE(SkPtrWrapper<SkTInternalLList<ClassName> > fList;)  \
-    SkPtrWrapper<ClassName> fPrev;                                  \
-    SkPtrWrapper<ClassName> fNext
+    SkDEBUGCODE(SkTInternalLList<ClassName>* fList = nullptr;)      \
+    ClassName* fPrev = nullptr;                                     \
+    ClassName* fNext = nullptr
 
 /**
  * This class implements a templated internal doubly linked list data structure.
  */
-template <class T> class SkTInternalLList : SkNoncopyable {
+template <class T> class SkTInternalLList {
 public:
-    SkTInternalLList()
-        : fHead(nullptr)
-        , fTail(nullptr) {
-    }
+    SkTInternalLList() {}
 
     void reset() {
         fHead = nullptr;
@@ -310,10 +292,11 @@ public:
 #endif // SK_DEBUG
 
 private:
-    T* fHead;
-    T* fTail;
+    T* fHead = nullptr;
+    T* fTail = nullptr;
 
-    typedef SkNoncopyable INHERITED;
+    SkTInternalLList(const SkTInternalLList&) = delete;
+    SkTInternalLList& operator=(const SkTInternalLList&) = delete;
 };
 
 #endif

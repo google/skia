@@ -5,9 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkBitmap.h"
-#include "SkColorFilter.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 
 class ColorFilterAlpha8 : public skiagm::GM {
 public:
@@ -35,9 +41,9 @@ protected:
                 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
                 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
                 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-                0.0f, 0.0f, 0.0f, 0.0f, 255.0f
+                0.0f, 0.0f, 0.0f, 0.0f, 1.0f
         };
-        paint.setColorFilter(SkColorFilters::MatrixRowMajor255(opaqueGrayMatrix));
+        paint.setColorFilter(SkColorFilters::Matrix(opaqueGrayMatrix));
 
         canvas->drawBitmap(bitmap, 100.0f, 100.0f, &paint);
     }

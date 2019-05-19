@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Fuzz.h"
-#include "SkString.h"
-#include "SkParsePath.h"
+#include "fuzz/Fuzz.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkParsePath.h"
 
 #include <stdlib.h>
 

@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkDescriptor.h"
+#include "src/core/SkDescriptor.h"
 
 #include <new>
 
-#include "SkOpts.h"
-#include "SkTo.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkOpts.h"
 
 std::unique_ptr<SkDescriptor> SkDescriptor::Alloc(size_t length) {
     SkASSERT(SkAlign4(length) == length);
@@ -104,6 +104,14 @@ bool SkDescriptor::isValid() const {
 SkAutoDescriptor::SkAutoDescriptor() = default;
 SkAutoDescriptor::SkAutoDescriptor(size_t size) { this->reset(size); }
 SkAutoDescriptor::SkAutoDescriptor(const SkDescriptor& desc) { this->reset(desc); }
+SkAutoDescriptor::SkAutoDescriptor(const SkAutoDescriptor& ad) {
+    this->reset(*ad.getDesc());
+}
+SkAutoDescriptor& SkAutoDescriptor::operator=(const SkAutoDescriptor& ad) {
+    this->reset(*ad.getDesc());
+    return *this;
+}
+
 SkAutoDescriptor::~SkAutoDescriptor() { this->free(); }
 
 void SkAutoDescriptor::reset(size_t size) {

@@ -8,13 +8,13 @@
 #ifndef GrSWMaskHelper_DEFINED
 #define GrSWMaskHelper_DEFINED
 
-#include "GrTypesPriv.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkDraw.h"
-#include "SkMatrix.h"
-#include "SkRasterClip.h"
-#include "SkRegion.h"
-#include "SkTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkTypes.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkRasterClip.h"
 
 class GrShape;
 class GrRecordingContext;

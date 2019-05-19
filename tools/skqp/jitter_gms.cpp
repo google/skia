@@ -7,17 +7,25 @@
 // there is a significant change.  Print `1` if the named test has no
 // significant change, `0` otherwise
 
-#include "gm.h"
-#include "SkGraphics.h"
-#include "SkExecutor.h"
-#include "SkSemaphore.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkExecutor.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkSemaphore.h"
+#include "tools/Registry.h"
+#include "tools/skqp/src/skqp.h"
+#include "tools/skqp/src/skqp_model.h"
 
-#include "skqp_model.h"
-
+#include <math.h>
 #include <algorithm>
 #include <cstdio>
 #include <fstream>
-#include <iostream>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <vector>

@@ -3,8 +3,8 @@
 #ifndef SkPDFType1Font_DEFINED
 #define SkPDFType1Font_DEFINED
 
-#include "SkPDFDocumentPriv.h"
-#include "SkPDFFont.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
+#include "src/pdf/SkPDFFont.h"
 
 void SkPDFEmitType1Font(const SkPDFFont&, SkPDFDocument*);
 

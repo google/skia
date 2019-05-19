@@ -8,8 +8,8 @@
 #ifndef SkChecksum_opts_DEFINED
 #define SkChecksum_opts_DEFINED
 
-#include "SkChecksum.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkChecksum.h"
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE42
     #include <immintrin.h>

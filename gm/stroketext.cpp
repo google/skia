@@ -5,11 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkTextBlob.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "tools/ToolUtils.h"
 
 static void test_nulldev(SkCanvas* canvas) {
     SkBitmap bm;
@@ -33,7 +44,7 @@ static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint, const SkFo
 
     if (strokeWidth > 0) {
         p.setStyle(SkPaint::kFill_Style);
-        canvas->drawSimpleText("P", 1, kUTF8_SkTextEncoding, loc.fX, loc.fY - 225, font, p);
+        canvas->drawSimpleText("P", 1, SkTextEncoding::kUTF8, loc.fX, loc.fY - 225, font, p);
         canvas->drawTextBlob(SkTextBlob::MakeFromPosText("P", 1, &loc, font), 0, 0, p);
     }
 
@@ -41,7 +52,7 @@ static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint, const SkFo
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(strokeWidth);
 
-    canvas->drawSimpleText("P", 1, kUTF8_SkTextEncoding, loc.fX, loc.fY - 225, font, p);
+    canvas->drawSimpleText("P", 1, SkTextEncoding::kUTF8, loc.fX, loc.fY - 225, font, p);
     canvas->drawTextBlob(SkTextBlob::MakeFromPosText("P", 1, &loc, font), 0, 0, p);
 }
 

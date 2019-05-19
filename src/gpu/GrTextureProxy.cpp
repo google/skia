@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrTextureProxy.h"
-#include "GrTextureProxyPriv.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrTextureProxyPriv.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrDeferredProxyUploader.h"
-#include "GrProxyProvider.h"
-#include "GrSurfacePriv.h"
-#include "GrTexturePriv.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDeferredProxyUploader.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrTexturePriv.h"
 
 // Deferred version - with data
 GrTextureProxy::GrTextureProxy(const GrBackendFormat& format, const GrSurfaceDesc& srcDesc,
@@ -76,15 +76,13 @@ GrTextureProxy::~GrTextureProxy() {
     }
 }
 
-bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider,
-                                 bool dontForceNoPendingIO) {
+bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (LazyState::kNot != this->lazyInstantiationState()) {
         return false;
     }
     if (!this->instantiateImpl(resourceProvider, 1, /* needsStencil = */ false,
                                kNone_GrSurfaceFlags, fMipMapped,
-                               fUniqueKey.isValid() ? &fUniqueKey : nullptr,
-                               dontForceNoPendingIO)) {
+                               fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
         return false;
     }
 
@@ -94,12 +92,10 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider,
 }
 
 sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvider) const {
-    SkASSERT(resourceProvider->explicitlyAllocateGPUResources());
-
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, 1,
                                                        /* needsStencil = */ false,
                                                        kNone_GrSurfaceFlags,
-                                                       fMipMapped, true);
+                                                       fMipMapped);
     if (!surface) {
         return nullptr;
     }

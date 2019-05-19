@@ -6,7 +6,7 @@
  */
 
 @header {
-    #include "GrShaderCaps.h"
+    #include "src/gpu/GrShaderCaps.h"
 }
 
 layout(key) in GrClipEdgeType edgeType;

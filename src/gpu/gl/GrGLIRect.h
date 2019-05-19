@@ -10,8 +10,8 @@
 #ifndef GrGLIRect_DEFINED
 #define GrGLIRect_DEFINED
 
-#include "gl/GrGLInterface.h"
-#include "GrGLUtil.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 /**
  * Helper struct for dealing with the fact that Ganesh and GL use different

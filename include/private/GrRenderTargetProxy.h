@@ -8,8 +8,8 @@
 #ifndef GrRenderTargetProxy_DEFINED
 #define GrRenderTargetProxy_DEFINED
 
-#include "GrSurfaceProxy.h"
-#include "GrTypesPriv.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrResourceProvider;
 class GrRenderTargetProxyPriv;
@@ -24,7 +24,7 @@ public:
     const GrRenderTargetProxy* asRenderTargetProxy() const override { return this; }
 
     // Actually instantiate the backing rendertarget, if necessary.
-    bool instantiate(GrResourceProvider*, bool dontForceNoPendingIO = false) override;
+    bool instantiate(GrResourceProvider*) override;
 
     GrFSAAType fsaaType() const {
         if (fSampleCnt <= 1) {

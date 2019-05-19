@@ -9,9 +9,9 @@
  * be overwritten.
  */
 
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLExtensions.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/gl/GrGLExtensions.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 #include <stdio.h>
 
@@ -576,18 +576,6 @@ bool GrGLInterface::validate() const {
        (GR_IS_GR_GL_ES(fStandard) && (
           fExtensions.has("GL_EXT_window_rectangles")))) {
         if (!fFunctions.fWindowRectangles) {
-            RETURN_FALSE_INTERFACE;
-        }
-    }
-
-    if ((GR_IS_GR_GL(fStandard) && (
-          fExtensions.has("EGL_KHR_image") ||
-          fExtensions.has("EGL_KHR_image_base"))) ||
-       (GR_IS_GR_GL_ES(fStandard) && (
-          fExtensions.has("EGL_KHR_image") ||
-          fExtensions.has("EGL_KHR_image_base")))) {
-        if (!fFunctions.fEGLCreateImage ||
-            !fFunctions.fEGLDestroyImage) {
             RETURN_FALSE_INTERFACE;
         }
     }

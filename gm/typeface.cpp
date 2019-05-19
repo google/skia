@@ -5,18 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkBlurTypes.h"
-#include "SkCanvas.h"
-#include "SkFontStyle.h"
-#include "SkMaskFilter.h"
-#include "SkString.h"
-#include "SkSurfaceProps.h"
-#include "SkTextBlob.h"
-#include "SkTypeface.h"
-#include "SkTypes.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
+#include "tools/Resources.h"
+
+#include <string.h>
+#include <utility>
 
 static void getGlyphPositions(const SkFont& font, const uint16_t glyphs[],
                              int count, SkScalar x, SkScalar y, SkPoint pos[]) {
@@ -45,13 +54,13 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
                          SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint) {
     SkTypeface* face = font.getTypefaceOrDefault();
     if (!face) {
-        canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x, y, font, paint);
+        canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, x, y, font, paint);
         return;
     }
 
     SkAutoSTMalloc<128, uint16_t> glyphStorage(len);
     uint16_t* glyphs = glyphStorage.get();
-    int glyphCount = font.textToGlyphs(text, len, kUTF8_SkTextEncoding, glyphs, len);
+    int glyphCount = font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs, len);
     if (glyphCount < 1) {
         return;
     }
@@ -59,7 +68,7 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
     SkAutoSTMalloc<128, int32_t> adjustmentStorage(glyphCount - 1);
     int32_t* adjustments = adjustmentStorage.get();
     if (!face->getKerningPairAdjustments(glyphs, glyphCount, adjustments)) {
-        canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x, y, font, paint);
+        canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, x, y, font, paint);
         return;
     }
 
@@ -128,7 +137,7 @@ protected:
         SkPaint paint;
         for (int i = 0; i < gStylesCount; i++) {
             font.setTypeface(fFaces[i]);
-            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, x, y, font, paint);
+            canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, x, y, font, paint);
             if (fApplyKerning) {
                 drawKernText(canvas, text, textLen, x + 240, y, font, paint);
             }
@@ -182,10 +191,10 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
     constexpr SkScalar textSizes[] = { 9, 10, 11, 12, 13, 14, 15, 16 };
 
     constexpr SkFontHinting hintingTypes[] = {
-        kNo_SkFontHinting,
-        kSlight_SkFontHinting,
-        kNormal_SkFontHinting,
-        kFull_SkFontHinting
+        SkFontHinting::kNone,
+        SkFontHinting::kSlight,
+        SkFontHinting::kNormal,
+        SkFontHinting::kFull
     };
 
     struct SubpixelType {
@@ -236,12 +245,12 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                                 canvas->rotate(2, x + subpixel.offset.x(),
                                                   y + subpixel.offset.y());
                             }
-                            canvas->drawSimpleText(&character, 1, kUTF8_SkTextEncoding,
+                            canvas->drawSimpleText(&character, 1, SkTextEncoding::kUTF8,
                                                    x + subpixel.offset.x(),
                                                    y + subpixel.offset.y(), font, paint);
 
                             SkScalar dx = SkScalarCeilToScalar(
-                                    font.measureText(&character, 1, kUTF8_SkTextEncoding)) + 5;
+                                    font.measureText(&character, 1, SkTextEncoding::kUTF8)) + 5;
                             x += dx;
                             xMax = SkTMax(x, xMax);
                         }
@@ -286,10 +295,10 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                 for (const StyleTests& style : styleTypes) {
                     paint.setStyle(style.style);
                     paint.setStrokeWidth(style.strokeWidth);
-                    canvas->drawSimpleText(&character, 1, kUTF8_SkTextEncoding, x, y, font, paint);
+                    canvas->drawSimpleText(&character, 1, SkTextEncoding::kUTF8, x, y, font, paint);
 
                     SkScalar dx = SkScalarCeilToScalar(font.measureText(&character, 1,
-                                                                        kUTF8_SkTextEncoding)) + 5;
+                                                                        SkTextEncoding::kUTF8)) + 5;
                     x += dx;
                 }
             }
@@ -336,10 +345,10 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                 }
                 for (const MaskTests& mask : maskTypes) {
                     paint.setMaskFilter(SkMaskFilter::MakeBlur(mask.style, mask.sigma));
-                    canvas->drawSimpleText(&character, 1, kUTF8_SkTextEncoding, x, y, font, paint);
+                    canvas->drawSimpleText(&character, 1, SkTextEncoding::kUTF8, x, y, font, paint);
 
                     SkScalar dx = SkScalarCeilToScalar(font.measureText(&character, 1,
-                                                                        kUTF8_SkTextEncoding)) + 5;
+                                                                        SkTextEncoding::kUTF8)) + 5;
                     x += dx;
                 }
                 paint.setMaskFilter(nullptr);

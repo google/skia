@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageFilterCache.h"
+#include "src/core/SkImageFilterCache.h"
 
 #include <vector>
 
-#include "SkImageFilter.h"
-#include "SkMutex.h"
-#include "SkOnce.h"
-#include "SkOpts.h"
-#include "SkRefCnt.h"
-#include "SkSpecialImage.h"
-#include "SkTDynamicHash.h"
-#include "SkTHash.h"
-#include "SkTInternalLList.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTHash.h"
+#include "include/private/SkTInternalLList.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkTDynamicHash.h"
 
 #ifdef SK_BUILD_FOR_IOS
   enum { kDefaultCacheSize = 2 * 1024 * 1024 };
@@ -58,7 +58,7 @@ public:
     };
 
     sk_sp<SkSpecialImage> get(const Key& key, SkIPoint* offset) const override {
-        SkAutoMutexAcquire mutex(fMutex);
+        SkAutoMutexExclusive mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
             *offset = v->fOffset;
             if (v != fLRU.head()) {
@@ -71,7 +71,7 @@ public:
     }
 
     void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset, const SkImageFilter* filter) override {
-        SkAutoMutexAcquire mutex(fMutex);
+        SkAutoMutexExclusive mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
             this->removeInternal(v);
         }
@@ -96,7 +96,7 @@ public:
     }
 
     void purge() override {
-        SkAutoMutexAcquire mutex(fMutex);
+        SkAutoMutexExclusive mutex(fMutex);
         while (fCurrentBytes > 0) {
             Value* tail = fLRU.tail();
             SkASSERT(tail);
@@ -105,7 +105,7 @@ public:
     }
 
     void purgeByImageFilter(const SkImageFilter* filter) override {
-        SkAutoMutexAcquire mutex(fMutex);
+        SkAutoMutexExclusive mutex(fMutex);
         auto* values = fImageFilterValues.find(filter);
         if (!values) {
             return;

@@ -8,11 +8,11 @@
 #ifndef SkSGRenderNode_DEFINED
 #define SkSGRenderNode_DEFINED
 
-#include "SkSGNode.h"
+#include "modules/sksg/include/SkSGNode.h"
 
-#include "SkBlendMode.h"
-#include "SkColorFilter.h"
-#include "SkShader.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkShader.h"
 
 class SkCanvas;
 class SkImageFilter;

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix.h"
-#include "gl/GrGLProgramDataManager.h"
-#include "gl/GrGLGpu.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "include/core/SkMatrix.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 #define ASSERT_ARRAY_UPLOAD_IN_BOUNDS(UNI, COUNT) \
          SkASSERT((COUNT) <= (UNI).fArrayCount || \

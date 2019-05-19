@@ -11,9 +11,11 @@ package skia
 #cgo LDFLAGS: -Wl,-rpath,${SRCDIR}/../../out/Shared
 #cgo LDFLAGS: -lskia
 #cgo CFLAGS: -I../../include/c
+#cgo CFLAGS: -I../..
 #include "sk_canvas.h"
 #include "sk_data.h"
 #include "sk_image.h"
+#include "sk_imageinfo.h"
 #include "sk_paint.h"
 #include "sk_path.h"
 #include "sk_surface.h"
@@ -209,5 +211,5 @@ func (i *ImageInfo) cPointer() *C.sk_imageinfo_t {
 
 // Utility functions.
 func GetDefaultColortype() ColorType {
-	return ColorType(C.sk_colortype_get_default_8888())
+	return ColorType(C.RGBA_8888_SK_COLORTYPE)
 }

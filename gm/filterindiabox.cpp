@@ -5,15 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "ToolUtils.h"
-#include "gm.h"
-
-#include "Resources.h"
-#include "SkBitmapProcState.h"
-#include "SkGradientShader.h"
-#include "SkImageEncoder.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 static SkSize computeSize(const SkBitmap& bm, const SkMatrix& mat) {
     SkRect bounds = SkRect::MakeWH(SkIntToScalar(bm.width()),

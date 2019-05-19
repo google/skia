@@ -9,23 +9,23 @@
 #include <cstring>
 #include <type_traits>
 
-#include "GrClip.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrTexture.h"
-#include "GrTextureProducer.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkGr.h"
-#include "SkImage_Gpu.h"
-#include "SkImage_GpuYUVA.h"
-#include "SkMipMap.h"
-#include "SkScopeExit.h"
-#include "SkYUVASizeInfo.h"
-#include "effects/GrYUVtoRGBEffect.h"
+#include "include/core/SkYUVASizeInfo.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkMipMap.h"
+#include "src/core/SkScopeExit.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrTextureProducer.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrYUVtoRGBEffect.h"
+#include "src/image/SkImage_Gpu.h"
+#include "src/image/SkImage_GpuYUVA.h"
 
 static constexpr auto kAssumedColorType = kRGBA_8888_SkColorType;
 
@@ -71,8 +71,12 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpac
         SkASSERT(SkYUVAIndex::AreValidIndices(image->fYUVAIndices, &textureCount));
     SkASSERT(textureCount == fNumProxies);
 
-    for (int i = 0; i < fNumProxies; ++i) {
-        fProxies[i] = image->fProxies[i];  // we ref in this case, not move
+    if (image->fRGBProxy) {
+        fRGBProxy = image->fRGBProxy;  // we ref in this case, not move
+    } else {
+        for (int i = 0; i < fNumProxies; ++i) {
+            fProxies[i] = image->fProxies[i];  // we ref in this case, not move
+        }
     }
     memcpy(fYUVAIndices, image->fYUVAIndices, 4 * sizeof(SkYUVAIndex));
 }
@@ -80,6 +84,8 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpac
 SkImage_GpuYUVA::~SkImage_GpuYUVA() {}
 
 bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
+    // We shouldn't get here if the planes were already flattened to RGBA.
+    SkASSERT(fProxies[0] && !fRGBProxy);
     if (!context || !fContext->priv().matches(context)) {
         return false;
     }
@@ -102,6 +108,24 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+GrSemaphoresSubmitted SkImage_GpuYUVA::onFlush(GrContext* context, const GrFlushInfo& info) {
+    if (!context || !fContext->priv().matches(context) || fContext->abandoned()) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+
+    GrSurfaceProxy* proxies[4] = {fProxies[0].get(), fProxies[1].get(),
+                                  fProxies[2].get(), fProxies[3].get()};
+    int numProxies = fNumProxies;
+    if (fRGBProxy) {
+        // Either we've already flushed the flattening draw or the flattening is unflushed. In the
+        // latter case it should still be ok to just pass fRGBProxy because it in turn depends on
+        // the planar proxies and will cause all of their work to flush as well.
+        proxies[0] = fRGBProxy.get();
+        numProxies = 1;
+    }
+    return context->priv().flushSurfaces(proxies, numProxies, info);
+}
 
 GrTextureProxy* SkImage_GpuYUVA::peekProxy() const {
     return fRGBProxy.get();
@@ -140,6 +164,9 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef(GrRecordingContext* con
     }
 
     fRGBProxy = renderTargetContext->asTextureProxyRef();
+    for (auto& p : fProxies) {
+        p.reset();
+    }
     return fRGBProxy;
 }
 

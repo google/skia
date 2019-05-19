@@ -5,9 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkFont.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "tools/ToolUtils.h"
+
+#include <string.h>
 
 namespace skiagm {
 
@@ -97,7 +111,7 @@ protected:
         }
         for (unsigned i = 0; i < NUM_CONFIGS; i++) {
             const char* name = color_type_name(src.colorType());
-            SkScalar textWidth = font.measureText(name, strlen(name), kUTF8_SkTextEncoding);
+            SkScalar textWidth = font.measureText(name, strlen(name), SkTextEncoding::kUTF8);
             if (textWidth > width) {
                 width = textWidth;
             }
@@ -110,10 +124,10 @@ protected:
             canvas->save();
             // Draw destination config name
             const char* name = color_type_name(fDst[i].colorType());
-            SkScalar textWidth = font.measureText(name, strlen(name), kUTF8_SkTextEncoding);
+            SkScalar textWidth = font.measureText(name, strlen(name), SkTextEncoding::kUTF8);
             SkScalar x = (width - textWidth) / SkScalar(2);
             SkScalar y = font.getSpacing() / SkScalar(2);
-            canvas->drawSimpleText(name, strlen(name), kUTF8_SkTextEncoding, x, y, font, paint);
+            canvas->drawSimpleText(name, strlen(name), SkTextEncoding::kUTF8, x, y, font, paint);
 
             // Draw destination bitmap
             canvas->translate(0, vertOffset);

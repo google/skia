@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "Resources.h"
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkRSXform.h"
-#include "SkSurface.h"
-#include "Timer.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkSurface.h"
+#include "samplecode/Sample.h"
+#include "tools/Resources.h"
+#include "tools/timer/AnimTimer.h"
+#include "tools/timer/Timer.h"
 
 #include <stdio.h>
 

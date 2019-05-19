@@ -4,11 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include <SkFont.h>
-#include "Sample.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkShader.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "samplecode/Sample.h"
 
 class LCDView : public Sample {
 public:
@@ -46,9 +46,9 @@ protected:
             textSize += delta;
 
             font.setEdging(SkFont::Edging::kAntiAlias);
-            canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x0, y, font, paint);
+            canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, x0, y, font, paint);
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
-            canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x1, y, font, paint);
+            canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, x1, y, font, paint);
 
             y += font.getSpacing();
         }

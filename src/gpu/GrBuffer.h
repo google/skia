@@ -8,7 +8,7 @@
 #ifndef GrBuffer_DEFINED
 #define GrBuffer_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
 /** Base class for a GPU buffer object or a client side arrays. */
 class GrBuffer {

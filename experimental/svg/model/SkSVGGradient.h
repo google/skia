@@ -8,9 +8,9 @@
 #ifndef SkSVGGradient_DEFINED
 #define SkSVGGradient_DEFINED
 
-#include "SkShader.h"
-#include "SkSVGHiddenContainer.h"
-#include "SkSVGTypes.h"
+#include "experimental/svg/model/SkSVGHiddenContainer.h"
+#include "experimental/svg/model/SkSVGTypes.h"
+#include "include/core/SkShader.h"
 
 class SkMatrix;
 class SkSVGRenderContext;

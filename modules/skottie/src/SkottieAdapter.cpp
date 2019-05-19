@@ -5,29 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "SkottieAdapter.h"
+#include "modules/skottie/src/SkottieAdapter.h"
 
-#include "Sk3D.h"
-#include "SkFont.h"
-#include "SkMatrix.h"
-#include "SkMatrix44.h"
-#include "SkPath.h"
-#include "SkRRect.h"
-#include "SkSGColorFilter.h"
-#include "SkSGDraw.h"
-#include "SkSGGradient.h"
-#include "SkSGGroup.h"
-#include "SkSGPaint.h"
-#include "SkSGPath.h"
-#include "SkSGRect.h"
-#include "SkSGRenderEffect.h"
-#include "SkSGText.h"
-#include "SkSGTransform.h"
-#include "SkSGTrimEffect.h"
-#include "SkTableColorFilter.h"
-#include "SkTo.h"
-#include "SkottieShaper.h"
-#include "SkottieValue.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkMatrix44.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/effects/SkTableColorFilter.h"
+#include "include/private/SkTo.h"
+#include "include/utils/Sk3D.h"
+#include "modules/skottie/src/SkottieValue.h"
+#include "modules/sksg/include/SkSGColorFilter.h"
+#include "modules/sksg/include/SkSGDraw.h"
+#include "modules/sksg/include/SkSGGradient.h"
+#include "modules/sksg/include/SkSGGroup.h"
+#include "modules/sksg/include/SkSGPaint.h"
+#include "modules/sksg/include/SkSGPath.h"
+#include "modules/sksg/include/SkSGRect.h"
+#include "modules/sksg/include/SkSGRenderEffect.h"
+#include "modules/sksg/include/SkSGTransform.h"
+#include "modules/sksg/include/SkSGTrimEffect.h"
 
 #include <cmath>
 #include <utility>
@@ -90,13 +88,12 @@ SkMatrix44 TransformAdapter3D::totalMatrix() const {
     t.setTranslate(-fAnchorPoint.fX, -fAnchorPoint.fY, -fAnchorPoint.fZ);
     t.postScale(fScale.fX / 100, fScale.fY / 100, fScale.fZ / 100);
 
-    // TODO: SkMatrix44:postRotate()?
     SkMatrix44 r;
-    r.setRotateDegreesAbout(1, 0, 0, fRotation.fX);
+    r.setRotateDegreesAbout(0, 0, 1, fRotation.fZ);
     t.postConcat(r);
     r.setRotateDegreesAbout(0, 1, 0, fRotation.fY);
     t.postConcat(r);
-    r.setRotateDegreesAbout(0, 0, 1, fRotation.fZ);
+    r.setRotateDegreesAbout(1, 0, 0, fRotation.fX);
     t.postConcat(r);
 
     t.postTranslate(fPosition.fX, fPosition.fY, fPosition.fZ);
@@ -120,8 +117,6 @@ SkMatrix44 CameraAdapter::totalMatrix() const {
     //   * point of interest -> anchor point attribute
     //   * orientation       -> rotation attribute
     //
-    // Note: the orientation is specified post position/POI adjustment.
-    //
     SkPoint3 pos = { this->getPosition().fX,
                      this->getPosition().fY,
                     -this->getPosition().fZ },
@@ -130,18 +125,23 @@ SkMatrix44 CameraAdapter::totalMatrix() const {
                     -this->getAnchorPoint().fZ },
               up = { 0, 1, 0 };
 
+    // Initial camera vector.
     SkMatrix44 cam_t;
     Sk3LookAt(&cam_t, pos, poi, up);
 
+    // Rotation origin is camera position.
     {
         SkMatrix44 rot;
-        rot.setRotateDegreesAbout(1, 0, 0, this->getRotation().fX);
+        rot.setRotateDegreesAbout(1, 0, 0,  this->getRotation().fX);
         cam_t.postConcat(rot);
-        rot.setRotateDegreesAbout(0, 1, 0, this->getRotation().fY);
+        rot.setRotateDegreesAbout(0, 1, 0,  this->getRotation().fY);
         cam_t.postConcat(rot);
-        rot.setRotateDegreesAbout(0, 0, 1, this->getRotation().fZ);
+        rot.setRotateDegreesAbout(0, 0, 1, -this->getRotation().fZ);
         cam_t.postConcat(rot);
     }
+
+    // Flip world Z, as it is opposite of what Sk3D expects.
+    cam_t.preScale(1, 1, -1);
 
     // View parameters:
     //
@@ -152,13 +152,13 @@ SkMatrix44 CameraAdapter::totalMatrix() const {
                view_distance = this->getZoom(),
                view_angle    = std::atan(view_size * 0.5f / view_distance);
 
-    SkMatrix44 view_t;
-    Sk3Perspective(&view_t, 0, view_distance, 2 * view_angle);
-    view_t.postScale(view_size * 0.5f, view_size * 0.5f, 1);
+    SkMatrix44 persp_t;
+    Sk3Perspective(&persp_t, 0, view_distance, 2 * view_angle);
+    persp_t.postScale(view_size * 0.5f, view_size * 0.5f, 1);
 
     SkMatrix44 t;
     t.setTranslate(fViewportSize.width() * 0.5f, fViewportSize.height() * 0.5f, 0);
-    t.preConcat(view_t);
+    t.preConcat(persp_t);
     t.preConcat(cam_t);
 
     return t;
@@ -528,99 +528,6 @@ void LevelsEffectAdapter::apply() {
         channel == kG_Channel || channel == kRGB_Channel ? lut : nullptr,
         channel == kB_Channel || channel == kRGB_Channel ? lut : nullptr
     ));
-}
-
-TextAdapter::TextAdapter(sk_sp<sksg::Group> root)
-    : fRoot(std::move(root))
-    , fTextNode(sksg::TextBlob::Make())
-    , fFillColor(sksg::Color::Make(SK_ColorTRANSPARENT))
-    , fStrokeColor(sksg::Color::Make(SK_ColorTRANSPARENT))
-    , fFillNode(sksg::Draw::Make(fTextNode, fFillColor))
-    , fStrokeNode(sksg::Draw::Make(fTextNode, fStrokeColor))
-    , fHadFill(false)
-    , fHadStroke(false) {
-    // Build a SG fragment with the following general format:
-    //
-    // [Group]
-    //   [Draw]
-    //     [FillPaint]
-    //     [Text]*
-    //   [Draw]
-    //     [StrokePaint]
-    //     [Text]*
-    //
-    // * where the text node is shared
-
-    fFillColor->setAntiAlias(true);
-    fStrokeColor->setAntiAlias(true);
-    fStrokeColor->setStyle(SkPaint::kStroke_Style);
-}
-
-TextAdapter::~TextAdapter() = default;
-
-void TextAdapter::apply() {
-    const Shaper::TextDesc text_desc = {
-        fText.fTypeface,
-        fText.fTextSize,
-        fText.fHAlign,
-        fText.fVAlign,
-    };
-    const auto shape_result = Shaper::Shape(fText.fText, text_desc, fText.fBox);
-
-#if (0)
-    // Enable for text box debugging/visualization.
-    auto box_color = sksg::Color::Make(0xffff0000);
-    box_color->setStyle(SkPaint::kStroke_Style);
-    box_color->setStrokeWidth(1);
-    box_color->setAntiAlias(true);
-
-    auto bounds_color = sksg::Color::Make(0xff00ff00);
-    bounds_color->setStyle(SkPaint::kStroke_Style);
-    bounds_color->setStrokeWidth(1);
-    bounds_color->setAntiAlias(true);
-
-    fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(fText.fBox),
-                                     std::move(box_color)));
-    fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(shape_result.computeBounds()),
-                                     std::move(bounds_color)));
-#endif
-
-    fTextNode->setBlob(shape_result.fBlob);
-    fTextNode->setPosition(shape_result.fPos);
-
-    fFillColor->setColor(fText.fFillColor);
-    fStrokeColor->setColor(fText.fStrokeColor);
-    fStrokeColor->setStrokeWidth(fText.fStrokeWidth);
-
-    // Turn the state transition into a tri-state value:
-    //   -1: detach node
-    //    0: no change
-    //    1: attach node
-    const auto   fill_change = SkToInt(fText.fHasFill) - SkToInt(fHadFill);
-    const auto stroke_change = SkToInt(fText.fHasStroke) - SkToInt(fHadStroke);
-
-    // Sync SG topology.
-    if (fill_change || stroke_change) {
-        // This is trickier than it should be because sksg::Group only allows adding children
-        // in paint-order.
-        if (stroke_change < 0 || (fHadStroke && fill_change > 0)) {
-            fRoot->removeChild(fStrokeNode);
-        }
-
-        if (fill_change < 0) {
-            fRoot->removeChild(fFillNode);
-        } else if (fill_change > 0) {
-            fRoot->addChild(fFillNode);
-        }
-
-        if (stroke_change > 0 || (fHadStroke && fill_change > 0)) {
-            fRoot->addChild(fStrokeNode);
-        }
-    }
-
-    // Track current state.
-    fHadFill   = fText.fHasFill;
-    fHadStroke = fText.fHasStroke;
 }
 
 } // namespace skottie

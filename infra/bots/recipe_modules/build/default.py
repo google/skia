@@ -43,7 +43,7 @@ def compile_swiftshader(api, swiftshader_root, cc, cxx, out):
   api.file.ensure_directory('makedirs swiftshader_out', out)
   with api.context(cwd=out, env=env):
     api.run(api.step, 'swiftshader cmake',
-            cmd=['cmake', '-DBUILD_TESTS=OFF', swiftshader_root, '-GNinja'])
+            cmd=['cmake', '-DBUILD_TESTS=OFF', '-DWARNINGS_AS_ERRORS=0', swiftshader_root, '-GNinja'])
     api.run(api.step, 'swiftshader ninja',
             cmd=['ninja', '-C', out, 'libEGL.so', 'libGLESv2.so'])
 
@@ -63,7 +63,7 @@ def compile_fn(api, checkout_root, out_dir):
   cc, cxx = None, None
   extra_cflags = []
   extra_ldflags = []
-  args = {}
+  args = {'werror': 'true'}
   env = {}
 
   if os == 'Mac':

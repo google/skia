@@ -6,10 +6,10 @@
  */
 
 
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkRegionPriv.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkRegionPriv.h"
 
 bool FuzzRegionDeserialize(sk_sp<SkData> bytes) {
     SkRegion region;

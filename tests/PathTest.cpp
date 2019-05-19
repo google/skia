@@ -5,26 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkGeometry.h"
-#include "SkNullCanvas.h"
-#include "SkPaint.h"
-#include "SkParse.h"
-#include "SkParsePath.h"
-#include "SkPathEffect.h"
-#include "SkPathPriv.h"
-#include "SkRRect.h"
-#include "SkRandom.h"
-#include "SkReader32.h"
-#include "SkSize.h"
-#include "SkStream.h"
-#include "SkStrokeRec.h"
-#include "SkSurface.h"
-#include "SkTo.h"
-#include "SkWriter32.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkNullCanvas.h"
+#include "include/utils/SkParse.h"
+#include "include/utils/SkParsePath.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkReader32.h"
+#include "src/core/SkWriter32.h"
+#include "tests/Test.h"
 
 #include <cmath>
 #include <utility>
@@ -733,7 +733,7 @@ static void test_bounds_crbug_513799(skiatest::Reporter* reporter) {
 #endif
 }
 
-#include "SkSurface.h"
+#include "include/core/SkSurface.h"
 static void test_fuzz_crbug_627414(skiatest::Reporter* reporter) {
     SkPath path;
     path.moveTo(0, 0);
@@ -1348,16 +1348,10 @@ static void test_path_crbug389050(skiatest::Reporter* reporter) {
     tinyConvexPolygon.lineTo(600.134891f, 800.137724f);
     tinyConvexPolygon.close();
     tinyConvexPolygon.getConvexity();
-    check_convexity(reporter, tinyConvexPolygon, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
-#if SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE
-    // colinear diagonal points cause convexicator to give up, so CheapComputeFirstDirection
-    // makes its best guess
+    // This is convex, but so small that it fails many of our checks, and the three "backwards"
+    // bends convince the checker that it's concave. That's okay though, we draw it correctly.
+    check_convexity(reporter, tinyConvexPolygon, SkPath::kConcave_Convexity);
     check_direction(reporter, tinyConvexPolygon, SkPathPriv::kCW_FirstDirection);
-#else
-    // lines are close enough to straight that polygon collapses to line that does not
-    // enclose area, so has unknown first direction
-    check_direction(reporter, tinyConvexPolygon, SkPathPriv::kUnknown_FirstDirection);
-#endif
 
     SkPath  platTriangle;
     platTriangle.moveTo(0, 0);
@@ -1485,7 +1479,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
     stroke.setStrokeStyle(2 * SK_Scalar1);
     stroke.applyToPath(&strokedSin, strokedSin);
-    check_convexity(reporter, strokedSin, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    check_convexity(reporter, strokedSin, SkPath::kConcave_Convexity);
     check_direction(reporter, strokedSin, kDontCheckDir);
 
     // http://crbug.com/412640
@@ -1519,7 +1513,7 @@ static void test_convexity_doubleback(skiatest::Reporter* reporter) {
     doubleback.lineTo(1, 1);
     check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
     doubleback.lineTo(2, 2);
-    check_convexity(reporter, doubleback, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
     doubleback.reset();
     doubleback.lineTo(1, 0);
     check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
@@ -1529,7 +1523,7 @@ static void test_convexity_doubleback(skiatest::Reporter* reporter) {
     check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
     doubleback.reset();
     doubleback.quadTo(1, 1, 2, 2);
-    check_convexity(reporter, doubleback, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
     doubleback.reset();
     doubleback.quadTo(1, 0, 2, 0);
     check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
@@ -1592,7 +1586,7 @@ static void test_convexity(skiatest::Reporter* reporter) {
 
     path.reset();
     path.quadTo(100, 100, 50, 50); // This from GM:convexpaths
-    check_convexity(reporter, path, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    check_convexity(reporter, path, SkPath::kConvex_Convexity);
 
     static const struct {
         const char*                 fPathStr;
@@ -3727,10 +3721,10 @@ static void test_arc(skiatest::Reporter* reporter) {
     // diagonal colinear points make arc convex
     // TODO: one way to keep it concave would be to introduce interpolated on curve points
     // between control points and computing the on curve point at scan conversion time
-    REPORTER_ASSERT(reporter, p.getConvexity() == SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    REPORTER_ASSERT(reporter, p.getConvexity() == SkPath::kConvex_Convexity);
     REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(p, SkPathPriv::kCW_FirstDirection));
     p.setConvexity(SkPath::kUnknown_Convexity);
-    REPORTER_ASSERT(reporter, p.getConvexity() == SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    REPORTER_ASSERT(reporter, p.getConvexity() == SkPath::kConvex_Convexity);
 }
 
 static inline SkScalar oval_start_index_to_angle(unsigned start) {
@@ -4612,7 +4606,7 @@ DEF_TEST(PathInterp, reporter) {
     test_interp(reporter);
 }
 
-#include "SkSurface.h"
+#include "include/core/SkSurface.h"
 DEF_TEST(PathBigCubic, reporter) {
     SkPath path;
     path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
@@ -4843,7 +4837,7 @@ static void rand_path(SkPath* path, SkRandom& rand, SkPath::Verb verb, int n) {
     }
 }
 
-#include "SkPathOps.h"
+#include "include/pathops/SkPathOps.h"
 DEF_TEST(path_tight_bounds, reporter) {
     SkRandom rand;
 
@@ -5208,7 +5202,7 @@ DEF_TEST(Path_self_add, reporter) {
     }
 }
 
-#include "SkVertices.h"
+#include "include/core/SkVertices.h"
 static void draw_triangle(SkCanvas* canvas, const SkPoint pts[]) {
     // draw in different ways, looking for an assert
 
@@ -5433,7 +5427,7 @@ DEF_TEST(path_last_move_to_index, r) {
     SkGlyphID glyphs[len];
 
     SkFont font;
-    font.textToGlyphs(text, len, kUTF8_SkTextEncoding, glyphs, len);
+    font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs, len);
 
     SkPath copyPath;
     SkFont().getPaths(glyphs, len, [](const SkPath* src, const SkMatrix& mx, void* ctx) {

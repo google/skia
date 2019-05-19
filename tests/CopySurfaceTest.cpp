@@ -5,25 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkUtils.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/SkGr.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
+#include "tools/gpu/ProxyUtils.h"
 
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrSurfaceContext.h"
-#include "GrSurfaceProxy.h"
-#include "GrTextureProxy.h"
-#include "GrTypes.h"
-#include "ProxyUtils.h"
-#include "SkGr.h"
-#include "SkImageInfo.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkTemplates.h"
-#include "SkUtils.h"
-#include "Test.h"
-
+#include <initializer_list>
 #include <utility>
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
@@ -68,16 +70,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
 
     for (auto sOrigin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
         for (auto dOrigin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
-            for (auto sRT : {true, false}) {
-                for (auto dRT : {true, false}) {
+            for (auto sRenderable : {GrRenderable::kYes, GrRenderable::kNo}) {
+                for (auto dRenderable : {GrRenderable::kYes, GrRenderable::kNo}) {
                     for (auto srcRect : kSrcRects) {
                         for (auto dstPoint : kDstPoints) {
                             for (auto ii: kImageInfos) {
                                 auto src = sk_gpu_test::MakeTextureProxyFromData(
-                                        context, sRT, kW, kH, ii.colorType(), sOrigin,
+                                        context, sRenderable, kW, kH, ii.colorType(), sOrigin,
                                         srcPixels.get(), kRowBytes);
                                 auto dst = sk_gpu_test::MakeTextureProxyFromData(
-                                        context, dRT, kW, kH, ii.colorType(), dOrigin,
+                                        context, dRenderable, kW, kH, ii.colorType(), dOrigin,
                                         dstPixels.get(), kRowBytes);
 
                                 // Should always work if the color type is RGBA, but may not work

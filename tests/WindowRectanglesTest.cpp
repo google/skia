@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkTypes.h"
+#include "tests/Test.h"
 
-#include "GrWindowRectangles.h"
-#include "SkRandom.h"
-#include "SkRectPriv.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkRectPriv.h"
+#include "src/gpu/GrWindowRectangles.h"
 
 static SkIRect next_irect(SkRandom& r) {
     return {r.nextS(), r.nextS(), r.nextS(), r.nextS()};

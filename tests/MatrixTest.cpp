@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkMath.h"
-#include "SkMatrixPriv.h"
-#include "SkMatrixUtils.h"
-#include "SkPoint3.h"
-#include "SkRandom.h"
-#include "Test.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkPoint3.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkMatrixUtils.h"
+#include "tests/Test.h"
 
 static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
     const SkScalar tolerance = SK_Scalar1 / 200000;
@@ -1065,4 +1065,8 @@ DEF_TEST(Matrix_maprects, r) {
             REPORTER_ASSERT(r, !rect.isFinite());
         }
     }
+}
+
+DEF_TEST(Matrix_Ctor, r) {
+    REPORTER_ASSERT(r, SkMatrix{} == SkMatrix::I());
 }

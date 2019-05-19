@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkMipMap.h"
-#include "SkRandom.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkMipMap.h"
+#include "tests/Test.h"
 
 static void make_bitmap(SkBitmap* bm, int width, int height) {
     bm->allocN32Pixels(width, height);

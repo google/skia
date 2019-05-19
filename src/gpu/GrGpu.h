@@ -8,18 +8,18 @@
 #ifndef GrGpu_DEFINED
 #define GrGpu_DEFINED
 
-#include "GrCaps.h"
-#include "GrGpuCommandBuffer.h"
-#include "GrProgramDesc.h"
-#include "GrSamplePatternDictionary.h"
-#include "GrSwizzle.h"
-#include "GrAllocator.h"
-#include "GrTextureProducer.h"
-#include "GrTypes.h"
-#include "GrXferProcessor.h"
-#include "SkPath.h"
-#include "SkSurface.h"
-#include "SkTArray.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkTArray.h"
+#include "src/gpu/GrAllocator.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrProgramDesc.h"
+#include "src/gpu/GrSamplePatternDictionary.h"
+#include "src/gpu/GrSwizzle.h"
+#include "src/gpu/GrTextureProducer.h"
+#include "src/gpu/GrXferProcessor.h"
 #include <map>
 
 class GrBackendRenderTarget;
@@ -303,8 +303,9 @@ public:
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also
     // insert any numSemaphore semaphores on the gpu and set the backendSemaphores to match the
     // inserted semaphores.
-    GrSemaphoresSubmitted finishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
-                                      const GrFlushInfo&);
+    GrSemaphoresSubmitted finishFlush(GrSurfaceProxy*[], int n,
+                                      SkSurface::BackendSurfaceAccess access, const GrFlushInfo&,
+                                      const GrPrepareForExternalIORequests&);
 
     virtual void submit(GrGpuCommandBuffer*) = 0;
 
@@ -318,6 +319,8 @@ public:
                                                     GrWrapOwnership ownership) = 0;
     virtual void insertSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
     virtual void waitSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
+
+    virtual void checkFinishProcs() = 0;
 
     /**
      *  Put this texture in a safe and known state for use across multiple GrContexts. Depending on
@@ -391,25 +394,28 @@ public:
     Stats* stats() { return &fStats; }
     void dumpJSON(SkJSONWriter*) const;
 
-#if GR_TEST_UTILS
-    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                     SkColorType, bool isRenderTarget,
-                                                     GrMipMapped, size_t rowBytes = 0);
+    GrBackendTexture createTestingOnlyBackendTexture(int w, int h, SkColorType,
+                                                     GrMipMapped, GrRenderable,
+                                                     const void* pixels = nullptr,
+                                                     size_t rowBytes = 0);
 
     /** Creates a texture directly in the backend API without wrapping it in a GrTexture. This is
         only to be used for testing (particularly for testing the methods that import an externally
         created texture into Skia. Must be matched with a call to deleteTestingOnlyTexture(). */
-    virtual GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                             GrColorType, bool isRenderTarget,
-                                                             GrMipMapped, size_t rowBytes = 0) = 0;
+    virtual GrBackendTexture createTestingOnlyBackendTexture(int w, int h, const GrBackendFormat&,
+                                                             GrMipMapped, GrRenderable,
+                                                             const void* pixels = nullptr,
+                                                             size_t rowBytes = 0) = 0;
 
-    /** Check a handle represents an actual texture in the backend API that has not been freed. */
-    virtual bool isTestingOnlyBackendTexture(const GrBackendTexture&) const = 0;
     /**
      * Frees a texture created by createTestingOnlyBackendTexture(). If ownership of the backend
      * texture has been transferred to a GrContext using adopt semantics this should not be called.
      */
     virtual void deleteTestingOnlyBackendTexture(const GrBackendTexture&) = 0;
+
+#if GR_TEST_UTILS
+    /** Check a handle represents an actual texture in the backend API that has not been freed. */
+    virtual bool isTestingOnlyBackendTexture(const GrBackendTexture&) const = 0;
 
     virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h,
                                                                        GrColorType) = 0;
@@ -545,8 +551,8 @@ private:
                                const SkIRect& srcRect, const SkIPoint& dstPoint,
                                bool canDiscardOutsideDstRect) = 0;
 
-    virtual void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
-                               const GrFlushInfo&) = 0;
+    virtual void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
+                               const GrFlushInfo&, const GrPrepareForExternalIORequests&) = 0;
 
 #ifdef SK_ENABLE_DUMP_GPU
     virtual void onDumpJSON(SkJSONWriter*) const {}

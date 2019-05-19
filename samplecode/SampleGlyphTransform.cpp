@@ -4,15 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Sample.h"
-#include "ToolUtils.h"
+#include "samplecode/Sample.h"
+#include "tools/ToolUtils.h"
 
-#include "AnimTimer.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkRRect.h"
-#include "SkRandom.h"
-#include "SkTypeface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkTypeface.h"
+#include "include/utils/SkRandom.h"
+#include "tools/timer/AnimTimer.h"
 
 #include <cmath>
 
@@ -55,8 +55,8 @@ protected:
 
         // d3 by default anchors text around the middle
         SkRect bounds;
-        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
-        canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, -bounds.centerX(), -bounds.centerY(),
+        font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
+        canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, -bounds.centerX(), -bounds.centerY(),
                                font, paint);
     }
 

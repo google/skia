@@ -6,19 +6,19 @@
  */
 
 #include <algorithm>
-#include "Sk4fLinearGradient.h"
-#include "SkColorSpacePriv.h"
-#include "SkConvertPixels.h"
-#include "SkFloatBits.h"
-#include "SkGradientShaderPriv.h"
-#include "SkHalf.h"
-#include "SkLinearGradient.h"
-#include "SkMallocPixelRef.h"
-#include "SkRadialGradient.h"
-#include "SkReadBuffer.h"
-#include "SkSweepGradient.h"
-#include "SkTwoPointConicalGradient.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkMallocPixelRef.h"
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkHalf.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkConvertPixels.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/shaders/gradients/Sk4fLinearGradient.h"
+#include "src/shaders/gradients/SkGradientShaderPriv.h"
+#include "src/shaders/gradients/SkLinearGradient.h"
+#include "src/shaders/gradients/SkRadialGradient.h"
+#include "src/shaders/gradients/SkSweepGradient.h"
+#include "src/shaders/gradients/SkTwoPointConicalGradient.h"
 
 enum GradientSerializationFlags {
     // Bits 29:31 used for various boolean flags

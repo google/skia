@@ -6,30 +6,30 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTime.h"
 #include <jni.h>
 #include <math.h>
 #include <string>
 #include <utility>
-#include <SkColor.h>
-#include <SkCanvas.h>
-#include <SkBitmap.h>
-#include <SkSurface.h>
-#include <SkTime.h>
 
-#include <GrContextOptions.h>
-#include <GrContext.h>
-#include <gl/GrGLInterface.h>
-#include <GrBackendSurface.h>
-#include <gl/GrGLTypes.h>
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLTypes.h"
 
-#include <Skottie.h>
+#include "modules/skottie/include/Skottie.h"
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
 #include <GLES3/gl3.h>
 #include <android/trace.h>
-#include "JavaInputStreamAdaptor.h"
+#include "platform_tools/android/apps/skottie/src/main/cpp/JavaInputStreamAdaptor.h"
 
 #define STENCIL_BUFFER_SIZE 8
 

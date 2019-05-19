@@ -6,27 +6,27 @@
  * found in the LICENSE file.
  */
 
-#include "GrSmallPathRenderer.h"
+#include "src/gpu/ops/GrSmallPathRenderer.h"
 
-#include "GrBuffer.h"
-#include "GrCaps.h"
-#include "GrDistanceFieldGenFromVector.h"
-#include "GrDrawOpTest.h"
-#include "GrQuad.h"
-#include "GrRenderTargetContext.h"
-#include "GrResourceProvider.h"
-#include "GrSimpleMeshDrawOpHelper.h"
-#include "GrVertexWriter.h"
-#include "SkAutoMalloc.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkDistanceFieldGen.h"
-#include "SkDraw.h"
-#include "SkPaint.h"
-#include "SkPointPriv.h"
-#include "SkRasterClip.h"
-#include "effects/GrBitmapTextGeoProc.h"
-#include "effects/GrDistanceFieldGeoProc.h"
-#include "ops/GrMeshDrawOp.h"
+#include "include/core/SkPaint.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkRasterClip.h"
+#include "src/gpu/GrBuffer.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrDistanceFieldGenFromVector.h"
+#include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrQuad.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/effects/GrBitmapTextGeoProc.h"
+#include "src/gpu/effects/GrDistanceFieldGeoProc.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 #define ATLAS_TEXTURE_WIDTH 2048
 #define ATLAS_TEXTURE_HEIGHT 2048
@@ -877,7 +877,7 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
                         kAlpha_8_SkColorType);
         fAtlas = GrDrawOpAtlas::Make(args.fContext->priv().proxyProvider(),
                                      format,
-                                     kAlpha_8_GrPixelConfig,
+                                     GrColorType::kAlpha_8,
                                      ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                      PLOT_WIDTH, PLOT_HEIGHT,
                                      GrDrawOpAtlas::AllowMultitexturing::kYes,
@@ -966,7 +966,7 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
         const GrBackendFormat format =
                 context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
         gTestStruct.fAtlas = GrDrawOpAtlas::Make(context->priv().proxyProvider(),
-                                                 format, kAlpha_8_GrPixelConfig,
+                                                 format, GrColorType::kAlpha_8,
                                                  ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                  PLOT_WIDTH, PLOT_HEIGHT,
                                                  GrDrawOpAtlas::AllowMultitexturing::kYes,

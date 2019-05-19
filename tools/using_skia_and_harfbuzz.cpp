@@ -16,12 +16,12 @@
 #include <string>
 #include <vector>
 
-#include "SkCanvas.h"
-#include "SkPDFDocument.h"
-#include "SkShaper.h"
-#include "SkStream.h"
-#include "SkTextBlob.h"
-#include "SkTypeface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/docs/SkPDFDocument.h"
+#include "modules/skshaper/include/SkShaper.h"
 
 // Options /////////////////////////////////////////////////////////////////////
 

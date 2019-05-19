@@ -8,12 +8,12 @@
 #ifndef GrSurfaceProxy_DEFINED
 #define GrSurfaceProxy_DEFINED
 
-#include "../private/SkNoncopyable.h"
-#include "GrBackendSurface.h"
-#include "GrGpuResource.h"
-#include "GrSurface.h"
-#include "GrTexture.h"
-#include "SkRect.h"
+#include "include/core/SkRect.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrGpuResource.h"
+#include "include/gpu/GrSurface.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/SkNoncopyable.h"
 
 class GrCaps;
 class GrContext_Base;
@@ -183,9 +183,8 @@ protected:
         }
     }
 
-    int32_t internalGetProxyRefCnt() const {
-        return fRefCnt;
-    }
+    int32_t internalGetProxyRefCnt() const { return fRefCnt; }
+    int32_t internalGetTotalRefs() const { return fRefCnt + fPendingReads + fPendingWrites; }
 
     // For deferred proxies this will be null. For wrapped proxies it will point to the
     // wrapped resource.
@@ -364,8 +363,7 @@ public:
         return fUniqueID;
     }
 
-    virtual bool instantiate(GrResourceProvider* resourceProvider,
-                             bool dontForceNoPendingIO = false) = 0;
+    virtual bool instantiate(GrResourceProvider*) = 0;
 
     void deinstantiate();
 
@@ -493,9 +491,11 @@ protected:
     friend class GrSurfaceProxyPriv;
 
     // Methods made available via GrSurfaceProxyPriv
-    int32_t getProxyRefCnt() const {
-        return this->internalGetProxyRefCnt();
-    }
+    bool ignoredByResourceAllocator() const { return fIgnoredByResourceAllocator; }
+    void setIgnoredByResourceAllocator() { fIgnoredByResourceAllocator = true; }
+
+    int32_t getProxyRefCnt() const { return this->internalGetProxyRefCnt(); }
+    int32_t getTotalRefs() const { return this->internalGetTotalRefs(); }
 
     void computeScratchKey(GrScratchKey*) const;
 
@@ -503,12 +503,21 @@ protected:
     void assign(sk_sp<GrSurface> surface);
 
     sk_sp<GrSurface> createSurfaceImpl(GrResourceProvider*, int sampleCnt, bool needsStencil,
-                                       GrSurfaceDescFlags, GrMipMapped,
-                                       bool forceNoPendingIO) const;
+                                       GrSurfaceDescFlags, GrMipMapped) const;
+
+    // Once the size of a fully-lazy proxy is decided, and before it gets instantiated, the client
+    // can use this optional method to specify the proxy's size. (A proxy's size can be less than
+    // the GPU surface that backs it. e.g., SkBackingFit::kApprox.) Otherwise, the proxy's size will
+    // be set to match the underlying GPU surface upon instantiation.
+    void setLazySize(int width, int height) {
+        SkASSERT(GrSurfaceProxy::LazyState::kFully == this->lazyInstantiationState());
+        SkASSERT(width > 0 && height > 0);
+        fWidth = width;
+        fHeight = height;
+    }
 
     bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt, bool needsStencil,
-                         GrSurfaceDescFlags descFlags, GrMipMapped, const GrUniqueKey*,
-                         bool dontForceNoPendingIO);
+                         GrSurfaceDescFlags descFlags, GrMipMapped, const GrUniqueKey*);
 
     // In many cases these flags aren't actually known until the proxy has been instantiated.
     // However, Ganesh frequently needs to change its behavior based on these settings. For
@@ -551,6 +560,7 @@ private:
     virtual size_t onUninstantiatedGpuMemorySize() const = 0;
 
     bool                   fNeedsClear;
+    bool                   fIgnoredByResourceAllocator = false;
 
     // This entry is lazily evaluated so, when the proxy wraps a resource, the resource
     // will be called but, when the proxy is deferred, it will compute the answer itself.

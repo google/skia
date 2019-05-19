@@ -8,7 +8,7 @@
 #ifndef SkICC_DEFINED
 #define SkICC_DEFINED
 
-#include "SkData.h"
+#include "include/core/SkData.h"
 
 struct skcms_Matrix3x3;
 struct skcms_TransferFunction;

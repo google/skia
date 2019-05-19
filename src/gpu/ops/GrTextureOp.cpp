@@ -5,34 +5,34 @@
  * found in the LICENSE file.
  */
 
-#include "GrTextureOp.h"
+#include "src/gpu/ops/GrTextureOp.h"
 #include <new>
-#include "GrAppliedClip.h"
-#include "GrCaps.h"
-#include "GrDrawOpTest.h"
-#include "GrGeometryProcessor.h"
-#include "GrGpu.h"
-#include "GrMemoryPool.h"
-#include "GrMeshDrawOp.h"
-#include "GrOpFlushState.h"
-#include "GrQuad.h"
-#include "GrQuadPerEdgeAA.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrResourceProvider.h"
-#include "GrResourceProviderPriv.h"
-#include "GrShaderCaps.h"
-#include "GrTexture.h"
-#include "GrTexturePriv.h"
-#include "GrTextureProxy.h"
-#include "SkGr.h"
-#include "SkMathPriv.h"
-#include "SkMatrixPriv.h"
-#include "SkPoint.h"
-#include "SkPoint3.h"
-#include "SkRectPriv.h"
-#include "SkTo.h"
-#include "glsl/GrGLSLVarying.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrRecordingContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkRectPriv.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrQuad.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrResourceProviderPriv.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrQuadPerEdgeAA.h"
 
 namespace {
 
@@ -94,8 +94,8 @@ static GrPerspQuad compute_src_quad(GrSurfaceOrigin origin, const GrPerspQuad& s
                                     float iw, float ih, float h) {
     // The src quad should not have any perspective
     SkASSERT(!srcQuad.hasPerspective());
-    Sk4f xs = srcQuad.x4f() * iw;
-    Sk4f ys = srcQuad.y4f() * ih;
+    skvx::Vec<4, float> xs = srcQuad.x4f() * iw;
+    skvx::Vec<4, float> ys = srcQuad.y4f() * ih;
     if (origin == kBottomLeft_GrSurfaceOrigin) {
         ys = h - ys;
     }
@@ -196,9 +196,6 @@ public:
     const char* name() const override { return "TextureOp"; }
 
     void visitProxies(const VisitProxyFunc& func, VisitorType visitor) const override {
-        if (visitor == VisitorType::kAllocatorGather && fCanSkipAllocatorGather) {
-            return;
-        }
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             func(fProxies[p].fProxy);
         }
@@ -300,8 +297,6 @@ private:
         auto bounds = dstQuad.bounds(dstQuadType);
         this->setBounds(bounds, HasAABloat(aaType == GrAAType::kCoverage), IsZeroArea::kNo);
         fDomain = static_cast<unsigned>(domain);
-        fCanSkipAllocatorGather =
-                static_cast<unsigned>(fProxies[0].fProxy->canSkipResourceAllocator());
     }
     TextureOp(const GrRenderTargetContext::TextureSetEntry set[], int cnt,
               GrSamplerState::Filter filter, GrAAType aaType,
@@ -315,7 +310,6 @@ private:
         SkRect bounds = SkRectPriv::MakeLargestInverted();
         GrAAType overallAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
         bool mustFilter = false;
-        fCanSkipAllocatorGather = static_cast<unsigned>(true);
         // Most dst rects are transformed by the same view matrix, so their quad types start
         // identical, unless an entry provides a dstClip or additional transform that changes it.
         // The quad list will automatically adapt to that.
@@ -327,9 +321,6 @@ private:
             fProxies[p].fQuadCnt = 1;
             SkASSERT(fProxies[p].fProxy->textureType() == fProxies[0].fProxy->textureType());
             SkASSERT(fProxies[p].fProxy->config() == fProxies[0].fProxy->config());
-            if (!fProxies[p].fProxy->canSkipResourceAllocator()) {
-                fCanSkipAllocatorGather = static_cast<unsigned>(false);
-            }
 
             SkMatrix ctm = viewMatrix;
             if (set[p].fPreViewMatrix) {
@@ -451,11 +442,7 @@ private:
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
                 numTotalQuads += op.fProxies[p].fQuadCnt;
                 auto* proxy = op.fProxies[p].fProxy;
-                if (target->resourceProvider()->explicitlyAllocateGPUResources()) {
-                    if (!proxy->isInstantiated()) {
-                        return;
-                    }
-                } else if (!proxy->instantiate(target->resourceProvider())) {
+                if (!proxy->isInstantiated()) {
                     return;
                 }
                 SkASSERT(proxy->config() == config);
@@ -557,6 +544,12 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         TRACE_EVENT0("skia", TRACE_FUNC);
         const auto* that = t->cast<TextureOp>();
+        if (fDomain != that->fDomain) {
+            // It is technically possible to combine operations across domain modes, but performance
+            // testing suggests it's better to make more draw calls where some take advantage of
+            // the more optimal shader path without coordinate clamping.
+            return CombineResult::kCannotCombine;
+        }
         if (!GrColorSpaceXform::Equals(fTextureColorSpaceXform.get(),
                                        that->fTextureColorSpaceXform.get())) {
             return CombineResult::kCannotCombine;
@@ -671,8 +664,7 @@ private:
     GR_STATIC_ASSERT(GrQuadPerEdgeAA::kColorTypeCount <= 4);
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     unsigned fFinalized : 1;
-    unsigned fCanSkipAllocatorGather : 1;
-    unsigned fProxyCnt : 32 - 9;
+    unsigned fProxyCnt : 32 - 8;
     Proxy fProxies[1];
 
     static_assert(kGrQuadTypeCount <= 4, "GrQuadType does not fit in 2 bits");
@@ -752,9 +744,9 @@ bool GetFilterHasEffect(const SkMatrix& viewMatrix, const SkRect& srcRect, const
 }  // namespace GrTextureOp
 
 #if GR_TEST_UTILS
-#include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 
 GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     GrSurfaceDesc desc;

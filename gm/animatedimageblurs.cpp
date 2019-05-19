@@ -5,11 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "AnimTimer.h"
-#include "SkBlurImageFilter.h"
-#include "SkRRect.h"
-#include "SkRandom.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/utils/SkRandom.h"
+#include "tools/timer/AnimTimer.h"
 
 static const SkScalar kBlurMax = 7.0f;
 static const int kNumNodes = 30;

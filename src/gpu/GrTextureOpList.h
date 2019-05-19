@@ -8,11 +8,11 @@
 #ifndef GrTexureOpList_DEFINED
 #define GrTexureOpList_DEFINED
 
-#include "GrGpuResource.h"
-#include "GrOpList.h"
-#include "GrSurfaceProxy.h"
+#include "include/gpu/GrGpuResource.h"
+#include "include/private/GrOpList.h"
+#include "include/private/GrSurfaceProxy.h"
 
-#include "SkTArray.h"
+#include "include/private/SkTArray.h"
 
 class GrAuditTrail;
 class GrGpu;
@@ -23,8 +23,7 @@ struct SkIRect;
 
 class GrTextureOpList final : public GrOpList {
 public:
-    GrTextureOpList(GrResourceProvider*, sk_sp<GrOpMemoryPool>,
-                    sk_sp<GrTextureProxy>, GrAuditTrail*);
+    GrTextureOpList(sk_sp<GrOpMemoryPool>, sk_sp<GrTextureProxy>, GrAuditTrail*);
     ~GrTextureOpList() override;
 
     /**

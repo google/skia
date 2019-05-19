@@ -8,13 +8,13 @@
 #ifndef GrResourceAllocator_DEFINED
 #define GrResourceAllocator_DEFINED
 
-#include "GrGpuResourcePriv.h"
-#include "GrSurface.h"
-#include "GrSurfaceProxy.h"
+#include "include/gpu/GrSurface.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "src/gpu/GrGpuResourcePriv.h"
 
-#include "SkArenaAlloc.h"
-#include "SkTDynamicHash.h"
-#include "SkTMultiMap.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkTDynamicHash.h"
+#include "src/core/SkTMultiMap.h"
 
 class GrDeinstantiateProxyTracker;
 class GrResourceProvider;
@@ -55,9 +55,19 @@ public:
     unsigned int curOp() const { return fNumOps; }
     void incOps() { fNumOps++; }
 
+    /** Indicates whether a given call to addInterval represents an actual usage of the
+     *  provided proxy. This is mainly here to accomodate deferred proxies attached to opLists.
+     *  In that case we need to create an extra long interval for them (due to the upload) but
+     *  don't want to count that usage/reference towards the proxy's recyclability.
+     */
+    enum class ActualUse : bool {
+        kNo  = false,
+        kYes = true
+    };
+
     // Add a usage interval from 'start' to 'end' inclusive. This is usually used for renderTargets.
     // If an existing interval already exists it will be expanded to include the new range.
-    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end
+    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, ActualUse actualUse
                      SkDEBUGCODE(, bool isDirectDstRead = false));
 
     enum class AssignError {
@@ -73,6 +83,7 @@ public:
     // amount of GPU resources required.
     bool assign(int* startIndex, int* stopIndex, AssignError* outError);
 
+    void determineRecyclability();
     void markEndOfOpList(int opListIndex);
 
 #if GR_ALLOCATION_SPEW
@@ -125,6 +136,7 @@ private:
             SkASSERT(proxy);
             SkASSERT(!fProxy && !fNext);
 
+            fUses = 0;
             fProxy = proxy;
             fProxyID = proxy->uniqueID().asUInt();
             fStart = start;
@@ -143,12 +155,19 @@ private:
 
         const GrSurfaceProxy* proxy() const { return fProxy; }
         GrSurfaceProxy* proxy() { return fProxy; }
+
         unsigned int start() const { return fStart; }
         unsigned int end() const { return fEnd; }
+
+        void setNext(Interval* next) { fNext = next; }
         const Interval* next() const { return fNext; }
         Interval* next() { return fNext; }
 
-        void setNext(Interval* next) { fNext = next; }
+        void markAsRecyclable() { fIsRecyclable = true;}
+        bool isRecyclable() const { return fIsRecyclable; }
+
+        void addUse() { fUses++; }
+        int uses() { return fUses; }
 
         void extendEnd(unsigned int newEnd) {
             if (newEnd > fEnd) {
@@ -176,6 +195,8 @@ private:
         unsigned int     fStart;
         unsigned int     fEnd;
         Interval*        fNext;
+        unsigned int     fUses = 0;
+        bool             fIsRecyclable = false;
 
 #if GR_TRACK_INTERVAL_CREATION
         uint32_t        fUniqueID;
@@ -197,6 +218,7 @@ private:
             return !SkToBool(fHead);
         }
         const Interval* peekHead() const { return fHead; }
+        Interval* peekHead() { return fHead; }
         Interval* popHead();
         void insertByIncreasingStart(Interval*);
         void insertByIncreasingEnd(Interval*);

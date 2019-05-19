@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-#include "GrGLSLProgramBuilder.h"
-#include "GrGLSLVarying.h"
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
 
 void GrGLSLVertexGeoBuilder::emitNormalizedSkPosition(SkString* out, const char* devPos,
                                                       const char* rtAdjustName,

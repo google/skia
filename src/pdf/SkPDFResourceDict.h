@@ -8,7 +8,7 @@
 #ifndef SkPDFResourceDict_DEFINED
 #define SkPDFResourceDict_DEFINED
 
-#include "SkPDFFont.h"
+#include "src/pdf/SkPDFFont.h"
 
 #include <vector>
 

@@ -5,39 +5,39 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurMask.h"
-#include "SkBlurPriv.h"
-#include "SkGpuBlurUtils.h"
-#include "SkMaskFilterBase.h"
-#include "SkReadBuffer.h"
-#include "SkRRectPriv.h"
-#include "SkWriteBuffer.h"
-#include "SkMaskFilter.h"
-#include "SkRRect.h"
-#include "SkStringUtils.h"
-#include "SkStrokeRec.h"
-#include "SkVertices.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkVertices.h"
+#include "src/core/SkBlurMask.h"
+#include "src/core/SkBlurPriv.h"
+#include "src/core/SkGpuBlurUtils.h"
+#include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkRRectPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkStringUtils.h"
+#include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrClip.h"
-#include "GrFragmentProcessor.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrResourceProvider.h"
-#include "GrShaderCaps.h"
-#include "GrShape.h"
-#include "GrStyle.h"
-#include "GrTextureProxy.h"
-#include "effects/GrTextureDomain.h"
-#include "effects/generated/GrCircleBlurFragmentProcessor.h"
-#include "effects/generated/GrSimpleTextureEffect.h"
-#include "effects/generated/GrRectBlurEffect.h"
-#include "effects/generated/GrRRectBlurEffect.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "include/private/GrRecordingContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/GrStyle.h"
+#include "src/gpu/effects/GrTextureDomain.h"
+#include "src/gpu/effects/generated/GrCircleBlurFragmentProcessor.h"
+#include "src/gpu/effects/generated/GrRRectBlurEffect.h"
+#include "src/gpu/effects/generated/GrRectBlurEffect.h"
+#include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #endif
 
 class SkBlurMaskFilterImpl : public SkMaskFilterBase {
@@ -306,7 +306,7 @@ bool SkBlurMaskFilterImpl::filterRRectMask(SkMask* dst, const SkRRect& r,
     return SkBlurMask::BlurRRect(sigma, dst, r, fBlurStyle, margin, createMode);
 }
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 
 static bool prepare_to_draw_into_mask(const SkRect& bounds, SkMask* mask) {
     SkASSERT(mask != nullptr);
@@ -379,7 +379,7 @@ static bool rect_exceeds(const SkRect& r, SkScalar v) {
            r.width() > v || r.height() > v;
 }
 
-#include "SkMaskCache.h"
+#include "src/core/SkMaskCache.h"
 
 static SkCachedData* copy_mask_to_cacheddata(SkMask* mask) {
     const size_t size = mask->computeTotalImageSize();

@@ -8,7 +8,7 @@
 #ifndef SkRegion_DEFINED
 #define SkRegion_DEFINED
 
-#include "SkRect.h"
+#include "include/core/SkRect.h"
 
 class SkPath;
 class SkRgnBuilder;

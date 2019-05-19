@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageGeneratorWIC.h"
-#include "SkIStream.h"
-#include "SkStream.h"
-#include "SkTScopedComPtr.h"
-#include "SkTemplates.h"
+#include "include/core/SkStream.h"
+#include "include/ports/SkImageGeneratorWIC.h"
+#include "include/private/SkTemplates.h"
+#include "src/utils/win/SkIStream.h"
+#include "src/utils/win/SkTScopedComPtr.h"
 
 #include <wincodec.h>
 

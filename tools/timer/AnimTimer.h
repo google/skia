@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkScalar.h"
-#include "SkTime.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTime.h"
 
 #ifndef AnimTimer_DEFINED
 #define AnimTimer_DEFINED

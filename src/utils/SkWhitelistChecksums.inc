@@ -8,7 +8,7 @@
  * Run 'whitelist_typefaces --generate' to create anew.
  */
 
-#include "SkTDArray.h"
+#include "include/private/SkTDArray.h"
 
 struct Whitelist {
     const char* fFontName;

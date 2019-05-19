@@ -5,25 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "SkMaskFilterBase.h"
+#include "src/core/SkMaskFilterBase.h"
 
-#include "SkAutoMalloc.h"
-#include "SkBlitter.h"
-#include "SkBlurPriv.h"
-#include "SkCachedData.h"
-#include "SkCoverageModePriv.h"
-#include "SkDraw.h"
-#include "SkPath.h"
-#include "SkRRect.h"
-#include "SkRasterClip.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkBlurPriv.h"
+#include "src/core/SkCachedData.h"
+#include "src/core/SkCoverageModePriv.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrTextureProxy.h"
-#include "GrFragmentProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
-#include "text/GrSDFMaskFilter.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/text/GrSDFMaskFilter.h"
 #endif
 
 SkMaskFilterBase::NinePatch::~NinePatch() {
@@ -514,7 +514,7 @@ private:
     typedef SkMaskFilterBase INHERITED;
 };
 
-#include "SkSafeMath.h"
+#include "src/core/SkSafeMath.h"
 
 class DrawIntoMask : public SkDraw {
 public:

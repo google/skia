@@ -8,8 +8,8 @@
 #ifndef GrStencilClip_DEFINED
 #define GrStencilClip_DEFINED
 
-#include "GrAppliedClip.h"
-#include "GrFixedClip.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrFixedClip.h"
 
 /**
  * Implements GrHardClip with the currently-existing stencil buffer contents and GrFixedClip.

@@ -8,13 +8,17 @@
 // EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL
 // DO NOT USE -- FOR INTERNAL TESTING ONLY
 
-#include "sk_canvas.h"
-#include "sk_data.h"
-#include "sk_image.h"
-#include "sk_imageinfo.h"
-#include "sk_paint.h"
-#include "sk_shader.h"
-#include "sk_surface.h"
+#include "include/c/sk_canvas.h"
+#include "include/c/sk_data.h"
+#include "include/c/sk_image.h"
+#include "include/c/sk_imageinfo.h"
+#include "include/c/sk_paint.h"
+#include "include/c/sk_shader.h"
+#include "include/c/sk_surface.h"
+#include "include/c/sk_types.h"
+
+#include <stdbool.h>
+#include <stddef.h>
 
 extern void sk_test_c_api(sk_canvas_t*);
 

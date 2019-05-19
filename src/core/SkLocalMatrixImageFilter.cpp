@@ -5,22 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageFilterPriv.h"
-#include "SkLocalMatrixImageFilter.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
+#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkLocalMatrixImageFilter.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSpecialImage.h"
 
 sk_sp<SkImageFilter> SkLocalMatrixImageFilter::Make(const SkMatrix& localM,
                                                     sk_sp<SkImageFilter> input) {
     if (!input) {
         return nullptr;
     }
-    if (localM.getType() & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
-        return nullptr;
-    }
     if (localM.isIdentity()) {
         return input;
+    }
+    if (!input->canHandleComplexCTM() && !localM.isScaleTranslate()) {
+        // Nothing we can do at this point
+        return nullptr;
     }
     return sk_sp<SkImageFilter>(new SkLocalMatrixImageFilter(localM, input));
 }

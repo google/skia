@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "GrRecordingContext.h"
+#include "include/private/GrRecordingContext.h"
 
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrDrawingManager.h"
-#include "GrMemoryPool.h"
-#include "GrProxyProvider.h"
-#include "GrRecordingContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrSkSLFPFactoryCache.h"
-#include "GrTextureContext.h"
-#include "SkGr.h"
-#include "text/GrTextBlobCache.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrSkSLFPFactoryCache.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrTextureContext.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/text/GrTextBlobCache.h"
 
 #define ASSERT_SINGLE_OWNER_PRIV \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
@@ -64,7 +64,7 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCac
     return true;
 }
 
-void GrRecordingContext::setupDrawingManager(bool explicitlyAllocate, bool sortOpLists) {
+void GrRecordingContext::setupDrawingManager(bool sortOpLists, bool reduceOpListSplitting) {
     GrPathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
 #if GR_TEST_UTILS
@@ -95,16 +95,11 @@ void GrRecordingContext::setupDrawingManager(bool explicitlyAllocate, bool sortO
     }
 #endif
 
-    // SHORT TERM TODO: until intermediate flushes at allocation time are added we need to obey the
-    // reduceOpListSplitting flag. Once that lands we should always reduce opList splitting in
-    // DDL contexts/drawing managers. We should still obey the options for non-DDL drawing managers
-    // until predictive intermediate flushes are added (i.e., we can't reorder forever).
     fDrawingManager.reset(new GrDrawingManager(this,
-                                                prcOptions,
-                                                textContextOptions,
-                                                explicitlyAllocate,
-                                                sortOpLists,
-                                                this->options().fReduceOpListSplitting));
+                                               prcOptions,
+                                               textContextOptions,
+                                               sortOpLists,
+                                               reduceOpListSplitting));
 }
 
 void GrRecordingContext::abandonContext() {

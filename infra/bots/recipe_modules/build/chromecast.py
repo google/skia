@@ -52,6 +52,7 @@ def compile_fn(api, checkout_root, out_dir):
     # Makes the binary smaller
     'skia_use_icu': 'false',
     'skia_use_egl': 'true',
+    'werror': 'true',
   }
 
   if configuration != 'Debug':

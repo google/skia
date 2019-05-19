@@ -9,8 +9,8 @@
 #define GrVkResource_DEFINED
 
 
-#include "SkRandom.h"
-#include "SkTHash.h"
+#include "include/private/SkTHash.h"
+#include "include/utils/SkRandom.h"
 #include <atomic>
 
 class GrVkGpu;

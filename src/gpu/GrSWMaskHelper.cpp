@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrSWMaskHelper.h"
+#include "src/gpu/GrSWMaskHelper.h"
 
-#include "GrCaps.h"
-#include "GrProxyProvider.h"
-#include "GrRecordingContext.h"
-#include "GrRecordingContextPriv.h"
-#include "GrShape.h"
-#include "GrSurfaceContext.h"
-#include "GrTextureProxy.h"
+#include "include/private/GrRecordingContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/GrSurfaceContext.h"
 
 /*
  * Convert a boolean operation into a transfer mode code
@@ -107,18 +107,10 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrRecordingContext* context
         return nullptr;
     }
 
-    // TODO: http://skbug.com/8422: Although this fixes http://skbug.com/8351, it seems like these
-    // should just participate in the normal allocation process and not need the pending IO flag.
-    auto surfaceFlags = GrInternalSurfaceFlags::kNone;
-    if (!context->priv().proxyProvider()->renderingDirectly()) {
-        // In DDL mode, this texture proxy will be instantiated at flush time, therfore it cannot
-        // have pending IO.
-        surfaceFlags |= GrInternalSurfaceFlags::kNoPendingIO;
-    }
     auto clearFlag = kNone_GrSurfaceFlags;
     if (context->priv().caps()->shouldInitializeTextures() && fit == SkBackingFit::kApprox) {
         clearFlag = kPerformInitialClear_GrSurfaceFlag;
     }
     return context->priv().proxyProvider()->createTextureProxy(
-            std::move(img), clearFlag, 1, SkBudgeted::kYes, fit, surfaceFlags);
+            std::move(img), clearFlag, 1, SkBudgeted::kYes, fit);
 }

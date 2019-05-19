@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkCanvasPriv.h"
-#include "SkMultiPictureDraw.h"
-#include "SkPicture.h"
-#include "SkTaskGroup.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMultiPictureDraw.h"
+#include "include/core/SkPicture.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkTaskGroup.h"
 
 void SkMultiPictureDraw::DrawData::draw() {
     fCanvas->drawPicture(fPicture, &fMatrix, fPaint);

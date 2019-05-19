@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Test.h"
-#include "SkPolyUtils.h"
+#include "src/utils/SkPolyUtils.h"
+#include "tests/Test.h"
 
 DEF_TEST(OffsetSimplePoly, reporter) {
     SkTDArray<SkPoint> rrectPoly;
@@ -34,16 +34,20 @@ DEF_TEST(OffsetSimplePoly, reporter) {
     *rrectPoly.push() = SkPoint::Make(-100 - 4.330127f, 50 + 2.5f);
     *rrectPoly.push() = SkPoint::Make(-100 - 3.535534f, 50 + 3.535534f);
     *rrectPoly.push() = SkPoint::Make(-100 - 2.5f, 50 + 4.330127f);
+    SkRect bounds;
+    bounds.setBoundsCheck(rrectPoly.begin(), rrectPoly.count());
+
     REPORTER_ASSERT(reporter, SkIsConvexPolygon(rrectPoly.begin(), rrectPoly.count()));
 
     // inset a little
     SkTDArray<SkPoint> offsetPoly;
-    bool result = SkOffsetSimplePolygon(rrectPoly.begin(), rrectPoly.count(), 3, &offsetPoly);
+    bool result = SkOffsetSimplePolygon(rrectPoly.begin(), rrectPoly.count(), bounds, 3,
+                                        &offsetPoly);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, SkIsConvexPolygon(offsetPoly.begin(), offsetPoly.count()));
 
     // inset to rect
-    result = SkOffsetSimplePolygon(rrectPoly.begin(), rrectPoly.count(), 10, &offsetPoly);
+    result = SkOffsetSimplePolygon(rrectPoly.begin(), rrectPoly.count(), bounds, 10, &offsetPoly);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, SkIsConvexPolygon(offsetPoly.begin(), offsetPoly.count()));
     REPORTER_ASSERT(reporter, offsetPoly.count() == 4);
@@ -56,7 +60,7 @@ DEF_TEST(OffsetSimplePoly, reporter) {
 
     // just to full inset
     // fails, but outputs a line segment
-    result = SkOffsetSimplePolygon(rrectPoly.begin(), rrectPoly.count(), 55, &offsetPoly);
+    result = SkOffsetSimplePolygon(rrectPoly.begin(), rrectPoly.count(), bounds, 55, &offsetPoly);
     REPORTER_ASSERT(reporter, !result);
     REPORTER_ASSERT(reporter, !SkIsConvexPolygon(offsetPoly.begin(), offsetPoly.count()));
     REPORTER_ASSERT(reporter, offsetPoly.count() == 2);
@@ -66,7 +70,7 @@ DEF_TEST(OffsetSimplePoly, reporter) {
     }
 
     // past full inset
-    result = SkOffsetSimplePolygon(rrectPoly.begin(), rrectPoly.count(), 75, &offsetPoly);
+    result = SkOffsetSimplePolygon(rrectPoly.begin(), rrectPoly.count(), bounds, 75, &offsetPoly);
     REPORTER_ASSERT(reporter, !result);
 
     // troublesome case
@@ -98,11 +102,13 @@ DEF_TEST(OffsetSimplePoly, reporter) {
     *clippedRRectPoly.push() = SkPoint::Make(381.195313f, 432.207275f);
     *clippedRRectPoly.push() = SkPoint::Make(377.312134f, 432.947998f);
     *clippedRRectPoly.push() = SkPoint::Make(342.289948f, 432.947998f);
+    bounds.setBoundsCheck(clippedRRectPoly.begin(), clippedRRectPoly.count());
+
     REPORTER_ASSERT(reporter, SkIsConvexPolygon(clippedRRectPoly.begin(),
                                                 clippedRRectPoly.count()));
 
-    result = SkOffsetSimplePolygon(clippedRRectPoly.begin(), clippedRRectPoly.count(), 32.3699417f,
-                                   &offsetPoly);
+    result = SkOffsetSimplePolygon(clippedRRectPoly.begin(), clippedRRectPoly.count(), bounds,
+                                   32.3699417f, &offsetPoly);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, SkIsConvexPolygon(offsetPoly.begin(), offsetPoly.count()));
 
@@ -122,51 +128,53 @@ DEF_TEST(OffsetSimplePoly, reporter) {
     *starPoly.push() = SkPoint::Make(-28.86f, 0.0f);
     *starPoly.push() = SkPoint::Make(-43.30f, -25.0f);
     *starPoly.push() = SkPoint::Make(-14.43f, -25.0f);
+    bounds.setBoundsCheck(starPoly.begin(), starPoly.count());
+
     REPORTER_ASSERT(reporter, SkIsSimplePolygon(starPoly.begin(), starPoly.count()));
 
     // try a variety of distances
-    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), 0.1f,
+    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), bounds, 0.1f,
                                    &offsetPoly);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, SkIsSimplePolygon(offsetPoly.begin(), offsetPoly.count()));
 
-    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), 5.665f,
+    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), bounds, 5.665f,
                                    &offsetPoly);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, SkIsSimplePolygon(offsetPoly.begin(), offsetPoly.count()));
 
-    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), 28,
+    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), bounds, 28,
                                    &offsetPoly);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, SkIsSimplePolygon(offsetPoly.begin(), offsetPoly.count()));
 
     // down to a point
-    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), 28.866f,
+    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), bounds, 28.866f,
                                    &offsetPoly);
     REPORTER_ASSERT(reporter, !result);
 
     // and past
-    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), 50.5f,
+    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), bounds, 50.5f,
                                    &offsetPoly);
     REPORTER_ASSERT(reporter, !result);
 
     // and now out
-    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), -0.1f,
+    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), bounds, -0.1f,
                                    &offsetPoly);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, SkIsSimplePolygon(offsetPoly.begin(), offsetPoly.count()));
 
-    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), -5.6665f,
+    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), bounds, -5.6665f,
                                    &offsetPoly);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, SkIsSimplePolygon(offsetPoly.begin(), offsetPoly.count()));
 
-    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), -50,
+    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), bounds, -50,
                                    &offsetPoly);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, SkIsSimplePolygon(offsetPoly.begin(), offsetPoly.count()));
 
-    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), -100,
+    result = SkOffsetSimplePolygon(starPoly.begin(), starPoly.count(), bounds, -100,
                                    &offsetPoly);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, SkIsSimplePolygon(offsetPoly.begin(), offsetPoly.count()));

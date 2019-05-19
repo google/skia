@@ -5,13 +5,32 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
-#include "SkColorMatrixFilter.h"
-#include "SkImage.h"
-#include "SkImageFilter.h"
-#include "SkSurface.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkColorMatrix.h"
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/effects/SkMorphologyImageFilter.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
+
+#include <utility>
 
 /**
  *  Test drawing a primitive w/ an imagefilter (in this case, just matrix w/ identity) to see
@@ -104,13 +123,6 @@ DEF_SIMPLE_GM(fast_slow_blurimagefilter, canvas, 620, 260) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "Resources.h"
-#include "SkBlurImageFilter.h"
-#include "SkMatrixConvolutionImageFilter.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkColorMatrixFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkRRect.h"
 
 static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count) {
     const SkRect r = SkRect::MakeXYWH(30, 30, 200, 200);
@@ -138,7 +150,7 @@ static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count
 DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 830, 550) {
     SkColorMatrix cm;
     cm.setSaturation(10);
-    sk_sp<SkColorFilter> cf(SkColorFilters::MatrixRowMajor255(cm.fMat));
+    sk_sp<SkColorFilter> cf(SkColorFilters::Matrix(cm));
     const SkScalar kernel[] = { 4, 0, 4, 0, -15, 0, 4, 0, 4 };
     sk_sp<SkImageFilter> filters[] = {
         SkBlurImageFilter::Make(10, 10, nullptr),

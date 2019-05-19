@@ -5,13 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilterImageFilter.h"
-#include "SkColorMatrixFilter.h"
-#include "SkImage.h"
-#include "SkImageSource.h"
-#include "SkTileImageFilter.h"
-#include "ToolUtils.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkColorFilterImageFilter.h"
+#include "include/effects/SkImageSource.h"
+#include "include/effects/SkTileImageFilter.h"
+#include "tools/ToolUtils.h"
+
+#include <stddef.h>
+#include <utility>
 
 #define WIDTH 400
 #define HEIGHT 200
@@ -85,17 +99,17 @@ protected:
         }
 
         {
-            SkScalar matrix[20] = { SK_Scalar1, 0, 0, 0, 0,
-                                    0, SK_Scalar1, 0, 0, 0,
-                                    0, 0, SK_Scalar1, 0, 0,
-                                    0, 0, 0, SK_Scalar1, 0 };
+            float matrix[20] = { 1, 0, 0, 0, 0,
+                                 0, 1, 0, 0, 0,
+                                 0, 0, 1, 0, 0,
+                                 0, 0, 0, 1, 0 };
 
             SkRect srcRect = SkRect::MakeWH(SkIntToScalar(fBitmap->width()),
                                             SkIntToScalar(fBitmap->height()));
             SkRect dstRect = SkRect::MakeWH(SkIntToScalar(fBitmap->width() * 2),
                                             SkIntToScalar(fBitmap->height() * 2));
             sk_sp<SkImageFilter> tile(SkTileImageFilter::Make(srcRect, dstRect, nullptr));
-            sk_sp<SkColorFilter> cf(SkColorFilters::MatrixRowMajor255(matrix));
+            sk_sp<SkColorFilter> cf(SkColorFilters::Matrix(matrix));
 
             SkPaint paint;
             paint.setImageFilter(SkColorFilterImageFilter::Make(std::move(cf), std::move(tile)));

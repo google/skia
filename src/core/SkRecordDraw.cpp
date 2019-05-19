@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkRecordDraw.h"
-#include "SkCanvasPriv.h"
-#include "SkImage.h"
-#include "SkPatchUtils.h"
+#include "include/core/SkImage.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkRecordDraw.h"
+#include "src/utils/SkPatchUtils.h"
 
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
@@ -86,6 +86,10 @@ DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds,
 
 template <> void Draw::draw(const SaveBehind& r) {
     SkCanvasPriv::SaveBehind(fCanvas, r.subset);
+}
+
+template <> void Draw::draw(const DrawBehind& r) {
+    SkCanvasPriv::DrawBehind(fCanvas, r.paint);
 }
 
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
@@ -358,6 +362,7 @@ private:
     Bounds bounds(const Flush&) const { return fCullRect; }
 
     Bounds bounds(const DrawPaint&) const { return fCullRect; }
+    Bounds bounds(const DrawBehind&) const { return fCullRect; }
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
 
     Bounds bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }

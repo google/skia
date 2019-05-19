@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "GLTestContext_angle.h"
+#include "tools/gpu/gl/angle/GLTestContext_angle.h"
 
 #define EGL_EGL_PROTOTYPES 1
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLUtil.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLAssembleInterface.h"
-#include "../ports/SkOSLibrary.h"
+#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "src/ports/SkOSLibrary.h"
 
 #include <EGL/egl.h>
 
@@ -109,6 +109,9 @@ private:
     ANGLEBackend                fType;
     ANGLEContextVersion         fVersion;
 
+    PFNEGLCREATEIMAGEKHRPROC    fCreateImage = nullptr;
+    PFNEGLDESTROYIMAGEKHRPROC   fDestroyImage = nullptr;
+
 #ifdef SK_BUILD_FOR_WIN
     HWND                        fWindow;
     HDC                         fDeviceContext;
@@ -118,6 +121,18 @@ private:
 
 #ifdef SK_BUILD_FOR_WIN
 ATOM ANGLEGLContext::gWC = 0;
+
+enum class IsWine { kUnknown, kNo, kYes };
+
+static IsWine is_wine() {
+    HMODULE ntdll = GetModuleHandle("ntdll.dll");
+    if (!ntdll) {
+        SkDebugf("No ntdll.dll on Windows?!\n");
+        return IsWine::kUnknown;
+    }
+    return GetProcAddress(ntdll, "wine_get_version") == nullptr ? IsWine::kNo : IsWine::kYes;
+}
+
 #endif
 
 ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
@@ -130,6 +145,14 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
 #ifdef SK_BUILD_FOR_WIN
     fWindow = nullptr;
     fDeviceContext = nullptr;
+
+    static IsWine gIsWine = is_wine();
+    if (gIsWine == IsWine::kYes && type != ANGLEBackend::kOpenGL) {
+        // D3D backends of ANGLE don't really work well under Wine with our tests and are likely to
+        // crash. This makes it easier to test using the GL ANGLE backend under Wine on Linux
+        // without lots of spurious Wine debug spew and crashes.
+        return;
+    }
 
     if (EGL_NO_DISPLAY == fDisplay) {
         HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(nullptr);
@@ -263,6 +286,11 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
         break;
     }
 #endif
+    const char* extensions = eglQueryString(fDisplay, EGL_EXTENSIONS);
+    if (strstr(extensions, "EGL_KHR_image")) {
+        fCreateImage = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
+        fDestroyImage = (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
+    }
 
     this->init(std::move(gl));
 }
@@ -276,21 +304,15 @@ GrEGLImage ANGLEGLContext::texture2DToEGLImage(GrGLuint texID) const {
     if (!this->gl()->hasExtension("EGL_KHR_gl_texture_2D_image")) {
         return GR_EGL_NO_IMAGE;
     }
-    GrEGLImage img;
-    GrEGLint attribs[] = { GR_EGL_GL_TEXTURE_LEVEL, 0,
-                           GR_EGL_IMAGE_PRESERVED, GR_EGL_TRUE,
-                           GR_EGL_NONE };
+    EGLint attribs[] = { GR_EGL_GL_TEXTURE_LEVEL, 0,
+                         GR_EGL_IMAGE_PRESERVED, GR_EGL_TRUE,
+                         GR_EGL_NONE };
     // 64 bit cast is to shut Visual C++ up about casting 32 bit value to a pointer.
     GrEGLClientBuffer clientBuffer = reinterpret_cast<GrEGLClientBuffer>((uint64_t)texID);
-    GR_GL_CALL_RET(this->gl(), img,
-                   EGLCreateImage(fDisplay, fContext, GR_EGL_GL_TEXTURE_2D, clientBuffer,
-                                  attribs));
-    return img;
+    return fCreateImage(fDisplay, fContext, GR_EGL_GL_TEXTURE_2D, clientBuffer, attribs);
 }
 
-void ANGLEGLContext::destroyEGLImage(GrEGLImage image) const {
-    GR_GL_CALL(this->gl(), EGLDestroyImage(fDisplay, image));
-}
+void ANGLEGLContext::destroyEGLImage(GrEGLImage image) const { fDestroyImage(fDisplay, image); }
 
 GrGLuint ANGLEGLContext::eglImageToExternalTexture(GrEGLImage image) const {
     GrGLClearErr(this->gl());

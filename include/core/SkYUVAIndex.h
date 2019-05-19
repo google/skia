@@ -8,7 +8,7 @@
 #ifndef SkYUVAIndex_DEFINED
 #define SkYUVAIndex_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 /** \enum SkColorChannel
     Describes different color channels one can manipulate

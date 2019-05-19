@@ -8,12 +8,12 @@
 #ifndef Sk4fGradientPriv_DEFINED
 #define Sk4fGradientPriv_DEFINED
 
-#include "SkColor.h"
-#include "SkColorData.h"
-#include "SkHalf.h"
-#include "SkImageInfo.h"
-#include "SkNx.h"
-#include "SkUtils.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkHalf.h"
+#include "include/private/SkNx.h"
+#include "src/core/SkUtils.h"
 
 // Templates shared by various 4f gradient flavors.
 

@@ -5,32 +5,32 @@
  * found in the LICENSE file.
  */
 
-#include "SkSVGDevice.h"
+#include "src/svg/SkSVGDevice.h"
 
-#include "SkAnnotationKeys.h"
-#include "SkBase64.h"
-#include "SkBitmap.h"
-#include "SkBlendMode.h"
-#include "SkChecksum.h"
-#include "SkClipOpPriv.h"
-#include "SkClipStack.h"
-#include "SkColorFilter.h"
-#include "SkData.h"
-#include "SkDraw.h"
-#include "SkImage.h"
-#include "SkImageEncoder.h"
-#include "SkJpegCodec.h"
-#include "SkPaint.h"
-#include "SkParsePath.h"
-#include "SkPngCodec.h"
-#include "SkShader.h"
-#include "SkShaderBase.h"
-#include "SkStream.h"
-#include "SkTHash.h"
-#include "SkTo.h"
-#include "SkTypeface.h"
-#include "SkUtils.h"
-#include "SkXMLWriter.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkChecksum.h"
+#include "include/private/SkTHash.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkBase64.h"
+#include "include/utils/SkParsePath.h"
+#include "src/codec/SkJpegCodec.h"
+#include "src/codec/SkPngCodec.h"
+#include "src/core/SkAnnotationKeys.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkClipStack.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkUtils.h"
+#include "src/shaders/SkShaderBase.h"
+#include "src/xml/SkXMLWriter.h"
 
 namespace {
 
@@ -338,7 +338,7 @@ Resources SkSVGDevice::AutoElement::addResources(const MxCp& mc, const SkPaint& 
     if (const SkColorFilter* cf = paint.getColorFilter()) {
         // TODO: Implement skia color filters for blend modes other than SrcIn
         SkBlendMode mode;
-        if (cf->asColorMode(nullptr, &mode) && mode == SkBlendMode::kSrcIn) {
+        if (cf->asAColorMode(nullptr, &mode) && mode == SkBlendMode::kSrcIn) {
             this->addColorFilterResources(*cf, &resources);
         }
     }
@@ -381,8 +381,8 @@ void SkSVGDevice::AutoElement::addColorFilterResources(const SkColorFilter& cf,
 
         SkColor filterColor;
         SkBlendMode mode;
-        bool asColorMode = cf.asColorMode(&filterColor, &mode);
-        SkAssertResult(asColorMode);
+        bool asAColorMode = cf.asAColorMode(&filterColor, &mode);
+        SkAssertResult(asAColorMode);
         SkASSERT(mode == SkBlendMode::kSrcIn);
 
         {

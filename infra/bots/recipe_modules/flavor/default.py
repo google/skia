@@ -257,9 +257,11 @@ class DefaultFlavor(object):
                                                   profname)
 
     if path:
-      env['PATH'] = '%%(PATH)s:%s' % ':'.join('%s' % p for p in path)
+      env['PATH'] = self.m.path.pathsep.join(
+          ['%(PATH)s'] + ['%s' % p for p in path])
     if ld_library_path:
-      env['LD_LIBRARY_PATH'] = ':'.join('%s' % p for p in ld_library_path)
+      env['LD_LIBRARY_PATH'] = self.m.path.pathsep.join(
+          '%s' % p for p in ld_library_path)
 
     to_symbolize = ['dm', 'nanobench']
     if name in to_symbolize and self.m.vars.is_linux:
@@ -271,7 +273,12 @@ class DefaultFlavor(object):
                  self.module.resource('symbolize_stack_trace.py'),
                  args=args,
                  infra_step=False)
-
+    elif 'Win' in self.m.vars.builder_cfg.get('os', ''):
+      with self.m.context(env=env):
+        wrapped_cmd = ['powershell', '-ExecutionPolicy', 'Unrestricted',
+                       '-File',
+                       self.module.resource('win_run_and_check_log.ps1')] + cmd
+        self._run(name, wrapped_cmd)
     else:
       with self.m.context(env=env):
         self._run(name, cmd)

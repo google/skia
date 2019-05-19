@@ -5,31 +5,32 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
-#include "GrBackendSemaphore.h"
-#include "GrDrawingManager.h"
-#include "GrGpu.h"
-#include "GrMemoryPool.h"
-#include "GrPathRendererChain.h"
-#include "GrProxyProvider.h"
-#include "GrRenderTargetProxy.h"
-#include "GrResourceCache.h"
-#include "GrResourceProvider.h"
-#include "GrSemaphore.h"
-#include "GrSoftwarePathRenderer.h"
-#include "GrTracing.h"
-#include "SkDeferredDisplayList.h"
-#include "SkGr.h"
-#include "SkImageInfoPriv.h"
-#include "SkMakeUnique.h"
-#include "SkSurface_Gpu.h"
-#include "SkTaskGroup.h"
-#include "SkTraceMemoryDump.h"
-#include "effects/generated/GrConfigConversionEffect.h"
-#include "effects/GrSkSLFP.h"
-#include "ccpr/GrCoverageCountingPathRenderer.h"
-#include "text/GrTextBlobCache.h"
-#include "text/GrTextContext.h"
+#include "include/core/SkTraceMemoryDump.h"
+#include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrRenderTargetProxy.h"
+#include "include/private/SkDeferredDisplayList.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkTaskGroup.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrPathRendererChain.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrResourceCache.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrShaderUtils.h"
+#include "src/gpu/GrSoftwarePathRenderer.h"
+#include "src/gpu/GrTracing.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
+#include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/effects/generated/GrConfigConversionEffect.h"
+#include "src/gpu/text/GrTextBlobCache.h"
+#include "src/gpu/text/GrTextContext.h"
+#include "src/image/SkSurface_Gpu.h"
 #include <atomic>
 #include <unordered_map>
 
@@ -76,8 +77,7 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
 
     if (fGpu) {
         fResourceCache = new GrResourceCache(this->caps(), this->singleOwner(), this->contextID());
-        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, this->singleOwner(),
-                                                   this->explicitlyAllocateGPUResources());
+        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, this->singleOwner());
     }
 
     if (fResourceCache) {
@@ -93,6 +93,10 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     }
 
     fPersistentCache = this->options().fPersistentCache;
+    fShaderErrorHandler = this->options().fShaderErrorHandler;
+    if (!fShaderErrorHandler) {
+        fShaderErrorHandler = GrShaderUtils::DefaultShaderErrorHandler();
+    }
 
     return true;
 }
@@ -239,14 +243,38 @@ int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info) {
+bool GrContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[]) {
+    if (!fGpu || fGpu->caps()->semaphoreSupport()) {
+        return false;
+    }
+    for (int i = 0; i < numSemaphores; ++i) {
+        sk_sp<GrSemaphore> sema = fResourceProvider->wrapBackendSemaphore(
+                waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait,
+                kAdopt_GrWrapOwnership);
+        fGpu->waitSemaphore(std::move(sema));
+    }
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info,
+                                       const GrPrepareForExternalIORequests& externalRequests) {
     ASSERT_SINGLE_OWNER
     if (this->abandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }
 
-    return this->drawingManager()->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                         info);
+    return this->drawingManager()->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
+                                         info, externalRequests);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void GrContext::checkAsyncWorkCompletion() {
+    if (fGpu) {
+        fGpu->checkFinishProcs();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

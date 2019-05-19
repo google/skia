@@ -30,14 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "SkCodecAnimation.h"
-#include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkColorTable.h"
-#include "SkGifCodec.h"
-#include "SkMakeUnique.h"
-#include "SkStream.h"
-#include "SkSwizzler.h"
+#include "include/codec/SkCodecAnimation.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkColorData.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkColorTable.h"
+#include "src/codec/SkGifCodec.h"
+#include "src/codec/SkSwizzler.h"
+#include "src/core/SkMakeUnique.h"
 
 #include <algorithm>
 

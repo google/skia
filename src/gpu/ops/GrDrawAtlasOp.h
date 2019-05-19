@@ -8,8 +8,8 @@
 #ifndef GrDrawAtlasOp_DEFINED
 #define GrDrawAtlasOp_DEFINED
 
-#include "GrTypesPriv.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrDrawOp;
 class GrPaint;

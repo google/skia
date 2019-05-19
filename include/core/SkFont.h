@@ -8,9 +8,9 @@
 #ifndef SkFont_DEFINED
 #define SkFont_DEFINED
 
-#include "SkFontTypes.h"
-#include "SkScalar.h"
-#include "SkTypeface.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypeface.h"
 
 class SkMatrix;
 class SkPaint;
@@ -94,15 +94,15 @@ public:
     */
     bool isEmbeddedBitmaps() const { return SkToBool(fFlags & kEmbeddedBitmaps_PrivFlag); }
 
-    /** Returns true if glyphs at different sub-pixel positions may differ on pixel edge coverage.
+    /** Returns true if glyphs may be drawn at sub-pixel offsets.
 
-        @return  true if glyph positioned in pixel using transparency
+        @return  true if glyphs may be drawn at sub-pixel offsets.
     */
     bool isSubpixel() const { return SkToBool(fFlags & kSubpixel_PrivFlag); }
 
-    /** Returns true if text is converted to SkPath before drawing and measuring.
+    /** Returns true if font and glyph metrics are requested to be linearly scalable.
 
-        @return  true glyph hints are never applied
+        @return  true if font and glyph metrics are requested to be linearly scalable.
     */
     bool isLinearMetrics() const { return SkToBool(fFlags & kLinearMetrics_PrivFlag); }
 
@@ -134,10 +134,12 @@ public:
     */
     void setSubpixel(bool subpixel);
 
-    /** Requests, but does not require, that glyphs are converted to SkPath
-        before drawing and measuring.
+    /** Requests, but does not require, linearly scalable font and glyph metrics.
 
-        @param linearMetrics  setting for converting glyphs to paths
+        For outline fonts 'true' means font and glyph metrics should ignore hinting and rounding.
+        Note that some bitmap formats may not be able to scale linearly and will ignore this flag.
+
+        @param linearMetrics  setting for linearly scalable font and glyph metrics.
     */
     void setLinearMetrics(bool linearMetrics);
 
@@ -270,7 +272,7 @@ public:
         If byteLength equals zero, returns zero.
         If byteLength includes a partial character, the partial character is ignored.
 
-        If encoding is kUTF8_SkTextEncoding and text contains an invalid UTF-8 sequence,
+        If encoding is SkTextEncoding::kUTF8 and text contains an invalid UTF-8 sequence,
         zero is returned.
 
         When encoding is SkTextEncoding::kUTF8, SkTextEncoding::kUTF16, or
@@ -284,8 +286,8 @@ public:
 
         @param text          character storage encoded with SkTextEncoding
         @param byteLength    length of character storage in bytes
-        @param encoding      one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
-                             kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
+        @param encoding      one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
+                             SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @param glyphs        storage for glyph indices; may be nullptr
         @param maxGlyphCount storage capacity
         @return              number of glyphs represented by text of length byteLength
@@ -306,14 +308,14 @@ public:
 
     /** Returns number of glyphs represented by text.
 
-        If encoding is kUTF8_SkTextEncoding, kUTF16_SkTextEncoding, or
-        kUTF32_SkTextEncoding; then each Unicode codepoint is mapped to a
+        If encoding is SkTextEncoding::kUTF8, SkTextEncoding::kUTF16, or
+        SkTextEncoding::kUTF32; then each Unicode codepoint is mapped to a
         single glyph.
 
         @param text          character storage encoded with SkTextEncoding
         @param byteLength    length of character storage in bytes
-        @param encoding      one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
-                             kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
+        @param encoding      one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
+                             SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @return              number of glyphs represented by text of length byteLength
     */
     int countText(const void* text, size_t byteLength, SkTextEncoding encoding) const {
@@ -326,8 +328,8 @@ public:
 
         @param text        character storage encoded with SkTextEncoding
         @param byteLength  length of character storage in bytes
-        @param encoding    one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
-                           kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
+        @param encoding    one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
+                           SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @param bounds      returns bounding box relative to (0, 0) if not nullptr
         @return            number of glyphs represented by text of length byteLength
     */
@@ -343,8 +345,8 @@ public:
 
         @param text        character storage encoded with SkTextEncoding
         @param byteLength  length of character storage in bytes
-        @param encoding    one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
-                           kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
+        @param encoding    one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
+                           SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @param bounds      returns bounding box relative to (0, 0) if not nullptr
         @param paint       optional; may be nullptr
         @return            number of glyphs represented by text of length byteLength
@@ -514,6 +516,7 @@ private:
     friend class SkGlyphRunListPainter;
     friend class SkTextBlobCacheDiffCanvas;
     friend class SVGTextBuilder;
+    friend class SkStrikeSpecStorage;
 };
 
 #endif

@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkBitmap.h"
-#include "SkBitmapDevice.h"
-#include "SkCanvas.h"
-#include "SkDraw.h"
-#include "SkLayerDrawLooper.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/effects/SkLayerDrawLooper.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkBitmapDevice.h"
+#include "src/core/SkDraw.h"
+#include "tests/Test.h"
 
 static SkBitmap make_bm(int w, int h) {
     SkBitmap bm;

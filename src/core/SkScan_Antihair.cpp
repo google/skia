@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkScan.h"
+#include "src/core/SkScan.h"
 
-#include "SkBlitter.h"
-#include "SkColorData.h"
-#include "SkFDot6.h"
-#include "SkLineClipper.h"
-#include "SkRasterClip.h"
-#include "SkTo.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkFDot6.h"
+#include "src/core/SkLineClipper.h"
+#include "src/core/SkRasterClip.h"
 
 #include <utility>
 

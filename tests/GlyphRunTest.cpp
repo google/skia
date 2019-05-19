@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkGlyphRun.h"
+#include "src/core/SkGlyphRun.h"
 
-#include "SkTextBlob.h"
-#include "Test.h"
+#include "include/core/SkTextBlob.h"
+#include "tests/Test.h"
 
 #include <algorithm>
 #include <memory>
@@ -50,7 +50,7 @@ DEF_TEST(GlyphRunBlob, reporter) {
 
     SkFont font;
     font.setTypeface(tf);
-    font.setHinting(kNormal_SkFontHinting);
+    font.setHinting(SkFontHinting::kNormal);
     font.setSize(1u);
 
     SkTextBlobBuilder blobBuilder;

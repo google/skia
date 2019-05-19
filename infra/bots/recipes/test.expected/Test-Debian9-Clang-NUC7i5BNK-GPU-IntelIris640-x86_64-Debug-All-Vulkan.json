@@ -263,6 +263,7 @@
       "--nocpu",
       "--config",
       "vk",
+      "vkmsaa8",
       "--src",
       "tests",
       "gm",
@@ -430,7 +431,6 @@
       "~VkHeapTests",
       "~GLPrograms",
       "--nonativeFonts",
-      "--reduceOpListSplitting",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",

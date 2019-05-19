@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontMgr_custom.h"
-#include "SkFontMgr_directory.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
+#include "include/ports/SkFontMgr_directory.h"
+#include "src/core/SkOSFile.h"
+#include "src/ports/SkFontMgr_custom.h"
+#include "src/utils/SkOSPath.h"
 
 class DirectorySystemFontLoader : public SkFontMgr_Custom::SystemFontLoader {
 public:

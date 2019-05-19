@@ -8,7 +8,7 @@
 #ifndef SKSL_ENUM
 #define SKSL_ENUM
 
-#include "SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
 
 #include <algorithm>
 

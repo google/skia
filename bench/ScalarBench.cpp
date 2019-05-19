@@ -4,11 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Benchmark.h"
-#include "SkFloatBits.h"
-#include "SkRandom.h"
-#include "SkRect.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkString.h"
+#include "include/private/SkFloatBits.h"
+#include "include/utils/SkRandom.h"
 
 class ScalarBench : public Benchmark {
     SkString    fName;

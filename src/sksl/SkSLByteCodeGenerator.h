@@ -12,41 +12,42 @@
 #include <tuple>
 #include <unordered_map>
 
-#include "SkSLByteCode.h"
-#include "SkSLCodeGenerator.h"
-#include "SkSLMemoryLayout.h"
-#include "ir/SkSLBinaryExpression.h"
-#include "ir/SkSLBoolLiteral.h"
-#include "ir/SkSLBlock.h"
-#include "ir/SkSLBreakStatement.h"
-#include "ir/SkSLConstructor.h"
-#include "ir/SkSLContinueStatement.h"
-#include "ir/SkSLDoStatement.h"
-#include "ir/SkSLExpressionStatement.h"
-#include "ir/SkSLFloatLiteral.h"
-#include "ir/SkSLIfStatement.h"
-#include "ir/SkSLIndexExpression.h"
-#include "ir/SkSLInterfaceBlock.h"
-#include "ir/SkSLIntLiteral.h"
-#include "ir/SkSLFieldAccess.h"
-#include "ir/SkSLForStatement.h"
-#include "ir/SkSLFunctionCall.h"
-#include "ir/SkSLFunctionDeclaration.h"
-#include "ir/SkSLFunctionDefinition.h"
-#include "ir/SkSLNullLiteral.h"
-#include "ir/SkSLPrefixExpression.h"
-#include "ir/SkSLPostfixExpression.h"
-#include "ir/SkSLProgramElement.h"
-#include "ir/SkSLReturnStatement.h"
-#include "ir/SkSLStatement.h"
-#include "ir/SkSLSwitchStatement.h"
-#include "ir/SkSLSwizzle.h"
-#include "ir/SkSLTernaryExpression.h"
-#include "ir/SkSLVarDeclarations.h"
-#include "ir/SkSLVarDeclarationsStatement.h"
-#include "ir/SkSLVariableReference.h"
-#include "ir/SkSLWhileStatement.h"
-#include "spirv.h"
+#include "src/sksl/SkSLByteCode.h"
+#include "src/sksl/SkSLCodeGenerator.h"
+#include "src/sksl/SkSLMemoryLayout.h"
+#include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLBlock.h"
+#include "src/sksl/ir/SkSLBoolLiteral.h"
+#include "src/sksl/ir/SkSLBreakStatement.h"
+#include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLContinueStatement.h"
+#include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLExternalValueReference.h"
+#include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLFloatLiteral.h"
+#include "src/sksl/ir/SkSLForStatement.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLIfStatement.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLIntLiteral.h"
+#include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLNullLiteral.h"
+#include "src/sksl/ir/SkSLPostfixExpression.h"
+#include "src/sksl/ir/SkSLPrefixExpression.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSwitchStatement.h"
+#include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/ir/SkSLWhileStatement.h"
+#include "src/sksl/spirv.h"
 
 namespace SkSL {
 
@@ -95,12 +96,7 @@ public:
      * Based on 'type', writes the s (signed), u (unsigned), or f (float) instruction.
      */
     void writeTypedInstruction(const Type& type, ByteCodeInstruction s, ByteCodeInstruction u,
-                               ByteCodeInstruction f);
-
-    /**
-     * Pushes the storage location of an lvalue to the stack.
-     */
-    void writeTarget(const Expression& expr);
+                               ByteCodeInstruction f, int count);
 
 private:
     // reserves 16 bits in the output code, to be filled in later with an address once we determine
@@ -122,8 +118,8 @@ private:
         void set() {
             int target = fGenerator.fCode->size();
             SkASSERT(target <= 65535);
-            (*fGenerator.fCode)[fOffset] = target >> 8;
-            (*fGenerator.fCode)[fOffset + 1] = target;
+            (*fGenerator.fCode)[fOffset] = target;
+            (*fGenerator.fCode)[fOffset + 1] = target >> 8;
 #ifdef SK_DEBUG
             fSet = true;
 #endif
@@ -135,6 +131,39 @@ private:
 #ifdef SK_DEBUG
         bool fSet = false;
 #endif
+    };
+
+    class DeferredCallTarget {
+    public:
+        DeferredCallTarget(ByteCodeGenerator* generator, const FunctionDeclaration& function)
+                : fGenerator(*generator)
+                , fCode(generator->fCode)
+                , fOffset(generator->fCode->size())
+                , fFunction(function) {
+            generator->write8(0);
+        }
+
+        bool set() {
+            size_t idx;
+            const auto& functions(fGenerator.fOutput->fFunctions);
+            for (idx = 0; idx < functions.size(); ++idx) {
+                if (fFunction.matches(functions[idx]->fDeclaration)) {
+                    break;
+                }
+            }
+            if (idx > 255 || idx > functions.size()) {
+                SkASSERT(false);
+                return false;
+            }
+            (*fCode)[fOffset] = idx;
+            return true;
+        }
+
+    private:
+        ByteCodeGenerator& fGenerator;
+        std::vector<uint8_t>* fCode;
+        size_t fOffset;
+        const FunctionDeclaration& fFunction;
     };
 
     /**
@@ -161,6 +190,8 @@ private:
     void writeFunctionCall(const FunctionCall& c);
 
     void writeConstructor(const Constructor& c);
+
+    void writeExternalValue(const ExternalValueReference& r);
 
     void writeFieldAccess(const FieldAccess& f);
 
@@ -228,10 +259,13 @@ private:
 
     std::stack<std::vector<DeferredLocation>> fBreakTargets;
 
+    std::vector<DeferredCallTarget> fCallTargets;
+
     int fParameterCount;
 
     friend class DeferredLocation;
     friend class ByteCodeVariableLValue;
+    friend class ByteCodeSwizzleLValue;
 
     typedef CodeGenerator INHERITED;
 };

@@ -8,7 +8,7 @@
 #ifndef GrGeometryProcessor_DEFINED
 #define GrGeometryProcessor_DEFINED
 
-#include "GrPrimitiveProcessor.h"
+#include "src/gpu/GrPrimitiveProcessor.h"
 
 /**
  * A GrGeometryProcessor is a flexible method for rendering a primitive.  The GrGeometryProcessor
