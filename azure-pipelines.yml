@@ -5,43 +5,43 @@
 
 name: $(Build.SourceVersion)
 jobs:
-- job: Linux
-  timeoutInMinutes: 0
+- job: Linux	
+  timeoutInMinutes: 0	
   pool:
-    vmImage: 'Ubuntu 16.04'
+    vmImage: 'Ubuntu 16.04'	
 
   variables:
-    STAGING_DIRECTORY: /home/vsts/STAGING
-    STAGING_DIRECTORY_UNIX: /home/vsts/STAGING
-    ESY__CACHE_INSTALL_PATH: /home/vsts/.esy/3_____________________________________________________________________/i
-    ESY__CACHE_SOURCE_TARBALL_PATH: /home/vsts/.esy/source/i
-    # ESY__NPM_ROOT: /opt/hostedtoolcache/node/8.14.0/x64/lib/node_modules/esy
+    STAGING_DIRECTORY: /home/vsts/STAGING	
+    STAGING_DIRECTORY_UNIX: /home/vsts/STAGING	
+    ESY__CACHE_INSTALL_PATH: /home/vsts/.esy/3_____________________________________________________________________/i	
+    ESY__CACHE_SOURCE_TARBALL_PATH: /home/vsts/.esy/source/i	
+    # ESY__NPM_ROOT: /opt/hostedtoolcache/node/8.14.0/x64/lib/node_modules/esy	
 
   steps:
   # - script: sudo apt-get install -y libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libegl1-mesa-dev mesa-utils mesa-utils-extra ragel libgtk-3-dev
-  - template: .ci/use-node.yml
-  - template: .ci/restore-build-cache.yml
-  - template: .ci/esy-build-steps.yml
-  - template: .ci/publish-build-cache.yml
+  - template: .ci/use-node.yml	
+  - template: .ci/restore-build-cache.yml	
+  - template: .ci/esy-build-steps.yml	
+  - template: .ci/publish-build-cache.yml	
 
-- job: MacOS
-  timeoutInMinutes: 0
+- job: MacOS	
+  timeoutInMinutes: 0	
   pool:
-    vmImage: 'macOS 10.13'
+    vmImage: 'macOS 10.13'	
 
   variables:
-    STAGING_DIRECTORY: /Users/vsts/STAGING
-    STAGING_DIRECTORY_UNIX: /Users/vsts/STAGING
-    ESY__CACHE_INSTALL_PATH: /Users/vsts/.esy/3____________________________________________________________________/i
-    ESY__CACHE_SOURCE_TARBALL_PATH: /Users/vsts/.esy/source/i
-    # ESY__NPM_ROOT: /usr/local/lib/node_modules/esy
+    STAGING_DIRECTORY: /Users/vsts/STAGING	
+    STAGING_DIRECTORY_UNIX: /Users/vsts/STAGING	
+    ESY__CACHE_INSTALL_PATH: /Users/vsts/.esy/3____________________________________________________________________/i	
+    ESY__CACHE_SOURCE_TARBALL_PATH: /Users/vsts/.esy/source/i	
+    # ESY__NPM_ROOT: /usr/local/lib/node_modules/esy	
 
   steps:
-  # - script: brew update
-  # - script: brew install libpng ragel
-  - template: .ci/use-node.yml
-  - template: .ci/restore-build-cache.yml
-  - template: .ci/esy-build-steps.yml
+  # - script: brew update	
+  # - script: brew install libpng ragel	
+  - template: .ci/use-node.yml	
+  - template: .ci/restore-build-cache.yml	
+  - template: .ci/esy-build-steps.yml	
   - template: .ci/publish-build-cache.yml
 
 - job: Windows
@@ -59,5 +59,27 @@ jobs:
   steps:
   - template: .ci/use-node.yml
   - template: .ci/restore-build-cache.yml
-  - template: .ci/esy-build-steps.yml
-  - template: .ci/publish-build-cache.yml
+  - script: npm install -g esy@0.5.6
+    displayName: 'Install esy'
+  - script: git clone https://github.com/bryphe/esy-bash
+    displayName: 'Cloning esy-bash'
+  - script: npm i
+    displayName: 'npm i'
+    workingDirectory: 'esy-bash'
+  - script: esy
+    displayName: 'esy'
+    workingDirectory: 'esy-bash/re'
+  - script: npm run build-cygwin
+    displayName: 'npm run build-cygwin'
+    workingDirectory: 'esy-bash'
+  - script: npm run package-cygwin
+    displayName: 'npm run package-cygwin'
+    workingDirectory: 'esy-bash'
+  - script: node ./postinstall.js
+    displayName: 'esy-bash postinstall'
+    workingDirectory: 'esy-bash'
+  - powershell: |
+      $env:ESY__ESY_BASH = "$(Build.SourcesDirectory)\esy-bash"
+      echo $env:ESY__ESY_BASH
+      esy  
+    displayName: 'esy (with modified esy-bash)'

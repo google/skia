@@ -1,0 +1,8 @@
+deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial main
+deb-src http://apt.llvm.org/xenial/ llvm-toolchain-xenial main
+# 7
+deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-7 main
+deb-src http://apt.llvm.org/xenial/ llvm-toolchain-xenial-7 main
+# 8
+deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main
+deb-src http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main

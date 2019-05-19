@@ -1,3 +1,5 @@
+OS=$1
+
 if which x86_64-w64-mingw32-gcc; then
     # TODO find out what is needed here
     platformSpecificFlags=
@@ -10,7 +12,7 @@ else
     fi
 fi
 
-touch $cur__lib/skia.pc
+
 cat >$cur__lib/skia.pc << EOF
 includedir=$cur__root/include
 libdir=$cur__lib
@@ -21,3 +23,8 @@ Version: $cur__version
 Cflags: -I\${includedir}/android -I\${includedir}/atlastext -I\${includedir}/c -I\${includedir}/codec -I\${includedir}/config -I\${includedir}/core -I\${includedir}/docs -I\${includedir}/effects -I\${includedir}/encode -I\${includedir}/gpu -I\${includedir}/pathops -I\${includedir}/ports -I\${includedir}/private -I\${includedir}/svg -I\${includedir}/third_party -I\${includedir}/utils -std=c++1y
 Libs: -L\${libdir} $platformSpecificFlags -lskia -lstdc++
 EOF
+
+if [[ $OS != 'windows' ]]
+then
+    echo "Requires: libjpeg" >> $cur__lib/skia.pc
+fi

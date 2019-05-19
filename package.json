@@ -16,32 +16,23 @@
   },
   "homepage": "https://skia.org",
   "esy": {
+    "buildEnv": {
+      "PATH": "#{self.target_dir : $PATH}"
+    },
     "buildsInSource": true,
     "build": [
-      [
-        "python",
-        "tools/git-sync-deps"
-      ],
-      [
-        "bin/gn",
-        "gen",
-        "#{self.target_dir}/out/Debug"
-      ],
-      [
-        "ninja.exe",
-        "-C",
-        "#{self.target_dir}/out/Debug"
-      ]
+      "bash ./esy/build.sh #{os} #{esy-libjpeg-turbo.install}"
     ],
     "install": [
       [
         "cp",
         "-a",
-        "#{self.target_dir}/out/Debug/.",
+        "#{self.target_dir}/out/Release/.",
         "#{self.lib}"
       ],
       [
-        "esy/create-pkg-config.sh"
+        "esy/create-pkg-config.sh",
+        "#{os}"
       ]
     ],
     "exportedEnv": {
@@ -52,6 +43,7 @@
     }
   },
   "dependencies": {
-    "@esy-cross/ninja-build": "^1.8.2001"
+    "@esy-cross/ninja-build": "^1.8.2001",
+    "esy-libjpeg-turbo": "prometheansacrifice/libjpeg-turbo#50e8e32c48"
   }
 }
