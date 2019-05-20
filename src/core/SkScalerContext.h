@@ -382,7 +382,6 @@ protected:
     virtual unsigned generateGlyphCount() = 0;
 
     void forceGenerateImageFromPath() { fGenerateImageFromPath = true; }
-    void forceOffGenerateImageFromPath() { fGenerateImageFromPath = false; }
 
 private:
     friend class RandomScalerContext;  // For debug purposes

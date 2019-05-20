@@ -165,14 +165,8 @@ public:
         return fPathData != nullptr && fPathData->fHasPath ? &fPathData->fPath : nullptr;
     }
 
-    bool hasPath() const {
-        // Need to have called getMetrics before calling findPath.
-        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
-
-        // Find path must have been called to use this call.
-        SkASSERT(fPathData != nullptr);
-
-        return fPathData != nullptr && fPathData->fHasPath;
+    bool canDrawAsPath() const {
+        return fMaskFormat != SkMask::kARGB32_Format && fPathData != nullptr && fPathData->fHasPath;
     }
 
     int maxDimension() const {
