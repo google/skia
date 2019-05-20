@@ -961,7 +961,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("getStrokeWidth", &SkPaint::getStrokeWidth)
         .function("setAntiAlias", &SkPaint::setAntiAlias)
         .function("setBlendMode", &SkPaint::setBlendMode)
-        .function("setColor", &SkPaint::setColor)
+        .function("setColor", optional_override([](SkPaint& self, SkColor c) {
+            self.setColor(c);
+        }))
+        .function("setColorf", optional_override([](SkPaint& self,
+                                                    float r, float g, float b, float a) {
+            self.setColor({r, g, b, a});
+        }))
         .function("setFilterQuality", &SkPaint::setFilterQuality)
         .function("setMaskFilter", &SkPaint::setMaskFilter)
         .function("setPathEffect", &SkPaint::setPathEffect)

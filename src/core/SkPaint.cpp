@@ -57,7 +57,7 @@ SkPaint::SkPaint()
 }
 
 SkPaint::SkPaint(const SkColor4f& color, SkColorSpace* colorSpace) : SkPaint() {
-    this->setColor4f(color, colorSpace);
+    this->setColor(color, colorSpace);
 }
 
 SkPaint::SkPaint(const SkPaint& src) = default;
@@ -115,7 +115,7 @@ void SkPaint::setColor(SkColor color) {
     fColor4f = SkColor4f::FromColor(color);
 }
 
-void SkPaint::setColor4f(const SkColor4f& color, SkColorSpace* colorSpace) {
+void SkPaint::setColor(const SkColor4f& color, SkColorSpace* colorSpace) {
     SkASSERT(fColor4f.fA >= 0 && fColor4f.fA <= 1.0f);
 
     SkColorSpaceXformSteps steps{colorSpace,          kUnpremul_SkAlphaType,
@@ -362,7 +362,7 @@ SkReadPaintResult SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& bu
     } else {
         SkColor4f color;
         buffer.readColor4f(&color);
-        paint->setColor4f(color, sk_srgb_singleton());
+        paint->setColor(color, sk_srgb_singleton());
     }
 
     unsigned flatFlags = unpack_paint_flags(paint, buffer.readUInt(), font);
@@ -417,7 +417,7 @@ SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, S
     {
         SkColor4f color;
         buffer.readColor4f(&color);
-        paint->setColor4f(color, sk_srgb_singleton());
+        paint->setColor(color, sk_srgb_singleton());
     }
 
     unsigned flatFlags = unpack_v68(paint, buffer.readUInt(), safe);

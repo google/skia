@@ -256,7 +256,11 @@ public:
         @param color       unpremultiplied RGBA
         @param colorSpace  SkColorSpace describing the encoding of color
     */
-    void setColor4f(const SkColor4f& color, SkColorSpace* colorSpace);
+    void setColor(const SkColor4f& color, SkColorSpace* colorSpace = nullptr);
+
+    void setColor4f(const SkColor4f& color, SkColorSpace* colorSpace = nullptr) {
+        this->setColor(color, colorSpace);
+    }
 
     /** Retrieves alpha from the color used when stroking and filling.
 
