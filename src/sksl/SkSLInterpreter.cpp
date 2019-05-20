@@ -406,6 +406,7 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
             case ByteCodeInstruction::kLoadSwizzle:
                 src = READ8();
                 count = READ8();
+            SkDebugf("src %d count %d\n", src, count);
                 for (int i = 0; i < count; ++i) {
                     PUSH(stack[src + *(ip + i)]);
                 }
@@ -548,6 +549,7 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
             case ByteCodeInstruction::kStoreSwizzle:
                 target = READ8();
                 count = READ8();
+            SkDebugf("storeswizzle %d %d\n", target, count);
                 for (int i = count - 1; i >= 0; --i) {
                     stack[target + *(ip + i)] = POP();
                 }
