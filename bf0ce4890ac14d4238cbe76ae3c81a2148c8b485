@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4959877e_5efa4b48",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-20T14:40:39Z",
+      "side": 1,
+      "message": "Good point. If we land this, we could remove the check from RP (and/or turn it into an assert)",
+      "parentUuid": "b2ab5057_67bcd98f",
+      "revId": "bf0ce4890ac14d4238cbe76ae3c81a2148c8b485",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aa8fa642_f419a692",
         "filename": "src/core/SkBlitter.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2019-05-20T14:30:14Z",
       "side": 1,
       "message": "Starting to wonder if we should default the colorspace argument to nullptr in filterColor4f() and setColor4f().  I\u0027m finding all the colorspace nullptr chatter distracts from the more interesting setColorFilter() nullptr.",
+      "revId": "bf0ce4890ac14d4238cbe76ae3c81a2148c8b485",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a54b704a_33b00123",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-20T14:40:39Z",
+      "side": 1,
+      "message": "Totally agree. I have a CL (that hasn\u0027t landed yet due to canvaskit) to do this sort of thing. Part of it was also to rename setColor4f to setColor, and just rely on type checking of the param.",
+      "parentUuid": "aa8fa642_f419a692",
       "revId": "bf0ce4890ac14d4238cbe76ae3c81a2148c8b485",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
