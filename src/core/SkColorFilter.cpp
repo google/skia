@@ -52,7 +52,9 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
 SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c, SkColorSpace* colorSpace) const {
     SkPMColor4f dst, src = c.premul();
 
-    SkSTArenaAlloc<128> alloc;
+    // determined experimentally, seems to cover compose+colormatrix
+    constexpr size_t kEnoughForCommonFilters = 512;
+    SkSTArenaAlloc<kEnoughForCommonFilters> alloc;
     SkRasterPipeline    pipeline(&alloc);
 
     pipeline.append_constant_color(&alloc, src.vec());
