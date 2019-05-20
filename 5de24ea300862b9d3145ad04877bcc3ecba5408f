@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7848b26_c6430459",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-20T19:29:45Z",
+      "side": 1,
+      "message": "Don\u0027t do this, and see the suggestion in SkGlyphRunPainter.cpp about canDrawAsPath().",
+      "range": {
+        "startLine": 168,
+        "startChar": 2,
+        "endLine": 181,
+        "endChar": 5
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "856ab8b7_35b658c6",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-20T19:29:45Z",
+      "side": 1,
+      "message": "getPathState() is allowing more of SkGlyph\u0027s invariants to be exposed instead of more encapsulation. I would suggest adding a call to glyph of the form...\n\nbool canDrawAsPath() const {\n    return fMaskFormat !\u003d SkMask::kARGB32_Format \u0026\u0026 fPathData !\u003d nullptr \u0026\u0026 fPathData-\u003efPath !\u003d nullptr;\n} \n\nBasically, encapsulate more rather than expose more complexity.",
+      "range": {
+        "startLine": 199,
+        "startChar": 20,
+        "endLine": 200,
+        "endChar": 72
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb22369c_5a8d8bef",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-20T19:29:45Z",
+      "side": 1,
+      "message": "canDrawAsPath() should be used here to, the fact that it doesn\u0027t have fMaskFormat !\u003d SkMask::kARGB32_Format seems to be a mistake.",
+      "range": {
+        "startLine": 208,
+        "startChar": 23,
+        "endLine": 208,
+        "endChar": 76
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d96a2c5_26f90cc7",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-20T19:29:45Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 644,
+        "startChar": 12,
+        "endLine": 644,
+        "endChar": 32
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "318039b6_9d33cbb8",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-20T19:29:45Z",
+      "side": 1,
+      "message": "Add a comment that says\n// There is a super rare case where a font doesn\u0027t have a path for a glyph, but is bitmap only. In that case use fallback to draw the bitmap glyph.\n\nglyphPtr-\u003ecanDrawAsPath()?",
+      "range": {
+        "startLine": 645,
+        "startChar": 28,
+        "endLine": 645,
+        "endChar": 84
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab313064_e51ecc63",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-20T19:29:45Z",
+      "side": 1,
+      "message": "It\u0027s not true we always need the image now. This has been fixed.",
+      "range": {
+        "startLine": 653,
+        "startChar": 11,
+        "endLine": 653,
+        "endChar": 95
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9431f726_f0205e65",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-20T19:29:45Z",
+      "side": 1,
+      "message": "I don\u0027t think this is needed, or I need to see a testcase that tickles this code. I think any case this fixes is a problem higher in the stack.",
+      "range": {
+        "startLine": 655,
+        "startChar": 12,
+        "endLine": 659,
+        "endChar": 13
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2953bdf1_eecd9a9c",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-20T19:29:45Z",
+      "side": 1,
+      "message": "I think you can re-inline this code.",
+      "range": {
+        "startLine": 670,
+        "startChar": 0,
+        "endLine": 676,
+        "endChar": 1
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8858368_dc7aa1b8",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-20T19:29:45Z",
+      "side": 1,
+      "message": "Delete",
+      "range": {
+        "startLine": 346,
+        "startChar": 4,
+        "endLine": 346,
+        "endChar": 66
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f45fc80f_d4a073ec",
+        "filename": "src/core/SkTypeface_remote.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-20T19:29:45Z",
+      "side": 1,
+      "message": "I fear this is just covering up a bug. These to states should not get here. We should figure out what this is happening up the stack.",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 32
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
