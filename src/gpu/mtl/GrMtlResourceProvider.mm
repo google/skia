@@ -190,6 +190,7 @@ id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offse
             return buffer;
         }
 
+        [fBufferState.fAllocation release];
         fBufferState.fAllocation = buffer;
         fBufferState.fNextOffset = 0;
         fBufferState.fAllocationSize = kSharedDynamicBufferSize;
@@ -201,5 +202,5 @@ id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offse
     // Uniform buffer offsets need to be aligned to the nearest 256-byte boundary.
     fBufferState.fNextOffset = GrSizeAlignUp(fBufferState.fNextOffset, 256);
 
-    return fBufferState.fAllocation;
+    return [fBufferState.fAllocation retain];
 }

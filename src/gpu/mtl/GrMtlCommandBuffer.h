@@ -29,6 +29,8 @@ public:
 private:
     GrMtlCommandBuffer(id<MTLCommandBuffer> cmdBuffer)
         : fCmdBuffer(cmdBuffer)
+        , fActiveBlitCommandEncoder(nil)
+        , fActiveRenderCommandEncoder(nil)
         , fPreviousRenderPassDescriptor(nil) {}
 
     void endAllEncoding();

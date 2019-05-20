@@ -27,6 +27,7 @@ GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
 #endif
         , fColorLoadAndStoreInfo(colorInfo)
         , fStencilLoadAndStoreInfo(stencilInfo)
+        , fActiveRenderCmdEncoder(nil)
         , fRenderPassDesc(this->createRenderPassDesc()) {
     (void)fStencilLoadAndStoreInfo; // Silence unused var warning
     const GrMtlStencilAttachment* stencil = static_cast<GrMtlStencilAttachment*>(
@@ -64,6 +65,10 @@ GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
         case GrStoreOp::kDiscard:
             fRenderPassDesc.stencilAttachment.storeAction = MTLStoreActionDontCare;
             break;
+    }
+
+    for (int i = 0; i < kNumBindings; ++i) {
+        fBufferBindings[i] = nil;
     }
 }
 
@@ -407,6 +412,7 @@ void GrMtlGpuRTCommandBuffer::setVertexBuffer(id<MTLRenderCommandEncoder> encode
     SkASSERT(index < 4);
     id<MTLBuffer> mtlVertexBuffer = buffer->mtlBuffer();
     SkASSERT(mtlVertexBuffer);
+    SkASSERT(mtlVertexBuffer.retainCount);
     // Apple recommends using setVertexBufferOffset: when changing the offset
     // for a currently bound vertex buffer, rather than setVertexBuffer:
     if (fBufferBindings[index] != mtlVertexBuffer) {

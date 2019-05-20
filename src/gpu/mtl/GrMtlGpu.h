@@ -31,7 +31,7 @@ namespace SkSL {
 }
 
 // Helper macros for autorelease pools
-#define SK_BEGIN_AUTORELEASE_BLOCK @autoreleasepool {
+#define SK_BEGIN_AUTORELEASE_BLOCK { //@autoreleasepool {
 #define SK_END_AUTORELEASE_BLOCK }
 
 class GrMtlGpu : public GrGpu {

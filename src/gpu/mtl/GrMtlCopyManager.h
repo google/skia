@@ -20,7 +20,21 @@ struct SkIRect;
 
 class GrMtlCopyManager {
 public:
-    GrMtlCopyManager(GrMtlGpu* gpu) : fGpu(gpu) {}
+    GrMtlCopyManager(GrMtlGpu* gpu)
+            : fSamplerState(nil)
+            , fVertexAttributeBuffer(nil)
+            , fVertexFunction(nil)
+            , fFragmentFunction(nil)
+            , fVertexDescriptor(nil)
+            , fGpu(gpu) {}
+
+    ~GrMtlCopyManager() {
+        [fSamplerState release];
+        [fVertexAttributeBuffer release];
+        [fVertexFunction release];
+        [fFragmentFunction release];
+        [fVertexDescriptor release];
+    }
 
     bool copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                            GrSurface* src, GrSurfaceOrigin srcOrigin,

@@ -42,10 +42,12 @@ protected:
     GrMtlGpu* getMtlGpu() const;
 
     void onAbandon() override {
+        [fTexture release];
         fTexture = nil;
         INHERITED::onAbandon();
     }
     void onRelease() override {
+        [fTexture release];
         fTexture = nil;
         INHERITED::onRelease();
     }

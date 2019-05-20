@@ -651,7 +651,6 @@ optional("gpu") {
     sources += skia_metal_sources
     libs += [ "Metal.framework" ]
     libs += [ "Foundation.framework" ]
-    cflags_objcc += [ "-fobjc-arc" ]
   }
 
   if (skia_enable_atlas_text) {

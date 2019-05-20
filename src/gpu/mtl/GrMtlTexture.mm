@@ -77,6 +77,7 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
     SkASSERT(MTLTextureUsageShaderRead & texture.usage);
     GrMipMapsStatus mipMapsStatus = texture.mipmapLevelCount > 1 ? GrMipMapsStatus::kValid
                                                                  : GrMipMapsStatus::kNotAllocated;
+    [texture retain];
     return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, kWrapped, desc, texture, mipMapsStatus,
                                                 cacheable, ioType));
 }
@@ -94,6 +95,7 @@ GrBackendTexture GrMtlTexture::getBackendTexture() const {
     GrMipMapped mipMapped = fTexture.mipmapLevelCount > 1 ? GrMipMapped::kYes
                                                           : GrMipMapped::kNo;
     GrMtlTextureInfo info;
+    //*** need to retain this?
     info.fTexture = GrGetPtrFromId(fTexture);
     return GrBackendTexture(this->width(), this->height(), mipMapped, info);
 }

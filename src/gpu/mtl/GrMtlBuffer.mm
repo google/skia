@@ -30,7 +30,9 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
                          GrAccessPattern accessPattern)
         : INHERITED(gpu, size, intendedType, accessPattern)
         , fIsDynamic(accessPattern != kStatic_GrAccessPattern)
-        , fOffset(0) {
+        , fMtlBuffer(nil)
+        , fOffset(0)
+        , fMappedBuffer(nil) {
     // We'll allocate dynamic buffers when we map them, below.
     if (!fIsDynamic) {
         // TODO: newBufferWithBytes: used to work with StorageModePrivate buffers -- seems like
@@ -81,7 +83,9 @@ inline GrMtlGpu* GrMtlBuffer::mtlGpu() const {
 }
 
 void GrMtlBuffer::onAbandon() {
+    [fMtlBuffer release];
     fMtlBuffer = nil;
+    [fMappedBuffer release];
     fMappedBuffer = nil;
     fMapPtr = nullptr;
     VALIDATE();
@@ -91,7 +95,9 @@ void GrMtlBuffer::onAbandon() {
 void GrMtlBuffer::onRelease() {
     if (!this->wasDestroyed()) {
         VALIDATE();
+        [fMtlBuffer release];
         fMtlBuffer = nil;
+        [fMappedBuffer release];
         fMappedBuffer = nil;
         fMapPtr = nullptr;
         VALIDATE();
@@ -107,7 +113,7 @@ void GrMtlBuffer::internalMap(size_t sizeInBytes) {
     SkASSERT(!this->isMapped());
     if (fIsDynamic) {
         fMtlBuffer = this->mtlGpu()->resourceProvider().getDynamicBuffer(sizeInBytes, &fOffset);
-        fMappedBuffer = fMtlBuffer;
+        fMappedBuffer = [fMtlBuffer retain];
         fMapPtr = static_cast<char*>(fMtlBuffer.contents) + fOffset;
     } else {
         SkASSERT(fMtlBuffer);
@@ -130,6 +136,7 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
     VALIDATE();
     SkASSERT(this->isMapped());
     if (fMtlBuffer == nil) {
+        [fMappedBuffer release];
         fMappedBuffer = nil;
         fMapPtr = nullptr;
         return;
@@ -141,6 +148,7 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
 #endif
     } else {
         GrMtlCommandBuffer* cmdBuffer = this->mtlGpu()->commandBuffer();
+        SkASSERT(cmdBuffer);
         id<MTLBlitCommandEncoder> blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
         [blitCmdEncoder copyFromBuffer: fMappedBuffer
                           sourceOffset: 0
@@ -148,6 +156,7 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
                      destinationOffset: 0
                                   size: sizeInBytes];
     }
+    [fMappedBuffer release];
     fMappedBuffer = nil;
     fMapPtr = nullptr;
 }

@@ -26,6 +26,7 @@ GrMtlCopyPipelineState* GrMtlCopyPipelineState::CreateCopyPipelineState(
     id<MTLRenderPipelineState> pipelineState =
             [gpu->device() newRenderPipelineStateWithDescriptor: pipelineDescriptor
                                                           error: &error];
+    [pipelineDescriptor release];
     if (error) {
         SkDebugf("Error creating pipeline: %s\n",
                  [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
