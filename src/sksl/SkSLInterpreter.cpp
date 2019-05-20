@@ -275,6 +275,14 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
         sp[-3].targetField = sp[-3].srcField op tmp[0].srcField; \
         break;
 
+#define VECTOR_INTRINSIC(label, fn)            \
+    case (int) ByteCodeIntrinsic::label:       \
+        count = READ8();                       \
+        for (int i = 1 - count; i <= 0; ++i) { \
+            sp[i].fFloat = fn(sp[i].fFloat);   \
+        }                                      \
+        break;
+
 struct StackFrame {
     const uint8_t* fCode;
     const uint8_t* fIP;
@@ -380,29 +388,13 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
             case ByteCodeInstruction::kFloatToInt:
                 sp[0].fSigned = (int) sp[0].fFloat;
                 break;
-            case ByteCodeInstruction::kSignedToFloat4:
-                sp[-3].fFloat = (int) sp[-3].fSigned;
-                // fall through
-            case ByteCodeInstruction::kSignedToFloat3:
-                sp[-2].fFloat = (int) sp[-2].fSigned;
-                // fall through
-            case ByteCodeInstruction::kSignedToFloat2:
-                sp[-1].fFloat = (int) sp[-1].fSigned;
-                // fall through
-            case ByteCodeInstruction::kSignedToFloat:
-                sp[0].fFloat = (int) sp[0].fSigned;
-                break;
-            case ByteCodeInstruction::kUnsignedToFloat4:
-                sp[-3].fFloat = (int) sp[-3].fUnsigned;
-                // fall through
-            case ByteCodeInstruction::kUnsignedToFloat3:
-                sp[-2].fFloat = (int) sp[-2].fUnsigned;
-                // fall through
-            case ByteCodeInstruction::kUnsignedToFloat2:
-                sp[-1].fFloat = (int) sp[-1].fUnsigned;
-                // fall through
-            case ByteCodeInstruction::kUnsignedToFloat:
-                sp[0].fFloat = (int) sp[0].fUnsigned;
+            case ByteCodeInstruction::kIntrinsic:
+                switch (READ8()) {
+                    VECTOR_INTRINSIC(kCos, cos)
+                    VECTOR_INTRINSIC(kSin, sin)
+                    VECTOR_INTRINSIC(kSqrt, sqrt)
+                    VECTOR_INTRINSIC(kTan, tan)
+                }
                 break;
             case ByteCodeInstruction::kLoad:  // fall through
             case ByteCodeInstruction::kLoad2: // fall through
@@ -545,6 +537,18 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                     frames.pop_back();
                     break;
                 }
+            case ByteCodeInstruction::kSignedToFloat4:
+                sp[-3].fFloat = (int) sp[-3].fSigned;
+                // fall through
+            case ByteCodeInstruction::kSignedToFloat3:
+                sp[-2].fFloat = (int) sp[-2].fSigned;
+                // fall through
+            case ByteCodeInstruction::kSignedToFloat2:
+                sp[-1].fFloat = (int) sp[-1].fSigned;
+                // fall through
+            case ByteCodeInstruction::kSignedToFloat:
+                sp[0].fFloat = (int) sp[0].fSigned;
+                break;
             case ByteCodeInstruction::kStore:  // fall through
             case ByteCodeInstruction::kStore2: // fall through
             case ByteCodeInstruction::kStore3: // fall through
@@ -590,6 +594,18 @@ void Interpreter::run(const ByteCodeFunction& f, Value* stack, Value args[], Val
                 for (int i = READ8() - 1; i >= 0; --i) {
                     PUSH(tmp[READ8()]);
                 }
+                break;
+            case ByteCodeInstruction::kUnsignedToFloat4:
+                sp[-3].fFloat = (int) sp[-3].fUnsigned;
+                // fall through
+            case ByteCodeInstruction::kUnsignedToFloat3:
+                sp[-2].fFloat = (int) sp[-2].fUnsigned;
+                // fall through
+            case ByteCodeInstruction::kUnsignedToFloat2:
+                sp[-1].fFloat = (int) sp[-1].fUnsigned;
+                // fall through
+            case ByteCodeInstruction::kUnsignedToFloat:
+                sp[0].fFloat = (int) sp[0].fUnsigned;
                 break;
             case ByteCodeInstruction::kWriteExternal:  // fall through
             case ByteCodeInstruction::kWriteExternal2: // fall through
