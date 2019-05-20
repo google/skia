@@ -73,6 +73,7 @@ public:
      * Print bytecode disassembly to stdout.
      */
     void disassemble(const ByteCodeFunction&);
+
 private:
     void run(const ByteCodeFunction& f, Value* stack, Value args[], Value* outReturn);
 

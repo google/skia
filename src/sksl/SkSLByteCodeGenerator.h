@@ -173,6 +173,12 @@ private:
      */
     int getLocation(const Variable& var);
 
+    /**
+     * As above, but computes the (possibly dynamic) address of an expression involving indexing &
+     * field access.
+     */
+    std::unique_ptr<Expression> getLocation(const Expression& expr, Variable::Storage* storage);
+
     std::unique_ptr<ByteCodeFunction> writeFunction(const FunctionDefinition& f);
 
     void writeVarDeclarations(const VarDeclarations& decl);
@@ -264,8 +270,10 @@ private:
     int fParameterCount;
 
     friend class DeferredLocation;
-    friend class ByteCodeVariableLValue;
+    friend class ByteCodeFieldLValue;
+    friend class ByteCodeIndexLValue;
     friend class ByteCodeSwizzleLValue;
+    friend class ByteCodeVariableLValue;
 
     typedef CodeGenerator INHERITED;
 };
