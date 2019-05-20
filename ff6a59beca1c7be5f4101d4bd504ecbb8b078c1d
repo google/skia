@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bdda98ea_75b3f0ea",
+        "filename": "bench/ColorFilterBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-20T16:26:16Z",
+      "side": 1,
+      "message": "nit: their",
+      "range": {
+        "startLine": 25,
+        "startChar": 11,
+        "endLine": 25,
+        "endChar": 16
+      },
+      "revId": "ff6a59beca1c7be5f4101d4bd504ecbb8b078c1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "872d8777_4e8619e2",
+        "filename": "bench/ColorFilterBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-20T16:26:16Z",
+      "side": 1,
+      "message": "maybe \"nofilter\" ?",
+      "range": {
+        "startLine": 37,
+        "startChar": 41,
+        "endLine": 37,
+        "endChar": 45
+      },
+      "revId": "ff6a59beca1c7be5f4101d4bd504ecbb8b078c1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
