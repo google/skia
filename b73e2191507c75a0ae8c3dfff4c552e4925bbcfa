@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6142c768_d591de32",
+        "filename": "src/core/SkDescriptor.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T20:19:42Z",
+      "side": 1,
+      "message": "I was using this a lot for debugging so figured I might as well add it.",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 61,
+        "endChar": 5
+      },
+      "revId": "b73e2191507c75a0ae8c3dfff4c552e4925bbcfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92ccfe1f_b94816d2",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T20:19:42Z",
+      "side": 1,
+      "message": "I was trying to copy the test setup from https://cs.chromium.org/chromium/src/third_party/skia/gm/scaledemoji.cpp here but the tests keep failing because the recs on the client/server have different textSize. I\u0027m pretty sure I\u0027m getting something wrong in the test setup. Does anything obvious jump out to you?\n\nIf not, would it be okay to land the disabled test so you can fix in a follow up? I\u0027ve verified that the change addresses the bug from the URL I was able to repro this on.",
+      "range": {
+        "startLine": 777,
+        "startChar": 35,
+        "endLine": 777,
+        "endChar": 73
+      },
+      "revId": "b73e2191507c75a0ae8c3dfff4c552e4925bbcfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

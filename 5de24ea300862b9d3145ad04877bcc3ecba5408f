@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6e9a2d1f_91b6fbee",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T20:19:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7848b26_c6430459",
+      "range": {
+        "startLine": 168,
+        "startChar": 2,
+        "endLine": 181,
+        "endChar": 5
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "856ab8b7_35b658c6",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8c64d74_0765546e",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T20:19:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "856ab8b7_35b658c6",
+      "range": {
+        "startLine": 199,
+        "startChar": 20,
+        "endLine": 200,
+        "endChar": 72
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b15ebd88_20316cb7",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T20:19:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb22369c_5a8d8bef",
+      "range": {
+        "startLine": 208,
+        "startChar": 23,
+        "endLine": 208,
+        "endChar": 76
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1d96a2c5_26f90cc7",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 7
@@ -91,6 +163,30 @@
       "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cc30620_bc8e0b2e",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T20:19:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d96a2c5_26f90cc7",
+      "range": {
+        "startLine": 644,
+        "startChar": 12,
+        "endLine": 644,
+        "endChar": 32
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "fd625f1b_eb79442d",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T20:19:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "318039b6_9d33cbb8",
+      "range": {
+        "startLine": 645,
+        "startChar": 28,
+        "endLine": 645,
+        "endChar": 84
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab313064_e51ecc63",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 7
@@ -137,6 +257,30 @@
       "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52db7aa6_d21f4978",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T20:19:42Z",
+      "side": 1,
+      "message": "That\u0027s great! But I\u0027d prefer that the code to remove this is in a separate change.",
+      "parentUuid": "ab313064_e51ecc63",
+      "range": {
+        "startLine": 653,
+        "startChar": 11,
+        "endLine": 653,
+        "endChar": 95
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "7e90ba2f_0de38bb1",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T20:19:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9431f726_f0205e65",
+      "range": {
+        "startLine": 655,
+        "startChar": 12,
+        "endLine": 659,
+        "endChar": 13
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2953bdf1_eecd9a9c",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 7
@@ -183,6 +351,30 @@
       "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a243dd41_8289d7d3",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T20:19:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2953bdf1_eecd9a9c",
+      "range": {
+        "startLine": 670,
+        "startChar": 0,
+        "endLine": 676,
+        "endChar": 1
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "92aee6bc_52861b3c",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T20:19:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8858368_dc7aa1b8",
+      "range": {
+        "startLine": 346,
+        "startChar": 4,
+        "endLine": 346,
+        "endChar": 66
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f45fc80f_d4a073ec",
         "filename": "src/core/SkTypeface_remote.cpp",
         "patchSetId": 7
@@ -229,6 +445,30 @@
       "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05bdf1bb_c4e8c30c",
+        "filename": "src/core/SkTypeface_remote.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T20:19:42Z",
+      "side": 1,
+      "message": "Agreed, we shouldn\u0027t get here in these cases. I was mistakenly assuming that it would happen in the fGenerateImageFromPath case but verified that it shouldn\u0027t.",
+      "parentUuid": "f45fc80f_d4a073ec",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 32
+      },
+      "revId": "5de24ea300862b9d3145ad04877bcc3ecba5408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
