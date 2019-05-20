@@ -9,7 +9,7 @@
       "Traceback (most recent call last):",
       "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/engine.py\", line 375, in run_steps",
       "    raw_result = recipe_obj.run_steps(api, engine)",
-      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/recipe_deps.py\", line 670, in run_steps",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/recipe_deps.py\", line 681, in run_steps",
       "    properties_def, api=api)",
       "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", line 89, in invoke_with_properties",
       "    arg_names, **additional_args)",
