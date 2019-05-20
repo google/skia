@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "a9c37542_1f0a8c05",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T23:00:39Z",
+      "side": 1,
+      "message": "herb@, I looked into the suggestion you made about adding all glyphs here (more robust so the same painter code is executed here as will be at raster time in the GPU process). But I\u0027m afraid that might end up being a perf regression.\n\nParticularly because I think since this was introduced we only added glyphs to the return result in the case of a cacheMiss. For the fallback case we have to add it each time, and its rare enough that doesn\u0027t matter much, but I\u0027m not sure if its a good idea to add it every time if there is a cache hit for other cases.\n\nAnd since it turns out that this needs to be merged to M75, I\u0027d prefer to scope it just to the bug fix. We can try the add all glyphs approach in a follow up, it\u0027ll also clearly show in case there is any perf hit because of it.",
+      "range": {
+        "startLine": 616,
+        "startChar": 4,
+        "endLine": 616,
+        "endChar": 35
+      },
+      "revId": "b73e2191507c75a0ae8c3dfff4c552e4925bbcfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "92ccfe1f_b94816d2",
         "filename": "tests/SkRemoteGlyphCacheTest.cpp",
         "patchSetId": 11
