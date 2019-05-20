@@ -142,7 +142,7 @@ protected:
 
     void createResultTexture(GrContext* context, int width, int height,
                              GrBackendTexture* resultTexture) {
-        *resultTexture = context->priv().createBackendTexture(
+        *resultTexture = context->createBackendTexture(
                 width, height, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes);
 
         context->resetContext();
@@ -161,7 +161,7 @@ protected:
         context->flush();
         gpu->testingOnly_flushGpuAndSync();
         for (int i = 0; i < n; ++i) {
-            context->priv().deleteBackendTexture(textures[i]);
+            context->deleteBackendTexture(textures[i]);
         }
 
         context->resetContext();
