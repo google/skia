@@ -97,6 +97,10 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas, const char* im
     }
     if (!surface) {
         *errorMsg = "Could not create surface for image.";
+        // When testing abandoned GrContext we expect surface creation to fail.
+        if (canvas->getGrContext() && canvas->getGrContext()->abandoned()) {
+            return skiagm::DrawResult::kSkip;
+        }
         return skiagm::DrawResult::kFail;
     }
     SkPaint paint;
@@ -139,6 +143,10 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
     auto surface = canvas->makeSurface(surfaceII);
     if (!surface) {
         *errorMsg = "Could not create surface for image.";
+        // When testing abandoned GrContext we expect surface creation to fail.
+        if (canvas->getGrContext() && canvas->getGrContext()->abandoned()) {
+            return skiagm::DrawResult::kSkip;
+        }
         return skiagm::DrawResult::kFail;
     }
     surface->getCanvas()->clear(SK_ColorRED);
