@@ -173,6 +173,7 @@ void Window_mac::PaintWindows() {
     const NSRect mainRect = [fWindow->window().contentView bounds];
 
     fWindow->onResize(mainRect.size.width, mainRect.size.height);
+    fWindow->inval();
 }
 
 - (BOOL)windowShouldClose:(NSWindow*)sender {
@@ -366,7 +367,7 @@ static uint32_t get_modifiers(const NSEvent* event) {
 }
 
 - (void)drawRect:(NSRect)rect {
-    fWindow->inval();
+    fWindow->onPaint();
 }
 
 @end
