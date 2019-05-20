@@ -93,6 +93,30 @@
       "revId": "a415ba3e3ede15b27e1ddfee046ec0c8d66212f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a70100e_41c77062",
+        "filename": "src/opts/SkUtils_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-20T20:14:47Z",
+      "side": 1,
+      "message": "The good old \"goes to\" operator.  :)  Some people find it too cute, but I think it\u0027s actually secretly a really good idea to use in a while loop like this.  It stands out visually when you read the code, makes it clear you\u0027re not going to be needing an for-loop like \u0027i\u0027 variable, and unlike a lot of other patterns, it\u0027s always correct, no matter the type you\u0027re counting down.",
+      "parentUuid": "6282d6e3_e261ba3b",
+      "range": {
+        "startLine": 45,
+        "startChar": 8,
+        "endLine": 45,
+        "endChar": 31
+      },
+      "revId": "a415ba3e3ede15b27e1ddfee046ec0c8d66212f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
