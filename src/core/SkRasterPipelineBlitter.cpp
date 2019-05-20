@@ -221,27 +221,24 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
             case 1: blitter->fMemset2D = [](SkPixmap* dst, int x,int y, int w,int h, uint64_t c) {
                 uint16_t* p = dst->writable_addr16(x,y);
-                auto fn = SkOpts::memset16;
                 while (h --> 0) {
-                    fn(p, c, w);
+                    SkOpts::memset16(p, c, w);
                     p = SkTAddOffset<uint16_t>(p, dst->rowBytes());
                 }
             }; break;
 
             case 2: blitter->fMemset2D = [](SkPixmap* dst, int x,int y, int w,int h, uint64_t c) {
                 uint32_t* p = dst->writable_addr32(x,y);
-                auto fn = SkOpts::memset32;
                 while (h --> 0) {
-                    fn(p, c, w);
+                    SkOpts::memset32(p, c, w);
                     p = SkTAddOffset<uint32_t>(p, dst->rowBytes());
                 }
             }; break;
 
             case 3: blitter->fMemset2D = [](SkPixmap* dst, int x,int y, int w,int h, uint64_t c) {
                 uint64_t* p = dst->writable_addr64(x,y);
-                auto fn = SkOpts::memset64;
                 while (h --> 0) {
-                    fn(p, c, w);
+                    SkOpts::memset64(p, c, w);
                     p = SkTAddOffset<uint64_t>(p, dst->rowBytes());
                 }
             }; break;
