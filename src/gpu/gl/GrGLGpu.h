@@ -136,11 +136,12 @@ public:
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
                                                                 int width,
                                                                 int height) override;
-    GrBackendTexture createTestingOnlyBackendTexture(int w, int h, const GrBackendFormat&,
-                                                     GrMipMapped, GrRenderable,
-                                                     const void* pixels = nullptr,
-                                                     size_t rowBytes = 0) override;
-    void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
+    GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
+                                          GrMipMapped, GrRenderable,
+                                          const void* pixels = nullptr,
+                                          size_t rowBytes = 0,
+                                          const SkColor4f& color = SkColors::kTransparent) override;
+    void deleteBackendTexture(const GrBackendTexture&) override;
 
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;

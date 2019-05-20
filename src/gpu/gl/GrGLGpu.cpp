@@ -4073,11 +4073,12 @@ static bool gl_format_to_pixel_config(GrGLenum format, GrPixelConfig* config) {
     return false;
 }
 
-GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(int w, int h,
-                                                          const GrBackendFormat& format,
-                                                          GrMipMapped mipMapped,
-                                                          GrRenderable /* renderable */,
-                                                          const void* pixels, size_t rowBytes) {
+GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
+                                               const GrBackendFormat& format,
+                                               GrMipMapped mipMapped,
+                                               GrRenderable /* renderable */,
+                                               const void* pixels, size_t rowBytes,
+                                               const SkColor4f& color) {
     this->handleDirtyContext();
 
     const GrGLenum* glFormat = format.getGLFormat();
@@ -4205,7 +4206,7 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(int w, int h,
     return beTex;
 }
 
-void GrGLGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
+void GrGLGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(GrBackendApi::kOpenGL == tex.backend());
 
     GrGLTextureInfo info;
