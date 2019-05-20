@@ -64,6 +64,11 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec,
     return true;
 }
 
+bool SkColorFilter_Matrix::onAffectsTransparentBlack() const {
+    // return true iff we have a non-zero translate
+    return fMatrix[4] || fMatrix[9] || fMatrix[14] || fMatrix[19];
+}
+
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"

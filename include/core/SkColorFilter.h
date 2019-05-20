@@ -94,7 +94,7 @@ public:
 #endif
 
     bool affectsTransparentBlack() const {
-        return this->filterColor(SK_ColorTRANSPARENT) != SK_ColorTRANSPARENT;
+        return this->onAffectsTransparentBlack();
     }
 
     static void RegisterFlattenables();
@@ -119,6 +119,9 @@ protected:
 
     virtual bool onAsAColorMatrix(float[20]) const;
     virtual bool onAsAColorMode(SkColor* color, SkBlendMode* bmode) const;
+    virtual bool onAffectsTransparentBlack() const {
+        return this->filterColor(SK_ColorTRANSPARENT) != SK_ColorTRANSPARENT;
+    }
 
 private:
     /*
