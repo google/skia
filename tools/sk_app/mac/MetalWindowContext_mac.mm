@@ -8,7 +8,8 @@
 #include "tools/sk_app/MetalWindowContext.h"
 #include "tools/sk_app/mac/WindowContextFactory_mac.h"
 
-#include <Cocoa/Cocoa.h>
+#import <Cocoa/Cocoa.h>
+#import <QuartzCore/CAConstraintLayoutManager.h>
 
 using sk_app::DisplayParams;
 using sk_app::window_context_factory::MacWindowInfo;
@@ -53,6 +54,12 @@ bool MetalWindowContext_mac::onInitializeContext() {
     NSRect frameRect = [fMainView frame];
     fMetalLayer.drawableSize = frameRect.size;
     fMetalLayer.frame = frameRect;
+
+    BOOL useVsync = fDisplayParams.fDisableVsync ? NO : YES;
+    fMetalLayer.displaySyncEnabled = useVsync;  // TODO: need solution for 10.12 or lower
+    fMetalLayer.layoutManager = [CAConstraintLayoutManager layoutManager];
+    fMetalLayer.autoresizingMask = kCALayerHeightSizable | kCALayerWidthSizable;
+    fMetalLayer.contentsGravity = kCAGravityTopLeft;
 
     fMainView.layer = fMetalLayer;
     fMainView.wantsLayer = YES;
