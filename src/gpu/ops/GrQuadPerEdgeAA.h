@@ -91,6 +91,9 @@ namespace GrQuadPerEdgeAA {
     // based on the configuration in the vertex spec; if that attribute is disabled in the spec,
     // then its corresponding function argument is ignored.
     //
+    // Tessellation is based on the quad type of the vertex spec, not the provided GrPerspQuad's
+    // so that all quads in a batch are tessellated the same.
+    //
     // Returns the advanced pointer in vertices.
     void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& deviceQuad,
                      const SkPMColor4f& color, const GrPerspQuad& localQuad, const SkRect& domain,
