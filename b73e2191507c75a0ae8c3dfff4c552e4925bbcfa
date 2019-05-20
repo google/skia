@@ -68,6 +68,30 @@
       "revId": "b73e2191507c75a0ae8c3dfff4c552e4925bbcfa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e016dd39_9e5fe410",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 782,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-20T21:37:34Z",
+      "side": 1,
+      "message": "Using the sbix typeface still didn\u0027t fix the test failure I was seeing locally. This is the pair of desc I see in the test:\n\nRenderer side : Rec\n  textsize 162 prescale 1 preskew 0 post [1 0 0 1]\n  frame 0 miter 0 format 1 join 0 cap 0 flags 0x100\n  lum bits ff000000, device gamma 64, paint gamma 64 contrast 0\n\nGPU side : GlyphCacheMiss generateFontMetrics: Rec\n  textsize 180 prescale 1 preskew 0 post [1 0 0 1]\n  frame 0 miter 0 format 1 join 0 cap 0 flags 0x100\n  lum bits ff000000, device gamma 0, paint gamma 0 contrast 128\n\nAnd its for the case where the textSize in the loop below is 180. The error is identical with the emoji or sbix typeface. Any ideas?",
+      "parentUuid": "002113da_82d0e35b",
+      "range": {
+        "startLine": 782,
+        "startChar": 20,
+        "endLine": 782,
+        "endChar": 47
+      },
+      "revId": "b73e2191507c75a0ae8c3dfff4c552e4925bbcfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
