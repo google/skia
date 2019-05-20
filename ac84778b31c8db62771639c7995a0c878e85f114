@@ -16,6 +16,58 @@
       "revId": "ac84778b31c8db62771639c7995a0c878e85f114",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb2ab3b6_edd43b96",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-20T14:24:57Z",
+      "side": 1,
+      "message": "Yeah, this pattern is pretty subtle.  I struggled over the same thing reading kDup first, especially how the amount you reach back is a constant based on the initial instruction, not the instruction you fall into... I do think it\u0027s worth explaining somewhere at least once.",
+      "parentUuid": "867caeaf_6fff5f3d",
+      "revId": "ac84778b31c8db62771639c7995a0c878e85f114",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2a17c3b_4f26f93c",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-20T14:24:57Z",
+      "side": 1,
+      "message": "I think if we rewrite it to\n\n  #define PUSH(v) (SkASSERT(sp + 1 \u003e\u003d stack), sp[1] \u003d v, ++sp)\n\nwe could use PUSH() here, then write it like\n\n  case ByteCodeInstruction::kDup4: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);\n  case ByteCodeInstruction::kDup3: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);\n  case ByteCodeInstruction::kDup2: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);\n  case ByteCodeInstruction::kDup : PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);\n                                   break;\n\n?",
+      "revId": "ac84778b31c8db62771639c7995a0c878e85f114",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a90235d4_4a74ca53",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-20T14:24:57Z",
+      "side": 1,
+      "message": "These can be\n\n   stack[*ip + k] \u003d POP()\n\nright?\n\ncase ByteCodeInstruction::kStore4: stack[*ip + 3] \u003d POP();\ncase ByteCodeInstruction::kStore3: stack[*ip + 2] \u003d POP();\ncase ByteCodeInstruction::kStore2: stack[*ip + 1] \u003d POP();\ncase ByteCodeInstruction::kStore : stack[*ip + 0] \u003d POP();\n                                   ++ip;\n                                   break;\n\n?",
+      "revId": "ac84778b31c8db62771639c7995a0c878e85f114",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
