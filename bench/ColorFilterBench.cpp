@@ -101,9 +101,9 @@ protected:
         SkRect r = this->getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
+        sk_sp<SkImageFilter> brightness(make_brightness(0.9f, nullptr));
+        paint.setImageFilter(make_grayscale(std::move(brightness)));
         for (int i = 0; i < loops; i++) {
-            sk_sp<SkImageFilter> brightness(make_brightness(0.9f, nullptr));
-            paint.setImageFilter(make_grayscale(std::move(brightness)));
             canvas->drawRect(r, paint);
         }
     }
@@ -126,9 +126,9 @@ protected:
         SkRect r = this->getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
+        sk_sp<SkImageFilter> grayscale(make_grayscale(nullptr));
+        paint.setImageFilter(make_brightness(0.9f, std::move(grayscale)));
         for (int i = 0; i < loops; i++) {
-            sk_sp<SkImageFilter> grayscale(make_grayscale(nullptr));
-            paint.setImageFilter(make_brightness(0.9f, std::move(grayscale)));
             canvas->drawRect(r, paint);
         }
     }
