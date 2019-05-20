@@ -85,9 +85,7 @@
   },
   {
     "failure": {
-      "failure": {
-        "step": "upload .png images (attempt 5)"
-      },
+      "failure": {},
       "humanReason": "Step('upload .png images (attempt 5)') failed with return_code 1"
     },
     "name": "$result"

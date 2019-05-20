@@ -1,11 +1,6 @@
 [
   {
     "failure": {
-      "exception": {
-        "traceback": [
-          "<omitted by recipe engine>"
-        ]
-      },
       "humanReason": "Uncaught Exception: Exception('Lunch target in Build-Debian9-Clang-unrecognized-Android_Framework is not recognized.',)"
     },
     "name": "$result"
