@@ -28,6 +28,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
     bool onAsAColorMatrix(float matrix[20]) const override;
+    bool onAffectsTransparentBlack() const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkColorFilter_Matrix)
