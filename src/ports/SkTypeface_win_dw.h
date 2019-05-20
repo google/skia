@@ -9,8 +9,8 @@
 #define SkTypeface_win_dw_DEFINED
 
 #include "include/core/SkTypeface.h"
-#include "include/private/SkLeanWindows.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkLeanWindows.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/utils/win/SkDWrite.h"
 #include "src/utils/win/SkHRESULT.h"

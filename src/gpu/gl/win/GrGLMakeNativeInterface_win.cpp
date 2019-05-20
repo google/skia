@@ -7,7 +7,7 @@
 #include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "include/private/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "include/gpu/gl/GrGLInterface.h"

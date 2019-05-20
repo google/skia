@@ -8,7 +8,7 @@
 #include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "include/private/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 
 #ifndef UNICODE
 #define UNICODE

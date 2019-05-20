@@ -8,7 +8,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
-#include "include/private/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 #include "src/core/SkTraceEvent.h"
 #include "tests/Test.h"
 #include "tools/flags/CommandLineFlags.h"

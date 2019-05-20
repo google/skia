@@ -10,7 +10,7 @@
 #ifndef SkWGL_DEFINED
 #define SkWGL_DEFINED
 
-#include "include/private/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 
 /**
  * Working with WGL extensions can be a pain. Among the reasons is that You must

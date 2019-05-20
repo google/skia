@@ -24,6 +24,7 @@
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkGlyph.h"
+#include "src/core/SkLeanWindows.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkMaskGamma.h"
 #include "src/core/SkTypefaceCache.h"
