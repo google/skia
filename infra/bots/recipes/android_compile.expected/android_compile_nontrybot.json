@@ -1,11 +1,6 @@
 [
   {
     "failure": {
-      "exception": {
-        "traceback": [
-          "<omitted by recipe engine>"
-        ]
-      },
       "humanReason": "Uncaught Exception: Exception('Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework can only be run as a trybot.',)"
     },
     "name": "$result"

@@ -286,9 +286,7 @@
   },
   {
     "failure": {
-      "failure": {
-        "step": ""
-      },
+      "failure": {},
       "humanReason": "Failed build steps: symbolized dm, symbolized dm"
     },
     "name": "$result"
