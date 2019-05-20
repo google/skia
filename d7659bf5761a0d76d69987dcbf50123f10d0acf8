@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f9daa6f_b55b3812",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-20T14:01:06Z",
+      "side": 1,
+      "message": "We need to add an additional cap for protected supported to GrVkCaps. It will be somehting like fSupportsProtectedMemory which will be set to true if the physical device version is using vulkan 1.1 or later.\n\nWe then need to check this cap flag when we are asked to make a protected GrContext or wrap a protected VkImage and fail if we don\u0027t have support for protected memory.",
+      "range": {
+        "startLine": 22,
+        "startChar": 1,
+        "endLine": 22,
+        "endChar": 15
+      },
+      "revId": "d7659bf5761a0d76d69987dcbf50123f10d0acf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a914336_a89df23a",
+        "filename": "tests/VkHardwareBufferTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1323,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-20T14:01:06Z",
+      "side": 1,
+      "message": "So I\u0027ve been going back and forth and the best way to test this, and I think for the first go we\u0027ll just need to make tests that call a bunch of Skia API calls and we rely on not hitting our asserts or vulkan validation layer errors as a passing sign since we can\u0027t actually validate the content of draws.\n\nSo to start lets make a new test file, VkProtectedContextTest.cpp. In there you can make new GPU tests similar to here using DEF_GPUTEST and manually setting up a vulkan GrContext that is protected (should probably also test a non protected GrContext that you try to wrap a protected image in and make sure that fails).\n\nAs mentioned below you can use the new createBackendTexture call to make backend textures. We want to add a flag to that call for isProtected. Instead of using a bool, make an enum similar to GrRenderable which the function currently takes.\n\nNext we want to check the basics of what we can and can\u0027t do. For example, calling SkSurface::readPixels with a protected SkSurface should fail. We shouldn\u0027t be able to wrap protected images in a non protected context. We want to test that if we wrap a protected VkImage in an SkSurface or SkImage and then call getBackendTexture on those classes, that we are reporting the returned GrVkImageInfo as being protected.\n\nNext we want to exercise a bunch of draws so that we try to cover as many code paths as possible  (note you wrap a GrBackendTexture to create an SkSurface. Then from the SkSurface you can get an SkCanvas which is our drawing API). Some of these should include:\n1) Draw a basic rectangle to a protected surface\n2) Draw a protected SkImage to a protected Surface\n3) Draw a non-protected SkImage to a protect Surface\n4) Draw a protect SkImage to a non-protected surface (should fail, but not sure we can check this)\n5) Draw a basic rectangle but with some crazy advanced blend mode (to trigger the blending copy code)\n6) Use saveLayer on SkCanvas\n7) Do a draw with some SkImageFilter attached to the paint (I would test a blur filter and some other thing)\n8) Anything else you can think of from the changes we\u0027ve made and/or combinations of the above draws.\n\nIf it makes more sense and easy of coding up the tests, feel free to break some of the above draws into their own mini tests.\n\nIn the long run it would be nice if we could come up with a system that can use all our other already created tests and just run in protected mode to get full API coverage. But it is not obvious to me the best way to do that, so until we can come up with a good solution I think this will get us the basic coverage we need.",
+      "range": {
+        "startLine": 1321,
+        "startChar": 0,
+        "endLine": 1323,
+        "endChar": 24
+      },
+      "revId": "d7659bf5761a0d76d69987dcbf50123f10d0acf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b30f9116_4badfb1d",
+        "filename": "tests/VkHardwareBufferTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1332,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-20T14:01:06Z",
+      "side": 1,
+      "message": "Just landed recently, but we are moving all these calls to a new function on GrContext (maybe on GrContextPriv right now???), called createBackendTexture. So I would just update this to use that.",
+      "range": {
+        "startLine": 1331,
+        "startChar": 2,
+        "endLine": 1332,
+        "endChar": 73
+      },
+      "revId": "d7659bf5761a0d76d69987dcbf50123f10d0acf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
