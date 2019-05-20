@@ -10,11 +10,8 @@
 #ifndef SkUserConfig_DEFINED
 #define SkUserConfig_DEFINED
 
-/*  SkTypes.h, the root of the public header files, does the following trick:
-
-    #include "include/config/SkUserConfig.h"
-    #include "include/core/SkPostConfig.h"
-    #include "include/core/SkPreConfig.h"
+/*  SkTypes.h, the root of the public header files, includes SkPreConfig.h,
+    then SkUserConfig.h, then SkPostConfig.h.
 
     SkPreConfig.h runs first, and it is responsible for initializing certain
     skia defines.
@@ -48,31 +45,6 @@
  */
 //#define SK_DEBUG
 //#define SK_RELEASE
-
-/*  Skia has certain debug-only code that is extremely intensive even for debug
-    builds.  This code is useful for diagnosing specific issues, but is not
-    generally applicable, therefore it must be explicitly enabled to avoid
-    the performance impact. By default these flags are undefined, but can be
-    enabled by uncommenting them below.
- */
-//#define SK_DEBUG_GLYPH_CACHE
-//#define SK_DEBUG_PATH
-
-/*  preconfig will have attempted to determine the endianness of the system,
-    but you can change these mutually exclusive flags here.
- */
-//#define SK_CPU_BENDIAN
-//#define SK_CPU_LENDIAN
-
-/*  Most compilers use the same bit endianness for bit flags in a byte as the
-    system byte endianness, and this is the default. If for some reason this
-    needs to be overridden, specify which of the mutually exclusive flags to
-    use. For example, some atom processors in certain configurations have big
-    endian byte order but little endian bit orders.
-*/
-//#define SK_UINT8_BITFIELD_BENDIAN
-//#define SK_UINT8_BITFIELD_LENDIAN
-
 
 /*  To write debug messages to a console, skia will call SkDebugf(...) following
     printf conventions (e.g. const char* format, ...). If you want to redirect

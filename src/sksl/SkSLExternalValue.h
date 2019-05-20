@@ -8,8 +8,8 @@
 #ifndef SKSL_EXTERNALVALUE
 #define SKSL_EXTERNALVALUE
 
-#include "SkSLInterpreter.h"
-#include "ir/SkSLSymbol.h"
+#include "src/sksl/SkSLInterpreter.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 
 namespace SkSL {
 
