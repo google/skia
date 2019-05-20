@@ -101,7 +101,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     context->resetContext();
 
     if (supportExternal) {
-        GrBackendTexture texture2D = context->priv().createBackendTexture(
+        GrBackendTexture texture2D = context->createBackendTexture(
                 10, 10, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
         GrGLTextureInfo info2D;
         REPORTER_ASSERT(reporter, texture2D.getGLTextureInfo(&info2D));
@@ -127,7 +127,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
         resetBindings();
         GL(DeleteTextures(1, &infoExternal.fID));
         ctxInfo.glContext()->destroyEGLImage(eglImage);
-        context->priv().deleteBackendTexture(texture2D);
+        context->deleteBackendTexture(texture2D);
         context->resetContext();
     }
 
