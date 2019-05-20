@@ -9,9 +9,11 @@
 #define SkTypeface_win_DEFINED
 
 #include "include/core/SkTypeface.h"
-#include "include/private/SkLeanWindows.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_BUILD_FOR_WIN
+
+struct LOGFONT;
 
 /**
  *  Like the other Typeface create methods, this returns a new reference to the

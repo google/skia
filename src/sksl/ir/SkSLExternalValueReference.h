@@ -8,8 +8,8 @@
 #ifndef SKSL_EXTERNALVALUEREFERENCE
 #define SKSL_EXTERNALVALUEREFERENCE
 
-#include "SkSLExpression.h"
 #include "src/sksl/SkSLExternalValue.h"
+#include "src/sksl/ir/SkSLExpression.h"
 
 namespace SkSL {
 
