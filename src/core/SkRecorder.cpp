@@ -39,25 +39,28 @@ void SkDrawableList::append(SkDrawable* drawable) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-SkRecorder::SkRecorder(SkRecord* record, int width, int height)
+SkRecorder::SkRecorder(SkRecord* record, int width, int height, SkMiniRecorder* mr)
     : SkCanvasVirtualEnforcer<SkNoDrawCanvas>(width, height)
     , fDrawPictureMode(Record_DrawPictureMode)
     , fApproxBytesUsedBySubPictures(0)
-    , fRecord(record) {}
+    , fRecord(record)
+    , fMiniRecorder(mr) {}
 
-SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds)
+SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds, SkMiniRecorder* mr)
     : SkCanvasVirtualEnforcer<SkNoDrawCanvas>(bounds.roundOut())
     , fDrawPictureMode(Record_DrawPictureMode)
     , fApproxBytesUsedBySubPictures(0)
-    , fRecord(record) {}
+    , fRecord(record)
+    , fMiniRecorder(mr) {}
 
 void SkRecorder::reset(SkRecord* record, const SkRect& bounds,
-                       DrawPictureMode dpm) {
+                       DrawPictureMode dpm, SkMiniRecorder* mr) {
     this->forgetRecord();
     fDrawPictureMode = dpm;
     fRecord = record;
     SkIRect rounded = bounds.roundOut();
     this->resetCanvas(rounded.right(), rounded.bottom());
+    fMiniRecorder = mr;
 }
 
 void SkRecorder::forgetRecord() {
@@ -69,8 +72,14 @@ void SkRecorder::forgetRecord() {
 // To make appending to fRecord a little less verbose.
 template<typename T, typename... Args>
 void SkRecorder::append(Args&&... args) {
+    if (fMiniRecorder) {
+        this->flushMiniRecorder();
+    }
     new (fRecord->append<T>()) T{std::forward<Args>(args)...};
 }
+
+#define TRY_MINIRECORDER(method, ...) \
+    if (fMiniRecorder && fMiniRecorder->method(__VA_ARGS__)) return
 
 // For methods which must call back into SkNoDrawCanvas.
 #define INHERITED(method, ...) this->SkNoDrawCanvas::method(__VA_ARGS__)
@@ -118,6 +127,14 @@ char* SkRecorder::copy(const char* src) {
     return this->copy(src, strlen(src)+1);
 }
 
+void SkRecorder::flushMiniRecorder() {
+    if (fMiniRecorder) {
+        SkMiniRecorder* mr = fMiniRecorder;
+        fMiniRecorder = nullptr;  // Needs to happen before flushAndReset() or we recurse forever.
+        mr->flushAndReset(this);
+    }
+}
+
 void SkRecorder::onDrawPaint(const SkPaint& paint) {
     this->append<SkRecords::DrawPaint>(paint);
 }
@@ -134,6 +151,7 @@ void SkRecorder::onDrawPoints(PointMode mode,
 }
 
 void SkRecorder::onDrawRect(const SkRect& rect, const SkPaint& paint) {
+    TRY_MINIRECORDER(drawRect, rect, paint);
     this->append<SkRecords::DrawRect>(paint, rect);
 }
 
@@ -172,6 +190,7 @@ void SkRecorder::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
 }
 
 void SkRecorder::onDrawPath(const SkPath& path, const SkPaint& paint) {
+    TRY_MINIRECORDER(drawPath, path, paint);
     this->append<SkRecords::DrawPath>(paint, path);
 }
 
@@ -240,6 +259,7 @@ void SkRecorder::onDrawImageLattice(const SkImage* image, const Lattice& lattice
 
 void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint) {
+    TRY_MINIRECORDER(drawTextBlob, blob, x, y, paint);
     this->append<SkRecords::DrawTextBlob>(paint, sk_ref_sp(blob), x, y);
 }
 

@@ -12,6 +12,7 @@
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkBigPicture.h"
+#include "src/core/SkMiniRecorder.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecords.h"
 
@@ -39,11 +40,11 @@ private:
 class SkRecorder final : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
 public:
     // Does not take ownership of the SkRecord.
-    SkRecorder(SkRecord*, int width, int height);   // legacy version
-    SkRecorder(SkRecord*, const SkRect& bounds);
+    SkRecorder(SkRecord*, int width, int height, SkMiniRecorder* = nullptr);   // legacy version
+    SkRecorder(SkRecord*, const SkRect& bounds, SkMiniRecorder* = nullptr);
 
     enum DrawPictureMode { Record_DrawPictureMode, Playback_DrawPictureMode };
-    void reset(SkRecord*, const SkRect& bounds, DrawPictureMode);
+    void reset(SkRecord*, const SkRect& bounds, DrawPictureMode, SkMiniRecorder* = nullptr);
 
     size_t approxBytesUsedBySubPictures() const { return fApproxBytesUsedBySubPictures; }
 
@@ -120,6 +121,8 @@ public:
 
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
+    void flushMiniRecorder();
+
 private:
     template <typename T>
     T* copy(const T*);
@@ -134,6 +137,8 @@ private:
     size_t fApproxBytesUsedBySubPictures;
     SkRecord* fRecord;
     std::unique_ptr<SkDrawableList> fDrawableList;
+
+    SkMiniRecorder* fMiniRecorder;
 };
 
 #endif//SkRecorder_DEFINED

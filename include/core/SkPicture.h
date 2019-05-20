@@ -219,6 +219,7 @@ private:
     friend class SkBigPicture;
     friend class SkEmptyPicture;
     friend class SkPicturePriv;
+    template <typename> friend class SkMiniPicture;
 
     void serialize(SkWStream*, const SkSerialProcs*, class SkRefCntSet* typefaces) const;
     static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs*,
@@ -239,6 +240,8 @@ private:
 
     // Returns NULL if this is not an SkBigPicture.
     virtual const class SkBigPicture* asSkBigPicture() const { return nullptr; }
+
+    friend struct SkPathCounter;
 
     // V35: Store SkRect (rather then width & height) in header
     // V36: Remove (obsolete) alphatype from SkColorTable

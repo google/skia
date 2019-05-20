@@ -22,6 +22,7 @@ namespace android {
 class GrContext;
 class SkCanvas;
 class SkDrawable;
+class SkMiniRecorder;
 class SkPictureRecord;
 class SkRecord;
 class SkRecorder;
@@ -116,6 +117,7 @@ private:
     sk_sp<SkBBoxHierarchy>      fBBH;
     std::unique_ptr<SkRecorder> fRecorder;
     sk_sp<SkRecord>             fRecord;
+    std::unique_ptr<SkMiniRecorder> fMiniRecorder;
 
     typedef SkNoncopyable INHERITED;
 };
