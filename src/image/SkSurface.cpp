@@ -258,7 +258,11 @@ void SkSurface::asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect
     sk_sp<SkSurface> src(SkRef(this));
     int srcX = srcRect.fLeft;
     int srcY = srcRect.fTop;
+    SkCanvas::SrcRectConstraint constraint = SkCanvas::kStrict_SrcRectConstraint;
+    // Assume we should ignore the rescale linear request if the surface has no color space since
+    // it's unclear how we'd linearize from an unknown color space.
     if (rescaleGamma == SkSurface::RescaleGamma::kLinear &&
+        this->getCanvas()->imageInfo().colorSpace() &&
         !this->getCanvas()->imageInfo().colorSpace()->gammaIsLinear()) {
         auto cs = this->getCanvas()->imageInfo().colorSpace()->makeLinearGamma();
         // Promote to F16 color type to preserve precision.
@@ -278,6 +282,7 @@ void SkSurface::asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect
         src = std::move(linearSurf);
         srcX = 0;
         srcY = 0;
+        constraint = SkCanvas::kFast_SrcRectConstraint;
     }
     while (stepsX || stepsY) {
         int nextW = info.width();
@@ -310,14 +315,14 @@ void SkSurface::asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect
             callback(context, nullptr, 0);
             return;
         }
-        next->getCanvas()->drawImageRect(src->makeImageSnapshot(),
-                                         SkIRect::MakeXYWH(srcX, srcY, srcW, srcH),
-                                         SkRect::MakeWH((float)nextW, (float)nextH), &paint,
-                                         SkCanvas::kFast_SrcRectConstraint);
+        next->getCanvas()->drawImageRect(
+                src->makeImageSnapshot(), SkIRect::MakeXYWH(srcX, srcY, srcW, srcH),
+                SkRect::MakeWH((float)nextW, (float)nextH), &paint, constraint);
         src = std::move(next);
         srcX = srcY = 0;
         srcW = nextW;
         srcH = nextH;
+        constraint = SkCanvas::kFast_SrcRectConstraint;
     }
     static_cast<SkSurface_Base*>(src.get())->onAsyncReadPixels(info, srcX, srcY, callback, context);
 }
