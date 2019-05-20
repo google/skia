@@ -73,6 +73,10 @@ namespace SkOpts {
     DEFINE_DEFAULT(memset32);
     DEFINE_DEFAULT(memset64);
 
+    DEFINE_DEFAULT(rect_memset16);
+    DEFINE_DEFAULT(rect_memset32);
+    DEFINE_DEFAULT(rect_memset64);
+
     DEFINE_DEFAULT(hash_fn);
 
     DEFINE_DEFAULT(S32_alpha_D32_filter_DX);

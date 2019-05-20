@@ -40,6 +40,27 @@ namespace SK_OPTS_NS {
         memsetT(buffer, value, count);
     }
 
+    template <typename T>
+    static void rect_memsetT(T buffer[], T value, int count, size_t rowBytes, int height) {
+        while (height --> 0) {
+            memsetT(buffer, value, count);
+            buffer = (T*)((char*)buffer + rowBytes);
+        }
+    }
+
+    /*not static*/ inline void rect_memset16(uint16_t buffer[], uint16_t value, int count,
+                                             size_t rowBytes, int height) {
+        rect_memsetT(buffer, value, count, rowBytes, height);
+    }
+    /*not static*/ inline void rect_memset32(uint32_t buffer[], uint32_t value, int count,
+                                             size_t rowBytes, int height) {
+        rect_memsetT(buffer, value, count, rowBytes, height);
+    }
+    /*not static*/ inline void rect_memset64(uint64_t buffer[], uint64_t value, int count,
+                                             size_t rowBytes, int height) {
+        rect_memsetT(buffer, value, count, rowBytes, height);
+    }
+
 }
 
 #endif//SkUtils_opts_DEFINED
