@@ -72,7 +72,7 @@
   {
     "failure": {
       "failure": {},
-      "humanReason": "Step('upload test file (attempt 5)') failed with return_code 1"
+      "humanReason": "Step('upload test file (attempt 5)') (retcode: 1)"
     },
     "name": "$result"
   }

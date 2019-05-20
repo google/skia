@@ -39,7 +39,7 @@
   {
     "failure": {
       "failure": {},
-      "humanReason": "Step('Trigger and wait for task on android compile server') failed with return_code 1"
+      "humanReason": "Step('Trigger and wait for task on android compile server') (retcode: 1)"
     },
     "name": "$result"
   }

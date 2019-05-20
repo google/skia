@@ -147,7 +147,7 @@
   },
   {
     "failure": {
-      "humanReason": "Infra Failure: Step('install_dm (attempt 2)') returned 1"
+      "humanReason": "Infra Failure: Step('install_dm (attempt 2)') (retcode: 1)"
     },
     "name": "$result"
   }

@@ -308,7 +308,7 @@
   },
   {
     "failure": {
-      "humanReason": "Infra Failure: Step('mkdir /sdcard/revenge_of_the_skiabot/resources (attempt 3)') returned 1"
+      "humanReason": "Infra Failure: Step('mkdir /sdcard/revenge_of_the_skiabot/resources (attempt 3)') (retcode: 1)"
     },
     "name": "$result"
   }

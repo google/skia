@@ -806,7 +806,10 @@
   },
   {
     "cmd": [],
-    "name": "adb pull"
+    "name": "adb pull",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
   },
   {
     "cmd": [
@@ -1005,7 +1008,7 @@
   },
   {
     "failure": {
-      "humanReason": "Infra Failure: Step('adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out (attempt 3)') returned 1"
+      "humanReason": "Infra Failure: Step('adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out (attempt 3)') (retcode: 1)"
     },
     "name": "$result"
   }
