@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2938a481_abc351a2",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-20T14:14:45Z",
+      "side": 1,
+      "message": "Tiny nit: you just used \"Additionally,\" in the previous sentence.",
+      "range": {
+        "startLine": 349,
+        "startChar": 6,
+        "endLine": 349,
+        "endChar": 18
+      },
+      "revId": "22e87ad7fb2b37dafbf97d5221e75cafb6d0ec84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
