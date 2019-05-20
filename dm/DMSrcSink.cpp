@@ -1388,7 +1388,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                                                   &props);
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendTexture:
-            backendTexture = context->priv().createBackendTexture(
+            backendTexture = context->createBackendTexture(
                     info.width(), info.height(), info.colorType(),
                     GrMipMapped::kNo, GrRenderable::kYes);
             surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
@@ -1440,7 +1440,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     if (!context->abandoned()) {
         surface.reset();
         if (backendTexture.isValid()) {
-            context->priv().deleteBackendTexture(backendTexture);
+            context->deleteBackendTexture(backendTexture);
         }
         if (backendRT.isValid()) {
             context->priv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);

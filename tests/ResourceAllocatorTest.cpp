@@ -62,8 +62,8 @@ static GrSurfaceProxy* make_backend(GrContext* context, const ProxyParams& p,
                                     GrBackendTexture* backendTex) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
-    *backendTex = context->priv().createBackendTexture(p.fSize, p.fSize, p.fColorType,
-                                                       GrMipMapped::kNo, GrRenderable::kNo);
+    *backendTex = context->createBackendTexture(p.fSize, p.fSize, p.fColorType,
+                                                GrMipMapped::kNo, GrRenderable::kNo);
     if (!backendTex->isValid()) {
         return nullptr;
     }
@@ -82,7 +82,7 @@ static GrSurfaceProxy* make_backend(GrContext* context, const ProxyParams& p,
 }
 
 static void cleanup_backend(GrContext* context, const GrBackendTexture& backendTex) {
-    context->priv().deleteBackendTexture(backendTex);
+    context->deleteBackendTexture(backendTex);
 }
 
 // Basic test that two proxies with overlapping intervals and compatible descriptors are

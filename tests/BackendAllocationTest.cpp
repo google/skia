@@ -72,7 +72,7 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
 
     REPORTER_ASSERT(reporter, initialCount == cache->getResourceCount());
 
-    context->priv().deleteBackendTexture(backendTex);
+    context->deleteBackendTexture(backendTex);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -133,8 +133,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                 auto createMtd = [colorType](GrContext* context,
                                              GrMipMapped mipMapped,
                                              GrRenderable renderable) {
-                    return context->priv().createBackendTexture(32, 32, colorType,
-                                                                mipMapped, renderable);
+                    return context->createBackendTexture(32, 32, colorType, mipMapped, renderable);
                 };
 
                 test_wrapping(context, reporter, createMtd,
@@ -235,8 +234,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                 auto createMtd = [format](GrContext* context,
                                           GrMipMapped mipMapped,
                                           GrRenderable renderable) {
-                    return context->priv().createBackendTexture(32, 32, format,
-                                                                mipMapped, renderable);
+                    return context->createBackendTexture(32, 32, format, mipMapped, renderable);
                 };
 
                 test_wrapping(context, reporter, createMtd,
@@ -318,8 +316,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                 auto createMtd = [format](GrContext* context,
                                           GrMipMapped mipMapped,
                                           GrRenderable renderable) {
-                    return context->priv().createBackendTexture(32, 32, format,
-                                                                mipMapped, renderable);
+                    return context->createBackendTexture(32, 32, format, mipMapped, renderable);
                 };
 
                 test_wrapping(context, reporter, createMtd,

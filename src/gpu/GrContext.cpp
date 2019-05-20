@@ -350,3 +350,53 @@ void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
                                       this->getTextBlobCache()->usedBytes());
 }
 
+//////////////////////////////////////////////////////////////////////////////
+GrBackendTexture GrContext::createBackendTexture(int width, int height,
+                                                 GrBackendFormat backendFormat,
+                                                 GrMipMapped mipMapped,
+                                                 GrRenderable renderable) {
+    if (!this->asDirectContext()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    if (!backendFormat.isValid()) {
+        return GrBackendTexture();
+    }
+
+    return fGpu->createTestingOnlyBackendTexture(width, height, backendFormat,
+                                                 mipMapped, renderable,
+                                                 nullptr, 0);
+}
+
+GrBackendTexture GrContext::createBackendTexture(int width, int height,
+                                                 SkColorType colorType,
+                                                 GrMipMapped mipMapped,
+                                                 GrRenderable renderable) {
+    if (!this->asDirectContext()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(colorType);
+    if (!format.isValid()) {
+        return GrBackendTexture();
+    }
+
+    return this->createBackendTexture(width, height, format, mipMapped, renderable);
+}
+
+void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
+    if (this->abandoned() || !backendTex.isValid()) {
+        return;
+    }
+
+    fGpu->deleteTestingOnlyBackendTexture(backendTex);
+}
+

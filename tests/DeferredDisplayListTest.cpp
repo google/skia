@@ -185,8 +185,8 @@ public:
                                                           fColorType, fColorSpace, &fSurfaceProps);
         }
 
-        *backend = context->priv().createBackendTexture(fWidth, fHeight, fColorType,
-                                                        mipmapped, GrRenderable::kYes);
+        *backend = context->createBackendTexture(fWidth, fHeight, fColorType,
+                                                 mipmapped, GrRenderable::kYes);
         if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
             return nullptr;
         }
@@ -212,7 +212,7 @@ public:
     }
 
     void cleanUpBackEnd(GrContext* context, const GrBackendTexture& backend) const {
-        context->priv().deleteBackendTexture(backend);
+        context->deleteBackendTexture(backend);
     }
 
 private:
@@ -577,7 +577,7 @@ enum class DDLStage { kMakeImage, kDrawImage, kDetach, kDrawDDL };
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    GrBackendTexture backendTex = context->priv().createBackendTexture(
+    GrBackendTexture backendTex = context->createBackendTexture(
             kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
     if (!backendTex.isValid()) {
         return;
@@ -588,7 +588,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
 
     sk_sp<SkSurface> s = params.make(context, &backend);
     if (!s) {
-        context->priv().deleteBackendTexture(backendTex);
+        context->deleteBackendTexture(backendTex);
         return;
     }
 
@@ -601,7 +601,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     if (!canvas) {
         s = nullptr;
         params.cleanUpBackEnd(context, backend);
-        context->priv().deleteBackendTexture(backendTex);
+        context->deleteBackendTexture(backendTex);
         return;
     }
 
@@ -609,7 +609,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     if (!deferredContext) {
         s = nullptr;
         params.cleanUpBackEnd(context, backend);
-        context->priv().deleteBackendTexture(backendTex);
+        context->deleteBackendTexture(backendTex);
         return;
     }
 
@@ -625,7 +625,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
                                      TextureReleaseChecker::Release, &releaseChecker);
     REPORTER_ASSERT(reporter, !image);
 
-    context->priv().deleteBackendTexture(backendTex);
+    context->deleteBackendTexture(backendTex);
 
     s = nullptr;
     params.cleanUpBackEnd(context, backend);

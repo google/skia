@@ -101,7 +101,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, can: %d, surf: %d",
                         colorType, can, SkToBool(surf));
 
-        GrBackendTexture backendTex = context->priv().createBackendTexture(
+        GrBackendTexture backendTex = context->createBackendTexture(
                 kSize, kSize, colorType, GrMipMapped::kNo, GrRenderable::kYes);
         surf = SkSurface::MakeFromBackendTexture(context, backendTex,
                                                  kTopLeft_GrSurfaceOrigin, 0, colorType, nullptr,
@@ -117,7 +117,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
 
         surf.reset();
         context->flush();
-        context->priv().deleteBackendTexture(backendTex);
+        context->deleteBackendTexture(backendTex);
 
         static constexpr int kSampleCnt = 2;
 
@@ -126,8 +126,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, can: %d, surf: %d",
                         colorType, can, SkToBool(surf));
 
-        backendTex = context->priv().createBackendTexture(kSize, kSize, colorType,
-                                                          GrMipMapped::kNo, GrRenderable::kYes);
+        backendTex = context->createBackendTexture(kSize, kSize, colorType,
+                                                   GrMipMapped::kNo, GrRenderable::kYes);
         surf = SkSurface::MakeFromBackendTexture(context, backendTex,
                                                  kTopLeft_GrSurfaceOrigin, kSampleCnt, colorType,
                                                  nullptr, nullptr);
@@ -163,7 +163,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
 
         surf.reset();
         context->flush();
-        context->priv().deleteBackendTexture(backendTex);
+        context->deleteBackendTexture(backendTex);
 
         auto* gpu = context->priv().getGpu();
 
@@ -195,13 +195,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
         if (!max) {
             continue;
         }
-        GrBackendTexture backendTex = context->priv().createBackendTexture(
+        GrBackendTexture backendTex = context->createBackendTexture(
                 kSize, kSize, colorType, GrMipMapped::kNo, GrRenderable::kYes);
         if (!backendTex.isValid()) {
             continue;
         }
         SkScopeExit freeTex([&backendTex, context] {
-            context->priv().deleteBackendTexture(backendTex);
+            context->deleteBackendTexture(backendTex);
         });
         auto info = SkImageInfo::Make(kSize, kSize, colorType, kOpaque_SkAlphaType, nullptr);
         auto surf = SkSurface::MakeFromBackendTexture(context, backendTex,
@@ -794,7 +794,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
             auto surface = surfaceFunc(context, 1, kOrigColor, &backendTex);
             test_surface_clear(reporter, surface, grSurfaceGetter, kOrigColor);
             surface.reset();
-            context->priv().deleteBackendTexture(backendTex);
+            context->deleteBackendTexture(backendTex);
         }
     }
 }
@@ -856,7 +856,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
         if (surface) {
             test_surface_draw_partially(reporter, surface, kOrigColor);
             surface.reset();
-            context->priv().deleteBackendTexture(backendTex);
+            context->deleteBackendTexture(backendTex);
         }
     }
 }
@@ -960,7 +960,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
             GrRenderTarget* rt = surface->getCanvas()
                 ->internal_private_accessTopLayerRenderTargetContext()->accessRenderTarget();
             REPORTER_ASSERT(reporter, resourceProvider->attachStencilAttachment(rt));
-            context->priv().deleteBackendTexture(backendTex);
+            context->deleteBackendTexture(backendTex);
         }
     }
 }

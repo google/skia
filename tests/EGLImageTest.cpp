@@ -30,7 +30,7 @@ static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx
         glctx1->makeCurrent();
         if (grctx1) {
             if (backendTex1 && backendTex1->isValid()) {
-                grctx1->priv().deleteBackendTexture(*backendTex1);
+                grctx1->deleteBackendTexture(*backendTex1);
             }
         }
         if (GR_EGL_NO_IMAGE != image1) {
@@ -87,8 +87,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     GrGpu* gpu1 = context1->priv().getGpu();
     static const int kSize = 100;
     backendTexture1 =
-        context1->priv().createBackendTexture(kSize, kSize, kRGBA_8888_SkColorType,
-                                              GrMipMapped::kNo, GrRenderable::kNo);
+        context1->createBackendTexture(kSize, kSize, kRGBA_8888_SkColorType,
+                                       GrMipMapped::kNo, GrRenderable::kNo);
 
     if (!backendTexture1.isValid() || !gpu1->isTestingOnlyBackendTexture(backendTexture1)) {
         ERRORF(reporter, "Error creating texture for EGL Image");

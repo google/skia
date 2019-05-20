@@ -490,7 +490,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter
         SkColorType colorType = static_cast<SkColorType>(ct);
         bool can = context->colorTypeSupportedAsImage(colorType);
 
-        GrBackendTexture backendTex = context->priv().createBackendTexture(
+        GrBackendTexture backendTex = context->createBackendTexture(
                 kSize, kSize, colorType, GrMipMapped::kNo, GrRenderable::kNo);
 
         auto img = SkImage::MakeFromTexture(context, backendTex, kTopLeft_GrSurfaceOrigin,
@@ -501,7 +501,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter
 
         img.reset();
         context->flush();
-        context->priv().deleteBackendTexture(backendTex);
+        context->deleteBackendTexture(backendTex);
     }
 }
 

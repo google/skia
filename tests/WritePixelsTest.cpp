@@ -455,7 +455,7 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
                                           int sampleCnt) {
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        GrBackendTexture backendTex = context->priv().createBackendTexture(
+        GrBackendTexture backendTex = context->createBackendTexture(
                 DEV_W, DEV_H, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes);
         if (!backendTex.isValid()) {
             continue;
@@ -467,7 +467,7 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
             auto ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
             test_write_pixels(reporter, surface.get(), ii);
         }
-        context->priv().deleteBackendTexture(backendTex);
+        context->deleteBackendTexture(backendTex);
     }
 }
 

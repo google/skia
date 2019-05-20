@@ -52,7 +52,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
 
-    GrBackendTexture backendTex = context->priv().createBackendTexture(
+    GrBackendTexture backendTex = context->createBackendTexture(
         256, 256, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
 
     sk_sp<GrSurface> texRT2 = resourceProvider->wrapRenderableBackendTexture(
@@ -67,7 +67,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT2->asRenderTarget()) ==
                     static_cast<GrSurface*>(texRT2->asTexture()));
 
-    context->priv().deleteBackendTexture(backendTex);
+    context->deleteBackendTexture(backendTex);
 }
 
 // This test checks that the isConfigTexturable and isConfigRenderable are
@@ -329,7 +329,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 
         // Mip regen should not work with a read only texture.
         if (context->priv().caps()->mipMapSupport()) {
-            backendTex = context->priv().createBackendTexture(
+            backendTex = context->createBackendTexture(
                     kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kYes, GrRenderable::kYes);
             proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                       kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
@@ -344,7 +344,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 }
 
 static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable renderable) {
-    auto backendTexture = context->priv().createBackendTexture(
+    auto backendTexture = context->createBackendTexture(
             10, 10, kRGBA_8888_SkColorType, GrMipMapped::kNo, renderable);
     sk_sp<GrTexture> texture;
     if (GrRenderable::kYes == renderable) {
@@ -362,7 +362,7 @@ static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable re
     auto release = [](void* rc) {
         auto releaseContext = static_cast<ReleaseContext*>(rc);
         auto context = releaseContext->fContext;
-        context->priv().deleteBackendTexture(releaseContext->fBackendTexture);
+        context->deleteBackendTexture(releaseContext->fBackendTexture);
         delete releaseContext;
     };
     texture->setRelease(release, new ReleaseContext{context, backendTexture});

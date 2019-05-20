@@ -36,10 +36,10 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 
     GrGpu* gpu = context->priv().getGpu();
 
-    GrBackendTexture origBackendTex = context->priv().createBackendTexture(kW, kH,
-                                                                           kColorType,
-                                                                           GrMipMapped::kNo,
-                                                                           GrRenderable::kNo);
+    GrBackendTexture origBackendTex = context->createBackendTexture(kW, kH,
+                                                                    kColorType,
+                                                                    GrMipMapped::kNo,
+                                                                    GrRenderable::kNo);
     GrVkImageInfo imageInfo;
     SkAssertResult(origBackendTex.getVkImageInfo(&imageInfo));
 
@@ -90,10 +90,10 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
     GrGpu* gpu = context->priv().getGpu();
 
-    GrBackendTexture origBackendTex = context->priv().createBackendTexture(kW, kH,
-                                                                           kColorType,
-                                                                           GrMipMapped::kNo,
-                                                                           GrRenderable::kYes);
+    GrBackendTexture origBackendTex = context->createBackendTexture(kW, kH,
+                                                                    kColorType,
+                                                                    GrMipMapped::kNo,
+                                                                    GrRenderable::kYes);
 
     GrVkImageInfo imageInfo;
     SkAssertResult(origBackendTex.getVkImageInfo(&imageInfo));
@@ -127,16 +127,16 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
 
     // When we wrapBackendRenderTarget it is always borrowed, so we must make sure to free the
     // resource when we're done.
-    context->priv().deleteBackendTexture(origBackendTex);
+    context->deleteBackendTexture(origBackendTex);
 }
 
 void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
     GrGpu* gpu = context->priv().getGpu();
 
-    GrBackendTexture origBackendTex = context->priv().createBackendTexture(kW, kH,
-                                                                           kColorType,
-                                                                           GrMipMapped::kNo,
-                                                                           GrRenderable::kYes);
+    GrBackendTexture origBackendTex = context->createBackendTexture(kW, kH,
+                                                                    kColorType,
+                                                                    GrMipMapped::kNo,
+                                                                    GrRenderable::kYes);
     GrVkImageInfo imageInfo;
     SkAssertResult(origBackendTex.getVkImageInfo(&imageInfo));
 
