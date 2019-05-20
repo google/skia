@@ -12,6 +12,8 @@
 
 #include "tests/Test.h"
 
+#include "math.h"
+
 void test(skiatest::Reporter* r, const char* src, SkSL::Interpreter::Value* in, int expectedCount,
           SkSL::Interpreter::Value* expected) {
     SkSL::Compiler compiler;
@@ -700,4 +702,23 @@ DEF_TEST(SkSLInterpreterExternalValuesVectorCall, r) {
     } else {
         printf("%s\n%s", src, compiler.errorText().c_str());
     }
+}
+
+DEF_TEST(SkSLInterpreterIntrinsics, r) {
+    float value = M_PI;
+    float expected = -1;
+    test(r, "float main(float x) { return cos(x); }", (SkSL::Interpreter::Value*) &value, 1,
+         (SkSL::Interpreter::Value*) &expected);
+    value = 0;
+    expected = 0;
+    test(r, "float main(float x) { return sin(x); }", (SkSL::Interpreter::Value*) &value, 1,
+         (SkSL::Interpreter::Value*) &expected);
+    value = 25;
+    expected = 5;
+    test(r, "float main(float x) { return sqrt(x); }", (SkSL::Interpreter::Value*) &value, 1,
+         (SkSL::Interpreter::Value*) &expected);
+    value = M_PI / 4;
+    expected = 1;
+    test(r, "float main(float x) { return tan(x); }", (SkSL::Interpreter::Value*) &value, 1,
+         (SkSL::Interpreter::Value*) &expected);
 }
