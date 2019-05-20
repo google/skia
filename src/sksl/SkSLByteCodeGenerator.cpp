@@ -11,7 +11,22 @@
 namespace SkSL {
 
 static int slot_count(const Type& type) {
-    return type.columns() * type.rows();
+    if (type.kind() == Type::kStruct_Kind) {
+        int slots = 0;
+        for (const auto& f : type.fields()) {
+            slots += slot_count(*f.fType);
+        }
+        SkASSERT(slots <= 255);
+        return slots;
+    } else if (type.kind() == Type::kArray_Kind) {
+        int columns = type.columns();
+        SkASSERT(columns >= 0);
+        int slots = columns * slot_count(type.componentType());
+        SkASSERT(slots <= 255);
+        return slots;
+    } else {
+        return type.columns() * type.rows();
+    }
 }
 
 bool ByteCodeGenerator::generateCode() {
@@ -59,7 +74,7 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
     std::unique_ptr<ByteCodeFunction> result(new ByteCodeFunction(&f.fDeclaration));
     fParameterCount = 0;
     for (const auto& p : f.fDeclaration.fParameters) {
-        fParameterCount += p->fType.columns() * p->fType.rows();
+        fParameterCount += slot_count(p->fType);
     }
     fCode = &result->fCode;
     this->writeStatement(*f.fBody);
@@ -69,7 +84,7 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
     result->fLocalCount = fLocals.size();
     const Type& returnType = f.fDeclaration.fReturnType;
     if (returnType != *fContext.fVoid_Type) {
-        result->fReturnCount = returnType.columns() * returnType.rows();
+        result->fReturnCount = slot_count(returnType);
     }
     fLocals.clear();
     fFunction = nullptr;
@@ -161,6 +176,51 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
     }
 }
 
+std::unique_ptr<Expression> ByteCodeGenerator::getLocation(const Expression& expr,
+                                                           Variable::Storage* storage) {
+    switch (expr.fKind) {
+        case Expression::kFieldAccess_Kind: {
+            const FieldAccess& f = (const FieldAccess&)expr;
+            auto baseAddr = this->getLocation(*f.fBase, storage);
+            int offset = 0;
+            for (int i = 0; i < f.fFieldIndex; ++i) {
+                offset += slot_count(*f.fBase->fType.fields()[i].fType);
+            }
+            std::unique_ptr<Expression> offsetExpr(new IntLiteral(fContext, -1, offset));
+            return std::unique_ptr<Expression>(new BinaryExpression(-1,
+                                                                    std::move(baseAddr),
+                                                                    Token::PLUS,
+                                                                    std::move(offsetExpr),
+                                                                    *fContext.fInt_Type));
+        }
+        case Expression::kIndex_Kind: {
+            const IndexExpression& i = (const IndexExpression&)expr;
+            auto baseAddr = this->getLocation(*i.fBase, storage);
+            std::unique_ptr<Expression> strideExpr(new IntLiteral(fContext, -1,
+                                                                  slot_count(i.fType)));
+            std::unique_ptr<Expression> offsetExpr(new BinaryExpression(-1,
+                                                                        std::move(strideExpr),
+                                                                        Token::STAR,
+                                                                        i.fIndex->clone(),
+                                                                        *fContext.fInt_Type));
+            return std::unique_ptr<Expression>(new BinaryExpression(-1,
+                                                                    std::move(baseAddr),
+                                                                    Token::PLUS,
+                                                                    std::move(offsetExpr),
+                                                                    *fContext.fInt_Type));
+        }
+        case Expression::kVariableReference_Kind: {
+            const Variable& var = ((const VariableReference&)expr).fVariable;
+            *storage = var.fStorage;
+            return std::unique_ptr<Expression>(new IntLiteral(fContext, -1,
+                                                              this->getLocation(var)));
+        }
+        default:
+            SkASSERT(false);
+            return nullptr;
+    }
+}
+
 void ByteCodeGenerator::write8(uint8_t b) {
     fCode->push_back(b);
 }
@@ -182,6 +242,7 @@ void ByteCodeGenerator::write(ByteCodeInstruction i) {
 }
 
 static ByteCodeInstruction vector_instruction(ByteCodeInstruction base, int count) {
+    SkASSERT(count >= 1 && count <= 4);
     return ((ByteCodeInstruction) ((int) base + count - 1));
 }
 
@@ -359,8 +420,12 @@ void ByteCodeGenerator::writeExternalValue(const ExternalValueReference& e) {
 }
 
 void ByteCodeGenerator::writeFieldAccess(const FieldAccess& f) {
-    // not yet implemented
-    abort();
+    Variable::Storage storage;
+    auto location = this->getLocation(f, &storage);
+    this->writeExpression(*location);
+    this->write(storage == Variable::kGlobal_Storage ? ByteCodeInstruction::kLoadExtendedGlobal
+                                                     : ByteCodeInstruction::kLoadExtended);
+    this->write8(slot_count(f.fType));
 }
 
 void ByteCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
@@ -377,8 +442,12 @@ void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
 }
 
 void ByteCodeGenerator::writeIndexExpression(const IndexExpression& i) {
-    // not yet implemented
-    abort();
+    Variable::Storage storage;
+    auto location = this->getLocation(i, &storage);
+    this->writeExpression(*location);
+    this->write(storage == Variable::kGlobal_Storage ? ByteCodeInstruction::kLoadExtendedGlobal
+                                                     : ByteCodeInstruction::kLoadExtended);
+    this->write8(slot_count(i.fType));
 }
 
 void ByteCodeGenerator::writeIntLiteral(const IntLiteral& i) {
@@ -490,11 +559,21 @@ void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
 }
 
 void ByteCodeGenerator::writeVariableReference(const VariableReference& v) {
-    this->write(vector_instruction(v.fVariable.fStorage == Variable::kGlobal_Storage
-                                                                  ? ByteCodeInstruction::kLoadGlobal
-                                                                  : ByteCodeInstruction::kLoad,
-                                   slot_count(v.fType)));
-    this->write8(this->getLocation(v.fVariable));
+    const Variable& var = v.fVariable;
+    bool isGlobal = var.fStorage == Variable::kGlobal_Storage;
+    int count = slot_count(v.fType);
+    if (count > 4) {
+        this->write(ByteCodeInstruction::kPushImmediate);
+        this->write32(this->getLocation(var));
+        this->write(isGlobal ? ByteCodeInstruction::kLoadExtendedGlobal
+                             : ByteCodeInstruction::kLoadExtended);
+        this->write8(count);
+    } else {
+        this->write(vector_instruction(isGlobal ? ByteCodeInstruction::kLoadGlobal
+                                                : ByteCodeInstruction::kLoad,
+                                       count));
+        this->write8(this->getLocation(var));
+    }
 }
 
 void ByteCodeGenerator::writeTernaryExpression(const TernaryExpression& t) {
@@ -592,22 +671,22 @@ class ByteCodeSwizzleLValue : public ByteCodeGenerator::LValue {
 public:
     ByteCodeSwizzleLValue(ByteCodeGenerator* generator, const Swizzle& swizzle)
         : INHERITED(*generator)
-        , fSwizzle(swizzle) {
-        SkASSERT(fSwizzle.fBase->fKind == Expression::kVariableReference_Kind);
-    }
+        , fSwizzle(swizzle) {}
 
     void load() override {
         fGenerator.writeSwizzle(fSwizzle);
     }
 
     void store() override {
-        const Variable& var = ((VariableReference&)*fSwizzle.fBase).fVariable;
+        Variable::Storage storage;
+        auto location = fGenerator.getLocation(*fSwizzle.fBase, &storage);
+        bool isGlobal = storage == Variable::kGlobal_Storage;
         fGenerator.write(vector_instruction(ByteCodeInstruction::kDup,
                                             fSwizzle.fComponents.size()));
-        fGenerator.write(var.fStorage == Variable::kGlobal_Storage
-                            ? ByteCodeInstruction::kStoreSwizzleGlobal
-                            : ByteCodeInstruction::kStoreSwizzle);
-        fGenerator.write8(fGenerator.getLocation(var));
+        // TODO: Pick non-indirect stores if location is a literal (or simplifies to one)
+        fGenerator.writeExpression(*location);
+        fGenerator.write(isGlobal ? ByteCodeInstruction::kStoreSwizzleIndirectGlobal
+                                  : ByteCodeInstruction::kStoreSwizzleIndirect);
         fGenerator.write8(fSwizzle.fComponents.size());
         for (int c : fSwizzle.fComponents) {
             fGenerator.write8(c);
@@ -622,34 +701,105 @@ private:
 
 class ByteCodeVariableLValue : public ByteCodeGenerator::LValue {
 public:
-    ByteCodeVariableLValue(ByteCodeGenerator* generator, const Variable& var)
+    ByteCodeVariableLValue(ByteCodeGenerator* generator, const VariableReference& ref)
         : INHERITED(*generator)
-        , fCount(slot_count(var.fType))
-        , fLocation(generator->getLocation(var))
-        , fIsGlobal(var.fStorage == Variable::kGlobal_Storage) {
-    }
+        , fRef(ref) {}
 
     void load() override {
-        fGenerator.write(vector_instruction(fIsGlobal ? ByteCodeInstruction::kLoadGlobal
-                                                      : ByteCodeInstruction::kLoad,
-                                            fCount));
-        fGenerator.write8(fLocation);
+        fGenerator.writeVariableReference(fRef);
     }
 
     void store() override {
-        fGenerator.write(vector_instruction(ByteCodeInstruction::kDup, fCount));
-        fGenerator.write(vector_instruction(fIsGlobal ? ByteCodeInstruction::kStoreGlobal
-                                                      : ByteCodeInstruction::kStore,
-                                            fCount));
-        fGenerator.write8(fLocation);
+        int location = fGenerator.getLocation(fRef.fVariable);
+        int count = slot_count(fRef.fType);
+        bool isGlobal = fRef.fVariable.fStorage == Variable::kGlobal_Storage;
+        if (count > 4) {
+            fGenerator.write(ByteCodeInstruction::kDupN);
+            fGenerator.write8(count);
+            fGenerator.write(ByteCodeInstruction::kPushImmediate);
+            fGenerator.write32(location);
+            fGenerator.write(isGlobal ? ByteCodeInstruction::kStoreExtendedGlobal
+                                      : ByteCodeInstruction::kStoreExtended);
+            fGenerator.write8(count);
+        } else {
+            fGenerator.write(vector_instruction(ByteCodeInstruction::kDup, count));
+            fGenerator.write(vector_instruction(isGlobal ? ByteCodeInstruction::kStoreGlobal
+                                                         : ByteCodeInstruction::kStore,
+                                                count));
+            fGenerator.write8(location);
+        }
     }
 
 private:
     typedef LValue INHERITED;
 
-    int fCount;
-    int fLocation;
-    bool fIsGlobal;
+    const VariableReference& fRef;
+};
+
+class ByteCodeIndexLValue : public ByteCodeGenerator::LValue {
+public:
+    ByteCodeIndexLValue(ByteCodeGenerator* generator, const IndexExpression& index)
+        : INHERITED(*generator)
+        , fIndex(index) {}
+
+    void load() override {
+        fGenerator.writeIndexExpression(fIndex);
+    }
+
+    void store() override {
+        Variable::Storage storage;
+        auto location = fGenerator.getLocation(*fIndex.fBase, &storage);
+        int count = slot_count(fIndex.fType);
+        bool isGlobal = storage == Variable::kGlobal_Storage;
+        if (count > 4) {
+            fGenerator.write(ByteCodeInstruction::kDupN);
+            fGenerator.write8(count);
+        } else {
+            fGenerator.write(vector_instruction(ByteCodeInstruction::kDup, count));
+        }
+        // TODO: Pick non-indirect stores if location is a literal (or simplifies to one)
+        fGenerator.writeExpression(*location);
+        fGenerator.write(isGlobal ? ByteCodeInstruction::kStoreExtendedGlobal
+                                  : ByteCodeInstruction::kStoreExtended);
+    }
+
+private:
+    typedef LValue INHERITED;
+
+    const IndexExpression& fIndex;
+};
+
+class ByteCodeFieldLValue : public ByteCodeGenerator::LValue {
+public:
+    ByteCodeFieldLValue(ByteCodeGenerator* generator, const FieldAccess& field)
+        : INHERITED(*generator)
+        , fField(field) {}
+
+    void load() override {
+        fGenerator.writeFieldAccess(fField);
+    }
+
+    void store() override {
+        Variable::Storage storage;
+        auto location = fGenerator.getLocation(*fField.fBase, &storage);
+        int count = slot_count(fField.fType);
+        bool isGlobal = storage == Variable::kGlobal_Storage;
+        if (count > 4) {
+            fGenerator.write(ByteCodeInstruction::kDupN);
+            fGenerator.write8(count);
+        } else {
+            fGenerator.write(vector_instruction(ByteCodeInstruction::kDup, count));
+        }
+        // TODO: Pick non-indirect stores if location is a literal (or simplifies to one)
+        fGenerator.writeExpression(*location);
+        fGenerator.write(isGlobal ? ByteCodeInstruction::kStoreExtendedGlobal
+                                  : ByteCodeInstruction::kStoreExtended);
+    }
+
+private:
+    typedef LValue INHERITED;
+
+    const FieldAccess& fField;
 };
 
 std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Expression& e) {
@@ -661,12 +811,13 @@ std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Ex
             SkASSERT(index <= 255);
             return std::unique_ptr<LValue>(new ByteCodeExternalValueLValue(this, *value, index));
         }
+        case Expression::kFieldAccess_Kind:
+            return std::unique_ptr<LValue>(new ByteCodeFieldLValue(this, (FieldAccess&) e));
         case Expression::kIndex_Kind:
-            // not yet implemented
-            abort();
+            return std::unique_ptr<LValue>(new ByteCodeIndexLValue(this, (IndexExpression&) e));
         case Expression::kVariableReference_Kind:
             return std::unique_ptr<LValue>(new ByteCodeVariableLValue(this,
-                                                               ((VariableReference&) e).fVariable));
+                                                                      (VariableReference&) e));
         case Expression::kSwizzle_Kind:
             return std::unique_ptr<LValue>(new ByteCodeSwizzleLValue(this, (Swizzle&) e));
         case Expression::kTernary_Kind:
@@ -780,7 +931,7 @@ void ByteCodeGenerator::writeIfStatement(const IfStatement& i) {
 void ByteCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     this->writeExpression(*r.fExpression);
     this->write(ByteCodeInstruction::kReturn);
-    this->write8(r.fExpression->fType.columns() * r.fExpression->fType.rows());
+    this->write8(slot_count(r.fExpression->fType));
 }
 
 void ByteCodeGenerator::writeSwitchStatement(const SwitchStatement& r) {
