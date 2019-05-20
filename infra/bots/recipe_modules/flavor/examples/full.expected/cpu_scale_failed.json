@@ -940,7 +940,7 @@
   },
   {
     "failure": {
-      "humanReason": "Infra Failure: Step('Scale CPU 0 to 0.600000 (attempt 3)') returned 1"
+      "humanReason": "Infra Failure: Step('Scale CPU 0 to 0.600000 (attempt 3)') (retcode: 1)"
     },
     "name": "$result"
   }
