@@ -784,9 +784,9 @@ GrBackendTexture GrContextPriv::createBackendTexture(int width, int height,
 
     GrGpu* gpu = fContext->fGpu.get();
 
-    return gpu->createTestingOnlyBackendTexture(width, height, backendFormat,
-                                                mipMapped, renderable,
-                                                nullptr, 0);
+    return gpu->createBackendTexture(width, height, backendFormat,
+                                     mipMapped, renderable,
+                                     nullptr, 0);
 }
 
 GrBackendTexture GrContextPriv::createBackendTexture(int width, int height,
@@ -816,6 +816,49 @@ void GrContextPriv::deleteBackendTexture(GrBackendTexture backendTex) {
 
     GrGpu* gpu = fContext->fGpu.get();
 
-    gpu->deleteTestingOnlyBackendTexture(backendTex);
+    gpu->deleteBackendTexture(backendTex);
 }
 
+GrBackendTexture GrContextPriv::createBackendTexture(int width, int height,
+                                                     GrBackendFormat backendFormat,
+                                                     const SkColor4f& color,
+                                                     GrMipMapped mipMapped,
+                                                     GrRenderable renderable) {
+    if (!fContext->asDirectContext()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    if (!backendFormat.isValid()) {
+        return GrBackendTexture();
+    }
+
+    GrGpu* gpu = fContext->fGpu.get();
+
+    return gpu->createBackendTexture(width, height, backendFormat,
+                                     mipMapped, renderable, nullptr, 0, color);
+}
+
+GrBackendTexture GrContextPriv::createBackendTexture(int width, int height,
+                                                     SkColorType colorType,
+                                                     const SkColor4f& color,
+                                                     GrMipMapped mipMapped,
+                                                     GrRenderable renderable) {
+    if (!fContext->asDirectContext()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    GrBackendFormat format = fContext->caps()->getBackendFormatFromColorType(colorType);
+    if (!format.isValid()) {
+        return GrBackendTexture();
+    }
+
+    return this->createBackendTexture(width, height, format, color, mipMapped, renderable);
+}
