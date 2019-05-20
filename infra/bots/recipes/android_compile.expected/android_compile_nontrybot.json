@@ -1,5 +1,26 @@
 [
   {
+    "cmd": [],
+    "name": "RECIPE CRASH (Uncaught exception)",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@",
+      "The recipe has crashed at point 'Uncaught exception'!",
+      "",
+      "Traceback (most recent call last):",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/engine.py\", line 375, in run_steps",
+      "    raw_result = recipe_obj.run_steps(api, engine)",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/recipe_deps.py\", line 670, in run_steps",
+      "    properties_def, api=api)",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", line 89, in invoke_with_properties",
+      "    arg_names, **additional_args)",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", line 52, in _invoke_with_properties",
+      "    return callable_obj(*props, **additional_args)",
+      "  File \"RECIPE_REPO[skia]/infra/bots/recipes/android_compile.py\", line 37, in RunSteps",
+      "    raise Exception('%s can only be run as a trybot.' % buildername)",
+      "Exception: Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework can only be run as a trybot."
+    ]
+  },
+  {
     "failure": {
       "humanReason": "Uncaught Exception: Exception('Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework can only be run as a trybot.',)"
     },
