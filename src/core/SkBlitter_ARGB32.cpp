@@ -884,9 +884,13 @@ void SkARGB32_Blitter::blitRect(int x, int y, int width, int height) {
     uint32_t    color = fPMColor;
     size_t      rowBytes = fDevice.rowBytes();
 
-    while (--height >= 0) {
-        SkBlitRow::Color32(device, device, width, color);
-        device = (uint32_t*)((char*)device + rowBytes);
+    if (SkGetPackedA32(fPMColor) == 0xFF) {
+        SkOpts::rect_memset32(device, color, width, rowBytes, height);
+    } else {
+        while (height --> 0) {
+            SkBlitRow::Color32(device, device, width, color);
+            device = (uint32_t*)((char*)device + rowBytes);
+        }
     }
 }
 
