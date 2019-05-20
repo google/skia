@@ -74,7 +74,7 @@ public:
      */
     void disassemble(const ByteCodeFunction&);
 private:
-    void run(const ByteCodeFunction& f, Value* stack, Value args[], Value* outReturn);
+    void innerRun(const ByteCodeFunction& f, Value* stack, Value* outReturn);
 
 
     std::unique_ptr<Program> fProgram;
