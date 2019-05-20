@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2ab5057_67bcd98f",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-20T14:30:14Z",
+      "side": 1,
+      "message": "Think it makes sense to remove the check in SkRasterPipelineBlitter?  When would we hit that now?",
+      "revId": "bf0ce4890ac14d4238cbe76ae3c81a2148c8b485",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa8fa642_f419a692",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-20T14:30:14Z",
+      "side": 1,
+      "message": "Starting to wonder if we should default the colorspace argument to nullptr in filterColor4f() and setColor4f().  I\u0027m finding all the colorspace nullptr chatter distracts from the more interesting setColorFilter() nullptr.",
+      "revId": "bf0ce4890ac14d4238cbe76ae3c81a2148c8b485",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
