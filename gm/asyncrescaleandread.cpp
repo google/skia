@@ -137,6 +137,10 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
             SkImageInfo::Make(kInner + 2 * kBorder, kInner + 2 * kBorder, kRGBA_8888_SkColorType,
                               kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
     auto surface = canvas->makeSurface(surfaceII);
+    if (!surface) {
+        *errorMsg = "Could not create surface for image.";
+        return skiagm::DrawResult::kFail;
+    }
     surface->getCanvas()->clear(SK_ColorRED);
     surface->getCanvas()->save();
     surface->getCanvas()->clipRect(SkRect::Make(srcRect), SkClipOp::kIntersect, false);
