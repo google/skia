@@ -53,6 +53,13 @@ public:
 
     uint32_t getChecksum() const { return fChecksum; }
 
+    SkString dumpRec() const {
+        auto ptr = this->findEntry(kRec_SkDescriptorTag, nullptr);
+        SkScalerContextRec rec;
+        std::memcpy(&rec, ptr, sizeof(rec));
+        return rec.dump();
+    }
+
     struct Entry {
         uint32_t fTag;
         uint32_t fLen;

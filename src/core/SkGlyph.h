@@ -165,14 +165,19 @@ public:
         return fPathData != nullptr && fPathData->fHasPath ? &fPathData->fPath : nullptr;
     }
 
-    bool hasPath() const {
-        // Need to have called getMetrics before calling findPath.
-        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
+    enum class PathState {
+        // The path data for this glyph has not been queried.
+        kNotQueried,
+        // The path data was queried and the glyph has no path available.
+        kNoPath,
+        // A cached path for this glyph is available.
+        kHasPath
+    };
 
-        // Find path must have been called to use this call.
-        SkASSERT(fPathData != nullptr);
-
-        return fPathData != nullptr && fPathData->fHasPath;
+    PathState getPathState() const {
+        if (!fPathData) return PathState::kNotQueried;
+        if (!fPathData->fHasPath) return PathState::kNoPath;
+        return PathState::kHasPath;
     }
 
     int maxDimension() const {

@@ -59,6 +59,7 @@ private:
         return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
     }
     void writeGlyphPath(const SkPackedGlyphID& glyphID, Serializer* serializer) const;
+    void generateAndCachePath(SkGlyph* glyph);
 
     void ensureScalerContext();
     void resetScalerContext();
