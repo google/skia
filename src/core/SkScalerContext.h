@@ -343,6 +343,8 @@ public:
         const SkMatrix& deviceMatrix, SkAutoDescriptor* ad,
         SkScalerContextEffects* effects);
 
+    bool generateImageFromPath() const { return fGenerateImageFromPath; }
+
 protected:
     SkScalerContextRec fRec;
 
@@ -382,7 +384,6 @@ protected:
     virtual unsigned generateGlyphCount() = 0;
 
     void forceGenerateImageFromPath() { fGenerateImageFromPath = true; }
-    void forceOffGenerateImageFromPath() { fGenerateImageFromPath = false; }
 
 private:
     friend class RandomScalerContext;  // For debug purposes
