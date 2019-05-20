@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "74fe97d3_0aa44570",
+        "filename": "src/opts/SkUtils_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-20T20:11:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d28874d_63a3bb5c",
+      "range": {
+        "startLine": 44,
+        "startChar": 68,
+        "endLine": 44,
+        "endChar": 74
+      },
+      "revId": "a415ba3e3ede15b27e1ddfee046ec0c8d66212f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "14ab93c1_80c20c30",
         "filename": "src/opts/SkUtils_opts.h",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-05-20T20:01:56Z",
       "side": 1,
       "message": "fwiw, if you use the pattern\n\n   while (height --\u003e 0)\n\nit\u0027ll always loop height times, even if height is an unsigned type.  Or if you\u0027re feeling stodgy,\n\n   while (height-- \u003e 0)",
+      "range": {
+        "startLine": 45,
+        "startChar": 8,
+        "endLine": 45,
+        "endChar": 31
+      },
+      "revId": "a415ba3e3ede15b27e1ddfee046ec0c8d66212f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6282d6e3_e261ba3b",
+        "filename": "src/opts/SkUtils_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-20T20:11:08Z",
+      "side": 1,
+      "message": "That first one (looks like an arrow) is cool. never seen that before.",
+      "parentUuid": "14ab93c1_80c20c30",
       "range": {
         "startLine": 45,
         "startChar": 8,
