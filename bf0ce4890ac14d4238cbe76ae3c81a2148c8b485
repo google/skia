@@ -69,6 +69,24 @@
       "revId": "bf0ce4890ac14d4238cbe76ae3c81a2148c8b485",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "165db6dd_4b8900e5",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-20T14:41:39Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "a54b704a_33b00123",
+      "revId": "bf0ce4890ac14d4238cbe76ae3c81a2148c8b485",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
