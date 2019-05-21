@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "a40754b0_b936cdf0",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-21T19:39:32Z",
+      "side": 1,
+      "message": "Well, yes, but not all intrinsics are going to be written in the same fashion. I was just planning ahead for that.",
+      "parentUuid": "79580525_5a6c5e0d",
+      "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b1e68da_5d80b72f",
         "filename": "src/sksl/SkSLInterpreter.cpp",
         "patchSetId": 7
@@ -56,6 +74,30 @@
       "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d94899f8_a61db677",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-21T19:39:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9b1e68da_5d80b72f",
+      "range": {
+        "startLine": 282,
+        "startChar": 34,
+        "endLine": 282,
+        "endChar": 39
+      },
+      "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +124,30 @@
     },
     {
       "key": {
+        "uuid": "d54c9dbf_4a9f5941",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-21T19:39:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d1d7130a_ec48c6c0",
+      "range": {
+        "startLine": 283,
+        "startChar": 0,
+        "endLine": 294,
+        "endChar": 14
+      },
+      "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c0681ad9_e9f4d815",
         "filename": "tests/SkSLInterpreterTest.cpp",
         "patchSetId": 7
@@ -96,6 +162,24 @@
       "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b370286_04e2c623",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 706,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-21T19:39:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c0681ad9_e9f4d815",
+      "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
