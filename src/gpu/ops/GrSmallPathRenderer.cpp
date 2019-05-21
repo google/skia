@@ -276,9 +276,12 @@ public:
         fHelper.visitProxies(func);
 
         const sk_sp<GrTextureProxy>* proxies = fAtlas->getProxies();
+        GrSamplerState::Filter filter = (fUsesDistanceField)
+                ? GrSamplerState::Filter::kBilerp
+                : GrSamplerState::Filter::kNearest;
         for (uint32_t i = 0; i < fAtlas->numActivePages(); ++i) {
             SkASSERT(proxies[i]);
-            func(proxies[i].get());
+            func(proxies[i].get(), GrSurfaceProxy::SampleAccessFromFilter(filter));
         }
     }
 

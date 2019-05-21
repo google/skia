@@ -130,8 +130,8 @@ GrRenderTargetOpList::OpChain::OpChain(std::unique_ptr<GrOp> op,
     fBounds = fList.head()->bounds();
 }
 
-void GrRenderTargetOpList::OpChain::visitProxies(const GrOp::VisitProxyFunc& func,
-                                                 GrOp::VisitorType visitor) const {
+void GrRenderTargetOpList::OpChain::visitProxies(
+        const GrSurfaceProxy::VisitProxyFunc& func, GrOp::VisitorType visitor) const {
     if (fList.empty()) {
         return;
     }
@@ -139,7 +139,7 @@ void GrRenderTargetOpList::OpChain::visitProxies(const GrOp::VisitProxyFunc& fun
         op.visitProxies(func, visitor);
     }
     if (fDstProxy.proxy()) {
-        func(fDstProxy.proxy());
+        func(fDstProxy.proxy(), GrSurfaceProxy::Access::kSampleNearest);
     }
     if (fAppliedClip) {
         fAppliedClip->visitProxies(func);
@@ -394,10 +394,12 @@ void GrRenderTargetOpList::dump(bool printDependencies) const {
     }
 }
 
-void GrRenderTargetOpList::visitProxies_debugOnly(const GrOp::VisitProxyFunc& func) const {
+void GrRenderTargetOpList::visitProxies_debugOnly(
+        const GrSurfaceProxy::VisitProxyFunc& func) const {
     for (const OpChain& chain : fOpChains) {
         chain.visitProxies(func, GrOp::VisitorType::kOther);
     }
+    func(fTarget.get(), GrSurfaceProxy::Access::kWrite);
 }
 
 #endif
@@ -594,7 +596,7 @@ bool GrRenderTargetOpList::copySurface(GrRecordingContext* context,
 
 void GrRenderTargetOpList::purgeOpsWithUninstantiatedProxies() {
     bool hasUninstantiatedProxy = false;
-    auto checkInstantiation = [&hasUninstantiatedProxy](GrSurfaceProxy* p) {
+    auto checkInstantiation = [&hasUninstantiatedProxy](GrSurfaceProxy* p, GrSurfaceProxy::Access) {
         if (!p->isInstantiated()) {
             hasUninstantiatedProxy = true;
         }
@@ -612,7 +614,7 @@ void GrRenderTargetOpList::purgeOpsWithUninstantiatedProxies() {
 bool GrRenderTargetOpList::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
     bool used = false;
 
-    auto visit = [ proxyToCheck, &used ] (GrSurfaceProxy* p) {
+    auto visit = [ proxyToCheck, &used ] (GrSurfaceProxy* p, GrSurfaceProxy::Access) {
         if (p == proxyToCheck) {
             used = true;
         }
@@ -651,7 +653,7 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
         alloc->incOps();
     }
 
-    auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p) {
+    auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p, GrSurfaceProxy::Access) {
         alloc->addInterval(p, alloc->curOp(), alloc->curOp(), GrResourceAllocator::ActualUse::kYes
                            SkDEBUGCODE(, fTarget.get() == p));
     };
