@@ -813,6 +813,8 @@ def dm_flags(api, bot):
   if 'LenovoYogaC630' in bot and 'ANGLE' in api.vars.extra_tokens:
     # skia:8976
     blacklist(['_', 'tests', '_', 'GrDefaultPathRendererTest'])
+    # https://bugs.chromium.org/p/angleproject/issues/detail?id=3414
+    blacklist(['_', 'tests', '_', 'PinnedImageTest'])
 
   if blacklisted:
     args.append('--blacklist')
