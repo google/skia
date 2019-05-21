@@ -62,9 +62,29 @@ public:
      */
     void absClear(const SkIRect* rect, const SkPMColor4f& color);
 
-    void stencilRect(
-            const GrHardClip&, const GrUserStencilSettings* ss, GrAA doStencilMSAA,
-            const SkMatrix& viewMatrix, const SkRect& rect);
+    // void stencilRect(
+            // const GrHardClip&, const GrUserStencilSettings* ss, GrAA doStencilMSAA,
+            // const SkMatrix& viewMatrix, const SkRect& rect);
+
+    /**
+     * Fills a device-space axis-aligned rectangle 'rect', possibly with MSAA (will not use coverage
+     * models). If provided, local coordinates for the four corners of 'rect' are taken from
+     * 'localCoords', otherwise 'rect' is used.
+     *
+     * If used with stencil settings, the clip should be an instance of GrHardClip.
+     */
+    void fillDeviceRect(const GrClip&, GrPaint&&, GrAA doMSAA, const SkRect rect,
+                        const GrPerspQuad* localCoords, const GrUserStencilSettings* stencil);
+    // FIXME this may need to be stencilQuad() and parallel fillQuad() API but use different AA means,
+    // and avoid the draw-as-clear optimization since stencil is involved. This is because some of the
+    // GrFillRectOp::MakeWithLocalMatrix went between view+I or I+invView. And while that would kind
+    // of match fillQuad() in the first case, we want to not do the optimization and be consistent with
+    // AA means.  Then fillQuad() publicly could remove stencil settings?
+    // And I guess we could still apply the optimization, but then we'd have a drawFilledQuad internally
+    // that both stencilQuad() and fillQuad() routes to pretty quickly.
+    // Then we only have to worry about the internal drawDevice, which would be no clip or stencil
+    // and operates on SkIRect, used solely with clears (4x calls)
+
 
     void stencilPath(
             const GrHardClip&, GrAA doStencilMSAA, const SkMatrix& viewMatrix, const GrPath*);
@@ -73,13 +93,13 @@ public:
      * Draws a rect, either AA or not, and touches the stencil buffer with the user stencil settings
      * for each color sample written.
      */
-    bool drawAndStencilRect(const GrHardClip&,
-                            const GrUserStencilSettings*,
-                            SkRegion::Op op,
-                            bool invert,
-                            GrAA doStencilMSAA,
-                            const SkMatrix& viewMatrix,
-                            const SkRect&);
+    // bool drawAndStencilRect(const GrHardClip&,
+                            // const GrUserStencilSettings*,
+                            // SkRegion::Op op,
+                            // bool invert,
+                            // GrAA doStencilMSAA,
+                            // const SkMatrix& viewMatrix,
+                            // const SkRect&);
 
     /**
      * Draws a path, either AA or not, and touches the stencil buffer with the user stencil settings
@@ -93,11 +113,11 @@ public:
                             const SkMatrix& viewMatrix,
                             const SkPath&);
 
-    void drawFilledRect(
-            const GrClip& clip, GrPaint&& paint, GrAA aa, const SkMatrix& m, const SkRect& rect,
-            const GrUserStencilSettings* ss = nullptr) {
-        fRenderTargetContext->drawFilledRect(clip, std::move(paint), aa, m, rect, ss);
-    }
+    // void drawFilledRect(
+    //         const GrClip& clip, GrPaint&& paint, GrAA aa, const SkMatrix& m, const SkRect& rect,
+    //         const GrUserStencilSettings* ss = nullptr) {
+    //     fRenderTargetContext->drawFilledRect(clip, std::move(paint), aa, m, rect, ss);
+    // }
 
     SkBudgeted isBudgeted() const;
 

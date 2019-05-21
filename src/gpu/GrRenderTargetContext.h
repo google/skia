@@ -101,6 +101,14 @@ public:
                   const SkRect&,
                   const GrStyle* style = nullptr);
 
+    void fillQuad(const GrClip& clip,
+                  GrPaint&& paint,
+                  GrAA aa,
+                  GrQuadAAFlags edgeFlags,
+                  const GrPerspQuad& deviceCoords,
+                  const GrPerspQuad& localCoords,
+                  const GrUserStencilSettings* stencil);
+
     /**
      * Maps a rectangle of shader coordinates to a rectangle and fills that rectangle.
      *
@@ -110,26 +118,26 @@ public:
      * @param rectToDraw   the rectangle to draw
      * @param localRect    the rectangle of shader coordinates applied to rectToDraw
      */
-    void fillRectToRect(const GrClip& clip,
-                        GrPaint&& paint,
-                        GrAA aa,
-                        const SkMatrix& viewMatrix,
-                        const SkRect& rectToDraw,
-                        const SkRect& localRect) {
-        this->fillRectWithEdgeAA(clip, std::move(paint), aa,
-                                 aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
-                                 viewMatrix, rectToDraw, &localRect);
-    }
+    // void fillRectToRect(const GrClip& clip,
+    //                     GrPaint&& paint,
+    //                     GrAA aa,
+    //                     const SkMatrix& viewMatrix,
+    //                     const SkRect& rectToDraw,
+    //                     const SkRect& localRect) {
+    //     this->fillRectWithEdgeAA(clip, std::move(paint), aa,
+    //                              aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
+    //                              viewMatrix, rectToDraw, &localRect);
+    // }
 
     /**
      * Fills a rect with a paint and a localMatrix.
      */
-    void fillRectWithLocalMatrix(const GrClip& clip,
-                                 GrPaint&& paint,
-                                 GrAA,
-                                 const SkMatrix& viewMatrix,
-                                 const SkRect& rect,
-                                 const SkMatrix& localMatrix);
+    // void fillRectWithLocalMatrix(const GrClip& clip,
+    //                              GrPaint&& paint,
+    //                              GrAA,
+    //                              const SkMatrix& viewMatrix,
+    //                              const SkRect& rect,
+    //                              const SkMatrix& localMatrix);
 
     /**
      * Creates an op that draws a fill rect with per-edge control over anti-aliasing.
@@ -137,9 +145,9 @@ public:
      * This is a specialized version of fillQuadWithEdgeAA, but is kept separate since knowing
      * the geometry is a rectangle affords more optimizations.
      */
-    void fillRectWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
-                            const SkMatrix& viewMatrix, const SkRect& rect,
-                            const SkRect* optionalLocalRect = nullptr);
+    // void fillRectWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
+    //                         const SkMatrix& viewMatrix, const SkRect& rect,
+    //                         const SkRect* optionalLocalRect = nullptr);
 
     /**
      * Similar to fillRectWithEdgeAA but draws an arbitrary 2D convex quadrilateral transformed
@@ -153,9 +161,9 @@ public:
      * The last argument, 'optionalLocalQuad', can be null if no separate local coordinates are
      * necessary.
      */
-    void fillQuadWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
-                            const SkMatrix& viewMatrix, const SkPoint quad[4],
-                            const SkPoint optionalLocalQuad[4]);
+    // void fillQuadWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
+    //                         const SkMatrix& viewMatrix, const SkPoint quad[4],
+    //                         const SkPoint optionalLocalQuad[4]);
 
     /** Used with drawQuadSet */
     struct QuadSetEntry {
@@ -506,19 +514,19 @@ private:
                           const SkRRect& origOuter,
                           const SkRRect& origInner);
 
-    void drawFilledRect(const GrClip& clip,
-                        GrPaint&& paint,
-                        GrAA,
-                        const SkMatrix& viewMatrix,
-                        const SkRect& rect,
-                        const GrUserStencilSettings* ss = nullptr);
+    // void drawFilledRect(const GrClip& clip,
+    //                     GrPaint&& paint,
+    //                     GrAA,
+    //                     const SkMatrix& viewMatrix,
+    //                     const SkRect& rect,
+    //                     const GrUserStencilSettings* ss = nullptr);
 
     // Only consumes the GrPaint if successful.
-    bool drawFilledRectAsClear(const GrClip& clip,
-                               GrPaint&& paint,
-                               GrAA aa,
-                               const SkMatrix& viewMatrix,
-                               const SkRect& rect);
+    // bool drawFilledRectAsClear(const GrClip& clip,
+    //                            GrPaint&& paint,
+    //                            GrAA aa,
+    //                            const SkMatrix& viewMatrix,
+    //                            const SkRect& rect);
 
     void drawShapeUsingPathRenderer(const GrClip&, GrPaint&&, GrAA, const SkMatrix&,
                                     const GrShape&);
