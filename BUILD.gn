@@ -1628,6 +1628,8 @@ if (skia_enable_tools) {
       sources = [
         "experimental/ffmpeg/SkVideoDecoder.cpp",
         "experimental/ffmpeg/SkVideoDecoder.h",
+        "experimental/ffmpeg/SkVideoEncoder.cpp",
+        "experimental/ffmpeg/SkVideoEncoder.h",
       ]
       libs = [
         "avcodec",

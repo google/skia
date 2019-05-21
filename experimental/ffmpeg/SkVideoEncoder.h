@@ -1,0 +1,64 @@
+/*
+ * Copyright 2019 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkVideEncoder_DEFINED
+#define SkVideEncoder_DEFINED
+
+#include "include/core/SkImage.h"
+#include "include/core/SkStream.h"
+
+extern "C" {
+#include "libavcodec/avcodec.h"
+#include "libavformat/avformat.h"
+#include "libavformat/avio.h"
+#include "libavutil/pixdesc.h"
+}
+
+class SkVideoEncoder {
+public:
+    SkVideoEncoder();
+    ~SkVideoEncoder();
+
+    bool beginRecording(const SkImageInfo&, SkWStream*);
+
+    SkCanvas* beginFrame();
+    bool endFrame();
+
+    void endRecording();
+
+private:
+    void reset();
+    bool init(const SkImageInfo&);
+    bool sendFrame(AVFrame*);   // frame can be null
+
+    sk_sp<SkImage> convertFrame(const AVFrame*);
+    double computeTimeStamp(const AVFrame*) const;
+
+    struct ConvertedColorSpace {
+        AVColorPrimaries              fPrimaries;
+        AVColorTransferCharacteristic fTransfer;
+        // fCS is the converted skia form of the above enums
+        sk_sp<SkColorSpace> fCS;
+
+        // Init with illegal values, so our first compare will fail, forcing us to compute
+        // the skcolorspace.
+        ConvertedColorSpace();
+
+        void update(AVColorPrimaries, AVColorTransferCharacteristic);
+    };
+
+    AVCodecContext* fEncoderCtx = nullptr;
+    AVPacket*       fPacket;
+    AVFrame*        fFrame = nullptr;
+
+    sk_sp<SkSurface> fSurface;
+    SkWStream*       fWStream;  // borrowed pointer
+    int64_t          fCurrentPTS, fDeltaPTS;
+};
+
+#endif
+
