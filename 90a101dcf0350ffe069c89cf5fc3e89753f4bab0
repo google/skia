@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1a80b4d_ca93b725",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-21T19:10:41Z",
+      "side": 1,
+      "message": "Could you add a comment describing why its necessary to return all glyphs.",
+      "range": {
+        "startLine": 666,
+        "startChar": 8,
+        "endLine": 666,
+        "endChar": 45
+      },
+      "revId": "90a101dcf0350ffe069c89cf5fc3e89753f4bab0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b83e15a_528b085d",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-21T19:10:41Z",
+      "side": 1,
+      "message": "I can\u0027t think of an easy way to add it to this test but would be nice to test that the glyphs are added to the return list in prepareForDrawing even in the case of a cache hit. Particularly to test for the case where the strike for the path lookup is cached and the fallback one has been evicted.\n\nPerhaps an easy way would be a different scoped test that just calls PrepareForDrawing and validates that the list is still populated after the first one.",
+      "range": {
+        "startLine": 776,
+        "startChar": 35,
+        "endLine": 776,
+        "endChar": 73
+      },
+      "revId": "90a101dcf0350ffe069c89cf5fc3e89753f4bab0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91705c07_d1d92f8a",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 781,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-21T19:10:41Z",
+      "side": 1,
+      "message": "Is this available on all bots? Not sure if we need to check and early out if this is null (like Ben mentioned for the sbix typeface).",
+      "range": {
+        "startLine": 781,
+        "startChar": 4,
+        "endLine": 781,
+        "endChar": 48
+      },
+      "revId": "90a101dcf0350ffe069c89cf5fc3e89753f4bab0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
