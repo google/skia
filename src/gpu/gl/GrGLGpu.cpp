@@ -1654,8 +1654,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     GrGLTexture::SamplerParams initialTexParams;
     if (!this->createTextureImpl(desc, &idDesc.fInfo,
                                  isRenderTarget ? GrRenderable::kYes : GrRenderable::kNo,
-                                 &initialTexParams, texels,
-                                 mipLevelCount, &mipMapsStatus)) {
+                                 &initialTexParams, texels, mipLevelCount, &mipMapsStatus)) {
         return return_null_texture();
     }
 
@@ -1862,13 +1861,12 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
                               GR_GL_FRAMEBUFFER_ATTACHMENT));
     }
 
-    if (info) {
-        *initialTexParams = set_initial_texture_params(this->glInterface(), *info);
-    }
+    *initialTexParams = set_initial_texture_params(this->glInterface(), *info);
 
     bool success = false;
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         SkASSERT(GrRenderable::kNo == renderable);
+
         success = this->uploadCompressedTexData(desc.fConfig, desc.fWidth, desc.fHeight,
                                                 info->fTarget,
                                                 texels, mipLevelCount, mipMapsStatus);
@@ -4079,7 +4077,7 @@ static bool gl_format_to_pixel_config(GrGLenum format, GrPixelConfig* config) {
 GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
                                                const GrBackendFormat& format,
                                                GrMipMapped mipMapped,
-                                               GrRenderable /* renderable */,
+                                               GrRenderable renderable,
                                                const void* pixels, size_t rowBytes) {
     this->handleDirtyContext();
 
@@ -4098,7 +4096,8 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();  // invalid
     }
 
-    if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
+    if (w == 0 || w > this->caps()->maxTextureSize() ||
+        h == 0 || h > this->caps()->maxTextureSize()) {
         return GrBackendTexture();  // invalid
     }
 
@@ -4110,91 +4109,80 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
     if (mipMapped == GrMipMapped::kYes && !this->caps()->mipMapSupport()) {
         return GrBackendTexture();
     }
-    int bpp = GrBytesPerPixel(config);
-    const size_t trimRowBytes = w * bpp;
-    if (!rowBytes) {
-        rowBytes = trimRowBytes;
-    }
 
     GrGLTextureInfo info;
-    info.fTarget = GR_GL_TEXTURE_2D;
     info.fID = 0;
+    info.fTarget = GR_GL_TEXTURE_2D;
     GL_CALL(GenTextures(1, &info.fID));
+
+    if (!info.fID) {
+        return GrBackendTexture();
+    }
+
     this->bindTextureToScratchUnit(info.fTarget, info.fID);
-    GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
-    GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_MAG_FILTER, GR_GL_NEAREST));
-    GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_MIN_FILTER, GR_GL_NEAREST));
-    GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_WRAP_S, GR_GL_CLAMP_TO_EDGE));
-    GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_WRAP_T, GR_GL_CLAMP_TO_EDGE));
 
-    // we have to do something special for compressed textures
+    if (GrRenderable::kYes == renderable && this->glCaps().textureUsageSupport()) {
+        // provides a hint about how this texture will be used
+        GL_CALL(TexParameteri(info.fTarget,
+                              GR_GL_TEXTURE_USAGE,
+                              GR_GL_FRAMEBUFFER_ATTACHMENT));
+    }
+
+    set_initial_texture_params(this->glInterface(), info);
+
+    // Figure out the number of mip levels.
+    int mipLevelCount = 1;
+    if (GrMipMapped::kYes == mipMapped) {
+        mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
+    }
+
+    SkAutoTMalloc<GrMipLevel> texels(mipLevelCount);
+
+    bool success;
     if (GrPixelConfigIsCompressed(config)) {
-        GrGLenum internalFormat;
-        const GrGLInterface* interface = this->glInterface();
-        const GrGLCaps& caps = this->glCaps();
-        if (!caps.getCompressedTexImageFormats(config, &internalFormat)) {
-            return GrBackendTexture();
+        // we have to do something special for compressed textures
+        SkASSERT(GrRenderable::kNo == renderable);
+        SkASSERT(0 == rowBytes);
+
+        for (int i = 0; i < mipLevelCount; ++i) {
+            // TODO: this isn't correct when pixels for additional mip levels are passed in
+            texels.get()[i] = { pixels, 0 };
         }
 
-        GrMipLevel mipLevel = { pixels, rowBytes };
-        if (!allocate_and_populate_compressed_texture(config, *interface, caps, info.fTarget,
-                                                      internalFormat, &mipLevel, 1,
-                                                      w, h)) {
-            return GrBackendTexture();
-        }
+        success = this->uploadCompressedTexData(config, w, h, info.fTarget,
+                                                texels.get(), mipLevelCount, nullptr);
     } else {
-        bool restoreGLRowLength = false;
-        if (trimRowBytes != rowBytes && this->glCaps().unpackRowLengthSupport()) {
-            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowBytes / bpp));
-            restoreGLRowLength = true;
-        }
-
-        GrGLenum internalFormat;
-        GrGLenum externalFormat;
-        GrGLenum externalType;
-
-        if (!this->glCaps().getTexImageFormats(config, config, &internalFormat, &externalFormat,
-                                               &externalType)) {
-            return GrBackendTexture();  // invalid
-        }
-
-        info.fFormat = this->glCaps().configSizedInternalFormat(config);
-
-        this->unbindCpuToGpuXferBuffer();
-
-        // Figure out the number of mip levels.
-        int mipLevels = 1;
-        if (GrMipMapped::kYes == mipMapped) {
-            mipLevels = SkMipMap::ComputeLevelCount(w, h) + 1;
+        int bpp = GrBytesPerPixel(config);
+        const size_t trimRowBytes = w * bpp;
+        if (!rowBytes) {
+            rowBytes = trimRowBytes;
         }
 
         size_t baseLayerSize = bpp * w * h;
         SkAutoMalloc defaultStorage(baseLayerSize);
         if (!pixels) {
             // Fill in the texture with all zeros so we don't have random garbage
-            pixels = defaultStorage.get();
             memset(defaultStorage.get(), 0, baseLayerSize);
-        } else if (trimRowBytes != rowBytes && !restoreGLRowLength) {
-            // We weren't able to use GR_GL_UNPACK_ROW_LENGTH so make a copy
-            char* copy = (char*)defaultStorage.get();
-            for (int y = 0; y < h; ++y) {
-                memcpy(&copy[y*trimRowBytes], &((const char*)pixels)[y*rowBytes], trimRowBytes);
-            }
-            pixels = copy;
+            pixels = defaultStorage.get();
+            rowBytes = trimRowBytes;
         }
 
-        int width = w;
-        int height = h;
-        for (int i = 0; i < mipLevels; ++i) {
-            GL_CALL(TexImage2D(info.fTarget, i, internalFormat, width, height, 0, externalFormat,
-                               externalType, pixels));
-            width = SkTMax(1, width / 2);
-            height = SkTMax(1, height / 2);
+        for (int i = 0; i < mipLevelCount; ++i) {
+            // TODO: this isn't correct when pixels for additional mip levels are passed in
+            texels.get()[i] = { pixels, rowBytes };
         }
-        if (restoreGLRowLength) {
-            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-        }
+
+        success = this->uploadTexData(config, w, h, info.fTarget, kNewTexture_UploadType,
+                                      0, 0, w, h, config, texels.get(), mipLevelCount,
+                                      nullptr);
     }
+
+    if (!success) {
+        GL_CALL(DeleteTextures(1, &(info.fID)));
+        return GrBackendTexture();
+    }
+
+    info.fFormat = this->glCaps().configSizedInternalFormat(config);
 
     // unbind the texture from the texture unit to avoid asserts
     GL_CALL(BindTexture(info.fTarget, 0));
