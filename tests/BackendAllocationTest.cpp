@@ -13,7 +13,9 @@
 
 // Test wrapping of GrBackendObjects in SkSurfaces and SkImages
 void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
-                   std::function<GrBackendTexture (GrContext*, GrMipMapped, GrRenderable)> create,
+                   std::function<GrBackendTexture (GrContext*,
+                                                   GrMipMapped,
+                                                   GrRenderable)> create,
                    SkColorType colorType, GrMipMapped mipMapped, GrRenderable renderable) {
     GrResourceCache* cache = context->priv().getResourceCache();
 
@@ -26,47 +28,51 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
                GrRenderable::kYes == renderable ? "yes" : "no");
         return;
     }
+
     // Skia proper should know nothing about the new backend object
     REPORTER_ASSERT(reporter, initialCount == cache->getResourceCount());
 
-    if (kUnknown_SkColorType != colorType) {
-        if (GrRenderable::kYes == renderable) {
-            sk_sp<SkSurface> surf = SkSurface::MakeFromBackendTexture(context,
-                                                                      backendTex,
-                                                                      kTopLeft_GrSurfaceOrigin,
-                                                                      0,
-                                                                      colorType,
-                                                                      nullptr, nullptr);
-            if (!surf) {
-                ERRORF(reporter, "Couldn't make surface from backendTexture for colorType %d\n",
-                       colorType);
-            } else {
-                REPORTER_ASSERT(reporter, initialCount+1 == cache->getResourceCount());
-            }
+    if (kUnknown_SkColorType == colorType) {
+        context->deleteBackendTexture(backendTex);
+        return;
+    }
+
+    if (GrRenderable::kYes == renderable) {
+        sk_sp<SkSurface> surf = SkSurface::MakeFromBackendTexture(context,
+                                                                    backendTex,
+                                                                    kTopLeft_GrSurfaceOrigin,
+                                                                    0,
+                                                                    colorType,
+                                                                    nullptr, nullptr);
+        if (!surf) {
+            ERRORF(reporter, "Couldn't make surface from backendTexture for colorType %d\n",
+                    colorType);
+        } else {
+            REPORTER_ASSERT(reporter, initialCount+1 == cache->getResourceCount());
         }
+    }
 
-        {
-            sk_sp<SkImage> img = SkImage::MakeFromTexture(context,
-                                                          backendTex,
-                                                          kTopLeft_GrSurfaceOrigin,
-                                                          colorType,
-                                                          kPremul_SkAlphaType,
-                                                          nullptr);
-            if (!img) {
-                ERRORF(reporter, "Couldn't make image from backendTexture for colorType %d\n",
-                       colorType);
-            } else {
-                SkImage_Base* ib = as_IB(img);
+    {
+        sk_sp<SkImage> img = SkImage::MakeFromTexture(context,
+                                                        backendTex,
+                                                        kTopLeft_GrSurfaceOrigin,
+                                                        colorType,
+                                                        kPremul_SkAlphaType,
+                                                        nullptr);
+        if (!img) {
+            ERRORF(reporter, "Couldn't make image from backendTexture for colorType %d\n",
+                    colorType);
+        } else {
+            SkImage_Base* ib = as_IB(img);
 
-                GrTextureProxy* proxy = ib->peekProxy();
-                REPORTER_ASSERT(reporter, proxy);
+            GrTextureProxy* proxy = ib->peekProxy();
+            REPORTER_ASSERT(reporter, proxy);
 
-                REPORTER_ASSERT(reporter, mipMapped == proxy->proxyMipMapped());
-                REPORTER_ASSERT(reporter, proxy->isInstantiated());
-                REPORTER_ASSERT(reporter, mipMapped == proxy->mipMapped());
+            REPORTER_ASSERT(reporter, mipMapped == proxy->proxyMipMapped());
+            REPORTER_ASSERT(reporter, proxy->isInstantiated());
+            REPORTER_ASSERT(reporter, mipMapped == proxy->mipMapped());
 
-                REPORTER_ASSERT(reporter, initialCount+1 == cache->getResourceCount());
-            }
+            REPORTER_ASSERT(reporter, initialCount+1 == cache->getResourceCount());
         }
     }
 
@@ -91,7 +97,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         { kRGB_888x_SkColorType,     kRGB_888_GrPixelConfig           },
         { kBGRA_8888_SkColorType,    kBGRA_8888_GrPixelConfig         },
         { kRGBA_1010102_SkColorType, kRGBA_1010102_GrPixelConfig      },
-        { kRGB_101010x_SkColorType,  kUnknown_GrPixelConfig           },    // No Ganesh correlate
+        // The kRGB_101010x_SkColorType has no Ganesh correlate
+        { kRGB_101010x_SkColorType,  kUnknown_GrPixelConfig           },
         { kGray_8_SkColorType,       kGray_8_GrPixelConfig            },
         { kRGBA_F16Norm_SkColorType, kRGBA_half_Clamped_GrPixelConfig },
         { kRGBA_F16_SkColorType,     kRGBA_half_GrPixelConfig         },
@@ -130,14 +137,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                     }
                 }
 
-                auto createMtd = [colorType](GrContext* context,
-                                             GrMipMapped mipMapped,
-                                             GrRenderable renderable) {
-                    return context->createBackendTexture(32, 32, colorType, mipMapped, renderable);
-                };
+                {
+                    auto uninitCreateMtd = [colorType](GrContext* context,
+                                                       GrMipMapped mipMapped,
+                                                       GrRenderable renderable) {
+                        return context->createBackendTexture(32, 32, colorType,
+                                                             mipMapped, renderable);
+                    };
 
-                test_wrapping(context, reporter, createMtd,
-                              colorType, mipMapped, renderable);
+                    test_wrapping(context, reporter, uninitCreateMtd,
+                                  colorType, mipMapped, renderable);
+                }
             }
         }
     }
@@ -231,14 +241,17 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                     }
                 }
 
-                auto createMtd = [format](GrContext* context,
-                                          GrMipMapped mipMapped,
-                                          GrRenderable renderable) {
-                    return context->createBackendTexture(32, 32, format, mipMapped, renderable);
-                };
+                {
+                    auto uninitCreateMtd = [format](GrContext* context,
+                                                    GrMipMapped mipMapped,
+                                                    GrRenderable renderable) {
+                        return context->createBackendTexture(32, 32, format,
+                                                             mipMapped, renderable);
+                    };
 
-                test_wrapping(context, reporter, createMtd,
-                              combo.fColorType, mipMapped, renderable);
+                    test_wrapping(context, reporter, uninitCreateMtd,
+                                  combo.fColorType, mipMapped, renderable);
+                }
             }
         }
     }
@@ -313,14 +326,17 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                     }
                 }
 
-                auto createMtd = [format](GrContext* context,
-                                          GrMipMapped mipMapped,
-                                          GrRenderable renderable) {
-                    return context->createBackendTexture(32, 32, format, mipMapped, renderable);
-                };
+                {
+                    auto uninitCreateMtd = [format](GrContext* context,
+                                              GrMipMapped mipMapped,
+                                              GrRenderable renderable) {
+                        return context->createBackendTexture(32, 32, format,
+                                                             mipMapped, renderable);
+                    };
 
-                test_wrapping(context, reporter, createMtd,
-                              combo.fColorType, mipMapped, renderable);
+                    test_wrapping(context, reporter, uninitCreateMtd,
+                                  combo.fColorType, mipMapped, renderable);
+                }
             }
         }
     }

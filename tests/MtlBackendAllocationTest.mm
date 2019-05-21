@@ -89,16 +89,18 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                     }
                 }
 
-                auto createMtd = [format](GrContext* context,
-                                          GrMipMapped mipMapped,
-                                          GrRenderable renderable) {
-                    return context->createBackendTexture(32, 32, format,
-                                                         mipMapped, renderable);
-                };
+                {
+                    auto uninitCreateMtd = [format](GrContext* context,
+                                                    GrMipMapped mipMapped,
+                                                    GrRenderable renderable) {
+                        return context->createBackendTexture(32, 32, format,
+                                                             mipMapped, renderable);
+                    };
 
-                test_wrapping(context, reporter, createMtd,
-                              combo.fColorType, mipMapped, renderable);
+                    test_wrapping(context, reporter, uninitCreateMtd,
+                                  combo.fColorType, mipMapped, renderable);
+                }
             }
         }
-        }
+    }
 }
