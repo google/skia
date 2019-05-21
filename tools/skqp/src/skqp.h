@@ -42,11 +42,7 @@ private:
 
 class SkQP {
 public:
-    enum class SkiaBackend {
-        kGL,
-        kGLES,
-        kVulkan,
-    };
+    using SkiaBackend = unsigned;
     using GMFactory = skiagm::GM* (*)(void*);
     using UnitTest = const skiatest::Test*;
 
