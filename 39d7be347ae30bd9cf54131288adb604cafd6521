@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0311dc66_0b71896b",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1648,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-21T19:56:52Z",
+      "side": 1,
+      "message": "nit: this is the goes-to operator \u0027--\u003e\u0027 If you don\u0027t change it, it will drive mtklein crazy!",
+      "range": {
+        "startLine": 1648,
+        "startChar": 26,
+        "endLine": 1648,
+        "endChar": 30
+      },
+      "revId": "39d7be347ae30bd9cf54131288adb604cafd6521",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
