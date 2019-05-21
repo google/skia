@@ -136,11 +136,10 @@ public:
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
                                                                 int width,
                                                                 int height) override;
-    GrBackendTexture createTestingOnlyBackendTexture(int w, int h, const GrBackendFormat&,
-                                                     GrMipMapped, GrRenderable,
-                                                     const void* pixels = nullptr,
-                                                     size_t rowBytes = 0) override;
-    void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
+    GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
+                                          GrMipMapped, GrRenderable,
+                                          const void* pixels, size_t rowBytes) override;
+    void deleteBackendTexture(const GrBackendTexture&) override;
 
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
@@ -215,7 +214,7 @@ private:
     // result is stored in |info|.
     // The texture is populated with |texels|, if it exists.
     // The texture parameters are cached in |initialTexParams|.
-    bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info, bool renderTarget,
+    bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info, GrRenderable,
                            GrGLTexture::SamplerParams* initialTexParams, const GrMipLevel texels[],
                            int mipLevelCount, GrMipMapsStatus* mipMapsStatus);
 
@@ -406,7 +405,7 @@ private:
     // helper for onCreateCompressedTexture. Compressed textures are read-only so we
     // only use this to populate a new texture.
     bool uploadCompressedTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
-                                 GrGLenum target, GrPixelConfig dataConfig,
+                                 GrGLenum target,
                                  const GrMipLevel texels[], int mipLevelCount,
                                  GrMipMapsStatus* mipMapsStatus = nullptr);
 

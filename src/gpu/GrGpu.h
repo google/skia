@@ -394,24 +394,25 @@ public:
     Stats* stats() { return &fStats; }
     void dumpJSON(SkJSONWriter*) const;
 
+    // TODO: remove this method
     GrBackendTexture createTestingOnlyBackendTexture(int w, int h, SkColorType,
                                                      GrMipMapped, GrRenderable,
                                                      const void* pixels = nullptr,
                                                      size_t rowBytes = 0);
 
-    /** Creates a texture directly in the backend API without wrapping it in a GrTexture. This is
-        only to be used for testing (particularly for testing the methods that import an externally
-        created texture into Skia. Must be matched with a call to deleteTestingOnlyTexture(). */
-    virtual GrBackendTexture createTestingOnlyBackendTexture(int w, int h, const GrBackendFormat&,
-                                                             GrMipMapped, GrRenderable,
-                                                             const void* pixels = nullptr,
-                                                             size_t rowBytes = 0) = 0;
+    /**
+     * Creates a texture directly in the backend API without wrapping it in a GrTexture.
+     * Must be matched with a call to deleteBackendTexture().
+     */
+    virtual GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
+                                                  GrMipMapped, GrRenderable,
+                                                  const void* pixels, size_t rowBytes) = 0;
 
     /**
-     * Frees a texture created by createTestingOnlyBackendTexture(). If ownership of the backend
+     * Frees a texture created by createBackendTexture(). If ownership of the backend
      * texture has been transferred to a GrContext using adopt semantics this should not be called.
      */
-    virtual void deleteTestingOnlyBackendTexture(const GrBackendTexture&) = 0;
+    virtual void deleteBackendTexture(const GrBackendTexture&) = 0;
 
 #if GR_TEST_UTILS
     /** Check a handle represents an actual texture in the backend API that has not been freed. */
