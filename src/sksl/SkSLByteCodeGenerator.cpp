@@ -10,6 +10,17 @@
 
 namespace SkSL {
 
+ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
+                  ByteCode* output)
+    : INHERITED(program, errors, nullptr)
+    , fContext(*context)
+    , fOutput(output) {
+    fIntrinsics["sqrt"] = ByteCodeIntrinsic::kSqrt;
+    fIntrinsics["sin"] = ByteCodeIntrinsic::kSin;
+    fIntrinsics["cos"] = ByteCodeIntrinsic::kCos;
+    fIntrinsics["tan"] = ByteCodeIntrinsic::kTan;
+}
+
 static int slot_count(const Type& type) {
     return type.columns() * type.rows();
 }
@@ -384,7 +395,30 @@ void ByteCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
     this->write32(Interpreter::Value((float) f.fValue).fUnsigned);
 }
 
+void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
+    auto found = fIntrinsics.find(c.fFunction.fName);
+    if (found == fIntrinsics.end()) {
+        fErrors.error(c.fOffset, "unsupported intrinsic function");
+        return;
+    }
+    switch (found->second) {
+        case ByteCodeIntrinsic::kCos:  // fall through
+        case ByteCodeIntrinsic::kSin:  // fall through
+        case ByteCodeIntrinsic::kSqrt: // fall through
+        case ByteCodeIntrinsic::kTan:
+            SkASSERT(c.fArguments.size() == 1);
+            this->write(ByteCodeInstruction::kIntrinsic);
+            this->write8((int) found->second);
+            this->write8(slot_count(c.fArguments[0]->fType));
+            break;
+    }
+}
+
 void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
+    if (f.fFunction.fBuiltin) {
+        this->writeIntrinsicCall(f);
+        return;
+    }
     for (const auto& arg : f.fArguments) {
         this->writeExpression(*arg);
     }
