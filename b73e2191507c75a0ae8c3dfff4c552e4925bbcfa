@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "38fef2fc_f2b678b3",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-21T15:06:42Z",
+      "side": 1,
+      "message": "Please see my comment below. I have run the tests of adding all the glyph pointers, and this results in correct behavior. It\u0027s not a perf regression if it is a bug.",
+      "parentUuid": "a9c37542_1f0a8c05",
+      "range": {
+        "startLine": 616,
+        "startChar": 4,
+        "endLine": 616,
+        "endChar": 35
+      },
+      "revId": "b73e2191507c75a0ae8c3dfff4c552e4925bbcfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8f576693_a9b80506",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 11
