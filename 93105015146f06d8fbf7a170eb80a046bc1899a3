@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6df26ab0_df8dfc74",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1578,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-05-21T18:18:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "febad276_e7441e58",
+      "range": {
+        "startLine": 1578,
+        "startChar": 53,
+        "endLine": 1578,
+        "endChar": 57
+      },
+      "revId": "93105015146f06d8fbf7a170eb80a046bc1899a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "211dba83_da23d1bf",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "93105015146f06d8fbf7a170eb80a046bc1899a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9a239f6_eda71f72",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1590,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-05-21T18:18:09Z",
+      "side": 1,
+      "message": "codepoint won\u0027t always fit.  this is identical to codepoint of planeoffset is 0.  otherwise, it is overwritten.",
+      "parentUuid": "211dba83_da23d1bf",
+      "range": {
+        "startLine": 1590,
+        "startChar": 33,
+        "endLine": 1590,
+        "endChar": 44
+      },
+      "revId": "93105015146f06d8fbf7a170eb80a046bc1899a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "23b57b5b_9cdda206",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1593,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-05-21T18:18:09Z",
+      "side": 1,
+      "message": "Doh!\n\nOkay, we need some good tests for this code.",
+      "parentUuid": "18fdd006_b68ca2d5",
+      "range": {
+        "startLine": 1593,
+        "startChar": 39,
+        "endLine": 1593,
+        "endChar": 48
+      },
+      "revId": "93105015146f06d8fbf7a170eb80a046bc1899a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "96cac176_dc65e2d7",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 5
@@ -91,6 +163,30 @@
       "revId": "93105015146f06d8fbf7a170eb80a046bc1899a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e83e725a_9ffd93c5",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1596,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-05-21T18:18:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96cac176_dc65e2d7",
+      "range": {
+        "startLine": 1596,
+        "startChar": 53,
+        "endLine": 1596,
+        "endChar": 73
+      },
+      "revId": "93105015146f06d8fbf7a170eb80a046bc1899a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
