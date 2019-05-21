@@ -160,7 +160,7 @@ private:
     const SkFont*    fFont;
     SkTLazy<SkFont>  fLazyFont;
     SkPaint          fPaint;
-    SkScalar         fScale = 0;
+    SkScalar         fScale = 1.0;
 };
 
 SkGlyphID SkFont::unicharToGlyph(SkUnichar uni) const {
@@ -296,7 +296,7 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
         }
     }
 
-    if (scale) {
+    if (scale != 1) {
         width *= scale;
         if (bounds) {
             bounds->fLeft *= scale;
@@ -328,9 +328,6 @@ void VisitGlyphs(const SkFont& origFont, const SkPaint* paint, const SkGlyphID g
     SkCanonicalizeFont canon(origFont, paint);
     const SkFont& font = canon.getFont();
     SkScalar scale = canon.getScale();
-    if (!scale) {
-        scale = 1;
-    }
 
     auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font, canon.getPaint());
     handler(cache.get(), glyphs, count, scale);
@@ -381,9 +378,6 @@ void SkFont::getPaths(const SkGlyphID glyphs[], int count,
                       void (*proc)(const SkPath*, const SkMatrix&, void*), void* ctx) const {
     SkFont font(*this);
     SkScalar scale = font.setupForAsPaths(nullptr);
-    if (!scale) {
-        scale = 1;
-    }
     const SkMatrix mx = SkMatrix::MakeScale(scale, scale);
 
     auto exclusive = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
@@ -423,7 +417,7 @@ SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
     auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
     *metrics = cache->getFontMetrics();
 
-    if (scale) {
+    if (scale != 1) {
         SkFontPriv::ScaleFontMetrics(metrics, scale);
     }
     return metrics->fDescent - metrics->fAscent + metrics->fLeading;
