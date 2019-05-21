@@ -244,7 +244,8 @@ bool SkImageFilter::canComputeFastBounds() const {
 sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrRecordingContext* context,
                                                 std::unique_ptr<GrFragmentProcessor> fp,
                                                 const SkIRect& bounds,
-                                                const OutputProperties& outputProperties) {
+                                                const OutputProperties& outputProperties,
+                                                bool isProtected) {
     GrPaint paint;
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -257,7 +258,7 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrRecordingContext* context,
     sk_sp<GrRenderTargetContext> renderTargetContext(
         context->priv().makeDeferredRenderTargetContext(
                                 format, SkBackingFit::kApprox, bounds.width(), bounds.height(),
-                                config, std::move(colorSpace)));
+                                config, std::move(colorSpace), isProtected));
     if (!renderTargetContext) {
         return nullptr;
     }
