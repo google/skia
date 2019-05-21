@@ -15,6 +15,10 @@
 
 #include "src/sksl/SkSLCompiler.h"
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
     : fGpu(gpu)
     , fBufferState({nil, 0, 0}) {
@@ -73,6 +77,43 @@ GrMtlSampler* GrMtlResourceProvider::findOrCreateCompatibleSampler(const GrSampl
     return sampler;
 }
 
+void GrMtlResourceProvider::destroyResources() {
+    // Iterate through all stored GrMtlSamplers and unref them before resetting the hash.
+    SkTDynamicHash<GrMtlSampler, GrMtlSampler::Key>::Iter samplerIter(&fSamplers);
+    for (; !samplerIter.done(); ++samplerIter) {
+        (*samplerIter).unref();
+    }
+    fSamplers.reset();
+
+    // Iterate through all stored GrMtlDepthStencils and unref them before resetting the hash.
+    SkTDynamicHash<GrMtlDepthStencil, GrMtlDepthStencil::Key>::Iter dsIter(&fDepthStencilStates);
+    for (; !dsIter.done(); ++dsIter) {
+        (*dsIter).unref();
+    }
+    fDepthStencilStates.reset();
+
+    fPipelineStateCache->release();
+}
+
+void GrMtlResourceProvider::abandonResources() {
+    // Iterate through all stored GrMtlSamplers and unref them before resetting the hash.
+    SkTDynamicHash<GrMtlSampler, GrMtlSampler::Key>::Iter samplerIter(&fSamplers);
+    for (; !samplerIter.done(); ++samplerIter) {
+        (*samplerIter).unref();
+    }
+    fSamplers.reset();
+
+    // Iterate through all stored GrMtlDepthStencils and unref them before resetting the hash.
+    SkTDynamicHash<GrMtlDepthStencil, GrMtlDepthStencil::Key>::Iter dsIter(&fDepthStencilStates);
+    for (; !dsIter.done(); ++dsIter) {
+        (*dsIter).unref();
+    }
+    fDepthStencilStates.reset();
+
+    fPipelineStateCache->abandon();
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
@@ -113,6 +154,14 @@ GrMtlResourceProvider::PipelineStateCache::~PipelineStateCache() {
         SkDebugf("---------------------\n");
     }
 #endif
+}
+
+void GrMtlResourceProvider::PipelineStateCache::abandon() {
+    fMap.reset();
+}
+
+void GrMtlResourceProvider::PipelineStateCache::release() {
+    fMap.reset();
 }
 
 GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
@@ -173,14 +222,12 @@ id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offse
     if (fBufferState.fAllocationSize - fBufferState.fNextOffset < size) {
         size_t allocSize = (size >= kSharedDynamicBufferSize) ? size : kSharedDynamicBufferSize;
         id<MTLBuffer> buffer;
-        SK_BEGIN_AUTORELEASE_BLOCK
         buffer = [fGpu->device() newBufferWithLength: allocSize
 #ifdef SK_BUILD_FOR_MAC
                                              options: MTLResourceStorageModeManaged];
 #else
                                              options: MTLResourceStorageModeShared];
 #endif
-        SK_END_AUTORELEASE_BLOCK
         if (nil == buffer) {
             return nil;
         }

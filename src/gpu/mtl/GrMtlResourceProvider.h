@@ -44,6 +44,15 @@ public:
 
     id<MTLBuffer> getDynamicBuffer(size_t size, size_t* offset);
 
+    // Destroy any cached resources. To be called before releasing the MtlDevice.
+    // The assumption is that all queues are idle and all command buffers are finished.
+    void destroyResources();
+
+    // Abandon any cached resources. To be used when the MtlDevice is lost.
+    // For resource tracing to work properly, this should be called after unrefing all other
+    // resource usages.
+    void abandonResources();
+
 private:
 #ifdef SK_DEBUG
 #define GR_PIPELINE_STATE_CACHE_STATS
@@ -54,6 +63,8 @@ private:
         PipelineStateCache(GrMtlGpu* gpu);
         ~PipelineStateCache();
 
+        void abandon();
+        void release();
         GrMtlPipelineState* refPipelineState(GrRenderTarget*, GrSurfaceOrigin,
                                              const GrPrimitiveProcessor&,
                                              const GrTextureProxy* const primProcProxies[],
