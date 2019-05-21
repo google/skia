@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "8a805f90_9a96c2d7",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-21T19:56:51Z",
+      "side": 1,
+      "message": "Like what?\n\nI know this is controversial, but it\u0027s okay to plan ahead, but I\u0027d strongly suggest you never let those plans affect the code you land today.  For any idea that seems like it\u0027ll be good at some point in the future, you will be just as capable at coding up that good idea then in the future when it\u0027s actually useful, and you may have a better idea about how to do it by then, having gotten smarter in the meantime.\n\nIf you never check in things that don\u0027t matter yet, you help maintain the valuable readability invariant that everything checked in does matter.",
+      "parentUuid": "a40754b0_b936cdf0",
+      "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b1e68da_5d80b72f",
         "filename": "src/sksl/SkSLInterpreter.cpp",
         "patchSetId": 7
