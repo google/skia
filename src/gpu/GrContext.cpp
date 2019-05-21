@@ -367,9 +367,9 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    return fGpu->createTestingOnlyBackendTexture(width, height, backendFormat,
-                                                 mipMapped, renderable,
-                                                 nullptr, 0);
+    return fGpu->createBackendTexture(width, height, backendFormat,
+                                      mipMapped, renderable,
+                                      nullptr, 0);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -397,6 +397,6 @@ void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
         return;
     }
 
-    fGpu->deleteTestingOnlyBackendTexture(backendTex);
+    fGpu->deleteBackendTexture(backendTex);
 }
 

@@ -1392,7 +1392,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
 }
 
 bool GrGLGpu::uploadCompressedTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
-                                      GrGLenum target, GrPixelConfig dataConfig,
+                                      GrGLenum target,
                                       const GrMipLevel texels[], int mipLevelCount,
                                       GrMipMapsStatus* mipMapsStatus) {
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
@@ -1652,7 +1652,9 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     GrMipMapsStatus mipMapsStatus;
     GrGLTexture::SamplerParams initialTexParams;
-    if (!this->createTextureImpl(desc, &idDesc.fInfo, isRenderTarget, &initialTexParams, texels,
+    if (!this->createTextureImpl(desc, &idDesc.fInfo,
+                                 isRenderTarget ? GrRenderable::kYes : GrRenderable::kNo,
+                                 &initialTexParams, texels,
                                  mipLevelCount, &mipMapsStatus)) {
         return return_null_texture();
     }
@@ -1838,7 +1840,8 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
     return this->glCaps().getStencilFormatIndexForConfig(config);
 }
 
-bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info, bool renderTarget,
+bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
+                                GrRenderable renderable,
                                 GrGLTexture::SamplerParams* initialTexParams,
                                 const GrMipLevel texels[], int mipLevelCount,
                                 GrMipMapsStatus* mipMapsStatus) {
@@ -1852,7 +1855,7 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
 
     this->bindTextureToScratchUnit(info->fTarget, info->fID);
 
-    if (renderTarget && this->glCaps().textureUsageSupport()) {
+    if (GrRenderable::kYes == renderable && this->glCaps().textureUsageSupport()) {
         // provides a hint about how this texture will be used
         GL_CALL(TexParameteri(info->fTarget,
                               GR_GL_TEXTURE_USAGE,
@@ -1865,9 +1868,9 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
 
     bool success = false;
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
-        SkASSERT(!renderTarget);
+        SkASSERT(GrRenderable::kNo == renderable);
         success = this->uploadCompressedTexData(desc.fConfig, desc.fWidth, desc.fHeight,
-                                                info->fTarget, desc.fConfig,
+                                                info->fTarget,
                                                 texels, mipLevelCount, mipMapsStatus);
     } else {
         success = this->uploadTexData(desc.fConfig, desc.fWidth, desc.fHeight, info->fTarget,
@@ -4073,11 +4076,11 @@ static bool gl_format_to_pixel_config(GrGLenum format, GrPixelConfig* config) {
     return false;
 }
 
-GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(int w, int h,
-                                                          const GrBackendFormat& format,
-                                                          GrMipMapped mipMapped,
-                                                          GrRenderable /* renderable */,
-                                                          const void* pixels, size_t rowBytes) {
+GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
+                                               const GrBackendFormat& format,
+                                               GrMipMapped mipMapped,
+                                               GrRenderable /* renderable */,
+                                               const void* pixels, size_t rowBytes) {
     this->handleDirtyContext();
 
     const GrGLenum* glFormat = format.getGLFormat();
@@ -4205,7 +4208,7 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(int w, int h,
     return beTex;
 }
 
-void GrGLGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
+void GrGLGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(GrBackendApi::kOpenGL == tex.backend());
 
     GrGLTextureInfo info;

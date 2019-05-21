@@ -196,12 +196,12 @@ GrStencilAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(const GrR
     return new GrMockStencilAttachment(this, width, height, kBits, rt->numColorSamples());
 }
 
-GrBackendTexture GrMockGpu::createTestingOnlyBackendTexture(int w, int h,
-                                                            const GrBackendFormat& format,
-                                                            GrMipMapped mipMapped,
-                                                            GrRenderable renderable,
-                                                            const void* pixels,
-                                                            size_t rowBytes) {
+GrBackendTexture GrMockGpu::createBackendTexture(int w, int h,
+                                                 const GrBackendFormat& format,
+                                                 GrMipMapped mipMapped,
+                                                 GrRenderable /* renderable */,
+                                                 const void* /* pixels */,
+                                                 size_t /* rowBytes */) {
 
     const GrPixelConfig* pixelConfig = format.getMockFormat();
     if (!pixelConfig) {
@@ -219,7 +219,7 @@ GrBackendTexture GrMockGpu::createTestingOnlyBackendTexture(int w, int h,
     return GrBackendTexture(w, h, mipMapped, info);
 }
 
-void GrMockGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
+void GrMockGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(GrBackendApi::kMock == tex.backend());
 
     GrMockTextureInfo info;

@@ -490,6 +490,8 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
         }
         case kY410_YUVFormat: {
             SkBitmap yuvaFull;
+            uint32_t Y, U, V;
+            uint8_t A;
 
             yuvaFull.allocPixels(SkImageInfo::Make(planes.fYFull.width(), planes.fYFull.height(),
                                                    kRGBA_1010102_SkColorType,
@@ -498,10 +500,10 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
             for (int y = 0; y < planes.fYFull.height(); ++y) {
                 for (int x = 0; x < planes.fYFull.width(); ++x) {
 
-                    uint32_t Y = (*planes.fYFull.getAddr8(x, y) / 255.0f) * 1023.0f;
-                    uint32_t U = (*planes.fUFull.getAddr8(x, y) / 255.0f) * 1023.0f;
-                    uint32_t V = (*planes.fVFull.getAddr8(x, y) / 255.0f) * 1023.0f;
-                    uint8_t  A = (*planes.fAFull.getAddr8(x, y) / 255.0f) * 3.0f;
+                    Y = SkScalarRoundToInt((*planes.fYFull.getAddr8(x, y) / 255.0f) * 1023.0f);
+                    U = SkScalarRoundToInt((*planes.fUFull.getAddr8(x, y) / 255.0f) * 1023.0f);
+                    V = SkScalarRoundToInt((*planes.fVFull.getAddr8(x, y) / 255.0f) * 1023.0f);
+                    A = SkScalarRoundToInt((*planes.fAFull.getAddr8(x, y) / 255.0f) * 3.0f);
 
                     // NOT premul!
                     // AVYU but w/ V and U swapped to match RGBA layout
@@ -622,16 +624,16 @@ static uint8_t look_up(float x1, float y1, const SkBitmap& bm, SkColorChannel ch
 
         switch (channel) {
             case SkColorChannel::kR:
-                result = ((c >>  0) & 0x3ff) * (255.0f/1023.0f);
+                result = SkScalarRoundToInt(((c >>  0) & 0x3ff) * (255.0f/1023.0f));
                 break;
             case SkColorChannel::kG:
-                result = ((c >> 10) & 0x3ff) * (255.0f/1023.0f);
+                result = SkScalarRoundToInt(((c >> 10) & 0x3ff) * (255.0f/1023.0f));
                 break;
             case SkColorChannel::kB:
-                result = ((c >> 20) & 0x3ff) * (255.0f/1023.0f);
+                result = SkScalarRoundToInt(((c >> 20) & 0x3ff) * (255.0f/1023.0f));
                 break;
             case SkColorChannel::kA:
-                result = ((c >> 30) & 0x3) * (255.0f/3.0f);
+                result = SkScalarRoundToInt(((c >> 30) & 0x3) * (255.0f/3.0f));
                 break;
         }
     }
@@ -843,12 +845,9 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,
         }
         GrBackendFormat format = caps->getBackendFormatFromGrColorType(GrColorType::kRG_88,
                                                                        GrSRGBEncoded::kNo);
-        tex = gpu->createTestingOnlyBackendTexture(
-            bm.width(),
-            bm.height(),
-            format,
-            GrMipMapped::kNo, GrRenderable::kNo,
-            pixels, 2*bm.width());
+        tex = gpu->createBackendTexture(bm.width(), bm.height(), format,
+                                        GrMipMapped::kNo, GrRenderable::kNo,
+                                        pixels, 2*bm.width());
     }
     if (!tex.isValid()) {
         tex = gpu->createTestingOnlyBackendTexture(
