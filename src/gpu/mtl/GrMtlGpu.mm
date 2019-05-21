@@ -766,11 +766,11 @@ static bool mtl_format_to_pixel_config(MTLPixelFormat format, GrPixelConfig* con
     return false;
 }
 
-GrBackendTexture GrMtlGpu::createTestingOnlyBackendTexture(int w, int h,
-                                                           const GrBackendFormat& format,
-                                                           GrMipMapped mipMapped,
-                                                           GrRenderable renderable,
-                                                           const void* pixels, size_t rowBytes) {
+GrBackendTexture GrMtlGpu::createBackendTexture(int w, int h,
+                                                const GrBackendFormat& format,
+                                                GrMipMapped mipMapped,
+                                                GrRenderable renderable,
+                                                const void* pixels, size_t rowBytes) {
     if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
         return GrBackendTexture();
     }
