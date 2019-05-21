@@ -128,12 +128,15 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             case ByteCodeInstruction::kConditionalBranch:
                 printf("conditionalbranch %d", READ16());
                 break;
+            VECTOR_DISASSEMBLE(kConvertFtoI, "convertftoi")
+            VECTOR_DISASSEMBLE(kConvertStoF, "convertstof")
+            VECTOR_DISASSEMBLE(kConvertUtoF, "convertutof")
+            VECTOR_DISASSEMBLE(kCos, "cos")
             case ByteCodeInstruction::kDebugPrint: printf("debugprint"); break;
             VECTOR_DISASSEMBLE(kDivideF, "dividef")
             VECTOR_DISASSEMBLE(kDivideS, "divideS")
             VECTOR_DISASSEMBLE(kDivideU, "divideu")
             VECTOR_DISASSEMBLE(kDup, "dup")
-            VECTOR_DISASSEMBLE(kFloatToInt, "floattoint")
             case ByteCodeInstruction::kLoad: printf("load %d", READ8()); break;
             case ByteCodeInstruction::kLoad2: printf("load2 %d", READ8()); break;
             case ByteCodeInstruction::kLoad3: printf("load3 %d", READ8()); break;
@@ -182,7 +185,8 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
             VECTOR_DISASSEMBLE(kRemainderS, "remainders")
             VECTOR_DISASSEMBLE(kRemainderU, "remainderu")
             case ByteCodeInstruction::kReturn: printf("return %d", READ8()); break;
-            VECTOR_DISASSEMBLE(kSignedToFloat, "signedtofloat")
+            VECTOR_DISASSEMBLE(kSin, "sin")
+            VECTOR_DISASSEMBLE(kSqrt, "sqrt")
             case ByteCodeInstruction::kStore: printf("store %d", READ8()); break;
             case ByteCodeInstruction::kStore2: printf("store2 %d", READ8()); break;
             case ByteCodeInstruction::kStore3: printf("store3 %d", READ8()); break;
@@ -220,7 +224,7 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
                 }
                 break;
             }
-            VECTOR_DISASSEMBLE(kUnsignedToFloat, "unsignedtofloat")
+            VECTOR_DISASSEMBLE(kTan, "tan")
             case ByteCodeInstruction::kWriteExternal: printf("writeexternal %d", READ8()); break;
             case ByteCodeInstruction::kWriteExternal2: printf("writeexternal2 %d", READ8()); break;
             case ByteCodeInstruction::kWriteExternal3: printf("writeexternal3 %d", READ8()); break;
@@ -275,6 +279,20 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
         break;                                                        \
     }
 
+#define VECTOR_UNARY_FN(base, fn, field) \
+    case ByteCodeInstruction::base ## 4: \
+        sp[-3].field = fn(sp[-3].field); \
+        /* fall through */               \
+    case ByteCodeInstruction::base ## 3: \
+        sp[-2].field = fn(sp[-2].field); \
+        /* fall through */               \
+    case ByteCodeInstruction::base ## 2: \
+        sp[-1].field = fn(sp[-1].field); \
+        /* fall through */               \
+    case ByteCodeInstruction::base:      \
+        sp[0].field = fn(sp[0].field);   \
+        break;
+
 struct StackFrame {
     const uint8_t* fCode;
     const uint8_t* fIP;
@@ -299,9 +317,11 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
         switch (inst) {
             VECTOR_BINARY_OP(kAddI, int32_t, fSigned, fSigned, +)
             VECTOR_BINARY_OP(kAddF, float, fFloat, fFloat, +)
+
             case ByteCodeInstruction::kBranch:
                 ip = code + READ16();
                 break;
+
             case ByteCodeInstruction::kCall: {
                 // Precursor code has pushed all parameters to the stack. Update our bottom of
                 // stack to point at the first parameter, and our sp to point past those parameters
@@ -314,6 +334,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 sp = stack + fun->fParameterCount + fun->fLocalCount - 1;
                 break;
             }
+
             case ByteCodeInstruction::kCallExternal: {
                 int argumentCount = READ8();
                 int returnCount = READ8();
@@ -328,6 +349,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 sp += returnCount - 1;
                 break;
             }
+
             VECTOR_BINARY_OP(kCompareIEQ, int32_t, fSigned, fBool, ==)
             VECTOR_BINARY_OP(kCompareFEQ, float, fFloat, fBool, ==)
             VECTOR_BINARY_OP(kCompareINEQ, int32_t, fSigned, fBool, !=)
@@ -344,6 +366,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
             VECTOR_BINARY_OP(kCompareSLTEQ, int32_t, fSigned, fBool, <=)
             VECTOR_BINARY_OP(kCompareULTEQ, uint32_t, fUnsigned, fBool, <=)
             VECTOR_BINARY_OP(kCompareFLTEQ, float, fFloat, fBool, <=)
+
             case ByteCodeInstruction::kConditionalBranch: {
                 int target = READ16();
                 if (POP().fBool) {
@@ -351,11 +374,33 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 }
                 break;
             }
+
+            case ByteCodeInstruction::kConvertFtoI4: sp[-3].fSigned = (int)sp[-3].fFloat;
+            case ByteCodeInstruction::kConvertFtoI3: sp[-2].fSigned = (int)sp[-2].fFloat;
+            case ByteCodeInstruction::kConvertFtoI2: sp[-1].fSigned = (int)sp[-1].fFloat;
+            case ByteCodeInstruction::kConvertFtoI:  sp[ 0].fSigned = (int)sp[ 0].fFloat;
+                                                     break;
+
+            case ByteCodeInstruction::kConvertStoF4: sp[-3].fFloat = sp[-3].fSigned;
+            case ByteCodeInstruction::kConvertStoF3: sp[-2].fFloat = sp[-2].fSigned;
+            case ByteCodeInstruction::kConvertStoF2: sp[-1].fFloat = sp[-1].fSigned;
+            case ByteCodeInstruction::kConvertStoF : sp[ 0].fFloat = sp[ 0].fSigned;
+                                                     break;
+
+            case ByteCodeInstruction::kConvertUtoF4: sp[-3].fFloat = sp[-3].fUnsigned;
+            case ByteCodeInstruction::kConvertUtoF3: sp[-2].fFloat = sp[-2].fUnsigned;
+            case ByteCodeInstruction::kConvertUtoF2: sp[-1].fFloat = sp[-1].fUnsigned;
+            case ByteCodeInstruction::kConvertUtoF : sp[ 0].fFloat = sp[ 0].fUnsigned;
+                                                     break;
+
+            VECTOR_UNARY_FN(kCos, cos, fFloat)
+
             case ByteCodeInstruction::kDebugPrint: {
                 Value v = POP();
                 printf("Debug: %d(int), %d(uint), %f(float)\n", v.fSigned, v.fUnsigned, v.fFloat);
                 break;
             }
+
             VECTOR_BINARY_OP(kDivideS, int32_t, fSigned, fSigned, /)
             VECTOR_BINARY_OP(kDivideU, uint32_t, fUnsigned, fUnsigned, /)
             VECTOR_BINARY_OP(kDivideF, float, fFloat, fFloat, /)
@@ -365,24 +410,6 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
             case ByteCodeInstruction::kDup2: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
             case ByteCodeInstruction::kDup : PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
                                              break;
-
-            case ByteCodeInstruction::kFloatToInt4: sp[-3].fSigned = (int)sp[-3].fFloat;
-            case ByteCodeInstruction::kFloatToInt3: sp[-2].fSigned = (int)sp[-2].fFloat;
-            case ByteCodeInstruction::kFloatToInt2: sp[-1].fSigned = (int)sp[-1].fFloat;
-            case ByteCodeInstruction::kFloatToInt:  sp[ 0].fSigned = (int)sp[ 0].fFloat;
-                                                    break;
-
-            case ByteCodeInstruction::kSignedToFloat4: sp[-3].fFloat = sp[-3].fSigned;
-            case ByteCodeInstruction::kSignedToFloat3: sp[-2].fFloat = sp[-2].fSigned;
-            case ByteCodeInstruction::kSignedToFloat2: sp[-1].fFloat = sp[-1].fSigned;
-            case ByteCodeInstruction::kSignedToFloat : sp[ 0].fFloat = sp[ 0].fSigned;
-                                                       break;
-
-            case ByteCodeInstruction::kUnsignedToFloat4: sp[-3].fFloat = sp[-3].fUnsigned;
-            case ByteCodeInstruction::kUnsignedToFloat3: sp[-2].fFloat = sp[-2].fUnsigned;
-            case ByteCodeInstruction::kUnsignedToFloat2: sp[-1].fFloat = sp[-1].fUnsigned;
-            case ByteCodeInstruction::kUnsignedToFloat : sp[ 0].fFloat = sp[ 0].fUnsigned;
-                                                         break;
 
             case ByteCodeInstruction::kLoad4: sp[4] = stack[*ip + 3];
             case ByteCodeInstruction::kLoad3: sp[3] = stack[*ip + 2];
@@ -409,6 +436,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 ip += count;
                 break;
             }
+
             case ByteCodeInstruction::kLoadSwizzleGlobal: {
                 int src = READ8();
                 SkASSERT(src < (int) fGlobals.size());
@@ -419,8 +447,10 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 ip += count;
                 break;
             }
+
             VECTOR_BINARY_OP(kMultiplyI, int32_t, fSigned, fSigned, *)
             VECTOR_BINARY_OP(kMultiplyF, float, fFloat, fFloat, *)
+
             case ByteCodeInstruction::kNot:
                 sp[0].fBool = !sp[0].fBool;
                 break;
@@ -446,6 +476,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
             case ByteCodeInstruction::kPushImmediate:
                 PUSH(READ32());
                 break;
+
             case ByteCodeInstruction::kReadExternal:  // fall through
             case ByteCodeInstruction::kReadExternal2: // fall through
             case ByteCodeInstruction::kReadExternal3: // fall through
@@ -455,9 +486,11 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 sp += (int) inst - (int) ByteCodeInstruction::kReadExternal + 1;
                 break;
             }
+
             VECTOR_BINARY_FN(kRemainderF, int32_t, fFloat, fFloat, fmodf)
             VECTOR_BINARY_OP(kRemainderS, int32_t, fSigned, fSigned, %)
             VECTOR_BINARY_OP(kRemainderU, uint32_t, fUnsigned, fUnsigned, %)
+
             case ByteCodeInstruction::kReturn: {
                 int count = READ8();
                 if (frames.empty()) {
@@ -482,6 +515,9 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 }
             }
 
+            VECTOR_UNARY_FN(kSin, sin, fFloat)
+            VECTOR_UNARY_FN(kSqrt, sqrt, fFloat)
+
             case ByteCodeInstruction::kStore4: stack[*ip + 3] = POP();
             case ByteCodeInstruction::kStore3: stack[*ip + 2] = POP();
             case ByteCodeInstruction::kStore2: stack[*ip + 1] = POP();
@@ -505,6 +541,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 ip += count;
                 break;
             }
+
             case ByteCodeInstruction::kStoreSwizzleGlobal: {
                 int target = READ8();
                 int count = READ8();
@@ -514,8 +551,10 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 ip += count;
                 break;
             }
+
             VECTOR_BINARY_OP(kSubtractI, int32_t, fSigned, fSigned, -)
             VECTOR_BINARY_OP(kSubtractF, float, fFloat, fFloat, -)
+
             case ByteCodeInstruction::kSwizzle: {
                 Value tmp[4];
                 for (int i = READ8() - 1; i >= 0; --i) {
@@ -526,6 +565,9 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 }
                 break;
             }
+
+            VECTOR_UNARY_FN(kTan, tan, fFloat)
+
             case ByteCodeInstruction::kWriteExternal:  // fall through
             case ByteCodeInstruction::kWriteExternal2: // fall through
             case ByteCodeInstruction::kWriteExternal3: // fall through
@@ -536,13 +578,14 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 sp -= count;
                 break;
             }
+
             default:
                 SkDEBUGFAILF("unsupported instruction %d\n", (int) inst);
         }
 #ifdef TRACE
         int stackSize = (int) (sp - stack + 1);
         printf("STACK(%d):", stackSize);
-        for (int i = 0; i < stackSize(); ++i) {
+        for (int i = 0; i < stackSize; ++i) {
             printf(" %d(%f)", stack[i].fSigned, stack[i].fFloat);
         }
         printf("\n");
