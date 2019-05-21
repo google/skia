@@ -1569,6 +1569,41 @@ static void populate_glyph_to_unicode_slow(CTFontRef ctFont, CFIndex glyphCount,
     }
 }
 
+static constexpr uint16_t kPlaneSize = 1 << 13;
+
+static void get_plane_glyph_map(const uint8_t* bits,
+                                CTFontRef ctFont,
+                                CFIndex glyphCount,
+                                SkUnichar* glyphToUnicode,
+                                uint8_t planeIndex) {
+    SkUnichar planeOrigin = (SkUnichar)planeIndex << 16; // top half of codepoint.
+    for (uint16_t i = 0; i < kPlaneSize; i++) {
+        uint8_t mask = bits[i];
+        if (!mask) {
+            continue;
+        }
+        for (uint8_t j = 0; j < 8; j++) {
+            if (0 == (mask & ((uint8_t)1 << j))) {
+                continue;
+            }
+            uint16_t planeOffset = (i << 3) | j;
+            SkUnichar codepoint = planeOrigin | (SkUnichar)planeOffset;
+            uint16_t utf16[2] = {planeOffset, 0};
+            size_t count = 1;
+            if (planeOrigin != 0) {
+                count = SkUTF::ToUTF16(codepoint, utf16);
+            }
+            CGGlyph glyphs[2] = {0, 0};
+            if (CTFontGetGlyphsForCharacters(ctFont, utf16, glyphs, count)) {
+                SkASSERT(glyphs[1] == 0);
+                SkASSERT(glyphs[0] < glyphCount);
+                if (glyphToUnicode[glyphs[0]] == 0) {
+                    glyphToUnicode[glyphs[0]] = codepoint;
+                }
+            }
+        }
+    }
+}
 // Construct Glyph to Unicode table.
 // Unicode code points that require conjugate pairs in utf16 are not
 // supported.
@@ -1586,33 +1621,36 @@ static void populate_glyph_to_unicode(CTFontRef ctFont, CFIndex glyphCount,
     if (!bitmap) {
         return;
     }
-    CFIndex length = CFDataGetLength(bitmap.get());
-    if (!length) {
+    CFIndex dataLength = CFDataGetLength(bitmap.get());
+    if (!dataLength) {
         return;
     }
-    if (length > 8192) {
-        // TODO: Add support for Unicode above 0xFFFF
-        // Consider only the BMP portion of the Unicode character points.
-        // The bitmap may contain other planes, up to plane 16.
-        // See http://developer.apple.com/library/ios/#documentation/CoreFoundation/Reference/CFCharacterSetRef/Reference/reference.html
-        length = 8192;
-    }
+    SkASSERT(dataLength >= kPlaneSize);
     const UInt8* bits = CFDataGetBytePtr(bitmap.get());
-    sk_bzero(glyphToUnicode, glyphCount * sizeof(SkUnichar));
-    for (int i = 0; i < length; i++) {
-        int mask = bits[i];
-        if (!mask) {
-            continue;
-        }
-        for (int j = 0; j < 8; j++) {
-            CGGlyph glyph;
-            UniChar unichar = static_cast<UniChar>((i << 3) + j);
-            if (mask & (1 << j) && CTFontGetGlyphsForCharacters(ctFont, &unichar, &glyph, 1)) {
-                if (glyphToUnicode[glyph] == 0) {
-                    glyphToUnicode[glyph] = unichar;
-                }
-            }
-        }
+
+    get_plane_glyph_map(bits, ctFont, glyphCount, glyphToUnicode, 0);
+    /*
+    A CFData object that specifies the bitmap representation of the Unicode
+    character points the for the new character set. The bitmap representation could
+    contain all the Unicode character range starting from BMP to Plane 16. The
+    first 8KiB (8192 bytes) of the data represent the BMP range. The BMP range 8KiB
+    can be followed by zero to sixteen 8KiB bitmaps, each prepended with the plane
+    index byte. For example, the bitmap representing the BMP and Plane 2 has the
+    size of 16385 bytes (8KiB for BMP, 1 byte index, and a 8KiB bitmap for Plane
+    2). The plane index byte, in this case, contains the integer value two.
+    */
+
+    if (dataLength <= kPlaneSize) {
+        return;
+    }
+    int extraPlaneCount = (dataLength - kPlaneSize) / (1 + kPlaneSize);
+    SkASSERT(dataLength == kPlaneSize + extraPlaneCount * (1 + kPlaneSize));
+    while (extraPlaneCount-- > 0) {
+        bits += kPlaneSize;
+        uint8_t planeIndex = *bits++;
+        SkASSERT(planeIndex >= 1);
+        SkASSERT(planeIndex <= 16);
+        get_plane_glyph_map(bits, ctFont, glyphCount, glyphToUnicode, planeIndex);
     }
 }
 
