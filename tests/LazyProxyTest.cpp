@@ -67,7 +67,7 @@ public:
         }
 
         void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
-            func(fProxy.get());
+            func(fProxy.get(), GrSurfaceProxy::Access::kReadCopy);
         }
 
         void onExecute(GrOpFlushState*, const SkRect& chainBounds) override {
@@ -320,7 +320,7 @@ public:
     }
 
     void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
-        func(fLazyProxy.get());
+        func(fLazyProxy.get(), GrSurfaceProxy::Access::kReadCopy);
     }
 
 private:
@@ -415,7 +415,7 @@ public:
     }
 
     void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
-        func(fLazyProxy.get());
+        func(fLazyProxy.get(), GrSurfaceProxy::Access::kReadCopy);
     }
 
 private:

@@ -47,10 +47,11 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
     return true;
 }
 
-void GrFragmentProcessor::visitProxies(const std::function<void(GrSurfaceProxy*)>& func) {
+void GrFragmentProcessor::visitProxies(const GrSurfaceProxy::VisitProxyFunc& func) {
     GrFragmentProcessor::TextureAccessIter iter(this);
     while (const TextureSampler* sampler = iter.next()) {
-        func(sampler->proxy());
+        auto filter = sampler->samplerState().filter();
+        func(sampler->proxy(), GrSurfaceProxy::SampleAccessFromFilter(filter));
     }
 }
 

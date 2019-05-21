@@ -273,12 +273,15 @@ public:
     const char* name() const override { return "SmallPathOp"; }
 
     void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
+        using Access = GrSurfaceProxy::Access;
+
         fHelper.visitProxies(func);
 
         const sk_sp<GrTextureProxy>* proxies = fAtlas->getProxies();
+        auto access = (fUsesDistanceField) ? Access::kSampleBilerp : Access::kSampleNearest;
         for (uint32_t i = 0; i < fAtlas->numActivePages(); ++i) {
             SkASSERT(proxies[i]);
-            func(proxies[i].get());
+            func(proxies[i].get(), access);
         }
     }
 
