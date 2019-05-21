@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0d5d853_d06361b8",
+        "filename": "src/core/SkFont.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-21T19:32:57Z",
+      "side": 1,
+      "message": "Seeing how it\u0027s reused all meaning the same thing, this 20 or maybe this whole type probably merits a name,\ne.g. one or more of\n\n   constexpr int kTypicalGlyphCount \u003d 20;\n   using SmallPointsArray \u003d SkAutoSTArray\u003ckTypicalGlyphCount, SkPoint\u003e;",
+      "range": {
+        "startLine": 269,
+        "startChar": 8,
+        "endLine": 269,
+        "endChar": 34
+      },
+      "revId": "998670af88c7053cfae98165f77596ac06644c74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
