@@ -59,6 +59,9 @@ enum class ByteCodeInstruction : uint8_t {
     // Duplicates the top stack value
     VECTOR(kDup),
     VECTOR(kFloatToInt),
+    // Followed by a byte indicating the ID of the intrinsic to invoke, and then zero or more bytes
+    // providing additional information needed by the intrinsic
+    VECTOR(kIntrinsic),
     VECTOR(kSignedToFloat),
     VECTOR(kUnsignedToFloat),
     // All kLoad* are followed by a byte indicating the local/global slot to load
@@ -106,6 +109,15 @@ enum class ByteCodeInstruction : uint8_t {
 };
 static_assert((int) ByteCodeInstruction::kLast <= 256, "opcodes must fit into a single byte");
 #undef VECTOR
+
+enum class ByteCodeIntrinsic : uint8_t {
+    // Unless otherwise specified, each intrinsic is followed by a byte indicating the number of
+    // vector slots to operate on
+    kCos,
+    kSin,
+    kSqrt,
+    kTan,
+};
 
 struct ByteCodeFunction {
     ByteCodeFunction(const FunctionDeclaration* declaration)
