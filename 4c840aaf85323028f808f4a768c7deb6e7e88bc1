@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f52d3bf_35fc2b07",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-21T19:16:47Z",
+      "side": 1,
+      "message": "Might feel cozier to initialize like this and make fIntrinsics const?\n\n     , fIntrinsics{\n         {\"cos\",  ByteCodeInstruction::kCos},\n         {\"sin\",  ByteCodeInstruction::kSin},\n         {\"sqrt\", ByteCodeInstruction::kSqrt},\n         {\"tan\",  ByteCodeInstruction::kTan},\n     }",
+      "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79580525_5a6c5e0d",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-21T19:16:47Z",
+      "side": 1,
+      "message": "Wouldn\u0027t this next write() call line would be the correct implementation even if fArguments.size() were say, 2?\n\nI think we can write this all without the switch?\n\n      auto found \u003d fIntrinsics.find(c.fFunction.fName);\n      if (found \u003d\u003d fIntrinsics.end()) {\n          fErrors.error(c.fOffset, \"unsupported intrinsic function\");\n          return;\n      }\n      int inst \u003d (int)found-\u003esecond;\n      if (c.fArguments.size() \u003e 0) {\n          // Expand kCos to kCos, kCos2, kCos3, kCos4 as appropriate.\n          inst +\u003d slot_count(c.fArguments[0]-\u003efType) - 1;\n      }\n      this-\u003ewrite((ByteCodeInstruction)inst);",
+      "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b1e68da_5d80b72f",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-21T19:16:47Z",
+      "side": 1,
+      "message": "Might make more sense as src to stay consistent with the other macros?  Similarly, drop lhs .field?",
+      "range": {
+        "startLine": 282,
+        "startChar": 34,
+        "endLine": 282,
+        "endChar": 39
+      },
+      "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1d7130a_ec48c6c0",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-21T19:16:47Z",
+      "side": 1,
+      "message": "I think all the fall through becomes obvious enough to be left unstated if you scrunch this all up to align in columns?\n\n#define VECTOR_UNARY_FN(base, fn, src)                            \\\n    case ByteCodeInstruction::base ## 4: sp[-3] \u003d fn(sp[-3].src); \\\n    case ByteCodeInstruction::base ## 3: sp[-2] \u003d fn(sp[-2].src); \\\n    case ByteCodeInstruction::base ## 2: sp[-1] \u003d fn(sp[-1].src); \\\n    case ByteCodeInstruction::base:      sp[ 0] \u003d fn(sp[ 0].src); \\\n                                         break;",
+      "range": {
+        "startLine": 283,
+        "startChar": 0,
+        "endLine": 294,
+        "endChar": 14
+      },
+      "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0681ad9_e9f4d815",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 706,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-21T19:16:47Z",
+      "side": 1,
+      "message": "We can probably write this simpler?\n\nDEF_TEST(SkSLInterpreterIntrinsics, r) { \n    SkSL::Interpreter::Value value, expected;\n\n    value \u003d 0.0f; expected \u003d 0.0f;\n    test(r, \"float main(float x) { return sin(x); }\", \u0026value, 1, \u0026expected);\n    test(r, \"float main(float x) { return tan(x); }\", \u0026value, 1, \u0026expected);\n\n    value \u003d 0.0f; expected \u003d 1.0f;\n    test(r, \"float main(float x) { return cos(x); }\", \u0026value, 1, \u0026expected);\n\n    value \u003d 25.0f; expected \u003d 5.0f;\n    test(r, \"float main(float x) { return sqrt(x); }\", \u0026value, 1, \u0026expected);\n}",
+      "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
