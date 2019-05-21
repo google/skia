@@ -615,12 +615,8 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
         int maxDimension,
         PreparationDetail detail,
         SkGlyphPos results[]) {
+
     for (size_t i = 0; i < n; i++) {
-        // The results array does not need to be filled in because all changes are tracked
-        // directly in this method. As a result, the call to
-        // SkGlyphRunListPainter::processGlyphRunList is passed a process parameter of nullptr
-        // skipping all results[] processing.
-        (void)results;
         SkPoint glyphPos = positions[i];
         SkGlyphID glyphID = glyphIDs[i];
         SkIPoint lookupPoint = SkStrikeCommon::SubpixelLookup(fAxisAlignmentForHText, glyphPos);
@@ -667,9 +663,9 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
             fCachedGlyphImages.add(packedGlyphID);
             fPendingGlyphImages.push_back(packedGlyphID);
         }
-
+        results[i] = {i, glyphPtr, glyphPos};
     }
-    return SkSpan<const SkGlyphPos>{};
+    return SkSpan<const SkGlyphPos>{results, n};
 }
 
 // SkStrikeClient -----------------------------------------
