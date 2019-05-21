@@ -231,46 +231,46 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
     }
 }
 
-#define VECTOR_BINARY_OP(base, type, src, target, op)                 \
+#define VECTOR_BINARY_OP(base, src, op)                               \
     case ByteCodeInstruction::base ## 4:                              \
-        sp[-4].target = sp[-4].src op sp[0].src;                      \
+        sp[-4] = sp[-4].src op sp[0].src;                             \
         POP();                                                        \
         /* fall through */                                            \
     case ByteCodeInstruction::base ## 3: {                            \
         int count = (int) ByteCodeInstruction::base - (int) inst - 1; \
-        sp[count].target = sp[count].src op sp[0].src;                \
+        sp[count] = sp[count].src op sp[0].src;                       \
         POP();                                                        \
     }   /* fall through */                                            \
     case ByteCodeInstruction::base ## 2: {                            \
         int count = (int) ByteCodeInstruction::base - (int) inst - 1; \
-        sp[count].target = sp[count].src op sp[0].src;                \
+        sp[count] = sp[count].src op sp[0].src;                       \
         POP();                                                        \
     }   /* fall through */                                            \
     case ByteCodeInstruction::base: {                                 \
         int count = (int) ByteCodeInstruction::base - (int) inst - 1; \
-        sp[count].target = sp[count].src op sp[0].src;                \
+        sp[count] = sp[count].src op sp[0].src;                       \
         POP();                                                        \
         break;                                                        \
     }
 
-#define VECTOR_BINARY_FN(base, type, src, target, fn)                 \
+#define VECTOR_BINARY_FN(base, src, fn)                               \
     case ByteCodeInstruction::base ## 4:                              \
-        sp[-4].target = fn(sp[-4].src, sp[0].src);                    \
+        sp[-4] = fn(sp[-4].src, sp[0].src);                           \
         POP();                                                        \
         /* fall through */                                            \
     case ByteCodeInstruction::base ## 3: {                            \
         int count = (int) ByteCodeInstruction::base - (int) inst - 1; \
-        sp[count].target = fn(sp[count].src, sp[0].src);              \
+        sp[count] = fn(sp[count].src, sp[0].src);                     \
         POP();                                                        \
     }   /* fall through */                                            \
     case ByteCodeInstruction::base ## 2: {                            \
         int count = (int) ByteCodeInstruction::base - (int) inst - 1; \
-        sp[count].target = fn(sp[count].src, sp[0].src);              \
+        sp[count] = fn(sp[count].src, sp[0].src);                     \
         POP();                                                        \
     }   /* fall through */                                            \
     case ByteCodeInstruction::base: {                                 \
         int count = (int) ByteCodeInstruction::base - (int) inst - 1; \
-        sp[count].target = fn(sp[count].src, sp[0].src);              \
+        sp[count] = fn(sp[count].src, sp[0].src);                     \
         POP();                                                        \
         break;                                                        \
     }
@@ -297,8 +297,8 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
         printf("at %d\n", (int) (ip - code - 1));
 #endif
         switch (inst) {
-            VECTOR_BINARY_OP(kAddI, int32_t, fSigned, fSigned, +)
-            VECTOR_BINARY_OP(kAddF, float, fFloat, fFloat, +)
+            VECTOR_BINARY_OP(kAddI, fSigned, +)
+            VECTOR_BINARY_OP(kAddF, fFloat, +)
             case ByteCodeInstruction::kBranch:
                 ip = code + READ16();
                 break;
@@ -328,22 +328,22 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 sp += returnCount - 1;
                 break;
             }
-            VECTOR_BINARY_OP(kCompareIEQ, int32_t, fSigned, fBool, ==)
-            VECTOR_BINARY_OP(kCompareFEQ, float, fFloat, fBool, ==)
-            VECTOR_BINARY_OP(kCompareINEQ, int32_t, fSigned, fBool, !=)
-            VECTOR_BINARY_OP(kCompareFNEQ, float, fFloat, fBool, !=)
-            VECTOR_BINARY_OP(kCompareSGT, int32_t, fSigned, fBool, >)
-            VECTOR_BINARY_OP(kCompareUGT, uint32_t, fUnsigned, fBool, >)
-            VECTOR_BINARY_OP(kCompareFGT, float, fFloat, fBool, >)
-            VECTOR_BINARY_OP(kCompareSGTEQ, int32_t, fSigned, fBool, >=)
-            VECTOR_BINARY_OP(kCompareUGTEQ, uint32_t, fUnsigned, fBool, >=)
-            VECTOR_BINARY_OP(kCompareFGTEQ, float, fFloat, fBool, >=)
-            VECTOR_BINARY_OP(kCompareSLT, int32_t, fSigned, fBool, <)
-            VECTOR_BINARY_OP(kCompareULT, uint32_t, fUnsigned, fBool, <)
-            VECTOR_BINARY_OP(kCompareFLT, float, fFloat, fBool, <)
-            VECTOR_BINARY_OP(kCompareSLTEQ, int32_t, fSigned, fBool, <=)
-            VECTOR_BINARY_OP(kCompareULTEQ, uint32_t, fUnsigned, fBool, <=)
-            VECTOR_BINARY_OP(kCompareFLTEQ, float, fFloat, fBool, <=)
+            VECTOR_BINARY_OP(kCompareIEQ, fSigned, ==)
+            VECTOR_BINARY_OP(kCompareFEQ, fFloat, ==)
+            VECTOR_BINARY_OP(kCompareINEQ, fSigned, !=)
+            VECTOR_BINARY_OP(kCompareFNEQ, fFloat, !=)
+            VECTOR_BINARY_OP(kCompareSGT, fSigned, >)
+            VECTOR_BINARY_OP(kCompareUGT, fUnsigned, >)
+            VECTOR_BINARY_OP(kCompareFGT, fFloat, >)
+            VECTOR_BINARY_OP(kCompareSGTEQ, fSigned, >=)
+            VECTOR_BINARY_OP(kCompareUGTEQ, fUnsigned, >=)
+            VECTOR_BINARY_OP(kCompareFGTEQ, fFloat, >=)
+            VECTOR_BINARY_OP(kCompareSLT, fSigned, <)
+            VECTOR_BINARY_OP(kCompareULT, fUnsigned, <)
+            VECTOR_BINARY_OP(kCompareFLT, fFloat, <)
+            VECTOR_BINARY_OP(kCompareSLTEQ, fSigned, <=)
+            VECTOR_BINARY_OP(kCompareULTEQ, fUnsigned, <=)
+            VECTOR_BINARY_OP(kCompareFLTEQ, fFloat, <=)
             case ByteCodeInstruction::kConditionalBranch: {
                 int target = READ16();
                 if (POP().fBool) {
@@ -356,9 +356,9 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 printf("Debug: %d(int), %d(uint), %f(float)\n", v.fSigned, v.fUnsigned, v.fFloat);
                 break;
             }
-            VECTOR_BINARY_OP(kDivideS, int32_t, fSigned, fSigned, /)
-            VECTOR_BINARY_OP(kDivideU, uint32_t, fUnsigned, fUnsigned, /)
-            VECTOR_BINARY_OP(kDivideF, float, fFloat, fFloat, /)
+            VECTOR_BINARY_OP(kDivideS, fSigned, /)
+            VECTOR_BINARY_OP(kDivideU, fUnsigned, /)
+            VECTOR_BINARY_OP(kDivideF, fFloat, /)
 
             case ByteCodeInstruction::kDup4: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
             case ByteCodeInstruction::kDup3: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
@@ -419,22 +419,22 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 ip += count;
                 break;
             }
-            VECTOR_BINARY_OP(kMultiplyI, int32_t, fSigned, fSigned, *)
-            VECTOR_BINARY_OP(kMultiplyF, float, fFloat, fFloat, *)
+            VECTOR_BINARY_OP(kMultiplyI, fSigned, *)
+            VECTOR_BINARY_OP(kMultiplyF, fFloat, *)
             case ByteCodeInstruction::kNot:
                 sp[0].fBool = !sp[0].fBool;
                 break;
 
-            case ByteCodeInstruction::kNegateF4: sp[-3].fFloat = -sp[-3].fFloat;
-            case ByteCodeInstruction::kNegateF3: sp[-2].fFloat = -sp[-2].fFloat;
-            case ByteCodeInstruction::kNegateF2: sp[-1].fFloat = -sp[-1].fFloat;
-            case ByteCodeInstruction::kNegateF : sp[ 0].fFloat = -sp[ 0].fFloat;
+            case ByteCodeInstruction::kNegateF4: sp[-3] = -sp[-3].fFloat;
+            case ByteCodeInstruction::kNegateF3: sp[-2] = -sp[-2].fFloat;
+            case ByteCodeInstruction::kNegateF2: sp[-1] = -sp[-1].fFloat;
+            case ByteCodeInstruction::kNegateF : sp[ 0] = -sp[ 0].fFloat;
                                                  break;
 
-            case ByteCodeInstruction::kNegateI4: sp[-3].fSigned = -sp[-3].fSigned;
-            case ByteCodeInstruction::kNegateI3: sp[-2].fSigned = -sp[-2].fSigned;
-            case ByteCodeInstruction::kNegateI2: sp[-1].fSigned = -sp[-1].fSigned;
-            case ByteCodeInstruction::kNegateI : sp[ 0].fSigned = -sp [0].fSigned;
+            case ByteCodeInstruction::kNegateI4: sp[-3] = -sp[-3].fSigned;
+            case ByteCodeInstruction::kNegateI3: sp[-2] = -sp[-2].fSigned;
+            case ByteCodeInstruction::kNegateI2: sp[-1] = -sp[-1].fSigned;
+            case ByteCodeInstruction::kNegateI : sp[ 0] = -sp [0].fSigned;
                                                  break;
 
             case ByteCodeInstruction::kPop4: POP();
@@ -455,9 +455,9 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 sp += (int) inst - (int) ByteCodeInstruction::kReadExternal + 1;
                 break;
             }
-            VECTOR_BINARY_FN(kRemainderF, int32_t, fFloat, fFloat, fmodf)
-            VECTOR_BINARY_OP(kRemainderS, int32_t, fSigned, fSigned, %)
-            VECTOR_BINARY_OP(kRemainderU, uint32_t, fUnsigned, fUnsigned, %)
+            VECTOR_BINARY_FN(kRemainderF, fFloat, fmodf)
+            VECTOR_BINARY_OP(kRemainderS, fSigned, %)
+            VECTOR_BINARY_OP(kRemainderU,  fUnsigned, %)
             case ByteCodeInstruction::kReturn: {
                 int count = READ8();
                 if (frames.empty()) {
@@ -514,8 +514,8 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 ip += count;
                 break;
             }
-            VECTOR_BINARY_OP(kSubtractI, int32_t, fSigned, fSigned, -)
-            VECTOR_BINARY_OP(kSubtractF, float, fFloat, fFloat, -)
+            VECTOR_BINARY_OP(kSubtractI, fSigned, -)
+            VECTOR_BINARY_OP(kSubtractF, fFloat, -)
             case ByteCodeInstruction::kSwizzle: {
                 Value tmp[4];
                 for (int i = READ8() - 1; i >= 0; --i) {
