@@ -615,6 +615,8 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
         int maxDimension,
         PreparationDetail detail,
         SkGlyphPos results[]) {
+
+    size_t glyphCount = 0;
     for (size_t i = 0; i < n; i++) {
         // The results array does not need to be filled in because all changes are tracked
         // directly in this method. As a result, the call to
@@ -638,6 +640,8 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
             fGlyphMap.set(glyphPtr);
             this->ensureScalerContext();
             fContext->getMetrics(glyphPtr);
+
+            results[glyphCount++] = {i, glyphPtr, glyphPos};
 
             if (glyphPtr->maxDimension() <= maxDimension) {
                 // do nothing
@@ -669,7 +673,7 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
         }
 
     }
-    return SkSpan<const SkGlyphPos>{};
+    return SkSpan<const SkGlyphPos>{results, glyphCount};
 }
 
 // SkStrikeClient -----------------------------------------
