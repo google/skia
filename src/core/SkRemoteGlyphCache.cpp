@@ -605,9 +605,8 @@ void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& gl
 }
 
 
-// This version of glyphMetrics only adds entries to result if their data need to be sent to the
-// GPU process. As a result, empty glyphs will be sent so that the GPU code can lookup the glyph
-// and detect that it is empty.
+// Be sure to read and understand the comment for prepareForDrawing in SkStrikeInterface.h before
+// working on this code.
 SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
         const SkGlyphID glyphIDs[],
         const SkPoint positions[],
@@ -615,12 +614,8 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
         int maxDimension,
         PreparationDetail detail,
         SkGlyphPos results[]) {
+
     for (size_t i = 0; i < n; i++) {
-        // The results array does not need to be filled in because all changes are tracked
-        // directly in this method. As a result, the call to
-        // SkGlyphRunListPainter::processGlyphRunList is passed a process parameter of nullptr
-        // skipping all results[] processing.
-        (void)results;
         SkPoint glyphPos = positions[i];
         SkGlyphID glyphID = glyphIDs[i];
         SkIPoint lookupPoint = SkStrikeCommon::SubpixelLookup(fAxisAlignmentForHText, glyphPos);
@@ -668,8 +663,12 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
             fPendingGlyphImages.push_back(packedGlyphID);
         }
 
+        // Each glyph needs to be added as per the contract for prepareForDrawing.
+        // TODO(herb): check if the empty glyphs need to be added here. They certainly need to be
+        //             sent, but do the need to be processed by the painter?
+        results[i] = {i, glyphPtr, glyphPos};
     }
-    return SkSpan<const SkGlyphPos>{};
+    return SkSpan<const SkGlyphPos>{results, n};
 }
 
 // SkStrikeClient -----------------------------------------
