@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "febad276_e7441e58",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1578,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-21T18:03:59Z",
+      "side": 1,
+      "message": "seems we don\u0027t need this to default (probably better not to)",
+      "range": {
+        "startLine": 1578,
+        "startChar": 53,
+        "endLine": 1578,
+        "endChar": 57
+      },
+      "revId": "93105015146f06d8fbf7a170eb80a046bc1899a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "211dba83_da23d1bf",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1590,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-21T18:03:59Z",
+      "side": 1,
+      "message": "isn\u0027t this codepoint?",
+      "range": {
+        "startLine": 1590,
+        "startChar": 33,
+        "endLine": 1590,
+        "endChar": 44
+      },
+      "revId": "93105015146f06d8fbf7a170eb80a046bc1899a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18fdd006_b68ca2d5",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1593,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-21T18:03:59Z",
+      "side": 1,
+      "message": "It seems utf16 also needs to be written in this case?\n\ncodepoint, utf16",
+      "range": {
+        "startLine": 1593,
+        "startChar": 39,
+        "endLine": 1593,
+        "endChar": 48
+      },
+      "revId": "93105015146f06d8fbf7a170eb80a046bc1899a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96cac176_dc65e2d7",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1596,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-21T18:03:59Z",
+      "side": 1,
+      "message": "The character and glyph arrays need to have the same count. For outside bmp I think the glyph[0] will be the glyph id and glyph[1] will be set to zero, though we should test that.",
+      "range": {
+        "startLine": 1596,
+        "startChar": 53,
+        "endLine": 1596,
+        "endChar": 73
+      },
+      "revId": "93105015146f06d8fbf7a170eb80a046bc1899a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9924d80_0bc452be",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1643,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-21T18:03:59Z",
+      "side": 1,
+      "message": "This seems extraneous, should probably just be removed.",
+      "range": {
+        "startLine": 1641,
+        "startChar": 0,
+        "endLine": 1643,
+        "endChar": 5
+      },
+      "revId": "93105015146f06d8fbf7a170eb80a046bc1899a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7860e383_8416c4c0",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1650,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-21T18:03:59Z",
+      "side": 1,
+      "message": "I don\u0027t understand why the planeIndex is being multiplied by 16 here? Instead of \u0027planeOrigin\u0027 can the argument just be \u0027planeIndex\u0027?",
+      "range": {
+        "startLine": 1650,
+        "startChar": 32,
+        "endLine": 1650,
+        "endChar": 49
+      },
+      "revId": "93105015146f06d8fbf7a170eb80a046bc1899a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
