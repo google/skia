@@ -68,6 +68,30 @@
       "revId": "90a101dcf0350ffe069c89cf5fc3e89753f4bab0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "588e52d6_3a8c9570",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 781,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-21T19:20:11Z",
+      "side": 1,
+      "message": "Yes, this basically just abstracts over all those platform specific emoji typefaces, giving you one that will work:\n\nsk_sp\u003cSkTypeface\u003e emoji_typeface() {\n    static const sk_sp\u003cSkTypeface\u003e emojiTypeface \u003d []() {\n        const char* filename;\n#if defined(SK_BUILD_FOR_WIN)\n        filename \u003d \"fonts/colr.ttf\";\n#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)\n        filename \u003d \"fonts/sbix.ttf\";\n#else\n        filename \u003d \"fonts/cbdt.ttf\";\n#endif\n        sk_sp\u003cSkTypeface\u003e typeface \u003d MakeResourceAsTypeface(filename);\n        if (typeface) {\n            return typeface;\n        }\n        return SkTypeface::MakeFromName(\"Emoji\", SkFontStyle());\n    }();\n    return emojiTypeface;\n}",
+      "parentUuid": "91705c07_d1d92f8a",
+      "range": {
+        "startLine": 781,
+        "startChar": 4,
+        "endLine": 781,
+        "endChar": 48
+      },
+      "revId": "90a101dcf0350ffe069c89cf5fc3e89753f4bab0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
