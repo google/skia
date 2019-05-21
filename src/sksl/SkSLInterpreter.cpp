@@ -95,7 +95,7 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
     const uint8_t* ip = f.fCode.data();
     while (ip < f.fCode.data() + f.fCode.size()) {
         printf("%d: ", (int) (ip - f.fCode.data()));
-        switch ((ByteCodeInstruction) READ8()) {
+        switch ((ByteCodeInstruction) READ16()) {
             VECTOR_DISASSEMBLE(kAddF, "addf")
             VECTOR_DISASSEMBLE(kAddI, "addi")
             case ByteCodeInstruction::kAndB: printf("andb"); break;
@@ -292,7 +292,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
     std::vector<StackFrame> frames;
 
     for (;;) {
-        ByteCodeInstruction inst = (ByteCodeInstruction) READ8();
+        ByteCodeInstruction inst = (ByteCodeInstruction) READ16();
 #ifdef TRACE
         printf("at %d\n", (int) (ip - code - 1));
 #endif
