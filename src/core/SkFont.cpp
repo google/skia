@@ -15,6 +15,7 @@
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkUtils.h"
 #include "src/utils/SkUTF.h"
@@ -138,31 +139,6 @@ bool SkFont::hasSomeAntiAliasing() const {
         || edging == SkFont::Edging::kSubpixelAntiAlias;
 }
 
-class SkCanonicalizeFont {
-public:
-    SkCanonicalizeFont(const SkFont& font, const SkPaint* paint) : fFont(&font) {
-        if (paint) {
-            fPaint = *paint;
-        }
-        if (SkDraw::ShouldDrawTextAsPaths(font, fPaint, SkMatrix::I())) {
-            SkFont* f = fLazyFont.set(font);
-            fScale = f->setupForAsPaths(nullptr);
-            fFont = f;
-            fPaint.reset();
-        }
-    }
-
-    const SkFont& getFont() const { return *fFont; }
-    const SkPaint& getPaint() const { return fPaint; }
-    SkScalar getScale() const { return fScale; }
-
-private:
-    const SkFont*    fFont;
-    SkTLazy<SkFont>  fLazyFont;
-    SkPaint          fPaint;
-    SkScalar         fScale = 1.0;
-};
-
 SkGlyphID SkFont::unicharToGlyph(SkUnichar uni) const {
     return this->getTypefaceOrDefault()->unicharToGlyph(uni);
 }
@@ -264,11 +240,9 @@ static void join_bounds_x(const SkGlyph& g, SkRect* bounds, SkScalar dx) {
 
 SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding encoding,
                              SkRect* bounds, const SkPaint* paint) const {
-    SkCanonicalizeFont canon(*this, paint);
-    const SkFont& font = canon.getFont();
-    const SkScalar scale = canon.getScale();
+    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(*this, paint);
 
-    SkAutoToGlyphs atg(font, text, length, encoding);
+    SkAutoToGlyphs atg(*this, text, length, encoding);
     const int count = atg.count();
     if (count == 0) {
         if (bounds) {
@@ -278,7 +252,7 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
     }
     const SkGlyphID* glyphs = atg.glyphs();
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font, canon.getPaint());
+    auto cache = strikeSpec.findOrCreateExclusiveStrike();
 
     SkScalar width = 0;
     if (bounds) {
@@ -296,6 +270,7 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
         }
     }
 
+    const SkScalar scale = strikeSpec.strikeToSourceRatio();
     if (scale != 1) {
         width *= scale;
         if (bounds) {
@@ -325,12 +300,10 @@ void VisitGlyphs(const SkFont& origFont, const SkPaint* paint, const SkGlyphID g
         return;
     }
 
-    SkCanonicalizeFont canon(origFont, paint);
-    const SkFont& font = canon.getFont();
-    SkScalar scale = canon.getScale();
+    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(origFont, paint);
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font, canon.getPaint());
-    handler(cache.get(), glyphs, count, scale);
+    auto cache = strikeSpec.findOrCreateExclusiveStrike();
+    handler(cache.get(), glyphs, count, strikeSpec.strikeToSourceRatio());
 }
 
 void SkFont::getWidthsBounds(const SkGlyphID glyphs[], int count, SkScalar widths[], SkRect bounds[],
@@ -380,7 +353,8 @@ void SkFont::getPaths(const SkGlyphID glyphs[], int count,
     SkScalar scale = font.setupForAsPaths(nullptr);
     const SkMatrix mx = SkMatrix::MakeScale(scale, scale);
 
-    auto exclusive = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
+    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(font);
+    auto exclusive = strikeSpec.findOrCreateExclusiveStrike();
     auto cache = exclusive.get();
 
     for (int i = 0; i < count; ++i) {
@@ -405,20 +379,19 @@ bool SkFont::getPath(SkGlyphID glyphID, SkPath* path) const {
 }
 
 SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
-    SkCanonicalizeFont canon(*this, nullptr);
-    const SkFont& font = canon.getFont();
-    SkScalar scale = canon.getScale();
+
+    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(*this, nullptr);
 
     SkFontMetrics storage;
     if (nullptr == metrics) {
         metrics = &storage;
     }
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
+    auto cache = strikeSpec.findOrCreateExclusiveStrike();
     *metrics = cache->getFontMetrics();
 
-    if (scale != 1) {
-        SkFontPriv::ScaleFontMetrics(metrics, scale);
+    if (strikeSpec.strikeToSourceRatio() != 1) {
+        SkFontPriv::ScaleFontMetrics(metrics, strikeSpec.strikeToSourceRatio());
     }
     return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }
