@@ -307,6 +307,9 @@ public:
     void setOnFlushProxy(sk_sp<GrTextureProxy> proxy) {
         SkASSERT(!fOnFlushProxy);
         fOnFlushProxy = std::move(proxy);
+        if (fOnFlushProxy) {
+            fOnFlushProxy->priv().setIgnoredByResourceAllocator();
+        }
     }
 
     void addPathPixels(int numPixels) { fNumPathPixels += numPixels; }

@@ -39,6 +39,9 @@ public:
                                       GrClampType) override;
     CombineResult onCombineIfPossible(GrOp*, const GrCaps&) override;
     void visitProxies(const VisitProxyFunc& fn, VisitorType) const override {
+        for (const auto& range : fInstanceRanges) {
+            fn(range.fAtlasProxy);
+        }
         fProcessors.visitProxies(fn);
     }
     void onPrepare(GrOpFlushState*) override {}
