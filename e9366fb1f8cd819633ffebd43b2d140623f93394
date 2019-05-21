@@ -22,6 +22,30 @@
       "revId": "e9366fb1f8cd819633ffebd43b2d140623f93394",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d8c5fa8_07ee1c4e",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1579,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-05-21T19:26:54Z",
+      "side": 1,
+      "message": "Nope.  kPlaneSize is the size of that bitmask thing.  Duh, I meant to shift by 16.  Was thinking in hexadecimal.",
+      "parentUuid": "2728e1dc_e027092d",
+      "range": {
+        "startLine": 1579,
+        "startChar": 44,
+        "endLine": 1579,
+        "endChar": 48
+      },
+      "revId": "e9366fb1f8cd819633ffebd43b2d140623f93394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
