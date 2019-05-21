@@ -131,6 +131,7 @@ void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec,
     SkTypeface** array = (SkTypeface**)storage.get();
     rec.copyToArray((SkRefCnt**)array);
 
+    SkDebugf("Serializing %d typefaces", count);
     for (int i = 0; i < count; i++) {
         SkTypeface* tf = array[i];
         if (procs.fTypefaceProc) {
@@ -144,24 +145,29 @@ void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec,
     }
 }
 
-void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
+void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer, bool dummy) const {
     int i, n;
 
-    if ((n = fPaints.count()) > 0) {
-        write_tag_size(buffer, SK_PICT_PAINT_BUFFER_TAG, n);
-        for (i = 0; i < n; i++) {
-            buffer.writePaint(fPaints[i]);
+    if (!dummy) {
+        SkDebugf("Serializing %d paints", fPaints.count());
+        if ((n = fPaints.count()) > 0) {
+            write_tag_size(buffer, SK_PICT_PAINT_BUFFER_TAG, n);
+            for (i = 0; i < n; i++) {
+                buffer.writePaint(fPaints[i]);
+            }
+        }
+
+        SkDebugf("Serializing %d paths", fPaths.count());
+        if ((n = fPaths.count()) > 0) {
+            write_tag_size(buffer, SK_PICT_PATH_BUFFER_TAG, n);
+            buffer.writeInt(n);
+            for (int i = 0; i < n; i++) {
+                buffer.writePath(fPaths[i]);
+            }
         }
     }
 
-    if ((n = fPaths.count()) > 0) {
-        write_tag_size(buffer, SK_PICT_PATH_BUFFER_TAG, n);
-        buffer.writeInt(n);
-        for (int i = 0; i < n; i++) {
-            buffer.writePath(fPaths[i]);
-        }
-    }
-
+    SkDebugf("Serializing %d text blobs, dummy=%s", fTextBlobs.count(), dummy ? "true" : "false");
     if (!fTextBlobs.empty()) {
         write_tag_size(buffer, SK_PICT_TEXTBLOB_BUFFER_TAG, fTextBlobs.count());
         for (const auto& blob : fTextBlobs) {
@@ -169,17 +175,21 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
         }
     }
 
-    if (!fVertices.empty()) {
-        write_tag_size(buffer, SK_PICT_VERTICES_BUFFER_TAG, fVertices.count());
-        for (const auto& vert : fVertices) {
-            buffer.writeDataAsByteArray(vert->encode().get());
+    if (!dummy) {
+        SkDebugf("Serializing %d vertices", fVertices.count());
+        if (!fVertices.empty()) {
+            write_tag_size(buffer, SK_PICT_VERTICES_BUFFER_TAG, fVertices.count());
+            for (const auto& vert : fVertices) {
+                buffer.writeDataAsByteArray(vert->encode().get());
+            }
         }
-    }
 
-    if (!fImages.empty()) {
-        write_tag_size(buffer, SK_PICT_IMAGE_BUFFER_TAG, fImages.count());
-        for (const auto& img : fImages) {
-            buffer.writeImage(img.get());
+        SkDebugf("Serializing %d images", fImages.count());
+        if (!fImages.empty()) {
+            write_tag_size(buffer, SK_PICT_IMAGE_BUFFER_TAG, fImages.count());
+            for (const auto& img : fImages) {
+                buffer.writeImage(img.get());
+            }
         }
     }
 }
@@ -197,7 +207,7 @@ static SkSerialProcs skip_typeface_proc(const SkSerialProcs& procs) {
 }
 
 void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
-                              SkRefCntSet* topLevelTypeFaceSet) const {
+                              SkRefCntSet* topLevelTypeFaceSet, bool dummy) const {
     // This can happen at pretty much any time, so might as well do it first.
     write_tag_size(stream, SK_PICT_READER_TAG, fOpData->size());
     stream->write(fOpData->bytes(), fOpData->size());
@@ -213,10 +223,10 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
     buffer.setFactoryRecorder(sk_ref_sp(&factSet));
     buffer.setSerialProcs(skip_typeface_proc(procs));
     buffer.setTypefaceRecorder(sk_ref_sp(typefaceSet));
-    this->flattenToBuffer(buffer);
+    this->flattenToBuffer(buffer, dummy);
 
-    // Dummy serialize our sub-pictures for the side effect of filling
-    // typefaceSet with typefaces from sub-pictures.
+    // Dummy serialize our sub-pictures for the side effect of filling typefaceSet  and factSet
+    // with typefaces and factories from sub-pictures.
     struct DevNull: public SkWStream {
         DevNull() : fBytesWritten(0) {}
         size_t fBytesWritten;
@@ -224,28 +234,28 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
         size_t bytesWritten() const override { return fBytesWritten; }
     } devnull;
     for (const auto& pic : fPictures) {
-        pic->serialize(&devnull, nullptr, typefaceSet);
+        pic->serialize(&devnull, nullptr, typefaceSet, true);
     }
+    if (dummy) { return; } // return early from dummy serialize
 
     // We need to write factories before we write the buffer.
     // We need to write typefaces before we write the buffer or any sub-picture.
     WriteFactories(stream, factSet);
-    if (typefaceSet == &localTypefaceSet) {
-        // Pass the original typefaceproc (if any) now that we're ready to actually serialize the
-        // typefaces. We skipped this proc before, when we were serializing paints, so that the
-        // paints would just write indices into our typeface set.
-        WriteTypefaces(stream, *typefaceSet, procs);
-    }
+    // Pass the original typefaceproc (if any) now that we're ready to actually serialize the
+    // typefaces. We skipped this proc before, when we were serializing paints, so that the
+    // paints would just write indices into our typeface set.
+    WriteTypefaces(stream, *typefaceSet, procs);
 
     // Write the buffer.
     write_tag_size(stream, SK_PICT_BUFFER_SIZE_TAG, buffer.bytesWritten());
     buffer.writeToStream(stream);
 
     // Write sub-pictures by calling serialize again.
+    SkDebugf("Serializing %d sub pictures", fPictures.count());
     if (!fPictures.empty()) {
         write_tag_size(stream, SK_PICT_PICTURE_TAG, fPictures.count());
         for (const auto& pic : fPictures) {
-            pic->serialize(stream, &procs, typefaceSet);
+            pic->serialize(stream, &procs, typefaceSet, false);
         }
     }
 
@@ -271,7 +281,7 @@ void SkPictureData::flatten(SkWriteBuffer& buffer) const {
     }
 
     // Write this picture playback's data into a writebuffer
-    this->flattenToBuffer(buffer);
+    this->flattenToBuffer(buffer, false);
     buffer.write32(SK_PICT_EOF_TAG);
 }
 
