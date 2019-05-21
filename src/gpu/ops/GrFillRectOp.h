@@ -36,6 +36,14 @@ std::unique_ptr<GrDrawOp> MakeGeneric(GrRecordingContext* context,
                                       const GrPerspQuad& localQuad,
                                       const GrUserStencilSettings* stencil = nullptr);
 
+// Utility function to create a non-AA rect transformed by view. This is used commonly enough in
+// testing and GMs that manage ops without going through GrRTC that it's worth the convenience.
+std::unique_ptr<GrDrawOp> MakeNonAARect(GrRecordingContext* context,
+                                        GrPaint&& paint,
+                                        const SkMatrix& view,
+                                        const SkRect& rect,
+                                        const GrUserStencilSettings* stencil = nullptr);
+
 // FIXME(michaelludwig) - To be removed after usages replaced with MakeGeneric
 // General purpose factory functions that handle per-edge anti-aliasing
 std::unique_ptr<GrDrawOp> MakePerEdge(GrRecordingContext* context,
