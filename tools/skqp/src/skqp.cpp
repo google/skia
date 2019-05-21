@@ -40,6 +40,41 @@
 #define PATH_ERR_PNG "errors.png"
 #define PATH_MODEL "model"
 
+namespace {
+enum BackendType { kGL, kGLES, kVulkan };
+enum ColorSpace { kDefault, kSRGB, kP3 };
+}  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
+
+// This lists all possible configurations:
+
+static const struct {
+    const char* fName;
+    BackendType fType;
+    SkColorType fColorType;
+    ColorSpace fColorSpace;
+} kBackendConfigs[] = {
+    #ifndef SK_BUILD_FOR_ANDROID  // Used for testing on desktop machines.
+    { "gl",         kGL,     kRGBA_8888_SkColorType, kDefault },
+    #endif
+    { "gles",       kGLES,   kRGBA_8888_SkColorType, kDefault },
+//  TODO: enable new configurations https://bugs.skia.org/9105
+//  { "glesSRGB",   kGLES,   kRGBA_8888_SkColorType, kSRGB    },
+//  { "glesP3",     kGLES,   kRGBA_8888_SkColorType, kP3      },
+//  { "glesF16",    kGLES,   kRGBA_F16_SkColorType,  kSRGB    },
+    #ifdef SK_VULKAN
+    { "vulkan",     kVulkan, kRGBA_8888_SkColorType, kDefault },
+//  { "vulkanSRGB", kVulkan, kRGBA_8888_SkColorType, kSRGB    },
+//  { "vulkanP3",   kVulkan, kRGBA_8888_SkColorType, kP3      },
+//  { "vulkanF16",  kVulkan, kRGBA_F16_SkColorType,  kSRGB    },
+    #endif
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+static constexpr size_t kBackendConfigCount = SK_ARRAY_COUNT(kBackendConfigs);
+
 static constexpr char kRenderTestCSVReport[] = "out.csv";
 static constexpr char kRenderTestReportPath[] = "report.html";
 static constexpr char kRenderTestsPath[] = "skqp/rendertests.txt";
@@ -133,17 +168,31 @@ static void get_render_tests(SkQPAssetManager* mgr,
     }
 }
 
+static sk_sp<SkColorSpace> make_cs(ColorSpace cs) {
+    switch (cs) {
+        case kDefault: return nullptr;
+        case kSRGB:    return SkColorSpace::MakeSRGB();
+        case kP3:      return SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
+    }
+    return nullptr;
+}
+
 static std::unique_ptr<sk_gpu_test::TestContext> make_test_context(SkQP::SkiaBackend backend) {
+    if (backend >= kBackendConfigCount) {
+        return nullptr;
+    }
     using U = std::unique_ptr<sk_gpu_test::TestContext>;
-    switch (backend) {
-        case SkQP::SkiaBackend::kGL:
+    switch (kBackendConfigs[backend].fType) {
+        #ifndef SK_BUILD_FOR_ANDROID  // Used for testing on desktop machines.
+        case kGL:
             return U(sk_gpu_test::CreatePlatformGLTestContext(kGL_GrGLStandard, nullptr));
-        case SkQP::SkiaBackend::kGLES:
+        #endif
+        case kGLES:
             return U(sk_gpu_test::CreatePlatformGLTestContext(kGLES_GrGLStandard, nullptr));
-#ifdef SK_VULKAN
-        case SkQP::SkiaBackend::kVulkan:
+        #ifdef SK_VULKAN
+        case kVulkan:
             return U(sk_gpu_test::CreatePlatformVkTestContext(nullptr));
-#endif
+        #endif
         default:
             return nullptr;
     }
@@ -162,16 +211,7 @@ static GrContextOptions context_options(skiagm::GM* gm = nullptr) {
 
 static std::vector<SkQP::SkiaBackend> get_backends() {
     std::vector<SkQP::SkiaBackend> result;
-    SkQP::SkiaBackend backends[] = {
-        #ifndef SK_BUILD_FOR_ANDROID
-        SkQP::SkiaBackend::kGL,  // Used for testing on desktop machines.
-        #endif
-        SkQP::SkiaBackend::kGLES,
-        #ifdef SK_VULKAN
-        SkQP::SkiaBackend::kVulkan,
-        #endif
-    };
-    for (SkQP::SkiaBackend backend : backends) {
+    for (size_t backend = 0; backend < kBackendConfigCount; ++backend) {
         std::unique_ptr<sk_gpu_test::TestContext> testCtx = make_test_context(backend);
         if (testCtx) {
             testCtx->makeCurrent();
@@ -185,12 +225,22 @@ static std::vector<SkQP::SkiaBackend> get_backends() {
 }
 
 static void print_backend_info(const char* dstPath,
-                               const std::vector<SkQP::SkiaBackend>& backends) {
+                               const std::vector<SkQP::SkiaBackend>&) {
 #ifdef SK_ENABLE_DUMP_GPU
+    using U = std::unique_ptr<sk_gpu_test::TestContext>;
+    std::unique_ptr<sk_gpu_test::TestContext> contexts[] = {
+        #ifndef SK_BUILD_FOR_ANDROID  // Used for testing on desktop machines.
+        U(sk_gpu_test::CreatePlatformGLTestContext(kGL_GrGLStandard, nullptr)),
+        #endif
+        U(sk_gpu_test::CreatePlatformGLTestContext(kGLES_GrGLStandard, nullptr)),
+        #ifdef SK_VULKAN
+        U(sk_gpu_test::CreatePlatformVkTestContext(nullptr)),
+        #endif
+    };
     SkFILEWStream out(dstPath);
     out.writeText("[\n");
-    for (SkQP::SkiaBackend backend : backends) {
-        if (std::unique_ptr<sk_gpu_test::TestContext> testCtx = make_test_context(backend)) {
+    for (auto& testCtx : contexts) {
+        if (testCtx) {
             testCtx->makeCurrent();
             if (sk_sp<GrContext> ctx = testCtx->makeGrContext(context_options())) {
                 SkString info = ctx->priv().dump();
@@ -220,12 +270,7 @@ static void write_to_file(const sk_sp<SkData>& src, const std::string& dst) {
 ////////////////////////////////////////////////////////////////////////////////
 
 const char* SkQP::GetBackendName(SkQP::SkiaBackend b) {
-    switch (b) {
-        case SkQP::SkiaBackend::kGL:     return "gl";
-        case SkQP::SkiaBackend::kGLES:   return "gles";
-        case SkQP::SkiaBackend::kVulkan: return "vk";
-    }
-    return "";
+    return b < kBackendConfigCount ? kBackendConfigs[b].fName : "";
 }
 
 std::string SkQP::GetGMName(SkQP::GMFactory f) {
@@ -279,7 +324,8 @@ std::tuple<SkQP::RenderOutcome, std::string> SkQP::evaluateGM(SkQP::SkiaBackend 
     const int w = size.width();
     const int h = size.height();
     const SkImageInfo info =
-        SkImageInfo::Make(w, h, skqp::kColorType, kPremul_SkAlphaType, nullptr);
+        SkImageInfo::Make(w, h, kBackendConfigs[backend].fColorType,
+                          kPremul_SkAlphaType, make_cs(kBackendConfigs[backend].fColorSpace));
     const SkSurfaceProps props(0, SkSurfaceProps::kLegacyFontHost_InitType);
 
     sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(
@@ -450,9 +496,12 @@ void SkQP::makeReport() {
     SkASSERT_RELEASE(csvOut.isValid() && htmOut.isValid());
     htmOut.writeText(kDocHead);
     for (const SkQP::RenderResult& run : fRenderResults) {
-        switch (run.fBackend) {
-            case SkQP::SkiaBackend::kGLES: ++gles; break;
-            case SkQP::SkiaBackend::kVulkan: ++vk; break;
+        if (run.fBackend >= kBackendConfigCount) {
+            continue;
+        }
+        switch (kBackendConfigs[run.fBackend].fType) {
+            case kGLES: ++gles; break;
+            case kVulkan: ++vk; break;
             default: break;
         }
         const char* backendName = SkQP::GetBackendName(run.fBackend);
@@ -467,9 +516,9 @@ void SkQP::makeReport() {
             continue;
         }
         write(&htmOut, SkStringPrintf("  f(%s);\n", str.c_str()));
-        switch (run.fBackend) {
-            case SkQP::SkiaBackend::kGLES: ++glesErrorCount; break;
-            case SkQP::SkiaBackend::kVulkan: ++vkErrorCount; break;
+        switch (kBackendConfigs[run.fBackend].fType) {
+            case kGLES: ++glesErrorCount; break;
+            case kVulkan: ++vkErrorCount; break;
             default: break;
         }
     }

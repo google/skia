@@ -30,6 +30,8 @@ adb install "$APK" || exit 1
 
 adb logcat -c
 
+adb logcat -G4M
+
 adb shell am instrument $SKQP_ARGS -w org.skia.skqp 2>&1 | tee "$DST"/stdout
 
 adb logcat -d TestRunner org.skia.skqp skia DEBUG '*:S' > "$DST"/logcat
