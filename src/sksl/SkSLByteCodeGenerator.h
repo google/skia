@@ -78,10 +78,7 @@ public:
     };
 
     ByteCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                      ByteCode* output)
-    : INHERITED(program, errors, nullptr)
-    , fContext(*context)
-    , fOutput(output) {}
+                      ByteCode* output);
 
     bool generateCode() override;
 
@@ -188,6 +185,8 @@ private:
      */
     std::unique_ptr<LValue> getLValue(const Expression& expr);
 
+    void writeIntrinsicCall(const FunctionCall& c);
+
     void writeFunctionCall(const FunctionCall& c);
 
     void writeConstructor(const Constructor& c);
@@ -265,6 +264,8 @@ private:
     std::vector<DeferredCallTarget> fCallTargets;
 
     int fParameterCount;
+
+    std::unordered_map<String, ByteCodeInstruction> fIntrinsics;
 
     friend class DeferredLocation;
     friend class ByteCodeVariableLValue;

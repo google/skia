@@ -701,3 +701,17 @@ DEF_TEST(SkSLInterpreterExternalValuesVectorCall, r) {
         printf("%s\n%s", src, compiler.errorText().c_str());
     }
 }
+
+DEF_TEST(SkSLInterpreterIntrinsics, r) {
+    SkSL::Interpreter::Value value, expected;
+
+    value = 0.0f; expected = 0.0f;
+    test(r, "float main(float x) { return sin(x); }", &value, 1, &expected);
+    test(r, "float main(float x) { return tan(x); }", &value, 1, &expected);
+
+    value = 0.0f; expected = 1.0f;
+    test(r, "float main(float x) { return cos(x); }", &value, 1, &expected);
+
+    value = 25.0f; expected = 5.0f;
+    test(r, "float main(float x) { return sqrt(x); }", &value, 1, &expected);
+}
