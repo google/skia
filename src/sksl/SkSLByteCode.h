@@ -21,7 +21,6 @@ struct FunctionDeclaration;
 
 #define VECTOR(name) name, name ## 2, name ## 3, name ## 4
 enum class ByteCodeInstruction : uint8_t {
-    kInvalid,
     // B = bool, F = float, I = int, S = signed, U = unsigned
     VECTOR(kAddF),
     VECTOR(kAddI),
@@ -68,7 +67,7 @@ enum class ByteCodeInstruction : uint8_t {
     kLoadSwizzle,
     kLoadSwizzleGlobal,
     VECTOR(kNegateF),
-    VECTOR(kNegateS),
+    VECTOR(kNegateI),
     VECTOR(kMultiplyF),
     VECTOR(kMultiplyI),
     VECTOR(kNot),
