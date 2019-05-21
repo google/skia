@@ -436,8 +436,8 @@ void ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p) {
         case Token::Kind::MINUS: {
             this->writeExpression(*p.fOperand);
             this->writeTypedInstruction(p.fType,
-                                        ByteCodeInstruction::kNegateS,
-                                        ByteCodeInstruction::kInvalid,
+                                        ByteCodeInstruction::kNegateI,
+                                        ByteCodeInstruction::kNegateI,
                                         ByteCodeInstruction::kNegateF,
                                         slot_count(p.fOperand->fType));
             break;
