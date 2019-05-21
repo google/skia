@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fbd56a3a_4c067bd0",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-21T14:02:31Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be \"count byte\" instead of \"byte count\"?",
+      "range": {
+        "startLine": 96,
+        "startChar": 36,
+        "endLine": 96,
+        "endChar": 46
+      },
+      "revId": "e2f85dbcc9fe80d6dc5b653b9b45fa41e6ecb53e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d019797c_9f3aa99b",
+        "filename": "src/sksl/SkSLByteCodeGenerator.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-21T14:02:31Z",
+      "side": 1,
+      "message": "It seems like 99% of the time you don\u0027t actually want to have to create an Expression because this is just a constant, and the remaining 1% of the time you really just want to end up with the computed value left on top of the stack, so you don\u0027t really want to have to create an Expression in that case either. Am I understanding this correctly?\n\nI wonder if it might be better to handle this via some sort of fallback mechanism, where we either return a constant number or leave the value on top of the stack instead of return an Expression. What do you think? I\u0027m just spitballing, I\u0027m not super opposed to this or anything.",
+      "range": {
+        "startLine": 183,
+        "startChar": 4,
+        "endLine": 183,
+        "endChar": 96
+      },
+      "revId": "e2f85dbcc9fe80d6dc5b653b9b45fa41e6ecb53e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
