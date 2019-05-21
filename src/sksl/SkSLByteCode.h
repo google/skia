@@ -10,7 +10,14 @@
 
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 
+#include <memory>
+#include <vector>
+
 namespace SkSL {
+
+struct ByteCode;
+class  ExternalValue;
+struct FunctionDeclaration;
 
 enum class ByteCodeInstruction : uint8_t {
     kInvalid,
@@ -50,22 +57,19 @@ enum class ByteCodeInstruction : uint8_t {
     kDivideU,
     // Duplicates the top stack value
     kDup,
-    // Followed by a byte indicating number of slots to copy below the underlying element.
-    // dupdown 2 yields: ... value3 value2 value1 => .. value2 value1 value3 value2 value2
-    kDupDown,
     kFloatToInt,
     kSignedToFloat,
     kUnsignedToFloat,
+    // All kLoad* are followed by a byte indicating the local/global slot to load
     kLoad,
-    // Followed by a byte indicating global slot to load
     kLoadGlobal,
-    // Followed by a count byte (1-4), and then one byte per swizzle component (0-3).
+    // As above, then a count byte (1-4), and then one byte per swizzle component (0-3).
     kLoadSwizzle,
+    kLoadSwizzleGlobal,
     kNegateF,
     kNegateS,
     kMultiplyF,
-    kMultiplyS,
-    kMultiplyU,
+    kMultiplyI,
     kNot,
     kOrB,
     kOrI,
@@ -74,17 +78,21 @@ enum class ByteCodeInstruction : uint8_t {
     kPop,
     // Followed by a 32 bit value containing the value to push
     kPushImmediate,
+    // Followed by a byte indicating external value to read
+    kReadExternal,
     kRemainderF,
     kRemainderS,
     kRemainderU,
     // Followed by a byte indicating the number of slots being returned
     kReturn,
+    // All kStore* are followed by a byte indicating the local/global slot to store
     kStore,
     kStoreGlobal,
-    // Followed by a count byte (1-4), and then one byte per swizzle component (0-3). Expects the
-    // stack to look like: ... target v1 v2 v3 v4, where the number of 'v's is equal to the number
-    // of swizzle components. After the store, the target and all v's are popped from the stack.
+    // As above, then a count byte (1-4), and then one byte per swizzle component (0-3).
+    // Expects the stack to look like: ... v1 v2 v3 v4, where the number of 'v's is equal to the
+    // number of swizzle components. After the store, all v's are popped from the stack.
     kStoreSwizzle,
+    kStoreSwizzleGlobal,
     // Followed by two count bytes (1-4), and then one byte per swizzle component (0-3). The first
     // count byte provides the current vector size (the vector is the top n stack elements), and the
     // second count byte provides the swizzle component count.
@@ -94,9 +102,9 @@ enum class ByteCodeInstruction : uint8_t {
     // Followed by a byte indicating vector count. Modifies the next instruction to operate on the
     // indicated number of columns, e.g. kVector 2 kMultiplyf performs a float2 * float2 operation.
     kVector,
+    // Followed by a byte indicating external value to write
+    kWriteExternal,
 };
-
-struct ByteCode;
 
 struct ByteCodeFunction {
     ByteCodeFunction(const FunctionDeclaration* declaration)
@@ -126,6 +134,8 @@ struct ByteCode {
         }
         return nullptr;
     }
+
+    std::vector<ExternalValue*> fExternalValues;
 };
 
 }

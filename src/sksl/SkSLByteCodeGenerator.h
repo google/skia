@@ -22,6 +22,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLExternalValueReference.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -98,11 +99,6 @@ public:
      */
     void writeTypedInstruction(const Type& type, ByteCodeInstruction s, ByteCodeInstruction u,
                                ByteCodeInstruction f);
-
-    /**
-     * Pushes the storage location of an lvalue to the stack.
-     */
-    void writeTarget(const Expression& expr);
 
 private:
     // reserves 16 bits in the output code, to be filled in later with an address once we determine
@@ -197,6 +193,8 @@ private:
 
     void writeConstructor(const Constructor& c);
 
+    void writeExternalValue(const ExternalValueReference& r);
+
     void writeFieldAccess(const FieldAccess& f);
 
     void writeSwizzle(const Swizzle& swizzle);
@@ -269,6 +267,7 @@ private:
 
     friend class DeferredLocation;
     friend class ByteCodeVariableLValue;
+    friend class ByteCodeSwizzleLValue;
 
     typedef CodeGenerator INHERITED;
 };
