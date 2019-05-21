@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2728e1dc_e027092d",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1579,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-21T18:49:03Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be \"* kPlaneSize\"? Equivalently \" \u003c\u003c 13\" I suppose.",
+      "range": {
+        "startLine": 1579,
+        "startChar": 44,
+        "endLine": 1579,
+        "endChar": 48
+      },
+      "revId": "e9366fb1f8cd819633ffebd43b2d140623f93394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
