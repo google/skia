@@ -99,6 +99,8 @@ public:
     void writeTypedInstruction(const Type& type, ByteCodeInstruction s, ByteCodeInstruction u,
                                ByteCodeInstruction f, int count);
 
+    static int SlotCount(const Type& type);
+
 private:
     // reserves 16 bits in the output code, to be filled in later with an address once we determine
     // it
@@ -173,6 +175,13 @@ private:
      * slot, with the getLocation return value indicating where the first element should be stored.
      */
     int getLocation(const Variable& var);
+
+    /**
+     * As above, but computes the (possibly dynamic) address of an expression involving indexing &
+     * field access. If the address is known, it's return. If not, -1 is retured, and the location
+     * will be left on the top of the stack.
+     */
+    int getLocation(const Expression& expr, Variable::Storage* storage);
 
     std::unique_ptr<ByteCodeFunction> writeFunction(const FunctionDefinition& f);
 
@@ -267,8 +276,10 @@ private:
     int fParameterCount;
 
     friend class DeferredLocation;
-    friend class ByteCodeVariableLValue;
+    friend class ByteCodeFieldLValue;
+    friend class ByteCodeIndexLValue;
     friend class ByteCodeSwizzleLValue;
+    friend class ByteCodeVariableLValue;
 
     typedef CodeGenerator INHERITED;
 };
