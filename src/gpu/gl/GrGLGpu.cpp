@@ -1392,7 +1392,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
 }
 
 bool GrGLGpu::uploadCompressedTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
-                                      GrGLenum target, GrPixelConfig dataConfig,
+                                      GrGLenum target,
                                       const GrMipLevel texels[], int mipLevelCount,
                                       GrMipMapsStatus* mipMapsStatus) {
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
@@ -1652,8 +1652,9 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     GrMipMapsStatus mipMapsStatus;
     GrGLTexture::SamplerParams initialTexParams;
-    if (!this->createTextureImpl(desc, &idDesc.fInfo, isRenderTarget, &initialTexParams, texels,
-                                 mipLevelCount, &mipMapsStatus)) {
+    if (!this->createTextureImpl(desc, &idDesc.fInfo,
+                                 isRenderTarget ? GrRenderable::kYes : GrRenderable::kNo,
+                                 &initialTexParams, texels, mipLevelCount, &mipMapsStatus)) {
         return return_null_texture();
     }
 
@@ -1838,7 +1839,8 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
     return this->glCaps().getStencilFormatIndexForConfig(config);
 }
 
-bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info, bool renderTarget,
+bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
+                                GrRenderable renderable,
                                 GrGLTexture::SamplerParams* initialTexParams,
                                 const GrMipLevel texels[], int mipLevelCount,
                                 GrMipMapsStatus* mipMapsStatus) {
@@ -1852,22 +1854,21 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
 
     this->bindTextureToScratchUnit(info->fTarget, info->fID);
 
-    if (renderTarget && this->glCaps().textureUsageSupport()) {
+    if (GrRenderable::kYes == renderable && this->glCaps().textureUsageSupport()) {
         // provides a hint about how this texture will be used
         GL_CALL(TexParameteri(info->fTarget,
                               GR_GL_TEXTURE_USAGE,
                               GR_GL_FRAMEBUFFER_ATTACHMENT));
     }
 
-    if (info) {
-        *initialTexParams = set_initial_texture_params(this->glInterface(), *info);
-    }
+    *initialTexParams = set_initial_texture_params(this->glInterface(), *info);
 
     bool success = false;
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
-        SkASSERT(!renderTarget);
+        SkASSERT(GrRenderable::kNo == renderable);
+
         success = this->uploadCompressedTexData(desc.fConfig, desc.fWidth, desc.fHeight,
-                                                info->fTarget, desc.fConfig,
+                                                info->fTarget,
                                                 texels, mipLevelCount, mipMapsStatus);
     } else {
         success = this->uploadTexData(desc.fConfig, desc.fWidth, desc.fHeight, info->fTarget,
@@ -4073,11 +4074,294 @@ static bool gl_format_to_pixel_config(GrGLenum format, GrPixelConfig* config) {
     return false;
 }
 
-GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(int w, int h,
-                                                          const GrBackendFormat& format,
-                                                          GrMipMapped mipMapped,
-                                                          GrRenderable /* renderable */,
-                                                          const void* pixels, size_t rowBytes) {
+static const int kNumModifierTables = 8;
+static const int kNumPixelIndices = 4;
+
+// The index of each row in this table is the ETC1 table codeword
+// The index of each column in this table is the ETC1 pixel index value
+static const int kModifierTables[kNumModifierTables][kNumPixelIndices] = {
+    /* 0 */ { 2,    8,  -2,   -8 },
+    /* 1 */ { 5,   17,  -5,  -17 },
+    /* 2 */ { 9,   29,  -9,  -29 },
+    /* 3 */ { 13,  42, -13,  -42 },
+    /* 4 */ { 18,  60, -18,  -60 },
+    /* 5 */ { 24,  80, -24,  -80 },
+    /* 6 */ { 33, 106, -33, -106 },
+    /* 7 */ { 47, 183, -47, -183 }
+};
+
+static inline int convert_5To8(int b) {
+    int c = b & 0x1f;
+    return (c << 3) | (c >> 2);
+}
+
+#include "include/core/SkColor.h"
+
+struct ETC1Block {
+    uint32_t fHigh;
+    uint32_t fLow;
+};
+
+// Evaluate one of the entries in 'kModifierTables' to see how close it can get (r8,g8,b8) to
+// the original color (rOrig, gOrib, bOrig).
+static int test_table_entry(int rOrig, int gOrig, int bOrig,
+                            int r8, int g8, int b8,
+                            int table, int offset) {
+    SkASSERT(0 <= table && table < 8);
+    SkASSERT(0 <= offset && offset < 4);
+
+    r8 = SkTPin<uint8_t>(r8 + kModifierTables[table][offset], 0, 255);
+    g8 = SkTPin<uint8_t>(g8 + kModifierTables[table][offset], 0, 255);
+    b8 = SkTPin<uint8_t>(b8 + kModifierTables[table][offset], 0, 255);
+
+    return SkTAbs(rOrig - r8) + SkTAbs(gOrig - g8) + SkTAbs(bOrig - b8);
+}
+
+// Create an ETC1 compressed block that is filled with 'col'
+static void create_etc1_block(SkColor col, ETC1Block* block) {
+    block->fHigh = 0;
+    block->fLow = 0;
+
+    int rOrig = SkColorGetR(col);
+    int gOrig = SkColorGetG(col);
+    int bOrig = SkColorGetB(col);
+
+    int r5 = SkMulDiv255Round(31, rOrig);
+    int g5 = SkMulDiv255Round(31, gOrig);
+    int b5 = SkMulDiv255Round(31, bOrig);
+
+    int r8 = convert_5To8(r5);
+    int g8 = convert_5To8(g5);
+    int b8 = convert_5To8(b5);
+
+    // We always encode solid color textures as 555 + zero diffs
+    block->fHigh |= (r5 << 27) | (g5 << 19) | (b5 << 11) | 0x2;
+
+    int bestTableIndex = 0, bestPixelIndex = 0;
+    int bestSoFar = 1024;
+    for (int tableIndex = 0; tableIndex < kNumModifierTables; ++tableIndex) {
+        for (int pixelIndex = 0; pixelIndex < kNumPixelIndices; ++pixelIndex) {
+            int score = test_table_entry(rOrig, gOrig, bOrig, r8, g8, b8,
+                                         tableIndex, pixelIndex);
+
+            if (bestSoFar > score) {
+                bestSoFar = score;
+                bestTableIndex = tableIndex;
+                bestPixelIndex = pixelIndex;
+            }
+        }
+    }
+
+    block->fHigh |= (bestTableIndex << 5) | (bestTableIndex << 2);
+
+    for (int i = 0; i < 16; ++i) {
+        block->fLow |= bestPixelIndex << 2*i;
+    }
+}
+
+static void fill_in_etc1(SkColor color, ETC1Block* blocks, int numBlocks) {
+    ETC1Block block;
+    create_etc1_block(color, &block);
+
+    for (size_t i = 0; i < numBlocks; ++i) {
+        blocks[i] = block;
+    }
+}
+
+static int num_etc1_blocks(int w, int h) {
+    if (w < 4) {
+        w = 1;
+    } else {
+       SkASSERT((w & 3) == 0);
+       w >>= 2;
+    }
+
+    if (h < 4) {
+        h = 1;
+    } else {
+       SkASSERT((h & 3) == 0);
+       h >>= 2;
+    }
+
+    return w * h;
+}
+
+static bool fill_in_with_color(GrPixelConfig config, int width, int height,
+                               const SkColor4f& colorf, void* dest) {
+    SkASSERT(kRGB_ETC1_GrPixelConfig != config);
+
+    GrColor color = colorf.toBytes_RGBA();
+
+    uint8_t r = GrColorUnpackR(color);
+    uint8_t g = GrColorUnpackG(color);
+    uint8_t b = GrColorUnpackB(color);
+    uint8_t a = GrColorUnpackA(color);
+
+    // TODO: use sk_memset32, sk_memset16, and SkOpts::rect_memset16/32/64
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:                            // fall through
+        case kAlpha_8_as_Alpha_GrPixelConfig:                   // fall through
+        case kAlpha_8_as_Red_GrPixelConfig: {
+            memset(dest, a, width * height);
+            break;
+        }
+        case kGray_8_GrPixelConfig:                             // fall through
+        case kGray_8_as_Lum_GrPixelConfig:                      // fall through
+        case kGray_8_as_Red_GrPixelConfig: {
+            uint8_t gray8 = SkComputeLuminance(r, g, b);
+            memset(dest, gray8, width * height);
+            break;
+        }
+        case kRGB_565_GrPixelConfig: {
+            uint16_t* dest16 = (uint16_t*) dest;
+            uint16_t rgb565 = SkPack888ToRGB16(r, g, b);
+            for (int i = 0; i < width * height; ++i) {
+                dest16[i] = rgb565;
+            }
+            break;
+        }
+        case kRGBA_4444_GrPixelConfig: {
+            uint16_t* dest16 = (uint16_t*) dest;
+            uint8_t r4 = (r >> 4) & 0xF;
+            uint8_t g4 = (g >> 4) & 0xF;
+            uint8_t b4 = (b >> 4) & 0xF;
+            uint8_t a4 = (a >> 4) & 0xF;
+
+            uint16_t rgba4444 = r4 << SK_R4444_SHIFT | g4 << SK_G4444_SHIFT |
+                                b4 << SK_B4444_SHIFT | a4 << SK_A4444_SHIFT;
+
+            for (int i = 0; i < width * height; ++i) {
+                dest16[i] = rgba4444;
+            }
+            break;
+        }
+        case kRGBA_8888_GrPixelConfig: {
+            GrColor* destColor = (GrColor *) dest;
+            for (int i = 0; i < width * height; ++i) {
+                destColor[i] = color;
+            }
+            break;
+        }
+        case kRGB_888_GrPixelConfig: {
+            uint8_t* dest8 = (uint8_t*) dest;
+            for (int i = 0; i < width * height; ++i, dest8 += 3) {
+                dest8[0] = r;
+                dest8[1] = g;
+                dest8[2] = b;
+            }
+            break;
+        }
+        case kRGB_888X_GrPixelConfig: {
+            GrColor opaque = GrColorPackRGBA(r, g, b, 0xFF);
+
+            GrColor* destColor = (GrColor *) dest;
+            for (int i = 0; i < width * height; ++i) {
+                destColor[i] = opaque;
+            }
+            break;
+        }
+        case kRG_88_GrPixelConfig: {
+            uint8_t* dest8 = (uint8_t*) dest;
+            for (int i = 0; i < width * height; ++i, dest8 += 2) {
+                dest8[0] = r;
+                dest8[1] = g;
+            }
+            break;
+        }
+        case kBGRA_8888_GrPixelConfig: {
+            GrColor swizzled = GrColorPackRGBA(b, g, r, a);
+
+            GrColor* destColor = (GrColor *) dest;
+            for (int i = 0; i < width * height; ++i) {
+                destColor[i] = swizzled;
+            }
+            break;
+        }
+        case kSRGBA_8888_GrPixelConfig: {
+            // TODO: ask Brian O. what to do here
+            GrColor* destColor = (GrColor *) dest;
+            for (int i = 0; i < width * height; ++i) {
+                destColor[i] = color;
+            }
+            break;
+        }
+        case kSBGRA_8888_GrPixelConfig: {
+            // TODO: ask Brian O. what to do here
+            GrColor swizzled = GrColorPackRGBA(b, g, r, a);
+
+            GrColor* destColor = (GrColor *) dest;
+            for (int i = 0; i < width * height; ++i) {
+                destColor[i] = swizzled;
+            }
+            break;
+        }
+        case kRGBA_1010102_GrPixelConfig: {
+            uint32_t r10 = SkScalarRoundToInt(colorf.fR * 1023.0f);
+            uint32_t g10 = SkScalarRoundToInt(colorf.fG * 1023.0f);
+            uint32_t b10 = SkScalarRoundToInt(colorf.fB * 1023.0f);
+            uint8_t  a2  = SkScalarRoundToInt(colorf.fA * 3.0f);
+
+            uint32_t rgba1010102 = a2 << 30 | b10 << 20 | g10 << 10 | r10;
+
+            uint32_t* destColor = (uint32_t *) dest;
+            for (int i = 0; i < width * height; ++i) {
+                destColor[i] = rgba1010102;
+            }
+            break;
+        }
+        case kRGBA_float_GrPixelConfig: {
+            SkColor4f* destColor = (SkColor4f*) dest;
+            for (int i = 0; i < width * height; ++i) {
+                destColor[i] = colorf;
+            }
+            break;
+        }
+        case kRG_float_GrPixelConfig: {
+            float* destFloat = (float*) dest;
+            for (int i = 0; i < width * height; ++i, destFloat += 2) {
+                destFloat[0] = colorf.fR;
+                destFloat[1] = colorf.fG;
+            }
+            break;
+        }
+        case kAlpha_half_as_Red_GrPixelConfig:                  // fall through
+        case kAlpha_half_GrPixelConfig: {
+            SkHalf* destHalf = (SkHalf*) dest;
+            SkHalf alphaHalf = SkFloatToHalf(colorf.fA);
+            for (int i = 0; i < width * height; ++i) {
+                destHalf[i] = alphaHalf;
+            }
+            break;
+        }
+        case kRGBA_half_GrPixelConfig:                          // fall through
+        case kRGBA_half_Clamped_GrPixelConfig: {
+            SkHalf* destHalf = (SkHalf*) dest;
+            SkHalf rHalf = SkFloatToHalf(colorf.fR);
+            SkHalf gHalf = SkFloatToHalf(colorf.fG);
+            SkHalf bHalf = SkFloatToHalf(colorf.fB);
+            SkHalf aHalf = SkFloatToHalf(colorf.fA);
+            for (int i = 0; i < width * height; ++i, destHalf += 4) {
+                destHalf[0] = rHalf;
+                destHalf[1] = gHalf;
+                destHalf[2] = bHalf;
+                destHalf[3] = aHalf;
+            }
+            break;
+        }
+        default:
+            return false;
+            break;
+    }
+
+    return true;
+}
+
+GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
+                                               const GrBackendFormat& format,
+                                               GrMipMapped mipMapped,
+                                               GrRenderable renderable,
+                                               const void* pixels, size_t rowBytes,
+                                               const SkColor4f& colorf) {
     this->handleDirtyContext();
 
     const GrGLenum* glFormat = format.getGLFormat();
@@ -4095,7 +4379,7 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(int w, int h,
         return GrBackendTexture();  // invalid
     }
 
-    if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
+    if (w == 0 || w > this->caps()->maxTextureSize() || h == 0 || h > this->caps()->maxTextureSize()) {
         return GrBackendTexture();  // invalid
     }
 
@@ -4107,90 +4391,93 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(int w, int h,
     if (mipMapped == GrMipMapped::kYes && !this->caps()->mipMapSupport()) {
         return GrBackendTexture();
     }
-    int bpp = GrBytesPerPixel(config);
-    const size_t trimRowBytes = w * bpp;
-    if (!rowBytes) {
-        rowBytes = trimRowBytes;
-    }
 
     GrGLTextureInfo info;
-    info.fTarget = GR_GL_TEXTURE_2D;
     info.fID = 0;
+    info.fTarget = GR_GL_TEXTURE_2D;
     GL_CALL(GenTextures(1, &info.fID));
+
+    if (!info.fID) {
+        return GrBackendTexture();
+    }
+
     this->bindTextureToScratchUnit(info.fTarget, info.fID);
+
+    if (GrRenderable::kYes == renderable && this->glCaps().textureUsageSupport()) {
+        // provides a hint about how this texture will be used
+        GL_CALL(TexParameteri(info.fTarget,
+                              GR_GL_TEXTURE_USAGE,
+                              GR_GL_FRAMEBUFFER_ATTACHMENT));
+    }
+
     GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
-    GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_MAG_FILTER, GR_GL_NEAREST));
-    GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_MIN_FILTER, GR_GL_NEAREST));
-    GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_WRAP_S, GR_GL_CLAMP_TO_EDGE));
-    GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_WRAP_T, GR_GL_CLAMP_TO_EDGE));
 
-    // we have to do something special for compressed textures
+    auto initialTexParams = set_initial_texture_params(this->glInterface(), info);
+
+    // Figure out the number of mip levels.
+    int mipLevelCount = 1;
+    if (GrMipMapped::kYes == mipMapped) {
+        mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
+    }
+
+    SkAutoTMalloc<GrMipLevel> texels(mipLevelCount);
+
+    bool success;
     if (GrPixelConfigIsCompressed(config)) {
-        GrGLenum internalFormat;
-        const GrGLInterface* interface = this->glInterface();
-        const GrGLCaps& caps = this->glCaps();
-        if (!caps.getCompressedTexImageFormats(config, &internalFormat)) {
-            return GrBackendTexture();
+        // we have to do something special for compressed textures
+        SkASSERT(GrRenderable::kNo == renderable);
+        SkASSERT(0 == rowBytes);
+
+        int numBlocks = num_etc1_blocks(w, h);
+        SkAutoTMalloc<ETC1Block> defaultStorage(numBlocks);
+        if (!pixels) {
+            SkColor color = colorf.toSkColor();
+            fill_in_etc1(color, defaultStorage.get(), numBlocks);
+            pixels = defaultStorage.get();
         }
 
-        GrMipLevel mipLevel = { pixels, rowBytes };
-        if (!allocate_and_populate_compressed_texture(config, *interface, caps, info.fTarget,
-                                                      internalFormat, &mipLevel, 1,
-                                                      w, h)) {
-            return GrBackendTexture();
+        for (int i = 0; i < mipLevelCount; ++i) {
+            // TODO: this isn't correct when pixels for additional mip levels are passed in
+            texels.get()[i] = { pixels, 0 };
         }
+
+        success = this->uploadCompressedTexData(config, w, h, info.fTarget,
+                                                texels.get(), mipLevelCount, nullptr);
+
     } else {
-        bool restoreGLRowLength = false;
-        if (trimRowBytes != rowBytes && this->glCaps().unpackRowLengthSupport()) {
-            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowBytes / bpp));
-            restoreGLRowLength = true;
-        }
-
-        GrGLenum internalFormat;
-        GrGLenum externalFormat;
-        GrGLenum externalType;
-
-        if (!this->glCaps().getTexImageFormats(config, config, &internalFormat, &externalFormat,
-                                               &externalType)) {
-            return GrBackendTexture();  // invalid
+        int bpp = GrBytesPerPixel(config);
+        const size_t trimRowBytes = w * bpp;
+        if (!rowBytes) {
+            rowBytes = trimRowBytes;
         }
 
         info.fFormat = this->glCaps().configSizedInternalFormat(config);
 
-        this->unbindCpuToGpuXferBuffer();
-
-        // Figure out the number of mip levels.
-        int mipLevels = 1;
-        if (GrMipMapped::kYes == mipMapped) {
-            mipLevels = SkMipMap::ComputeLevelCount(w, h) + 1;
-        }
-
         size_t baseLayerSize = bpp * w * h;
         SkAutoMalloc defaultStorage(baseLayerSize);
         if (!pixels) {
-            // Fill in the texture with all zeros so we don't have random garbage
-            pixels = defaultStorage.get();
-            memset(defaultStorage.get(), 0, baseLayerSize);
-        } else if (trimRowBytes != rowBytes && !restoreGLRowLength) {
-            // We weren't able to use GR_GL_UNPACK_ROW_LENGTH so make a copy
-            char* copy = (char*)defaultStorage.get();
-            for (int y = 0; y < h; ++y) {
-                memcpy(&copy[y*trimRowBytes], &((const char*)pixels)[y*rowBytes], trimRowBytes);
+            if (!fill_in_with_color(config, w, h, colorf, defaultStorage.get())) {
+                GL_CALL(DeleteTextures(1, &(info.fID)));
+                return GrBackendTexture();
             }
-            pixels = copy;
+
+            pixels = defaultStorage.get();
+            rowBytes = trimRowBytes;
         }
 
-        int width = w;
-        int height = h;
-        for (int i = 0; i < mipLevels; ++i) {
-            GL_CALL(TexImage2D(info.fTarget, i, internalFormat, width, height, 0, externalFormat,
-                               externalType, pixels));
-            width = SkTMax(1, width / 2);
-            height = SkTMax(1, height / 2);
+        for (int i = 0; i < mipLevelCount; ++i) {
+            // TODO: this isn't correct when pixels for additional mip levels are passed in
+            texels.get()[i] = { pixels, rowBytes };
         }
-        if (restoreGLRowLength) {
-            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-        }
+
+        success = this->uploadTexData(config, w, h, info.fTarget, kNewTexture_UploadType,
+                                      0, 0, w, h, config, texels.get(), mipLevelCount,
+                                      nullptr);
+    }
+
+    if (!success) {
+        GL_CALL(DeleteTextures(1, &(info.fID)));
+        return GrBackendTexture();
     }
 
     // unbind the texture from the texture unit to avoid asserts
@@ -4205,7 +4492,7 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(int w, int h,
     return beTex;
 }
 
-void GrGLGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
+void GrGLGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(GrBackendApi::kOpenGL == tex.backend());
 
     GrGLTextureInfo info;
