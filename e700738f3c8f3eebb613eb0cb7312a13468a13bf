@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d6d8fcb_8d864c4e",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-21T15:44:01Z",
+      "side": 0,
+      "message": "I suspect we\u0027re going to be happier keeping analogous code together rather than sorting alphabetically.  It\u0027s nice to see float-\u003eint, int-\u003efloat, unsigned-\u003efloat all in one glance.  Or we could go two-for-one and rename them with a common prefix, \"kCvtFloatToInt\", etc?",
+      "revId": "e700738f3c8f3eebb613eb0cb7312a13468a13bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
