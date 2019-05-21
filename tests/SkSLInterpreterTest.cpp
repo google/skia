@@ -343,6 +343,64 @@ DEF_TEST(SkSLInterpreterSetInputs, r) {
     REPORTER_ASSERT(r, out == 5.0f);
 }
 
+DEF_TEST(SkSLInterpreterCompound, r) {
+    struct RectAndColor { SkIRect fRect; SkColor4f fColor; };
+
+    const char* src =
+        // Some struct definitions
+        "struct Point { int x; int y; };\n"
+        "struct Rect {  Point p0; Point p1; };\n"
+        "struct RectAndColor { Rect r; float4 color; };\n"
+
+        // Structs as globals, parameters, return values
+        "RectAndColor temp;\n"
+        "int rect_height(Rect r) { return r.p1.y - r.p0.y; }\n"
+        "RectAndColor make_blue_rect(int w, int h) {\n"
+        "  temp.r.p0.x = temp.r.p0.y = 0;\n"
+        "  temp.r.p1.x = w; temp.r.p1.y = h;\n"
+        "  temp.color = float4(0, 1, 0, 1);\n"
+        "  return temp;\n"
+        "}\n";
+
+        // Same for arrays
+
+        // Mixed
+
+        // With swizzles
+
+    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+                                                             SkSL::Program::kGeneric_Kind,
+                                                             SkSL::String(src), settings);
+    REPORTER_ASSERT(r, program);
+
+    std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
+    REPORTER_ASSERT(r, !compiler.errorCount());
+
+    auto rect_height = byteCode->getFunction("rect_height");
+    auto make_blue_rect = byteCode->getFunction("make_blue_rect");
+
+    REPORTER_ASSERT(r, rect_height);
+    REPORTER_ASSERT(r, make_blue_rect);
+
+    SkSL::Interpreter interpreter(std::move(program), std::move(byteCode), nullptr);
+
+    SkIRect rect = SkIRect::MakeXYWH(10, 10, 20, 30);
+    int height = 0;
+    interpreter.run(*rect_height, (SkSL::Interpreter::Value*)&rect,
+                    (SkSL::Interpreter::Value*)&height);
+    REPORTER_ASSERT(r, height = 30);
+
+    int wh[2] = { 15, 25 };
+    RectAndColor rectAndColor;
+    interpreter.run(*make_blue_rect, (SkSL::Interpreter::Value*)wh,
+                    (SkSL::Interpreter::Value*)&rectAndColor);
+    REPORTER_ASSERT(r, rectAndColor.fRect.width() == 15);
+    REPORTER_ASSERT(r, rectAndColor.fRect.height() == 25);
+    SkColor4f blue = { 0.0f, 1.0f, 0.0f, 1.0f };
+    REPORTER_ASSERT(r, rectAndColor.fColor == blue);
+}
 
 DEF_TEST(SkSLInterpreterFunctions, r) {
     const char* src =
