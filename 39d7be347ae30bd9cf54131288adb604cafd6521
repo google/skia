@@ -46,6 +46,30 @@
       "revId": "39d7be347ae30bd9cf54131288adb604cafd6521",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9627763_250b2342",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1648,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-21T20:58:57Z",
+      "side": 1,
+      "message": "I mean, it\u0027s fine either way.  --\u003e is snazzy, but -- \u003e works just as well.\n\nThe important thing is that this particular loop-n-times idiom is the best to use, better than counting up with a for loop and otherwise unused int i, better than  counting down with while (--n \u003e\u003d 0).",
+      "parentUuid": "a2ca7d68_22c42fa3",
+      "range": {
+        "startLine": 1648,
+        "startChar": 26,
+        "endLine": 1648,
+        "endChar": 30
+      },
+      "revId": "39d7be347ae30bd9cf54131288adb604cafd6521",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
