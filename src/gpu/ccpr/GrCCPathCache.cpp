@@ -226,12 +226,14 @@ GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
         ++entry->fHitCount;
 
         if (entry->fCachedAtlas) {
-            SkASSERT(SkToBool(entry->fCachedAtlas->peekOnFlushRefCnt())
-                             == SkToBool(entry->fCachedAtlas->getOnFlushProxy()));
+            SkASSERT(SkToBool(entry->fCachedAtlas->peekOnFlushRefCnt()) ==
+                     SkToBool(entry->fCachedAtlas->getOnFlushProxy()));
             if (!entry->fCachedAtlas->getOnFlushProxy()) {
-                entry->fCachedAtlas->setOnFlushProxy(
-                    onFlushRP->findOrCreateProxyByUniqueKey(entry->fCachedAtlas->textureKey(),
-                                                            GrCCAtlas::kTextureOrigin));
+                if (sk_sp<GrTextureProxy> onFlushProxy = onFlushRP->findOrCreateProxyByUniqueKey(
+                        entry->fCachedAtlas->textureKey(), GrCCAtlas::kTextureOrigin)) {
+                    onFlushProxy->priv().setIgnoredByResourceAllocator();
+                    entry->fCachedAtlas->setOnFlushProxy(std::move(onFlushProxy));
+                }
             }
             if (!entry->fCachedAtlas->getOnFlushProxy()) {
                 // Our atlas's backing texture got purged from the GrResourceCache. Release the
