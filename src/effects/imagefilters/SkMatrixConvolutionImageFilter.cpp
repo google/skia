@@ -367,7 +367,8 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), dstBounds, ctx.outputProperties());
+        return DrawWithFP(context, std::move(fp), dstBounds,
+                          ctx.outputProperties(), inputProxy->isProtected());
     }
 #endif
 

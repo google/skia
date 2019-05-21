@@ -307,7 +307,8 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         sk_sp<GrRenderTargetContext> renderTargetContext(
             context->priv().makeDeferredRenderTargetContext(
                     format, SkBackingFit::kApprox, bounds.width(), bounds.height(), config,
-                    sk_ref_sp(colorSpace)));
+                    sk_ref_sp(colorSpace), 1, GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin,
+                    nullptr, SkBudgeted::kYes, colorProxy->isProtected()));
         if (!renderTargetContext) {
             return nullptr;
         }

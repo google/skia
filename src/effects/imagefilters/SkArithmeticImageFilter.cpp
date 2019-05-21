@@ -366,7 +366,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         context->priv().makeDeferredRenderTargetContext(
             format, SkBackingFit::kApprox, bounds.width(), bounds.height(),
             SkColorType2GrPixelConfig(colorType),
-            sk_ref_sp(outputProperties.colorSpace())));
+            sk_ref_sp(outputProperties.colorSpace()), backgroundProxy->isProtected()));
     if (!renderTargetContext) {
         return nullptr;
     }
