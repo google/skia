@@ -39,7 +39,7 @@ class AndroidFlavor(default.DefaultFlavor):
     # A list of devices we can't root.  If rooting fails and a device is not
     # on the list, we fail the task to avoid perf inconsistencies.
     self.rootable_blacklist = ['GalaxyS6', 'GalaxyS7_G930FD', 'GalaxyS9',
-                               'MotoG4', 'NVIDIA_Shield']
+                               'MotoG4', 'NVIDIA_Shield', 'P30']
 
     # Maps device type -> CPU ids that should be scaled for nanobench.
     # Many devices have two (or more) different CPUs (e.g. big.LITTLE
