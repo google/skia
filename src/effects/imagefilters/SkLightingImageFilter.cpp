@@ -471,7 +471,8 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
         context->priv().makeDeferredRenderTargetContext(
                                 format, SkBackingFit::kApprox, offsetBounds.width(),
                                 offsetBounds.height(), SkColorType2GrPixelConfig(colorType),
-                                sk_ref_sp(outputProperties.colorSpace())));
+                                sk_ref_sp(outputProperties.colorSpace()),
+                                inputProxy->isProtected()));
     if (!renderTargetContext) {
         return nullptr;
     }
