@@ -1890,11 +1890,12 @@ static bool vk_format_to_pixel_config(VkFormat format, GrPixelConfig* config) {
     return false;
 }
 
-GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(int w, int h,
-                                                          const GrBackendFormat& format,
-                                                          GrMipMapped mipMapped,
-                                                          GrRenderable renderable,
-                                                          const void* srcData, size_t rowBytes) {
+GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
+                                               const GrBackendFormat& format,
+                                               GrMipMapped mipMapped,
+                                               GrRenderable renderable,
+                                               const void* srcData, size_t rowBytes,
+                                               const SkColor4f& color) {
     this->handleDirtyContext();
 
 
@@ -1930,7 +1931,7 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(int w, int h,
     return beTex;
 }
 
-void GrVkGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
+void GrVkGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(GrBackendApi::kVulkan == tex.fBackend);
 
     GrVkImageInfo info;
