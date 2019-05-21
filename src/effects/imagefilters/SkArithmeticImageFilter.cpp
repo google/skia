@@ -323,6 +323,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     }
 
     if (foregroundProxy) {
+        const bool isProtected = foregroundProxy->isProtected();
         SkIRect fgSubset = foreground->subset();
         SkMatrix foregroundMatrix = SkMatrix::MakeTrans(
                 SkIntToScalar(fgSubset.left() - foregroundOffset.fX),
@@ -366,7 +367,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         context->priv().makeDeferredRenderTargetContext(
             format, SkBackingFit::kApprox, bounds.width(), bounds.height(),
             SkColorType2GrPixelConfig(colorType),
-            sk_ref_sp(outputProperties.colorSpace())));
+            sk_ref_sp(outputProperties.colorSpace()), isProtected);
     if (!renderTargetContext) {
         return nullptr;
     }
