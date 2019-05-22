@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "054e4cc6_52d9c99d",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-22T15:31:20Z",
+      "side": 1,
+      "message": "Yeah, I can imagine it makes sense in your head, but it doesn\u0027t in the file.  Even if it\u0027s just one more CL, there\u0027s really no downside to waiting.  It helps make reading the diffs easier too: \"now that we\u0027re looking to do X, oh ok we need to be doing Y over here too\".",
+      "parentUuid": "0d0322ce_946f98c0",
+      "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b1e68da_5d80b72f",
         "filename": "src/sksl/SkSLInterpreter.cpp",
         "patchSetId": 7
