@@ -195,7 +195,7 @@ public:
 
     const char* name() const override { return "TextureOp"; }
 
-    void visitProxies(const VisitProxyFunc& func, VisitorType visitor) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             func(fProxies[p].fProxy);
         }
