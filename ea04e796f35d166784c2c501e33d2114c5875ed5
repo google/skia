@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8c81b99_aeef910c",
+        "filename": "src/core/SkFont.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-22T19:06:30Z",
+      "side": 1,
+      "message": "already checked...",
+      "range": {
+        "startLine": 337,
+        "startChar": 7,
+        "endLine": 337,
+        "endChar": 32
+      },
+      "revId": "ea04e796f35d166784c2c501e33d2114c5875ed5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
