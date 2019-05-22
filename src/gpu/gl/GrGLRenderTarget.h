@@ -40,9 +40,6 @@ public:
                                                const IDDesc&,
                                                int stencilBits);
 
-    void setViewport(const GrGLIRect& rect) { fViewport = rect; }
-    const GrGLIRect& getViewport() const { return fViewport; }
-
     // The following two functions return the same ID when a texture/render target is not
     // multisampled, and different IDs when it is multisampled.
     // FBO ID used to render into
@@ -105,11 +102,6 @@ private:
     GrGLenum    fRTFormat;
 
     GrBackendObjectOwnership fRTFBOOwnership;
-
-    // when we switch to this render target we want to set the viewport to
-    // only render to content area (as opposed to the whole allocation) and
-    // we want the rendering to be at top left (GL has origin in bottom left)
-    GrGLIRect   fViewport;
 
     // The RenderTarget needs to be able to report its VRAM footprint even after abandon and
     // release have potentially zeroed out the IDs (e.g., so the cache can reset itself). Since
