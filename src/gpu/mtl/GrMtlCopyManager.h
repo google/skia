@@ -29,6 +29,8 @@ public:
 
     static bool IsCompatible(const GrMtlCopyPipelineState*, MTLPixelFormat dstPixelFormat);
 
+    void destroyResources();
+
 private:
     enum BufferIndex {
         kUniform_BufferIndex,

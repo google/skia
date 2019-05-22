@@ -18,9 +18,11 @@ class GrMtlGpu;
 class GrStencilSettings;
 
 // A wrapper for a MTLDepthStencilState object with caching support.
-class GrMtlDepthStencil {
+class GrMtlDepthStencil : public SkRefCnt {
 public:
     static GrMtlDepthStencil* Create(const GrMtlGpu*, const GrStencilSettings&, GrSurfaceOrigin);
+
+    ~GrMtlDepthStencil() { fMtlDepthStencilState = nil; }
 
     id<MTLDepthStencilState> mtlDepthStencil() const { return fMtlDepthStencilState; }
 
