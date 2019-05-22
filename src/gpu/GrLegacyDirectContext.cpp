@@ -135,6 +135,7 @@ sk_sp<GrContext> GrContext::MakeGL() {
 
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
                                    const GrContextOptions& options) {
+#ifdef SK_GL
     sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kOpenGL, options));
 
     context->fGpu = GrGLGpu::Make(std::move(interface), options, context.get());
@@ -146,6 +147,9 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
         return nullptr;
     }
     return context;
+#else
+    return nullptr;
+#endif
 }
 
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {

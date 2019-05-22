@@ -22,7 +22,9 @@
 #include "src/gpu/ops/GrDashLinePathRenderer.h"
 #include "src/gpu/ops/GrDefaultPathRenderer.h"
 #include "src/gpu/ops/GrSmallPathRenderer.h"
+#ifdef SK_GL
 #include "src/gpu/ops/GrStencilAndCoverPathRenderer.h"
+#endif
 #include "src/gpu/ops/GrTessellatingPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Options& options) {
@@ -30,6 +32,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
         fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
     }
+#ifdef SK_GL
     if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
         auto direct = context->priv().asDirectContext();
         if (direct) {
@@ -42,6 +45,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
             }
         }
     }
+#endif
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
     }
