@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d262ce1_4fccaeb0",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-22T20:55:16Z",
+      "side": 1,
+      "message": "lets make it clear that the color is ignored if pixels are provided. Also as discussed offline, I think allowing the texture to be uninitialized is fine.",
+      "range": {
+        "startLine": 409,
+        "startChar": 49,
+        "endLine": 410,
+        "endChar": 90
+      },
+      "revId": "7eca2ed3f6748b7bcece823d2a93afccdd812cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
