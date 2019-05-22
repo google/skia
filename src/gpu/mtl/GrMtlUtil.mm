@@ -16,6 +16,10 @@
 
 #import <Metal/Metal.h>
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 #define PRINT_MSL 0 // print out the MSL code generated
 
 bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {

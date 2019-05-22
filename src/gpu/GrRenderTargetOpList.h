@@ -155,7 +155,7 @@ private:
             SkASSERT(fList.empty());
         }
 
-        void visitProxies(const GrOp::VisitProxyFunc&, GrOp::VisitorType) const;
+        void visitProxies(const GrOp::VisitProxyFunc&) const;
 
         GrOp* head() const { return fList.head(); }
 

@@ -113,7 +113,7 @@ void GrAtlasTextOp::init() {
     this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 }
 
-void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func, VisitorType) const {
+void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
     fProcessors.visitProxies(func);
 }
 

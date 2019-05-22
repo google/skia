@@ -114,6 +114,9 @@ def nanobench_flags(api, bot):
     if 'Vulkan' in bot:
       configs = ['vk']
 
+    if 'Metal' in bot:
+      configs = ['mtl']
+
     if 'ANGLE' in bot:
       # Test only ANGLE configs.
       configs = ['angle_d3d11_es2']
@@ -408,6 +411,8 @@ TEST_BUILDERS = [
   'Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All',
   ('Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-'
    'CommandBuffer'),
+  ('Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-'
+   'Metal'),
   ('Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-'
    'MoltenVK_Vulkan'),
   ('Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'

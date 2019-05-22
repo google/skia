@@ -19,10 +19,6 @@
 using sk_app::DisplayParams;
 using sk_app::MetalWindowContext;
 
-#ifdef SK_BUILD_FOR_MAC
-#import <QuartzCore/CAConstraintLayoutManager.h>
-#endif
-
 namespace sk_app {
 
 MetalWindowContext::MetalWindowContext(const DisplayParams& params)
@@ -50,13 +46,6 @@ void MetalWindowContext::initializeContext() {
     fMetalLayer = [CAMetalLayer layer];
     fMetalLayer.device = fDevice;
     fMetalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-#ifdef SK_BUILD_FOR_MAC
-    BOOL useVsync = fDisplayParams.fDisableVsync ? NO : YES;
-    fMetalLayer.displaySyncEnabled = useVsync;  // TODO: need solution for 10.12 or lower
-    fMetalLayer.layoutManager = [CAConstraintLayoutManager layoutManager];
-    fMetalLayer.autoresizingMask = kCALayerHeightSizable | kCALayerWidthSizable;
-    fMetalLayer.contentsGravity = kCAGravityTopLeft;
-#endif
 
     fValid = this->onInitializeContext();
 

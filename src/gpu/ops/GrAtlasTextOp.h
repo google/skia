@@ -67,7 +67,7 @@ public:
 
     const char* name() const override { return "AtlasTextOp"; }
 
-    void visitProxies(const VisitProxyFunc& func, VisitorType) const override;
+    void visitProxies(const VisitProxyFunc& func) const override;
 
 #ifdef SK_DEBUG
     SkString dumpInfo() const override;

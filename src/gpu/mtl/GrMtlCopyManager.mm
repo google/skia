@@ -22,6 +22,10 @@
 
 #import <simd/simd.h>
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 void GrMtlCopyManager::createCopyProgramBuffer() {
     // Create per vertex attribute data for copy as draw
     static const simd::float2 vdata[4] = {
@@ -225,4 +229,12 @@ bool GrMtlCopyManager::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrig
 bool GrMtlCopyManager::IsCompatible(const GrMtlCopyPipelineState* pipelineState,
                                     MTLPixelFormat dstPixelFormat) {
     return pipelineState->fPixelFormat == dstPixelFormat;
+}
+
+void GrMtlCopyManager::destroyResources() {
+    fSamplerState = nil;
+    fVertexAttributeBuffer = nil;
+    fVertexFunction = nil;
+    fFragmentFunction = nil;
+    fVertexDescriptor = nil;
 }
