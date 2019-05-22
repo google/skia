@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "0d0322ce_946f98c0",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-22T15:24:15Z",
+      "side": 1,
+      "message": "Normally I agree not to get ahead of oneself, but literally my next CL is going to use this. It didn\u0027t seem like putting the cart before the horse in this case.",
+      "parentUuid": "8a805f90_9a96c2d7",
+      "revId": "4c840aaf85323028f808f4a768c7deb6e7e88bc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b1e68da_5d80b72f",
         "filename": "src/sksl/SkSLInterpreter.cpp",
         "patchSetId": 7
