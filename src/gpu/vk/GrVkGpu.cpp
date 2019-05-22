@@ -1894,7 +1894,8 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
                                                const GrBackendFormat& format,
                                                GrMipMapped mipMapped,
                                                GrRenderable renderable,
-                                               const void* srcData, size_t rowBytes) {
+                                               const void* srcData, size_t rowBytes,
+                                               const SkColor4f& color) {
     this->handleDirtyContext();
 
 
