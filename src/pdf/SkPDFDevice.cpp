@@ -33,6 +33,7 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkStrike.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTextFormatParams.h"
 #include "src/core/SkXfermodeInterpretation.h"
 #include "src/pdf/SkBitmapKey.h"
@@ -823,7 +824,8 @@ void SkPDFDevice::internalDrawGlyphRun(
     SkClusterator clusterator(glyphRun);
 
     int emSize;
-    auto glyphCache = SkPDFFont::MakeVectorCache(typeface, &emSize);
+    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakePDFVector(*typeface, &emSize);
+    auto glyphCache = strikeSpec.findOrCreateExclusiveStrike();
 
     SkScalar textSize = glyphRunFont.getSize();
     SkScalar advanceScale = textSize * glyphRunFont.getScaleX() / emSize;
