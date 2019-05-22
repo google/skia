@@ -63,13 +63,7 @@ static void normalize_perspective(SkScalar mat[9]) {
         [persp-0    persp-1     persp-2]   [1]   [1 ]
 */
 
-void SkMatrix::reset() {
-    fMat[kMScaleX] = fMat[kMScaleY] = fMat[kMPersp2] = 1;
-    fMat[kMSkewX]  = fMat[kMSkewY] =
-    fMat[kMTransX] = fMat[kMTransY] =
-    fMat[kMPersp0] = fMat[kMPersp1] = 0;
-    this->setTypeMask(kIdentity_Mask | kRectStaysRect_Mask);
-}
+void SkMatrix::reset() { *this = SkMatrix(); }
 
 void SkMatrix::set9(const SkScalar buffer[]) {
     memcpy(fMat, buffer, 9 * sizeof(SkScalar));
@@ -274,18 +268,11 @@ static inline SkScalar scross(SkScalar a, SkScalar b, SkScalar c, SkScalar d) {
 }
 
 void SkMatrix::setTranslate(SkScalar dx, SkScalar dy) {
-    if ((dx != 0) | (dy != 0)) {
-        fMat[kMTransX] = dx;
-        fMat[kMTransY] = dy;
-
-        fMat[kMScaleX] = fMat[kMScaleY] = fMat[kMPersp2] = 1;
-        fMat[kMSkewX]  = fMat[kMSkewY] =
-        fMat[kMPersp0] = fMat[kMPersp1] = 0;
-
-        this->setTypeMask(kTranslate_Mask | kRectStaysRect_Mask);
-    } else {
-        this->reset();
-    }
+    *this = SkMatrix(1, 0, dx,
+                     0, 1, dy,
+                     0, 0, 1,
+                     (dx != 0 || dy != 0) ? kTranslate_Mask | kRectStaysRect_Mask
+                                          : kIdentity_Mask  | kRectStaysRect_Mask);
 }
 
 void SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
@@ -329,19 +316,11 @@ void SkMatrix::setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
 }
 
 void SkMatrix::setScale(SkScalar sx, SkScalar sy) {
-    if (1 == sx && 1 == sy) {
-        this->reset();
-    } else {
-        fMat[kMScaleX] = sx;
-        fMat[kMScaleY] = sy;
-        fMat[kMPersp2] = 1;
-
-        fMat[kMTransX] = fMat[kMTransY] =
-        fMat[kMSkewX]  = fMat[kMSkewY] =
-        fMat[kMPersp0] = fMat[kMPersp1] = 0;
-
-        this->setTypeMask(kScale_Mask | kRectStaysRect_Mask);
-    }
+    *this = SkMatrix(sx, 0,  0,
+                     0,  sy, 0,
+                     0,  0,  1,
+                     (sx == 1 && sy == 1) ? kIdentity_Mask | kRectStaysRect_Mask
+                                          : kScale_Mask    | kRectStaysRect_Mask);
 }
 
 void SkMatrix::preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
@@ -511,18 +490,10 @@ void SkMatrix::postRotate(SkScalar degrees) {
 ////////////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix::setSkew(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
-    fMat[kMScaleX]  = 1;
-    fMat[kMSkewX]   = sx;
-    fMat[kMTransX]  = -sx * py;
-
-    fMat[kMSkewY]   = sy;
-    fMat[kMScaleY]  = 1;
-    fMat[kMTransY]  = -sy * px;
-
-    fMat[kMPersp0] = fMat[kMPersp1] = 0;
-    fMat[kMPersp2] = 1;
-
-    this->setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
+    *this = SkMatrix(1,  sx, -sx * py,
+                     sy, 1,  -sy * px,
+                     0,  0,  1,
+                     kUnknown_Mask | kOnlyPerspectiveValid_Mask);
 }
 
 void SkMatrix::setSkew(SkScalar sx, SkScalar sy) {
@@ -1548,41 +1519,19 @@ bool SkMatrix::getMinMaxScales(SkScalar scaleFactors[2]) const {
     return get_scale_factor<kBoth_MinMaxOrBoth>(this->getType(), fMat, scaleFactors);
 }
 
-namespace {
-
-// SkMatrix is C++11 POD (trivial and standard-layout), but not aggregate (it has private fields).
-struct AggregateMatrix {
-    SkScalar matrix[9];
-    uint32_t typemask;
-
-    const SkMatrix& asSkMatrix() const { return *reinterpret_cast<const SkMatrix*>(this); }
-};
-static_assert(sizeof(AggregateMatrix) == sizeof(SkMatrix), "AggregateMatrix size mismatch.");
-
-}  // namespace
-
 const SkMatrix& SkMatrix::I() {
-    static_assert(offsetof(SkMatrix,fMat)      == offsetof(AggregateMatrix,matrix),   "fMat");
-    static_assert(offsetof(SkMatrix,fTypeMask) == offsetof(AggregateMatrix,typemask), "fTypeMask");
-
-    static const AggregateMatrix identity = { {SK_Scalar1, 0, 0,
-                                               0, SK_Scalar1, 0,
-                                               0, 0, SK_Scalar1 },
-                                             kIdentity_Mask | kRectStaysRect_Mask};
-    SkASSERT(identity.asSkMatrix().isIdentity());
-    return identity.asSkMatrix();
+    static constexpr SkMatrix identity;
+    SkASSERT(identity.isIdentity());
+    return identity;
 }
 
 const SkMatrix& SkMatrix::InvalidMatrix() {
-    static_assert(offsetof(SkMatrix,fMat)      == offsetof(AggregateMatrix,matrix),   "fMat");
-    static_assert(offsetof(SkMatrix,fTypeMask) == offsetof(AggregateMatrix,typemask), "fTypeMask");
-
-    static const AggregateMatrix invalid =
-        { {SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
-           SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
-           SK_ScalarMax, SK_ScalarMax, SK_ScalarMax },
-         kTranslate_Mask | kScale_Mask | kAffine_Mask | kPerspective_Mask };
-    return invalid.asSkMatrix();
+    static constexpr SkMatrix invalid(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
+                                      SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
+                                      SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
+                                      kTranslate_Mask | kScale_Mask |
+                                      kAffine_Mask | kPerspective_Mask);
+    return invalid;
 }
 
 bool SkMatrix::decomposeScale(SkSize* scale, SkMatrix* remaining) const {
