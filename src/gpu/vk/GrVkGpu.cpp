@@ -712,6 +712,14 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         if (!copyTexture) {
             return false;
         }
+
+        if (!this->vkCaps().canCopyAsBlit(tex->config(), 1, false,
+                                          copyTexture->config(), 1, false) &&
+            !this->vkCaps().canCopyAsDraw(tex->config(), SkToBool(tex->asRenderTarget()),
+                                          copyTexture->config(), true)) {
+            return false;
+        }
+
         uploadTexture = copyTexture.get();
         uploadLeft = 0;
         uploadTop = 0;
@@ -2107,14 +2115,15 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         if (rt) {
             srcSampleCount = rt->numColorSamples();
         }
-        static const GrSurfaceOrigin kOrigin = kTopLeft_GrSurfaceOrigin;
-        if (!this->vkCaps().canCopyAsBlit(copySurface->config(), 1, kOrigin,
-                                          surface->config(), srcSampleCount, kOrigin) &&
+        if (!this->vkCaps().canCopyAsBlit(copySurface->config(), 1, false,
+                                          surface->config(), srcSampleCount,
+                                          image->isLinearTiled()) &&
             !this->vkCaps().canCopyAsDraw(copySurface->config(), false,
                                           surface->config(), SkToBool(surface->asTexture()))) {
             return false;
         }
         SkIRect srcRect = SkIRect::MakeXYWH(left, top, width, height);
+        static const GrSurfaceOrigin kOrigin = kTopLeft_GrSurfaceOrigin;
         if (!this->copySurface(copySurface.get(), kOrigin, surface, kOrigin,
                                srcRect, SkIPoint::Make(0,0))) {
             return false;
