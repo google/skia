@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h" // Keep this before any #ifdef for skbug.com/3362
+
+#ifdef SK_GL
+
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTexture.h"
 #include "src/gpu/GrContextPriv.h"
@@ -197,3 +201,5 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
 }
+
+#endif

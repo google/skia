@@ -7,6 +7,10 @@
 
 // This test only works with the GPU backend.
 
+#include "include/core/SkTypes.h" // Keep this before any #ifdef for skbug.com/3362
+
+#ifdef SK_GL
+
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -23,7 +27,6 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
-#include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
@@ -219,3 +222,5 @@ private:
 
 DEF_GM(return new RectangleTexture;)
 }
+
+#endif

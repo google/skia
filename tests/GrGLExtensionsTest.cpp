@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
+#include "include/core/SkTypes.h" // Keep this before any #ifdef for skbug.com/3362
+
+#ifdef SK_GL
 
 #include "include/gpu/gl/GrGLExtensions.h"
 #include "src/gpu/gl/GrGLDefines.h"
@@ -46,3 +48,5 @@ DEF_TEST(GrGLExtensionsTest_remove, reporter) {
     REPORTER_ASSERT(reporter, ext.remove("test_extension_1"));
     REPORTER_ASSERT(reporter, !ext.has("test_extension_1"));
 }
+
+#endif
