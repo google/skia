@@ -303,10 +303,28 @@ void SkPDFEmitType1Font(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
         SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakePDFVector(*typeface, &emSize);
         auto glyphCache = strikeSpec.findOrCreateExclusiveStrike();
         auto widths = SkPDFMakeArray();
-        SkScalar advance = glyphCache->getGlyphIDAdvance(0).fAdvanceX;
+
+        SkGlyphID zeroID = 0;
+        SkPoint zeroAdvance;
+
+        glyphCache->getAdvances(SkSpan<const SkGlyphID>{&zeroID, 1}, &zeroAdvance);
+
+        SkScalar advance = zeroAdvance.x();
         widths->appendScalar(from_font_units(advance, SkToU16(emSize)));
+
+        int glyphRangeSize = lastGlyphID - firstGlyphID + 1;
+        SkAutoTArray<SkGlyphID> glyphIDs{glyphRangeSize};
+        for (unsigned gId = firstGlyphID; gId <= lastGlyphID; gId++) {
+            glyphIDs[gId] = gId;
+        }
+
+        SkAutoTArray<SkPoint> advances{glyphRangeSize};
+
+        glyphCache->getAdvances(
+                SkSpan<const SkGlyphID>{glyphIDs.get(), SkTo<size_t>(glyphRangeSize)},
+                advances.get());
         for (unsigned gID = firstGlyphID; gID <= lastGlyphID; gID++) {
-            advance = glyphCache->getGlyphIDAdvance(gID).fAdvanceX;
+            advance = advances[gID - firstGlyphID].x();
             widths->appendScalar(from_font_units(advance, SkToU16(emSize)));
         }
         font.insertObject("Widths", std::move(widths));
