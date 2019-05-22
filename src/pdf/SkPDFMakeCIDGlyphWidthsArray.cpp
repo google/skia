@@ -181,11 +181,21 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(SkStrike* cache,
     }
     AdvanceMetric curRange(0);
 
+    SkAutoTArray<SkGlyphID> glyphIDs{lastIndex + 1};
+    for (int gId = 0; gId <= lastIndex; gId++) {
+        glyphIDs[gId] = gId;
+    }
+
+    SkAutoTArray<SkPoint> advances{lastIndex + 1};
+
+    cache->getAdvances(
+            SkSpan<const SkGlyphID>{glyphIDs.get(), SkTo<size_t>(lastIndex + 1)}, advances.get());
+
     for (int gId = 0; gId <= lastIndex; gId++) {
         int16_t advance = kInvalidAdvance;
         if (gId < lastIndex) {
             if (!subset || 0 == gId || subset->has(gId)) {
-                advance = (int16_t)cache->getGlyphIDAdvance(gId).fAdvanceX;
+                advance = (int16_t)advances[gId].x();
             } else {
                 advance = kDontCareAdvance;
             }
