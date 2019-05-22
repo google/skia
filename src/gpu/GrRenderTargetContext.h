@@ -404,8 +404,15 @@ public:
 
     using ReadPixelsCallback = SkSurface::ReadPixelsCallback;
     using ReadPixelsContext = SkSurface::ReadPixelsContext;
-    bool asyncReadPixels(const SkImageInfo& info, int srcX, int srcY, ReadPixelsCallback,
-                         ReadPixelsContext);
+    sk_sp<GrRenderTargetContext> rescale(const SkImageInfo& info, const SkIRect& srcRect,
+                                         SkSurface::RescaleGamma rescaleGamma,
+                                         SkFilterQuality rescaleQuality);
+    bool asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                   SkSurface::RescaleGamma rescaleGamma,
+                                   SkFilterQuality rescaleQuality, ReadPixelsCallback callback,
+                                   ReadPixelsContext context);
+    bool asyncReadPixels(const SkImageInfo& info, int x, int y, ReadPixelsCallback callback,
+                         ReadPixelsContext context);
 
     /**
      * After this returns any pending surface IO will be issued to the backend 3D API and
