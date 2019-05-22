@@ -13,12 +13,15 @@
 #include "include/private/SkFixed.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkFontDescriptor.h"
+#include "src/core/SkFontPriv.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/sfnt/SkOTTable_OS_2.h"
 #include "src/sfnt/SkSFNTHeader.h"
+#include "src/utils/SkUTF.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 #include "tools/fonts/TestEmptyTypeface.h"
 
 #include <memory>
@@ -323,3 +326,23 @@ DEF_TEST(Typeface_serialize, reporter) {
 
 }
 
+DEF_TEST(Typeface_glyph_to_char, reporter) {
+    SkFont font(ToolUtils::emoji_typeface(), 12);
+    char const * text = ToolUtils::emoji_sample_text();
+    size_t const textLen = strlen(text);
+    size_t const codepointLen = SkUTF::CountUTF8(text, textLen);
+    char const * const textEnd = text + textLen;
+    std::unique_ptr<SkUnichar[]> codepoints(new SkUnichar[codepointLen]);
+    for (size_t i = 0; i < codepointLen; ++i) {
+        codepoints[i] = SkUTF::NextUTF8(&text, textEnd);
+    }
+    std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[codepointLen]);
+    font.unicharsToGlyphs(codepoints.get(), codepointLen, glyphs.get());
+
+    std::unique_ptr<SkUnichar[]> newCodepoints(new SkUnichar[codepointLen]);
+    SkFontPriv::GlyphsToUnichars(font, glyphs.get(), codepointLen, newCodepoints.get());
+
+    for (size_t i = 0; i < codepointLen; ++i) {
+        REPORTER_ASSERT(reporter, codepoints[i] == newCodepoints[i]);
+    }
+}
