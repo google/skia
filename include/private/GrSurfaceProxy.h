@@ -207,6 +207,29 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    enum class Access {
+        kSampleNearest,
+        kSampleBilerp,
+        kSampleMipMap,
+        kReadCopy,
+        kWrite
+    };
+
+    static constexpr bool IsReadAccess(Access access) { return Access::kWrite != access; }
+
+    static Access SampleAccessFromFilter(GrSamplerState::Filter filter) {
+        switch (filter) {
+            using Filter = GrSamplerState::Filter;
+            case Filter::kNearest: return Access::kSampleNearest;
+            case Filter::kBilerp: return Access::kSampleBilerp;
+            case Filter::kMipMap: return Access::kSampleMipMap;
+        }
+        SK_ABORT("Invalid GrSamplerState::Filter.");
+        return Access::kSampleNearest;
+    }
+
+    using VisitProxyFunc = std::function<void(GrSurfaceProxy*, Access)>;
+
     /**
      * Some lazy proxy callbacks want to set their own (or no key) on the GrSurfaces they return.
      * Others want the GrSurface's key to be kept in sync with the proxy's key. This enum controls

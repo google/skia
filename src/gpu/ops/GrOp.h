@@ -69,7 +69,7 @@ public:
 
     virtual const char* name() const = 0;
 
-    typedef std::function<void(GrSurfaceProxy*)> VisitProxyFunc;
+    using VisitProxyFunc = GrSurfaceProxy::VisitProxyFunc;
 
     /**
      * Knowning the type of visitor may enable an op to be more efficient by skipping irrelevant
