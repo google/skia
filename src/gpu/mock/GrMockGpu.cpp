@@ -201,7 +201,8 @@ GrBackendTexture GrMockGpu::createBackendTexture(int w, int h,
                                                  GrMipMapped mipMapped,
                                                  GrRenderable /* renderable */,
                                                  const void* /* pixels */,
-                                                 size_t /* rowBytes */) {
+                                                 size_t /* rowBytes */,
+                                                 const SkColor4f& /* color */) {
 
     const GrPixelConfig* pixelConfig = format.getMockFormat();
     if (!pixelConfig) {
