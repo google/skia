@@ -17,9 +17,10 @@ class GrSamplerState;
 class GrMtlGpu;
 
 // A wrapper for a MTLSamplerState object with caching support.
-class GrMtlSampler {
+class GrMtlSampler : public SkRefCnt {
 public:
     static GrMtlSampler* Create(const GrMtlGpu* gpu, const GrSamplerState&, uint32_t maxMipLevel);
+    ~GrMtlSampler() { fMtlSamplerState = nil; }
 
     id<MTLSamplerState> mtlSampler() const { return fMtlSamplerState; }
 

@@ -121,6 +121,10 @@ void GrMtlGpu::disconnect(DisconnectType type) {
         delete fCmdBuffer;
         fCmdBuffer = nullptr;
 
+        // We don't need to distinguish between abandon and destroy for these subsystems
+        fCopyManager.destroyResources();
+        fResourceProvider.destroyResources();
+
         fQueue = nil;
         fDevice = nil;
 
@@ -132,6 +136,9 @@ void GrMtlGpu::destroyResources() {
     // Will implicitly delete the command buffer
     this->submitCommandBuffer(SyncQueue::kForce_SyncQueue);
 
+    fCopyManager.destroyResources();
+    fResourceProvider.destroyResources();
+
     fQueue = nil;
     fDevice = nil;
 }
@@ -140,9 +147,7 @@ GrGpuRTCommandBuffer* GrMtlGpu::getCommandBuffer(
             GrRenderTarget* renderTarget, GrSurfaceOrigin origin, const SkRect& bounds,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    SK_BEGIN_AUTORELEASE_BLOCK
     return new GrMtlGpuRTCommandBuffer(this, renderTarget, origin, bounds, colorInfo, stencilInfo);
-    SK_END_AUTORELEASE_BLOCK
 }
 
 GrGpuTextureCommandBuffer* GrMtlGpu::getCommandBuffer(GrTexture* texture,
@@ -405,7 +410,6 @@ GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(const GrRe
 
     const GrMtlCaps::StencilFormat& sFmt = this->mtlCaps().preferredStencilFormat();
 
-    SK_BEGIN_AUTORELEASE_BLOCK
     GrMtlStencilAttachment* stencil(GrMtlStencilAttachment::Create(this,
                                                                    width,
                                                                    height,
@@ -413,7 +417,6 @@ GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(const GrRe
                                                                    sFmt));
     fStats.incStencilAttachmentCreates();
     return stencil;
-    SK_END_AUTORELEASE_BLOCK
 }
 
 sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
@@ -435,7 +438,6 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     sk_sp<GrMtlTexture> tex;
-    SK_BEGIN_AUTORELEASE_BLOCK
     // This TexDesc refers to the texture that will be read by the client. Thus even if msaa is
     // requested, this TexDesc describes the resolved texture. Therefore we always have samples
     // set to 1.
@@ -489,7 +491,6 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
     if (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
         this->clearTexture(tex.get(), colorType);
     }
-    SK_END_AUTORELEASE_BLOCK
 
     return std::move(tex);
 }
@@ -633,7 +634,6 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, MTLPixelFor
         return false;
     }
 
-    SK_BEGIN_AUTORELEASE_BLOCK
     bool mipmapped = mipMapped == GrMipMapped::kYes ? true : false;
     MTLTextureDescriptor* desc =
             [MTLTextureDescriptor texture2DDescriptorWithPixelFormat: format
@@ -695,9 +695,9 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, MTLPixelFor
     [blitCmdEncoder endEncoding];
     [cmdBuffer commit];
     [cmdBuffer waitUntilCompleted];
+    transferBuffer = nil;
 
     info->fTexture = GrReleaseId(testTexture);
-    SK_END_AUTORELEASE_BLOCK
 
     return true;
 }
@@ -1003,7 +1003,6 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
         return false;
     }
 
-    SK_BEGIN_AUTORELEASE_BLOCK
     bool success = false;
     if (this->mtlCaps().canCopyAsDraw(dst->config(), SkToBool(dst->asRenderTarget()),
                                       src->config(), SkToBool(src->asTexture()))) {
@@ -1024,7 +1023,6 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
         this->didWriteToSurface(dst, dstOrigin, &dstRect);
     }
     return success;
-    SK_END_AUTORELEASE_BLOCK
 }
 
 bool GrMtlGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
@@ -1044,10 +1042,8 @@ bool GrMtlGpu::onWritePixels(GrSurface* surface, int left, int top, int width, i
         SkASSERT(texels[i].fPixels);
     }
 #endif
-    SK_BEGIN_AUTORELEASE_BLOCK
     return this->uploadToTexture(mtlTexture, left, top, width, height, srcColorType, texels,
                                  mipLevelCount);
-    SK_END_AUTORELEASE_BLOCK
 }
 
 bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
@@ -1060,7 +1056,6 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
         return false;
     }
 
-    id<MTLBuffer> transferBuffer;
     int bpp = GrColorTypeBytesPerPixel(dstColorType);
     size_t transBufferRowBytes = bpp * width;
     SK_BEGIN_AUTORELEASE_BLOCK
@@ -1079,7 +1074,7 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
 #else
     options |= MTLResourceStorageModeShared;
 #endif
-    transferBuffer = [fDevice newBufferWithLength: transBufferImageBytes
+    id<MTLBuffer> transferBuffer = [fDevice newBufferWithLength: transBufferImageBytes
                                                         options: options];
 
     id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
@@ -1096,12 +1091,12 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     // Sync GPU data back to the CPU
     [blitCmdEncoder synchronizeResource: transferBuffer];
 #endif
-    SK_END_AUTORELEASE_BLOCK
 
     this->submitCommandBuffer(kForce_SyncQueue);
     const void* mappedMemory = transferBuffer.contents;
 
     SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, transBufferRowBytes, height);
+    SK_END_AUTORELEASE_BLOCK
 
     return true;
 

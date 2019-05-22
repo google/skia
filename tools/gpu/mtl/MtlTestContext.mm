@@ -37,11 +37,9 @@ public:
             , fQueue(queue)
             , fLatestEvent(0) {
         SkDEBUGCODE(fUnfinishedSyncs = 0;)
-        SK_BEGIN_AUTORELEASE_BLOCK
         fSharedEvent = [fDevice newSharedEvent];
-        dispatch_queue_t queue = dispatch_queue_create("MTLFenceSync", NULL);
-        fSharedEventListener = [[MTLSharedEventListener alloc] initWithDispatchQueue:queue];
-        SK_END_AUTORELEASE_BLOCK
+        dispatch_queue_t dispatchQueue = dispatch_queue_create("MTLFenceSync", NULL);
+        fSharedEventListener = [[MTLSharedEventListener alloc] initWithDispatchQueue:dispatchQueue];
     }
 
     ~MtlFenceSync() override {
@@ -53,12 +51,10 @@ public:
     }
 
     sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override {
-        SK_BEGIN_AUTORELEASE_BLOCK
         id<MTLCommandBuffer> cmdBuffer = [fQueue commandBuffer];
         ++fLatestEvent;
         [cmdBuffer encodeSignalEvent:fSharedEvent value:fLatestEvent];
         [cmdBuffer commit];
-        SK_END_AUTORELEASE_BLOCK
 
         SkDEBUGCODE(++fUnfinishedSyncs;)
         return (sk_gpu_test::PlatformFence)fLatestEvent;
