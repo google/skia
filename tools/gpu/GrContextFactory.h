@@ -12,11 +12,7 @@
 #include "include/gpu/GrContextOptions.h"
 
 #include "include/private/SkTArray.h"
-#include "tools/gpu/TestContext.h"
-
-#ifdef SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
-#endif
 
 struct GrVkBackendContext;
 
@@ -147,21 +143,19 @@ private:
                                        GrContext* shareContext, uint32_t shareIndex);
 
     struct Context {
-        ContextType      fType;
-        ContextOverrides fOverrides;
-        GrContextOptions fOptions;
-        GrBackendApi     fBackend;
-        TestContext*     fTestContext;
-        GrContext*       fGrContext;
-        GrContext*       fShareContext;
-        uint32_t         fShareIndex;
+        ContextType       fType;
+        ContextOverrides  fOverrides;
+        GrContextOptions  fOptions;
+        GrBackendApi         fBackend;
+        TestContext*      fTestContext;
+        GrContext*        fGrContext;
+        GrContext*        fShareContext;
+        uint32_t          fShareIndex;
 
-        bool             fAbandoned;
+        bool            fAbandoned;
     };
     SkTArray<Context, true>         fContexts;
-#ifdef SK_GL
     std::unique_ptr<GLTestContext>  fSentinelGLContext;
-#endif
     const GrContextOptions          fGlobalOptions;
 };
 
@@ -177,12 +171,10 @@ public:
 
     TestContext* testContext() const { return fTestContext; }
 
-#ifdef SK_GL
     GLTestContext* glContext() const {
         SkASSERT(GrBackendApi::kOpenGL == this->backend());
         return static_cast<GLTestContext*>(fTestContext);
     }
-#endif
 
     const GrContextOptions& options() const { return fOptions; }
 

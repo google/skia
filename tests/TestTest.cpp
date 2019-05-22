@@ -8,6 +8,7 @@
 #include "tests/Test.h"
 
 #include "include/gpu/GrContext.h"
+#include "tools/gpu/gl/GLTestContext.h"
 
 // This is an example of a normal test.
 DEF_TEST(TestNormal, reporter) {

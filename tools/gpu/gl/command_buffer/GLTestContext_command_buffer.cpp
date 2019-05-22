@@ -6,10 +6,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h" // Keep this before any #ifdef for skbug.com/3362
-
-#ifdef SK_GL
-
 #ifndef SK_NO_COMMAND_BUFFER
 
 #include "include/gpu/gl/GrGLAssembleInterface.h"
@@ -399,5 +395,3 @@ int CommandBufferGLTestContext::getSampleCount() {
 
 }  // namespace sk_gpu_test
 #endif // SK_NO_COMMAND_BUFFER
-
-#endif

@@ -5,10 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h" // Keep this before any #ifdef for skbug.com/3362
-
-#ifdef SK_METAL
-
 #include "tools/gpu/mtl/MtlTestContext.h"
 
 #include "include/gpu/GrContext.h"
@@ -16,6 +12,7 @@
 
 #include "src/gpu/mtl/GrMtlUtil.h"
 
+#ifdef SK_METAL
 
 #import <Metal/Metal.h>
 

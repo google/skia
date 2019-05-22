@@ -8,25 +8,20 @@
 
 #include "src/gpu/GrContextPriv.h"
 #include "tools/gpu/GrContextFactory.h"
-
-#ifdef SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
 
 #if SK_ANGLE
     #include "tools/gpu/gl/angle/GLTestContext_angle.h"
 #endif
 #include "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.h"
-#endif
-
 #ifdef SK_VULKAN
 #include "tools/gpu/vk/VkTestContext.h"
 #endif
-
 #ifdef SK_METAL
 #include "tools/gpu/mtl/MtlTestContext.h"
 #endif
-
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/gl/GrGLGpu.h"
 #include "tools/gpu/mock/MockTestContext.h"
 
 #if defined(SK_BUILD_FOR_WIN) && defined(SK_ENABLE_DISCRETE_GPU)
@@ -154,7 +149,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     std::unique_ptr<TestContext> testCtx;
     GrBackendApi backend = ContextTypeBackend(type);
     switch (backend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL: {
             GLTestContext* glShareContext = masterContext
                     ? static_cast<GLTestContext*>(masterContext->fTestContext) : nullptr;
@@ -202,7 +196,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             testCtx.reset(glCtx);
             break;
         }
-#endif
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan: {
             VkTestContext* vkSharedContext = masterContext
@@ -216,7 +209,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                 return ContextInfo();
             }
 
-#ifdef SK_GL
             // There is some bug (either in Skia or the NV Vulkan driver) where VkDevice
             // destruction will hang occaisonally. For some reason having an existing GL
             // context fixes this.
@@ -226,7 +218,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                     fSentinelGLContext.reset(CreatePlatformGLTestContext(kGLES_GrGLStandard));
                 }
             }
-#endif
             break;
         }
 #endif
