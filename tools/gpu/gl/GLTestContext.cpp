@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h" // Keep this before any #ifdef for skbug.com/3362
+
+#ifdef SK_GL
+
 #include "tools/gpu/gl/GLTestContext.h"
 
 #include "include/gpu/GrContext.h"
@@ -350,3 +354,5 @@ sk_sp<GrContext> GLTestContext::makeGrContext(const GrContextOptions& options) {
 }
 
 }  // namespace sk_gpu_test
+
+#endif

@@ -7,6 +7,7 @@
 
 #include "include/core/SkTypes.h"
 
+#ifdef SK_GL
 #if SK_SUPPORT_ATLAS_TEXT
 
 #include "gm/gm.h"
@@ -196,4 +197,5 @@ constexpr int AtlasTextGM::kSize;
 
 DEF_GM(return new AtlasTextGM;)
 
+#endif
 #endif

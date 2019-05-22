@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h" // Keep this before any #ifdef for skbug.com/3362
+
+#ifdef SK_GL
+
 #include "include/core/SkBitmap.h"
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/gpu/gl/GrGLUtil.h"
@@ -481,3 +485,5 @@ sk_sp<TestAtlasTextRenderer> MakeGLTestAtlasTextRenderer() {
 }
 
 }  // namespace sk_gpu_test
+
+#endif

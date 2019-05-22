@@ -5,12 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "tools/gpu/vk/VkTestContext.h"
+#include "include/core/SkTypes.h" // Keep this before any #ifdef for skbug.com/3362
 
 #ifdef SK_VULKAN
 
 #include "include/gpu/GrContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
+#include "tools/gpu/vk/VkTestContext.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
 namespace {
