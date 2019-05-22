@@ -144,6 +144,11 @@ public:
                      int height,
                      const GrVkImageInfo& vkInfo);
 
+    GrBackendTexture(int width,
+                     int height,
+                     bool isProtected,
+                     const GrVkImageInfo& vkInfo);
+
 #ifdef SK_METAL
     GrBackendTexture(int width,
                      int height,
@@ -193,6 +198,9 @@ public:
     // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
     bool getMockTextureInfo(GrMockTextureInfo*) const;
 
+    // Returns true if we are working with protected content.
+    bool isProtected() const { return fIsProtected; }
+
     // Returns true if the backend texture has been initialized.
     bool isValid() const { return fIsValid; }
 
@@ -232,6 +240,7 @@ private:
 #ifdef SK_VULKAN
    GrBackendTexture(int width,
                     int height,
+                    bool isProtected,
                     const GrVkImageInfo& vkInfo,
                     sk_sp<GrVkImageLayout> layout);
 #endif
@@ -240,6 +249,7 @@ private:
     void cleanup();
 
     bool fIsValid;
+    bool fIsProtected = false;
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
     GrPixelConfig fConfig;
@@ -275,6 +285,11 @@ public:
                           int stencilBits,
                           const GrVkImageInfo& vkInfo);
     GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo);
+    GrBackendRenderTarget(int width,
+                          int height,
+                          int sampleCnt,
+                          bool isProtected,
+                          const GrVkImageInfo& vkInfo);
 
 #ifdef SK_METAL
     GrBackendRenderTarget(int width,
@@ -323,6 +338,9 @@ public:
     // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
     bool getMockRenderTargetInfo(GrMockRenderTargetInfo*) const;
 
+    // Returns true if we are working with protected content.
+    bool isProtected() const { return fIsProtected; }
+
     // Returns true if the backend texture has been initialized.
     bool isValid() const { return fIsValid; }
 
@@ -353,13 +371,14 @@ private:
    sk_sp<GrVkImageLayout> getGrVkImageLayout() const;
 
    friend class GrVkRenderTarget;
-   GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo,
-                         sk_sp<GrVkImageLayout> layout);
+   GrBackendRenderTarget(int width, int height, int sampleCnt, bool isProtected,
+                         const GrVkImageInfo& vkInfo, sk_sp<GrVkImageLayout> layout);
 
     // Free and release and resources being held by the GrBackendTexture.
     void cleanup();
 
     bool fIsValid;
+    bool fIsProtected = false;
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
 
