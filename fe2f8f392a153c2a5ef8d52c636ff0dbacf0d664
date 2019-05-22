@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3454ebbc_a3cb417b",
+        "filename": "include/core/SkMatrix.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-22T15:58:09Z",
+      "side": 1,
+      "message": "Maybe forward this to the new constructor?",
+      "revId": "fe2f8f392a153c2a5ef8d52c636ff0dbacf0d664",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "058cd1fd_b1685c72",
+        "filename": "src/core/SkMatrix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-22T15:58:09Z",
+      "side": 1,
+      "message": "These all might read a bit more clearly with () around any compound conditions like this.",
+      "range": {
+        "startLine": 274,
+        "startChar": 21,
+        "endLine": 274,
+        "endChar": 39
+      },
+      "revId": "fe2f8f392a153c2a5ef8d52c636ff0dbacf0d664",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
