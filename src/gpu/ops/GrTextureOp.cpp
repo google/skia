@@ -197,7 +197,7 @@ public:
 
     void visitProxies(const VisitProxyFunc& func) const override {
         for (unsigned p = 0; p < fProxyCnt; ++p) {
-            func(fProxies[p].fProxy);
+            func(fProxies[p].fProxy, GrSurfaceProxy::SampleAccessFromFilter(this->filter()));
         }
     }
 
