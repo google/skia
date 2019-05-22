@@ -125,7 +125,9 @@ class CheckoutApi(recipe_api.RecipeApi):
     patch_refs = None
     patch_ref = self.m.properties.get('patch_ref')
     if patch_ref:
-      patch_refs = ['%s@%s' % (self.m.properties['patch_repo'], patch_ref)]
+      patch_refs = ['%s@%s:%s' % (self.m.properties['patch_repo'],
+                                  self.m.properties['revision'],
+                                  patch_ref)]
 
     self.m.gclient.c = gclient_cfg
     with self.m.context(cwd=checkout_root):

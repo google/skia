@@ -87,7 +87,7 @@
       "--patch_ref",
       "https://skia.googlesource.com/skia@refs/heads/master:refs/changes/89/456789/12",
       "--patch_ref",
-      "https://skia.googlesource.com/skia.git@refs/changes/89/456789/12",
+      "https://skia.googlesource.com/skia.git@abc123:refs/changes/89/456789/12",
       "--revision",
       "skia@abc123"
     ],

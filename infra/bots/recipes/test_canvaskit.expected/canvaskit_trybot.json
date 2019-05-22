@@ -45,7 +45,7 @@
       "--output_json",
       "/path/to/tmp/json",
       "--patch_ref",
-      "https://skia.googlesource.com/skia.git@89/456789/12",
+      "https://skia.googlesource.com/skia.git@abc123:89/456789/12",
       "--revision",
       "skia@abc123"
     ],
