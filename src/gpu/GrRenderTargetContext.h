@@ -404,8 +404,20 @@ public:
 
     using ReadPixelsCallback = SkSurface::ReadPixelsCallback;
     using ReadPixelsContext = SkSurface::ReadPixelsContext;
-    bool asyncReadPixels(const SkImageInfo& info, int srcX, int srcY, ReadPixelsCallback,
-                         ReadPixelsContext);
+    /**
+     * Performs an asynchronous read (if possible) into a transfer buffer and then calls
+     * callback with context. If asynchronous reads are not supported then this does as
+     * synchronous read via readPixels().
+     */
+    bool asyncReadPixels(const SkImageInfo& info, int x, int y, ReadPixelsCallback callback,
+                         ReadPixelsContext context);
+    /**
+     * Like asyncReadPixels but first rescales the contents before read back.
+     */
+    bool asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                   SkSurface::RescaleGamma rescaleGamma,
+                                   SkFilterQuality rescaleQuality, ReadPixelsCallback callback,
+                                   ReadPixelsContext context);
 
     /**
      * After this returns any pending surface IO will be issued to the backend 3D API and
@@ -539,6 +551,11 @@ private:
                                              const GrClip&,
                                              const GrOp& op,
                                              GrXferProcessor::DstProxy* result);
+
+    // The rescaling part of the asyncRescaleAndReadPixels.
+    sk_sp<GrRenderTargetContext> rescale(const SkImageInfo& info, const SkIRect& srcRect,
+                                         SkSurface::RescaleGamma rescaleGamma,
+                                         SkFilterQuality rescaleQuality);
 
     GrRenderTargetOpList* getRTOpList();
     GrOpList* getOpList() override;
