@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01174043_6338401a",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-22T16:43:25Z",
+      "side": 1,
+      "message": "I was surprised the quickReject wasn\u0027t consistent for both the diff and raster canvas, looks like its because RasterBlob draws at (0, height / 2). We should probably make these consistent.\n\nI had initially tried adding an assert as well to compare rasterized bitmaps for the server and client blob. Maybe this also explains why that was failing.",
+      "range": {
+        "startLine": 801,
+        "startChar": 8,
+        "endLine": 801,
+        "endChar": 69
+      },
+      "revId": "816a684e125274af17e8be95757cfe0a0a398a56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

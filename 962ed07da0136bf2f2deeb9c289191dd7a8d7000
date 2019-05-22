@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84defa6d_63ebdbe5",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-05-22T16:43:25Z",
+      "side": 1,
+      "message": "I was staring at the useSDFT code and one potential bug came to mind. I don\u0027t think it should cause any cache miss issues but probably something worth looking at later:\n\nIn the useSDFT code-path for SkGlyphRunListPainter::processGlyphRunList, if there is a glyph which is \u003c maxDimension \u0026\u0026 format !\u003d kSDF_Format \u0026\u0026 format !\u003d kARGB32_Format, the painter code will try to look up a path here : https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkGlyphRunPainter.cpp?sq\u003dpackage:chromium\u0026g\u003d0\u0026l\u003d447 and will hit a debug assert. Because the code in SkGlyphCacheState::prepareForDrawing will assume that the glyph mask will be used so won\u0027t query the glyph\u0027s path (because the only condition that code checks for it is \u003c maxDimension).",
+      "range": {
+        "startLine": 637,
+        "startChar": 12,
+        "endLine": 659,
+        "endChar": 13
+      },
+      "revId": "962ed07da0136bf2f2deeb9c289191dd7a8d7000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
