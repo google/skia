@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37f7b6d3_87c8eff1",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-22T14:34:22Z",
+      "side": 1,
+      "message": "I\u0027m not sure I get what\u0027s going on here; the comment doesn\u0027t seem to square with the code.  How is factSet affected by the calls to pic-\u003eserialize(\u0026devnull, ...)?  Doesn\u0027t look like either buffer or factSet are involved in that bit.",
+      "range": {
+        "startLine": 222,
+        "startChar": 4,
+        "endLine": 223,
+        "endChar": 54
+      },
+      "revId": "d38eacbc20a910dd72de2d93caec03ba71b41171",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
