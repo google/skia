@@ -326,35 +326,35 @@ void ByteCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
 }
 
 void ByteCodeGenerator::writeConstructor(const Constructor& c) {
-    if (c.fArguments.size() == 1 &&
-        type_category(c.fType) == type_category(c.fArguments[0]->fType)) {
-        // cast from float to half or similar no-op
-        this->writeExpression(*c.fArguments[0]);
-        return;
-    }
     for (const auto& arg : c.fArguments) {
         this->writeExpression(*arg);
     }
     if (c.fArguments.size() == 1) {
         TypeCategory inCategory = type_category(c.fArguments[0]->fType);
         TypeCategory outCategory = type_category(c.fType);
+        int inCount = c.fArguments[0]->fType.columns();
+        int outCount = c.fType.columns();
         if (inCategory != outCategory) {
+            SkASSERT(inCount == outCount);
             if (inCategory == TypeCategory::kFloat) {
                 SkASSERT(outCategory == TypeCategory::kSigned ||
                          outCategory == TypeCategory::kUnsigned);
-                this->write(vector_instruction(ByteCodeInstruction::kConvertFtoI,
-                                               c.fType.columns()));
+                this->write(vector_instruction(ByteCodeInstruction::kConvertFtoI, outCount));
             } else if (outCategory == TypeCategory::kFloat) {
                 if (inCategory == TypeCategory::kSigned) {
-                    this->write(vector_instruction(ByteCodeInstruction::kConvertStoF,
-                                                   c.fType.columns()));
+                    this->write(vector_instruction(ByteCodeInstruction::kConvertStoF, outCount));
                 } else {
                     SkASSERT(inCategory == TypeCategory::kUnsigned);
-                    this->write(vector_instruction(ByteCodeInstruction::kConvertUtoF,
-                                                   c.fType.columns()));
+                    this->write(vector_instruction(ByteCodeInstruction::kConvertUtoF, outCount));
                 }
             } else {
                 SkASSERT(false);
+            }
+        }
+        if (inCount != outCount) {
+            SkASSERT(inCount == 1);
+            for (; inCount != outCount; ++inCount) {
+                this->write(ByteCodeInstruction::kDup);
             }
         }
     }
