@@ -8,6 +8,8 @@
 #ifndef GLTestContext_DEFINED
 #define GLTestContext_DEFINED
 
+#ifdef SK_GL
+
 #include "include/gpu/gl/GrGLInterface.h"
 #include "tools/gpu/TestContext.h"
 
@@ -103,4 +105,7 @@ GLTestContext* CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
                                            GLTestContext *shareContext = nullptr);
 
 }  // namespace sk_gpu_test
+
+#endif
+
 #endif

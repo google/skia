@@ -8,7 +8,7 @@
 
 #include "tools/gpu/gl/GLTestContext.h"
 
-#if defined(_M_ARM64)
+#if defined(_M_ARM64) || !defined(SK_GL)
 
 namespace sk_gpu_test {
 
