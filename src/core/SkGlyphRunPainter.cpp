@@ -438,6 +438,13 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             for (const SkGlyphPos& glyphPos : glyphPosSpan) {
                 const SkGlyph& glyph = *glyphPos.glyph;
                 SkPoint position = glyphPos.position;
+
+                // The SDF scaler context system ensures that a glyph is empty, kSDF_Format, or
+                // kARGB32_Format. The following if statements use this assumption.
+                SkASSERT(glyph.isEmpty()
+                         || glyph.fMaskFormat == SkMask::kSDF_Format
+                         || glyph.fMaskFormat == SkMask::kARGB32_Format);
+
                 if (glyph.isEmpty()) {
                     // do nothing
                 } else if (glyph.fMaskFormat == SkMask::kSDF_Format
