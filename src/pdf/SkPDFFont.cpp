@@ -33,6 +33,7 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrike.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/pdf/SkPDFBitmap.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFFont.h"
@@ -47,24 +48,6 @@
 #include <initializer_list>
 #include <memory>
 #include <utility>
-
-SkExclusiveStrikePtr SkPDFFont::MakeVectorCache(SkTypeface* face, int* size) {
-    SkFont font;
-    font.setHinting(SkFontHinting::kNone);
-    font.setEdging(SkFont::Edging::kAlias);
-    font.setTypeface(sk_ref_sp(face));
-    int unitsPerEm = face->getUnitsPerEm();
-    if (unitsPerEm <= 0) {
-        unitsPerEm = 1024;
-    }
-    if (size) {
-        *size = unitsPerEm;
-    }
-    font.setSize((SkScalar)unitsPerEm);
-    const SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    return SkStrikeCache::FindOrCreateStrikeExclusive(
-        font, SkPaint(), props, SkScalerContextFlags::kFakeGammaAndBoostContrast, SkMatrix::I());
-}
 
 void SkPDFFont::GetType1GlyphNames(const SkTypeface& face, SkString* dst) {
     face.getPostScriptGlyphNames(dst);
@@ -85,7 +68,6 @@ inline SkScalar from_font_units(SkScalar scaled, uint16_t emSize) {
 inline SkScalar scaleFromFontUnits(int16_t val, uint16_t emSize) {
     return from_font_units(SkIntToScalar(val), emSize);
 }
-
 
 void setGlyphWidthAndBoundingBox(SkScalar width, SkIRect box,
                                  SkDynamicMemoryWStream* content) {
@@ -392,7 +374,8 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     int16_t defaultWidth = 0;
     {
         int emSize;
-        auto glyphCache = SkPDFFont::MakeVectorCache(face, &emSize);
+        SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakePDFVector(*face, &emSize);
+        auto glyphCache = strikeSpec.findOrCreateExclusiveStrike();
         std::unique_ptr<SkPDFArray> widths = SkPDFMakeCIDGlyphWidthsArray(
                 glyphCache.get(), &font.glyphUsage(), SkToS16(emSize), &defaultWidth);
         if (widths && widths->size() > 0) {
@@ -546,7 +529,8 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
         --lastGlyphID;
     }
     int unitsPerEm;
-    auto cache = SkPDFFont::MakeVectorCache(typeface, &unitsPerEm);
+    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakePDFVector(*typeface, &unitsPerEm);
+    auto cache = strikeSpec.findOrCreateExclusiveStrike();
     SkASSERT(cache);
     SkScalar emSize = (SkScalar)unitsPerEm;
 

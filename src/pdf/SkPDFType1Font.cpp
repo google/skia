@@ -5,6 +5,7 @@
 
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkStrikeSpec.h"
 
 #include <ctype.h>
 
@@ -299,7 +300,8 @@ void SkPDFEmitType1Font(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     font.insertInt("LastChar", (size_t)glyphCount);
     {
         int emSize;
-        auto glyphCache = SkPDFFont::MakeVectorCache(typeface, &emSize);
+        SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakePDFVector(*typeface, &emSize);
+        auto glyphCache = strikeSpec.findOrCreateExclusiveStrike();
         auto widths = SkPDFMakeArray();
         SkScalar advance = glyphCache->getGlyphIDAdvance(0).fAdvanceX;
         widths->appendScalar(from_font_units(advance, SkToU16(emSize)));

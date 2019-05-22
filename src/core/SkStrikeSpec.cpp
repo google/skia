@@ -73,6 +73,30 @@ SkStrikeSpecStorage SkStrikeSpecStorage::MakeDefault() {
     return MakeCanonicalized(defaultFont);
 }
 
+SkStrikeSpecStorage SkStrikeSpecStorage::MakePDFVector(const SkTypeface& typeface, int* size) {
+    SkFont font;
+    font.setHinting(SkFontHinting::kNone);
+    font.setEdging(SkFont::Edging::kAlias);
+    font.setTypeface(sk_ref_sp(&typeface));
+    int unitsPerEm = typeface.getUnitsPerEm();
+    if (unitsPerEm <= 0) {
+        unitsPerEm = 1024;
+    }
+    if (size) {
+        *size = unitsPerEm;
+    }
+    font.setSize((SkScalar)unitsPerEm);
+
+    SkStrikeSpecStorage storage;
+    storage.commonSetup(font,
+                        SkPaint(),
+                        SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                        kFakeGammaAndBoostContrast,
+                        SkMatrix::I());
+
+    return storage;
+}
+
 #if SK_SUPPORT_GPU
 std::tuple<SkStrikeSpecStorage, SkScalar, SkScalar>
 SkStrikeSpecStorage::MakeSDFT(const SkFont& font, const SkPaint& paint,
