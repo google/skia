@@ -1889,7 +1889,27 @@ static uint16_t nonBmpCharToGlyph(HDC hdc, SCRIPT_CACHE* scriptCache, const WCHA
     WORD outGlyphs[maxGlyphs];
     WORD logClust[numWCHAR];
     int numGlyphs;
-    HRZM(ScriptShape(hdc, scriptCache, utf16, numWCHAR, maxGlyphs, &si[0].a,
+    SCRIPT_ANALYSIS& script = si[0].a;
+    script.eScript = SCRIPT_UNDEFINED;
+    script.fRTL = FALSE;
+    script.fLayoutRTL = FALSE;
+    script.fLinkBefore = FALSE;
+    script.fLinkAfter = FALSE;
+    script.fLogicalOrder = FALSE;
+    script.fNoGlyphIndex = FALSE;
+    script.s.uBidiLevel = 0;
+    script.s.fOverrideDirection = 0;
+    script.s.fInhibitSymSwap = TRUE;
+    script.s.fCharShape = FALSE;
+    script.s.fDigitSubstitute = FALSE;
+    script.s.fInhibitLigate = FALSE;
+    script.s.fDisplayZWG = TRUE;
+    script.s.fArabicNumContext = FALSE;
+    script.s.fGcpClusters = FALSE;
+    script.s.fReserved = 0;
+    script.s.fEngineReserved = 0;
+    // For the future, 0x80040200 from here is USP_E_SCRIPT_NOT_IN_FONT
+    HRZM(ScriptShape(hdc, scriptCache, utf16, numWCHAR, maxGlyphs, &script,
                      outGlyphs, logClust, vsa, &numGlyphs),
          "Could not shape character.");
     if (1 == numGlyphs) {
