@@ -15,6 +15,10 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice> device,
                      MTLFeatureSet featureSet)
         : INHERITED(contextOptions) {

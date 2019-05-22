@@ -9,6 +9,10 @@
 
 #include "src/gpu/mtl/GrMtlGpu.h"
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 static inline MTLSamplerAddressMode wrap_mode_to_mtl_sampler_address(
         GrSamplerState::WrapMode wrapMode, const GrCaps& caps) {
     switch (wrapMode) {

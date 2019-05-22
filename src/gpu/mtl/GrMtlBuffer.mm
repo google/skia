@@ -11,6 +11,10 @@
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 #ifdef SK_DEBUG
 #define VALIDATE() this->validate()
 #else
@@ -112,12 +116,10 @@ void GrMtlBuffer::internalMap(size_t sizeInBytes) {
     } else {
         SkASSERT(fMtlBuffer);
         SkASSERT(fMappedBuffer == nil);
-        SK_BEGIN_AUTORELEASE_BLOCK
         fMappedBuffer =
                 [this->mtlGpu()->device() newBufferWithLength: sizeInBytes
                                                       options: MTLResourceStorageModeShared];
         fMapPtr = fMappedBuffer.contents;
-        SK_END_AUTORELEASE_BLOCK
     }
     VALIDATE();
 }
