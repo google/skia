@@ -62,7 +62,7 @@ public:
     bool onExecute(GrOpFlushState* flushState) override;
 
     void addOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
-        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
+        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p, GrSurfaceProxy::Access) {
             this->addDependency(p, caps);
         };
 
@@ -78,14 +78,14 @@ public:
 
     void addDrawOp(std::unique_ptr<GrDrawOp> op, const GrProcessorSet::Analysis& processorAnalysis,
                    GrAppliedClip&& clip, const DstProxy& dstProxy, const GrCaps& caps) {
-        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
+        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p, GrSurfaceProxy::Access) {
             this->addDependency(p, caps);
         };
 
         op->visitProxies(addDependency);
         clip.visitProxies(addDependency);
         if (dstProxy.proxy()) {
-            addDependency(dstProxy.proxy());
+            addDependency(dstProxy.proxy(), GrSurfaceProxy::Access::kSampleNearest);
         }
 
         this->recordOp(std::move(op), processorAnalysis, clip.doesClip() ? &clip : nullptr,
@@ -114,7 +114,7 @@ public:
 
     SkDEBUGCODE(void dump(bool printDependencies) const override;)
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
-    SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const;)
+    SkDEBUGCODE(void visitProxies_debugOnly(const GrSurfaceProxy::VisitProxyFunc&) const;)
 
 private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
@@ -155,7 +155,7 @@ private:
             SkASSERT(fList.empty());
         }
 
-        void visitProxies(const GrOp::VisitProxyFunc&) const;
+        void visitProxies(const GrSurfaceProxy::VisitProxyFunc&) const;
 
         GrOp* head() const { return fList.head(); }
 

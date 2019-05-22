@@ -171,7 +171,7 @@ public:
     const char* name() const override { return "NonAALatticeOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        func(fProxy.get());
+        func(fProxy.get(), GrSurfaceProxy::SampleAccessFromFilter(fFilter));
         fHelper.visitProxies(func);
     }
 

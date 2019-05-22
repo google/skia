@@ -242,7 +242,7 @@ public:
                                          &GrFragmentProcessor::numTextureSamplers,
                                          &GrFragmentProcessor::textureSampler>;
 
-    void visitProxies(const std::function<void(GrSurfaceProxy*)>& func);
+    void visitProxies(const GrSurfaceProxy::VisitProxyFunc& func);
 
 protected:
     enum OptimizationFlags : uint32_t {
