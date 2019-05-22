@@ -152,11 +152,12 @@ public:
     SkString dumpProcessors() const;
 #endif
 
-    void visitProxies(const std::function<void(GrSurfaceProxy*)>& func) const {
+    void visitProxies(const GrSurfaceProxy::VisitProxyFunc& func) const {
         for (int i = 0; i < this->numFragmentProcessors(); ++i) {
             GrFragmentProcessor::TextureAccessIter iter(this->fragmentProcessor(i));
             while (const GrFragmentProcessor::TextureSampler* sampler = iter.next()) {
-                func(sampler->proxy());
+                auto filter = sampler->samplerState().filter();
+                func(sampler->proxy(), GrSurfaceProxy::SampleAccessFromFilter(filter));
             }
         }
     }

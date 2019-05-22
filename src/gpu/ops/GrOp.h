@@ -69,7 +69,7 @@ public:
 
     virtual const char* name() const = 0;
 
-    typedef std::function<void(GrSurfaceProxy*)> VisitProxyFunc;
+    using VisitProxyFunc = GrSurfaceProxy::VisitProxyFunc;
 
     virtual void visitProxies(const VisitProxyFunc&) const {
         // This default implementation assumes the op has no proxies
