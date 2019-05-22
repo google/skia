@@ -8,7 +8,10 @@
 #include "tests/Test.h"
 
 #include "include/gpu/GrContext.h"
+
+#ifdef SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
+#endif
 
 // This is an example of a normal test.
 DEF_TEST(TestNormal, reporter) {
