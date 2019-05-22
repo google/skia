@@ -240,6 +240,10 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
         GrContext* context, SkYUVColorSpace yuvColorSpace, const SkPixmap yuvaPixmaps[],
         const SkYUVAIndex yuvaIndices[4], SkISize imageSize, GrSurfaceOrigin imageOrigin,
         bool buildMips, bool limitToMaxTextureSize, sk_sp<SkColorSpace> imageColorSpace) {
+    if (!context) {
+        return nullptr; // until we impl this for raster backend
+    }
+
     int numPixmaps;
     if (!SkYUVAIndex::AreValidIndices(yuvaIndices, &numPixmaps)) {
         return nullptr;
