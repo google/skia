@@ -34,6 +34,7 @@ declare_args() {
   skia_use_piex = !is_win
   skia_use_wuffs = false
   skia_use_zlib = true
+  skia_use_gl = false
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
   skia_use_x11 = is_linux
@@ -579,7 +580,7 @@ optional("gpu") {
   if (skia_generate_workarounds) {
     deps += [ ":workaround_list" ]
   }
-  public_defines = [ "SK_GL" ]
+  public_defines = []
   public_configs = []
   public_deps = []
 
@@ -588,39 +589,46 @@ optional("gpu") {
     sources -= skia_ccpr_sources
     sources += [ "src/gpu/ccpr/GrCoverageCountingPathRenderer_none.cpp" ]
   }
-  if (!skia_enable_nvpr) {
-    sources -= skia_nvpr_sources
-    sources += [ "src/gpu/GrPathRendering_none.cpp" ]
-  }
 
-  # These paths need to be absolute to match the ones produced by shared_sources.gni.
-  sources -= get_path_info([ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ],
-                           "abspath")
   libs = []
-  if (is_android) {
-    sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
 
-    # this lib is required to link against AHardwareBuffer
-    if (defined(ndk_api) && ndk_api >= 26) {
-      libs += [ "android" ]
+  if (skia_use_gl) {
+    public_defines += [ "SK_GL" ]
+    sources += skia_gl_sources
+
+    # These paths need to be absolute to match the ones produced by shared_sources.gni.
+    sources -= get_path_info([ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ],
+                             "abspath")
+    if (is_android) {
+      sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
+
+      # this lib is required to link against AHardwareBuffer
+      if (defined(ndk_api) && ndk_api >= 26) {
+        libs += [ "android" ]
+      }
+    } else if (skia_use_egl) {
+      sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
+      libs += [ "EGL" ]
+    } else if (is_linux && skia_use_x11) {
+      sources += [ "src/gpu/gl/glx/GrGLMakeNativeInterface_glx.cpp" ]
+      libs += [ "GL" ]
+    } else if (is_mac) {
+      sources += [ "src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp" ]
+    } else if (is_ios) {
+      sources += [ "src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp" ]
+    } else if (is_win) {
+      sources += [ "src/gpu/gl/win/GrGLMakeNativeInterface_win.cpp" ]
+      if (target_cpu != "arm64") {
+        libs += [ "OpenGL32.lib" ]
+      }
+    } else {
+      sources += [ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
     }
-  } else if (skia_use_egl) {
-    sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
-    libs += [ "EGL" ]
-  } else if (is_linux && skia_use_x11) {
-    sources += [ "src/gpu/gl/glx/GrGLMakeNativeInterface_glx.cpp" ]
-    libs += [ "GL" ]
-  } else if (is_mac) {
-    sources += [ "src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp" ]
-  } else if (is_ios) {
-    sources += [ "src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp" ]
-  } else if (is_win) {
-    sources += [ "src/gpu/gl/win/GrGLMakeNativeInterface_win.cpp" ]
-    if (target_cpu != "arm64") {
-      libs += [ "OpenGL32.lib" ]
+
+    if (!skia_enable_nvpr) {
+      sources -= skia_nvpr_sources
+      sources += [ "src/gpu/GrPathRendering_none.cpp" ]
     }
-  } else {
-    sources += [ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
   }
 
   if (skia_use_vulkan) {
@@ -1463,40 +1471,44 @@ if (skia_enable_tools) {
       "tools/gpu/TestContext.cpp",
       "tools/gpu/YUVUtils.cpp",
       "tools/gpu/YUVUtils.h",
-      "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
-      "tools/gpu/gl/GLTestContext.cpp",
-      "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
       "tools/gpu/mock/MockTestContext.cpp",
     ]
     libs = []
 
-    if (is_android || skia_use_egl) {
-      sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
-    } else if (is_ios) {
-      sources += [ "tools/gpu/gl/iOS/CreatePlatformGLTestContext_iOS.mm" ]
-      libs += [ "OpenGLES.framework" ]
-    } else if (is_linux) {
-      sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
-      libs += [
-        "GLU",
-        "X11",
-      ]
-    } else if (is_mac) {
-      sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
-    } else if (is_win) {
-      sources += [ "tools/gpu/gl/win/CreatePlatformGLTestContext_win.cpp" ]
-      libs += [ "Gdi32.lib" ]
-      if (target_cpu != "arm64") {
-        libs += [ "OpenGL32.lib" ]
+    if (skia_use_gl) {
+      sources += [ "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp" ]
+      sources += [ "tools/gpu/gl/GLTestContext.cpp" ]
+      sources +=
+          [ "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp" ]
+
+      if (is_android || skia_use_egl) {
+        sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
+      } else if (is_ios) {
+        sources += [ "tools/gpu/gl/iOS/CreatePlatformGLTestContext_iOS.mm" ]
+        libs += [ "OpenGLES.framework" ]
+      } else if (is_linux) {
+        sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
+        libs += [
+          "GLU",
+          "X11",
+        ]
+      } else if (is_mac) {
+        sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
+      } else if (is_win) {
+        sources += [ "tools/gpu/gl/win/CreatePlatformGLTestContext_win.cpp" ]
+        libs += [ "Gdi32.lib" ]
+        if (target_cpu != "arm64") {
+          libs += [ "OpenGL32.lib" ]
+        }
+      }
+
+      if (skia_use_angle) {
+        deps += [ "//third_party/angle2" ]
+        sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
       }
     }
 
     cflags_objcc = [ "-fobjc-arc" ]
-
-    if (skia_use_angle) {
-      deps += [ "//third_party/angle2" ]
-      sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
-    }
 
     if (skia_use_vulkan) {
       sources += [ "tools/gpu/vk/VkTestContext.cpp" ]

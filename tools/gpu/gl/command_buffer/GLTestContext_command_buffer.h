@@ -9,6 +9,10 @@
 #ifndef GLTestContext_command_buffer_DEFINED
 #define GLTestContext_command_buffer_DEFINED
 
+#include "include/core/SkTypes.h" // Keep this before any #ifdef for skbug.com/3362
+
+#ifdef SK_GL
+
 #include "tools/gpu/gl/GLTestContext.h"
 
 namespace sk_gpu_test {
@@ -54,5 +58,7 @@ private:
     void *fConfig;
 };
 }   // namespace sk_gpu_test
+
+#endif
 
 #endif
