@@ -14,12 +14,17 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
                   ByteCode* output)
     : INHERITED(program, errors, nullptr)
     , fContext(*context)
-    , fOutput(output) {
-    fIntrinsics["cos"]  = ByteCodeInstruction::kCos;
-    fIntrinsics["sin"]  = ByteCodeInstruction::kSin;
-    fIntrinsics["sqrt"] = ByteCodeInstruction::kSqrt;
-    fIntrinsics["tan"]  = ByteCodeInstruction::kTan;
-}
+    , fOutput(output)
+    , fIntrinsics {
+         { "cos",   ByteCodeInstruction::kCos },
+         { "cross", ByteCodeInstruction::kCross },
+         { "dot",   SpecialIntrinsic::kDot },
+         { "sin",   ByteCodeInstruction::kSin },
+         { "sqrt",  ByteCodeInstruction::kSqrt },
+         { "tan",   ByteCodeInstruction::kTan },
+         { "mix",   ByteCodeInstruction::kMix },
+      } {}
+
 
 static int slot_count(const Type& type) {
     return type.columns() * type.rows();
@@ -401,27 +406,42 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
         fErrors.error(c.fOffset, "unsupported intrinsic function");
         return;
     }
-    switch (found->second) {
-        case ByteCodeInstruction::kCos:  // fall through
-        case ByteCodeInstruction::kSin:  // fall through
-        case ByteCodeInstruction::kSqrt: // fall through
-        case ByteCodeInstruction::kTan:
-            SkASSERT(c.fArguments.size() == 1);
-            this->write((ByteCodeInstruction) ((int) found->second +
-                        slot_count(c.fArguments[0]->fType) - 1));
-            break;
-        default:
-            SkASSERT(false);
+    if (found->second.fIsSpecial) {
+        SkASSERT(found->second.fValue.fSpecial == SpecialIntrinsic::kDot);
+        SkASSERT(c.fArguments.size() == 2);
+        SkASSERT(slot_count(c.fArguments[0]->fType) == slot_count(c.fArguments[1]->fType));
+        this->write((ByteCodeInstruction) ((int) ByteCodeInstruction::kMultiplyF +
+                    slot_count(c.fArguments[0]->fType) - 1));
+        for (int i = slot_count(c.fArguments[0]->fType); i > 1; --i) {
+            this->write(ByteCodeInstruction::kAddF);
+        }
+    } else {
+        switch (found->second.fValue.fInstruction) {
+            case ByteCodeInstruction::kCos:
+            case ByteCodeInstruction::kMix:
+            case ByteCodeInstruction::kSin:
+            case ByteCodeInstruction::kSqrt:
+            case ByteCodeInstruction::kTan:
+                SkASSERT(c.fArguments.size() > 0);
+                this->write((ByteCodeInstruction) ((int) found->second.fValue.fInstruction +
+                            slot_count(c.fArguments[0]->fType) - 1));
+                break;
+            case ByteCodeInstruction::kCross:
+                this->write(found->second.fValue.fInstruction);
+                break;
+            default:
+                SkASSERT(false);
+        }
     }
 }
 
 void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
+    for (const auto& arg : f.fArguments) {
+        this->writeExpression(*arg);
+    }
     if (f.fFunction.fBuiltin) {
         this->writeIntrinsicCall(f);
         return;
-    }
-    for (const auto& arg : f.fArguments) {
-        this->writeExpression(*arg);
     }
     this->write(ByteCodeInstruction::kCall);
     fCallTargets.emplace_back(this, f.fFunction);

@@ -54,6 +54,7 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kConvertStoF),
     VECTOR(kConvertUtoF),
     VECTOR(kCos),
+    kCross,
     // Pops and prints the top value from the stack
     kDebugPrint,
     VECTOR(kDivideF),
@@ -69,6 +70,7 @@ enum class ByteCodeInstruction : uint16_t {
     kLoadSwizzleGlobal,
     VECTOR(kNegateF),
     VECTOR(kNegateI),
+    VECTOR(kMix),
     VECTOR(kMultiplyF),
     VECTOR(kMultiplyI),
     VECTOR(kNot),
