@@ -31,6 +31,10 @@
     }
 #endif
 
+const GrCaps* GrResourceAllocator::caps() const {
+    return fResourceProvider->caps();
+}
+
 void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
     SkASSERT(!fAssignedSurface);
     fAssignedSurface = s;

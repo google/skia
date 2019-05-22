@@ -58,7 +58,16 @@ public:
     bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
     bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
     bool instanceAttribSupport() const { return fInstanceAttribSupport; }
+    // TODO: Mixed samples should be opt-in on a per-render-target basis, not on a global scale.
     bool usesMixedSamples() const { return fUsesMixedSamples; }
+    // This flag indicates that we never have to resolve MSAA. In practice, it means that we have
+    // an MSAA-render-to-texture extension: Any render target we create internally will use the
+    // extension, and any wrapped render target is the client's responsibility.
+    //
+    // NOTE: This does NOT apply to mixed samples. Even when mixed samples is supported, we may
+    // still opt to create full MSAA render targets, and it doesn't make sense to think about
+    // "resolving" a mixed sampled render target in the same sense as full MSAA.
+    bool msaaResolvesAutomatically() const { return fMSAAResolvesAutomatically; }
     bool halfFloatVertexAttributeSupport() const { return fHalfFloatVertexAttributeSupport; }
 
     // Primitive restart functionality is core in ES 3.0, but using it will cause slowdowns on some
@@ -383,6 +392,7 @@ protected:
     bool fMultisampleDisableSupport                  : 1;
     bool fInstanceAttribSupport                      : 1;
     bool fUsesMixedSamples                           : 1;
+    bool fMSAAResolvesAutomatically                  : 1;
     bool fUsePrimitiveRestart                        : 1;
     bool fPreferClientSideDynamicBuffers             : 1;
     bool fPreferFullscreenClears                     : 1;

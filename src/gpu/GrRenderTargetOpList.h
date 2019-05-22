@@ -217,7 +217,7 @@ private:
 
     void purgeOpsWithUninstantiatedProxies() override;
 
-    void gatherProxyIntervals(GrResourceAllocator*) const override;
+    void gatherProxyIntervals(GrResourceAllocator*) override;
 
     void recordOp(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*, const DstProxy*,
                   const GrCaps& caps);

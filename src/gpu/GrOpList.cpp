@@ -8,11 +8,13 @@
 #include "include/private/GrOpList.h"
 
 #include "include/gpu/GrContext.h"
+#include "include/private/GrRenderTargetProxy.h"
 #include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTextureProxy.h"
 #include "src/gpu/GrDeferredProxyUploader.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRenderTargetPriv.h"
-#include "src/gpu/GrTextureProxyPriv.h"
+#include "src/gpu/GrTexturePriv.h"
 #include <atomic>
 
 uint32_t GrOpList::CreateUniqueID() {
@@ -73,6 +75,29 @@ void GrOpList::prepare(GrOpFlushState* flushState) {
     }
 
     this->onPrepare(flushState);
+}
+
+bool GrOpList::execute(GrOpFlushState* flushState) {
+    // Resolve MSAA render targets and mipmap textures before submitting a command buffer. MSAA must
+    // be resolved before generating mipmap levels.
+    for (GrRenderTargetProxy* rtProxy : fMSAAResolveProxies) {
+        auto* rt = rtProxy->peekRenderTarget();
+        SkASSERT(rt);
+        if (rt->needsResolve()) {
+            flushState->gpu()->resolveRenderTarget(rt);
+            SkASSERT(!rt->needsResolve());
+        }
+    }
+    for (GrTextureProxy* textureProxy : fMipmapProxies) {
+        auto* texture = textureProxy->peekTexture();
+        SkASSERT(texture);
+        SkASSERT(GrMipMapped::kYes == texture->texturePriv().mipMapped());
+        if (texture->texturePriv().mipMapsAreDirty()) {
+            flushState->gpu()->regenerateMipMapLevels(texture);
+            SkASSERT(!texture->texturePriv().mipMapsAreDirty());
+        }
+    }
+    return this->onExecute(flushState);
 }
 
 // Add a GrOpList-based dependency

@@ -2004,30 +2004,22 @@ void GrGLGpu::disableWindowRectangles() {
 #endif
 }
 
-void GrGLGpu::resolveAndGenerateMipMapsForProcessorTextures(
-        const GrPrimitiveProcessor& primProc,
-        const GrPipeline& pipeline,
-        const GrTextureProxy* const primProcTextures[],
-        int numPrimitiveProcessorTextureSets) {
-    auto genLevelsIfNeeded = [this](GrTexture* tex, const GrSamplerState& sampler) {
+#ifdef SK_DEBUG
+void GrGLGpu::validateProcessorTextures(
+        const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
+        const GrTextureProxy* const primProcTextures[], int numPrimitiveProcessorTextureSets) {
+    auto validateTexture = [](GrTexture* tex) {
         SkASSERT(tex);
-        if (sampler.filter() == GrSamplerState::Filter::kMipMap &&
-            tex->texturePriv().mipMapped() == GrMipMapped::kYes &&
-            tex->texturePriv().mipMapsAreDirty()) {
-            SkASSERT(this->caps()->mipMapSupport());
-            this->regenerateMipMapLevels(static_cast<GrGLTexture*>(tex));
-            SkASSERT(!tex->asRenderTarget() || !tex->asRenderTarget()->needsResolve());
-        } else if (auto* rt = tex->asRenderTarget()) {
-            if (rt->needsResolve()) {
-                this->resolveRenderTarget(rt);
-            }
+        SkASSERT(!tex->texturePriv().mipMapsAreDirty());
+        if (auto* rt = tex->asRenderTarget()) {
+            SkASSERT(!rt->needsResolve());
         }
     };
 
     for (int set = 0, tex = 0; set < numPrimitiveProcessorTextureSets; ++set) {
         for (int sampler = 0; sampler < primProc.numTextureSamplers(); ++sampler, ++tex) {
             GrTexture* texture = primProcTextures[tex]->peekTexture();
-            genLevelsIfNeeded(texture, primProc.textureSampler(sampler).samplerState());
+            validateTexture(texture);
         }
     }
 
@@ -2035,10 +2027,11 @@ void GrGLGpu::resolveAndGenerateMipMapsForProcessorTextures(
     while (const GrFragmentProcessor* fp = iter.next()) {
         for (int i = 0; i < fp->numTextureSamplers(); ++i) {
             const auto& textureSampler = fp->textureSampler(i);
-            genLevelsIfNeeded(textureSampler.peekTexture(), textureSampler.samplerState());
+            validateTexture(textureSampler.peekTexture());
         }
     }
 }
+#endif
 
 bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
                            GrSurfaceOrigin origin,
@@ -2068,8 +2061,8 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
     }
-    this->resolveAndGenerateMipMapsForProcessorTextures(
-            primProc, pipeline, primProcProxiesForMipRegen, numPrimProcTextureSets);
+    SkDEBUGCODE(this->validateProcessorTextures(
+            primProc, pipeline, primProcProxiesForMipRegen, numPrimProcTextureSets));
 
     GrXferProcessor::BlendInfo blendInfo;
     pipeline.getXferProcessor().getBlendInfo(&blendInfo);
