@@ -20,8 +20,7 @@ class  ExternalValue;
 struct FunctionDeclaration;
 
 #define VECTOR(name) name, name ## 2, name ## 3, name ## 4
-enum class ByteCodeInstruction : uint8_t {
-    kInvalid,
+enum class ByteCodeInstruction : uint16_t {
     // B = bool, F = float, I = int, S = signed, U = unsigned
     VECTOR(kAddF),
     VECTOR(kAddI),
@@ -51,6 +50,10 @@ enum class ByteCodeInstruction : uint8_t {
     VECTOR(kCompareULTEQ),
     // Followed by a 16 bit address
     kConditionalBranch,
+    VECTOR(kConvertFtoI),
+    VECTOR(kConvertStoF),
+    VECTOR(kConvertUtoF),
+    VECTOR(kCos),
     // Pops and prints the top value from the stack
     kDebugPrint,
     VECTOR(kDivideF),
@@ -58,9 +61,6 @@ enum class ByteCodeInstruction : uint8_t {
     VECTOR(kDivideU),
     // Duplicates the top stack value
     VECTOR(kDup),
-    VECTOR(kFloatToInt),
-    VECTOR(kSignedToFloat),
-    VECTOR(kUnsignedToFloat),
     // All kLoad* are followed by a byte indicating the local/global slot to load
     VECTOR(kLoad),
     VECTOR(kLoadGlobal),
@@ -68,7 +68,7 @@ enum class ByteCodeInstruction : uint8_t {
     kLoadSwizzle,
     kLoadSwizzleGlobal,
     VECTOR(kNegateF),
-    VECTOR(kNegateS),
+    VECTOR(kNegateI),
     VECTOR(kMultiplyF),
     VECTOR(kMultiplyI),
     VECTOR(kNot),
@@ -84,6 +84,8 @@ enum class ByteCodeInstruction : uint8_t {
     VECTOR(kRemainderU),
     // Followed by a byte indicating the number of slots being returned
     kReturn,
+    VECTOR(kSin),
+    VECTOR(kSqrt),
     // All kStore* are followed by a byte indicating the local/global slot to store
     VECTOR(kStore),
     VECTOR(kStoreGlobal),
@@ -98,13 +100,12 @@ enum class ByteCodeInstruction : uint8_t {
     kSwizzle,
     VECTOR(kSubtractF),
     VECTOR(kSubtractI),
+    VECTOR(kTan),
     VECTOR(kXorB),
     VECTOR(kXorI),
     // Followed by a byte indicating external value to write
     VECTOR(kWriteExternal),
-    kLast
 };
-static_assert((int) ByteCodeInstruction::kLast <= 256, "opcodes must fit into a single byte");
 #undef VECTOR
 
 struct ByteCodeFunction {

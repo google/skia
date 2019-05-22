@@ -103,12 +103,13 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
             return nullptr;
         }
 
-        GLint swapInterval = fDisplayParams.fDisableVsync ? 0 : 1;
-        [fGLContext setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
         // TODO: support Retina displays
         [fMainView setWantsBestResolutionOpenGLSurface:NO];
         [fGLContext setView:fMainView];
     }
+
+    GLint swapInterval = fDisplayParams.fDisableVsync ? 0 : 1;
+    [fGLContext setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
 
     // make context current
     [fGLContext makeCurrentContext];

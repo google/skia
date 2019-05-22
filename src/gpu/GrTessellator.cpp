@@ -15,10 +15,11 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
-#include "src/core/SkTDPQueue.h"
 
 #include <algorithm>
 #include <cstdio>
+#include <queue>
+#include <unordered_map>
 #include <utility>
 
 /*
@@ -153,6 +154,7 @@ struct Vertex {
     , fLeftEnclosingEdge(nullptr), fRightEnclosingEdge(nullptr)
     , fPartner(nullptr)
     , fAlpha(alpha)
+    , fSynthetic(false)
 #if LOGGING_ENABLED
     , fID (-1.0f)
 #endif
@@ -168,6 +170,7 @@ struct Vertex {
     Edge*   fRightEnclosingEdge;  // Nearest edge in the AEL right of this vertex.
     Vertex* fPartner;             // Corresponding inner or outer vertex (for AA).
     uint8_t fAlpha;
+    bool    fSynthetic;           // Is this a synthetic vertex?
 #if LOGGING_ENABLED
     float   fID;                  // Identifier used for logging.
 #endif
@@ -352,12 +355,10 @@ struct Edge {
         , fNextEdgeBelow(nullptr)
         , fLeftPoly(nullptr)
         , fRightPoly(nullptr)
-        , fEvent(nullptr)
         , fLeftPolyPrev(nullptr)
         , fLeftPolyNext(nullptr)
         , fRightPolyPrev(nullptr)
         , fRightPolyNext(nullptr)
-        , fOverlap(false)
         , fUsedInLeftPoly(false)
         , fUsedInRightPoly(false)
         , fLine(top, bottom) {
@@ -374,12 +375,10 @@ struct Edge {
     Edge*    fNextEdgeBelow;    // "
     Poly*    fLeftPoly;         // The Poly to the left of this edge, if any.
     Poly*    fRightPoly;        // The Poly to the right of this edge, if any.
-    Event*   fEvent;
     Edge*    fLeftPolyPrev;
     Edge*    fLeftPolyNext;
     Edge*    fRightPolyPrev;
     Edge*    fRightPolyNext;
-    bool     fOverlap;          // True if there's an overlap region adjacent to this edge.
     bool     fUsedInLeftPoly;
     bool     fUsedInRightPoly;
     Line     fLine;
@@ -436,6 +435,28 @@ struct Edge {
     }
 };
 
+struct SSEdge;
+
+struct SSVertex {
+    SSVertex(Vertex* v) : fVertex(v), fPrev(nullptr), fNext(nullptr) {}
+    Vertex* fVertex;
+    SSEdge* fPrev;
+    SSEdge* fNext;
+};
+
+struct SSEdge {
+    SSEdge(Edge* edge, SSVertex* prev, SSVertex* next)
+      : fEdge(edge), fEvent(nullptr), fPrev(prev), fNext(next) {
+    }
+    Edge*     fEdge;
+    Event*    fEvent;
+    SSVertex* fPrev;
+    SSVertex* fNext;
+};
+
+typedef std::unordered_map<Vertex*, SSVertex*> SSVertexMap;
+typedef std::vector<SSEdge*> SSEdgeList;
+
 struct EdgeList {
     EdgeList() : fHead(nullptr), fTail(nullptr) {}
     Edge* fHead;
@@ -465,36 +486,70 @@ struct EdgeList {
     }
 };
 
+struct EventList;
+
 struct Event {
-    Event(Edge* edge, bool isOuterBoundary, const SkPoint& point, uint8_t alpha)
-      : fEdge(edge), fIsOuterBoundary(isOuterBoundary), fPoint(point), fAlpha(alpha)
-      , fPrev(nullptr), fNext(nullptr) {
+    Event(SSEdge* edge, const SkPoint& point, uint8_t alpha)
+      : fEdge(edge), fPoint(point), fAlpha(alpha) {
     }
-    Edge* fEdge;
-    bool  fIsOuterBoundary;
+    SSEdge* fEdge;
     SkPoint fPoint;
     uint8_t fAlpha;
-    Event* fPrev;
-    Event* fNext;
-    void apply(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc);
+    void apply(VertexList* mesh, Comparator& c, EventList* events, SkArenaAlloc& alloc);
 };
 
-bool compare(Event* const& e1, Event* const& e2) {
-    return e1->fAlpha > e2->fAlpha;
-}
+struct EventComparator {
+    enum class Op { kLessThan, kGreaterThan };
+    EventComparator(Op op) : fOp(op) {}
+    bool operator() (Event* const &e1, Event* const &e2) {
+        return fOp == Op::kLessThan ? e1->fAlpha < e2->fAlpha
+                                    : e1->fAlpha > e2->fAlpha;
+    }
+    Op fOp;
+};
 
-struct EventList : public SkTDPQueue<Event*, &compare> {};
+typedef  std::priority_queue<Event*, std::vector<Event*>, EventComparator> EventPQ;
 
-void create_event(Edge* e, bool isOuterBoundary, EventList* events, SkArenaAlloc& alloc) {
-    Edge bisector1(e->fTop, e->fTop->fPartner, 1, Edge::Type::kConnector);
-    Edge bisector2(e->fBottom, e->fBottom->fPartner, 1, Edge::Type::kConnector);
+struct EventList : EventPQ {
+    EventList(EventComparator comparison) : EventPQ(comparison) {
+    }
+};
+
+void create_event(SSEdge* e, EventList* events, SkArenaAlloc& alloc) {
+    Vertex* prev = e->fPrev->fVertex;
+    Vertex* next = e->fNext->fVertex;
+    if (prev == next || !prev->fPartner || !next->fPartner) {
+        return;
+    }
+    Edge bisector1(prev, prev->fPartner, 1, Edge::Type::kConnector);
+    Edge bisector2(next, next->fPartner, 1, Edge::Type::kConnector);
     SkPoint p;
     uint8_t alpha;
     if (bisector1.intersect(bisector2, &p, &alpha)) {
-        LOG("found overlap edge %g -> %g, will collapse to %g,%g alpha %d\n",
-            e->fTop->fID, e->fBottom->fID, p.fX, p.fY, alpha);
-        e->fEvent = alloc.make<Event>(e, isOuterBoundary, p, alpha);
-        events->insert(e->fEvent);
+        LOG("found edge event for %g, %g (original %g -> %g), will collapse to %g,%g alpha %d\n",
+            prev->fID, next->fID, e->fEdge->fTop->fID, e->fEdge->fBottom->fID, p.fX, p.fY, alpha);
+        e->fEvent = alloc.make<Event>(e, p, alpha);
+        events->push(e->fEvent);
+    }
+}
+
+void create_event(SSEdge* edge, Vertex* v, SSEdge* other, Vertex* dest, EventList* events,
+                  Comparator& c, SkArenaAlloc& alloc) {
+    if (!v->fPartner) {
+        return;
+    }
+    Line line = edge->fEdge->fLine;
+    line.fC = -(dest->fPoint.fX * line.fA  + dest->fPoint.fY * line.fB);
+    Edge bisector(v, v->fPartner, 1, Edge::Type::kConnector);
+    SkPoint p;
+    uint8_t alpha = dest->fAlpha;
+    if (line.intersect(bisector.fLine, &p) && !c.sweep_lt(p, edge->fEdge->fTop->fPoint) &&
+                                              c.sweep_lt(p, edge->fEdge->fBottom->fPoint)) {
+        LOG("found p edge event for %g, %g (original %g -> %g), will collapse to %g,%g alpha %d\n",
+            dest->fID, v->fID, edge->fEdge->fTop->fID, edge->fEdge->fBottom->fID, p.fX, p.fY,
+            alpha);
+        edge->fEvent = alloc.make<Event>(edge, p, alpha);
+        events->push(edge->fEvent);
     }
 }
 
@@ -1164,6 +1219,7 @@ void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, Comparator& c,
         set_top(edge, dst, nullptr, nullptr, c);
     }
     mesh->remove(src);
+    dst->fSynthetic = true;
 }
 
 Vertex* create_sorted_vertex(const SkPoint& p, uint8_t alpha, VertexList* mesh,
@@ -1217,6 +1273,25 @@ SkPoint clamp(SkPoint p, SkPoint min, SkPoint max, Comparator& c) {
     }
 }
 
+void compute_bisector(Edge* edge1, Edge* edge2, Vertex* v, SkArenaAlloc& alloc) {
+    Line line1 = edge1->fLine;
+    Line line2 = edge2->fLine;
+    line1.normalize();
+    line2.normalize();
+    double cosAngle = line1.fA * line2.fA + line1.fB * line2.fB;
+    if (cosAngle > 0.999) {
+        return;
+    }
+    line1.fC += edge1->fWinding > 0 ? -1 : 1;
+    line2.fC += edge2->fWinding > 0 ? -1 : 1;
+    SkPoint p;
+    if (line1.intersect(line2, &p)) {
+        uint8_t alpha = edge1->fType == Edge::Type::kOuter ? 255 : 0;
+        v->fPartner = alloc.make<Vertex>(p, alpha);
+        LOG("computed bisector (%g,%g) alpha %d for vertex %g\n", p.fX, p.fY, alpha, v->fID);
+    }
+}
+
 bool check_for_intersection(Edge* left, Edge* right, EdgeList* activeEdges, Vertex** current,
                             VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
     if (!left || !right) {
@@ -1250,17 +1325,8 @@ bool check_for_intersection(Edge* left, Edge* right, EdgeList* activeEdges, Vert
         } else {
             v = create_sorted_vertex(p, alpha, mesh, top, c, alloc);
             if (left->fTop->fPartner) {
-                Line line1 = left->fLine;
-                Line line2 = right->fLine;
-                int dir = left->fType == Edge::Type::kOuter ? -1 : 1;
-                line1.fC += sqrt(left->fLine.magSq()) * (left->fWinding > 0 ? 1 : -1) * dir;
-                line2.fC += sqrt(right->fLine.magSq()) * (right->fWinding > 0 ? 1 : -1) * dir;
-                SkPoint p;
-                if (line1.intersect(line2, &p)) {
-                    LOG("synthesizing partner (%g,%g) for intersection vertex %g\n",
-                        p.fX, p.fY, v->fID);
-                    v->fPartner = alloc.make<Vertex>(p, 255 - v->fAlpha);
-                }
+                v->fSynthetic = true;
+                compute_bisector(left, right, v, alloc);
             }
         }
         rewind(activeEdges, current, top ? top : v, c);
@@ -1433,6 +1499,21 @@ void dump_mesh(const VertexList& mesh) {
 #endif
 }
 
+void dump_skel(const SSEdgeList& ssEdges) {
+#if LOGGING_ENABLED
+    LOG("skeleton:\n");
+    for (SSEdge* edge : ssEdges) {
+        if (edge->fEdge) {
+            LOG("skel edge %g -> %g (original %g -> %g)\n",
+                edge->fPrev->fVertex->fID,
+                edge->fNext->fVertex->fID,
+                edge->fEdge->fTop->fID,
+                edge->fEdge->fBottom->fID);
+        }
+    }
+#endif
+}
+
 #ifdef SK_DEBUG
 void validate_edge_pair(Edge* left, Edge* right, Comparator& c) {
     if (!left || !right) {
@@ -1470,12 +1551,16 @@ void validate_edge_list(EdgeList* edges, Comparator& c) {
 
 // Stage 4: Simplify the mesh by inserting new vertices at intersecting edges.
 
+bool connected(Vertex* v) {
+    return v->fFirstEdgeAbove || v->fFirstEdgeBelow;
+}
+
 bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
     LOG("simplifying complex polygons\n");
     EdgeList activeEdges;
     bool found = false;
     for (Vertex* v = mesh->fHead; v != nullptr; v = v->fNext) {
-        if (!v->fFirstEdgeAbove && !v->fFirstEdgeBelow) {
+        if (!connected(v)) {
             continue;
         }
         Edge* leftEnclosingEdge;
@@ -1532,7 +1617,7 @@ Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc) {
     EdgeList activeEdges;
     Poly* polys = nullptr;
     for (Vertex* v = vertices.fHead; v != nullptr; v = v->fNext) {
-        if (!v->fFirstEdgeAbove && !v->fFirstEdgeBelow) {
+        if (!connected(v)) {
             continue;
         }
 #if LOGGING_ENABLED
@@ -1639,7 +1724,7 @@ void remove_non_boundary_edges(const VertexList& mesh, SkPath::FillType fillType
     LOG("removing non-boundary edges\n");
     EdgeList activeEdges;
     for (Vertex* v = mesh.fHead; v != nullptr; v = v->fNext) {
-        if (!v->fFirstEdgeAbove && !v->fFirstEdgeBelow) {
+        if (!connected(v)) {
             continue;
         }
         Edge* leftEnclosingEdge;
@@ -1674,31 +1759,6 @@ void get_edge_normal(const Edge* e, SkVector* normal) {
                 SkDoubleToScalar(e->fLine.fB));
 }
 
-void reconnect(Edge* edge, Vertex* src, Vertex* dst, Comparator& c) {
-    disconnect(edge);
-    if (src == edge->fTop) {
-        edge->fTop = dst;
-    } else {
-        SkASSERT(src == edge->fBottom);
-        edge->fBottom = dst;
-    }
-    if (edge->fEvent) {
-        edge->fEvent->fEdge = nullptr;
-    }
-    if (edge->fTop == edge->fBottom) {
-        return;
-    }
-    if (c.sweep_lt(edge->fBottom->fPoint, edge->fTop->fPoint)) {
-        using std::swap;
-        swap(edge->fTop, edge->fBottom);
-        edge->fWinding *= -1;
-    }
-    edge->recompute();
-    insert_edge_below(edge, edge->fTop, c);
-    insert_edge_above(edge, edge->fBottom, c);
-    merge_collinear_edges(edge, nullptr, nullptr, c);
-}
-
 // Stage 5c: detect and remove "pointy" vertices whose edge normals point in opposite directions
 // and whose adjacent vertices are less than a quarter pixel from an edge. These are guaranteed to
 // invert on stroking.
@@ -1715,7 +1775,15 @@ void simplify_boundary(EdgeList* boundary, Comparator& c, SkArenaAlloc& alloc) {
         SkVector normal;
         get_edge_normal(e, &normal);
         constexpr double kQuarterPixelSq = 0.25f * 0.25f;
-        if (prev != next && prevNormal.dot(normal) < 0.0 &&
+        if (prev == next) {
+            remove_edge(prevEdge, boundary);
+            remove_edge(e, boundary);
+            prevEdge = boundary->fTail;
+            e = boundary->fHead;
+            if (prevEdge) {
+                get_edge_normal(prevEdge, &prevNormal);
+            }
+        } else if (prevNormal.dot(normal) < 0.0 &&
             (distPrev * distPrev <= kQuarterPixelSq || distNext * distNext <= kQuarterPixelSq)) {
             Edge* join = new_edge(prev, next, Edge::Type::kInner, c, alloc);
             if (prev->fPoint != next->fPoint) {
@@ -1741,56 +1809,69 @@ void simplify_boundary(EdgeList* boundary, Comparator& c, SkArenaAlloc& alloc) {
     }
 }
 
-void reconnect_all_overlap_edges(Vertex* src, Vertex* dst, Edge* current, Comparator& c) {
-    if (src->fPartner) {
-        src->fPartner->fPartner = dst;
+void ss_connect(Vertex* v, Vertex* dest, Comparator& c, SkArenaAlloc& alloc) {
+    if (v == dest) {
+        return;
     }
-    for (Edge* e = src->fFirstEdgeAbove; e; ) {
-        Edge* next = e->fNextEdgeAbove;
-        if (e->fOverlap && e != current) {
-            reconnect(e, src, dst, c);
-        }
-        e = next;
-    }
-    for (Edge* e = src->fFirstEdgeBelow; e; ) {
-        Edge* next = e->fNextEdgeBelow;
-        if (e->fOverlap && e != current) {
-            reconnect(e, src, dst, c);
-        }
-        e = next;
+    LOG("ss_connecting vertex %g to vertex %g\n", v->fID, dest->fID);
+    if (v->fSynthetic) {
+        connect(v, dest, Edge::Type::kConnector, c, alloc, 0);
+    } else if (v->fPartner) {
+        LOG("setting %g's partner to %g ", v->fPartner->fID, dest->fID);
+        LOG("and %g's partner to null\n", v->fID);
+        v->fPartner->fPartner = dest;
+        v->fPartner = nullptr;
     }
 }
 
-void Event::apply(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
-    if (!fEdge || !fEdge->fTop || !fEdge->fBottom) {
+void Event::apply(VertexList* mesh, Comparator& c, EventList* events, SkArenaAlloc& alloc) {
+    if (!fEdge) {
         return;
     }
-    Vertex* top = fEdge->fTop;
-    Vertex* bottom = fEdge->fBottom;
-    Vertex* dest = create_sorted_vertex(fPoint, fAlpha, mesh, fEdge->fTop, c, alloc);
-    LOG("collapsing edge %g -> %g to %g (%g, %g) alpha %d\n",
-        top->fID, bottom->fID, dest->fID, fPoint.fX, fPoint.fY, fAlpha);
-    reconnect_all_overlap_edges(top, dest, fEdge, c);
-    reconnect_all_overlap_edges(bottom, dest, fEdge, c);
-
-    // Since the destination has multiple partners, give it none.
-    dest->fPartner = nullptr;
-
-    // Disconnect all collapsed edges except outer boundaries.
-    // Those are required to preserve shape coverage and winding correctness.
-    if (!fIsOuterBoundary) {
-        disconnect(fEdge);
-    } else {
-        LOG("edge %g -> %g is outer boundary; not disconnecting.\n",
-            fEdge->fTop->fID, fEdge->fBottom->fID);
-        fEdge->fWinding = fEdge->fWinding >= 0 ? 1 : -1;
+    Vertex* prev = fEdge->fPrev->fVertex;
+    Vertex* next = fEdge->fNext->fVertex;
+    SSEdge* prevEdge = fEdge->fPrev->fPrev;
+    SSEdge* nextEdge = fEdge->fNext->fNext;
+    if (!prevEdge || !nextEdge || !prevEdge->fEdge || !nextEdge->fEdge) {
+        return;
     }
+    Vertex* dest = create_sorted_vertex(fPoint, fAlpha, mesh, prev, c, alloc);
+    dest->fSynthetic = true;
+    SSVertex* ssv = alloc.make<SSVertex>(dest);
+    LOG("collapsing %g, %g (original edge %g -> %g) to %g (%g, %g) alpha %d\n",
+        prev->fID, next->fID, fEdge->fEdge->fTop->fID, fEdge->fEdge->fBottom->fID,
+        dest->fID, fPoint.fX, fPoint.fY, fAlpha);
+    fEdge->fEdge = nullptr;
 
-    // If top still has some connected edges, set its partner to dest.
-    top->fPartner = top->fFirstEdgeAbove || top->fFirstEdgeBelow ? dest : nullptr;
+    ss_connect(prev, dest, c, alloc);
+    ss_connect(next, dest, c, alloc);
 
-    // If bottom still has some connected edges, set its partner to dest.
-    bottom->fPartner = bottom->fFirstEdgeAbove || bottom->fFirstEdgeBelow ? dest : nullptr;
+    prevEdge->fNext = nextEdge->fPrev = ssv;
+    ssv->fPrev = prevEdge;
+    ssv->fNext = nextEdge;
+    if (!prevEdge->fEdge || !nextEdge->fEdge) {
+        return;
+    }
+    if (prevEdge->fEvent) {
+        prevEdge->fEvent->fEdge = nullptr;
+    }
+    if (nextEdge->fEvent) {
+        nextEdge->fEvent->fEdge = nullptr;
+    }
+    if (prevEdge->fPrev == nextEdge->fNext) {
+        ss_connect(prevEdge->fPrev->fVertex, dest, c, alloc);
+        prevEdge->fEdge = nextEdge->fEdge = nullptr;
+    } else {
+        compute_bisector(prevEdge->fEdge, nextEdge->fEdge, dest, alloc);
+        SkASSERT(prevEdge != fEdge && nextEdge != fEdge);
+        if (dest->fPartner) {
+            create_event(prevEdge, events, alloc);
+            create_event(nextEdge, events, alloc);
+        } else {
+            create_event(prevEdge, prevEdge->fPrev->fVertex, nextEdge, dest, events, c, alloc);
+            create_event(nextEdge, nextEdge->fNext->fVertex, prevEdge, dest, events, c, alloc);
+        }
+    }
 }
 
 bool is_overlap_edge(Edge* e) {
@@ -1805,51 +1886,82 @@ bool is_overlap_edge(Edge* e) {
 
 // This is a stripped-down version of tessellate() which computes edges which
 // join two filled regions, which represent overlap regions, and collapses them.
-bool collapse_overlap_regions(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
+bool collapse_overlap_regions(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc,
+                              EventComparator comp) {
     LOG("\nfinding overlap regions\n");
     EdgeList activeEdges;
-    EventList events;
+    EventList events(comp);
+    SSVertexMap ssVertices;
+    SSEdgeList ssEdges;
     for (Vertex* v = mesh->fHead; v != nullptr; v = v->fNext) {
-        if (!v->fFirstEdgeAbove && !v->fFirstEdgeBelow) {
+        if (!connected(v)) {
             continue;
         }
         Edge* leftEnclosingEdge;
         Edge* rightEnclosingEdge;
         find_enclosing_edges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
-        for (Edge* e = v->fLastEdgeAbove; e; e = e->fPrevEdgeAbove) {
+        for (Edge* e = v->fLastEdgeAbove; e && e != leftEnclosingEdge;) {
             Edge* prev = e->fPrevEdgeAbove ? e->fPrevEdgeAbove : leftEnclosingEdge;
             remove_edge(e, &activeEdges);
+            bool leftOverlap = prev && is_overlap_edge(prev);
+            bool rightOverlap = is_overlap_edge(e);
+            bool isOuterBoundary = e->fType == Edge::Type::kOuter &&
+                                   (!prev || prev->fWinding == 0 || e->fWinding == 0);
             if (prev) {
                 e->fWinding -= prev->fWinding;
             }
+            if (leftOverlap && rightOverlap) {
+                LOG("found interior overlap edge %g -> %g, disconnecting\n",
+                    e->fTop->fID, e->fBottom->fID);
+                disconnect(e);
+            } else if (leftOverlap || rightOverlap) {
+                LOG("found overlap edge %g -> %g%s\n", e->fTop->fID, e->fBottom->fID,
+                    isOuterBoundary ? ", is outer boundary" : "");
+                Vertex* prevVertex = e->fWinding < 0 ? e->fBottom : e->fTop;
+                Vertex* nextVertex = e->fWinding < 0 ? e->fTop : e->fBottom;
+                SSVertex* ssPrev = ssVertices[prevVertex];
+                if (!ssPrev) {
+                    ssPrev = ssVertices[prevVertex] = alloc.make<SSVertex>(prevVertex);
+                }
+                SSVertex* ssNext = ssVertices[nextVertex];
+                if (!ssNext) {
+                    ssNext = ssVertices[nextVertex] = alloc.make<SSVertex>(nextVertex);
+                }
+                SSEdge* ssEdge = alloc.make<SSEdge>(e, ssPrev, ssNext);
+                ssEdges.push_back(ssEdge);
+//                SkASSERT(!ssPrev->fNext && !ssNext->fPrev);
+                ssPrev->fNext = ssNext->fPrev = ssEdge;
+                create_event(ssEdge, &events, alloc);
+                if (!isOuterBoundary) {
+                    disconnect(e);
+                }
+            }
+            e = prev;
         }
         Edge* prev = leftEnclosingEdge;
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
             if (prev) {
                 e->fWinding += prev->fWinding;
-                e->fOverlap = e->fOverlap || is_overlap_edge(prev);
-            }
-            e->fOverlap = e->fOverlap || is_overlap_edge(e);
-            if (e->fOverlap) {
-                // If this edge borders a zero-winding area, it's a boundary; don't disconnect it.
-                bool isOuterBoundary = e->fType == Edge::Type::kOuter &&
-                                       (!prev || prev->fWinding == 0 || e->fWinding == 0);
-                create_event(e, isOuterBoundary, &events, alloc);
             }
             insert_edge(e, prev, &activeEdges);
             prev = e;
         }
     }
+    bool complex = events.size() > 0;
+
     LOG("\ncollapsing overlap regions\n");
-    if (events.count() == 0) {
-        return false;
-    }
-    while (events.count() > 0) {
-        Event* event = events.peek();
+    while (events.size() > 0) {
+        Event* event = events.top();
         events.pop();
-        event->apply(mesh, c, alloc);
+        event->apply(mesh, c, &events, alloc);
     }
-    return true;
+    dump_skel(ssEdges);
+    for (SSEdge* edge : ssEdges) {
+        if (Edge* e = edge->fEdge) {
+            connect(edge->fPrev->fVertex, edge->fNext->fVertex, e->fType, c, alloc, 0);
+        }
+    }
+    return complex;
 }
 
 bool inversion(Vertex* prev, Vertex* next, Edge* origEdge, Comparator& c) {
@@ -2118,6 +2230,8 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType f
     sort_mesh(&mesh, c, alloc);
     merge_coincident_vertices(&mesh, c, alloc);
     simplify(&mesh, c, alloc);
+    LOG("\nsimplified mesh:\n");
+    dump_mesh(mesh);
     if (antialias) {
         VertexList innerMesh;
         extract_boundaries(mesh, &innerMesh, outerMesh, fillType, c, alloc);
@@ -2131,8 +2245,10 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType f
         dump_mesh(innerMesh);
         LOG("\nouter mesh before:\n");
         dump_mesh(*outerMesh);
-        was_complex = collapse_overlap_regions(&innerMesh, c, alloc) || was_complex;
-        was_complex = collapse_overlap_regions(outerMesh, c, alloc) || was_complex;
+        EventComparator eventLT(EventComparator::Op::kLessThan);
+        EventComparator eventGT(EventComparator::Op::kGreaterThan);
+        was_complex = collapse_overlap_regions(&innerMesh, c, alloc, eventLT) || was_complex;
+        was_complex = collapse_overlap_regions(outerMesh, c, alloc, eventGT) || was_complex;
         if (was_complex) {
             LOG("found complex mesh; taking slow path\n");
             VertexList aaMesh;
@@ -2145,6 +2261,7 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType f
             sorted_merge(&innerMesh, outerMesh, &aaMesh, c);
             merge_coincident_vertices(&aaMesh, c, alloc);
             simplify(&aaMesh, c, alloc);
+            LOG("combined and simplified mesh:\n");
             dump_mesh(aaMesh);
             outerMesh->fHead = outerMesh->fTail = nullptr;
             return tessellate(aaMesh, alloc);

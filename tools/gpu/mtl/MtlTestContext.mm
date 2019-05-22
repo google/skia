@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h" // Keep this before any #ifdef for skbug.com/3362
+
+#ifdef SK_METAL
+
 #include "tools/gpu/mtl/MtlTestContext.h"
 
 #include "include/gpu/GrContext.h"
@@ -12,7 +16,6 @@
 
 #include "src/gpu/mtl/GrMtlUtil.h"
 
-#ifdef SK_METAL
 
 #import <Metal/Metal.h>
 
@@ -37,11 +40,9 @@ public:
             , fQueue(queue)
             , fLatestEvent(0) {
         SkDEBUGCODE(fUnfinishedSyncs = 0;)
-        SK_BEGIN_AUTORELEASE_BLOCK
         fSharedEvent = [fDevice newSharedEvent];
-        dispatch_queue_t queue = dispatch_queue_create("MTLFenceSync", NULL);
-        fSharedEventListener = [[MTLSharedEventListener alloc] initWithDispatchQueue:queue];
-        SK_END_AUTORELEASE_BLOCK
+        dispatch_queue_t dispatchQueue = dispatch_queue_create("MTLFenceSync", NULL);
+        fSharedEventListener = [[MTLSharedEventListener alloc] initWithDispatchQueue:dispatchQueue];
     }
 
     ~MtlFenceSync() override {
@@ -53,12 +54,10 @@ public:
     }
 
     sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override {
-        SK_BEGIN_AUTORELEASE_BLOCK
         id<MTLCommandBuffer> cmdBuffer = [fQueue commandBuffer];
         ++fLatestEvent;
         [cmdBuffer encodeSignalEvent:fSharedEvent value:fLatestEvent];
         [cmdBuffer commit];
-        SK_END_AUTORELEASE_BLOCK
 
         SkDEBUGCODE(++fUnfinishedSyncs;)
         return (sk_gpu_test::PlatformFence)fLatestEvent;

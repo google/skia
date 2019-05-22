@@ -688,7 +688,7 @@ public:
 
     const char* name() const override { return "AAConvexPathOp"; }
 
-    void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         fHelper.visitProxies(func);
     }
 

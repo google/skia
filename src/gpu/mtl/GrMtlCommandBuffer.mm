@@ -9,11 +9,13 @@
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 GrMtlCommandBuffer* GrMtlCommandBuffer::Create(id<MTLCommandQueue> queue) {
     id<MTLCommandBuffer> mtlCommandBuffer;
-    SK_BEGIN_AUTORELEASE_BLOCK
     mtlCommandBuffer = [queue commandBuffer];
-    SK_END_AUTORELEASE_BLOCK
 
     if (nil == mtlCommandBuffer) {
         return nullptr;
@@ -34,9 +36,7 @@ id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
     }
 
     if (nil == fActiveBlitCommandEncoder) {
-        SK_BEGIN_AUTORELEASE_BLOCK
         fActiveBlitCommandEncoder = [fCmdBuffer blitCommandEncoder];
-        SK_END_AUTORELEASE_BLOCK
     }
     fPreviousRenderPassDescriptor = nil;
 
@@ -77,9 +77,7 @@ id<MTLRenderCommandEncoder> GrMtlCommandBuffer::getRenderCommandEncoder(
     }
 
     this->endAllEncoding();
-    SK_BEGIN_AUTORELEASE_BLOCK
     fActiveRenderCommandEncoder = [fCmdBuffer renderCommandEncoderWithDescriptor:descriptor];
-    SK_END_AUTORELEASE_BLOCK
     fPreviousRenderPassDescriptor = descriptor;
 
     return fActiveRenderCommandEncoder;

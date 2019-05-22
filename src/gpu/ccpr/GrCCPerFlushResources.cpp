@@ -72,7 +72,7 @@ public:
     }
 
     const char* name() const override { return "CopyAtlasOp (CCPR)"; }
-    void visitProxies(const VisitProxyFunc& fn, VisitorType) const override { fn(fSrcProxy.get()); }
+    void visitProxies(const VisitProxyFunc& fn) const override { fn(fSrcProxy.get()); }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         SkASSERT(fSrcProxy);

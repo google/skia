@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h" // Keep this before any #ifdef for skbug.com/3362
+
+#ifdef SK_GL
+
 #include "include/core/SkTraceMemoryDump.h"
 
 #include "tests/Test.h"
@@ -176,3 +180,5 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarget, r
 
     ValidateMemoryDumps(reporter, context, rt->gpuMemorySize(), false /* isOwned */);
 }
+
+#endif

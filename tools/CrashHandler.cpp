@@ -7,7 +7,7 @@
 
 #include "tools/CrashHandler.h"
 
-#include "include/private/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 
 #include <stdlib.h>
 

@@ -60,14 +60,10 @@ public:
     // command buffer to finish before creating a new buffer and returning.
     void submitCommandBuffer(SyncQueue sync);
 
-    GrBackendTexture createTestingOnlyBackendTexture(int w, int h,
-                                                     const GrBackendFormat& format,
-                                                     GrMipMapped mipMapped,
-                                                     GrRenderable renderable,
-                                                     const void* pixels = nullptr,
-                                                     size_t rowBytes = 0) override;
-
-    void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
+    GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
+                                          GrMipMapped, GrRenderable,
+                                          const void* pixels, size_t rowBytes) override;
+    void deleteBackendTexture(const GrBackendTexture&) override;
 
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;

@@ -54,7 +54,7 @@
 #endif // !defined(SK_BUILD_FOR_WIN)
 
 #if defined(SK_BUILD_FOR_WIN) && defined(SK_DEBUG)
-#include "include/private/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 #endif
 
 #define VK_CALL(X) GR_VK_CALL(this->vkInterface(), X)
@@ -1890,11 +1890,11 @@ static bool vk_format_to_pixel_config(VkFormat format, GrPixelConfig* config) {
     return false;
 }
 
-GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(int w, int h,
-                                                          const GrBackendFormat& format,
-                                                          GrMipMapped mipMapped,
-                                                          GrRenderable renderable,
-                                                          const void* srcData, size_t rowBytes) {
+GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
+                                               const GrBackendFormat& format,
+                                               GrMipMapped mipMapped,
+                                               GrRenderable renderable,
+                                               const void* srcData, size_t rowBytes) {
     this->handleDirtyContext();
 
 
@@ -1930,7 +1930,7 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(int w, int h,
     return beTex;
 }
 
-void GrVkGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
+void GrVkGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(GrBackendApi::kVulkan == tex.fBackend);
 
     GrVkImageInfo info;
