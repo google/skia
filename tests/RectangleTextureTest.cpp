@@ -5,10 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h" // Keep this before any #ifdef for skbug.com/3362
-
-#ifdef SK_GL
-
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 
@@ -178,5 +174,3 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         GR_GL_CALL(glContext->gl(), DeleteTextures(1, &rectTexID));
     }
 }
-
-#endif
