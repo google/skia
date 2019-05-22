@@ -47,6 +47,9 @@ public:
     // Make a canonical strike spec for device-less measurements using default typeface and size.
     static SkStrikeSpecStorage MakeDefault();
 
+    // Make a strike spec for PDF Vector strikes
+    static SkStrikeSpecStorage MakePDFVector(const SkTypeface& typeface, int* size);
+
 #if SK_SUPPORT_GPU
     // Create a strike spec for scaled distance field text.
     static std::tuple<SkStrikeSpecStorage, SkScalar, SkScalar> MakeSDFT(
