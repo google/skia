@@ -10,15 +10,20 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
+#include "include/ports/SkTypeface_win.h"
 #include "include/private/SkFixed.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkFontDescriptor.h"
+#include "src/core/SkFontMgrPriv.h"
+#include "src/core/SkFontPriv.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/sfnt/SkOTTable_OS_2.h"
 #include "src/sfnt/SkSFNTHeader.h"
+#include "src/utils/SkUTF.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 #include "tools/fonts/TestEmptyTypeface.h"
 
 #include <memory>
@@ -323,3 +328,38 @@ DEF_TEST(Typeface_serialize, reporter) {
 
 }
 
+DEF_TEST(Typeface_glyph_to_char, reporter) {
+    SkFont font(ToolUtils::emoji_typeface(), 12);
+    SkASSERT(font.getTypeface());
+    char const * text = ToolUtils::emoji_sample_text();
+    size_t const textLen = strlen(text);
+    size_t const codepointCount = SkUTF::CountUTF8(text, textLen);
+    char const * const textEnd = text + textLen;
+    std::unique_ptr<SkUnichar[]> originalCodepoints(new SkUnichar[codepointCount]);
+    for (size_t i = 0; i < codepointCount; ++i) {
+        originalCodepoints[i] = SkUTF::NextUTF8(&text, textEnd);
+    }
+    std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[codepointCount]);
+    font.unicharsToGlyphs(originalCodepoints.get(), codepointCount, glyphs.get());
+
+    std::unique_ptr<SkUnichar[]> newCodepoints(new SkUnichar[codepointCount]);
+    SkFontPriv::GlyphsToUnichars(font, glyphs.get(), codepointCount, newCodepoints.get());
+
+    SkString familyName;
+    font.getTypeface()->getFamilyName(&familyName);
+    for (size_t i = 0; i < codepointCount; ++i) {
+#if defined(SK_BUILD_FOR_WIN)
+        // GDI does not support character to glyph mapping outside BMP.
+        if (gSkFontMgr_DefaultFactory == &SkFontMgr_New_GDI &&
+            0xFFFF < originalCodepoints[i] && newCodepoints[i] == 0)
+        {
+            continue;
+        }
+#endif
+        // If two codepoints map to the same glyph then this assert is not valid.
+        // However, the emoji test font should never have multiple characters map to the same glyph.
+        REPORTER_ASSERT(reporter, originalCodepoints[i] == newCodepoints[i],
+                        "name:%s i:%d original:%d new:%d glyph:%d", familyName.c_str(), i,
+                        originalCodepoints[i], newCodepoints[i], glyphs[i]);
+    }
+}
