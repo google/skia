@@ -57,11 +57,6 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, GrGLenum format, const ID
 
     fRTFormat               = format;
 
-    fViewport.fLeft   = 0;
-    fViewport.fBottom = 0;
-    fViewport.fWidth  = desc.fWidth;
-    fViewport.fHeight = desc.fHeight;
-
     fNumSamplesOwnedPerPixel = this->totalSamples();
 }
 
