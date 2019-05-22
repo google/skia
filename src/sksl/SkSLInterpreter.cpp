@@ -303,10 +303,10 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
     std::vector<StackFrame> frames;
 
     for (;;) {
-        ByteCodeInstruction inst = (ByteCodeInstruction) READ16();
 #ifdef TRACE
-        printf("at %d\n", (int) (ip - code - 1));
+        printf("at %d\n", (int) (ip - code));
 #endif
+        ByteCodeInstruction inst = (ByteCodeInstruction) READ16();
         switch (inst) {
             VECTOR_BINARY_OP(kAddI, fSigned, +)
             VECTOR_BINARY_OP(kAddF, fFloat, +)
@@ -579,7 +579,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
         int stackSize = (int) (sp - stack + 1);
         printf("STACK(%d):", stackSize);
         for (int i = 0; i < stackSize; ++i) {
-            printf(" %d(%f)", stack[i].fSigned, stack[i].fFloat);
+            printf(" %d(%g)", stack[i].fSigned, stack[i].fFloat);
         }
         printf("\n");
 #endif
