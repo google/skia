@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3c1b3c3_2cc2338e",
+        "filename": "src/gpu/GrOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-05-22T22:03:26Z",
+      "side": 1,
+      "message": "@egdaniel: Will this play well with Vulkan?\n\nIf so, where should I modify the Vulkan code to assert this is already done rather than doing it if needed?",
+      "revId": "744ab813eea7b5156d652e21b65228ad7d5f45f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
