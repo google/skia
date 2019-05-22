@@ -403,6 +403,7 @@ skia_core_sources = [
   "$_src/core/SkYUVPlanesCache.cpp",
   "$_src/core/SkYUVPlanesCache.h",
   "$_src/core/SkYUVASizeInfo.cpp",
+  "$_src/core/SkYUVMath.cpp",
 
   "$_src/image/SkImage.cpp",
 
