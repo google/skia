@@ -34,7 +34,7 @@ protected:
         return this->doProcessorAnalysis(caps, clip, fsaaType, clampType);
     }
 
-    void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         fProcessorSet.visitProxies(func);
     }
 

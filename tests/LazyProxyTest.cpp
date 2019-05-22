@@ -66,7 +66,7 @@ public:
             return pool->allocate<Op>(context, proxyProvider, test, nullTexture);
         }
 
-        void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
+        void visitProxies(const VisitProxyFunc& func) const override {
             func(fProxy.get());
         }
 
@@ -319,7 +319,7 @@ public:
                                                              shouldFailInstantiation);
     }
 
-    void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         func(fLazyProxy.get());
     }
 
@@ -414,7 +414,7 @@ public:
         return pool->allocate<LazyDeinstantiateTestOp>(std::move(proxy));
     }
 
-    void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         func(fLazyProxy.get());
     }
 

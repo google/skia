@@ -190,7 +190,7 @@ bool GrTextureOpList::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         const GrOp* op = fRecordedOps[i].get();
         if (op) {
-            op->visitProxies(visit, GrOp::VisitorType::kOther);
+            op->visitProxies(visit);
         }
     }
 
@@ -221,7 +221,7 @@ void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         const GrOp* op = fRecordedOps[i].get(); // only diff from the GrRenderTargetOpList version
         if (op) {
-            op->visitProxies(gather, GrOp::VisitorType::kAllocatorGather);
+            op->visitProxies(gather);
         }
 
         // Even though the op may have been (re)moved we still need to increment the op count to

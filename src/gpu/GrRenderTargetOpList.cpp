@@ -130,13 +130,12 @@ GrRenderTargetOpList::OpChain::OpChain(std::unique_ptr<GrOp> op,
     fBounds = fList.head()->bounds();
 }
 
-void GrRenderTargetOpList::OpChain::visitProxies(const GrOp::VisitProxyFunc& func,
-                                                 GrOp::VisitorType visitor) const {
+void GrRenderTargetOpList::OpChain::visitProxies(const GrOp::VisitProxyFunc& func) const {
     if (fList.empty()) {
         return;
     }
     for (const auto& op : GrOp::ChainRange<>(fList.head())) {
-        op.visitProxies(func, visitor);
+        op.visitProxies(func);
     }
     if (fDstProxy.proxy()) {
         func(fDstProxy.proxy());
@@ -396,7 +395,7 @@ void GrRenderTargetOpList::dump(bool printDependencies) const {
 
 void GrRenderTargetOpList::visitProxies_debugOnly(const GrOp::VisitProxyFunc& func) const {
     for (const OpChain& chain : fOpChains) {
-        chain.visitProxies(func, GrOp::VisitorType::kOther);
+        chain.visitProxies(func);
     }
 }
 
@@ -601,7 +600,7 @@ void GrRenderTargetOpList::purgeOpsWithUninstantiatedProxies() {
     };
     for (OpChain& recordedOp : fOpChains) {
         hasUninstantiatedProxy = false;
-        recordedOp.visitProxies(checkInstantiation, GrOp::VisitorType::kOther);
+        recordedOp.visitProxies(checkInstantiation);
         if (hasUninstantiatedProxy) {
             // When instantiation of the proxy fails we drop the Op
             recordedOp.deleteOps(fOpMemoryPool.get());
@@ -618,7 +617,7 @@ bool GrRenderTargetOpList::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
         }
     };
     for (const OpChain& recordedOp : fOpChains) {
-        recordedOp.visitProxies(visit, GrOp::VisitorType::kOther);
+        recordedOp.visitProxies(visit);
     }
 
     return used;
@@ -657,7 +656,7 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
     };
     for (const OpChain& recordedOp : fOpChains) {
         // only diff from the GrTextureOpList version
-        recordedOp.visitProxies(gather, GrOp::VisitorType::kAllocatorGather);
+        recordedOp.visitProxies(gather);
 
         // Even though the op may have been (re)moved we still need to increment the op count to
         // keep all the math consistent.

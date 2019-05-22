@@ -65,7 +65,7 @@ public:
                 &GrUserStencilSettings::kUnused, fsaaType, caps, clampType, &fColor);
     }
 
-    void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         fProcessorSet.visitProxies(func);
     }
 
