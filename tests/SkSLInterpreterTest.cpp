@@ -179,6 +179,11 @@ DEF_TEST(SkSLInterpreterCast, r) {
     expected[1].fSigned = -5;
     test(r, "int  main(float  x) { return int (x); }", input, 1, expected);
     test(r, "int2 main(float2 x) { return int2(x); }", input, 2, expected);
+
+    input[0].fSigned = 3;
+    expected[0].fFloat = 3.0f;
+    expected[1].fFloat = 3.0f;
+    test(r, "float2 main(int x) { return float2(x); }", input, 2, expected);
 }
 
 DEF_TEST(SkSLInterpreterIf, r) {
