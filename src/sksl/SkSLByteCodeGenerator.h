@@ -164,6 +164,28 @@ private:
         const FunctionDeclaration& fFunction;
     };
 
+    // Intrinsics which do not simply map to a single opcode
+    enum class SpecialIntrinsic {
+        kDot,
+    };
+
+    struct Intrinsic {
+        Intrinsic(ByteCodeInstruction instruction)
+            : fIsSpecial(false)
+            , fValue({ .fInstruction = instruction }) {}
+
+        Intrinsic(SpecialIntrinsic special)
+            : fIsSpecial(true)
+            , fValue({ .fSpecial = special }) {}
+
+        bool fIsSpecial;
+
+        union Value {
+            ByteCodeInstruction fInstruction;
+            SpecialIntrinsic fSpecial;
+        } fValue;
+    };
+
     /**
      * Returns the local slot into which var should be stored, allocating a new slot if it has not
      * already been assigned one. Compound variables (e.g. vectors) will consume more than one local
@@ -265,7 +287,7 @@ private:
 
     int fParameterCount;
 
-    std::unordered_map<String, ByteCodeInstruction> fIntrinsics;
+    const std::unordered_map<String, Intrinsic> fIntrinsics;
 
     friend class DeferredLocation;
     friend class ByteCodeVariableLValue;
