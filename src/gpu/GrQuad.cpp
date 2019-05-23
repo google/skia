@@ -10,6 +10,7 @@
 #include "include/private/GrTypesPriv.h"
 
 using V4f = skvx::Vec<4, float>;
+using M4f = skvx::Vec<4, int32_t>;
 
 static bool aa_affects_rect(float ql, float qt, float qr, float qb) {
     return !SkScalarIsInt(ql) || !SkScalarIsInt(qr) || !SkScalarIsInt(qt) || !SkScalarIsInt(qb);
@@ -222,4 +223,219 @@ GrPerspQuad GrPerspQuad::MakeFromSkQuad(const SkPoint pts[4], const SkMatrix& ma
 bool GrPerspQuad::aaHasEffectOnRect() const {
     // If rect, ws must all be 1s so no need to divide
     return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Since the local quad may not be type kRect, this uses the opposites for each vertex when
+// interpolating, and calculates new ws in addition to new xs, ys.
+static void interpolate_local(float alpha, int v0, int v1, int v2, int v3,
+                              float lx[4], float ly[4], float lw[4]) {
+    // Don't compute local coords if not requested
+    if (!lx) {
+        SkASSERT(!ly && !lw);
+        return;
+    }
+    SkASSERT(ly && lw);
+
+    float beta = 1.f - alpha;
+    lx[v0] = alpha * lx[v0] + beta * lx[v2];
+    ly[v0] = alpha * ly[v0] + beta * ly[v2];
+    lw[v0] = alpha * lw[v0] + beta * lw[v2];
+
+    lx[v1] = alpha * lx[v1] + beta * lx[v3];
+    ly[v1] = alpha * ly[v1] + beta * ly[v3];
+    lw[v1] = alpha * lw[v1] + beta * lw[v3];
+}
+
+// Crops v0 to v1 based on the device rect. v2 is opposite of v0, v3 is opposite of v1.
+// It is written to not modify coordinates if there's no intersection along the edge.
+// Ideally this would have been detected earlier and the entire draw is skipped.
+static bool crop_rect_edge(const SkRect& clipDevRect, int v0, int v1, int v2, int v3,
+                           float x[4], float y[4], float lx[4], float ly[4], float lw[4]) {
+    if (SkScalarNearlyEqual(x[v0], x[v1])) {
+        // A vertical edge
+        if (x[v0] < clipDevRect.fLeft && x[v2] >= clipDevRect.fLeft) {
+            // Overlapping with left edge of clipDevRect
+            float alpha = (x[v2] - clipDevRect.fLeft) / (x[v2] - x[v0]);
+            interpolate_local(alpha, v0, v1, v2, v3, lx, ly, lw);
+            x[v0] = clipDevRect.fLeft;
+            x[v1] = clipDevRect.fLeft;
+            return true;
+        } else if (x[v0] > clipDevRect.fRight && x[v2] <= clipDevRect.fRight) {
+            // Overlapping with right edge of clipDevRect
+            float alpha = (clipDevRect.fRight - x[v2]) / (x[v0] - x[v2]);
+            interpolate_local(alpha, v0, v1, v2, v3, lx, ly, lw);
+            x[v0] = clipDevRect.fRight;
+            x[v1] = clipDevRect.fRight;
+            return true;
+        }
+    } else {
+        // A horizontal edge
+        if (y[v0] < clipDevRect.fTop && y[v2] >= clipDevRect.fTop) {
+            // Overlapping with top edge of clipDevRect
+            float alpha = (y[v2] - clipDevRect.fTop) / (y[v2] - y[v0]);
+            interpolate_local(alpha, v0, v1, v2, v3, lx, ly, lw);
+            y[v0] = clipDevRect.fTop;
+            y[v1] = clipDevRect.fTop;
+            return true;
+        } else if (y[v0] > clipDevRect.fBottom && y[v2] <= clipDevRect.fBottom) {
+            // Overlapping with bottom edge of clipDevRect
+            float alpha = (clipDevRect.fBottom - y[v2]) / (y[v0] - y[v2]);
+            interpolate_local(alpha, v0, v1, v2, v3, lx, ly, lw);
+            y[v0] = clipDevRect.fBottom;
+            y[v1] = clipDevRect.fBottom;
+            return true;
+        }
+    }
+
+    // No overlap so don't crop it
+    return false;
+}
+
+// FIXME can we just make this static?
+bool GrPerspQuad::cropRect(const SkRect& clipDevRect, GrAA clipAA, GrQuadAAFlags* edgeFlags,
+                           GrPerspQuad* local) {
+    // Intersection of a rect quad and an SkRect will be another rect. However, the quad's left
+    // edge may not align with the SkRect notion of left due to 90 degree rotations or mirrors.
+    // So, this processes the logical edges of the quad and clamps it to the 4 sides of clipDevRect.
+    SkASSERT(fType == GrQuadType::kRect);
+
+    // Filled in as if clipAA were true, will be inverted at the end if needed.
+    GrQuadAAFlags clipEdgeFlags = GrQuadAAFlags::kNone;
+
+    float* lx = local ? local->fX : nullptr;
+    float* ly = local ? local->fY : nullptr;
+    float* lw = local ? local->fW : nullptr;
+
+    // Quad's left is v0 to v1 (op. v2 and v3)
+    if (crop_rect_edge(clipDevRect, 0, 1, 2, 3, fX, fY, lx, ly, lw)) {
+        clipEdgeFlags |= GrQuadAAFlags::kLeft;
+    }
+    // Quad's top edge is v0 to v2 (op. v1 and v3)
+    if (crop_rect_edge(clipDevRect, 0, 2, 1, 3, fX, fY, lx, ly, lw)) {
+        clipEdgeFlags |= GrQuadAAFlags::kTop;
+    }
+    // Quad's right edge is v2 to v3 (op. v0 and v1)
+    if (crop_rect_edge(clipDevRect, 2, 3, 0, 1, fX, fY, lx, ly, lw)) {
+        clipEdgeFlags |= GrQuadAAFlags::kRight;
+    }
+    // Quad's bottom edge is v1 to v3 (op. v0 and v2)
+    if (crop_rect_edge(clipDevRect, 1, 3, 0, 2, fX, fY, lx, ly, lw)) {
+        clipEdgeFlags |= GrQuadAAFlags::kBottom;
+    }
+
+    if (clipAA == GrAA::kYes) {
+        // Turn on all edges that were clipped
+        *edgeFlags |= clipEdgeFlags;
+    } else {
+        // Turn off all edges that were clipped
+        *edgeFlags &= ~clipEdgeFlags;
+    }
+
+    return true;
+}
+
+// Calculates barycentric coordinates for each point in (testX, testY) in the triangle formed by
+// (x0,y0) - (x1,y1) - (x2, y2) and stores them in u, v, w.
+static void barycentric_coords(float x0, float y0, float x1, float y1, float x2, float y2,
+                               const V4f& testX, const V4f& testY,
+                               V4f* u, V4f* v, V4f* w) {
+    // Modeled after SkPathOpsQuad::pointInTriangle() but uses float instead of double, is
+    // vectorized and outputs normalized barycentric coordinates instead of inside/outside test
+    float v0x = x2 - x0;
+    float v0y = y2 - y0;
+    float v1x = x1 - x0;
+    float v1y = y1 - y0;
+    V4f v2x = testX - x0;
+    V4f v2y = testY - y0;
+
+    float dot00 = v0x * v0x + v0y * v0y;
+    float dot01 = v0x * v1x + v0y * v1y;
+    V4f   dot02 = v0x * v2x + v0y * v2y;
+    float dot11 = v1x * v1x + v1y * v1y;
+    V4f   dot12 = v1x * v2x + v1y * v2y;
+    float invDenom = sk_ieee_float_divide(1.f, dot00 * dot11 - dot01 * dot01);
+    *u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+    *v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+    *w = 1.f - *u - *v;
+}
+
+static M4f inside_triangle(const V4f& u, const V4f& v, const V4f& w) {
+    return (u >= 0.f & u <= 1.f) & (v >= 0.f & v <= 1.f) & (w >= 0.f & v <= 1.f);
+}
+
+bool GrPerspQuad::crop(const SkRect& clipDevRect, GrAA clipAA, GrQuadAAFlags* edgeFlags,
+                       GrPerspQuad* local) {
+    if (fType == GrQuadType::kRect) {
+        return this->cropRect(clipDevRect, clipAA, edgeFlags, local);
+    }
+
+    V4f devX = this->x4f();
+    V4f devY = this->y4f();
+    V4f devIW = this->iw4f();
+    // Project the 3D coordinates to 2D
+    if (this->quadType() == GrQuadType::kPerspective) {
+        devX *= devIW;
+        devY *= devIW;
+    }
+
+    V4f clipX = {clipDevRect.fLeft, clipDevRect.fLeft, clipDevRect.fRight, clipDevRect.fRight};
+    V4f clipY = {clipDevRect.fTop, clipDevRect.fBottom, clipDevRect.fTop, clipDevRect.fBottom};
+
+    // Calculate barycentric coordinates for the 4 rect corners in the 2 triangles that the quad
+    // is tessellated into when drawn.
+    V4f u1, v1, w1;
+    barycentric_coords(devX[0], devY[0], devX[1], devY[1], devX[2], devY[2], clipX, clipY,
+                       &u1, &v1, &w1);
+    V4f u2, v2, w2;
+    barycentric_coords(devX[1], devY[1], devX[3], devY[3], devX[2], devY[2], clipX, clipY,
+                       &u2, &v2, &w2);
+
+    // clipDevRect is completely inside this quad if each corner is in at least one of two triangles
+    M4f inTri1 = inside_triangle(u1, v1, w1);
+    M4f inTri2 = inside_triangle(u2, v2, w2);
+    if (all(inTri1 | inTri2)) {
+        // We can crop to exactly the clipDevRect, use the barycentric coordinates to determine
+        // the proper local coordinates at the rect corners, using projective interpolation.
+        if (local) {
+            // Update local coordinates
+            V4f lx = local->x4f();
+            V4f ly = local->y4f();
+            V4f lw = local->w4f();
+            if (this->quadType() == GrQuadType::kPerspective) {
+
+            } else {
+                // Since inTri1 | inTri2 is true, if !inTri1 then inTri2 is true so u2,v2,w2 valid
+                lx = if_then_else(inTri1, u1 * lx + v1 * lx + w1 * lx, u2 * lx + v2 * lx + w2 * lx);
+                ly = if_then_else(inTri1, u1 * ly + v1 * ly + w1 * ly, u2 * ly + v2 * ly + w2 * ly);
+                lw = if_then_else(inTri1, u1 * lw + v1 * lw + w1 * lw, u2 * lw + v2 * lw + w2 * lw);
+                lx.store(local->fX);
+                ly.store(local->fY);
+                lw.store(local->fW);
+                if (fType > local->fType) {
+                    // Local quad now directly reflects the transformation from local to device
+                    // so its type must be generalized
+                    local->fType = fType;
+                }
+            }
+        }
+        // FIXME do we keep this as perspective? or do we try and inflate local to be perspective instead?
+
+        // Since we are cropped to exactly clipDevRect, we have discarded any perspective and the
+        // type becomes kRect. If updated locals were requested, they will incorporate perspective.
+        clipX.store(fX);
+        clipY.store(fY);
+        fW[0] = 1.f;
+        fW[1] = 1.f;
+        fW[2] = 1.f;
+        fW[3] = 1.f;
+        fType = GrQuadType::kRect;
+
+        return true;
+    }
+
+    // FIXME how do we perform the final crop? Can we make use of the barycentric coordinates??
+
+    return false;
 }
