@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8a50f8ff_d9a11852",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1268,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-23T19:30:23Z",
+      "side": 1,
+      "message": "This is a classic question; how to indicate that I won\u0027t realloc or change any settings, but will change some other object that this guy points to.",
+      "parentUuid": "62f4f531_ffcbf770",
+      "range": {
+        "startLine": 1268,
+        "startChar": 73,
+        "endLine": 1268,
+        "endChar": 78
+      },
+      "revId": "89470a2c23dfb705b32f1938504206c174af053c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7ee2ce22_1a1cc668",
         "filename": "gm/wacky_yuv_formats.cpp",
         "patchSetId": 8
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "23c6b6b6_8f62defa",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1309,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-23T19:30:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ee2ce22_1a1cc668",
+      "revId": "89470a2c23dfb705b32f1938504206c174af053c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31f64545_e653cc34",
         "filename": "src/core/SkYUVMath.cpp",
         "patchSetId": 8
@@ -53,6 +95,30 @@
       "writtenOn": "2019-05-23T15:08:16Z",
       "side": 1,
       "message": "Do we want to unit test these somewhere like:\n\nrgb2yuv * yuv2rgb \u003d\u003d I ?\n\nAlso, maybe, feed some colors through?",
+      "range": {
+        "startLine": 13,
+        "startChar": 12,
+        "endLine": 13,
+        "endChar": 29
+      },
+      "revId": "89470a2c23dfb705b32f1938504206c174af053c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "318f92d9_d501c70e",
+        "filename": "src/core/SkYUVMath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-23T19:30:23Z",
+      "side": 1,
+      "message": "test added. not sure what colors to run though, but we can augment the test later.",
+      "parentUuid": "31f64545_e653cc34",
       "range": {
         "startLine": 13,
         "startChar": 12,
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "84279676_a6cdc0db",
+        "filename": "src/core/SkYUVMath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-23T19:30:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9cc18dc6_f4cd15d2",
+      "range": {
+        "startLine": 116,
+        "startChar": 47,
+        "endLine": 116,
+        "endChar": 59
+      },
+      "revId": "89470a2c23dfb705b32f1938504206c174af053c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "119b63ae_bb82470f",
         "filename": "src/core/SkYUVMath.cpp",
         "patchSetId": 8
@@ -102,6 +192,24 @@
       "revId": "89470a2c23dfb705b32f1938504206c174af053c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e20fa02_8219f598",
+        "filename": "src/core/SkYUVMath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-23T19:30:23Z",
+      "side": 1,
+      "message": "renamed and documented in the impl",
+      "parentUuid": "119b63ae_bb82470f",
+      "revId": "89470a2c23dfb705b32f1938504206c174af053c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
