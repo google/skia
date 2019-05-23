@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca6c5a6b_99b843c3",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1776,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-23T14:22:10Z",
+      "side": 1,
+      "message": "This is basically a reimplementation of the existing SkSurface rescale functionality, just at a different level of abstraction.",
+      "revId": "9f802d867f3d13505f1c044070b266e527b2bbcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70ea15cf_b296595e",
+        "filename": "src/image/SkSurface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-23T14:22:10Z",
+      "side": 1,
+      "message": "This code is moved from SkSurface::asyncRescaleAndReadPixels() with trivial edits.",
+      "revId": "9f802d867f3d13505f1c044070b266e527b2bbcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
