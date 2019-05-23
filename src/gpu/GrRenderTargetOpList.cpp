@@ -138,7 +138,7 @@ void GrRenderTargetOpList::OpChain::visitProxies(const GrOp::VisitProxyFunc& fun
         op.visitProxies(func);
     }
     if (fDstProxy.proxy()) {
-        func(fDstProxy.proxy());
+        func(fDstProxy.proxy(), GrMipMapped::kNo);
     }
     if (fAppliedClip) {
         fAppliedClip->visitProxies(func);
@@ -593,7 +593,7 @@ bool GrRenderTargetOpList::copySurface(GrRecordingContext* context,
 
 void GrRenderTargetOpList::purgeOpsWithUninstantiatedProxies() {
     bool hasUninstantiatedProxy = false;
-    auto checkInstantiation = [&hasUninstantiatedProxy](GrSurfaceProxy* p) {
+    auto checkInstantiation = [&hasUninstantiatedProxy](GrSurfaceProxy* p, GrMipMapped) {
         if (!p->isInstantiated()) {
             hasUninstantiatedProxy = true;
         }
@@ -611,7 +611,7 @@ void GrRenderTargetOpList::purgeOpsWithUninstantiatedProxies() {
 bool GrRenderTargetOpList::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
     bool used = false;
 
-    auto visit = [ proxyToCheck, &used ] (GrSurfaceProxy* p) {
+    auto visit = [ proxyToCheck, &used ] (GrSurfaceProxy* p, GrMipMapped) {
         if (p == proxyToCheck) {
             used = true;
         }
@@ -650,7 +650,7 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
         alloc->incOps();
     }
 
-    auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p) {
+    auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p, GrMipMapped) {
         alloc->addInterval(p, alloc->curOp(), alloc->curOp(), GrResourceAllocator::ActualUse::kYes
                            SkDEBUGCODE(, fTarget.get() == p));
     };

@@ -25,7 +25,9 @@ public:
 
     const char* name() const override { return "CopySurface"; }
 
-    void visitProxies(const VisitProxyFunc& func) const override { func(fSrc.get()); }
+    void visitProxies(const VisitProxyFunc& func) const override {
+        func(fSrc.get(), GrMipMapped::kNo);
+    }
 
 #ifdef SK_DEBUG
     SkString dumpInfo() const override {

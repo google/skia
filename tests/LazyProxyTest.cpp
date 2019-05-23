@@ -67,7 +67,7 @@ public:
         }
 
         void visitProxies(const VisitProxyFunc& func) const override {
-            func(fProxy.get());
+            func(fProxy.get(), GrMipMapped::kNo);
         }
 
         void onExecute(GrOpFlushState*, const SkRect& chainBounds) override {
@@ -320,7 +320,7 @@ public:
     }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        func(fLazyProxy.get());
+        func(fLazyProxy.get(), GrMipMapped::kNo);
     }
 
 private:
@@ -415,7 +415,7 @@ public:
     }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        func(fLazyProxy.get());
+        func(fLazyProxy.get(), GrMipMapped::kNo);
     }
 
 private:

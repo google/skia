@@ -282,7 +282,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
 #ifdef SK_DEBUG
                 // OnFlush callbacks are already invoked during flush, and are therefore expected to
                 // handle resource allocation & usage on their own. (No deferred or lazy proxies!)
-                onFlushOpList->visitProxies_debugOnly([](GrSurfaceProxy* p) {
+                onFlushOpList->visitProxies_debugOnly([](GrSurfaceProxy* p, GrMipMapped) {
                     SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
                     SkASSERT(GrSurfaceProxy::LazyState::kNot == p->lazyInstantiationState());
                 });
