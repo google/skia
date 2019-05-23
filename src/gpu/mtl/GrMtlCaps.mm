@@ -40,6 +40,12 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     fMultisampleDisableSupport = true;   // MSAA and resolving not implemented yet
     fDiscardRenderTargetSupport = false; // GrMtlGpuCommandBuffer::discard() not implemented
     fCrossContextTextureSupport = false; // GrMtlGpu::prepareTextureForCrossContextUsage() not impl
+
+    NSException* myException = [NSException
+                                exceptionWithName:@"MyDumbException"
+                                reason:@"Why not"
+                                userInfo:nil];
+    [myException raise];
 }
 
 void GrMtlCaps::initFeatureSet(MTLFeatureSet featureSet) {
