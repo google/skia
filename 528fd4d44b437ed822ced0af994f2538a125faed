@@ -34,6 +34,24 @@
       "revId": "528fd4d44b437ed822ced0af994f2538a125faed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb0b5465_60667df7",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-05-23T17:31:22Z",
+      "side": 1,
+      "message": "Add that as a comment, and I\u0027ll LGTM.",
+      "parentUuid": "13a35b49_22df60ae",
+      "revId": "528fd4d44b437ed822ced0af994f2538a125faed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
