@@ -348,6 +348,144 @@ DEF_TEST(SkSLInterpreterSetInputs, r) {
     REPORTER_ASSERT(r, out == 5.0f);
 }
 
+DEF_TEST(SkSLInterpreterCompound, r) {
+    struct RectAndColor { SkIRect fRect; SkColor4f fColor; };
+    struct ManyRects { int fNumRects; RectAndColor fRects[4]; };
+
+    const char* src =
+        // Some struct definitions
+        "struct Point { int x; int y; };\n"
+        "struct Rect {  Point p0; Point p1; };\n"
+        "struct RectAndColor { Rect r; float4 color; };\n"
+
+        // Structs as globals, parameters, return values
+        "RectAndColor temp;\n"
+        "int rect_height(Rect r) { return r.p1.y - r.p0.y; }\n"
+        "RectAndColor make_blue_rect(int w, int h) {\n"
+        "  temp.r.p0.x = temp.r.p0.y = 0;\n"
+        "  temp.r.p1.x = w; temp.r.p1.y = h;\n"
+        "  temp.color = float4(0, 1, 0, 1);\n"
+        "  return temp;\n"
+        "}\n"
+
+        // Initialization and assignment of types larger than 4 slots
+        "RectAndColor init_big(RectAndColor r) { RectAndColor s = r; return s; }\n"
+        "RectAndColor copy_big(RectAndColor r) { RectAndColor s; s = r; return s; }\n"
+
+        // Same for arrays, including some non-constant indexing
+        "float tempFloats[8];\n"
+        "int median(int a[15]) { return a[7]; }\n"
+        "float[8] sums(float a[8]) {\n"
+        "  float tempFloats[8];\n"
+        "  tempFloats[0] = a[0];\n"
+        "  for (int i = 1; i < 8; ++i) { tempFloats[i] = tempFloats[i - 1] + a[i]; }\n"
+        "  return tempFloats;\n"
+        "}\n"
+
+        // Uniforms, array-of-structs, dynamic indices
+        "in uniform Rect gRects[4];\n"
+        "Rect get_rect(int i) { return gRects[i]; }\n"
+
+        // Kitchen sink (swizzles, inout, SoAoS)
+        "struct ManyRects { int numRects; RectAndColor rects[4]; };\n"
+        "void fill_rects(inout ManyRects mr) {\n"
+        "  for (int i = 0; i < mr.numRects; ++i) {\n"
+        "    mr.rects[i].r = gRects[i];\n"
+        "    float b = mr.rects[i].r.p1.y;\n"
+        "    mr.rects[i].color = float4(b, b, b, b);\n"
+        "  }\n"
+        "}\n";
+
+    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+                                                             SkSL::Program::kGeneric_Kind,
+                                                             SkSL::String(src), settings);
+    REPORTER_ASSERT(r, program);
+
+    std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
+    REPORTER_ASSERT(r, !compiler.errorCount());
+
+    auto rect_height    = byteCode->getFunction("rect_height"),
+         make_blue_rect = byteCode->getFunction("make_blue_rect"),
+         median         = byteCode->getFunction("median"),
+         sums           = byteCode->getFunction("sums"),
+         get_rect       = byteCode->getFunction("get_rect"),
+         fill_rects     = byteCode->getFunction("fill_rects");
+
+    SkIRect gRects[4] = { { 1,2,3,4 }, { 5,6,7,8 }, { 9,10,11,12 }, { 13,14,15,16 } };
+
+    SkSL::Interpreter interpreter(std::move(program), std::move(byteCode),
+                                  (SkSL::Interpreter::Value*)gRects);
+
+    {
+        SkIRect in = SkIRect::MakeXYWH(10, 10, 20, 30);
+        int out = 0;
+        interpreter.run(*rect_height,
+                        (SkSL::Interpreter::Value*)&in,
+                        (SkSL::Interpreter::Value*)&out);
+        REPORTER_ASSERT(r, out == 30);
+    }
+
+    {
+        int in[2] = { 15, 25 };
+        RectAndColor out;
+        interpreter.run(*make_blue_rect,
+                        (SkSL::Interpreter::Value*)in,
+                        (SkSL::Interpreter::Value*)&out);
+        REPORTER_ASSERT(r, out.fRect.width() == 15);
+        REPORTER_ASSERT(r, out.fRect.height() == 25);
+        SkColor4f blue = { 0.0f, 1.0f, 0.0f, 1.0f };
+        REPORTER_ASSERT(r, out.fColor == blue);
+    }
+
+    {
+        int in[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+        int out = 0;
+        interpreter.run(*median,
+                        (SkSL::Interpreter::Value*)in,
+                        (SkSL::Interpreter::Value*)&out);
+        REPORTER_ASSERT(r, out == 8);
+    }
+
+    {
+        float in[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+        float out[8] = { 0 };
+        interpreter.run(*sums,
+                        (SkSL::Interpreter::Value*)in,
+                        (SkSL::Interpreter::Value*)out);
+        for (int i = 0; i < 8; ++i) {
+            REPORTER_ASSERT(r, out[i] == static_cast<float>((i + 1) * (i + 2) / 2));
+        }
+    }
+
+    {
+        int in = 2;
+        SkIRect out = SkIRect::MakeEmpty();
+        interpreter.run(*get_rect,
+                        (SkSL::Interpreter::Value*)&in,
+                        (SkSL::Interpreter::Value*)&out);
+        REPORTER_ASSERT(r, out == gRects[2]);
+    }
+
+    {
+        ManyRects in;
+        memset(&in, 0, sizeof(in));
+        in.fNumRects = 2;
+        interpreter.run(*fill_rects,
+                        (SkSL::Interpreter::Value*)&in,
+                        nullptr);
+        ManyRects expected;
+        memset(&expected, 0, sizeof(expected));
+        expected.fNumRects = 2;
+        for (int i = 0; i < 2; ++i) {
+            expected.fRects[i].fRect = gRects[i];
+            float c = gRects[i].fBottom;
+            expected.fRects[i].fColor = { c, c, c, c };
+        }
+        REPORTER_ASSERT(r, memcmp(&in, &expected, sizeof(in)) == 0);
+    }
+}
 
 DEF_TEST(SkSLInterpreterFunctions, r) {
     const char* src =
