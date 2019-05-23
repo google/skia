@@ -103,8 +103,8 @@ protected:
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
                     renderTargetContext->priv().testingOnly_addDrawOp(
-                            GrFillRectOp::Make(context, std::move(grPaint), GrAAType::kNone,
-                                               SkMatrix::I(), bounds));
+                            GrFillRectOp::MakeNonAARect(context, std::move(grPaint),
+                                                        SkMatrix::I(), bounds));
                 }
             canvas->restore();
             x = x + fTestOffsetX;
