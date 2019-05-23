@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29909e7a_586fbab9",
+        "filename": "src/pdf/SkPDFMakeCIDGlyphWidthsArray.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-05-23T18:31:24Z",
+      "side": 1,
+      "message": "SkAutoTArray\u003cSkPoint\u003e advances{(size_t)lastIndex + 1};",
+      "revId": "a2382b586815d74498252215f53200c326d7df0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
