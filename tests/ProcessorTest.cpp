@@ -263,8 +263,8 @@ void test_draw_op(GrContext* context,
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    auto op = GrFillRectOp::Make(context, std::move(paint), GrAAType::kNone, SkMatrix::I(),
-                                 SkRect::MakeWH(rtc->width(), rtc->height()));
+    auto op = GrFillRectOp::MakeNonAARect(context, std::move(paint), SkMatrix::I(),
+                                          SkRect::MakeWH(rtc->width(), rtc->height()));
     rtc->addDrawOp(GrNoClip(), std::move(op));
 }
 
