@@ -55,6 +55,8 @@ public:
     unsigned int curOp() const { return fNumOps; }
     void incOps() { fNumOps++; }
 
+    const GrCaps* caps() const;
+
     /** Indicates whether a given call to addInterval represents an actual usage of the
      *  provided proxy. This is mainly here to accomodate deferred proxies attached to opLists.
      *  In that case we need to create an extra long interval for them (due to the upload) but

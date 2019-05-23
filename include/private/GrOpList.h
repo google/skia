@@ -38,7 +38,7 @@ public:
     // Instantiates any "threaded" texture proxies that are being prepared elsewhere
     void instantiateDeferredProxies(GrResourceProvider* resourceProvider);
     void prepare(GrOpFlushState* flushState);
-    bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
+    bool execute(GrOpFlushState* flushState);
 
     virtual bool copySurface(GrRecordingContext*,
                              GrSurfaceProxy* dst,
@@ -110,6 +110,10 @@ protected:
     // List of texture proxies whose contents are being prepared on a worker thread
     SkTArray<GrTextureProxy*, true> fDeferredProxies;
 
+    // Lists of textures that might require MSAA resolve and/or mipmap generation before flushing.
+    SkSTArray<8, GrTextureProxy*, true> fMipmapProxies;
+    SkSTArray<8, GrRenderTargetProxy*, true> fMSAAResolveProxies;
+
 private:
     friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals
 
@@ -133,7 +137,7 @@ private:
     virtual void purgeOpsWithUninstantiatedProxies() = 0;
 
     // Feed proxy usage intervals to the GrResourceAllocator class
-    virtual void gatherProxyIntervals(GrResourceAllocator*) const = 0;
+    virtual void gatherProxyIntervals(GrResourceAllocator*) = 0;
 
     static uint32_t CreateUniqueID();
 

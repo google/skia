@@ -1058,8 +1058,10 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
             fMSFBOType = kMixedSamples_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_EXT_multisampled_render_to_texture")) {
             fMSFBOType = kES_EXT_MsToTexture_MSFBOType;
+            fMSAAResolvesAutomatically = true;
         } else if (ctxInfo.hasExtension("GL_IMG_multisampled_render_to_texture")) {
             fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
+            fMSAAResolvesAutomatically = true;
         } else if (ctxInfo.version() >= GR_GL_VER(3,0)) {
             fMSFBOType = kStandard_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {

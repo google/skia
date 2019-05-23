@@ -197,7 +197,7 @@ bool GrTextureOpList::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
     return used;
 }
 
-void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
+void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) {
 
     // Add the interval for all the writes to this opList's target
     if (fRecordedOps.count()) {
@@ -214,9 +214,21 @@ void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
         alloc->incOps();
     }
 
-    auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p, GrSurfaceProxy::Access) {
+    const bool msaaResolvesAutomatically = alloc->caps()->msaaResolvesAutomatically();
+    auto gather = [ alloc, msaaResolvesAutomatically, this ] (
+            GrSurfaceProxy* p, GrSurfaceProxy::Access access) {
         alloc->addInterval(p, alloc->curOp(), alloc->curOp(), GrResourceAllocator::ActualUse::kYes
                            SkDEBUGCODE(, p == fTarget.get()));
+
+        // Record any proxies that might require MSAA resolve. We should never see mipmaps since
+        // this is a texture opList.
+        SkASSERT(GrSurfaceProxy::Access::kSampleMipMap != access);
+        if (!msaaResolvesAutomatically && GrSurfaceProxy::IsReadAccess(access)) {
+            auto* rtProxy = p->asRenderTargetProxy();
+            if (rtProxy && rtProxy->numColorSamples() > 1) {
+                fMSAAResolveProxies.push_back(rtProxy);
+            }
+        }
     };
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         const GrOp* op = fRecordedOps[i].get(); // only diff from the GrRenderTargetOpList version

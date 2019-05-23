@@ -29,6 +29,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMultisampleDisableSupport = false;
     fInstanceAttribSupport = false;
     fUsesMixedSamples = false;
+    fMSAAResolvesAutomatically = false;
     fUsePrimitiveRestart = false;
     fPreferClientSideDynamicBuffers = false;
     fPreferFullscreenClears = false;
@@ -204,6 +205,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Multisample disable support", fMultisampleDisableSupport);
     writer->appendBool("Instance Attrib Support", fInstanceAttribSupport);
     writer->appendBool("Uses Mixed Samples", fUsesMixedSamples);
+    writer->appendBool("MSAA Resolves Automatically", fMSAAResolvesAutomatically);
     writer->appendBool("Use primitive restart", fUsePrimitiveRestart);
     writer->appendBool("Prefer client-side dynamic buffers", fPreferClientSideDynamicBuffers);
     writer->appendBool("Prefer fullscreen clears", fPreferFullscreenClears);

@@ -625,7 +625,7 @@ bool GrRenderTargetOpList::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
     return used;
 }
 
-void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
+void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) {
 
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
         SkASSERT(!fDeferredProxies[i]->isInstantiated());
@@ -652,9 +652,26 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
         alloc->incOps();
     }
 
-    auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p, GrSurfaceProxy::Access) {
+    const bool msaaResolvesAutomatically = alloc->caps()->msaaResolvesAutomatically();
+    auto gather = [ alloc, msaaResolvesAutomatically, this ] (
+            GrSurfaceProxy* p, GrSurfaceProxy::Access access) {
         alloc->addInterval(p, alloc->curOp(), alloc->curOp(), GrResourceAllocator::ActualUse::kYes
                            SkDEBUGCODE(, fTarget.get() == p));
+
+        // Record any proxies that might require MSAA resolve or mipmap generation.
+        if (GrSurfaceProxy::IsReadAccess(access)) {
+            if (!msaaResolvesAutomatically) {
+                auto* rtProxy = p->asRenderTargetProxy();
+                if (rtProxy && rtProxy->numColorSamples() > 1) {
+                    fMSAAResolveProxies.push_back(rtProxy);
+                }
+            }
+            if (GrSurfaceProxy::Access::kSampleMipMap == access) {
+                auto* textureProxy = p->asTextureProxy();
+                SkASSERT(textureProxy);
+                fMipmapProxies.push_back(textureProxy);
+            }
+        }
     };
     for (const OpChain& recordedOp : fOpChains) {
         // only diff from the GrTextureOpList version
