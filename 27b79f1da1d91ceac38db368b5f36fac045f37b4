@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "47235c33_7baf205e",
+        "filename": "src/pdf/SkPDFType1Font.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-05-23T18:37:09Z",
+      "side": 1,
+      "message": "Simpler: \n\n        int glyphRangeSize \u003d lastGlyphID - firstGlyphID + 2;\n        SkAutoTArray\u003cSkGlyphID\u003e glyphIDs{glyphRangeSize};\n        glyphIDs[0] \u003d 0;\n        for (unsigned gId \u003d firstGlyphID; gId \u003c\u003d lastGlyphID; gId++) {\n            glyphIDs[gId - firstGlyphID + 1] \u003d gId;\n        }\n        SkAutoTArray\u003cSkPoint\u003e advances{glyphRangeSize};\n        glyphCache-\u003egetAdvances(\n                SkSpan\u003cconst SkGlyphID\u003e{glyphIDs.get(), SkTo\u003csize_t\u003e(glyphRangeSize)},\n                advances.get());\n        for (int i \u003d 0; i \u003c glyphRangeSize; ++i) {\n            widths-\u003eappendScalar(from_font_units(advances[i], SkToU16(emSize)));\n        }\n        font.insertObject(\"Widths\", std::move(widths));",
+      "revId": "27b79f1da1d91ceac38db368b5f36fac045f37b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d2ca9e00_121141b2",
         "filename": "src/pdf/SkPDFType1Font.cpp",
         "patchSetId": 3
