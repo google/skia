@@ -289,7 +289,6 @@
   "Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All",
   "Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All",
   "Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer",
-  "Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-Metal",
   "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All",
   "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN",
   "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan",
