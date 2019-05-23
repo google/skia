@@ -55,8 +55,8 @@ TEST(Add2D) {
     GrQuadList list2D;
     // Add a plain quad, a 2D persp quad, and then a 3D persp quad, then read back and make sure
     // the coordinates make sense (including that the type was lifted to perspective).
-    list2D.push_back(make_2d_quad(), GrQuadType::kRect);
-    list2D.push_back(make_2d_persp_quad(), GrQuadType::kRect);
+    list2D.push_back(make_2d_quad());
+    list2D.push_back(make_2d_persp_quad());
 
     // Check 2D state of the list
     ASSERTF(list2D.count() == 2, "Unexpected count: %d", list2D.count());
@@ -66,7 +66,7 @@ TEST(Add2D) {
     ASSERTF(is_2d_persp_quad(list2D[1]), "Incorrect quad at i=1");
 
     // Force the 2D quads to be updated to store ws by adding a perspective quad
-    list2D.push_back(make_3d_persp_quad(), GrQuadType::kPerspective);
+    list2D.push_back(make_3d_persp_quad());
     ASSERTF(list2D.quadType() == GrQuadType::kPerspective,
             "Expected 2D list to be upgraded to perspective");
 
@@ -81,9 +81,9 @@ TEST(Add3D) {
     // Now make a list that starts with a 3D persp quad, then has conventional quads added to it
     // and make sure its state is correct
     GrQuadList list3D;
-    list3D.push_back(make_3d_persp_quad(), GrQuadType::kPerspective);
-    list3D.push_back(make_2d_persp_quad(), GrQuadType::kRect);
-    list3D.push_back(make_2d_quad(), GrQuadType::kRect);
+    list3D.push_back(make_3d_persp_quad());
+    list3D.push_back(make_2d_persp_quad());
+    list3D.push_back(make_2d_quad());
 
     ASSERTF(list3D.count() == 3, "Unexpected count: %d", list3D.count());
     ASSERTF(is_3d_persp_quad(list3D[0]), "Incorrect quad at i=0");
@@ -96,8 +96,8 @@ TEST(AddWithMetadata2D) {
     GrTQuadList<TestData> list2D;
     // Add a plain quad, a 2D persp quad, and then a 3D persp quad, then read back and make sure
     // the coordinates make sense (including that the type was lifted to perspective).
-    list2D.push_back(make_2d_quad(), GrQuadType::kRect, {1, 1.f});
-    list2D.push_back(make_2d_persp_quad(), GrQuadType::kRect, {2, 2.f});
+    list2D.push_back(make_2d_quad(), {1, 1.f});
+    list2D.push_back(make_2d_persp_quad(), {2, 2.f});
 
     // Check 2D state of the list
     ASSERTF(list2D.count() == 2, "Unexpected count: %d", list2D.count());
@@ -111,7 +111,7 @@ TEST(AddWithMetadata2D) {
             "Incorrect metadata at i=1");
 
     // Force the 2D quads to be updated to store ws by adding a perspective quad
-    list2D.push_back(make_3d_persp_quad(), GrQuadType::kPerspective, {3, 3.f});
+    list2D.push_back(make_3d_persp_quad(), {3, 3.f});
     ASSERTF(list2D.quadType() == GrQuadType::kPerspective,
             "Expected 2D list to be upgraded to perspective");
 
@@ -132,9 +132,9 @@ TEST(AddWithMetadata3D) {
     // Now make a list that starts with a 3D persp quad, then has conventional quads added to it
     // and make sure its state is correct
     GrTQuadList<TestData> list3D;
-    list3D.push_back(make_3d_persp_quad(), GrQuadType::kPerspective, {3, 3.f});
-    list3D.push_back(make_2d_persp_quad(), GrQuadType::kRect, {2, 2.f});
-    list3D.push_back(make_2d_quad(), GrQuadType::kRect, {1, 1.f});
+    list3D.push_back(make_3d_persp_quad(), {3, 3.f});
+    list3D.push_back(make_2d_persp_quad(), {2, 2.f});
+    list3D.push_back(make_2d_quad(), {1, 1.f});
 
     ASSERTF(list3D.count() == 3, "Unexpected count: %d", list3D.count());
     ASSERTF(is_3d_persp_quad(list3D[0]), "Incorrect quad at i=0");
@@ -150,9 +150,9 @@ TEST(AddWithMetadata3D) {
 
 TEST(Concat2DWith2D) {
     GrQuadList a2D;
-    a2D.push_back(make_2d_quad(), GrQuadType::kRect);
+    a2D.push_back(make_2d_quad());
     GrQuadList b2D;
-    b2D.push_back(make_2d_persp_quad(), GrQuadType::kRect);
+    b2D.push_back(make_2d_persp_quad());
 
     a2D.concat(b2D);
 
@@ -163,9 +163,9 @@ TEST(Concat2DWith2D) {
 
 TEST(Concat2DWith3D) {
     GrQuadList a2D;
-    a2D.push_back(make_2d_quad(), GrQuadType::kRect);
+    a2D.push_back(make_2d_quad());
     GrQuadList b3D;
-    b3D.push_back(make_3d_persp_quad(), GrQuadType::kPerspective);
+    b3D.push_back(make_3d_persp_quad());
 
     a2D.concat(b3D);
 
@@ -176,9 +176,9 @@ TEST(Concat2DWith3D) {
 
 TEST(Concat3DWith2D) {
     GrQuadList a3D;
-    a3D.push_back(make_3d_persp_quad(), GrQuadType::kPerspective);
+    a3D.push_back(make_3d_persp_quad());
     GrQuadList b2D;
-    b2D.push_back(make_2d_quad(), GrQuadType::kRect);
+    b2D.push_back(make_2d_quad());
 
     a3D.concat(b2D);
 
@@ -189,9 +189,9 @@ TEST(Concat3DWith2D) {
 
 TEST(Concat3DWith3D) {
     GrQuadList a3D;
-    a3D.push_back(make_3d_persp_quad(), GrQuadType::kPerspective);
+    a3D.push_back(make_3d_persp_quad());
     GrQuadList b3D;
-    b3D.push_back(make_3d_persp_quad(), GrQuadType::kPerspective);
+    b3D.push_back(make_3d_persp_quad());
 
     a3D.concat(b3D);
 
@@ -202,9 +202,9 @@ TEST(Concat3DWith3D) {
 
 TEST(Concat2DWith2DMetadata) {
     GrTQuadList<TestData> a2D;
-    a2D.push_back(make_2d_quad(), GrQuadType::kRect, {1, 1.f});
+    a2D.push_back(make_2d_quad(), {1, 1.f});
     GrTQuadList<TestData> b2D;
-    b2D.push_back(make_2d_persp_quad(), GrQuadType::kRect, {2, 2.f});
+    b2D.push_back(make_2d_persp_quad(), {2, 2.f});
 
     a2D.concat(b2D);
 
@@ -219,9 +219,9 @@ TEST(Concat2DWith2DMetadata) {
 
 TEST(Concat2DWith3DMetadata) {
     GrTQuadList<TestData> a2D;
-    a2D.push_back(make_2d_quad(), GrQuadType::kRect, {1, 1.f});
+    a2D.push_back(make_2d_quad(), {1, 1.f});
     GrTQuadList<TestData> b3D;
-    b3D.push_back(make_3d_persp_quad(), GrQuadType::kPerspective, {2, 2.f});
+    b3D.push_back(make_3d_persp_quad(), {2, 2.f});
 
     a2D.concat(b3D);
 
@@ -236,9 +236,9 @@ TEST(Concat2DWith3DMetadata) {
 
 TEST(Concat3DWith2DMetadata) {
     GrTQuadList<TestData> a3D;
-    a3D.push_back(make_3d_persp_quad(), GrQuadType::kPerspective, {1, 1.f});
+    a3D.push_back(make_3d_persp_quad(), {1, 1.f});
     GrTQuadList<TestData> b2D;
-    b2D.push_back(make_2d_quad(), GrQuadType::kRect, {2, 2.f});
+    b2D.push_back(make_2d_quad(), {2, 2.f});
 
     a3D.concat(b2D);
 
@@ -253,9 +253,9 @@ TEST(Concat3DWith2DMetadata) {
 
 TEST(Concat3DWith3DMetadata) {
     GrTQuadList<TestData> a3D;
-    a3D.push_back(make_3d_persp_quad(), GrQuadType::kPerspective, {1, 1.f});
+    a3D.push_back(make_3d_persp_quad(), {1, 1.f});
     GrTQuadList<TestData> b3D;
-    b3D.push_back(make_3d_persp_quad(), GrQuadType::kPerspective, {2, 2.f});
+    b3D.push_back(make_3d_persp_quad(), {2, 2.f});
 
     a3D.concat(b3D);
 
@@ -270,7 +270,7 @@ TEST(Concat3DWith3DMetadata) {
 
 TEST(WriteMetadata) {
     GrTQuadList<TestData> list;
-    list.push_back(make_2d_quad(), GrQuadType::kRect, {1, 1.f});
+    list.push_back(make_2d_quad(), {1, 1.f});
     ASSERTF(list.metadata(0).fItem1 == 1 && list.metadata(0).fItem2 == 1.f,
             "Incorrect metadata at i=0"); // Sanity check
 
