@@ -742,9 +742,6 @@ ColorType MinColorType(SkPMColor4f color, GrClampType clampType, const GrCaps& c
 void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& deviceQuad,
                  const SkPMColor4f& color4f, const GrPerspQuad& localQuad, const SkRect& domain,
                  GrQuadAAFlags aaFlags) {
-    SkASSERT(deviceQuad.quadType() <= spec.deviceQuadType());
-    SkASSERT(!spec.hasLocalCoords() || localQuad.quadType() <= spec.localQuadType());
-
     CoverageMode mode = get_mode_for_spec(spec);
 
     // Load position data into V4fs (always x, y, and load w to avoid branching down the road)
