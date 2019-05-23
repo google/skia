@@ -16,6 +16,24 @@
       "revId": "528fd4d44b437ed822ced0af994f2538a125faed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13a35b49_22df60ae",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-23T17:26:13Z",
+      "side": 1,
+      "message": "Not in general for all fonts, but for this font it is.",
+      "parentUuid": "9a7e40d0_03dc3325",
+      "revId": "528fd4d44b437ed822ced0af994f2538a125faed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
