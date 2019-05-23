@@ -31,6 +31,18 @@ public:
     SkAlphaType alphaType() const { return fAlphaType; }
 
     /**
+     * Create a Mitchell filter effect with specified texture matrix with clamp wrap modes.
+     */
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     const SkMatrix& matrix,
+                                                     SkAlphaType alphaType) {
+        static constexpr GrSamplerState::WrapMode kClampClamp[] = {
+                GrSamplerState::WrapMode::kClamp, GrSamplerState::WrapMode::kClamp};
+        return Make(std::move(proxy), matrix, kClampClamp, GrTextureDomain::kIgnore_Mode,
+                    GrTextureDomain::kIgnore_Mode, alphaType);
+    }
+
+    /**
      * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,

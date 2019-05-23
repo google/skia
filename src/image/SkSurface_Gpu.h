@@ -30,9 +30,10 @@ public:
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
-    void onAsyncReadPixels(const SkImageInfo& info, int srcX, int srcY, ReadPixelsCallback,
-                           ReadPixelsContext) override;
-
+    void onAsyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                     RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
+                                     ReadPixelsCallback callback,
+                                     ReadPixelsContext context) override;
     void onCopyOnWrite(ContentChangeMode) override;
     void onDiscard() override;
     GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo& info) override;

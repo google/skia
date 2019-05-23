@@ -132,16 +132,13 @@ void SkSurface_Gpu::onWritePixels(const SkPixmap& src, int x, int y) {
     fDevice->writePixels(src, x, y);
 }
 
-void SkSurface_Gpu::onAsyncReadPixels(const SkImageInfo& info, int srcX, int srcY,
-                                      ReadPixelsCallback callback, ReadPixelsContext context) {
-    SkASSERT(SkIRect::MakeWH(this->width(), this->height())
-                     .contains(SkIRect::MakeXYWH(srcX, srcY, info.width(), info.height())));
-    auto* rtc = fDevice->accessRenderTargetContext();
-    if (!rtc->caps()->transferBufferSupport() ||
-        !rtc->asyncReadPixels(info, srcX, srcY, callback, context)) {
-        INHERITED::onAsyncReadPixels(info, srcX, srcY, callback, context);
-        return;
-    }
+void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                                SkSurface::RescaleGamma rescaleGamma,
+                                                SkFilterQuality rescaleQuality,
+                                                SkSurface::ReadPixelsCallback callback,
+                                                SkSurface::ReadPixelsContext context) {
+    auto* rtc = static_cast<SkSurface_Gpu*>(this)->fDevice->accessRenderTargetContext();
+    rtc->asyncRescaleAndReadPixels(info, srcRect, rescaleGamma, rescaleQuality, callback, context);
 }
 
 // Create a new render target and, if necessary, copy the contents of the old

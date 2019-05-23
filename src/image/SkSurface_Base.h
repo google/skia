@@ -46,10 +46,13 @@ public:
     virtual void onWritePixels(const SkPixmap&, int x, int y) = 0;
 
     /**
-     * Default implementation does a read and then calls the callback.
+     * Default implementation does a rescale/read and then calls the callback.
      */
-    virtual void onAsyncReadPixels(const SkImageInfo&, int srcX, int srcY,
-                                   ReadPixelsCallback callback, ReadPixelsContext context);
+    virtual void onAsyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                             RescaleGamma rescaleGamma,
+                                             SkFilterQuality rescaleQuality,
+                                             ReadPixelsCallback callback,
+                                             ReadPixelsContext context);
 
     /**
      *  Default implementation:
