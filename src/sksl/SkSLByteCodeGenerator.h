@@ -96,6 +96,8 @@ public:
     void writeTypedInstruction(const Type& type, ByteCodeInstruction s, ByteCodeInstruction u,
                                ByteCodeInstruction f, int count);
 
+    static int SlotCount(const Type& type);
+
 private:
     // reserves 16 bits in the output code, to be filled in later with an address once we determine
     // it
@@ -171,11 +173,18 @@ private:
      */
     int getLocation(const Variable& var);
 
+    /**
+     * As above, but computes the (possibly dynamic) address of an expression involving indexing &
+     * field access. If the address is known, it's returned. If not, -1 is returned, and the
+     * location will be left on the top of the stack.
+     */
+    int getLocation(const Expression& expr, Variable::Storage* storage);
+
     std::unique_ptr<ByteCodeFunction> writeFunction(const FunctionDefinition& f);
 
     void writeVarDeclarations(const VarDeclarations& decl);
 
-    void writeVariableReference(const VariableReference& ref);
+    void writeVariableExpression(const Expression& expr);
 
     void writeExpression(const Expression& expr);
 
@@ -195,15 +204,11 @@ private:
 
     void writeExternalValue(const ExternalValueReference& r);
 
-    void writeFieldAccess(const FieldAccess& f);
-
     void writeSwizzle(const Swizzle& swizzle);
 
     void writeBinaryExpression(const BinaryExpression& b);
 
     void writeTernaryExpression(const TernaryExpression& t);
-
-    void writeIndexExpression(const IndexExpression& expr);
 
     void writeLogicalAnd(const BinaryExpression& b);
 
@@ -268,7 +273,7 @@ private:
     std::unordered_map<String, ByteCodeInstruction> fIntrinsics;
 
     friend class DeferredLocation;
-    friend class ByteCodeVariableLValue;
+    friend class ByteCodeExpressionLValue;
     friend class ByteCodeSwizzleLValue;
 
     typedef CodeGenerator INHERITED;

@@ -61,12 +61,18 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kDivideU),
     // Duplicates the top stack value
     VECTOR(kDup),
-    // All kLoad* are followed by a byte indicating the local/global slot to load
+    // Followed by count byte. Duplicates that many values
+    kDupN,
+    // kLoad/kLoadGlobal are followed by a byte indicating the local/global slot to load
     VECTOR(kLoad),
     VECTOR(kLoadGlobal),
-    // As above, then a count byte (1-4), and then one byte per swizzle component (0-3).
+    // As kLoad/kLoadGlobal, then a count byte (1-4), and then one byte per swizzle component (0-3).
     kLoadSwizzle,
     kLoadSwizzleGlobal,
+    // kLoadExtended* are fallback load ops when we lack a specialization. They are followed by a
+    // count byte, and get the slot to load from the top of the stack.
+    kLoadExtended,
+    kLoadExtendedGlobal,
     VECTOR(kNegateF),
     VECTOR(kNegateI),
     VECTOR(kMultiplyF),
@@ -75,6 +81,8 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kOrB),
     VECTOR(kOrI),
     VECTOR(kPop),
+    // Followed by count byte
+    kPopN,
     // Followed by a 32 bit value containing the value to push
     kPushImmediate,
     // Followed by a byte indicating external value to read
@@ -86,14 +94,20 @@ enum class ByteCodeInstruction : uint16_t {
     kReturn,
     VECTOR(kSin),
     VECTOR(kSqrt),
-    // All kStore* are followed by a byte indicating the local/global slot to store
+    // kStore/kStoreGlobal are followed by a byte indicating the local/global slot to store
     VECTOR(kStore),
     VECTOR(kStoreGlobal),
-    // As above, then a count byte (1-4), and then one byte per swizzle component (0-3).
+    // Fallback stores. Followed by count byte, and get the slot to store from the top of the stack
+    kStoreExtended,
+    kStoreExtendedGlobal,
+    // As kStore/kStoreGlobal, then a count byte (1-4), then one byte per swizzle component (0-3).
     // Expects the stack to look like: ... v1 v2 v3 v4, where the number of 'v's is equal to the
     // number of swizzle components. After the store, all v's are popped from the stack.
     kStoreSwizzle,
     kStoreSwizzleGlobal,
+    // As above, but gets the store slot from the top of the stack (before values to be stored)
+    kStoreSwizzleIndirect,
+    kStoreSwizzleIndirectGlobal,
     // Followed by two count bytes (1-4), and then one byte per swizzle component (0-3). The first
     // count byte provides the current vector size (the vector is the top n stack elements), and the
     // second count byte provides the swizzle component count.
