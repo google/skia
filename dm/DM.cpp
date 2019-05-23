@@ -6,6 +6,9 @@
  */
 
 #include "dm/DMJsonWriter.h"
+#if SK_METAL
+#include "dm/DMObjC.h"
+#endif
 #include "dm/DMSrcSink.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBBHFactory.h"
@@ -305,8 +308,7 @@ static void find_culprit() {
     #include <signal.h>
     #if !defined(SK_BUILD_FOR_ANDROID)
         #include <execinfo.h>
-
-#endif
+    #endif
 
     static constexpr int max_of() { return 0; }
     template <typename... Rest>
@@ -353,6 +355,9 @@ static void find_culprit() {
         for (int sig : kSignals) {
             previous_handler[sig] = signal(sig, crash_handler);
         }
+    #if SK_METAL
+        SetObjectiveCExceptionHandler();
+    #endif
     }
 #endif
 
