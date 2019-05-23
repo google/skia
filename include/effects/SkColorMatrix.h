@@ -16,6 +16,14 @@ public:
     void setIdentity();
     void setScale(float rScale, float gScale, float bScale, float aScale = 1.0f);
 
+    void setRowMajor(const float src[20]) {
+        memcpy(fMat, src, sizeof(fMat));
+    }
+
+    void getRowMajor(float dst[20]) const {
+        memcpy(dst, fMat, sizeof(fMat));
+    }
+
     enum Axis {
         kR_Axis = 0,
         kG_Axis = 1,
