@@ -1379,7 +1379,7 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-int main(int argc, char** argv) {
+int dmMain(int argc, char** argv) {
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
     android::ProcessState::self()->startThreadPool();
 #endif
@@ -1502,3 +1502,9 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
+#ifndef SK_METAL
+int main(int argc, char** argv) {
+    return dmMain(argc, argv);
+}
+#endif
