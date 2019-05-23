@@ -19,6 +19,75 @@
     },
     {
       "key": {
+        "uuid": "ad34dfe1_f7d34bce",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1803,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-23T14:46:29Z",
+      "side": 1,
+      "message": "super minor nit, but since you\u0027ve already stored srcW and srcH might as well use them here?",
+      "range": {
+        "startLine": 1803,
+        "startChar": 22,
+        "endLine": 1803,
+        "endChar": 37
+      },
+      "revId": "9f802d867f3d13505f1c044070b266e527b2bbcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80526be4_064fb1a5",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1886,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-23T14:46:29Z",
+      "side": 1,
+      "message": "is it possible for this to not be texture2D and thus the makeDeferredRenderTargetContextWithFallback call below will fail? Do we need the makeTexture2D call here?",
+      "range": {
+        "startLine": 1886,
+        "startChar": 70,
+        "endLine": 1886,
+        "endChar": 85
+      },
+      "revId": "9f802d867f3d13505f1c044070b266e527b2bbcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9789c97d_67c7a60e",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-23T14:46:29Z",
+      "side": 1,
+      "message": "maybe a word is missing here, something seems off trying to read it. maybe \"then the readback is done as a synchronous read\"",
+      "range": {
+        "startLine": 409,
+        "startChar": 76,
+        "endLine": 410,
+        "endChar": 23
+      },
+      "revId": "9f802d867f3d13505f1c044070b266e527b2bbcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "70ea15cf_b296595e",
         "filename": "src/image/SkSurface.cpp",
         "patchSetId": 5
