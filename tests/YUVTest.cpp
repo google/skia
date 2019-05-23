@@ -124,3 +124,42 @@ DEF_TEST(Jpeg_YUV_Codec, r) {
     // A PNG should fail.
     codec_yuv(r, "images/arrow.png", nullptr);
 }
+
+#include "include/effects/SkColorMatrix.h"
+#include "src/core/SkYUVMath.h"
+
+// Be sure that the two matrices are inverses of each other
+// (i.e. rgb2yuv and yuv2rgb
+DEF_TEST(YUVMath, reporter) {
+    const SkYUVColorSpace spaces[] = {
+        kJPEG_SkYUVColorSpace,
+        kRec601_SkYUVColorSpace,
+        kRec709_SkYUVColorSpace,
+        kIdentity_SkYUVColorSpace,
+    };
+
+    // Not sure what the theoretical precision we can hope for is, so pick a big value that
+    // passes (when I think we're correct).
+    const float tolerance = 1.0f/(1 << 18);
+
+    for (auto cs : spaces) {
+        float r2y[20], y2r[20];
+        SkColorMatrix_RGB2YUV(cs, r2y);
+        SkColorMatrix_YUV2RGB(cs, y2r);
+
+        SkColorMatrix r2ym, y2rm;
+        r2ym.setRowMajor(r2y);
+        y2rm.setRowMajor(y2r);
+        r2ym.postConcat(y2rm);
+
+        float tmp[20];
+        r2ym.getRowMajor(tmp);
+        for (int i = 0; i < 20; ++i) {
+            float expected = 0;
+            if (i % 6 == 0) {   // diagonal
+                expected = 1;
+            }
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(tmp[i], expected, tolerance));
+        }
+    }
+}
