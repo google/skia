@@ -34,6 +34,24 @@
       "revId": "744ab813eea7b5156d652e21b65228ad7d5f45f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5079c0c_000d9fbe",
+        "filename": "src/gpu/GrOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-23T13:31:53Z",
+      "side": 1,
+      "message": "On a side note, this code will not change any actual behavior of vulkan. We do all resolving and mip map generation before submitting any draws in the oplist anyways in vulkan.",
+      "parentUuid": "033cf009_af9da046",
+      "revId": "744ab813eea7b5156d652e21b65228ad7d5f45f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
