@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1817b5d_a9e658fd",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-05-23T23:08:21Z",
+      "side": 1,
+      "message": "The DDL3_Metal bots are not running any tests. E.g. https://chromium-swarm.appspot.com/task?id\u003d44ff8d55973b5310",
+      "range": {
+        "startLine": 556,
+        "startChar": 70,
+        "endLine": 556,
+        "endChar": 80
+      },
+      "revId": "40479ae5b0cdbca4b2f3fd883154e2193f09602f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
