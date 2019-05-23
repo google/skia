@@ -169,7 +169,10 @@ bool read_path(Deserializer* deserializer, SkGlyph* glyph, SkStrike* cache) {
     uint64_t pathSize = 0u;
     if (!deserializer->read<uint64_t>(&pathSize)) return false;
 
-    if (pathSize == 0u) return true;
+    if (pathSize == 0u) {
+        cache->initializePath(glyph, nullptr, 0u);
+        return true;
+    }
 
     auto* path = deserializer->read(pathSize, kPathAlignment);
     if (!path) return false;
@@ -643,13 +646,12 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
                 if (glyphPtr->fPathData == nullptr) {
 
                     // Never checked for a path before. Add the path now.
-                    auto path = const_cast<SkGlyph&>(*glyphPtr).addPath(fContext.get(), &fAlloc);
-                    if (path != nullptr) {
+                    const_cast<SkGlyph&>(*glyphPtr).addPath(fContext.get(), &fAlloc);
 
-                        // A path was added make sure to send it to the GPU.
-                        fCachedGlyphPaths.add(glyphPtr->getPackedID());
-                        fPendingGlyphPaths.push_back(glyphPtr->getPackedID());
-                    }
+                    // Always send the path data, even if its not available, to make sure empty
+                    // paths are not incorrectly assumed to be cache misses.
+                    fCachedGlyphPaths.add(glyphPtr->getPackedID());
+                    fPendingGlyphPaths.push_back(glyphPtr->getPackedID());
                 }
             } else {
 
