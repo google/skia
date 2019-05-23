@@ -598,7 +598,10 @@ void Animation::seek(SkScalar t) {
     if (!fScene)
         return;
 
-    fScene->animate(fInPoint + SkTPin(t, 0.0f, 1.0f) * (fOutPoint - fInPoint));
+    // Per AE/Lottie semantics out_point is exclusive.
+    const auto kLastValidFrame = std::nextafter(fOutPoint, fInPoint);
+
+    fScene->animate(SkTPin(fInPoint + t * (fOutPoint - fInPoint), fInPoint, kLastValidFrame));
 }
 
 sk_sp<Animation> Animation::Make(const char* data, size_t length) {
