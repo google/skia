@@ -16,6 +16,24 @@
       "revId": "744ab813eea7b5156d652e21b65228ad7d5f45f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "033cf009_af9da046",
+        "filename": "src/gpu/GrOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-23T13:30:36Z",
+      "side": 1,
+      "message": "This shouldn\u0027t be an issue with vulkan. I guess I\u0027d assert in Vulkans draw method where we prepare textures, basically the same place I assume you\u0027re asserting for GL.",
+      "parentUuid": "b3c1b3c3_2cc2338e",
+      "revId": "744ab813eea7b5156d652e21b65228ad7d5f45f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
