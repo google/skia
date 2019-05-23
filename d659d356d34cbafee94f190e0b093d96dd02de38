@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04591310_afe2671a",
+        "filename": "modules/skottie/src/SkottieLayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-05-23T15:42:58Z",
+      "side": 1,
+      "message": "nit: let\u0027s change this to \u0027)\u0027 for exclusive interval end.",
+      "range": {
+        "startLine": 658,
+        "startChar": 71,
+        "endLine": 658,
+        "endChar": 72
+      },
+      "revId": "d659d356d34cbafee94f190e0b093d96dd02de38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
