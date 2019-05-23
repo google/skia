@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "692ca266_b0849424",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-23T18:10:27Z",
+      "side": 1,
+      "message": "{ return true; }",
+      "range": {
+        "startLine": 190,
+        "startChar": 24,
+        "endLine": 190,
+        "endChar": 36
+      },
+      "revId": "60c8ead55b081967bf4bdd3f6fe8d4b643e6229e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
