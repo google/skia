@@ -25,45 +25,39 @@ class SkScalerContext;
 
 #define kMaxGlyphWidth (1<<13)
 
-/** (glyph-index or unicode-point) + subpixel-pos */
-struct SkPackedID {
-    static constexpr uint32_t kImpossibleID = ~0;
+/** SkGlyphID + subpixel-pos */
+struct SkPackedGlyphID {
+    static constexpr uint32_t kImpossibleID = ~0u;
     enum {
-        kSubBits = 2,
-        kSubMask = ((1 << kSubBits) - 1),
-        kSubShift = 24, // must be large enough for glyphs and unichars
-        kCodeMask = ((1 << kSubShift) - 1),
+        kSubBits = 2u,
+        kSubMask = ((1u << kSubBits) - 1),
+        kSubShift = 24u, // must be large enough for glyphs and unichars
+        kCodeMask = ((1u << kSubShift) - 1),
         // relative offsets for X and Y subpixel bits
         kSubShiftX = kSubBits,
         kSubShiftY = 0
     };
 
-    SkPackedID(uint32_t code) {
-        SkASSERT(code <= kCodeMask);
-        SkASSERT(code != kImpossibleID);
-        fID = code;
+    constexpr explicit SkPackedGlyphID(SkGlyphID glyphID)
+            : fID{glyphID} { }
+
+    constexpr SkPackedGlyphID(SkGlyphID glyphID, SkFixed x, SkFixed y)
+            : fID {PackIDXY(glyphID, x, y)} {
+        SkASSERT(fID != kImpossibleID);
     }
 
-    SkPackedID(uint32_t code, SkFixed x, SkFixed y) {
-        SkASSERT(code <= kCodeMask);
-        x = FixedToSub(x);
-        y = FixedToSub(y);
-        uint32_t ID = (x << (kSubShift + kSubShiftX)) |
-                      (y << (kSubShift + kSubShiftY)) |
-                      code;
-        SkASSERT(ID != kImpossibleID);
-        fID = ID;
-    }
+    constexpr SkPackedGlyphID(SkGlyphID code, SkIPoint pt)
+        : SkPackedGlyphID(code, pt.fX, pt.fY) { }
 
-    constexpr SkPackedID() : fID(kImpossibleID) {}
+    constexpr SkPackedGlyphID() : fID{kImpossibleID} {}
 
-    bool operator==(const SkPackedID& that) const {
+    bool operator==(const SkPackedGlyphID& that) const {
         return fID == that.fID;
     }
-    bool operator!=(const SkPackedID& that) const {
+    bool operator!=(const SkPackedGlyphID& that) const {
         return !(*this == that);
     }
-    bool operator<(SkPackedID that) const {
+    bool operator<(SkPackedGlyphID that) const {
         return this->fID < that.fID;
     }
 
@@ -94,34 +88,30 @@ struct SkPackedID {
     }
 
 private:
-    static unsigned ID2SubX(uint32_t id) {
+    static constexpr uint32_t PackIDXY(SkGlyphID glyphID, SkFixed x, SkFixed y) {
+        return (FixedToSub(x) << (kSubShift + kSubShiftX))
+             | (FixedToSub(y) << (kSubShift + kSubShiftY))
+             | glyphID;
+    }
+
+    static constexpr unsigned ID2SubX(uint32_t id) {
         return id >> (kSubShift + kSubShiftX);
     }
 
-    static unsigned ID2SubY(uint32_t id) {
+    static constexpr unsigned ID2SubY(uint32_t id) {
         return (id >> (kSubShift + kSubShiftY)) & kSubMask;
     }
 
-    static unsigned FixedToSub(SkFixed n) {
+    static constexpr unsigned FixedToSub(SkFixed n) {
         return (n >> (16 - kSubBits)) & kSubMask;
     }
 
-    static SkFixed SubToFixed(unsigned sub) {
+    static constexpr SkFixed SubToFixed(uint32_t sub) {
         SkASSERT(sub <= kSubMask);
-        return sub << (16 - kSubBits);
+        return sub << (16u - kSubBits);
     }
 
     uint32_t fID;
-};
-
-struct SkPackedGlyphID : public SkPackedID {
-    SkPackedGlyphID(SkGlyphID code) : SkPackedID(code) { }
-    SkPackedGlyphID(SkGlyphID code, SkFixed x, SkFixed y) : SkPackedID(code, x, y) { }
-    SkPackedGlyphID(SkGlyphID code, SkIPoint pt) : SkPackedID(code, pt.x(), pt.y()) { }
-    constexpr SkPackedGlyphID() = default;
-    SkGlyphID code() const {
-        return SkTo<SkGlyphID>(SkPackedID::code());
-    }
 };
 
 class SkGlyph {
@@ -129,7 +119,7 @@ class SkGlyph {
 
 public:
     constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} {}
-    static constexpr SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedID::kSubBits;
+    static constexpr SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedGlyphID::kSubBits;
 
     bool isEmpty() const { return fWidth == 0 || fHeight == 0; }
     bool isJustAdvance() const { return MASK_FORMAT_JUST_ADVANCE == fMaskFormat; }
