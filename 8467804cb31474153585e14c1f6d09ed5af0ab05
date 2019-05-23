@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c5fb8148_8bf6f63e",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-23T19:51:52Z",
+      "side": 1,
+      "message": "Agreed. I think I originally used this name, hoping I\u0027d come up with something better ... and never did. We could just go back to VariableLValue, but that\u0027s slightly misleading too.",
+      "parentUuid": "e7b51c7e_9222c8ac",
+      "range": {
+        "startLine": 752,
+        "startChar": 6,
+        "endLine": 752,
+        "endChar": 30
+      },
+      "revId": "8467804cb31474153585e14c1f6d09ed5af0ab05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3a6044a3_646dda17",
         "filename": "src/sksl/SkSLInterpreter.cpp",
         "patchSetId": 21
@@ -45,6 +69,30 @@
       "revId": "8467804cb31474153585e14c1f6d09ed5af0ab05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6df860b3_6e51f0c6",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-23T19:51:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a6044a3_646dda17",
+      "range": {
+        "startLine": 168,
+        "startChar": 101,
+        "endLine": 168,
+        "endChar": 107
+      },
+      "revId": "8467804cb31474153585e14c1f6d09ed5af0ab05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "be81f1d9_4a281be6",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-23T19:51:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a95daacb_3145a68a",
+      "range": {
+        "startLine": 237,
+        "startChar": 100,
+        "endLine": 237,
+        "endChar": 109
+      },
+      "revId": "8467804cb31474153585e14c1f6d09ed5af0ab05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "05ba82c0_832c13d1",
         "filename": "src/sksl/SkSLInterpreter.cpp",
         "patchSetId": 21
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "7bb65cd7_05c0d400",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-23T19:51:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05ba82c0_832c13d1",
+      "range": {
+        "startLine": 449,
+        "startChar": 100,
+        "endLine": 449,
+        "endChar": 112
+      },
+      "revId": "8467804cb31474153585e14c1f6d09ed5af0ab05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6bf3a8f6_e76b1f30",
         "filename": "tests/SkSLInterpreterTest.cpp",
         "patchSetId": 21
@@ -114,6 +210,30 @@
       "revId": "8467804cb31474153585e14c1f6d09ed5af0ab05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4c64da5_d149a027",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-23T19:51:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6bf3a8f6_e76b1f30",
+      "range": {
+        "startLine": 427,
+        "startChar": 31,
+        "endLine": 427,
+        "endChar": 32
+      },
+      "revId": "8467804cb31474153585e14c1f6d09ed5af0ab05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
