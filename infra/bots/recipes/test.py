@@ -232,6 +232,15 @@ def dm_flags(api, bot):
                          'Chorizo' in bot):
       blacklist(['_', 'gm', '_', 'savelayer_clipmask'])
 
+    # skbug.com/9124
+    if 'GPU' in bot and 'Nexus5x' in bot and "Vulkan" in bot and 'Release' in bot:
+      blacklist(['_', 'test', '_', 'ReplaceSurfaceBackendTexture'])
+
+
+    # skbug.com/9123
+    if 'CommandBuffer' in bot and 'IntelIris5100' in bot:
+      blacklist(['_', 'test', '_', 'AsyncReadPixels'])
+
     # skbug.com/9043 - these devices render this test incorrectly
     # when opList splitting reduction is enabled
     if 'GPU' in bot and 'Vulkan' in bot and ('MoltenVK' in bot or
@@ -1091,6 +1100,7 @@ TEST_BUILDERS = [
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
   'Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All-MSRTC',
   'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
+  'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan',
 ]
 
 
