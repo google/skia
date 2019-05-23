@@ -1851,6 +1851,9 @@ if (skia_enable_tools) {
         "dm/DMJsonWriter.cpp",
         "dm/DMSrcSink.cpp",
       ]
+      if (skia_use_metal) {
+        sources += [ "dm/DMObjC.mm" ]
+      }
       deps = [
         ":common_flags_aa",
         ":common_flags_config",

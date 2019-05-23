@@ -80,6 +80,11 @@ static bool get_feature_set(id<MTLDevice> device, MTLFeatureSet* featureSet) {
     return false;
 }
 
+static void unhandled_exception_handler(NSException *exception)  {
+    NSLog(@"CRASH: %@", exception);
+    NSLog(@"Stack Trace: %@", [exception callStackSymbols]);
+}
+
 sk_sp<GrGpu> GrMtlGpu::Make(GrContext* context, const GrContextOptions& options,
                             id<MTLDevice> device, id<MTLCommandQueue> queue) {
     if (!device || !queue) {
@@ -89,7 +94,11 @@ sk_sp<GrGpu> GrMtlGpu::Make(GrContext* context, const GrContextOptions& options,
     if (!get_feature_set(device, &featureSet)) {
         return nullptr;
     }
-    return sk_sp<GrGpu>(new GrMtlGpu(context, options, device, queue, featureSet));
+    @try {
+        return sk_sp<GrGpu>(new GrMtlGpu(context, options, device, queue, featureSet));
+    } @catch (NSException* exception) {
+        unhandled_exception_handler(exception);
+    }
 }
 
 GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
