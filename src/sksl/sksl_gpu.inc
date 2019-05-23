@@ -1,6 +1,6 @@
 STRINGIFY(
 
-// defines built-in functions supported by SkiaSL
+// defines built-in functions supported by SkSL when running on a GPU
 
 $genType radians($genType degrees);
 $genType sin($genType angle);
