@@ -22,6 +22,30 @@
       "revId": "d38eacbc20a910dd72de2d93caec03ba71b41171",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37e92ffd_1ffa971f",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-05-23T13:41:44Z",
+      "side": 1,
+      "message": "It looked to me like both factories and typefaces required the first pass based on comments below. But yes maybe factSet is never modified during the first pass. If you\u0027d like to expand on this comment let me know.",
+      "parentUuid": "37f7b6d3_87c8eff1",
+      "range": {
+        "startLine": 222,
+        "startChar": 4,
+        "endLine": 223,
+        "endChar": 54
+      },
+      "revId": "d38eacbc20a910dd72de2d93caec03ba71b41171",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
