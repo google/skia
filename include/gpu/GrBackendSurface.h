@@ -254,6 +254,7 @@ private:
         GrGLTextureInfo fGLInfo;
         GrVkBackendSurfaceInfo fVkInfo;
 #ifdef SK_METAL
+        // Note that fMtlInfo.fTexture is CFRetained and CFReleased by this.
         GrMtlTextureInfo fMtlInfo;
 #endif
         GrMockTextureInfo fMockInfo;
@@ -377,6 +378,7 @@ private:
         GrGLFramebufferInfo fGLInfo;
         GrVkBackendSurfaceInfo fVkInfo;
 #ifdef SK_METAL
+        // Note that fMtlInfo.fTexture is CFRetained and CFReleased by this.
         GrMtlTextureInfo fMtlInfo;
 #endif
         GrMockRenderTargetInfo fMockInfo;
