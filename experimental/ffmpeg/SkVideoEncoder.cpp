@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/ffmpeg/SkVideoDecoder.h"
+#include "experimental/ffmpeg/SkVideoEncoder.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkYUVAIndex.h"
@@ -44,12 +44,9 @@ const av_transfer_characteristics gTransfer[AVCOL_TRC_NB] = {
 };
 
 static skcms_TransferFunction compute_transfer(AVColorTransferCharacteristic t) {
-    const av_transfer_characteristics* av = &gTransfer[AVCOL_TRC_BT709];
+    const av_transfer_characteristics* av = &gTransfer[0];
     if ((unsigned)t < AVCOL_TRC_NB) {
         av = &gTransfer[t];
-    }
-    if (av->alpha == 0) {
-        av = &gTransfer[AVCOL_TRC_BT709];
     }
 
     skcms_TransferFunction linear_to_encoded = {
@@ -93,7 +90,7 @@ const SkColorSpacePrimaries gPrimaries[AVCOL_PRI_NB] = {
     [AVCOL_PRI_JEDEC_P22] = { 0.630f, 0.340f, 0.295f, 0.605f, 0.155f, 0.077f, ExpandWP(WP_D65) },
 };
 
-sk_sp<SkColorSpace> make_colorspace(AVColorPrimaries primaries,
+static sk_sp<SkColorSpace> make_colorspace(AVColorPrimaries primaries,
                                     AVColorTransferCharacteristic transfer) {
     if (primaries == AVCOL_PRI_BT709 && transfer == AVCOL_TRC_BT709) {
         return SkColorSpace::MakeSRGB();
@@ -186,11 +183,11 @@ static sk_sp<SkImage> make_yuv_420(GrContext* gr, int w, int h,
 
 // Init with illegal values, so our first compare will fail, forcing us to compute
 // the skcolorspace.
-SkVideoDecoder::ConvertedColorSpace::ConvertedColorSpace()
+SkVideoEncoder::ConvertedColorSpace::ConvertedColorSpace()
     : fPrimaries(AVCOL_PRI_NB), fTransfer(AVCOL_TRC_NB)
 {}
 
-void SkVideoDecoder::ConvertedColorSpace::update(AVColorPrimaries primaries,
+void SkVideoEncoder::ConvertedColorSpace::update(AVColorPrimaries primaries,
             AVColorTransferCharacteristic transfer) {
     if (fPrimaries != primaries || fTransfer != transfer) {
         fPrimaries = primaries;
@@ -199,12 +196,8 @@ void SkVideoDecoder::ConvertedColorSpace::update(AVColorPrimaries primaries,
     }
 }
 
-double SkVideoDecoder::computeTimeStamp(const AVFrame* frame) const {
-    AVRational base = fFormatCtx->streams[fStreamIndex]->time_base;
-    return 1.0 * frame->pts * base.num / base.den;
-}
-
-sk_sp<SkImage> SkVideoDecoder::convertFrame(const AVFrame* frame) {
+#if 0
+sk_sp<SkImage> SkVideoEncoder::convertFrame(const AVFrame* frame) {
     auto yuv_space = get_yuvspace(frame->colorspace);
 
     // we have a 1-entry cache for converting colorspaces
@@ -230,183 +223,217 @@ sk_sp<SkImage> SkVideoDecoder::convertFrame(const AVFrame* frame) {
     }
     return nullptr;
 }
+#endif
 
-sk_sp<SkImage> SkVideoDecoder::nextImage(double* timeStamp) {
-    double dummyTimeStampStorage = 0;
-    if (!timeStamp) {
-        timeStamp = &dummyTimeStampStorage;
-    }
+SkVideoEncoder::SkVideoEncoder() {}
 
-    if (fFormatCtx == nullptr) {
-        return nullptr;
-    }
-
-    if (fMode == kProcessing_Mode) {
-        // We sit in a loop, waiting for the codec to have received enough data (packets)
-        // to have at least one frame available.
-        // Treat non-zero return as EOF (or error, which we will decide is also EOF)
-        while (!av_read_frame(fFormatCtx, &fPacket)) {
-            if (fPacket.stream_index != fStreamIndex) {
-                // got a packet for a stream other than our (video) stream, so continue
-                continue;
-            }
-
-            int ret = avcodec_send_packet(fDecoderCtx, &fPacket);
-            if (ret == AVERROR(EAGAIN)) {
-                // may signal that we have plenty already, encouraging us to call receive_frame
-                // so we don't treat this as an error.
-                ret = 0;
-            }
-            (void)check_err(ret);   // we try to continue if there was an error
-
-            int silentList[] = {
-                -35,    // Resource temporarily unavailable (need more packets)
-                0,
-            };
-            if (check_err(avcodec_receive_frame(fDecoderCtx, fFrame), silentList)) {
-                // this may be just "needs more input", so we try to continue
-            } else {
-                *timeStamp = this->computeTimeStamp(fFrame);
-                return this->convertFrame(fFrame);
-            }
-        }
-
-        fMode = kDraining_Mode;
-        (void)avcodec_send_packet(fDecoderCtx, nullptr);    // signal to start draining
-    }
-    if (fMode == kDraining_Mode) {
-        if (avcodec_receive_frame(fDecoderCtx, fFrame) >= 0) {
-            *timeStamp = this->computeTimeStamp(fFrame);
-            return this->convertFrame(fFrame);
-        }
-        // else we decide we're done
-        fMode = kDone_Mode;
-    }
-    return nullptr;
-}
-
-SkVideoDecoder::SkVideoDecoder(GrContext* gr) : fGr(gr) {}
-
-SkVideoDecoder::~SkVideoDecoder() {
+SkVideoEncoder::~SkVideoEncoder() {
     this->reset();
 }
 
-void SkVideoDecoder::reset() {
+void SkVideoEncoder::reset() {
     if (fFrame) {
         av_frame_free(&fFrame);
         fFrame = nullptr;
     }
-    if (fDecoderCtx) {
-        avcodec_free_context(&fDecoderCtx);
-        fDecoderCtx = nullptr;
-    }
-    if (fFormatCtx) {
-        avformat_close_input(&fFormatCtx);
-        fFormatCtx = nullptr;
-    }
-    if (fStreamCtx) {
-        av_freep(&fStreamCtx->buffer);
-        avio_context_free(&fStreamCtx);
-        fStreamCtx = nullptr;
+    if (fEncoderCtx) {
+        avcodec_free_context(&fEncoderCtx);
+        fEncoderCtx = nullptr;
     }
 
-    fStream.reset(nullptr);
-    fStreamIndex = -1;
-    fMode = kDone_Mode;
+    fWStream = nullptr;
 }
 
-bool SkVideoDecoder::loadStream(std::unique_ptr<SkStream> stream) {
+static AVPixelFormat colortype_to_format(SkColorType ct) {
+    return AV_PIX_FMT_YUV420P;
+    switch (ct) {
+        case kRGBA_8888_SkColorType: return AV_PIX_FMT_RGBA;
+        case kBGRA_8888_SkColorType: return AV_PIX_FMT_BGRA;
+        case kRGB_565_SkColorType:   return AV_PIX_FMT_RGB565LE;
+        default: break;
+    }
+    return AV_PIX_FMT_NONE;
+}
+
+bool SkVideoEncoder::init(const SkImageInfo& info, int fps) {
+    if ((info.width() & 1) || (info.height() & 1)) {
+        SkDebugf("dimensinos must be even (it appears)\n");
+        return false;
+    }
+    AVPixelFormat pix_fmt = colortype_to_format(info.colorType());
+    if (pix_fmt == AV_PIX_FMT_NONE) {
+        return false;
+    }
+
     this->reset();
-    if (!stream) {
-        return false;
-    }
 
-    int bufferSize = 4 * 1024;
-    uint8_t* buffer = (uint8_t*)av_malloc(bufferSize);
-    if (!buffer) {
-        return false;
-    }
+    AVFormatContext* format_ctx;
+    avformat_alloc_output_context2(&format_ctx, nullptr, "mp4", nullptr);
+    SkASSERT(format_ctx);
 
-    fStream = std::move(stream);
-    fStreamCtx = avio_alloc_context(buffer, bufferSize, 0, fStream.get(),
-                                    skstream_read_packet, nullptr, skstream_seek_packet);
-    if (!fStreamCtx) {
-        av_freep(buffer);
-        this->reset();
+    AVOutputFormat *output_format = format_ctx->oformat;
+
+    if (output_format->video_codec == AV_CODEC_ID_NONE) {
         return false;
     }
+    AVCodec* codec = avcodec_find_encoder(output_format->video_codec);
+    SkASSERT(codec);
 
     fFormatCtx = avformat_alloc_context();
-    if (!fFormatCtx) {
-        this->reset();
+    SkASSERT(fFormatCtx);
+    AVStream* stream = avformat_new_stream(fFormatCtx, codec);
+    SkASSERT(stream);
+    stream->time_base = (AVRational){ 1, fps };
+
+    int stream_index = fFormatCtx->nb_streams - 1;
+    fEncoderCtx = avcodec_alloc_context3(codec);
+    SkASSERT(fEncoderCtx);
+
+    fEncoderCtx->codec_id = output_format->video_codec;
+    fEncoderCtx->bit_rate = 400000;             // ???
+    fEncoderCtx->width    = info.width();
+    fEncoderCtx->height   = info.height();
+    fEncoderCtx->time_base = stream->time_base;
+    fEncoderCtx->gop_size = 12;                 // ???
+    fEncoderCtx->pix_fmt  = pix_fmt;
+
+    if (check_err(avcodec_open2(fEncoderCtx, codec, nullptr))) {
         return false;
     }
-    fFormatCtx->pb = fStreamCtx;
-
-    int err = avformat_open_input(&fFormatCtx, nullptr, nullptr, nullptr);
-    if (err < 0) {
-        SkDebugf("avformat_open_input failed %d\n", err);
-        return false;
-    }
-
-    AVCodec* codec;
-    fStreamIndex = av_find_best_stream(fFormatCtx, AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
-    if (fStreamIndex < 0) {
-        SkDebugf("av_find_best_stream failed %d\n", fStreamIndex);
-        this->reset();
-        return false;
-    }
-
-    SkASSERT(codec);
-    fDecoderCtx = avcodec_alloc_context3(codec);
-
-    AVStream* strm = fFormatCtx->streams[fStreamIndex];
-    if ((err = avcodec_parameters_to_context(fDecoderCtx, strm->codecpar)) < 0) {
-        SkDebugf("avcodec_parameters_to_context failed %d\n", err);
-        this->reset();
-        return false;
-    }
-
-    if ((err = avcodec_open2(fDecoderCtx, codec, nullptr)) < 0) {
-        SkDebugf("avcodec_open2 failed %d\n", err);
-        this->reset();
-        return false;
-    }
-
     fFrame = av_frame_alloc();
     SkASSERT(fFrame);
+    fFrame->format = pix_fmt;
+    fFrame->width = fEncoderCtx->width;
+    fFrame->height = fEncoderCtx->height;
+    if (check_err(av_frame_get_buffer(fFrame, 32))) {
+        return false;
+    }
 
-    av_init_packet(&fPacket);   // is there a "free" call?
+    if (check_err(avcodec_parameters_from_context(stream->codecpar, fEncoderCtx))) {
+        return false;
+    }
 
-    fMode = kProcessing_Mode;
+//    if (!(fmt->flags & AVFMT_NOFILE)) {
+  //      ret = avio_open(&oc->pb, filename, AVIO_FLAG_WRITE);
+
+
+    if (check_err(avformat_write_header(fFormatCtx, nullptr))) {
+        return false;
+    }
 
     return true;
 }
 
-SkISize SkVideoDecoder::dimensions() const {
-    if (!fFormatCtx) {
-        return {0, 0};
-    }
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkColorFilter.h"
+#include "include/effects/SkColorMatrix.h"
 
-    AVStream* strm = fFormatCtx->streams[fStreamIndex];
-    return {strm->codecpar->width, strm->codecpar->height};
+bool SkVideoEncoder::beginRecording(SkWStream* stream, const SkImageInfo& info, int fps) {
+    if (!stream) {
+        return false;
+    }
+    if (!this->init(info, fps)) {
+        return false;
+    }
+    fWStream = stream;
+    fSurface = SkSurface::MakeRaster(info);
+
+    fCurrentPTS = 0;
+    fDeltaPTS = 1;
+    return true;
 }
 
-double SkVideoDecoder::duration() const {
-    if (!fFormatCtx) {
-        return 0;
+SkCanvas* SkVideoEncoder::beginFrame() {
+    if (!fSurface) {
+        return nullptr;
     }
-
-    AVStream* strm = fFormatCtx->streams[fStreamIndex];
-    AVRational base = strm->time_base;
-    return 1.0 * strm->duration * base.num / base.den;
+    SkCanvas* canvas = fSurface->getCanvas();
+    canvas->restoreToCount(1);
+    return canvas;
 }
 
-bool SkVideoDecoder::rewind() {
-    auto stream = std::move(fStream);
+static void draw_into_alpha(SkImage* img, sk_sp<SkColorFilter> cf,
+                            int w, int h, uint8_t* data, size_t rb) {
+    SkImageInfo info = SkImageInfo::Make(w, h, kAlpha_8_SkColorType, kPremul_SkAlphaType);
+    auto canvas = SkCanvas::MakeRasterDirect(info, data, rb);
+    canvas->scale(1.0f * w / img->width(), 1.0f * h / img->height());
+    SkPaint paint;
+    paint.setFilterQuality(kLow_SkFilterQuality);
+    paint.setColorFilter(cf);
+    paint.setBlendMode(SkBlendMode::kSrc);
+    canvas->drawImage(img, 0, 0, &paint);
+}
+
+static void copy_to_frame(SkImage* img, AVFrame* frame) {
+    SkColorMatrix yuv;
+    yuv.setRGB2YUV();
+    float m[20];
+
+    yuv.get20(m);
+    memcpy(m + 15, m + 0, 5 * sizeof(float));   // copy Y into A
+    auto cfy = SkColorFilters::Matrix(m);
+
+    yuv.get20(m);
+    memcpy(m + 15, m + 5, 5 * sizeof(float));   // copy U into A
+    auto cfu = SkColorFilters::Matrix(m);
+
+    yuv.get20(m);
+    memcpy(m + 15, m + 10, 5 * sizeof(float));   // copy V into A
+    auto cfv = SkColorFilters::Matrix(m);
+
+    SkASSERT(frame->data[0] && frame->data[1] && frame->data[2]);
+    draw_into_alpha(img, cfy, img->width(),   img->height(),   frame->data[0], frame->linesize[0]);
+    draw_into_alpha(img, cfu, img->width()/2, img->height()/2, frame->data[1], frame->linesize[1]);
+    draw_into_alpha(img, cfv, img->width()/2, img->height()/2, frame->data[2], frame->linesize[2]);
+}
+
+bool SkVideoEncoder::sendFrame(AVFrame* frame) {
+    if (check_err(avcodec_send_frame(fEncoderCtx, frame))) {
+        return false;
+    }
+
+    AVPacket pkt = { 0 };
+    av_init_packet(&pkt);
+
+    int got_packet = 0;
+
+    do {
+        if (check_err(avcodec_encode_video2(fEncoderCtx, &pkt, fFrame, &got_packet))) {
+            return false;
+        }
+        if (got_packet) {
+#if 0
+            /* rescale output packet timestamp values from codec to stream timebase */
+            av_packet_rescale_ts(pkt, *time_base, st->time_base);
+            pkt->stream_index = st->index;
+
+            /* Write the compressed frame to the media file. */
+            log_packet(fmt_ctx, pkt);
+            return av_interleaved_write_frame(fmt_ctx, pkt);
+#endif
+        }
+    } while (got_packet);
+    return true;
+}
+
+bool SkVideoEncoder::endFrame() {
+    /* make sure the frame data is writable */
+    if (check_err(av_frame_make_writable(fFrame))) {
+        return false;
+    }
+
+    fFrame->pts = fCurrentPTS;
+    fCurrentPTS += fDeltaPTS;
+
+    auto img = fSurface->makeImageSnapshot();
+    copy_to_frame(img.get(), fFrame);
+
+    return this->sendFrame(fFrame);
+}
+
+void SkVideoEncoder::endRecording() {
+    av_write_trailer(fFormatCtx);
+
     this->reset();
-    if (stream) {
-        stream->rewind();
-    }
-    return this->loadStream(std::move(stream));
 }
