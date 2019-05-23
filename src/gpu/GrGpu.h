@@ -403,10 +403,14 @@ public:
     /**
      * Creates a texture directly in the backend API without wrapping it in a GrTexture.
      * Must be matched with a call to deleteBackendTexture().
+     * Right now, the color is ignored if pixel data is provided.
+     * In the future, if neither a color nor pixels are provided then the backend texture
+     * will be uninitialized.
      */
     virtual GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
                                                   GrMipMapped, GrRenderable,
-                                                  const void* pixels, size_t rowBytes) = 0;
+                                                  const void* pixels, size_t rowBytes,
+                                                  const SkColor4f& = SkColors::kTransparent) = 0;
 
     /**
      * Frees a texture created by createBackendTexture(). If ownership of the backend
