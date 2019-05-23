@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3ba09cd_a4a56c8c",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 994,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-23T17:37:04Z",
+      "side": 1,
+      "message": "are these needed?",
+      "range": {
+        "startLine": 993,
+        "startChar": 0,
+        "endLine": 994,
+        "endChar": 61
+      },
+      "revId": "994adcf8d7e4c1a0731f7b7889cc1a7ca00bff1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
