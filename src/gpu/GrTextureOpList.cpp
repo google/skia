@@ -150,7 +150,7 @@ bool GrTextureOpList::copySurface(GrRecordingContext* context,
     }
 
     const GrCaps* caps = context->priv().caps();
-    auto addDependency = [ caps, this ] (GrSurfaceProxy* p) {
+    auto addDependency = [ caps, this ] (GrSurfaceProxy* p, GrMipMapped) {
         this->addDependency(p, *caps);
     };
     op->visitProxies(addDependency);
@@ -161,7 +161,7 @@ bool GrTextureOpList::copySurface(GrRecordingContext* context,
 
 void GrTextureOpList::purgeOpsWithUninstantiatedProxies() {
     bool hasUninstantiatedProxy = false;
-    auto checkInstantiation = [&hasUninstantiatedProxy](GrSurfaceProxy* p) {
+    auto checkInstantiation = [&hasUninstantiatedProxy](GrSurfaceProxy* p, GrMipMapped) {
         if (!p->isInstantiated()) {
             hasUninstantiatedProxy = true;
         }
@@ -182,7 +182,7 @@ void GrTextureOpList::purgeOpsWithUninstantiatedProxies() {
 bool GrTextureOpList::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
     bool used = false;
 
-    auto visit = [ proxyToCheck, &used ] (GrSurfaceProxy* p) {
+    auto visit = [ proxyToCheck, &used ] (GrSurfaceProxy* p, GrMipMapped) {
         if (p == proxyToCheck) {
             used = true;
         }
@@ -214,7 +214,7 @@ void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
         alloc->incOps();
     }
 
-    auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p) {
+    auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p, GrMipMapped) {
         alloc->addInterval(p, alloc->curOp(), alloc->curOp(), GrResourceAllocator::ActualUse::kYes
                            SkDEBUGCODE(, p == fTarget.get()));
     };

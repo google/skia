@@ -40,7 +40,7 @@ public:
     CombineResult onCombineIfPossible(GrOp*, const GrCaps&) override;
     void visitProxies(const VisitProxyFunc& fn) const override {
         for (const auto& range : fInstanceRanges) {
-            fn(range.fAtlasProxy);
+            fn(range.fAtlasProxy, GrMipMapped::kNo);
         }
         fProcessors.visitProxies(fn);
     }
