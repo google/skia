@@ -335,8 +335,8 @@ bool GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width,
                                size_t offset) {
     SkASSERT(surface);
     SkASSERT(transferBuffer);
-    SkASSERT(this->caps()->transferFromOffsetAlignment(bufferColorType));
-    SkASSERT(offset % this->caps()->transferFromOffsetAlignment(bufferColorType) == 0);
+    SkASSERT(this->caps()->transferFromOffsetAlignment(surface));
+    SkASSERT(offset % this->caps()->transferFromOffsetAlignment(surface) == 0);
 
     // We require that the write region is contained in the texture
     SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);

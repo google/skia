@@ -390,7 +390,8 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
                             VkPhysicalDeviceFeatures2* features,
                             VkDebugReportCallbackEXT* debugCallback,
                             uint32_t* presentQueueIndexPtr,
-                            CanPresentFn canPresent) {
+                            CanPresentFn canPresent,
+                            bool isProtected) {
     VkResult err;
 
     ACQUIRE_VK_PROC_NOCHECK(EnumerateInstanceVersion, VK_NULL_HANDLE, VK_NULL_HANDLE);
@@ -400,11 +401,15 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     } else {
         err = grVkEnumerateInstanceVersion(&instanceVersion);
         if (err) {
-            SkDebugf("failed ot enumerate instance version. Err: %d\n", err);
+            SkDebugf("failed to enumerate instance version. Err: %d\n", err);
             return false;
         }
     }
     SkASSERT(instanceVersion >= VK_MAKE_VERSION(1, 0, 0));
+    if (isProtected) {
+        instanceVersion = VK_MAKE_VERSION(1, 1, 0);
+    }
+
     uint32_t apiVersion = VK_MAKE_VERSION(1, 0, 0);
     if (instanceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         // If the instance version is 1.0 we must have the apiVersion also be 1.0. However, if the
@@ -633,6 +638,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     // and we can't depend on it on all platforms
     deviceFeatures->robustBufferAccess = VK_FALSE;
 
+    VkDeviceQueueCreateFlags flags = isProtected ? VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT : 0;
     float queuePriorities[1] = { 0.0 };
     // Here we assume no need for swapchain queue
     // If one is needed, the client will need its own setup code
@@ -640,10 +646,11 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         {
             VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
             nullptr,                                    // pNext
-            0,                                          // VkDeviceQueueCreateFlags
+            flags,                                      // VkDeviceQueueCreateFlags
             graphicsQueueIndex,                         // queueFamilyIndex
             1,                                          // queueCount
             queuePriorities,                            // pQueuePriorities
+
         },
         {
             VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
@@ -655,6 +662,15 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         }
     };
     uint32_t queueInfoCount = (presentQueueIndex != graphicsQueueIndex) ? 2 : 1;
+
+    VkPhysicalDeviceProtectedMemoryFeatures protectedMemory = {
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES,    // sType
+        nullptr,                                                        // pNext
+        VK_TRUE,                                                        // protectedMemory
+    };
+    if (isProtected) {
+        features->pNext = &protectedMemory;
+    }
 
     const VkDeviceCreateInfo deviceInfo = {
         VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,        // sType
@@ -695,6 +711,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     ctx->fDeviceFeatures2 = features;
     ctx->fGetProc = getProc;
     ctx->fOwnsInstanceAndDevice = false;
+    ctx->fProtectedContext = isProtected;
 
     return true;
 }
