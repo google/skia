@@ -16,6 +16,7 @@
 #include "src/gpu/vk/GrVkUtil.h"
 #endif
 #ifdef SK_METAL
+#include <CoreFoundation/CoreFoundation.h>
 #include "include/gpu/mtl/GrMtlTypes.h"
 #include "src/gpu/mtl/GrMtlCppUtil.h"
 #endif
@@ -213,7 +214,9 @@ GrBackendTexture::GrBackendTexture(int width,
         , fConfig(GrPixelConfig::kUnknown_GrPixelConfig)
         , fMipMapped(mipMapped)
         , fBackend(GrBackendApi::kMetal)
-        , fMtlInfo(mtlInfo) {}
+        , fMtlInfo(mtlInfo) {
+    CFRetain(fMtlInfo.fTexture);
+}
 #endif
 
 GrBackendTexture::GrBackendTexture(int width,
@@ -242,6 +245,9 @@ GrBackendTexture::GrBackendTexture(int width,
 
 GrBackendTexture::~GrBackendTexture() {
     this->cleanup();
+#ifdef SK_METAL
+    if (fIsValid && fBackend == GrBackendApi::kMetal) CFRelease(fMtlInfo.fTexture);
+#endif
 }
 
 void GrBackendTexture::cleanup() {
@@ -279,6 +285,9 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
             break;
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
+            if (that.fIsValid && that.fBackend == GrBackendApi::kMetal)
+                CFRetain(that.fMtlInfo.fTexture);
+            if (fIsValid && fBackend == GrBackendApi::kMetal) CFRelease(fMtlInfo.fTexture);
             fMtlInfo = that.fMtlInfo;
             break;
 #endif
@@ -509,7 +518,9 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fStencilBits(0)
         , fConfig(GrPixelConfig::kUnknown_GrPixelConfig)
         , fBackend(GrBackendApi::kMetal)
-        , fMtlInfo(mtlInfo) {}
+        , fMtlInfo(mtlInfo) {
+    CFRetain(mtlInfo.fTexture);
+}
 #endif
 
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
@@ -542,6 +553,9 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
 
 GrBackendRenderTarget::~GrBackendRenderTarget() {
     this->cleanup();
+#ifdef SK_METAL
+    if (fIsValid && fBackend == GrBackendApi::kMetal) CFRelease(fMtlInfo.fTexture);
+#endif
 }
 
 void GrBackendRenderTarget::cleanup() {
@@ -580,6 +594,9 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
             break;
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
+            if (that.fIsValid && that.fBackend == GrBackendApi::kMetal)
+                CFRetain(that.fMtlInfo.fTexture);
+            if (fIsValid && fBackend == GrBackendApi::kMetal) CFRelease(fMtlInfo.fTexture);
             fMtlInfo = that.fMtlInfo;
             break;
 #endif
