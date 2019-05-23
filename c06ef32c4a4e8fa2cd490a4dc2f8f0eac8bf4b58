@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "73afd7e2_ed7a0bf4",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-23T17:48:24Z",
+      "side": 1,
+      "message": "More just \"why not\"",
+      "parentUuid": "9d812166_4870e967",
+      "range": {
+        "startLine": 520,
+        "startChar": 47,
+        "endLine": 520,
+        "endChar": 53
+      },
+      "revId": "c06ef32c4a4e8fa2cd490a4dc2f8f0eac8bf4b58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e0ac0977_ab4c7f3e",
         "filename": "src/gpu/GrBackendSurface.cpp",
         "patchSetId": 4
@@ -39,6 +63,24 @@
       "revId": "c06ef32c4a4e8fa2cd490a4dc2f8f0eac8bf4b58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6dcd9974_03225103",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-23T17:48:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0ac0977_ab4c7f3e",
+      "revId": "c06ef32c4a4e8fa2cd490a4dc2f8f0eac8bf4b58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
