@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ff83c97_5c9e9250",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-23T13:12:18Z",
+      "side": 1,
+      "message": "What\u0027s the point of this line?",
+      "range": {
+        "startLine": 184,
+        "startChar": 4,
+        "endLine": 184,
+        "endChar": 26
+      },
+      "revId": "a55a02f6e4611da0d78c883c4afed325afd28376",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
