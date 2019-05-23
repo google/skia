@@ -170,6 +170,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         kImagination_GrGLVendor == ctxInfo.vendor() ||
         kQualcomm_GrGLVendor == ctxInfo.vendor() ) {
         fPreferFullscreenClears = true;
+        fDiscardStencilAfterCommandBuffer = true;
     }
 
     if (GR_IS_GR_GL(standard)) {
@@ -2588,10 +2589,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 #endif
 
-    // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
-    // Thus we are blacklisting this extension for now on Adreno4xx devices.
+    // A driver bug on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
+    // Nanobench also hangs on the Acer Chromebook PowerVRGX6250 when invalidating stencil buffers.
+    // Thus we are blacklisting framebuffer discards for now on these devices.
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
         kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer() ||
+#ifndef SK_BUILD_FOR_IOS
+        kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
+#endif
         fDriverBugWorkarounds.disable_discard_framebuffer) {
         fDiscardRenderTargetSupport = false;
         fInvalidateFBType = kNone_InvalidateFBType;
