@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7b51c7e_9222c8ac",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-23T19:36:02Z",
+      "side": 1,
+      "message": "This name kind of bugs me, because every other kind of lvalue is also an expression, but I haven\u0027t managed to come up with anything I completely like to suggest as an alternative. Oh well.",
+      "range": {
+        "startLine": 752,
+        "startChar": 6,
+        "endLine": 752,
+        "endChar": 30
+      },
+      "revId": "8467804cb31474153585e14c1f6d09ed5af0ab05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a6044a3_646dda17",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-23T19:36:02Z",
+      "side": 1,
+      "message": "nit: line length",
+      "range": {
+        "startLine": 168,
+        "startChar": 101,
+        "endLine": 168,
+        "endChar": 107
+      },
+      "revId": "8467804cb31474153585e14c1f6d09ed5af0ab05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a95daacb_3145a68a",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-23T19:36:02Z",
+      "side": 1,
+      "message": "nit: line length",
+      "range": {
+        "startLine": 237,
+        "startChar": 100,
+        "endLine": 237,
+        "endChar": 109
+      },
+      "revId": "8467804cb31474153585e14c1f6d09ed5af0ab05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05ba82c0_832c13d1",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-23T19:36:02Z",
+      "side": 1,
+      "message": "I know this one isn\u0027t your fault, but mind fixing it while you\u0027re here?",
+      "range": {
+        "startLine": 449,
+        "startChar": 100,
+        "endLine": 449,
+        "endChar": 112
+      },
+      "revId": "8467804cb31474153585e14c1f6d09ed5af0ab05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bf3a8f6_e76b1f30",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-23T19:36:02Z",
+      "side": 1,
+      "message": "This should be \u0027\u003d\u003d\u0027",
+      "range": {
+        "startLine": 427,
+        "startChar": 31,
+        "endLine": 427,
+        "endChar": 32
+      },
+      "revId": "8467804cb31474153585e14c1f6d09ed5af0ab05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
