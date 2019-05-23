@@ -63,6 +63,7 @@ public:
     const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties() const {
         return fPhysDevMemProps;
     }
+    bool protectedContext() const { return fProtectedContext; }
 
     GrVkResourceProvider& resourceProvider() { return fResourceProvider; }
 
@@ -307,6 +308,8 @@ private:
     // We need a bool to track whether or not we've already disconnected all the gpu resources from
     // vulkan context.
     bool                                                  fDisconnected;
+
+    bool                                                  fProtectedContext;
 
     std::unique_ptr<GrVkGpuRTCommandBuffer>               fCachedRTCommandBuffer;
     std::unique_ptr<GrVkGpuTextureCommandBuffer>          fCachedTexCommandBuffer;
