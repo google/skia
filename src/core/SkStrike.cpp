@@ -183,6 +183,8 @@ bool SkStrike::initializePath(SkGlyph* glyph, const volatile void* data, size_t 
     if (glyph->fWidth) {
         SkGlyph::PathData* pathData = fAlloc.make<SkGlyph::PathData>();
         glyph->fPathData = pathData;
+        if (size == 0u) return true;
+
         auto path = skstd::make_unique<SkPath>();
         if (!pathData->fPath.readFromMemory(const_cast<const void*>(data), size)) {
             return false;
@@ -254,7 +256,6 @@ SkSpan<const SkGlyphPos> SkStrike::prepareForDrawing(const SkGlyphID glyphIDs[],
                     // The out of atlas glyph is not color so we can draw it using paths.
                     this->findPath(glyph);
                 } else {
-
                     // This will be handled by the fallback strike.
                     SkASSERT(glyph.maxDimension() > maxDimension
                              && glyph.fMaskFormat == SkMask::kARGB32_Format);
