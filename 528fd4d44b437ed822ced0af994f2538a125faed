@@ -52,6 +52,24 @@
       "revId": "528fd4d44b437ed822ced0af994f2538a125faed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "260c0613_175ad836",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-23T18:57:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb0b5465_60667df7",
+      "revId": "528fd4d44b437ed822ced0af994f2538a125faed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
