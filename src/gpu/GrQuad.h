@@ -34,12 +34,19 @@ enum class GrQuadType {
 };
 static const int kGrQuadTypeCount = static_cast<int>(GrQuadType::kLast) + 1;
 
+// If an SkRect is transformed by this matrix, what class of quad is required to represent it.
+GrQuadType GrQuadTypeForTransformedRect(const SkMatrix& matrix);
+// Perform minimal analysis of 'pts' (which are suitable for MakeFromSkQuad), and determine a
+// quad type that will be as minimally general as possible.
+GrQuadType GrQuadTypeForPoints(const SkPoint pts[4], const SkMatrix& matrix);
+
 // Resolve disagreements between the overall requested AA type and the per-edge quad AA flags.
 // knownQuadType must have come from GrQuadTypeForTransformedRect with the matrix that created the
 // provided quad. Both outAAType and outEdgeFlags will be updated.
 template <typename Q>
 void GrResolveAATypeForQuad(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags,
-                            const Q& quad, GrAAType* outAAtype, GrQuadAAFlags* outEdgeFlags);
+                            const Q& quad, GrQuadType knownQuadType,
+                            GrAAType* outAAtype, GrQuadAAFlags* outEdgeFlags);
 
 /**
  * GrQuad is a collection of 4 points which can be used to represent an arbitrary quadrilateral. The
@@ -53,14 +60,16 @@ public:
 
     explicit GrQuad(const SkRect& rect)
             : fX{rect.fLeft, rect.fLeft, rect.fRight, rect.fRight}
-            , fY{rect.fTop, rect.fBottom, rect.fTop, rect.fBottom}
-            , fType(GrQuadType::kRect) {}
+            , fY{rect.fTop, rect.fBottom, rect.fTop, rect.fBottom} {}
 
-    GrQuad(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys, GrQuadType type)
-            : fType(type) {
+    GrQuad(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys) {
         xs.store(fX);
         ys.store(fY);
     }
+
+    explicit GrQuad(const SkPoint pts[4])
+            : fX{pts[0].fX, pts[1].fX, pts[2].fX, pts[3].fX}
+            , fY{pts[0].fY, pts[1].fY, pts[2].fY, pts[3].fY} {}
 
     /** Sets the quad to the rect as transformed by the matrix. */
     static GrQuad MakeFromRect(const SkRect&, const SkMatrix&);
@@ -86,8 +95,6 @@ public:
     skvx::Vec<4, float> x4f() const { return skvx::Vec<4, float>::Load(fX); }
     skvx::Vec<4, float> y4f() const { return skvx::Vec<4, float>::Load(fY); }
 
-    GrQuadType quadType() const { return fType; }
-
     // True if anti-aliasing affects this quad. Only valid when quadType == kRect_QuadType
     bool aaHasEffectOnRect() const;
 
@@ -97,8 +104,6 @@ private:
 
     float fX[4];
     float fY[4];
-
-    GrQuadType fType;
 };
 
 class GrPerspQuad {
@@ -108,21 +113,16 @@ public:
     explicit GrPerspQuad(const SkRect& rect)
             : fX{rect.fLeft, rect.fLeft, rect.fRight, rect.fRight}
             , fY{rect.fTop, rect.fBottom, rect.fTop, rect.fBottom}
-            , fW{1.f, 1.f, 1.f, 1.f}
-            , fType(GrQuadType::kRect) {}
+            , fW{1.f, 1.f, 1.f, 1.f} {}
 
-    GrPerspQuad(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys,
-                GrQuadType type)
-            : fType(type) {
-        SkASSERT(type != GrQuadType::kPerspective);
+    GrPerspQuad(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys) {
         xs.store(fX);
         ys.store(fY);
         fW[0] = fW[1] = fW[2] = fW[3] = 1.f;
     }
 
     GrPerspQuad(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys,
-                const skvx::Vec<4, float>& ws, GrQuadType type)
-            : fType(type) {
+                const skvx::Vec<4, float>& ws) {
         xs.store(fX);
         ys.store(fY);
         ws.store(fW);
@@ -139,10 +139,10 @@ public:
 
     SkPoint3 point(int i) const { return {fX[i], fY[i], fW[i]}; }
 
-    SkRect bounds() const {
+    SkRect bounds(GrQuadType type) const {
         auto x = this->x4f();
         auto y = this->y4f();
-        if (fType == GrQuadType::kPerspective) {
+        if (type == GrQuadType::kPerspective) {
             auto iw = this->iw4f();
             x *= iw;
             y *= iw;
@@ -161,9 +161,7 @@ public:
     skvx::Vec<4, float> w4f() const { return skvx::Vec<4, float>::Load(fW); }
     skvx::Vec<4, float> iw4f() const { return 1.f / this->w4f(); }
 
-    GrQuadType quadType() const { return fType; }
-
-    bool hasPerspective() const { return fType == GrQuadType::kPerspective; }
+    bool hasPerspective() const { return any(w4f() != 1.f); }
 
     // True if anti-aliasing affects this quad. Only valid when quadType == kRect_QuadType
     bool aaHasEffectOnRect() const;
@@ -173,13 +171,11 @@ private:
     friend class GrQuadListBase;
 
     // Copy 4 values from each of the arrays into the quad's components
-    GrPerspQuad(const float xs[4], const float ys[4], const float ws[4], GrQuadType type);
+    GrPerspQuad(const float xs[4], const float ys[4], const float ws[4]);
 
     float fX[4];
     float fY[4];
     float fW[4];
-
-    GrQuadType fType;
 };
 
 // Underlying data used by GrQuadListBase. It is defined outside of GrQuadListBase due to compiler
@@ -209,9 +205,9 @@ public:
 
     GrQuadType quadType() const { return fType; }
 
-    void reserve(int count, bool needsPerspective) {
+    void reserve(int count, GrQuadType forType) {
         fXYs.reserve(count);
-        if (needsPerspective || fType == GrQuadType::kPerspective) {
+        if (forType == GrQuadType::kPerspective || fType == GrQuadType::kPerspective) {
             fWs.reserve(4 * count);
         }
     }
@@ -223,11 +219,11 @@ public:
         const QuadData<T>& item = fXYs[i];
         if (fType == GrQuadType::kPerspective) {
             // Read the explicit ws
-            return GrPerspQuad(item.fX, item.fY, fWs.begin() + 4 * i, fType);
+            return GrPerspQuad(item.fX, item.fY, fWs.begin() + 4 * i);
         } else {
             // Ws are implicitly 1s.
             static constexpr float kNoPerspectiveWs[4] = {1.f, 1.f, 1.f, 1.f};
-            return GrPerspQuad(item.fX, item.fY, kNoPerspectiveWs, fType);
+            return GrPerspQuad(item.fX, item.fY, kNoPerspectiveWs);
         }
     }
 
@@ -253,8 +249,8 @@ protected:
     }
 
     // Returns the added item data so that its metadata can be initialized if T is not void
-    QuadData<T>& pushBackImpl(const GrQuad& quad) {
-        this->upgradeType(quad.quadType());
+    QuadData<T>& pushBackImpl(const GrQuad& quad, GrQuadType type) {
+        this->upgradeType(type);
         QuadData<T>& item = fXYs.push_back();
         memcpy(item.fX, quad.fX, 4 * sizeof(float));
         memcpy(item.fY, quad.fY, 4 * sizeof(float));
@@ -264,8 +260,8 @@ protected:
         return item;
     }
 
-    QuadData<T>& pushBackImpl(const GrPerspQuad& quad) {
-        this->upgradeType(quad.quadType());
+    QuadData<T>& pushBackImpl(const GrPerspQuad& quad, GrQuadType type) {
+        this->upgradeType(type);
         QuadData<T>& item = fXYs.push_back();
         memcpy(item.fX, quad.fX, 4 * sizeof(float));
         memcpy(item.fY, quad.fY, 4 * sizeof(float));
@@ -313,12 +309,12 @@ public:
         this->concatImpl(that);
     }
 
-    void push_back(const GrQuad& quad) {
-        this->pushBackImpl(quad);
+    void push_back(const GrQuad& quad, GrQuadType type) {
+        this->pushBackImpl(quad, type);
     }
 
-    void push_back(const GrPerspQuad& quad) {
-        this->pushBackImpl(quad);
+    void push_back(const GrPerspQuad& quad, GrQuadType type) {
+        this->pushBackImpl(quad, type);
     }
 
 private:
@@ -337,13 +333,13 @@ public:
     }
 
     // Adding to the list requires metadata
-    void push_back(const GrQuad& quad, T&& metadata) {
-        QuadData<T>& item = this->pushBackImpl(quad);
+    void push_back(const GrQuad& quad, GrQuadType type, T&& metadata) {
+        QuadData<T>& item = this->pushBackImpl(quad, type);
         item.fMetadata = std::move(metadata);
     }
 
-    void push_back(const GrPerspQuad& quad, T&& metadata) {
-        QuadData<T>& item = this->pushBackImpl(quad);
+    void push_back(const GrPerspQuad& quad, GrQuadType type, T&& metadata) {
+        QuadData<T>& item = this->pushBackImpl(quad, type);
         item.fMetadata = std::move(metadata);
     }
 
