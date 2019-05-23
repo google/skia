@@ -193,7 +193,8 @@ public:
 
     void visitProxies(const VisitProxyFunc& func) const override {
         for (unsigned p = 0; p < fProxyCnt; ++p) {
-            func(fProxies[p].fProxy);
+            bool mipped = (GrSamplerState::Filter::kMipMap == this->filter());
+            func(fProxies[p].fProxy, GrMipMapped(mipped));
         }
     }
 

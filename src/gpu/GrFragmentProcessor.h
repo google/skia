@@ -10,6 +10,7 @@
 
 #include "include/private/GrProxyRef.h"
 #include "src/gpu/GrProcessor.h"
+#include "src/gpu/ops/GrOp.h"
 
 class GrCoordTransform;
 class GrGLSLFragmentProcessor;
@@ -242,7 +243,7 @@ public:
                                          &GrFragmentProcessor::numTextureSamplers,
                                          &GrFragmentProcessor::textureSampler>;
 
-    void visitProxies(const std::function<void(GrSurfaceProxy*)>& func);
+    void visitProxies(const GrOp::VisitProxyFunc& func);
 
 protected:
     enum OptimizationFlags : uint32_t {
