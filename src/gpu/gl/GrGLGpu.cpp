@@ -21,6 +21,7 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrCpuBuffer.h"
+#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrMesh.h"
@@ -4057,7 +4058,8 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
                                                const GrBackendFormat& format,
                                                GrMipMapped mipMapped,
                                                GrRenderable renderable,
-                                               const void* pixels, size_t rowBytes) {
+                                               const void* pixels, size_t rowBytes,
+                                               const SkColor4f& colorf) {
     this->handleDirtyContext();
 
     const GrGLenum* glFormat = format.getGLFormat();
@@ -4123,6 +4125,13 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         SkASSERT(GrRenderable::kNo == renderable);
         SkASSERT(0 == rowBytes);
 
+        int numBlocks = GrNumETC1Blocks(w, h);
+        SkAutoTMalloc<ETC1Block> defaultStorage(numBlocks);
+        if (!pixels) {
+            GrFillInETC1WithColor(colorf, defaultStorage.get(), numBlocks);
+            pixels = defaultStorage.get();
+        }
+
         for (int i = 0; i < mipLevelCount; ++i) {
             // TODO: this isn't correct when pixels for additional mip levels are passed in
             texels.get()[i] = { pixels, 0 };
@@ -4140,8 +4149,11 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         size_t baseLayerSize = bpp * w * h;
         SkAutoMalloc defaultStorage(baseLayerSize);
         if (!pixels) {
-            // Fill in the texture with all zeros so we don't have random garbage
-            memset(defaultStorage.get(), 0, baseLayerSize);
+            if (!GrFillBufferWithColor(config, w, h, colorf, defaultStorage.get())) {
+                GL_CALL(DeleteTextures(1, &(info.fID)));
+                return GrBackendTexture();
+            }
+
             pixels = defaultStorage.get();
             rowBytes = trimRowBytes;
         }

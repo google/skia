@@ -81,6 +81,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrContextThreadSafeProxyPriv.h",
   "$_src/gpu/GrCoordTransform.h",
   "$_src/gpu/GrCpuBuffer.h",
+  "$_src/gpu/GrDataUtils.h",
+  "$_src/gpu/GrDataUtils.cpp",
   "$_src/gpu/GrDDLContext.cpp",
   "$_src/gpu/GrDefaultGeoProcFactory.cpp",
   "$_src/gpu/GrDefaultGeoProcFactory.h",
