@@ -132,16 +132,13 @@ void SkSurface_Gpu::onWritePixels(const SkPixmap& src, int x, int y) {
     fDevice->writePixels(src, x, y);
 }
 
-void SkSurface_Gpu::onAsyncReadPixels(const SkImageInfo& info, int srcX, int srcY,
-                                      ReadPixelsCallback callback, ReadPixelsContext context) {
-    SkASSERT(SkIRect::MakeWH(this->width(), this->height())
-                     .contains(SkIRect::MakeXYWH(srcX, srcY, info.width(), info.height())));
-    auto* rtc = fDevice->accessRenderTargetContext();
-    if (!rtc->caps()->transferBufferSupport() ||
-        !rtc->asyncReadPixels(info, srcX, srcY, callback, context)) {
-        INHERITED::onAsyncReadPixels(info, srcX, srcY, callback, context);
-        return;
-    }
+void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                                SkSurface::RescaleGamma rescaleGamma,
+                                                SkFilterQuality rescaleQuality,
+                                                SkSurface::ReadPixelsCallback callback,
+                                                SkSurface::ReadPixelsContext context) {
+    auto* rtc = static_cast<SkSurface_Gpu*>(this)->fDevice->accessRenderTargetContext();
+    rtc->asyncRescaleAndReadPixels(info, srcRect, rescaleGamma, rescaleQuality, callback, context);
 }
 
 // Create a new render target and, if necessary, copy the contents of the old
@@ -519,6 +516,60 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
         return nullptr;
     }
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
+}
+
+bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTexture,
+                                            GrSurfaceOrigin origin, TextureReleaseProc releaseProc,
+                                            ReleaseContext releaseContext) {
+    auto context = this->fDevice->context();
+    if (context->abandoned()) {
+        return false;
+    }
+    if (!backendTexture.isValid()) {
+        return false;
+    }
+    if (backendTexture.width() != this->width() || backendTexture.height() != this->height()) {
+        return false;
+    }
+    auto* oldRTC = fDevice->accessRenderTargetContext();
+    auto oldProxy = sk_ref_sp(oldRTC->asTextureProxy());
+    if (!oldProxy) {
+        return false;
+    }
+    auto* oldTexture = oldProxy->peekTexture();
+    if (!oldTexture) {
+        return false;
+    }
+    if (!oldTexture->resourcePriv().refsWrappedObjects()) {
+        return false;
+    }
+    if (oldTexture->backendFormat() != backendTexture.getBackendFormat()) {
+        return false;
+    }
+    if (oldTexture->getBackendTexture().isSameTexture(backendTexture)) {
+        return false;
+    }
+    SkASSERT(oldTexture->asRenderTarget());
+    int sampleCnt = oldTexture->asRenderTarget()->numStencilSamples();
+    GrBackendTexture texCopy = backendTexture;
+    auto colorSpace = sk_ref_sp(oldRTC->colorSpaceInfo().colorSpace());
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig, sampleCnt,
+                                  this->getCanvas()->imageInfo().colorType(), colorSpace, true)) {
+        return false;
+    }
+    sk_sp<GrRenderTargetContext> rtc(
+            context->priv().makeBackendTextureRenderTargetContext(texCopy,
+                                                                  origin,
+                                                                  sampleCnt,
+                                                                  std::move(colorSpace),
+                                                                  &this->props(),
+                                                                  releaseProc,
+                                                                  releaseContext));
+    if (!rtc) {
+        return false;
+    }
+    fDevice->replaceRenderTargetContext(std::move(rtc), true);
+    return true;
 }
 
 bool validate_backend_render_target(GrContext* ctx, const GrBackendRenderTarget& rt,
