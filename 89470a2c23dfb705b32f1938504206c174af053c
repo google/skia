@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62f4f531_ffcbf770",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1268,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-23T15:08:16Z",
+      "side": 1,
+      "message": "It seems a bit odd that this is const",
+      "range": {
+        "startLine": 1268,
+        "startChar": 73,
+        "endLine": 1268,
+        "endChar": 78
+      },
+      "revId": "89470a2c23dfb705b32f1938504206c174af053c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ee2ce22_1a1cc668",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1309,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-23T15:08:16Z",
+      "side": 1,
+      "message": "// This exercises the SkColorMatrix_RGB2YUV method. It draws the grid:\n//\n//  orig Y   reconstituted 709   601 jpeg\n//  orig U   pixel diff of 709   601 jpeg\n//  orig V   scaled diff of 709  601 jpeg\n\n?",
+      "revId": "89470a2c23dfb705b32f1938504206c174af053c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31f64545_e653cc34",
+        "filename": "src/core/SkYUVMath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-23T15:08:16Z",
+      "side": 1,
+      "message": "Do we want to unit test these somewhere like:\n\nrgb2yuv * yuv2rgb \u003d\u003d I ?\n\nAlso, maybe, feed some colors through?",
+      "range": {
+        "startLine": 13,
+        "startChar": 12,
+        "endLine": 13,
+        "endChar": 29
+      },
+      "revId": "89470a2c23dfb705b32f1938504206c174af053c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cc18dc6_f4cd15d2",
+        "filename": "src/core/SkYUVMath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-23T15:08:16Z",
+      "side": 1,
+      "message": "maybe on its own line ?",
+      "range": {
+        "startLine": 116,
+        "startChar": 47,
+        "endLine": 116,
+        "endChar": 59
+      },
+      "revId": "89470a2c23dfb705b32f1938504206c174af053c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "119b63ae_bb82470f",
+        "filename": "src/core/SkYUVMath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-23T15:08:16Z",
+      "side": 1,
+      "message": "// Do not delete! This is used to create the *yuv_to_rgb and *rgb_to_yuv matrices.\n\n?",
+      "revId": "89470a2c23dfb705b32f1938504206c174af053c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
