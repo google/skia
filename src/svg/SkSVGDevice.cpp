@@ -28,6 +28,7 @@
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkFontPriv.h"
 #include "src/core/SkUtils.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/xml/SkXMLWriter.h"
@@ -843,7 +844,8 @@ public:
             , fLastCharWasWhitespace(true) { // start off in whitespace mode to strip all leadingspace
         auto runSize = glyphRun.runSize();
         SkAutoSTArray<64, SkUnichar> unichars(runSize);
-        glyphRun.font().glyphsToUnichars(glyphRun.glyphsIDs().data(), runSize, unichars.get());
+        SkFontPriv::GlyphsToUnichars(glyphRun.font(), glyphRun.glyphsIDs().data(),
+                                     runSize, unichars.get());
         auto positions = glyphRun.positions();
         for (size_t i = 0; i < runSize; ++i) {
             this->appendUnichar(unichars[i], positions[i]);
