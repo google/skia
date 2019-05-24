@@ -63,7 +63,7 @@ private:
                         GrTextureDomain::kClamp_Mode, GrTextureDomain::kClamp_Mode, i);
             }
 
-            planeMatrix.postConcat(localMatrix);
+            planeMatrix.preConcat(localMatrix);
             fSamplers[i].reset(std::move(proxies[i]),
                                GrSamplerState(GrSamplerState::WrapMode::kClamp, filterModes[i]));
             fSamplerTransforms[i] = planeMatrix;
