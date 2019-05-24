@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b09b1a7f_a44333b9",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-24T19:23:28Z",
+      "side": 1,
+      "message": "I don\u0027t think you want to set the instanceVersion here. Instead i think this should be:\n\nif (isProtect \u0026\u0026 instanceVersion \u003c VK_MAKE_VERSION(1, 1, 0)) {\n    return false;\n}",
+      "range": {
+        "startLine": 410,
+        "startChar": 8,
+        "endLine": 410,
+        "endChar": 20
+      },
+      "revId": "eec4bf99c03ba1cd5c25ac09522b310109bab911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78d6e998_535c000f",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-24T19:23:28Z",
+      "side": 1,
+      "message": "I thin we again need to check:\nif (isProtected \u0026\u0026 physDeviceVersion \u003c VK_MAKE_VERSION(1,1,)) {\n    destroy_instance(....);\n    return false;\n}",
+      "range": {
+        "startLine": 539,
+        "startChar": 8,
+        "endLine": 539,
+        "endChar": 25
+      },
+      "revId": "eec4bf99c03ba1cd5c25ac09522b310109bab911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc83eb4b_1e6673dd",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-24T19:23:28Z",
+      "side": 1,
+      "message": "lets move this into the setup_extension_features(...) helper function, and I guess just rename the helper to setup_features since this isn\u0027t an extension. That helper currently assumes there are not structs added to the features pNext yet, so it starts chaining the other features in there from the top level features struct. So your struct here is probably never actually getting put on the final features struct we send to vkCreateDevice. You\u0027ll need to pass in the isProtected bool into that helper as well.",
+      "range": {
+        "startLine": 622,
+        "startChar": 3,
+        "endLine": 626,
+        "endChar": 6
+      },
+      "revId": "eec4bf99c03ba1cd5c25ac09522b310109bab911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2394f7c_97373152",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-24T19:23:28Z",
+      "side": 1,
+      "message": "is there a reason this is commented out?",
+      "range": {
+        "startLine": 655,
+        "startChar": 24,
+        "endLine": 655,
+        "endChar": 46
+      },
+      "revId": "eec4bf99c03ba1cd5c25ac09522b310109bab911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "718ed81c_6cfbdbab",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-24T19:23:28Z",
+      "side": 1,
+      "message": "pass VK_NULL_HANDLE here to make sure we getting the device proc. I believe the getProc should default to device if its a non null VkDevice but just to make sure.",
+      "range": {
+        "startLine": 708,
+        "startChar": 41,
+        "endLine": 708,
+        "endChar": 45
+      },
+      "revId": "eec4bf99c03ba1cd5c25ac09522b310109bab911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
