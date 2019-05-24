@@ -15,7 +15,7 @@
 #include "src/gpu/GrGpuCommandBuffer.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRect.h"
+#include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetOpList.h"
 #include "src/gpu/GrResourceAllocator.h"
