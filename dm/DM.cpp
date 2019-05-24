@@ -152,11 +152,8 @@ using sk_gpu_test::ContextInfo;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static constexpr skcms_TransferFunction k2020_TF =
-    {2.22222f, 0.909672f, 0.0903276f, 0.222222f, 0.0812429f, 0, 0};
-
 static sk_sp<SkColorSpace> rec2020() {
-    return SkColorSpace::MakeRGB(k2020_TF, SkNamedGamut::kRec2020);
+    return SkColorSpace::MakeRGB(SkNamedTransferFn::kRec2020, SkNamedGamut::kRec2020);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1241,8 +1238,8 @@ struct Task {
             if (tf.a == 1 && tf.b == 0 && tf.c == 0 && tf.d == 0 && tf.e == 0 && tf.f == 0) {
                 return SkStringPrintf("gamma %.3g", tf.g);
             }
-            if (eq(tf, SkNamedTransferFn::kSRGB)) { return SkString("sRGB"); }
-            if (eq(tf, k2020_TF                )) { return SkString("2020"); }
+            if (eq(tf, SkNamedTransferFn::kSRGB   )) { return SkString("sRGB"); }
+            if (eq(tf, SkNamedTransferFn::kRec2020)) { return SkString("2020"); }
             return SkStringPrintf("%.3g %.3g %.3g %.3g %.3g %.3g %.3g",
                                   tf.g, tf.a, tf.b, tf.c, tf.d, tf.e, tf.f);
         }

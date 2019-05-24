@@ -470,7 +470,7 @@ int main(int argc, char** argv) {
     };
     const FlagOption<skcms_TransferFunction> kTransferFunctions[] = {
         { "srgb"   , SkNamedTransferFn::kSRGB },
-        { "rec2020", {2.22222f, 0.909672f, 0.0903276f, 0.222222f, 0.0812429f, 0, 0} },
+        { "rec2020", SkNamedTransferFn::kRec2020 },
         { "2.2"    , SkNamedTransferFn::k2Dot2 },
         { "linear" , SkNamedTransferFn::kLinear },
     };
