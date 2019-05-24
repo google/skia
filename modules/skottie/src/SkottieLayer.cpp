@@ -653,7 +653,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
             , fOut(out) {}
 
         void onTick(float t) override {
-            const auto active = (t >= fIn && t < fOut);
+            const auto active = (t >= fIn && t <= fOut);
 
             // Keep the layer fully transparent except for its [in..out] lifespan.
             // (note: opacity == 0 disables rendering, while opacity == 1 is a noop)
