@@ -99,6 +99,8 @@ DEF_TEST(SkSLInterpreterAdd, r) {
          0.5, 1, 1.5, 2);
     test(r, "void main(inout half4 color) { int a = 1; int b = 3; color.r = a + b; }", 1, 2, 3, 4,
          4, 2, 3, 4);
+    test(r, "void main(inout half4 color) { half4x4 c = half4x4(color, color, color, color); c += c; color = c[0]; }",
+         1, 2, 3, 4, 2, 4, 6, 8);
 }
 
 DEF_TEST(SkSLInterpreterSubtract, r) {
