@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9c67e42_769ab89a",
+        "filename": "include/gpu/mtl/GrMtlTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-24T16:13:42Z",
+      "side": 1,
+      "message": "Since you\u0027re retaining and releasing it, it doesn\u0027t seem like a weak ref.",
+      "range": {
+        "startLine": 21,
+        "startChar": 3,
+        "endLine": 21,
+        "endChar": 7
+      },
+      "revId": "84cc09869abbd14931717d16efe42a11c278ed93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3d5406f_865c1caf",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-24T16:13:42Z",
+      "side": 1,
+      "message": "Comment? Maybe something like \"This allows us to retain ownership of the MtlTexture, as often the client is using a temporary variable.\"",
+      "range": {
+        "startLine": 218,
+        "startChar": 4,
+        "endLine": 218,
+        "endChar": 31
+      },
+      "revId": "84cc09869abbd14931717d16efe42a11c278ed93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d68e0ad4_3a92bc16",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-24T16:13:42Z",
+      "side": 1,
+      "message": "This could be in a cleanup() method like we do with GrVkBackendSurfaceInfo. Then it could be reused on line 556.",
+      "range": {
+        "startLine": 249,
+        "startChar": 4,
+        "endLine": 249,
+        "endChar": 83
+      },
+      "revId": "84cc09869abbd14931717d16efe42a11c278ed93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "faf5090a_28ac10b9",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-24T16:13:42Z",
+      "side": 1,
+      "message": "Similarly, wrap in assign() method.",
+      "range": {
+        "startLine": 288,
+        "startChar": 0,
+        "endLine": 290,
+        "endChar": 91
+      },
+      "revId": "84cc09869abbd14931717d16efe42a11c278ed93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45264131_a525eb86",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-24T16:13:42Z",
+      "side": 1,
+      "message": "See comment above.",
+      "range": {
+        "startLine": 557,
+        "startChar": 4,
+        "endLine": 557,
+        "endChar": 83
+      },
+      "revId": "84cc09869abbd14931717d16efe42a11c278ed93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad3cb224_071bf05b",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-24T16:13:42Z",
+      "side": 1,
+      "message": "See comment above.",
+      "range": {
+        "startLine": 597,
+        "startChar": 12,
+        "endLine": 599,
+        "endChar": 91
+      },
+      "revId": "84cc09869abbd14931717d16efe42a11c278ed93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
