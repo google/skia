@@ -215,7 +215,6 @@ struct Program {
         kFragmentProcessor_Kind,
         kPipelineStage_Kind,
         kGeneric_Kind,
-
     };
 
     Program(Kind kind,
