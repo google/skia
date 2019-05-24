@@ -302,14 +302,14 @@ def dm_flags(api, bot):
     # DDL is a GPU-only feature
     if 'DDL1' in bot:
       # This bot generates gl and vk comparison images for the large skps
-      configs = [c for c in configs if c == 'gl' or c == 'vk']
+      configs = [c for c in configs if c == 'gl' or c == 'vk' or c == 'mtl']
       args.extend(['--skpViewportSize', "2048"])
       args.extend(['--pr', '~small'])
     if 'DDL3' in bot:
       # This bot generates the ddl-gl and ddl-vk images for the
       # large skps and the gms
-      ddl_configs = ['ddl-' + c for c in configs if c == 'gl' or c == 'vk']
-      ddl2_configs = ['ddl2-' + c for c in configs if c == 'gl' or c == 'vk']
+      ddl_configs = ['ddl-' + c for c in configs if c == 'gl' or c == 'vk' or c == 'mtl']
+      ddl2_configs = ['ddl2-' + c for c in configs if c == 'gl' or c == 'vk' or c == 'mtl']
       configs = ddl_configs + ddl2_configs
       args.extend(['--skpViewportSize', "2048"])
       args.extend(['--gpuThreads', "0"])
