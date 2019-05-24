@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "7527e7f4_361be185",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-24T17:29:12Z",
+      "side": 1,
+      "message": "This comment doesn\u0027t seem right. __bridge doesn\u0027t retain or release. The creator will still maintain ownership.",
+      "range": {
+        "startLine": 64,
+        "startChar": 77,
+        "endLine": 65,
+        "endChar": 75
+      },
+      "revId": "84cc09869abbd14931717d16efe42a11c278ed93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e9c67e42_769ab89a",
         "filename": "include/gpu/mtl/GrMtlTypes.h",
         "patchSetId": 2
