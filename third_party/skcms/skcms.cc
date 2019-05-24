@@ -1836,45 +1836,24 @@ namespace baseline {
 #if defined(SKCMS_PORTABLE) || !(defined(__clang__) || defined(__GNUC__)) \
                             || (defined(__EMSCRIPTEN_major__) && !defined(__wasm_simd128__))
     #define N 1
-    using F   = float;
-    using U64 = uint64_t;
-    using U32 = uint32_t;
-    using I32 = int32_t;
-    using U16 = uint16_t;
-    using U8  = uint8_t;
-
+    template <typename T> using V = T;
+    using Color = float;
 #elif defined(__AVX512F__)
     #define N 16
-    using   F = Vec<N,float>;
-    using I32 = Vec<N,int32_t>;
-    using U64 = Vec<N,uint64_t>;
-    using U32 = Vec<N,uint32_t>;
-    using U16 = Vec<N,uint16_t>;
-    using  U8 = Vec<N,uint8_t>;
+    template <typename T> using V = Vec<N,T>;
+    using Color = float;
 #elif defined(__AVX__)
     #define N 8
-    using   F = Vec<N,float>;
-    using I32 = Vec<N,int32_t>;
-    using U64 = Vec<N,uint64_t>;
-    using U32 = Vec<N,uint32_t>;
-    using U16 = Vec<N,uint16_t>;
-    using  U8 = Vec<N,uint8_t>;
+    template <typename T> using V = Vec<N,T>;
+    using Color = float;
 #elif defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC) && defined(SKCMS_OPT_INTO_NEON_FP16)
     #define N 8
-    using   F = Vec<N,_Float16>;
-    using I32 = Vec<N,int32_t>;
-    using U64 = Vec<N,uint64_t>;
-    using U32 = Vec<N,uint32_t>;
-    using U16 = Vec<N,uint16_t>;
-    using  U8 = Vec<N,uint8_t>;
+    template <typename T> using V = Vec<N,T>;
+    using Color = _Float16;
 #else
     #define N 4
-    using   F = Vec<N,float>;
-    using I32 = Vec<N,int32_t>;
-    using U64 = Vec<N,uint64_t>;
-    using U32 = Vec<N,uint32_t>;
-    using U16 = Vec<N,uint16_t>;
-    using  U8 = Vec<N,uint8_t>;
+    template <typename T> using V = Vec<N,T>;
+    using Color = float;
 #endif
 
     #include "src/Transform_inl.h"
@@ -1901,12 +1880,8 @@ namespace baseline {
             #define USING_AVX_F16C
             #define USING_AVX2
             #define N 8
-            using   F = Vec<N,float>;
-            using I32 = Vec<N,int32_t>;
-            using U64 = Vec<N,uint64_t>;
-            using U32 = Vec<N,uint32_t>;
-            using U16 = Vec<N,uint16_t>;
-            using  U8 = Vec<N,uint8_t>;
+            template <typename T> using V = Vec<N,T>;
+            using Color = float;
 
             #include "src/Transform_inl.h"
 
@@ -1934,12 +1909,8 @@ namespace baseline {
         namespace skx {
             #define USING_AVX512F
             #define N 16
-            using   F = Vec<N,float>;
-            using I32 = Vec<N,int32_t>;
-            using U64 = Vec<N,uint64_t>;
-            using U32 = Vec<N,uint32_t>;
-            using U16 = Vec<N,uint16_t>;
-            using  U8 = Vec<N,uint8_t>;
+            template <typename T> using V = Vec<N,T>;
+            using Color = float;
 
             #include "src/Transform_inl.h"
 
