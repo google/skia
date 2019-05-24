@@ -505,22 +505,6 @@ public:
     */
     GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
 
-    /** If the surface was made via MakeFromBackendTexture then it's backing texture may be
-        substituted with a different texture. The contents of the previous backing texture are
-        copied into the new texture. SkCanvas state is preserved. The original sample count is
-        used. The GrBackendFormat and dimensions of replacement texture must match that of
-        the original.
-
-        @param backendTexture      the new backing texture for the surface.
-        @param origin              one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param textureReleaseProc  function called when texture can be released
-        @param releaseContext      state passed to textureReleaseProc
-     */
-    bool replaceBackendTexture(const GrBackendTexture& backendTexture,
-                               GrSurfaceOrigin origin,
-                               TextureReleaseProc textureReleaseProc = nullptr,
-                               ReleaseContext releaseContext = nullptr);
-
     /** Returns SkCanvas that draws into SkSurface. Subsequent calls return the same SkCanvas.
         SkCanvas returned is managed and owned by SkSurface, and is deleted when SkSurface
         is deleted.
