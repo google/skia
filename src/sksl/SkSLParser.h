@@ -14,6 +14,7 @@
 #include <unordered_set>
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLLexer.h"
+#include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/ir/SkSLLayout.h"
 
 struct yy_buffer_state;
@@ -22,27 +23,6 @@ typedef struct yy_buffer_state *YY_BUFFER_STATE;
 
 namespace SkSL {
 
-struct ASTBlock;
-struct ASTBreakStatement;
-struct ASTContinueStatement;
-struct ASTDeclaration;
-struct ASTDiscardStatement;
-struct ASTDoStatement;
-struct ASTExpression;
-struct ASTExpressionStatement;
-struct ASTForStatement;
-struct ASTIfStatement;
-struct ASTInterfaceBlock;
-struct ASTParameter;
-struct ASTPrecision;
-struct ASTReturnStatement;
-struct ASTStatement;
-struct ASTSuffix;
-struct ASTSwitchCase;
-struct ASTSwitchStatement;
-struct ASTType;
-struct ASTWhileStatement;
-struct ASTVarDeclarations;
 struct Modifiers;
 class SymbolTable;
 
@@ -107,7 +87,7 @@ public:
      * the ErrorReporter; the return value may contain some declarations even when errors have
      * occurred.
      */
-    std::vector<std::unique_ptr<ASTDeclaration>> file();
+    std::vector<ASTNode> file();
 
     StringFragment text(Token token);
 
@@ -168,33 +148,31 @@ private:
     // don't need to call any of these outside of the parser. The function declarations in the .cpp
     // file have comments describing the grammar rules.
 
-    std::unique_ptr<ASTDeclaration> precision();
+    ASTNode precision();
 
-    std::unique_ptr<ASTDeclaration> directive();
+    ASTNode directive();
 
-    std::unique_ptr<ASTDeclaration> section();
+    ASTNode section();
 
-    std::unique_ptr<ASTDeclaration> enumDeclaration();
+    ASTNode enumDeclaration();
 
-    std::unique_ptr<ASTDeclaration> declaration();
+    ASTNode declaration();
 
-    std::unique_ptr<ASTVarDeclarations> varDeclarations();
+    ASTNode varDeclarations();
 
-    std::unique_ptr<ASTType> structDeclaration();
+    ASTNode structDeclaration();
 
-    std::unique_ptr<ASTVarDeclarations> structVarDeclaration(Modifiers modifiers);
+    ASTNode structVarDeclaration(Modifiers modifiers);
 
-    std::unique_ptr<ASTVarDeclarations> varDeclarationEnd(Modifiers modifiers,
-                                                          std::unique_ptr<ASTType> type,
-                                                          StringFragment name);
+    ASTNode varDeclarationEnd(Modifiers modifiers, ASTNode type, StringFragment name);
 
-    std::unique_ptr<ASTParameter> parameter();
+    ASTNode parameter();
 
     int layoutInt();
 
     StringFragment layoutIdentifier();
 
-    String layoutCode();
+    StringFragment layoutCode();
 
     Layout::Key layoutKey();
 
@@ -206,77 +184,77 @@ private:
 
     Modifiers modifiersWithDefaults(int defaultFlags);
 
-    std::unique_ptr<ASTStatement> statement();
+    ASTNode statement();
 
-    std::unique_ptr<ASTType> type();
+    ASTNode type();
 
-    std::unique_ptr<ASTDeclaration> interfaceBlock(Modifiers mods);
+    ASTNode interfaceBlock(Modifiers mods);
 
-    std::unique_ptr<ASTIfStatement> ifStatement();
+    ASTNode ifStatement();
 
-    std::unique_ptr<ASTDoStatement> doStatement();
+    ASTNode doStatement();
 
-    std::unique_ptr<ASTWhileStatement> whileStatement();
+    ASTNode whileStatement();
 
-    std::unique_ptr<ASTForStatement> forStatement();
+    ASTNode forStatement();
 
-    std::unique_ptr<ASTSwitchCase> switchCase();
+    ASTNode switchCase();
 
-    std::unique_ptr<ASTStatement> switchStatement();
+    ASTNode switchStatement();
 
-    std::unique_ptr<ASTReturnStatement> returnStatement();
+    ASTNode returnStatement();
 
-    std::unique_ptr<ASTBreakStatement> breakStatement();
+    ASTNode breakStatement();
 
-    std::unique_ptr<ASTContinueStatement> continueStatement();
+    ASTNode continueStatement();
 
-    std::unique_ptr<ASTDiscardStatement> discardStatement();
+    ASTNode discardStatement();
 
-    std::unique_ptr<ASTBlock> block();
+    ASTNode block();
 
-    std::unique_ptr<ASTExpressionStatement> expressionStatement();
+    ASTNode expressionStatement();
 
-    std::unique_ptr<ASTExpression> expression();
+    ASTNode expression();
 
-    std::unique_ptr<ASTExpression> commaExpression();
+    ASTNode commaExpression();
 
-    std::unique_ptr<ASTExpression> assignmentExpression();
+    ASTNode assignmentExpression();
 
-    std::unique_ptr<ASTExpression> ternaryExpression();
+    ASTNode ternaryExpression();
 
-    std::unique_ptr<ASTExpression> logicalOrExpression();
+    ASTNode logicalOrExpression();
 
-    std::unique_ptr<ASTExpression> logicalXorExpression();
+    ASTNode logicalXorExpression();
 
-    std::unique_ptr<ASTExpression> logicalAndExpression();
+    ASTNode logicalAndExpression();
 
-    std::unique_ptr<ASTExpression> bitwiseOrExpression();
+    ASTNode bitwiseOrExpression();
 
-    std::unique_ptr<ASTExpression> bitwiseXorExpression();
+    ASTNode bitwiseXorExpression();
 
-    std::unique_ptr<ASTExpression> bitwiseAndExpression();
+    ASTNode bitwiseAndExpression();
 
-    std::unique_ptr<ASTExpression> equalityExpression();
+    ASTNode equalityExpression();
 
-    std::unique_ptr<ASTExpression> relationalExpression();
+    ASTNode relationalExpression();
 
-    std::unique_ptr<ASTExpression> shiftExpression();
+    ASTNode shiftExpression();
 
-    std::unique_ptr<ASTExpression> additiveExpression();
+    ASTNode additiveExpression();
 
-    std::unique_ptr<ASTExpression> multiplicativeExpression();
+    ASTNode multiplicativeExpression();
 
-    std::unique_ptr<ASTExpression> unaryExpression();
+    ASTNode unaryExpression();
 
-    std::unique_ptr<ASTExpression> postfixExpression();
+    ASTNode postfixExpression();
 
-    std::unique_ptr<ASTSuffix> suffix();
+    ASTNode suffix(ASTNode base);
 
-    std::unique_ptr<ASTExpression> term();
+    ASTNode term();
 
-    bool intLiteral(int64_t* dest);
+    bool intLiteral(SKSL_INT* dest);
 
-    bool floatLiteral(double* dest);
+    bool floatLiteral(SKSL_FLOAT* dest);
 
     bool boolLiteral(bool* dest);
 

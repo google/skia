@@ -7,42 +7,7 @@
 
 #include "stdio.h"
 #include "src/sksl/SkSLParser.h"
-#include "src/sksl/ast/SkSLASTBinaryExpression.h"
-#include "src/sksl/ast/SkSLASTBlock.h"
-#include "src/sksl/ast/SkSLASTBoolLiteral.h"
-#include "src/sksl/ast/SkSLASTBreakStatement.h"
-#include "src/sksl/ast/SkSLASTCallSuffix.h"
-#include "src/sksl/ast/SkSLASTContinueStatement.h"
-#include "src/sksl/ast/SkSLASTDiscardStatement.h"
-#include "src/sksl/ast/SkSLASTDoStatement.h"
-#include "src/sksl/ast/SkSLASTEnum.h"
-#include "src/sksl/ast/SkSLASTExpression.h"
-#include "src/sksl/ast/SkSLASTExpressionStatement.h"
-#include "src/sksl/ast/SkSLASTExtension.h"
-#include "src/sksl/ast/SkSLASTFieldSuffix.h"
-#include "src/sksl/ast/SkSLASTFloatLiteral.h"
-#include "src/sksl/ast/SkSLASTForStatement.h"
-#include "src/sksl/ast/SkSLASTFunction.h"
-#include "src/sksl/ast/SkSLASTIdentifier.h"
-#include "src/sksl/ast/SkSLASTIfStatement.h"
-#include "src/sksl/ast/SkSLASTIndexSuffix.h"
-#include "src/sksl/ast/SkSLASTIntLiteral.h"
-#include "src/sksl/ast/SkSLASTInterfaceBlock.h"
-#include "src/sksl/ast/SkSLASTModifiersDeclaration.h"
-#include "src/sksl/ast/SkSLASTNullLiteral.h"
-#include "src/sksl/ast/SkSLASTParameter.h"
-#include "src/sksl/ast/SkSLASTPrefixExpression.h"
-#include "src/sksl/ast/SkSLASTReturnStatement.h"
-#include "src/sksl/ast/SkSLASTSection.h"
-#include "src/sksl/ast/SkSLASTStatement.h"
-#include "src/sksl/ast/SkSLASTSuffixExpression.h"
-#include "src/sksl/ast/SkSLASTSwitchCase.h"
-#include "src/sksl/ast/SkSLASTSwitchStatement.h"
-#include "src/sksl/ast/SkSLASTTernaryExpression.h"
-#include "src/sksl/ast/SkSLASTType.h"
-#include "src/sksl/ast/SkSLASTVarDeclaration.h"
-#include "src/sksl/ast/SkSLASTVarDeclarationStatement.h"
-#include "src/sksl/ast/SkSLASTWhileStatement.h"
+#include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -143,32 +108,31 @@ Parser::Parser(const char* text, size_t length, SymbolTable& types, ErrorReporte
 }
 
 /* (directive | section | declaration)* END_OF_FILE */
-std::vector<std::unique_ptr<ASTDeclaration>> Parser::file() {
-    std::vector<std::unique_ptr<ASTDeclaration>> result;
+std::vector<ASTNode> Parser::file() {
+    std::vector<ASTNode> result;
     for (;;) {
         switch (this->peek().fKind) {
             case Token::END_OF_FILE:
                 return result;
             case Token::DIRECTIVE: {
-                std::unique_ptr<ASTDeclaration> decl = this->directive();
+                ASTNode decl = this->directive();
                 if (decl) {
                     result.push_back(std::move(decl));
                 }
                 break;
             }
             case Token::SECTION: {
-                std::unique_ptr<ASTDeclaration> section = this->section();
+                ASTNode section = this->section();
                 if (section) {
                     result.push_back(std::move(section));
                 }
                 break;
             }
             default: {
-                std::unique_ptr<ASTDeclaration> decl = this->declaration();
-                if (!decl) {
-                    continue;
+                ASTNode decl = this->declaration();
+                if (decl) {
+                    result.push_back(std::move(decl));
                 }
-                result.push_back(std::move(decl));
             }
         }
     }
@@ -252,10 +216,10 @@ bool Parser::isType(StringFragment name) {
 
 /* DIRECTIVE(#version) INT_LITERAL ("es" | "compatibility")? |
    DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER */
-std::unique_ptr<ASTDeclaration> Parser::directive() {
+ASTNode Parser::directive() {
     Token start;
     if (!this->expect(Token::DIRECTIVE, "a directive", &start)) {
-        return nullptr;
+        return ASTNode();
     }
     StringFragment text = this->text(start);
     if (text == "#version") {
@@ -267,50 +231,53 @@ std::unique_ptr<ASTDeclaration> Parser::directive() {
         }
         // version is ignored for now; it will eventually become an error when we stop pretending
         // to be GLSL
-        return nullptr;
+        return ASTNode();
     } else if (text == "#extension") {
         Token name;
         if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
-            return nullptr;
+            return ASTNode();
         }
         if (!this->expect(Token::COLON, "':'")) {
-            return nullptr;
+            return ASTNode();
         }
         // FIXME: need to start paying attention to this token
         if (!this->expect(Token::IDENTIFIER, "an identifier")) {
-            return nullptr;
+            return ASTNode();
         }
-        return std::unique_ptr<ASTDeclaration>(new ASTExtension(start.fOffset,
-                                                                String(this->text(name))));
+        return ASTNode(start.fOffset, ASTNode::Kind::kExtension, this->text(name));
     } else {
         this->error(start, "unsupported directive '" + this->text(start) + "'");
-        return nullptr;
+        return ASTNode();
     }
 }
 
 /* SECTION LBRACE (LPAREN IDENTIFIER RPAREN)? <any sequence of tokens with balanced braces>
    RBRACE */
-std::unique_ptr<ASTDeclaration> Parser::section() {
+ASTNode Parser::section() {
     Token start;
     if (!this->expect(Token::SECTION, "a section token", &start)) {
-        return nullptr;
+        return ASTNode();
     }
-    String argument;
+    StringFragment argument;
     if (this->peek().fKind == Token::LPAREN) {
         this->nextToken();
         Token argToken;
         if (!this->expect(Token::IDENTIFIER, "an identifier", &argToken)) {
-            return nullptr;
+            return ASTNode();
         }
         argument = this->text(argToken);
         if (!this->expect(Token::RPAREN, "')'")) {
-            return nullptr;
+            return ASTNode();
         }
     }
     if (!this->expect(Token::LBRACE, "'{'")) {
-        return nullptr;
+        return ASTNode();
     }
-    String text;
+    StringFragment text;
+    Token codeStart = this->nextRawToken();
+    size_t startOffset = codeStart.fOffset;
+    this->pushback(codeStart);
+    text.fChars = fText + startOffset;
     int level = 1;
     for (;;) {
         Token next = this->nextRawToken();
@@ -323,87 +290,84 @@ std::unique_ptr<ASTDeclaration> Parser::section() {
                 break;
             case Token::END_OF_FILE:
                 this->error(start, "reached end of file while parsing section");
-                return nullptr;
+                return ASTNode();
             default:
                 break;
         }
         if (!level) {
+            text.fLength = next.fOffset - startOffset;
             break;
         }
-        text += this->text(next);
     }
     StringFragment name = this->text(start);
     ++name.fChars;
     --name.fLength;
-    return std::unique_ptr<ASTDeclaration>(new ASTSection(start.fOffset,
-                                                          String(name),
-                                                          argument,
-                                                          text));
+    return ASTNode(start.fOffset, ASTNode::Kind::kSection,
+                   (ASTNode::SectionData) { name, argument, text });
 }
 
 /* ENUM CLASS IDENTIFIER LBRACE (IDENTIFIER (EQ expression)? (COMMA IDENTIFIER (EQ expression))*)?
    RBRACE */
-std::unique_ptr<ASTDeclaration> Parser::enumDeclaration() {
+ASTNode Parser::enumDeclaration() {
     Token start;
     if (!this->expect(Token::ENUM, "'enum'", &start)) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::CLASS, "'class'")) {
-        return nullptr;
+        return ASTNode();
     }
     Token name;
     if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::LBRACE, "'{'")) {
-        return nullptr;
+        return ASTNode();
     }
     fTypes.add(this->text(name), std::unique_ptr<Symbol>(new Type(this->text(name),
                                                                   Type::kEnum_Kind)));
-    std::vector<StringFragment> names;
-    std::vector<std::unique_ptr<ASTExpression>> values;
+    std::vector<ASTNode> children;
     if (!this->checkNext(Token::RBRACE)) {
         Token id;
         if (!this->expect(Token::IDENTIFIER, "an identifier", &id)) {
-            return nullptr;
+            return ASTNode();
         }
-        names.push_back(this->text(id));
         if (this->checkNext(Token::EQ)) {
-            std::unique_ptr<ASTExpression> value = this->assignmentExpression();
+            ASTNode value = this->assignmentExpression();
             if (!value) {
-                return nullptr;
+                return ASTNode();
             }
-            values.push_back(std::move(value));
+            children.emplace_back(id.fOffset, ASTNode::Kind::kEnumCase, text(id),
+                                  (std::vector<ASTNode>) { std::move(value) });
         } else {
-            values.push_back(nullptr);
+            children.emplace_back(id.fOffset, ASTNode::Kind::kEnumCase, text(id));
         }
         while (!this->checkNext(Token::RBRACE)) {
             if (!this->expect(Token::COMMA, "','")) {
-                return nullptr;
+                return ASTNode();
             }
             if (!this->expect(Token::IDENTIFIER, "an identifier", &id)) {
-                return nullptr;
+                return ASTNode();
             }
-            names.push_back(this->text(id));
             if (this->checkNext(Token::EQ)) {
-                std::unique_ptr<ASTExpression> value = this->assignmentExpression();
+                ASTNode value = this->assignmentExpression();
                 if (!value) {
-                    return nullptr;
+                    return ASTNode();
                 }
-                values.push_back(std::move(value));
+                children.emplace_back(id.fOffset, ASTNode::Kind::kEnumCase, text(id),
+                                      (std::vector<ASTNode>) { std::move(value) });
             } else {
-                values.push_back(nullptr);
+                children.emplace_back(id.fOffset, ASTNode::Kind::kEnumCase, text(id));
             }
         }
     }
     this->expect(Token::SEMICOLON, "';'");
-    return std::unique_ptr<ASTDeclaration>(new ASTEnum(name.fOffset, this->text(name), names,
-                                                       std::move(values)));
+    return ASTNode(name.fOffset, ASTNode::Kind::kEnum, this->text(name), std::move(children));
+    abort();
 }
 
 /* enumDeclaration | modifiers (structVarDeclaration | type IDENTIFIER ((LPAREN parameter
    (COMMA parameter)* RPAREN (block | SEMICOLON)) | SEMICOLON) | interfaceBlock) */
-std::unique_ptr<ASTDeclaration> Parser::declaration() {
+ASTNode Parser::declaration() {
     Token lookahead = this->peek();
     if (lookahead.fKind == Token::ENUM) {
         return this->enumDeclaration();
@@ -419,92 +383,101 @@ std::unique_ptr<ASTDeclaration> Parser::declaration() {
     }
     if (lookahead.fKind == Token::SEMICOLON) {
         this->nextToken();
-        return std::unique_ptr<ASTDeclaration>(new ASTModifiersDeclaration(modifiers));
+        return ASTNode(lookahead.fOffset, ASTNode::Kind::kModifiers, modifiers);
     }
-    std::unique_ptr<ASTType> type(this->type());
+    ASTNode type = this->type();
     if (!type) {
-        return nullptr;
+        return ASTNode();
     }
-    if (type->fKind == ASTType::kStruct_Kind && this->checkNext(Token::SEMICOLON)) {
-        return nullptr;
+    if (type.getTypeData().fIsStructDeclaration && this->checkNext(Token::SEMICOLON)) {
+        return ASTNode();
     }
     Token name;
     if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
-        return nullptr;
+        return ASTNode();
     }
     if (this->checkNext(Token::LPAREN)) {
-        std::vector<std::unique_ptr<ASTParameter>> parameters;
+        std::vector<ASTNode> parameters;
         while (this->peek().fKind != Token::RPAREN) {
             if (parameters.size() > 0) {
                 if (!this->expect(Token::COMMA, "','")) {
-                    return nullptr;
+                    return ASTNode();
                 }
             }
-            std::unique_ptr<ASTParameter> parameter = this->parameter();
+            ASTNode parameter = this->parameter();
             if (!parameter) {
-                return nullptr;
+                return ASTNode();
             }
             parameters.push_back(std::move(parameter));
         }
         this->nextToken();
-        std::unique_ptr<ASTBlock> body;
+        ASTNode body;
         if (!this->checkNext(Token::SEMICOLON)) {
             body = this->block();
             if (!body) {
-                return nullptr;
+                return ASTNode();
             }
         }
-        return std::unique_ptr<ASTDeclaration>(new ASTFunction(name.fOffset,
-                                                               modifiers,
-                                                               std::move(type),
-                                                               this->text(name),
-                                                               std::move(parameters),
-                                                               std::move(body)));
+
+        size_t parameterCount = parameters.size();
+        std::vector<ASTNode> children;
+        children.push_back(std::move(type));
+        for (auto& p : parameters) {
+            children.push_back(std::move(p));
+        }
+        if (body) {
+            children.push_back(std::move(body));
+        }
+        return ASTNode(name.fOffset, ASTNode::Kind::kFunction,
+                       (ASTNode::FunctionData) { modifiers, this->text(name), parameterCount },
+                       std::move(children));
     } else {
         return this->varDeclarationEnd(modifiers, std::move(type), this->text(name));
     }
 }
 
 /* modifiers type IDENTIFIER varDeclarationEnd */
-std::unique_ptr<ASTVarDeclarations> Parser::varDeclarations() {
+ASTNode Parser::varDeclarations() {
     Modifiers modifiers = this->modifiers();
-    std::unique_ptr<ASTType> type(this->type());
+    ASTNode type(this->type());
     if (!type) {
-        return nullptr;
+        return ASTNode();
     }
     Token name;
     if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
-        return nullptr;
+        return ASTNode();
     }
     return this->varDeclarationEnd(modifiers, std::move(type), this->text(name));
 }
 
 /* STRUCT IDENTIFIER LBRACE varDeclaration* RBRACE */
-std::unique_ptr<ASTType> Parser::structDeclaration() {
+ASTNode Parser::structDeclaration() {
     if (!this->expect(Token::STRUCT, "'struct'")) {
-        return nullptr;
+        return ASTNode();
     }
     Token name;
     if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::LBRACE, "'{'")) {
-        return nullptr;
+        return ASTNode();
     }
     std::vector<Type::Field> fields;
     while (this->peek().fKind != Token::RBRACE) {
-        std::unique_ptr<ASTVarDeclarations> decl = this->varDeclarations();
-        if (!decl) {
-            return nullptr;
+        ASTNode decls = this->varDeclarations();
+        if (!decls) {
+            return ASTNode();
         }
-        for (const auto& var : decl->fVars) {
-            auto type = (const Type*) fTypes[decl->fType->fName];
-            for (int i = (int) var.fSizes.size() - 1; i >= 0; i--) {
-                if (!var.fSizes[i] || var.fSizes[i]->fKind != ASTExpression::kInt_Kind) {
-                    this->error(decl->fOffset, "array size in struct field must be a constant");
-                    return nullptr;
+        for (size_t i = 2; i < decls.fChildren.size(); ++i) {
+            ASTNode& var = decls.fChildren[i];
+            ASTNode::VarData vd = var.getVarData();
+            auto type = (const Type*) fTypes[decls.fChildren[1].getTypeData().fName];
+            for (int j = vd.fSizeCount - 1; j >= 0; j--) {
+                if (!var.fChildren[j] || var.fChildren[j].fKind != ASTNode::Kind::kInt) {
+                    this->error(decls.fOffset, "array size in struct field must be a constant");
+                    return ASTNode();
                 }
-                uint64_t columns = ((ASTIntLiteral&) *var.fSizes[i]).fValue;
+                uint64_t columns = var.fChildren[j].getInt();
                 String name = type->name() + "[" + to_string(columns) + "]";
                 type = (Type*) fTypes.takeOwnership(std::unique_ptr<Symbol>(
                                                                          new Type(name,
@@ -512,136 +485,133 @@ std::unique_ptr<ASTType> Parser::structDeclaration() {
                                                                                   *type,
                                                                                   (int) columns)));
             }
-            fields.push_back(Type::Field(decl->fModifiers, var.fName, type));
-            if (var.fValue) {
-                this->error(decl->fOffset, "initializers are not permitted on struct fields");
+            fields.push_back(Type::Field(decls.fChildren[0].getModifiers(), vd.fName, type));
+            if (var.fChildren.size() > vd.fSizeCount) {
+                this->error(decls.fOffset, "initializers are not permitted on struct fields");
             }
         }
     }
     if (!this->expect(Token::RBRACE, "'}'")) {
-        return nullptr;
+        return ASTNode();
     }
     fTypes.add(this->text(name), std::unique_ptr<Type>(new Type(name.fOffset, this->text(name),
                                                                 fields)));
-    return std::unique_ptr<ASTType>(new ASTType(name.fOffset, this->text(name),
-                                                ASTType::kStruct_Kind, std::vector<int>(), false));
+    return ASTNode(name.fOffset, ASTNode::Kind::kType,
+                   (ASTNode::TypeData) { this->text(name), true, false });
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
-std::unique_ptr<ASTVarDeclarations> Parser::structVarDeclaration(Modifiers modifiers) {
-    std::unique_ptr<ASTType> type = this->structDeclaration();
+ASTNode Parser::structVarDeclaration(Modifiers modifiers) {
+    ASTNode type = this->structDeclaration();
     if (!type) {
-        return nullptr;
+        return ASTNode();
     }
     Token name;
     if (this->checkNext(Token::IDENTIFIER, &name)) {
-        std::unique_ptr<ASTVarDeclarations> result = this->varDeclarationEnd(modifiers,
-                                                                             std::move(type),
-                                                                             this->text(name));
-        if (result) {
-            for (const auto& var : result->fVars) {
-                if (var.fValue) {
-                    this->error(var.fValue->fOffset,
-                                "struct variables cannot be initialized");
-                }
-            }
-        }
-        return result;
+        return this->varDeclarationEnd(modifiers, std::move(type), this->text(name));
     }
     this->expect(Token::SEMICOLON, "';'");
-    return nullptr;
+    return ASTNode();
 }
 
 /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
-std::unique_ptr<ASTVarDeclarations> Parser::varDeclarationEnd(Modifiers mods,
-                                                              std::unique_ptr<ASTType> type,
-                                                              StringFragment name) {
-    std::vector<ASTVarDeclaration> vars;
-    std::vector<std::unique_ptr<ASTExpression>> currentVarSizes;
+ASTNode Parser::varDeclarationEnd(Modifiers mods, ASTNode type, StringFragment name) {
+    std::vector<ASTNode> children;
+    children.emplace_back(-1, ASTNode::Kind::kModifiers, mods);
+    children.push_back(std::move(type));
+    std::vector<ASTNode> currentVarChildren;
     while (this->checkNext(Token::LBRACKET)) {
         if (this->checkNext(Token::RBRACKET)) {
-            currentVarSizes.push_back(nullptr);
+            currentVarChildren.push_back(ASTNode());
         } else {
-            std::unique_ptr<ASTExpression> size(this->expression());
+            ASTNode size = this->expression();
             if (!size) {
-                return nullptr;
+                return ASTNode();
             }
-            currentVarSizes.push_back(std::move(size));
+            currentVarChildren.push_back(std::move(size));
             if (!this->expect(Token::RBRACKET, "']'")) {
-                return nullptr;
+                return ASTNode();
             }
         }
     }
-    std::unique_ptr<ASTExpression> value;
+    size_t sizeCount = currentVarChildren.size();
     if (this->checkNext(Token::EQ)) {
-        value = this->assignmentExpression();
+        ASTNode value = this->assignmentExpression();
         if (!value) {
-            return nullptr;
+            return ASTNode();
         }
+        currentVarChildren.push_back(std::move(value));
     }
-    vars.emplace_back(name, std::move(currentVarSizes), std::move(value));
+    children.emplace_back(-1, ASTNode::Kind::kVarDeclaration,
+                          (ASTNode::VarData) { name, sizeCount },
+                          std::move(currentVarChildren));
     while (this->checkNext(Token::COMMA)) {
         Token name;
         if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
-            return nullptr;
+            return ASTNode();
         }
-        currentVarSizes.clear();
-        value.reset();
+        currentVarChildren.clear();
         while (this->checkNext(Token::LBRACKET)) {
             if (this->checkNext(Token::RBRACKET)) {
-                currentVarSizes.push_back(nullptr);
+                currentVarChildren.push_back(ASTNode());
             } else {
-                std::unique_ptr<ASTExpression> size(this->expression());
+                ASTNode size = this->expression();
                 if (!size) {
-                    return nullptr;
+                    return ASTNode();
                 }
-                currentVarSizes.push_back(std::move(size));
+                currentVarChildren.push_back(std::move(size));
                 if (!this->expect(Token::RBRACKET, "']'")) {
-                    return nullptr;
+                    return ASTNode();
                 }
             }
         }
+        sizeCount = currentVarChildren.size();
         if (this->checkNext(Token::EQ)) {
-            value = this->assignmentExpression();
+            ASTNode value = this->assignmentExpression();
             if (!value) {
-                return nullptr;
+                return ASTNode();
             }
+            currentVarChildren.push_back(std::move(value));
         }
-        vars.emplace_back(this->text(name), std::move(currentVarSizes), std::move(value));
+        children.emplace_back(-1, ASTNode::Kind::kVarDeclaration,
+                              (ASTNode::VarData) { text(name), sizeCount },
+                              std::move(currentVarChildren));
     }
     if (!this->expect(Token::SEMICOLON, "';'")) {
-        return nullptr;
+        return ASTNode();
     }
-    return std::unique_ptr<ASTVarDeclarations>(new ASTVarDeclarations(std::move(mods),
-                                                                      std::move(type),
-                                                                      std::move(vars)));
+    return ASTNode(-1, ASTNode::Kind::kVarDeclarations, std::move(children));
 }
 
 /* modifiers type IDENTIFIER (LBRACKET INT_LITERAL RBRACKET)? */
-std::unique_ptr<ASTParameter> Parser::parameter() {
+ASTNode Parser::parameter() {
     Modifiers modifiers = this->modifiersWithDefaults(0);
-    std::unique_ptr<ASTType> type = this->type();
+    ASTNode type = this->type();
     if (!type) {
-        return nullptr;
+        return ASTNode();
     }
+    std::vector<ASTNode> children;
+    children.push_back(std::move(type));
     Token name;
     if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
-        return nullptr;
+        return ASTNode();
     }
-    std::vector<int> sizes;
     while (this->checkNext(Token::LBRACKET)) {
         Token sizeToken;
         if (!this->expect(Token::INT_LITERAL, "a positive integer", &sizeToken)) {
-            return nullptr;
+            return ASTNode();
         }
-        sizes.push_back(SkSL::stoi(this->text(sizeToken)));
+        children.emplace_back(sizeToken.fOffset, ASTNode::Kind::kInt,
+                              SkSL::stoi(this->text(sizeToken)));
         if (!this->expect(Token::RBRACKET, "']'")) {
-            return nullptr;
+            return ASTNode();
         }
     }
-    return std::unique_ptr<ASTParameter>(new ASTParameter(name.fOffset, modifiers, std::move(type),
-                                                          this->text(name), std::move(sizes)));
+    size_t sizeCount = children.size() - 1;
+    return ASTNode(name.fOffset, ASTNode::Kind::kParameter,
+                   (ASTNode::ParameterData) { modifiers, text(name), sizeCount },
+                   std::move(children));
 }
 
 /** EQ INT_LITERAL */
@@ -670,13 +640,14 @@ StringFragment Parser::layoutIdentifier() {
 
 
 /** EQ <any sequence of tokens with balanced parentheses and no top-level comma> */
-String Parser::layoutCode() {
+StringFragment Parser::layoutCode() {
     if (!this->expect(Token::EQ, "'='")) {
         return "";
     }
     Token start = this->nextRawToken();
     this->pushback(start);
-    String code;
+    StringFragment code;
+    code.fChars = fText + start.fOffset;
     int level = 1;
     bool done = false;
     while (!done) {
@@ -703,12 +674,11 @@ String Parser::layoutCode() {
             done = true;
         }
         if (done) {
+            code.fLength = next.fOffset - start.fOffset;
             this->pushback(std::move(next));
         }
-        else {
-            code += this->text(next);
-        }
     }
+    printf("CODE: %s\n", String(code).c_str());
     return code;
 }
 
@@ -772,7 +742,7 @@ Layout Parser::layout() {
     Layout::Primitive primitive = Layout::kUnspecified_Primitive;
     int maxVertices = -1;
     int invocations = -1;
-    String when;
+    StringFragment when;
     Layout::Key key = Layout::kNo_Key;
     Layout::CType ctype = Layout::CType::kDefault;
     if (this->checkNext(Token::LAYOUT)) {
@@ -1018,7 +988,7 @@ Modifiers Parser::modifiersWithDefaults(int defaultFlags) {
 }
 
 /* ifStatement | forStatement | doStatement | whileStatement | block | expression */
-std::unique_ptr<ASTStatement> Parser::statement() {
+ASTNode Parser::statement() {
     Token start = this->peek();
     switch (start.fKind) {
         case Token::IF: // fall through
@@ -1045,23 +1015,12 @@ std::unique_ptr<ASTStatement> Parser::statement() {
             return this->block();
         case Token::SEMICOLON:
             this->nextToken();
-            return std::unique_ptr<ASTStatement>(new ASTBlock(start.fOffset,
-                                                     std::vector<std::unique_ptr<ASTStatement>>()));
-        case Token::CONST: {
-            auto decl = this->varDeclarations();
-            if (!decl) {
-                return nullptr;
-            }
-            return std::unique_ptr<ASTStatement>(new ASTVarDeclarationStatement(std::move(decl)));
-        }
+            return ASTNode(start.fOffset, ASTNode::Kind::kBlock, (std::vector<ASTNode>){});
+        case Token::CONST:
+            return this->varDeclarations();
         case Token::IDENTIFIER:
             if (this->isType(this->text(start))) {
-                auto decl = this->varDeclarations();
-                if (!decl) {
-                    return nullptr;
-                }
-                return std::unique_ptr<ASTStatement>(new ASTVarDeclarationStatement(
-                                                                                  std::move(decl)));
+                return this->varDeclarations();
             }
             // fall through
         default:
@@ -1070,227 +1029,239 @@ std::unique_ptr<ASTStatement> Parser::statement() {
 }
 
 /* IDENTIFIER(type) (LBRACKET intLiteral? RBRACKET)* QUESTION? */
-std::unique_ptr<ASTType> Parser::type() {
+ASTNode Parser::type() {
     Token type;
     if (!this->expect(Token::IDENTIFIER, "a type", &type)) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->isType(this->text(type))) {
         this->error(type, ("no type named '" + this->text(type) + "'").c_str());
-        return nullptr;
+        return ASTNode();
     }
-    std::vector<int> sizes;
+    std::vector<ASTNode> sizes;
     while (this->checkNext(Token::LBRACKET)) {
         if (this->peek().fKind != Token::RBRACKET) {
-            int64_t i;
+            SKSL_INT i;
             if (this->intLiteral(&i)) {
-                sizes.push_back(i);
+                sizes.emplace_back(-1, ASTNode::Kind::kInt, i);
             } else {
-                return nullptr;
+                return ASTNode();
             }
         } else {
-            sizes.push_back(-1);
+            sizes.emplace_back();
         }
         this->expect(Token::RBRACKET, "']'");
     }
     bool nullable = this->checkNext(Token::QUESTION);
-    return std::unique_ptr<ASTType>(new ASTType(type.fOffset, this->text(type),
-                                                ASTType::kIdentifier_Kind, sizes, nullable));
+    return ASTNode(type.fOffset, ASTNode::Kind::kType,
+                   (ASTNode::TypeData) { this->text(type), false, nullable },
+                   std::move(sizes));
 }
 
 /* IDENTIFIER LBRACE varDeclaration* RBRACE (IDENTIFIER (LBRACKET expression? RBRACKET)*)? */
-std::unique_ptr<ASTDeclaration> Parser::interfaceBlock(Modifiers mods) {
+ASTNode Parser::interfaceBlock(Modifiers mods) {
     Token name;
     if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
-        return nullptr;
+        return ASTNode();
     }
     if (peek().fKind != Token::LBRACE) {
         // we only get into interfaceBlock if we found a top-level identifier which was not a type.
         // 99% of the time, the user was not actually intending to create an interface block, so
         // it's better to report it as an unknown type
         this->error(name, "no type named '" + this->text(name) + "'");
-        return nullptr;
+        return ASTNode();
     }
     this->nextToken();
-    std::vector<std::unique_ptr<ASTVarDeclarations>> decls;
+    std::vector<ASTNode> decls;
     while (this->peek().fKind != Token::RBRACE) {
-        std::unique_ptr<ASTVarDeclarations> decl = this->varDeclarations();
+        ASTNode decl = this->varDeclarations();
         if (!decl) {
-            return nullptr;
+            return ASTNode();
         }
         decls.push_back(std::move(decl));
     }
     this->nextToken();
-    std::vector<std::unique_ptr<ASTExpression>> sizes;
+    std::vector<ASTNode> sizes;
     StringFragment instanceName;
     Token instanceNameToken;
     if (this->checkNext(Token::IDENTIFIER, &instanceNameToken)) {
         while (this->checkNext(Token::LBRACKET)) {
             if (this->peek().fKind != Token::RBRACKET) {
-                std::unique_ptr<ASTExpression> size = this->expression();
+                ASTNode size = this->expression();
                 if (!size) {
-                    return nullptr;
+                    return ASTNode();
                 }
                 sizes.push_back(std::move(size));
             } else {
-                sizes.push_back(nullptr);
+                sizes.push_back(ASTNode());
             }
             this->expect(Token::RBRACKET, "']'");
         }
         instanceName = this->text(instanceNameToken);
     }
     this->expect(Token::SEMICOLON, "';'");
-    return std::unique_ptr<ASTDeclaration>(new ASTInterfaceBlock(name.fOffset, mods,
-                                                                 this->text(name),
-                                                                 std::move(decls),
-                                                                 instanceName,
-                                                                 std::move(sizes)));
+    std::vector<ASTNode> children;
+    size_t declarationCount = decls.size();
+    for (auto& decl : decls) {
+        children.push_back(std::move(decl));
+    }
+    size_t sizeCount = sizes.size();
+    for (auto& size : sizes) {
+        children.push_back(std::move(size));
+    }
+    return ASTNode(name.fOffset, ASTNode::Kind::kInterfaceBlock,
+                   (ASTNode::InterfaceBlockData) { mods, this->text(name), declarationCount,
+                                                   instanceName, sizeCount },
+                   std::move(children));
 }
 
 /* IF LPAREN expression RPAREN statement (ELSE statement)? */
-std::unique_ptr<ASTIfStatement> Parser::ifStatement() {
+ASTNode Parser::ifStatement() {
     Token start;
     bool isStatic = this->checkNext(Token::STATIC_IF, &start);
     if (!isStatic && !this->expect(Token::IF, "'if'", &start)) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::LPAREN, "'('")) {
-        return nullptr;
+        return ASTNode();
     }
-    std::unique_ptr<ASTExpression> test(this->expression());
+    ASTNode test = this->expression();
     if (!test) {
-        return nullptr;
+        return ASTNode();
     }
+    std::vector<ASTNode> children;
+    children.push_back(std::move(test));
     if (!this->expect(Token::RPAREN, "')'")) {
-        return nullptr;
+        return ASTNode();
     }
-    std::unique_ptr<ASTStatement> ifTrue(this->statement());
+    ASTNode ifTrue = this->statement();
     if (!ifTrue) {
-        return nullptr;
+        return ASTNode();
     }
-    std::unique_ptr<ASTStatement> ifFalse;
+    children.push_back(std::move(ifTrue));
+    ASTNode ifFalse;
     if (this->checkNext(Token::ELSE)) {
         ifFalse = this->statement();
         if (!ifFalse) {
-            return nullptr;
+            return ASTNode();
         }
+        children.push_back(std::move(ifFalse));
     }
-    return std::unique_ptr<ASTIfStatement>(new ASTIfStatement(start.fOffset,
-                                                              isStatic,
-                                                              std::move(test),
-                                                              std::move(ifTrue),
-                                                              std::move(ifFalse)));
+    return ASTNode(start.fOffset, ASTNode::Kind::kIf, isStatic, std::move(children));
 }
 
 /* DO statement WHILE LPAREN expression RPAREN SEMICOLON */
-std::unique_ptr<ASTDoStatement> Parser::doStatement() {
+ASTNode Parser::doStatement() {
     Token start;
     if (!this->expect(Token::DO, "'do'", &start)) {
-        return nullptr;
+        return ASTNode();
     }
-    std::unique_ptr<ASTStatement> statement(this->statement());
+    ASTNode statement(this->statement());
     if (!statement) {
-        return nullptr;
+        return ASTNode();
     }
+    std::vector<ASTNode> children;
+    children.push_back(std::move(statement));
     if (!this->expect(Token::WHILE, "'while'")) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::LPAREN, "'('")) {
-        return nullptr;
+        return ASTNode();
     }
-    std::unique_ptr<ASTExpression> test(this->expression());
+    ASTNode test = this->expression();
     if (!test) {
-        return nullptr;
+        return ASTNode();
     }
+    children.push_back(std::move(test));
     if (!this->expect(Token::RPAREN, "')'")) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::SEMICOLON, "';'")) {
-        return nullptr;
+        return ASTNode();
     }
-    return std::unique_ptr<ASTDoStatement>(new ASTDoStatement(start.fOffset,
-                                                              std::move(statement),
-                                                              std::move(test)));
+    return ASTNode(start.fOffset, ASTNode::Kind::kDo, std::move(children));
 }
 
 /* WHILE LPAREN expression RPAREN STATEMENT */
-std::unique_ptr<ASTWhileStatement> Parser::whileStatement() {
+ASTNode Parser::whileStatement() {
     Token start;
     if (!this->expect(Token::WHILE, "'while'", &start)) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::LPAREN, "'('")) {
-        return nullptr;
+        return ASTNode();
     }
-    std::unique_ptr<ASTExpression> test(this->expression());
+    ASTNode test = this->expression();
     if (!test) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::RPAREN, "')'")) {
-        return nullptr;
+        return ASTNode();
     }
-    std::unique_ptr<ASTStatement> statement(this->statement());
+    ASTNode statement(this->statement());
     if (!statement) {
-        return nullptr;
+        return ASTNode();
     }
-    return std::unique_ptr<ASTWhileStatement>(new ASTWhileStatement(start.fOffset,
-                                                                    std::move(test),
-                                                                    std::move(statement)));
+    std::vector<ASTNode> children;
+    children.push_back(std::move(test));
+    children.push_back(std::move(statement));
+    return ASTNode(start.fOffset, ASTNode::Kind::kWhile, std::move(children));
 }
 
 /* CASE expression COLON statement* */
-std::unique_ptr<ASTSwitchCase> Parser::switchCase() {
+ASTNode Parser::switchCase() {
     Token start;
     if (!this->expect(Token::CASE, "'case'", &start)) {
-        return nullptr;
+        return ASTNode();
     }
-    std::unique_ptr<ASTExpression> value = this->expression();
+    ASTNode value = this->expression();
     if (!value) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::COLON, "':'")) {
-        return nullptr;
+        return ASTNode();
     }
-    std::vector<std::unique_ptr<ASTStatement>> statements;
+    std::vector<ASTNode> children;
+    children.push_back(std::move(value));
     while (this->peek().fKind != Token::RBRACE && this->peek().fKind != Token::CASE &&
            this->peek().fKind != Token::DEFAULT) {
-        std::unique_ptr<ASTStatement> s = this->statement();
+        ASTNode s = this->statement();
         if (!s) {
-            return nullptr;
+            return ASTNode();
         }
-        statements.push_back(std::move(s));
+        children.push_back(std::move(s));
     }
-    return std::unique_ptr<ASTSwitchCase>(new ASTSwitchCase(start.fOffset, std::move(value),
-                                                            std::move(statements)));
+    return ASTNode(start.fOffset, ASTNode::Kind::kSwitchCase, std::move(children));
 }
 
 /* SWITCH LPAREN expression RPAREN LBRACE switchCase* (DEFAULT COLON statement*)? RBRACE */
-std::unique_ptr<ASTStatement> Parser::switchStatement() {
+ASTNode Parser::switchStatement() {
     Token start;
     bool isStatic = this->checkNext(Token::STATIC_SWITCH, &start);
     if (!isStatic && !this->expect(Token::SWITCH, "'switch'", &start)) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::LPAREN, "'('")) {
-        return nullptr;
+        return ASTNode();
     }
-    std::unique_ptr<ASTExpression> value(this->expression());
+    ASTNode value(this->expression());
     if (!value) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::RPAREN, "')'")) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::LBRACE, "'{'")) {
-        return nullptr;
+        return ASTNode();
     }
-    std::vector<std::unique_ptr<ASTSwitchCase>> cases;
+    std::vector<ASTNode> children;
+    children.push_back(std::move(value));
     while (this->peek().fKind == Token::CASE) {
-        std::unique_ptr<ASTSwitchCase> c = this->switchCase();
+        ASTNode c = this->switchCase();
         if (!c) {
-            return nullptr;
+            return ASTNode();
         }
-        cases.push_back(std::move(c));
+        children.push_back(std::move(c));
     }
     // Requiring default: to be last (in defiance of C and GLSL) was a deliberate decision. Other
     // parts of the compiler may rely upon this assumption.
@@ -1298,177 +1269,172 @@ std::unique_ptr<ASTStatement> Parser::switchStatement() {
         Token defaultStart;
         SkAssertResult(this->expect(Token::DEFAULT, "'default'", &defaultStart));
         if (!this->expect(Token::COLON, "':'")) {
-            return nullptr;
+            return ASTNode();
         }
-        std::vector<std::unique_ptr<ASTStatement>> statements;
+        std::vector<ASTNode> defaultChildren;
+        defaultChildren.emplace_back(); // empty test to signify default case
         while (this->peek().fKind != Token::RBRACE) {
-            std::unique_ptr<ASTStatement> s = this->statement();
+            ASTNode s = this->statement();
             if (!s) {
-                return nullptr;
+                return ASTNode();
             }
-            statements.push_back(std::move(s));
+            defaultChildren.push_back(std::move(s));
         }
-        cases.emplace_back(new ASTSwitchCase(defaultStart.fOffset, nullptr,
-                                             std::move(statements)));
+        children.emplace_back(defaultStart.fOffset, ASTNode::Kind::kSwitchCase,
+                std::move(defaultChildren));
     }
     if (!this->expect(Token::RBRACE, "'}'")) {
-        return nullptr;
+        return ASTNode();
     }
-    return std::unique_ptr<ASTStatement>(new ASTSwitchStatement(start.fOffset,
-                                                                isStatic,
-                                                                std::move(value),
-                                                                std::move(cases)));
+    return ASTNode(start.fOffset, ASTNode::Kind::kSwitch, isStatic, std::move(children));
 }
 
 /* FOR LPAREN (declaration | expression)? SEMICOLON expression? SEMICOLON expression? RPAREN
    STATEMENT */
-std::unique_ptr<ASTForStatement> Parser::forStatement() {
+ASTNode Parser::forStatement() {
     Token start;
     if (!this->expect(Token::FOR, "'for'", &start)) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::LPAREN, "'('")) {
-        return nullptr;
+        return ASTNode();
     }
-    std::unique_ptr<ASTStatement> initializer;
+    ASTNode initializer;
     Token nextToken = this->peek();
     switch (nextToken.fKind) {
         case Token::SEMICOLON:
             this->nextToken();
             break;
         case Token::CONST: {
-            std::unique_ptr<ASTVarDeclarations> vd = this->varDeclarations();
-            if (!vd) {
-                return nullptr;
+            initializer = this->varDeclarations();
+            if (!initializer) {
+                return ASTNode();
             }
-            initializer = std::unique_ptr<ASTStatement>(new ASTVarDeclarationStatement(
-                                                                                    std::move(vd)));
             break;
         }
         case Token::IDENTIFIER: {
             if (this->isType(this->text(nextToken))) {
-                std::unique_ptr<ASTVarDeclarations> vd = this->varDeclarations();
-                if (!vd) {
-                    return nullptr;
+                initializer = this->varDeclarations();
+                if (!initializer) {
+                    return ASTNode();
                 }
-                initializer = std::unique_ptr<ASTStatement>(new ASTVarDeclarationStatement(
-                                                                                    std::move(vd)));
                 break;
             }
         } // fall through
         default:
             initializer = this->expressionStatement();
     }
-    std::unique_ptr<ASTExpression> test;
+    std::vector<ASTNode> children;
+    children.push_back(std::move(initializer));
+    ASTNode test;
     if (this->peek().fKind != Token::SEMICOLON) {
         test = this->expression();
         if (!test) {
-            return nullptr;
+            return ASTNode();
         }
     }
     if (!this->expect(Token::SEMICOLON, "';'")) {
-        return nullptr;
+        return ASTNode();
     }
-    std::unique_ptr<ASTExpression> next;
+    children.push_back(std::move(test));
+    ASTNode next;
     if (this->peek().fKind != Token::RPAREN) {
         next = this->expression();
         if (!next) {
-            return nullptr;
+            return ASTNode();
         }
     }
     if (!this->expect(Token::RPAREN, "')'")) {
-        return nullptr;
+        return ASTNode();
     }
-    std::unique_ptr<ASTStatement> statement(this->statement());
+    children.push_back(std::move(next));
+    ASTNode statement(this->statement());
     if (!statement) {
-        return nullptr;
+        return ASTNode();
     }
-    return std::unique_ptr<ASTForStatement>(new ASTForStatement(start.fOffset,
-                                                                std::move(initializer),
-                                                                std::move(test), std::move(next),
-                                                                std::move(statement)));
+    children.push_back(std::move(statement));
+    return ASTNode(start.fOffset, ASTNode::Kind::kFor, std::move(children));
 }
 
 /* RETURN expression? SEMICOLON */
-std::unique_ptr<ASTReturnStatement> Parser::returnStatement() {
+ASTNode Parser::returnStatement() {
     Token start;
     if (!this->expect(Token::RETURN, "'return'", &start)) {
-        return nullptr;
+        return ASTNode();
     }
-    std::unique_ptr<ASTExpression> expression;
+    std::vector<ASTNode> children;
     if (this->peek().fKind != Token::SEMICOLON) {
-        expression = this->expression();
+        ASTNode expression = this->expression();
         if (!expression) {
-            return nullptr;
+            return ASTNode();
         }
+        children.push_back(std::move(expression));
     }
     if (!this->expect(Token::SEMICOLON, "';'")) {
-        return nullptr;
+        return ASTNode();
     }
-    return std::unique_ptr<ASTReturnStatement>(new ASTReturnStatement(start.fOffset,
-                                                                      std::move(expression)));
+    return ASTNode(start.fOffset, ASTNode::Kind::kReturn, std::move(children));
 }
 
 /* BREAK SEMICOLON */
-std::unique_ptr<ASTBreakStatement> Parser::breakStatement() {
+ASTNode Parser::breakStatement() {
     Token start;
     if (!this->expect(Token::BREAK, "'break'", &start)) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::SEMICOLON, "';'")) {
-        return nullptr;
+        return ASTNode();
     }
-    return std::unique_ptr<ASTBreakStatement>(new ASTBreakStatement(start.fOffset));
+    return ASTNode(start.fOffset, ASTNode::Kind::kBreak);
 }
 
 /* CONTINUE SEMICOLON */
-std::unique_ptr<ASTContinueStatement> Parser::continueStatement() {
+ASTNode Parser::continueStatement() {
     Token start;
     if (!this->expect(Token::CONTINUE, "'continue'", &start)) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::SEMICOLON, "';'")) {
-        return nullptr;
+        return ASTNode();
     }
-    return std::unique_ptr<ASTContinueStatement>(new ASTContinueStatement(start.fOffset));
+    return ASTNode(start.fOffset, ASTNode::Kind::kContinue);
 }
 
 /* DISCARD SEMICOLON */
-std::unique_ptr<ASTDiscardStatement> Parser::discardStatement() {
+ASTNode Parser::discardStatement() {
     Token start;
     if (!this->expect(Token::DISCARD, "'continue'", &start)) {
-        return nullptr;
+        return ASTNode();
     }
     if (!this->expect(Token::SEMICOLON, "';'")) {
-        return nullptr;
+        return ASTNode();
     }
-    return std::unique_ptr<ASTDiscardStatement>(new ASTDiscardStatement(start.fOffset));
+    return ASTNode(start.fOffset, ASTNode::Kind::kDiscard);
 }
 
 /* LBRACE statement* RBRACE */
-std::unique_ptr<ASTBlock> Parser::block() {
+ASTNode Parser::block() {
     AutoDepth depth(this);
     if (!depth.checkValid()) {
-        return nullptr;
+        return ASTNode();
     }
     Token start;
     if (!this->expect(Token::LBRACE, "'{'", &start)) {
-        return nullptr;
+        return ASTNode();
     }
-    std::vector<std::unique_ptr<ASTStatement>> statements;
+    std::vector<ASTNode> statements;
     for (;;) {
         switch (this->peek().fKind) {
             case Token::RBRACE:
                 this->nextToken();
-                return std::unique_ptr<ASTBlock>(new ASTBlock(start.fOffset,
-                                                              std::move(statements)));
+                return ASTNode(start.fOffset, ASTNode::Kind::kBlock, std::move(statements));
             case Token::END_OF_FILE:
                 this->error(this->peek(), "expected '}', but found end of file");
-                return nullptr;
+                return ASTNode();
             default: {
-                std::unique_ptr<ASTStatement> statement = this->statement();
+                ASTNode statement = this->statement();
                 if (!statement) {
-                    return nullptr;
+                    return ASTNode();
                 }
                 statements.push_back(std::move(statement));
             }
@@ -1477,39 +1443,39 @@ std::unique_ptr<ASTBlock> Parser::block() {
 }
 
 /* expression SEMICOLON */
-std::unique_ptr<ASTExpressionStatement> Parser::expressionStatement() {
-    std::unique_ptr<ASTExpression> expr = this->expression();
+ASTNode Parser::expressionStatement() {
+    ASTNode expr = this->expression();
     if (expr) {
         if (this->expect(Token::SEMICOLON, "';'")) {
-            ASTExpressionStatement* result = new ASTExpressionStatement(std::move(expr));
-            return std::unique_ptr<ASTExpressionStatement>(result);
+            return expr;
         }
     }
-    return nullptr;
+    return ASTNode();
 }
 
 /* commaExpression */
-std::unique_ptr<ASTExpression> Parser::expression() {
+ASTNode Parser::expression() {
     AutoDepth depth(this);
     if (!depth.checkValid()) {
-        return nullptr;
+        return ASTNode();
     }
     return this->commaExpression();
 }
 
 /* assignmentExpression (COMMA assignmentExpression)* */
-std::unique_ptr<ASTExpression> Parser::commaExpression() {
-    std::unique_ptr<ASTExpression> result = this->assignmentExpression();
+ASTNode Parser::commaExpression() {
+    ASTNode result = this->assignmentExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     Token t;
     while (this->checkNext(Token::COMMA, &t)) {
-        std::unique_ptr<ASTExpression> right = this->commaExpression();
+        ASTNode right = this->commaExpression();
         if (!right) {
-            return nullptr;
+            return ASTNode();
         }
-        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
+        result = ASTNode(t.fOffset, ASTNode::Kind::kBinary, std::move(t),
+                    { std::move(result), std::move(right) });
     }
     return result;
 }
@@ -1518,10 +1484,10 @@ std::unique_ptr<ASTExpression> Parser::commaExpression() {
    BITWISEANDEQ | BITWISEXOREQ | BITWISEOREQ | LOGICALANDEQ | LOGICALXOREQ | LOGICALOREQ)
    assignmentExpression)*
  */
-std::unique_ptr<ASTExpression> Parser::assignmentExpression() {
-    std::unique_ptr<ASTExpression> result = this->ternaryExpression();
+ASTNode Parser::assignmentExpression() {
+    ASTNode result = this->ternaryExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     for (;;) {
         switch (this->peek().fKind) {
@@ -1540,13 +1506,12 @@ std::unique_ptr<ASTExpression> Parser::assignmentExpression() {
             case Token::LOGICALXOREQ: // fall through
             case Token::LOGICALOREQ: {
                 Token t = this->nextToken();
-                std::unique_ptr<ASTExpression> right = this->assignmentExpression();
+                ASTNode right = this->assignmentExpression();
                 if (!right) {
-                    return nullptr;
+                    return ASTNode();
                 }
-                result = std::unique_ptr<ASTExpression>(new ASTBinaryExpression(std::move(result),
-                                                                                std::move(t),
-                                                                                std::move(right)));
+                result = ASTNode(t.fOffset, ASTNode::Kind::kBinary, std::move(t),
+                                 { std::move(result), std::move(right) });
                 return result;
             }
             default:
@@ -1556,145 +1521,151 @@ std::unique_ptr<ASTExpression> Parser::assignmentExpression() {
 }
 
 /* logicalOrExpression ('?' expression ':' assignmentExpression)? */
-std::unique_ptr<ASTExpression> Parser::ternaryExpression() {
-    std::unique_ptr<ASTExpression> result = this->logicalOrExpression();
+ASTNode Parser::ternaryExpression() {
+    ASTNode result = this->logicalOrExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     if (this->checkNext(Token::QUESTION)) {
-        std::unique_ptr<ASTExpression> trueExpr = this->expression();
+        ASTNode trueExpr = this->expression();
         if (!trueExpr) {
-            return nullptr;
+            return ASTNode();
         }
         if (this->expect(Token::COLON, "':'")) {
-            std::unique_ptr<ASTExpression> falseExpr = this->assignmentExpression();
-            return std::unique_ptr<ASTExpression>(new ASTTernaryExpression(std::move(result),
-                                                                           std::move(trueExpr),
-                                                                           std::move(falseExpr)));
+            ASTNode falseExpr = this->assignmentExpression();
+            return ASTNode(result.fOffset,  ASTNode::Kind::kTernary,
+                           { std::move(result), std::move(trueExpr), std::move(falseExpr) });
         }
-        return nullptr;
+        return ASTNode();
     }
     return result;
 }
 
 /* logicalXorExpression (LOGICALOR logicalXorExpression)* */
-std::unique_ptr<ASTExpression> Parser::logicalOrExpression() {
-    std::unique_ptr<ASTExpression> result = this->logicalXorExpression();
+ASTNode Parser::logicalOrExpression() {
+    ASTNode result = this->logicalXorExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     Token t;
     while (this->checkNext(Token::LOGICALOR, &t)) {
-        std::unique_ptr<ASTExpression> right = this->logicalXorExpression();
+        ASTNode right = this->logicalXorExpression();
         if (!right) {
-            return nullptr;
+            return ASTNode();
         }
-        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
+        result = ASTNode(result.fOffset, ASTNode::Kind::kBinary, std::move(t),
+                             { std::move(result), std::move(right) });
     }
     return result;
 }
 
 /* logicalAndExpression (LOGICALXOR logicalAndExpression)* */
-std::unique_ptr<ASTExpression> Parser::logicalXorExpression() {
-    std::unique_ptr<ASTExpression> result = this->logicalAndExpression();
+ASTNode Parser::logicalXorExpression() {
+    ASTNode result = this->logicalAndExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     Token t;
     while (this->checkNext(Token::LOGICALXOR, &t)) {
-        std::unique_ptr<ASTExpression> right = this->logicalAndExpression();
+        ASTNode right = this->logicalAndExpression();
         if (!right) {
-            return nullptr;
+            return ASTNode();
         }
-        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
+        result = ASTNode(result.fOffset, ASTNode::Kind::kBinary, std::move(t),
+                             { std::move(result), std::move(right) });
     }
     return result;
 }
 
 /* bitwiseOrExpression (LOGICALAND bitwiseOrExpression)* */
-std::unique_ptr<ASTExpression> Parser::logicalAndExpression() {
-    std::unique_ptr<ASTExpression> result = this->bitwiseOrExpression();
+ASTNode Parser::logicalAndExpression() {
+    ASTNode result = this->bitwiseOrExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     Token t;
     while (this->checkNext(Token::LOGICALAND, &t)) {
-        std::unique_ptr<ASTExpression> right = this->bitwiseOrExpression();
+        ASTNode right = this->bitwiseOrExpression();
         if (!right) {
-            return nullptr;
+            return ASTNode();
         }
-        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
+        result = ASTNode(result.fOffset, ASTNode::Kind::kBinary, std::move(t),
+                             { std::move(result), std::move(right) });
     }
     return result;
 }
 
 /* bitwiseXorExpression (BITWISEOR bitwiseXorExpression)* */
-std::unique_ptr<ASTExpression> Parser::bitwiseOrExpression() {
-    std::unique_ptr<ASTExpression> result = this->bitwiseXorExpression();
+ASTNode Parser::bitwiseOrExpression() {
+    ASTNode result = this->bitwiseXorExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     Token t;
     while (this->checkNext(Token::BITWISEOR, &t)) {
-        std::unique_ptr<ASTExpression> right = this->bitwiseXorExpression();
+        ASTNode right = this->bitwiseXorExpression();
         if (!right) {
-            return nullptr;
+            return ASTNode();
         }
-        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
+        result = ASTNode(result.fOffset, ASTNode::Kind::kBinary, std::move(t),
+                             { std::move(result), std::move(right) });
     }
     return result;
 }
 
 /* bitwiseAndExpression (BITWISEXOR bitwiseAndExpression)* */
-std::unique_ptr<ASTExpression> Parser::bitwiseXorExpression() {
-    std::unique_ptr<ASTExpression> result = this->bitwiseAndExpression();
+ASTNode Parser::bitwiseXorExpression() {
+    ASTNode result = this->bitwiseAndExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     Token t;
     while (this->checkNext(Token::BITWISEXOR, &t)) {
-        std::unique_ptr<ASTExpression> right = this->bitwiseAndExpression();
+        ASTNode right = this->bitwiseAndExpression();
         if (!right) {
-            return nullptr;
+            return ASTNode();
         }
-        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
+        result = ASTNode(result.fOffset, ASTNode::Kind::kBinary, std::move(t),
+                             { std::move(result), std::move(right) });
     }
     return result;
 }
 
 /* equalityExpression (BITWISEAND equalityExpression)* */
-std::unique_ptr<ASTExpression> Parser::bitwiseAndExpression() {
-    std::unique_ptr<ASTExpression> result = this->equalityExpression();
+ASTNode Parser::bitwiseAndExpression() {
+    ASTNode result = this->equalityExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     Token t;
     while (this->checkNext(Token::BITWISEAND, &t)) {
-        std::unique_ptr<ASTExpression> right = this->equalityExpression();
+        ASTNode right = this->equalityExpression();
         if (!right) {
-            return nullptr;
+            return ASTNode();
         }
-        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
+        result = ASTNode(result.fOffset, ASTNode::Kind::kBinary, std::move(t),
+                             { std::move(result), std::move(right) });
     }
     return result;
 }
 
 /* relationalExpression ((EQEQ | NEQ) relationalExpression)* */
-std::unique_ptr<ASTExpression> Parser::equalityExpression() {
-    std::unique_ptr<ASTExpression> result = this->relationalExpression();
+ASTNode Parser::equalityExpression() {
+    ASTNode result = this->relationalExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     for (;;) {
         switch (this->peek().fKind) {
             case Token::EQEQ:   // fall through
             case Token::NEQ: {
                 Token t = this->nextToken();
-                std::unique_ptr<ASTExpression> right = this->relationalExpression();
+                ASTNode right = this->relationalExpression();
                 if (!right) {
-                    return nullptr;
+                    return ASTNode();
                 }
-                result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
+                result = ASTNode(result.fOffset, ASTNode::Kind::kBinary, std::move(t),
+                                     { std::move(result), std::move(right) });
                 break;
             }
             default:
@@ -1704,10 +1675,10 @@ std::unique_ptr<ASTExpression> Parser::equalityExpression() {
 }
 
 /* shiftExpression ((LT | GT | LTEQ | GTEQ) shiftExpression)* */
-std::unique_ptr<ASTExpression> Parser::relationalExpression() {
-    std::unique_ptr<ASTExpression> result = this->shiftExpression();
+ASTNode Parser::relationalExpression() {
+    ASTNode result = this->shiftExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     for (;;) {
         switch (this->peek().fKind) {
@@ -1716,12 +1687,12 @@ std::unique_ptr<ASTExpression> Parser::relationalExpression() {
             case Token::LTEQ: // fall through
             case Token::GTEQ: {
                 Token t = this->nextToken();
-                std::unique_ptr<ASTExpression> right = this->shiftExpression();
+                ASTNode right = this->shiftExpression();
                 if (!right) {
-                    return nullptr;
+                    return ASTNode();
                 }
-                result.reset(new ASTBinaryExpression(std::move(result), std::move(t),
-                                                     std::move(right)));
+                result = ASTNode(result.fOffset, ASTNode::Kind::kBinary, std::move(t),
+                                     { std::move(result), std::move(right) });
                 break;
             }
             default:
@@ -1731,22 +1702,22 @@ std::unique_ptr<ASTExpression> Parser::relationalExpression() {
 }
 
 /* additiveExpression ((SHL | SHR) additiveExpression)* */
-std::unique_ptr<ASTExpression> Parser::shiftExpression() {
-    std::unique_ptr<ASTExpression> result = this->additiveExpression();
+ASTNode Parser::shiftExpression() {
+    ASTNode result = this->additiveExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     for (;;) {
         switch (this->peek().fKind) {
             case Token::SHL: // fall through
             case Token::SHR: {
                 Token t = this->nextToken();
-                std::unique_ptr<ASTExpression> right = this->additiveExpression();
+                ASTNode right = this->additiveExpression();
                 if (!right) {
-                    return nullptr;
+                    return ASTNode();
                 }
-                result.reset(new ASTBinaryExpression(std::move(result), std::move(t),
-                                                     std::move(right)));
+                result = ASTNode(result.fOffset, ASTNode::Kind::kBinary, std::move(t),
+                                     { std::move(result), std::move(right) });
                 break;
             }
             default:
@@ -1756,22 +1727,22 @@ std::unique_ptr<ASTExpression> Parser::shiftExpression() {
 }
 
 /* multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)* */
-std::unique_ptr<ASTExpression> Parser::additiveExpression() {
-    std::unique_ptr<ASTExpression> result = this->multiplicativeExpression();
+ASTNode Parser::additiveExpression() {
+    ASTNode result = this->multiplicativeExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     for (;;) {
         switch (this->peek().fKind) {
             case Token::PLUS: // fall through
             case Token::MINUS: {
                 Token t = this->nextToken();
-                std::unique_ptr<ASTExpression> right = this->multiplicativeExpression();
+                ASTNode right = this->multiplicativeExpression();
                 if (!right) {
-                    return nullptr;
+                    return ASTNode();
                 }
-                result.reset(new ASTBinaryExpression(std::move(result), std::move(t),
-                                                     std::move(right)));
+                result = ASTNode(result.fOffset, ASTNode::Kind::kBinary, std::move(t),
+                                     { std::move(result), std::move(right) });
                 break;
             }
             default:
@@ -1781,10 +1752,10 @@ std::unique_ptr<ASTExpression> Parser::additiveExpression() {
 }
 
 /* unaryExpression ((STAR | SLASH | PERCENT) unaryExpression)* */
-std::unique_ptr<ASTExpression> Parser::multiplicativeExpression() {
-    std::unique_ptr<ASTExpression> result = this->unaryExpression();
+ASTNode Parser::multiplicativeExpression() {
+    ASTNode result = this->unaryExpression();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     for (;;) {
         switch (this->peek().fKind) {
@@ -1792,12 +1763,12 @@ std::unique_ptr<ASTExpression> Parser::multiplicativeExpression() {
             case Token::SLASH: // fall through
             case Token::PERCENT: {
                 Token t = this->nextToken();
-                std::unique_ptr<ASTExpression> right = this->unaryExpression();
+                ASTNode right = this->unaryExpression();
                 if (!right) {
-                    return nullptr;
+                    return ASTNode();
                 }
-                result.reset(new ASTBinaryExpression(std::move(result), std::move(t),
-                                                     std::move(right)));
+                result = ASTNode(result.fOffset, ASTNode::Kind::kBinary, std::move(t),
+                                     { std::move(result), std::move(right) });
                 break;
             }
             default:
@@ -1807,7 +1778,7 @@ std::unique_ptr<ASTExpression> Parser::multiplicativeExpression() {
 }
 
 /* postfixExpression | (PLUS | MINUS | NOT | PLUSPLUS | MINUSMINUS) unaryExpression */
-std::unique_ptr<ASTExpression> Parser::unaryExpression() {
+ASTNode Parser::unaryExpression() {
     switch (this->peek().fKind) {
         case Token::PLUS:       // fall through
         case Token::MINUS:      // fall through
@@ -1817,15 +1788,15 @@ std::unique_ptr<ASTExpression> Parser::unaryExpression() {
         case Token::MINUSMINUS: {
             AutoDepth depth(this);
             if (!depth.checkValid()) {
-                return nullptr;
+                return ASTNode();
             }
             Token t = this->nextToken();
-            std::unique_ptr<ASTExpression> expr = this->unaryExpression();
+            ASTNode expr = this->unaryExpression();
             if (!expr) {
-                return nullptr;
+                return ASTNode();
             }
-            return std::unique_ptr<ASTExpression>(new ASTPrefixExpression(std::move(t),
-                                                                          std::move(expr)));
+            return ASTNode(t.fOffset, ASTNode::Kind::kPrefix, std::move(t),
+                           { std::move(expr) });
         }
         default:
             return this->postfixExpression();
@@ -1833,10 +1804,10 @@ std::unique_ptr<ASTExpression> Parser::unaryExpression() {
 }
 
 /* term suffix* */
-std::unique_ptr<ASTExpression> Parser::postfixExpression() {
-    std::unique_ptr<ASTExpression> result = this->term();
+ASTNode Parser::postfixExpression() {
+    ASTNode result = this->term();
     if (!result) {
-        return nullptr;
+        return ASTNode();
     }
     for (;;) {
         switch (this->peek().fKind) {
@@ -1845,14 +1816,9 @@ std::unique_ptr<ASTExpression> Parser::postfixExpression() {
             case Token::LPAREN:     // fall through
             case Token::PLUSPLUS:   // fall through
             case Token::MINUSMINUS: // fall through
-            case Token::COLONCOLON: {
-                std::unique_ptr<ASTSuffix> s = this->suffix();
-                if (!s) {
-                    return nullptr;
-                }
-                result.reset(new ASTSuffixExpression(std::move(result), std::move(s)));
+            case Token::COLONCOLON:
+                result = this->suffix(std::move(result));
                 break;
-            }
             default:
                 return result;
         }
@@ -1861,84 +1827,81 @@ std::unique_ptr<ASTExpression> Parser::postfixExpression() {
 
 /* LBRACKET expression? RBRACKET | DOT IDENTIFIER | LPAREN parameters RPAREN |
    PLUSPLUS | MINUSMINUS | COLONCOLON IDENTIFIER */
-std::unique_ptr<ASTSuffix> Parser::suffix() {
+ASTNode Parser::suffix(ASTNode base) {
     Token next = this->nextToken();
     switch (next.fKind) {
         case Token::LBRACKET: {
             if (this->checkNext(Token::RBRACKET)) {
-                return std::unique_ptr<ASTSuffix>(new ASTIndexSuffix(next.fOffset));
+                return ASTNode(next.fOffset, ASTNode::Kind::kIndex,
+                               (std::vector<ASTNode>) { std::move(base) });
             }
-            std::unique_ptr<ASTExpression> e = this->expression();
+            ASTNode e = this->expression();
             if (!e) {
-                return nullptr;
+                return ASTNode();
             }
             this->expect(Token::RBRACKET, "']' to complete array access expression");
-            return std::unique_ptr<ASTSuffix>(new ASTIndexSuffix(std::move(e)));
+            return ASTNode(next.fOffset, ASTNode::Kind::kIndex, { std::move(base), std::move(e) });
         }
         case Token::DOT: // fall through
         case Token::COLONCOLON: {
             int offset = this->peek().fOffset;
             StringFragment text;
             if (this->identifier(&text)) {
-                return std::unique_ptr<ASTSuffix>(new ASTFieldSuffix(offset, std::move(text)));
+                return ASTNode(offset, ASTNode::Kind::kField, std::move(text), { std::move(base) });
             }
-            return nullptr;
+            return ASTNode();
         }
         case Token::LPAREN: {
-            std::vector<std::unique_ptr<ASTExpression>> parameters;
+            std::vector<ASTNode> children;
+            children.push_back(std::move(base));
             if (this->peek().fKind != Token::RPAREN) {
                 for (;;) {
-                    std::unique_ptr<ASTExpression> expr = this->assignmentExpression();
+                    ASTNode expr = this->assignmentExpression();
                     if (!expr) {
-                        return nullptr;
+                        return ASTNode();
                     }
-                    parameters.push_back(std::move(expr));
+                    children.push_back(std::move(expr));
                     if (!this->checkNext(Token::COMMA)) {
                         break;
                     }
                 }
             }
             this->expect(Token::RPAREN, "')' to complete function parameters");
-            return std::unique_ptr<ASTSuffix>(new ASTCallSuffix(next.fOffset,
-                                                                std::move(parameters)));
+            ASTNode result = ASTNode(next.fOffset, ASTNode::Kind::kCall, std::move(children));
+            return result;
         }
-        case Token::PLUSPLUS:
-            return std::unique_ptr<ASTSuffix>(new ASTSuffix(next.fOffset,
-                                                            ASTSuffix::kPostIncrement_Kind));
+        case Token::PLUSPLUS: // fall through
         case Token::MINUSMINUS:
-            return std::unique_ptr<ASTSuffix>(new ASTSuffix(next.fOffset,
-                                                            ASTSuffix::kPostDecrement_Kind));
+            return ASTNode(next.fOffset, ASTNode::Kind::kPostfix, next, { std::move(base) });
         default: {
             this->error(next,  "expected expression suffix, but found '" + this->text(next) +
                                          "'\n");
-            return nullptr;
+            return ASTNode();
         }
     }
 }
 
 /* IDENTIFIER | intLiteral | floatLiteral | boolLiteral | NULL_LITERAL | '(' expression ')' */
-std::unique_ptr<ASTExpression> Parser::term() {
-    std::unique_ptr<ASTExpression> result;
+ASTNode Parser::term() {
     Token t = this->peek();
     switch (t.fKind) {
         case Token::IDENTIFIER: {
             StringFragment text;
             if (this->identifier(&text)) {
-                result.reset(new ASTIdentifier(t.fOffset, std::move(text)));
+                return ASTNode(t.fOffset, ASTNode::Kind::kIdentifier, std::move(text));
             }
-            break;
         }
         case Token::INT_LITERAL: {
-            int64_t i;
+            SKSL_INT i;
             if (this->intLiteral(&i)) {
-                result.reset(new ASTIntLiteral(t.fOffset, i));
+                return ASTNode(t.fOffset, ASTNode::Kind::kInt, i);
             }
             break;
         }
         case Token::FLOAT_LITERAL: {
-            double f;
+            SKSL_FLOAT f;
             if (this->floatLiteral(&f)) {
-                result.reset(new ASTFloatLiteral(t.fOffset, f));
+                return ASTNode(t.fOffset, ASTNode::Kind::kFloat, f);
             }
             break;
         }
@@ -1946,32 +1909,31 @@ std::unique_ptr<ASTExpression> Parser::term() {
         case Token::FALSE_LITERAL: {
             bool b;
             if (this->boolLiteral(&b)) {
-                result.reset(new ASTBoolLiteral(t.fOffset, b));
+                return ASTNode(t.fOffset, ASTNode::Kind::kBool, b);
             }
             break;
         }
         case Token::NULL_LITERAL:
             this->nextToken();
-            result.reset(new ASTNullLiteral(t.fOffset));
-            break;
+            return ASTNode(t.fOffset, ASTNode::Kind::kNull);
         case Token::LPAREN: {
             this->nextToken();
-            result = this->expression();
+            ASTNode result = this->expression();
             if (result) {
                 this->expect(Token::RPAREN, "')' to complete expression");
+                return result;
             }
             break;
         }
         default:
             this->nextToken();
             this->error(t.fOffset,  "expected expression, but found '" + this->text(t) + "'\n");
-            result = nullptr;
     }
-    return result;
+    return ASTNode();
 }
 
 /* INT_LITERAL */
-bool Parser::intLiteral(int64_t* dest) {
+bool Parser::intLiteral(SKSL_INT* dest) {
     Token t;
     if (this->expect(Token::INT_LITERAL, "integer literal", &t)) {
         *dest = SkSL::stol(this->text(t));
@@ -1981,7 +1943,7 @@ bool Parser::intLiteral(int64_t* dest) {
 }
 
 /* FLOAT_LITERAL */
-bool Parser::floatLiteral(double* dest) {
+bool Parser::floatLiteral(SKSL_FLOAT* dest) {
     Token t;
     if (this->expect(Token::FLOAT_LITERAL, "float literal", &t)) {
         *dest = SkSL::stod(this->text(t));
