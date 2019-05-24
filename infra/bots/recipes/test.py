@@ -233,7 +233,7 @@ def dm_flags(api, bot):
       blacklist(['_', 'gm', '_', 'savelayer_clipmask'])
 
     # skbug.com/9124
-    if 'GPU' in bot and 'Nexus5x' in bot and "Vulkan" in bot and 'Release' in bot:
+    if 'GPU' in bot and 'Nexus5x' in bot and "Vulkan" in bot:
       blacklist(['_', 'test', '_', 'ReplaceSurfaceBackendTexture'])
 
 
