@@ -243,6 +243,23 @@ void SkGpuDevice::clearAll() {
                                 GrRenderTargetContext::CanClearFullscreen::kYes);
 }
 
+void SkGpuDevice::replaceRenderTargetContext(sk_sp<GrRenderTargetContext> rtc,
+                                             bool shouldRetainContent) {
+    SkASSERT(rtc->width() == this->width());
+    SkASSERT(rtc->height() == this->height());
+    SkASSERT(rtc->numColorSamples() == fRenderTargetContext->numColorSamples());
+    SkASSERT(rtc->numStencilSamples() == fRenderTargetContext->numStencilSamples());
+    SkASSERT(rtc->asSurfaceProxy()->priv().isExact());
+    if (shouldRetainContent) {
+        if (this->context()->abandoned()) {
+            return;
+        }
+        rtc->copy(fRenderTargetContext->asSurfaceProxy());
+    }
+
+    fRenderTargetContext = std::move(rtc);
+}
+
 void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
     ASSERT_SINGLE_OWNER
 
@@ -261,16 +278,7 @@ void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
     if (!newRTC) {
         return;
     }
-    SkASSERT(newRTC->asSurfaceProxy()->priv().isExact());
-
-    if (shouldRetainContent) {
-        if (this->context()->abandoned()) {
-            return;
-        }
-        newRTC->copy(fRenderTargetContext->asSurfaceProxy());
-    }
-
-    fRenderTargetContext = newRTC;
+    this->replaceRenderTargetContext(std::move(newRTC), shouldRetainContent);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
