@@ -589,6 +589,9 @@ def base_defines(os_conditions):
         "SK_USE_FREETYPE_EMBOLDEN",
         # Turn on a few Google3-specific build fixes.
         "SK_BUILD_FOR_GOOGLE3",
+        # GL backend used by several Google3 clients.
+        "SK_ENABLE_GPU=1",
+        "SK_GL",
         # Required for building dm.
         "GR_TEST_UTILS",
         # Google3 probably doesn't want this feature yet
