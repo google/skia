@@ -196,9 +196,6 @@ public:
     // Returns true if the backend texture has been initialized.
     bool isValid() const { return fIsValid; }
 
-    // Returns true if both textures are valid and refer to the same API texture.
-    bool isSameTexture(const GrBackendTexture&);
-
 #if GR_TEST_UTILS
     // We can remove the pixelConfig getter and setter once we remove the GrPixelConfig from the
     // GrBackendTexture and plumb the GrPixelconfig manually throughout our code (or remove all use
@@ -217,7 +214,6 @@ private:
     friend class SkImage_GpuYUVA;
     friend class SkPromiseImageHelper;
     friend class SkSurface;
-    friend class SkSurface_Gpu;
     friend class GrAHardwareBufferImageGenerator;
     friend class GrBackendTextureImageGenerator;
     friend class GrProxyProvider;

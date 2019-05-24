@@ -65,7 +65,6 @@ public:
     void clearAll();
 
     void replaceRenderTargetContext(bool shouldRetainContent);
-    void replaceRenderTargetContext(sk_sp<GrRenderTargetContext>, bool shouldRetainContent);
 
     GrRenderTargetContext* accessRenderTargetContext() override;
 

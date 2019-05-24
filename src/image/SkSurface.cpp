@@ -81,13 +81,6 @@ GrBackendRenderTarget SkSurface_Base::onGetBackendRenderTarget(BackendHandleAcce
     return GrBackendRenderTarget(); // invalid
 }
 
-bool SkSurface_Base::onReplaceBackendTexture(const GrBackendTexture&,
-                                             GrSurfaceOrigin,
-                                             TextureReleaseProc,
-                                             ReleaseContext) {
-    return false;
-}
-
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
     auto image = this->makeImageSnapshot();
     if (image) {
@@ -367,14 +360,6 @@ GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess access) {
 
 GrBackendRenderTarget SkSurface::getBackendRenderTarget(BackendHandleAccess access) {
     return asSB(this)->onGetBackendRenderTarget(access);
-}
-
-bool SkSurface::replaceBackendTexture(const GrBackendTexture& backendTexture,
-                                      GrSurfaceOrigin origin,
-                                      TextureReleaseProc textureReleaseProc,
-                                      ReleaseContext releaseContext) {
-    return asSB(this)->onReplaceBackendTexture(backendTexture, origin, textureReleaseProc,
-                                               releaseContext);
 }
 
 void SkSurface::flush() {
