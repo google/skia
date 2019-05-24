@@ -134,6 +134,27 @@ static TypeCategory type_category(const Type& type) {
     }
 }
 
+// A "simple" Swizzle is based on a variable (or a compound variable like a struct or array), and
+// that references consecutive values, such that it can be implemented using normal load/store ops
+// with an offset. Note that all single-component swizzles (of suitable base types) are simple.
+static bool swizzle_is_simple(const Swizzle& s) {
+    switch (s.fBase->fKind) {
+        case Expression::kFieldAccess_Kind:
+        case Expression::kIndex_Kind:
+        case Expression::kVariableReference_Kind:
+            break;
+        default:
+            return false;
+    }
+
+    for (size_t i = 1; i < s.fComponents.size(); ++i) {
+        if (s.fComponents[i] != s.fComponents[i - 1] + 1) {
+            return false;
+        }
+    }
+    return true;
+}
+
 int ByteCodeGenerator::getLocation(const Variable& var) {
     // given that we seldom have more than a couple of variables, linear search is probably the most
     // efficient way to handle lookups
@@ -192,6 +213,7 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
     }
 }
 
+// TODO: Elide Add 0 and Mul 1 sequences
 int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* storage) {
     switch (expr.fKind) {
         case Expression::kFieldAccess_Kind: {
@@ -236,6 +258,20 @@ int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* st
             }
             this->write(ByteCodeInstruction::kAddI);
             return -1;
+        }
+        case Expression::kSwizzle_Kind: {
+            const Swizzle& s = (const Swizzle&)expr;
+            SkASSERT(swizzle_is_simple(s));
+            int baseAddr = this->getLocation(*s.fBase, storage);
+            int offset = s.fComponents[0];
+            if (baseAddr < 0) {
+                this->write(ByteCodeInstruction::kPushImmediate);
+                this->write32(offset);
+                this->write(ByteCodeInstruction::kAddI);
+                return -1;
+            } else {
+                return baseAddr + offset;
+            }
         }
         case Expression::kVariableReference_Kind: {
             const Variable& var = ((const VariableReference&)expr).fVariable;
@@ -291,12 +327,13 @@ void ByteCodeGenerator::writeTypedInstruction(const Type& type, ByteCodeInstruct
     }
 }
 
-void ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b) {
+bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool discard) {
     if (b.fOperator == Token::Kind::EQ) {
         std::unique_ptr<LValue> lvalue = this->getLValue(*b.fLeft);
         this->writeExpression(*b.fRight);
-        lvalue->store();
-        return;
+        lvalue->store(discard);
+        discard = false;
+        return discard;
     }
     Token::Kind op;
     std::unique_ptr<LValue> lvalue;
@@ -393,8 +430,10 @@ void ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b) {
             SkASSERT(false);
     }
     if (lvalue) {
-        lvalue->store();
+        lvalue->store(discard);
+        discard = false;
     }
+    return discard;
 }
 
 void ByteCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
@@ -545,7 +584,7 @@ void ByteCodeGenerator::writeNullLiteral(const NullLiteral& n) {
     abort();
 }
 
-void ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p) {
+bool ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p, bool discard) {
     switch (p.fOperator) {
         case Token::Kind::PLUSPLUS: // fall through
         case Token::Kind::MINUSMINUS: {
@@ -568,7 +607,8 @@ void ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p) {
                                             ByteCodeInstruction::kSubtractF,
                                             1);
             }
-            lvalue->store();
+            lvalue->store(discard);
+            discard = false;
             break;
         }
         case Token::Kind::MINUS: {
@@ -583,16 +623,19 @@ void ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p) {
         default:
             SkASSERT(false);
     }
+    return discard;
 }
 
-void ByteCodeGenerator::writePostfixExpression(const PostfixExpression& p) {
+bool ByteCodeGenerator::writePostfixExpression(const PostfixExpression& p, bool discard) {
     switch (p.fOperator) {
         case Token::Kind::PLUSPLUS: // fall through
         case Token::Kind::MINUSMINUS: {
             SkASSERT(SlotCount(p.fOperand->fType) == 1);
             std::unique_ptr<LValue> lvalue = this->getLValue(*p.fOperand);
             lvalue->load();
-            this->write(ByteCodeInstruction::kDup);
+            if (!discard) {
+                this->write(ByteCodeInstruction::kDup);
+            }
             this->write(ByteCodeInstruction::kPushImmediate);
             this->write32(type_category(p.fType) == TypeCategory::kFloat
                             ? Interpreter::Value(1.0f).fUnsigned : 1);
@@ -609,16 +652,23 @@ void ByteCodeGenerator::writePostfixExpression(const PostfixExpression& p) {
                                             ByteCodeInstruction::kSubtractF,
                                             1);
             }
-            lvalue->store();
+            lvalue->store(discard);
             this->write(ByteCodeInstruction::kPop);
+            discard = false;
             break;
         }
         default:
             SkASSERT(false);
     }
+    return discard;
 }
 
 void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
+    if (swizzle_is_simple(s)) {
+        this->writeVariableExpression(s);
+        return;
+    }
+
     switch (s.fBase->fKind) {
         case Expression::kVariableReference_Kind: {
             const Variable& var = ((VariableReference&) *s.fBase).fVariable;
@@ -655,10 +705,10 @@ void ByteCodeGenerator::writeTernaryExpression(const TernaryExpression& t) {
     endLocation.set();
 }
 
-void ByteCodeGenerator::writeExpression(const Expression& e) {
+void ByteCodeGenerator::writeExpression(const Expression& e, bool discard) {
     switch (e.fKind) {
         case Expression::kBinary_Kind:
-            this->writeBinaryExpression((BinaryExpression&) e);
+            discard = this->writeBinaryExpression((BinaryExpression&) e, discard);
             break;
         case Expression::kBoolLiteral_Kind:
             this->writeBoolLiteral((BoolLiteral&) e);
@@ -690,10 +740,10 @@ void ByteCodeGenerator::writeExpression(const Expression& e) {
             this->writeNullLiteral((NullLiteral&) e);
             break;
         case Expression::kPrefix_Kind:
-            this->writePrefixExpression((PrefixExpression&) e);
+            discard = this->writePrefixExpression((PrefixExpression&) e, discard);
             break;
         case Expression::kPostfix_Kind:
-            this->writePostfixExpression((PostfixExpression&) e);
+            discard = this->writePostfixExpression((PostfixExpression&) e, discard);
             break;
         case Expression::kSwizzle_Kind:
             this->writeSwizzle((Swizzle&) e);
@@ -704,6 +754,16 @@ void ByteCodeGenerator::writeExpression(const Expression& e) {
         default:
             printf("unsupported expression %s\n", e.description().c_str());
             SkASSERT(false);
+    }
+    if (discard) {
+        int count = SlotCount(e.fType);
+        if (count > 4) {
+            this->write(ByteCodeInstruction::kPopN);
+            this->write8(count);
+        } else {
+            this->write(vector_instruction(ByteCodeInstruction::kPop, count));
+        }
+        discard = false;
     }
 }
 
@@ -719,8 +779,10 @@ public:
         fGenerator.write8(fIndex);
     }
 
-    void store() override {
-        fGenerator.write(vector_instruction(ByteCodeInstruction::kDup, fCount));
+    void store(bool discard) override {
+        if (!discard) {
+            fGenerator.write(vector_instruction(ByteCodeInstruction::kDup, fCount));
+        }
         fGenerator.write(vector_instruction(ByteCodeInstruction::kWriteExternal, fCount));
         fGenerator.write8(fIndex);
     }
@@ -743,9 +805,11 @@ public:
         fGenerator.writeSwizzle(fSwizzle);
     }
 
-    void store() override {
-        fGenerator.write(vector_instruction(ByteCodeInstruction::kDup,
-                                            fSwizzle.fComponents.size()));
+    void store(bool discard) override {
+        if (!discard) {
+            fGenerator.write(vector_instruction(ByteCodeInstruction::kDup,
+                                                fSwizzle.fComponents.size()));
+        }
         Variable::Storage storage;
         int location = fGenerator.getLocation(*fSwizzle.fBase, &storage);
         bool isGlobal = storage == Variable::kGlobal_Storage;
@@ -779,13 +843,15 @@ public:
         fGenerator.writeVariableExpression(fExpression);
     }
 
-    void store() override {
+    void store(bool discard) override {
         int count = ByteCodeGenerator::SlotCount(fExpression.fType);
-        if (count > 4) {
-            fGenerator.write(ByteCodeInstruction::kDupN);
-            fGenerator.write8(count);
-        } else {
-            fGenerator.write(vector_instruction(ByteCodeInstruction::kDup, count));
+        if (!discard) {
+            if (count > 4) {
+                fGenerator.write(ByteCodeInstruction::kDupN);
+                fGenerator.write8(count);
+            } else {
+                fGenerator.write(vector_instruction(ByteCodeInstruction::kDup, count));
+            }
         }
         Variable::Storage storage;
         int location = fGenerator.getLocation(fExpression, &storage);
@@ -825,8 +891,12 @@ std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Ex
         case Expression::kIndex_Kind:
         case Expression::kVariableReference_Kind:
             return std::unique_ptr<LValue>(new ByteCodeExpressionLValue(this, e));
-        case Expression::kSwizzle_Kind:
-            return std::unique_ptr<LValue>(new ByteCodeSwizzleLValue(this, (Swizzle&) e));
+        case Expression::kSwizzle_Kind: {
+            const Swizzle& s = (const Swizzle&) e;
+            return swizzle_is_simple(s)
+                    ? std::unique_ptr<LValue>(new ByteCodeExpressionLValue(this, e))
+                    : std::unique_ptr<LValue>(new ByteCodeSwizzleLValue(this, s));
+        }
         case Expression::kTernary_Kind:
         default:
             printf("unsupported lvalue %s\n", e.description().c_str());
@@ -893,8 +963,7 @@ void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
         this->writeStatement(*f.fStatement);
         this->setContinueTargets();
         if (f.fNext) {
-            this->writeExpression(*f.fNext);
-            this->write(vector_instruction(ByteCodeInstruction::kPop, SlotCount(f.fNext->fType)));
+            this->writeExpression(*f.fNext, true);
         }
         this->write(ByteCodeInstruction::kBranch);
         this->write16(start);
@@ -903,8 +972,7 @@ void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
         this->writeStatement(*f.fStatement);
         this->setContinueTargets();
         if (f.fNext) {
-            this->writeExpression(*f.fNext);
-            this->write(vector_instruction(ByteCodeInstruction::kPop, SlotCount(f.fNext->fType)));
+            this->writeExpression(*f.fNext, true);
         }
         this->write(ByteCodeInstruction::kBranch);
         this->write16(start);
@@ -1001,18 +1069,9 @@ void ByteCodeGenerator::writeStatement(const Statement& s) {
         case Statement::kDo_Kind:
             this->writeDoStatement((DoStatement&) s);
             break;
-        case Statement::kExpression_Kind: {
-            const Expression& expr = *((ExpressionStatement&) s).fExpression;
-            this->writeExpression(expr);
-            int count = SlotCount(expr.fType);
-            if (count > 4) {
-                this->write(ByteCodeInstruction::kPopN);
-                this->write8(count);
-            } else {
-                this->write(vector_instruction(ByteCodeInstruction::kPop, count));
-            }
+        case Statement::kExpression_Kind:
+            this->writeExpression(*((ExpressionStatement&) s).fExpression, true);
             break;
-        }
         case Statement::kFor_Kind:
             this->writeForStatement((ForStatement&) s);
             break;
