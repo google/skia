@@ -7,6 +7,7 @@
 
 #ifndef SKSL_STANDALONE
 
+#include "include/core/SkPoint3.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/sksl/SkSLByteCodeGenerator.h"
 #include "src/sksl/SkSLExternalValue.h"
@@ -164,6 +165,7 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
         case ByteCodeInstruction::kLoadExtended: printf("loadextended %d", READ8()); break;
         case ByteCodeInstruction::kLoadExtendedGlobal: printf("loadextendedglobal %d", READ8());
             break;
+        VECTOR_DISASSEMBLE(kMix, "mix")
         VECTOR_DISASSEMBLE(kMultiplyF, "multiplyf")
         VECTOR_DISASSEMBLE(kMultiplyI, "multiplyi")
         VECTOR_DISASSEMBLE(kNegateF, "negatef")
@@ -286,26 +288,26 @@ void Interpreter::disassemble(const ByteCodeFunction& f) {
         break;                                                        \
     }
 
-#define VECTOR_BINARY_FN(base, field, fn)                             \
-    case ByteCodeInstruction::base ## 4:                              \
-        sp[-4] = fn(sp[-4].field, sp[0].field);                       \
-        POP();                                                        \
-        /* fall through */                                            \
-    case ByteCodeInstruction::base ## 3: {                            \
-        int count = (int) ByteCodeInstruction::base - (int) inst - 1; \
-        sp[count] = fn(sp[count].field, sp[0].field);                 \
-        POP();                                                        \
-    }   /* fall through */                                            \
-    case ByteCodeInstruction::base ## 2: {                            \
-        int count = (int) ByteCodeInstruction::base - (int) inst - 1; \
-        sp[count] = fn(sp[count].field, sp[0].field);                 \
-        POP();                                                        \
-    }   /* fall through */                                            \
-    case ByteCodeInstruction::base: {                                 \
-        int count = (int) ByteCodeInstruction::base - (int) inst - 1; \
-        sp[count] = fn(sp[count].field, sp[0].field);                 \
-        POP();                                                        \
-        break;                                                        \
+#define VECTOR_BINARY_FN(base, field, fn)                              \
+    case ByteCodeInstruction::base ## 4:                               \
+        sp[-4] = fn(sp[-4].field, sp[0].field);                        \
+        POP();                                                         \
+        /* fall through */                                             \
+    case ByteCodeInstruction::base ## 3: {                             \
+        int target = (int) ByteCodeInstruction::base - (int) inst - 1; \
+        sp[target] = fn(sp[target].field, sp[0].field);                \
+        POP();                                                         \
+    }   /* fall through */                                             \
+    case ByteCodeInstruction::base ## 2: {                             \
+        int target = (int) ByteCodeInstruction::base - (int) inst - 1; \
+        sp[target] = fn(sp[target].field, sp[0].field);                \
+        POP();                                                         \
+    }   /* fall through */                                             \
+    case ByteCodeInstruction::base: {                                  \
+        int target = (int) ByteCodeInstruction::base - (int) inst - 1; \
+        sp[target] = fn(sp[target].field, sp[0].field);                \
+        POP();                                                         \
+        break;                                                         \
     }
 
 #define VECTOR_UNARY_FN(base, fn, field)                            \
@@ -320,6 +322,10 @@ struct StackFrame {
     const uint8_t* fIP;
     Interpreter::Value* fStack;
 };
+
+static float mix(float start, float end, float t) {
+    return start * (1 - t) + end * t;
+}
 
 void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outReturn) {
     Value* sp = stack + f.fParameterCount + f.fLocalCount - 1;
@@ -419,6 +425,20 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
 
             VECTOR_UNARY_FN(kCos, cosf, fFloat)
 
+            case ByteCodeInstruction::kCross: {
+                SkPoint3 cross = SkPoint3::CrossProduct(SkPoint3::Make(sp[-5].fFloat,
+                                                                       sp[-4].fFloat,
+                                                                       sp[-3].fFloat),
+                                                        SkPoint3::Make(sp[-2].fFloat,
+                                                                       sp[-1].fFloat,
+                                                                       sp[ 0].fFloat));
+                sp -= 3;
+                sp[-2] = cross.fX;
+                sp[-1] = cross.fY;
+                sp[ 0] = cross.fZ;
+                break;
+            }
+
             case ByteCodeInstruction::kDebugPrint: {
                 Value v = POP();
                 printf("Debug: %d(int), %d(uint), %f(float)\n", v.fSigned, v.fUnsigned, v.fFloat);
@@ -494,6 +514,30 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                     PUSH(fGlobals[src + *(ip + i)]);
                 }
                 ip += count;
+                break;
+            }
+
+            // stack looks like: X1 Y1 Z1 W1 X2 Y2 Z2 W2 T
+            case ByteCodeInstruction::kMix4:
+                sp[-5] = mix(sp[-5].fFloat, sp[-1].fFloat, sp[0].fFloat);
+                // fall through
+            case ByteCodeInstruction::kMix3: {
+                int count = (int) inst - (int) ByteCodeInstruction::kMix + 1;
+                int target = 2 - count * 2;
+                sp[target] = mix(sp[target].fFloat, sp[2 - count].fFloat, sp[0].fFloat);
+                // fall through
+            }
+            case ByteCodeInstruction::kMix2: {
+                int count = (int) inst - (int) ByteCodeInstruction::kMix + 1;
+                int target = 1 - count * 2;
+                sp[target] = mix(sp[target].fFloat, sp[1 - count].fFloat, sp[0].fFloat);
+                // fall through
+            }
+            case ByteCodeInstruction::kMix: {
+                int count = (int) inst - (int) ByteCodeInstruction::kMix + 1;
+                int target = -count * 2;
+                sp[target] = mix(sp[target].fFloat, sp[-count].fFloat, sp[0].fFloat);
+                sp -= 1 + count;
                 break;
             }
 

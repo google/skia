@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPoint3.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLExternalValue.h"
 #include "src/sksl/SkSLInterpreter.h"
@@ -546,6 +547,66 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
     REPORTER_ASSERT(r, fibOut == 13);
 }
 
+DEF_TEST(SkSLInterpreterMathFunctions, r) {
+    SkSL::Interpreter::Value value, expected;
+
+    value = 0.0f; expected = 0.0f;
+    test(r, "float main(float x) { return sin(x); }", &value, 1, &expected);
+    test(r, "float main(float x) { return tan(x); }", &value, 1, &expected);
+
+    value = 0.0f; expected = 1.0f;
+    test(r, "float main(float x) { return cos(x); }", &value, 1, &expected);
+
+    value = 25.0f; expected = 5.0f;
+    test(r, "float main(float x) { return sqrt(x); }", &value, 1, &expected);
+}
+
+DEF_TEST(SkSLInterpreterMix, r) {
+    SkSL::Interpreter::Value value, expected;
+
+    value = 0.5f; expected = 0.0f;
+    test(r, "float main(float x) { return mix(-10, 10, x); }", &value, 1, &expected);
+    value = 0.75f; expected = 5.0f;
+    test(r, "float main(float x) { return mix(-10, 10, x); }", &value, 1, &expected);
+    value = 2.0f; expected = 30.0f;
+    test(r, "float main(float x) { return mix(-10, 10, x); }", &value, 1, &expected);
+
+    SkSL::Interpreter::Value valueVectors[]   = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f },
+                             expectedVector[] = { 3.0f, 4.0f, 5.0f, 6.0f };
+    test(r, "float4 main(float4 x, float4 y) { return mix(x, y, 0.5); }", valueVectors, 4,
+         expectedVector);
+}
+
+DEF_TEST(SkSLInterpreterCross, r) {
+    SkSL::Interpreter::Value args[] = { 1.0f, 4.0f, -6.0f, -2.0f, 7.0f, -3.0f };
+    SkPoint3 cross = SkPoint3::CrossProduct(SkPoint3::Make(args[0].fFloat,
+                                                           args[1].fFloat,
+                                                           args[2].fFloat),
+                                            SkPoint3::Make(args[3].fFloat,
+                                                           args[4].fFloat,
+                                                           args[5].fFloat));
+    SkSL::Interpreter::Value expected[] = { cross.fX, cross.fY, cross.fZ };
+    test(r, "float3 main(float3 x, float3 y) { return cross(x, y); }", args, 3, expected);
+}
+
+DEF_TEST(SkSLInterpreterDot, r) {
+    SkSL::Interpreter::Value args[] = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f };
+    SkSL::Interpreter::Value expected = args[0].fFloat * args[2].fFloat +
+                                        args[1].fFloat * args[3].fFloat;
+    test(r, "float main(float2 x, float2 y) { return dot(x, y); }", args, 1, &expected);
+
+    expected = args[0].fFloat * args[3].fFloat +
+               args[1].fFloat * args[4].fFloat +
+               args[2].fFloat * args[5].fFloat;
+    test(r, "float main(float3 x, float3 y) { return dot(x, y); }", args, 1, &expected);
+
+    expected = args[0].fFloat * args[4].fFloat +
+               args[1].fFloat * args[5].fFloat +
+               args[2].fFloat * args[6].fFloat +
+               args[3].fFloat * args[7].fFloat;
+    test(r, "float main(float4 x, float4 y) { return dot(x, y); }", args, 1, &expected);
+}
+
 static const SkSL::Type& type_of(const skjson::Value* value, SkSL::Compiler* compiler) {
     switch (value->getType()) {
         case skjson::Value::Type::kNumber: {
@@ -843,18 +904,4 @@ DEF_TEST(SkSLInterpreterExternalValuesVectorCall, r) {
     } else {
         printf("%s\n%s", src, compiler.errorText().c_str());
     }
-}
-
-DEF_TEST(SkSLInterpreterIntrinsics, r) {
-    SkSL::Interpreter::Value value, expected;
-
-    value = 0.0f; expected = 0.0f;
-    test(r, "float main(float x) { return sin(x); }", &value, 1, &expected);
-    test(r, "float main(float x) { return tan(x); }", &value, 1, &expected);
-
-    value = 0.0f; expected = 1.0f;
-    test(r, "float main(float x) { return cos(x); }", &value, 1, &expected);
-
-    value = 25.0f; expected = 5.0f;
-    test(r, "float main(float x) { return sqrt(x); }", &value, 1, &expected);
 }
