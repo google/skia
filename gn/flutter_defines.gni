@@ -5,6 +5,7 @@
 flutter_defines = [
   "SK_DISABLE_REDUCE_OPLIST_SPLITTING",
   "SK_LEGACY_SKCODEC_NONE_ENUM",
+  "SK_GL",
 
   # Flutter always wants this https://github.com/flutter/flutter/issues/11402
   "SK_ENABLE_DUMP_GPU",
