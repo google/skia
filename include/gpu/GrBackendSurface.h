@@ -18,6 +18,7 @@ class GrVkImageLayout;
 
 #ifdef SK_METAL
 #include "include/gpu/mtl/GrMtlTypes.h"
+#include "include/private/GrMtlTypesPriv.h"
 #endif
 
 #if !SK_SUPPORT_GPU
@@ -145,6 +146,7 @@ public:
                      const GrVkImageInfo& vkInfo);
 
 #ifdef SK_METAL
+    // This will take a strong reference to the MTLTexture in mtlInfo.
     GrBackendTexture(int width,
                      int height,
                      GrMipMapped,
@@ -253,11 +255,11 @@ private:
     union {
         GrGLTextureInfo fGLInfo;
         GrVkBackendSurfaceInfo fVkInfo;
-#ifdef SK_METAL
-        GrMtlTextureInfo fMtlInfo;
-#endif
         GrMockTextureInfo fMockInfo;
     };
+#ifdef SK_METAL
+    GrMtlBackendSurfaceInfo fMtlInfo;
+#endif
 };
 
 class SK_API GrBackendRenderTarget {
@@ -281,6 +283,7 @@ public:
     GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo);
 
 #ifdef SK_METAL
+    // This will take a strong reference to the MTLTexture in mtlInfo.
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
@@ -370,17 +373,16 @@ private:
     int fSampleCnt;
     int fStencilBits;
     GrPixelConfig fConfig;
-
     GrBackendApi fBackend;
 
     union {
         GrGLFramebufferInfo fGLInfo;
         GrVkBackendSurfaceInfo fVkInfo;
-#ifdef SK_METAL
-        GrMtlTextureInfo fMtlInfo;
-#endif
         GrMockRenderTargetInfo fMockInfo;
     };
+#ifdef SK_METAL
+    GrMtlBackendSurfaceInfo fMtlInfo;
+#endif
 };
 
 #endif
