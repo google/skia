@@ -7,15 +7,16 @@
 
 // Intentionally NO #pragma once... included multiple times.
 
-// This file is included from skcms.cc with some pre-defined macros:
-//    N:    depth of all vectors, 1,4,8, or 16
-// and inside a namespace, with some types already defined:
-//    F:    a vector of N float or half, whatever we're using to represent color
-//    I32:  a vector of N int32_t
-//    U64:  a vector of N uint64_t
-//    U32:  a vector of N uint32_t
-//    U16:  a vector of N uint16_t
-//    U8:   a vector of N uint8_t
+// This file is included from skcms.cc in a namespace with some pre-defines:
+//    - N:    depth of all vectors, 1,4,8, or 16 (preprocessor define)
+//    - V<T>: a template to create a vector of N T's.
+
+using F   = V<Color>;   // Called F for historic reasons... maybe rename C?
+using I32 = V<int32_t>;
+using U64 = V<uint64_t>;
+using U32 = V<uint32_t>;
+using U16 = V<uint16_t>;
+using U8  = V<uint8_t>;
 
 
 #if defined(__GNUC__) && !defined(__clang__)
