@@ -83,7 +83,8 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
     static constexpr Shaper::VAlign gVAlignMap[] = {
         Shaper::VAlign::kTop,         // 'sk_vj': 0
         Shaper::VAlign::kCenter,      // 'sk_vj': 1
-        Shaper::VAlign::kResizeToFit, // 'sk_vj': 2
+        Shaper::VAlign::kBottom,      // 'sk_vj': 2
+        Shaper::VAlign::kResizeToFit, // 'sk_vj': 3
     };
     size_t sk_vj;
     if (Parse((*jtxt)["sk_vj"], &sk_vj) && sk_vj < SK_ARRAY_COUNT(gVAlignMap)) {

@@ -117,16 +117,19 @@ public:
         // By default, first line is vertical-aligned on a baseline of 0.
         // Perform additional adjustments based on VAlign.
         switch (fDesc.fVAlign) {
-        case Shaper::VAlign::kTop: {
-            pos.offset(0, -ComputeBlobBounds(blob).fTop);
-        } break;
+        case Shaper::VAlign::kTop:
+            pos.fY -= ComputeBlobBounds(blob).fTop;
+            break;
         case Shaper::VAlign::kTopBaseline:
             // Default behavior.
             break;
         case Shaper::VAlign::kCenter: {
             const auto bounds = ComputeBlobBounds(blob).makeOffset(pos.x(), pos.y());
-            pos.offset(0, fBox.centerY() - bounds.centerY());
+            pos.fY += fBox.centerY() - bounds.centerY();
         } break;
+        case Shaper::VAlign::kBottom:
+            pos.fY += fBox.height() - ComputeBlobBounds(blob).fBottom;
+            break;
         case Shaper::VAlign::kResizeToFit:
             SkASSERT(false);
             break;
