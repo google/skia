@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5844a2_a52aff36",
+        "filename": "include/gpu/mtl/GrMtlTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-24T00:05:27Z",
+      "side": 1,
+      "message": "Another (possibly simpler or more robust) solution would be to make GrMtlTextureInfo maintain a reference to the underlying MTLTexture.\n\nIt would require that fTexture have setter and getter methods (to maintain reference counts).\n\nIt would also require that we not put GrMtlTextureInfo into a union (that refactor was why I didn\u0027t take that approach here).",
+      "revId": "7972bdc767918a7126e1c4f521552195678c872f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
