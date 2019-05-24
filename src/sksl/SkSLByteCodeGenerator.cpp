@@ -134,6 +134,27 @@ static TypeCategory type_category(const Type& type) {
     }
 }
 
+// A "simple" Swizzle is based on a variable (or a compound variable like a struct or array), and
+// that references consecutive values, such that it can be implemented using normal load/store ops
+// with an offset. Note that all single-component swizzles (of suitable base types) are simple.
+static bool swizzle_is_simple(const Swizzle& s) {
+    switch (s.fBase->fKind) {
+        case Expression::kFieldAccess_Kind:
+        case Expression::kIndex_Kind:
+        case Expression::kVariableReference_Kind:
+            break;
+        default:
+            return false;
+    }
+
+    for (size_t i = 1; i < s.fComponents.size(); ++i) {
+        if (s.fComponents[i] != s.fComponents[i - 1] + 1) {
+            return false;
+        }
+    }
+    return true;
+}
+
 int ByteCodeGenerator::getLocation(const Variable& var) {
     // given that we seldom have more than a couple of variables, linear search is probably the most
     // efficient way to handle lookups
@@ -192,6 +213,7 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
     }
 }
 
+// TODO: Elide Add 0 and Mul 1 sequences
 int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* storage) {
     switch (expr.fKind) {
         case Expression::kFieldAccess_Kind: {
@@ -236,6 +258,20 @@ int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* st
             }
             this->write(ByteCodeInstruction::kAddI);
             return -1;
+        }
+        case Expression::kSwizzle_Kind: {
+            const Swizzle& s = (const Swizzle&)expr;
+            SkASSERT(swizzle_is_simple(s));
+            int baseAddr = this->getLocation(*s.fBase, storage);
+            int offset = s.fComponents[0];
+            if (baseAddr < 0) {
+                this->write(ByteCodeInstruction::kPushImmediate);
+                this->write32(offset);
+                this->write(ByteCodeInstruction::kAddI);
+                return -1;
+            } else {
+                return baseAddr + offset;
+            }
         }
         case Expression::kVariableReference_Kind: {
             const Variable& var = ((const VariableReference&)expr).fVariable;
@@ -619,6 +655,11 @@ void ByteCodeGenerator::writePostfixExpression(const PostfixExpression& p) {
 }
 
 void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
+    if (swizzle_is_simple(s)) {
+        this->writeVariableExpression(s);
+        return;
+    }
+
     switch (s.fBase->fKind) {
         case Expression::kVariableReference_Kind: {
             const Variable& var = ((VariableReference&) *s.fBase).fVariable;
@@ -825,8 +866,12 @@ std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Ex
         case Expression::kIndex_Kind:
         case Expression::kVariableReference_Kind:
             return std::unique_ptr<LValue>(new ByteCodeExpressionLValue(this, e));
-        case Expression::kSwizzle_Kind:
-            return std::unique_ptr<LValue>(new ByteCodeSwizzleLValue(this, (Swizzle&) e));
+        case Expression::kSwizzle_Kind: {
+            const Swizzle& s = (const Swizzle&) e;
+            return swizzle_is_simple(s)
+                    ? std::unique_ptr<LValue>(new ByteCodeExpressionLValue(this, e))
+                    : std::unique_ptr<LValue>(new ByteCodeSwizzleLValue(this, s));
+        }
         case Expression::kTernary_Kind:
         default:
             printf("unsupported lvalue %s\n", e.description().c_str());
