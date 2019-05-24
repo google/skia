@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b5b672f3_5c940ba4",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 857,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-24T20:27:26Z",
+      "side": 0,
+      "message": "Oops -- added back the testingOnly_flushGpuAndSync.\n\nThe rt argument is passed by const reference, so I left its MTLTexture non-nullptr.",
+      "parentUuid": "df002704_d2b160bf",
+      "range": {
+        "startLine": 857,
+        "startChar": 8,
+        "endLine": 857,
+        "endChar": 43
+      },
+      "revId": "bd83231a3a4cca48ad58bc6523f5c77ee128b98b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2a61d185_4e630844",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2019-05-24T20:21:05Z",
       "side": 0,
       "message": "Looks like you need to add this back.",
+      "range": {
+        "startLine": 855,
+        "startChar": 4,
+        "endLine": 855,
+        "endChar": 26
+      },
+      "revId": "bd83231a3a4cca48ad58bc6523f5c77ee128b98b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95b98935_dd2d6e53",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 855,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-24T20:27:26Z",
+      "side": 0,
+      "message": "oops -- fixed!",
+      "parentUuid": "2a61d185_4e630844",
       "range": {
         "startLine": 855,
         "startChar": 4,
