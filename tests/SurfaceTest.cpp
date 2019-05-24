@@ -14,6 +14,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
+#include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkUtils.h"
 #include "src/gpu/GrContextPriv.h"
@@ -961,6 +962,111 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
                 ->internal_private_accessTopLayerRenderTargetContext()->accessRenderTarget();
             REPORTER_ASSERT(reporter, resourceProvider->attachStencilAttachment(rt));
             context->deleteBackendTexture(backendTex);
+        }
+    }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReplaceSurfaceBackendTexture, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    for (int sampleCnt : {1, 2}) {
+        GrBackendTexture backendTexture1;
+        auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
+        if (!create_backend_texture(context, &backendTexture1, ii, GrMipMapped::kNo,
+                                    SK_ColorTRANSPARENT, GrRenderable::kYes)) {
+            continue;
+        }
+        SkScopeExit delete1(
+                [context, &backendTexture1] { delete_backend_texture(context, backendTexture1); });
+        GrBackendTexture backendTexture2;
+        if (!create_backend_texture(context, &backendTexture2, ii, GrMipMapped::kNo,
+                                    SK_ColorTRANSPARENT, GrRenderable::kYes)) {
+            ERRORF(reporter, "Expected to be able to make second texture");
+            continue;
+        }
+        SkScopeExit delete2(
+                [context, &backendTexture2] { delete_backend_texture(context, backendTexture2); });
+        auto ii2 = ii.makeWH(8, 8);
+        GrBackendTexture backendTexture3;
+        if (!create_backend_texture(context, &backendTexture3, ii2, GrMipMapped::kNo,
+                                    SK_ColorTRANSPARENT, GrRenderable::kYes)) {
+            ERRORF(reporter, "Couldn't create different sized texture.");
+            continue;
+        }
+        SkScopeExit delete3(
+                [context, &backendTexture3] { delete_backend_texture(context, backendTexture3); });
+
+        auto surf = SkSurface::MakeFromBackendTexture(
+                context, backendTexture1, kTopLeft_GrSurfaceOrigin, sampleCnt,
+                kRGBA_8888_SkColorType, ii.refColorSpace(), nullptr);
+        if (!surf) {
+            continue;
+        }
+        surf->getCanvas()->clear(SK_ColorBLUE);
+        // Change matrix, layer, and clip state before swapping out the backing texture.
+        surf->getCanvas()->translate(5, 5);
+        surf->getCanvas()->saveLayer(nullptr, nullptr);
+        surf->getCanvas()->clipRect(SkRect::MakeXYWH(0, 0, 1, 1));
+        // switch origin while we're at it.
+        bool replaced = surf->replaceBackendTexture(backendTexture2, kBottomLeft_GrSurfaceOrigin);
+        REPORTER_ASSERT(reporter, replaced);
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+        surf->getCanvas()->drawRect(SkRect::MakeWH(5, 5), paint);
+        surf->getCanvas()->restore();
+
+        // Check that the replacement texture got the right color values.
+        SkAutoPixmapStorage pm;
+        pm.alloc(ii);
+        bool bad = !surf->readPixels(pm, 0, 0);
+        REPORTER_ASSERT(reporter, !bad, "Could not read surface.");
+        for (int y = 0; y < ii.height() && !bad; ++y) {
+            for (int x = 0; x < ii.width() && !bad; ++x) {
+                auto expected = (x == 5 && y == 5) ? 0xFF0000FF : 0xFFFF0000;
+                auto found = *pm.addr32(x, y);
+                if (found != expected) {
+                    bad = true;
+                    ERRORF(reporter, "Expected color 0x%08x, found color 0x%08x at %d, %d.",
+                           expected, found, x, y);
+                }
+            }
+        }
+        // The original texture should still be all blue.
+        surf = SkSurface::MakeFromBackendTexture(
+                context, backendTexture1, kBottomLeft_GrSurfaceOrigin, sampleCnt,
+                kRGBA_8888_SkColorType, ii.refColorSpace(), nullptr);
+        if (!surf) {
+            ERRORF(reporter, "Could not create second surface.");
+            continue;
+        }
+        bad = !surf->readPixels(pm, 0, 0);
+        REPORTER_ASSERT(reporter, !bad, "Could not read second surface.");
+        for (int y = 0; y < ii.height() && !bad; ++y) {
+            for (int x = 0; x < ii.width() && !bad; ++x) {
+                auto expected = 0xFFFF0000;
+                auto found = *pm.addr32(x, y);
+                if (found != expected) {
+                    bad = true;
+                    ERRORF(reporter, "Expected color 0x%08x, found color 0x%08x at %d, %d.",
+                           expected, found, x, y);
+                }
+            }
+        }
+
+        // Can't replace with the same texture
+        REPORTER_ASSERT(reporter,
+                        !surf->replaceBackendTexture(backendTexture1, kTopLeft_GrSurfaceOrigin));
+        // Can't replace with invalid texture
+        REPORTER_ASSERT(reporter, !surf->replaceBackendTexture({}, kTopLeft_GrSurfaceOrigin));
+        // Can't replace with different size texture.
+        REPORTER_ASSERT(reporter,
+                        !surf->replaceBackendTexture(backendTexture3, kTopLeft_GrSurfaceOrigin));
+        // Can't replace texture of non-wrapped SkSurface.
+        surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii, sampleCnt, nullptr);
+        REPORTER_ASSERT(reporter, surf);
+        if (surf) {
+            REPORTER_ASSERT(reporter, !surf->replaceBackendTexture(backendTexture1,
+                                                                   kTopLeft_GrSurfaceOrigin));
         }
     }
 }
