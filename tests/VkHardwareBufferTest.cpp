@@ -155,7 +155,8 @@ bool EGLTestHelper::init(skiatest::Reporter* reporter) {
         !fGLCtx->gl()->hasExtension("EGL_ANDROID_get_native_client_buffer") ||
         !fGLCtx->gl()->hasExtension("GL_OES_EGL_image_external") ||
         !fGLCtx->gl()->hasExtension("GL_OES_EGL_image") ||
-        !fGLCtx->gl()->hasExtension("EGL_KHR_fence_sync")) {
+        !fGLCtx->gl()->hasExtension("EGL_KHR_fence_sync") ||
+        !fGLCtx->gl()->hasExtension("EGL_ANDROID_native_fence_sync")) {
         return false;
     }
 
