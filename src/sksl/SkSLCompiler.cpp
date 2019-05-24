@@ -36,8 +36,12 @@
 
 #define STRINGIFY(x) #x
 
-static const char* SKSL_INCLUDE =
-#include "sksl.inc"
+static const char* SKSL_GPU_INCLUDE =
+#include "sksl_gpu.inc"
+;
+
+static const char* SKSL_INTERP_INCLUDE =
+#include "sksl_interp.inc"
 ;
 
 static const char* SKSL_VERT_INCLUDE =
@@ -57,8 +61,8 @@ static const char* SKSL_FP_INCLUDE =
 #include "sksl_fp.inc"
 ;
 
-static const char* SKSL_GENERIC_INCLUDE =
-#include "sksl_generic.inc"
+static const char* SKSL_PIPELINE_INCLUDE =
+#include "sksl_pipeline.inc"
 ;
 
 namespace SkSL {
@@ -219,36 +223,40 @@ Compiler::Compiler(Flags flags)
     fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
 
     std::vector<std::unique_ptr<ProgramElement>> ignored;
-    fIRGenerator->convertProgram(Program::kFragment_Kind, SKSL_INCLUDE, strlen(SKSL_INCLUDE),
-                                 *fTypes, &ignored);
-    fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
-    if (fErrorCount) {
-        printf("Unexpected errors: %s\n", fErrorText.c_str());
-    }
-    SkASSERT(!fErrorCount);
-
-    Program::Settings settings;
-    fIRGenerator->start(&settings, nullptr);
-    fIRGenerator->convertProgram(Program::kFragment_Kind, SKSL_VERT_INCLUDE,
-                                 strlen(SKSL_VERT_INCLUDE), *fTypes, &fVertexInclude);
-    fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
-    fVertexSymbolTable = fIRGenerator->fSymbolTable;
-
-    fIRGenerator->start(&settings, nullptr);
-    fIRGenerator->convertProgram(Program::kVertex_Kind, SKSL_FRAG_INCLUDE,
-                                 strlen(SKSL_FRAG_INCLUDE), *fTypes, &fFragmentInclude);
-    fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
-    fFragmentSymbolTable = fIRGenerator->fSymbolTable;
-
-    fIRGenerator->start(&settings, nullptr);
-    fIRGenerator->convertProgram(Program::kGeometry_Kind, SKSL_GEOM_INCLUDE,
-                                 strlen(SKSL_GEOM_INCLUDE), *fTypes, &fGeometryInclude);
-    fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
-    fGeometrySymbolTable = fIRGenerator->fSymbolTable;
+    this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE, strlen(SKSL_GPU_INCLUDE),
+                             symbols, &ignored, &fGpuSymbolTable);
+    this->processIncludeFile(Program::kVertex_Kind, SKSL_VERT_INCLUDE, strlen(SKSL_VERT_INCLUDE),
+                             fGpuSymbolTable, &fVertexInclude, &fVertexSymbolTable);
+    this->processIncludeFile(Program::kFragment_Kind, SKSL_FRAG_INCLUDE, strlen(SKSL_FRAG_INCLUDE),
+                             fGpuSymbolTable, &fFragmentInclude, &fFragmentSymbolTable);
+    this->processIncludeFile(Program::kGeometry_Kind, SKSL_GEOM_INCLUDE, strlen(SKSL_GEOM_INCLUDE),
+                             fGpuSymbolTable, &fGeometryInclude, &fGeometrySymbolTable);
+    this->processIncludeFile(Program::kPipelineStage_Kind, SKSL_PIPELINE_INCLUDE,
+                             strlen(SKSL_PIPELINE_INCLUDE), fGpuSymbolTable, &fPipelineInclude,
+                             &fPipelineSymbolTable);
+    this->processIncludeFile(Program::kGeneric_Kind, SKSL_INTERP_INCLUDE,
+                             strlen(SKSL_INTERP_INCLUDE), symbols, &fInterpreterInclude,
+                             &fInterpreterSymbolTable);
 }
 
 Compiler::~Compiler() {
     delete fIRGenerator;
+}
+
+void Compiler::processIncludeFile(Program::Kind kind, const char* src, size_t length,
+                                  std::shared_ptr<SymbolTable> base,
+                                  std::vector<std::unique_ptr<ProgramElement>>* outElements,
+                                  std::shared_ptr<SymbolTable>* outSymbolTable) {
+    fIRGenerator->fSymbolTable = std::move(base);
+    Program::Settings settings;
+    fIRGenerator->start(&settings, nullptr);
+    fIRGenerator->convertProgram(kind, src, length, *fTypes, outElements);
+    if (this->fErrorCount) {
+        printf("Unexpected errors: %s\n", this->fErrorText.c_str());
+    }
+    SkASSERT(!fErrorCount);
+    fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+    *outSymbolTable = fIRGenerator->fSymbolTable;
 }
 
 // add the definition created by assigning to the lvalue to the definition set
@@ -1268,18 +1276,21 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             break;
         case Program::kFragmentProcessor_Kind:
             inherited = nullptr;
+            fIRGenerator->fSymbolTable = fGpuSymbolTable;
             fIRGenerator->start(&settings, nullptr);
             fIRGenerator->convertProgram(kind, SKSL_FP_INCLUDE, strlen(SKSL_FP_INCLUDE), *fTypes,
                                          &elements);
             fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
             break;
-        case Program::kPipelineStage_Kind: // fall through
+        case Program::kPipelineStage_Kind:
+            inherited = &fPipelineInclude;
+            fIRGenerator->fSymbolTable = fPipelineSymbolTable;
+            fIRGenerator->start(&settings, inherited);
+            break;
         case Program::kGeneric_Kind:
-            inherited = nullptr;
-            fIRGenerator->start(&settings, nullptr);
-            fIRGenerator->convertProgram(kind, SKSL_GENERIC_INCLUDE,
-                                         strlen(SKSL_GENERIC_INCLUDE), *fTypes, &elements);
-            fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+            inherited = &fInterpreterInclude;
+            fIRGenerator->fSymbolTable = fInterpreterSymbolTable;
+            fIRGenerator->start(&settings, inherited);
             break;
     }
     for (auto& element : elements) {
