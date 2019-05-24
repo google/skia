@@ -66,6 +66,13 @@
 #  define SK_SUPPORT_GPU 1
 #endif
 
+/** If GPU is enabled but no GPU backends are enabled then enable GL by default. */
+#if SK_SUPPORT_GPU
+#  if !defined(SK_GL) && !defined(SK_VULKAN) && !defined(SK_METAL)
+#    define SK_GL
+#  endif
+#endif
+
 #if !defined(SK_SUPPORT_ATLAS_TEXT)
 #  define SK_SUPPORT_ATLAS_TEXT 0
 #elif SK_SUPPORT_ATLAS_TEXT && !SK_SUPPORT_GPU
