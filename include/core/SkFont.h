@@ -508,14 +508,11 @@ private:
     SkScalar setupForAsPaths(SkPaint*);
     bool hasSomeAntiAliasing() const;
 
-    void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
-
     friend class GrTextBlob;
     friend class SkCanonicalizeFont;
     friend class SkFontPriv;
     friend class SkGlyphRunListPainter;
     friend class SkTextBlobCacheDiffCanvas;
-    friend class SVGTextBuilder;
     friend class SkStrikeSpecStorage;
 };
 

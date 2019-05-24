@@ -209,22 +209,6 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
     return count;
 }
 
-void SkFont::glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const {
-    if (count <= 0) {
-        return;
-    }
-
-    auto typeface = this->getTypefaceOrDefault();
-    const unsigned numGlyphsInTypeface = typeface->countGlyphs();
-    SkAutoTArray<SkUnichar> unichars(numGlyphsInTypeface);
-    typeface->getGlyphToUnicodeMap(unichars.get());
-
-    for (int i = 0; i < count; ++i) {
-        unsigned id = glyphs[i];
-        text[i] = (id < numGlyphsInTypeface) ? unichars[id] : 0xFFFD;
-    }
-}
-
 static void set_bounds(const SkGlyph& g, SkRect* bounds) {
     bounds->set(SkIntToScalar(g.fLeft),
                 SkIntToScalar(g.fTop),
@@ -472,8 +456,20 @@ int SkFontPriv::CountTextElements(const void* text, size_t byteLength, SkTextEnc
 }
 
 void SkFontPriv::GlyphsToUnichars(const SkFont& font, const SkGlyphID glyphs[], int count,
-                                  SkUnichar uni[]) {
-    font.glyphsToUnichars(glyphs, count, uni);
+                                  SkUnichar text[]) {
+    if (count <= 0) {
+        return;
+    }
+
+    auto typeface = font.getTypefaceOrDefault();
+    const unsigned numGlyphsInTypeface = typeface->countGlyphs();
+    SkAutoTArray<SkUnichar> unichars(numGlyphsInTypeface);
+    typeface->getGlyphToUnicodeMap(unichars.get());
+
+    for (int i = 0; i < count; ++i) {
+        unsigned id = glyphs[i];
+        text[i] = (id < numGlyphsInTypeface) ? unichars[id] : 0xFFFD;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
