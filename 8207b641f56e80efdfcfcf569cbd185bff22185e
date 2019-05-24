@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70d6759a_3edbdffc",
+        "filename": "include/core/SkMatrix.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1693,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-24T15:35:32Z",
+      "side": 0,
+      "message": "This side seems easier to follow than the new code on the right.",
+      "range": {
+        "startLine": 1686,
+        "startChar": 0,
+        "endLine": 1693,
+        "endChar": 54
+      },
+      "revId": "8207b641f56e80efdfcfcf569cbd185bff22185e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
