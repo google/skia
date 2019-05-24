@@ -45,7 +45,7 @@ public:
     struct TextDesc {
         const sk_sp<SkTypeface>&  fTypeface;
         SkScalar                  fTextSize,
-                                  fLineHeight; // when 0, use natural/computed line height.
+                                  fLineHeight;
         SkTextUtils::Align        fHAlign;
         VAlign                    fVAlign;
     };

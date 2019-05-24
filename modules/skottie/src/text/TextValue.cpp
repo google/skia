@@ -40,16 +40,17 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
         return false;
     }
 
-    const skjson::StringValue* font_name = (*jtxt)["f"];
-    const skjson::StringValue* text      = (*jtxt)["t"];
-    const skjson::NumberValue* text_size = (*jtxt)["s"];
-    if (!font_name || !text || !text_size ||
+    const skjson::StringValue* font_name   = (*jtxt)["f"];
+    const skjson::StringValue* text        = (*jtxt)["t"];
+    const skjson::NumberValue* text_size   = (*jtxt)["s"];
+    const skjson::NumberValue* line_height = (*jtxt)["lh"];
+    if (!font_name || !text || !text_size || !line_height ||
         !(v->fTypeface = abuilder->findFont(SkString(font_name->begin(), font_name->size())))) {
         return false;
     }
     v->fText.set(text->begin(), text->size());
-    v->fTextSize = **text_size;
-    v->fLineHeight = ParseDefault<float>((*jtxt)["lh"], 0);
+    v->fTextSize   = **text_size;
+    v->fLineHeight = **line_height;
 
     static constexpr SkTextUtils::Align gAlignMap[] = {
         SkTextUtils::kLeft_Align,  // 'j': 0

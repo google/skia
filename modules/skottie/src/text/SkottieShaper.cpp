@@ -7,7 +7,6 @@
 
 #include "modules/skottie/src/text/SkottieShaper.h"
 
-#include "include/core/SkFontMetrics.h"
 #include "include/core/SkTextBlob.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkTextBlobPriv.h"
@@ -62,27 +61,16 @@ public:
     void beginLine() override {
         fCurrentPosition = fOffset;
         fPendingLineAdvance  = { 0, 0 };
-        fMaxRunAscent = 0;
-        fMaxRunDescent = 0;
-        fMaxRunLeading = 0;
     }
 
     void runInfo(const RunInfo& info) override {
         fPendingLineAdvance += info.fAdvance;
-        SkFontMetrics metrics;
-        info.fFont.getMetrics(&metrics);
-        fMaxRunAscent = SkTMin(fMaxRunAscent, metrics.fAscent);
-        fMaxRunDescent = SkTMax(fMaxRunDescent, metrics.fDescent);
-        fMaxRunLeading = SkTMax(fMaxRunLeading, metrics.fLeading);
     }
 
     void commitRunInfo() override {}
 
     Buffer runBuffer(const RunInfo& info) override {
         int glyphCount = SkTFitsIn<int>(info.glyphCount) ? info.glyphCount : INT_MAX;
-
-        SkFontMetrics metrics;
-        info.fFont.getMetrics(&metrics);
 
         const auto& blobBuffer = fBuilder.allocRunPos(info.fFont, glyphCount);
 
@@ -102,11 +90,7 @@ public:
     }
 
     void commitLine() override {
-        // Observe explicit line height, if specified; otherwise use line metrics.
-        const auto lh = fDesc.fLineHeight > 0
-                ? fDesc.fLineHeight
-                : fMaxRunDescent + fMaxRunLeading - fMaxRunAscent;
-        fOffset.fY += lh;
+        fOffset.fY += fDesc.fLineHeight;
     }
 
     Shaper::Result makeBlob() {
@@ -193,9 +177,6 @@ private:
     SkTextBlobBuilder         fBuilder;
     std::unique_ptr<SkShaper> fShaper;
 
-    SkScalar fMaxRunAscent;
-    SkScalar fMaxRunDescent;
-    SkScalar fMaxRunLeading;
     SkPoint  fCurrentPosition{ 0, 0 };
     SkPoint  fOffset{ 0, 0 };
     SkVector fPendingLineAdvance{ 0, 0 };
