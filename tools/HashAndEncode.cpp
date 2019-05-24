@@ -6,11 +6,8 @@
 #include "tools/HashAndEncode.h"
 #include "png.h"
 
-static constexpr skcms_TransferFunction k2020_TF =
-    {2.22222f, 0.909672f, 0.0903276f, 0.222222f, 0.0812429f, 0, 0};
-
 static sk_sp<SkColorSpace> rec2020() {
-    return SkColorSpace::MakeRGB(k2020_TF, SkNamedGamut::kRec2020);
+    return SkColorSpace::MakeRGB(SkNamedTransferFn::kRec2020, SkNamedGamut::kRec2020);
 }
 
 HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimensions()) {
@@ -139,7 +136,8 @@ bool HashAndEncode::writePngTo(const char* path,
     png_set_filter(png, PNG_FILTER_TYPE_BASE, PNG_FILTER_NONE);
     png_set_compression_level(png, 1);
 
-    static const sk_sp<SkData> profile = SkWriteICCProfile(k2020_TF, SkNamedGamut::kRec2020);
+    static const sk_sp<SkData> profile =
+        SkWriteICCProfile(SkNamedTransferFn::kRec2020, SkNamedGamut::kRec2020);
     png_set_iCCP(png, info,
                  "Rec.2020",
                  0/*compression type... no idea what options are available here*/,
