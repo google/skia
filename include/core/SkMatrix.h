@@ -473,16 +473,9 @@ public:
     void setAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
                 SkScalar skewY,  SkScalar scaleY, SkScalar transY,
                 SkScalar persp0, SkScalar persp1, SkScalar persp2) {
-        fMat[kMScaleX] = scaleX;
-        fMat[kMSkewX]  = skewX;
-        fMat[kMTransX] = transX;
-        fMat[kMSkewY]  = skewY;
-        fMat[kMScaleY] = scaleY;
-        fMat[kMTransY] = transY;
-        fMat[kMPersp0] = persp0;
-        fMat[kMPersp1] = persp1;
-        fMat[kMPersp2] = persp2;
-        this->setTypeMask(kUnknown_Mask);
+        *this = SkMatrix(scaleX, skewX,  transX,
+                         skewY,  scaleY, transY,
+                         persp0, persp1, persp2, kUnknown_Mask);
     }
 
     /** Copies nine scalar values contained by SkMatrix into buffer, in member value
@@ -1671,26 +1664,14 @@ public:
         @param ty  vertical translation to store
     */
     void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty) {
-        fMat[kMScaleX] = sx;
-        fMat[kMSkewX]  = 0;
-        fMat[kMTransX] = tx;
-
-        fMat[kMSkewY]  = 0;
-        fMat[kMScaleY] = sy;
-        fMat[kMTransY] = ty;
-
-        fMat[kMPersp0] = 0;
-        fMat[kMPersp1] = 0;
-        fMat[kMPersp2] = 1;
-
-        unsigned mask = 0;
-        if (sx != 1 || sy != 1) {
-            mask |= kScale_Mask;
-        }
-        if (tx || ty) {
-            mask |= kTranslate_Mask;
-        }
-        this->setTypeMask(mask | kRectStaysRect_Mask);
+        uint32_t mask = (sx != 1 || sy != 1)
+                      ? ((tx || ty) ? (kRectStaysRect_Mask | kScale_Mask | kTranslate_Mask)
+                                    : (kRectStaysRect_Mask | kScale_Mask))
+                      : ((tx || ty) ? (kRectStaysRect_Mask | kTranslate_Mask)
+                                    : (kRectStaysRect_Mask));
+        *this = SkMatrix(sx, 0,  tx,
+                         0,  sy, ty,
+                         0,  0,  1, mask);
     }
 
     /** Returns true if all elements of the matrix are finite. Returns false if any
