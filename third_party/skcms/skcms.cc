@@ -1859,6 +1859,14 @@ namespace baseline {
     using U32 = Vec<N,uint32_t>;
     using U16 = Vec<N,uint16_t>;
     using  U8 = Vec<N,uint8_t>;
+#elif defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC) && defined(SKCMS_OPT_INTO_NEON_FP16)
+    #define N 8
+    using   F = Vec<N,_Float16>;
+    using I32 = Vec<N,int32_t>;
+    using U64 = Vec<N,uint64_t>;
+    using U32 = Vec<N,uint32_t>;
+    using U16 = Vec<N,uint16_t>;
+    using  U8 = Vec<N,uint8_t>;
 #else
     #define N 4
     using   F = Vec<N,float>;
