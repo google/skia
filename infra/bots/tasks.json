@@ -22007,10 +22007,9 @@
         "Housekeeper-PerCommit-IsolateSVG"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
-        "pool:Skia",
-        "rack:2"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -37065,10 +37064,9 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
-        "pool:Skia",
-        "rack:2"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -37182,10 +37180,9 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
-        "pool:Skia",
-        "rack:2"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -37299,10 +37296,9 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
-        "pool:Skia",
-        "rack:2"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -37411,10 +37407,9 @@
         "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
-        "pool:Skia",
-        "rack:2"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -37528,10 +37523,9 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
-        "pool:Skia",
-        "rack:2"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -37645,10 +37639,9 @@
         "Build-Debian9-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
-        "pool:Skia",
-        "rack:2"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -37762,11 +37755,10 @@
         "Build-Debian9-GCC-x86_64-Release-SK_CPU_LIMIT_SSE41"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia",
-        "valgrind:1",
-        "rack:2"
+        "valgrind:1"
       ],
       "env_prefixes": {
         "PATH": [
@@ -39042,8 +39034,7 @@
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -39159,8 +39150,7 @@
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -39276,8 +39266,7 @@
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -39393,8 +39382,7 @@
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -39510,8 +39498,7 @@
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -39627,8 +39614,7 @@
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -39730,8 +39716,7 @@
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -39833,8 +39818,7 @@
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -39936,8 +39920,7 @@
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -44461,8 +44444,7 @@
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -44578,8 +44560,7 @@
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -44695,8 +44676,7 @@
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -44812,8 +44792,7 @@
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -66487,7 +66466,7 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -66603,7 +66582,7 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -66714,7 +66693,7 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -66830,7 +66809,7 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -66941,7 +66920,7 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -67057,7 +67036,7 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -67173,7 +67152,7 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -67289,7 +67268,7 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -67400,7 +67379,7 @@
         "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -67516,7 +67495,7 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -67632,7 +67611,7 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -67748,7 +67727,7 @@
         "Build-Debian9-Clang-x86_64-Release-TSAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -67869,7 +67848,7 @@
         "Build-Debian9-Clang-x86_64-Release-TSAN_Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -67980,7 +67959,7 @@
         "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -68096,7 +68075,7 @@
         "Build-Debian9-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -68212,7 +68191,7 @@
         "Build-Debian9-GCC-x86_64-Release-SK_CPU_LIMIT_SSE41"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "valgrind:1"
@@ -68329,7 +68308,7 @@
         "Build-Debian9-GCC-x86_64-Release-SK_CPU_LIMIT_SSE41"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "valgrind:1"
@@ -68446,7 +68425,7 @@
         "Build-Debian9-GCC-x86_64-Release-SK_CPU_LIMIT_SSE41"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-415.27",
+        "gpu:10de:1cb3-430.14",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "valgrind:1"
