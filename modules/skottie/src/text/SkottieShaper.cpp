@@ -219,9 +219,9 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
     auto desc = orig_desc;
     desc.fVAlign = Shaper::VAlign::kCenter;
 
-    float in_size = 0,                                 // maximum size that fits inside
-         out_size = std::numeric_limits<float>::max(), // minimum size that doesn't fit
-         try_size = desc.fTextSize;                    // current probe
+    float in_scale = 0,                                 // maximum scale that fits inside
+         out_scale = std::numeric_limits<float>::max(), // minimum scale that doesn't fit
+         try_scale = 1;                                 // current probe
 
     // Perform a binary search for the best vertical fit (SkShaper already handles
     // horizontal fitting), starting with the specified text size.
@@ -230,17 +230,18 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
     // exponential search for the extremes.
     static constexpr size_t kMaxIter = 16;
     for (size_t i = 0; i < kMaxIter; ++i) {
-        SkASSERT(try_size >= in_size && try_size <= out_size);
-        desc.fTextSize = try_size;
+        SkASSERT(try_scale >= in_scale && try_scale <= out_scale);
+        desc.fTextSize   = try_scale * orig_desc.fTextSize;
+        desc.fLineHeight = try_scale * orig_desc.fLineHeight;
 
         auto res = ShapeImpl(txt, desc, box);
         auto res_height = res.computeBounds().height();
 
         if (res_height > box.height()) {
-            out_size = try_size;
-            try_size = (in_size == 0)
-                    ? try_size * 0.5f // initial in_size not found yet - search exponentially
-                    : (in_size + out_size) * 0.5f; // in_size found - binary search
+            out_scale = try_scale;
+            try_scale = (in_scale == 0)
+                    ? try_scale * 0.5f // initial in_scale not found yet - search exponentially
+                    : (in_scale + out_scale) * 0.5f; // in_scale found - binary search
         } else {
             // It fits - so it's a candidate.
             best_result = res;
@@ -250,10 +251,10 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
                 break;
             }
 
-            in_size = try_size;
-            try_size = (out_size == std::numeric_limits<float>::max())
-                    ? try_size * 2 // initial out_size not found yet - search exponentially
-                    : (in_size + out_size) * 0.5f; // out_size found - binary search
+            in_scale = try_scale;
+            try_scale = (out_scale == std::numeric_limits<float>::max())
+                    ? try_scale * 2 // initial out_scale not found yet - search exponentially
+                    : (in_scale + out_scale) * 0.5f; // out_scale found - binary search
         }
     }
 
