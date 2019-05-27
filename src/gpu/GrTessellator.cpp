@@ -1514,7 +1514,7 @@ void dump_skel(const SSEdgeList& ssEdges) {
 #endif
 }
 
-#ifdef SK_DEBUG
+#if 0
 void validate_edge_pair(Edge* left, Edge* right, Comparator& c) {
     if (!left || !right) {
         return;
@@ -1594,7 +1594,7 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
             }
             found = found || restartChecks;
         } while (restartChecks);
-#ifdef SK_DEBUG
+#if 0
         validate_edge_list(&activeEdges, c);
 #endif
         for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
