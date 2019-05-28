@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9efce35d_41e09a9f",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-28T17:58:44Z",
+      "side": 1,
+      "message": "Currently, the fallback code does all the calculations itself, and just uses MakeMask. This should be added to the SkStrikeSpec in the future mainly so that bitmap and GPU can share this code.",
+      "parentUuid": "96ac0efd_6c67392b",
+      "range": {
+        "startLine": 165,
+        "startChar": 39,
+        "endLine": 165,
+        "endChar": 67
+      },
+      "revId": "18b19d94b924fc0dbf07fc0da370c109dc9f630b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bdc84a41_065530ea",
         "filename": "src/gpu/text/GrTextBlob.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "18b19d94b924fc0dbf07fc0da370c109dc9f630b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ac1ee27_6199ae6f",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-28T17:58:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bdc84a41_065530ea",
+      "range": {
+        "startLine": 419,
+        "startChar": 12,
+        "endLine": 419,
+        "endChar": 35
+      },
+      "revId": "18b19d94b924fc0dbf07fc0da370c109dc9f630b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
