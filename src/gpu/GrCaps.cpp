@@ -285,6 +285,14 @@ bool GrCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
     return surface->readOnly() ? false : this->onSurfaceSupportsWritePixels(surface);
 }
 
+size_t GrCaps::transferFromOffsetAlignment(const GrSurface* surface) const {
+    if (surface->isProtected()) {
+        return 0;
+    }
+    const GrColorType bufferColorType = GrPixelConfigToColorType(surface->config());
+    return transferFromOffsetAlignment(bufferColorType);
+}
+
 size_t GrCaps::transferFromOffsetAlignment(GrColorType bufferColorType) const {
     if (!this->transferBufferSupport()) {
         return 0;
