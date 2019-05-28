@@ -545,9 +545,9 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
                                       srcColorSpace, buffer, rowBytes, flags)) {
             return false;
         }
+        GrPaint paint;
+        paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         if (canvas2DFastPath) {
-            GrPaint paint;
-            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
             auto fp = fContext->createUPMToPMEffect(
                     GrSimpleTextureEffect::Make(std::move(tempProxy), SkMatrix::I()));
             if (srcColorType == GrColorType::kBGRA_8888) {
@@ -557,14 +557,12 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
                 return false;
             }
             paint.addColorFragmentProcessor(std::move(fp));
-            dst->asRenderTargetContext()->fillRectToRect(
-                    GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
-                    SkRect::MakeXYWH(left, top, width, height), SkRect::MakeWH(width, height));
         } else {
-            if (!dst->copy(tempProxy.get(), SkIRect::MakeWH(width, height), {left, top})) {
-                return false;
-            }
+            auto fp = GrSimpleTextureEffect::Make(std::move(tempProxy), SkMatrix::I());
         }
+        dst->asRenderTargetContext()->fillRectToRect(
+                GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                SkRect::MakeXYWH(left, top, width, height), SkRect::MakeWH(width, height));
 
         return true;
     }
