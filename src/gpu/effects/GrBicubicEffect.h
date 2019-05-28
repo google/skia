@@ -11,13 +11,16 @@
 #include "src/gpu/effects/GrTextureDomain.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 
-class GrInvariantOutput;
-
 class GrBicubicEffect : public GrFragmentProcessor {
 public:
     enum {
         kFilterTexelPad = 2, // Given a src rect in texels to be filtered, this number of
                              // surrounding texels are needed by the kernel in x and y.
+    };
+
+    enum class Kernel {
+        kMitchell,
+        kCatmullRom,
     };
 
     const char* name() const override { return "Bicubic"; }
@@ -30,38 +33,43 @@ public:
 
     SkAlphaType alphaType() const { return fAlphaType; }
 
+    Kernel kernel() const { return fKernel; }
+
     /**
-     * Create a Mitchell filter effect with specified texture matrix with clamp wrap modes.
+     * Create a filter effect with specified texture matrix with clamp wrap modes.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      const SkMatrix& matrix,
+                                                     Kernel kernel,
                                                      SkAlphaType alphaType) {
         static constexpr GrSamplerState::WrapMode kClampClamp[] = {
                 GrSamplerState::WrapMode::kClamp, GrSamplerState::WrapMode::kClamp};
-        return Make(std::move(proxy), matrix, kClampClamp, GrTextureDomain::kIgnore_Mode,
+        return Make(std::move(proxy), matrix, kernel, kClampClamp, GrTextureDomain::kIgnore_Mode,
                     GrTextureDomain::kIgnore_Mode, alphaType);
     }
 
     /**
-     * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
+     * Create a filter effect with specified texture matrix and x/y tile modes.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      const SkMatrix& matrix,
+                                                     Kernel kernel,
                                                      const GrSamplerState::WrapMode wrapModes[2],
                                                      SkAlphaType alphaType) {
         // Ignore the domain on x and y, since this factory relies solely on the wrap mode of the
         // sampler to constrain texture coordinates
-        return Make(std::move(proxy), matrix, wrapModes, GrTextureDomain::kIgnore_Mode,
+        return Make(std::move(proxy), matrix, kernel, wrapModes, GrTextureDomain::kIgnore_Mode,
                     GrTextureDomain::kIgnore_Mode, alphaType);
     }
 
     /**
-     * Create a Mitchell filter effect with specified texture matrix and x/y tile modes. This
+     * Create a filter effect with specified texture matrix and x/y tile modes. This
      * supports providing modes for the texture domain explicitly, in the event that it should
      * override the behavior of the sampler's tile mode (e.g. clamp to border unsupported).
      */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      const SkMatrix& matrix,
+                                                     Kernel kernel,
                                                      const GrSamplerState::WrapMode wrapModes[2],
                                                      GrTextureDomain::Mode modeX,
                                                      GrTextureDomain::Mode modeY,
@@ -70,19 +78,21 @@ public:
         SkRect resolvedDomain = domain ? *domain : GrTextureDomain::MakeTexelDomain(
                 SkIRect::MakeWH(proxy->width(), proxy->height()), modeX, modeY);
         return std::unique_ptr<GrFragmentProcessor>(new GrBicubicEffect(
-                std::move(proxy), matrix, resolvedDomain, wrapModes, modeX, modeY, alphaType));
+                std::move(proxy), matrix, resolvedDomain, kernel, wrapModes, modeX, modeY,
+                alphaType));
     }
 
     /**
-     * Create a Mitchell filter effect with a texture matrix and a domain.
+     * Create a filter effect with a texture matrix and a domain.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      const SkMatrix& matrix,
                                                      const SkRect& domain,
+                                                     Kernel kernel,
                                                      SkAlphaType alphaType) {
         static const GrSamplerState::WrapMode kClampClamp[] = {
                 GrSamplerState::WrapMode::kClamp, GrSamplerState::WrapMode::kClamp};
-        return Make(std::move(proxy), matrix, kClampClamp, GrTextureDomain::kClamp_Mode,
+        return Make(std::move(proxy), matrix, kernel, kClampClamp, GrTextureDomain::kClamp_Mode,
                 GrTextureDomain::kClamp_Mode, alphaType, &domain);
     }
 
@@ -98,9 +108,7 @@ public:
 
 private:
     GrBicubicEffect(sk_sp<GrTextureProxy>, const SkMatrix& matrix, const SkRect& domain,
-                    const GrSamplerState::WrapMode wrapModes[2],
-                    GrTextureDomain::Mode modeX, GrTextureDomain::Mode modeY,
-                    SkAlphaType alphaType);
+            Kernel kernel, const GrSamplerState::WrapMode wrapModes[2], GrTextureDomain::Mode modeX, GrTextureDomain::Mode modeY, SkAlphaType alphaType);
     explicit GrBicubicEffect(const GrBicubicEffect&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -115,6 +123,7 @@ private:
     GrTextureDomain fDomain;
     TextureSampler fTextureSampler;
     SkAlphaType fAlphaType;
+    Kernel fKernel;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
