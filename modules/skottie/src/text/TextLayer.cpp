@@ -31,13 +31,15 @@ SkFontStyle FontStyle(const AnimationBuilder* abuilder, const char* style) {
         const char*               fName;
         const SkFontStyle::Weight fWeight;
     } gWeightMap[] = {
-        { "ExtraLight", SkFontStyle::kExtraLight_Weight },
-        { "Light"     , SkFontStyle::kLight_Weight      },
         { "Regular"   , SkFontStyle::kNormal_Weight     },
         { "Medium"    , SkFontStyle::kMedium_Weight     },
-        { "SemiBold"  , SkFontStyle::kSemiBold_Weight   },
         { "Bold"      , SkFontStyle::kBold_Weight       },
+        { "Light"     , SkFontStyle::kLight_Weight      },
+        { "SemiBold"  , SkFontStyle::kSemiBold_Weight   },
+        { "Black"     , SkFontStyle::kBlack_Weight      },
+        { "ExtraLight", SkFontStyle::kExtraLight_Weight },
         { "ExtraBold" , SkFontStyle::kExtraBold_Weight  },
+        { "ExtraBlack", SkFontStyle::kExtraBlack_Weight },
     };
 
     SkFontStyle::Weight weight = SkFontStyle::kNormal_Weight;
