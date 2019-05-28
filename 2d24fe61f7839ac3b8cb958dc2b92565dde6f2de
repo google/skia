@@ -16,6 +16,41 @@
       "revId": "2d24fe61f7839ac3b8cb958dc2b92565dde6f2de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef48becd_cea746f2",
+        "filename": "include/gpu/mtl/GrMtlTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-28T18:08:31Z",
+      "side": 1,
+      "message": "I take this back, I don\u0027t think it would help too much.",
+      "parentUuid": "64bb0a4a_a55bcc6f",
+      "revId": "2d24fe61f7839ac3b8cb958dc2b92565dde6f2de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b37ccaef_bb7c8ff5",
+        "filename": "include/gpu/mtl/GrMtlTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-28T18:08:31Z",
+      "side": 1,
+      "message": "It might be helpful to have a helper function\n\n#if __OBJC__\n    template\u003ctypename T\u003e\n    T getAsBridgedType() const {\n        return (__bridge T)fCFObject;\n    }\n#endif\n\nThat could avoid having helper functions for doing bridged casts -- one could do\n   id\u003cMTLTexture\u003e texture \u003d info.fTexture.getAsBridgedType\u003cid\u003cMTLTexture\u003e\u003e();",
+      "revId": "2d24fe61f7839ac3b8cb958dc2b92565dde6f2de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
