@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17cc0063_7fca9d25",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-28T20:48:19Z",
+      "side": 1,
+      "message": "I don\u0027t think you can have this assert. Reading the spec it looks like the device is allowed to return false for this even if it is 1.1 or higher. So we would need to fail creating the context if isProtected is true but we don\u0027t have feature support. This also reminds me that in GrVkCaps we made the check to be just if the physical device version was 1.1 or higher. We additionally need to check the features that we pass into the caps to see if the protected is enabled.",
+      "range": {
+        "startLine": 397,
+        "startChar": 8,
+        "endLine": 397,
+        "endChar": 58
+      },
+      "revId": "17fa7dbc8397890c7b6aa018a5d39ac0fe19c8b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
