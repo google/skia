@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "786f5859_a6d46a87",
+        "filename": "src/pdf/SkPDFMakeCIDGlyphWidthsArray.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-28T15:53:24Z",
+      "side": 1,
+      "message": "lastIndex is an int, and will not wrap.",
+      "parentUuid": "398c9b3a_9b9118a6",
+      "revId": "6c94bae6dc82d89cd7c43f896f8067642a0bf78a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9837181e_18bf31c6",
         "filename": "src/pdf/SkPDFMakeCIDGlyphWidthsArray.cpp",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "6c94bae6dc82d89cd7c43f896f8067642a0bf78a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c660bc08_34b07dfa",
+        "filename": "src/pdf/SkPDFMakeCIDGlyphWidthsArray.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-28T15:53:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9837181e_18bf31c6",
+      "revId": "6c94bae6dc82d89cd7c43f896f8067642a0bf78a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
