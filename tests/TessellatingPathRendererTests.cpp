@@ -622,6 +622,23 @@ static SkPath create_path_43() {
     return path;
 }
 
+// Reduction from crbug.com/966696
+static SkPath create_path_44() {
+    SkPath path;
+    path.moveTo(114.4606170654296875,       186.443878173828125);
+    path.lineTo( 91.5394744873046875,       185.4189453125);
+    path.lineTo(306.45538330078125,        3203.986083984375);
+    path.moveTo(16276206965409972224.0,     815.59393310546875);
+    path.lineTo(-3.541605062372533207e+20,  487.7236328125);
+    path.lineTo(-3.541605062372533207e+20,  168.204071044921875);
+    path.lineTo(16276206965409972224.0,     496.07427978515625);
+    path.moveTo(-3.541605062372533207e+20,  167.00958251953125);
+    path.lineTo(-3.541605062372533207e+20,  488.32086181640625);
+    path.lineTo(16276206965409972224.0,     816.78839111328125);
+    path.lineTo(16276206965409972224.0,     495.47705078125);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -642,6 +659,7 @@ static void test_path(GrContext* ctx,
                       AATypeFlags aaTypeFlags = AATypeFlags::kNone,
                       std::unique_ptr<GrFragmentProcessor> fp = nullptr) {
     GrTessellatingPathRenderer tess;
+    tess.setMaxVerbCount(100);
 
     GrPaint paint;
     paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
@@ -728,4 +746,5 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_41(), SkMatrix(), AATypeFlags::kCoverage);
     test_path(ctx, rtc.get(), create_path_42());
     test_path(ctx, rtc.get(), create_path_43(), SkMatrix(), AATypeFlags::kCoverage);
+    test_path(ctx, rtc.get(), create_path_44(), SkMatrix(), AATypeFlags::kCoverage);
 }

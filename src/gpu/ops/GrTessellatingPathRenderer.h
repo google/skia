@@ -17,6 +17,7 @@
 class SK_API GrTessellatingPathRenderer : public GrPathRenderer {
 public:
     GrTessellatingPathRenderer();
+    void setMaxVerbCount(int maxVerbCount) { fMaxVerbCount = maxVerbCount; }
 
 private:
     CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
@@ -26,6 +27,7 @@ private:
     }
 
     bool onDrawPath(const DrawPathArgs&) override;
+    int fMaxVerbCount;
 
     typedef GrPathRenderer INHERITED;
 };
