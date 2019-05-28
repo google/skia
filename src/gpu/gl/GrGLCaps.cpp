@@ -2716,6 +2716,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fPerformColorClearsAsDraws = true;
         fPerformStencilClearsAsDraws = true;
     }
+    fPerformStencilClearsAsDraws = true;
 
     // This was reproduced on the following configurations:
     // - A Galaxy J5 (Adreno 306) running Android 6 with driver 140.0
