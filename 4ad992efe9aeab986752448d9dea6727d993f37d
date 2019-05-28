@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c60a7a7_bdb2a51c",
+        "filename": "commit-queue.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-28T13:46:09Z",
+      "side": 1,
+      "message": "Nit: We could just replace the existing Metal build with this bot.",
+      "range": {
+        "startLine": 125,
+        "startChar": 30,
+        "endLine": 125,
+        "endChar": 103
+      },
+      "revId": "4ad992efe9aeab986752448d9dea6727d993f37d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
