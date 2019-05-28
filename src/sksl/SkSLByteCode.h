@@ -94,6 +94,10 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kRemainderU),
     // Followed by a byte indicating the number of slots being returned
     kReturn,
+    // Followed by two bytes indicating rows and columns of matrix (2, 3, or 4 each).
+    // Takes a single value from the top of the stack, and converts to an RxC matrix with that value
+    // replicated along the diagonal (and zero elsewhere), per the GLSL matrix construction rules.
+    kScalarToMatrix,
     VECTOR(kSin),
     VECTOR(kSqrt),
     // kStore/kStoreGlobal are followed by a byte indicating the local/global slot to store
