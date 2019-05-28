@@ -59,15 +59,13 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
     return blob;
 }
 
-void GrTextBlob::Run::setupFont(const SkStrikeSpec& strikeSpec) {
-    fTypeface = sk_ref_sp(&strikeSpec.typeface());
-    fPathEffect = sk_ref_sp(strikeSpec.effects().fPathEffect);
-    fMaskFilter = sk_ref_sp(strikeSpec.effects().fMaskFilter);
-    // if we have an override descriptor for the run, then we should use that
-    SkAutoDescriptor* desc =
-            fARGBFallbackDescriptor.get() ? fARGBFallbackDescriptor.get() : &fDescriptor;
-    // Set up the descriptor for possible cache lookups during regen.
-    desc->reset(strikeSpec.desc());
+void GrTextBlob::Run::setupFont(const SkStrikeSpecStorage& strikeSpec) {
+
+    if (fFallbackStrikeSpec != nullptr) {
+        *fFallbackStrikeSpec = strikeSpec;
+    } else {
+        fStrikeSpec = strikeSpec;
+    }
 }
 
 void GrTextBlob::Run::appendPathGlyph(const SkPath& path, SkPoint position,
@@ -400,26 +398,7 @@ void GrTextBlob::AssertEqual(const GrTextBlob& l, const GrTextBlob& r) {
         const Run& lRun = l.fRuns[i];
         const Run& rRun = r.fRuns[i];
 
-        if (lRun.fTypeface.get()) {
-            SkASSERT_RELEASE(rRun.fTypeface.get());
-            SkASSERT_RELEASE(SkTypeface::Equal(lRun.fTypeface.get(), rRun.fTypeface.get()));
-        } else {
-            SkASSERT_RELEASE(!rRun.fTypeface.get());
-        }
-
-
-        SkASSERT_RELEASE(lRun.fDescriptor.getDesc());
-        SkASSERT_RELEASE(rRun.fDescriptor.getDesc());
-        SkASSERT_RELEASE(*lRun.fDescriptor.getDesc() == *rRun.fDescriptor.getDesc());
-
-        if (lRun.fARGBFallbackDescriptor.get()) {
-            SkASSERT_RELEASE(lRun.fARGBFallbackDescriptor->getDesc());
-            SkASSERT_RELEASE(rRun.fARGBFallbackDescriptor.get() && rRun.fARGBFallbackDescriptor->getDesc());
-            SkASSERT_RELEASE(*lRun.fARGBFallbackDescriptor->getDesc() ==
-                             *rRun.fARGBFallbackDescriptor->getDesc());
-        } else {
-            SkASSERT_RELEASE(!rRun.fARGBFallbackDescriptor.get());
-        }
+        SkASSERT_RELEASE(lRun.fStrikeSpec.descriptor() == rRun.fStrikeSpec.descriptor());
 
         // color can be changed
         //SkASSERT(lRun.fColor == rRun.fColor);
