@@ -18,7 +18,7 @@
 #include "include/effects/SkDashPathEffect.h"
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrPath.h"
-#include "src/gpu/GrShape.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "tests/Test.h"
 
 #include <initializer_list>

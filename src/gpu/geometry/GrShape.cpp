@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrShape.h"
+#include "src/gpu/geometry/GrShape.h"
 
 #include <utility>
 
