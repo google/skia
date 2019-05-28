@@ -169,7 +169,8 @@ public:
     static sk_sp<SkSpecialImage> DrawWithFP(GrRecordingContext* context,
                                             std::unique_ptr<GrFragmentProcessor> fp,
                                             const SkIRect& bounds,
-                                            const OutputProperties& outputProperties);
+                                            const OutputProperties& outputProperties,
+                                            bool isProtected = false);
 #endif
 
     /**
