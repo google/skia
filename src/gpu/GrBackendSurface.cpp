@@ -250,11 +250,6 @@ void GrBackendTexture::cleanup() {
         fVkInfo.cleanup();
     }
 #endif
-#ifdef SK_METAL
-    if (this->isValid() && GrBackendApi::kMetal == fBackend) {
-        fMtlInfo.cleanup();
-    }
-#endif
 }
 
 GrBackendTexture::GrBackendTexture(const GrBackendTexture& that) : fIsValid(false) {
@@ -284,7 +279,7 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
             break;
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
-            fMtlInfo.assign(that.fMtlInfo, this->isValid());
+            fMtlInfo = that.fMtlInfo;
             break;
 #endif
         case GrBackendApi::kMock:
@@ -334,7 +329,7 @@ sk_sp<GrVkImageLayout> GrBackendTexture::getGrVkImageLayout() const {
 #ifdef SK_METAL
 bool GrBackendTexture::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kMetal == fBackend) {
-        *outInfo = fMtlInfo.snapTextureInfo();
+        *outInfo = fMtlInfo;
         return true;
     }
     return false;
@@ -381,8 +376,7 @@ bool GrBackendTexture::isSameTexture(const GrBackendTexture& that) {
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
-            return this->fMtlInfo.snapTextureInfo().fTexture ==
-                   that.fMtlInfo.snapTextureInfo().fTexture;
+            return this->fMtlInfo.fTexture == that.fMtlInfo.fTexture;
 #endif
         case GrBackendApi::kMock:
             return fMockInfo.fID == that.fMockInfo.fID;
@@ -554,11 +548,6 @@ void GrBackendRenderTarget::cleanup() {
         fVkInfo.cleanup();
     }
 #endif
-#ifdef SK_METAL
-    if (this->isValid() && GrBackendApi::kMetal == fBackend) {
-        fMtlInfo.cleanup();
-    }
-#endif
 }
 
 GrBackendRenderTarget::GrBackendRenderTarget(const GrBackendRenderTarget& that) : fIsValid(false) {
@@ -589,7 +578,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
             break;
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
-            fMtlInfo.assign(that.fMtlInfo, this->isValid());
+            fMtlInfo = that.fMtlInfo;
             break;
 #endif
         case GrBackendApi::kMock:
@@ -632,7 +621,7 @@ sk_sp<GrVkImageLayout> GrBackendRenderTarget::getGrVkImageLayout() const {
 #ifdef SK_METAL
 bool GrBackendRenderTarget::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kMetal == fBackend) {
-        *outInfo = fMtlInfo.snapTextureInfo();
+        *outInfo = fMtlInfo;
         return true;
     }
     return false;

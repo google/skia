@@ -701,7 +701,6 @@ skia_vk_sources = [
 
 skia_metal_sources = [
   "$_include/gpu/mtl/GrMtlTypes.h",
-  "$_include/private/GrMtlTypesPriv.h",
   "$_src/gpu/mtl/GrMtlBuffer.h",
   "$_src/gpu/mtl/GrMtlBuffer.mm",
   "$_src/gpu/mtl/GrMtlCaps.h",
@@ -739,7 +738,6 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlTextureRenderTarget.mm",
   "$_src/gpu/mtl/GrMtlTrampoline.h",
   "$_src/gpu/mtl/GrMtlTrampoline.mm",
-  "$_src/gpu/mtl/GrMtlTypesPriv.cpp",
   "$_src/gpu/mtl/GrMtlUniformHandler.h",
   "$_src/gpu/mtl/GrMtlUniformHandler.mm",
   "$_src/gpu/mtl/GrMtlUtil.h",

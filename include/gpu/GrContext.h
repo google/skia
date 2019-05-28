@@ -61,8 +61,9 @@ public:
 #ifdef SK_METAL
     /**
      * Makes a GrContext which uses Metal as the backend. The device parameter is an MTLDevice
-     * and queue is an MTLCommandQueue which should be used by the backend. These objects will
-     * be retained by Ganesh, and released when the GrContext is destroyed.
+     * and queue is an MTLCommandQueue which should be used by the backend. These objects must
+     * have a ref on them which can be transferred to Ganesh which will release the ref when the
+     * GrContext is destroyed.
      */
     static sk_sp<GrContext> MakeMetal(void* device, void* queue, const GrContextOptions& options);
     static sk_sp<GrContext> MakeMetal(void* device, void* queue);

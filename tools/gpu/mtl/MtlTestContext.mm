@@ -124,7 +124,9 @@ public:
     void finish() override {}
 
     sk_sp<GrContext> makeGrContext(const GrContextOptions& options) override {
-        return GrContext::MakeMetal((__bridge void*)fDevice, (__bridge void*)fQueue, options);
+        return GrContext::MakeMetal((__bridge_retained void*)fDevice,
+                                    (__bridge_retained void*)fQueue,
+                                    options);
     }
 
     id<MTLDevice> device() { return fDevice; }
