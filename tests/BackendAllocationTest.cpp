@@ -251,7 +251,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                                        GrMipMapped mipMapped,
                                                        GrRenderable renderable) {
                         return context->createBackendTexture(32, 32, colorType,
-                                                             mipMapped, renderable);
+                                                              mipMapped, renderable);
                     };
 
                     test_wrapping(context, reporter, uninitCreateMtd,
