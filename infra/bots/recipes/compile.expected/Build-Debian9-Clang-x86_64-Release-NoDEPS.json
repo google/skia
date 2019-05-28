@@ -47,7 +47,6 @@
     "cwd": "[START_DIR]/skia",
     "infra_step": true,
     "name": "read revision",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_TEXT@<br/>checked out 'deadbeef'<br/>@@@"
     ]

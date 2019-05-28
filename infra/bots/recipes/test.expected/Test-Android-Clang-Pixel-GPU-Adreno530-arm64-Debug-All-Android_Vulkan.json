@@ -21,7 +21,6 @@
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
     "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
@@ -120,8 +119,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/SKP_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /sdcard/revenge_of_the_skiabot/SKP_VERSION"
   },
   {
     "cmd": [
@@ -265,8 +263,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -410,8 +407,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/SVG_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /sdcard/revenge_of_the_skiabot/SVG_VERSION"
   },
   {
     "cmd": [
@@ -646,7 +642,6 @@
       "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
     ],
     "name": "get swarming task id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
@@ -967,7 +962,6 @@
     ],
     "infra_step": true,
     "name": "adb pull.list pulled files",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@glob@[CLEANUP]/adb_pull_tmp_1/1.png@@@",

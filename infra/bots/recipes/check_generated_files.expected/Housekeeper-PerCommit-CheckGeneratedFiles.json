@@ -119,8 +119,7 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "git diff #1",
-    "stdout": "/path/to/tmp/"
+    "name": "git diff #1"
   },
   {
     "cmd": [
@@ -229,8 +228,7 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "git diff #2",
-    "stdout": "/path/to/tmp/"
+    "name": "git diff #2"
   },
   {
     "cmd": [

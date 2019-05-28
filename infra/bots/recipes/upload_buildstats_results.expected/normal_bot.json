@@ -13,7 +13,6 @@
     "cwd": "[START_DIR]/perf",
     "infra_step": true,
     "name": "find results",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@glob@[START_DIR]/perf/buildstats_abc123.json@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/perf/buildstats_def.json@@@",

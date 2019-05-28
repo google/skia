@@ -171,8 +171,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /home/chronos/user/SKP_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /home/chronos/user/SKP_VERSION"
   },
   {
     "cmd": [
@@ -308,8 +307,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /home/chronos/user/SK_IMAGE_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /home/chronos/user/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -445,8 +443,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /home/chronos/user/SVG_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /home/chronos/user/SVG_VERSION"
   },
   {
     "cmd": [
@@ -583,7 +580,6 @@
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
     "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
@@ -597,7 +593,6 @@
       "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
     ],
     "name": "get swarming task id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",

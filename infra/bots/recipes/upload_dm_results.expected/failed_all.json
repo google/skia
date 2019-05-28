@@ -12,7 +12,6 @@
     ],
     "infra_step": true,
     "name": "find .png images",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@glob@[START_DIR]/test/someimage.png@@@",
       "@@@STEP_LOG_END@glob@@@"

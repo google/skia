@@ -22,8 +22,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "cat_file file.txt",
-    "stdout": "/path/to/tmp/"
+    "name": "cat_file file.txt"
   },
   {
     "cmd": [

@@ -27,7 +27,6 @@
     ],
     "infra_step": true,
     "name": "find json results",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@glob@[START_DIR]/perf/bench_modified_master.json@@@",
       "@@@STEP_LOG_END@glob@@@"
@@ -46,7 +45,6 @@
     ],
     "infra_step": true,
     "name": "find csv results",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@glob@[START_DIR]/perf/bench_modified_master.csv@@@",
       "@@@STEP_LOG_END@glob@@@"

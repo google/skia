@@ -24,7 +24,6 @@
       "gs://android-compile-tasks/cf_x86_phone-eng-1234-1.json"
     ],
     "name": "Get task log links",
-    "stdout": "/path/to/tmp/json",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"nopatch_log\": \"link2\", @@@",
