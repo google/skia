@@ -40,6 +40,12 @@ public:
             const SkSurfaceProps& surfaceProps,
             SkScalerContextFlags scalerContextFlags);
 
+    static SkStrikeSpecStorage MakeSourceFallback(const SkFont& font,
+                                                  const SkPaint& paint,
+                                                  const SkSurfaceProps& surfaceProps,
+                                                  SkScalerContextFlags scalerContextFlags,
+                                                  SkScalar maxSourceGlyphDimension);
+
     // Create a canonical strike spec for device-less measurements.
     static SkStrikeSpecStorage MakeCanonicalized(
             const SkFont& font, const SkPaint* paint = nullptr);
