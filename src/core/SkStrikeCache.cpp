@@ -54,10 +54,6 @@ public:
         return fStrike.getDescriptor();
     }
 
-    SkStrikeSpec strikeSpec() const override {
-        return fStrike.strikeSpec();
-    }
-
     void onAboutToExitScope() override {
         fStrikeCache->attachNode(this);
     }
