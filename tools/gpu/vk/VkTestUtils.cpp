@@ -64,6 +64,7 @@ bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc,
 #ifdef SK_ENABLE_VK_LAYERS
 const char* kDebugLayerNames[] = {
     // elements of VK_LAYER_LUNARG_standard_validation
+    "VK_LAYER_LUNARG_standard_validation",
     "VK_LAYER_GOOGLE_threading",
     "VK_LAYER_LUNARG_parameter_validation",
     "VK_LAYER_LUNARG_object_tracker",
@@ -390,7 +391,8 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
                             VkPhysicalDeviceFeatures2* features,
                             VkDebugReportCallbackEXT* debugCallback,
                             uint32_t* presentQueueIndexPtr,
-                            CanPresentFn canPresent) {
+                            CanPresentFn canPresent,
+                            bool isProtected) {
     VkResult err;
 
     ACQUIRE_VK_PROC_NOCHECK(EnumerateInstanceVersion, VK_NULL_HANDLE, VK_NULL_HANDLE);
@@ -400,11 +402,15 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     } else {
         err = grVkEnumerateInstanceVersion(&instanceVersion);
         if (err) {
-            SkDebugf("failed ot enumerate instance version. Err: %d\n", err);
+            SkDebugf("failed to enumerate instance version. Err: %d\n", err);
             return false;
         }
     }
     SkASSERT(instanceVersion >= VK_MAKE_VERSION(1, 0, 0));
+    if (isProtected) {
+        instanceVersion = VK_MAKE_VERSION(1, 1, 0);
+    }
+
     uint32_t apiVersion = VK_MAKE_VERSION(1, 0, 0);
     if (instanceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         // If the instance version is 1.0 we must have the apiVersion also be 1.0. However, if the
@@ -613,15 +619,28 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
                      (uint32_t) deviceExtensionNames.count(),
                      deviceExtensionNames.begin());
 
+    VkPhysicalDeviceProtectedMemoryFeatures protectedMemory = {
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES,    // sType
+        nullptr,                                                        // pNext
+        VK_TRUE,                                                        // protectedMemory
+    };
+
     memset(features, 0, sizeof(VkPhysicalDeviceFeatures2));
     features->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    features->pNext = nullptr;
+    features->pNext = isProtected ? &protectedMemory : nullptr;
 
     VkPhysicalDeviceFeatures* deviceFeatures = &features->features;
     void* pointerToFeatures = nullptr;
     if (physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1)) {
         setup_extension_features(getProc, inst, physDev, physDeviceVersion, extensions, features);
+
+        if (!protectedMemory.protectedMemory) {
+            SkDebugf("Device does not support protected memory\n", err);
+            destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
+            return false;
+        }
+
         // If we set the pNext of the VkDeviceCreateInfo to our VkPhysicalDeviceFeatures2 struct,
         // the device creation will use that instead of the ppEnabledFeatures.
         pointerToFeatures = features;
@@ -633,6 +652,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     // and we can't depend on it on all platforms
     deviceFeatures->robustBufferAccess = VK_FALSE;
 
+    VkDeviceQueueCreateFlags flags = 0 ; //isProtected ? VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT : 0;
     float queuePriorities[1] = { 0.0 };
     // Here we assume no need for swapchain queue
     // If one is needed, the client will need its own setup code
@@ -640,10 +660,11 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         {
             VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
             nullptr,                                    // pNext
-            0,                                          // VkDeviceQueueCreateFlags
+            flags,                                      // VkDeviceQueueCreateFlags
             graphicsQueueIndex,                         // queueFamilyIndex
             1,                                          // queueCount
             queuePriorities,                            // pQueuePriorities
+
         },
         {
             VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
@@ -683,7 +704,20 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     }
 
     VkQueue queue;
-    grVkGetDeviceQueue(device, graphicsQueueIndex, 0, &queue);
+    if (isProtected) {
+        ACQUIRE_VK_PROC(GetDeviceQueue2, inst, device);
+        SkASSERT(grVkGetDeviceQueue2 != nullptr);
+        VkDeviceQueueInfo2 queue_info2 = {
+          .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2,
+          .pNext = nullptr,
+          .flags = VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT,
+          .queueFamilyIndex = graphicsQueueIndex,
+          .queueIndex = 0
+        };
+        grVkGetDeviceQueue2(device, &queue_info2, &queue);
+    } else {
+        grVkGetDeviceQueue(device, graphicsQueueIndex, 0, &queue);
+    }
 
     ctx->fInstance = inst;
     ctx->fPhysicalDevice = physDev;
@@ -695,6 +729,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     ctx->fDeviceFeatures2 = features;
     ctx->fGetProc = getProc;
     ctx->fOwnsInstanceAndDevice = false;
+    ctx->fProtectedContext = isProtected;
 
     return true;
 }
