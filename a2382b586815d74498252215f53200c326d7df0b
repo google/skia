@@ -16,6 +16,24 @@
       "revId": "a2382b586815d74498252215f53200c326d7df0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "287755c0_4e590f01",
+        "filename": "src/pdf/SkPDFMakeCIDGlyphWidthsArray.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-05-28T14:37:58Z",
+      "side": 1,
+      "message": "Why cast to size_t? the ctor for SkAutoTArray is an int. I would then have to cast it back to into an int to get this code to compile.",
+      "parentUuid": "29909e7a_586fbab9",
+      "revId": "a2382b586815d74498252215f53200c326d7df0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
