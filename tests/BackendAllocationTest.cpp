@@ -521,7 +521,6 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                 }
 
                 // Not implemented for Vulkan yet
-#if 0
                 {
                     auto createWithColorMtd = [format](GrContext* context,
                                                        const SkColor4f& color,
@@ -534,7 +533,6 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                     test_color_init(context, reporter, createWithColorMtd,
                                     combo.fColorType, combo.fColor, mipMapped, renderable);
                 }
-#endif
             }
         }
     }

@@ -4059,7 +4059,7 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
                                                GrMipMapped mipMapped,
                                                GrRenderable renderable,
                                                const void* pixels, size_t rowBytes,
-                                               const SkColor4f& colorf) {
+                                               const SkColor4f* colorf) {
     this->handleDirtyContext();
 
     const GrGLenum* glFormat = format.getGLFormat();
@@ -4111,66 +4111,72 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
 
     set_initial_texture_params(this->glInterface(), info);
 
-    // Figure out the number of mip levels.
-    int mipLevelCount = 1;
-    if (GrMipMapped::kYes == mipMapped) {
-        mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
-    }
-
-    SkAutoTMalloc<GrMipLevel> texels(mipLevelCount);
-
-    bool success;
-    if (GrPixelConfigIsCompressed(config)) {
-        // we have to do something special for compressed textures
-        SkASSERT(GrRenderable::kNo == renderable);
-        SkASSERT(0 == rowBytes);
-
-        int numBlocks = GrNumETC1Blocks(w, h);
-        SkAutoTMalloc<ETC1Block> defaultStorage(numBlocks);
-        if (!pixels) {
-            GrFillInETC1WithColor(colorf, defaultStorage.get(), numBlocks);
-            pixels = defaultStorage.get();
+    if (pixels || colorf) {
+        // Figure out the number of mip levels.
+        int mipLevelCount = 1;
+        if (GrMipMapped::kYes == mipMapped) {
+            mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
         }
 
-        for (int i = 0; i < mipLevelCount; ++i) {
-            // TODO: this isn't correct when pixels for additional mip levels are passed in
-            texels.get()[i] = { pixels, 0 };
-        }
+        SkAutoTMalloc<GrMipLevel> texels(mipLevelCount);
 
-        success = this->uploadCompressedTexData(config, w, h, info.fTarget,
-                                                texels.get(), mipLevelCount, nullptr);
-    } else {
-        int bpp = GrBytesPerPixel(config);
-        const size_t trimRowBytes = w * bpp;
-        if (!rowBytes) {
-            rowBytes = trimRowBytes;
-        }
+        bool success;
+        if (GrPixelConfigIsCompressed(config)) {
+            // we have to do something special for compressed textures
+            SkASSERT(GrRenderable::kNo == renderable);
+            SkASSERT(0 == rowBytes);
 
-        size_t baseLayerSize = bpp * w * h;
-        SkAutoMalloc defaultStorage(baseLayerSize);
-        if (!pixels) {
-            if (!GrFillBufferWithColor(config, w, h, colorf, defaultStorage.get())) {
-                GL_CALL(DeleteTextures(1, &(info.fID)));
-                return GrBackendTexture();
+            int numBlocks = GrNumETC1Blocks(w, h);
+            SkAutoTMalloc<ETC1Block> defaultStorage(numBlocks);
+            if (!pixels) {
+                SkASSERT(colorf);
+
+                GrFillInETC1WithColor(*colorf, defaultStorage.get(), numBlocks);
+                pixels = defaultStorage.get();
             }
 
-            pixels = defaultStorage.get();
-            rowBytes = trimRowBytes;
+            for (int i = 0; i < mipLevelCount; ++i) {
+                // TODO: this isn't correct when pixels for additional mip levels are passed in
+                texels.get()[i] = { pixels, 0 };
+            }
+
+            success = this->uploadCompressedTexData(config, w, h, info.fTarget,
+                                                    texels.get(), mipLevelCount, nullptr);
+        } else {
+            int bpp = GrBytesPerPixel(config);
+            const size_t trimRowBytes = w * bpp;
+            if (!rowBytes) {
+                rowBytes = trimRowBytes;
+            }
+
+            size_t baseLayerSize = bpp * w * h;
+            SkAutoMalloc defaultStorage(baseLayerSize);
+            if (!pixels) {
+                SkASSERT(colorf);
+
+                if (!GrFillBufferWithColor(config, w, h, *colorf, defaultStorage.get())) {
+                    GL_CALL(DeleteTextures(1, &(info.fID)));
+                    return GrBackendTexture();
+                }
+
+                pixels = defaultStorage.get();
+                rowBytes = trimRowBytes;
+            }
+
+            for (int i = 0; i < mipLevelCount; ++i) {
+                // TODO: this isn't correct when pixels for additional mip levels are passed in
+                texels.get()[i] = { pixels, rowBytes };
+            }
+
+            success = this->uploadTexData(config, w, h, info.fTarget, kNewTexture_UploadType,
+                                          0, 0, w, h, config, texels.get(), mipLevelCount,
+                                          nullptr);
         }
 
-        for (int i = 0; i < mipLevelCount; ++i) {
-            // TODO: this isn't correct when pixels for additional mip levels are passed in
-            texels.get()[i] = { pixels, rowBytes };
+        if (!success) {
+            GL_CALL(DeleteTextures(1, &(info.fID)));
+            return GrBackendTexture();
         }
-
-        success = this->uploadTexData(config, w, h, info.fTarget, kNewTexture_UploadType,
-                                      0, 0, w, h, config, texels.get(), mipLevelCount,
-                                      nullptr);
-    }
-
-    if (!success) {
-        GL_CALL(DeleteTextures(1, &(info.fID)));
-        return GrBackendTexture();
     }
 
     info.fFormat = this->glCaps().configSizedInternalFormat(config);

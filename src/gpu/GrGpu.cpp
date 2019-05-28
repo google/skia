@@ -467,7 +467,7 @@ GrBackendTexture GrGpu::createTestingOnlyBackendTexture(int w, int h, SkColorTyp
     }
 
     return this->createBackendTexture(w, h, format, mipMapped, renderable,
-                                      pixels, rowBytes);
+                                      pixels, rowBytes, nullptr);
 }
 
 #if GR_TEST_UTILS
