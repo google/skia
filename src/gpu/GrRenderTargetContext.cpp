@@ -835,8 +835,7 @@ void GrRenderTargetContext::internalStencilClear(const GrFixedClip& clip, bool i
 
         // Configure the paint to have no impact on the color buffer
         GrPaint paint;
-        paint.setColor4f({0.f, 0.f, 0.f, 0.f});
-        paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
+        paint.setXPFactory(GrDisableColorXPFactory::Get());
 
         // Mark stencil usage here before addDrawOp() so that it doesn't try to re-call
         // internalStencilClear() just because the op has stencil settings.
