@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "92ed5267_44c9ee7a",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-28T19:39:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b09b1a7f_a44333b9",
+      "range": {
+        "startLine": 410,
+        "startChar": 8,
+        "endLine": 410,
+        "endChar": 20
+      },
+      "revId": "eec4bf99c03ba1cd5c25ac09522b310109bab911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "78d6e998_535c000f",
         "filename": "tools/gpu/vk/VkTestUtils.cpp",
         "patchSetId": 19
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "eac58dbc_07f9c0c0",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-28T19:39:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78d6e998_535c000f",
+      "range": {
+        "startLine": 539,
+        "startChar": 8,
+        "endLine": 539,
+        "endChar": 25
+      },
+      "revId": "eec4bf99c03ba1cd5c25ac09522b310109bab911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc83eb4b_1e6673dd",
         "filename": "tools/gpu/vk/VkTestUtils.cpp",
         "patchSetId": 19
@@ -59,6 +107,30 @@
       "writtenOn": "2019-05-24T19:23:28Z",
       "side": 1,
       "message": "lets move this into the setup_extension_features(...) helper function, and I guess just rename the helper to setup_features since this isn\u0027t an extension. That helper currently assumes there are not structs added to the features pNext yet, so it starts chaining the other features in there from the top level features struct. So your struct here is probably never actually getting put on the final features struct we send to vkCreateDevice. You\u0027ll need to pass in the isProtected bool into that helper as well.",
+      "range": {
+        "startLine": 622,
+        "startChar": 3,
+        "endLine": 626,
+        "endChar": 6
+      },
+      "revId": "eec4bf99c03ba1cd5c25ac09522b310109bab911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a573beb8_076ce92a",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-28T19:39:16Z",
+      "side": 1,
+      "message": "Done. Not this one, but adding physDeviceVersion info above helped me figure out the culprit. It looks like my workstation reports instance 1.1.73 supported but VkPhysicalDeviceProperties.apiVersion 1.0.65. According to the spec, this should result in undefined behavior, which can explain why vkCreateDevice call is crashing for me. \n\nI will continue once I figure out a test platform where I can run these.\n\nSpec reference is in the description section of https://www.khronos.org/registry/vulkan/specs/1.1-extensions/man/html/VkPhysicalDeviceProperties.html.",
+      "parentUuid": "fc83eb4b_1e6673dd",
       "range": {
         "startLine": 622,
         "startChar": 3,
@@ -91,6 +163,30 @@
       "revId": "eec4bf99c03ba1cd5c25ac09522b310109bab911",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cfba5e1_354453a0",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-28T19:39:16Z",
+      "side": 1,
+      "message": "It was leftover from debugging. Reverted.",
+      "parentUuid": "a2394f7c_97373152",
+      "range": {
+        "startLine": 655,
+        "startChar": 24,
+        "endLine": 655,
+        "endChar": 46
+      },
+      "revId": "eec4bf99c03ba1cd5c25ac09522b310109bab911",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
