@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58ab4892_06343ba3",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-28T20:19:30Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be CxR?\n\nI\u0027ll refrain from bugging you in every single spot this comment applies :-).",
+      "range": {
+        "startLine": 103,
+        "startChar": 74,
+        "endLine": 103,
+        "endChar": 77
+      },
+      "revId": "65dcde3b3fdbefa509073b536f98b6056ed8cd13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68b2d976_bfe3beb5",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-28T20:19:30Z",
+      "side": 1,
+      "message": "Won\u0027t this fail for float2x2(float4)?",
+      "range": {
+        "startLine": 476,
+        "startChar": 12,
+        "endLine": 476,
+        "endChar": 35
+      },
+      "revId": "65dcde3b3fdbefa509073b536f98b6056ed8cd13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67bb734b_348aed59",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-05-28T20:19:30Z",
+      "side": 1,
+      "message": "Can we add tests for float2x2(float4) and for creating a matrix from a bunch of scalars?",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 153,
+        "endChar": 36
+      },
+      "revId": "65dcde3b3fdbefa509073b536f98b6056ed8cd13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
