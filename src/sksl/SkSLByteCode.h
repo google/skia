@@ -74,6 +74,11 @@ enum class ByteCodeInstruction : uint16_t {
     // count byte, and get the slot to load from the top of the stack.
     kLoadExtended,
     kLoadExtendedGlobal,
+    // Followed by four bytes: srcCols, srcRows, dstCols, dstRows. Consumes the src matrix from the
+    // stack, and replaces it with the dst matrix. Per GLSL rules, there are no restrictions on
+    // dimensions. Any overlapping values are copied, and any other values are filled in with the
+    // identity matrix.
+    kMatrixToMatrix,
     VECTOR(kNegateF),
     VECTOR(kNegateI),
     VECTOR(kMix),
@@ -94,6 +99,10 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kRemainderU),
     // Followed by a byte indicating the number of slots being returned
     kReturn,
+    // Followed by two bytes indicating columns and rows of matrix (2, 3, or 4 each).
+    // Takes a single value from the top of the stack, and converts to a CxR matrix with that value
+    // replicated along the diagonal (and zero elsewhere), per the GLSL matrix construction rules.
+    kScalarToMatrix,
     VECTOR(kSin),
     VECTOR(kSqrt),
     // kStore/kStoreGlobal are followed by a byte indicating the local/global slot to store

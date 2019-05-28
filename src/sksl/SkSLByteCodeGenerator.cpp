@@ -443,10 +443,12 @@ void ByteCodeGenerator::writeConstructor(const Constructor& c) {
         this->writeExpression(*arg);
     }
     if (c.fArguments.size() == 1) {
-        TypeCategory inCategory = type_category(c.fArguments[0]->fType);
-        TypeCategory outCategory = type_category(c.fType);
-        int inCount = c.fArguments[0]->fType.columns();
-        int outCount = c.fType.columns();
+        const Type& inType = c.fArguments[0]->fType;
+        const Type& outType = c.fType;
+        TypeCategory inCategory = type_category(inType);
+        TypeCategory outCategory = type_category(outType);
+        int inCount = SlotCount(inType);
+        int outCount = SlotCount(outType);
         if (inCategory != outCategory) {
             SkASSERT(inCount == outCount);
             if (inCategory == TypeCategory::kFloat) {
@@ -464,10 +466,23 @@ void ByteCodeGenerator::writeConstructor(const Constructor& c) {
                 SkASSERT(false);
             }
         }
-        if (inCount != outCount) {
+        if (inType.kind() == Type::kMatrix_Kind && outType.kind() == Type::kMatrix_Kind) {
+            this->write(ByteCodeInstruction::kMatrixToMatrix);
+            this->write8(inType.columns());
+            this->write8(inType.rows());
+            this->write8(outType.columns());
+            this->write8(outType.rows());
+        } else if (inCount != outCount) {
             SkASSERT(inCount == 1);
-            for (; inCount != outCount; ++inCount) {
-                this->write(ByteCodeInstruction::kDup);
+            if (outType.kind() == Type::kMatrix_Kind) {
+                this->write(ByteCodeInstruction::kScalarToMatrix);
+                this->write8(outType.columns());
+                this->write8(outType.rows());
+            } else {
+                SkASSERT(outType.kind() == Type::kVector_Kind);
+                for (; inCount != outCount; ++inCount) {
+                    this->write(ByteCodeInstruction::kDup);
+                }
             }
         }
     }
