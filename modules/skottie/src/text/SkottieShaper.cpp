@@ -119,10 +119,8 @@ public:
             break;
         }
 
-        return {
-            std::move(blob),
-            pos
-        };
+        // single blob for now
+        return { std::vector<Shaper::Fragment>(1ul, { std::move(blob), pos })};
     }
 
     void shapeLine(const char* start, const char* end) {
@@ -210,7 +208,7 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
                           const SkRect& box) {
     SkASSERT(orig_desc.fVAlign == Shaper::VAlign::kResizeToFit);
 
-    Shaper::Result best_result = { nullptr, {0, 0} };
+    Shaper::Result best_result;
 
     if (box.isEmpty() || orig_desc.fTextSize <= 0) {
         return best_result;
@@ -244,7 +242,7 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
                     : (in_scale + out_scale) * 0.5f; // in_scale found - binary search
         } else {
             // It fits - so it's a candidate.
-            best_result = res;
+            best_result = std::move(res);
             static constexpr float kTolerance = 1;
             if (box.height() - res_height <= kTolerance) {
                 // Jackpot.
@@ -265,7 +263,7 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkPoint& point) {
     return (desc.fVAlign == VAlign::kResizeToFit) // makes no sense in point mode
-            ? Result{ nullptr, {0, 0} }
+            ? Result()
             : ShapeImpl(txt, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()));
 }
 
@@ -276,7 +274,14 @@ Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const Sk
 }
 
 SkRect Shaper::Result::computeBounds() const {
-    return ComputeBlobBounds(fBlob).makeOffset(fPos.x(), fPos.y());
+    auto bounds = SkRect::MakeEmpty();
+
+    for (const auto& fragment : fFragments) {
+        bounds.join(ComputeBlobBounds(fragment.fBlob).makeOffset(fragment.fPos.x(),
+                                                                 fragment.fPos.y()));
+    }
+
+    return bounds;
 }
 
 } // namespace skottie
