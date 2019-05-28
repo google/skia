@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa6cc26b_3f03bf35",
+        "filename": "experimental/ffmpeg/SkVideoEncoder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-05-28T18:27:48Z",
+      "side": 1,
+      "message": "I think there\u0027s an append version which takes src and also copies the bytes.",
+      "revId": "36f067fd8f8045b140b150b1b801f476978248ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b73a030_b9234371",
+        "filename": "experimental/ffmpeg/SkVideoEncoder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-05-28T18:27:48Z",
+      "side": 1,
+      "message": "this could be private to SkVideoEncoder",
+      "range": {
+        "startLine": 21,
+        "startChar": 6,
+        "endLine": 21,
+        "endChar": 27
+      },
+      "revId": "36f067fd8f8045b140b150b1b801f476978248ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c68f88c_00aa31c4",
+        "filename": "experimental/ffmpeg/SkVideoEncoder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-05-28T18:27:48Z",
+      "side": 1,
+      "message": "std::unique_ptr?",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 26
+      },
+      "revId": "36f067fd8f8045b140b150b1b801f476978248ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
