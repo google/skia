@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "66a71f5a_ec0e8301",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-28T20:43:56Z",
+      "side": 1,
+      "message": "In that case, inCount \u003d\u003d outCount, but I\u0027ll add test cases for this.",
+      "parentUuid": "68b2d976_bfe3beb5",
+      "range": {
+        "startLine": 476,
+        "startChar": 12,
+        "endLine": 476,
+        "endChar": 35
+      },
+      "revId": "65dcde3b3fdbefa509073b536f98b6056ed8cd13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "67bb734b_348aed59",
         "filename": "tests/SkSLInterpreterTest.cpp",
         "patchSetId": 9
