@@ -1620,6 +1620,8 @@ if (skia_enable_tools) {
       sources = [
         "experimental/ffmpeg/SkVideoDecoder.cpp",
         "experimental/ffmpeg/SkVideoDecoder.h",
+        "experimental/ffmpeg/SkVideoEncoder.cpp",
+        "experimental/ffmpeg/SkVideoEncoder.h",
       ]
       libs = [
         "avcodec",
@@ -1912,6 +1914,20 @@ if (skia_enable_tools) {
       ":flags",
       ":skia",
     ]
+  }
+
+  if (skia_use_ffmpeg) {
+    test_app("skottie2movie") {
+      sources = [
+        "tools/skottie2movie.cpp",
+      ]
+      deps = [
+        ":flags",
+        ":skia",
+        ":video_decoder",
+        "modules/skottie",
+      ]
+    }
   }
 
   test_app("skpbench") {
