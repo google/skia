@@ -49,6 +49,7 @@ void test(skiatest::Reporter* r, const char* src, SkSL::Interpreter::Value* in, 
                 separator = ", ";
             }
             printf(")\n");
+            interpreter.disassemble(*main);
         }
         REPORTER_ASSERT(r, valid);
     } else {
@@ -147,6 +148,48 @@ DEF_TEST(SkSLInterpreterRemainder, r) {
          2, 0, 0, 0);
     test(r, "void main(inout half4 color) { int2 a = int2(8, 10); a %= 6; color.rg = a; }", 0, 0, 0,
          0, 2, 4, 0, 0);
+}
+
+DEF_TEST(SkSLInterpreterMatrix, r) {
+    SkSL::Interpreter::Value in[1];
+    SkSL::Interpreter::Value expected[1];
+
+    // Constructing matrix from scalar produces a diagonal matrix
+    in[0].fFloat = 1.0f;
+    expected[0].fFloat = 2.0f;
+    test(r, "float main(float x) { float4x4 m = float4x4(x); return m[1][1] + m[1][2] + m[2][2]; }",
+         in, 1, expected);
+
+    // With non-square matrix
+    test(r, "float main(float x) { float3x2 m = float3x2(x); return m[0][0] + m[1][1] + m[2][1]; }",
+         in, 1, expected);
+
+    // Constructing from a different-sized matrix fills the remaining space with the identity matrix
+    test(r, "float main(float x) {"
+         "float3x2 m = float3x2(x);"
+         "float4x4 m2 = float4x4(m);"
+         "return m2[0][0] + m2[3][3]; }",
+         in, 1, expected);
+
+#if 0
+    // Addition of matrices
+    test(r, "void main(inout half4 color) {"
+         "half4x4 m = half4x4(color, color, color, color);"
+         "m += m; color = m[0]; }",
+         1, 2, 3, 4, 2, 4, 6, 8);
+
+    // Matrix * Vector multiplication
+    test(r, "void main(inout half4 color) {"
+         "half4x4 m = half4x4(color, color, color, color);"
+         "color = m * color; }",
+         1, 2, 3, 4, 10, 20, 30, 40);
+
+    // Matrix * Matrix multiplication
+    test(r, "void main(inout half4 color) {"
+         "half4x4 m = half4x4(color, color, color, color);"
+         "m = m * m; color = m[2]; }",
+         1, 2, 3, 4, 10, 20, 30, 40);
+#endif
 }
 
 DEF_TEST(SkSLInterpreterTernary, r) {
