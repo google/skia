@@ -20,6 +20,11 @@ public:
                              // surrounding texels are needed by the kernel in x and y.
     };
 
+    enum class Direction {
+        kX,
+        kY,
+        kXY
+    };
     const char* name() const override { return "Bicubic"; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
@@ -31,10 +36,12 @@ public:
     SkAlphaType alphaType() const { return fAlphaType; }
 
     /**
-     * Create a Mitchell filter effect with specified texture matrix with clamp wrap modes.
+     * Create a Mitchell filter effect with specified texture matrix with clamp wrap mode that
+     * can operate in one or both dimensions.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      const SkMatrix& matrix,
+                                                     Direction direction,
                                                      SkAlphaType alphaType) {
         static constexpr GrSamplerState::WrapMode kClampClamp[] = {
                 GrSamplerState::WrapMode::kClamp, GrSamplerState::WrapMode::kClamp};
@@ -100,6 +107,8 @@ private:
     GrBicubicEffect(sk_sp<GrTextureProxy>, const SkMatrix& matrix, const SkRect& domain,
                     const GrSamplerState::WrapMode wrapModes[2],
                     GrTextureDomain::Mode modeX, GrTextureDomain::Mode modeY,
+                    SkAlphaType alphaType);
+    GrBicubicEffect(sk_sp<GrTextureProxy>, const SkMatrix& matrix, const SkRect& domain, Direction direction,
                     SkAlphaType alphaType);
     explicit GrBicubicEffect(const GrBicubicEffect&);
 
