@@ -445,8 +445,8 @@ void ByteCodeGenerator::writeConstructor(const Constructor& c) {
     if (c.fArguments.size() == 1) {
         TypeCategory inCategory = type_category(c.fArguments[0]->fType);
         TypeCategory outCategory = type_category(c.fType);
-        int inCount = c.fArguments[0]->fType.columns();
-        int outCount = c.fType.columns();
+        int inCount = SlotCount(c.fArguments[0]->fType);
+        int outCount = SlotCount(c.fType);
         if (inCategory != outCategory) {
             SkASSERT(inCount == outCount);
             if (inCategory == TypeCategory::kFloat) {
@@ -465,9 +465,17 @@ void ByteCodeGenerator::writeConstructor(const Constructor& c) {
             }
         }
         if (inCount != outCount) {
+            // We don't handle matMxM -> matNxN yet (this is a more complex case)
             SkASSERT(inCount == 1);
-            for (; inCount != outCount; ++inCount) {
-                this->write(ByteCodeInstruction::kDup);
+            if (c.fType.kind() == Type::kMatrix_Kind) {
+                this->write(ByteCodeInstruction::kScalarToMatrix);
+                this->write8(c.fType.rows());
+                this->write8(c.fType.columns());
+            } else {
+                SkASSERT(c.fType.kind() == Type::kVector_Kind);
+                for (; inCount != outCount; ++inCount) {
+                    this->write(ByteCodeInstruction::kDup);
+                }
             }
         }
     }

@@ -189,6 +189,12 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kRemainderS, "remainders")
         VECTOR_DISASSEMBLE(kRemainderU, "remainderu")
         case ByteCodeInstruction::kReturn: printf("return %d", READ8()); break;
+        case ByteCodeInstruction::kScalarToMatrix: {
+            int rows = READ8();
+            int cols = READ8();
+            printf("scalartomatrix %d %d", rows, cols);
+            break;
+        }
         VECTOR_DISASSEMBLE(kSin, "sin")
         VECTOR_DISASSEMBLE(kSqrt, "sqrt")
         case ByteCodeInstruction::kStore: printf("store %d", READ8()); break;
@@ -610,6 +616,18 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                     frames.pop_back();
                     break;
                 }
+            }
+
+            case ByteCodeInstruction::kScalarToMatrix: {
+                int rows = READ8();
+                int cols = READ8();
+                Value v = POP();
+                for (int c = 0; c < cols; ++c) {
+                    for (int r = 0; r < rows; ++r) {
+                        PUSH(c == r ? v : 0.0f);
+                    }
+                }
+                break;
             }
 
             VECTOR_UNARY_FN(kSin, sinf, fFloat)
