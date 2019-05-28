@@ -321,6 +321,9 @@ static inline SkRect offset(SkRect r, SkIPoint p) {
 
 void Editor::paint(SkCanvas* c, PaintOpts options) {
     this->reshapeAll();
+    if (!c) {
+        return;
+    }
 
     c->drawPaint(SkPaint(options.fBackgroundColor));
 

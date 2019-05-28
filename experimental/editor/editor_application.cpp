@@ -110,7 +110,6 @@ struct EditorLayer : public sk_app::Window::Layer {
             fHeight = height;
             if (width != fWidth) {
                 fWidth = width;
-                Timer timer("shaping");
                 fEditor.setWidth(fWidth);
             }
             this->inval();
@@ -235,6 +234,8 @@ struct EditorApplication : public sk_app::Application {
         fWindow->pushLayer(&fLayer);
         fWindow->show();
         fLayer.onResize(fWindow->width(), fWindow->height());
+        Timer timer("shaping");
+        fLayer.fEditor.paint(nullptr, editor::Editor::PaintOpts());
     }
     ~EditorApplication() override { fWindow->detach(); }
 
