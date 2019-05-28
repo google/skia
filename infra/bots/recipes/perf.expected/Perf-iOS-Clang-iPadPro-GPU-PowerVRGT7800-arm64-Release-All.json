@@ -120,8 +120,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "cat_file tmp/SKP_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "cat_file tmp/SKP_VERSION"
   },
   {
     "cmd": [
@@ -243,8 +242,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "cat_file tmp/SK_IMAGE_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "cat_file tmp/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -366,8 +364,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "cat_file tmp/SVG_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "cat_file tmp/SVG_VERSION"
   },
   {
     "cmd": [
@@ -480,7 +477,6 @@
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
     },
     "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
@@ -498,7 +494,6 @@
       "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
     },
     "name": "get swarming task id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",

@@ -6,7 +6,6 @@
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
     "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
@@ -25,7 +24,6 @@
     },
     "infra_step": true,
     "name": "read chromecast ip",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
@@ -76,8 +74,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read file.txt",
-    "stdout": "/path/to/tmp/"
+    "name": "read file.txt"
   },
   {
     "cmd": [
@@ -264,8 +261,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /cache/skia/SKP_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /cache/skia/SKP_VERSION"
   },
   {
     "cmd": [
@@ -407,8 +403,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /cache/skia/SK_IMAGE_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /cache/skia/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -550,8 +545,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /cache/skia/SVG_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /cache/skia/SVG_VERSION"
   },
   {
     "cmd": [
@@ -718,7 +712,6 @@
     ],
     "infra_step": true,
     "name": "adb pull.list pulled files",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@glob@[CLEANUP]/adb_pull_tmp_1/1.png@@@",

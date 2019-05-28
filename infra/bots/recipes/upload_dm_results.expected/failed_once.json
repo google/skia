@@ -12,7 +12,6 @@
     ],
     "infra_step": true,
     "name": "find .png images",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@glob@[START_DIR]/test/someimage.png@@@",
       "@@@STEP_LOG_END@glob@@@"
@@ -54,7 +53,6 @@
     ],
     "infra_step": true,
     "name": "find .pdf images",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@glob@[START_DIR]/test/someimage.png@@@",
       "@@@STEP_LOG_END@glob@@@"
@@ -82,7 +80,6 @@
     ],
     "infra_step": true,
     "name": "check for optional verbose.log file",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@listdir@[START_DIR]/test/dm.json@@@",
       "@@@STEP_LOG_LINE@listdir@[START_DIR]/test/verbose.log@@@",

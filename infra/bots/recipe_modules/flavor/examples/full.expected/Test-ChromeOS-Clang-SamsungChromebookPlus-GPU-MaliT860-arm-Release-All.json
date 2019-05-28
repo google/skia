@@ -42,8 +42,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read file.txt",
-    "stdout": "/path/to/tmp/"
+    "name": "read file.txt"
   },
   {
     "cmd": [
@@ -273,8 +272,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /home/chronos/user/SKP_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /home/chronos/user/SKP_VERSION"
   },
   {
     "cmd": [
@@ -410,8 +408,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /home/chronos/user/SK_IMAGE_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /home/chronos/user/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -547,8 +544,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /home/chronos/user/SVG_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /home/chronos/user/SVG_VERSION"
   },
   {
     "cmd": [

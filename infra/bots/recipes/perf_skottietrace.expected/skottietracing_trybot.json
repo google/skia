@@ -21,7 +21,6 @@
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
     "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
@@ -120,8 +119,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/LOTTIE_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
   },
   {
     "cmd": [
@@ -269,7 +267,6 @@
     ],
     "infra_step": true,
     "name": "list lottie files",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/LICENSE@@@",
       "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie 3!.json@@@",
@@ -428,8 +425,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/dm_out/2.json",
-    "stdout": "/path/to/tmp/"
+    "name": "read /sdcard/revenge_of_the_skiabot/dm_out/2.json"
   },
   {
     "cmd": [
@@ -616,8 +612,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/dm_out/3.json",
-    "stdout": "/path/to/tmp/"
+    "name": "read /sdcard/revenge_of_the_skiabot/dm_out/3.json"
   },
   {
     "cmd": [
@@ -804,8 +799,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/dm_out/4.json",
-    "stdout": "/path/to/tmp/"
+    "name": "read /sdcard/revenge_of_the_skiabot/dm_out/4.json"
   },
   {
     "cmd": [
@@ -907,7 +901,6 @@
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
     "name": "get swarming bot id (2)",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
@@ -921,7 +914,6 @@
       "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
     ],
     "name": "get swarming task id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
