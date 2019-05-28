@@ -17,6 +17,7 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/text/GrStrikeCache.h"
@@ -275,10 +276,10 @@ private:
 
     class SubRun {
     public:
-        SubRun(Run* run, const SkAutoDescriptor& desc, GrColor color)
+        SubRun(Run* run, const SkStrikeSpecStorage& strikeSpec, GrColor color)
             : fColor{color}
             , fRun{run}
-            , fDesc{desc} {}
+            , fStrikeSpec{strikeSpec} {}
 
         // When used with emplace_back, this constructs a SubRun from the last SubRun in an array.
         //SubRun(SkSTArray<1, SubRun>* subRunList)
@@ -348,7 +349,7 @@ private:
         void setFallback() { fFlags.argbFallback = true; }
         bool isFallback() { return fFlags.argbFallback; }
 
-        const SkDescriptor* desc() const { return fDesc.getDesc(); }
+        const SkStrikeSpecStorage& strikeSpec() const { return fStrikeSpec; }
 
     private:
         GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
@@ -373,7 +374,7 @@ private:
             bool argbFallback:1;
         } fFlags{false, false, false, false, false, false};
         Run* const fRun;
-        const SkAutoDescriptor& fDesc;
+        const SkStrikeSpecStorage& fStrikeSpec;
     };  // SubRunInfo
 
     /*
@@ -403,7 +404,7 @@ private:
         explicit Run(GrTextBlob* blob, GrColor color)
         : fBlob{blob}, fColor{color} {
             // To ensure we always have one subrun, we push back a fresh run here
-            fSubRunInfo.emplace_back(this, fDescriptor, color);
+            fSubRunInfo.emplace_back(this, fStrikeSpec, color);
         }
 
         // sets the last subrun of runIndex to use w values
@@ -415,9 +416,9 @@ private:
         // inits the override descriptor on the current run.  All following subruns must use this
         // descriptor
         SubRun* initARGBFallback() {
-            fARGBFallbackDescriptor.reset(new SkAutoDescriptor{});
+            fFallbackStrikeSpec.reset(new SkStrikeSpecStorage{});
             // Push back a new subrun to fill and set the override descriptor
-            SubRun* subRun = this->pushBackSubRun(*fARGBFallbackDescriptor, fColor);
+            SubRun* subRun = this->pushBackSubRun(*fFallbackStrikeSpec, fColor);
             subRun->setMaskFormat(kARGB_GrMaskFormat);
             subRun->setFallback();
             return subRun;
@@ -445,7 +446,7 @@ private:
                                     SkPoint origin,
                                     SkScalar textScale);
 
-        void setupFont(const SkStrikeSpec& strikeSpec);
+        void setupFont(const SkStrikeSpecStorage& strikeSpec);
 
         void setRunFontAntiAlias(bool aa) {
             fAntiAlias = aa;
@@ -460,7 +461,7 @@ private:
             subRun.setHasWCoord(hasWCoord);
         }
 
-        SubRun* pushBackSubRun(const SkAutoDescriptor& desc, GrColor color) {
+        SubRun* pushBackSubRun(const SkStrikeSpecStorage& desc, GrColor color) {
             // Forward glyph / vertex information to seed the new sub run
             SubRun& newSubRun = fSubRunInfo.emplace_back(this, desc, color);
 
@@ -487,20 +488,14 @@ private:
             bool fPreTransformed;
         };
 
-
-        sk_sp<SkTypeface> fTypeface;
         SkSTArray<1, SubRun> fSubRunInfo;
-        SkAutoDescriptor fDescriptor;
-
-        // Effects from the paint that are used to build a SkScalerContext.
-        sk_sp<SkPathEffect> fPathEffect;
-        sk_sp<SkMaskFilter> fMaskFilter;
+        SkStrikeSpecStorage fStrikeSpec;
 
         // Distance field text cannot draw coloremoji, and so has to fall back.  However,
         // though the distance field text and the coloremoji may share the same run, they
-        // will have different descriptors.  If fARGBFallbackDescriptor is non-nullptr, then it
+        // will have different descriptors.  If fFallbackStrikeSpec is non-nullptr, then it
         // will be used in place of the run's descriptor to regen texture coords
-        std::unique_ptr<SkAutoDescriptor> fARGBFallbackDescriptor;
+        std::unique_ptr<SkStrikeSpecStorage> fFallbackStrikeSpec;
 
         SkTArray<PathGlyph> fPathGlyphs;
 
@@ -524,28 +519,27 @@ private:
     void startRun(const SkGlyphRun& glyphRun, bool useSDFT) override;
 
     void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
-                            SkStrikeInterface* strike) override;
+                            const SkStrikeSpecStorage& strikeSpec) override;
 
     void processSourcePaths(SkSpan<const SkGlyphPos> paths,
-                            SkStrikeInterface* strike, SkScalar cacheToSourceScale) override;
+                            const SkStrikeSpecStorage& strikeSpec) override;
 
     void processDevicePaths(SkSpan<const SkGlyphPos> paths) override;
 
     void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
-                           SkStrikeInterface* strike,
+                           const SkStrikeSpecStorage& strikeSpec,
                            const SkFont& runFont,
-                           SkScalar cacheToSourceScale,
                            SkScalar minScale,
                            SkScalar maxScale,
                            bool hasWCoord) override;
 
     void processSourceFallback(SkSpan<const SkGlyphPos> masks,
-                               SkStrikeInterface* strike,
-                               SkScalar cacheToSourceScale,
+                               const SkStrikeSpecStorage& strikeSpec,
+                               SkScalar strikeToSourceRatio,
                                bool hasW) override;
 
     void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
-                               SkStrikeInterface* strike) override;
+                               const SkStrikeSpecStorage& strikeSpec) override;
 
     struct StrokeInfo {
         SkScalar fFrameWidth;
@@ -636,8 +630,7 @@ private:
     GrDeferredUploadTarget* fUploadTarget;
     GrStrikeCache* fGlyphCache;
     GrAtlasManager* fFullAtlasManager;
-    SkExclusiveStrikePtr* fLazyCache;
-    Run* fRun;
+    SkExclusiveStrikePtr* fLazyStrike;
     SubRun* fSubRun;
     GrColor fColor;
     SkScalar fTransX;

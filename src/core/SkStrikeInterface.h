@@ -33,25 +33,6 @@ struct SkScalerContextEffects {
     SkMaskFilter*   fMaskFilter;
 };
 
-class SkStrikeSpec {
-public:
-    SkStrikeSpec(const SkDescriptor& desc,
-                 const SkTypeface& typeface,
-                 const SkScalerContextEffects& effects)
-            : fDesc{desc}
-            , fTypeface{typeface}
-            , fEffects{effects} {}
-
-    const SkDescriptor& desc() const { return fDesc; }
-    const SkTypeface& typeface() const { return fTypeface; }
-    SkScalerContextEffects effects() const {return fEffects; }
-
-private:
-    const SkDescriptor& fDesc;
-    const SkTypeface& fTypeface;
-    const SkScalerContextEffects fEffects;
-};
-
 struct SkGlyphPos {
     size_t index;
     const SkGlyph* glyph;
@@ -68,7 +49,6 @@ public:
     virtual ~SkStrikeInterface() = default;
     virtual SkVector rounding() const = 0;
     virtual const SkDescriptor& getDescriptor() const = 0;
-    virtual SkStrikeSpec strikeSpec() const = 0;
 
     enum PreparationDetail {
         kBoundsOnly,

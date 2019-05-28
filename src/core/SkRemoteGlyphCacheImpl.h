@@ -33,10 +33,6 @@ public:
         return *fDescriptor.getDesc();
     }
 
-    SkStrikeSpec strikeSpec() const override {
-        return SkStrikeSpec(this->getDescriptor(), *fTypeface, fEffects);
-    }
-
     void setTypefaceAndEffects(const SkTypeface* typeface, SkScalerContextEffects effects);
 
     SkVector rounding() const override;

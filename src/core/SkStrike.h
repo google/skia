@@ -132,12 +132,6 @@ public:
 
     const SkDescriptor& getDescriptor() const override;
 
-    SkStrikeSpec strikeSpec() const override {
-        return SkStrikeSpec{this->getDescriptor(),
-                            *this->getScalerContext()->getTypeface(),
-                            this->getScalerContext()->getEffects()};
-    }
-
     SkSpan<const SkGlyphPos> prepareForDrawing(const SkGlyphID glyphIDs[],
                                                const SkPoint positions[],
                                                size_t n,
