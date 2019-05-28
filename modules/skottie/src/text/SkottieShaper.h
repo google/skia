@@ -11,6 +11,8 @@
 #include "include/core/SkPoint.h"
 #include "include/utils/SkTextUtils.h"
 
+#include <vector>
+
 class SkTextBlob;
 
 namespace skottie {
@@ -19,12 +21,13 @@ namespace skottie {
 
 class Shaper final {
 public:
-    struct Result {
-        // For now, shaping produces a single text blob.  This will eventually
-        // evolve into an array of <blob,pos> tuples to support animating
-        // per-character properties.
+    struct Fragment {
         sk_sp<SkTextBlob> fBlob;
         SkPoint           fPos;
+    };
+
+    struct Result {
+        std::vector<Fragment> fFragments;
 
         SkRect computeBounds() const;
     };
