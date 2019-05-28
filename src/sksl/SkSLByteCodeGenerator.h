@@ -71,7 +71,7 @@ public:
          * Stack before call: ... lvalue value
          * Stack after call: ...
          */
-        virtual void store() = 0;
+        virtual void store(bool discard) = 0;
 
     protected:
         ByteCodeGenerator& fGenerator;
@@ -214,7 +214,7 @@ private:
 
     void writeVariableExpression(const Expression& expr);
 
-    void writeExpression(const Expression& expr);
+    void writeExpression(const Expression& expr, bool discard = false);
 
     /**
      * Pushes whatever values are required by the lvalue onto the stack, and returns an LValue
@@ -234,7 +234,7 @@ private:
 
     void writeSwizzle(const Swizzle& swizzle);
 
-    void writeBinaryExpression(const BinaryExpression& b);
+    bool writeBinaryExpression(const BinaryExpression& b, bool discard);
 
     void writeTernaryExpression(const TernaryExpression& t);
 
@@ -244,9 +244,9 @@ private:
 
     void writeNullLiteral(const NullLiteral& n);
 
-    void writePrefixExpression(const PrefixExpression& p);
+    bool writePrefixExpression(const PrefixExpression& p, bool discard);
 
-    void writePostfixExpression(const PostfixExpression& p);
+    bool writePostfixExpression(const PostfixExpression& p, bool discard);
 
     void writeBoolLiteral(const BoolLiteral& b);
 
