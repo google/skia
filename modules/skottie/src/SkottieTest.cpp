@@ -262,7 +262,8 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
             };
 
             const auto shape_result = skottie::Shaper::Shape(text, desc, text_point);
-            REPORTER_ASSERT(reporter, shape_result.fBlob);
+            REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
+            REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
 
             const auto shape_bounds = shape_result.computeBounds();
             REPORTER_ASSERT(reporter, !shape_bounds.isEmpty());
@@ -323,7 +324,8 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
             };
 
             const auto shape_result = skottie::Shaper::Shape(text, desc, text_box);
-            REPORTER_ASSERT(reporter, shape_result.fBlob);
+            REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
+            REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
 
             const auto shape_bounds = shape_result.computeBounds();
             REPORTER_ASSERT(reporter, !shape_bounds.isEmpty());
