@@ -10,7 +10,7 @@
 
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/GrDrawOpAtlas.h"
-#include "src/gpu/GrRect.h"
+#include "src/gpu/geometry/GrRect.h"
 
 #include "include/core/SkPath.h"
 #include "include/private/SkChecksum.h"

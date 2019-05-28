@@ -16,7 +16,7 @@
 #include "src/gpu/GrReducedClip.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
-#include "src/gpu/GrShape.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/GrStencilClip.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrStyle.h"
