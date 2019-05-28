@@ -12,7 +12,7 @@
 #include "src/gpu/GrPath.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrShape.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/GrStencilClip.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/ops/GrDrawPathOp.h"

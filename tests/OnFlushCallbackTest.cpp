@@ -14,9 +14,9 @@
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrQuad.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/geometry/GrQuad.h"
 
 #include "include/core/SkBitmap.h"
 #include "src/core/SkPointPriv.h"

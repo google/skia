@@ -37,7 +37,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
-#include "src/gpu/GrShape.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureAdjuster.h"

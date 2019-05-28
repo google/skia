@@ -16,7 +16,7 @@
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrShape.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/GrTextureMaker.h"

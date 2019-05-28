@@ -11,7 +11,7 @@
 #include "include/private/SkTHash.h"
 #include "src/core/SkExchange.h"
 #include "src/core/SkTInternalLList.h"
-#include "src/gpu/GrShape.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/ccpr/GrCCAtlas.h"
 #include "src/gpu/ccpr/GrCCPathProcessor.h"
 
