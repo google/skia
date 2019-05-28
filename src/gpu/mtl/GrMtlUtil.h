@@ -30,24 +30,26 @@ class GrSurface;
 #endif
 #endif
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 /**
  * Returns the Metal texture format for the given GrPixelConfig
  */
 bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format);
 
 /**
- * Returns a id<MTLTexture> to the MTLTexture pointed at by the const void* (uses __bridge).
+ * Returns a id<MTLTexture> to the MTLTexture pointed at by the const void*. Will use
+ * __bridge_transfer if we are adopting ownership.
  */
-id<MTLTexture> GrGetMTLTexture(const void* mtlTexture);
+id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership);
 
 /**
- * Returns a weak const void* to whatever the id object is pointing to (uses __bridge).
+ * Returns a const void* to whatever the id object is pointing to. Always uses __bridge.
  */
 const void* GrGetPtrFromId(id idObject);
+
+/**
+ * Returns a const void* to whatever the id object is pointing to. Always uses __bridge_retained.
+ */
+const void* GrReleaseId(id idObject);
 
 /**
  * Returns a MTLTextureDescriptor which describes the MTLTexture. Useful when creating a duplicate

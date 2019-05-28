@@ -109,12 +109,20 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
     return false;
 }
 
-id<MTLTexture> GrGetMTLTexture(const void* mtlTexture) {
-    return (__bridge id<MTLTexture>)mtlTexture;
+id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership wrapOwnership) {
+    if (GrWrapOwnership::kAdopt_GrWrapOwnership == wrapOwnership) {
+        return (__bridge_transfer id<MTLTexture>)mtlTexture;
+    } else {
+        return (__bridge id<MTLTexture>)mtlTexture;
+    }
 }
 
 const void* GrGetPtrFromId(id idObject) {
     return (__bridge const void*)idObject;
+}
+
+const void* GrReleaseId(id idObject) {
+    return (__bridge_retained const void*)idObject;
 }
 
 MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
@@ -211,6 +219,7 @@ id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface, bool doResolve) {
 // CPP Utils
 
 GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo& info) {
-    id<MTLTexture> mtlTexture = GrGetMTLTexture(info.fTexture);
+    id<MTLTexture> mtlTexture = GrGetMTLTexture(info.fTexture,
+                                                GrWrapOwnership::kBorrow_GrWrapOwnership);
     return static_cast<GrMTLPixelFormat>(mtlTexture.pixelFormat);
 }
