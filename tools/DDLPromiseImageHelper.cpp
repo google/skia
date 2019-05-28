@@ -86,7 +86,7 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkPixmap& pm,
                                                                        GrSRGBEncoded::kNo);
         tex = gpu->createBackendTexture(pm.width(), pm.height(), format,
                                         GrMipMapped::kNo, GrRenderable::kNo,
-                                        pixels, 2 * pm.width());
+                                        pixels, 2 * pm.width(), nullptr);
     } else {
         tex = gpu->createTestingOnlyBackendTexture(
             pm.width(), pm.height(), pm.colorType(),
