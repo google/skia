@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "64bb0a4a_a55bcc6f",
+        "filename": "include/gpu/mtl/GrMtlTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-28T17:03:13Z",
+      "side": 1,
+      "message": "I think it might be easier to have\n\nclass GrCFResource : public SkRefCnt {\n  // Retains cfObject and releases it only when the GrCFResource is destoyed.\n  static sk_sp\u003cGrCFResource\u003e MakeRetained(CFTypeRef cfObject);\n}\n\nThen we can make GrMTLTexture just have sk_sp\u003cGrCFResource\u003e fTexture, and no other changes are needed (except not having GrMTLTexture be in a union).\n\nWe could make GrGetMTLTexture be a friend.",
+      "revId": "2d24fe61f7839ac3b8cb958dc2b92565dde6f2de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
