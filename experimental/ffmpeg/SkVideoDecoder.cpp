@@ -44,9 +44,12 @@ const av_transfer_characteristics gTransfer[AVCOL_TRC_NB] = {
 };
 
 static skcms_TransferFunction compute_transfer(AVColorTransferCharacteristic t) {
-    const av_transfer_characteristics* av = &gTransfer[0];
+    const av_transfer_characteristics* av = &gTransfer[AVCOL_TRC_BT709];
     if ((unsigned)t < AVCOL_TRC_NB) {
         av = &gTransfer[t];
+    }
+    if (av->alpha == 0) {
+        av = &gTransfer[AVCOL_TRC_BT709];
     }
 
     skcms_TransferFunction linear_to_encoded = {
