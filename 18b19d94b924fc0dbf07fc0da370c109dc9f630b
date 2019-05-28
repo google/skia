@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "54c411ea_93a53272",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-28T18:37:27Z",
+      "side": 1,
+      "message": "Can we leave ourselves a note here or something in the meantime?\n\n// While strikeSpec has .strikeToSourceRatio(), it should be ignored in favor of the argument.\n// The fallback code currently calculates all this itself.  TODO: move into strike spec?",
+      "parentUuid": "9efce35d_41e09a9f",
+      "range": {
+        "startLine": 165,
+        "startChar": 39,
+        "endLine": 165,
+        "endChar": 67
+      },
+      "revId": "18b19d94b924fc0dbf07fc0da370c109dc9f630b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bdc84a41_065530ea",
         "filename": "src/gpu/text/GrTextBlob.h",
         "patchSetId": 2
