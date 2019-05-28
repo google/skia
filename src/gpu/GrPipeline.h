@@ -16,7 +16,6 @@
 #include "src/gpu/GrPendingIOResource.h"
 #include "src/gpu/GrProcessorSet.h"
 #include "src/gpu/GrProgramDesc.h"
-#include "src/gpu/GrRect.h"
 #include "src/gpu/GrScissorState.h"
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/GrWindowRectsState.h"
@@ -24,6 +23,7 @@
 #include "src/gpu/effects/GrDisableColorXP.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
+#include "src/gpu/geometry/GrRect.h"
 
 class GrAppliedClip;
 class GrOp;
