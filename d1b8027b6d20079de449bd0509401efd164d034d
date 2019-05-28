@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf95b30c_85deaaec",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-28T17:39:43Z",
+      "side": 1,
+      "message": "... just adding the \"disassemble on failure\" logic to the other test() helper.",
+      "revId": "d1b8027b6d20079de449bd0509401efd164d034d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
