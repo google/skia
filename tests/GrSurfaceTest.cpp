@@ -327,8 +327,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
                 kTopLeft_GrSurfaceOrigin, SkIRect::MakeWH(kSize, kSize), {0, 0});
         REPORTER_ASSERT(reporter, gpuCopyResult == (ioType == kRW_GrIOType));
 
+        GrFlushInfo flushSyncInfo;
+        flushSyncInfo.fFlags = kSyncCpu_GrFlushFlag;
         // Mip regen should not work with a read only texture.
         if (context->priv().caps()->mipMapSupport()) {
+            context->flush(flushSyncInfo);
+            context->deleteBackendTexture(backendTex);
             backendTex = context->createBackendTexture(
                     kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kYes, GrRenderable::kYes);
             proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
@@ -340,6 +344,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
                     context->priv().getGpu()->regenerateMipMapLevels(proxy->peekTexture());
             REPORTER_ASSERT(reporter, regenResult == (ioType == kRW_GrIOType));
         }
+        context->flush(flushSyncInfo);
+        context->deleteBackendTexture(backendTex);
     }
 }
 
@@ -674,6 +680,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
             surf->getCanvas()->drawImage(std::move(img2), 1, 1);
             idleTexture.reset();
 
+            GrFlushInfo flushInfo;
+            flushInfo.fFlags = kSyncCpu_GrFlushFlag;
+            context->flush(flushInfo);
             delete_backend_texture(context, backendTexture);
         }
     }
