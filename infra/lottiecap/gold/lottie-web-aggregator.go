@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"go.skia.org/infra/golden/go/jsonio"
+	"go.skia.org/infra/golden/go/types"
 )
 
 // This allows us to use upload_dm_results.py out of the box
@@ -122,7 +123,7 @@ func reporter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	results = append(results, &jsonio.Result{
-		Digest: hash,
+		Digest: types.Digest(hash),
 		Key: map[string]string{
 			"name": testOutput.TestName,
 		},
