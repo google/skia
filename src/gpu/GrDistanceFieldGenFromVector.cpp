@@ -15,7 +15,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRectPriv.h"
-#include "src/gpu/GrPathUtils.h"
+#include "src/gpu/geometry/GrPathUtils.h"
 
 /**
  * If a scanline (a row of texel) cross from the kRight_SegSide

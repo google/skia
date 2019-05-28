@@ -9,7 +9,7 @@
 #define GrCCDrawPathsOp_DEFINED
 
 #include "src/core/SkTInternalLList.h"
-#include "src/gpu/GrShape.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/ccpr/GrCCPathCache.h"
 #include "src/gpu/ccpr/GrCCSTLList.h"
 #include "src/gpu/ops/GrDrawOp.h"
