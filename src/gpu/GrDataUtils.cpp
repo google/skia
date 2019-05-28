@@ -8,6 +8,7 @@
 #include "GrDataUtils.h"
 
 #include "include/private/GrColor.h"
+#include "src/core/SkUtils.h"
 
 static const int kNumModifierTables = 8;
 static const int kNumPixelIndices = 4;
@@ -127,7 +128,6 @@ bool GrFillBufferWithColor(GrPixelConfig config, int width, int height,
     uint8_t b = GrColorUnpackB(color);
     uint8_t a = GrColorUnpackA(color);
 
-    // TODO: use sk_memset32, sk_memset16, and SkOpts::rect_memset16/32/64
     switch (config) {
         case kAlpha_8_GrPixelConfig:                            // fall through
         case kAlpha_8_as_Alpha_GrPixelConfig:                   // fall through
@@ -139,19 +139,17 @@ bool GrFillBufferWithColor(GrPixelConfig config, int width, int height,
         case kGray_8_as_Lum_GrPixelConfig:                      // fall through
         case kGray_8_as_Red_GrPixelConfig: {
             uint8_t gray8 = SkComputeLuminance(r, g, b);
+
             memset(dest, gray8, width * height);
             break;
         }
         case kRGB_565_GrPixelConfig: {
-            uint16_t* dest16 = (uint16_t*) dest;
             uint16_t rgb565 = SkPack888ToRGB16(r, g, b);
-            for (int i = 0; i < width * height; ++i) {
-                dest16[i] = rgb565;
-            }
+
+            sk_memset16((uint16_t*) dest, rgb565, width * height);
             break;
         }
         case kRGBA_4444_GrPixelConfig: {
-            uint16_t* dest16 = (uint16_t*) dest;
             uint8_t r4 = (r >> 4) & 0xF;
             uint8_t g4 = (g >> 4) & 0xF;
             uint8_t b4 = (b >> 4) & 0xF;
@@ -160,16 +158,11 @@ bool GrFillBufferWithColor(GrPixelConfig config, int width, int height,
             uint16_t rgba4444 = r4 << SK_R4444_SHIFT | g4 << SK_G4444_SHIFT |
                                 b4 << SK_B4444_SHIFT | a4 << SK_A4444_SHIFT;
 
-            for (int i = 0; i < width * height; ++i) {
-                dest16[i] = rgba4444;
-            }
+            sk_memset16((uint16_t*) dest, rgba4444, width * height);
             break;
         }
         case kRGBA_8888_GrPixelConfig: {
-            GrColor* destColor = (GrColor *) dest;
-            for (int i = 0; i < width * height; ++i) {
-                destColor[i] = color;
-            }
+            sk_memset32((uint32_t *) dest, color, width * height);
             break;
         }
         case kRGB_888_GrPixelConfig: {
@@ -184,45 +177,29 @@ bool GrFillBufferWithColor(GrPixelConfig config, int width, int height,
         case kRGB_888X_GrPixelConfig: {
             GrColor opaque = GrColorPackRGBA(r, g, b, 0xFF);
 
-            GrColor* destColor = (GrColor *) dest;
-            for (int i = 0; i < width * height; ++i) {
-                destColor[i] = opaque;
-            }
+            sk_memset32((uint32_t *) dest, opaque, width * height);
             break;
         }
         case kRG_88_GrPixelConfig: {
-            uint8_t* dest8 = (uint8_t*) dest;
-            for (int i = 0; i < width * height; ++i, dest8 += 2) {
-                dest8[0] = r;
-                dest8[1] = g;
-            }
+            uint16_t rg88 = (r << 8) | g;
+
+            sk_memset16((uint16_t*) dest, rg88, width * height);
             break;
         }
         case kBGRA_8888_GrPixelConfig: {
             GrColor swizzled = GrColorPackRGBA(b, g, r, a);
 
-            GrColor* destColor = (GrColor *) dest;
-            for (int i = 0; i < width * height; ++i) {
-                destColor[i] = swizzled;
-            }
+            sk_memset32((uint32_t *) dest, swizzled, width * height);
             break;
         }
         case kSRGBA_8888_GrPixelConfig: {
-            // TODO: ask Brian O. what to do here
-            GrColor* destColor = (GrColor *) dest;
-            for (int i = 0; i < width * height; ++i) {
-                destColor[i] = color;
-            }
+            sk_memset32((uint32_t *) dest, color, width * height);
             break;
         }
         case kSBGRA_8888_GrPixelConfig: {
-            // TODO: ask Brian O. what to do here
             GrColor swizzled = GrColorPackRGBA(b, g, r, a);
 
-            GrColor* destColor = (GrColor *) dest;
-            for (int i = 0; i < width * height; ++i) {
-                destColor[i] = swizzled;
-            }
+            sk_memset32((uint32_t *) dest, swizzled, width * height);
             break;
         }
         case kRGBA_1010102_GrPixelConfig: {
@@ -233,10 +210,7 @@ bool GrFillBufferWithColor(GrPixelConfig config, int width, int height,
 
             uint32_t rgba1010102 = a2 << 30 | b10 << 20 | g10 << 10 | r10;
 
-            uint32_t* destColor = (uint32_t *) dest;
-            for (int i = 0; i < width * height; ++i) {
-                destColor[i] = rgba1010102;
-            }
+            sk_memset32((uint32_t *) dest, rgba1010102, width * height);
             break;
         }
         case kRGBA_float_GrPixelConfig: {
@@ -256,26 +230,21 @@ bool GrFillBufferWithColor(GrPixelConfig config, int width, int height,
         }
         case kAlpha_half_as_Red_GrPixelConfig:                  // fall through
         case kAlpha_half_GrPixelConfig: {
-            SkHalf* destHalf = (SkHalf*) dest;
             SkHalf alphaHalf = SkFloatToHalf(colorf.fA);
-            for (int i = 0; i < width * height; ++i) {
-                destHalf[i] = alphaHalf;
-            }
+
+            sk_memset16((uint16_t *) dest, alphaHalf, width * height);
             break;
         }
         case kRGBA_half_GrPixelConfig:                          // fall through
         case kRGBA_half_Clamped_GrPixelConfig: {
-            SkHalf* destHalf = (SkHalf*) dest;
-            SkHalf rHalf = SkFloatToHalf(colorf.fR);
-            SkHalf gHalf = SkFloatToHalf(colorf.fG);
-            SkHalf bHalf = SkFloatToHalf(colorf.fB);
-            SkHalf aHalf = SkFloatToHalf(colorf.fA);
-            for (int i = 0; i < width * height; ++i, destHalf += 4) {
-                destHalf[0] = rHalf;
-                destHalf[1] = gHalf;
-                destHalf[2] = bHalf;
-                destHalf[3] = aHalf;
-            }
+            uint64_t rHalf = SkFloatToHalf(colorf.fR);
+            uint64_t gHalf = SkFloatToHalf(colorf.fG);
+            uint64_t bHalf = SkFloatToHalf(colorf.fB);
+            uint64_t aHalf = SkFloatToHalf(colorf.fA);
+
+            uint64_t rgbaHalf = (aHalf << 48) | (bHalf << 32) | (gHalf << 16) | rHalf;
+
+            sk_memset64((uint64_t *) dest, rgbaHalf, width * height);
             break;
         }
         default:
