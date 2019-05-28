@@ -535,7 +535,6 @@ private:
 
     void processSourceFallback(SkSpan<const SkGlyphPos> masks,
                                const SkStrikeSpecStorage& strikeSpec,
-                               SkScalar strikeToSourceRatio,
                                bool hasW) override;
 
     void processDeviceFallback(SkSpan<const SkGlyphPos> masks,

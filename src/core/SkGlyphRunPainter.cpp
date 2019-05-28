@@ -339,29 +339,8 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
         // If the matrix is complicated or if scaling is used to fit the glyphs in the cache,
         // then this case is used.
 
-        // Subtract 2 to account for the bilerp pad around the glyph
-        SkScalar maxAtlasDimension = SkStrikeCommon::kSkSideTooBigForAtlas - 2;
-
-        SkScalar runFontTextSize = runFont.getSize();
-
-        // Scale the text size down so the long side of all the glyphs will fit in the atlas.
-        SkScalar fallbackTextSize = SkScalarFloorToScalar(
-                (maxAtlasDimension / maxSourceGlyphDimension) * runFontTextSize);
-
-        SkFont fallbackFont{runFont};
-        fallbackFont.setSize(fallbackTextSize);
-
-        // No sub-pixel needed. The transform to the screen will take care of sub-pixel positioning.
-        fallbackFont.setSubpixel(false);
-
-        // The scale factor to go from strike size to the source size for glyphs.
-        SkScalar fallbackTextScale = runFontTextSize / fallbackTextSize;
-
-        SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeMask(fallbackFont,
-                                                                       runPaint,
-                                                                       fDeviceProps,
-                                                                       fScalerContextFlags,
-                                                                       SkMatrix::I());
+        SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeSourceFallback(
+                runFont, runPaint, fDeviceProps, fScalerContextFlags, maxSourceGlyphDimension);
 
         SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
@@ -376,7 +355,6 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
             process->processSourceFallback(
                     glyphPosSpan,
                     strikeSpec,
-                    fallbackTextScale,
                     viewMatrix.hasPerspective());
         }
     }
@@ -901,7 +879,6 @@ void GrTextBlob::processSourceSDFT(SkSpan<const SkGlyphPos> masks,
 
 void GrTextBlob::processSourceFallback(SkSpan<const SkGlyphPos> masks,
                                        const SkStrikeSpecStorage& strikeSpec,
-                                       SkScalar strikeToSourceRatio,
                                        bool hasW) {
     Run* run = this->currentRun();
 
@@ -914,7 +891,7 @@ void GrTextBlob::processSourceFallback(SkSpan<const SkGlyphPos> masks,
     run->setupFont(strikeSpec);
     for (const auto& mask : masks) {
         run->appendSourceSpaceGlyph
-                (grStrike, *mask.glyph, mask.position, strikeToSourceRatio);
+                (grStrike, *mask.glyph, mask.position, strikeSpec.strikeToSourceRatio());
     }
 }
 

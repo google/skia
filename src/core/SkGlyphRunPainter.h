@@ -160,12 +160,8 @@ public:
                                    SkScalar maxScale,
                                    bool hasWCoord) = 0;
 
-    // While strikeSpec has .strikeToSourceRatio(), it should be ignored in favor of the argument.
-    // The fallback code currently calculates all this itself.
-    // TODO: move into strike spec?
     virtual void processSourceFallback(SkSpan<const SkGlyphPos> masks,
                                        const SkStrikeSpecStorage& strikeSpec,
-                                       SkScalar strikeToSourceRatio,
                                        bool hasW) = 0;
 
     virtual void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
