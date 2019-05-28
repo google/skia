@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c7154cb_2633e147",
+        "filename": "src/gpu/mtl/GrMtlTypesPriv.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-28T14:38:28Z",
+      "side": 1,
+      "message": "We use four space indents.",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 2
+      },
+      "revId": "186a2951113c2e5b88adb95534f962e2b49cbeee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bac6a9ce_c43c6ceb",
+        "filename": "src/gpu/mtl/GrMtlTypesPriv.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-28T14:38:28Z",
+      "side": 1,
+      "message": "Needs {}",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 24
+      },
+      "revId": "186a2951113c2e5b88adb95534f962e2b49cbeee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

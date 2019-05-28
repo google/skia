@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0ad1371_fd387ee4",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-28T14:38:28Z",
+      "side": 0,
+      "message": "Pretty sure we need a retain here, otherwise when the original id\u003cMTLTexture\u003e goes out of scope it\u0027ll delete itself and that\u0027s what\u0027s causing the crash. However, when I add it there\u0027s a leak.",
+      "range": {
+        "startLine": 700,
+        "startChar": 21,
+        "endLine": 700,
+        "endChar": 32
+      },
+      "revId": "f33c95cd6f55537cc13eb1e62267f0c2fd32ca11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
