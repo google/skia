@@ -529,6 +529,7 @@
 #include "../../docs/examples/Modulate.cpp"
 #include "../../docs/examples/Multiply.cpp"
 #include "../../docs/examples/Overlay.cpp"
+#include "../../docs/examples/PDF.cpp"
 #include "../../docs/examples/Paint_053.cpp"
 #include "../../docs/examples/Paint_057.cpp"
 #include "../../docs/examples/Paint_containsText.cpp"
