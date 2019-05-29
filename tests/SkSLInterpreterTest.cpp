@@ -284,6 +284,17 @@ DEF_TEST(SkSLInterpreterIf, r) {
          "color.a = 2; }", 2, -2, 0, 0, 2, -2, 0, 2);
 }
 
+DEF_TEST(SkSLInterpreterIfVector, r) {
+    test(r, "void main(inout half4 color) { if (color.rg == color.ba) color.a = 1; }",
+         1, 2, 1, 2, 1, 2, 1, 1);
+    test(r, "void main(inout half4 color) { if (color.rg == color.ba) color.a = 1; }",
+         1, 2, 3, 2, 1, 2, 3, 2);
+    test(r, "void main(inout half4 color) { if (color.rg != color.ba) color.a = 1; }",
+         1, 2, 1, 2, 1, 2, 1, 2);
+    test(r, "void main(inout half4 color) { if (color.rg != color.ba) color.a = 1; }",
+         1, 2, 3, 2, 1, 2, 3, 1);
+}
+
 DEF_TEST(SkSLInterpreterWhile, r) {
     test(r, "void main(inout half4 color) { while (color.r < 1) color.r += 0.25; }", 0, 0, 0, 0, 1,
          0, 0, 0);
