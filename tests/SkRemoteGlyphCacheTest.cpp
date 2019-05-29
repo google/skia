@@ -781,14 +781,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithNoPaths, repor
     auto serverTf = ToolUtils::emoji_typeface();
     auto serverTfData = server.serializeTypeface(serverTf.get());
     auto clientTf = client.deserializeTypeface(serverTfData->data(), serverTfData->size());
+    constexpr int width  = 500,
+                  height = 500;
 
-    for (SkScalar textSize : { 70, 180, 270, 340}) {
+    for (SkScalar textSize : { 70, 180, 270, 340 }) {
         auto serverBlob = MakeEmojiBlob(serverTf, textSize);
         auto props = FindSurfaceProps(ctxInfo.grContext());
         SkTextBlobCacheDiffCanvas cache_diff_canvas(500, 500, props, &server,
                                                     MakeSettings(ctxInfo.grContext()));
         SkPaint paint;
-        cache_diff_canvas.drawTextBlob(serverBlob.get(), 100, 100, paint);
+        // Draw on the diff canvas as the same place as RasterBlob.
+        cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, height/2, paint);
 
         std::vector<uint8_t> serverStrikeData;
         server.writeStrikeData(&serverStrikeData);
@@ -798,7 +801,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithNoPaths, repor
         auto clientBlob = MakeEmojiBlob(serverTf, textSize, clientTf);
         REPORTER_ASSERT(reporter, clientBlob);
 
-        RasterBlob(clientBlob, 500, 500, paint, ctxInfo.grContext());
+        SkBitmap expected = RasterBlob(
+                serverBlob, width, height, paint, ctxInfo.grContext());
+        SkBitmap actual = RasterBlob(
+                clientBlob, width, height, paint, ctxInfo.grContext());
+
+        // Be sloppy for paths.
+        compare_blobs(expected, actual, reporter, 1);
+
         REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
         SkStrikeCache::ValidateGlyphCacheDataSize();
         discardableManager->resetCacheMissCounts();
