@@ -5,8 +5,18 @@
 
 #if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && !defined(SK_BUILD_FOR_GOOGLE3)
 
+#include "include/core/SkData.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "tools/Resources.h"
+
+#include <cstdint>
+#include <memory>
 
 namespace {
 struct RunHandler final : public SkShaper::RunHandler {
@@ -52,14 +62,30 @@ struct RunHandler final : public SkShaper::RunHandler {
 }  // namespace
 
 static void cluster_test(skiatest::Reporter* reporter, const char* resource) {
-    constexpr float kWidth = 400;
-    if (auto shaper = SkShaper::Make()) {
-        if (auto data = GetResourceAsData(resource)) {
-            SkFont font;
-            RunHandler rh(resource, reporter);
-            shaper->shape((const char*)data->data(), data->size(), font, true, kWidth, &rh);
-        }
+    auto shaper = SkShaper::Make();
+    if (!shaper) {
+        ERRORF(reporter, "Could not create shaper.");
+        return;
     }
+
+    auto data = GetResourceAsData(resource);
+    if (!data) {
+        ERRORF(reporter, "Could not get resource %s.", resource);
+        return;
+    }
+
+    constexpr float kWidth = 400;
+    SkFont font(SkTypeface::MakeDefault());
+    RunHandler rh(resource, reporter);
+    shaper->shape((const char*)data->data(), data->size(), font, true, kWidth, &rh);
+
+    constexpr SkFourByteTag latn = SkSetFourByteTag('l','a','t','n');
+    auto fontIterator = SkShaper::TrivialFontRunIterator(font, data->size());
+    auto bidiIterator = SkShaper::TrivialBiDiRunIterator(0, data->size());
+    auto scriptIterator = SkShaper::TrivialScriptRunIterator(latn, data->size());
+    auto languageIterator = SkShaper::TrivialLanguageRunIterator("en-US", data->size());
+    shaper->shape((const char*)data->data(), data->size(),
+                  fontIterator, bidiIterator, scriptIterator, languageIterator, kWidth, &rh);
 }
 
 #define SHAPER_TEST(X) DEF_TEST(Shaper_cluster_ ## X, r) { cluster_test(r, "text/" #X ".txt"); }
