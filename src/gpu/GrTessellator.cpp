@@ -538,16 +538,20 @@ void create_event(SSEdge* edge, Vertex* v, SSEdge* other, Vertex* dest, EventLis
     if (!v->fPartner) {
         return;
     }
+    Vertex* top = edge->fEdge->fTop;
+    Vertex* bottom = edge->fEdge->fBottom;
+    if (!top || !bottom ) {
+        return;
+    }
     Line line = edge->fEdge->fLine;
     line.fC = -(dest->fPoint.fX * line.fA  + dest->fPoint.fY * line.fB);
     Edge bisector(v, v->fPartner, 1, Edge::Type::kConnector);
     SkPoint p;
     uint8_t alpha = dest->fAlpha;
-    if (line.intersect(bisector.fLine, &p) && !c.sweep_lt(p, edge->fEdge->fTop->fPoint) &&
-                                              c.sweep_lt(p, edge->fEdge->fBottom->fPoint)) {
+    if (line.intersect(bisector.fLine, &p) && !c.sweep_lt(p, top->fPoint) &&
+                                               c.sweep_lt(p, bottom->fPoint)) {
         LOG("found p edge event for %g, %g (original %g -> %g), will collapse to %g,%g alpha %d\n",
-            dest->fID, v->fID, edge->fEdge->fTop->fID, edge->fEdge->fBottom->fID, p.fX, p.fY,
-            alpha);
+            dest->fID, v->fID, top->fID, bottom->fID, p.fX, p.fY, alpha);
         edge->fEvent = alloc.make<Event>(edge, p, alpha);
         events->push(edge->fEvent);
     }
@@ -1501,14 +1505,18 @@ void dump_mesh(const VertexList& mesh) {
 
 void dump_skel(const SSEdgeList& ssEdges) {
 #if LOGGING_ENABLED
-    LOG("skeleton:\n");
     for (SSEdge* edge : ssEdges) {
         if (edge->fEdge) {
-            LOG("skel edge %g -> %g (original %g -> %g)\n",
+            LOG("skel edge %g -> %g",
                 edge->fPrev->fVertex->fID,
-                edge->fNext->fVertex->fID,
-                edge->fEdge->fTop->fID,
-                edge->fEdge->fBottom->fID);
+                edge->fNext->fVertex->fID);
+            if (edge->fEdge->fTop && edge->fEdge->fBottom) {
+                LOG(" (original %g -> %g)\n",
+                    edge->fEdge->fTop->fID,
+                    edge->fEdge->fBottom->fID);
+            } else {
+                LOG("\n");
+            }
         }
     }
 #endif
@@ -1950,11 +1958,14 @@ bool collapse_overlap_regions(VertexList* mesh, Comparator& c, SkArenaAlloc& all
     bool complex = events.size() > 0;
 
     LOG("\ncollapsing overlap regions\n");
+    LOG("skeleton before:\n");
+    dump_skel(ssEdges);
     while (events.size() > 0) {
         Event* event = events.top();
         events.pop();
         event->apply(mesh, c, &events, alloc);
     }
+    LOG("skeleton after:\n");
     dump_skel(ssEdges);
     for (SSEdge* edge : ssEdges) {
         if (Edge* e = edge->fEdge) {
