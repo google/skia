@@ -178,11 +178,9 @@ bool SkVideoEncoder::init(const SkImageInfo& info, int fps) {
     SkASSERT(fEncoderCtx);
 
     fEncoderCtx->codec_id = output_format->video_codec;
-    fEncoderCtx->bit_rate = 400000;             // ???
     fEncoderCtx->width    = info.width();
     fEncoderCtx->height   = info.height();
     fEncoderCtx->time_base = fStream->time_base;
-    fEncoderCtx->gop_size = 12;                 // ???
     fEncoderCtx->pix_fmt  = pix_fmt;
 
     /* Some formats want stream headers to be separate. */
@@ -205,13 +203,10 @@ bool SkVideoEncoder::init(const SkImageInfo& info, int fps) {
     if (check_err(avcodec_parameters_from_context(fStream->codecpar, fEncoderCtx))) {
         return false;
     }
-
     if (check_err(avformat_write_header(fFormatCtx, nullptr))) {
         return false;
     }
-
     fPacket = av_packet_alloc();
-
     return true;
 }
 
@@ -260,39 +255,6 @@ SkCanvas* SkVideoEncoder::beginFrame() {
     return canvas;
 }
 
-static void draw_into_alpha(SkImage* img, sk_sp<SkColorFilter> cf,
-                            int w, int h, uint8_t* data, size_t rb) {
-    SkImageInfo info = SkImageInfo::Make(w, h, kAlpha_8_SkColorType, kPremul_SkAlphaType);
-    auto canvas = SkCanvas::MakeRasterDirect(info, data, rb);
-    canvas->scale(1.0f * w / img->width(), 1.0f * h / img->height());
-    SkPaint paint;
-    paint.setFilterQuality(kLow_SkFilterQuality);
-    paint.setColorFilter(cf);
-    paint.setBlendMode(SkBlendMode::kSrc);
-    canvas->drawImage(img, 0, 0, &paint);
-}
-
-static void copy_to_frame(SkImage* img, AVFrame* frame) {
-    SkYUVColorSpace cs = kRec709_SkYUVColorSpace;
-
-    float m[20];
-    SkColorMatrix_RGB2YUV(cs, m);
-
-    memcpy(m + 15, m + 0, 5 * sizeof(float));   // copy Y into A
-    auto cfy = SkColorFilters::Matrix(m);
-
-    memcpy(m + 15, m + 5, 5 * sizeof(float));   // copy U into A
-    auto cfu = SkColorFilters::Matrix(m);
-
-    memcpy(m + 15, m + 10, 5 * sizeof(float));   // copy V into A
-    auto cfv = SkColorFilters::Matrix(m);
-
-    SkASSERT(frame->data[0] && frame->data[1] && frame->data[2]);
-    draw_into_alpha(img, cfy, img->width(),   img->height(),   frame->data[0], frame->linesize[0]);
-    draw_into_alpha(img, cfu, img->width()/2, img->height()/2, frame->data[1], frame->linesize[1]);
-    draw_into_alpha(img, cfv, img->width()/2, img->height()/2, frame->data[2], frame->linesize[2]);
-}
-
 bool SkVideoEncoder::sendFrame(AVFrame* frame) {
     if (check_err(avcodec_send_frame(fEncoderCtx, frame))) {
         return false;
@@ -327,20 +289,11 @@ bool SkVideoEncoder::endFrame() {
     fFrame->pts = fCurrentPTS;
     fCurrentPTS += fDeltaPTS;
 
-    if (0) {
-        auto img = fSurface->makeImageSnapshot();
-        copy_to_frame(img.get(), fFrame);
-    } else {
-        SkPixmap pm;
-        SkAssertResult(fSurface->peekPixels(&pm));
-        const uint8_t* src_ptrs[] = { (const uint8_t*)pm.addr() };
-        const int src_strides[] = { SkToInt(pm.rowBytes()) };
-        int oheight = sws_scale(fSWScaleCtx,
-                                src_ptrs, src_strides,
-                                0, fSurface->height(),
-                                fFrame->data, fFrame->linesize);
-        SkAssertResult(oheight == fSurface->height());
-    }
+    SkPixmap pm;
+    SkAssertResult(fSurface->peekPixels(&pm));
+    const uint8_t* src[] = { (const uint8_t*)pm.addr() };
+    const int strides[] = { SkToInt(pm.rowBytes()) };
+    sws_scale(fSWScaleCtx, src, strides, 0, fSurface->height(), fFrame->data, fFrame->linesize);
 
     return this->sendFrame(fFrame);
 }
