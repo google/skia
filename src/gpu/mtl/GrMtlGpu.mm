@@ -495,13 +495,12 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
     return std::move(tex);
 }
 
-static id<MTLTexture> get_texture_from_backend(const GrBackendTexture& backendTex,
-                                               GrWrapOwnership ownership) {
+static id<MTLTexture> get_texture_from_backend(const GrBackendTexture& backendTex) {
     GrMtlTextureInfo textureInfo;
     if (!backendTex.getMtlTextureInfo(&textureInfo)) {
         return nil;
     }
-    return GrGetMTLTexture(textureInfo.fTexture, ownership);
+    return GrGetMTLTexture(textureInfo.fTexture);
 }
 
 static id<MTLTexture> get_texture_from_backend(const GrBackendRenderTarget& backendRT) {
@@ -509,7 +508,7 @@ static id<MTLTexture> get_texture_from_backend(const GrBackendRenderTarget& back
     if (!backendRT.getMtlTextureInfo(&textureInfo)) {
         return nil;
     }
-    return GrGetMTLTexture(textureInfo.fTexture, GrWrapOwnership::kBorrow_GrWrapOwnership);
+    return GrGetMTLTexture(textureInfo.fTexture);
 }
 
 static inline void init_surface_desc(GrSurfaceDesc* surfaceDesc, id<MTLTexture> mtlTexture,
@@ -527,7 +526,7 @@ static inline void init_surface_desc(GrSurfaceDesc* surfaceDesc, id<MTLTexture> 
 sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
                                                 GrWrapOwnership ownership,
                                                 GrWrapCacheable cacheable, GrIOType ioType) {
-    id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex, ownership);
+    id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex);
     if (!mtlTexture) {
         return nullptr;
     }
@@ -542,7 +541,7 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
                                                           int sampleCnt,
                                                           GrWrapOwnership ownership,
                                                           GrWrapCacheable cacheable) {
-    id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex, ownership);
+    id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex);
     if (!mtlTexture) {
         return nullptr;
     }
@@ -576,8 +575,7 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderT
 
 sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
         const GrBackendTexture& backendTex, int sampleCnt) {
-    id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex,
-                                                         GrWrapOwnership::kBorrow_GrWrapOwnership);
+    id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex);
     if (!mtlTexture) {
         return nullptr;
     }
@@ -613,7 +611,7 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, MTLPixelFor
                                                int w, int h, bool texturable,
                                                bool renderable, GrMipMapped mipMapped,
                                                const void* srcData, size_t srcRowBytes,
-                                               GrMtlTextureInfo* info) {
+                                               GrMtlBackendSurfaceInfo* info) {
     SkASSERT(texturable || renderable);
     if (!texturable) {
         SkASSERT(GrMipMapped::kNo == mipMapped);
@@ -697,7 +695,9 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, MTLPixelFor
     [cmdBuffer waitUntilCompleted];
     transferBuffer = nil;
 
-    info->fTexture = GrReleaseId(testTexture);
+    GrMtlTextureInfo textureInfo;
+    textureInfo.fTexture = GrGetPtrFromId(testTexture);
+    info->assign(GrMtlBackendSurfaceInfo(textureInfo));
 
     return true;
 }
@@ -787,7 +787,7 @@ GrBackendTexture GrMtlGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();
     }
 
-    GrMtlTextureInfo info;
+    GrMtlBackendSurfaceInfo info;
     if (!this->createTestingOnlyMtlTextureInfo(config, static_cast<MTLPixelFormat>(*mtlFormat),
                                                w, h, true,
                                                GrRenderable::kYes == renderable, mipMapped,
@@ -795,19 +795,13 @@ GrBackendTexture GrMtlGpu::createBackendTexture(int w, int h,
         return {};
     }
 
-    GrBackendTexture backendTex(w, h, mipMapped, info);
+    GrBackendTexture backendTex(w, h, mipMapped, info.snapTextureInfo());
     backendTex.fConfig = config;
     return backendTex;
 }
 
 void GrMtlGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(GrBackendApi::kMetal == tex.fBackend);
-
-    GrMtlTextureInfo info;
-    if (tex.getMtlTextureInfo(&info)) {
-        // Adopts the metal texture so that ARC will clean it up.
-        GrGetMTLTexture(info.fTexture, GrWrapOwnership::kAdopt_GrWrapOwnership);
-    }
 }
 
 #if GR_TEST_UTILS
@@ -818,8 +812,7 @@ bool GrMtlGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     if (!tex.getMtlTextureInfo(&info)) {
         return false;
     }
-    id<MTLTexture> mtlTexture = GrGetMTLTexture(info.fTexture,
-                                                GrWrapOwnership::kBorrow_GrWrapOwnership);
+    id<MTLTexture> mtlTexture = GrGetMTLTexture(info.fTexture);
     if (!mtlTexture) {
         return false;
     }
@@ -838,13 +831,13 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
         return GrBackendRenderTarget();
     }
 
-    GrMtlTextureInfo info;
+    GrMtlBackendSurfaceInfo info;
     if (!this->createTestingOnlyMtlTextureInfo(config, format, w, h, false, true,
                                                GrMipMapped::kNo, nullptr, 0, &info)) {
         return {};
     }
 
-    GrBackendRenderTarget backendRT(w, h, 1, info);
+    GrBackendRenderTarget backendRT(w, h, 1, info.snapTextureInfo());
     backendRT.fConfig = config;
     return backendRT;
 }
@@ -855,8 +848,6 @@ void GrMtlGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&
     GrMtlTextureInfo info;
     if (rt.getMtlTextureInfo(&info)) {
         this->testingOnly_flushGpuAndSync();
-        // Adopts the metal texture so that ARC will clean it up.
-        GrGetMTLTexture(info.fTexture, GrWrapOwnership::kAdopt_GrWrapOwnership);
     }
 }
 
@@ -1059,7 +1050,6 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
 
     int bpp = GrColorTypeBytesPerPixel(dstColorType);
     size_t transBufferRowBytes = bpp * width;
-    SK_BEGIN_AUTORELEASE_BLOCK
     bool doResolve = get_surface_sample_cnt(surface) > 1;
     id<MTLTexture> mtlTexture = GrGetMTLTextureFromSurface(surface, doResolve);
     if (!mtlTexture || [mtlTexture isFramebufferOnly]) {
@@ -1097,7 +1087,6 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     const void* mappedMemory = transferBuffer.contents;
 
     SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, transBufferRowBytes, height);
-    SK_END_AUTORELEASE_BLOCK
 
     return true;
 
