@@ -31,6 +31,7 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadList.h"
+#include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
@@ -266,7 +267,7 @@ private:
             , fFinalized(0) {
         // Clean up disparities between the overall aa type and edge configuration and apply
         // optimizations based on the rect and matrix when appropriate
-        GrResolveAATypeForQuad(aaType, aaFlags, dstQuad, &aaType, &aaFlags);
+        GrQuadUtils::ResolveAAType(aaType, aaFlags, dstQuad, &aaType, &aaFlags);
         fAAType = static_cast<unsigned>(aaType);
 
         // We expect our caller to have already caught this optimization.
@@ -333,7 +334,7 @@ private:
             GrQuadAAFlags aaFlags;
             // Don't update the overall aaType, might be inappropriate for some of the quads
             GrAAType aaForQuad;
-            GrResolveAATypeForQuad(aaType, set[p].fAAFlags, quad, &aaForQuad, &aaFlags);
+            GrQuadUtils::ResolveAAType(aaType, set[p].fAAFlags, quad, &aaForQuad, &aaFlags);
             // Resolve sets aaForQuad to aaType or None, there is never a change between aa methods
             SkASSERT(aaForQuad == GrAAType::kNone || aaForQuad == aaType);
             if (overallAAType == GrAAType::kNone && aaForQuad != GrAAType::kNone) {
