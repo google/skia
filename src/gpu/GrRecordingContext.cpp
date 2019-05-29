@@ -197,7 +197,8 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
                                                         GrMipMapped mipMapped,
                                                         GrSurfaceOrigin origin,
                                                         const SkSurfaceProps* surfaceProps,
-                                                        SkBudgeted budgeted) {
+                                                        SkBudgeted budgeted,
+                                                        bool isProtected) {
     SkASSERT(sampleCnt > 0);
     if (this->abandoned()) {
         return nullptr;
@@ -207,6 +208,7 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = width;
     desc.fHeight = height;
+    desc.fIsProtected = isProtected;
     desc.fConfig = config;
     desc.fSampleCnt = sampleCnt;
 
@@ -270,7 +272,8 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
                                                                  GrMipMapped mipMapped,
                                                                  GrSurfaceOrigin origin,
                                                                  const SkSurfaceProps* surfaceProps,
-                                                                 SkBudgeted budgeted) {
+                                                                 SkBudgeted budgeted,
+                                                                 bool isProtected) {
     GrBackendFormat localFormat = format;
     SkASSERT(sampleCnt > 0);
     if (0 == this->caps()->getRenderTargetSampleCount(sampleCnt, config)) {
@@ -338,10 +341,11 @@ sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetCon
                                                     GrMipMapped mipMapped,
                                                     GrSurfaceOrigin origin,
                                                     const SkSurfaceProps* surfaceProps,
-                                                    SkBudgeted budgeted) {
+                                                    SkBudgeted budgeted,
+                                                    bool isProtected) {
     return fContext->makeDeferredRenderTargetContext(format, fit, width, height, config,
                                                      std::move(colorSpace), sampleCnt, mipMapped,
-                                                     origin, surfaceProps, budgeted);
+                                                     origin, surfaceProps, budgeted, isProtected);
 }
 
 sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetContextWithFallback(
@@ -354,11 +358,12 @@ sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetCon
                                         GrMipMapped mipMapped,
                                         GrSurfaceOrigin origin,
                                         const SkSurfaceProps* surfaceProps,
-                                        SkBudgeted budgeted) {
+                                        SkBudgeted budgeted,
+                                        bool isProtected) {
     return fContext->makeDeferredRenderTargetContextWithFallback(format, fit, width, height, config,
                                                                  std::move(colorSpace), sampleCnt,
                                                                  mipMapped, origin, surfaceProps,
-                                                                 budgeted);
+                                                                 budgeted, isProtected);
 }
 
 GrContext* GrRecordingContextPriv::backdoor() {

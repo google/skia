@@ -121,6 +121,7 @@ public:
         VkImageTiling       fImageTiling;
         VkImageUsageFlags   fUsageFlags;
         VkFlags             fMemProps;
+        bool                fIsProtected;
 
         ImageDesc()
             : fImageType(VK_IMAGE_TYPE_2D)
@@ -131,7 +132,8 @@ public:
             , fSamples(1)
             , fImageTiling(VK_IMAGE_TILING_OPTIMAL)
             , fUsageFlags(0)
-            , fMemProps(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {}
+            , fMemProps(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+            , fIsProtected(false) {}
     };
 
     static bool InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImageInfo*);
