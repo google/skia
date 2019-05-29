@@ -8,8 +8,8 @@
 #include "src/gpu/GrTessellator.h"
 
 #include "src/gpu/GrDefaultGeoProcFactory.h"
-#include "src/gpu/GrPathUtils.h"
 #include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/geometry/GrPathUtils.h"
 
 #include "include/core/SkPath.h"
 #include "src/core/SkArenaAlloc.h"
