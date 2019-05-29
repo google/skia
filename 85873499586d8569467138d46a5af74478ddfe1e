@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7f766b8_fd3442e2",
+        "filename": "experimental/ffmpeg/SkVideoEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-05-29T17:18:44Z",
+      "side": 1,
+      "message": "This lifetime of this thing is a bit confusing... we\u0027re not releasing in endFrame, but in the Dtor?  So sws_getCachedContext is supposed to return the same context for stable inputs?\n\nMaybe you should guard this assignment on fSWScaleCtx \u003d\u003d nullptr, to avoid having to think about these details?",
+      "range": {
+        "startLine": 241,
+        "startChar": 4,
+        "endLine": 241,
+        "endChar": 15
+      },
+      "revId": "85873499586d8569467138d46a5af74478ddfe1e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
