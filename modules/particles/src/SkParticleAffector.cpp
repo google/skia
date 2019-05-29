@@ -441,32 +441,86 @@ private:
 
 #if SK_SUPPORT_GPU
 static const char* kDefaultCode =
-    "// float rand; Every read returns a random float [0 .. 1)\n"
+    "// float rand(); Every call to rand() returns a random float [0 .. 1)\n"
     "layout(ctype=float) in uniform float dt;\n"
     "layout(ctype=float) in uniform float effectAge;\n"
     "\n"
-    "void main(in    float age,\n"
-    "          in    float invLifetime,\n"
-    "          inout float2 pos,\n"
-    "          inout float2 dir,\n"
-    "          inout float  scale,\n"
-    "          inout float2 vel,\n"
-    "          inout float  spin,\n"
-    "          inout float4 color) {\n"
+    "struct Particle {\n"
+    "  float age;\n"
+    "  float invLifetime;\n"
+    "  float2 pos;\n"
+    "  float2 dir;\n"
+    "  float  scale;\n"
+    "  float2 vel;\n"
+    "  float  spin;\n"
+    "  float4 color;\n"
+    "};\n"
+    "void main(inout Particle p) {\n"
     "}\n";
 
+// Exposes a particle's random generator as an external, callable value. r() returns a float [0, 1)
 class SkRandomExternalValue : public SkSL::ExternalValue {
 public:
     SkRandomExternalValue(const char* name, SkSL::Compiler& compiler)
         : INHERITED(name, *compiler.context().fFloat_Type)
-        , fRandom(nullptr) { }
+        , fRandom(nullptr) {}
 
     void setRandom(SkRandom* random) { fRandom = random; }
-    bool canRead() const override { return true; }
-    void read(void* target) override { *(float*)target = fRandom->nextF(); }
+
+    bool canCall() const override { return true; }
+    int callParameterCount() const override { return 0; }
+
+    void call(SkSL::Interpreter::Value* /*arguments*/,
+              SkSL::Interpreter::Value* outReturn) override {
+        *outReturn = fRandom->nextF();
+    }
 
 private:
     SkRandom* fRandom;
+    typedef SkSL::ExternalValue INHERITED;
+};
+
+// Exposes an SkPath as an external, callable value. p(x) returns a float4 { pos.xy, normal.xy }
+class SkPathExternalValue : public SkSL::ExternalValue {
+public:
+    SkPathExternalValue(const char* name, SkSL::Compiler& compiler, const SkPath& path)
+            : INHERITED(name, *compiler.context().fFloat4_Type)
+            , fCompiler(compiler)
+            , fTotalLength(0) {
+        SkContourMeasureIter iter(path, false);
+        while (auto contour = iter.next()) {
+            fContours.push_back(contour);
+            fTotalLength += contour->length();
+        }
+    }
+
+    bool canCall() const override { return true; }
+    int callParameterCount() const override { return 1; }
+    void getCallParameterTypes(const SkSL::Type** outTypes) const override {
+        outTypes[0] = fCompiler.context().fFloat_Type.get();
+    }
+
+    void call(SkSL::Interpreter::Value* arguments, SkSL::Interpreter::Value* outReturn) override {
+        SkScalar len = fTotalLength * arguments[0].fFloat;
+        int idx = 0;
+        while (idx < fContours.count() && len > fContours[idx]->length()) {
+            len -= fContours[idx++]->length();
+        }
+        SkVector localXAxis;
+        if (!fContours[idx]->getPosTan(len, (SkPoint*)outReturn, &localXAxis)) {
+            outReturn[0] = outReturn[1] = 0.0f;
+            localXAxis = { 1, 0 };
+        }
+        outReturn[2] = localXAxis.fY;
+        outReturn[3] = -localXAxis.fX;
+    }
+
+private:
+    SkSL::Compiler& fCompiler;
+
+    SkScalar                          fTotalLength;
+    SkTArray<sk_sp<SkContourMeasure>> fContours;
+
     typedef SkSL::ExternalValue INHERITED;
 };
 
