@@ -46,6 +46,30 @@
       "revId": "c8a9b0c015ac7498cb3ed0e1be1f379f79bdd2d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3794710e_9639f54f",
+        "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-29T18:28:12Z",
+      "side": 1,
+      "message": "Whoops, yeah, I missed the \"raise\" somehow. Never mind.",
+      "parentUuid": "90f37817_2f18f708",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 26
+      },
+      "revId": "c8a9b0c015ac7498cb3ed0e1be1f379f79bdd2d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
