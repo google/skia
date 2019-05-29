@@ -16,6 +16,24 @@
       "revId": "dc14f4c4eaf9f2ea6c5ed5ff2ba89090b9b1b750",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "248eecaa_9e8c669c",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-29T18:43:42Z",
+      "side": 1,
+      "message": "Line wrapping here and at l349 less uglified",
+      "parentUuid": "29e306cc_718f8694",
+      "revId": "dc14f4c4eaf9f2ea6c5ed5ff2ba89090b9b1b750",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
