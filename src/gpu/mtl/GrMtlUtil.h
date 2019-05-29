@@ -36,10 +36,9 @@ class GrSurface;
 bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format);
 
 /**
- * Returns a id<MTLTexture> to the MTLTexture pointed at by the const void*. Will use
- * __bridge_transfer if we are adopting ownership.
+ * Returns a id<MTLTexture> to the MTLTexture pointed at by the const void*.
  */
-id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership);
+id<MTLTexture> GrGetMTLTexture(const void* mtlTexture) __attribute__((ns_returns_retained));
 
 /**
  * Returns a const void* to whatever the id object is pointing to. Always uses __bridge.
@@ -49,7 +48,7 @@ const void* GrGetPtrFromId(id idObject);
 /**
  * Returns a const void* to whatever the id object is pointing to. Always uses __bridge_retained.
  */
-const void* GrReleaseId(id idObject);
+const void* GrRetainPtrFromId(id idObject);
 
 /**
  * Returns a MTLTextureDescriptor which describes the MTLTexture. Useful when creating a duplicate
@@ -69,6 +68,7 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 /**
  * Returns a MTLTexture corresponding to the GrSurface. Optionally can do a resolve.
  */
-id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface, bool doResolve);
+id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface, bool doResolve)
+                                          __attribute__((ns_returns_retained));
 
 #endif
