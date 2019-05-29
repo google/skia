@@ -23,6 +23,6 @@ struct ETC1Block {
 int GrNumETC1Blocks(int w, int h);
 
 // Fill in 'blocks' with ETC1 blocks derived from 'color'
-void GrFillInETC1WithColor(const SkColor4f& color, ETC1Block* blocks, int numBlocks);
+void GrFillInETC1WithColor(const SkColor4f& color, void* blocks, int numBlocks);
 
 #endif
