@@ -19,7 +19,7 @@ sk_sp<GrGpu> GrMtlTrampoline::MakeGpu(GrContext* context,
                                       void* queue) {
     return GrMtlGpu::Make(context,
                           options,
-                          (__bridge_transfer id<MTLDevice>)device,
-                          (__bridge_transfer id<MTLCommandQueue>)queue);
+                          (__bridge id<MTLDevice>)device,
+                          (__bridge id<MTLCommandQueue>)queue);
 }
 
