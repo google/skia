@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa5afcf_dc9f03da",
+        "filename": "modules/skottie/src/text/SkottieShaper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-29T20:50:17Z",
+      "side": 1,
+      "message": "Would fLineGlyphs and fLinePos be better as SkAutoSTMalloc?",
+      "range": {
+        "startLine": 194,
+        "startChar": 4,
+        "endLine": 194,
+        "endChar": 13
+      },
+      "revId": "5141b8fc9fc9b33ed16ce3f01521e74dea9e7228",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
