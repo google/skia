@@ -118,7 +118,7 @@ void SkShaperPrimitive::shape(const char* utf8, size_t utf8Bytes,
                               FontRunIterator& font,
                               BiDiRunIterator& bidi,
                               ScriptRunIterator&,
-                              LanguageRunIterator& ,
+                              LanguageRunIterator&,
                               SkScalar width,
                               RunHandler* handler) const
 {
@@ -134,6 +134,7 @@ void SkShaperPrimitive::shape(const char* utf8, size_t utf8Bytes,
                               SkScalar width,
                               RunHandler* handler) const {
     sk_ignore_unused_variable(leftToRight);
+    SkASSERT(font.getTypeface());
 
     int glyphCount = font.countText(utf8, utf8Bytes, SkTextEncoding::kUTF8);
     if (glyphCount <= 0) {
