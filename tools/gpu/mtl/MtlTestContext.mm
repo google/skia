@@ -16,10 +16,6 @@
 
 #import <Metal/Metal.h>
 
-// Helper macros for autorelease pools
-#define SK_BEGIN_AUTORELEASE_BLOCK @autoreleasepool {
-#define SK_END_AUTORELEASE_BLOCK }
-
 namespace {
 #if GR_METAL_SDK_VERSION >= 200
 /**
@@ -105,10 +101,8 @@ public:
             device = sharedContextImpl->device();
             queue = sharedContextImpl->queue();
         } else {
-            SK_BEGIN_AUTORELEASE_BLOCK
             device = MTLCreateSystemDefaultDevice();
             queue = [device newCommandQueue];
-            SK_END_AUTORELEASE_BLOCK
         }
 
         return new MtlTestContextImpl(device, queue);
@@ -124,8 +118,8 @@ public:
     void finish() override {}
 
     sk_sp<GrContext> makeGrContext(const GrContextOptions& options) override {
-        return GrContext::MakeMetal((__bridge_retained void*)fDevice,
-                                    (__bridge_retained void*)fQueue,
+        return GrContext::MakeMetal((__bridge void*)fDevice,
+                                    (__bridge void*)fQueue,
                                     options);
     }
 
