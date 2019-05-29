@@ -315,6 +315,30 @@
       "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d9f021f_037e0657",
+        "filename": "src/gpu/ops/GrFillRectOp.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-29T19:22:23Z",
+      "side": 1,
+      "message": "Given the subtlety of getting local coords correct with a view matrix I think it makes sense to keep this.",
+      "parentUuid": "8b2edbc4_90492afc",
+      "range": {
+        "startLine": 43,
+        "startChar": 40,
+        "endLine": 43,
+        "endChar": 60
+      },
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
