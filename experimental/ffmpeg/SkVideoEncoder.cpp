@@ -11,6 +11,10 @@
 #include "include/core/SkYUVAIndex.h"
 #include "include/private/SkTDArray.h"
 
+extern "C" {
+#include "libswscale/swscale.h"
+}
+
 class SkRandomAccessWStream {
     SkTDArray<char> fStorage;
     size_t          fPos = 0;
@@ -110,6 +114,10 @@ SkVideoEncoder::SkVideoEncoder() {}
 
 SkVideoEncoder::~SkVideoEncoder() {
     this->reset();
+
+    if (fSWScaleCtx) {
+        sws_freeContext(fSWScaleCtx);
+    }
 }
 
 void SkVideoEncoder::reset() {
@@ -212,7 +220,14 @@ bool SkVideoEncoder::init(const SkImageInfo& info, int fps) {
 #include "include/core/SkColorFilter.h"
 #include "src/core/SkYUVMath.h"
 
-bool SkVideoEncoder::beginRecording(const SkImageInfo& info, int fps) {
+bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
+    if (dim.width() <= 0 || dim.height() <= 0) {
+        return false;
+    }
+
+    // need opaque and bgra to efficiently use libyuv / convert-to-yuv-420
+    auto info = SkImageInfo::Make(dim.width(), dim.height(),
+                                  kRGBA_8888_SkColorType, kOpaque_SkAlphaType, nullptr);
     if (!this->init(info, fps)) {
         return false;
     }
@@ -220,6 +235,18 @@ bool SkVideoEncoder::beginRecording(const SkImageInfo& info, int fps) {
 
     fCurrentPTS = 0;
     fDeltaPTS = 1;
+
+    SkASSERT(sws_isSupportedInput(AV_PIX_FMT_RGBA) > 0);
+    SkASSERT(sws_isSupportedOutpu(AV_PIX_FMT_YUV420P) > 0);
+    // sws_getCachedContext takes in either null or a previous ctx. It returns either a new ctx,
+    // or the same as the input if it is compatible with the inputs. Thus we never have to
+    // explicitly release our ctx until the destructor, since sws_getCachedContext takes care
+    // of freeing the old as needed if/when it returns a new one.
+    fSWScaleCtx = sws_getCachedContext(fSWScaleCtx,
+                                       dim.width(), dim.height(), AV_PIX_FMT_RGBA,
+                                       dim.width(), dim.height(), AV_PIX_FMT_YUV420P,
+                                       SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
+    SkASSERT(fSWScaleCtx);
     return true;
 }
 
@@ -300,8 +327,20 @@ bool SkVideoEncoder::endFrame() {
     fFrame->pts = fCurrentPTS;
     fCurrentPTS += fDeltaPTS;
 
-    auto img = fSurface->makeImageSnapshot();
-    copy_to_frame(img.get(), fFrame);
+    if (0) {
+        auto img = fSurface->makeImageSnapshot();
+        copy_to_frame(img.get(), fFrame);
+    } else {
+        SkPixmap pm;
+        SkAssertResult(fSurface->peekPixels(&pm));
+        const uint8_t* src_ptrs[] = { (const uint8_t*)pm.addr() };
+        const int src_strides[] = { SkToInt(pm.rowBytes()) };
+        int oheight = sws_scale(fSWScaleCtx,
+                                src_ptrs, src_strides,
+                                0, fSurface->height(),
+                                fFrame->data, fFrame->linesize);
+        SkAssertResult(oheight == fSurface->height());
+    }
 
     return this->sendFrame(fFrame);
 }

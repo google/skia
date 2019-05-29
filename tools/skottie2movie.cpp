@@ -45,13 +45,12 @@ int main(int argc, char** argv) {
         SkDebugf("size %dx%d duration %g\n", dim.width(), dim.height(), duration, fps);
     }
 
-    SkImageInfo info = SkImageInfo::MakeN32(dim.width(), dim.height(), kOpaque_SkAlphaType);
     SkVideoEncoder encoder;
     const int frames = SkScalarRoundToInt(duration * fps);
 
     while (FLAGS_forever) {
         double now = SkTime::GetSecs();
-        encoder.beginRecording(info, fps);
+        encoder.beginRecording(dim, fps);
         for (int i = 0; i <= frames; ++i) {
             animation->seek(i * 1.0 / frames);  // normalized time
             animation->render(encoder.beginFrame());
@@ -61,7 +60,7 @@ int main(int argc, char** argv) {
         SkDebugf("time in ms: %d\n", (int)((SkTime::GetSecs() - now) * 1000));
     }
 
-    encoder.beginRecording(info, fps);
+    encoder.beginRecording(dim, fps);
 
     for (int i = 0; i <= frames; ++i) {
         double ts = i * 1.0 / fps;
