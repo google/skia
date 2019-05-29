@@ -151,8 +151,8 @@ DEF_TEST(SkSLInterpreterRemainder, r) {
 }
 
 DEF_TEST(SkSLInterpreterMatrix, r) {
-    SkSL::Interpreter::Value in[4];
-    SkSL::Interpreter::Value expected[1];
+    SkSL::Interpreter::Value in[16];
+    SkSL::Interpreter::Value expected[16];
 
     // Constructing matrix from scalar produces a diagonal matrix
     in[0] = 1.0f;
@@ -186,13 +186,40 @@ DEF_TEST(SkSLInterpreterMatrix, r) {
          "return m[0][1] + m[1][0]; }",
          in, 1, expected);
 
-#if 0
-    // Addition of matrices
-    test(r, "void main(inout half4 color) {"
-         "half4x4 m = half4x4(color, color, color, color);"
-         "m += m; color = m[0]; }",
-         1, 2, 3, 4, 2, 4, 6, 8);
+    // Initialize 16 values to be used as inputs to matrix tests
+    for (int i = 0; i < 16; ++i) { in[i] = (float)i; }
 
+    // M+M, M-S, S-M
+    for (int i = 0; i < 16; ++i) { expected[i] = (float)(2 * i); }
+    test(r, "float4x4 main(float4x4 m) { return m + m; }", in, 16, expected);
+    for (int i = 0; i < 16; ++i) { expected[i] = (float)(i + 3); }
+    test(r, "float4x4 main(float4x4 m) { return m + 3.0; }", in, 16, expected);
+    test(r, "float4x4 main(float4x4 m) { return 3.0 + m; }", in, 16, expected);
+
+    // M-M, M-S, S-M
+    for (int i = 0; i < 8; ++i) { expected[i] = 8.0f; }
+    test(r, "float4x2 main(float4x2 m1, float4x2 m2) { return m2 - m1; }", in, 8, expected);
+    for (int i = 0; i < 16; ++i) { expected[i] = (float)(i - 3); }
+    test(r, "float4x4 main(float4x4 m) { return m - 3.0; }", in, 16, expected);
+    for (int i = 0; i < 16; ++i) { expected[i] = (float)(3 - i); }
+    test(r, "float4x4 main(float4x4 m) { return 3.0 - m; }", in, 16, expected);
+
+    // M*S, S*M, M/S, S/M
+    for (int i = 0; i < 16; ++i) { expected[i] = (float)(i * 3); }
+    test(r, "float4x4 main(float4x4 m) { return m * 3.0; }", in, 16, expected);
+    test(r, "float4x4 main(float4x4 m) { return 3.0 * m; }", in, 16, expected);
+    for (int i = 0; i < 16; ++i) { expected[i] = (float)(i) / 2.0f; }
+    test(r, "float4x4 main(float4x4 m) { return m / 2.0; }", in, 16, expected);
+    for (int i = 0; i < 16; ++i) { expected[i] = 1.0f / (float)(i); }
+    test(r, "float4x4 main(float4x4 m) { return 1.0 / m; }", in, 16, expected);
+
+#if 0
+    // Matrix negation - legal in GLSL, not in SkSL?
+    for (int i = 0; i < 16; ++i) { expected[i] = (float)(-i); }
+    test(r, "float4x4 main(float4x4 m) { return -m; }", in, 16, expected);
+#endif
+
+#if 0
     // Matrix * Vector multiplication
     test(r, "void main(inout half4 color) {"
          "half4x4 m = half4x4(color, color, color, color);"

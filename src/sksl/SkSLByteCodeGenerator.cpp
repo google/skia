@@ -319,9 +319,15 @@ void ByteCodeGenerator::writeTypedInstruction(const Type& type, ByteCodeInstruct
         case TypeCategory::kUnsigned:
             this->write(vector_instruction(u, count));
             break;
-        case TypeCategory::kFloat:
-            this->write(vector_instruction(f, count));
+        case TypeCategory::kFloat: {
+            if (count > 4) {
+                this->write((ByteCodeInstruction)((int)f + 4));
+                this->write8(count);
+            } else {
+                this->write(vector_instruction(f, count));
+            }
             break;
+        }
         default:
             SkASSERT(false);
     }

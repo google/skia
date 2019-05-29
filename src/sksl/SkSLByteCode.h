@@ -20,9 +20,11 @@ class  ExternalValue;
 struct FunctionDeclaration;
 
 #define VECTOR(name) name, name ## 2, name ## 3, name ## 4
+#define VECTOR_MATRIX(name) name, name ## 2, name ## 3, name ## 4, name ## N
+
 enum class ByteCodeInstruction : uint16_t {
     // B = bool, F = float, I = int, S = signed, U = unsigned
-    VECTOR(kAddF),
+    VECTOR_MATRIX(kAddF),
     VECTOR(kAddI),
     VECTOR(kAndB),
     VECTOR(kAndI),
@@ -34,12 +36,12 @@ enum class ByteCodeInstruction : uint16_t {
     kCallExternal,
     VECTOR(kCompareIEQ),
     VECTOR(kCompareINEQ),
-    VECTOR(kCompareFEQ),
+    VECTOR_MATRIX(kCompareFEQ),
     VECTOR(kCompareFGT),
     VECTOR(kCompareFGTEQ),
     VECTOR(kCompareFLT),
     VECTOR(kCompareFLTEQ),
-    VECTOR(kCompareFNEQ),
+    VECTOR_MATRIX(kCompareFNEQ),
     VECTOR(kCompareSGT),
     VECTOR(kCompareSGTEQ),
     VECTOR(kCompareSLT),
@@ -57,13 +59,11 @@ enum class ByteCodeInstruction : uint16_t {
     kCross,
     // Pops and prints the top value from the stack
     kDebugPrint,
-    VECTOR(kDivideF),
+    VECTOR_MATRIX(kDivideF),
     VECTOR(kDivideS),
     VECTOR(kDivideU),
     // Duplicates the top stack value
-    VECTOR(kDup),
-    // Followed by count byte. Duplicates that many values
-    kDupN,
+    VECTOR_MATRIX(kDup),
     // kLoad/kLoadGlobal are followed by a byte indicating the local/global slot to load
     VECTOR(kLoad),
     VECTOR(kLoadGlobal),
@@ -79,17 +79,15 @@ enum class ByteCodeInstruction : uint16_t {
     // dimensions. Any overlapping values are copied, and any other values are filled in with the
     // identity matrix.
     kMatrixToMatrix,
-    VECTOR(kNegateF),
+    VECTOR_MATRIX(kNegateF),
     VECTOR(kNegateI),
     VECTOR(kMix),
-    VECTOR(kMultiplyF),
+    VECTOR_MATRIX(kMultiplyF),
     VECTOR(kMultiplyI),
     VECTOR(kNot),
     VECTOR(kOrB),
     VECTOR(kOrI),
-    VECTOR(kPop),
-    // Followed by count byte
-    kPopN,
+    VECTOR_MATRIX(kPop),
     // Followed by a 32 bit value containing the value to push
     kPushImmediate,
     // Followed by a byte indicating external value to read
@@ -123,7 +121,7 @@ enum class ByteCodeInstruction : uint16_t {
     // count byte provides the current vector size (the vector is the top n stack elements), and the
     // second count byte provides the swizzle component count.
     kSwizzle,
-    VECTOR(kSubtractF),
+    VECTOR_MATRIX(kSubtractF),
     VECTOR(kSubtractI),
     VECTOR(kTan),
     VECTOR(kXorB),
