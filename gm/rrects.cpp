@@ -131,8 +131,8 @@ protected:
                             bounds.outset(2.f, 2.f);
 
                             renderTargetContext->priv().testingOnly_addDrawOp(
-                                    GrFillRectOp::Make(context, std::move(grPaint), GrAAType::kNone,
-                                                       SkMatrix::I(), bounds));
+                                    GrFillRectOp::MakeNonAARect(context, std::move(grPaint),
+                                                                SkMatrix::I(), bounds));
                         } else {
                             drew = false;
                         }

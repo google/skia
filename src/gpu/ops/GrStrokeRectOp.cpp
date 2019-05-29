@@ -774,8 +774,10 @@ std::unique_ptr<GrDrawOp> MakeNested(GrRecordingContext* context,
         if (devOutside.isEmpty()) {
             return nullptr;
         }
-        return GrFillRectOp::Make(context, std::move(paint), GrAAType::kCoverage, viewMatrix,
-                                  rects[0]);
+        return GrFillRectOp::MakeGeneric(context, std::move(paint), GrAAType::kCoverage,
+                                         GrQuadAAFlags::kAll,
+                                         GrPerspQuad::MakeFromRect(rects[0], viewMatrix),
+                                         GrPerspQuad(rects[0]));
     }
 
     return AAStrokeRectOp::Make(context, std::move(paint), viewMatrix, devOutside, devInside);
