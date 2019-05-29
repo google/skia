@@ -277,24 +277,6 @@ SkSpan<const SkGlyphPos> SkStrike::prepareForDrawing(const SkGlyphID glyphIDs[],
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsQuad.h"
 
-static bool quad_in_bounds(const SkScalar* pts, const SkScalar bounds[2]) {
-    SkScalar min = SkTMin(SkTMin(pts[0], pts[2]), pts[4]);
-    if (bounds[1] < min) {
-        return false;
-    }
-    SkScalar max = SkTMax(SkTMax(pts[0], pts[2]), pts[4]);
-    return bounds[0] < max;
-}
-
-static bool cubic_in_bounds(const SkScalar* pts, const SkScalar bounds[2]) {
-    SkScalar min = SkTMin(SkTMin(SkTMin(pts[0], pts[2]), pts[4]), pts[6]);
-    if (bounds[1] < min) {
-        return false;
-    }
-    SkScalar max = SkTMax(SkTMax(SkTMax(pts[0], pts[2]), pts[4]), pts[6]);
-    return bounds[0] < max;
-}
-
 void SkStrike::OffsetResults(const SkGlyph::Intercept* intercept, SkScalar scale,
                                  SkScalar xPos, SkScalar* array, int* count) {
     if (array) {
@@ -304,57 +286,6 @@ void SkStrike::OffsetResults(const SkGlyph::Intercept* intercept, SkScalar scale
         }
     }
     *count += 2;
-}
-
-void SkStrike::AddInterval(SkScalar val, SkGlyph::Intercept* intercept) {
-    intercept->fInterval[0] = SkTMin(intercept->fInterval[0], val);
-    intercept->fInterval[1] = SkTMax(intercept->fInterval[1], val);
-}
-
-void SkStrike::AddPoints(const SkPoint* pts, int ptCount, const SkScalar bounds[2],
-        bool yAxis, SkGlyph::Intercept* intercept) {
-    for (int i = 0; i < ptCount; ++i) {
-        SkScalar val = *(&pts[i].fY - yAxis);
-        if (bounds[0] < val && val < bounds[1]) {
-            AddInterval(*(&pts[i].fX + yAxis), intercept);
-        }
-    }
-}
-
-void SkStrike::AddLine(const SkPoint pts[2], SkScalar axis, bool yAxis,
-                           SkGlyph::Intercept* intercept) {
-    SkScalar t = yAxis ? sk_ieee_float_divide(axis - pts[0].fX, pts[1].fX - pts[0].fX)
-                       : sk_ieee_float_divide(axis - pts[0].fY, pts[1].fY - pts[0].fY);
-    if (0 <= t && t < 1) {   // this handles divide by zero above
-        AddInterval(yAxis ? pts[0].fY + t * (pts[1].fY - pts[0].fY)
-            : pts[0].fX + t * (pts[1].fX - pts[0].fX), intercept);
-    }
-}
-
-void SkStrike::AddQuad(const SkPoint pts[3], SkScalar axis, bool yAxis,
-                     SkGlyph::Intercept* intercept) {
-    SkDQuad quad;
-    quad.set(pts);
-    double roots[2];
-    int count = yAxis ? quad.verticalIntersect(axis, roots)
-            : quad.horizontalIntersect(axis, roots);
-    while (--count >= 0) {
-        SkPoint pt = quad.ptAtT(roots[count]).asSkPoint();
-        AddInterval(*(&pt.fX + yAxis), intercept);
-    }
-}
-
-void SkStrike::AddCubic(const SkPoint pts[4], SkScalar axis, bool yAxis,
-                      SkGlyph::Intercept* intercept) {
-    SkDCubic cubic;
-    cubic.set(pts);
-    double roots[3];
-    int count = yAxis ? cubic.verticalIntersect(axis, roots)
-            : cubic.horizontalIntersect(axis, roots);
-    while (--count >= 0) {
-        SkPoint pt = cubic.ptAtT(roots[count]).asSkPoint();
-        AddInterval(*(&pt.fX + yAxis), intercept);
-    }
 }
 
 const SkGlyph::Intercept* SkStrike::MatchBounds(const SkGlyph* glyph,
@@ -372,8 +303,109 @@ const SkGlyph::Intercept* SkStrike::MatchBounds(const SkGlyph* glyph,
     return nullptr;
 }
 
+static std::tuple<SkScalar, SkScalar> calculate_path_gap(
+        SkScalar topOffset, SkScalar bottomOffset, const SkPath& path) {
+
+    // Left and Right of an ever expanding gap around the path.
+    SkScalar left  = SK_ScalarMax,
+             right = SK_ScalarMin;
+    auto expandGap = [&left, &right](SkScalar v) {
+        left  = SkTMin(left, v);
+        right = SkTMax(right, v);
+    };
+
+    // Handle all the different verbs for the path.
+    SkPoint pts[4];
+    auto addLine = [&expandGap, &pts](SkScalar offset) {
+        SkScalar t = sk_ieee_float_divide(offset - pts[0].fY, pts[1].fY - pts[0].fY);
+        if (0 <= t && t < 1) {   // this handles divide by zero above
+            expandGap(pts[0].fX + t * (pts[1].fX - pts[0].fX));
+        }
+    };
+
+    auto addQuad = [&expandGap, &pts](SkScalar offset) {
+        SkDQuad quad;
+        quad.set(pts);
+        double roots[2];
+        int count = quad.horizontalIntersect(offset, roots);
+        while (--count >= 0) {
+            expandGap(quad.ptAtT(roots[count]).asSkPoint().fX);
+        }
+    };
+
+    auto addCubic = [&expandGap, &pts](SkScalar offset) {
+        SkDCubic cubic;
+        cubic.set(pts);
+        double roots[3];
+        int count = cubic.horizontalIntersect(offset, roots);
+        while (--count >= 0) {
+            expandGap(cubic.ptAtT(roots[count]).asSkPoint().fX);
+        }
+    };
+
+    // Handle when a verb's points are in the gap between top and bottom.
+    auto addPts = [&expandGap, &pts, topOffset, bottomOffset](int ptCount) {
+        for (int i = 0; i < ptCount; ++i) {
+            if (topOffset < pts[i].fY && pts[i].fY < bottomOffset) {
+                expandGap(pts[i].fX);
+            }
+        }
+    };
+
+    SkPath::Iter iter(path, false);
+    SkPath::Verb verb;
+    while (SkPath::kDone_Verb != (verb = iter.next(pts))) {
+        switch (verb) {
+            case SkPath::kMove_Verb: {
+                break;
+            }
+            case SkPath::kLine_Verb: {
+                addLine(topOffset);
+                addLine(bottomOffset);
+                addPts(2);
+                break;
+            }
+            case SkPath::kQuad_Verb: {
+                SkScalar quadTop = SkTMin(SkTMin(pts[0].fY, pts[1].fY), pts[2].fY);
+                if (bottomOffset < quadTop) { break; }
+                SkScalar quadBottom = SkTMax(SkTMax(pts[0].fY, pts[1].fY), pts[2].fY);
+                if (topOffset > quadBottom) { break; }
+                addQuad(topOffset);
+                addQuad(bottomOffset);
+                addPts(3);
+                break;
+            }
+            case SkPath::kConic_Verb: {
+                SkASSERT(0);  // no support for text composed of conics
+                break;
+            }
+            case SkPath::kCubic_Verb: {
+                SkScalar quadTop =
+                        SkTMin(SkTMin(SkTMin(pts[0].fY, pts[1].fY), pts[2].fY), pts[3].fY);
+                if (bottomOffset < quadTop) { break; }
+                SkScalar quadBottom =
+                        SkTMax(SkTMax(SkTMax(pts[0].fY, pts[1].fY), pts[2].fY), pts[3].fY);
+                if (topOffset > quadBottom) { break; }
+                addCubic(topOffset);
+                addCubic(bottomOffset);
+                addPts(4);
+                break;
+            }
+            case SkPath::kClose_Verb: {
+                break;
+            }
+            default: {
+                SkASSERT(0);
+                break;
+            }
+        }
+    }
+
+    return std::tie(left, right);
+}
+
 void SkStrike::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
-        bool yAxis, SkGlyph* glyph, SkScalar* array, int* count) {
+        SkGlyph* glyph, SkScalar* array, int* count) {
     const SkGlyph::Intercept* match = MatchBounds(glyph, bounds);
 
     if (match) {
@@ -392,47 +424,13 @@ void SkStrike::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar
     glyph->fPathData->fIntercept = intercept;
     const SkPath* path = &(glyph->fPathData->fPath);
     const SkRect& pathBounds = path->getBounds();
-    if (*(&pathBounds.fBottom - yAxis) < bounds[0] || bounds[1] < *(&pathBounds.fTop - yAxis)) {
+    if (pathBounds.fBottom < bounds[0] || bounds[1] < pathBounds.fTop) {
         return;
     }
-    SkPath::Iter iter(*path, false);
-    SkPoint pts[4];
-    SkPath::Verb verb;
-    while (SkPath::kDone_Verb != (verb = iter.next(pts))) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                break;
-            case SkPath::kLine_Verb:
-                AddLine(pts, bounds[0], yAxis, intercept);
-                AddLine(pts, bounds[1], yAxis, intercept);
-                AddPoints(pts, 2, bounds, yAxis, intercept);
-                break;
-            case SkPath::kQuad_Verb:
-                if (!quad_in_bounds(&pts[0].fY - yAxis, bounds)) {
-                    break;
-                }
-                AddQuad(pts, bounds[0], yAxis, intercept);
-                AddQuad(pts, bounds[1], yAxis, intercept);
-                AddPoints(pts, 3, bounds, yAxis, intercept);
-                break;
-            case SkPath::kConic_Verb:
-                SkASSERT(0);  // no support for text composed of conics
-                break;
-            case SkPath::kCubic_Verb:
-                if (!cubic_in_bounds(&pts[0].fY - yAxis, bounds)) {
-                    break;
-                }
-                AddCubic(pts, bounds[0], yAxis, intercept);
-                AddCubic(pts, bounds[1], yAxis, intercept);
-                AddPoints(pts, 4, bounds, yAxis, intercept);
-                break;
-            case SkPath::kClose_Verb:
-                break;
-            default:
-                SkASSERT(0);
-                break;
-        }
-    }
+
+    std::tie(intercept->fInterval[0], intercept->fInterval[1])
+        = calculate_path_gap(bounds[0], bounds[1], *path);
+
     if (intercept->fInterval[0] >= intercept->fInterval[1]) {
         intercept->fInterval[0] = SK_ScalarMax;
         intercept->fInterval[1] = SK_ScalarMin;
