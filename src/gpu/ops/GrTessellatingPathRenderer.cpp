@@ -137,7 +137,8 @@ private:
 
 }  // namespace
 
-GrTessellatingPathRenderer::GrTessellatingPathRenderer() {
+GrTessellatingPathRenderer::GrTessellatingPathRenderer()
+  : fMaxVerbCount(GR_AA_TESSELLATOR_MAX_VERB_COUNT) {
 }
 
 GrPathRenderer::CanDrawPath
@@ -161,7 +162,7 @@ GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
         // without keys.
         SkPath path;
         args.fShape->asPath(&path);
-        if (path.countVerbs() > GR_AA_TESSELLATOR_MAX_VERB_COUNT) {
+        if (path.countVerbs() > fMaxVerbCount) {
             return CanDrawPath::kNo;
         }
     }
