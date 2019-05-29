@@ -968,6 +968,16 @@ func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
 	return name
 }
 
+// g3FrameworkCompile generates a G3 Framework Compile task. Returns
+// the name of the last task in the generated chain of tasks, which the Job
+// should add as a dependency.
+func g3FrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
+	task := kitchenTask(name, "g3_compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
+	timeout(task, time.Hour)
+	b.MustAddTask(name, task)
+	return name
+}
+
 // infra generates an infra_tests task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func infra(b *specs.TasksCfgBuilder, name string) string {
@@ -1275,6 +1285,9 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		if parts["extra_config"] == "Android_Framework" {
 			// Android Framework compile tasks use a different recipe.
 			deps = append(deps, androidFrameworkCompile(b, name))
+		} else if parts["extra_config"] == "G3_Framework" {
+			// G3 compile tasks use a different recipe.
+			deps = append(deps, g3FrameworkCompile(b, name))
 		} else {
 			deps = append(deps, compile(b, name, parts))
 		}
@@ -1300,6 +1313,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		name != "Housekeeper-OnDemand-Presubmit" &&
 		name != "Housekeeper-PerCommit" &&
 		!strings.Contains(name, "Android_Framework") &&
+		!strings.Contains(name, "G3_Framework") &&
 		!strings.Contains(name, "RecreateSKPs") &&
 		!strings.Contains(name, "Housekeeper-PerCommit-Isolate") &&
 		!strings.Contains(name, "LottieWeb") {
@@ -1398,7 +1412,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		j.Trigger = specs.TRIGGER_WEEKLY
 	} else if strings.Contains(name, "Flutter") || strings.Contains(name, "CommandBuffer") {
 		j.Trigger = specs.TRIGGER_MASTER_ONLY
-	} else if strings.Contains(name, "-OnDemand-") || strings.Contains(name, "Android_Framework") {
+	} else if strings.Contains(name, "-OnDemand-") || strings.Contains(name, "Android_Framework") || strings.Contains(name, "G3_Framework"){
 		j.Trigger = specs.TRIGGER_ON_DEMAND
 	}
 	b.MustAddJob(name, j)
