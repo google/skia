@@ -34,6 +34,24 @@
       "revId": "87740ea081d23b32fcadf8fa6698e8d7253a9350",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fb134d3_ef715329",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-29T19:06:52Z",
+      "side": 1,
+      "message": "It\u0027s being compiled in SkSL\u0027s standalone mode (for the offline compiler).",
+      "parentUuid": "49509b78_8bd518f1",
+      "revId": "87740ea081d23b32fcadf8fa6698e8d7253a9350",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
