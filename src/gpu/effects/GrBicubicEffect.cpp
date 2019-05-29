@@ -20,7 +20,8 @@ public:
                               GrProcessorKeyBuilder* b) {
         const GrBicubicEffect& bicubicEffect = effect.cast<GrBicubicEffect>();
         b->add32(GrTextureDomain::GLDomain::DomainKey(bicubicEffect.domain()));
-        b->add32(bicubicEffect.alphaType());
+        uint32_t bidir = bicubicEffect.direction() == GrBicubicEffect::Direction::kXY ? 1 : 0;
+        b->add32(bidir | (bicubicEffect.alphaType() << 1));
     }
 
 protected:
@@ -29,7 +30,7 @@ protected:
 private:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
-    UniformHandle               fImageIncrementUni;
+    UniformHandle fDimensions;
     GrTextureDomain::GLDomain   fDomain;
 
     typedef GrGLSLFragmentProcessor INHERITED;
@@ -39,10 +40,9 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     const GrBicubicEffect& bicubicEffect = args.fFp.cast<GrBicubicEffect>();
 
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fImageIncrementUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
-                                                    "ImageIncrement");
+    fDimensions = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "Dimensions");
 
-    const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
+    const char* dims = uniformHandler->getUniformCStr(fDimensions);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
@@ -70,36 +70,65 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
                             "-9.0 / 18.0,   0.0 / 18.0,   9.0 / 18.0,  0.0 / 18.0,"
                             "15.0 / 18.0, -36.0 / 18.0,  27.0 / 18.0, -6.0 / 18.0,"
                             "-7.0 / 18.0,  21.0 / 18.0, -21.0 / 18.0,  7.0 / 18.0);");
-    fragBuilder->codeAppendf("float2 coord = %s - %s * float2(0.5);", coords2D.c_str(), imgInc);
+    fragBuilder->codeAppendf("float2 coord = %s - %s.xy * float2(0.5);", coords2D.c_str(), dims);
     // We unnormalize the coord in order to determine our fractional offset (f) within the texel
     // We then snap coord to a texel center and renormalize. The snap prevents cases where the
-    // starting coords are near a texel boundary and accumulations of imgInc would cause us to skip/
+    // starting coords are near a texel boundary and accumulations of dims would cause us to skip/
     // double hit a texel.
-    fragBuilder->codeAppendf("coord /= %s;", imgInc);
-    fragBuilder->codeAppend("half2 f = half2(fract(coord));");
-    fragBuilder->codeAppendf("coord = (coord - f + half2(0.5)) * %s;", imgInc);
-    fragBuilder->codeAppend("half4 wx = kMitchellCoefficients * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
-    fragBuilder->codeAppend("half4 wy = kMitchellCoefficients * half4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);");
-    fragBuilder->codeAppend("half4 rowColors[4];");
-    for (int y = 0; y < 4; ++y) {
-        for (int x = 0; x < 4; ++x) {
+    fragBuilder->codeAppendf("half2 f = half2(fract(coord * %s.zw));", dims);
+    fragBuilder->codeAppendf("coord = coord + (half2(0.5) - f) * %s.xy;", dims);
+    if (bicubicEffect.direction() == GrBicubicEffect::Direction::kXY) {
+        fragBuilder->codeAppend(
+                "half4 wx = kMitchellCoefficients * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
+        fragBuilder->codeAppend(
+                "half4 wy = kMitchellCoefficients * half4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);");
+        fragBuilder->codeAppend("half4 rowColors[4];");
+        for (int y = 0; y < 4; ++y) {
+            for (int x = 0; x < 4; ++x) {
+                SkString coord;
+                coord.printf("coord + %s.xy * float2(%d, %d)", dims, x - 1, y - 1);
+                SkString sampleVar;
+                sampleVar.printf("rowColors[%d]", x);
+                fDomain.sampleTexture(fragBuilder,
+                                      args.fUniformHandler,
+                                      args.fShaderCaps,
+                                      bicubicEffect.domain(),
+                                      sampleVar.c_str(),
+                                      coord,
+                                      args.fTexSamplers[0]);
+            }
+            fragBuilder->codeAppendf(
+                    "half4 s%d = wx.x * rowColors[0] + wx.y * rowColors[1] + wx.z * rowColors[2] + "
+                    "wx.w * rowColors[3];",
+                    y);
+        }
+        fragBuilder->codeAppend(
+                "half4 bicubicColor = wy.x * s0 + wy.y * s1 + wy.z * s2 + wy.w * s3;");
+    } else {
+        // One of the dims.xy values will be zero. So v here selects the nonzero value of f.
+        fragBuilder->codeAppend("half v = f.x + f.y;");
+        fragBuilder->codeAppend("half v2 = v * v;");
+        fragBuilder->codeAppend("half4 w = kMitchellCoefficients * half4(1.0, v, v2, v2 * v);");
+        fragBuilder->codeAppend("half4 c[4];");
+        for (int i = 0; i < 4; ++i) {
             SkString coord;
-            coord.printf("coord + %s * float2(%d, %d)", imgInc, x - 1, y - 1);
-            SkString sampleVar;
-            sampleVar.printf("rowColors[%d]", x);
+            coord.printf("coord + %s.xy * half(%d)", dims, i - 1);
+            SkString samplerVar;
+            samplerVar.printf("c[%d]", i);
+            // With added complexity we could apply the domain once in X or Y depending on
+            // direction rather than for each of the four lookups, but then we might not be
+            // be able to share code for Direction::kX and ::kY.
             fDomain.sampleTexture(fragBuilder,
                                   args.fUniformHandler,
                                   args.fShaderCaps,
                                   bicubicEffect.domain(),
-                                  sampleVar.c_str(),
+                                  samplerVar.c_str(),
                                   coord,
                                   args.fTexSamplers[0]);
         }
-        fragBuilder->codeAppendf(
-            "half4 s%d = wx.x * rowColors[0] + wx.y * rowColors[1] + wx.z * rowColors[2] + wx.w * rowColors[3];",
-            y);
+        fragBuilder->codeAppend(
+                "half4 bicubicColor = c[0] * w.x + c[1] * w.y + c[2] * w.z + c[3] * w.w;");
     }
-    fragBuilder->codeAppend("half4 bicubicColor = wy.x * s0 + wy.y * s1 + wy.z * s2 + wy.w * s3;");
     // Bicubic can send colors out of range, so clamp to get them back in (source) gamut.
     // The kind of clamp we have to do depends on the alpha type.
     if (kPremul_SkAlphaType == bicubicEffect.alphaType()) {
@@ -118,27 +147,34 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     GrTextureProxy* proxy = processor.textureSampler(0).proxy();
     GrTexture* texture = proxy->peekTexture();
 
-    float imageIncrement[2];
-    imageIncrement[0] = 1.0f / texture->width();
-    imageIncrement[1] = 1.0f / texture->height();
-    pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
+    float dims[4] = {0, 0, 0, 0};
+    if (bicubicEffect.direction() != GrBicubicEffect::Direction::kY) {
+        dims[0] = 1.0f / texture->width();
+        dims[2] = texture->width();
+    }
+    if (bicubicEffect.direction() != GrBicubicEffect::Direction::kX) {
+        dims[1] = 1.0f / texture->height();
+        dims[3] = texture->height();
+    }
+    pdman.set4fv(fDimensions, 1, dims);
     fDomain.setData(pdman, bicubicEffect.domain(), proxy,
                     processor.textureSampler(0).samplerState());
 }
 
-GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
-                                 const SkMatrix& matrix, const SkRect& domain,
-                                 const GrSamplerState::WrapMode wrapModes[2],
+GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy, const SkMatrix& matrix,
+                                 const SkRect& domain, const GrSamplerState::WrapMode wrapModes[2],
                                  GrTextureDomain::Mode modeX, GrTextureDomain::Mode modeY,
-                                 SkAlphaType alphaType)
+                                 Direction direction, SkAlphaType alphaType)
         : INHERITED{kGrBicubicEffect_ClassID,
-                    ModulateForSamplerOptFlags(proxy->config(),
-                            GrTextureDomain::IsDecalSampled(wrapModes, modeX,modeY))}
+                    ModulateForSamplerOptFlags(
+                            proxy->config(),
+                            GrTextureDomain::IsDecalSampled(wrapModes, modeX, modeY))}
         , fCoordTransform(matrix, proxy.get())
         , fDomain(proxy.get(), domain, modeX, modeY)
         , fTextureSampler(std::move(proxy),
                           GrSamplerState(wrapModes, GrSamplerState::Filter::kNearest))
-        , fAlphaType(alphaType) {
+        , fAlphaType(alphaType)
+        , fDirection(direction) {
     this->addCoordTransform(&fCoordTransform);
     this->setTextureSamplerCnt(1);
 }
@@ -148,7 +184,8 @@ GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
         , fCoordTransform(that.fCoordTransform)
         , fDomain(that.fDomain)
         , fTextureSampler(that.fTextureSampler)
-        , fAlphaType(that.fAlphaType) {
+        , fAlphaType(that.fAlphaType)
+        , fDirection(that.fDirection) {
     this->addCoordTransform(&fCoordTransform);
     this->setTextureSamplerCnt(1);
 }
@@ -164,7 +201,7 @@ GrGLSLFragmentProcessor* GrBicubicEffect::onCreateGLSLInstance() const  {
 
 bool GrBicubicEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrBicubicEffect& s = sBase.cast<GrBicubicEffect>();
-    return fDomain == s.fDomain;
+    return fDomain == s.fDomain && fDirection == s.fDirection && fAlphaType == s.fAlphaType;
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
@@ -176,7 +213,20 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
     static const GrSamplerState::WrapMode kClampClamp[] = {GrSamplerState::WrapMode::kClamp,
                                                            GrSamplerState::WrapMode::kClamp};
     SkAlphaType alphaType = d->fRandom->nextBool() ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
-    return GrBicubicEffect::Make(d->textureProxy(texIdx), SkMatrix::I(), kClampClamp, alphaType);
+    Direction direction = Direction::kX;
+    switch (d->fRandom->nextULessThan(3)) {
+        case 0:
+            direction = Direction::kX;
+            break;
+        case 1:
+            direction = Direction::kY;
+            break;
+        case 2:
+            direction = Direction::kXY;
+            break;
+    }
+    return GrBicubicEffect::Make(d->textureProxy(texIdx), SkMatrix::I(), kClampClamp, direction,
+                                 alphaType);
 }
 #endif
 

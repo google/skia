@@ -20,6 +20,15 @@ public:
                              // surrounding texels are needed by the kernel in x and y.
     };
 
+    enum class Direction {
+        /** Apply bicubic kernel in local coord x, nearest neighbor in y. */
+        kX,
+        /** Apply bicubic kernel in local coord y, nearest neighbor in x. */
+        kY,
+        /** Apply bicubic in both x and y. */
+        kXY
+    };
+
     const char* name() const override { return "Bicubic"; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
@@ -28,18 +37,21 @@ public:
 
     const GrTextureDomain& domain() const { return fDomain; }
 
+    Direction direction() const { return fDirection; }
+
     SkAlphaType alphaType() const { return fAlphaType; }
 
     /**
-     * Create a Mitchell filter effect with specified texture matrix with clamp wrap modes.
+     * Create a Mitchell filter effect with specified texture matrix with clamp wrap mode.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      const SkMatrix& matrix,
+                                                     Direction direction,
                                                      SkAlphaType alphaType) {
         static constexpr GrSamplerState::WrapMode kClampClamp[] = {
                 GrSamplerState::WrapMode::kClamp, GrSamplerState::WrapMode::kClamp};
         return Make(std::move(proxy), matrix, kClampClamp, GrTextureDomain::kIgnore_Mode,
-                    GrTextureDomain::kIgnore_Mode, alphaType);
+                    GrTextureDomain::kIgnore_Mode, direction, alphaType);
     }
 
     /**
@@ -48,11 +60,12 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState::WrapMode wrapModes[2],
+                                                     Direction direction,
                                                      SkAlphaType alphaType) {
         // Ignore the domain on x and y, since this factory relies solely on the wrap mode of the
         // sampler to constrain texture coordinates
         return Make(std::move(proxy), matrix, wrapModes, GrTextureDomain::kIgnore_Mode,
-                    GrTextureDomain::kIgnore_Mode, alphaType);
+                    GrTextureDomain::kIgnore_Mode, direction, alphaType);
     }
 
     /**
@@ -65,12 +78,14 @@ public:
                                                      const GrSamplerState::WrapMode wrapModes[2],
                                                      GrTextureDomain::Mode modeX,
                                                      GrTextureDomain::Mode modeY,
+                                                     Direction direction,
                                                      SkAlphaType alphaType,
                                                      const SkRect* domain = nullptr) {
         SkRect resolvedDomain = domain ? *domain : GrTextureDomain::MakeTexelDomain(
                 SkIRect::MakeWH(proxy->width(), proxy->height()), modeX, modeY);
-        return std::unique_ptr<GrFragmentProcessor>(new GrBicubicEffect(
-                std::move(proxy), matrix, resolvedDomain, wrapModes, modeX, modeY, alphaType));
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrBicubicEffect(std::move(proxy), matrix, resolvedDomain, wrapModes, modeX,
+                                    modeY, direction, alphaType));
     }
 
     /**
@@ -79,11 +94,12 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      const SkMatrix& matrix,
                                                      const SkRect& domain,
+                                                     Direction direction,
                                                      SkAlphaType alphaType) {
         static const GrSamplerState::WrapMode kClampClamp[] = {
                 GrSamplerState::WrapMode::kClamp, GrSamplerState::WrapMode::kClamp};
         return Make(std::move(proxy), matrix, kClampClamp, GrTextureDomain::kClamp_Mode,
-                GrTextureDomain::kClamp_Mode, alphaType, &domain);
+                    GrTextureDomain::kClamp_Mode, direction, alphaType, &domain);
     }
 
     /**
@@ -98,9 +114,8 @@ public:
 
 private:
     GrBicubicEffect(sk_sp<GrTextureProxy>, const SkMatrix& matrix, const SkRect& domain,
-                    const GrSamplerState::WrapMode wrapModes[2],
-                    GrTextureDomain::Mode modeX, GrTextureDomain::Mode modeY,
-                    SkAlphaType alphaType);
+                    const GrSamplerState::WrapMode wrapModes[2], GrTextureDomain::Mode modeX,
+                    GrTextureDomain::Mode modeY, Direction direction, SkAlphaType alphaType);
     explicit GrBicubicEffect(const GrBicubicEffect&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -115,6 +130,7 @@ private:
     GrTextureDomain fDomain;
     TextureSampler fTextureSampler;
     SkAlphaType fAlphaType;
+    Direction fDirection;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

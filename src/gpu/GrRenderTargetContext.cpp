@@ -1912,13 +1912,19 @@ sk_sp<GrRenderTargetContext> GrRenderTargetContext::rescale(const SkImageInfo& i
             SkMatrix matrix;
             matrix.setScaleTranslate((float)srcW / nextW, (float)srcH / nextH, srcX, srcY);
             std::unique_ptr<GrFragmentProcessor> fp;
+            auto dir = GrBicubicEffect::Direction::kXY;
+            if (nextW == srcW) {
+                dir = GrBicubicEffect::Direction::kY;
+            } else if (nextH == srcH) {
+                dir = GrBicubicEffect::Direction::kX;
+            }
             if (srcW != srcContext->width() || srcH != srcContext->height()) {
                 auto domain = GrTextureDomain::MakeTexelDomain(
                         SkIRect::MakeXYWH(srcX, srcY, srcW, srcH), GrTextureDomain::kClamp_Mode);
-                fp = GrBicubicEffect::Make(srcContext->asTextureProxyRef(), matrix, domain,
+                fp = GrBicubicEffect::Make(srcContext->asTextureProxyRef(), matrix, domain, dir,
                                            kPremul_SkAlphaType);
             } else {
-                fp = GrBicubicEffect::Make(srcContext->asTextureProxyRef(), matrix,
+                fp = GrBicubicEffect::Make(srcContext->asTextureProxyRef(), matrix, dir,
                                            kPremul_SkAlphaType);
             }
             GrPaint paint;
