@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c548cc97_4663241e",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 982,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-29T16:18:43Z",
+      "side": 1,
+      "message": "Seems like we know if we can use kX or kY here?",
+      "revId": "a987188dd94f5013c218dde22d1c765500ddb70d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1e76403_c50a8b86",
+        "filename": "src/gpu/effects/GrBicubicEffect.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-29T16:18:43Z",
+      "side": 1,
+      "message": "x",
+      "range": {
+        "startLine": 26,
+        "startChar": 71,
+        "endLine": 26,
+        "endChar": 72
+      },
+      "revId": "a987188dd94f5013c218dde22d1c765500ddb70d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59c952d7_c85afe74",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-29T16:18:43Z",
+      "side": 1,
+      "message": "Ditto here? I guess the odds of it happening in these other cases is low, though?",
+      "revId": "a987188dd94f5013c218dde22d1c765500ddb70d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
