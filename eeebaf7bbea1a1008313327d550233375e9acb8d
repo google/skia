@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ca8d4714_46702bf0",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-29T17:25:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d24940a_7785be82",
+      "range": {
+        "startLine": 143,
+        "startChar": 21,
+        "endLine": 143,
+        "endChar": 26
+      },
+      "revId": "eeebaf7bbea1a1008313327d550233375e9acb8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "888ca1dd_90244abc",
         "filename": "tests/VkProtectedContextTest.cpp",
         "patchSetId": 23
@@ -45,6 +69,30 @@
       "revId": "eeebaf7bbea1a1008313327d550233375e9acb8d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdd4b49c_2b930265",
+        "filename": "tests/VkProtectedContextTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-29T17:25:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "888ca1dd_90244abc",
+      "range": {
+        "startLine": 37,
+        "startChar": 7,
+        "endLine": 37,
+        "endChar": 21
+      },
+      "revId": "eeebaf7bbea1a1008313327d550233375e9acb8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -83,6 +131,30 @@
       "side": 1,
       "message": "It was also out of scope at the time we make the VkDevice so that may have also screwed up your local tests when trying to actually do protected calls if the device didn\u0027t actually enable the feature on create.",
       "parentUuid": "84531d8a_ee11c284",
+      "range": {
+        "startLine": 354,
+        "startChar": 2,
+        "endLine": 358,
+        "endChar": 6
+      },
+      "revId": "eeebaf7bbea1a1008313327d550233375e9acb8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "401c9883_1c2bc324",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-05-29T17:25:51Z",
+      "side": 1,
+      "message": "Good catch! Done, but it doesnt help with the crash or local drawing test problems so far. vkcreateDevice crash seems to be related to instance and physical device apiVersion difference. Adding early return with physical device apiVersion helps avoiding it. I think driver update should be enough to test it on my workstation.",
+      "parentUuid": "47e7fe47_a5785a50",
       "range": {
         "startLine": 354,
         "startChar": 2,
