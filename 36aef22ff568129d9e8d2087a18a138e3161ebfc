@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "75814462_9f8c199f",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-29T17:14:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3daed75_28fd78f3",
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "53859a4b_7d6900af",
         "filename": "src/gpu/GrReducedClip.cpp",
         "patchSetId": 9
@@ -39,6 +57,30 @@
       "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bb1d28d_09babe5d",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-29T17:14:34Z",
+      "side": 1,
+      "message": "Good catch, I agree we can drop that argument.",
+      "parentUuid": "53859a4b_7d6900af",
+      "range": {
+        "startLine": 719,
+        "startChar": 25,
+        "endLine": 719,
+        "endChar": 45
+      },
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "d292418d_ee220e35",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-29T17:14:34Z",
+      "side": 1,
+      "message": "Oops, I deleted the wrong line, meant to remove the clearQuad local.",
+      "parentUuid": "a658450a_0294def0",
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2aedcda6_1c8b3674",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 9
@@ -96,6 +156,24 @@
       "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90976020_43594f67",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1168,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-29T17:14:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2aedcda6_1c8b3674",
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -130,6 +208,24 @@
       "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64768dfd_1ab20429",
+        "filename": "src/gpu/GrRenderTargetContextPriv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-29T17:14:34Z",
+      "side": 1,
+      "message": "The path renderers that use stencilRect() now have regular GrClips. GrReducedClip only calls this function with a GrHardClip or a GrFixedClip. I did add a comment to stencilRect() to assist with any future modifications of GrReducedClip.",
+      "parentUuid": "bfffbbb0_d3dad643",
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
