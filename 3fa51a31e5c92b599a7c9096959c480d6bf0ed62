@@ -119,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "5d10be79_37cafa63",
+        "filename": "src/gpu/GrContextPriv.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-29T13:57:43Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "80082c06_51373ef8",
+      "range": {
+        "startLine": 497,
+        "startChar": 0,
+        "endLine": 524,
+        "endChar": 9
+      },
+      "revId": "3fa51a31e5c92b599a7c9096959c480d6bf0ed62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d3ae6ab6_8b81d713",
         "filename": "src/gpu/GrContextPriv.cpp",
         "patchSetId": 3
@@ -218,6 +242,24 @@
       "side": 1,
       "message": "In general I don\u0027t think so. Clients may have their own way on knowing when it is safe to delete a backend texture object (like using the finish procs on flush). So it is better to not force this sync on everyone. Plus, we are moving towards a world where we want clients to explicitly be calling flush and not have flushing being a side effect of a bunch of different calls like it is today.",
       "parentUuid": "c14bef4d_37098089",
+      "revId": "3fa51a31e5c92b599a7c9096959c480d6bf0ed62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16ee60f7_b859e577",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-29T13:57:43Z",
+      "side": 1,
+      "message": "Isn\u0027t delete_backend_texture just a testing helper function?",
+      "parentUuid": "1c89518a_7bf3b567",
       "revId": "3fa51a31e5c92b599a7c9096959c480d6bf0ed62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
