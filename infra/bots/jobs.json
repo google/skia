@@ -59,6 +59,7 @@
   "Build-Debian9-Clang-x86_64-Release-TSAN_Vulkan",
   "Build-Debian9-Clang-x86_64-Release-Vulkan",
   "Build-Debian9-Clang-x86_64-Release-Wuffs",
+  "Build-Debian9-Clang-TAP-Presubmit-G3_Framework",
   "Build-Debian9-EMCC-asmjs-Debug-PathKit",
   "Build-Debian9-EMCC-asmjs-Release-PathKit",
   "Build-Debian9-EMCC-wasm-Debug-CanvasKit",
