@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "6d24940a_7785be82",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-29T14:14:12Z",
+      "side": 1,
+      "message": "small nit: we typically don\u0027t use _ so we\u0027d name this vkGpu",
+      "range": {
+        "startLine": 143,
+        "startChar": 21,
+        "endLine": 143,
+        "endChar": 26
+      },
+      "revId": "eeebaf7bbea1a1008313327d550233375e9acb8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "888ca1dd_90244abc",
         "filename": "tests/VkProtectedContextTest.cpp",
         "patchSetId": 23
@@ -18,6 +41,29 @@
         "startChar": 7,
         "endLine": 37,
         "endChar": 21
+      },
+      "revId": "eeebaf7bbea1a1008313327d550233375e9acb8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84531d8a_ee11c284",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-29T14:14:12Z",
+      "side": 1,
+      "message": "This is the crash. You need to allocate this on the stack or it goes out of scope by the time we hit in caps (even though we aren\u0027t checking this one directly yet we still iterate over its pNext to get to other features).\n\nThis works for me:\nif (isProtected) {\n    SkASSERT(physDeviceVersion \u003e\u003d VK_MAKE_VERSION(1, 1, 0));\n    protectedMemoryFeatures \u003d (VkPhysicalDeviceProtectedMemoryFeatures*) sk_malloc_throw(\n            sizeof(VkPhysicalDeviceProtectedMemoryFeatures));\n    protectedMemoryFeatures-\u003esType \u003d\n            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES;\n    protectedMemoryFeatures-\u003epNext \u003d nullptr;\n    *tailPNext \u003d protectedMemoryFeatures;\n    tailPNext \u003d \u0026protectedMemoryFeatures-\u003epNext;\n}",
+      "range": {
+        "startLine": 354,
+        "startChar": 2,
+        "endLine": 358,
+        "endChar": 6
       },
       "revId": "eeebaf7bbea1a1008313327d550233375e9acb8d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
