@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrQuad.h"
+#include "src/gpu/geometry/GrQuad.h"
 
 #include "include/private/GrTypesPriv.h"
 

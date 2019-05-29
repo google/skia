@@ -14,7 +14,7 @@
 #include "include/private/GrColor.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
-#include "src/gpu/GrQuad.h"
+#include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 
 class GrCaps;
