@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "40d4af7e_48ecbb2c",
+        "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-05-29T18:21:18Z",
+      "side": 1,
+      "message": "I think if anything goes wrong with the command we want to say it\u0027s ok to schedule a new task. Changed this to call the new function.",
+      "parentUuid": "d6e435a3_1ac1060d",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 16
+      },
+      "revId": "981a8a5f45bbe8fb404a9a03f4647d2ac5d758f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff455093_1797e810",
         "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "129070dc_7b3f67ee",
+        "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-05-29T18:21:18Z",
+      "side": 1,
+      "message": "I needed to delete the file when I was using pubsub but now no longer required. Removed this part.",
+      "parentUuid": "ff455093_1797e810",
+      "range": {
+        "startLine": 96,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 16
+      },
+      "revId": "981a8a5f45bbe8fb404a9a03f4647d2ac5d758f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "60928906_22b89c2f",
         "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
         "patchSetId": 3
@@ -68,6 +116,30 @@
       "revId": "981a8a5f45bbe8fb404a9a03f4647d2ac5d758f2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a8dedf4_bc2b9c51",
+        "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-05-29T18:21:18Z",
+      "side": 1,
+      "message": "Extracted it into a function, made expo backoff configurable and using it from _does_running_task_exist_in_storage as well.",
+      "parentUuid": "60928906_22b89c2f",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 16
+      },
+      "revId": "981a8a5f45bbe8fb404a9a03f4647d2ac5d758f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
