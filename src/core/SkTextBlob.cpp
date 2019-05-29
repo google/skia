@@ -943,8 +943,7 @@ bool TextInterceptsIter::next(SkScalar* array, int* count) {
     fXPos += fPrevAdvance * fScale;
     fPrevAdvance = SkFloatToScalar(glyph.fAdvanceX);
     if (fCache->findPath(glyph)) {
-        fCache->findIntercepts(fBounds, fScale, fXPos, false,
-                               const_cast<SkGlyph*>(&glyph), array, count);
+        fCache->findIntercepts(fBounds, fScale, fXPos, const_cast<SkGlyph*>(&glyph), array, count);
     }
     return fGlyphs < fStop;
 }
