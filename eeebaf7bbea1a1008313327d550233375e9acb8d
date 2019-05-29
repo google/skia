@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "888ca1dd_90244abc",
+        "filename": "tests/VkProtectedContextTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-29T13:46:30Z",
+      "side": 1,
+      "message": "this conflicts with the name VulkanTestHelper in the VkHardwareBufferTest. You probably need to wrap this in an namespace.",
+      "range": {
+        "startLine": 37,
+        "startChar": 7,
+        "endLine": 37,
+        "endChar": 21
+      },
+      "revId": "eeebaf7bbea1a1008313327d550233375e9acb8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
