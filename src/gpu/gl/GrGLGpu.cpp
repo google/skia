@@ -4088,28 +4088,13 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
     }
 
     if (mipMapped == GrMipMapped::kYes && !this->caps()->mipMapSupport()) {
-        return GrBackendTexture();
+        return GrBackendTexture();  // invalid
     }
 
-    GrGLTextureInfo info;
-    info.fID = 0;
-    info.fTarget = GR_GL_TEXTURE_2D;
-    GL_CALL(GenTextures(1, &info.fID));
-
-    if (!info.fID) {
-        return GrBackendTexture();
-    }
-
-    this->bindTextureToScratchUnit(info.fTarget, info.fID);
-
-    if (GrRenderable::kYes == renderable && this->glCaps().textureUsageSupport()) {
-        // provides a hint about how this texture will be used
-        GL_CALL(TexParameteri(info.fTarget,
-                              GR_GL_TEXTURE_USAGE,
-                              GR_GL_FRAMEBUFFER_ATTACHMENT));
-    }
-
-    set_initial_texture_params(this->glInterface(), info);
+    GrSurfaceDesc desc;
+    desc.fWidth = w;
+    desc.fHeight = h;
+    desc.fConfig = config;
 
     // Figure out the number of mip levels.
     int mipLevelCount = 1;
@@ -4119,10 +4104,8 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
 
     SkAutoTMalloc<GrMipLevel> texels(mipLevelCount);
 
-    bool success;
     if (GrPixelConfigIsCompressed(config)) {
         // we have to do something special for compressed textures
-        SkASSERT(GrRenderable::kNo == renderable);
         SkASSERT(0 == rowBytes);
 
         int numBlocks = GrNumETC1Blocks(w, h);
@@ -4136,9 +4119,6 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
             // TODO: this isn't correct when pixels for additional mip levels are passed in
             texels.get()[i] = { pixels, 0 };
         }
-
-        success = this->uploadCompressedTexData(config, w, h, info.fTarget,
-                                                texels.get(), mipLevelCount, nullptr);
     } else {
         int bpp = GrBytesPerPixel(config);
         const size_t trimRowBytes = w * bpp;
@@ -4150,8 +4130,7 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         SkAutoMalloc defaultStorage(baseLayerSize);
         if (!pixels) {
             if (!GrFillBufferWithColor(config, w, h, colorf, defaultStorage.get())) {
-                GL_CALL(DeleteTextures(1, &(info.fID)));
-                return GrBackendTexture();
+                return GrBackendTexture();  // invalid
             }
 
             pixels = defaultStorage.get();
@@ -4162,25 +4141,22 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
             // TODO: this isn't correct when pixels for additional mip levels are passed in
             texels.get()[i] = { pixels, rowBytes };
         }
-
-        success = this->uploadTexData(config, w, h, info.fTarget, kNewTexture_UploadType,
-                                      0, 0, w, h, config, texels.get(), mipLevelCount,
-                                      nullptr);
     }
 
-    if (!success) {
-        GL_CALL(DeleteTextures(1, &(info.fID)));
-        return GrBackendTexture();
-    }
+    GrGLTextureInfo info;
+    GrGLTexture::SamplerParams initialTexParams;
 
-    info.fFormat = this->glCaps().configSizedInternalFormat(config);
+    if (!this->createTextureImpl(desc, &info, renderable, &initialTexParams,
+                                 texels.get(), mipLevelCount, nullptr)) {
+        return GrBackendTexture();  // invalid
+    }
 
     // unbind the texture from the texture unit to avoid asserts
     GL_CALL(BindTexture(info.fTarget, 0));
 
     GrBackendTexture beTex = GrBackendTexture(w, h, mipMapped, info);
 #if GR_TEST_UTILS
-    // Lots of tests don't go through Skia's public interface which will set the config so for
+    // Lots of tests don't go through Skia's public interface, which will set the config, so for
     // testing we make sure we set a config here.
     beTex.setPixelConfig(config);
 #endif
