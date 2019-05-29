@@ -219,19 +219,29 @@ DEF_TEST(SkSLInterpreterMatrix, r) {
     test(r, "float4x4 main(float4x4 m) { return -m; }", in, 16, expected);
 #endif
 
-#if 0
-    // Matrix * Vector multiplication
-    test(r, "void main(inout half4 color) {"
-         "half4x4 m = half4x4(color, color, color, color);"
-         "color = m * color; }",
-         1, 2, 3, 4, 10, 20, 30, 40);
+    // M*V, V*M
+    for (int i = 0; i < 4; ++i) {
+        expected[i] = 12.0f*i + 13.0f*(i+4) + 14.0f*(i+8);
+    }
+    test(r, "float4 main(float3x4 m, float3 v) { return m * v; }", in, 4, expected);
+    for (int i = 0; i < 4; ++i) {
+        expected[i] = 12.0f*(3*i) + 13.0f*(3*i+1) + 14.0f*(3*i+2);
+    }
+    test(r, "float4 main(float4x3 m, float3 v) { return v * m; }", in, 4, expected);
 
-    // Matrix * Matrix multiplication
-    test(r, "void main(inout half4 color) {"
-         "half4x4 m = half4x4(color, color, color, color);"
-         "m = m * m; color = m[2]; }",
-         1, 2, 3, 4, 10, 20, 30, 40);
-#endif
+    // M*M
+    {
+        SkMatrix44 m;
+        m.setColMajorf(&in[0].fFloat);
+        SkMatrix44 m2;
+        for (int i = 0; i < 16; ++i) {
+            m2.set(i % 4, i / 4, (i + 4) % 16);
+        }
+        m.setConcat(m, m2);
+        // Rearrange the columns on the RHS so we detect left-hand/right-hand errors
+        test(r, "float4x4 main(float4x4 m) { return m * float4x4(m[1], m[2], m[3], m[0]); }",
+             in, 16, (SkSL::Interpreter::Value*)&m);
+    }
 }
 
 DEF_TEST(SkSLInterpreterTernary, r) {
