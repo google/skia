@@ -8,6 +8,7 @@
 #include "modules/skottie/src/text/SkottieShaper.h"
 
 #include "include/core/SkTextBlob.h"
+#include "include/private/SkTemplates.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"
@@ -59,6 +60,11 @@ public:
     }
 
     void beginLine() override {
+        fLineGlyphs.reset(0);
+        fLinePos.reset(0);
+        fLineRuns.reset();
+        fLineGlyphCount = 0;
+
         fCurrentPosition = fOffset;
         fPendingLineAdvance  = { 0, 0 };
     }
@@ -70,15 +76,18 @@ public:
     void commitRunInfo() override {}
 
     Buffer runBuffer(const RunInfo& info) override {
-        int glyphCount = SkTFitsIn<int>(info.glyphCount) ? info.glyphCount : INT_MAX;
+        const auto run_start_index = fLineGlyphCount;
+        fLineGlyphCount += info.glyphCount;
 
-        const auto& blobBuffer = fBuilder.allocRunPos(info.fFont, glyphCount);
+        fLineGlyphs.realloc(fLineGlyphCount);
+        fLinePos.realloc(fLineGlyphCount);
+        fLineRuns.push_back({info.fFont, info.glyphCount});
 
         SkVector alignmentOffset { fHAlignFactor * (fPendingLineAdvance.x() - fBox.width()), 0 };
 
         return {
-            blobBuffer.glyphs,
-            blobBuffer.points(),
+            fLineGlyphs.get() + run_start_index,
+            fLinePos.get()    + run_start_index,
             nullptr,
             nullptr,
             fCurrentPosition + alignmentOffset
@@ -91,6 +100,24 @@ public:
 
     void commitLine() override {
         fOffset.fY += fDesc.fLineHeight;
+
+        // Commit all accumulated runs to the blob.
+        // TODO: justification adjustments
+        // TODO: multi-blob/fragmented results
+        size_t run_offset = 0;
+        for (const auto& rec : fLineRuns) {
+            SkASSERT(run_offset < fLineGlyphCount);
+
+            const auto& blob_buffer = fBuilder.allocRunPos(rec.fFont, rec.fGlyphCount);
+            sk_careful_memcpy(blob_buffer.glyphs,
+                              fLineGlyphs.get() + run_offset,
+                              rec.fGlyphCount * sizeof(SkGlyphID));
+            sk_careful_memcpy(blob_buffer.pos,
+                              fLinePos.get() + run_offset,
+                              rec.fGlyphCount * sizeof(SkPoint));
+
+            run_offset += rec.fGlyphCount;
+        }
     }
 
     Shaper::Result makeBlob() {
@@ -146,27 +173,6 @@ private:
         return 0.0f; // go home, msvc...
     }
 
-    struct Run {
-        SkFont                          fFont;
-        SkShaper::RunHandler::RunInfo   fInfo;
-        SkSTArray<128, SkGlyphID, true> fGlyphs;
-        SkSTArray<128, SkPoint  , true> fPositions;
-
-        Run(const SkFont& font, const SkShaper::RunHandler::RunInfo& info, int count)
-            : fFont(font)
-            , fInfo(info)
-            , fGlyphs   (count)
-            , fPositions(count) {
-            fGlyphs   .push_back_n(count);
-            fPositions.push_back_n(count);
-        }
-
-        size_t size() const {
-            SkASSERT(fGlyphs.size() == fPositions.size());
-            return fGlyphs.size();
-        }
-    };
-
     const Shaper::TextDesc&   fDesc;
     const SkRect&             fBox;
     const float               fHAlignFactor;
@@ -174,6 +180,16 @@ private:
     SkFont                    fFont;
     SkTextBlobBuilder         fBuilder;
     std::unique_ptr<SkShaper> fShaper;
+
+    struct RunRec {
+        SkFont fFont;
+        size_t fGlyphCount;
+    };
+
+    SkAutoSTMalloc<64, SkGlyphID>  fLineGlyphs;
+    SkAutoSTMalloc<64, SkPoint>    fLinePos;
+    SkSTArray<16, RunRec>          fLineRuns;
+    size_t                         fLineGlyphCount = 0;
 
     SkPoint  fCurrentPosition{ 0, 0 };
     SkPoint  fOffset{ 0, 0 };
