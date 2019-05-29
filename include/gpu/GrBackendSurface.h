@@ -253,11 +253,11 @@ private:
     union {
         GrGLTextureInfo fGLInfo;
         GrVkBackendSurfaceInfo fVkInfo;
-#ifdef SK_METAL
-        GrMtlTextureInfo fMtlInfo;
-#endif
         GrMockTextureInfo fMockInfo;
     };
+#ifdef SK_METAL
+    GrMtlTextureInfo fMtlInfo;
+#endif
 };
 
 class SK_API GrBackendRenderTarget {

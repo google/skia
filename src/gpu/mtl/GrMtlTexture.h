@@ -26,7 +26,7 @@ public:
 
     ~GrMtlTexture() override;
 
-    id<MTLTexture> mtlTexture() const { return fTexture; }
+    const id<MTLTexture>& mtlTexture() const { return fTexture; }
 
     GrBackendTexture getBackendTexture() const override;
 
