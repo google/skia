@@ -4125,10 +4125,10 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         SkASSERT(GrRenderable::kNo == renderable);
         SkASSERT(0 == rowBytes);
 
-        int numBlocks = GrNumETC1Blocks(w, h);
-        SkAutoTMalloc<ETC1Block> defaultStorage(numBlocks);
+        size_t numBlocks1 = GrNumETC1Blocks2(w, h);
+        SkAutoMalloc defaultStorage(numBlocks1);
         if (!pixels) {
-            GrFillInETC1WithColor(colorf, defaultStorage.get(), numBlocks);
+            GrFillInETC1WithColor(w, h, colorf, defaultStorage.get());
             pixels = defaultStorage.get();
         }
 

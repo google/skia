@@ -15,14 +15,10 @@
 bool GrFillBufferWithColor(GrPixelConfig config, int width, int height,
                            const SkColor4f& color, void* dest);
 
-struct ETC1Block {
-    uint32_t fHigh;
-    uint32_t fLow;
-};
+size_t GrNumETC1Blocks2(int w, int h);
 
-int GrNumETC1Blocks(int w, int h);
-
-// Fill in 'blocks' with ETC1 blocks derived from 'color'
-void GrFillInETC1WithColor(const SkColor4f& color, ETC1Block* blocks, int numBlocks);
+// Fill in 'dest' with ETC1 blocks derived from 'color'
+void GrFillInETC1WithColor(int width, int height,
+                           const SkColor4f& color, void* dest);
 
 #endif
