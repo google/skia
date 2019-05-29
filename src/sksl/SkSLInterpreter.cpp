@@ -96,8 +96,8 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
     switch ((ByteCodeInstruction) READ16()) {
         VECTOR_DISASSEMBLE(kAddF, "addf")
         VECTOR_DISASSEMBLE(kAddI, "addi")
-        case ByteCodeInstruction::kAndB: printf("andb"); break;
-        case ByteCodeInstruction::kAndI: printf("andi"); break;
+        VECTOR_DISASSEMBLE(kAndB, "andb")
+        VECTOR_DISASSEMBLE(kAndI, "andb")
         case ByteCodeInstruction::kBranch: printf("branch %d", READ16()); break;
         case ByteCodeInstruction::kCall: printf("call %d", READ8()); break;
         case ByteCodeInstruction::kCallExternal: {
@@ -361,6 +361,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
         switch (inst) {
             VECTOR_BINARY_OP(kAddI, fSigned, +)
             VECTOR_BINARY_OP(kAddF, fFloat, +)
+            VECTOR_BINARY_OP(kAndB, fBool, &&)
 
             case ByteCodeInstruction::kBranch:
                 ip = code + READ16();
@@ -596,6 +597,8 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
             case ByteCodeInstruction::kNegateI2: sp[-1] = -sp[-1].fSigned;
             case ByteCodeInstruction::kNegateI : sp[ 0] = -sp [0].fSigned;
                                                  break;
+
+            VECTOR_BINARY_OP(kOrB, fBool, ||)
 
             case ByteCodeInstruction::kPop4: POP();
             case ByteCodeInstruction::kPop3: POP();
