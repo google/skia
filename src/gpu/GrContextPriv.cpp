@@ -327,63 +327,50 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
 
     if (!fContext->priv().caps()->surfaceSupportsReadPixels(srcSurface) ||
         canvas2DFastPath) {
-        GrSurfaceDesc desc;
-        desc.fWidth = width;
-        desc.fHeight = height;
-        desc.fSampleCnt = 1;
-
         GrBackendFormat format;
+        GrPixelConfig config;
         if (canvas2DFastPath) {
-            desc.fFlags = kRenderTarget_GrSurfaceFlag;
-            desc.fConfig = kRGBA_8888_GrPixelConfig;
+            config = kRGBA_8888_GrPixelConfig;
             format = this->caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
         } else {
-            desc.fFlags = kNone_GrSurfaceFlags;
-            desc.fConfig = srcProxy->config();
+            config = srcProxy->config();
             format = srcProxy->backendFormat().makeTexture2D();
             if (!format.isValid()) {
                 return false;
             }
         }
+        sk_sp<SkColorSpace> cs = canvas2DFastPath ? nullptr : src->colorSpaceInfo().refColorSpace();
 
-        auto tempProxy = this->proxyProvider()->createProxy(
-                format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
-        if (!tempProxy) {
-            return false;
-        }
-        sk_sp<GrSurfaceContext> tempCtx;
-        if (canvas2DFastPath) {
-            tempCtx = this->drawingManager()->makeRenderTargetContext(std::move(tempProxy), nullptr,
-                                                                      nullptr);
-            SkASSERT(tempCtx->asRenderTargetContext());
-            tempCtx->asRenderTargetContext()->discard();
-        } else {
-            tempCtx = this->drawingManager()->makeTextureContext(
-                    std::move(tempProxy), src->colorSpaceInfo().refColorSpace());
-        }
+        sk_sp<GrRenderTargetContext> tempCtx = this->makeDeferredRenderTargetContext(
+                format, SkBackingFit::kApprox, width, height, config, std::move(cs), 1,
+                GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes);
         if (!tempCtx) {
             return false;
         }
+
+        std::unique_ptr<GrFragmentProcessor> fp;
         if (canvas2DFastPath) {
-            GrPaint paint;
-            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-            auto fp = fContext->createPMToUPMEffect(
+            fp = fContext->createPMToUPMEffect(
                     GrSimpleTextureEffect::Make(sk_ref_sp(srcProxy->asTextureProxy()),
                                                 SkMatrix::I()));
             if (dstColorType == GrColorType::kBGRA_8888) {
                 fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
                 dstColorType = GrColorType::kRGBA_8888;
             }
-            if (!fp) {
-                return false;
-            }
-            paint.addColorFragmentProcessor(std::move(fp));
-            tempCtx->asRenderTargetContext()->fillRectToRect(
-                    GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
-                    SkRect::MakeWH(width, height), SkRect::MakeXYWH(left, top, width, height));
-        } else if (!tempCtx->copy(srcProxy, SkIRect::MakeXYWH(left, top, width, height), {0, 0})) {
+        } else {
+            fp = GrSimpleTextureEffect::Make(sk_ref_sp(srcProxy->asTextureProxy()), SkMatrix::I());
+        }
+        if (!fp) {
             return false;
         }
+        GrPaint paint;
+        paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+        paint.addColorFragmentProcessor(std::move(fp));
+
+        tempCtx->asRenderTargetContext()->fillRectToRect(
+                GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                SkRect::MakeWH(width, height), SkRect::MakeXYWH(left, top, width, height));
+
         uint32_t flags = canvas2DFastPath ? 0 : pixelOpsFlags;
         return this->readSurfacePixels(tempCtx.get(), 0, 0, width, height, dstColorType,
                                        dstColorSpace, buffer, rowBytes, flags);
@@ -545,27 +532,36 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
                                       srcColorSpace, buffer, rowBytes, flags)) {
             return false;
         }
-        if (canvas2DFastPath) {
-            GrPaint paint;
-            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-            auto fp = fContext->createUPMToPMEffect(
-                    GrSimpleTextureEffect::Make(std::move(tempProxy), SkMatrix::I()));
-            if (srcColorType == GrColorType::kBGRA_8888) {
-                fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
+
+        if (dst->asRenderTargetContext()) {
+        std::unique_ptr<GrFragmentProcessor> fp;
+            if (canvas2DFastPath) {
+                fp = fContext->createUPMToPMEffect(
+                        GrSimpleTextureEffect::Make(std::move(tempProxy), SkMatrix::I()));
+                if (srcColorType == GrColorType::kBGRA_8888) {
+                    fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
+                }
+            } else {
+                fp = GrSimpleTextureEffect::Make(std::move(tempProxy), SkMatrix::I());
             }
             if (!fp) {
                 return false;
             }
+            GrPaint paint;
+            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
             paint.addColorFragmentProcessor(std::move(fp));
             dst->asRenderTargetContext()->fillRectToRect(
                     GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
                     SkRect::MakeXYWH(left, top, width, height), SkRect::MakeWH(width, height));
         } else {
-            if (!dst->copy(tempProxy.get(), SkIRect::MakeWH(width, height), {left, top})) {
+            SkIRect srcRect = SkIRect::MakeWH(width, height);
+            SkIPoint dstPoint = SkIPoint::Make(left, top);
+            if (!this->caps()->canCopySurface(dst->asSurfaceProxy(), tempProxy.get(), srcRect,
+                                              dstPoint)) {
                 return false;
             }
+            SkAssertResult(dst->copy(tempProxy.get(), srcRect, dstPoint));
         }
-
         return true;
     }
 
