@@ -73,6 +73,23 @@
       "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfffbbb0_d3dad643",
+        "filename": "src/gpu/GrRenderTargetContextPriv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-29T15:14:51Z",
+      "side": 1,
+      "message": "Do we need the full clip generality? I think the idea was that this gets called from GrReducedClip and if we recursively got back into GrReducedClip that\u0027d be bad news. Perhaps we can just assert in GrReducedClip that we don\u0027t make a recursive call?",
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
