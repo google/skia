@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3daed75_28fd78f3",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-29T15:06:55Z",
+      "side": 1,
+      "message": "overlength",
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53859a4b_7d6900af",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-29T15:06:55Z",
+      "side": 1,
+      "message": "At least for the current use cases, it appears this is always I. Does it make sense to rename this to device_space_stencil_rect and remove the \"view\" parameter ?",
+      "range": {
+        "startLine": 719,
+        "startChar": 25,
+        "endLine": 719,
+        "endChar": 45
+      },
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a658450a_0294def0",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-29T15:06:55Z",
+      "side": 1,
+      "message": "What happened to \"color\" here ?",
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2aedcda6_1c8b3674",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1168,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-29T15:06:55Z",
+      "side": 1,
+      "message": "Surplus to requirements ?",
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
