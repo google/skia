@@ -359,7 +359,7 @@ void ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b) {
             this->write(ByteCodeInstruction::kDup);
         }
     }
-    int count = SkTMax(SlotCount(lType), SlotCount(rType));
+    int count = std::max(SlotCount(lType), SlotCount(rType));
     switch (op) {
         case Token::Kind::EQEQ:
             this->writeTypedInstruction(b.fLeft->fType, ByteCodeInstruction::kCompareIEQ,
