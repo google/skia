@@ -36,27 +36,27 @@ public:
 
     int count() const { return fXYs.count(); }
 
-    GrQuadType quadType() const { return fType; }
+    GrQuad::Type quadType() const { return fType; }
 
     void reserve(int count, bool needsPerspective) {
         fXYs.reserve(count);
-        if (needsPerspective || fType == GrQuadType::kPerspective) {
+        if (needsPerspective || fType == GrQuad::Type::kPerspective) {
             fWs.reserve(4 * count);
         }
     }
 
-    GrPerspQuad operator[] (int i) const {
+    GrQuad operator[] (int i) const {
         SkASSERT(i < this->count());
         SkASSERT(i >= 0);
 
         const QuadData<T>& item = fXYs[i];
-        if (fType == GrQuadType::kPerspective) {
+        if (fType == GrQuad::Type::kPerspective) {
             // Read the explicit ws
-            return GrPerspQuad(item.fX, item.fY, fWs.begin() + 4 * i, fType);
+            return GrQuad(item.fX, item.fY, fWs.begin() + 4 * i, fType);
         } else {
             // Ws are implicitly 1s.
             static constexpr float kNoPerspectiveWs[4] = {1.f, 1.f, 1.f, 1.f};
-            return GrPerspQuad(item.fX, item.fY, kNoPerspectiveWs, fType);
+            return GrQuad(item.fX, item.fY, kNoPerspectiveWs, fType);
         }
     }
 
@@ -64,13 +64,13 @@ public:
     // the metadata argument is only present in GrTQuadList's push_back definition.
 
 protected:
-    GrQuadListBase() : fType(GrQuadType::kRect) {}
+    GrQuadListBase() : fType(GrQuad::Type::kAxisAligned) {}
 
     void concatImpl(const GrQuadListBase<T>& that) {
         this->upgradeType(that.fType);
         fXYs.push_back_n(that.fXYs.count(), that.fXYs.begin());
-        if (fType == GrQuadType::kPerspective) {
-            if (that.fType == GrQuadType::kPerspective) {
+        if (fType == GrQuad::Type::kPerspective) {
+            if (that.fType == GrQuad::Type::kPerspective) {
                 // Copy the other's ws into the end of this list's data
                 fWs.push_back_n(that.fWs.count(), that.fWs.begin());
             } else {
@@ -87,18 +87,7 @@ protected:
         QuadData<T>& item = fXYs.push_back();
         memcpy(item.fX, quad.fX, 4 * sizeof(float));
         memcpy(item.fY, quad.fY, 4 * sizeof(float));
-        if (fType == GrQuadType::kPerspective) {
-            fWs.push_back_n(4, 1.f);
-        }
-        return item;
-    }
-
-    QuadData<T>& pushBackImpl(const GrPerspQuad& quad) {
-        this->upgradeType(quad.quadType());
-        QuadData<T>& item = fXYs.push_back();
-        memcpy(item.fX, quad.fX, 4 * sizeof(float));
-        memcpy(item.fY, quad.fY, 4 * sizeof(float));
-        if (fType == GrQuadType::kPerspective) {
+        if (fType == GrQuad::Type::kPerspective) {
             fWs.push_back_n(4, quad.fW);
         }
         return item;
@@ -113,11 +102,11 @@ protected:
     }
 
 private:
-    void upgradeType(GrQuadType type) {
+    void upgradeType(GrQuad::Type type) {
         // Possibly upgrade the overall type tracked by the list
         if (type > fType) {
             fType = type;
-            if (type == GrQuadType::kPerspective) {
+            if (type == GrQuad::Type::kPerspective) {
                 // All existing quads were 2D, so the ws array just needs to be filled with 1s
                 fWs.push_back_n(4 * this->count(), 1.f);
             }
@@ -130,7 +119,7 @@ private:
     // The w channel is kept separate so that it can remain empty when only dealing with 2D quads.
     SkTArray<float, true> fWs;
 
-    GrQuadType fType;
+    GrQuad::Type fType;
 };
 
 // This list only stores the quad data itself.
@@ -143,10 +132,6 @@ public:
     }
 
     void push_back(const GrQuad& quad) {
-        this->pushBackImpl(quad);
-    }
-
-    void push_back(const GrPerspQuad& quad) {
         this->pushBackImpl(quad);
     }
 
@@ -167,11 +152,6 @@ public:
 
     // Adding to the list requires metadata
     void push_back(const GrQuad& quad, T&& metadata) {
-        QuadData<T>& item = this->pushBackImpl(quad);
-        item.fMetadata = std::move(metadata);
-    }
-
-    void push_back(const GrPerspQuad& quad, T&& metadata) {
         QuadData<T>& item = this->pushBackImpl(quad);
         item.fMetadata = std::move(metadata);
     }
