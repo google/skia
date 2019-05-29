@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "816c4102_9ffa0901",
+        "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-29T18:24:30Z",
+      "side": 1,
+      "message": "This will still run even when use_expo_retries is False.",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 26
+      },
+      "revId": "c8a9b0c015ac7498cb3ed0e1be1f379f79bdd2d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
