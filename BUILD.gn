@@ -1624,6 +1624,7 @@ if (skia_enable_tools) {
         "experimental/ffmpeg/SkVideoEncoder.h",
       ]
       libs = [
+        "swscale",
         "avcodec",
         "avformat",
         "avutil",

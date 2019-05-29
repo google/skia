@@ -20,13 +20,14 @@ extern "C" {
 
 // private to the impl
 class SkRandomAccessWStream;
+struct SwsContext;
 
 class SkVideoEncoder {
 public:
     SkVideoEncoder();
     ~SkVideoEncoder();
 
-    bool beginRecording(const SkImageInfo&, int fps);
+    bool beginRecording(SkISize, int fps);
 
     SkCanvas* beginFrame();
     bool endFrame();
@@ -40,6 +41,7 @@ private:
 
     double computeTimeStamp(const AVFrame*) const;
 
+    SwsContext*     fSWScaleCtx = nullptr;
     AVIOContext*    fStreamCtx = nullptr;
     AVFormatContext* fFormatCtx = nullptr;
     AVCodecContext* fEncoderCtx = nullptr;
