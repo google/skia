@@ -437,6 +437,9 @@ skia_core_sources = [
   "$_src/shaders/SkShader.cpp",
   "$_src/shaders/SkShaderBase.h",
 
+  "$_src/skvm/SkVM.cpp",
+  "$_src/skvm/SkVM.h",
+
   "$_src/opts/SkBlitMask_opts.h",
   "$_src/opts/SkBlitRow_opts.h",
   "$_src/opts/SkChecksum_opts.h",
