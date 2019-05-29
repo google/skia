@@ -10,7 +10,7 @@
 
 #include "include/private/GrColor.h"
 #include "include/private/SkTemplates.h"
-#include "src/gpu/GrQuad.h"
+#include "src/gpu/geometry/GrQuad.h"
 #include <type_traits>
 
 /**

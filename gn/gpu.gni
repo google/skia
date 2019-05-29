@@ -153,8 +153,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrProcessorUnitTest.h",
   "$_src/gpu/GrProxyProvider.cpp",
   "$_src/gpu/GrProxyProvider.h",
-  "$_src/gpu/GrQuad.cpp",
-  "$_src/gpu/GrQuad.h",
   "$_src/gpu/GrRecordingContext.cpp",
   "$_src/gpu/GrRecordingContextPriv.h",
   "$_src/gpu/GrRect.h",
@@ -347,6 +345,9 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrXfermodeFragmentProcessor.h",
   "$_src/gpu/effects/GrYUVtoRGBEffect.cpp",
   "$_src/gpu/effects/GrYUVtoRGBEffect.h",
+
+  "$_src/gpu/geometry/GrQuad.cpp",
+  "$_src/gpu/geometry/GrQuad.h",
 
   "$_src/gpu/effects/generated/GrAARectEffect.cpp",
   "$_src/gpu/effects/generated/GrAARectEffect.h",

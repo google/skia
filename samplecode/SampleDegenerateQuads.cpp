@@ -7,7 +7,7 @@
 
 #include "samplecode/Sample.h"
 
-#include "src/gpu/GrQuad.h"
+#include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
 
 #include "include/core/SkCanvas.h"

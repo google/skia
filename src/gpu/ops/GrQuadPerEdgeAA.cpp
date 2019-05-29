@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/ops/GrQuadPerEdgeAA.h"
+
 #include "include/private/SkNx.h"
-#include "src/gpu/GrQuad.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
@@ -15,7 +16,6 @@
 #include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/ops/GrQuadPerEdgeAA.h"
 
 #define AI SK_ALWAYS_INLINE
 
