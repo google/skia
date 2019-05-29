@@ -106,14 +106,14 @@ int GrNumETC1Blocks(int w, int h) {
     return w * h;
 }
 
-void GrFillInETC1WithColor(const SkColor4f& colorf, ETC1Block* blocks, int numBlocks) {
+void GrFillInETC1WithColor(const SkColor4f& colorf, void* dest, int numBlocks) {
     SkColor color = colorf.toSkColor();
 
     ETC1Block block;
     create_etc1_block(color, &block);
 
     for (int i = 0; i < numBlocks; ++i) {
-        blocks[i] = block;
+        ((ETC1Block*)dest)[i] = block;
     }
 }
 
