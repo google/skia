@@ -79,6 +79,8 @@ enum class ByteCodeInstruction : uint16_t {
     // dimensions. Any overlapping values are copied, and any other values are filled in with the
     // identity matrix.
     kMatrixToMatrix,
+    // Followed by three bytes: leftCols (== rightRows), leftRows, rightCols
+    kMatrixMultiply,
     VECTOR_MATRIX(kNegateF),
     VECTOR(kNegateI),
     VECTOR(kMix),
