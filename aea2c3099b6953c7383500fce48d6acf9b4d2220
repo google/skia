@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "bc801212_34e33f83",
+        "filename": "include/gpu/mtl/GrMtlTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-29T17:20:54Z",
+      "side": 1,
+      "message": "explicit?",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4aca1bba_c9cc08a4",
         "filename": "include/gpu/mtl/GrMtlTypes.h",
         "patchSetId": 4
@@ -30,6 +47,24 @@
       "writtenOn": "2019-05-29T16:35:51Z",
       "side": 1,
       "message": "I would avoid having the retain function -- we shouldn\u0027t need it internally (ARC\u0027s __bridge will retain as needed).",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8504cc95_33fcef7c",
+        "filename": "include/gpu/mtl/GrMtlTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-29T17:20:54Z",
+      "side": 1,
+      "message": "Do you not need to use __bridge_retained to get a CF retain?",
+      "parentUuid": "4aca1bba_c9cc08a4",
       "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -132,6 +167,24 @@
       "writtenOn": "2019-05-29T16:35:51Z",
       "side": 1,
       "message": "I\u0027d remove the SkASSERT and do the retain-release in the opposite order\n  if (resource) CFRetain(resource)\n  if (fCFObject) CFRelease(fCFObject)\n  fCFObject \u003d resource",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6476788f_dbf15a97",
+        "filename": "src/gpu/mtl/GrMtlTypes.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-29T17:20:54Z",
+      "side": 1,
+      "message": "I agree",
+      "parentUuid": "672cf130_f2f0abcb",
       "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
