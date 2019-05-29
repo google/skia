@@ -15,6 +15,7 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadList.h"
+#include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
@@ -67,7 +68,7 @@ public:
                                           const GrQuad& deviceQuad,
                                           const GrQuad& localQuad) {
         // Clean up deviations between aaType and edgeAA
-        GrResolveAATypeForQuad(aaType, edgeAA, deviceQuad, &aaType, &edgeAA);
+        GrQuadUtils::ResolveAAType(aaType, edgeAA, deviceQuad, &aaType, &edgeAA);
         return Helper::FactoryHelper<FillRectOp>(context, std::move(paint), aaType, edgeAA,
                 stencilSettings, deviceQuad, localQuad);
     }
@@ -389,8 +390,8 @@ std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
 
         GrAAType resolvedAA;
         GrQuadAAFlags resolvedEdgeFlags;
-        GrResolveAATypeForQuad(aaType, quads[i].fAAFlags, deviceQuad,
-                               &resolvedAA, &resolvedEdgeFlags);
+        GrQuadUtils::ResolveAAType(aaType, quads[i].fAAFlags, deviceQuad,
+                                   &resolvedAA, &resolvedEdgeFlags);
 
         fillRects->addQuad(deviceQuad,
                            GrQuad::MakeFromRect(quads[i].fRect, quads[i].fLocalMatrix),
