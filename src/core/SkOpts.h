@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkXfermodePriv.h"
 
 struct SkBitmapProcState;
@@ -73,6 +74,10 @@ namespace SkOpts {
     extern void (*start_pipeline_highp)(size_t,size_t,size_t,size_t, void**);
     extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, void**);
 #undef M
+
+    extern void (*eval)(const skvm::Program::Instruction[], int ninsts, int nregs,
+                        int n, void* args[], size_t strides[], int nargs);
+
 }
 
 #endif//SkOpts_DEFINED
