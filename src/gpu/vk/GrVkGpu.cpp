@@ -1456,10 +1456,14 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRen
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "src/gpu/GrDataUtils.h"
+
 bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc,
                        size_t bufferOffset, size_t srcRowBytes, size_t dstRowBytes,
-                       size_t trimRowBytes, int h) {
-    VkDeviceSize size = dstRowBytes * h;
+                       size_t trimRowBytes, int width, int height, const SkColor4f* color) {
+    SkASSERT(srcData || color);
+
+    VkDeviceSize size = dstRowBytes * height;
     VkDeviceSize offset = bufferOffset;
     SkASSERT(size + offset <= alloc.fSize);
     void* mapPtr = GrVkMemory::MapAlloc(gpu, alloc);
@@ -1471,11 +1475,15 @@ bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc
     if (srcData) {
         // If there is no padding on dst we can do a single memcopy.
         // This assumes the srcData comes in with no padding.
-        SkRectMemcpy(mapPtr, dstRowBytes, srcData, srcRowBytes, trimRowBytes, h);
+        SkRectMemcpy(mapPtr, dstRowBytes, srcData, srcRowBytes, trimRowBytes, height);
     } else {
+        SkASSERT(dstRowBytes == trimRowBytes);
+
         // If there is no srcdata we always copy 0's into the textures so that it is initialized
         // with some data.
-        memset(mapPtr, 0, dstRowBytes * h);
+        memset(mapPtr, 0, dstRowBytes * height);
+
+        GrFillBufferWithColor(??, width, height, *color, mapPtr);
     }
     GrVkMemory::FlushMappedAlloc(gpu, alloc, offset, size);
     GrVkMemory::UnmapAlloc(gpu, alloc);
@@ -1524,7 +1532,8 @@ static size_t compute_combined_buffer_size(VkFormat format, size_t bpp, int w, i
 
 bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool texturable,
                                        bool renderable, GrMipMapped mipMapped, const void* srcData,
-                                       size_t srcRowBytes, GrVkImageInfo* info) {
+                                       size_t srcRowBytes, const SkColor4f& color,
+                                       GrVkImageInfo* info) {
     SkASSERT(texturable || renderable);
     if (!texturable) {
         SkASSERT(GrMipMapped::kNo == mipMapped);
@@ -1634,11 +1643,6 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     size_t bpp = GrVkBytesPerFormat(vkFormat);
     SkASSERT(w && h);
 
-    const size_t trimRowBytes = w * bpp;
-    if (!srcRowBytes) {
-        srcRowBytes = trimRowBytes;
-    }
-
     SkTArray<size_t> individualMipOffsets(mipLevels);
     individualMipOffsets.push_back(0);
 
@@ -1684,11 +1688,18 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
             size_t levelSize = GrVkFormatCompressedDataSize(vkFormat, currentWidth, currentHeight);
             size_t currentRowBytes = levelSize / currentHeight;
             result = copy_testing_data(this, srcData, bufferAlloc, bufferOffset, currentRowBytes,
-                                       currentRowBytes, currentRowBytes, currentHeight);
+                                       currentRowBytes, currentRowBytes,
+                                       currentWidth, currentHeight, &color);
         } else {
+            const size_t trimRowBytes = w * bpp;
+            if (!srcRowBytes) {
+                srcRowBytes = trimRowBytes;
+            }
+
             size_t currentRowBytes = bpp * currentWidth;
             result = copy_testing_data(this, srcData, bufferAlloc, bufferOffset, srcRowBytes,
-                                       currentRowBytes, trimRowBytes, currentHeight);
+                                       currentRowBytes, trimRowBytes,
+                                       currentWidth, currentHeight, &color);
         }
         if (!result) {
             GrVkMemory::FreeImageMemory(this, false, alloc);
@@ -1919,7 +1930,7 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
 
     GrVkImageInfo info;
     if (!this->createTestingOnlyVkImage(config, w, h, true, GrRenderable::kYes == renderable,
-                                        mipMapped, srcData, rowBytes, &info)) {
+                                        mipMapped, srcData, rowBytes, color, &info)) {
         return {};
     }
     GrBackendTexture beTex = GrBackendTexture(w, h, info);
@@ -1975,7 +1986,7 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
         return {};
     }
     if (!this->createTestingOnlyVkImage(config, w, h, false, true, GrMipMapped::kNo, nullptr, 0,
-                                        &info)) {
+                                        SkColors::kTransparent, &info)) {
         return {};
     }
     GrBackendRenderTarget beRT = GrBackendRenderTarget(w, h, 1, 0, info);
