@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c18f6c9_9a8a6538",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 1062,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-29T16:35:51Z",
+      "side": 0,
+      "message": "I think this SK_BEGIN_AUTORELEASE_BLOCK (and others) can be removed.",
+      "revId": "b5e331aefa356f1fa9cf6977ee55d83a4fc3cb6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

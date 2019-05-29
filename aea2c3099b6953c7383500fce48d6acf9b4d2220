@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "394d36ff_249f4f82",
+        "filename": "include/gpu/mtl/GrMtlTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-29T16:35:51Z",
+      "side": 1,
+      "message": "I like this solution better than the one I had going on over at\nhttps://skia-review.googlesource.com/c/skia/+/216568\n\nNo need for the extra GrMtlBackendSurfaceInfo class, and this ensures that we don\u0027t accidentally release a MTLTexture while it\u0027s referenced by a GrMtlTextureInfo.",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4aca1bba_c9cc08a4",
+        "filename": "include/gpu/mtl/GrMtlTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-29T16:35:51Z",
+      "side": 1,
+      "message": "I would avoid having the retain function -- we shouldn\u0027t need it internally (ARC\u0027s __bridge will retain as needed).",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c6e5022_7105f0a0",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-29T16:35:51Z",
+      "side": 1,
+      "message": "Stray whitespace change (git cl format strikes again?)",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "188ef5f5_0f1c5366",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-29T16:35:51Z",
+      "side": 1,
+      "message": "I don\u0027t think __attribute((ns_returns_retained)) is needed.",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16d5ea53_a631718b",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-29T16:35:51Z",
+      "side": 1,
+      "message": "(likewise)",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b0a0503_be7117c1",
+        "filename": "src/gpu/mtl/GrMtlRenderTarget.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-29T16:35:51Z",
+      "side": 1,
+      "message": "It\u0027s uncommon to return a const ref to a id\u003cMTLTexture\u003e -- I\u0027d return the id\u003cMTLTexture\u003e directly.",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4e54d41_3faa7bb6",
+        "filename": "src/gpu/mtl/GrMtlTexture.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-29T16:35:51Z",
+      "side": 1,
+      "message": "It\u0027s uncommon to return a const ref to a id\u003cMTLTexture\u003e -- I\u0027d return the id\u003cMTLTexture\u003e directly.",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "672cf130_f2f0abcb",
+        "filename": "src/gpu/mtl/GrMtlTypes.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-29T16:35:51Z",
+      "side": 1,
+      "message": "I\u0027d remove the SkASSERT and do the retain-release in the opposite order\n  if (resource) CFRetain(resource)\n  if (fCFObject) CFRelease(fCFObject)\n  fCFObject \u003d resource",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11ede22b_b49cb41c",
+        "filename": "src/gpu/mtl/GrMtlUtil.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-29T16:35:51Z",
+      "side": 1,
+      "message": "This file should have a\n\n#if !__has_feature(objc_arc)\n#error This file must be compiled with Arc. Use -fobjc-arc flag\n#endif",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1419c8d8_d558eee6",
+        "filename": "src/gpu/mtl/GrMtlUtil.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-29T16:35:51Z",
+      "side": 1,
+      "message": "I think we don\u0027t need to __attribute__((ns_returns_retained))",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e023e7c5_4b7f96a7",
+        "filename": "src/gpu/mtl/GrMtlUtil.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-29T16:35:51Z",
+      "side": 1,
+      "message": "I think this function doesn\u0027t have any callers now.",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d864bb56_4705c8f1",
+        "filename": "src/gpu/mtl/GrMtlUtil.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2019-05-29T16:35:51Z",
+      "side": 1,
+      "message": "(same with __attribute__((ns_returns_retained))",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
