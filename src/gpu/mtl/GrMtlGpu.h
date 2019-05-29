@@ -211,11 +211,13 @@ private:
                                                                 int width,
                                                                 int height) override;
 
+    // Note that this populates a GrMtlBackendSurfaceInfo, to ensure that the underlying
+    // id<MTLTexture> not be freed.
     bool createTestingOnlyMtlTextureInfo(GrPixelConfig, MTLPixelFormat,
                                          int w, int h, bool texturable,
                                          bool renderable, GrMipMapped mipMapped,
                                          const void* srcData, size_t rowBytes,
-                                         GrMtlTextureInfo* info);
+                                         GrMtlBackendSurfaceInfo* info);
 
     sk_sp<GrMtlCaps> fMtlCaps;
 
