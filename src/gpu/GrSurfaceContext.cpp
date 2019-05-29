@@ -94,10 +94,6 @@ bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBu
         return false;
     }
 
-    if (this->asSurfaceProxy()->readOnly()) {
-        return false;
-    }
-
     return direct->priv().writeSurfacePixels(this, x, y, srcInfo.width(), srcInfo.height(),
                                              colorType, srcInfo.colorSpace(), srcBuffer,
                                              srcRowBytes, flags);
