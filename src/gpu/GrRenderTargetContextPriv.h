@@ -62,24 +62,15 @@ public:
      */
     void absClear(const SkIRect* rect, const SkPMColor4f& color);
 
+    // While this can take a general clip, since GrReducedClip relies on this function, it must take
+    // care to only provide hard clips or we could get stuck in a loop. The general clip is needed
+    // so that path renderers can use this function.
     void stencilRect(
-            const GrHardClip&, const GrUserStencilSettings* ss, GrAA doStencilMSAA,
-            const SkMatrix& viewMatrix, const SkRect& rect);
+            const GrClip&, const GrUserStencilSettings* ss, GrPaint&& paint, GrAA doStencilMSAA,
+            const SkMatrix& viewMatrix, const SkRect& rect, const SkMatrix* localMatrix = nullptr);
 
     void stencilPath(
             const GrHardClip&, GrAA doStencilMSAA, const SkMatrix& viewMatrix, const GrPath*);
-
-    /**
-     * Draws a rect, either AA or not, and touches the stencil buffer with the user stencil settings
-     * for each color sample written.
-     */
-    bool drawAndStencilRect(const GrHardClip&,
-                            const GrUserStencilSettings*,
-                            SkRegion::Op op,
-                            bool invert,
-                            GrAA doStencilMSAA,
-                            const SkMatrix& viewMatrix,
-                            const SkRect&);
 
     /**
      * Draws a path, either AA or not, and touches the stencil buffer with the user stencil settings

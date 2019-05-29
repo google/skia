@@ -356,6 +356,15 @@ std::unique_ptr<GrDrawOp> MakeGeneric(GrRecordingContext* context,
                             deviceQuad, localQuad);
 }
 
+std::unique_ptr<GrDrawOp> MakeNonAARect(GrRecordingContext* context,
+                                        GrPaint&& paint,
+                                        const SkMatrix& view,
+                                        const SkRect& rect,
+                                        const GrUserStencilSettings* stencil) {
+    return MakeGeneric(context, std::move(paint), GrAAType::kNone, GrQuadAAFlags::kNone,
+                       GrPerspQuad::MakeFromRect(rect, view), GrPerspQuad(rect), stencil);
+}
+
 std::unique_ptr<GrDrawOp> MakePerEdge(GrRecordingContext* context,
                                       GrPaint&& paint,
                                       GrAAType aaType,
