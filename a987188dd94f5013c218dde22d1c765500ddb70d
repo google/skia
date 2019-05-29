@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fb228ec4_1250ff1a",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 982,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-29T17:09:55Z",
+      "side": 1,
+      "message": "Yeah, to do that I think I\u0027d make GrBicubicEffect::ShouldUseBicubic() return a Direction. It\u0027s already considering the scale factors the combined view and local matrix. But I\u0027d rather do it as a follow up CL.",
+      "parentUuid": "c548cc97_4663241e",
+      "revId": "a987188dd94f5013c218dde22d1c765500ddb70d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f1e76403_c50a8b86",
         "filename": "src/gpu/effects/GrBicubicEffect.h",
         "patchSetId": 5
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "db3dcd0f_96fb0b16",
+        "filename": "src/gpu/effects/GrBicubicEffect.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-29T17:09:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1e76403_c50a8b86",
+      "range": {
+        "startLine": 26,
+        "startChar": 71,
+        "endLine": 26,
+        "endChar": 72
+      },
+      "revId": "a987188dd94f5013c218dde22d1c765500ddb70d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "59c952d7_c85afe74",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 5
@@ -56,6 +98,24 @@
       "revId": "a987188dd94f5013c218dde22d1c765500ddb70d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a0357ca_bd7faeaa",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-29T17:09:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "59c952d7_c85afe74",
+      "revId": "a987188dd94f5013c218dde22d1c765500ddb70d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
