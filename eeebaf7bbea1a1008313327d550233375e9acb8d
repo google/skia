@@ -68,6 +68,30 @@
       "revId": "eeebaf7bbea1a1008313327d550233375e9acb8d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47e7fe47_a5785a50",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-29T14:15:32Z",
+      "side": 1,
+      "message": "It was also out of scope at the time we make the VkDevice so that may have also screwed up your local tests when trying to actually do protected calls if the device didn\u0027t actually enable the feature on create.",
+      "parentUuid": "84531d8a_ee11c284",
+      "range": {
+        "startLine": 354,
+        "startChar": 2,
+        "endLine": 358,
+        "endChar": 6
+      },
+      "revId": "eeebaf7bbea1a1008313327d550233375e9acb8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
