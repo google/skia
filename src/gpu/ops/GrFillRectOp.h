@@ -13,7 +13,7 @@
 
 class GrDrawOp;
 class GrPaint;
-class GrPerspQuad;
+class GrQuad;
 class GrRecordingContext;
 struct GrUserStencilSettings;
 class SkMatrix;
@@ -32,8 +32,8 @@ std::unique_ptr<GrDrawOp> MakeGeneric(GrRecordingContext* context,
                                       GrPaint&& paint,
                                       GrAAType aaType,
                                       GrQuadAAFlags aaFlags,
-                                      const GrPerspQuad& deviceQuad,
-                                      const GrPerspQuad& localQuad,
+                                      const GrQuad& deviceQuad,
+                                      const GrQuad& localQuad,
                                       const GrUserStencilSettings* stencil = nullptr);
 
 // FIXME(michaelludwig) - To be removed after usages replaced with MakeGeneric
