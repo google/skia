@@ -179,6 +179,13 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
             printf("matrixtomatrix %dx%d %dx%d", srcCols, srcRows, dstCols, dstRows);
             break;
         }
+        case ByteCodeInstruction::kMatrixMultiply: {
+            int lCols = READ8();
+            int lRows = READ8();
+            int rCols = READ8();
+            printf("matrixmultiply %dx%d %dx%d", lCols, lRows, rCols, lCols);
+            break;
+        }
         VECTOR_DISASSEMBLE(kMix, "mix")
         VECTOR_MATRIX_DISASSEMBLE(kMultiplyF, "multiplyf")
         VECTOR_DISASSEMBLE(kMultiplyI, "multiplyi")
@@ -568,6 +575,27 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                         PUSH(m.get(r, c));
                     }
                 }
+                break;
+            }
+
+            case ByteCodeInstruction::kMatrixMultiply: {
+                int lCols = READ8();
+                int lRows = READ8();
+                int rCols = READ8();
+                int rRows = lCols;
+                float tmp[16] = { 0.0f };
+                float* B = &(sp - (rCols * rRows) + 1)->fFloat;
+                float* A = B - (lCols * lRows);
+                for (int c = 0; c < rCols; ++c) {
+                    for (int r = 0; r < lRows; ++r) {
+                        for (int j = 0; j < lCols; ++j) {
+                            tmp[c*lRows + r] += A[j*lRows + r] * B[c*rRows + j];
+                        }
+                    }
+                }
+                sp -= (lCols * lRows) + (rCols * rRows);
+                memcpy(sp + 1, tmp, rCols * lRows * sizeof(Value));
+                sp += (rCols * lRows);
                 break;
             }
 
