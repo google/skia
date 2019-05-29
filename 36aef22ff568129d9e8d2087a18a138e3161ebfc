@@ -107,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "c9456920_7dc232a3",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-29T17:22:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d48ebc37_7c4cb045",
+      "range": {
+        "startLine": 349,
+        "startChar": 0,
+        "endLine": 350,
+        "endChar": 100
+      },
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a658450a_0294def0",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 9
@@ -249,6 +273,30 @@
       "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b2edbc4_90492afc",
+        "filename": "src/gpu/ops/GrFillRectOp.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-05-29T17:22:19Z",
+      "side": 1,
+      "message": "Yeah, I had initially hoped I could avoid taking a view matrix entirely, but some of the GMs use it. It looks like they only rely on translations so I could update it to take a device-space rect instead, but then the GMs would have to get more complicated to use a local matrix in their FPs.\n\nMakeFromRect can detect I() and then performs no extra math, so I doubt a single matrix type check would show up on perf. Given that, I\u0027ll leave MakeNonAARect with a view matrix for now, unless you feel strongly that the simplification is worth it.",
+      "parentUuid": "f20f0d35_f50e9a4e",
+      "range": {
+        "startLine": 43,
+        "startChar": 40,
+        "endLine": 43,
+        "endChar": 60
+      },
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
