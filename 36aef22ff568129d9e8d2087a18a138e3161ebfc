@@ -42,6 +42,29 @@
     },
     {
       "key": {
+        "uuid": "d48ebc37_7c4cb045",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-29T15:31:50Z",
+      "side": 1,
+      "message": "This indent pattern is weird",
+      "range": {
+        "startLine": 349,
+        "startChar": 0,
+        "endLine": 350,
+        "endChar": 100
+      },
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a658450a_0294def0",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 9
@@ -76,6 +99,23 @@
     },
     {
       "key": {
+        "uuid": "22edc927_1cc2d943",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2270,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-29T15:31:50Z",
+      "side": 1,
+      "message": "rm \u0027 \u0027 ?",
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bfffbbb0_d3dad643",
         "filename": "src/gpu/GrRenderTargetContextPriv.h",
         "patchSetId": 9
@@ -87,6 +127,29 @@
       "writtenOn": "2019-05-29T15:14:51Z",
       "side": 1,
       "message": "Do we need the full clip generality? I think the idea was that this gets called from GrReducedClip and if we recursively got back into GrReducedClip that\u0027d be bad news. Perhaps we can just assert in GrReducedClip that we don\u0027t make a recursive call?",
+      "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f20f0d35_f50e9a4e",
+        "filename": "src/gpu/ops/GrFillRectOp.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-29T15:31:50Z",
+      "side": 1,
+      "message": "Don\u0027t know if it will show up on perf but, in a lot of cases, we\u0027re passing I() in here but using MakeFromRect.",
+      "range": {
+        "startLine": 43,
+        "startChar": 40,
+        "endLine": 43,
+        "endChar": 60
+      },
       "revId": "36aef22ff568129d9e8d2087a18a138e3161ebfc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
