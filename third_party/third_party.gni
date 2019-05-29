@@ -24,7 +24,7 @@ template("third_party") {
       } else {
         foreach(dir, invoker.public_include_dirs) {
           cflags += [
-            "-isystem",
+            "-I",
             rebase_path(dir),
           ]
         }
