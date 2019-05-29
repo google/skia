@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bdcb4278_3d7d1813",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-05-29T18:46:36Z",
+      "side": 1,
+      "message": "nit: add brief \"why\" explanation",
+      "revId": "87740ea081d23b32fcadf8fa6698e8d7253a9350",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
