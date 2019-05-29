@@ -71,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "8652f35c_70964974",
+        "filename": "include/gpu/mtl/GrMtlTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-05-29T17:22:27Z",
+      "side": 1,
+      "message": "Not in this case, the object is already in CF-world. In any case I was planning to remove this -- nothing is using it.",
+      "parentUuid": "8504cc95_33fcef7c",
+      "revId": "aea2c3099b6953c7383500fce48d6acf9b4d2220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5c6e5022_7105f0a0",
         "filename": "src/gpu/GrBackendSurface.cpp",
         "patchSetId": 4
