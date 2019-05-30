@@ -129,6 +129,10 @@ void SkVideoEncoder::reset() {
         avcodec_free_context(&fEncoderCtx);
         fEncoderCtx = nullptr;
     }
+    if (fFormatCtx) {
+        avformat_free_context(fFormatCtx);
+        fFormatCtx = nullptr;
+    }
 
     av_packet_free(&fPacket);
     fPacket = nullptr;
@@ -232,7 +236,7 @@ bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
     fDeltaPTS = 1;
 
     SkASSERT(sws_isSupportedInput(AV_PIX_FMT_RGBA) > 0);
-    SkASSERT(sws_isSupportedOutpu(AV_PIX_FMT_YUV420P) > 0);
+    SkASSERT(sws_isSupportedOutput(AV_PIX_FMT_YUV420P) > 0);
     // sws_getCachedContext takes in either null or a previous ctx. It returns either a new ctx,
     // or the same as the input if it is compatible with the inputs. Thus we never have to
     // explicitly release our ctx until the destructor, since sws_getCachedContext takes care
@@ -241,8 +245,7 @@ bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
                                        dim.width(), dim.height(), AV_PIX_FMT_RGBA,
                                        dim.width(), dim.height(), AV_PIX_FMT_YUV420P,
                                        SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
-    SkASSERT(fSWScaleCtx);
-    return true;
+    return fSWScaleCtx != nullptr;
 }
 
 SkCanvas* SkVideoEncoder::beginFrame() {
