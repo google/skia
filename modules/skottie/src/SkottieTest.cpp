@@ -259,6 +259,7 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
                 tsize.text_size,
                 talign.align,
                 skottie::Shaper::VAlign::kTopBaseline,
+                Shaper::Flags::kNone
             };
 
             const auto shape_result = skottie::Shaper::Shape(text, desc, text_point);
@@ -321,6 +322,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
                 tsize.text_size,
                 SkTextUtils::Align::kCenter_Align,
                 talign.align,
+                Shaper::Flags::kNone
             };
 
             const auto shape_result = skottie::Shaper::Shape(text, desc, text_box);
@@ -335,7 +337,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
             const auto expected_t = text_box.top() + v_diff * talign.topFactor;
             REPORTER_ASSERT(reporter,
                             std::fabs(shape_bounds.top() - expected_t) < tsize.tolerance,
-                            "%f %f %f %f %d", shape_bounds.top(), expected_t, tsize.tolerance,
+                            "%f %f %f %f %d", shape_bounds.top(),  SkTextUtils::Align::kCenter_Align,expected_t, tsize.tolerance,
                                               tsize.text_size, SkToU32(talign.align));
 
             const auto expected_b = text_box.bottom() - v_diff * (1 - talign.topFactor);
@@ -343,6 +345,38 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
                             std::fabs(shape_bounds.bottom() - expected_b) < tsize.tolerance,
                             "%f %f %f %f %d", shape_bounds.bottom(), expected_b, tsize.tolerance,
                                               tsize.text_size, SkToU32(talign.align));
+        }
+    }
+}
+
+DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
+    skottie::Shaper::TextDesc desc = {
+        SkTypeface::MakeDefault(),
+        18,
+        18,
+        SkTextUtils::Align::kCenter_Align,
+        Shaper::VAlign::kTop,
+        Shaper::Flags::kNone
+    };
+
+    const SkString text("Foo bar baz");
+    const auto text_box = SkRect::MakeWH(100, 100);
+
+    {
+        const auto shape_result = skottie::Shaper::Shape(text, desc, text_box);
+        // Default/consolidated mode => single blob result.
+        REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
+        REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
+    }
+
+    {
+        desc.fFlags = Shaper::Flags::kFragmentGlyphs;
+        const auto shape_result = skottie::Shaper::Shape(text, desc, text_box);
+        // Fragmented mode => one blob per glyph.
+        const size_t expectedSize = text.size();
+        REPORTER_ASSERT(reporter, shape_result.fFragments.size() == expectedSize);
+        for (size_t i = 0; i < expectedSize; ++i) {
+            REPORTER_ASSERT(reporter, shape_result.fFragments[i].fBlob);
         }
     }
 }

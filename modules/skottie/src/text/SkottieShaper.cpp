@@ -101,53 +101,97 @@ public:
     void commitLine() override {
         fOffset.fY += fDesc.fLineHeight;
 
-        // Commit all accumulated runs to the blob.
         // TODO: justification adjustments
-        // TODO: multi-blob/fragmented results
+
+        using CommitProc = void(*)(const RunRec&,
+                                   const SkRect&,
+                                   const SkGlyphID*,
+                                   const SkPoint*,
+                                   SkTextBlobBuilder*,
+                                   Shaper::Result*);
+
+        static const CommitProc fragment_commit_proc = [](const RunRec& rec,
+                                                          const SkRect& box,
+                                                          const SkGlyphID* glyphs,
+                                                          const SkPoint* pos,
+                                                          SkTextBlobBuilder* builder,
+                                                          Shaper::Result* result) {
+            // In fragmented mode we immediately push the glyphs to fResult,
+            // one fragment per glyph.
+            for (size_t i = 0; i < rec.fGlyphCount; ++i) {
+                const auto& blob_buffer = builder->allocRunPos(rec.fFont, 1);
+                blob_buffer.glyphs[0] = glyphs[i];
+                blob_buffer.pos[0] = pos[i].fX;
+                blob_buffer.pos[1] = pos[i].fY;
+
+                result->fFragments.push_back({builder->make(), {box.x(), box.y()}});
+            }
+        };
+
+        static const CommitProc consolidated_commit_proc = [](const RunRec& rec,
+                                                              const SkRect& box,
+                                                              const SkGlyphID* glyphs,
+                                                              const SkPoint* pos,
+                                                              SkTextBlobBuilder* builder,
+                                                              Shaper::Result*) {
+            // In consolidated mode we just accumulate glyphs to the blob builder, then push
+            // to fResult as a single blob in finalize().
+            const auto& blob_buffer = builder->allocRunPos(rec.fFont, rec.fGlyphCount);
+            sk_careful_memcpy(blob_buffer.glyphs, glyphs, rec.fGlyphCount * sizeof(SkGlyphID));
+            sk_careful_memcpy(blob_buffer.pos   , pos   , rec.fGlyphCount * sizeof(SkPoint));
+        };
+
+        const auto commit_proc = (fDesc.fFlags & Shaper::Flags::kFragmentGlyphs)
+            ? fragment_commit_proc : consolidated_commit_proc;
+
         size_t run_offset = 0;
         for (const auto& rec : fLineRuns) {
             SkASSERT(run_offset < fLineGlyphCount);
-
-            const auto& blob_buffer = fBuilder.allocRunPos(rec.fFont, rec.fGlyphCount);
-            sk_careful_memcpy(blob_buffer.glyphs,
-                              fLineGlyphs.get() + run_offset,
-                              rec.fGlyphCount * sizeof(SkGlyphID));
-            sk_careful_memcpy(blob_buffer.pos,
-                              fLinePos.get() + run_offset,
-                              rec.fGlyphCount * sizeof(SkPoint));
+            commit_proc(rec, fBox,
+                        fLineGlyphs.get() + run_offset,
+                        fLinePos.get()    + run_offset,
+                        &fBuilder, &fResult);
 
             run_offset += rec.fGlyphCount;
         }
     }
 
-    Shaper::Result makeBlob() {
-        auto blob = fBuilder.make();
-
-        SkPoint pos {fBox.x(), fBox.y()};
+    Shaper::Result finalize() {
+        if (!(fDesc.fFlags & Shaper::Flags::kFragmentGlyphs)) {
+            // All glyphs are pending in a single blob.
+            SkASSERT(fResult.fFragments.empty());
+            fResult.fFragments.reserve(1);
+            fResult.fFragments.push_back({fBuilder.make(), {fBox.x(), fBox.y()}});
+        }
 
         // By default, first line is vertical-aligned on a baseline of 0.
         // Perform additional adjustments based on VAlign.
+        float v_offset = 0;
         switch (fDesc.fVAlign) {
         case Shaper::VAlign::kTop:
-            pos.fY -= ComputeBlobBounds(blob).fTop;
+            v_offset = fBox.fTop - fResult.computeBounds().fTop;
             break;
         case Shaper::VAlign::kTopBaseline:
             // Default behavior.
             break;
-        case Shaper::VAlign::kCenter: {
-            const auto bounds = ComputeBlobBounds(blob).makeOffset(pos.x(), pos.y());
-            pos.fY += fBox.centerY() - bounds.centerY();
-        } break;
+        case Shaper::VAlign::kCenter:
+            v_offset = fBox.centerY() - fResult.computeBounds().centerY();
+            break;
         case Shaper::VAlign::kBottom:
-            pos.fY += fBox.height() - ComputeBlobBounds(blob).fBottom;
+            v_offset = fBox.fBottom - fResult.computeBounds().fBottom;
             break;
         case Shaper::VAlign::kResizeToFit:
             SkASSERT(false);
             break;
         }
 
-        // single blob for now
-        return { std::vector<Shaper::Fragment>(1ul, { std::move(blob), pos })};
+        if (v_offset) {
+            for (auto& fragment : fResult.fFragments) {
+                fragment.fPos.fY += v_offset;
+            }
+        }
+
+        return std::move(fResult);
     }
 
     void shapeLine(const char* start, const char* end) {
@@ -194,6 +238,8 @@ private:
     SkPoint  fCurrentPosition{ 0, 0 };
     SkPoint  fOffset{ 0, 0 };
     SkVector fPendingLineAdvance{ 0, 0 };
+
+    Shaper::Result fResult;
 };
 
 Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc, const SkRect& box) {
@@ -217,7 +263,7 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc, cons
     }
     blobMaker.shapeLine(line_start, ptr);
 
-    return blobMaker.makeBlob();
+    return blobMaker.finalize();
 }
 
 Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc,
