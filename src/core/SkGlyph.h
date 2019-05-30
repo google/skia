@@ -119,7 +119,16 @@ class SkGlyph {
 
 public:
     constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} {}
+    SkGlyph(SkPackedGlyphID glyphID, SkScalerContext* scaler);
     static constexpr SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedGlyphID::kSubBits;
+
+    SkVector advanceVector() const {
+        return SkVector{fAdvanceX, fAdvanceY};
+    }
+
+    SkScalar horizontalAdvance() const {
+        return fAdvanceX;
+    }
 
     bool isEmpty() const { return fWidth == 0 || fHeight == 0; }
     bool isJustAdvance() const { return MASK_FORMAT_JUST_ADVANCE == fMaskFormat; }
@@ -203,6 +212,9 @@ public:
     uint8_t   fMaskFormat = MASK_FORMAT_UNKNOWN;
 
 private:
+
+    // return ptr to path if one exists.
+    SkPath* ensurePath(SkScalerContext* scalerContext, SkArenaAlloc* alloc);
 
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,

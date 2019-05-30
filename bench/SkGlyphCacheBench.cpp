@@ -25,15 +25,15 @@ static void do_font_stuff(SkFont* font) {
                 *font,  defaultPaint, SkSurfaceProps(0, kUnknown_SkPixelGeometry),
                 SkScalerContextFlags::kNone, SkMatrix::I());
         auto cache = strikeSpec.findOrCreateExclusiveStrike();
-        uint16_t glyphs['z'];
+        SkGlyphID glyphs['z'];
         for (int c = ' '; c < 'z'; c++) {
             glyphs[c] = font->unicharToGlyph(c);
         }
+        constexpr size_t glyphCount = 'z' - ' ';
+        SkSpan<const SkGlyphID> glyphIDs{&glyphs[' '], glyphCount};
+        SkGlyph* result[glyphCount];
         for (int lookups = 0; lookups < 10; lookups++) {
-            for (int c = ' '; c < 'z'; c++) {
-                const SkGlyph& g = cache->getGlyphIDMetrics(glyphs[c]);
-                cache->findImage(g);
-            }
+            cache->prepareImages(glyphIDs, result);
         }
 
     }

@@ -11,6 +11,11 @@
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkScalerContext.h"
 
+SkGlyph::SkGlyph(SkPackedGlyphID glyphID, SkScalerContext* scaler)
+        : fID{glyphID} {
+    scaler->getMetrics(this);
+}
+
 SkMask SkGlyph::mask() const {
     // getMetrics had to be called.
     SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
@@ -127,4 +132,20 @@ SkPath* SkGlyph::addPath(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
         }
     }
     return this->path();
+}
+
+SkPath* SkGlyph::ensurePath(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
+    if (!this->isEmpty()) {
+        if (fPathData == nullptr) {
+            fPathData = alloc->make<SkGlyph::PathData>();
+            if (scalerContext->getPath(this->getPackedID(), &fPathData->fPath)) {
+                fPathData->fPath.updateBoundsCache();
+                fPathData->fPath.getGenerationID();
+                fPathData->fHasPath = true;
+                return &fPathData->fPath;
+            }
+        }
+    }
+
+    return nullptr;
 }
