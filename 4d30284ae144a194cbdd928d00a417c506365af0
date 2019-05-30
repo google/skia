@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "f795d3e3_73a54426",
+        "filename": "modules/skparagraph/include/SkDartTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-05-30T19:55:39Z",
+      "side": 1,
+      "message": "Yes, we should. Adding TODO since I am not sure what namespace...",
+      "parentUuid": "4b1e5f38_0c8c9212",
+      "range": {
+        "startLine": 12,
+        "startChar": 5,
+        "endLine": 12,
+        "endChar": 13
+      },
+      "revId": "4d30284ae144a194cbdd928d00a417c506365af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "63b386fa_005dbf99",
         "filename": "modules/skparagraph/include/SkDartTypes.h",
         "patchSetId": 6
@@ -62,6 +86,24 @@
       "revId": "4d30284ae144a194cbdd928d00a417c506365af0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdb5b232_95b3297d",
+        "filename": "modules/skparagraph/include/SkDartTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-05-30T19:55:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "63b386fa_005dbf99",
+      "revId": "4d30284ae144a194cbdd928d00a417c506365af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "d33c0ce2_04f12230",
+        "filename": "modules/skparagraph/include/SkDartTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-05-30T19:55:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58678d8d_51fd0fd8",
+      "revId": "4d30284ae144a194cbdd928d00a417c506365af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9594fcf_4a726d01",
         "filename": "modules/skparagraph/include/SkParagraphStyle.h",
         "patchSetId": 6
@@ -96,6 +156,24 @@
       "revId": "4d30284ae144a194cbdd928d00a417c506365af0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e62cf96c_212152c5",
+        "filename": "modules/skparagraph/include/SkParagraphStyle.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-05-30T19:55:39Z",
+      "side": 1,
+      "message": "I added TODO for that (postponing it for a moment).",
+      "parentUuid": "a9594fcf_4a726d01",
+      "revId": "4d30284ae144a194cbdd928d00a417c506365af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -122,6 +200,30 @@
     },
     {
       "key": {
+        "uuid": "3ccef60d_463b6ccd",
+        "filename": "modules/skparagraph/src/SkFontCollection.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-05-30T19:55:39Z",
+      "side": 1,
+      "message": "Yes, it does (or it should).\nI don\u0027t currently, but I will - soon.",
+      "parentUuid": "17931127_6d58d209",
+      "range": {
+        "startLine": 76,
+        "startChar": 9,
+        "endLine": 76,
+        "endChar": 15
+      },
+      "revId": "4d30284ae144a194cbdd928d00a417c506365af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52bf1504_dfbe747f",
         "filename": "modules/skparagraph/src/SkParagraphImpl.cpp",
         "patchSetId": 6
@@ -136,6 +238,24 @@
       "revId": "4d30284ae144a194cbdd928d00a417c506365af0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b15d034_00428c7b",
+        "filename": "modules/skparagraph/src/SkParagraphImpl.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-05-30T19:55:39Z",
+      "side": 1,
+      "message": "I removed all the print calls.",
+      "parentUuid": "52bf1504_dfbe747f",
+      "revId": "4d30284ae144a194cbdd928d00a417c506365af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
