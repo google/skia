@@ -1220,7 +1220,7 @@ static void populate_graphic_state_entry_from_paint(
             clipStackBounds.roundOut(&bounds);
 
             SkPDFIndirectReference pdfShader
-                = SkPDFMakeShader(doc, shader, transform, bounds, paint.getColor());
+                = SkPDFMakeShader(doc, shader, transform, bounds, paint.getColor4f());
 
             if (pdfShader) {
                 // pdfShader has been canonicalized so we can directly compare pointers.

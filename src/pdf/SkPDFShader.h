@@ -42,7 +42,7 @@ SkPDFIndirectReference SkPDFMakeShader(SkPDFDocument* doc,
                                        SkShader* shader,
                                        const SkMatrix& ctm,
                                        const SkIRect& surfaceBBox,
-                                       SkColor paintColor);
+                                       SkColor4f paintColor);
 
 SK_BEGIN_REQUIRE_DENSE
 struct SkPDFImageShaderKey {
@@ -51,7 +51,7 @@ struct SkPDFImageShaderKey {
     SkIRect fBBox;
     SkBitmapKey fBitmapKey;
     SkTileMode fImageTileModes[2];
-    SkColor fPaintColor;
+    SkColor4f fPaintColor;
 };
 SK_END_REQUIRE_DENSE
 
