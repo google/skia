@@ -83,8 +83,8 @@ static void expand_bits(INT_TYPE* dst,
 static bool get_packed_glyph_image(SkStrike* cache, SkGlyph* glyph, int width,
                                    int height, int dstRB, GrMaskFormat expectedMaskFormat,
                                    void* dst, const SkMasks& masks) {
-    SkASSERT(glyph->fWidth == width);
-    SkASSERT(glyph->fHeight == height);
+    SkASSERT(glyph->width() == width);
+    SkASSERT(glyph->height() == height);
     const void* src = cache->prepareImage(glyph);
     if (nullptr == src) {
         return false;

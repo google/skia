@@ -68,6 +68,9 @@ public:
 
     SkSpan<SkPoint> getAdvances(SkSpan<const SkGlyphID>, SkPoint[]);
 
+    SkSpan<SkGlyph*> prepareImages(
+            SkSpan<const SkGlyphID> glyphIDs, SkGlyph* results[]);
+
     /** Returns the number of glyphs for this strike.
     */
     unsigned getGlyphCount() const;
@@ -164,11 +167,11 @@ private:
     };
 
     SkGlyph* makeGlyph(SkPackedGlyphID);
-    SkSpan<SkGlyph*> metrics(SkSpan<const SkGlyphID>glyphIDs, SkGlyph* result[]);
 
-    // Metrics will hold a mutex while doing its work. This is one of the few places that will
-    // need a mutex.
-    SkSpan<const SkGlyph*> metrics(SkSpan<const SkGlyphID>glyphIDs, const SkGlyph* result[]);
+    // The caller will need to hold the mutex.
+    SkSpan<SkGlyph*> metrics(SkSpan<const SkGlyphID>glyphIDs, SkGlyph* result[]);
+    SkSpan<SkGlyphPos> metricsWithoutEmpty(
+            SkSpan<const SkGlyphID>glyphIDs, const SkPoint positions[], SkGlyphPos result[]);
 
     const SkAutoDescriptor                 fDesc;
     const std::unique_ptr<SkScalerContext> fScalerContext;

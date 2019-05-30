@@ -445,10 +445,10 @@ static void writeGlyph(SkGlyph* glyph, Serializer* serializer) {
     serializer->write<SkPackedGlyphID>(glyph->getPackedID());
     serializer->write<float>(glyph->advanceX());
     serializer->write<float>(glyph->advanceY());
-    serializer->write<uint16_t>(glyph->fWidth);
-    serializer->write<uint16_t>(glyph->fHeight);
-    serializer->write<int16_t>(glyph->fTop);
-    serializer->write<int16_t>(glyph->fLeft);
+    serializer->write<uint16_t>(glyph->width());
+    serializer->write<uint16_t>(glyph->height());
+    serializer->write<int16_t>(glyph->top());
+    serializer->write<int16_t>(glyph->left());
     serializer->write<uint8_t>(glyph->maskFormat());
 }
 

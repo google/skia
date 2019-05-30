@@ -145,6 +145,7 @@ static void compare_blobs(const SkBitmap& expected, const SkBitmap& actual,
             SkColor expectedColor = expected.getColor(i, j);
             SkColor actualColor = actual.getColor(i, j);
             if (0 == tolerance) {
+                //SkASSERT(expectedColor == actualColor);
                 REPORTER_ASSERT(reporter, expectedColor == actualColor);
             } else {
                 for (int k = 0; k < 4; ++k) {
@@ -824,6 +825,7 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
 
     SkFont font;
     font.setTypeface(clientTf);
+    font.setSubpixel(true);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorRED);
@@ -887,8 +889,8 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
         SkGlyph* lostGlyph = testCache->glyph(lostGlyphID.code(), pt);
         testCache->prepareImage(lostGlyph);
 
-        REPORTER_ASSERT(reporter, lostGlyph->fHeight == 1);
-        REPORTER_ASSERT(reporter, lostGlyph->fWidth == 2);
+        REPORTER_ASSERT(reporter, lostGlyph->height() == 1);
+        REPORTER_ASSERT(reporter, lostGlyph->width() == 2);
         REPORTER_ASSERT(reporter, lostGlyph->maskFormat() == SkMask::kA8_Format);
         REPORTER_ASSERT(reporter, memcmp(lostGlyph->image(), glyphImage, sizeof(glyphImage)) == 0);
     }
@@ -900,8 +902,8 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
         SkGlyph* lostGlyph = testCache->glyph(lostGlyphID.code(), pt);
         testCache->prepareImage(lostGlyph);
 
-        REPORTER_ASSERT(reporter, lostGlyph->fHeight == 1);
-        REPORTER_ASSERT(reporter, lostGlyph->fWidth == 2);
+        REPORTER_ASSERT(reporter, lostGlyph->height() == 1);
+        REPORTER_ASSERT(reporter, lostGlyph->width() == 2);
         REPORTER_ASSERT(reporter, lostGlyph->maskFormat() == SkMask::kA8_Format);
         REPORTER_ASSERT(reporter, memcmp(lostGlyph->image(), glyphImage, sizeof(glyphImage)) == 0);
     }

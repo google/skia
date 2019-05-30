@@ -214,14 +214,6 @@ public:
     void ensureIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
                           SkScalar* array, int* count, SkArenaAlloc* alloc);
 
-    // The width and height of the glyph mask.
-    uint16_t  fWidth  = 0,
-              fHeight = 0;
-
-    // The offset from the glyphs origin on the baseline to the top left of the glyph mask.
-    int16_t   fTop  = 0,
-              fLeft = 0;
-
 private:
     // There are two sides to an SkGlyph, the scaler side (things that create glyph data) have
     // access to all the fields. Scalers are assumed to maintain all the SkGlyph invariants. The
@@ -264,6 +256,14 @@ private:
     // If path == nullptr, then indicate that there is no path.
     void installPath(SkArenaAlloc* alloc, const SkPath* path);
 
+    // The width and height of the glyph mask.
+    uint16_t  fWidth  = 0,
+              fHeight = 0;
+
+    // The offset from the glyphs origin on the baseline to the top left of the glyph mask.
+    int16_t   fTop  = 0,
+              fLeft = 0;
+
     // fImage must remain null if the glyph is empty or if width > kMaxGlyphWidth.
     void*     fImage    = nullptr;
 
@@ -284,9 +284,7 @@ private:
     // Used by the DirectWrite scaler to track state.
     int8_t    fForceBW = 0;
 
-    // TODO(herb) remove friend statement after SkStrike cleanup.
-    friend class SkStrike;
-    SkPackedGlyphID fID;
+    const SkPackedGlyphID fID;
 };
 
 struct SkGlyphPrototype {

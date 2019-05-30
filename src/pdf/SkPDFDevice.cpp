@@ -715,10 +715,7 @@ static SkRect get_glyph_bounds_device_space(SkGlyphID gid, SkStrike* cache,
                                             SkScalar xScale, SkScalar yScale,
                                             SkPoint xy, const SkMatrix& ctm) {
     SkGlyph* glyph = cache->glyph(gid);
-    SkRect glyphBounds = {glyph->fLeft * xScale,
-                          glyph->fTop * yScale,
-                          (glyph->fLeft + glyph->fWidth) * xScale,
-                          (glyph->fTop + glyph->fHeight) * yScale};
+    SkRect glyphBounds = SkMatrix::MakeScale(xScale, yScale).mapRect(glyph->rect());
     glyphBounds.offset(xy);
     ctm.mapRect(&glyphBounds); // now in dev space.
     return glyphBounds;

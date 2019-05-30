@@ -109,13 +109,34 @@ int SkStrike::countCachedGlyphs() const {
     return fGlyphMap.count();
 }
 
-SkSpan<const SkGlyph*> SkStrike::metrics(
-        SkSpan<const SkGlyphID>glyphIDs, const SkGlyph* results[]) {
+SkSpan<SkGlyph*> SkStrike::metrics(SkSpan<const SkGlyphID>glyphIDs, SkGlyph* results[]) {
 
     size_t glyphCount = 0;
     for (auto glyphID : glyphIDs) {
         SkGlyph* glyphPtr = this->glyph(glyphID);
         results[glyphCount++] = glyphPtr;
+    }
+
+    return {results, glyphCount};
+}
+
+SkSpan<SkGlyphPos> SkStrike::metricsWithoutEmpty(
+        SkSpan<const SkGlyphID>glyphIDs, const SkPoint positions[], SkGlyphPos results[]) {
+    const SkFixed maskX = !fIsSubpixel || fAxisAlignment == kY_SkAxisAlignment ? 0 : ~0;
+    const SkFixed maskY = !fIsSubpixel || fAxisAlignment == kX_SkAxisAlignment ? 0 : ~0;
+    size_t glyphCount = 0;
+    for (size_t i = 0; i < glyphIDs.size(); i++) {
+        SkGlyphID glyphID = glyphIDs[i];
+        SkPoint pos = positions[i];
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            SkFixed subX = SkScalarToFixed(pos.x()) & maskX,
+                    subY = SkScalarToFixed(pos.y()) & maskY;
+            SkPackedGlyphID packedID{glyphID, subX, subY};
+            SkGlyph* glyphPtr = this->glyph(packedID);
+            if (!glyphPtr->isEmpty()) {
+                results[glyphCount++] = {i, glyphPtr, pos};
+            }
+        }
     }
 
     return {results, glyphCount};
@@ -128,12 +149,22 @@ bool SkStrike::isGlyphCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const {
 
 SkSpan<SkPoint> SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
     auto cursor = advances;
-    SkAutoSTArray<50, const SkGlyph*> glyphStorage{SkTo<int>(glyphIDs.size())};
+    SkAutoSTArray<50, SkGlyph*> glyphStorage{SkTo<int>(glyphIDs.size())};
     auto glyphs = this->metrics(glyphIDs, glyphStorage.get());
     for (const SkGlyph* glyph : glyphs) {
         *cursor++ = glyph->advanceVector();
     }
     return {advances, glyphIDs.size()};
+}
+
+SkSpan<SkGlyph*> SkStrike::prepareImages(
+        SkSpan<const SkGlyphID> glyphIDs, SkGlyph* results[]) {
+    auto glyphs = this->metrics(glyphIDs, results);
+    for (auto glyph : glyphs) {
+        this->prepareImage(glyph);
+    }
+
+    return {results, glyphIDs.size()};
 }
 
 SkGlyph* SkStrike::mergeImage(SkPackedGlyphID toID, const SkGlyph& from) {
@@ -189,28 +220,25 @@ SkSpan<const SkGlyphPos> SkStrike::prepareForDrawing(const SkGlyphID glyphIDs[],
                                                      int maxDimension,
                                                      PreparationDetail detail,
                                                      SkGlyphPos result[]) {
+
+    auto g = SkSpan<const SkGlyphID>{glyphIDs, n};
+    auto drawables = this->metricsWithoutEmpty(g, positions, result);
+
     size_t drawableGlyphCount = 0;
-    for (size_t i = 0; i < n; i++) {
-        SkPoint position = positions[i];
-        if (SkScalarsAreFinite(position.x(), position.y())) {
-            // This assumes that the strike has no sub-pixel positioning for glyphs that are
-            // transformed from source space to device space.
-            const SkGlyph& glyph = this->getGlyphMetrics(glyphIDs[i], position);
-            if (!glyph.isEmpty()) {
-                result[drawableGlyphCount++] = {i, &glyph, position};
-                if (glyph.maxDimension() <= maxDimension) {
-                    // Glyph fits in the atlas, good to go.
-                    if (detail == SkStrikeInterface::kImageIfNeeded) {
-                        this->prepareImage(const_cast<SkGlyph*>(&glyph));
-                    }
-                } else if (!glyph.isColor()) {
-                    // The out of atlas glyph is not color so we can draw it using paths.
-                    this->preparePath(const_cast<SkGlyph*>(&glyph));
-                } else {
-                    // This will be handled by the fallback strike.
-                    SkASSERT(glyph.maxDimension() > maxDimension && glyph.isColor());
-                }
+    for (auto glyphPos : drawables) {
+        result[drawableGlyphCount++] = glyphPos;
+        SkGlyph* glyph = glyphPos.glyph;
+        if (glyph->maxDimension() <= maxDimension) {
+            // The glyph fits; ensure the image if needed.
+            if (detail == SkStrikeInterface::kImageIfNeeded) {
+                this->prepareImage(glyph);
             }
+        } else if (!glyph->isColor()) {
+            // The out of atlas glyph is not color so we can draw it using paths.
+            this->preparePath(glyph);
+        } else {
+            // This will be handled by the fallback strike.
+            SkASSERT(glyph->maxDimension() > maxDimension && glyph->isColor());
         }
     }
 
@@ -238,6 +266,7 @@ void SkStrike::dump() const {
                rec.dump().c_str(), fGlyphMap.count());
     SkDebugf("%s\n", msg.c_str());
 }
+
 
 void SkStrike::onAboutToExitScope() { }
 
