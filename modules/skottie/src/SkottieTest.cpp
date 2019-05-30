@@ -259,6 +259,7 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
                 tsize.text_size,
                 talign.align,
                 skottie::Shaper::VAlign::kTopBaseline,
+                0,
             };
 
             const auto shape_result = skottie::Shaper::Shape(text, desc, text_point);
@@ -321,6 +322,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
                 tsize.text_size,
                 SkTextUtils::Align::kCenter_Align,
                 talign.align,
+                0,
             };
 
             const auto shape_result = skottie::Shaper::Shape(text, desc, text_box);

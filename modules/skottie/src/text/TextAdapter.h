@@ -22,7 +22,7 @@ namespace skottie {
 
 class TextAdapter final : public SkNVRefCnt<TextAdapter> {
 public:
-    explicit TextAdapter(sk_sp<sksg::Group> root);
+    TextAdapter(sk_sp<sksg::Group> root, bool hasAnimators);
     ~TextAdapter();
 
     ADAPTER_PROPERTY(Text, TextValue, TextValue())
@@ -38,6 +38,8 @@ private:
 
     sk_sp<sksg::Group>       fRoot;
     std::vector<FragmentRec> fFragments;
+
+    const bool               fHasAnimators;
 };
 
 } // namespace skottie
