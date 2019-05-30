@@ -259,4 +259,14 @@ void GrGLClearErr(const GrGLInterface* gl);
 
 GrGLenum GrToGLStencilFunc(GrStencilTest test);
 
+/**
+ * Returns true if the format is compressed.
+ */
+bool GrGLFormatIsCompressed(GrGLenum glFormat);
+
+/**
+ * Returns the data size for the given compressed format
+ */
+size_t GrGLFormatCompressedDataSize(GrGLenum glFormat, int width, int height);
+
 #endif
