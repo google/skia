@@ -33,6 +33,12 @@ struct GrIRect16 {
         return r;
     }
 
+    static GrIRect16 SK_WARN_UNUSED_RESULT Make(const SkIRect& ir) {
+        GrIRect16 r;
+        r.set(ir);
+        return r;
+    }
+
     int width() const { return fRight - fLeft; }
     int height() const { return fBottom - fTop; }
     int area() const { return this->width() * this->height(); }
