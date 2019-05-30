@@ -828,6 +828,395 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
     }
 }
 
+VecInterpreter::VecInterpreter(std::unique_ptr<Program> program,
+                               std::unique_ptr<ByteCode> byteCode,
+                               VecInterpreter::SValue inputs[])
+    : fProgram(std::move(program))
+    , fByteCode(std::move(byteCode))
+    , fGlobals(fByteCode->fGlobalCount, UNINITIALIZED) {
+    this->setInputs(inputs);
+}
+
+void VecInterpreter::setInputs(VecInterpreter::SValue inputs[]) {
+    for (uint8_t slot : fByteCode->fInputSlots) {
+        fGlobals[slot] = *inputs++;
+    }
+}
+
+void VecInterpreter::run(const ByteCodeFunction& f, VecInterpreter::SValue args[],
+                         VecInterpreter::SValue* outReturn) {
+#ifdef TRACE
+    this->disassemble(f);
+#endif
+    VValue smallStack[128];
+    VValue* stack = smallStack;
+
+    // Transpose args into stack
+    for (int i = 0; i < f.fParameterCount; ++i) {
+        stack[i].fSigned[0] = args[f.fParameterCount * 0 + i].fSigned;
+        stack[i].fSigned[1] = args[f.fParameterCount * 1 + i].fSigned;
+        stack[i].fSigned[2] = args[f.fParameterCount * 2 + i].fSigned;
+        stack[i].fSigned[3] = args[f.fParameterCount * 3 + i].fSigned;
+    }
+
+    this->innerRun(f, stack, outReturn);
+
+    for (const Variable* p : f.fDeclaration.fParameters) {
+        const int nvalues = ByteCodeGenerator::SlotCount(p->fType);
+        if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
+            for (int i = 0; i < nvalues; ++i) {
+                args[f.fParameterCount * 0 + i].fSigned = stack[i].fSigned[0];
+                args[f.fParameterCount * 1 + i].fSigned = stack[i].fSigned[1];
+                args[f.fParameterCount * 2 + i].fSigned = stack[i].fSigned[2];
+                args[f.fParameterCount * 3 + i].fSigned = stack[i].fSigned[3];
+            }
+        }
+        args  += nvalues;
+        stack += nvalues;
+    }
+}
+
+void VecInterpreter::disassemble(const ByteCodeFunction& f) {
+    const uint8_t* ip = f.fCode.data();
+    while (ip < f.fCode.data() + f.fCode.size()) {
+        printf("%d: ", (int) (ip - f.fCode.data()));
+        ip = disassemble_instruction(ip);
+        printf("\n");
+    }
+}
+
+#define VECTOR_UNARY_FN_VEC(base, fn, field)                                    \
+    case ByteCodeInstruction::base ## 4: sp[-3].field[0] = fn(sp[-3].field[0]); \
+                                         sp[-3].field[1] = fn(sp[-3].field[1]); \
+                                         sp[-3].field[2] = fn(sp[-3].field[2]); \
+                                         sp[-3].field[3] = fn(sp[-3].field[3]); \
+    case ByteCodeInstruction::base ## 3: sp[-2].field[0] = fn(sp[-2].field[0]); \
+                                         sp[-2].field[1] = fn(sp[-2].field[1]); \
+                                         sp[-2].field[2] = fn(sp[-2].field[2]); \
+                                         sp[-2].field[3] = fn(sp[-2].field[3]); \
+    case ByteCodeInstruction::base ## 2: sp[-1].field[0] = fn(sp[-1].field[0]); \
+                                         sp[-1].field[1] = fn(sp[-1].field[1]); \
+                                         sp[-1].field[2] = fn(sp[-1].field[2]); \
+                                         sp[-1].field[3] = fn(sp[-1].field[3]); \
+    case ByteCodeInstruction::base     : sp[ 0].field[0] = fn(sp[ 0].field[0]); \
+                                         sp[ 0].field[1] = fn(sp[ 0].field[1]); \
+                                         sp[ 0].field[2] = fn(sp[ 0].field[2]); \
+                                         sp[ 0].field[3] = fn(sp[ 0].field[3]); \
+                                         break;
+
+void VecInterpreter::innerRun(const ByteCodeFunction& f, VValue* stack, SValue* outReturn) {
+    VValue* sp = stack + f.fParameterCount + f.fLocalCount - 1;
+
+    auto POP =  [&]           { SkASSERT(sp     >= stack); return *(sp--); };
+    auto PUSH = [&](VValue v) { SkASSERT(sp + 1 >= stack); *(++sp) = v;    };
+
+    const uint8_t* code = f.fCode.data();
+    const uint8_t* ip = code;
+
+    for (;;) {
+#ifdef TRACE
+        printf("at %3d  ", (int) (ip - code));
+        disassemble_instruction(ip);
+        printf("\n");
+#endif
+        ByteCodeInstruction inst = (ByteCodeInstruction) READ16();
+        switch (inst) {
+            VECTOR_BINARY_OP(kAddI, fSigned, +)
+            VECTOR_MATRIX_BINARY_OP(kAddF, fFloat, +)
+
+            // TODO: Bitwise combining masks is correct?
+            VECTOR_BINARY_OP(kAndB, fSigned, &)
+
+            case ByteCodeInstruction::kBranch:
+                ip = code + READ16();
+                break;
+
+            case ByteCodeInstruction::kCall:
+            case ByteCodeInstruction::kCallExternal:
+                SkDEBUGFAIL("Not implemented"); break;
+
+            VECTOR_BINARY_OP(kCompareIEQ, fSigned, ==)
+            VECTOR_MATRIX_BINARY_OP(kCompareFEQ, fFloat, ==)
+            VECTOR_BINARY_OP(kCompareINEQ, fSigned, !=)
+            VECTOR_MATRIX_BINARY_OP(kCompareFNEQ, fFloat, !=)
+            VECTOR_BINARY_OP(kCompareSGT, fSigned, >)
+            VECTOR_BINARY_OP(kCompareUGT, fUnsigned, >)
+            VECTOR_BINARY_OP(kCompareFGT, fFloat, >)
+            VECTOR_BINARY_OP(kCompareSGTEQ, fSigned, >=)
+            VECTOR_BINARY_OP(kCompareUGTEQ, fUnsigned, >=)
+            VECTOR_BINARY_OP(kCompareFGTEQ, fFloat, >=)
+            VECTOR_BINARY_OP(kCompareSLT, fSigned, <)
+            VECTOR_BINARY_OP(kCompareULT, fUnsigned, <)
+            VECTOR_BINARY_OP(kCompareFLT, fFloat, <)
+            VECTOR_BINARY_OP(kCompareSLTEQ, fSigned, <=)
+            VECTOR_BINARY_OP(kCompareULTEQ, fUnsigned, <=)
+            VECTOR_BINARY_OP(kCompareFLTEQ, fFloat, <=)
+
+            case ByteCodeInstruction::kConditionalBranch:
+                SkDEBUGFAIL("Not implemented"); break;
+
+            case ByteCodeInstruction::kConvertFtoI4: sp[-3] = skvx::cast<int>(sp[-3].fFloat);
+            case ByteCodeInstruction::kConvertFtoI3: sp[-2] = skvx::cast<int>(sp[-2].fFloat);
+            case ByteCodeInstruction::kConvertFtoI2: sp[-1] = skvx::cast<int>(sp[-1].fFloat);
+            case ByteCodeInstruction::kConvertFtoI:  sp[ 0] = skvx::cast<int>(sp[ 0].fFloat);
+                                                     break;
+
+            case ByteCodeInstruction::kConvertStoF4: sp[-3] = skvx::cast<float>(sp[-3].fSigned);
+            case ByteCodeInstruction::kConvertStoF3: sp[-2] = skvx::cast<float>(sp[-2].fSigned);
+            case ByteCodeInstruction::kConvertStoF2: sp[-1] = skvx::cast<float>(sp[-1].fSigned);
+            case ByteCodeInstruction::kConvertStoF : sp[ 0] = skvx::cast<float>(sp[ 0].fSigned);
+                                                     break;
+
+            case ByteCodeInstruction::kConvertUtoF4: sp[-3] = skvx::cast<float>(sp[-3].fUnsigned);
+            case ByteCodeInstruction::kConvertUtoF3: sp[-2] = skvx::cast<float>(sp[-2].fUnsigned);
+            case ByteCodeInstruction::kConvertUtoF2: sp[-1] = skvx::cast<float>(sp[-1].fUnsigned);
+            case ByteCodeInstruction::kConvertUtoF : sp[ 0] = skvx::cast<float>(sp[ 0].fUnsigned);
+                                                     break;
+
+            VECTOR_UNARY_FN_VEC(kCos, cosf, fFloat)
+
+            case ByteCodeInstruction::kCross:
+            case ByteCodeInstruction::kDebugPrint:
+                SkDEBUGFAIL("Not implemented"); break;
+
+            VECTOR_BINARY_OP(kDivideS, fSigned, /)
+            VECTOR_BINARY_OP(kDivideU, fUnsigned, /)
+            VECTOR_MATRIX_BINARY_OP(kDivideF, fFloat, /)
+
+            case ByteCodeInstruction::kDup4: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
+            case ByteCodeInstruction::kDup3: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
+            case ByteCodeInstruction::kDup2: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
+            case ByteCodeInstruction::kDup : PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
+                                             break;
+
+            case ByteCodeInstruction::kDupN: {
+                int count = READ8();
+                memcpy(sp + 1, sp - count + 1, count * sizeof(VValue));
+                sp += count;
+                break;
+            }
+
+            case ByteCodeInstruction::kLoad4: sp[4] = stack[*ip + 3];
+            case ByteCodeInstruction::kLoad3: sp[3] = stack[*ip + 2];
+            case ByteCodeInstruction::kLoad2: sp[2] = stack[*ip + 1];
+            case ByteCodeInstruction::kLoad : sp[1] = stack[*ip + 0];
+                                              ++ip;
+                                              sp += (int)inst - (int)ByteCodeInstruction::kLoad + 1;
+                                              break;
+
+            case ByteCodeInstruction::kLoadGlobal4: sp[4] = uint4(fGlobals[*ip + 3].fUnsigned);
+            case ByteCodeInstruction::kLoadGlobal3: sp[3] = uint4(fGlobals[*ip + 2].fUnsigned);
+            case ByteCodeInstruction::kLoadGlobal2: sp[2] = uint4(fGlobals[*ip + 1].fUnsigned);
+            case ByteCodeInstruction::kLoadGlobal : sp[1] = uint4(fGlobals[*ip + 0].fUnsigned);
+                                                    ++ip;
+                                                    sp += (int)inst -
+                                                          (int)ByteCodeInstruction::kLoadGlobal + 1;
+                                                    break;
+
+            case ByteCodeInstruction::kLoadExtended:
+            case ByteCodeInstruction::kLoadExtendedGlobal:
+                SkDEBUGFAIL("Not implemented"); break;
+
+            case ByteCodeInstruction::kLoadSwizzle: {
+                int src = READ8();
+                int count = READ8();
+                for (int i = 0; i < count; ++i) {
+                    PUSH(stack[src + *(ip + i)]);
+                }
+                ip += count;
+                break;
+            }
+
+            case ByteCodeInstruction::kLoadSwizzleGlobal:
+            case ByteCodeInstruction::kMatrixToMatrix:
+                SkDEBUGFAIL("Not implemented"); break;
+
+            case ByteCodeInstruction::kMatrixMultiply: {
+                int lCols = READ8();
+                int lRows = READ8();
+                int rCols = READ8();
+                int rRows = lCols;
+                float4 tmp[16] = { 0.0f };
+                float4* B = &(sp - (rCols * rRows) + 1)->fFloat;
+                float4* A = B - (lCols * lRows);
+                for (int c = 0; c < rCols; ++c) {
+                    for (int r = 0; r < lRows; ++r) {
+                        for (int j = 0; j < lCols; ++j) {
+                            tmp[c*lRows + r] += A[j*lRows + r] * B[c*rRows + j];
+                        }
+                    }
+                }
+                sp -= (lCols * lRows) + (rCols * rRows);
+                memcpy(sp + 1, tmp, rCols * lRows * sizeof(VValue));
+                sp += (rCols * lRows);
+                break;
+            }
+
+            // stack looks like: X1 Y1 Z1 W1 X2 Y2 Z2 W2 T
+            case ByteCodeInstruction::kMix4:
+            case ByteCodeInstruction::kMix3:
+            case ByteCodeInstruction::kMix2:
+            case ByteCodeInstruction::kMix:
+                SkDEBUGFAIL("Not implemented"); break;
+
+            VECTOR_BINARY_OP(kMultiplyI, fSigned, *)
+            VECTOR_MATRIX_BINARY_OP(kMultiplyF, fFloat, *)
+
+            // TODO: Bitwise mask manipulation is correct?
+            case ByteCodeInstruction::kNot:
+                sp[0].fSigned = ~sp[0].fSigned;
+                break;
+
+            case ByteCodeInstruction::kNegateF4: sp[-3] = -sp[-3].fFloat;
+            case ByteCodeInstruction::kNegateF3: sp[-2] = -sp[-2].fFloat;
+            case ByteCodeInstruction::kNegateF2: sp[-1] = -sp[-1].fFloat;
+            case ByteCodeInstruction::kNegateF : sp[ 0] = -sp[ 0].fFloat;
+                                                 break;
+
+            case ByteCodeInstruction::kNegateFN: {
+                int count = READ8();
+                for (int i = count - 1; i >= 0; --i) {
+                    sp[-i] = -sp[-i].fFloat;
+                }
+                break;
+            }
+
+            case ByteCodeInstruction::kNegateI4: sp[-3] = -sp[-3].fSigned;
+            case ByteCodeInstruction::kNegateI3: sp[-2] = -sp[-2].fSigned;
+            case ByteCodeInstruction::kNegateI2: sp[-1] = -sp[-1].fSigned;
+            case ByteCodeInstruction::kNegateI : sp[ 0] = -sp [0].fSigned;
+                                                 break;
+
+            // TODO: Bitwise mask manipulation is correct?
+            VECTOR_BINARY_OP(kOrB, fSigned, |)
+
+            case ByteCodeInstruction::kPop4: POP();
+            case ByteCodeInstruction::kPop3: POP();
+            case ByteCodeInstruction::kPop2: POP();
+            case ByteCodeInstruction::kPop : POP();
+                                             break;
+
+            case ByteCodeInstruction::kPopN:
+                sp -= READ8();
+                break;
+
+            case ByteCodeInstruction::kPushImmediate:
+                PUSH(uint4(READ32()));
+                break;
+
+            case ByteCodeInstruction::kReadExternal:  // fall through
+            case ByteCodeInstruction::kReadExternal2: // fall through
+            case ByteCodeInstruction::kReadExternal3: // fall through
+            case ByteCodeInstruction::kReadExternal4: {
+                int src = READ8();
+                fByteCode->fExternalValues[src]->read(sp + 1);
+                sp += (int) inst - (int) ByteCodeInstruction::kReadExternal + 1;
+                break;
+            }
+
+#if 0
+            // TODO: More unimplemented stuff
+            VECTOR_BINARY_FN(kRemainderF, fFloat, fmodf)
+            VECTOR_BINARY_OP(kRemainderS, fSigned, %)
+            VECTOR_BINARY_OP(kRemainderU,  fUnsigned, %)
+#endif
+
+            case ByteCodeInstruction::kReturn: {
+                // TODO: Transpose return values!
+                int count = READ8();
+                if (outReturn) {
+                    memcpy(outReturn, sp - count + 1, count * sizeof(VValue));
+                }
+                return;
+            }
+
+            case ByteCodeInstruction::kScalarToMatrix: {
+                int cols = READ8();
+                int rows = READ8();
+                VValue v = POP();
+                for (int c = 0; c < cols; ++c) {
+                    for (int r = 0; r < rows; ++r) {
+                        PUSH(c == r ? v : float4(0.0f));
+                    }
+                }
+                break;
+            }
+
+            VECTOR_UNARY_FN_VEC(kSin, sinf, fFloat)
+            VECTOR_UNARY_FN_VEC(kSqrt, sqrtf, fFloat)
+
+            case ByteCodeInstruction::kStore4: stack[*ip + 3] = POP();
+            case ByteCodeInstruction::kStore3: stack[*ip + 2] = POP();
+            case ByteCodeInstruction::kStore2: stack[*ip + 1] = POP();
+            case ByteCodeInstruction::kStore : stack[*ip + 0] = POP();
+                                               ++ip;
+                                               break;
+
+            // TODO: Store to globals doesn't really make sense. Store extended needs impl.
+            case ByteCodeInstruction::kStoreGlobal4:
+            case ByteCodeInstruction::kStoreGlobal3:
+            case ByteCodeInstruction::kStoreGlobal2:
+            case ByteCodeInstruction::kStoreGlobal :
+            case ByteCodeInstruction::kStoreExtended:
+            case ByteCodeInstruction::kStoreExtendedGlobal:
+                SkDEBUGFAIL("Not implemented"); break;
+
+            case ByteCodeInstruction::kStoreSwizzle: {
+                int target = READ8();
+                int count = READ8();
+                for (int i = count - 1; i >= 0; --i) {
+                    stack[target + *(ip + i)] = POP();
+                }
+                ip += count;
+                break;
+            }
+
+            case ByteCodeInstruction::kStoreSwizzleGlobal:
+            case ByteCodeInstruction::kStoreSwizzleIndirect:
+            case ByteCodeInstruction::kStoreSwizzleIndirectGlobal:
+                SkDEBUGFAIL("Not implemented"); break;
+
+            VECTOR_BINARY_OP(kSubtractI, fSigned, -)
+            VECTOR_MATRIX_BINARY_OP(kSubtractF, fFloat, -)
+
+            case ByteCodeInstruction::kSwizzle: {
+                VValue tmp[4];
+                for (int i = READ8() - 1; i >= 0; --i) {
+                    tmp[i] = POP();
+                }
+                for (int i = READ8() - 1; i >= 0; --i) {
+                    PUSH(tmp[READ8()]);
+                }
+                break;
+            }
+
+            VECTOR_UNARY_FN_VEC(kTan, tanf, fFloat)
+
+            case ByteCodeInstruction::kWriteExternal:  // fall through
+            case ByteCodeInstruction::kWriteExternal2: // fall through
+            case ByteCodeInstruction::kWriteExternal3: // fall through
+            case ByteCodeInstruction::kWriteExternal4: {
+                int count = (int) inst - (int) ByteCodeInstruction::kWriteExternal + 1;
+                int target = READ8();
+                fByteCode->fExternalValues[target]->write(sp - count + 1);
+                sp -= count;
+                break;
+            }
+
+            default:
+                SkDEBUGFAILF("unsupported instruction %d\n", (int) inst);
+        }
+#ifdef TRACE
+        int stackSize = (int) (sp - stack + 1);
+        printf("STACK(%d):", stackSize);
+        for (int i = 0; i < stackSize; ++i) {
+            printf(" %d(%g)", stack[i].fSigned, stack[i].fFloat);
+        }
+        printf("\n");
+#endif
+    }
+}
+
 } // namespace
 
 #endif
