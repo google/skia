@@ -128,3 +128,8 @@ SkPath* SkGlyph::addPath(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
     }
     return this->path();
 }
+
+void SkGlyph::addMetrics(SkScalerContext* scaler) {
+    scaler->getMetrics(this);
+    SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
+}
