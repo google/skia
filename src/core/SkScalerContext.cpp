@@ -551,7 +551,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         if (tmpGlyph.fMaskFormat == origGlyph.fMaskFormat) {
             tmpGlyph.fImage = origGlyph.fImage;
         } else {
-            tmpGlyphImageStorage.reset(tmpGlyph.computeImageSize());
+            tmpGlyphImageStorage.reset(tmpGlyph.imageSize());
             tmpGlyph.fImage = tmpGlyphImageStorage.get();
         }
         glyph = &tmpGlyph;
