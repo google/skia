@@ -145,6 +145,7 @@ static void compare_blobs(const SkBitmap& expected, const SkBitmap& actual,
             SkColor expectedColor = expected.getColor(i, j);
             SkColor actualColor = actual.getColor(i, j);
             if (0 == tolerance) {
+                //SkASSERT(expectedColor == actualColor);
                 REPORTER_ASSERT(reporter, expectedColor == actualColor);
             } else {
                 for (int k = 0; k < 4; ++k) {
@@ -824,6 +825,7 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
 
     SkFont font;
     font.setTypeface(clientTf);
+    font.setSubpixel(true);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorRED);
@@ -845,12 +847,12 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
         auto fallbackCache = strikeCache.findOrCreateStrikeExclusive(*desc, effects, *clientTf);
-        auto glyph = fallbackCache->getRawGlyphByID(lostGlyphID);
-        glyph->fMaskFormat = SkMask::kA8_Format;
-        glyph->fHeight = 1;
-        glyph->fWidth = 2;
-        fallbackCache->initializeImage(glyphImage, glyph->computeImageSize(), glyph);
-        glyph->fImage = (void *)glyphImage;
+        SkGlyph prototype{lostGlyphID};
+        prototype.fMaskFormat = SkMask::kA8_Format;
+        prototype.fHeight = 1;
+        prototype.fWidth = 2;
+        SkGlyph* glyph = fallbackCache->mergeMetrics(prototype);
+        fallbackCache->mergeImage(glyph, glyphImage, glyph->imageSize());
     }
 
     // Make sure we can find the fall back cache.
@@ -886,26 +888,28 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
 
     // Look for the lost glyph.
     {
-        const auto& lostGlyph = testCache->getGlyphIDMetrics(
-                lostGlyphID.code(), lostGlyphID.getSubXFixed(), lostGlyphID.getSubYFixed());
-        testCache->findImage(lostGlyph);
+        SkPoint pt{SkFixedToScalar(lostGlyphID.getSubXFixed()),
+                   SkFixedToScalar(lostGlyphID.getSubYFixed())};
+        SkGlyph* lostGlyph = testCache->glyph(lostGlyphID.code(), pt);
+        testCache->ensureImage(lostGlyph);
 
-        REPORTER_ASSERT(reporter, lostGlyph.fHeight == 1);
-        REPORTER_ASSERT(reporter, lostGlyph.fWidth == 2);
-        REPORTER_ASSERT(reporter, lostGlyph.fMaskFormat == SkMask::kA8_Format);
-        REPORTER_ASSERT(reporter, memcmp(lostGlyph.fImage, glyphImage, sizeof(glyphImage)) == 0);
+        REPORTER_ASSERT(reporter, lostGlyph->fHeight == 1);
+        REPORTER_ASSERT(reporter, lostGlyph->fWidth == 2);
+        REPORTER_ASSERT(reporter, lostGlyph->fMaskFormat == SkMask::kA8_Format);
+        REPORTER_ASSERT(reporter, memcmp(lostGlyph->fImage, glyphImage, sizeof(glyphImage)) == 0);
     }
 
     // Look for the lost glyph with a different sub-pix position.
     {
-        const auto& lostGlyph =
-                testCache->getGlyphIDMetrics(lostGlyphID.code(), SK_FixedQuarter, SK_FixedQuarter);
-        testCache->findImage(lostGlyph);
+        SkPoint pt{SkFixedToScalar(SK_FixedQuarter),
+                   SkFixedToScalar(SK_FixedQuarter)};
+        SkGlyph* lostGlyph = testCache->glyph(lostGlyphID.code(), pt);
+        testCache->ensureImage(lostGlyph);
 
-        REPORTER_ASSERT(reporter, lostGlyph.fHeight == 1);
-        REPORTER_ASSERT(reporter, lostGlyph.fWidth == 2);
-        REPORTER_ASSERT(reporter, lostGlyph.fMaskFormat == SkMask::kA8_Format);
-        REPORTER_ASSERT(reporter, memcmp(lostGlyph.fImage, glyphImage, sizeof(glyphImage)) == 0);
+        REPORTER_ASSERT(reporter, lostGlyph->fHeight == 1);
+        REPORTER_ASSERT(reporter, lostGlyph->fWidth == 2);
+        REPORTER_ASSERT(reporter, lostGlyph->fMaskFormat == SkMask::kA8_Format);
+        REPORTER_ASSERT(reporter, memcmp(lostGlyph->fImage, glyphImage, sizeof(glyphImage)) == 0);
     }
 
     for (uint32_t i = 0; i <= SkStrikeClient::CacheMissType::kLast; ++i) {
@@ -976,12 +980,13 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
         auto fallbackCache = strikeCache.findOrCreateStrikeExclusive(*desc, effects, *clientTf);
-        auto glyph = fallbackCache->getRawGlyphByID(lostGlyphID);
         fakeMask = (realMask == SkMask::kA8_Format) ? SkMask::kBW_Format : SkMask::kA8_Format;
-        glyph->fMaskFormat = fakeMask;
-        glyph->fHeight = 1;
-        glyph->fWidth = 2;
-        fallbackCache->initializeImage(glyphImage, glyph->computeImageSize(), glyph);
+        SkGlyph prototypeGlyph{lostGlyphID};
+        prototypeGlyph.fMaskFormat = fakeMask;
+        prototypeGlyph.fHeight = 1;
+        prototypeGlyph.fWidth = 2;
+        auto glyph = fallbackCache->mergeMetrics(prototypeGlyph);
+        fallbackCache->mergeImage(glyph, glyphImage, glyph->imageSize());
     }
 
     // Send over the real glyph and make sure the client cache stays intact.
@@ -1016,10 +1021,12 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
 
         auto fallbackCache = strikeCache.findStrikeExclusive(*desc);
         REPORTER_ASSERT(reporter, fallbackCache.get() != nullptr);
-        auto glyph = fallbackCache->getRawGlyphByID(lostGlyphID);
-        REPORTER_ASSERT(reporter, glyph->fMaskFormat == fakeMask);
-        REPORTER_ASSERT(reporter,
-                        memcmp(glyph->fImage, glyphImage, glyph->computeImageSize()) == 0);
+        auto glyph = fallbackCache->glyphOrNull(lostGlyphID);
+        REPORTER_ASSERT(reporter, glyph && glyph->fMaskFormat == fakeMask);
+        if (glyph) {
+            REPORTER_ASSERT(reporter,
+                            memcmp(glyph->fImage, glyphImage, glyph->imageSize()) == 0);
+        }
     }
 
     strikeCache.validateGlyphCacheDataSize();

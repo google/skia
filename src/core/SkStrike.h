@@ -42,34 +42,20 @@ public:
     /** Return true if glyph is cached. */
     bool isGlyphCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const;
 
-    /**  Return a glyph that has no information if it is not already filled out. */
-    SkGlyph* getRawGlyphByID(SkPackedGlyphID);
-
-    /** Returns a glyph with all fields valid except fImage and fPath, which may be null. If they
-        are null, call findImage or findPath for those. If they are not null, then they are valid.
-
-        This call is potentially slower than the matching ...Advance call. If you only need the
-        fAdvance/fDevKern fields, call those instead.
-    */
-    const SkGlyph& getGlyphIDMetrics(SkGlyphID);
-
-    /** These are variants that take the device position of the glyph. Call these only if you are
-        drawing in subpixel mode. Passing 0, 0 is effectively the same as calling the variants
-        w/o the extra params, though a tiny bit slower.
-    */
-    const SkGlyph& getGlyphIDMetrics(SkGlyphID, SkFixed x, SkFixed y);
-
-    const SkGlyph& getGlyphIDMetrics(SkPackedGlyphID id);
-
     // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
     // advances.
     SkGlyph* glyph(SkPackedGlyphID id);
     SkGlyph* glyph(SkGlyphID);
+    SkGlyph* glyph(SkGlyphID, SkPoint);
+    SkGlyph* glyphOrNull(SkPackedGlyphID id) const;
 
-    // Return a glyph. Create it if it doesn't exist, but zero the data.
-    SkGlyph* uninitializedGlyph(SkPackedGlyphID id);
+    SkGlyph* mergeMetrics(const SkGlyph& from);
+    void mergeImage(SkGlyph* glyph, const void* image, size_t size);
+    void mergePath(SkGlyph* glyph, const SkPath* path);
 
-    void getAdvances(SkSpan<const SkGlyphID>, SkPoint[]);
+    SkSpan<SkPoint> getAdvances(SkSpan<const SkGlyphID>, SkPoint[]);
+    SkSpan<const SkGlyph*> prepareImages(
+            SkSpan<const SkGlyphID> glyphIDs, SkGlyph* results[]);
 
     /** Returns the number of glyphs for this strike.
     */
@@ -78,14 +64,8 @@ public:
     /** Return the number of glyphs currently cached. */
     int countCachedGlyphs() const;
 
-    /** Return the image associated with the glyph. If it has not been generated this will
-        trigger that.
-    */
-    const void* findImage(const SkGlyph&);
+    const void* ensureImage(SkGlyph*);
 
-    /** Initializes the image associated with the glyph with |data|.
-     */
-    void initializeImage(const volatile void* data, size_t size, SkGlyph*);
 
     /** If the advance axis intersects the glyph's path, append the positions scaled and offset
         to the array (if non-null), and set the count to the updated array length.
@@ -93,15 +73,7 @@ public:
     void findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
                         SkGlyph* , SkScalar* array, int* count);
 
-    /** Return the Path associated with the glyph. If it has not been generated this will trigger
-        that.
-    */
-    const SkPath* findPath(const SkGlyph&);
-
-    /** Initializes the path associated with the glyph with |data|. Returns false if
-     *  data is invalid.
-     */
-    bool initializePath(SkGlyph*, const volatile void* data, size_t size);
+    const SkPath* ensurePath(SkGlyph*) override;
 
     /** Fallback glyphs used during font remoting if the original glyph can't be found.
      */
@@ -130,8 +102,6 @@ public:
     SkVector rounding() const override;
 
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
-
-    void generatePath(const SkGlyph& glyph) override;
 
     const SkDescriptor& getDescriptor() const override;
 
@@ -189,6 +159,9 @@ private:
     };
 
     SkGlyph* makeGlyph(SkPackedGlyphID);
+    SkSpan<SkGlyph*> metrics(SkSpan<const SkGlyphID>glyphIDs, SkGlyph* result[]);
+    SkSpan<SkGlyphPos> metricsWithoutEmpty(
+            SkSpan<const SkGlyphID>glyphIDs, const SkPoint positions[], SkGlyphPos result[]);
 
     const SkAutoDescriptor                 fDesc;
     const std::unique_ptr<SkScalerContext> fScalerContext;

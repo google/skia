@@ -46,8 +46,8 @@ public:
                 glyphIDs, positions, n, maxDimension, detail, results);
     }
 
-    void generatePath(const SkGlyph& glyph) override {
-        fStrike.generatePath(glyph);
+    const SkPath* ensurePath(SkGlyph* glyph) override {
+        return fStrike.ensurePath(glyph);
     }
 
     const SkDescriptor& getDescriptor() const override {
@@ -172,12 +172,7 @@ auto SkStrikeCache::findOrCreateStrike(const SkDescriptor& desc,
 SkScopedStrike SkStrikeCache::findOrCreateScopedStrike(const SkDescriptor& desc,
                                                        const SkScalerContextEffects& effects,
                                                        const SkTypeface& typeface) {
-    Node* node = this->findAndDetachStrike(desc);
-    if (node == nullptr) {
-        auto scaler = CreateScalerContext(desc, effects, typeface);
-        node = this->createStrike(desc, std::move(scaler));
-    }
-    return SkScopedStrike{node};
+    return SkScopedStrike{this->findOrCreateStrike(desc, effects, typeface)};
 }
 
 void SkStrikeCache::PurgeAll() {
@@ -311,24 +306,21 @@ bool SkStrikeCache::desperationSearchForImage(const SkDescriptor& desc, SkGlyph*
     SkAutoSpinlock ac(fLock);
 
     SkGlyphID glyphID = glyph->getGlyphID();
-    SkFixed targetSubX = glyph->getSubXFixed(),
-            targetSubY = glyph->getSubYFixed();
-
     for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
         if (loose_compare(node->fStrike.getDescriptor(), desc)) {
-            auto targetGlyphID = SkPackedGlyphID(glyphID, targetSubX, targetSubY);
-            if (node->fStrike.isGlyphCached(glyphID, targetSubX, targetSubY)) {
-                SkGlyph* fallback = node->fStrike.getRawGlyphByID(targetGlyphID);
+            if (SkGlyph *fallback = node->fStrike.glyphOrNull(glyph->getPackedID())) {
                 // This desperate-match node may disappear as soon as we drop fLock, so we
                 // need to copy the glyph from node into this strike, including a
                 // deep copy of the mask.
-                targetCache->initializeGlyphFromFallback(glyph, *fallback);
+                glyph->mergeMetrics(*fallback);
+                targetCache->mergeImage(glyph, fallback->image(), fallback->imageSize());
                 return true;
             }
 
             // Look for any sub-pixel pos for this glyph, in case there is a pos mismatch.
             if (const auto* fallback = node->fStrike.getCachedGlyphAnySubPix(glyphID)) {
-                targetCache->initializeGlyphFromFallback(glyph, *fallback);
+                glyph->mergeMetrics(*fallback);
+                targetCache->mergeImage(glyph, fallback->image(), fallback->imageSize());
                 return true;
             }
         }
@@ -349,12 +341,11 @@ bool SkStrikeCache::desperationSearchForPath(
     // There is also a problem with accounting for cache size with shared path data.
     for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
         if (loose_compare(node->fStrike.getDescriptor(), desc)) {
-            if (node->fStrike.isGlyphCached(glyphID, 0, 0)) {
-                SkGlyph* from = node->fStrike.getRawGlyphByID(SkPackedGlyphID(glyphID));
-                if (from->fPathData != nullptr) {
+            if (SkGlyph *from = node->fStrike.glyphOrNull(SkPackedGlyphID{glyphID})) {
+                if (from->pathIsInitialized() && from->hasPath()) {
                     // We can just copy the path out by value here, so no need to worry
                     // about the lifetime of this desperate-match node.
-                    *path = from->fPathData->fPath;
+                    *path = *from->path();
                     return true;
                 }
             }
