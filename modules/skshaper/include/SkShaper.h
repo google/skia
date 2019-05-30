@@ -128,9 +128,9 @@ public:
     public:
         TrivialLanguageRunIterator(const char* language, size_t utf8Bytes)
             : TrivialRunIterator(utf8Bytes), fLanguage(language) {}
-        const char* currentLanguage() const override { return fLanguage; }
+        const char* currentLanguage() const override { return fLanguage.c_str(); }
     private:
-        const char* fLanguage;
+        SkString fLanguage;
     };
 
     class RunHandler {
