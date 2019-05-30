@@ -15,7 +15,9 @@
 
 namespace skottie {
 
-TextAdapter::TextAdapter(sk_sp<sksg::Group> root) : fRoot(std::move(root)) {}
+TextAdapter::TextAdapter(sk_sp<sksg::Group> root, bool hasAnimators)
+    : fRoot(std::move(root))
+    , fHasAnimators(hasAnimators) {}
 
 TextAdapter::~TextAdapter() = default;
 
@@ -76,6 +78,7 @@ void TextAdapter::apply() {
         fText.fLineHeight,
         fText.fHAlign,
         fText.fVAlign,
+        fHasAnimators ? Shaper::Flags::kFragmentGlyphs : Shaper::Flags::kNone,
     };
     const auto shape_result = Shaper::Shape(fText.fText, text_desc, fText.fBox);
 

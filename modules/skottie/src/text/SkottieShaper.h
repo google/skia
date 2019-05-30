@@ -45,12 +45,21 @@ public:
         kResizeToFit,
     };
 
+    enum Flags : uint32_t {
+        kNone           = 0x00,
+
+        // Split out individual glyphs into separate Fragments
+        // (useful when the caller intends to manipulate glyphs independently).
+        kFragmentGlyphs = 0x01,
+    };
+
     struct TextDesc {
         const sk_sp<SkTypeface>&  fTypeface;
         SkScalar                  fTextSize,
                                   fLineHeight;
         SkTextUtils::Align        fHAlign;
         VAlign                    fVAlign;
+        uint32_t                  fFlags;
     };
 
     // Performs text layout along an infinite horizontal line, starting at |textPoint|.
