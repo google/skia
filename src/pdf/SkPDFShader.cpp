@@ -38,11 +38,21 @@ static void draw_bitmap_matrix(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawBitmap(bm, 0, 0, &paint);
 }
 
-SkColor mix(SkColor c, U8CPU alpha) {
-    return SkColorSetARGB(SkMulDiv255Round(alpha, SkColorGetA(c)),
-                          SkColorGetR(c),
-                          SkColorGetG(c),
-                          SkColorGetB(c));
+static void fill_color_from_bitmap(SkCanvas* canvas,
+                                   float left, float top, float right, float bottom,
+                                   const SkBitmap& bitmap, int x, int y, float alpha) {
+    SkRect rect{left, top, right, bottom};
+    if (!rect.isEmpty()) {
+        SkColor4f color = SkColor4f::FromColor(bitmap.getColor(x, y));
+        SkPaint paint(SkColor4f{color.fR, color.fG, color.fB, alpha * color.fA});
+        canvas->drawRect(rect, paint);
+    }
+}
+
+static SkMatrix scale_translate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty) {
+    SkMatrix m;
+    m.setScaleTranslate(sx, sy, tx, ty);
+    return m;
 }
 
 static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
@@ -69,10 +79,9 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
     // otherwise the bitmap gets clipped out and the shader is empty and awful.
     // For clamp modes, we're only interested in the clip region, whether
     // or not the main bitmap is in it.
-    SkTileMode tileModes[2];
-    tileModes[0] = key.fImageTileModes[0];
-    tileModes[1] = key.fImageTileModes[1];
-    if (tileModes[0] != SkTileMode::kClamp || tileModes[1] != SkTileMode::kClamp) {
+    SkTileMode tileModesX = key.fImageTileModes[0],
+               tileModesY = key.fImageTileModes[1];
+    if (tileModesX != SkTileMode::kClamp || tileModesY != SkTileMode::kClamp) {
         deviceBounds.join(bitmapBounds);
     }
 
@@ -101,32 +110,23 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
     SkScalar height = SkIntToScalar(image->height());
 
     // Tiling is implied.  First we handle mirroring.
-    if (tileModes[0] == SkTileMode::kMirror) {
-        SkMatrix xMirror;
-        xMirror.setScale(-1, 1);
-        xMirror.postTranslate(2 * width, 0);
-        draw_image_matrix(&canvas, image, xMirror, paint);
+    if (tileModesX == SkTileMode::kMirror) {
+        draw_image_matrix(&canvas, image, scale_translate(-1, 1, 2 * width, 0), paint);
         patternBBox.fRight += width;
     }
-    if (tileModes[1] == SkTileMode::kMirror) {
-        SkMatrix yMirror;
-        yMirror.setScale(SK_Scalar1, -SK_Scalar1);
-        yMirror.postTranslate(0, 2 * height);
-        draw_image_matrix(&canvas, image, yMirror, paint);
+    if (tileModesY == SkTileMode::kMirror) {
+        draw_image_matrix(&canvas, image, scale_translate(1, -1, 0, 2 * height), paint);
         patternBBox.fBottom += height;
     }
-    if (tileModes[0] == SkTileMode::kMirror && tileModes[1] == SkTileMode::kMirror) {
-        SkMatrix mirror;
-        mirror.setScale(-1, -1);
-        mirror.postTranslate(2 * width, 2 * height);
-        draw_image_matrix(&canvas, image, mirror, paint);
+    if (tileModesX == SkTileMode::kMirror && tileModesY == SkTileMode::kMirror) {
+        draw_image_matrix(&canvas, image, scale_translate(-1, -1, 2 * width, 2 * height), paint);
     }
 
     // Then handle Clamping, which requires expanding the pattern canvas to
     // cover the entire surfaceBBox.
 
     SkBitmap bitmap;
-    if (tileModes[0] == SkTileMode::kClamp || tileModes[1] == SkTileMode::kClamp) {
+    if (tileModesX == SkTileMode::kClamp || tileModesY == SkTileMode::kClamp) {
         // For now, the easiest way to access the colors in the corners and sides is
         // to just make a bitmap from the image.
         if (!SkPDFUtils::ToBitmap(image, &bitmap)) {
@@ -137,54 +137,34 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
 
     // If both x and y are in clamp mode, we start by filling in the corners.
     // (Which are just a rectangles of the corner colors.)
-    if (tileModes[0] == SkTileMode::kClamp && tileModes[1] == SkTileMode::kClamp) {
+    if (tileModesX == SkTileMode::kClamp && tileModesY == SkTileMode::kClamp) {
         SkASSERT(!bitmap.drawsNothing());
-        U8CPU alpha = SkColorGetA(key.fPaintColor);
-        SkPaint paint2;
-        SkRect rect;
-        rect = SkRect::MakeLTRB(deviceBounds.left(), deviceBounds.top(), 0, 0);
-        if (!rect.isEmpty()) {
-            paint2.setColor(mix(bitmap.getColor(0, 0), alpha));
-            canvas.drawRect(rect, paint2);
-        }
 
-        rect = SkRect::MakeLTRB(width, deviceBounds.top(),
-                                deviceBounds.right(), 0);
-        if (!rect.isEmpty()) {
-            paint2.setColor(mix(bitmap.getColor(bitmap.width() - 1, 0), alpha));
-            canvas.drawRect(rect, paint2);
-        }
+        fill_color_from_bitmap(&canvas, deviceBounds.left(), deviceBounds.top(), 0, 0,
+                               bitmap, 0, 0, key.fPaintColor.fA);
 
-        rect = SkRect::MakeLTRB(width, height,
-                                deviceBounds.right(), deviceBounds.bottom());
-        if (!rect.isEmpty()) {
-            paint2.setColor(mix(bitmap.getColor(bitmap.width() - 1,
-                                                bitmap.height() - 1), alpha));
-            canvas.drawRect(rect, paint2);
-        }
+        fill_color_from_bitmap(&canvas, width, deviceBounds.top(), deviceBounds.right(), 0,
+                               bitmap, bitmap.width() - 1, 0, key.fPaintColor.fA);
 
-        rect = SkRect::MakeLTRB(deviceBounds.left(), height,
-                                0, deviceBounds.bottom());
-        if (!rect.isEmpty()) {
-            paint2.setColor(mix(bitmap.getColor(0, bitmap.height() - 1), alpha));
-            canvas.drawRect(rect, paint2);
-        }
+        fill_color_from_bitmap(&canvas, width, height, deviceBounds.right(), deviceBounds.bottom(),
+                               bitmap, bitmap.width() - 1, bitmap.height() - 1, key.fPaintColor.fA);
+
+        fill_color_from_bitmap(&canvas, deviceBounds.left(), height, 0, deviceBounds.bottom(),
+                               bitmap, 0, bitmap.height() - 1, key.fPaintColor.fA);
     }
 
     // Then expand the left, right, top, then bottom.
-    if (tileModes[0] == SkTileMode::kClamp) {
+    if (tileModesX == SkTileMode::kClamp) {
         SkASSERT(!bitmap.drawsNothing());
         SkIRect subset = SkIRect::MakeXYWH(0, 0, 1, bitmap.height());
         if (deviceBounds.left() < 0) {
             SkBitmap left;
             SkAssertResult(bitmap.extractSubset(&left, subset));
 
-            SkMatrix leftMatrix;
-            leftMatrix.setScale(-deviceBounds.left(), 1);
-            leftMatrix.postTranslate(deviceBounds.left(), 0);
+            SkMatrix leftMatrix = scale_translate(-deviceBounds.left(), 1, deviceBounds.left(), 0);
             draw_bitmap_matrix(&canvas, left, leftMatrix, paint);
 
-            if (tileModes[1] == SkTileMode::kMirror) {
+            if (tileModesY == SkTileMode::kMirror) {
                 leftMatrix.postScale(SK_Scalar1, -SK_Scalar1);
                 leftMatrix.postTranslate(0, 2 * height);
                 draw_bitmap_matrix(&canvas, left, leftMatrix, paint);
@@ -197,12 +177,10 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
             subset.offset(bitmap.width() - 1, 0);
             SkAssertResult(bitmap.extractSubset(&right, subset));
 
-            SkMatrix rightMatrix;
-            rightMatrix.setScale(deviceBounds.right() - width, 1);
-            rightMatrix.postTranslate(width, 0);
+            SkMatrix rightMatrix = scale_translate(deviceBounds.right() - width, 1, width, 0);
             draw_bitmap_matrix(&canvas, right, rightMatrix, paint);
 
-            if (tileModes[1] == SkTileMode::kMirror) {
+            if (tileModesY == SkTileMode::kMirror) {
                 rightMatrix.postScale(SK_Scalar1, -SK_Scalar1);
                 rightMatrix.postTranslate(0, 2 * height);
                 draw_bitmap_matrix(&canvas, right, rightMatrix, paint);
@@ -211,19 +189,17 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
         }
     }
 
-    if (tileModes[1] == SkTileMode::kClamp) {
+    if (tileModesY == SkTileMode::kClamp) {
         SkASSERT(!bitmap.drawsNothing());
         SkIRect subset = SkIRect::MakeXYWH(0, 0, bitmap.width(), 1);
         if (deviceBounds.top() < 0) {
             SkBitmap top;
             SkAssertResult(bitmap.extractSubset(&top, subset));
 
-            SkMatrix topMatrix;
-            topMatrix.setScale(SK_Scalar1, -deviceBounds.top());
-            topMatrix.postTranslate(0, deviceBounds.top());
+            SkMatrix topMatrix = scale_translate(1, -deviceBounds.top(), 0, deviceBounds.top());
             draw_bitmap_matrix(&canvas, top, topMatrix, paint);
 
-            if (tileModes[0] == SkTileMode::kMirror) {
+            if (tileModesX == SkTileMode::kMirror) {
                 topMatrix.postScale(-1, 1);
                 topMatrix.postTranslate(2 * width, 0);
                 draw_bitmap_matrix(&canvas, top, topMatrix, paint);
@@ -236,12 +212,10 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
             subset.offset(0, bitmap.height() - 1);
             SkAssertResult(bitmap.extractSubset(&bottom, subset));
 
-            SkMatrix bottomMatrix;
-            bottomMatrix.setScale(SK_Scalar1, deviceBounds.bottom() - height);
-            bottomMatrix.postTranslate(0, height);
+            SkMatrix bottomMatrix = scale_translate(1, deviceBounds.bottom() - height, 0, height);
             draw_bitmap_matrix(&canvas, bottom, bottomMatrix, paint);
 
-            if (tileModes[0] == SkTileMode::kMirror) {
+            if (tileModesX == SkTileMode::kMirror) {
                 bottomMatrix.postScale(-1, 1);
                 bottomMatrix.postTranslate(2 * width, 0);
                 draw_bitmap_matrix(&canvas, bottom, bottomMatrix, paint);
@@ -266,7 +240,7 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
                                                    SkShader* shader,
                                                    const SkMatrix& canvasTransform,
                                                    const SkIRect& surfaceBBox,
-                                                   SkColor paintColor) {
+                                                   SkColor4f paintColor) {
     // TODO(vandebo) This drops SKComposeShader on the floor.  We could
     // handle compose shader by pulling things up to a layer, drawing with
     // the first shader, applying the xfer mode and drawing again with the
@@ -306,9 +280,8 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorTRANSPARENT);
 
-    SkPaint p;
+    SkPaint p(paintColor);
     p.setShader(sk_ref_sp(shader));
-    p.setColor(paintColor);
 
     canvas->scale(scale.width(), scale.height());
     canvas->translate(-shaderRect.x(), -shaderRect.y());
@@ -321,21 +294,20 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
     return make_image_shader(doc, key, image.get());
 }
 
-static SkColor adjust_color(SkShader* shader, SkColor paintColor) {
+static SkColor4f adjust_color(SkShader* shader, SkColor4f paintColor) {
     if (SkImage* img = shader->isAImage(nullptr, (SkTileMode*)nullptr)) {
         if (img->isAlphaOnly()) {
             return paintColor;
         }
     }
-    // only preserve the alpha.
-    return paintColor & SK_ColorBLACK;
+    return SkColor4f{0, 0, 0, paintColor.fA};  // only preserve the alpha.
 }
 
 SkPDFIndirectReference SkPDFMakeShader(SkPDFDocument* doc,
                                        SkShader* shader,
                                        const SkMatrix& canvasTransform,
                                        const SkIRect& surfaceBBox,
-                                       SkColor paintColor) {
+                                       SkColor4f paintColor) {
     SkASSERT(shader);
     SkASSERT(doc);
     if (SkShader::kNone_GradientType != shader->asAGradient(nullptr)) {
