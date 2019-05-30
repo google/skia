@@ -121,9 +121,16 @@ public:
     constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} {}
     static constexpr SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedGlyphID::kSubBits;
 
-    bool isEmpty() const { return fWidth == 0 || fHeight == 0; }
-    bool isJustAdvance() const { return MASK_FORMAT_JUST_ADVANCE == fMaskFormat; }
-    bool isFullMetrics() const { return MASK_FORMAT_JUST_ADVANCE != fMaskFormat; }
+    SkVector advanceVector() const {
+        return SkVector{fAdvanceX, fAdvanceY};
+    }
+
+    SkScalar horizontalAdvance() const {
+        return fAdvanceX;
+    }
+
+    bool isEmpty() const { return (fWidth | fHeight) == 0; }
+    bool isColor() const { return fMaskFormat == SkMask::kARGB32_Format; }
     SkGlyphID getGlyphID() const { return fID.code(); }
     SkPackedGlyphID getPackedID() const { return fID; }
     SkFixed getSubXFixed() const { return fID.getSubXFixed(); }
@@ -132,7 +139,6 @@ public:
     size_t formatAlignment() const;
     size_t allocImage(SkArenaAlloc* alloc);
     size_t rowBytes() const;
-    size_t computeImageSize() const;
     size_t rowBytesUsingFormat(SkMask::Format format) const;
 
     // Call this to set all of the metrics fields to 0 (e.g. if the scaler
@@ -140,37 +146,35 @@ public:
     // fImage, fPath, fID, fMaskFormat fields.
     void zeroMetrics();
 
-    bool hasImage() const {
-        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
-        return fImage != nullptr;
-    }
-
     SkMask mask() const;
 
     SkMask mask(SkPoint position) const;
 
-    SkPath* addPath(SkScalerContext*, SkArenaAlloc*);
-
-    SkPath* path() const {
-        return fPathData != nullptr && fPathData->fHasPath ? &fPathData->fPath : nullptr;
+    // Image calls
+    bool imageTooLarge() const { return fWidth >= kMaxGlyphWidth; }
+    bool imageIsInitialized() const {
+        return fImage != nullptr || this->isEmpty() || this->imageTooLarge();
     }
-
-    bool hasPath() const {
-        // Need to have called getMetrics before calling findPath.
-        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
-
-        // Find path must have been called to use this call.
-        SkASSERT(fPathData != nullptr);
-
-        return fPathData != nullptr && fPathData->fHasPath;
+    const void* ensureImage(SkScalerContext* scalerContext, SkArenaAlloc* alloc);
+    const void* image() const { return fImage; }
+    bool hasImage() const {
+        SkASSERT(imageIsInitialized());
+        return this->image() != nullptr;
     }
+    size_t imageSize() const;
 
-    int maxDimension() const {
-        // width and height are only defined if a metrics call was made.
-        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
+    // Path calls
+    // return ptr to path if one exists. ensurePath must be called before calling path() or
+    // hasPath().
+    bool pathIsInitialized() const { return fPathData != nullptr || this->isEmpty(); }
+    const SkPath* ensurePath(SkScalerContext* scalerContext, SkArenaAlloc* alloc);
+    const SkPath* path() const;
+    bool hasPath() const { return this->path() != nullptr; }
+    size_t pathSize() const;
 
-        return std::max(fWidth, fHeight);
-    }
+    int maxDimension() const { return std::max(fWidth, fHeight); }
+
+    SkIRect iRect() const { return SkIRect::MakeXYWH(fLeft, fTop, fWidth, fHeight); }
 
     // Returns the size allocated on the arena.
     size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc);
@@ -212,7 +216,6 @@ public:
     uint8_t   fMaskFormat = MASK_FORMAT_UNKNOWN;
 
 private:
-
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,
     // the fBounds contains the top and bottom of the underline. The fInterval pair contains the

@@ -54,95 +54,133 @@ int SkStrike::countCachedGlyphs() const {
     return fGlyphMap.count();
 }
 
+SkGlyph* SkStrike::makeGlyph(SkPackedGlyphID packedGlyphID) {
+    fMemoryUsed += sizeof(SkGlyph);
+    SkGlyph* glyph = fAlloc.make<SkGlyph>(packedGlyphID);
+    fGlyphMap.set(glyph);
+    return glyph;
+}
+
+SkSpan<SkGlyph*> SkStrike::metrics(
+        SkSpan<const SkGlyphID>glyphIDs, SkGlyph* results[]) {
+
+    size_t glyphCount = 0;
+    for (auto glyphID : glyphIDs) {
+        SkGlyph* glyphPtr = this->glyph(glyphID);
+        results[glyphCount++] = glyphPtr;
+    }
+
+    return {results, glyphCount};
+}
+
+SkSpan<SkGlyphPos> SkStrike::metricsWithoutEmpty(
+        SkSpan<const SkGlyphID>glyphIDs, const SkPoint positions[], SkGlyphPos results[]) {
+    const SkFixed maskX = !fIsSubpixel || fAxisAlignment == kY_SkAxisAlignment ? 0 : ~0;
+    const SkFixed maskY = !fIsSubpixel || fAxisAlignment == kX_SkAxisAlignment ? 0 : ~0;
+    size_t glyphCount = 0;
+    for (size_t i = 0; i < glyphIDs.size(); i++) {
+        SkGlyphID glyphID = glyphIDs[i];
+        SkPoint pos = positions[i];
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            SkFixed subX = SkScalarToFixed(pos.x()) & maskX,
+                    subY = SkScalarToFixed(pos.y()) & maskY;
+            SkPackedGlyphID packedID{glyphID, subX, subY};
+            SkGlyph* glyphPtr = this->glyph(packedID);
+            if (!glyphPtr->isEmpty()) {
+                results[glyphCount++] = {i, glyphPtr, pos};
+            }
+        }
+    }
+
+    return {results, glyphCount};
+}
+
 bool SkStrike::isGlyphCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const {
     SkPackedGlyphID packedGlyphID{glyphID, x, y};
     return fGlyphMap.find(packedGlyphID) != nullptr;
 }
 
-SkGlyph* SkStrike::getRawGlyphByID(SkPackedGlyphID id) {
-    return lookupByPackedGlyphID(id, kNothing_MetricsType);
-}
-
-const SkGlyph& SkStrike::getGlyphIDAdvance(uint16_t glyphID) {
-    VALIDATE();
-    SkPackedGlyphID packedGlyphID(glyphID);
-    return *this->lookupByPackedGlyphID(packedGlyphID, kJustAdvance_MetricsType);
+SkGlyph* SkStrike::getRawGlyphByID(SkPackedGlyphID packedGlyphID) {
+    SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID);
+    if (glyphPtr == nullptr) {
+        fMemoryUsed += sizeof(SkGlyph);
+        glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
+        fGlyphMap.set(glyphPtr);
+    }
+    return glyphPtr;
 }
 
 const SkGlyph& SkStrike::getGlyphIDMetrics(uint16_t glyphID) {
     VALIDATE();
-    SkPackedGlyphID packedGlyphID(glyphID);
-    return *this->lookupByPackedGlyphID(packedGlyphID, kFull_MetricsType);
-}
-
-const SkGlyph& SkStrike::getGlyphIDMetrics(uint16_t glyphID, SkFixed x, SkFixed y) {
-    SkPackedGlyphID packedGlyphID(glyphID, x, y);
-    return this->getGlyphIDMetrics(packedGlyphID);
+    return *this->glyph(glyphID);
 }
 
 const SkGlyph& SkStrike::getGlyphIDMetrics(SkPackedGlyphID id) {
     VALIDATE();
-    return *this->lookupByPackedGlyphID(id, kFull_MetricsType);
+    return *this->glyph(id);
 }
 
-void SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
-    for (auto glyphID : glyphIDs) {
-        auto glyph = this->getGlyphIDAdvance(glyphID);
-        *advances++ = SkPoint::Make(glyph.fAdvanceX, glyph.fAdvanceY);
+SkGlyph* SkStrike::glyph(SkPackedGlyphID packedGlyphID) {
+    SkGlyph* glyph = fGlyphMap.findOrNull(packedGlyphID);
+    if (glyph == nullptr) {
+        glyph = this->makeGlyph(packedGlyphID);
+        fScalerContext->getMetrics(glyph);
     }
+    return glyph;
 }
 
-SkGlyph* SkStrike::lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID, MetricsType type) {
-    SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID);
-
-    if (glyphPtr == nullptr) {
-        // Glyph is not present in the stirke. Make a new glyph and fill it in.
-
+SkGlyph* SkStrike::glyphRaw(SkPackedGlyphID packedGlyphID) {
+    SkGlyph* glyph = fGlyphMap.findOrNull(packedGlyphID);
+    if (glyph == nullptr) {
         fMemoryUsed += sizeof(SkGlyph);
-        glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
-        fGlyphMap.set(glyphPtr);
-
-        switch (type) {
-            // * Nothing - is only used for raw glyphs. It is assumed that the advances, etc. are
-            // filled in by external code. This is used by the remote glyph cache to fill in glyphs.
-            case kNothing_MetricsType:
-                break;
-            case kJustAdvance_MetricsType:
-                fScalerContext->getAdvance(glyphPtr);
-                break;
-            case kFull_MetricsType:
-                fScalerContext->getMetrics(glyphPtr);
-                break;
-        }
-    } else {
-        // Glyph is present in strike. Make sure the glyph has the right data.
-
-        if (type == kFull_MetricsType && glyphPtr->isJustAdvance()) {
-            fScalerContext->getMetrics(glyphPtr);
-        }
+        glyph = fAlloc.make<SkGlyph>(packedGlyphID);
+        fGlyphMap.set(glyph);
     }
-
-    return glyphPtr;
+    return glyph;
 }
 
-const void* SkStrike::findImage(const SkGlyph& glyph) {
-    if (glyph.fWidth > 0 && glyph.fWidth < kMaxGlyphWidth) {
-        if (nullptr == glyph.fImage) {
-            SkDEBUGCODE(SkMask::Format oldFormat = (SkMask::Format)glyph.fMaskFormat);
-            size_t  size = const_cast<SkGlyph&>(glyph).allocImage(&fAlloc);
-            // check that alloc() actually succeeded
-            if (glyph.fImage) {
-                fScalerContext->getImage(glyph);
-                // TODO: the scaler may have changed the maskformat during
-                // getImage (e.g. from AA or LCD to BW) which means we may have
-                // overallocated the buffer. Check if the new computedImageSize
-                // is smaller, and if so, strink the alloc size in fImageAlloc.
-                fMemoryUsed += size;
-            }
-            SkASSERT(oldFormat == glyph.fMaskFormat);
-        }
+SkGlyph* SkStrike::glyph(SkGlyphID glyphID) {
+    return this->glyph(SkPackedGlyphID{glyphID});
+}
+
+SkGlyph* SkStrike::glyph(SkGlyphID glyphID, SkPoint position) {
+    const SkFixed maskX = !fIsSubpixel || fAxisAlignment == kY_SkAxisAlignment ? 0 : ~0;
+    const SkFixed maskY = !fIsSubpixel || fAxisAlignment == kX_SkAxisAlignment ? 0 : ~0;
+    SkFixed subX = SkScalarToFixed(position.x()) & maskX,
+            subY = SkScalarToFixed(position.y()) & maskY;
+    return this->glyph(SkPackedGlyphID{glyphID, subX, subY});
+}
+
+SkSpan<SkPoint> SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
+    auto cursor = advances;
+    SkAutoSTArray<50, SkGlyph*> glyphStorage{SkTo<int>(glyphIDs.size())};
+    auto glyphs = this->metrics(glyphIDs, glyphStorage.get());
+    for (const SkGlyph* glyph : glyphs) {
+        *cursor++ = glyph->advanceVector();
     }
-    return glyph.fImage;
+    return {advances, glyphIDs.size()};
+}
+
+SkSpan<const SkGlyph*> SkStrike::prepareImages(
+        SkSpan<const SkGlyphID> glyphIDs, SkGlyph* results[]) {
+    auto glyphs = this->metrics(glyphIDs, results);
+    for (auto glyph : glyphs) {
+        this->ensureImage(glyph);
+    }
+
+    return {(const SkGlyph**)results, glyphIDs.size()};
+}
+
+SkGlyph* SkStrike::lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID) {
+    return this->glyph(packedGlyphID);
+}
+
+const void* SkStrike::ensureImage(SkGlyph* glyph) {
+    if (!glyph->imageIsInitialized()) {
+        glyph->ensureImage(fScalerContext.get(), &fAlloc);
+        fMemoryUsed += glyph->imageSize();
+    }
+    return glyph->image();
 }
 
 void SkStrike::initializeImage(const volatile void* data, size_t size, SkGlyph* glyph) {
@@ -159,26 +197,13 @@ void SkStrike::initializeImage(const volatile void* data, size_t size, SkGlyph* 
     }
 }
 
-const SkPath* SkStrike::findPath(const SkGlyph& glyph) {
-
-    if (!glyph.isEmpty()) {
-        // If the path already exists, return it.
-        if (glyph.fPathData != nullptr) {
-            if (glyph.fPathData->fHasPath) {
-                return &glyph.fPathData->fPath;
-            }
-            return nullptr;
+const SkPath* SkStrike::ensurePath(SkGlyph* glyph) {
+    if (!glyph->pathIsInitialized()) {
+        if (glyph->ensurePath(fScalerContext.get(), &fAlloc) != nullptr) {
+            fMemoryUsed += glyph->pathSize();
         }
-
-        const_cast<SkGlyph&>(glyph).addPath(fScalerContext.get(), &fAlloc);
-        if (glyph.fPathData != nullptr) {
-            fMemoryUsed += compute_path_size(glyph.fPathData->fPath);
-        }
-
-        return glyph.path();
     }
-
-    return nullptr;
+    return glyph->path();
 }
 
 bool SkStrike::initializePath(SkGlyph* glyph, const volatile void* data, size_t size) {
@@ -228,13 +253,7 @@ SkVector SkStrike::rounding() const {
 }
 
 const SkGlyph& SkStrike::getGlyphMetrics(SkGlyphID glyphID, SkPoint position) {
-    if (!fIsSubpixel) {
-        return this->getGlyphIDMetrics(glyphID);
-    } else {
-        SkIPoint lookupPosition = SkStrikeCommon::SubpixelLookup(fAxisAlignment, position);
-
-        return this->getGlyphIDMetrics(glyphID, lookupPosition.x(), lookupPosition.y());
-    }
+    return *this->glyph(glyphID, position);
 }
 
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
@@ -245,29 +264,26 @@ SkSpan<const SkGlyphPos> SkStrike::prepareForDrawing(const SkGlyphID glyphIDs[],
                                                      int maxDimension,
                                                      PreparationDetail detail,
                                                      SkGlyphPos result[]) {
+
+    auto g = SkSpan<const SkGlyphID>{glyphIDs, n};
+    auto drawables = this->metricsWithoutEmpty(g, positions, result);
+
     size_t drawableGlyphCount = 0;
-    for (size_t i = 0; i < n; i++) {
-        SkPoint position = positions[i];
-        if (SkScalarsAreFinite(position.x(), position.y())) {
-            // This assumes that the strike has no sub-pixel positioning for glyphs that are
-            // transformed from source space to device space.
-            const SkGlyph& glyph = this->getGlyphMetrics(glyphIDs[i], position);
-            if (!glyph.isEmpty()) {
-                result[drawableGlyphCount++] = {i, &glyph, position};
-                if (glyph.maxDimension() <= maxDimension) {
-                    // Glyph fits in the atlas, good to go.
-                    if (detail == SkStrikeInterface::kImageIfNeeded) {
-                        this->findImage(glyph);
-                    }
-                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
-                    // The out of atlas glyph is not color so we can draw it using paths.
-                    this->findPath(glyph);
-                } else {
-                    // This will be handled by the fallback strike.
-                    SkASSERT(glyph.maxDimension() > maxDimension
-                             && glyph.fMaskFormat == SkMask::kARGB32_Format);
-                }
+    for (auto glyphPos : drawables) {
+        result[drawableGlyphCount++] = glyphPos;
+        SkGlyph* glyph = glyphPos.glyph;
+        if (glyph->maxDimension() <= maxDimension) {
+            // The glyph fits; ensure the image if needed.
+            if (detail == SkStrikeInterface::kImageIfNeeded) {
+                this->ensureImage(glyph);
             }
+        } else if (glyph->fMaskFormat != SkMask::kARGB32_Format) {
+            // The out of atlas glyph is not color so we can draw it using paths.
+            this->ensurePath(glyph);
+        } else {
+            // This will be handled by the fallback strike.
+            SkASSERT(glyph->maxDimension() > maxDimension
+                     && glyph->fMaskFormat == SkMask::kARGB32_Format);
         }
     }
 
@@ -296,9 +312,6 @@ void SkStrike::dump() const {
     SkDebugf("%s\n", msg.c_str());
 }
 
-void SkStrike::generatePath(const SkGlyph& glyph) {
-    if (!glyph.isEmpty()) { this->findPath(glyph); }
-}
 
 void SkStrike::onAboutToExitScope() { }
 
@@ -308,7 +321,7 @@ void SkStrike::forceValidate() const {
     fGlyphMap.foreach ([&memoryUsed](const SkGlyph* glyphPtr) {
         memoryUsed += sizeof(SkGlyph);
         if (glyphPtr->fImage) {
-            memoryUsed += glyphPtr->computeImageSize();
+            memoryUsed += glyphPtr->imageSize();
         }
         if (glyphPtr->fPathData) {
             memoryUsed += compute_path_size(glyphPtr->fPathData->fPath);
