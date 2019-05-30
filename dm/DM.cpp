@@ -28,6 +28,7 @@
 #include "src/core/SkTaskGroup.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
+#include "tools/AutoreleasePool.h"
 #include "tools/HashAndEncode.h"
 #include "tools/ProcStats.h"
 #include "tools/Resources.h"
@@ -1021,6 +1022,7 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
 static bool gather_sinks(const GrContextOptions& grCtxOptions, bool defaultConfigs) {
     SkCommandLineConfigArray configs;
     ParseConfigs(FLAGS_config, &configs);
+    AutoreleasePool pool;
     for (int i = 0; i < configs.count(); i++) {
         const SkCommandLineConfig& config = *configs[i];
         Sink* sink = create_sink(grCtxOptions, &config);
@@ -1094,6 +1096,7 @@ struct Task {
     const TaggedSink& sink;
 
     static void Run(const Task& task) {
+        AutoreleasePool pool;
         SkString name = task.src->name();
 
         SkString log;
@@ -1364,6 +1367,7 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
     } reporter;
 
     if (!FLAGS_dryRun && !is_blacklisted("_", "tests", "_", test.name)) {
+        AutoreleasePool pool;
         GrContextOptions options = grCtxOptions;
         test.modifyGrContextOptions(&options);
 
@@ -1489,7 +1493,7 @@ int main(int argc, char** argv) {
         // A non-zero return code does not make it to Swarming
         // An abort does.
 #ifdef SK_BUILD_FOR_IOS
-        SK_ABORT("There were failures!");
+//        SK_ABORT("There were failures!");
 #endif
         return 1;
     }

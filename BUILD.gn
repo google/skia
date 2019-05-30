@@ -1591,6 +1591,13 @@ if (skia_enable_tools) {
     libs = []
     if (is_ios) {
       sources += [ "tools/ios_utils.m" ]
+      sources += [ "tools/ios_utils.h" ]
+      sources += [ "tools/AutoreleasePool.mm" ]
+      sources += [ "tools/AutoreleasePool.h" ]
+      libs += [ "Foundation.framework" ]
+    } else if (is_mac) {
+      sources += [ "tools/AutoreleasePool.mm" ]
+      sources += [ "tools/AutoreleasePool.h" ]
       libs += [ "Foundation.framework" ]
     } else if (is_win) {
       libs += [ "DbgHelp.lib" ]
