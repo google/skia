@@ -80,12 +80,12 @@ static void expand_bits(INT_TYPE* dst,
     }
 }
 
-static bool get_packed_glyph_image(SkStrike* cache, const SkGlyph& glyph, int width,
+static bool get_packed_glyph_image(SkStrike* cache, SkGlyph* glyph, int width,
                                    int height, int dstRB, GrMaskFormat expectedMaskFormat,
                                    void* dst, const SkMasks& masks) {
-    SkASSERT(glyph.fWidth == width);
-    SkASSERT(glyph.fHeight == height);
-    const void* src = cache->findImage(glyph);
+    SkASSERT(glyph->fWidth == width);
+    SkASSERT(glyph->fHeight == height);
+    const void* src = cache->ensureImage(glyph);
     if (nullptr == src) {
         return false;
     }
@@ -93,7 +93,7 @@ static bool get_packed_glyph_image(SkStrike* cache, const SkGlyph& glyph, int wi
     // Convert if the glyph uses a 565 mask format since it is using LCD text rendering but the
     // expected format is 8888 (will happen on macOS with Metal since that combination does not
     // support 565).
-    if (kA565_GrMaskFormat == GrGlyph::FormatFromSkGlyph(glyph) &&
+    if (kA565_GrMaskFormat == GrGlyph::FormatFromSkGlyph(*glyph) &&
         kARGB_GrMaskFormat == expectedMaskFormat) {
         const int a565Bpp = GrMaskFormatBytesPerPixel(kA565_GrMaskFormat);
         const int argbBpp = GrMaskFormatBytesPerPixel(kARGB_GrMaskFormat);
@@ -116,7 +116,7 @@ static bool get_packed_glyph_image(SkStrike* cache, const SkGlyph& glyph, int wi
     // crbug:510931
     // Retrieving the image from the cache can actually change the mask format.  This case is very
     // uncommon so for now we just draw a clear box for these glyphs.
-    if (GrGlyph::FormatFromSkGlyph(glyph) != expectedMaskFormat) {
+    if (GrGlyph::FormatFromSkGlyph(*glyph) != expectedMaskFormat) {
         const int bpp = GrMaskFormatBytesPerPixel(expectedMaskFormat);
         for (int y = 0; y < height; y++) {
             sk_bzero(dst, width * bpp);
@@ -125,11 +125,11 @@ static bool get_packed_glyph_image(SkStrike* cache, const SkGlyph& glyph, int wi
         return true;
     }
 
-    int srcRB = glyph.rowBytes();
+    int srcRB = glyph->rowBytes();
     // The windows font host sometimes has BW glyphs in a non-BW strike. So it is important here to
     // check the glyph's format, not the strike's format, and to be able to convert to any of the
     // GrMaskFormats.
-    if (SkMask::kBW_Format == glyph.fMaskFormat) {
+    if (SkMask::kBW_Format == glyph->fMaskFormat) {
         // expand bits to our mask type
         const uint8_t* bits = reinterpret_cast<const uint8_t*>(src);
         switch (expectedMaskFormat) {
@@ -215,7 +215,7 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
     }
     SkAutoSMalloc<1024> storage(size);
 
-    const SkGlyph& skGlyph = skStrikeCache->getGlyphIDMetrics(glyph->fPackedID);
+    SkGlyph* skGlyph = skStrikeCache->glyph(glyph->fPackedID);
     void* dataPtr = storage.get();
     if (addPad) {
         sk_bzero(dataPtr, size);
