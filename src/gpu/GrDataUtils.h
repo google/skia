@@ -15,11 +15,14 @@
 bool GrFillBufferWithColor(GrPixelConfig config, int width, int height,
                            const SkColor4f& color, void* dest);
 
-// TODO: consolidate all the backend-specific flavors of this method to this
-size_t GrETC1CompressedDataSize(int w, int h);
+struct ETC1Block {
+    uint32_t fHigh;
+    uint32_t fLow;
+};
 
-// Fill in 'dest' with ETC1 blocks derived from 'color'
-void GrFillInETC1WithColor(int width, int height,
-                           const SkColor4f& color, void* dest);
+int GrNumETC1Blocks(int w, int h);
+
+// Fill in 'blocks' with ETC1 blocks derived from 'color'
+void GrFillInETC1WithColor(const SkColor4f& color, void* blocks, int numBlocks);
 
 #endif
