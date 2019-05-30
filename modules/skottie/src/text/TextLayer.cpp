@@ -289,9 +289,8 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
     }
 
     const skjson::ArrayValue* animated_props = (*jt)["a"];
-    if (animated_props && animated_props->size() > 0) {
-        this->log(Logger::Level::kWarning, nullptr, "Unsupported animated text properties.");
-    }
+    const auto has_animators = (animated_props && animated_props->size() > 0);
+    // TODO: actually parse/implement animators.
 
     const skjson::ObjectValue* jd  = (*jt)["d"];
     if (!jd) {
@@ -299,7 +298,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
     }
 
     auto text_root = sksg::Group::Make();
-    auto adapter   = sk_make_sp<TextAdapter>(text_root);
+    auto adapter   = sk_make_sp<TextAdapter>(text_root, has_animators);
 
     this->bindProperty<TextValue>(*jd, ascope, [adapter] (const TextValue& txt) {
         adapter->setText(txt);
