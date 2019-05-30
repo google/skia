@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dce612b7_51c09c9a",
+        "filename": "tests/SkParagraphTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-05-30T20:44:07Z",
+      "side": 1,
+      "message": "does dirent.h exist for all OSes?  This is why we have src/core/SkOSFile.h",
+      "revId": "289ade8ecda031984a648d8e21192adea10e56db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b82aee19_7de3fd54",
+        "filename": "tests/SkParagraphTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2920,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-05-30T20:44:07Z",
+      "side": 1,
+      "message": "Why not\n\n    const char str[] \u003d \"p〠q\";\n?",
+      "revId": "289ade8ecda031984a648d8e21192adea10e56db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
