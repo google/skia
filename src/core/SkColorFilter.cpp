@@ -405,7 +405,7 @@ public:
         } else {
             struct InterpreterCtx : public SkRasterPipeline_CallbackCtx {
                 SkSL::ByteCodeFunction* main;
-                std::unique_ptr<SkSL::Interpreter> interpreter;
+                std::unique_ptr<SkSL::VecInterpreter> interpreter;
                 const void* inputs;
             };
             auto ctx = rec.fAlloc->make<InterpreterCtx>();
@@ -421,13 +421,14 @@ public:
             }
             std::unique_ptr<SkSL::ByteCode> byteCode = c.toByteCode(*prog);
             ctx->main = byteCode->fFunctions[0].get();
-            ctx->interpreter.reset(new SkSL::Interpreter(std::move(prog), std::move(byteCode),
-                                                         (SkSL::Interpreter::Value*) ctx->inputs));
+            ctx->interpreter.reset(new SkSL::VecInterpreter(
+                    std::move(prog), std::move(byteCode),
+                    (SkSL::VecInterpreter::SValue*) ctx->inputs));
             ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
                 auto ctx = (InterpreterCtx*)arg;
-                for (int i = 0; i < active_pixels; i++) {
+                for (int i = 0; i < active_pixels; i += 4) {
                     ctx->interpreter->run(*ctx->main,
-                                          (SkSL::Interpreter::Value*) (ctx->rgba + i * 4),
+                                          (SkSL::VecInterpreter::SValue*) (ctx->rgba + i * 4),
                                           nullptr);
                 }
             };
