@@ -714,11 +714,8 @@ struct PositionedGlyph {
 static SkRect get_glyph_bounds_device_space(SkGlyphID gid, SkStrike* cache,
                                             SkScalar xScale, SkScalar yScale,
                                             SkPoint xy, const SkMatrix& ctm) {
-    const SkGlyph& glyph = cache->getGlyphIDMetrics(gid);
-    SkRect glyphBounds = {glyph.fLeft * xScale,
-                          glyph.fTop * yScale,
-                          (glyph.fLeft + glyph.fWidth) * xScale,
-                          (glyph.fTop + glyph.fHeight) * yScale};
+    SkGlyph* glyph = cache->glyph(gid);
+    SkRect glyphBounds = SkMatrix::MakeScale(xScale, yScale).mapRect(glyph->rect());
     glyphBounds.offset(xy);
     ctm.mapRect(&glyphBounds); // now in dev space.
     return glyphBounds;
@@ -778,12 +775,12 @@ static bool needs_new_font(SkPDFFont* font, SkGlyphID gid, SkStrike* cache,
     if (fontType == SkAdvancedTypefaceMetrics::kOther_Font) {
         return false;
     }
-    const SkGlyph& glyph = cache->getGlyphIDMetrics(gid);
-    if (glyph.isEmpty()) {
+    SkGlyph* glyph = cache->glyph(gid);
+    if (glyph->isEmpty()) {
         return false;
     }
 
-    bool bitmapOnly = nullptr == cache->findPath(glyph);
+    bool bitmapOnly = nullptr == cache->ensurePath(glyph);
     bool convertedToType3 = (font->getType() == SkAdvancedTypefaceMetrics::kOther_Font);
     return convertedToType3 != bitmapOnly;
 }
