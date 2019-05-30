@@ -10,11 +10,6 @@
 #include "include/private/GrColor.h"
 #include "src/core/SkUtils.h"
 
-struct ETC1Block {
-    uint32_t fHigh;
-    uint32_t fLow;
-};
-
 static const int kNumModifierTables = 8;
 static const int kNumPixelIndices = 4;
 
@@ -93,7 +88,7 @@ static void create_etc1_block(SkColor col, ETC1Block* block) {
     }
 }
 
-static int num_ETC1_blocks(int w, int h) {
+int GrNumETC1Blocks(int w, int h) {
     if (w < 4) {
         w = 1;
     } else {
@@ -111,19 +106,11 @@ static int num_ETC1_blocks(int w, int h) {
     return w * h;
 }
 
-size_t GrETC1CompressedDataSize(int width, int height) {
-    int numBlocks = num_ETC1_blocks(width, height);
-
-    return numBlocks * sizeof(ETC1Block);
-}
-
-void GrFillInETC1WithColor(int width, int height, const SkColor4f& colorf, void* dest) {
+void GrFillInETC1WithColor(const SkColor4f& colorf, void* dest, int numBlocks) {
     SkColor color = colorf.toSkColor();
 
     ETC1Block block;
     create_etc1_block(color, &block);
-
-    int numBlocks = num_ETC1_blocks(width, height);
 
     for (int i = 0; i < numBlocks; ++i) {
         ((ETC1Block*)dest)[i] = block;

@@ -1097,7 +1097,7 @@ static bool allocate_and_populate_compressed_texture(GrPixelConfig config,
                                                      const GrMipLevel texels[], int mipLevelCount,
                                                      int baseWidth, int baseHeight) {
     CLEAR_ERROR_BEFORE_ALLOC(&interface);
-    SkASSERT(GrGLFormatIsCompressed(internalFormat));
+    SkASSERT(GrPixelConfigIsCompressed(config));
 
     bool useTexStorage = caps.isConfigTexSupportEnabled(config);
     // We can only use TexStorage if we know we will not later change the storage requirements.
@@ -1131,8 +1131,7 @@ static bool allocate_and_populate_compressed_texture(GrPixelConfig config,
 
                 // Make sure that the width and height that we pass to OpenGL
                 // is a multiple of the block size.
-                size_t dataSize = GrGLFormatCompressedDataSize(internalFormat,
-                                                               currentWidth, currentHeight);
+                size_t dataSize = GrCompressedFormatDataSize(config, currentWidth, currentHeight);
                 GR_GL_CALL(&interface, CompressedTexSubImage2D(target,
                                                                currentMipLevel,
                                                                0, // left
@@ -1158,7 +1157,7 @@ static bool allocate_and_populate_compressed_texture(GrPixelConfig config,
 
             // Make sure that the width and height that we pass to OpenGL
             // is a multiple of the block size.
-            size_t dataSize = GrGLFormatCompressedDataSize(internalFormat, baseWidth, baseHeight);
+            size_t dataSize = GrCompressedFormatDataSize(config, baseWidth, baseHeight);
 
             GL_ALLOC_CALL(&interface,
                           CompressedTexImage2D(target,
@@ -1631,7 +1630,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     GrGLenum glFormat = this->glCaps().configSizedInternalFormat(desc.fConfig);
 
     bool performClear = (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
-                        !GrGLFormatIsCompressed(glFormat);
+                        !GrPixelConfigIsCompressed(desc.fConfig);
 
     GrMipLevel zeroLevel;
     std::unique_ptr<uint8_t[]> zeros;
@@ -1852,8 +1851,6 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
         return false;
     }
 
-    info->fFormat = this->glCaps().configSizedInternalFormat(desc.fConfig);
-
     this->bindTextureToScratchUnit(info->fTarget, info->fID);
 
     if (GrRenderable::kYes == renderable && this->glCaps().textureUsageSupport()) {
@@ -1866,7 +1863,7 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
     *initialTexParams = set_initial_texture_params(this->glInterface(), *info);
 
     bool success = false;
-    if (GrGLFormatIsCompressed(info->fFormat)) {
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
         SkASSERT(GrRenderable::kNo == renderable);
 
         success = this->uploadCompressedTexData(desc.fConfig, desc.fWidth, desc.fHeight,
@@ -1881,6 +1878,7 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
         GL_CALL(DeleteTextures(1, &(info->fID)));
         return false;
     }
+    info->fFormat = this->glCaps().configSizedInternalFormat(desc.fConfig);
     return true;
 }
 
@@ -4101,14 +4099,14 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
 
     SkAutoMalloc pixelStorage;
 
-    if (GrGLFormatIsCompressed(*glFormat)) {
+    if (GrPixelConfigIsCompressed(config)) {
         // we have to do something special for compressed textures
         SkASSERT(0 == rowBytes);
 
         if (!pixels) {
-            size_t etc1Size = GrGLFormatCompressedDataSize(*glFormat, w, h);
-            pixelStorage.reset(etc1Size);
-            GrFillInETC1WithColor(w, h, colorf, pixelStorage.get());
+            int numBlocks = GrNumETC1Blocks(w, h);
+            pixelStorage.reset(numBlocks * sizeof(ETC1Block));
+            GrFillInETC1WithColor(colorf, pixelStorage.get(), numBlocks);
             pixels = pixelStorage.get();
             rowBytes = 0;
         }
