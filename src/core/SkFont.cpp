@@ -210,17 +210,13 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
 }
 
 static void set_bounds(const SkGlyph& g, SkRect* bounds) {
-    bounds->set(SkIntToScalar(g.fLeft),
-                SkIntToScalar(g.fTop),
-                SkIntToScalar(g.fLeft + g.fWidth),
-                SkIntToScalar(g.fTop + g.fHeight));
+    *bounds = g.rect();
 }
 
 static void join_bounds_x(const SkGlyph& g, SkRect* bounds, SkScalar dx) {
-    bounds->join(SkIntToScalar(g.fLeft) + dx,
-                 SkIntToScalar(g.fTop),
-                 SkIntToScalar(g.fLeft + g.fWidth) + dx,
-                 SkIntToScalar(g.fTop + g.fHeight));
+    SkRect r = g.rect();
+    r.offset(dx, 0);
+    bounds->join(r);
 }
 
 namespace {
@@ -247,13 +243,13 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
 
     SkScalar width = 0;
     if (bounds) {
-        const SkGlyph* g = &cache->getGlyphIDMetrics(glyphs[0]);
+        SkGlyph* g = cache->glyph(glyphs[0]);
         set_bounds(*g, bounds);
-        width = g->fAdvanceX;
+        width = g->horizontalAdvance();
         for (int i = 1; i < count; ++i) {
-            g = &cache->getGlyphIDMetrics(glyphs[i]);
+            g = cache->glyph(glyphs[i]);
             join_bounds_x(*g, bounds, width);
-            width += g->fAdvanceX;
+            width += g->horizontalAdvance();
         }
     } else {
         SmallPointsArray advances{count};
@@ -278,12 +274,7 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
 }
 
 static SkRect make_bounds(const SkGlyph& g, SkScalar scale) {
-    return {
-        g.fLeft * scale,
-        g.fTop * scale,
-        (g.fLeft + g.fWidth) * scale,
-        (g.fTop + g.fHeight) * scale
-    };
+    return SkMatrix::MakeScale(scale).mapRect(g.rect());
 }
 
 template <typename HANDLER>
@@ -305,11 +296,11 @@ void SkFont::getWidthsBounds(const SkGlyphID glyphs[], int count, SkScalar width
         VisitGlyphs(*this, paint, glyphs, count, [widths, bounds]
                 (SkStrike* cache, const SkGlyphID glyphs[], int count, SkScalar scale) {
             for (int i = 0; i < count; ++i) {
-                const SkGlyph* g;
-                g = &cache->getGlyphIDMetrics(glyphs[i]);
+                SkGlyph* g;
+                g = cache->glyph(glyphs[i]);
                 bounds[i] = make_bounds(*g, scale);
                 if (widths) {
-                    widths[i] = g->fAdvanceX * scale;
+                    widths[i] = g->horizontalAdvance() * scale;
                 }
             }
         });
@@ -325,16 +316,16 @@ void SkFont::getWidthsBounds(const SkGlyphID glyphs[], int count, SkScalar width
 }
 
 void SkFont::getPos(const SkGlyphID glyphs[], int count, SkPoint pos[], SkPoint origin) const {
-
+    auto glyphIDs = SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(count)};
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this);
     auto cache = strikeSpec.findOrCreateExclusiveStrike();
-    SmallPointsArray advances{count};
-    cache->getAdvances(SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(count)}, advances.get());
+    SmallPointsArray advancesStorage{count};
+    auto advances = cache->getAdvances(glyphIDs, advancesStorage.get());
 
-    SkPoint loc = origin;
-    for (int i = 0; i < count; ++i) {
-        pos[i] = loc;
-        loc += advances[i] * strikeSpec.strikeToSourceRatio();
+    SkPoint sum = origin;
+    for (auto advance : advances) {
+        *pos++ = sum;
+        sum += advance * strikeSpec.strikeToSourceRatio();
     }
 }
 
@@ -355,14 +346,14 @@ void SkFont::getPaths(const SkGlyphID glyphs[], int count,
                       void (*proc)(const SkPath*, const SkMatrix&, void*), void* ctx) const {
     SkFont font(*this);
     SkScalar scale = font.setupForAsPaths(nullptr);
-    const SkMatrix mx = SkMatrix::MakeScale(scale, scale);
+    const SkMatrix mx = SkMatrix::MakeScale(scale);
 
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(font);
     auto exclusive = strikeSpec.findOrCreateExclusiveStrike();
     auto cache = exclusive.get();
 
     for (int i = 0; i < count; ++i) {
-        proc(cache->findPath(cache->getGlyphIDMetrics(glyphs[i])), mx, ctx);
+        proc(cache->ensurePath(cache->glyph(glyphs[i])), mx, ctx);
     }
 }
 
