@@ -1,0 +1,38 @@
+[
+  {
+    "cmd": [
+      "python",
+      "[START_DIR]/skia/infra/bots/g3_compile/trigger_wait_g3_task.py",
+      "--issue",
+      "1234",
+      "--patchset",
+      "1"
+    ],
+    "name": "Trigger and wait for g3 compile task",
+    "~followup_annotations": [
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cat",
+      "gs://g3-compile-tasks/1234-1.json"
+    ],
+    "name": "Get cl link",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"cl\": \"cl/12345\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@STEP_LINK@CL link@cl/12345@@@"
+    ]
+  },
+  {
+    "failure": {
+      "failure": {},
+      "humanReason": "Step('Trigger and wait for g3 compile task') (retcode: 1)"
+    },
+    "name": "$result"
+  }
+]
