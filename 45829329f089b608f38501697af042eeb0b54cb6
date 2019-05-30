@@ -22,6 +22,30 @@
       "revId": "45829329f089b608f38501697af042eeb0b54cb6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78f285e2_6c04a28c",
+        "filename": "src/skvm/SkVM.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-30T17:33:27Z",
+      "side": 1,
+      "message": "Yeah, sizeof...(arg) is another fun one.\n\nWhile this is a cute bit of syntax sugar, I don\u0027t think it\u0027s going to stick around long term.\nI think we\u0027ll want to pass non-strided arguments too, or arguments whose stride isn\u0027t the same as sizeof().",
+      "parentUuid": "afa391f6_f9a99f6c",
+      "range": {
+        "startLine": 70,
+        "startChar": 33,
+        "endLine": 70,
+        "endChar": 48
+      },
+      "revId": "45829329f089b608f38501697af042eeb0b54cb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
