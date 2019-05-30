@@ -404,6 +404,10 @@ public:
 
     using ReadPixelsCallback = SkSurface::ReadPixelsCallback;
     using ReadPixelsContext = SkSurface::ReadPixelsContext;
+    using RescaleGamme = SkSurface::RescaleGamma;
+    using Planes = SkSurface::Planes;
+    using Subsampling = SkSurface::Subsampling;
+
     /**
      * Performs an asynchronous read (if possible) into a transfer buffer and then calls callback
      * with context. If asynchronous reads are not supported then this is done as a synchronous
@@ -416,9 +420,15 @@ public:
      * Like asyncReadPixels but first rescales the contents before read back.
      */
     void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
-                                   SkSurface::RescaleGamma rescaleGamma,
+                                   RescaleGamma rescaleGamma,
                                    SkFilterQuality rescaleQuality, ReadPixelsCallback callback,
                                    ReadPixelsContext context);
+                                   ReadPixelsContext context) override;
+    void asyncRescaleAndReadPixelsYUV(SkYUVColorSpace yuvColorSpace, Planes planes,
+                                      Subsampling subsampling, sk_sp<SkColorSpace> dstColorSpace,
+                                      SkIRect& srcRect, int dstW, int dstH, RescaleGamma rescaleGamma,
+                                      SkFilterQuality rescaleQuality,
+                                      RescaleAndReadCallbackYUV callback, ReadPixelsContext context);
 
     /**
      * After this returns any pending surface IO will be issued to the backend 3D API and

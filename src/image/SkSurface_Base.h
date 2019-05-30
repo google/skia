@@ -56,6 +56,14 @@ public:
                                              SkFilterQuality rescaleQuality,
                                              ReadPixelsCallback callback,
                                              ReadPixelsContext context);
+    /**
+     * Default implementation does a rescale/read/yuv conversion and then calls the callback.
+     */
+    virtual void onAsyncRescaleAndReadPixelsYUV(SkYUVColorSpace yuvColorSpace, Planes planes,
+                                                Subsampling subsampling, sk_sp<SkColorSpace> dstColorSpace,
+                                                SkIRect& srcRect, int dstW, int dstH, RescaleGamma rescaleGamma,
+                                                SkFilterQuality rescaleQuality,
+                                                RescaleAndReadCallbackYUV callback, ReadPixelsContext context);
 
     /**
      *  Default implementation:

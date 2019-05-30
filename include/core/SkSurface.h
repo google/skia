@@ -711,6 +711,55 @@ public:
                                    RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
                                    ReadPixelsCallback callback, ReadPixelsContext context);
 
+
+    enum class Planes {
+        /** Three separate planes for each of Y, U, and V. */
+        kY_U_V,
+        /** Two separate planes: One for Y and one for interleaved U and V. */
+        kY_UV,
+        /** One plane containing interleaved Y, U, and V. */
+        kYUV_Plane,
+    };
+    enum class Subsampling {
+        /** One U and V value for each Y value. */
+        kNotSubsampled,
+        /** U/V plane(s) are half as wide as Y plane (422). Disallowed with kYUV_Plane. */
+        kSubsampledX,
+        /**
+         * U/V plane(s) are half as wide and half as tall as Y plane (420).
+         * Disallowed with kYUV_Plane.
+         */
+        kSubsampeledXAndY
+    };
+
+    using RescaleAndReadCallbackYUV = void(RescaleAndReadContext, void* data[3],
+                                           size_t rowBytes[3]);
+    /**
+     * Similar to asyncRescaleAndReadPixels but performs an additional conversion to YUV. The
+     * RGB->YUV conversion is controlled by 'yuvColorSpace'. The YUV data is always 8 bit per
+     * channel and subsampling and interleaved vs planar as described by 'planes' and 'subsampling'.
+     * 'callback' receives 1 to 3 data and rowbytes values depending upon the value of 'planes'.
+     *
+     * On failure the callback is called with a null data pointer array.
+     *
+     * @param yuvColorSpace
+     * @param planes
+     * @param subsampling
+     * @param dstColorSpace
+     * @param srcRect
+     * @param dstW
+     * @param dstH
+     * @param rescaleGamma
+     * @param rescaleQuality
+     * @param callback
+     */
+    void asyncRescaleAndReadPixelsYUV(SkYUVColorSpace yuvColorSpace, Planes planes,
+                                      Subsampling subsampling, sk_sp<SkColorSpace> dstColorSpace,
+                                      SkIRect& srcRect, int dstW, int dstH,  RescaleGamma rescaleGamma,
+                                      SkFilterQuality rescaleQuality,
+                                      RescaleAndReadCallbackYUV callback, ReadPixelsContext);
+
+
     /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
 
         Source SkRect corners are (0, 0) and (src.width(), src.height()).

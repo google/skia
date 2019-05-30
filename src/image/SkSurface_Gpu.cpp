@@ -133,12 +133,21 @@ void SkSurface_Gpu::onWritePixels(const SkPixmap& src, int x, int y) {
 }
 
 void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
-                                                SkSurface::RescaleGamma rescaleGamma,
+                                                RescaleGamma rescaleGamma,
                                                 SkFilterQuality rescaleQuality,
-                                                SkSurface::ReadPixelsCallback callback,
-                                                SkSurface::ReadPixelsContext context) {
-    auto* rtc = static_cast<SkSurface_Gpu*>(this)->fDevice->accessRenderTargetContext();
+                                                ReadPixelsCallback callback,
+                                                ReadPixelsContext context) {
+    auto* rtc = this->fDevice->accessRenderTargetContext();
     rtc->asyncRescaleAndReadPixels(info, srcRect, rescaleGamma, rescaleQuality, callback, context);
+}
+
+void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV(SkYUVColorSpace yuvColorSpace, Planes planes,
+                                                   Subsampling subsampling, sk_sp<SkColorSpace> dstColorSpace,
+                                                   SkIRect& srcRect, int dstW, int dstH, RescaleGamma rescaleGamma,
+                                                   SkFilterQuality rescaleQuality,
+                                                   RescaleAndReadCallbackYUV callback, ReadPixelsContext context) {
+    auto* rtc = this->fDevice->accessRenderTargetContext();
+    rtc->asyncRescaleAndReadPixelsYUV(yuvColorSpace, planes, subsampling, std::move(dstColorSpace), srcRect, dstW, dstH, rescaleGamma, rescaleQuality, callback, context);
 }
 
 // Create a new render target and, if necessary, copy the contents of the old

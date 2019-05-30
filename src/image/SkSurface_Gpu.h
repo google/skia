@@ -36,6 +36,12 @@ public:
                                      RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
                                      ReadPixelsCallback callback,
                                      ReadPixelsContext context) override;
+    void onAsyncRescaleAndReadPixelsYUV(SkYUVColorSpace yuvColorSpace, Planes planes,
+                                        Subsampling subsampling, sk_sp<SkColorSpace> dstColorSpace,
+                                        SkIRect& srcRect, int dstW, int dstH, RescaleGamma rescaleGamma,
+                                        SkFilterQuality rescaleQuality,
+                                        RescaleAndReadCallbackYUV callback, ReadPixelsContext context);
+
     void onCopyOnWrite(ContentChangeMode) override;
     void onDiscard() override;
     GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo& info) override;
