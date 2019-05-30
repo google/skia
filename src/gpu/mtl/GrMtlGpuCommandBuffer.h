@@ -96,7 +96,7 @@ private:
 
     void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override;
 
-    MTLRenderPassDescriptor* createRenderPassDesc() const;
+    MTLRenderPassDescriptor* createRenderPassDesc() const __attribute__((ns_returns_retained));
 
     void bindGeometry(const GrBuffer* vertexBuffer, const GrBuffer* instanceBuffer);
 

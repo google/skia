@@ -738,6 +738,7 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlTextureRenderTarget.mm",
   "$_src/gpu/mtl/GrMtlTrampoline.h",
   "$_src/gpu/mtl/GrMtlTrampoline.mm",
+  "$_src/gpu/mtl/GrMtlTypes.mm",
   "$_src/gpu/mtl/GrMtlUniformHandler.h",
   "$_src/gpu/mtl/GrMtlUniformHandler.mm",
   "$_src/gpu/mtl/GrMtlUtil.h",

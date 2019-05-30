@@ -252,7 +252,8 @@ void GrBackendTexture::cleanup() {
 #endif
 }
 
-GrBackendTexture::GrBackendTexture(const GrBackendTexture& that) : fIsValid(false) {
+GrBackendTexture::GrBackendTexture(const GrBackendTexture& that)
+    : fIsValid(false) {
     *this = that;
 }
 
