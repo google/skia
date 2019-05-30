@@ -176,8 +176,8 @@ static const std::vector<UniformCTypeMapper>& get_mappers() {
 
     REGISTER(Layout::CType::kSkMatrix44,  { "half4x4", "float4x4", "double4x4" },
         "${pdman}.setSkMatrix44(${uniform}, ${var})",                              // to gpu
-        "SkMatrix::MakeScale(SK_FloatNaN)",                                        // default value
-        "!${oldVar}.cheapEqualTo(${newVar})"),                                     // dirty check
+        "SkMatrix44(SkMatrix44::kNaN_Constructor)",                                // default value
+        "${oldVar} != (${newVar})"),                                               // dirty check
 
     REGISTER(Layout::CType::kFloat,  { "half", "float", "double" },
         "${pdman}.set1f(${uniform}, ${var})",                                      // to gpu
