@@ -794,7 +794,7 @@ void SkScalerContext_DW::generateFontMetrics(SkFontMetrics* metrics) {
 
 #include "include/private/SkColorData.h"
 
-static void bilevel_to_bw(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph) {
+void SkScalerContext_DW::BilevelToBW(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph) {
     const int width = glyph.fWidth;
     const size_t dstRB = (width + 7) >> 3;
     uint8_t* SK_RESTRICT dst = static_cast<uint8_t*>(glyph.fImage);
@@ -833,8 +833,9 @@ static void bilevel_to_bw(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph) 
 }
 
 template<bool APPLY_PREBLEND>
-static void grayscale_to_a8(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
-                            const uint8_t* table8) {
+void SkScalerContext_DW::GrayscaleToA8(const uint8_t* SK_RESTRICT src,
+                                       const SkGlyph& glyph,
+                                       const uint8_t* table8) {
     const size_t dstRB = glyph.rowBytes();
     const U16CPU width = glyph.fWidth;
     uint8_t* SK_RESTRICT dst = static_cast<uint8_t*>(glyph.fImage);
@@ -849,7 +850,9 @@ static void grayscale_to_a8(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph
 }
 
 template<bool APPLY_PREBLEND>
-static void rgb_to_a8(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph, const uint8_t* table8) {
+void SkScalerContext_DW::RGBToA8(const uint8_t* SK_RESTRICT src,
+                                 const SkGlyph& glyph,
+                                 const uint8_t* table8) {
     const size_t dstRB = glyph.rowBytes();
     const U16CPU width = glyph.fWidth;
     uint8_t* SK_RESTRICT dst = static_cast<uint8_t*>(glyph.fImage);
@@ -866,8 +869,8 @@ static void rgb_to_a8(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph, cons
 }
 
 template<bool APPLY_PREBLEND, bool RGB>
-static void rgb_to_lcd16(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
-                         const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
+void RGBToLcd16(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
+                const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
     const size_t dstRB = glyph.rowBytes();
     const U16CPU width = glyph.fWidth;
     uint16_t* SK_RESTRICT dst = static_cast<uint16_t*>(glyph.fImage);
@@ -979,7 +982,7 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
     SkASSERT(isColorGlyph(glyph));
     SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
 
-    memset(glyph.fImage, 0, glyph.computeImageSize());
+    memset(glyph.fImage, 0, glyph.imageSize());
 
     SkTScopedComPtr<IDWriteColorGlyphRunEnumerator> colorLayers;
     getColorGlyphRun(glyph, &colorLayers);
@@ -1111,7 +1114,7 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
 
     const void* bits = this->drawDWMask(glyph, renderingMode, textureType);
     if (!bits) {
-        sk_bzero(glyph.fImage, glyph.computeImageSize());
+        sk_bzero(glyph.fImage, glyph.imageSize());
         return;
     }
 
@@ -1120,34 +1123,34 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     if (DWRITE_RENDERING_MODE_ALIASED == renderingMode) {
         SkASSERT(SkMask::kBW_Format == glyph.fMaskFormat);
         SkASSERT(DWRITE_TEXTURE_ALIASED_1x1 == textureType);
-        bilevel_to_bw(src, glyph);
+        BilevelToBW(src, glyph);
     } else if (!isLCD(fRec)) {
         if (textureType == DWRITE_TEXTURE_ALIASED_1x1) {
             if (fPreBlend.isApplicable()) {
-                grayscale_to_a8<true>(src, glyph, fPreBlend.fG);
+                GrayscaleToA8<true>(src, glyph, fPreBlend.fG);
             } else {
-                grayscale_to_a8<false>(src, glyph, fPreBlend.fG);
+                GrayscaleToA8<false>(src, glyph, fPreBlend.fG);
             }
         } else {
             if (fPreBlend.isApplicable()) {
-                rgb_to_a8<true>(src, glyph, fPreBlend.fG);
+                RGBToA8<true>(src, glyph, fPreBlend.fG);
             } else {
-                rgb_to_a8<false>(src, glyph, fPreBlend.fG);
+                RGBToA8<false>(src, glyph, fPreBlend.fG);
             }
         }
     } else {
         SkASSERT(SkMask::kLCD16_Format == glyph.fMaskFormat);
         if (fPreBlend.isApplicable()) {
             if (fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag) {
-                rgb_to_lcd16<true, false>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+                RGBToLcd16<true, false>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             } else {
-                rgb_to_lcd16<true, true>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+                RGBToLcd16<true, true>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             }
         } else {
             if (fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag) {
-                rgb_to_lcd16<false, false>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+                RGBToLcd16<false, false>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             } else {
-                rgb_to_lcd16<false, true>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+                RGBToLcd16<false, true>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             }
         }
     }
