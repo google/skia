@@ -104,7 +104,6 @@ bench_sources = [
   "$_bench/ScalarBench.cpp",
   "$_bench/ShaderMaskFilterBench.cpp",
   "$_bench/ShadowBench.cpp",
-  "$_bench/ShaperBench.cpp",
   "$_bench/ShapesBench.cpp",
   "$_bench/Sk4fBench.cpp",
   "$_bench/SkGlyphCacheBench.cpp",

@@ -39,8 +39,9 @@ if (skia_enable_skottie) {
 
       public_configs = [ ":utils_config" ]
       configs += [ "../../:skia_private" ]
+
       sources = [
-        "utils/SkottieUtils.cpp",
+          "utils/SkottieUtils.cpp",
       ]
       deps = [
         ":skottie",
