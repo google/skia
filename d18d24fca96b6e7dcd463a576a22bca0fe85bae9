@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ccb656a5_42f6561b",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1461,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-30T16:36:38Z",
+      "side": 1,
+      "message": "It get used in the follow-on CL where we have to fill the temp data with actual colors (rather than 0).",
+      "parentUuid": "f38eb0bd_a9e1e2e7",
+      "range": {
+        "startLine": 1461,
+        "startChar": 44,
+        "endLine": 1461,
+        "endChar": 54
+      },
+      "revId": "d18d24fca96b6e7dcd463a576a22bca0fe85bae9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fafc27c9_925851ec",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-05-30T16:26:22Z",
       "side": 1,
       "message": "I see it was here before, but in Vulkan this doesn\u0027t actually do anything afaik. Do we need this in this call here or other similar calls? Maybe if it is here purely to be consistent with all the backends this should be bubbled up to GrGpu and these should all be onCreateBackend* functions.",
+      "range": {
+        "startLine": 1934,
+        "startChar": 2,
+        "endLine": 1934,
+        "endChar": 31
+      },
+      "revId": "d18d24fca96b6e7dcd463a576a22bca0fe85bae9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4019bc6d_98ec506f",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1934,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-05-30T16:36:38Z",
+      "side": 1,
+      "message": "I was trying to make this method more consistent with createTestingOnlyBackendRenderTarget.",
+      "parentUuid": "fafc27c9_925851ec",
       "range": {
         "startLine": 1934,
         "startChar": 2,
