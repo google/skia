@@ -121,6 +121,10 @@ public:
     constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} {}
     static constexpr SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedGlyphID::kSubBits;
 
+    SkVector advance() const {
+        return SkVector{fAdvanceX, fAdvanceY};
+    }
+
     bool isEmpty() const { return fWidth == 0 || fHeight == 0; }
     bool isJustAdvance() const { return MASK_FORMAT_JUST_ADVANCE == fMaskFormat; }
     bool isFullMetrics() const { return MASK_FORMAT_JUST_ADVANCE != fMaskFormat; }
@@ -144,6 +148,12 @@ public:
         SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
         return fImage != nullptr;
     }
+
+    bool metricsAreInitialized() const {
+        return fMaskFormat != MASK_FORMAT_UNKNOWN;
+    }
+
+    void addMetrics(SkScalerContext* scaler);
 
     SkMask mask() const;
 
