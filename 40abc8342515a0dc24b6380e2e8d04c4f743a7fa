@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c9873ee_c31bfb45",
+        "filename": "modules/skottie/src/text/SkottieShaper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-05-30T16:46:44Z",
+      "side": 1,
+      "message": "Note: unlike ComputeBlobBounds(), Result::computeBounds() also applies the fragment offsets, which at this point are all equal to fBox.{x,y}; hence the change (new version looks cleaner/more consistent IMO).",
+      "range": {
+        "startLine": 172,
+        "startChar": 23,
+        "endLine": 172,
+        "endChar": 58
+      },
+      "revId": "40abc8342515a0dc24b6380e2e8d04c4f743a7fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
