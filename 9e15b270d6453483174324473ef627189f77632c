@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b31952a0_f7033389",
+        "filename": "modules/skparagraph/src/SkRun.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-30T20:51:08Z",
+      "side": 1,
+      "message": "feels too generic. Perhaps you should namespace all of your helper classes (see skottie and sksg for examples).",
+      "range": {
+        "startLine": 19,
+        "startChar": 6,
+        "endLine": 19,
+        "endChar": 11
+      },
+      "revId": "9e15b270d6453483174324473ef627189f77632c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
