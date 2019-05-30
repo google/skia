@@ -23,8 +23,7 @@ struct GrGlyph {
     };
 
     static GrMaskFormat FormatFromSkGlyph(const SkGlyph& glyph) {
-        SkMask::Format format = static_cast<SkMask::Format>(glyph.fMaskFormat);
-        switch (format) {
+        switch (glyph.maskFormat()) {
             case SkMask::kBW_Format:
             case SkMask::kSDF_Format:
                 // fall through to kA8 -- we store BW and SDF glyphs in our 8-bit cache
@@ -42,15 +41,8 @@ struct GrGlyph {
         }
     }
 
-    static GrIRect16 BoundsFromSkGlyph(const SkGlyph& glyph) {
-        return GrIRect16::MakeXYWH(glyph.fLeft,
-                                   glyph.fTop,
-                                   glyph.fWidth,
-                                   glyph.fHeight);
-    }
-
     static MaskStyle MaskStyleFromSkGlyph(const SkGlyph& skGlyph) {
-        return (SkMask::Format)skGlyph.fMaskFormat == SkMask::kSDF_Format
+        return skGlyph.maskFormat() == SkMask::kSDF_Format
            ? GrGlyph::MaskStyle::kDistance_MaskStyle
            : GrGlyph::MaskStyle::kCoverage_MaskStyle;
     }
@@ -59,7 +51,7 @@ struct GrGlyph {
         : fPackedID{skGlyph.getPackedID()}
         , fMaskFormat{FormatFromSkGlyph(skGlyph)}
         , fMaskStyle{MaskStyleFromSkGlyph(skGlyph)}
-        , fBounds{BoundsFromSkGlyph(skGlyph)} {}
+        , fBounds{GrIRect16::Make(skGlyph.iRect())} {}
 
 
     SkRect destRect(SkPoint origin) {
