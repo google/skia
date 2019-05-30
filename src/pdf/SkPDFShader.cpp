@@ -55,6 +55,8 @@ static SkMatrix scale_translate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar 
     return m;
 }
 
+static bool is_tiled(SkTileMode m) { return SkTileMode::kMirror == m || SkTileMode::kRepeat == m; }
+
 static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
                                                 const SkPDFImageShaderKey& key,
                                                 SkImage* image) {
@@ -81,7 +83,7 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
     // or not the main bitmap is in it.
     SkTileMode tileModesX = key.fImageTileModes[0],
                tileModesY = key.fImageTileModes[1];
-    if (tileModesX != SkTileMode::kClamp || tileModesY != SkTileMode::kClamp) {
+    if (is_tiled(tileModesX) || is_tiled(tileModesY)) {
         deviceBounds.join(bitmapBounds);
     }
 
@@ -188,6 +190,14 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
             patternBBox.fRight = deviceBounds.width();
         }
     }
+    if (tileModesX == SkTileMode::kDecal) {
+        if (deviceBounds.left() < 0) {
+            patternBBox.fLeft = 0;
+        }
+        if (deviceBounds.right() > width) {
+            patternBBox.fRight = deviceBounds.width();
+        }
+    }
 
     if (tileModesY == SkTileMode::kClamp) {
         SkASSERT(!bitmap.drawsNothing());
@@ -220,6 +230,14 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
                 bottomMatrix.postTranslate(2 * width, 0);
                 draw_bitmap_matrix(&canvas, bottom, bottomMatrix, paint);
             }
+            patternBBox.fBottom = deviceBounds.height();
+        }
+    }
+    if (tileModesY == SkTileMode::kDecal) {
+        if (deviceBounds.top() < 0) {
+            patternBBox.fTop = 0;
+        }
+        if (deviceBounds.bottom() > height) {
             patternBBox.fBottom = deviceBounds.height();
         }
     }
