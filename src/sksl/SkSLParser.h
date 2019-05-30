@@ -95,6 +95,7 @@ public:
         SKRECT,
         SKIRECT,
         SKPMCOLOR,
+        SKMATRIX44,
         BOOL,
         INT,
         FLOAT,
