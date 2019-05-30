@@ -49,8 +49,8 @@ public:
             // We could return this to the caller, but in practice it adds code complexity for
             // potentially little benefit(ie, if the glyph is not in our font cache, then its not
             // in the atlas and we're going to be doing a texture upload anyways).
-            const SkGlyph& skGlyph = skStrike->getGlyphIDMetrics(packed);
-            grGlyph = fAlloc.make<GrGlyph>(skGlyph);
+            SkGlyph* skGlyph = skStrike->glyph(packed);
+            grGlyph = fAlloc.make<GrGlyph>(*skGlyph);
             fCache.add(grGlyph);
         }
         return grGlyph;
