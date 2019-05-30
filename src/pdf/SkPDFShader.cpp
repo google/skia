@@ -38,8 +38,8 @@ static void draw_bitmap_matrix(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawBitmap(bm, 0, 0, &paint);
 }
 
-SkColor mix(SkColor c, U8CPU alpha) {
-    return SkColorSetARGB(SkMulDiv255Round(alpha, SkColorGetA(c)),
+SkColor mix(SkColor c, float alpha) {
+    return SkColorSetARGB(sk_float_round2int(SkTClamp(alpha, 0.0f, 1.0f) * SkColorGetA(c)),
                           SkColorGetR(c),
                           SkColorGetG(c),
                           SkColorGetB(c));
@@ -139,7 +139,7 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
     // (Which are just a rectangles of the corner colors.)
     if (tileModes[0] == SkTileMode::kClamp && tileModes[1] == SkTileMode::kClamp) {
         SkASSERT(!bitmap.drawsNothing());
-        U8CPU alpha = SkColorGetA(key.fPaintColor);
+        float alpha = key.fPaintColor.fA;
         SkPaint paint2;
         SkRect rect;
         rect = SkRect::MakeLTRB(deviceBounds.left(), deviceBounds.top(), 0, 0);
@@ -266,7 +266,7 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
                                                    SkShader* shader,
                                                    const SkMatrix& canvasTransform,
                                                    const SkIRect& surfaceBBox,
-                                                   SkColor paintColor) {
+                                                   SkColor4f paintColor) {
     // TODO(vandebo) This drops SKComposeShader on the floor.  We could
     // handle compose shader by pulling things up to a layer, drawing with
     // the first shader, applying the xfer mode and drawing again with the
@@ -306,9 +306,8 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorTRANSPARENT);
 
-    SkPaint p;
+    SkPaint p(paintColor);
     p.setShader(sk_ref_sp(shader));
-    p.setColor(paintColor);
 
     canvas->scale(scale.width(), scale.height());
     canvas->translate(-shaderRect.x(), -shaderRect.y());
@@ -321,21 +320,20 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
     return make_image_shader(doc, key, image.get());
 }
 
-static SkColor adjust_color(SkShader* shader, SkColor paintColor) {
+static SkColor4f adjust_color(SkShader* shader, SkColor4f paintColor) {
     if (SkImage* img = shader->isAImage(nullptr, (SkTileMode*)nullptr)) {
         if (img->isAlphaOnly()) {
             return paintColor;
         }
     }
-    // only preserve the alpha.
-    return paintColor & SK_ColorBLACK;
+    return SkColor4f{0, 0, 0, paintColor.fA};  // only preserve the alpha.
 }
 
 SkPDFIndirectReference SkPDFMakeShader(SkPDFDocument* doc,
                                        SkShader* shader,
                                        const SkMatrix& canvasTransform,
                                        const SkIRect& surfaceBBox,
-                                       SkColor paintColor) {
+                                       SkColor4f paintColor) {
     SkASSERT(shader);
     SkASSERT(doc);
     if (SkShader::kNone_GradientType != shader->asAGradient(nullptr)) {
