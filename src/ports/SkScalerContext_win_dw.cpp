@@ -979,7 +979,7 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
     SkASSERT(isColorGlyph(glyph));
     SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
 
-    memset(glyph.fImage, 0, glyph.computeImageSize());
+    memset(glyph.fImage, 0, glyph.imageSize());
 
     SkTScopedComPtr<IDWriteColorGlyphRunEnumerator> colorLayers;
     getColorGlyphRun(glyph, &colorLayers);
@@ -1111,7 +1111,7 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
 
     const void* bits = this->drawDWMask(glyph, renderingMode, textureType);
     if (!bits) {
-        sk_bzero(glyph.fImage, glyph.computeImageSize());
+        sk_bzero(glyph.fImage, glyph.imageSize());
         return;
     }
 
