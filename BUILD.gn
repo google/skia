@@ -1680,6 +1680,7 @@ if (skia_enable_tools) {
       ":skia",
       ":tool_utils",
       "modules/skottie:tests",
+      "modules/skparagraph",
       "modules/sksg:tests",
       "modules/skshaper",
       "//third_party/libpng",
@@ -1700,6 +1701,8 @@ if (skia_enable_tools) {
       ":gpu_tool_utils",
       ":skia",
       ":tool_utils",
+      "modules/skshaper",
+      "modules/skparagraph",
     ]
   }
 
@@ -1803,6 +1806,7 @@ if (skia_enable_tools) {
         ":flags",
         ":gpu_tool_utils",
         ":xml",
+        "modules/skparagraph",
         "modules/sksg",
         "modules/skshaper",
       ]
@@ -1911,6 +1915,8 @@ if (skia_enable_tools) {
       ":tool_utils",
       ":trace",
       "modules/sksg",
+      "modules/skparagraph",
+      "modules/skshaper",
     ]
   }
 
@@ -1959,6 +1965,7 @@ if (skia_enable_tools) {
     ]
     deps = [
       ":skia",
+      "modules/skparagraph",
       "modules/skshaper",
     ]
   }
