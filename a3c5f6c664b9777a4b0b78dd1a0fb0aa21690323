@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edace5df_da7c336a",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 927,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-30T16:36:31Z",
+      "side": 1,
+      "message": "Yeah, I think so. The comparisons will all return ~0 for true or 0 for false.",
+      "revId": "a3c5f6c664b9777a4b0b78dd1a0fb0aa21690323",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e52d8bf_e60c798d",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1146,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-30T16:36:31Z",
+      "side": 1,
+      "message": "We can vectorize this one, of course.",
+      "revId": "a3c5f6c664b9777a4b0b78dd1a0fb0aa21690323",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
