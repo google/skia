@@ -23,18 +23,78 @@
 #include "src/pdf/SkPDFResourceDict.h"
 #include "src/pdf/SkPDFUtils.h"
 
+namespace {
+struct Drawable {
+    virtual ~Drawable() = default;
+    virtual SkSize size() const = 0;
+    virtual void draw(SkCanvas*, SkColor4f paintColor) const = 0;
+    virtual SkBitmap bitmap() const = 0;
+};
 
-static void draw_image_matrix(SkCanvas* canvas, const SkImage* img,
-                              const SkMatrix& matrix, const SkPaint& paint) {
+struct ImageDrawable : public Drawable {
+    const SkImage& fImage;
+    ImageDrawable(const SkImage& i) : fImage(i) {}
+    SkSize size() const override { return SkSize::Make(fImage.dimensions()); }
+    void draw(SkCanvas* canvas, SkColor4f paintColor) const override {
+        SkPaint paint(paintColor);
+        canvas->drawImage(&fImage, 0, 0, &paint);
+    }
+    SkBitmap bitmap() const override {
+        SkBitmap bitmap;
+        if (!SkPDFUtils::ToBitmap(&fImage, &bitmap)) {
+            bitmap.allocN32Pixels(fImage.width(), fImage.height());
+            bitmap.eraseColor(0x00000000);
+        }
+        return bitmap;
+    }
+};
+
+struct PictureDrawable : public Drawable {
+    const SkPicture& fPicture;
+    const SkRect fBounds;
+    PictureDrawable(const SkPicture& p, const SkRect& b) : fPicture(p), fBounds(b) {}
+    SkSize size() const override { return SkSize{fBounds.width(), fBounds.height()}; }
+    void draw(SkCanvas* canvas, SkColor4f paintColor) const override {
+        SkAutoCanvasRestore acr(canvas, false);
+        if (paintColor.fA < 1) {
+            SkPaint paint(SkColor4f{0, 0, 0, paintColor.fA});
+            canvas->saveLayer(&fBounds, &paint);
+        }
+        //canvas->clipRect(fBounds);
+        canvas->translate(-fBounds.x(), -fBounds.y());
+        canvas->drawPicture(&fPicture);
+        //SkPaint p(SkColors::kBlue);
+        //p.setStyle(SkPaint::kStroke_Style);
+        //p.setStrokeWidth(2);
+        //acr.restore();
+        //canvas->drawRect(fBounds, p);
+
+    }
+    SkBitmap bitmap() const override {
+        SkBitmap bitmap;
+        bitmap.allocN32Pixels(SkScalarFloorToInt(fBounds.width()),
+                              SkScalarFloorToInt(fBounds.height()));
+        bitmap.eraseColor(SK_ColorTRANSPARENT);
+        SkCanvas tmp(bitmap);
+        tmp.translate(-fBounds.x(), -fBounds.y());
+        tmp.drawPicture(&fPicture);
+        return bitmap;
+    }
+};
+}  // namespace
+
+static void draw_matrix(SkCanvas* canvas, const Drawable& d,
+                        const SkMatrix& matrix, SkColor4f paintColor) {
     SkAutoCanvasRestore acr(canvas, true);
     canvas->concat(matrix);
-    canvas->drawImage(img, 0, 0, &paint);
+    d.draw(canvas, paintColor);
 }
 
 static void draw_bitmap_matrix(SkCanvas* canvas, const SkBitmap& bm,
-                               const SkMatrix& matrix, const SkPaint& paint) {
+                               const SkMatrix& matrix, SkColor4f paintColor) {
     SkAutoCanvasRestore acr(canvas, true);
     canvas->concat(matrix);
+    SkPaint paint(paintColor);
     canvas->drawBitmap(bm, 0, 0, &paint);
 }
 
@@ -57,32 +117,31 @@ static SkMatrix scale_translate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar 
 
 static bool is_tiled(SkTileMode m) { return SkTileMode::kMirror == m || SkTileMode::kRepeat == m; }
 
-static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
-                                                const SkPDFImageShaderKey& key,
-                                                SkImage* image) {
-    SkASSERT(image);
 
+static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
+                                                SkMatrix finalMatrix,
+                                                SkTileMode tileModesX,
+                                                SkTileMode tileModesY,
+                                                SkRect bBox,
+                                                const Drawable& drawable,
+                                                SkColor4f paintColor) {
     // The image shader pattern cell will be drawn into a separate device
     // in pattern cell space (no scaling on the bitmap, though there may be
     // translations so that all content is in the device, coordinates > 0).
 
     // Map clip bounds to shader space to ensure the device is large enough
     // to handle fake clamping.
-    SkMatrix finalMatrix = key.fCanvasTransform;
-    finalMatrix.preConcat(key.fShaderTransform);
-    SkRect deviceBounds = SkRect::Make(key.fBBox);
+    SkRect deviceBounds = bBox;
     if (!SkPDFUtils::InverseTransformBBox(finalMatrix, &deviceBounds)) {
         return SkPDFIndirectReference();
     }
 
-    SkRect bitmapBounds = SkRect::Make(image->bounds());
+    SkRect bitmapBounds = SkRect::MakeSize(drawable.size());
 
     // For tiling modes, the bounds should be extended to include the bitmap,
     // otherwise the bitmap gets clipped out and the shader is empty and awful.
     // For clamp modes, we're only interested in the clip region, whether
     // or not the main bitmap is in it.
-    SkTileMode tileModesX = key.fImageTileModes[0],
-               tileModesY = key.fImageTileModes[1];
     if (is_tiled(tileModesX) || is_tiled(tileModesY)) {
         deviceBounds.join(bitmapBounds);
     }
@@ -92,7 +151,9 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
     auto patternDevice = sk_make_sp<SkPDFDevice>(patternDeviceSize, doc);
     SkCanvas canvas(patternDevice);
 
-    SkRect patternBBox = SkRect::Make(image->bounds());
+    SkRect patternBBox = SkRect::MakeSize(drawable.size());
+    SkScalar width = patternBBox.width();
+    SkScalar height = patternBBox.height();
 
     // Translate the canvas so that the bitmap origin is at (0, 0).
     canvas.translate(-deviceBounds.left(), -deviceBounds.top());
@@ -100,28 +161,22 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
     // Undo the translation in the final matrix
     finalMatrix.preTranslate(deviceBounds.left(), deviceBounds.top());
 
-    SkPaint paint;
-    paint.setColor(key.fPaintColor);
-
     // If the bitmap is out of bounds (i.e. clamp mode where we only see the
     // stretched sides), canvas will clip this out and the extraneous data
     // won't be saved to the PDF.
-    canvas.drawImage(image, 0, 0, &paint);
-
-    SkScalar width = SkIntToScalar(image->width());
-    SkScalar height = SkIntToScalar(image->height());
+    drawable.draw(&canvas, paintColor);
 
     // Tiling is implied.  First we handle mirroring.
     if (tileModesX == SkTileMode::kMirror) {
-        draw_image_matrix(&canvas, image, scale_translate(-1, 1, 2 * width, 0), paint);
+        draw_matrix(&canvas, drawable, scale_translate(-1, 1, 2 * width, 0), paintColor);
         patternBBox.fRight += width;
     }
     if (tileModesY == SkTileMode::kMirror) {
-        draw_image_matrix(&canvas, image, scale_translate(1, -1, 0, 2 * height), paint);
+        draw_matrix(&canvas, drawable, scale_translate(1, -1, 0, 2 * height), paintColor);
         patternBBox.fBottom += height;
     }
     if (tileModesX == SkTileMode::kMirror && tileModesY == SkTileMode::kMirror) {
-        draw_image_matrix(&canvas, image, scale_translate(-1, -1, 2 * width, 2 * height), paint);
+        draw_matrix(&canvas, drawable, scale_translate(-1, -1, 2 * width, 2 * height), paintColor);
     }
 
     // Then handle Clamping, which requires expanding the pattern canvas to
@@ -131,10 +186,7 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
     if (tileModesX == SkTileMode::kClamp || tileModesY == SkTileMode::kClamp) {
         // For now, the easiest way to access the colors in the corners and sides is
         // to just make a bitmap from the image.
-        if (!SkPDFUtils::ToBitmap(image, &bitmap)) {
-            bitmap.allocN32Pixels(image->width(), image->height());
-            bitmap.eraseColor(0x00000000);
-        }
+        bitmap = drawable.bitmap();
     }
 
     // If both x and y are in clamp mode, we start by filling in the corners.
@@ -143,16 +195,16 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
         SkASSERT(!bitmap.drawsNothing());
 
         fill_color_from_bitmap(&canvas, deviceBounds.left(), deviceBounds.top(), 0, 0,
-                               bitmap, 0, 0, key.fPaintColor.fA);
+                               bitmap, 0, 0, paintColor.fA);
 
         fill_color_from_bitmap(&canvas, width, deviceBounds.top(), deviceBounds.right(), 0,
-                               bitmap, bitmap.width() - 1, 0, key.fPaintColor.fA);
+                               bitmap, bitmap.width() - 1, 0, paintColor.fA);
 
         fill_color_from_bitmap(&canvas, width, height, deviceBounds.right(), deviceBounds.bottom(),
-                               bitmap, bitmap.width() - 1, bitmap.height() - 1, key.fPaintColor.fA);
+                               bitmap, bitmap.width() - 1, bitmap.height() - 1, paintColor.fA);
 
         fill_color_from_bitmap(&canvas, deviceBounds.left(), height, 0, deviceBounds.bottom(),
-                               bitmap, 0, bitmap.height() - 1, key.fPaintColor.fA);
+                               bitmap, 0, bitmap.height() - 1, paintColor.fA);
     }
 
     // Then expand the left, right, top, then bottom.
@@ -164,12 +216,12 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
             SkAssertResult(bitmap.extractSubset(&left, subset));
 
             SkMatrix leftMatrix = scale_translate(-deviceBounds.left(), 1, deviceBounds.left(), 0);
-            draw_bitmap_matrix(&canvas, left, leftMatrix, paint);
+            draw_bitmap_matrix(&canvas, left, leftMatrix, paintColor);
 
             if (tileModesY == SkTileMode::kMirror) {
                 leftMatrix.postScale(SK_Scalar1, -SK_Scalar1);
                 leftMatrix.postTranslate(0, 2 * height);
-                draw_bitmap_matrix(&canvas, left, leftMatrix, paint);
+                draw_bitmap_matrix(&canvas, left, leftMatrix, paintColor);
             }
             patternBBox.fLeft = 0;
         }
@@ -180,12 +232,12 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
             SkAssertResult(bitmap.extractSubset(&right, subset));
 
             SkMatrix rightMatrix = scale_translate(deviceBounds.right() - width, 1, width, 0);
-            draw_bitmap_matrix(&canvas, right, rightMatrix, paint);
+            draw_bitmap_matrix(&canvas, right, rightMatrix, paintColor);
 
             if (tileModesY == SkTileMode::kMirror) {
                 rightMatrix.postScale(SK_Scalar1, -SK_Scalar1);
                 rightMatrix.postTranslate(0, 2 * height);
-                draw_bitmap_matrix(&canvas, right, rightMatrix, paint);
+                draw_bitmap_matrix(&canvas, right, rightMatrix, paintColor);
             }
             patternBBox.fRight = deviceBounds.width();
         }
@@ -207,12 +259,12 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
             SkAssertResult(bitmap.extractSubset(&top, subset));
 
             SkMatrix topMatrix = scale_translate(1, -deviceBounds.top(), 0, deviceBounds.top());
-            draw_bitmap_matrix(&canvas, top, topMatrix, paint);
+            draw_bitmap_matrix(&canvas, top, topMatrix, paintColor);
 
             if (tileModesX == SkTileMode::kMirror) {
                 topMatrix.postScale(-1, 1);
                 topMatrix.postTranslate(2 * width, 0);
-                draw_bitmap_matrix(&canvas, top, topMatrix, paint);
+                draw_bitmap_matrix(&canvas, top, topMatrix, paintColor);
             }
             patternBBox.fTop = 0;
         }
@@ -223,12 +275,12 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
             SkAssertResult(bitmap.extractSubset(&bottom, subset));
 
             SkMatrix bottomMatrix = scale_translate(1, deviceBounds.bottom() - height, 0, height);
-            draw_bitmap_matrix(&canvas, bottom, bottomMatrix, paint);
+            draw_bitmap_matrix(&canvas, bottom, bottomMatrix, paintColor);
 
             if (tileModesX == SkTileMode::kMirror) {
                 bottomMatrix.postScale(-1, 1);
                 bottomMatrix.postTranslate(2 * width, 0);
-                draw_bitmap_matrix(&canvas, bottom, bottomMatrix, paint);
+                draw_bitmap_matrix(&canvas, bottom, bottomMatrix, paintColor);
             }
             patternBBox.fBottom = deviceBounds.height();
         }
@@ -263,15 +315,8 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
     // handle compose shader by pulling things up to a layer, drawing with
     // the first shader, applying the xfer mode and drawing again with the
     // second shader, then applying the layer to the original drawing.
-    SkPDFImageShaderKey key = {
-        canvasTransform,
-        SkMatrix::I(),
-        surfaceBBox,
-        {{0, 0, 0, 0}, 0},  // don't need the key; won't de-dup.
-        {SkTileMode::kClamp, SkTileMode::kClamp},
-        paintColor};
 
-    key.fShaderTransform = as_SB(shader)->getLocalMatrix();
+    SkMatrix shaderTransform = as_SB(shader)->getLocalMatrix();
 
     // surfaceBBox is in device space. While that's exactly what we
     // want for sizing our bitmap, we need to map it into
@@ -305,11 +350,17 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
     canvas->translate(-shaderRect.x(), -shaderRect.y());
     canvas->drawPaint(p);
 
-    key.fShaderTransform.setTranslate(shaderRect.x(), shaderRect.y());
-    key.fShaderTransform.preScale(1 / scale.width(), 1 / scale.height());
+    shaderTransform.setTranslate(shaderRect.x(), shaderRect.y());
+    shaderTransform.preScale(1 / scale.width(), 1 / scale.height());
 
     sk_sp<SkImage> image = surface->makeImageSnapshot();
-    return make_image_shader(doc, key, image.get());
+    SkASSERT(image);
+    return make_image_shader(doc,
+                             SkMatrix::Concat(canvasTransform, shaderTransform),
+                             SkTileMode::kClamp, SkTileMode::kClamp,
+                             SkRect::Make(surfaceBBox),
+                             ImageDrawable(*image),
+                             paintColor);
 }
 
 static SkColor4f adjust_color(SkShader* shader, SkColor4f paintColor) {
@@ -350,10 +401,34 @@ SkPDFIndirectReference SkPDFMakeShader(SkPDFDocument* doc,
         if (shaderPtr) {
             return *shaderPtr;
         }
-        SkPDFIndirectReference pdfShader = make_image_shader(doc, key, skimg);
+        SkPDFIndirectReference pdfShader =
+                make_image_shader(doc,
+                                  SkMatrix::Concat(canvasTransform, key.fShaderTransform),
+                                  key.fImageTileModes[0],
+                                  key.fImageTileModes[1],
+                                  SkRect::Make(surfaceBBox),
+                                  ImageDrawable(*skimg),
+                                  key.fPaintColor);
         doc->fImageShaderMap.set(std::move(key), pdfShader);
         return pdfShader;
     }
+
+    SkMatrix matrix;
+    SkTileMode tileModes[2];
+    SkRect tile;
+    if (SkPicture* picture = as_SB(shader)->isAPicture(&matrix, tileModes, &tile)) {
+        // TODO(halcanary): cache with Key{picture->uniqueID(), matrix, tilemodes, tile, etc}
+        matrix.postTranslate(-tile.x(), -tile.y());
+        matrix = SkMatrix::Concat(canvasTransform, matrix);
+        return make_image_shader(doc,
+                                 matrix,
+                                 tileModes[0],
+                                 tileModes[1],
+                                 SkRect::Make(surfaceBBox),
+                                 PictureDrawable(*picture, tile),
+                                 SkColor4f{0, 0, 0, paintColor.fA});
+    }
+
     // Don't bother to de-dup fallback shader.
     return make_fallback_shader(doc, shader, canvasTransform, surfaceBBox, key.fPaintColor);
 }
