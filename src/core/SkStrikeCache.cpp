@@ -46,8 +46,8 @@ public:
                 glyphIDs, positions, n, maxDimension, detail, results);
     }
 
-    void generatePath(const SkGlyph& glyph) override {
-        fStrike.generatePath(glyph);
+    const SkPath* ensurePath(SkGlyph* glyph) override {
+        return fStrike.ensurePath(glyph);
     }
 
     const SkDescriptor& getDescriptor() const override {
@@ -172,12 +172,7 @@ auto SkStrikeCache::findOrCreateStrike(const SkDescriptor& desc,
 SkScopedStrike SkStrikeCache::findOrCreateScopedStrike(const SkDescriptor& desc,
                                                        const SkScalerContextEffects& effects,
                                                        const SkTypeface& typeface) {
-    Node* node = this->findAndDetachStrike(desc);
-    if (node == nullptr) {
-        auto scaler = CreateScalerContext(desc, effects, typeface);
-        node = this->createStrike(desc, std::move(scaler));
-    }
-    return SkScopedStrike{node};
+    return SkScopedStrike{this->findOrCreateStrike(desc, effects, typeface)};
 }
 
 void SkStrikeCache::PurgeAll() {

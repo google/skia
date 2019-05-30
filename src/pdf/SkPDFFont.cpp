@@ -181,8 +181,8 @@ static SkGlyphID first_nonzero_glyph_for_single_byte_encoding(SkGlyphID gid) {
 }
 
 static bool has_outline_glyph(SkGlyphID gid, SkStrike* cache) {
-    const SkGlyph& glyph = cache->getGlyphIDMetrics(gid);
-    return glyph.isEmpty() || cache->findPath(glyph);
+    SkGlyph* glyph = cache->glyph(gid);
+    return glyph->isEmpty() || cache->ensurePath(glyph);
 }
 
 SkPDFFont* SkPDFFont::GetFontResource(SkPDFDocument* doc,
@@ -448,7 +448,7 @@ struct ImageAndOffset {
     SkIPoint fOffset;
 };
 static ImageAndOffset to_image(SkGlyphID gid, SkStrike* cache) {
-    (void)cache->findImage(cache->getGlyphIDMetrics(gid));
+    (void)cache->ensureImage(cache->glyph(gid));
     SkMask mask = cache->getGlyphIDMetrics(gid).mask();
     if (!mask.fImage) {
         return {nullptr, {0, 0}};
@@ -569,25 +569,23 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
             characterName.set("g0");
         } else {
             characterName.printf("g%X", gID);
-            const SkGlyph& glyph = cache->getGlyphIDMetrics(gID);
-            advance = SkFloatToScalar(glyph.fAdvanceX);
-            glyphBBox = SkIRect::MakeXYWH(glyph.fLeft, glyph.fTop,
-                                          glyph.fWidth, glyph.fHeight);
+            SkGlyph* glyph = cache->glyph(gID);
+            advance = glyph->horizontalAdvance();
+            glyphBBox = glyph->iRect();
             bbox.join(glyphBBox);
-            const SkPath* path = cache->findPath(glyph);
+            const SkPath* path = cache->ensurePath(glyph);
             SkDynamicMemoryWStream content;
             if (path && !path->isEmpty()) {
-                setGlyphWidthAndBoundingBox(SkFloatToScalar(glyph.fAdvanceX), glyphBBox, &content);
+                setGlyphWidthAndBoundingBox(glyph->horizontalAdvance(), glyphBBox, &content);
                 SkPDFUtils::EmitPath(*path, SkPaint::kFill_Style, &content);
                 SkPDFUtils::PaintPath(SkPaint::kFill_Style, path->getFillType(), &content);
             } else {
                 auto pimg = to_image(gID, cache.get());
                 if (!pimg.fImage) {
-                    setGlyphWidthAndBoundingBox(SkFloatToScalar(glyph.fAdvanceX), glyphBBox,
-                                                &content);
+                    setGlyphWidthAndBoundingBox(glyph->horizontalAdvance(), glyphBBox, &content);
                 } else {
                     imageGlyphs.emplace_back(gID, SkPDFSerializeImage(pimg.fImage.get(), doc));
-                    SkPDFUtils::AppendScalar(SkFloatToScalar(glyph.fAdvanceX), &content);
+                    SkPDFUtils::AppendScalar(glyph->horizontalAdvance(), &content);
                     content.writeText(" 0 d0\n");
                     content.writeDecAsText(pimg.fImage->width());
                     content.writeText(" 0 0 ");
