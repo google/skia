@@ -4104,9 +4104,9 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         SkASSERT(0 == rowBytes);
 
         if (!pixels) {
-            int numBlocks = GrNumETC1Blocks(w, h);
-            pixelStorage.reset(numBlocks * sizeof(ETC1Block));
-            GrFillInETC1WithColor(colorf, pixelStorage.get(), numBlocks);
+            size_t etc1Size = GrETC1CompressedDataSize(w, h);
+            pixelStorage.reset(etc1Size);
+            GrFillInETC1WithColor(w, h, colorf, pixelStorage.get());
             pixels = pixelStorage.get();
             rowBytes = 0;
         }
