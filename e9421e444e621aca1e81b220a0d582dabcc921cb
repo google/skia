@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c0dc27f_1abf79cf",
+        "filename": "src/gpu/effects/GrColorMatrixFragmentProcessor.fp",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-05-30T20:48:07Z",
+      "side": 1,
+      "message": "I\u0027m working on a follow up to be able to use SkVector4 to make this less weird.",
+      "range": {
+        "startLine": 9,
+        "startChar": 13,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "e9421e444e621aca1e81b220a0d582dabcc921cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
