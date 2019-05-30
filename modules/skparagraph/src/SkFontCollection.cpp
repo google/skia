@@ -73,6 +73,7 @@ std::vector<sk_sp<SkFontMgr>> SkFontCollection::getFontManagerOrder() const {
     return order;
 }
 
+<<<<<<< HEAD   (4d3028 format errors)
 // TODO: locale
 sk_sp<SkTypeface> SkFontCollection::findTypeface(const std::string& familyName,
                                                  SkFontStyle fontStyle) {
@@ -133,6 +134,46 @@ sk_sp<SkTypeface> SkFontCollection::defaultFallback(const std::string& familyNam
                 typeface->fontStyle().slant() == SkFontStyle::kUpright_Slant ? "normal" : "italic");
     }
     return typeface;
+=======
+sk_sp<SkTypeface> SkFontCollection::matchTypeface(const std::string& familyName,
+                                                  SkFontStyle fontStyle) {
+    // Look inside the font collections cache first
+    FamilyKey familyKey(familyName, "en", fontStyle);
+    auto found = fTypefaces.find(familyKey);
+    if (found) {
+        return *found;
+    }
+
+    sk_sp<SkTypeface> typeface = nullptr;
+    for (const auto& manager : this->getFontManagerOrder()) {
+        SkFontStyleSet* set = manager->matchFamily(familyName.c_str());
+        if (nullptr == set || set->count() == 0) {
+            continue;
+        }
+
+        for (int i = 0; i < set->count(); ++i) {
+            set->createTypeface(i);
+        }
+
+        sk_sp<SkTypeface> match(set->matchStyle(fontStyle));
+        if (match) {
+            typeface = std::move(match);
+            fTypefaces.set(familyKey, typeface);
+            return typeface;
+        }
+    }
+
+    return nullptr;
+}
+
+sk_sp<SkTypeface> SkFontCollection::defaultFallback(SkUnichar unicode, SkFontStyle fontStyle) {
+    auto candidate = fDefaultFontManager->matchFamilyStyleCharacter(
+            fDefaultFamilyName.c_str(), fontStyle, nullptr, 0, unicode);
+    if (candidate == nullptr) {
+        candidate = fDefaultFontManager->matchFamilyStyle(fDefaultFamilyName.c_str(), fontStyle);
+    }
+    return sk_ref_sp<SkTypeface>(candidate);
+>>>>>>> BRANCH (b84053 Addressed few comments from the code review)
 }
 
 void SkFontCollection::disableFontFallback() { fEnableFontFallback = false; }

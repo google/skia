@@ -27,6 +27,7 @@ SkStrutStyle::SkStrutStyle() {
 }
 
 SkParagraphStyle::SkParagraphStyle() {
+<<<<<<< HEAD   (4d3028 format errors)
     fTextAlign = SkTextAlign::start;
     fTextDirection = SkTextDirection::ltr;
     fLinesLimit = std::numeric_limits<size_t>::max();
@@ -39,6 +40,20 @@ SkTextAlign SkParagraphStyle::effective_align() const {
         return (fTextDirection == SkTextDirection::ltr) ? SkTextAlign::left : SkTextAlign::right;
     } else if (fTextAlign == SkTextAlign::end) {
         return (fTextDirection == SkTextDirection::ltr) ? SkTextAlign::right : SkTextAlign::left;
+=======
+    fTextAlign = SkTextAlign::kStart;
+    fTextDirection = SkTextDirection::kLtr;
+    fLinesLimit = std::numeric_limits<size_t>::max();
+    fHeight = 1;
+    fHintingIsOn = true;
+}
+
+SkTextAlign SkParagraphStyle::effective_align() const {
+    if (fTextAlign == SkTextAlign::kStart) {
+        return (fTextDirection == SkTextDirection::kLtr) ? SkTextAlign::kLeft : SkTextAlign::kRight;
+    } else if (fTextAlign == SkTextAlign::kEnd) {
+        return (fTextDirection == SkTextDirection::kLtr) ? SkTextAlign::kRight : SkTextAlign::kLeft;
+>>>>>>> BRANCH (b84053 Addressed few comments from the code review)
     } else {
         return fTextAlign;
     }

@@ -22,6 +22,10 @@
 #include "SkTextStyle.h"
 #include "include/core/SkFontStyle.h"
 
+<<<<<<< HEAD   (4d3028 format errors)
+=======
+// TODO: Group getters/setters
+>>>>>>> BRANCH (b84053 Addressed few comments from the code review)
 struct SkStrutStyle {
     SkStrutStyle();
     SkFontStyle fFontStyle;

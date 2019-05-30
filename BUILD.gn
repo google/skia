@@ -1904,6 +1904,8 @@ if (skia_enable_tools) {
       ":tool_utils",
       ":trace",
       "modules/sksg",
+      "modules/skparagraph",
+      "modules/skshaper",
     ]
   }
 

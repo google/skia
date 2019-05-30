@@ -19,6 +19,7 @@ skparagraph_public = [
 
 skparagraph_sources = [
   "$_src/SkFontCollection.cpp",
+<<<<<<< HEAD   (4d3028 format errors)
   "$_src/SkLine.h",
   "$_src/SkLine.cpp",
   "$_src/SkParagraphBuilder.cpp",
@@ -31,4 +32,22 @@ skparagraph_sources = [
   "$_src/SkTextStyle.cpp",
   "$_src/SkTextWrapper.h",
   "$_src/SkTextWrapper.cpp",
+=======
+  "$_src/SkFontIterator.h",
+  "$_src/SkFontIterator.cpp",
+  "$_src/SkLine.h",
+  "$_src/SkLine.cpp",
+  "$_src/SkParagraphBuilder.cpp",
+  "$_src/SkParagraphImpl.h",
+  "$_src/SkParagraphImpl.cpp",
+  "$_src/SkParagraphStyle.cpp",
+  "$_src/SkRun.h",
+  "$_src/SkRun.cpp",
+  "$_src/SkTextShadow.cpp",
+  "$_src/SkTextStyle.cpp",
+  "$_src/SkTextWrapper.h",
+  "$_src/SkTextWrapper.cpp",
+  "$_src/SkTypefaceFontProvider.h",
+  "$_src/SkTypefaceFontProvider.cpp",
+>>>>>>> BRANCH (b84053 Addressed few comments from the code review)
 ]

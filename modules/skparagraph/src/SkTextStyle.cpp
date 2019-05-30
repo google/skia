@@ -95,6 +95,7 @@ bool SkTextStyle::equals(const SkTextStyle& other) const {
 
 bool SkTextStyle::matchOneAttribute(SkStyleType styleType, const SkTextStyle& other) const {
     switch (styleType) {
+<<<<<<< HEAD   (4d3028 format errors)
         case Foreground:
             if (fHasForeground) {
                 return other.fHasForeground && fForeground == other.fForeground;
@@ -130,6 +131,47 @@ bool SkTextStyle::matchOneAttribute(SkStyleType styleType, const SkTextStyle& ot
 
         case AllAttributes:
             return this->equals(other);
+=======
+        case kForeground:
+            if (fHasForeground) {
+                return other.fHasForeground && fForeground == other.fForeground;
+            } else {
+                return !other.fHasForeground && fColor == other.fColor;
+            }
+
+        case kBackground:
+            return (fHasBackground == other.fHasBackground && fBackground == other.fBackground);
+
+        case kShadow:
+            if (fTextShadows.size() != other.fTextShadows.size()) {
+                return false;
+            }
+
+            for (int32_t i = 0; i < SkToInt(fTextShadows.size()); ++i) {
+                if (fTextShadows[i] != other.fTextShadows[i]) {
+                    return false;
+                }
+            }
+            return true;
+
+        case kDecorations:
+            return fDecoration == other.fDecoration && fDecorationColor == other.fDecorationColor &&
+                   fDecorationStyle == other.fDecorationStyle &&
+                   fDecorationThicknessMultiplier == other.fDecorationThicknessMultiplier;
+
+        case kLetterSpacing:
+            return fLetterSpacing == other.fLetterSpacing;
+
+        case kWordSpacing:
+            return fWordSpacing == other.fWordSpacing;
+
+        case kAllAttributes:
+            return this->equals(other);
+
+        case kFont:
+            return fFontStyle == other.fFontStyle && fFontFamilies == other.fFontFamilies &&
+                   fFontSize == other.fFontSize && fHeight == other.fHeight;
+>>>>>>> BRANCH (b84053 Addressed few comments from the code review)
 
         default:
             SkASSERT(false);

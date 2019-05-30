@@ -47,6 +47,7 @@ constexpr std::initializer_list<SkTextDecoration> AllTextDecorations = {
 enum SkTextDecorationStyle { kSolid, kDouble, kDotted, kDashed, kWavy };
 
 enum SkStyleType {
+<<<<<<< HEAD   (4d3028 format errors)
     AllAttributes,
     Text,
     Font,
@@ -56,6 +57,17 @@ enum SkStyleType {
     Decorations,
     LetterSpacing,
     WordSpacing
+=======
+    kAllAttributes,
+    kText,
+    kFont,
+    kForeground,
+    kBackground,
+    kShadow,
+    kDecorations,
+    kLetterSpacing,
+    kWordSpacing
+>>>>>>> BRANCH (b84053 Addressed few comments from the code review)
 };
 
 class SkTextStyle {
