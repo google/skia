@@ -142,6 +142,22 @@ sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, SkTileMode tmx, 
     return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, localMatrix, tile));
 }
 
+SkPicture* SkPictureShader::isAPicture(SkMatrix* matrix,
+                                       SkTileMode tileModes[2],
+                                       SkRect* tile) const {
+    if (matrix) {
+        *matrix = this->getLocalMatrix();
+    }
+    if (tileModes) {
+        tileModes[0] = fTmx;
+        tileModes[1] = fTmy;
+    }
+    if (tile) {
+        *tile = fTile;
+    }
+    return fPicture.get();
+}
+
 sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;
     buffer.readMatrix(&lm);
