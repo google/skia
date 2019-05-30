@@ -118,21 +118,22 @@ protected:
 
     void onOnceBeforeDraw() override {
         fImg = GetResourceAsImage("images/mandrill_256.png")->makeRasterImage();
+        float b = 0.75;
+        sk_sp<SkData> data = SkData::MakeWithCopy(&b, sizeof(b));
+        fCF = fFact.make(data);
     }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->drawImage(fImg, 0, 0, nullptr);
 
-        float b = 0.75;
-        sk_sp<SkData> data = SkData::MakeWithCopy(&b, sizeof(b));
-        auto cf1 = fFact.make(data);
         SkPaint p;
-        p.setColorFilter(cf1);
+        p.setColorFilter(fCF);
         canvas->drawImage(fImg, 256, 0, &p);
     }
 private:
     sk_sp<SkImage> fImg;
     SkRuntimeColorFilterFactory fFact;
+    sk_sp<SkColorFilter> fCF;
     SkString fName;
 
     typedef skiagm::GM INHERITED;

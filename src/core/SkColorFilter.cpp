@@ -386,6 +386,27 @@ public:
     }
 #endif
 
+    void compile() const {
+        SkAutoMutexExclusive ama(fMutex);
+        if (fInterpreter) {
+            return;
+        }
+
+        SkSL::Compiler c;
+        std::unique_ptr<SkSL::Program> prog =
+        c.convertProgram(SkSL::Program::kPipelineStage_Kind,
+                         SkSL::String(fSkSL.c_str()),
+                         SkSL::Program::Settings());
+        if (c.errorCount()) {
+            SkDebugf("%s\n", c.errorText().c_str());
+            SkASSERT(false);
+        }
+        std::unique_ptr<SkSL::ByteCode> byteCode = c.toByteCode(*prog);
+        fMain = byteCode->fFunctions[0].get();
+        fInterpreter.reset(new SkSL::Interpreter(std::move(prog), std::move(byteCode),
+                                                 (SkSL::Interpreter::Value*)fInputs->data()));
+    }
+
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         if (fCpuFunction) {
             struct CpuFuncCtx : public SkRasterPipeline_CallbackCtx {
@@ -403,26 +424,14 @@ public:
             };
             rec.fPipeline->append(SkRasterPipeline::callback, ctx);
         } else {
+            this->compile();
             struct InterpreterCtx : public SkRasterPipeline_CallbackCtx {
                 SkSL::ByteCodeFunction* main;
-                std::unique_ptr<SkSL::Interpreter> interpreter;
-                const void* inputs;
+                SkSL::Interpreter* interpreter;
             };
             auto ctx = rec.fAlloc->make<InterpreterCtx>();
-            ctx->inputs = fInputs->data();
-            SkSL::Compiler c;
-            std::unique_ptr<SkSL::Program> prog =
-                                                c.convertProgram(SkSL::Program::kPipelineStage_Kind,
-                                                                 SkSL::String(fSkSL.c_str()),
-                                                                 SkSL::Program::Settings());
-            if (c.errorCount()) {
-                SkDebugf("%s\n", c.errorText().c_str());
-                SkASSERT(false);
-            }
-            std::unique_ptr<SkSL::ByteCode> byteCode = c.toByteCode(*prog);
-            ctx->main = byteCode->fFunctions[0].get();
-            ctx->interpreter.reset(new SkSL::Interpreter(std::move(prog), std::move(byteCode),
-                                                         (SkSL::Interpreter::Value*) ctx->inputs));
+            ctx->main = fMain;
+            ctx->interpreter = fInterpreter.get();
             ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
                 auto ctx = (InterpreterCtx*)arg;
                 for (int i = 0; i < active_pixels; i++) {
@@ -456,6 +465,10 @@ private:
     SkString fSkSL;
     sk_sp<SkData> fInputs;
     SkRuntimeColorFilterFn fCpuFunction;
+
+    mutable SkMutex fMutex;                 // guards the following fields
+    mutable SkSL::ByteCodeFunction* fMain;
+    mutable std::unique_ptr<SkSL::Interpreter> fInterpreter;
 
     friend class SkColorFilter;
 
