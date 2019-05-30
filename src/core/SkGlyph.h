@@ -145,6 +145,12 @@ public:
         return fImage != nullptr;
     }
 
+    bool metricsAreInitialized() const {
+        return fMaskFormat != MASK_FORMAT_UNKNOWN;
+    }
+
+    void addMetrics(SkScalerContext* scalar);
+
     SkMask mask() const;
 
     SkMask mask(SkPoint position) const;
