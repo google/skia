@@ -157,10 +157,11 @@ public:
 
         struct Buffer {
             SkGlyphID* glyphs;  // required
-            SkPoint* positions; // required
-            SkPoint* offsets;   // optional
-            uint32_t* clusters; // optional
-            SkPoint point;
+            SkPoint* positions; // required, if (!offsets) put glyphs[i] at positions[i]
+                                //           if ( offsets) positions[i+1]-positions[i] are advances
+            SkPoint* offsets;   // optional, if ( offsets) put glyphs[i] at positions[i]+offsets[i]
+            uint32_t* clusters; // optional, utf8+clusters[i] starts run which produced glyphs[i]
+            SkPoint point;      // offset to add to all positions
         };
 
         /** Called when beginning a line. */
