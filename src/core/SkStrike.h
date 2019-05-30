@@ -176,6 +176,10 @@ private:
         kFull_MetricsType
     };
 
+    SkSpan<SkGlyph*> glyphPtrs(SkSpan<const SkGlyphID>glyphIDs, SkGlyph* result[]);
+
+    SkSpan<SkGlyph*> metrics(SkSpan<const SkGlyphID>glyphIDs, SkGlyph* result[]);
+
     /** Returns a glyph with valid fAdvance field. The remaining fields may be
         valid, but that is not guaranteed. If you require those, call getGlyphIDMetrics instead.
     */
