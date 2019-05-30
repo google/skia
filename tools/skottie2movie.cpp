@@ -6,32 +6,45 @@
  */
 
 #include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/utils/SkottieUtils.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTime.h"
+#include "src/utils/SkOSPath.h"
 #include "experimental/ffmpeg/SkVideoEncoder.h"
 #include "tools/flags/CommandLineFlags.h"
 
 static DEFINE_string2(input, i, "", "skottie animation to render");
 static DEFINE_string2(output, o, "", "mp4 file to create");
+static DEFINE_string2(assetPath, a, "", "path to assets needed for json file");
 static DEFINE_int_2(fps, f, 25, "fps");
 static DEFINE_bool2(verbose, v, false, "verbose mode");
-static DEFINE_bool2(forever, f, false, "forever mode for profiling");
+static DEFINE_bool2(loop, l, false, "loop mode for profiling");
 
 int main(int argc, char** argv) {
     CommandLineFlags::SetUsage("Converts skottie to a mp4");
     CommandLineFlags::Parse(argc, argv);
 
-    if (argc <= 1) {
-        SkDebugf("Need -i input_file.json\n");
-        return -1;
-    }
-    SkFILEStream stream(FLAGS_input[0]);
-    if (!stream.isValid()) {
-        SkDebugf("Couldn't open skottie %s\n", FLAGS_input[0]);
+    if (FLAGS_input.count() == 0) {
+        SkDebugf("-i input_file.json argument required\n");
         return -1;
     }
 
-    auto animation = skottie::Animation::Builder().make(&stream);
+    SkString assetPath;
+    if (FLAGS_assetPath.count() > 0) {
+        assetPath.set(FLAGS_assetPath[0]);
+    } else {
+        assetPath = SkOSPath::Dirname(FLAGS_input[0]);
+    }
+    SkDebugf("assetPath %s\n", assetPath.c_str());
+
+    auto animation = skottie::Animation::Builder()
+        .setResourceProvider(skottie_utils::FileResourceProvider::Make(assetPath))
+        .makeFromFile(FLAGS_input[0]);
+    if (!animation) {
+        SkDebugf("failed to load %s\n", FLAGS_input[0]);
+        return -1;
+    }
+
     SkISize dim = animation->size().toRound();
     double duration = animation->duration();
     int fps = FLAGS_fps;
@@ -48,8 +61,8 @@ int main(int argc, char** argv) {
     SkVideoEncoder encoder;
     const int frames = SkScalarRoundToInt(duration * fps);
 
-    while (FLAGS_forever) {
-        double now = SkTime::GetSecs();
+    while (FLAGS_loop) {
+        double start = SkTime::GetSecs();
         encoder.beginRecording(dim, fps);
         for (int i = 0; i <= frames; ++i) {
             animation->seek(i * 1.0 / frames);  // normalized time
@@ -57,7 +70,11 @@ int main(int argc, char** argv) {
             encoder.endFrame();
         }
         (void)encoder.endRecording();
-        SkDebugf("time in ms: %d\n", (int)((SkTime::GetSecs() - now) * 1000));
+        if (FLAGS_verbose) {
+            double dur = SkTime::GetSecs() - start;
+            SkDebugf("%d frames, %g secs, %d fps\n",
+                     frames, dur, (int)floor(frames / dur + 0.5));
+        }
     }
 
     encoder.beginRecording(dim, fps);
@@ -72,6 +89,11 @@ int main(int argc, char** argv) {
         encoder.endFrame();
     }
 
+    if (FLAGS_output.count() == 0) {
+        SkDebugf("missing -o output_file.mp4 argument\n");
+        return 0;
+    }
+
     auto data = encoder.endRecording();
     SkFILEWStream ostream(FLAGS_output[0]);
     if (!ostream.isValid()) {
@@ -79,4 +101,5 @@ int main(int argc, char** argv) {
         return -1;
     }
     ostream.write(data->data(), data->size());
+    return 0;
 }

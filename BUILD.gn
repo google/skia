@@ -1927,6 +1927,7 @@ if (skia_enable_tools) {
         ":skia",
         ":video_decoder",
         "modules/skottie",
+        "modules/skottie:utils",
       ]
     }
   }
