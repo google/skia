@@ -1,0 +1,17 @@
+[
+  {
+    "cmd": [
+      "python",
+      "[START_DIR]/skia/infra/bots/g3_compile/trigger_wait_g3_task.py",
+      "--issue",
+      "1234",
+      "--patchset",
+      "1"
+    ],
+    "name": "Trigger and wait for g3 compile task"
+  },
+  {
+    "jsonResult": null,
+    "name": "$result"
+  }
+]
