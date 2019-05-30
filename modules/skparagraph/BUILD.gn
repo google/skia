@@ -1,0 +1,36 @@
+# Copyright 2019 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+
+declare_args() {
+  skia_enable_skparagraph = !(is_win && is_component_build)
+}
+
+if (skia_enable_skparagraph) {
+  config("public_config") {
+    include_dirs = [ "include" ]
+  }
+
+  source_set("skparagraph") {
+    import("skparagraph.gni")
+
+    public_configs = [ ":public_config" ]
+    public = skparagraph_public
+    deps = [
+      "../..:skia",
+    ]
+    if (skia_use_icu && skia_use_harfbuzz) {
+      sources = skparagraph_sources
+      deps += [
+        "../skshaper",
+        "//third_party/icu",
+      ]
+    }
+  }
+} else {
+  group("skparagraph") {
+  }
+}
