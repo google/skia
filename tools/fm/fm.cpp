@@ -494,6 +494,7 @@ int main(int argc, char** argv) {
                                           : SkColorSpace::MakeRGB(tf,gamut);
     const SkImageInfo unsized_info = SkImageInfo::Make(0,0, ct,at,cs);
 
+    AutoreleasePool pool;
     for (auto source : sources) {
         const auto start = std::chrono::steady_clock::now();
         fprintf(stdout, "%50s", source.name.c_str());
@@ -582,6 +583,7 @@ int main(int argc, char** argv) {
         fprintf(stdout, "\t%s\t%7dms\n",
                 md5.c_str(),
                 (int)std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
+        pool.drain();
     }
 
     if (!FLAGS_writeShaders.isEmpty()) {
