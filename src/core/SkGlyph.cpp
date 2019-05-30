@@ -40,6 +40,33 @@ void SkGlyph::zeroMetrics() {
     fLeft     = 0;
 }
 
+bool SkGlyph::mergeGlyph(const SkGlyph& from, SkArenaAlloc* alloc) {
+    if (fImage == nullptr) {
+        fAdvanceX = from.fAdvanceX;
+        fAdvanceY = from.fAdvanceY;
+        fWidth = from.fWidth;
+        fHeight = from.fHeight;
+        fTop = from.fTop;
+        fLeft = from.fLeft;
+        fForceBW = from.fForceBW;
+        fMaskFormat = from.fMaskFormat;
+        if (!this->imageIsInitialized()) {
+            this->allocImage(alloc);
+            memcpy(fImage, from.image(), this->imageSize());
+            return true;
+        }
+    }
+    return false;
+}
+
+bool SkGlyph::mergePath(const SkPath* path, SkArenaAlloc* alloc) {
+    if (!this->pathIsInitialized()) {
+        installPath(path, alloc);
+        return true;
+    }
+    return false;
+}
+
 static size_t bits_to_bytes(size_t bits) {
     return (bits + 7) >> 3;
 }
@@ -73,7 +100,7 @@ size_t SkGlyph::formatAlignment() const {
 }
 
 size_t SkGlyph::allocImage(SkArenaAlloc* alloc) {
-    auto size = this->computeImageSize();
+    auto size = this->imageSize();
     auto format = static_cast<SkMask::Format>(fMaskFormat);
     fImage = alloc->makeBytesAlignedTo(size, format_alignment(format));
 
@@ -84,11 +111,9 @@ size_t SkGlyph::rowBytes() const {
     return format_rowbytes(fWidth, (SkMask::Format)fMaskFormat);
 }
 
-size_t SkGlyph::rowBytesUsingFormat(SkMask::Format format) const {
-    return format_rowbytes(fWidth, format);
-}
+size_t SkGlyph::imageSize() const {
+    if (this->isEmpty() || this->imageTooLarge()) { return 0; }
 
-size_t SkGlyph::computeImageSize() const {
     size_t size = this->rowBytes() * fHeight;
 
     if (fMaskFormat == SkMask::k3D_Format) {
@@ -98,37 +123,60 @@ size_t SkGlyph::computeImageSize() const {
     return size;
 }
 
-size_t SkGlyph::copyImageData(const SkGlyph& from, SkArenaAlloc* alloc) {
-    fMaskFormat = from.fMaskFormat;
-    fWidth = from.fWidth;
-    fHeight = from.fHeight;
-    fLeft = from.fLeft;
-    fTop = from.fTop;
-    fForceBW = from.fForceBW;
-
-    if (from.fImage != nullptr) {
-        auto imageSize = this->allocImage(alloc);
-        SkASSERT(imageSize == from.computeImageSize());
-
-        memcpy(fImage, from.fImage, imageSize);
-        return imageSize;
+const SkPath* SkGlyph::path() const {
+    // Find path must have been called to use this call.
+    SkASSERT(this->pathIsInitialized());
+    if (!this->isEmpty() && fPathData != nullptr && fPathData->fHasPath) {
+        return &fPathData->fPath;
     }
-
-    return 0u;
+    return nullptr;
 }
 
-SkPath* SkGlyph::addPath(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
-    if (!this->isEmpty()) {
-        if (fPathData == nullptr) {
-            fPathData = alloc->make<SkGlyph::PathData>();
-            if (scalerContext->getPath(this->getPackedID(), &fPathData->fPath)) {
-                fPathData->fPath.updateBoundsCache();
-                fPathData->fPath.getGenerationID();
-                fPathData->fHasPath = true;
-            }
+const SkPath* SkGlyph::ensurePath(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
+    if (!this->pathIsInitialized()) {
+        SkPath path;
+        SkPath* pathPtr = nullptr;
+        if (scalerContext->getPath(this->getPackedID(), &path)) {
+            pathPtr = &path;
+        }
+        return installPath(pathPtr, alloc);
+    }
+
+    return this->path();
+}
+
+const SkPath* SkGlyph::installPath(const SkPath* path, SkArenaAlloc* alloc) {
+    SkASSERT(fPathData == nullptr);
+    if (!this->pathIsInitialized()) {
+        fPathData = alloc->make<SkGlyph::PathData>();
+        if (path != nullptr) {
+            fPathData->fPath = *path;
+            fPathData->fPath.updateBoundsCache();
+            fPathData->fPath.getGenerationID();
+            fPathData->fHasPath = true;
         }
     }
+
     return this->path();
+}
+
+const void* SkGlyph::ensureImage(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
+    if (!this->imageIsInitialized()) {
+        SkDEBUGCODE(SkMask::Format oldFormat = (SkMask::Format)fMaskFormat);
+        this->allocImage(alloc);
+        scalerContext->getImage(*this);
+        SkASSERT(oldFormat == fMaskFormat);
+    }
+    return this->image();
+}
+
+size_t SkGlyph::pathSize() const {
+    SkASSERT(this->pathIsInitialized());
+    // TODO: change to sizeof(PathData) instead of sizeof SkPath when centralized.
+    if (this->hasPath()) {
+        return sizeof(SkPath) + this->path()->countPoints() * sizeof(SkPoint);
+    }
+    return 0;
 }
 
 static std::tuple<SkScalar, SkScalar> calculate_path_gap(
