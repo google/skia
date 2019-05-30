@@ -101,7 +101,7 @@ void RandomScalerContext::generateImage(const SkGlyph& glyph) {
     */
 
     if (fFakeIt) {
-        sk_bzero(glyph.fImage, glyph.computeImageSize());
+        sk_bzero(glyph.fImage, glyph.imageSize());
         return;
     }
 
