@@ -359,12 +359,23 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
           kAlpha_half_as_Red_GrPixelConfig, { 1.0f, 0, 0, 0.5f }},
         { kUnknown_SkColorType,             GR_GL_COMPRESSED_RGB8_ETC2,
           kRGB_ETC1_GrPixelConfig,          SkColors::kRed      },
+        { kUnknown_SkColorType,             GR_GL_COMPRESSED_ETC1_RGB8,
+          kRGB_ETC1_GrPixelConfig,          SkColors::kRed      },
     };
 
     for (auto combo : combinations) {
+        if (kRGB_ETC1_GrPixelConfig == combo.fConfig) {
+            // RGB8_ETC2/ETC1_RGB8 is an either/or situation
+            GrGLenum supportedETC1Format = glCaps->configSizedInternalFormat(combo.fConfig);
+            if (supportedETC1Format != combo.fFormat) {
+                continue;
+            }
+        }
+
         GrBackendFormat format = GrBackendFormat::MakeGL(combo.fFormat, GR_GL_TEXTURE_2D);
 
-        if (GR_GL_COMPRESSED_RGB8_ETC2 == combo.fFormat) {
+        if (GR_GL_COMPRESSED_RGB8_ETC2 == combo.fFormat ||
+            GR_GL_COMPRESSED_ETC1_RGB8 == combo.fFormat) {
             // We current disallow uninitialized ETC1 textures in the GL backend
             continue;
         }

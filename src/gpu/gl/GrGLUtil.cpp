@@ -8,6 +8,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/gl/GrGLUtil.h"
 #include <stdio.h>
 
@@ -559,3 +560,32 @@ GrGLenum GrToGLStencilFunc(GrStencilTest test) {
 
     return gTable[(int)test];
 }
+
+bool GrGLFormatIsCompressed(GrGLenum glFormat) {
+    switch (glFormat) {
+        case GR_GL_COMPRESSED_RGB8_ETC2: // fall through
+        case GR_GL_COMPRESSED_ETC1_RGB8:
+            return true;
+        default:
+            return false;
+    }
+    SK_ABORT("Invalid format");
+    return false;
+}
+
+size_t GrGLFormatCompressedDataSize(GrGLenum glFormat, int width, int height) {
+    SkASSERT(GrGLFormatIsCompressed(glFormat));
+
+    switch (glFormat) {
+        case GR_GL_COMPRESSED_RGB8_ETC2:  // fall through
+        case GR_GL_COMPRESSED_ETC1_RGB8:
+            return GrETC1CompressedDataSize(width, height);
+        default:
+            SK_ABORT("Unknown compressed format");
+            return 4 * width * height;
+    }
+
+    SK_ABORT("Unknown compressed format");
+    return 4 * width * height;
+}
+
