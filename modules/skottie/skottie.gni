@@ -32,6 +32,8 @@ skia_skottie_sources = [
   "$_src/text/SkottieShaper.h",
   "$_src/text/TextAdapter.cpp",
   "$_src/text/TextAdapter.h",
+  "$_src/text/TextAnimator.cpp",
+  "$_src/text/TextAnimator.h",
   "$_src/text/TextLayer.cpp",
   "$_src/text/TextValue.cpp",
   "$_src/text/TextValue.h",
