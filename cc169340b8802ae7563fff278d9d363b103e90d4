@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "9d25aef7_04766a87",
+        "filename": "modules/skparagraph/include/SkDartTypes.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-05-31T14:00:35Z",
+      "side": 1,
+      "message": "just call it skparagraph::TextAlign.  Same for the other types.\n\n    s/skparagraph::SkFoo/skparagraph::Foo/",
+      "revId": "cc169340b8802ae7563fff278d9d363b103e90d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "10d96f72_21e187a0",
         "filename": "modules/skparagraph/include/SkFontCollection.h",
         "patchSetId": 9
