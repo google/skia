@@ -22,7 +22,8 @@ TextAdapter::TextAdapter(sk_sp<sksg::Group> root, bool hasAnimators)
 TextAdapter::~TextAdapter() = default;
 
 struct TextAdapter::FragmentRec {
-    // More text SG props will surface here as we add range selector support.
+    SkPoint                       fOrigin; // fragment position
+
     sk_sp<sksg::Matrix<SkMatrix>> fMatrixNode;
     sk_sp<sksg::Color>            fFillColorNode,
                                   fStrokeColorNode;
@@ -39,10 +40,11 @@ void TextAdapter::addFragment(const skottie::Shaper::Fragment& frag) {
     // * where the blob node is shared
 
     auto blob_node = sksg::TextBlob::Make(frag.fBlob);
-    blob_node->setPosition(frag.fPos);
 
     FragmentRec rec;
-    rec.fMatrixNode = sksg::Matrix<SkMatrix>::Make(SkMatrix::I());
+    rec.fOrigin = frag.fPos;
+    rec.fMatrixNode = sksg::Matrix<SkMatrix>::Make(SkMatrix::MakeTrans(frag.fPos.x(),
+                                                                       frag.fPos.y()));
 
     std::vector<sk_sp<sksg::RenderNode>> draws;
     draws.reserve(static_cast<size_t>(fText.fHasFill) + static_cast<size_t>(fText.fHasStroke));
@@ -116,7 +118,10 @@ void TextAdapter::apply() {
 }
 
 void TextAdapter::applyAnimatedProps(const AnimatedProps& props) {
-    const auto t = SkMatrix::MakeTrans(props.position.x(), props.position.y());
+    // TODO: share this with TransformAdapter2D?
+    auto t = SkMatrix::MakeTrans(props.position.x(), props.position.y());
+    t.preRotate(props.rotation);
+    t.preScale(props.scale, props.scale);
 
     const auto fc = SkColorSetA(props.fill_color,
                                 SkScalarRoundToInt(props.opacity*SkColorGetA(props.fill_color))),
@@ -124,7 +129,9 @@ void TextAdapter::applyAnimatedProps(const AnimatedProps& props) {
                                 SkScalarRoundToInt(props.opacity*SkColorGetA(props.stroke_color)));
 
     for (const auto& rec : fFragments) {
-        rec.fMatrixNode->setMatrix(t);
+        rec.fMatrixNode->setMatrix(SkMatrix::Concat(SkMatrix::MakeTrans(rec.fOrigin.x(),
+                                                                        rec.fOrigin.y()),
+                                                    t));
 
         if (rec.fFillColorNode) {
             rec.fFillColorNode->setColor(fc);
