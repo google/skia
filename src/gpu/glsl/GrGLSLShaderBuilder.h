@@ -198,7 +198,6 @@ protected:
         fCodeIndex++;
     }
 
-    SkString& versionDecl() { return fShaderStrings[kVersionDecl]; }
     SkString& extensions() { return fShaderStrings[kExtensions]; }
     SkString& definitions() { return fShaderStrings[kDefinitions]; }
     SkString& precisionQualifier() { return fShaderStrings[kPrecisionQualifier]; }
@@ -213,7 +212,6 @@ protected:
     virtual void onFinalize() = 0;
 
     enum {
-        kVersionDecl,
         kExtensions,
         kDefinitions,
         kPrecisionQualifier,

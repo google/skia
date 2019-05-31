@@ -219,6 +219,7 @@ Compiler::Compiler(Flags flags)
     fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
 
     std::vector<std::unique_ptr<ProgramElement>> ignored;
+    fSource = new String(SKSL_INCLUDE);
     fIRGenerator->convertProgram(Program::kFragment_Kind, SKSL_INCLUDE, strlen(SKSL_INCLUDE),
                                  *fTypes, &ignored);
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
