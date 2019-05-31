@@ -270,7 +270,7 @@ private:
 
     bool createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool texturable,
                                   bool renderable, GrMipMapped mipMapped, const void* srcData,
-                                  size_t srcRowBytes, GrVkImageInfo* info);
+                                  size_t srcRowBytes, const SkColor4f& color, GrVkImageInfo* info);
 
     sk_sp<const GrVkInterface>                            fInterface;
     sk_sp<GrVkMemoryAllocator>                            fMemoryAllocator;

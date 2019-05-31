@@ -14,6 +14,7 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipMap.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
 #include "src/gpu/GrMesh.h"
@@ -1457,8 +1458,11 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRen
 ////////////////////////////////////////////////////////////////////////////////
 
 bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc,
-                       size_t bufferOffset, size_t srcRowBytes, size_t dstRowBytes,
-                       size_t trimRowBytes, int width, int height) {
+                       size_t bufferOffset, size_t srcRowBytes,
+                       GrPixelConfig destConfig, size_t dstRowBytes,
+                       size_t trimRowBytes, int width, int height, const SkColor4f* color) {
+    SkASSERT(srcData || color);
+
     VkDeviceSize size = dstRowBytes * height;
     VkDeviceSize offset = bufferOffset;
     SkASSERT(size + offset <= alloc.fSize);
@@ -1471,9 +1475,11 @@ bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc
     if (srcData) {
         SkRectMemcpy(mapPtr, dstRowBytes, srcData, srcRowBytes, trimRowBytes, height);
     } else {
-        // If there is no srcdata we always copy 0's into the textures so that it is initialized
-        // with some data.
-        memset(mapPtr, 0, dstRowBytes * height);
+        if (kRGB_ETC1_GrPixelConfig == destConfig) {
+            GrFillInETC1WithColor(width, height, *color, mapPtr);
+        } else {
+            GrFillBufferWithColor(destConfig, width, height, *color, mapPtr);
+        }
     }
     GrVkMemory::FlushMappedAlloc(gpu, alloc, offset, size);
     GrVkMemory::UnmapAlloc(gpu, alloc);
@@ -1522,7 +1528,8 @@ static size_t compute_combined_buffer_size(VkFormat format, size_t bpp, int w, i
 
 bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool texturable,
                                        bool renderable, GrMipMapped mipMapped, const void* srcData,
-                                       size_t srcRowBytes, GrVkImageInfo* info) {
+                                       size_t srcRowBytes, const SkColor4f& color,
+                                       GrVkImageInfo* info) {
     SkASSERT(texturable || renderable);
     if (!texturable) {
         SkASSERT(GrMipMapped::kNo == mipMapped);
@@ -1653,8 +1660,8 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
             size_t levelSize = GrVkFormatCompressedDataSize(vkFormat, currentWidth, currentHeight);
             size_t currentRowBytes = levelSize / currentHeight;
             result = copy_testing_data(this, srcData, bufferAlloc, bufferOffset, currentRowBytes,
-                                       currentRowBytes, currentRowBytes,
-                                       currentWidth, currentHeight);
+                                       config, currentRowBytes, currentRowBytes,
+                                       currentWidth, currentHeight, &color);
         } else {
             const size_t trimRowBytes = w * bpp;
             if (!srcRowBytes) {
@@ -1663,8 +1670,8 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
 
             size_t currentRowBytes = bpp * currentWidth;
             result = copy_testing_data(this, srcData, bufferAlloc, bufferOffset, srcRowBytes,
-                                       currentRowBytes, trimRowBytes,
-                                       currentWidth, currentHeight);
+                                       config, currentRowBytes, trimRowBytes,
+                                       currentWidth, currentHeight, &color);
         }
         if (!result) {
             GrVkImage::DestroyImageInfo(this, info);
@@ -1886,7 +1893,7 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
 
     GrVkImageInfo info;
     if (!this->createTestingOnlyVkImage(config, w, h, true, GrRenderable::kYes == renderable,
-                                        mipMapped, srcData, rowBytes, &info)) {
+                                        mipMapped, srcData, rowBytes, color, &info)) {
         return {};
     }
     GrBackendTexture beTex = GrBackendTexture(w, h, info);
@@ -1944,7 +1951,7 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
 
     GrVkImageInfo info;
     if (!this->createTestingOnlyVkImage(config, w, h, false, true, GrMipMapped::kNo, nullptr, 0,
-                                        &info)) {
+                                        SkColors::kTransparent, &info)) {
         return {};
     }
     GrBackendRenderTarget beRT = GrBackendRenderTarget(w, h, 1, 0, info);
