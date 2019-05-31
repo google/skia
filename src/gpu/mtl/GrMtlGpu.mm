@@ -1051,7 +1051,6 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
 
     int bpp = GrColorTypeBytesPerPixel(dstColorType);
     size_t transBufferRowBytes = bpp * width;
-    SK_BEGIN_AUTORELEASE_BLOCK
     bool doResolve = get_surface_sample_cnt(surface) > 1;
     id<MTLTexture> mtlTexture = GrGetMTLTextureFromSurface(surface, doResolve);
     if (!mtlTexture || [mtlTexture isFramebufferOnly]) {
@@ -1089,7 +1088,6 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     const void* mappedMemory = transferBuffer.contents;
 
     SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, transBufferRowBytes, height);
-    SK_END_AUTORELEASE_BLOCK
 
     return true;
 
