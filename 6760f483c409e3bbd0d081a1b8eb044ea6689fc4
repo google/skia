@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31e60398_d997acfd",
+        "filename": "public.bzl",
+        "patchSetId": 3
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-05-31T13:19:38Z",
+      "side": 1,
+      "message": "isn\u0027t the file you added .mm ?",
+      "range": {
+        "startLine": 460,
+        "startChar": 30,
+        "endLine": 460,
+        "endChar": 34
+      },
+      "revId": "6760f483c409e3bbd0d081a1b8eb044ea6689fc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
