@@ -546,7 +546,7 @@ GrPixelConfig GrMtlCaps::validateBackendRenderTarget(const GrBackendRenderTarget
         return kUnknown_GrPixelConfig;
     }
 
-    id<MTLTexture> texture = (__bridge id<MTLTexture>)fbInfo.fTexture;
+    id<MTLTexture> texture = (__bridge id<MTLTexture>) fbInfo.fTexture.get();
     return validate_sized_format(texture.pixelFormat, ct);
 }
 

@@ -13,6 +13,10 @@
 #include "include/private/GrTypesPriv.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 class GrMtlGpu;
 class GrSurface;
 
@@ -36,20 +40,18 @@ class GrSurface;
 bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format);
 
 /**
- * Returns a id<MTLTexture> to the MTLTexture pointed at by the const void*. Will use
- * __bridge_transfer if we are adopting ownership.
+ * Returns a id<MTLTexture> to the MTLTexture pointed at by the const void*.
  */
-id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership);
+SK_ALWAYS_INLINE id<MTLTexture> GrGetMTLTexture(const void* mtlTexture)  {
+    return (__bridge id<MTLTexture>)mtlTexture;
+}
 
 /**
- * Returns a const void* to whatever the id object is pointing to. Always uses __bridge.
+ * Returns a const void* to whatever the id object is pointing to.
  */
-const void* GrGetPtrFromId(id idObject);
-
-/**
- * Returns a const void* to whatever the id object is pointing to. Always uses __bridge_retained.
- */
-const void* GrReleaseId(id idObject);
+SK_ALWAYS_INLINE const void* GrGetPtrFromId(id idObject) {
+    return (__bridge const void*)idObject;
+}
 
 /**
  * Returns a MTLTextureDescriptor which describes the MTLTexture. Useful when creating a duplicate
