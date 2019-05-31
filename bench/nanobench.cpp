@@ -37,7 +37,6 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
-#include "tools/AutoreleasePool.h"
 #include "tools/CrashHandler.h"
 #include "tools/ProcStats.h"
 #include "tools/Stats.h"
@@ -1236,7 +1235,6 @@ int main(int argc, char** argv) {
     int runs = 0;
     BenchmarkStream benchStream;
     log.beginObject("results");
-    AutoreleasePool pool;
     while (Benchmark* b = benchStream.next()) {
         std::unique_ptr<Benchmark> bench(b);
         if (CommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
@@ -1423,7 +1421,6 @@ int main(int argc, char** argv) {
                 SkDebugf("%s\n", bench->getUniqueName());
             }
             cleanup_run(target);
-            pool.drain();
         }
         if (!configs.empty()) {
             log.endBench();
