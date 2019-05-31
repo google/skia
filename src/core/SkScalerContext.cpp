@@ -223,8 +223,13 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
             if (glyph->fWidth > 0) {
                 switch (glyph->fMaskFormat) {
                 case SkMask::kLCD16_Format:
-                    glyph->fWidth += 2;
-                    glyph->fLeft -= 1;
+                    if (fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag) {
+                        glyph->fHeight += 2;
+                        glyph->fTop -= 1;
+                    } else {
+                        glyph->fWidth += 2;
+                        glyph->fLeft -= 1;
+                    }
                     break;
                 default:
                     break;
@@ -290,18 +295,27 @@ static void applyLUTToA8Mask(const SkMask& mask, const uint8_t* lut) {
     }
 }
 
-template<bool APPLY_PREBLEND>
 static void pack4xHToLCD16(const SkPixmap& src, const SkMask& dst,
-                           const SkMaskGamma::PreBlend& maskPreBlend) {
+                           const SkMaskGamma::PreBlend& maskPreBlend,
+                           const bool doBGR, const bool doVert) {
 #define SAMPLES_PER_PIXEL 4
 #define LCD_PER_PIXEL 3
     SkASSERT(kAlpha_8_SkColorType == src.colorType());
     SkASSERT(SkMask::kLCD16_Format == dst.fFormat);
 
+    // doVert in this function means swap x and y when writing to dst.
+    if (doVert) {
+        SkASSERT(src.width() == (dst.fBounds.height() - 2) * 4);
+        SkASSERT(src.height() == dst.fBounds.width());
+    } else {
+        SkASSERT(src.width() == (dst.fBounds.width() - 2) * 4);
+        SkASSERT(src.height() == dst.fBounds.height());
+    }
+
     const int sample_width = src.width();
     const int height = src.height();
 
-    uint16_t* dstP = (uint16_t*)dst.fImage;
+    uint16_t* dstImage = (uint16_t*)dst.fImage;
     size_t dstRB = dst.fRowBytes;
     // An N tap FIR is defined by
     // out[n] = coeff[0]*x[n] + coeff[1]*x[n-1] + ... + coeff[N]*x[n-N]
@@ -323,7 +337,7 @@ static void pack4xHToLCD16(const SkPixmap& src, const SkMask& dst,
     // The lcd smoothed text is almost imperceptibly different from gray,
     // but is still sharper on small stems and small rounded corners than gray.
     // This also seems to be about as wide as one can get and only have a three pixel kernel.
-    // TODO: caculate these at runtime so parameters can be adjusted (esp contrast).
+    // TODO: calculate these at runtime so parameters can be adjusted (esp contrast).
     static const unsigned int coefficients[LCD_PER_PIXEL][SAMPLES_PER_PIXEL*3] = {
         //The red subpixel is centered inside the first sample (at 1/6 pixel), and is shifted.
         { 0x03, 0x0b, 0x1c, 0x33,  0x40, 0x39, 0x24, 0x10,  0x05, 0x01, 0x00, 0x00, },
@@ -334,11 +348,21 @@ static void pack4xHToLCD16(const SkPixmap& src, const SkMask& dst,
     };
 
     for (int y = 0; y < height; ++y) {
+        uint16_t* dstP;
+        size_t dstPDelta;
+        if (doVert) {
+            dstP = dstImage + y;
+            dstPDelta = dstRB;
+        } else {
+            dstP = SkTAddOffset<uint16_t>(dstImage, dstRB * y);
+            dstPDelta = sizeof(uint16_t);
+        }
+
         const uint8_t* srcP = src.addr8(0, y);
 
         // TODO: this fir filter implementation is straight forward, but slow.
         // It should be possible to make it much faster.
-        for (int sample_x = -4, pixel_x = 0; sample_x < sample_width + 4; sample_x += 4, ++pixel_x) {
+        for (int sample_x = -4; sample_x < sample_width + 4; sample_x += 4) {
             int fir[LCD_PER_PIXEL] = { 0 };
             for (int sample_index = SkMax32(0, sample_x - 4), coeff_index = sample_index - (sample_x - 4)
                 ; sample_index < SkMin32(sample_x + 8, sample_width)
@@ -354,15 +378,27 @@ static void pack4xHToLCD16(const SkPixmap& src, const SkMask& dst,
                 fir[subpxl_index] = SkMin32(fir[subpxl_index], 255);
             }
 
-            U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(fir[0], maskPreBlend.fR);
-            U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(fir[1], maskPreBlend.fG);
-            U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(fir[2], maskPreBlend.fB);
+            U8CPU r, g, b;
+            if (doBGR) {
+                r = fir[2];
+                g = fir[1];
+                b = fir[0];
+            } else {
+                r = fir[0];
+                g = fir[1];
+                b = fir[2];
+            }
+            if (maskPreBlend.isApplicable()) {
+                r = maskPreBlend.fR[r];
+                g = maskPreBlend.fG[g];
+                b = maskPreBlend.fB[b];
+            }
 #if SK_SHOW_TEXT_BLIT_COVERAGE
             r = SkMax32(r, 10); g = SkMax32(g, 10); b = SkMax32(b, 10);
 #endif
-            dstP[pixel_x] = SkPack888ToRGB16(r, g, b);
+            *dstP = SkPack888ToRGB16(r, g, b);
+            dstP = SkTAddOffset<uint16_t>(dstP, dstPDelta);
         }
-        dstP = (uint16_t*)((char*)dstP + dstRB);
     }
 }
 
@@ -413,7 +449,8 @@ static void packA8ToA1(const SkMask& mask, const uint8_t* src, size_t srcRB) {
 }
 
 static void generateMask(const SkMask& mask, const SkPath& path,
-                         const SkMaskGamma::PreBlend& maskPreBlend) {
+                         const SkMaskGamma::PreBlend& maskPreBlend,
+                         bool doBGR, bool doVert) {
     SkPaint paint;
 
     int srcW = mask.fBounds.width();
@@ -434,11 +471,18 @@ static void generateMask(const SkMask& mask, const SkPath& path,
         case SkMask::kA8_Format:
             break;
         case SkMask::kLCD16_Format:
-            // TODO: trigger off LCD orientation
-            dstW = 4*dstW - 8;
-            matrix.setTranslate(-SkIntToScalar(mask.fBounds.fLeft + 1),
-                                -SkIntToScalar(mask.fBounds.fTop));
-            matrix.postScale(SkIntToScalar(4), SK_Scalar1);
+            if (doVert) {
+                dstW = 4*dstH - 8;
+                dstH = srcW;
+                matrix.setAll(0, 4, -SkIntToScalar(mask.fBounds.fTop + 1) * 4,
+                              1, 0, -SkIntToScalar(mask.fBounds.fLeft),
+                              0, 0, 1);
+            } else {
+                dstW = 4*dstW - 8;
+                matrix.setAll(4, 0, -SkIntToScalar(mask.fBounds.fLeft + 1) * 4,
+                              0, 1, -SkIntToScalar(mask.fBounds.fTop),
+                              0, 0, 1);
+            }
             dstRB = 0;  // signals we need a copy
             break;
         default:
@@ -478,11 +522,7 @@ static void generateMask(const SkMask& mask, const SkPath& path,
             }
             break;
         case SkMask::kLCD16_Format:
-            if (maskPreBlend.isApplicable()) {
-                pack4xHToLCD16<true>(dst, mask, maskPreBlend);
-            } else {
-                pack4xHToLCD16<false>(dst, mask, maskPreBlend);
-            }
+            pack4xHToLCD16(dst, mask, maskPreBlend, doBGR, doVert);
             break;
         default:
             break;
@@ -528,7 +568,9 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         } else {
             SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
             SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
-            generateMask(mask, devPath, fPreBlend);
+            const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
+            const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
+            generateMask(mask, devPath, fPreBlend, doBGR, doVert);
         }
     }
 
