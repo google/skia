@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cde1978a_5b6eff85",
+        "filename": "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-31T21:13:14Z",
+      "side": 1,
+      "message": "only three?",
+      "range": {
+        "startLine": 71,
+        "startChar": 61,
+        "endLine": 71,
+        "endChar": 75
+      },
+      "revId": "cb1c13daf0cd67b221c9644f101cd66f3312d8b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b1b44de_7d4ca597",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-05-31T21:13:14Z",
+      "side": 1,
+      "message": "Ditto",
+      "range": {
+        "startLine": 166,
+        "startChar": 54,
+        "endLine": 166,
+        "endChar": 67
+      },
+      "revId": "cb1c13daf0cd67b221c9644f101cd66f3312d8b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
