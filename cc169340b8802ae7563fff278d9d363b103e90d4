@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10d96f72_21e187a0",
+        "filename": "modules/skparagraph/include/SkFontCollection.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-31T13:50:36Z",
+      "side": 1,
+      "message": "Do we need/want the Sk in front of all of these namespaced types? Seems redundant, and skottie chose not to add it...",
+      "range": {
+        "startLine": 29,
+        "startChar": 6,
+        "endLine": 29,
+        "endChar": 22
+      },
+      "revId": "cc169340b8802ae7563fff278d9d363b103e90d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
