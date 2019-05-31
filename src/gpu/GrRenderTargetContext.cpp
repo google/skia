@@ -2600,7 +2600,7 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
         return false;
     }
 
-    if (!sContext->copy(rtProxy, copyRect, dstPoint)) {
+    if (!sContext->copy(rtProxy->asTextureProxy(), copyRect, dstPoint)) {
         SkDebugf("setupDstTexture: copy failed.\n");
         return false;
     }
