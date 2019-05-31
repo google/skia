@@ -6,6 +6,7 @@
  */
 
 #include "src/gpu/GrRenderTargetContext.h"
+#include <src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h>
 #include "include/core/SkDrawable.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrRenderTarget.h"
@@ -2134,6 +2135,123 @@ void GrRenderTargetContext::asyncReadPixels(const SkImageInfo& info, int x, int 
     flushInfo.fFinishedContext = finishContext;
     flushInfo.fFinishedProc = finishCallback;
     this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+}
+
+void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
+        SkYUVColorSpace yuvColorSpace, sk_sp<SkColorSpace> dstColorSpace, SkIRect& srcRect,
+        int dstW, int dstH, RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
+        ReadPixelsCallbackYUV420 callback, ReadPixelsContext context) {
+    SkASSERT(srcRect.fLeft >= 0 && srcRect.fRight <= this->width());
+    SkASSERT(srcRect.fTop >= 0 && srcRect.fBottom <= this->height());
+    SkASSERT((dstW % 2 == 0) && (dstH % 2 == 0));
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        callback(context, nullptr, nullptr);
+        return;
+    }
+    if (fRenderTargetProxy->wrapsVkSecondaryCB()) {
+        callback(context, nullptr, nullptr);
+        return;
+    }
+    if (dstW & 0x1) {
+        return;
+    }
+    int x = srcRect.fLeft;
+    int y = srcRect.fTop;
+    auto rtc = sk_ref_sp(this);
+    bool needsRescale = srcRect.width() != dstW || srcRect.height() != dstH;
+    if (needsRescale) {
+        auto info = SkImageInfo::Make(dstW, dstH, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                                      dstColorSpace);
+        // TODO: Incorporate the YUV conversion into last pass of rescaling.
+        rtc = this->rescale(info, srcRect, rescaleGamma, rescaleQuality);
+        if (!rtc) {
+            callback(context, nullptr, nullptr);
+            return;
+        }
+        SkASSERT(SkColorSpace::Equals(rtc->colorSpaceInfo().colorSpace(), info.colorSpace()));
+        SkASSERT(rtc->origin() == kTopLeft_GrSurfaceOrigin);
+        x = y = 0;
+    } else {
+        sk_sp<GrColorSpaceXform> xform =
+                GrColorSpaceXform::Make(this->colorSpaceInfo().colorSpace(), kPremul_SkAlphaType,
+                                        dstColorSpace.get(), kPremul_SkAlphaType);
+        if (xform) {
+            sk_sp<GrTextureProxy> texProxy = this->asTextureProxyRef();
+            // TODO: Do something if the input is not a texture already.
+            if (!texProxy) {
+                callback(context, nullptr, nullptr);
+                return;
+            }
+            const auto backendFormat = this->caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            SkRect srcRectToDraw = SkRect::Make(srcRect);
+            rtc = direct->priv().makeDeferredRenderTargetContext(
+                    backendFormat, SkBackingFit::kApprox, dstW, dstH,
+                    fRenderTargetProxy->config(), dstColorSpace, 1, GrMipMapped::kNo,
+                    kTopLeft_GrSurfaceOrigin);
+            if (!rtc) {
+                callback(context, nullptr, nullptr);
+                return;
+            }
+            rtc->drawTexture(GrNoClip(), std::move(texProxy), GrSamplerState::Filter::kNearest,
+                             SkBlendMode::kSrc, SK_PMColor4fWHITE, srcRectToDraw,
+                             SkRect::MakeWH(srcRect.width(), srcRect.height()), GrAA::kNo,
+                             GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(),
+                             std::move(xform));
+            x = y = 0;
+        }
+    }
+    auto srcProxy = rtc->asTextureProxyRef();
+    // TODO: Do something if the input is not a texture already.
+    if (!srcProxy) {
+        callback(context, nullptr, nullptr);
+        return;
+    }
+    const auto yBackendFormat = this->caps()->getBackendFormatFromGrColorType(GrColorType::kAlpha_8, GrSRGBEncoded::kNo);
+    const auto uvBackendFormat = this->caps()->getBackendFormatFromGrColorType(GrColorType::kRG_88, GrSRGBEncoded::kNo);
+    auto yRTC = direct->priv().makeDeferredRenderTargetContext(
+            yBackendFormat, SkBackingFit::kApprox, dstW, dstH,
+            kAlpha_8_GrPixelConfig, dstColorSpace, 1, GrMipMapped::kNo,
+            kTopLeft_GrSurfaceOrigin);
+    auto uvRTC = direct->priv().makeDeferredRenderTargetContext(
+            uvBackendFormat, SkBackingFit::kApprox, dstW / 2, dstH / 2,
+            kAlpha_8_GrPixelConfig, dstColorSpace, 1, GrMipMapped::kNo,
+            kTopLeft_GrSurfaceOrigin);
+    if (!yRTC || !uvRTC) {
+        callback(context, nullptr, nullptr);
+        return;
+    }
+
+    // TODO: Get the right matrices for each SkYUVColorSpace.
+    static constexpr float kYM[20] {
+            // Y in all the output channels.
+            65.481f / 255, 128.553f / 255,   24.966f / 255, 0.f,  16.f / 255,
+            65.481f / 255, 128.553f / 255,   24.966f / 255, 0.f,  16.f / 255,
+            65.481f / 255, 128.553f / 255,   24.966f / 255, 0.f,  16.f / 255,
+            65.481f / 255, 128.553f / 255,   24.966f / 255, 0.f,  16.f / 255,
+    };
+    static constexpr float kUVM[20] {
+            // R gets U, G gets V. We don't care what goes in B and A
+            -37.797f / 255, -74.203f / 255, 112.439f / 255, 0.f, 128.f / 255,
+            112.f    / 255, -93.786f / 255, -18.214f / 255, 0.f, 128.f / 255,
+            0.f           ,   0.f         ,      1.f      , 0.f,   0.f,
+            0.f           ,   0.f         ,      0.f      , 1.f,   0.f
+    };
+    GrPaint yPaint;
+    yPaint.addColorTextureProcessor(srcProxy, SkMatrix::I());
+    auto yFP = GrColorMatrixFragmentProcessor::Make(kYM, false, true, false);
+    yPaint.addColorFragmentProcessor(std::move(yFP));
+    yPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    yRTC->drawFilledRect(GrNoClip(), std::move(yPaint), GrAA::kNo, SkMatrix::I(), SkRect::MakeWH(dstW, dstH));
+
+    GrPaint uvPaint;
+    uvPaint.addColorTextureProcessor(srcProxy, SkMatrix::MakeScale(2.f, 2.f),
+            GrSamplerState::ClampBilerp());
+    auto uvFP = GrColorMatrixFragmentProcessor::Make(kUVM, false, true, false);
+    yPaint.addColorFragmentProcessor(std::move(uvFP));
+    yPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    yRTC->drawFilledRect(GrNoClip(), std::move(uvPaint), GrAA::kNo, SkMatrix::I(), SkRect::MakeWH(dstW / 2, dstH / 2));
+    callback(context, nullptr, nullptr);
 }
 
 GrSemaphoresSubmitted GrRenderTargetContext::flush(SkSurface::BackendSurfaceAccess access,
