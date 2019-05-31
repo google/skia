@@ -8,6 +8,7 @@
 #include "src/gpu/vk/GrVkUtil.h"
 
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/sksl/SkSLCompiler.h"
 
@@ -309,28 +310,18 @@ bool GrVkFormatIsCompressed(VkFormat vkFormat) {
     return false;
 }
 
-size_t GrVkFormatCompressedDataSize(VkFormat format, int width, int height) {
-    SkASSERT(GrVkFormatIsCompressed(format));
+size_t GrVkFormatCompressedDataSize(VkFormat vkFormat, int width, int height) {
+    SkASSERT(GrVkFormatIsCompressed(vkFormat));
 
-    switch (format) {
+    switch (vkFormat) {
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
-            if (width < 4) {
-                SkASSERT(width == 1 || width == 2);
-                width = 4;
-            }
-            if (height < 4) {
-                SkASSERT(height == 1 || height == 2);
-                height = 4;
-            }
-            SkASSERT((width & 3) == 0);
-            SkASSERT((height & 3) == 0);
-            return (width >> 2) * (height >> 2) * 8;
+            return GrETC1CompressedDataSize(width, height);
         default:
             SK_ABORT("Unknown compressed format");
             return 4 * width * height;
     }
 
-    SK_ABORT("Invalid format");
+    SK_ABORT("Unknown compressed format");
     return 4 * width * height;
 }
 
