@@ -1564,6 +1564,7 @@ if (skia_enable_tools) {
   test_lib("tool_utils") {
     sources = [
       "tools/AndroidSkDebugToStdOut.cpp",
+      "tools/AutoreleasePool.h",
       "tools/CrashHandler.cpp",
       "tools/DDLPromiseImageHelper.cpp",
       "tools/DDLTileHelper.cpp",
@@ -1591,7 +1592,16 @@ if (skia_enable_tools) {
     libs = []
     if (is_ios) {
       sources += [ "tools/ios_utils.m" ]
+      sources += [ "tools/ios_utils.h" ]
+      if (skia_use_metal) {
+        sources += [ "tools/AutoreleasePool.mm" ]
+      }
       libs += [ "Foundation.framework" ]
+    } else if (is_mac) {
+      if (skia_use_metal) {
+        sources += [ "tools/AutoreleasePool.mm" ]
+        libs += [ "Foundation.framework" ]
+      }
     } else if (is_win) {
       libs += [ "DbgHelp.lib" ]
     }
