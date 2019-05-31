@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f456c40e_1a6fb955",
+        "filename": "modules/skparagraph/include/ParagraphStyle.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-31T15:22:20Z",
+      "side": 1,
+      "message": "typically we return const Type\u0026 from a getter, not a mutable ref",
+      "revId": "dbcb4f2f8e6cfe744ae645dcbafacaa11b161e3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
