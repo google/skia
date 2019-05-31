@@ -126,7 +126,6 @@
     "name": "Run calmbench"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

@@ -225,7 +225,6 @@
     "name": "Performance tests of canvaskit with Docker"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

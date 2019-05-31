@@ -501,7 +501,6 @@
     "name": "pull_if_needed dm"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

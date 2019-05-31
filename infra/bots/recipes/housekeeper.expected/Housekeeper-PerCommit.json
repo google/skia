@@ -121,7 +121,6 @@
     "name": "generate and upload doxygen"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

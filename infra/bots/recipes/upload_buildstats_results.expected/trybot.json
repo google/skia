@@ -44,7 +44,6 @@
     "name": "upload [START_DIR]/perf/buildstats_def.json"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

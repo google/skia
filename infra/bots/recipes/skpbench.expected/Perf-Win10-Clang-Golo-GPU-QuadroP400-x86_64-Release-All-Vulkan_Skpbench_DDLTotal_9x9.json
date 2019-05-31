@@ -149,7 +149,6 @@
     "name": "Parse skpbench output into Perf json"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

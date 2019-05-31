@@ -110,7 +110,6 @@
     "name": "makedirs tmp_dir"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

@@ -231,7 +231,6 @@
     "name": "Test PathKit with Docker"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

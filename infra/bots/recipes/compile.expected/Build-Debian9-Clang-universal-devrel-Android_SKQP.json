@@ -238,7 +238,6 @@
     "name": "copy whitelist"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]
