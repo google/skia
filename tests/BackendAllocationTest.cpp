@@ -133,11 +133,20 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
         return;
     }
 
-    SkImageInfo ii = SkImageInfo::Make(32, 32, colorType, kPremul_SkAlphaType);
+    SkAlphaType at = SkColorTypeIsAlwaysOpaque(colorType) ? kOpaque_SkAlphaType
+                                                          : kPremul_SkAlphaType;
+
+    SkImageInfo ii = SkImageInfo::Make(32, 32, colorType, at);
 
     SkAutoPixmapStorage expected;
     SkAssertResult(expected.tryAlloc(ii));
-    expected.erase(color);
+    if (kGray_8_SkColorType == colorType) {
+        // For the GPU backends gray implies a single channel which is opaque.
+        SkColor4f gray { color.fA, color.fA, color.fA, 1 };
+        expected.erase(gray);
+    } else {
+        expected.erase(color);
+    }
 
     SkAutoPixmapStorage actual;
     SkAssertResult(actual.tryAlloc(ii));
@@ -165,7 +174,7 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                                                       backendTex,
                                                       kTopLeft_GrSurfaceOrigin,
                                                       colorType,
-                                                      kPremul_SkAlphaType,
+                                                      at,
                                                       nullptr);
         if (img) {
             bool result = img->readPixels(actual, 0, 0);
@@ -191,6 +200,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
     const GrCaps* caps = context->priv().caps();
 
     constexpr SkColor4f kTransCol { 0, 0.25f, 0.75f, 0.5f };
+    constexpr SkColor4f kGrayCol { 0.75f, 0.75f, 0.75f, 0.75f };
 
     struct {
         SkColorType   fColorType;
@@ -208,7 +218,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         { kRGBA_1010102_SkColorType, kRGBA_1010102_GrPixelConfig,      { 0.5f, 0, 0, 1.0f }},
         // The kRGB_101010x_SkColorType has no Ganesh correlate
         { kRGB_101010x_SkColorType,  kUnknown_GrPixelConfig,           { 0, 0.5f, 0, 0.5f }},
-        { kGray_8_SkColorType,       kGray_8_GrPixelConfig,            SkColors::kDkGray   },
+        { kGray_8_SkColorType,       kGray_8_GrPixelConfig,            kGrayCol            },
         { kRGBA_F16Norm_SkColorType, kRGBA_half_Clamped_GrPixelConfig, SkColors::kLtGray   },
         { kRGBA_F16_SkColorType,     kRGBA_half_GrPixelConfig,         SkColors::kYellow   },
         { kRGBA_F32_SkColorType,     kRGBA_float_GrPixelConfig,        SkColors::kGray     },
@@ -259,13 +269,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                 }
 
                 {
-                    // GL has difficulties reading back from these combinations
+                    // GL has difficulties reading back from these combinations. In particular,
+                    // reading back kGray_8 is a mess.
                     if (GrBackendApi::kOpenGL == context->backend()) {
-                        if (kAlpha_8_SkColorType == combo.fColorType) {
+                        if (kAlpha_8_SkColorType == combo.fColorType ||
+                            kGray_8_SkColorType == combo.fColorType) {
                             continue;
                         }
-                    } else {
-                        // Not yet implemented for Vulkan and Metal
+                    } else if (GrBackendApi::kMetal == context->backend()) {
+                        // Not yet implemented for Metal
                         continue;
                     }
 
@@ -299,6 +311,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
     const GrGLCaps* glCaps = static_cast<const GrGLCaps*>(context->priv().caps());
 
     constexpr SkColor4f kTransCol { 0, 0.25f, 0.75f, 0.5f };
+    constexpr SkColor4f kGrayCol { 0.75f, 0.75f, 0.75f, 0.75f };
 
     struct {
         SkColorType   fColorType;
@@ -313,9 +326,9 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
           kSRGBA_8888_GrPixelConfig,        SkColors::kRed      },
 
         { kRGB_888x_SkColorType,            GR_GL_RGBA8,
-          kRGBA_8888_GrPixelConfig,         { 1, 1, 0, 0.5f }   },
+          kRGBA_8888_GrPixelConfig,         SkColors::kYellow   },
         { kRGB_888x_SkColorType,            GR_GL_RGB8,
-          kRGB_888_GrPixelConfig,           { 0, 1, 1, 0.5f }  },
+          kRGB_888_GrPixelConfig,           SkColors::kCyan     },
 
         { kBGRA_8888_SkColorType,           GR_GL_RGBA8,
           kRGBA_8888_GrPixelConfig,         SkColors::kBlue     },
@@ -338,9 +351,9 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
           kAlpha_8_as_Red_GrPixelConfig,    kTransCol           },
 
         { kGray_8_SkColorType,              GR_GL_LUMINANCE8,
-          kGray_8_as_Lum_GrPixelConfig,     SkColors::kLtGray   },
+          kGray_8_as_Lum_GrPixelConfig,     kGrayCol            },
         { kGray_8_SkColorType,              GR_GL_R8,
-          kGray_8_as_Red_GrPixelConfig,     SkColors::kDkGray   },
+          kGray_8_as_Red_GrPixelConfig,     kGrayCol            },
 
         { kRGBA_F32_SkColorType,            GR_GL_RGBA32F,
           kRGBA_float_GrPixelConfig,        SkColors::kRed      },
@@ -426,8 +439,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                     if (kAlpha_8_SkColorType == combo.fColorType) {
                         continue;
                     }
-                    if (GrRenderable::kYes != renderable ||
-                        kRGB_888x_SkColorType == combo.fColorType) {
+                    if (GrRenderable::kYes != renderable) {
                         continue;
                     }
 
@@ -460,6 +472,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
     const GrVkCaps* vkCaps = static_cast<const GrVkCaps*>(context->priv().caps());
 
     constexpr SkColor4f kTransCol { 0, 0.25f, 0.75f, 0.5f };
+    constexpr SkColor4f kGrayCol { 0.75f, 0.75f, 0.75f, 0.75f };
 
     struct {
         SkColorType fColorType;
@@ -469,8 +482,11 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         { kRGBA_8888_SkColorType,    VK_FORMAT_R8G8B8A8_UNORM,           SkColors::kRed       },
         { kRGBA_8888_SkColorType,    VK_FORMAT_R8G8B8A8_SRGB,            SkColors::kRed       },
 
-        { kRGB_888x_SkColorType,     VK_FORMAT_R8G8B8A8_UNORM,           { 1, 1, 0, 0.5f }    },
-        { kRGB_888x_SkColorType,     VK_FORMAT_R8G8B8_UNORM,             { 0, 1, 1, 0.5f }    },
+        // In this configuration (i.e., an RGB_888x colortype with an RGBA8 backing format),
+        // there is nothing to tell Skia to make the provided color opaque. Clients will need
+        // to provide an opaque initialization color in this case.
+        { kRGB_888x_SkColorType,     VK_FORMAT_R8G8B8A8_UNORM,           SkColors::kYellow    },
+        { kRGB_888x_SkColorType,     VK_FORMAT_R8G8B8_UNORM,             SkColors::kCyan      },
 
         { kBGRA_8888_SkColorType,    VK_FORMAT_B8G8R8A8_UNORM,           SkColors::kBlue      },
         { kBGRA_8888_SkColorType,    VK_FORMAT_B8G8R8A8_SRGB,            SkColors::kCyan      },
@@ -482,7 +498,12 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         { kARGB_4444_SkColorType,    VK_FORMAT_B4G4R4A4_UNORM_PACK16,    SkColors::kYellow    },
 
         { kAlpha_8_SkColorType,      VK_FORMAT_R8_UNORM,                 kTransCol            },
-        { kGray_8_SkColorType,       VK_FORMAT_R8_UNORM,                 SkColors::kLtGray    },
+        // In this config (i.e., a Gray8 color type with an R8 backing format), there is nothing
+        // to tell Skia this isn't an Alpha8 color type (so it will initialize the texture with
+        // the alpha channel of the color). Clients should, in general, fill all the channels
+        // of the provided color with the same value in such cases.
+        { kGray_8_SkColorType,       VK_FORMAT_R8_UNORM,                 kGrayCol             },
+
         { kRGBA_F32_SkColorType,     VK_FORMAT_R32G32B32A32_SFLOAT,      SkColors::kRed       },
 
         { kRGBA_F16Norm_SkColorType, VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kLtGray    },
@@ -531,8 +552,6 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                                   combo.fColorType, mipMapped, renderable);
                 }
 
-                // Not implemented for Vulkan yet
-#if 0
                 {
                     auto createWithColorMtd = [format](GrContext* context,
                                                        const SkColor4f& color,
@@ -545,7 +564,6 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                     test_color_init(context, reporter, createWithColorMtd,
                                     combo.fColorType, combo.fColor, mipMapped, renderable);
                 }
-#endif
             }
         }
     }
