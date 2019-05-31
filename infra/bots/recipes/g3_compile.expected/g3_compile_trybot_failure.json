@@ -14,21 +14,6 @@
     ]
   },
   {
-    "cmd": [
-      "gsutil",
-      "cat",
-      "gs://g3-compile-tasks/1234-1.json"
-    ],
-    "name": "Get cl link",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"cl\": \"cl/12345\"@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LINK@CL link@cl/12345@@@"
-    ]
-  },
-  {
     "failure": {
       "failure": {},
       "humanReason": "Step('Trigger and wait for g3 compile task') (retcode: 1)"

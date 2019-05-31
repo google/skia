@@ -4,10 +4,8 @@
 
 
 DEPS = [
-  'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
-  'recipe_engine/raw_io',
   'recipe_engine/step',
 ]
 
@@ -28,17 +26,7 @@ def RunSteps(api):
          '--issue', issue,
          '--patchset', patchset,
         ]
-  try:
-    api.step('Trigger and wait for g3 compile task', cmd=cmd)
-  except api.step.StepFailure as e:
-    # Add withpatch and nopatch logs as links (if they exist).
-    gs_file = 'gs://g3-compile-tasks/%s-%s.json' % (issue, patchset)
-    step_result = api.step(
-        'Get cl link', ['gsutil', 'cat', gs_file], stdout=api.json.output())
-    task_json = step_result.stdout
-    if task_json.get('cl'):
-      api.step.active_result.presentation.links['CL link'] = task_json['cl']
-    raise e
+  api.step('Trigger and wait for g3 compile task', cmd=cmd)
 
 
 def GenTests(api):
@@ -66,8 +54,7 @@ def GenTests(api):
         patch_set=1,
         revision='abc123',
     ) +
-    api.step_data('Trigger and wait for g3 compile task', retcode=1) +
-    api.step_data('Get cl link', stdout=api.raw_io.output('{"cl":"cl/12345"}'))
+    api.step_data('Trigger and wait for g3 compile task', retcode=1)
   )
 
   yield(
