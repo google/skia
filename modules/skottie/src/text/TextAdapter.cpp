@@ -116,7 +116,10 @@ void TextAdapter::apply() {
 }
 
 void TextAdapter::applyAnimatedProps(const AnimatedProps& props) {
-    const auto t = SkMatrix::MakeTrans(props.position.x(), props.position.y());
+    // TODO: share this with TransformAdapter2D
+    auto t = SkMatrix::MakeTrans(props.position.x(), props.position.y());
+    t.preRotate(props.rotation);
+    t.preScale(props.scale, props.scale);
 
     const auto fc = SkColorSetA(props.fill_color,
                                 SkScalarRoundToInt(props.opacity*SkColorGetA(props.fill_color))),
