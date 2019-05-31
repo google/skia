@@ -12,6 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/text/TextAdapter.h"
+#include "modules/skottie/src/text/TextAnimator.h"
 #include "modules/skottie/src/text/TextValue.h"
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
@@ -257,7 +258,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
                                                           AnimatorScope* ascope) const {
     // General text node format:
     // "t": {
-    //    "a": [], // animators (TODO)
+    //    "a": [], // animators (see TextAnimator.cpp)
     //    "d": {
     //        "k": [
     //            {
@@ -290,7 +291,6 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
 
     const skjson::ArrayValue* animated_props = (*jt)["a"];
     const auto has_animators = (animated_props && animated_props->size() > 0);
-    // TODO: actually parse/implement animators.
 
     const skjson::ObjectValue* jd  = (*jt)["d"];
     if (!jd) {
@@ -303,6 +303,12 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
     this->bindProperty<TextValue>(*jd, ascope, [adapter] (const TextValue& txt) {
         adapter->setText(txt);
     });
+
+    if (has_animators) {
+        if (auto alist = TextAnimatorList::Make(*animated_props, this, adapter)) {
+            ascope->push_back(std::move(alist));
+        }
+    }
 
     return std::move(text_root);
 }
