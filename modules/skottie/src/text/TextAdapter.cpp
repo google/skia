@@ -118,14 +118,19 @@ void TextAdapter::apply() {
 void TextAdapter::applyAnimatedProps(const AnimatedProps& props) {
     const auto t = SkMatrix::MakeTrans(props.position.x(), props.position.y());
 
+    const auto fc = SkColorSetA(props.fill_color,
+                                SkScalarRoundToInt(props.opacity*SkColorGetA(props.fill_color))),
+               sc = SkColorSetA(props.stroke_color,
+                                SkScalarRoundToInt(props.opacity*SkColorGetA(props.stroke_color)));
+
     for (const auto& rec : fFragments) {
         rec.fMatrixNode->setMatrix(t);
 
         if (rec.fFillColorNode) {
-            rec.fFillColorNode->setColor(props.fill_color);
+            rec.fFillColorNode->setColor(fc);
         }
         if (rec.fStrokeColorNode) {
-            rec.fStrokeColorNode->setColor(props.stroke_color);
+            rec.fStrokeColorNode->setColor(sc);
         }
     }
 }

@@ -89,6 +89,11 @@ public:
         if (fHasStrokeColor) {
             dst->stroke_color = fTextProps.stroke_color;
         }
+
+        // Opacity is also overridden.
+        if (fHasOpacity) {
+            dst->opacity = fTextProps.opacity;
+        }
     }
 
 private:
@@ -112,12 +117,17 @@ private:
             [animator](const VectorValue& sc) {
                 animator->fTextProps.stroke_color = ValueTraits<VectorValue>::As<SkColor>(sc);
             });
+        fHasOpacity     = abuilder->bindProperty<ScalarValue>(jprops["o"], ascope,
+            [animator](const ScalarValue& o) {
+                animator->fTextProps.opacity = SkTPin<float>(o * 0.01f, 0, 1);
+            });
     }
 
     TextAdapter::AnimatedProps fTextProps;
     bool                       fHasPosition    : 1,
                                fHasFillColor   : 1,
-                               fHasStrokeColor : 1;
+                               fHasStrokeColor : 1,
+                               fHasOpacity     : 1;
 };
 
 std::unique_ptr<TextAnimatorList> TextAnimatorList::Make(const skjson::ArrayValue& janimators,
