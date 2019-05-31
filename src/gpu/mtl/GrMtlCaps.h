@@ -46,18 +46,11 @@ public:
         return fPreferredStencilFormat;
     }
 
-    bool canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCount, GrSurfaceOrigin dstOrigin,
-                       GrPixelConfig srcConfig, int srcSampleCount, GrSurfaceOrigin srcOrigin,
-                       const SkIRect& srcRect, const SkIPoint& dstPoint,
+    bool canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCount, GrPixelConfig srcConfig,
+                       int srcSampleCount, const SkIRect& srcRect, const SkIPoint& dstPoint,
                        bool areDstSrcSameObj) const;
 
-    bool canCopyAsDraw(GrPixelConfig dstConfig, bool dstIsRenderable,
-                       GrPixelConfig srcConfig, bool srcIsTextureable) const;
-
-    bool canCopyAsDrawThenBlit(GrPixelConfig dstConfig, GrPixelConfig srcConfig,
-                               bool srcIsTextureable) const;
-
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrSurfaceOrigin*,
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override {
         return false;
     }

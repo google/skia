@@ -101,8 +101,7 @@ private:
                               GrColorType, GrGpuBuffer* transferBuffer, size_t offset) override {
         return true;
     }
-    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
-                       GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+    bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                        const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override {
         return true;
     }

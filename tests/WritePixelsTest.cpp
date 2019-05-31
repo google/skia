@@ -386,6 +386,11 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface,
         const SkIRect& rect = testRects[r];
         for (int tightBmp = 0; tightBmp < 2; ++tightBmp) {
             for (size_t c = 0; c < SK_ARRAY_COUNT(gSrcConfigs); ++c) {
+#if 0
+                static int testCount =0;
+                SkDebugf("testCount: %d, r: %d, tightBmp: %d, c: %d\n",
+                         ++testCount, r, tightBmp, c);
+#endif
                 const SkColorType ct = gSrcConfigs[c].fColorType;
                 const SkAlphaType at = gSrcConfigs[c].fAlphaType;
 
@@ -394,13 +399,25 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface,
                 SkBitmap bmp;
                 REPORTER_ASSERT(reporter, setup_bitmap(&bmp, ct, at, rect.width(),
                                                        rect.height(), SkToBool(tightBmp)));
+#if 0
+                if (!check_write(reporter, surface, surfaceInfo.alphaType(),
+                                                      bmp, DEV_W + 1, DEV_H + 1)) {
+                    SkDebugf("filling surface failed\n");
+                }
+#endif
                 uint32_t idBefore = surface->generationID();
 
                 surface->writePixels(bmp, rect.fLeft, rect.fTop);
 
                 uint32_t idAfter = surface->generationID();
+#if 0
+                if (!check_write(reporter, surface, surfaceInfo.alphaType(),
+                                                      bmp, rect.fLeft, rect.fTop)) {
+                }
+#else
                 REPORTER_ASSERT(reporter, check_write(reporter, surface, surfaceInfo.alphaType(),
                                                       bmp, rect.fLeft, rect.fTop));
+#endif
 
                 // we should change the genID iff pixels were actually written.
                 SkIRect canvasRect = SkIRect::MakeSize(canvas->getBaseLayerSize());
@@ -454,7 +471,7 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
                                           GrContext* context,
                                           int sampleCnt) {
 
-    for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
+    for (auto& origin : { kTopLeft_GrSurfaceOrigin/*, kBottomLeft_GrSurfaceOrigin*/ }) {
         GrBackendTexture backendTex = context->createBackendTexture(
                 DEV_W, DEV_H, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes);
         if (!backendTex.isValid()) {

@@ -15,9 +15,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrSurfaceContext.h"
-#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/SkGr.h"
-#include "tools/gpu/ProxyUtils.h"
 
 void test_read_pixels(skiatest::Reporter* reporter,
                       GrSurfaceContext* srcContext, uint32_t expectedPixelValues[],
@@ -75,6 +73,7 @@ void test_write_pixels(skiatest::Reporter* reporter,
 void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
                             GrSurfaceProxy* proxy, uint32_t expectedPixelValues[],
                             bool onlyTestRTConfig, const char* testName) {
+    SkASSERT(proxy->config() == kRGBA_8888_GrPixelConfig);
     GrSurfaceDesc copyDstDesc;
     copyDstDesc.fWidth = proxy->width();
     copyDstDesc.fHeight = proxy->height();
@@ -86,38 +85,11 @@ void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
         }
 
         copyDstDesc.fFlags = flags;
-        auto origin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
-                                                      : kBottomLeft_GrSurfaceOrigin;
-
         sk_sp<GrSurfaceContext> dstContext(
-                GrSurfaceProxy::TestCopy(context, copyDstDesc, origin, proxy));
+                GrSurfaceProxy::TestCopy(context, copyDstDesc, proxy));
+        SkASSERT(dstContext.get());
 
         test_read_pixels(reporter, dstContext.get(), expectedPixelValues, testName);
-    }
-}
-
-void test_copy_to_surface(skiatest::Reporter* reporter,
-                          GrContext* context,
-                          GrSurfaceContext* dstContext,
-                          const char* testName) {
-
-    int pixelCnt = dstContext->width() * dstContext->height();
-    SkAutoTMalloc<uint32_t> pixels(pixelCnt);
-    for (int y = 0; y < dstContext->width(); ++y) {
-        for (int x = 0; x < dstContext->height(); ++x) {
-            pixels.get()[y * dstContext->width() + x] =
-                SkColorToPremulGrColor(SkColorSetARGB(2*y, y, x, x * y));
-        }
-    }
-
-    for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
-        for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-            auto src = sk_gpu_test::MakeTextureProxyFromData(
-                    context, renderable, dstContext->width(),
-                    dstContext->height(), kRGBA_8888_SkColorType, origin, pixels.get(), 0);
-            dstContext->copy(src.get());
-            test_read_pixels(reporter, dstContext, pixels.get(), testName);
-        }
     }
 }
 
