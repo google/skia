@@ -78,7 +78,7 @@ public:
     };
 
     ByteCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                      ByteCode* output);
+                      ByteCode* output, bool vectorize);
 
     bool generateCode() override;
 
@@ -281,6 +281,7 @@ private:
     void setContinueTargets();
 
     const Context& fContext;
+    bool fVectorize;
 
     ByteCode* fOutput;
 

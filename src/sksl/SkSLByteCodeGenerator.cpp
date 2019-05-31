@@ -11,9 +11,10 @@
 namespace SkSL {
 
 ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                  ByteCode* output)
+                  ByteCode* output, bool vectorize)
     : INHERITED(program, errors, nullptr)
     , fContext(*context)
+    , fVectorize(vectorize)
     , fOutput(output)
     , fIntrinsics {
          { "cos",   ByteCodeInstruction::kCos },
@@ -744,15 +745,32 @@ void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
 }
 
 void ByteCodeGenerator::writeTernaryExpression(const TernaryExpression& t) {
-    this->writeExpression(*t.fTest);
-    this->write(ByteCodeInstruction::kConditionalBranch);
-    DeferredLocation trueLocation(this);
-    this->writeExpression(*t.fIfFalse);
-    this->write(ByteCodeInstruction::kBranch);
-    DeferredLocation endLocation(this);
-    trueLocation.set();
-    this->writeExpression(*t.fIfTrue);
-    endLocation.set();
+    if (fVectorize) {
+        // TODO: If there are no side effects in either branch, and no function calls (potential
+        // recursion), then generate the much simpler: IfTrue, IfFalse, Test, Blend
+        this->writeExpression(*t.fTest);
+        this->write(ByteCodeInstruction::kMaskPush);
+        this->writeExpression(*t.fIfTrue);
+        this->write(ByteCodeInstruction::kMaskPop);
+        this->writeExpression(*t.fTest);
+        this->write(ByteCodeInstruction::kNot);
+        this->write(ByteCodeInstruction::kMaskPush);
+        this->writeExpression(*t.fIfFalse);
+        this->write(ByteCodeInstruction::kMaskPop);
+        this->writeExpression(*t.fTest);
+        this->write(ByteCodeInstruction::kMaskBlend);
+        this->write8(SlotCount(t.fType));
+    } else {
+        this->writeExpression(*t.fTest);
+        this->write(ByteCodeInstruction::kConditionalBranch);
+        DeferredLocation trueLocation(this);
+        this->writeExpression(*t.fIfFalse);
+        this->write(ByteCodeInstruction::kBranch);
+        DeferredLocation endLocation(this);
+        trueLocation.set();
+        this->writeExpression(*t.fIfTrue);
+        endLocation.set();
+    }
 }
 
 void ByteCodeGenerator::writeExpression(const Expression& e, bool discard) {
@@ -1031,25 +1049,41 @@ void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
 }
 
 void ByteCodeGenerator::writeIfStatement(const IfStatement& i) {
-    if (i.fIfFalse) {
-        // if (test) { ..ifTrue.. } else { .. ifFalse .. }
+    if (fVectorize) {
         this->writeExpression(*i.fTest);
-        this->write(ByteCodeInstruction::kConditionalBranch);
-        DeferredLocation trueLocation(this);
-        this->writeStatement(*i.fIfFalse);
-        this->write(ByteCodeInstruction::kBranch);
-        DeferredLocation endLocation(this);
-        trueLocation.set();
+        if (i.fIfFalse) {
+            this->write(ByteCodeInstruction::kDup);
+        }
+        this->write(ByteCodeInstruction::kMaskPush);
         this->writeStatement(*i.fIfTrue);
-        endLocation.set();
+        this->write(ByteCodeInstruction::kMaskPop);
+        if (i.fIfFalse) {
+            this->write(ByteCodeInstruction::kNot);
+            this->write(ByteCodeInstruction::kMaskPush);
+            this->writeStatement(*i.fIfFalse);
+            this->write(ByteCodeInstruction::kMaskPop);
+        }
     } else {
-        // if (test) { ..ifTrue.. }
-        this->writeExpression(*i.fTest);
-        this->write(ByteCodeInstruction::kNot);
-        this->write(ByteCodeInstruction::kConditionalBranch);
-        DeferredLocation endLocation(this);
-        this->writeStatement(*i.fIfTrue);
-        endLocation.set();
+        if (i.fIfFalse) {
+            // if (test) { ..ifTrue.. } else { .. ifFalse .. }
+            this->writeExpression(*i.fTest);
+            this->write(ByteCodeInstruction::kConditionalBranch);
+            DeferredLocation trueLocation(this);
+            this->writeStatement(*i.fIfFalse);
+            this->write(ByteCodeInstruction::kBranch);
+            DeferredLocation endLocation(this);
+            trueLocation.set();
+            this->writeStatement(*i.fIfTrue);
+            endLocation.set();
+        } else {
+            // if (test) { ..ifTrue.. }
+            this->writeExpression(*i.fTest);
+            this->write(ByteCodeInstruction::kNot);
+            this->write(ByteCodeInstruction::kConditionalBranch);
+            DeferredLocation endLocation(this);
+            this->writeStatement(*i.fIfTrue);
+            endLocation.set();
+        }
     }
 }
 

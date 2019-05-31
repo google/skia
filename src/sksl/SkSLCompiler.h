@@ -120,7 +120,7 @@ public:
 
     bool toH(Program& program, String name, OutputStream& out);
 
-    std::unique_ptr<ByteCode> toByteCode(Program& program);
+    std::unique_ptr<ByteCode> toByteCode(Program& program, bool vectorize = false);
 
     bool toPipelineStage(const Program& program, String* out,
                          std::vector<FormatArg>* outFormatArgs);
