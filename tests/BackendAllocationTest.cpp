@@ -83,6 +83,18 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
     context->deleteBackendTexture(backendTex);
 }
 
+static bool colors_eq(SkColor colA, SkColor colB, int tol) {
+    int maxDiff = 0;
+    for (int i = 0; i < 4; ++i) {
+        int diff = SkTAbs<int>((0xFF & (colA >> i*8)) - (0xFF & (colB >> i*8)));
+        if (maxDiff < diff) {
+            maxDiff = diff;
+        }
+    }
+
+    return maxDiff <= tol;
+}
+
 static void compare_pixmaps(const SkPixmap& expected, const SkPixmap& actual,
                             SkColorType colorType, skiatest::Reporter* reporter) {
     SkASSERT(expected.info() == actual.info());
@@ -92,22 +104,14 @@ static void compare_pixmaps(const SkPixmap& expected, const SkPixmap& actual,
             SkColor expectedCol = expected.getColor(x, y);
             SkColor actualCol = actual.getColor(x, y);
 
-            int maxDiff = 0;
-            for (int i = 0; i < 4; ++i) {
-                int diff = SkTAbs<int>((0xFF & (actualCol >> i*8)) - (0xFF & (expectedCol >> i*8)));
-                if (maxDiff < diff) {
-                    maxDiff = diff;
-                }
-            }
-
             // GPU and raster differ a bit on kGray_8_SkColorType and kRGBA_1010102_SkColorType
-            if (maxDiff <= 12) {
+            if (colors_eq(actualCol, expectedCol, 12)) {
                 continue;
             }
 
             ERRORF(reporter,
-                   "Mismatched pixels at %d %d ct: %d expected: 0x%x actual: 0x%x diff: %d\n",
-                   x, y, colorType, expectedCol, actualCol, maxDiff);
+                   "Mismatched pixels at %d %d ct: %d expected: 0x%x actual: 0x%x\n",
+                   x, y, colorType, expectedCol, actualCol);
             return;
         }
     }
@@ -133,11 +137,23 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
         return;
     }
 
-    SkImageInfo ii = SkImageInfo::Make(32, 32, colorType, kPremul_SkAlphaType);
+    SkAlphaType at = SkColorTypeIsAlwaysOpaque(colorType) ? kOpaque_SkAlphaType
+                                                          : kPremul_SkAlphaType;
+
+    SkImageInfo ii = SkImageInfo::Make(32, 32, colorType, at);
+
+    SkColor4f rasterColor = color;
+    if (kGray_8_SkColorType == colorType) {
+        // For the GPU backends gray implies a single channel which is opaque.
+        rasterColor.fR = color.fA;
+        rasterColor.fG = color.fA;
+        rasterColor.fB = color.fA;
+        rasterColor.fA = 1.0f;
+    }
 
     SkAutoPixmapStorage expected;
     SkAssertResult(expected.tryAlloc(ii));
-    expected.erase(color);
+    expected.erase(rasterColor);
 
     SkAutoPixmapStorage actual;
     SkAssertResult(actual.tryAlloc(ii));
@@ -165,19 +181,68 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                                                       backendTex,
                                                       kTopLeft_GrSurfaceOrigin,
                                                       colorType,
-                                                      kPremul_SkAlphaType,
+                                                      at,
                                                       nullptr);
         if (img) {
-            bool result = img->readPixels(actual, 0, 0);
-            if (!result) {
-                // TODO: we need a better way to tell a priori if readPixels will work for an
-                // arbitrary colorType
+            // If possible, read back the pixels and check that they're correct
+            {
+                bool result = img->readPixels(actual, 0, 0);
+                if (!result) {
+                    // TODO: we need a better way to tell a priori if readPixels will work for an
+                    // arbitrary colorType
 #if 0
-                ERRORF(reporter, "Couldn't readback from SkImage for colorType: %d\n",
-                        colorType);
+                    ERRORF(reporter, "Couldn't readback from SkImage for colorType: %d\n",
+                            colorType);
 #endif
-            } else {
-                compare_pixmaps(expected, actual, colorType, reporter);
+                } else {
+                    compare_pixmaps(expected, actual, colorType, reporter);
+                }
+            }
+
+            // Draw the wrapped image into an RGBA surface attempting to access all the
+            // mipMap levels.
+            {
+                SkImageInfo newII = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType,
+                                                      kPremul_SkAlphaType);
+
+                SkAutoPixmapStorage actual2;
+                SkAssertResult(actual2.tryAlloc(newII));
+                actual2.erase(SkColors::kTransparent);
+
+                sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context,
+                                                                    SkBudgeted::kNo,
+                                                                    newII, 1,
+                                                                    kTopLeft_GrSurfaceOrigin,
+                                                                    nullptr);
+                if (!surf) {
+                    context->deleteBackendTexture(backendTex);
+                    return;
+                }
+
+                SkCanvas* canvas = surf->getCanvas();
+
+                SkPaint p;
+                p.setFilterQuality(kHigh_SkFilterQuality);
+
+                int numMipLevels = (GrMipMapped::kYes == mipMapped) ? 6 : 1;
+
+                for (int i = 0, rectSize = 32; i < numMipLevels; ++i, rectSize /= 2) {
+                    SkASSERT(rectSize >= 1);
+
+                    SkRect r = SkRect::MakeWH(rectSize, rectSize);
+                    canvas->clear(SK_ColorTRANSPARENT);
+                    canvas->drawImageRect(img, r, &p);
+
+                    bool result = surf->readPixels(actual2, 0, 0);
+                    REPORTER_ASSERT(reporter, result);
+
+                    SkColor actualColor = actual2.getColor(0, 0);
+
+                    if (!colors_eq(actualColor, rasterColor.toSkColor(), 1)) {
+                        ERRORF(reporter, "Pixel mismatch colorType %d: level: %d e: 0x%x a: 0x%x\n",
+                               colorType, i, rasterColor.toSkColor(), actualColor);
+                    }
+                }
             }
         }
     }
@@ -191,6 +256,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
     const GrCaps* caps = context->priv().caps();
 
     constexpr SkColor4f kTransCol { 0, 0.25f, 0.75f, 0.5f };
+    constexpr SkColor4f kGrayCol { 0.75f, 0.75f, 0.75f, 0.75f };
 
     struct {
         SkColorType   fColorType;
@@ -208,7 +274,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         { kRGBA_1010102_SkColorType, kRGBA_1010102_GrPixelConfig,      { 0.5f, 0, 0, 1.0f }},
         // The kRGB_101010x_SkColorType has no Ganesh correlate
         { kRGB_101010x_SkColorType,  kUnknown_GrPixelConfig,           { 0, 0.5f, 0, 0.5f }},
-        { kGray_8_SkColorType,       kGray_8_GrPixelConfig,            SkColors::kDkGray   },
+        { kGray_8_SkColorType,       kGray_8_GrPixelConfig,            kGrayCol            },
         { kRGBA_F16Norm_SkColorType, kRGBA_half_Clamped_GrPixelConfig, SkColors::kLtGray   },
         { kRGBA_F16_SkColorType,     kRGBA_half_GrPixelConfig,         SkColors::kYellow   },
         { kRGBA_F32_SkColorType,     kRGBA_float_GrPixelConfig,        SkColors::kGray     },
@@ -259,9 +325,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                 }
 
                 {
-                    // GL has difficulties reading back from these combinations
+                    // GL has difficulties reading back from these combinations. In particular,
+                    // reading back kGray_8 is a mess.
                     if (GrBackendApi::kOpenGL == context->backend()) {
-                        if (kAlpha_8_SkColorType == combo.fColorType) {
+                        if (kAlpha_8_SkColorType == combo.fColorType ||
+                            kGray_8_SkColorType == combo.fColorType) {
                             continue;
                         }
                     } else {
@@ -299,6 +367,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
     const GrGLCaps* glCaps = static_cast<const GrGLCaps*>(context->priv().caps());
 
     constexpr SkColor4f kTransCol { 0, 0.25f, 0.75f, 0.5f };
+    constexpr SkColor4f kGrayCol { 0.75f, 0.75f, 0.75f, 0.75f };
 
     struct {
         SkColorType   fColorType;
@@ -338,9 +407,9 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
           kAlpha_8_as_Red_GrPixelConfig,    kTransCol           },
 
         { kGray_8_SkColorType,              GR_GL_LUMINANCE8,
-          kGray_8_as_Lum_GrPixelConfig,     SkColors::kLtGray   },
+          kGray_8_as_Lum_GrPixelConfig,     kGrayCol            },
         { kGray_8_SkColorType,              GR_GL_R8,
-          kGray_8_as_Red_GrPixelConfig,     SkColors::kDkGray   },
+          kGray_8_as_Red_GrPixelConfig,     kGrayCol            },
 
         { kRGBA_F32_SkColorType,            GR_GL_RGBA32F,
           kRGBA_float_GrPixelConfig,        SkColors::kRed      },
@@ -460,6 +529,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
     const GrVkCaps* vkCaps = static_cast<const GrVkCaps*>(context->priv().caps());
 
     constexpr SkColor4f kTransCol { 0, 0.25f, 0.75f, 0.5f };
+    constexpr SkColor4f kGrayCol { 0.75f, 0.75f, 0.75f, 0.75f };
 
     struct {
         SkColorType fColorType;
@@ -482,7 +552,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         { kARGB_4444_SkColorType,    VK_FORMAT_B4G4R4A4_UNORM_PACK16,    SkColors::kYellow    },
 
         { kAlpha_8_SkColorType,      VK_FORMAT_R8_UNORM,                 kTransCol            },
-        { kGray_8_SkColorType,       VK_FORMAT_R8_UNORM,                 SkColors::kLtGray    },
+        { kGray_8_SkColorType,       VK_FORMAT_R8_UNORM,                 kGrayCol             },
         { kRGBA_F32_SkColorType,     VK_FORMAT_R32G32B32A32_SFLOAT,      SkColors::kRed       },
 
         { kRGBA_F16Norm_SkColorType, VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kLtGray    },
