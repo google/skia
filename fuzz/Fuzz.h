@@ -58,6 +58,10 @@ public:
     template <typename T, typename Min, typename Max>
     void nextRange(T*, Min, Max);
 
+    // nextEnum is a wrapper around nextRange for enums.
+    template <typename T, typename Min, typename Max>
+    void nextEnum(T*, Min, Max);
+
     // nextN loads n * sizeof(T) bytes into ptr
     template <typename T>
     void nextN(T* ptr, int n);
@@ -97,6 +101,19 @@ inline void Fuzz::nextRange(T* value, Min min, Max max) {
     this->next(value);
     if (*value < (T)min) { *value = (T)min; }
     if (*value > (T)max) { *value = (T)max; }
+}
+
+template <typename T, typename Min, typename Max>
+inline void Fuzz::nextEnum(T* value, Min min, Max max) {
+    // This works around the fact that UBSAN will assert if we put an invalid
+    // value into an enum. We might see issues with enums being represented
+    // on Windows differently than Linux, but that's not a thing we can fix here.
+    using U = typename std::underlying_type<T>::type;
+    U v;
+    this->next(&v);
+    if (v < (U)min) { *value = (T)min; return;}
+    if (v > (U)max) { *value = (T)max; return;}
+    *value = (T)v;
 }
 
 template <typename T>
