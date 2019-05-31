@@ -457,6 +457,8 @@ DM_SRCS_ALL = struct(
         "tests/*.cpp",
         "tests/*.h",
         "tools/ios_utils.h",
+        "tools/AutoreleasePool.cpp",
+        "tools/AutoreleasePool.h",
         "tools/BinaryAsset.h",
         "tools/BigPathBench.inc",
         "tools/CrashHandler.cpp",
