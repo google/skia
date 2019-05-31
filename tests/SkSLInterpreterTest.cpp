@@ -13,6 +13,8 @@
 
 #include "tests/Test.h"
 
+#define TEST_VECTOR_INTERPRETER 1
+
 void test(skiatest::Reporter* r, const char* src, SkSL::Interpreter::Value* in, int expectedCount,
           SkSL::Interpreter::Value* expected) {
     SkSL::Compiler compiler;
@@ -57,6 +59,60 @@ void test(skiatest::Reporter* r, const char* src, SkSL::Interpreter::Value* in, 
     }
 }
 
+void vec_test(skiatest::Reporter* r, const char* src) {
+    // Test on four different vectors (with varying orderings to get divergent control flow)
+    const float input[16] = { 1, 2, 3, 4,
+                              4, 3, 2, 1,
+                              7, 5, 8, 6,
+                              6, 8, 5, 7 };
+
+    float out_s[16], out_v[16];
+    memcpy(out_s, input, sizeof(out_s));
+    memcpy(out_v, input, sizeof(out_v));
+
+    for (int pass = 0; pass < 2; ++pass) {
+        SkSL::Compiler compiler;
+        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+                SkSL::Program::kGeneric_Kind, SkSL::String(src), SkSL::Program::Settings());
+        if (!program) {
+            REPORT_FAILURE(r, "!program", SkString(compiler.errorText().c_str()));
+            return;
+        }
+
+        std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program, pass > 0);
+        if (compiler.errorCount() > 0) {
+            REPORT_FAILURE(r, "!toByteCode", SkString(compiler.errorText().c_str()));
+            return;
+        }
+
+        const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
+
+        if (pass == 0) {
+            // First pass - run the scalar interpreter to determine the expected output
+            SkSL::Interpreter interpreter(std::move(program), std::move(byteCode));
+            for (int i = 0; i < 4; ++i) {
+                interpreter.run(*main, (SkSL::Interpreter::Value*)(out_s + i * 4), nullptr);
+            }
+        } else {
+            // Second pass - run the vectorized interpreter and compare results
+            SkSL::VecInterpreter interpreter(std::move(program), std::move(byteCode));
+            interpreter.run(*main, (SkSL::VecInterpreter::SValue*)out_v, nullptr);
+            if (memcmp(out_s, out_v, sizeof(out_s)) != 0) {
+                printf("for program: %s\n", src);
+                for (int i = 0; i < 4; ++i) {
+                    printf("(%g %g %g %g) -> (%g %g %g %g), expected (%g %g %g %g)\n",
+                           input[4*i + 0], input[4*i + 1], input[4*i + 2], input[4*i + 3],
+                           out_v[4*i + 0], out_v[4*i + 1], out_v[4*i + 2], out_v[4*i + 3],
+                           out_s[4*i + 0], out_s[4*i + 1], out_s[4*i + 2], out_s[4*i + 3]);
+                }
+                printf("");
+                interpreter.disassemble(*main);
+                REPORT_FAILURE(r, "VecInterpreter mismatch", SkString());
+            }
+        }
+    }
+}
+
 void test(skiatest::Reporter* r, const char* src, float inR, float inG, float inB, float inA,
         float expectedR, float expectedG, float expectedB, float expectedA) {
     SkSL::Compiler compiler;
@@ -72,7 +128,7 @@ void test(skiatest::Reporter* r, const char* src, float inR, float inG, float in
             printf("%s\n%s", src, compiler.errorText().c_str());
             return;
         }
-        SkSL::ByteCodeFunction* main = byteCode->fFunctions[0].get();
+        const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
         SkSL::Interpreter interpreter(std::move(program), std::move(byteCode));
         float inoutColor[4] = { inR, inG, inB, inA };
         interpreter.run(*main, (SkSL::Interpreter::Value*) inoutColor, nullptr);
@@ -91,6 +147,10 @@ void test(skiatest::Reporter* r, const char* src, float inR, float inG, float in
     } else {
         printf("%s\n%s", src, compiler.errorText().c_str());
     }
+
+#if TEST_VECTOR_INTERPRETER
+    vec_test(r, src);
+#endif
 }
 
 DEF_TEST(SkSLInterpreterAdd, r) {
@@ -249,6 +309,9 @@ DEF_TEST(SkSLInterpreterTernary, r) {
          0, 1, 2, 0, 2, 1, 2, 0);
     test(r, "void main(inout half4 color) { color.r = color.g > color.b ? color.g : color.b; }",
          0, 3, 2, 0, 3, 3, 2, 0);
+    test(r, "int fib(int i) { return (i < 2) ? 1 : fib(i - 1) + fib(i - 2); }"
+            "void main(inout half4 color) { color.r = half(fib(int(color.r))); }",
+         3, 0, 0, 0, 3, 0, 0, 0);
 }
 
 DEF_TEST(SkSLInterpreterCast, r) {
