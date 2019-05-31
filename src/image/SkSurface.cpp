@@ -204,6 +204,15 @@ void SkSurface_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info, const 
     }
 }
 
+void SkSurface_Base::onAsyncRescaleAndReadPixelsYUV420(
+        SkYUVColorSpace yuvColorSpace, sk_sp<SkColorSpace> dstColorSpace, SkIRect& srcRect,
+        int dstW, int dstH, RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
+        ReadPixelsCallbackYUV420 callback, ReadPixelsContext context) {
+    // TODO: Call non-YUV asyncRescaleAndReadPixels and then make our callback convert to YUV and
+    // call client's callback.
+    callback(context, nullptr, nullptr);
+}
+
 bool SkSurface_Base::outstandingImageSnapshot() const {
     return fCachedImage && !fCachedImage->unique();
 }
@@ -335,6 +344,21 @@ void SkSurface::asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect
     }
     asSB(this)->onAsyncRescaleAndReadPixels(info, srcRect, rescaleGamma, rescaleQuality, callback,
                                             context);
+}
+
+void SkSurface::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                sk_sp<SkColorSpace> dstColorSpace, SkIRect& srcRect,
+                                                int dstW, int dstH, RescaleGamma rescaleGamma,
+                                                SkFilterQuality rescaleQuality,
+                                                ReadPixelsCallbackYUV420 callback,
+                                                ReadPixelsContext context) {
+    if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect)) {
+        callback(context, nullptr, nullptr);
+        return;
+    }
+    asSB(this)->onAsyncRescaleAndReadPixelsYUV420(yuvColorSpace, std::move(dstColorSpace), srcRect,
+                                                  dstW, dstH, rescaleGamma, rescaleQuality,
+                                                  callback, context);
 }
 
 void SkSurface::writePixels(const SkPixmap& pmap, int x, int y) {

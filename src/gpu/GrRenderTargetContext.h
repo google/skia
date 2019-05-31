@@ -403,7 +403,10 @@ public:
     void drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>, const SkRect& bounds);
 
     using ReadPixelsCallback = SkSurface::ReadPixelsCallback;
+    using ReadPixelsCallbackYUV420 = SkSurface::ReadPixelsCallbackYUV420;
     using ReadPixelsContext = SkSurface::ReadPixelsContext;
+    using RescaleGamma = SkSurface::RescaleGamma;
+
     /**
      * Performs an asynchronous read (if possible) into a transfer buffer and then calls callback
      * with context. If asynchronous reads are not supported then this is done as a synchronous
@@ -416,9 +419,14 @@ public:
      * Like asyncReadPixels but first rescales the contents before read back.
      */
     void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
-                                   SkSurface::RescaleGamma rescaleGamma,
-                                   SkFilterQuality rescaleQuality, ReadPixelsCallback callback,
-                                   ReadPixelsContext context);
+                                   RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
+                                   ReadPixelsCallback callback, ReadPixelsContext context);
+    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace, SkIRect& srcRect,
+                                         int dstW, int dstH, RescaleGamma rescaleGamma,
+                                         SkFilterQuality rescaleQuality,
+                                         ReadPixelsCallbackYUV420 callback,
+                                         ReadPixelsContext context);
 
     /**
      * After this returns any pending surface IO will be issued to the backend 3D API and
