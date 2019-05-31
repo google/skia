@@ -272,6 +272,9 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
                                                 SkGlyphRunPainterInterface* process) {
     SkASSERT(!fARGBGlyphsIDs.empty());
 
+    // if maxSourceGlyphDimension then no pixels will change.
+    if (maxSourceGlyphDimension == 0) { return; }
+
     SkScalar maxScale = viewMatrix.getMaxScale();
 
     // This is a linear estimate of the longest dimension among all the glyph widths and heights.
