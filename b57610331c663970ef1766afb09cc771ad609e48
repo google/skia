@@ -163,6 +163,30 @@
       "revId": "b57610331c663970ef1766afb09cc771ad609e48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bb2b2ee_7e0d80cd",
+        "filename": "modules/skparagraph/include/TextStyle.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-05-31T18:48:09Z",
+      "side": 1,
+      "message": "I changed the public headers for now and will change the rest later (it does take some time).",
+      "parentUuid": "e8596aee_8444bf60",
+      "range": {
+        "startLine": 148,
+        "startChar": 16,
+        "endLine": 148,
+        "endChar": 22
+      },
+      "revId": "b57610331c663970ef1766afb09cc771ad609e48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
