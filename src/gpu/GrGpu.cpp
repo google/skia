@@ -32,11 +32,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrGpu::GrGpu(GrContext* context)
-    : fResetTimestamp(kExpiredTimestamp+1)
-    , fResetBits(kAll_GrBackendState)
-    , fContext(context) {
-}
+GrGpu::GrGpu(GrContext* context) : fResetBits(kAll_GrBackendState), fContext(context) {}
 
 GrGpu::~GrGpu() {}
 
