@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c890514f_b06d4086",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 946,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-31T18:53:01Z",
+      "side": 0,
+      "message": "So we were just always calling this with false?",
+      "range": {
+        "startLine": 946,
+        "startChar": 55,
+        "endLine": 946,
+        "endChar": 61
+      },
+      "revId": "af9a6c93f468d1af41cb78519308256bcf1b9099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
