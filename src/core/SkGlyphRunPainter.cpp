@@ -281,7 +281,7 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
     // N.B. If the matrix has scale, that will be reflected in the strike through the viewMatrix
     // in the useFastPath case.
     bool useDeviceCache =
-            viewMatrix.isScaleTranslate()
+            !viewMatrix.hasPerspective()
             && conservativeMaxGlyphDimension <= SkStrikeCommon::kSkSideTooBigForAtlas;
 
     // A scaled and translated transform is the common case, and is handled directly in fallback.
