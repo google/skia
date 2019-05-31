@@ -176,12 +176,6 @@ private:
         kFull_MetricsType
     };
 
-    enum {
-        kHashBits  = 8,
-        kHashCount = 1 << kHashBits,
-        kHashMask  = kHashCount - 1
-    };
-
     /** Returns a glyph with valid fAdvance field. The remaining fields may be
         valid, but that is not guaranteed. If you require those, call getGlyphIDMetrics instead.
     */
