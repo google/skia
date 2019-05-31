@@ -86,6 +86,7 @@ struct Layout {
         kSkIRect,
         kSkPMColor4f,
         kSkPMColor,
+        kSkVector4,
         kSkPoint,
         kSkIPoint,
         kSkMatrix,
@@ -158,6 +159,8 @@ struct Layout {
                 return "SkPMColor4f";
             case CType::kSkPMColor:
                 return "SkPMColor";
+            case CType::kSkVector4:
+                return "SkVector4";
             case CType::kSkPoint:
                 return "SkPoint";
             case CType::kSkIPoint:
