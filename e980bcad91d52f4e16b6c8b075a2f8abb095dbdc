@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2fe9d1e9_2cf4f89d",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 853,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-31T18:40:36Z",
+      "side": 1,
+      "message": "I just spend the morning rediscovering this... I think you can\u0027t trust that the malloc(), or new align skvx::Vec properly.  I caught it particularly on the one bot that runs 32-bit x86 at -O1, and that was lucky... -O0, -O2, -O3, -Os  and x86-64 were all fine.  Pretty sure the stack should be fine if you\u0027re going to stick to stack-or-die.\n\nI ended up doing this, mostly because I was too lazy to work out the platform-specific aligned memory allocation routines:\n\n        using I32 \u003d skvx::Vec\u003cK, int\u003e;\n        using F32 \u003d skvx::Vec\u003cK, float\u003e;\n        using U32 \u003d skvx::Vec\u003cK, uint32_t\u003e;\n        using  U8 \u003d skvx::Vec\u003cK, uint8_t\u003e;\n\n        union Slot {\n            I32 i32;\n            U32 u32;\n            F32 f32;\n        };\n\n        // Annoyingly we can\u0027t trust that malloc() or new will work with Slot because\n        // the skvx::Vec types may have alignment greater than what they provide.\n        // We\u0027ll overallocate one extra register so we can align manually.\n        std::unique_ptr\u003cchar[]\u003e regs_buf{ new char[ sizeof(Slot) * (nregs + 1) ]};\n\n        uintptr_t addr \u003d (uintptr_t)regs_buf.get();\n        while (addr \u0026 (alignof(Slot) - 1)) {\n            addr++;\n        }\n        Slot* regs \u003d (Slot*)addr;",
+      "revId": "e980bcad91d52f4e16b6c8b075a2f8abb095dbdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
