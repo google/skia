@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "198ba91b_de7d72db",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9759
+      },
+      "writtenOn": "2019-05-31T21:21:25Z",
+      "side": 1,
+      "message": "I added this in both files because I couldn\u0027t find a could place to add a utility method. If there is a better way to add this method so it can be shared by the two callers, please let me know!",
+      "range": {
+        "startLine": 38,
+        "startChar": 5,
+        "endLine": 38,
+        "endChar": 30
+      },
+      "revId": "40fd38a0455819942d927b648f184052e379eeb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
