@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb21c39e_a472d5db",
+        "filename": "modules/skparagraph/include/TextStyle.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-31T14:55:18Z",
+      "side": 1,
+      "message": "nit: Sk",
+      "range": {
+        "startLine": 53,
+        "startChar": 5,
+        "endLine": 53,
+        "endChar": 16
+      },
+      "revId": "b57610331c663970ef1766afb09cc771ad609e48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0507d165_ad608451",
+        "filename": "modules/skparagraph/include/TextStyle.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-31T14:55:18Z",
+      "side": 1,
+      "message": "nit: don\u0027t ever need to say \"inline\" in a C++ header where the impl is part of the declaration.",
+      "range": {
+        "startLine": 96,
+        "startChar": 4,
+        "endLine": 96,
+        "endChar": 10
+      },
+      "revId": "b57610331c663970ef1766afb09cc771ad609e48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f14eb38_a2bc9dae",
+        "filename": "modules/skparagraph/include/TextStyle.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-31T14:55:18Z",
+      "side": 1,
+      "message": "consider following the pattern in SkPaint and SkFont for getting refcounted objects:\n\nSkTypeface* getTypeface()\nsk_sp\u003cSkTypeface\u003e refTypeface()",
+      "range": {
+        "startLine": 145,
+        "startChar": 29,
+        "endLine": 145,
+        "endChar": 40
+      },
+      "revId": "b57610331c663970ef1766afb09cc771ad609e48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8596aee_8444bf60",
+        "filename": "modules/skparagraph/include/TextStyle.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-05-31T14:55:18Z",
+      "side": 1,
+      "message": "Skia doesn\u0027t use std::string (certainly not in its public headers). Consider using SkString.",
+      "range": {
+        "startLine": 148,
+        "startChar": 16,
+        "endLine": 148,
+        "endChar": 22
+      },
+      "revId": "b57610331c663970ef1766afb09cc771ad609e48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
