@@ -34,6 +34,24 @@
       "revId": "e980bcad91d52f4e16b6c8b075a2f8abb095dbdc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80468696_cb0faf0b",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 853,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-05-31T18:49:45Z",
+      "side": 1,
+      "message": "At this point I\u0027m not sure if I consider it to be a flaw of skvx::Vec, std::vector, malloc, new, C++... it\u0027s just annoying as hell.",
+      "parentUuid": "8e218568_a44a16cb",
+      "revId": "e980bcad91d52f4e16b6c8b075a2f8abb095dbdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
