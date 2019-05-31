@@ -143,17 +143,8 @@ private:
 };
 }
 
-template <typename T>
-inline void testingOnly_getIORefCnts(const T* resource, int* refCnt, int* readCnt, int* writeCnt) {
-    *refCnt = resource->fRefCnt;
-    *readCnt = resource->fPendingReads;
-    *writeCnt = resource->fPendingWrites;
-}
-
-void testingOnly_getIORefCnts(GrTextureProxy* proxy, int* refCnt, int* readCnt, int* writeCnt) {
+void testingOnly_getBackingRefCnt(GrTextureProxy* proxy, int* refCnt) {
     *refCnt = proxy->getBackingRefCnt_TestOnly();
-    *readCnt = proxy->getPendingReadCnt_TestOnly();
-    *writeCnt = proxy->getPendingWriteCnt_TestOnly();
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
@@ -206,21 +197,17 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                         renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                     }
                 }
-                int refCnt, readCnt, writeCnt;
+                int refCnt;
 
-                testingOnly_getIORefCnts(proxy1.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getBackingRefCnt(proxy1.get(), &refCnt);
                 // IO counts should be double if there is a clone of the FP.
                 int ioRefMul = makeClone ? 2 : 1;
                 REPORTER_ASSERT(reporter, -1 == refCnt);
-                REPORTER_ASSERT(reporter, ioRefMul * 1 == readCnt);
-                REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
 
                 context->flush();
 
-                testingOnly_getIORefCnts(proxy1.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getBackingRefCnt(proxy1.get(), &refCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
-                REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
-                REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
 
             }
         }
