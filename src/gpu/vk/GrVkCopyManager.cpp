@@ -40,8 +40,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
     TRACE_EVENT0("skia", TRACE_FUNC);
 
     const GrShaderCaps* shaderCaps = gpu->caps()->shaderCaps();
-    const char* version = shaderCaps->versionDeclString();
-    SkSL::String vertShaderText(version);
+    SkSL::String vertShaderText;
     vertShaderText.append(
         "#extension GL_ARB_separate_shader_objects : enable\n"
         "#extension GL_ARB_shading_language_420pack : enable\n"
@@ -61,7 +60,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
         "}"
     );
 
-    SkSL::String fragShaderText(version);
+    SkSL::String fragShaderText;
     fragShaderText.append(
         "#extension GL_ARB_separate_shader_objects : enable\n"
         "#extension GL_ARB_shading_language_420pack : enable\n"
