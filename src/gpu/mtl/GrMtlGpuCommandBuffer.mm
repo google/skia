@@ -352,6 +352,48 @@ void GrMtlGpuRTCommandBuffer::bindGeometry(const GrBuffer* vertexBuffer,
     }
 }
 
+void GrMtlGpuRTCommandBuffer::sendMeshToGpu(GrPrimitiveType primitiveType,
+                                            const GrBuffer* vertexBuffer,
+                                            int vertexCount,
+                                            int baseVertex) {
+    this->bindGeometry(vertexBuffer, nullptr);
+
+    SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
+    [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(primitiveType)
+                                vertexStart:baseVertex
+                                vertexCount:vertexCount];
+}
+
+void GrMtlGpuRTCommandBuffer::sendIndexedMeshToGpu(GrPrimitiveType primitiveType,
+                                                   const GrBuffer* indexBuffer,
+                                                   int indexCount,
+                                                   int baseIndex,
+                                                   uint16_t /*minIndexValue*/,
+                                                   uint16_t /*maxIndexValue*/,
+                                                   const GrBuffer* vertexBuffer,
+                                                   int baseVertex,
+                                                   GrPrimitiveRestart restart) {
+    this->bindGeometry(vertexBuffer, nullptr);
+
+    SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
+    id<MTLBuffer> mtlIndexBuffer = nil;
+    if (indexBuffer) {
+        SkASSERT(!indexBuffer->isCpuBuffer());
+        SkASSERT(!static_cast<const GrGpuBuffer*>(indexBuffer)->isMapped());
+
+        mtlIndexBuffer = static_cast<const GrMtlBuffer*>(indexBuffer)->mtlBuffer();
+        SkASSERT(mtlIndexBuffer);
+    }
+
+    SkASSERT(restart == GrPrimitiveRestart::kNo);
+    [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(primitiveType)
+                                        indexCount:indexCount
+                                         indexType:MTLIndexTypeUInt16
+                                       indexBuffer:mtlIndexBuffer
+                                 indexBufferOffset:sizeof(uint16_t) * baseIndex];
+    fGpu->stats()->incNumDraws();
+}
+
 void GrMtlGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType primitiveType,
                                                      const GrBuffer* vertexBuffer,
                                                      int vertexCount,
