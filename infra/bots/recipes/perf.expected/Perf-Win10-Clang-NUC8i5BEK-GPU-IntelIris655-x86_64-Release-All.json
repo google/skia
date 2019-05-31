@@ -252,7 +252,6 @@
     "name": "makedirs perf_dir"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

@@ -15,7 +15,6 @@
     "name": "Trigger and wait for task on android compile server"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

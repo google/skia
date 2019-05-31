@@ -619,7 +619,6 @@
     "name": "pull_if_needed perf"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

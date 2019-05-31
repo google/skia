@@ -52,7 +52,6 @@
     "name": "hello-opencl"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

@@ -75,7 +75,6 @@
     "name": "upload csv"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

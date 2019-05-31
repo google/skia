@@ -84,7 +84,6 @@
     "name": "upload verbose.log"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

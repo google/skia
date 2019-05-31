@@ -233,7 +233,6 @@
     "name": "Performance tests of PathKit with Docker"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

@@ -232,7 +232,6 @@
     "name": "Create lottie-web Gold output with Docker"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

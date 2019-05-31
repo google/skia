@@ -176,7 +176,6 @@
     "name": "copy libclang_rt.ubsan_osx_dynamic.dylib"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

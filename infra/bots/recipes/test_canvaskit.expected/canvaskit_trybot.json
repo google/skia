@@ -231,7 +231,6 @@
     "name": "Test CanvasKit with Docker"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]

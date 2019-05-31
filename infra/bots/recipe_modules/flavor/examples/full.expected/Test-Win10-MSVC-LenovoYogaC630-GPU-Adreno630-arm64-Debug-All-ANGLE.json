@@ -935,7 +935,6 @@
     "name": "scp -r foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\dm_out\\* [START_DIR]/[SWARM_OUT_DIR]"
   },
   {
-    "jsonResult": null,
     "name": "$result"
   }
 ]
