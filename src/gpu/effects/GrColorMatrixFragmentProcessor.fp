@@ -6,7 +6,7 @@
  */
 
 layout(ctype=SkMatrix44, tracked) in uniform half4x4 m;
-layout(ctype=SkRect, tracked) in uniform half4 v;
+layout(ctype=SkVector4, tracked) in uniform half4 v;
 layout(key) in bool unpremulInput;
 layout(key) in bool clampRGBOutput;
 layout(key) in bool premulOutput;
@@ -46,10 +46,10 @@ void main() {
             color.fA = input.fA;
         }
         m.mapScalars(color.vec());
-        color.fR += v.fLeft;
-        color.fG += v.fTop;
-        color.fB += v.fRight;
-        color.fA += v.fBottom;
+        color.fR += v.fData[0];
+        color.fG += v.fData[1];
+        color.fB += v.fData[2];
+        color.fA += v.fData[3];
         color.fA = SkTPin(color.fA, 0.f, 1.f);
         if (clampRGBOutput) {
             color.fR = SkTPin(color.fR, 0.f, 1.f);
@@ -74,7 +74,7 @@ void main() {
         };
         SkMatrix44 m44;
         m44.setRowMajorf(m);
-        SkRect v4 = SkRect::MakeLTRB(matrix[4], matrix[9], matrix[14], matrix[19]);
+        auto v4 = SkVector4(matrix[4], matrix[9], matrix[14], matrix[19]);
         return std::unique_ptr<GrFragmentProcessor>(new GrColorMatrixFragmentProcessor(m44, v4, unpremulInput, clampRGBOutput, premulOutput));
     }
 }
