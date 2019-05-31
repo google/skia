@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e23f098e_ed2f30ce",
+        "filename": "modules/skottie/src/text/TextAnimator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-05-31T18:11:14Z",
+      "side": 1,
+      "message": "nit: sp?",
+      "range": {
+        "startLine": 96,
+        "startChar": 17,
+        "endLine": 96,
+        "endChar": 26
+      },
+      "revId": "1cc3571bd41d3d5a0b9b714fea13188317f2966a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
