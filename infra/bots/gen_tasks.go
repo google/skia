@@ -35,7 +35,6 @@ const (
 	ISOLATE_SKIMAGE_NAME       = "Housekeeper-PerCommit-IsolateSkImage"
 	ISOLATE_SKP_NAME           = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME           = "Housekeeper-PerCommit-IsolateSVG"
-	ISOLATE_NDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
@@ -724,10 +723,6 @@ var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
 		cipdPkg: "svg",
 		path:    "svg",
 	},
-	ISOLATE_NDK_LINUX_NAME: {
-		cipdPkg: "android_ndk_linux",
-		path:    "android_ndk_linux",
-	},
 	ISOLATE_SDK_LINUX_NAME: {
 		cipdPkg: "android_sdk_linux",
 		path:    "android_sdk_linux",
@@ -842,7 +837,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			pkg.Path = "n"
 			task.CipdPackages = append(task.CipdPackages, pkg)
 		} else if !strings.Contains(name, "SKQP") {
-			task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
+			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("android_ndk_linux"))
 		}
 	} else if strings.Contains(name, "Chromecast") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("cast_toolchain"))
@@ -1111,7 +1106,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	}
 
 	if strings.Contains(name, "Android_ASAN") {
-		task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
+		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("android_ndk_linux"))
 	}
 	if strings.Contains(name, "SKQP") {
 		if !strings.Contains(name, "Emulator") {
@@ -1412,7 +1407,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		j.Trigger = specs.TRIGGER_WEEKLY
 	} else if strings.Contains(name, "Flutter") || strings.Contains(name, "CommandBuffer") {
 		j.Trigger = specs.TRIGGER_MASTER_ONLY
-	} else if strings.Contains(name, "-OnDemand-") || strings.Contains(name, "Android_Framework") || strings.Contains(name, "G3_Framework"){
+	} else if strings.Contains(name, "-OnDemand-") || strings.Contains(name, "Android_Framework") || strings.Contains(name, "G3_Framework") {
 		j.Trigger = specs.TRIGGER_ON_DEMAND
 	}
 	b.MustAddJob(name, j)
