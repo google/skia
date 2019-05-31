@@ -133,26 +133,36 @@ void fill_pixel_data(int width, int height, GrColor* data) {
 }
 
 bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
-                            const SkImageInfo& ii, GrMipMapped mipMapped, SkColor color,
+                            const SkPixmap& pixmap, GrMipMapped mipMapped,
                             GrRenderable renderable) {
     GrGpu* gpu = context->priv().getGpu();
     if (!gpu) {
         return false;
     }
 
-    SkBitmap bm;
-    bm.allocPixels(ii);
-    // TODO: a SkBitmap::eraseColor would be better here
-    sk_memset32(bm.getAddr32(0, 0), color, ii.width() * ii.height());
+    GrColorType grCT = SkColorTypeToGrColorType(pixmap.colorType());
+    if (GrColorType::kUnknown == grCT) {
+        return false;
+    }
 
-    *backendTex = gpu->createTestingOnlyBackendTexture(ii.width(), ii.height(), ii.colorType(),
+    *backendTex = gpu->createTestingOnlyBackendTexture(pixmap.width(), pixmap.height(),
+                                                       pixmap.colorType(),
                                                        mipMapped, renderable,
-                                                       bm.getPixels(), bm.rowBytes());
+                                                       pixmap.addr(), pixmap.rowBytes());
     if (!backendTex->isValid() || !gpu->isTestingOnlyBackendTexture(*backendTex)) {
         return false;
     }
 
     return true;
+}
+
+bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
+                            const SkImageInfo& ii, const SkColor4f& color, GrMipMapped mipMapped,
+                            GrRenderable renderable) {
+
+    *backendTex = context->priv().createBackendTexture(ii.width(), ii.height(), ii.colorType(),
+                                                       color, mipMapped, renderable);
+    return backendTex->isValid();
 }
 
 void delete_backend_texture(GrContext* context, const GrBackendTexture& backendTex) {
