@@ -16,6 +16,24 @@
       "revId": "dbcb4f2f8e6cfe744ae645dcbafacaa11b161e3c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58c58b45_25fd87f9",
+        "filename": "modules/skparagraph/include/ParagraphStyle.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-05-31T20:31:49Z",
+      "side": 1,
+      "message": "That was clumsy, yes.",
+      "parentUuid": "f456c40e_1a6fb955",
+      "revId": "dbcb4f2f8e6cfe744ae645dcbafacaa11b161e3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
