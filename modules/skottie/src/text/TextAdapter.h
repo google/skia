@@ -33,7 +33,9 @@ public:
         SkPoint   position = { 0, 0 };
         SkColor fill_color = SK_ColorTRANSPARENT,
               stroke_color = SK_ColorTRANSPARENT;
-        float      opacity = 1;
+        float      opacity = 1,
+                     scale = 1,
+                  rotation = 0;
     };
 
     void applyAnimatedProps(const AnimatedProps&);

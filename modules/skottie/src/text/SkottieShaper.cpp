@@ -117,14 +117,15 @@ public:
                                                           SkTextBlobBuilder* builder,
                                                           Shaper::Result* result) {
             // In fragmented mode we immediately push the glyphs to fResult,
-            // one fragment per glyph.
+            // one fragment (blob) per glyph.  Glyph positioning is externalized
+            // (positions returned in Fragment::fPos).
             for (size_t i = 0; i < rec.fGlyphCount; ++i) {
                 const auto& blob_buffer = builder->allocRunPos(rec.fFont, 1);
                 blob_buffer.glyphs[0] = glyphs[i];
-                blob_buffer.pos[0] = pos[i].fX;
-                blob_buffer.pos[1] = pos[i].fY;
+                blob_buffer.pos[0] = blob_buffer.pos[1] = 0;
 
-                result->fFragments.push_back({builder->make(), {box.x(), box.y()}});
+                result->fFragments.push_back({builder->make(), { box.x() + pos[i].fX,
+                                                                 box.y() + pos[i].fY }});
             }
         };
 
@@ -135,7 +136,8 @@ public:
                                                               SkTextBlobBuilder* builder,
                                                               Shaper::Result*) {
             // In consolidated mode we just accumulate glyphs to the blob builder, then push
-            // to fResult as a single blob in finalize().
+            // to fResult as a single blob in finalize().  Glyph positions are baked in the
+            // blob (Fragment::fPos only reflects the box origin).
             const auto& blob_buffer = builder->allocRunPos(rec.fFont, rec.fGlyphCount);
             sk_careful_memcpy(blob_buffer.glyphs, glyphs, rec.fGlyphCount * sizeof(SkGlyphID));
             sk_careful_memcpy(blob_buffer.pos   , pos   , rec.fGlyphCount * sizeof(SkPoint));
