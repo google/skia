@@ -136,7 +136,7 @@ public:
         if (offset) {
             *offset = fDstTextureOffset;
         }
-        return fDstTextureProxy.get();
+        return fDstTextureProxy->asTextureProxy();
     }
 
     GrTexture* peekDstTexture(SkIPoint* offset = nullptr) const {
@@ -205,10 +205,9 @@ private:
 
     friend bool operator&(Flags, InputFlags);
 
-    using DstTextureProxy = GrPendingIOResource<GrTextureProxy, kRead_GrIOType>;
     using FragmentProcessorArray = SkAutoSTArray<8, std::unique_ptr<const GrFragmentProcessor>>;
 
-    DstTextureProxy fDstTextureProxy;
+    GrProxyPendingIO fDstTextureProxy;
     SkIPoint fDstTextureOffset;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;

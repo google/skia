@@ -128,7 +128,7 @@ private:
     // that share a geometry processor into a Draw is that it allows the Gpu object to setup
     // the shared state once and then issue draws for each mesh.
     struct Draw {
-        ~Draw();
+        ~Draw() {}
         sk_sp<const GrGeometryProcessor> fGeometryProcessor;
         const GrPipeline::FixedDynamicState* fFixedDynamicState;
         const GrPipeline::DynamicStateArrays* fDynamicStateArrays;

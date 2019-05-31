@@ -120,17 +120,7 @@ void GrOpFlushState::recordDraw(
     bool firstDraw = fDraws.begin() == fDraws.end();
     auto& draw = fDraws.append(&fArena);
     GrDeferredUploadToken token = fTokenTracker->issueDrawToken();
-    if (fixedDynamicState && fixedDynamicState->fPrimitiveProcessorTextures) {
-        for (int i = 0; i < gp->numTextureSamplers(); ++i) {
-            fixedDynamicState->fPrimitiveProcessorTextures[i]->addPendingRead();
-        }
-    }
-    if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
-        int n = gp->numTextureSamplers() * meshCnt;
-        for (int i = 0; i < n; ++i) {
-            dynamicStateArrays->fPrimitiveProcessorTextures[i]->addPendingRead();
-        }
-    }
+
     draw.fGeometryProcessor = std::move(gp);
     draw.fFixedDynamicState = fixedDynamicState;
     draw.fDynamicStateArrays = dynamicStateArrays;
@@ -184,21 +174,4 @@ GrStrikeCache* GrOpFlushState::glyphCache() const {
 
 GrAtlasManager* GrOpFlushState::atlasManager() const {
     return fGpu->getContext()->priv().getAtlasManager();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-GrOpFlushState::Draw::~Draw() {
-    if (fFixedDynamicState && fFixedDynamicState->fPrimitiveProcessorTextures) {
-        for (int i = 0; i < fGeometryProcessor->numTextureSamplers(); ++i) {
-            fFixedDynamicState->fPrimitiveProcessorTextures[i]->completedRead();
-        }
-    }
-    if (fDynamicStateArrays && fDynamicStateArrays->fPrimitiveProcessorTextures) {
-        int n = fGeometryProcessor->numTextureSamplers() * fMeshCnt;
-        const auto* textures = fDynamicStateArrays->fPrimitiveProcessorTextures;
-        for (int i = 0; i < n; ++i) {
-            textures[i]->completedRead();
-        }
-    }
 }
