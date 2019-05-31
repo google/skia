@@ -66,8 +66,17 @@ public:
     // care to only provide hard clips or we could get stuck in a loop. The general clip is needed
     // so that path renderers can use this function.
     void stencilRect(
-            const GrClip&, const GrUserStencilSettings* ss, GrPaint&& paint, GrAA doStencilMSAA,
-            const SkMatrix& viewMatrix, const SkRect& rect, const SkMatrix* localMatrix = nullptr);
+            const GrClip& clip, const GrUserStencilSettings* ss, GrPaint&& paint,
+            GrAA doStencilMSAA, const SkMatrix& viewMatrix, const SkRect& rect,
+            const SkMatrix* localMatrix = nullptr) {
+        // Since this provides stencil settings to drawFilledQuad, it performs a different AA type
+        // resolution compared to regular rect draws, which is the main reason it remains separate.
+        GrPerspQuad localQuad = localMatrix ? GrPerspQuad::MakeFromRect(rect, *localMatrix)
+                                            : GrPerspQuad(rect);
+        fRenderTargetContext->drawFilledQuad(
+                clip, std::move(paint), doStencilMSAA, GrQuadAAFlags::kNone,
+                GrPerspQuad::MakeFromRect(rect, viewMatrix), localQuad, ss);
+    }
 
     void stencilPath(
             const GrHardClip&, GrAA doStencilMSAA, const SkMatrix& viewMatrix, const GrPath*);
@@ -83,12 +92,6 @@ public:
                             GrAA doStencilMSAA,
                             const SkMatrix& viewMatrix,
                             const SkPath&);
-
-    void drawFilledRect(
-            const GrClip& clip, GrPaint&& paint, GrAA aa, const SkMatrix& m, const SkRect& rect,
-            const GrUserStencilSettings* ss = nullptr) {
-        fRenderTargetContext->drawFilledRect(clip, std::move(paint), aa, m, rect, ss);
-    }
 
     SkBudgeted isBudgeted() const;
 
