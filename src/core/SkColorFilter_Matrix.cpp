@@ -65,121 +65,13 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec,
 }
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
-#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
-#include "src/gpu/glsl/GrGLSLUniformHandler.h"
-
-class ColorMatrixEffect : public GrFragmentProcessor {
-public:
-    static std::unique_ptr<GrFragmentProcessor> Make(const float matrix[20]) {
-        return std::unique_ptr<GrFragmentProcessor>(new ColorMatrixEffect(matrix));
-    }
-
-    const char* name() const override { return "Color Matrix"; }
-
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-
-    std::unique_ptr<GrFragmentProcessor> clone() const override { return Make(fMatrix); }
-
-private:
-    class GLSLProcessor : public GrGLSLFragmentProcessor {
-    public:
-        // this class always generates the same code.
-        static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
-
-        void emitCode(EmitArgs& args) override {
-            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-            fMatrixHandle = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4x4_GrSLType,
-                                                       "ColorMatrix");
-            fVectorHandle = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                                       "ColorMatrixVector");
-
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
-            // The max() is to guard against 0 / 0 during unpremul when the incoming color is
-            // transparent black.
-            fragBuilder->codeAppendf("\thalf nonZeroAlpha = max(%s.a, 0.00001);\n",
-                                     args.fInputColor);
-            fragBuilder->codeAppendf("\t%s = %s * half4(%s.rgb / nonZeroAlpha, nonZeroAlpha) + "
-                                     "%s;\n",
-                                     args.fOutputColor,
-                                     uniformHandler->getUniformCStr(fMatrixHandle),
-                                     args.fInputColor,
-                                     uniformHandler->getUniformCStr(fVectorHandle));
-            fragBuilder->codeAppendf("\t%s = saturate(%s);\n",
-                                     args.fOutputColor, args.fOutputColor);
-            fragBuilder->codeAppendf("\t%s.rgb *= %s.a;\n", args.fOutputColor, args.fOutputColor);
-        }
-
-    protected:
-        void onSetData(const GrGLSLProgramDataManager& uniManager,
-                       const GrFragmentProcessor& proc) override {
-            const ColorMatrixEffect& cme = proc.cast<ColorMatrixEffect>();
-            const float* m = cme.fMatrix;
-            // The GL matrix is transposed from SkColorMatrix.
-            float mt[]  = {
-                m[0], m[5], m[10], m[15],
-                m[1], m[6], m[11], m[16],
-                m[2], m[7], m[12], m[17],
-                m[3], m[8], m[13], m[18],
-            };
-            float vec[] = {
-                m[4], m[9], m[14], m[19],
-            };
-            uniManager.setMatrix4fv(fMatrixHandle, 1, mt);
-            uniManager.set4fv(fVectorHandle, 1, vec);
-        }
-
-    private:
-        GrGLSLProgramDataManager::UniformHandle fMatrixHandle;
-        GrGLSLProgramDataManager::UniformHandle fVectorHandle;
-
-        typedef GrGLSLFragmentProcessor INHERITED;
-    };
-
-    // We could implement the constant input->constant output optimization but haven't. Other
-    // optimizations would be matrix-dependent.
-    ColorMatrixEffect(const float matrix[20])
-    : INHERITED(kColorMatrixEffect_ClassID, kNone_OptimizationFlags) {
-        memcpy(fMatrix, matrix, sizeof(float) * 20);
-    }
-
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GLSLProcessor;
-    }
-
-    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                       GrProcessorKeyBuilder* b) const override {
-        GLSLProcessor::GenKey(*this, caps, b);
-    }
-
-    bool onIsEqual(const GrFragmentProcessor& s) const override {
-        const ColorMatrixEffect& cme = s.cast<ColorMatrixEffect>();
-        return 0 == memcmp(fMatrix, cme.fMatrix, sizeof(fMatrix));
-    }
-
-    float fMatrix[20];
-
-    typedef GrFragmentProcessor INHERITED;
-};
-
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorMatrixEffect);
-
-#if GR_TEST_UTILS
-std::unique_ptr<GrFragmentProcessor> ColorMatrixEffect::TestCreate(GrProcessorTestData* d) {
-    float colorMatrix[20];
-    for (size_t i = 0; i < SK_ARRAY_COUNT(colorMatrix); ++i) {
-        colorMatrix[i] = d->fRandom->nextSScalar1();
-    }
-    return ColorMatrixEffect::Make(colorMatrix);
-}
-
-#endif
-
+#include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
 std::unique_ptr<GrFragmentProcessor> SkColorFilter_Matrix::asFragmentProcessor(
         GrRecordingContext*, const GrColorSpaceInfo&) const {
-    return ColorMatrixEffect::Make(fMatrix);
+    return GrColorMatrixFragmentProcessor::Make(fMatrix,
+                                                /* premulInput = */ true,
+                                                /* clampRGBOutput = */ true,
+                                                /* premulOutput = */ true);
 }
 
 #endif

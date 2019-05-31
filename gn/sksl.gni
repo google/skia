@@ -41,6 +41,7 @@ skia_gpu_processor_sources = [
   "$_src/gpu/effects/GrComposeLerpRedEffect.fp",
   "$_src/gpu/effects/GrConfigConversionEffect.fp",
   "$_src/gpu/effects/GrConstColorProcessor.fp",
+  "$_src/gpu/effects/GrColorMatrixFragmentProcessor.fp",
   "$_src/gpu/effects/GrEllipseEffect.fp",
   "$_src/gpu/effects/GrLumaColorFilterEffect.fp",
   "$_src/gpu/effects/GrMagnifierEffect.fp",

@@ -168,6 +168,8 @@ static inline float sk_double_to_float(double x) {
 #define SK_FloatInfinity            (+std::numeric_limits<float>::infinity())
 #define SK_FloatNegativeInfinity    (-std::numeric_limits<float>::infinity())
 
+#define SK_DoubleNaN                std::numeric_limits<double>::quiet_NaN()
+
 // Returns false if any of the floats are outside of [0...1]
 // Returns true if count is 0
 bool sk_floats_are_unit(const float array[], size_t count);
