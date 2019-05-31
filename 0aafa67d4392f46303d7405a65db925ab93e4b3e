@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "099831b9_4f1e9f99",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1462,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-31T17:26:16Z",
+      "side": 1,
+      "message": "sad to see config being added to another function :(",
+      "range": {
+        "startLine": 1462,
+        "startChar": 23,
+        "endLine": 1462,
+        "endChar": 46
+      },
+      "revId": "0aafa67d4392f46303d7405a65db925ab93e4b3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
