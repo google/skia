@@ -73,7 +73,7 @@ void test_write_pixels(skiatest::Reporter* reporter,
 }
 
 void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
-                            GrSurfaceProxy* proxy, uint32_t expectedPixelValues[],
+                            GrTextureProxy* proxy, uint32_t expectedPixelValues[],
                             bool onlyTestRTConfig, const char* testName) {
     GrSurfaceDesc copyDstDesc;
     copyDstDesc.fWidth = proxy->width();

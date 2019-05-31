@@ -103,7 +103,7 @@ bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBu
                                              srcRowBytes, flags);
 }
 
-bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
+bool GrSurfaceContext::copy(GrTextureProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
