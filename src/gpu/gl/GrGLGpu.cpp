@@ -1097,7 +1097,7 @@ static bool allocate_and_populate_compressed_texture(GrPixelConfig config,
                                                      const GrMipLevel texels[], int mipLevelCount,
                                                      int baseWidth, int baseHeight) {
     CLEAR_ERROR_BEFORE_ALLOC(&interface);
-    SkASSERT(GrPixelConfigIsCompressed(config));
+    SkASSERT(GrGLFormatIsCompressed(internalFormat));
 
     bool useTexStorage = caps.isConfigTexSupportEnabled(config);
     // We can only use TexStorage if we know we will not later change the storage requirements.
@@ -1131,7 +1131,8 @@ static bool allocate_and_populate_compressed_texture(GrPixelConfig config,
 
                 // Make sure that the width and height that we pass to OpenGL
                 // is a multiple of the block size.
-                size_t dataSize = GrCompressedFormatDataSize(config, currentWidth, currentHeight);
+                size_t dataSize = GrGLFormatCompressedDataSize(internalFormat,
+                                                               currentWidth, currentHeight);
                 GR_GL_CALL(&interface, CompressedTexSubImage2D(target,
                                                                currentMipLevel,
                                                                0, // left
@@ -1157,7 +1158,7 @@ static bool allocate_and_populate_compressed_texture(GrPixelConfig config,
 
             // Make sure that the width and height that we pass to OpenGL
             // is a multiple of the block size.
-            size_t dataSize = GrCompressedFormatDataSize(config, baseWidth, baseHeight);
+            size_t dataSize = GrGLFormatCompressedDataSize(internalFormat, baseWidth, baseHeight);
 
             GL_ALLOC_CALL(&interface,
                           CompressedTexImage2D(target,
@@ -1609,7 +1610,8 @@ size_t GLBytesPerPixel(GrGLenum glFormat) {
         case GR_GL_RGBA32F:
             return 16;
 
-        case GR_GL_COMPRESSED_RGB8_ETC2:
+        case GR_GL_COMPRESSED_RGB8_ETC2: // fall through
+        case GR_GL_COMPRESSED_ETC1_RGB8:
             return 0;
     }
 
@@ -1630,7 +1632,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     GrGLenum glFormat = this->glCaps().configSizedInternalFormat(desc.fConfig);
 
     bool performClear = (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
-                        !GrPixelConfigIsCompressed(desc.fConfig);
+                        !GrGLFormatIsCompressed(glFormat);
 
     GrMipLevel zeroLevel;
     std::unique_ptr<uint8_t[]> zeros;
@@ -1851,6 +1853,8 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
         return false;
     }
 
+    info->fFormat = this->glCaps().configSizedInternalFormat(desc.fConfig);
+
     this->bindTextureToScratchUnit(info->fTarget, info->fID);
 
     if (GrRenderable::kYes == renderable && this->glCaps().textureUsageSupport()) {
@@ -1863,7 +1867,7 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
     *initialTexParams = set_initial_texture_params(this->glInterface(), *info);
 
     bool success = false;
-    if (GrPixelConfigIsCompressed(desc.fConfig)) {
+    if (GrGLFormatIsCompressed(info->fFormat)) {
         SkASSERT(GrRenderable::kNo == renderable);
 
         success = this->uploadCompressedTexData(desc.fConfig, desc.fWidth, desc.fHeight,
@@ -1878,7 +1882,6 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
         GL_CALL(DeleteTextures(1, &(info->fID)));
         return false;
     }
-    info->fFormat = this->glCaps().configSizedInternalFormat(desc.fConfig);
     return true;
 }
 
@@ -4042,7 +4045,8 @@ static bool gl_format_to_pixel_config(GrGLenum format, GrPixelConfig* config) {
         case GR_GL_RGBA16F:
             *config = kRGBA_half_GrPixelConfig;
             return true;
-        case GR_GL_COMPRESSED_RGB8_ETC2:
+        case GR_GL_COMPRESSED_RGB8_ETC2: // fall through
+        case GR_GL_COMPRESSED_ETC1_RGB8:
             *config = kRGB_ETC1_GrPixelConfig;
             return true;
         case GR_GL_R16F:
@@ -4099,14 +4103,14 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
 
     SkAutoMalloc pixelStorage;
 
-    if (GrPixelConfigIsCompressed(config)) {
+    if (GrGLFormatIsCompressed(*glFormat)) {
         // we have to do something special for compressed textures
         SkASSERT(0 == rowBytes);
 
         if (!pixels) {
-            int numBlocks = GrNumETC1Blocks(w, h);
-            pixelStorage.reset(numBlocks * sizeof(ETC1Block));
-            GrFillInETC1WithColor(colorf, pixelStorage.get(), numBlocks);
+            size_t etc1Size = GrGLFormatCompressedDataSize(*glFormat, w, h);
+            pixelStorage.reset(etc1Size);
+            GrFillInETC1WithColor(w, h, colorf, pixelStorage.get());
             pixels = pixelStorage.get();
             rowBytes = 0;
         }
