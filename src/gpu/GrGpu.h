@@ -249,20 +249,6 @@ public:
                             GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
                             size_t offset);
 
-    // After the client interacts directly with the 3D context state the GrGpu
-    // must resync its internal state and assumptions about 3D context state.
-    // Each time this occurs the GrGpu bumps a timestamp.
-    // state of the 3D context
-    // At 10 resets / frame and 60fps a 64bit timestamp will overflow in about
-    // a billion years.
-    typedef uint64_t ResetTimestamp;
-
-    // This timestamp is always older than the current timestamp
-    static const ResetTimestamp kExpiredTimestamp = 0;
-    // Returns a timestamp based on the number of times the context was reset.
-    // This timestamp can be used to lazily detect when cached 3D context state
-    // is dirty.
-    ResetTimestamp getResetTimestamp() const { return fResetTimestamp; }
 
     // Called to perform a surface to surface copy. Fallbacks to issuing a draw from the src to dst
     // take place at the GrOpList level and this function implement faster copy paths. The rect
@@ -566,10 +552,8 @@ private:
     void resetContext() {
         this->onResetContext(fResetBits);
         fResetBits = 0;
-        ++fResetTimestamp;
     }
 
-    ResetTimestamp fResetTimestamp;
     uint32_t fResetBits;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
     GrContext* fContext;
