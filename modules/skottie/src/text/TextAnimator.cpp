@@ -77,20 +77,24 @@ public:
     }
 
     void modulateProps(TextAdapter::AnimatedProps* dst) const {
-        // Position is additive.
+        // Transform props compose.
         if (fHasPosition) {
             dst->position += fTextProps.position;
         }
+        if (fHasScale) {
+            dst->scale *= fTextProps.scale;
+        }
+        if (fHasRotation) {
+            dst->rotation += fTextProps.rotation;
+        }
 
-        // Colors are overridden.
+        // Colors and opacity are overridden.
         if (fHasFillColor) {
             dst->fill_color = fTextProps.fill_color;
         }
         if (fHasStrokeColor) {
             dst->stroke_color = fTextProps.stroke_color;
         }
-
-        // Opacity is also overridden.
         if (fHasOpacity) {
             dst->opacity = fTextProps.opacity;
         }
@@ -109,6 +113,15 @@ private:
             [animator](const VectorValue& p) {
                 animator->fTextProps.position = ValueTraits<VectorValue>::As<SkPoint>(p);
             });
+        fHasScale       = abuilder->bindProperty<ScalarValue>(jprops["s"], ascope,
+            [animator](const ScalarValue& s) {
+                // Scale is 100-based.
+                animator->fTextProps.scale = s * 0.01f;
+            });
+        fHasRotation    = abuilder->bindProperty<ScalarValue>(jprops["r"], ascope,
+            [animator](const ScalarValue& r) {
+                animator->fTextProps.rotation = r;
+            });
         fHasFillColor   = abuilder->bindProperty<VectorValue>(jprops["fc"], ascope,
             [animator](const VectorValue& fc) {
                 animator->fTextProps.fill_color = ValueTraits<VectorValue>::As<SkColor>(fc);
@@ -119,12 +132,15 @@ private:
             });
         fHasOpacity     = abuilder->bindProperty<ScalarValue>(jprops["o"], ascope,
             [animator](const ScalarValue& o) {
+                // Opacity is 100-based.
                 animator->fTextProps.opacity = SkTPin<float>(o * 0.01f, 0, 1);
             });
     }
 
     TextAdapter::AnimatedProps fTextProps;
     bool                       fHasPosition    : 1,
+                               fHasScale       : 1,
+                               fHasRotation    : 1,
                                fHasFillColor   : 1,
                                fHasStrokeColor : 1,
                                fHasOpacity     : 1;
