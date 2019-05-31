@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "694cbe1d_01bec1b0",
+        "filename": "src/gpu/gl/GrGLTypesPriv.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-05-31T19:27:50Z",
+      "side": 1,
+      "message": "it bothers me that sampler is not capitalized in the Type suggesting it is the same word as the Non but is capitalized in the variable name. Lets pick one version and stay consistent. I would slightly lean towards captializing Sampler but don\u0027t really care.",
+      "range": {
+        "startLine": 49,
+        "startChar": 38,
+        "endLine": 49,
+        "endChar": 59
+      },
+      "revId": "4188de4bff5598f4bcf80649d2e9a029d8b56491",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
