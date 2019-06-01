@@ -161,6 +161,11 @@ static const std::vector<UniformCTypeMapper>& get_mappers() {
         "${pdman}.set4fv(${uniform}, 1, ${var}.vec())",                            // to gpu
         "{SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN}"),                   // default value
 
+    REGISTER(Layout::CType::kSkVector4, { "half4", "float4", "double4" },
+        "${pdman}.set4fv(${uniform}, 1, ${var}.fData)",                            // to gpu
+        "SkVector4(SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN)",   // default value
+        "${oldVar} != (${newVar})"),                                               // dirty check
+
     REGISTER(Layout::CType::kSkPoint, { "half2", "float2", "double2" } ,
         "${pdman}.set2f(${uniform}, ${var}.fX, ${var}.fY)",                        // to gpu
         "SkPoint::Make(SK_FloatNaN, SK_FloatNaN)"),                                // default value

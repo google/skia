@@ -60,15 +60,15 @@ private:
                 mPrev = mValue;
                 pdman.setSkMatrix44(mVar, mValue);
             }
-            const SkRect& vValue = _outer.v;
-            if (vPrev.isEmpty() || vPrev != vValue) {
+            const SkVector4& vValue = _outer.v;
+            if (vPrev != (vValue)) {
                 vPrev = vValue;
-                pdman.set4fv(vVar, 1, reinterpret_cast<const float*>(&vValue));
+                pdman.set4fv(vVar, 1, vValue.fData);
             }
         }
     }
     SkMatrix44 mPrev = SkMatrix44(SkMatrix44::kNaN_Constructor);
-    SkRect vPrev = SkRect::MakeEmpty();
+    SkVector4 vPrev = SkVector4(SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN);
     UniformHandle mVar;
     UniformHandle vVar;
 };
