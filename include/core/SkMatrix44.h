@@ -111,13 +111,11 @@ struct SkVector4 {
         return *this;
     }
 
-    bool operator==(const SkVector4& v) {
+    bool operator==(const SkVector4& v) const {
         return fData[0] == v.fData[0] && fData[1] == v.fData[1] &&
                fData[2] == v.fData[2] && fData[3] == v.fData[3];
     }
-    bool operator!=(const SkVector4& v) {
-        return !(*this == v);
-    }
+    bool operator!=(const SkVector4& v) const { return !(*this == v); }
     bool equals(SkScalar x, SkScalar y, SkScalar z, SkScalar w = SK_Scalar1) {
         return fData[0] == x && fData[1] == y &&
                fData[2] == z && fData[3] == w;

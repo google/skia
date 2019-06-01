@@ -207,6 +207,12 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
                 fFormatArgs.push_back(cppCode + ".fB");
                 fFormatArgs.push_back(cppCode + ".fA");
                 break;
+            case Layout::CType::kSkVector4:
+                fFormatArgs.push_back(cppCode + ".fData[0]");
+                fFormatArgs.push_back(cppCode + ".fData[1]");
+                fFormatArgs.push_back(cppCode + ".fData[2]");
+                fFormatArgs.push_back(cppCode + ".fData[3]");
+                break;
             case Layout::CType::kSkRect: // fall through
             case Layout::CType::kDefault:
                 fFormatArgs.push_back(cppCode + ".left()");
