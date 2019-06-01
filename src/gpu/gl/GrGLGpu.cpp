@@ -655,6 +655,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         fHWProgramID = 0;
         fHWProgram.reset();
     }
+    ++fResetTimestampForTextureParameters;
 }
 
 static bool check_backend_texture(const GrBackendTexture& backendTex, const GrGLCaps& caps,
@@ -706,8 +707,8 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     GrMipMapsStatus mipMapsStatus = backendTex.hasMipMaps() ? GrMipMapsStatus::kValid
                                                             : GrMipMapsStatus::kNotAllocated;
 
-    auto texture =
-            GrGLTexture::MakeWrapped(this, surfDesc, mipMapsStatus, idDesc, cacheable, ioType);
+    auto texture = GrGLTexture::MakeWrapped(this, surfDesc, mipMapsStatus, idDesc,
+                                            backendTex.getGLTextureParams(), cacheable, ioType);
     // We don't know what parameters are already set on wrapped textures.
     texture->textureParamsModified();
     return std::move(texture);
@@ -755,7 +756,8 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
                                                             : GrMipMapsStatus::kNotAllocated;
 
     sk_sp<GrGLTextureRenderTarget> texRT(GrGLTextureRenderTarget::MakeWrapped(
-            this, surfDesc, idDesc, rtIDDesc, cacheable, mipMapsStatus));
+            this, surfDesc, idDesc, backendTex.getGLTextureParams(), rtIDDesc, cacheable,
+            mipMapsStatus));
     texRT->baseLevelWasBoundToFBO();
     // We don't know what parameters are already set on wrapped textures.
     texRT->textureParamsModified();
@@ -1564,21 +1566,21 @@ static sk_sp<GrTexture> return_null_texture() {
     return nullptr;
 }
 
-static GrGLTexture::SamplerParams set_initial_texture_params(const GrGLInterface* interface,
-                                                             const GrGLTextureInfo& info) {
+static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
+        const GrGLInterface* interface, const GrGLTextureInfo& info) {
     // Some drivers like to know filter/wrap before seeing glTexImage2D. Some
     // drivers have a bug where an FBO won't be complete if it includes a
     // texture that is not mipmap complete (considering the filter in use).
-    GrGLTexture::SamplerParams params;
-    params.fMinFilter = GR_GL_NEAREST;
-    params.fMagFilter = GR_GL_NEAREST;
-    params.fWrapS = GR_GL_CLAMP_TO_EDGE;
-    params.fWrapT = GR_GL_CLAMP_TO_EDGE;
-    GR_GL_CALL(interface, TexParameteri(info.fTarget, GR_GL_TEXTURE_MAG_FILTER, params.fMagFilter));
-    GR_GL_CALL(interface, TexParameteri(info.fTarget, GR_GL_TEXTURE_MIN_FILTER, params.fMinFilter));
-    GR_GL_CALL(interface, TexParameteri(info.fTarget, GR_GL_TEXTURE_WRAP_S, params.fWrapS));
-    GR_GL_CALL(interface, TexParameteri(info.fTarget, GR_GL_TEXTURE_WRAP_T, params.fWrapT));
-    return params;
+    GrGLTextureParameters::SamplerOverriddenState state;
+    state.fMinFilter = GR_GL_NEAREST;
+    state.fMagFilter = GR_GL_NEAREST;
+    state.fWrapS = GR_GL_CLAMP_TO_EDGE;
+    state.fWrapT = GR_GL_CLAMP_TO_EDGE;
+    GR_GL_CALL(interface, TexParameteri(info.fTarget, GR_GL_TEXTURE_MAG_FILTER, state.fMagFilter));
+    GR_GL_CALL(interface, TexParameteri(info.fTarget, GR_GL_TEXTURE_MIN_FILTER, state.fMinFilter));
+    GR_GL_CALL(interface, TexParameteri(info.fTarget, GR_GL_TEXTURE_WRAP_S, state.fWrapS));
+    GR_GL_CALL(interface, TexParameteri(info.fTarget, GR_GL_TEXTURE_WRAP_T, state.fWrapT));
+    return state;
 }
 
 size_t GLBytesPerPixel(GrGLenum glFormat) {
@@ -1654,10 +1656,10 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     GrGLTexture::IDDesc idDesc;
     idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     GrMipMapsStatus mipMapsStatus;
-    GrGLTexture::SamplerParams initialTexParams;
+    GrGLTextureParameters::SamplerOverriddenState initialState;
     if (!this->createTextureImpl(desc, &idDesc.fInfo,
                                  isRenderTarget ? GrRenderable::kYes : GrRenderable::kNo,
-                                 &initialTexParams, texels, mipLevelCount, &mipMapsStatus)) {
+                                 &initialState, texels, mipLevelCount, &mipMapsStatus)) {
         return return_null_texture();
     }
 
@@ -1677,9 +1679,9 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     } else {
         tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, idDesc, mipMapsStatus);
     }
-
-    tex->setCachedParams(&initialTexParams, tex->getCachedNonSamplerParams(),
-                         this->getResetTimestamp());
+    // The non-sampler params are still at their default values.
+    tex->parameters()->set(&initialState, GrGLTextureParameters::NonsamplerState(),
+                           fResetTimestampForTextureParameters);
 #ifdef TRACE_TEXTURE_CREATION
     SkDebugf("--- new texture [%d] size=(%d %d) config=%d\n",
              idDesc.fInfo.fID, desc.fWidth, desc.fHeight, desc.fConfig);
@@ -1842,7 +1844,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
 
 bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
                                 GrRenderable renderable,
-                                GrGLTexture::SamplerParams* initialTexParams,
+                                GrGLTextureParameters::SamplerOverriddenState* initialState,
                                 const GrMipLevel texels[], int mipLevelCount,
                                 GrMipMapsStatus* mipMapsStatus) {
     info->fID = 0;
@@ -1864,7 +1866,7 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
                               GR_GL_FRAMEBUFFER_ATTACHMENT));
     }
 
-    *initialTexParams = set_initial_texture_params(this->glInterface(), *info);
+    *initialState = set_initial_texture_params(this->glInterface(), *info);
 
     bool success = false;
     if (GrGLFormatIsCompressed(info->fFormat)) {
@@ -3052,71 +3054,73 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture*
     }
 #endif
 
-    ResetTimestamp timestamp = texture->getCachedParamsTimestamp();
-    bool setAll = timestamp < this->getResetTimestamp();
+    auto timestamp = texture->parameters()->resetTimestamp();
+    bool setAll = timestamp < fResetTimestampForTextureParameters;
 
-    const GrGLTexture::SamplerParams* samplerParamsToRecord = nullptr;
-    GrGLTexture::SamplerParams newSamplerParams;
+    const GrGLTextureParameters::SamplerOverriddenState* samplerStateToRecord = nullptr;
+    GrGLTextureParameters::SamplerOverriddenState newSamplerState;
     if (fSamplerObjectCache) {
         fSamplerObjectCache->bindSampler(unitIdx, samplerState);
     } else {
-        const GrGLTexture::SamplerParams& oldSamplerParams = texture->getCachedSamplerParams();
-        samplerParamsToRecord = &newSamplerParams;
+        const GrGLTextureParameters::SamplerOverriddenState& oldSamplerState =
+                texture->parameters()->samplerOverriddenState();
+        samplerStateToRecord = &newSamplerState;
 
-        newSamplerParams.fMinFilter = filter_to_gl_min_filter(samplerState.filter());
-        newSamplerParams.fMagFilter = filter_to_gl_mag_filter(samplerState.filter());
+        newSamplerState.fMinFilter = filter_to_gl_min_filter(samplerState.filter());
+        newSamplerState.fMagFilter = filter_to_gl_mag_filter(samplerState.filter());
 
-        newSamplerParams.fWrapS = wrap_mode_to_gl_wrap(samplerState.wrapModeX(), this->glCaps());
-        newSamplerParams.fWrapT = wrap_mode_to_gl_wrap(samplerState.wrapModeY(), this->glCaps());
+        newSamplerState.fWrapS = wrap_mode_to_gl_wrap(samplerState.wrapModeX(), this->glCaps());
+        newSamplerState.fWrapT = wrap_mode_to_gl_wrap(samplerState.wrapModeY(), this->glCaps());
 
         // These are the OpenGL default values.
-        newSamplerParams.fMinLOD = -1000.f;
-        newSamplerParams.fMaxLOD = 1000.f;
+        newSamplerState.fMinLOD = -1000.f;
+        newSamplerState.fMaxLOD = 1000.f;
 
-        if (setAll || newSamplerParams.fMagFilter != oldSamplerParams.fMagFilter) {
+        if (setAll || newSamplerState.fMagFilter != oldSamplerState.fMagFilter) {
             this->setTextureUnit(unitIdx);
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAG_FILTER, newSamplerParams.fMagFilter));
+            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAG_FILTER, newSamplerState.fMagFilter));
         }
-        if (setAll || newSamplerParams.fMinFilter != oldSamplerParams.fMinFilter) {
+        if (setAll || newSamplerState.fMinFilter != oldSamplerState.fMinFilter) {
             this->setTextureUnit(unitIdx);
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER, newSamplerParams.fMinFilter));
+            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER, newSamplerState.fMinFilter));
         }
         if (this->glCaps().mipMapLevelAndLodControlSupport()) {
-            if (setAll || newSamplerParams.fMinLOD != oldSamplerParams.fMinLOD) {
+            if (setAll || newSamplerState.fMinLOD != oldSamplerState.fMinLOD) {
                 this->setTextureUnit(unitIdx);
-                GL_CALL(TexParameterf(target, GR_GL_TEXTURE_MIN_LOD, newSamplerParams.fMinLOD));
+                GL_CALL(TexParameterf(target, GR_GL_TEXTURE_MIN_LOD, newSamplerState.fMinLOD));
             }
-            if (setAll || newSamplerParams.fMaxLOD != oldSamplerParams.fMaxLOD) {
+            if (setAll || newSamplerState.fMaxLOD != oldSamplerState.fMaxLOD) {
                 this->setTextureUnit(unitIdx);
-                GL_CALL(TexParameterf(target, GR_GL_TEXTURE_MAX_LOD, newSamplerParams.fMaxLOD));
+                GL_CALL(TexParameterf(target, GR_GL_TEXTURE_MAX_LOD, newSamplerState.fMaxLOD));
             }
         }
-        if (setAll || newSamplerParams.fWrapS != oldSamplerParams.fWrapS) {
+        if (setAll || newSamplerState.fWrapS != oldSamplerState.fWrapS) {
             this->setTextureUnit(unitIdx);
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_WRAP_S, newSamplerParams.fWrapS));
+            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_WRAP_S, newSamplerState.fWrapS));
         }
-        if (setAll || newSamplerParams.fWrapT != oldSamplerParams.fWrapT) {
+        if (setAll || newSamplerState.fWrapT != oldSamplerState.fWrapT) {
             this->setTextureUnit(unitIdx);
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_WRAP_T, newSamplerParams.fWrapT));
+            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_WRAP_T, newSamplerState.fWrapT));
         }
         if (this->glCaps().clampToBorderSupport()) {
             // Make sure the border color is transparent black (the default)
-            if (setAll || oldSamplerParams.fBorderColorInvalid) {
+            if (setAll || oldSamplerState.fBorderColorInvalid) {
                 this->setTextureUnit(unitIdx);
                 static const GrGLfloat kTransparentBlack[4] = {0.f, 0.f, 0.f, 0.f};
                 GL_CALL(TexParameterfv(target, GR_GL_TEXTURE_BORDER_COLOR, kTransparentBlack));
             }
         }
     }
-    GrGLTexture::NonSamplerParams newNonSamplerParams;
-    newNonSamplerParams.fBaseMipMapLevel = 0;
-    newNonSamplerParams.fMaxMipMapLevel = texture->texturePriv().maxMipMapLevel();
+    GrGLTextureParameters::NonsamplerState newNonsamplerState;
+    newNonsamplerState.fBaseMipMapLevel = 0;
+    newNonsamplerState.fMaxMipMapLevel = texture->texturePriv().maxMipMapLevel();
 
-    const GrGLTexture::NonSamplerParams& oldNonSamplerParams = texture->getCachedNonSamplerParams();
+    const GrGLTextureParameters::NonsamplerState& oldNonsamplerState =
+            texture->parameters()->nonsamplerState();
     if (this->glCaps().textureSwizzleSupport()) {
         auto swizzle = this->glCaps().configSwizzle(texture->config());
-        newNonSamplerParams.fSwizzleKey = swizzle.asKey();
-        if (setAll || swizzle.asKey() != oldNonSamplerParams.fSwizzleKey) {
+        newNonsamplerState.fSwizzleKey = swizzle.asKey();
+        if (setAll || swizzle.asKey() != oldNonsamplerState.fSwizzleKey) {
             GrGLenum glValues[4];
             get_gl_swizzle_values(swizzle, glValues);
             this->setTextureUnit(unitIdx);
@@ -3137,18 +3141,19 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture*
     if (this->glCaps().mipMapLevelAndLodControlSupport() &&
         (texture->texturePriv().textureType() != GrTextureType::kExternal ||
          !this->glCaps().dontSetBaseOrMaxLevelForExternalTextures())) {
-        if (newNonSamplerParams.fBaseMipMapLevel != oldNonSamplerParams.fBaseMipMapLevel) {
+        if (newNonsamplerState.fBaseMipMapLevel != oldNonsamplerState.fBaseMipMapLevel) {
             this->setTextureUnit(unitIdx);
             GL_CALL(TexParameteri(target, GR_GL_TEXTURE_BASE_LEVEL,
-                                  newNonSamplerParams.fBaseMipMapLevel));
+                                  newNonsamplerState.fBaseMipMapLevel));
         }
-        if (newNonSamplerParams.fMaxMipMapLevel != oldNonSamplerParams.fMaxMipMapLevel) {
+        if (newNonsamplerState.fMaxMipMapLevel != oldNonsamplerState.fMaxMipMapLevel) {
             this->setTextureUnit(unitIdx);
             GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAX_LEVEL,
-                                  newNonSamplerParams.fMaxMipMapLevel));
+                                  newNonsamplerState.fMaxMipMapLevel));
         }
     }
-    texture->setCachedParams(samplerParamsToRecord, newNonSamplerParams, this->getResetTimestamp());
+    texture->parameters()->set(samplerStateToRecord, newNonsamplerState,
+                               fResetTimestampForTextureParameters);
 }
 
 void GrGLGpu::onResetTextureBindings() {
@@ -3952,9 +3957,10 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
                                  GR_GL_TEXTURE_2D, 0, 0));
 
     // We modified the base level param.
-    GrGLTexture::NonSamplerParams params = glTex->getCachedNonSamplerParams();
-    params.fBaseMipMapLevel = levelCount - 2; // we drew the 2nd to last level into the last level.
-    glTex->setCachedParams(nullptr, params, this->getResetTimestamp());
+    GrGLTextureParameters::NonsamplerState nonsamplerState = glTex->parameters()->nonsamplerState();
+    // We drew the 2nd to last level into the last level.
+    nonsamplerState.fBaseMipMapLevel = levelCount - 2;
+    glTex->parameters()->set(nullptr, nonsamplerState, fResetTimestampForTextureParameters);
 
     return true;
 }
@@ -4146,17 +4152,20 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
     desc.fConfig = config;
 
     GrGLTextureInfo info;
-    GrGLTexture::SamplerParams initialTexParams;
+    GrGLTextureParameters::SamplerOverriddenState initialState;
 
-    if (!this->createTextureImpl(desc, &info, renderable, &initialTexParams,
-                                 texels.get(), mipLevelCount, nullptr)) {
+    if (!this->createTextureImpl(desc, &info, renderable, &initialState, texels.get(),
+                                 mipLevelCount, nullptr)) {
         return GrBackendTexture();  // invalid
     }
 
     // unbind the texture from the texture unit to avoid asserts
     GL_CALL(BindTexture(info.fTarget, 0));
 
-    GrBackendTexture beTex = GrBackendTexture(w, h, mipMapped, info);
+    auto parameters = sk_make_sp<GrGLTextureParameters>();
+    parameters->set(&initialState, GrGLTextureParameters::NonsamplerState(),
+                    fResetTimestampForTextureParameters);
+    GrBackendTexture beTex = GrBackendTexture(w, h, mipMapped, info, std::move(parameters));
 #if GR_TEST_UTILS
     // Lots of tests don't go through Skia's public interface, which will set the config, so for
     // testing we make sure we set a config here.
