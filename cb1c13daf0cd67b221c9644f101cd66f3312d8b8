@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f3909f2f_a9822407",
+        "filename": "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-01T15:08:28Z",
+      "side": 1,
+      "message": "I figured I only really needed one NaN to make a op\u003d\u003d fail and the constructor has a default arg for w. But it does read kinda weird. Will add a fourth NaN.",
+      "parentUuid": "cde1978a_5b6eff85",
+      "range": {
+        "startLine": 71,
+        "startChar": 61,
+        "endLine": 71,
+        "endChar": 75
+      },
+      "revId": "cb1c13daf0cd67b221c9644f101cd66f3312d8b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7b1b44de_7d4ca597",
         "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "cb1c13daf0cd67b221c9644f101cd66f3312d8b8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59bb0f34_30fd52b5",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-01T15:08:28Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7b1b44de_7d4ca597",
+      "range": {
+        "startLine": 166,
+        "startChar": 54,
+        "endLine": 166,
+        "endChar": 67
+      },
+      "revId": "cb1c13daf0cd67b221c9644f101cd66f3312d8b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
