@@ -639,6 +639,37 @@ static SkPath create_path_44() {
     return path;
 }
 
+// Reduction from crbug.com/966274.
+static SkPath create_path_45() {
+    SkPath path;
+    path.moveTo(        706471854080,         379003666432);
+    path.lineTo(        706503180288,         379020443648);
+    path.lineTo(        706595717120,         379070087168);
+    path.lineTo(        706626060288,         379086372864);
+    path.lineTo(        706656141312,         379102527488);
+    path.lineTo(        706774171648,         379165835264);
+    path.lineTo(        706803073024,         379181334528);
+    path.lineTo(        706831712256,         379196702720);
+    path.lineTo(        706860154880,         379211939840);
+    path.lineTo(        706888335360,         379227078656);
+    path.lineTo(        706916253696,         379242053632);
+    path.lineTo(        706956820480,         379263811584);
+    path.lineTo(        706929098752,         379248934912);
+    path.lineTo(        706901114880,         379233927168);
+    path.lineTo(        706872934400,         379218821120);
+    path.lineTo(        706844491776,         379203551232);
+    path.lineTo(        706815787008,         379188183040);
+    path.lineTo(        706786885632,         379172651008);
+    path.lineTo(        706757722112,         379156987904);
+    path.lineTo(        706728296448,         379141226496);
+    path.lineTo(        706698608640,         379125301248);
+    path.lineTo(        706668724224,         379109244928);
+    path.lineTo(        706638577664,         379093090304);
+    path.lineTo(        706608168960,         379076771840);
+    path.lineTo(        706484174848,         379010252800);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -747,4 +778,5 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_42());
     test_path(ctx, rtc.get(), create_path_43(), SkMatrix(), AATypeFlags::kCoverage);
     test_path(ctx, rtc.get(), create_path_44(), SkMatrix(), AATypeFlags::kCoverage);
+    test_path(ctx, rtc.get(), create_path_45(), SkMatrix(), AATypeFlags::kCoverage);
 }
