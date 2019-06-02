@@ -22,6 +22,30 @@
       "revId": "4188de4bff5598f4bcf80649d2e9a029d8b56491",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d48b8e8_c077af0c",
+        "filename": "src/gpu/gl/GrGLTypesPriv.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-02T16:22:12Z",
+      "side": 1,
+      "message": "went with nonsampler since \"nonsampler\" is one \"word\".",
+      "parentUuid": "694cbe1d_01bec1b0",
+      "range": {
+        "startLine": 49,
+        "startChar": 38,
+        "endLine": 49,
+        "endChar": 59
+      },
+      "revId": "4188de4bff5598f4bcf80649d2e9a029d8b56491",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
