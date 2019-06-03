@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81e4d511_a8a06c99",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-03T15:10:17Z",
+      "side": 1,
+      "message": "If I revert this CL because the enum fuzzing is broken, do you want the font change reverted too?  Probably better to spin that off as its own CL?  Almost any time a CL description has a sentence like this, it\u0027s better as another CL unless the two things you\u0027re doing are so fundamentally entwined that they can\u0027t be landed independently.",
+      "revId": "227062dce2bbb33ef0443172067c9c84e15181e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "994dfc78_1a232193",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-03T15:10:17Z",
+      "side": 1,
+      "message": "Looks like maybe the function we\u0027d really like to be calling is \n\n  template \u003ctypename T\u003e\n  void nextEnum(T*, T max);\n\n?  Seems like min\u0027s always 0?  And it\u0027s probably cozier to pass min/max as the enum type T where possible?",
+      "range": {
+        "startLine": 63,
+        "startChar": 22,
+        "endLine": 63,
+        "endChar": 31
+      },
+      "revId": "227062dce2bbb33ef0443172067c9c84e15181e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da375087_ae26eec3",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-03T15:10:17Z",
+      "side": 1,
+      "message": "I mean, even more fundamentally, this routine just creates valid enum values.  It\u0027s not just UBSAN that\u0027d be annoyed if we don\u0027t do this; if we weren\u0027t running UBSAN, we\u0027d likely crash, run the wrong code, etc.",
+      "revId": "227062dce2bbb33ef0443172067c9c84e15181e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "088f16bf_f614b956",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-03T15:10:17Z",
+      "side": 1,
+      "message": "It\u0027s weird for this function to be inline in a .cpp file.  Did we mean to make it static?",
+      "revId": "227062dce2bbb33ef0443172067c9c84e15181e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67752790_c50ca8cb",
+        "filename": "site/dev/testing/fuzz.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-03T15:10:17Z",
+      "side": 1,
+      "message": "Is all this needed now that you overrode the default SkFontMgr factory?",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 41
+      },
+      "revId": "227062dce2bbb33ef0443172067c9c84e15181e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
