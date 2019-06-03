@@ -279,6 +279,7 @@ gm_sources = [
   "$_gm/poly2poly.cpp",
   "$_gm/polygonoffset.cpp",
   "$_gm/polygons.cpp",
+  "$_gm/preservefillrule.cpp",
   "$_gm/postercircle.cpp",
   "$_gm/quadpaths.cpp",
   "$_gm/radial_gradient_precision.cpp",

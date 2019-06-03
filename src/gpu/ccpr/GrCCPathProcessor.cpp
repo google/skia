@@ -166,8 +166,8 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // find an octagon that circumscribes the (bloated) path.
     GrGLSLVertexBuilder* v = args.fVertBuilder;
 
-    // Are we clockwise (positive wind, nonzero fill), or counter-clockwise (negative wind,
-    // even/odd fill)?
+    // Are we clockwise? (Positive wind => nonzero fill rule.)
+    // Or counter-clockwise? (negative wind => even/odd fill rule.)
     v->codeAppendf("float wind = sign(devbounds.z - devbounds.x);");
 
     // Find our reference corner from the device-space bounding box.
