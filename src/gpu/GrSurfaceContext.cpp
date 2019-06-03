@@ -5,13 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrSurfaceContext.h"
+
 #include "include/private/GrAuditTrail.h"
 #include "include/private/GrOpList.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/SkGr.h"
 
 #define ASSERT_SINGLE_OWNER \
@@ -103,17 +107,22 @@ bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBu
                                              srcRowBytes, flags);
 }
 
-bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
-    ASSERT_SINGLE_OWNER
-    RETURN_FALSE_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::copy");
+bool GrSurfaceContextPriv::copyNoDraw(GrSurfaceProxy* src, const SkIRect& srcRect,
+                                      const SkIPoint& dstPoint) {
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSurfaceContext->singleOwner());)
+    if (fSurfaceContext->fContext->priv().abandoned()) { return false; }
+    SkDEBUGCODE(fSurfaceContext->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fSurfaceContext->auditTrail(), "GrSurfaceContextPriv::copy");
 
-    if (!fContext->priv().caps()->canCopySurface(this->asSurfaceProxy(), src, srcRect,
-                                                        dstPoint)) {
+    SkASSERT(src->backendFormat().textureType() != GrTextureType::kExternal);
+    SkASSERT(src->origin() == fSurfaceContext->asSurfaceProxy()->origin());
+
+    GrSurfaceProxy* dst = fSurfaceContext->asSurfaceProxy();
+
+    if (!fSurfaceContext->fContext->priv().caps()->canCopySurface(dst, src, srcRect, dstPoint)) {
         return false;
     }
 
-    return this->getOpList()->copySurface(fContext, this->asSurfaceProxy(),
-                                          src, srcRect, dstPoint);
+    return fSurfaceContext->getOpList()->copySurface(fSurfaceContext->fContext, dst, src, srcRect,
+                                                     dstPoint);
 }

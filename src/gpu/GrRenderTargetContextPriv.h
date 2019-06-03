@@ -90,6 +90,8 @@ public:
         fRenderTargetContext->drawFilledRect(clip, std::move(paint), aa, m, rect, ss);
     }
 
+    bool copyAsDraw(GrTextureProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
+
     SkBudgeted isBudgeted() const;
 
     int maxWindowRectangles() const;

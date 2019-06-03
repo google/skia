@@ -12,11 +12,15 @@
 #include "include/private/GrOpList.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureRenderTargetProxy.h"
@@ -330,38 +334,79 @@ void GrSurfaceProxy::validate(GrContext_Base* context) const {
 }
 #endif
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
-                                           GrSurfaceProxy* src,
-                                           GrMipMapped mipMapped,
-                                           SkIRect srcRect,
-                                           SkBackingFit fit,
-                                           SkBudgeted budgeted) {
-    SkASSERT(LazyState::kFully != src->lazyInstantiationState());
+static sk_sp<GrSurfaceContext> copy_surface_impl(GrRecordingContext* context,
+                                                 GrSurfaceProxy* src,
+                                                 const GrSurfaceDesc& dstDesc,
+                                                 GrMipMapped mipMapped,
+                                                 SkIRect srcRect,
+                                                 const SkIPoint& dstPoint,
+                                                 SkBackingFit fit,
+                                                 SkBudgeted budgeted) {
     if (!srcRect.intersect(SkIRect::MakeWH(src->width(), src->height()))) {
         return nullptr;
     }
 
+    if (src->backendFormat().textureType() != GrTextureType::kExternal) {
+        sk_sp<GrSurfaceContext> dstContext(context->priv().makeDeferredSurfaceContext(
+                src->backendFormat().makeTexture2D(), dstDesc, src->origin(), mipMapped, fit,
+                budgeted));
+        if (!dstContext) {
+            return nullptr;
+        }
+        if (context->priv().caps()->canCopySurface(src, dstContext->asSurfaceProxy(), srcRect,
+                                                   dstPoint)) {
+            SkAssertResult(dstContext->surfPriv().copyNoDraw(std::move(src), srcRect, dstPoint));
+            return dstContext;
+        }
+    }
+    if (src->asTextureProxy()) {
+        GrBackendFormat format = src->backendFormat().makeTexture2D();
+        if (!format.isValid()) {
+            return nullptr;
+        }
+
+        sk_sp<GrRenderTargetContext> dstContext = context->priv().makeDeferredRenderTargetContext(
+                format, fit, dstDesc.fWidth, dstDesc.fHeight, dstDesc.fConfig, nullptr, 1,
+                mipMapped, src->origin(), nullptr, budgeted);
+
+        if (dstContext && dstContext->priv().copyAsDraw(src->asTextureProxy(), srcRect, dstPoint)) {
+            // Older compilers cause of defect in C++11 will cause a copy if we just return
+            // dstContext here since it is a sub class of the return type. Explicitly calling
+            // std::move here gets our desired behavior on all compilers.
+            return std::move(dstContext);
+        }
+    }
+    // Can't use backend copies or draws.
+    return nullptr;
+}
+
+sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
+                                           GrSurfaceProxy* src,
+                                           GrMipMapped mipMapped,
+                                           const SkIRect& srcRect,
+                                           SkBackingFit fit,
+                                           SkBudgeted budgeted,
+                                           RectsMustMatch rectsMustMatch) {
+    SkASSERT(LazyState::kFully != src->lazyInstantiationState());
     GrSurfaceDesc dstDesc;
-    dstDesc.fWidth = srcRect.width();
-    dstDesc.fHeight = srcRect.height();
     dstDesc.fConfig = src->config();
 
-    GrBackendFormat format = src->backendFormat().makeTexture2D();
-    if (!format.isValid()) {
+    SkIPoint dstPoint;
+    if (rectsMustMatch == RectsMustMatch::kYes) {
+        dstDesc.fWidth = src->width();
+        dstDesc.fHeight = src->height();
+        dstPoint = {srcRect.fLeft, srcRect.fTop};
+    } else {
+        dstDesc.fWidth = srcRect.width();
+        dstDesc.fHeight = srcRect.height();
+        dstPoint = {0, 0};
+    }
+    sk_sp<GrSurfaceContext> surfaceContext = copy_surface_impl(context, src, dstDesc,
+            mipMapped, srcRect, dstPoint, fit, budgeted);
+    if (!surfaceContext) {
         return nullptr;
     }
-
-    sk_sp<GrSurfaceContext> dstContext(context->priv().makeDeferredSurfaceContext(
-            format, dstDesc, src->origin(), mipMapped, fit, budgeted));
-    if (!dstContext) {
-        return nullptr;
-    }
-
-    if (!dstContext->copy(src, srcRect, SkIPoint::Make(0, 0))) {
-        return nullptr;
-    }
-
-    return dstContext->asTextureProxyRef();
+    return surfaceContext->asTextureProxyRef();
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context, GrSurfaceProxy* src,
@@ -374,25 +419,11 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context, GrSurfac
 
 sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrRecordingContext* context,
                                                  const GrSurfaceDesc& dstDesc,
-                                                 GrSurfaceOrigin origin, GrSurfaceProxy* srcProxy) {
+                                                 GrSurfaceProxy* srcProxy) {
     SkASSERT(LazyState::kFully != srcProxy->lazyInstantiationState());
-
-    GrBackendFormat format = srcProxy->backendFormat().makeTexture2D();
-    if (!format.isValid()) {
-        return nullptr;
-    }
-
-    sk_sp<GrSurfaceContext> dstContext(context->priv().makeDeferredSurfaceContext(
-            format, dstDesc, origin, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes));
-    if (!dstContext) {
-        return nullptr;
-    }
-
-    if (!dstContext->copy(srcProxy)) {
-        return nullptr;
-    }
-
-    return dstContext;
+    return copy_surface_impl(context, srcProxy, dstDesc, GrMipMapped::kNo,
+                             SkIRect::MakeWH(srcProxy->width(), srcProxy->height()),
+                             SkIPoint::Make(0, 0), SkBackingFit::kExact, SkBudgeted::kYes);
 }
 
 void GrSurfaceProxyPriv::exactify() {
