@@ -14,6 +14,7 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrQuad.h"
+#include "src/gpu/geometry/GrQuadList.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
