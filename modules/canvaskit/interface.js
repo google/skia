@@ -900,28 +900,45 @@ CanvasKit.MakeTwoPointConicalGradientShader = function(start, startRadius, end, 
 
 CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
                                     boneIndices, boneWeights, indices, isVolatile) {
-  var positionPtr = copy2dArray(positions,          CanvasKit.HEAPF32);
-  var texPtr =      copy2dArray(textureCoordinates, CanvasKit.HEAPF32);
-  var colorPtr =    copy1dArray(colors,             CanvasKit.HEAPU32);
-
-  var boneIdxPtr =  copy2dArray(boneIndices,        CanvasKit.HEAP32);
-  var boneWtPtr  =  copy2dArray(boneWeights,        CanvasKit.HEAPF32);
-  var idxPtr =      copy1dArray(indices,            CanvasKit.HEAPU16);
-
   // Default isVolitile to true if not set
   isVolatile = isVolatile === undefined ? true : isVolatile;
+  var idxCount = (indices && indices.length) || 0;
+
+  var flags = 0;
+  // These flags are from SkVertices.h and should be kept in sync with those.
+  if (textureCoordinates && textureCoordinates.length) {
+    flags |= (1 << 0);
+  }
+  if (colors && colors.length) {
+    flags |= (1 << 1);
+  }
+  if (boneIndices && boneIndices.length) {
+    flags |= (1 << 2);
+  }
+  if (!isVolatile) {
+    flags |= (1 << 3);
+  }
+
+  var builder = new CanvasKit._SkVerticesBuilder(mode,  positions.length, idxCount, flags);
+
+  copy2dArray(positions,            CanvasKit.HEAPF32, builder.positions());
+  if (builder.texCoords()) {
+    copy2dArray(textureCoordinates, CanvasKit.HEAPF32, builder.texCoords());
+  }
+  if (builder.colors()) {
+    copy1dArray(colors,             CanvasKit.HEAPU32, builder.colors());
+  }
+  if (builder.boneIndices()) {
+    copy2dArray(boneIndices,        CanvasKit.HEAP32, builder.boneIndices());
+  }
+  if (builder.boneWeights()) {
+    copy2dArray(boneWeights,        CanvasKit.HEAPF32, builder.boneWeights());
+  }
+  if (builder.indices()) {
+    copy1dArray(indices,            CanvasKit.HEAPU16, builder.indices());
+  }
 
   var idxCount = (indices && indices.length) || 0;
-  // _MakeVertices will copy all the values in, so we are free to release
-  // the memory after.
-  var vertices = CanvasKit._MakeSkVertices(mode, positions.length, positionPtr,
-                                           texPtr, colorPtr, boneIdxPtr, boneWtPtr,
-                                           idxCount, idxPtr, isVolatile);
-  positionPtr && CanvasKit._free(positionPtr);
-  texPtr && CanvasKit._free(texPtr);
-  colorPtr && CanvasKit._free(colorPtr);
-  idxPtr && CanvasKit._free(idxPtr);
-  boneIdxPtr && CanvasKit._free(boneIdxPtr);
-  boneWtPtr && CanvasKit._free(boneWtPtr);
-  return vertices;
+  // Create the vertices, which owns the memory that the builder had allocated.
+  return builder.detach();
 };
