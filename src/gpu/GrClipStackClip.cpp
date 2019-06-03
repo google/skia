@@ -22,12 +22,12 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSWMaskHelper.h"
-#include "src/gpu/GrShape.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/effects/GrTextureDomain.h"
+#include "src/gpu/geometry/GrShape.h"
 
 typedef SkClipStack::Element Element;
 typedef GrReducedClip::InitialState InitialState;

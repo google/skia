@@ -18,11 +18,11 @@
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrOpFlushState.h"
-#include "src/gpu/GrPathUtils.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
-#include "src/gpu/GrShape.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceContextPriv.h"
+#include "src/gpu/geometry/GrPathUtils.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
