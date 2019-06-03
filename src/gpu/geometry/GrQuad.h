@@ -13,6 +13,9 @@
 #include "include/core/SkPoint3.h"
 #include "include/private/SkVx.h"
 
+enum class GrQuadAAFlags;
+enum class GrAA : bool;
+
 /**
  * GrQuad is a collection of 4 points which can be used to represent an arbitrary quadrilateral. The
  * points make a triangle strip with CCW triangles (top-left, bottom-left, top-right, bottom-right).
@@ -116,6 +119,23 @@ public:
 
     // True if anti-aliasing affects this quad. Only valid when quadType == kRect_QuadType
     bool aaHasEffectOnRect() const;
+
+    /**
+     * Crops this quad to the provided device-space axis-aligned rectangle. If the intersection of
+     * this quad (projected) and clipDevRect results in a quadrilateral, this returns true. If not,
+     * this quad will be updated to be the smallest quad of the same type such that its intersection
+     * with clipDevRect is visually the same.
+     *
+     * The provided edge flags are updated to reflect edges clipped by clipDevRect (toggling on or
+     * or off based on clipAA policy). The provided local coordinates will be updated to reflect
+     * the updated device coordinates of this quad.
+     *
+     * 'local' may be null, in which case the new local coordinates will not be calculated. This is
+     * useful when it's known a paint does not require local coordinates. However, 'edgeFlags'
+     * cannot be null.
+     */
+    bool crop(const SkRect& clipDevRect, GrAA clipAA, GrQuadAAFlags* edgeFlags,
+              GrQuad* local = nullptr);
 
 private:
     template<typename T>
