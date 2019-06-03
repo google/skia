@@ -20,8 +20,9 @@
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,
                    uint32_t instanceVersion, uint32_t physicalDeviceVersion,
-                   const GrVkExtensions& extensions)
+                   const GrVkExtensions& extensions, bool isProtected)
     : INHERITED(contextOptions) {
+    fIsProtected = isProtected;
 
     /**************************************************************************
      * GrCaps fields
@@ -228,6 +229,10 @@ bool GrVkCaps::canCopyAsDraw(GrPixelConfig dstConfig, bool dstIsRenderable, bool
 
 bool GrVkCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                 const SkIRect& srcRect, const SkIPoint& dstPoint) const {
+    if (src->isProtected() && !dst->isProtected()) {
+        return false;
+    }
+
     GrSurfaceOrigin dstOrigin = dst->origin();
     GrSurfaceOrigin srcOrigin = src->origin();
 
@@ -398,6 +403,11 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     // We always push back the default GrVkYcbcrConversionInfo so that the case of no conversion
     // will return a key of 0.
     fYcbcrInfos.push_back(GrVkYcbcrConversionInfo());
+
+    if (fIsProtected && physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+        fSupportsProtectedMemory = true;
+        fAvoidUpdateBuffers = true;
+    }
 
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
@@ -929,14 +939,17 @@ int GrVkCaps::maxRenderTargetSampleCount(VkFormat format) const {
     return table[table.count() - 1];
 }
 
-bool GrVkCaps::surfaceSupportsReadPixels(const GrSurface* surface) const {
+GrCaps::ReadFlags GrVkCaps::surfaceSupportsReadPixels(const GrSurface* surface) const {
+    if (surface->isProtected()) {
+        return kProtected_ReadFlag;
+    }
     if (auto tex = static_cast<const GrVkTexture*>(surface->asTexture())) {
         // We can't directly read from a VkImage that has a ycbcr sampler.
         if (tex->ycbcrConversionInfo().isValid()) {
-            return false;
+            return kRequiresCopy_ReadFlag;
         }
     }
-    return true;
+    return kSupported_ReadFlag;
 }
 
 bool GrVkCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {

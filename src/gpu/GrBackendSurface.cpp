@@ -180,8 +180,14 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    const GrVkImageInfo& vkInfo)
+        : GrBackendTexture(width, height, false, vkInfo) {}
+
+GrBackendTexture::GrBackendTexture(int width,
+                                   int height,
+                                   bool isProtected,
+                                   const GrVkImageInfo& vkInfo)
 #ifdef SK_VULKAN
-        : GrBackendTexture(width, height, vkInfo,
+        : GrBackendTexture(width, height, isProtected, vkInfo,
                            sk_sp<GrVkImageLayout>(new GrVkImageLayout(vkInfo.fImageLayout))) {}
 #else
         : fIsValid(false) {}
@@ -190,9 +196,11 @@ GrBackendTexture::GrBackendTexture(int width,
 #ifdef SK_VULKAN
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
+                                   bool isProtected,
                                    const GrVkImageInfo& vkInfo,
                                    sk_sp<GrVkImageLayout> layout)
         : fIsValid(true)
+        , fIsProtected(isProtected)
         , fWidth(width)
         , fHeight(height)
         , fConfig(kUnknown_GrPixelConfig)
@@ -463,7 +471,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int sampleCnt,
                                              int stencilBits,
                                              const GrVkImageInfo& vkInfo)
-        : GrBackendRenderTarget(width, height, sampleCnt, vkInfo) {
+        : GrBackendRenderTarget(width, height, sampleCnt, false, vkInfo) {
     // This is a deprecated constructor that takes a bogus stencil bits.
     SkASSERT(0 == stencilBits);
 }
@@ -473,7 +481,18 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int sampleCnt,
                                              const GrVkImageInfo& vkInfo)
 #ifdef SK_VULKAN
-        : GrBackendRenderTarget(width, height, sampleCnt, vkInfo,
+        : GrBackendRenderTarget(width, height, sampleCnt, false, vkInfo) {}
+#else
+        : fIsValid(false) {}
+#endif
+
+GrBackendRenderTarget::GrBackendRenderTarget(int width,
+                                             int height,
+                                             int sampleCnt,
+                                             bool isProtected,
+                                             const GrVkImageInfo& vkInfo)
+#ifdef SK_VULKAN
+        : GrBackendRenderTarget(width, height, sampleCnt, isProtected, vkInfo,
                                 sk_sp<GrVkImageLayout>(new GrVkImageLayout(vkInfo.fImageLayout))) {}
 #else
         : fIsValid(false) {}
@@ -483,9 +502,11 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
+                                             bool isProtected,
                                              const GrVkImageInfo& vkInfo,
                                              sk_sp<GrVkImageLayout> layout)
         : fIsValid(true)
+        , fIsProtected(isProtected)
         , fWidth(width)
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
@@ -562,6 +583,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     }
     fWidth = that.fWidth;
     fHeight = that.fHeight;
+    fIsProtected = that.fIsProtected;
     fSampleCnt = that.fSampleCnt;
     fStencilBits = that.fStencilBits;
     fConfig = that.fConfig;
