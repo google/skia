@@ -1665,6 +1665,13 @@ if (skia_enable_tools) {
     }
   }
 
+  test_lib("skvm_builders") {
+    sources = [
+      "tools/SkVMBuilders.cpp",
+      "tools/SkVMBuilders.h",
+    ]
+  }
+
   import("gn/tests.gni")
   test_lib("tests") {
     sources = tests_sources + pathops_tests_sources
@@ -1681,6 +1688,7 @@ if (skia_enable_tools) {
       ":experimental_svg_model",
       ":flags",
       ":skia",
+      ":skvm_builders",
       ":tool_utils",
       "modules/skottie:tests",
       "modules/sksg:tests",
@@ -1702,6 +1710,7 @@ if (skia_enable_tools) {
       ":gm",
       ":gpu_tool_utils",
       ":skia",
+      ":skvm_builders",
       ":tool_utils",
     ]
   }

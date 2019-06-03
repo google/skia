@@ -8,124 +8,13 @@
 #include "bench/Benchmark.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
+#include "tools/SkVMBuilders.h"
 
 namespace {
 
     enum Mode {Opts, RP, F32, I32, I32_SWAR};
     static const char* kMode_name[] = { "Opts", "RP","F32", "I32", "I32_SWAR" };
 
-    struct SrcoverBuilder_F32 : public skvm::Builder {
-        SrcoverBuilder_F32() {
-
-            skvm::Arg src = arg(0),
-                      dst = arg(1);
-
-            auto byte_to_f32 = [&](skvm::I32 byte) {
-                return mul(splat(1/255.0f), to_f32(byte));
-            };
-            auto f32_to_byte = [&](skvm::F32 f32) {
-                return to_i32(mad(f32, splat(255.0f), splat(0.5f)));
-            };
-
-            auto load = [&](skvm::Arg ptr,
-                            skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) {
-                skvm::I32 rgba = load32(ptr);
-                *r = byte_to_f32(bit_and(    rgba     , splat(0xff)));
-                *g = byte_to_f32(bit_and(shr(rgba,  8), splat(0xff)));
-                *b = byte_to_f32(bit_and(shr(rgba, 16), splat(0xff)));
-                *a = byte_to_f32(        shr(rgba, 24)              );
-            };
-
-            skvm::F32 r,g,b,a;
-            load(src, &r,&g,&b,&a);
-
-            skvm::F32 dr,dg,db,da;
-            load(dst, &dr,&dg,&db,&da);
-
-            skvm::F32 invA = sub(splat(1.0f), a);
-            r = mad(dr, invA, r);
-            g = mad(dg, invA, g);
-            b = mad(db, invA, b);
-            a = mad(da, invA, a);
-
-            store32(dst, bit_or(    f32_to_byte(r)     ,
-                         bit_or(shl(f32_to_byte(g),  8),
-                         bit_or(shl(f32_to_byte(b), 16),
-                                shl(f32_to_byte(a), 24)))));
-        }
-    };
-
-    struct SrcoverBuilder_I32 : public skvm::Builder {
-        SrcoverBuilder_I32() {
-            skvm::Arg src = arg(0),
-                      dst = arg(1);
-
-            auto load = [&](skvm::Arg ptr,
-                            skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) {
-                skvm::I32 rgba = load32(ptr);
-                *r = bit_and(    rgba     , splat(0xff));
-                *g = bit_and(shr(rgba,  8), splat(0xff));
-                *b = bit_and(shr(rgba, 16), splat(0xff));
-                *a =         shr(rgba, 24)              ;
-            };
-
-            auto mul_unorm8 = [&](skvm::I32 x, skvm::I32 y) {
-                // (x*y + 127)/255 ~= (x*y+255)/256
-                return shr(add(mul(x, y), splat(0xff)), 8);
-            };
-
-            skvm::I32 r,g,b,a;
-            load(src, &r,&g,&b,&a);
-
-            skvm::I32 dr,dg,db,da;
-            load(dst, &dr,&dg,&db,&da);
-
-            skvm::I32 invA = sub(splat(0xff), a);
-            r = add(r, mul_unorm8(dr, invA));
-            g = add(g, mul_unorm8(dg, invA));
-            b = add(b, mul_unorm8(db, invA));
-            a = add(a, mul_unorm8(da, invA));
-
-            store32(dst, bit_or(    r     ,
-                         bit_or(shl(g,  8),
-                         bit_or(shl(b, 16),
-                                shl(a, 24)))));
-        }
-    };
-
-    struct SrcoverBuilder_I32_SWAR : public skvm::Builder {
-        SrcoverBuilder_I32_SWAR() {
-            skvm::Arg src = arg(0),
-                      dst = arg(1);
-
-            auto load = [&](skvm::Arg ptr,
-                            skvm::I32* rb, skvm::I32* ga) {
-                skvm::I32 rgba = load32(ptr);
-                *rb = bit_and(    rgba,     splat(0x00ff00ff));
-                *ga = bit_and(shr(rgba, 8), splat(0x00ff00ff));
-            };
-
-            auto mul_unorm8 = [&](skvm::I32 x, skvm::I32 y) {
-                // As above, assuming x is two SWAR bytes in lanes 0 and 2, and y is a byte.
-                return bit_and(shr(add(mul(x, y),
-                                       splat(0x00ff00ff)),
-                                   8),
-                               splat(0x00ff00ff));
-            };
-
-            skvm::I32 rb, ga;
-            load(src, &rb, &ga);
-
-            skvm::I32 drb, dga;
-            load(dst, &drb, &dga);
-
-            skvm::I32 invA = sub(splat(0xff), shr(ga, 16));
-            rb = add(rb, mul_unorm8(drb, invA));
-            ga = add(ga, mul_unorm8(dga, invA));
-
-            store32(dst, bit_or(rb, shl(ga, 8)));
-        }
-    };
 }
 
 class SkVMBench : public Benchmark {
