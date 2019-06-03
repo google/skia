@@ -407,10 +407,10 @@ private:
                               SkScalar outsetCoverage[4], SkRect* domain) const {
         // Fixed vertex spec for extracting the picture frame geometry
         static const GrQuadPerEdgeAA::VertexSpec kSpec =
-            {GrQuadType::kStandard, GrQuadPerEdgeAA::ColorType::kNone,
-             GrQuadType::kRect, false, GrQuadPerEdgeAA::Domain::kNo,
+            {GrQuad::Type::kGeneral, GrQuadPerEdgeAA::ColorType::kNone,
+             GrQuad::Type::kAxisAligned, false, GrQuadPerEdgeAA::Domain::kNo,
              GrAAType::kCoverage, false};
-        static const GrPerspQuad kIgnored(SkRect::MakeEmpty());
+        static const GrQuad kIgnored(SkRect::MakeEmpty());
 
         GrQuadAAFlags flags = GrQuadAAFlags::kNone;
         flags |= fEdgeAA[0] ? GrQuadAAFlags::kTop : GrQuadAAFlags::kNone;
@@ -418,11 +418,11 @@ private:
         flags |= fEdgeAA[2] ? GrQuadAAFlags::kBottom : GrQuadAAFlags::kNone;
         flags |= fEdgeAA[3] ? GrQuadAAFlags::kLeft : GrQuadAAFlags::kNone;
 
-        GrPerspQuad quad = GrPerspQuad::MakeFromSkQuad(fCorners, SkMatrix::I());
+        GrQuad quad = GrQuad::MakeFromSkQuad(fCorners, SkMatrix::I());
 
         float vertices[56]; // 2 quads, with x, y, coverage, and geometry domain (7 floats x 8 vert)
         GrQuadPerEdgeAA::Tessellate(vertices, kSpec, quad, {1.f, 1.f, 1.f, 1.f},
-                GrPerspQuad(SkRect::MakeEmpty()), SkRect::MakeEmpty(), flags);
+                GrQuad(SkRect::MakeEmpty()), SkRect::MakeEmpty(), flags);
 
         // The first quad in vertices is the inset, then the outset, but they
         // are ordered TL, BL, TR, BR so un-interleave coverage and re-arrange
