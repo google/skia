@@ -419,8 +419,8 @@ DEF_TEST(SkVM, r) {
 
         // dst is probably 0xff2dad72.
         for (int i = 0; i < 4; i++) {
-            uint8_t d = dst,
-                    w = want;
+            uint8_t d = dst  & 0xff,
+                    w = want & 0xff;
             REPORTER_ASSERT(r, abs(d-w) < 2);
             dst  >>= 8;
             want >>= 8;
