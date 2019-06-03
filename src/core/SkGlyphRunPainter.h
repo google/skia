@@ -76,9 +76,6 @@ public:
                              SkGlyphRunPainterInterface* process);
 #endif  // SK_SUPPORT_GPU
 
-    // TODO: Make this the canonical check for Skia.
-    static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
-
 private:
     SkGlyphRunListPainter(const SkSurfaceProps& props, SkColorType colorType,
                           SkScalerContextFlags flags, SkStrikeCacheInterface* strikeCache);

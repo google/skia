@@ -33,10 +33,6 @@ public:
      */
     static constexpr int kCanonicalTextSizeForPaths  = 64;
 
-    static bool TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM, SkScalar maxLimit);
-
-    static SkScalar MaxCacheSize2(SkScalar maxLimit);
-
     /**
      *  Return a matrix that applies the paint's text values: size, scale, skew
      */
