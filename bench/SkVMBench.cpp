@@ -9,9 +9,6 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
 
-// N.B. I have not tested that the math performed by these benchmarks is correct.
-// They're really more meant to be representative load.  (Wouldn't hurt to be correct though.)
-
 namespace {
 
     enum Mode {Opts, RP, F32, I32, I32_SWAR};
@@ -85,9 +82,9 @@ namespace {
 
             skvm::I32 invA = sub(splat(0xff), a);
             r = add(r, mul_unorm8(dr, invA));
-            g = add(g, mul_unorm8(dr, invA));
-            b = add(b, mul_unorm8(dr, invA));
-            a = add(a, mul_unorm8(dr, invA));
+            g = add(g, mul_unorm8(dg, invA));
+            b = add(b, mul_unorm8(db, invA));
+            a = add(a, mul_unorm8(da, invA));
 
             store32(dst, bit_or(    r     ,
                          bit_or(shl(g,  8),
@@ -110,7 +107,10 @@ namespace {
 
             auto mul_unorm8 = [&](skvm::I32 x, skvm::I32 y) {
                 // As above, assuming x is two SWAR bytes in lanes 0 and 2, and y is a byte.
-                return shr(add(mul(x, y), splat(0x00ff00ff)), 8);
+                return bit_and(shr(add(mul(x, y),
+                                       splat(0x00ff00ff)),
+                                   8),
+                               splat(0x00ff00ff));
             };
 
             skvm::I32 rb, ga;
@@ -156,6 +156,12 @@ private:
             fPipeline.append(SkRasterPipeline::load_8888_dst, &fDstCtx);
             fPipeline.append(SkRasterPipeline::srcover);
             fPipeline.append(SkRasterPipeline::store_8888, &fDstCtx);
+        }
+
+        // Trigger one run now so we can do a quick correctness check.
+        this->draw(1,nullptr);
+        for (int i = 0; i < fPixels; i++) {
+            SkASSERT(fDst[i] == 0xff5e6f80);
         }
     }
 
