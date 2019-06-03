@@ -29,6 +29,14 @@ public:
         func(fSrc.get(), GrMipMapped::kNo);
     }
 
+    // returns true if the read/written rect intersects the src/dst and false if not.
+    static bool ClipSrcRectAndDstPoint(const GrSurfaceProxy* dst,
+                                        const GrSurfaceProxy* src,
+                                        const SkIRect& srcRect,
+                                        const SkIPoint& dstPoint,
+                                        SkIRect* clippedSrcRect,
+                                        SkIPoint* clippedDstPoint);
+
 #ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
@@ -45,9 +53,11 @@ public:
 private:
     friend class GrOpMemoryPool; // for ctor
 
-    GrCopySurfaceOp(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint)
+    GrCopySurfaceOp(GrSurfaceProxy* src, GrSurfaceProxy* dst, const SkIRect& srcRect,
+                    const SkIPoint& dstPoint)
             : INHERITED(ClassID())
             , fSrc(src)
+            , fDst(dst)
             , fSrcRect(srcRect)
             , fDstPoint(dstPoint) {
         SkRect bounds =
@@ -61,6 +71,7 @@ private:
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType>  fSrc;
+    GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fDst;
     SkIRect                                              fSrcRect;
     SkIPoint                                             fDstPoint;
 

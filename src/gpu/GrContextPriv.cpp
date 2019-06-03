@@ -18,6 +18,7 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/GrTextureContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/text/GrTextBlobCache.h"
@@ -513,7 +514,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         }
 
         auto tempProxy = this->proxyProvider()->createProxy(
-                format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
+                format, desc, dst->asSurfaceProxy()->origin(), SkBackingFit::kApprox,
+                SkBudgeted::kYes);
         if (!tempProxy) {
             return false;
         }
@@ -534,7 +536,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         }
 
         if (dst->asRenderTargetContext()) {
-        std::unique_ptr<GrFragmentProcessor> fp;
+            std::unique_ptr<GrFragmentProcessor> fp;
             if (canvas2DFastPath) {
                 fp = fContext->createUPMToPMEffect(
                         GrSimpleTextureEffect::Make(std::move(tempProxy), SkMatrix::I()));
@@ -556,11 +558,9 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         } else {
             SkIRect srcRect = SkIRect::MakeWH(width, height);
             SkIPoint dstPoint = SkIPoint::Make(left, top);
-            if (!this->caps()->canCopySurface(dst->asSurfaceProxy(), tempProxy.get(), srcRect,
-                                              dstPoint)) {
+            if (!dst->surfPriv().copyNoDraw(tempProxy.get(), srcRect, dstPoint)) {
                 return false;
             }
-            SkAssertResult(dst->copy(tempProxy.get(), srcRect, dstPoint));
         }
         return true;
     }

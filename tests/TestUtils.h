@@ -28,10 +28,6 @@ void test_copy_from_surface(skiatest::Reporter*, GrContext*,
                             GrSurfaceProxy* proxy, uint32_t expectedPixelValues[],
                             bool onlyTestRTConfig, const char* testName);
 
-// Ensure that RGBA 8888 pixels can be copied into 'dstContext'
-void test_copy_to_surface(skiatest::Reporter*, GrContext*,
-                          GrSurfaceContext* dstContext, const char* testName);
-
 // Fills data with a red-green gradient
 void fill_pixel_data(int width, int height, GrColor* data);
 
