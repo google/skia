@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2478d4e0_6a73cc78",
+        "filename": "src/gpu/geometry/GrQuadList.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-03T21:28:52Z",
+      "side": 1,
+      "message": "I heard this was supposed to be LLC now ??",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "bb6af26738a70077e1b67bea6292f56c8caa5d2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
