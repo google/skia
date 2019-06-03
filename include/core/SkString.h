@@ -20,12 +20,12 @@
 #include <atomic>
 
 /*  Some helper functions for C strings */
-static bool SkStrStartsWith(const char string[], const char prefixStr[]) {
+static inline bool SkStrStartsWith(const char string[], const char prefixStr[]) {
     SkASSERT(string);
     SkASSERT(prefixStr);
     return !strncmp(string, prefixStr, strlen(prefixStr));
 }
-static bool SkStrStartsWith(const char string[], const char prefixChar) {
+static inline bool SkStrStartsWith(const char string[], const char prefixChar) {
     SkASSERT(string);
     return (prefixChar == *string);
 }
@@ -35,24 +35,24 @@ bool SkStrEndsWith(const char string[], const char suffixChar);
 
 int SkStrStartsWithOneOf(const char string[], const char prefixes[]);
 
-static int SkStrFind(const char string[], const char substring[]) {
+static inline int SkStrFind(const char string[], const char substring[]) {
     const char *first = strstr(string, substring);
     if (nullptr == first) return -1;
     return SkToInt(first - &string[0]);
 }
 
-static int SkStrFindLastOf(const char string[], const char subchar) {
+static inline int SkStrFindLastOf(const char string[], const char subchar) {
     const char* last = strrchr(string, subchar);
     if (nullptr == last) return -1;
     return SkToInt(last - &string[0]);
 }
 
-static bool SkStrContains(const char string[], const char substring[]) {
+static inline bool SkStrContains(const char string[], const char substring[]) {
     SkASSERT(string);
     SkASSERT(substring);
     return (-1 != SkStrFind(string, substring));
 }
-static bool SkStrContains(const char string[], const char subchar) {
+static inline bool SkStrContains(const char string[], const char subchar) {
     SkASSERT(string);
     char tmp[2];
     tmp[0] = subchar;
