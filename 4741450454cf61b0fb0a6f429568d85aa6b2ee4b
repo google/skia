@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08d38545_f3602a34",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-06-03T18:35:17Z",
+      "side": 1,
+      "message": "any way to make it clearer of the need to keep these bits in-sync with the enum in SkVertices.h?",
+      "range": {
+        "startLine": 909,
+        "startChar": 10,
+        "endLine": 909,
+        "endChar": 21
+      },
+      "revId": "4741450454cf61b0fb0a6f429568d85aa6b2ee4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
