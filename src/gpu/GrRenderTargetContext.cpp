@@ -2039,101 +2039,110 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
             rtc = sk_ref_sp(this);
         }
     }
-    return rtc->asyncReadPixels(info, x, y, callback, context);
+    return rtc->asyncReadPixels(SkIRect::MakeXYWH(x, y, info.width(), info.height()),
+                                info.colorType(), callback, context);
 }
 
-void GrRenderTargetContext::asyncReadPixels(const SkImageInfo& info, int x, int y,
-                                            ReadPixelsCallback callback,
-                                            ReadPixelsContext context) {
-    SkASSERT(info.width() + x <= this->width());
-    SkASSERT(info.height() + y <= this->height());
+GrRenderTargetContext::PixelTransferResult GrRenderTargetContext::transferPixels(
+        SkColorType colorType, const SkIRect& rect) {
+    SkASSERT(rect.fLeft >= 0 && rect.fRight <= this->width());
+    SkASSERT(rect.fTop >= 0 && rect.fBottom <= this->height());
     auto direct = fContext->priv().asDirectContext();
     if (!direct) {
-        callback(context, nullptr, 0);
-        return;
+        return {};
     }
     if (fRenderTargetProxy->wrapsVkSecondaryCB()) {
-        callback(context, nullptr, 0);
-        return;
+        return {};
     }
-    // We currently don't know our own alpha type, we assume it's premul if we have an alpha channel
-    // and opaque otherwise.
-    if (!GrPixelConfigIsAlphaOnly(fRenderTargetProxy->config()) &&
-        info.alphaType() != kPremul_SkAlphaType) {
-        callback(context, nullptr, 0);
-        return;
-    }
-    auto dstCT = SkColorTypeToGrColorType(info.colorType());
+    auto dstCT = SkColorTypeToGrColorType(colorType);
     auto readCT = this->caps()->supportedReadPixelsColorType(fRenderTargetProxy->config(), dstCT);
     // Fail if we can't do a CPU conversion from readCT to dstCT.
     if (GrColorTypeToSkColorType(readCT) == kUnknown_SkColorType) {
-        callback(context, nullptr, 0);
-        return;
+        return {};
     }
     // Fail if readCT does not have all of readCT's color channels.
     if (GrColorTypeComponentFlags(dstCT) & ~GrColorTypeComponentFlags(readCT)) {
-        callback(context, nullptr, 0);
-        return;
+        return {};
     }
 
     if (!this->caps()->transferBufferSupport() ||
         !this->caps()->transferFromOffsetAlignment(readCT)) {
+        return {};
+    }
+
+    size_t rowBytes = GrColorTypeBytesPerPixel(readCT) * rect.width();
+    size_t size = rowBytes * rect.height();
+    auto buffer = direct->priv().resourceProvider()->createBuffer(
+            size, GrGpuBufferType::kXferGpuToCpu, GrAccessPattern::kStream_GrAccessPattern);
+    if (!buffer) {
+        return {};
+    }
+    this->getRTOpList()->addOp(GrTransferFromOp::Make(fContext, rect, readCT, buffer, 0),
+                               *this->caps());
+    PixelTransferResult result;
+    result.fTransferBuffer = std::move(buffer);
+    if (readCT != dstCT) {
+        result.fPixelConverter = [w = rect.width(), h = rect.height(), dstCT = colorType,
+                                  srcCT = GrColorTypeToSkColorType(readCT)](void* dst,
+                                                                            const void* src) {
+            auto srcII = SkImageInfo::Make(w, h, srcCT, kPremul_SkAlphaType, nullptr);
+            auto dstII = SkImageInfo::Make(w, h, dstCT, kPremul_SkAlphaType, nullptr);
+            SkConvertPixels(dstII, dst, w * SkColorTypeBytesPerPixel(dstCT), srcII, src,
+                            w * SkColorTypeBytesPerPixel(srcCT));
+        };
+    }
+    return result;
+}
+
+void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType colorType,
+                                            ReadPixelsCallback callback,
+                                            ReadPixelsContext context) {
+    SkASSERT(rect.fLeft >= 0 && rect.fRight <= this->width());
+    SkASSERT(rect.fTop >= 0 && rect.fBottom <= this->height());
+
+    auto transferResult = this->transferPixels(colorType, rect);
+
+    if (!transferResult.fTransferBuffer) {
         SkAutoPixmapStorage pm;
-        pm.alloc(info);
-        if (!this->readPixels(info, pm.writable_addr(), pm.rowBytes(), x, y)) {
+        auto ii = SkImageInfo::Make(rect.width(), rect.height(), colorType, kPremul_SkAlphaType,
+                                    this->colorSpaceInfo().refColorSpace());
+        pm.alloc(ii);
+        if (!this->readPixels(ii, pm.writable_addr(), pm.rowBytes(), rect.fLeft, rect.fTop)) {
             callback(context, nullptr, 0);
         }
         callback(context, pm.addr(), pm.rowBytes());
         return;
     }
 
-    size_t rowBytes = GrColorTypeBytesPerPixel(readCT) * info.width();
-    size_t size = rowBytes * info.height();
-    auto buffer = direct->priv().resourceProvider()->createBuffer(
-            size, GrGpuBufferType::kXferGpuToCpu, GrAccessPattern::kStream_GrAccessPattern);
-    if (!buffer) {
-        callback(context, nullptr, 0);
-        return;
-    }
-    this->getRTOpList()->addOp(
-            GrTransferFromOp::Make(fContext, SkIRect::MakeXYWH(x, y, info.width(), info.height()),
-                                   readCT, buffer, 0),
-            *this->caps());
     struct FinishContext {
-        SkImageInfo fReadInfo;
-        SkImageInfo fDstInfo;
         ReadPixelsCallback* fClientCallback;
         ReadPixelsContext fClientContext;
-        sk_sp<GrGpuBuffer> fBuffer;
-        size_t fRowBytes;
+        int fW, fH;
+        SkColorType fColorType;
+        PixelTransferResult fTransferResult;
     };
-    const auto readInfo = info.makeColorType(GrColorTypeToSkColorType(readCT));
     // Assumption is that the caller would like to flush. We could take a parameter or require an
     // explicit flush from the caller. We'd have to have a way to defer attaching the finish
     // callback to GrGpu until after the next flush that flushes our op list, though.
-    auto* finishContext = new FinishContext{readInfo, info, callback, context, buffer, rowBytes};
+    auto* finishContext = new FinishContext{callback, context, rect.width(),
+                                            rect.height(), colorType, std::move(transferResult)};
     auto finishCallback = [](GrGpuFinishedContext c) {
-        auto context = reinterpret_cast<const FinishContext*>(c);
-        void* data = context->fBuffer->map();
+        const auto* context = reinterpret_cast<const FinishContext*>(c);
+        const void* data = context->fTransferResult.fTransferBuffer->map();
         if (!data) {
             (*context->fClientCallback)(context->fClientContext, nullptr, 0);
             delete context;
             return;
         }
         SkAutoPixmapStorage pm;
-        const void* callbackData = data;
-        size_t callbackRowBytes = context->fRowBytes;
-        if (context->fDstInfo != context->fReadInfo) {
-            pm.alloc(context->fDstInfo);
-            SkConvertPixels(context->fDstInfo, pm.writable_addr(), pm.rowBytes(),
-                            context->fReadInfo, data, context->fRowBytes);
-            callbackData = pm.addr();
-            callbackRowBytes = pm.rowBytes();
+        if (context->fTransferResult.fPixelConverter) {
+            pm.alloc(SkImageInfo::Make(context->fW, context->fH, context->fColorType,
+                                       kPremul_SkAlphaType, nullptr));
+            context->fTransferResult.fPixelConverter(pm.writable_addr(), data);
+            data = pm.addr();
         }
-        (*context->fClientCallback)(context->fClientContext, callbackData, callbackRowBytes);
-        if (data) {
-            context->fBuffer->unmap();
-        }
+        (*context->fClientCallback)(context->fClientContext, data,
+                                    context->fW * SkColorTypeBytesPerPixel(context->fColorType));
         delete context;
     };
     GrFlushInfo flushInfo;
