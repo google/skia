@@ -146,13 +146,13 @@ private:
         ContextType       fType;
         ContextOverrides  fOverrides;
         GrContextOptions  fOptions;
-        GrBackendApi         fBackend;
+        GrBackendApi      fBackend;
         TestContext*      fTestContext;
         GrContext*        fGrContext;
         GrContext*        fShareContext;
         uint32_t          fShareIndex;
 
-        bool            fAbandoned;
+        bool              fAbandoned;
     };
     SkTArray<Context, true>         fContexts;
     std::unique_ptr<GLTestContext>  fSentinelGLContext;
