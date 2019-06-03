@@ -12,6 +12,8 @@ less machine- and platform- dependent:
     skia_use_system_freetype2=false
     skia_use_wuffs=true
     skia_enable_skottie=true
+    skia_enable_fontmgr_custom=false
+    skia_enable_fontmgr_custom_empty=true
 
 All that is needed to reproduce a fuzz downloaded from ClusterFuzz, oss-fuzz or
 fuzzer.skia.org is to run something like:
