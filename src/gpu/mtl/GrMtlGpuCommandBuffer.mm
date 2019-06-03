@@ -132,6 +132,7 @@ GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
         return nullptr;
     }
     pipelineState->setData(fRenderTarget, fOrigin, primProc, pipeline, primProcProxies);
+    fCommandBufferInfo.fCurrentVertexStride = primProc.vertexStride();
 
     return pipelineState;
 }
@@ -334,6 +335,7 @@ static MTLPrimitiveType gr_to_mtl_primitive(GrPrimitiveType primitiveType) {
 }
 
 void GrMtlGpuRTCommandBuffer::bindGeometry(const GrBuffer* vertexBuffer,
+                                           size_t vertexOffset,
                                            const GrBuffer* instanceBuffer) {
     size_t bufferIndex = GrMtlUniformHandler::kLastUniformBinding + 1;
     if (vertexBuffer) {
@@ -341,15 +343,57 @@ void GrMtlGpuRTCommandBuffer::bindGeometry(const GrBuffer* vertexBuffer,
         SkASSERT(!static_cast<const GrGpuBuffer*>(vertexBuffer)->isMapped());
 
         const GrMtlBuffer* grMtlBuffer = static_cast<const GrMtlBuffer*>(vertexBuffer);
-        this->setVertexBuffer(fActiveRenderCmdEncoder, grMtlBuffer, bufferIndex++);
+        this->setVertexBuffer(fActiveRenderCmdEncoder, grMtlBuffer, vertexOffset, bufferIndex++);
     }
     if (instanceBuffer) {
         SkASSERT(!instanceBuffer->isCpuBuffer());
         SkASSERT(!static_cast<const GrGpuBuffer*>(instanceBuffer)->isMapped());
 
         const GrMtlBuffer* grMtlBuffer = static_cast<const GrMtlBuffer*>(instanceBuffer);
-        this->setVertexBuffer(fActiveRenderCmdEncoder, grMtlBuffer, bufferIndex++);
+        this->setVertexBuffer(fActiveRenderCmdEncoder, grMtlBuffer, 0, bufferIndex++);
     }
+}
+
+void GrMtlGpuRTCommandBuffer::sendMeshToGpu(GrPrimitiveType primitiveType,
+                                            const GrBuffer* vertexBuffer,
+                                            int vertexCount,
+                                            int baseVertex) {
+    this->bindGeometry(vertexBuffer, 0, nullptr);
+
+    SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
+    [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(primitiveType)
+                                vertexStart:baseVertex
+                                vertexCount:vertexCount];
+}
+
+void GrMtlGpuRTCommandBuffer::sendIndexedMeshToGpu(GrPrimitiveType primitiveType,
+                                                   const GrBuffer* indexBuffer,
+                                                   int indexCount,
+                                                   int baseIndex,
+                                                   uint16_t /*minIndexValue*/,
+                                                   uint16_t /*maxIndexValue*/,
+                                                   const GrBuffer* vertexBuffer,
+                                                   int baseVertex,
+                                                   GrPrimitiveRestart restart) {
+    this->bindGeometry(vertexBuffer, fCommandBufferInfo.fCurrentVertexStride*baseVertex, nullptr);
+
+    SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
+    id<MTLBuffer> mtlIndexBuffer = nil;
+    if (indexBuffer) {
+        SkASSERT(!indexBuffer->isCpuBuffer());
+        SkASSERT(!static_cast<const GrGpuBuffer*>(indexBuffer)->isMapped());
+
+        mtlIndexBuffer = static_cast<const GrMtlBuffer*>(indexBuffer)->mtlBuffer();
+        SkASSERT(mtlIndexBuffer);
+    }
+
+    SkASSERT(restart == GrPrimitiveRestart::kNo);
+    [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(primitiveType)
+                                        indexCount:indexCount
+                                         indexType:MTLIndexTypeUInt16
+                                       indexBuffer:mtlIndexBuffer
+                                 indexBufferOffset:sizeof(uint16_t) * baseIndex];
+    fGpu->stats()->incNumDraws();
 }
 
 void GrMtlGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType primitiveType,
@@ -359,7 +403,7 @@ void GrMtlGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType primitiveTy
                                                      const GrBuffer* instanceBuffer,
                                                      int instanceCount,
                                                      int baseInstance) {
-    this->bindGeometry(vertexBuffer, instanceBuffer);
+    this->bindGeometry(vertexBuffer, 0, instanceBuffer);
 
     SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
     [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(primitiveType)
@@ -379,7 +423,7 @@ void GrMtlGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType prim
                                                             int instanceCount,
                                                             int baseInstance,
                                                             GrPrimitiveRestart restart) {
-    this->bindGeometry(vertexBuffer, instanceBuffer);
+    this->bindGeometry(vertexBuffer, 0, instanceBuffer);
 
     SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
     id<MTLBuffer> mtlIndexBuffer = nil;
@@ -405,6 +449,7 @@ void GrMtlGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType prim
 
 void GrMtlGpuRTCommandBuffer::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
                                               const GrMtlBuffer* buffer,
+                                              size_t vertexOffset,
                                               size_t index) {
     SkASSERT(index < 4);
     id<MTLBuffer> mtlVertexBuffer = buffer->mtlBuffer();
@@ -417,7 +462,7 @@ void GrMtlGpuRTCommandBuffer::setVertexBuffer(id<MTLRenderCommandEncoder> encode
                          atIndex: index];
         fBufferBindings[index] = mtlVertexBuffer;
     }
-    [encoder setVertexBufferOffset: buffer->offset()
+    [encoder setVertexBufferOffset: buffer->offset() + vertexOffset
                            atIndex: index];
 }
 
