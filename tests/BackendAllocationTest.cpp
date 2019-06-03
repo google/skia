@@ -218,9 +218,8 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                 if (GrBackendApi::kOpenGL == context->backend()) {
                     GrGLGpu* glGPU = static_cast<GrGLGpu*>(context->priv().getGpu());
 
-                    if (kARM_GrGLVendor == glGPU->ctxInfo().vendor() &&
-                        kRGBA_F32_SkColorType == colorType &&
-                        GrMipMapped::kYes == mipMapped) {
+                    if (kRGBA_F32_SkColorType == colorType && GrMipMapped::kYes == mipMapped &&
+                        kGLES_GrGLStandard == glGPU->ctxInfo().standard()) {
                         context->deleteBackendTexture(backendTex);
                         return;
                     }
