@@ -278,3 +278,71 @@ r8 = bit_or r8 r9
 r8 = bit_or r8 r0
 store32 arg(1) r8
 
+I32 8888 over 8888
+r0 = load32 arg(0)
+r1 = splat FF (3.5733111e-43)
+r2 = bit_and r0 r1
+r3 = shr r0 8 (1.1210388e-44)
+r3 = bit_and r3 r1
+r4 = shr r0 10 (2.2420775e-44)
+r4 = bit_and r4 r1
+r0 = shr r0 18 (3.3631163e-44)
+r5 = load32 arg(1)
+r6 = bit_and r5 r1
+r7 = shr r5 8 (1.1210388e-44)
+r7 = bit_and r7 r1
+r8 = shr r5 10 (2.2420775e-44)
+r8 = bit_and r8 r1
+r5 = shr r5 18 (3.3631163e-44)
+r9 = sub_i32 r1 r0
+r6 = mul_i32 r6 r9
+r6 = add_i32 r6 r1
+r6 = shr r6 8 (1.1210388e-44)
+r6 = add_i32 r2 r6
+r7 = mul_i32 r7 r9
+r7 = add_i32 r7 r1
+r7 = shr r7 8 (1.1210388e-44)
+r7 = add_i32 r3 r7
+r8 = mul_i32 r8 r9
+r8 = add_i32 r8 r1
+r8 = shr r8 8 (1.1210388e-44)
+r8 = add_i32 r4 r8
+r9 = mul_i32 r5 r9
+r9 = add_i32 r9 r1
+r9 = shr r9 8 (1.1210388e-44)
+r9 = add_i32 r0 r9
+r7 = shl r7 8 (1.1210388e-44)
+r7 = bit_or r6 r7
+r8 = shl r8 10 (2.2420775e-44)
+r8 = bit_or r7 r8
+r9 = shl r9 18 (3.3631163e-44)
+r9 = bit_or r8 r9
+store32 arg(1) r9
+
+I32 (SWAR) 8888 over 8888
+r0 = load32 arg(0)
+r1 = splat FF00FF (2.3418409e-38)
+r2 = bit_and r0 r1
+r0 = shr r0 8 (1.1210388e-44)
+r0 = bit_and r0 r1
+r3 = load32 arg(1)
+r4 = bit_and r3 r1
+r3 = shr r3 8 (1.1210388e-44)
+r3 = bit_and r3 r1
+r5 = splat FF (3.5733111e-43)
+r6 = shr r0 10 (2.2420775e-44)
+r6 = sub_i32 r5 r6
+r4 = mul_i32 r4 r6
+r4 = add_i32 r4 r1
+r4 = shr r4 8 (1.1210388e-44)
+r4 = bit_and r4 r1
+r4 = add_i32 r2 r4
+r6 = mul_i32 r3 r6
+r6 = add_i32 r6 r1
+r6 = shr r6 8 (1.1210388e-44)
+r6 = bit_and r6 r1
+r6 = add_i32 r0 r6
+r6 = shl r6 8 (1.1210388e-44)
+r6 = bit_or r4 r6
+store32 arg(1) r6
+
