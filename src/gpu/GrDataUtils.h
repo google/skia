@@ -22,4 +22,16 @@ size_t GrETC1CompressedDataSize(int w, int h);
 void GrFillInETC1WithColor(int width, int height,
                            const SkColor4f& color, void* dest);
 
+enum class GrCompression {
+    kNone,
+    kETC1,
+};
+
+// Compute the size of the buffer required to hold all the mipLevels of the specified type
+// of data.
+size_t GrComputeCombinedBufferSize(GrCompression, size_t bytesPerPixel,
+                                   int baseWidth, int baseHeight,
+                                   SkTArray<size_t>* individualMipOffsets,
+                                   int mipLevelCount);
+
 #endif

@@ -267,3 +267,45 @@ bool GrFillBufferWithColor(GrPixelConfig config, int width, int height,
 
     return true;
 }
+
+size_t GrComputeCombinedBufferSize(GrCompression compression, size_t bytesPerPixel,
+                                   int baseWidth, int baseHeight,
+                                   SkTArray<size_t>* individualMipOffsets,
+                                   int mipLevelCount) {
+    SkASSERT(individualMipOffsets && !individualMipOffsets->count());
+    SkASSERT(mipLevelCount >= 1);
+
+    individualMipOffsets->push_back(0);
+
+    size_t combinedBufferSize = baseWidth * bytesPerPixel * baseHeight;
+    if (GrCompression::kNone != compression) {
+        combinedBufferSize = GrETC1CompressedDataSize(baseWidth, baseHeight);
+    }
+
+    int currentWidth = baseWidth;
+    int currentHeight = baseHeight;
+
+    for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; currentMipLevel++) {
+        currentWidth = SkTMax(1, currentWidth / 2);
+        currentHeight = SkTMax(1, currentHeight / 2);
+
+        size_t trimmedSize;
+        if (GrCompression::kNone != compression) {
+            trimmedSize = GrETC1CompressedDataSize(currentWidth, currentHeight);
+        } else {
+            trimmedSize = currentWidth * bytesPerPixel * currentHeight;
+        }
+//        const size_t alignmentDiff = combinedBufferSize % desiredAlignment;
+//        if (alignmentDiff != 0) {
+//            combinedBufferSize += desiredAlignment - alignmentDiff;
+//        }
+//        SkASSERT((0 == combinedBufferSize % 4) && (0 == combinedBufferSize % bpp));
+
+        individualMipOffsets->push_back(combinedBufferSize);
+        combinedBufferSize += trimmedSize;
+    }
+
+    return combinedBufferSize;
+}
+
+

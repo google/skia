@@ -4101,7 +4101,16 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
     }
 
-    SkAutoMalloc pixelStorage;
+    SkTArray<size_t> individualMipOffsets(mipLevelCount);
+
+    GrCompression compression = GrGLFormat2Compression(*glFormat);
+
+    size_t bytesPerPixel = GrBytesPerPixel(config);
+
+    size_t totalSize = GrComputeCombinedBufferSize(compression, bytesPerPixel, w, h,
+                                                   &individualMipOffsets, mipLevelCount);
+
+    SkAutoMalloc pixelStorage(totalSize);
 
     if (GrGLFormatIsCompressed(*glFormat)) {
         // we have to do something special for compressed textures
@@ -4115,8 +4124,7 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
             rowBytes = 0;
         }
     } else {
-        int bpp = GrBytesPerPixel(config);
-        const size_t trimRowBytes = w * bpp;
+        const size_t trimRowBytes = w * bytesPerPixel;
         if (!rowBytes) {
             rowBytes = trimRowBytes;
         }
@@ -4136,8 +4144,9 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
     SkAutoTMalloc<GrMipLevel> texels(mipLevelCount);
 
     for (int i = 0; i < mipLevelCount; ++i) {
+        size_t offset = individualMipOffsets[i];
         // TODO: this isn't correct when pixels for additional mip levels are passed in
-        texels.get()[i] = { pixels, rowBytes };
+        texels.get()[i] = { &(pixelStorage.get()[offset]), rowBytes };
     }
 
     GrSurfaceDesc desc;
