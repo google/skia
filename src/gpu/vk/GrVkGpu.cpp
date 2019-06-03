@@ -1486,6 +1486,8 @@ bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc
     return true;
 }
 
+
+
 static size_t compute_combined_buffer_size(VkFormat format, size_t bpp, int w, int h,
                                            SkTArray<size_t>* individualMipOffsets,
                                            uint32_t mipLevels) {
@@ -1528,7 +1530,7 @@ static size_t compute_combined_buffer_size(VkFormat format, size_t bpp, int w, i
 
 bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool texturable,
                                        bool renderable, GrMipMapped mipMapped, const void* srcData,
-                                       size_t srcRowBytes, const SkColor4f& color,
+                                       size_t srcRowBytes, const SkColor4f& colorf,
                                        GrVkImageInfo* info) {
     SkASSERT(texturable || renderable);
     if (!texturable) {
@@ -1614,13 +1616,13 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     err = VK_CALL(BeginCommandBuffer(cmdBuffer, &cmdBufferBeginInfo));
     SkASSERT(!err);
 
-    size_t bpp = GrVkBytesPerFormat(vkFormat);
+    size_t bytesPerPixel = GrVkBytesPerFormat(vkFormat);
     SkASSERT(w && h);
 
     SkTArray<size_t> individualMipOffsets(mipLevels);
     individualMipOffsets.push_back(0);
 
-    size_t combinedBufferSize = compute_combined_buffer_size(vkFormat, bpp, w, h,
+    size_t combinedBufferSize = compute_combined_buffer_size(vkFormat, bytesPerPixel, w, h,
                                                              &individualMipOffsets, mipLevels);
 
     VkBufferCreateInfo bufInfo;
@@ -1650,39 +1652,52 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         return false;
     }
 
-    int currentWidth = w;
-    int currentHeight = h;
-    for (uint32_t currentMipLevel = 0; currentMipLevel < mipLevels; currentMipLevel++) {
-        SkASSERT(0 == currentMipLevel || !srcData);
-        size_t bufferOffset = individualMipOffsets[currentMipLevel];
-        bool result;
-        if (GrVkFormatIsCompressed(vkFormat)) {
-            size_t levelSize = GrVkFormatCompressedDataSize(vkFormat, currentWidth, currentHeight);
-            size_t currentRowBytes = levelSize / currentHeight;
-            result = copy_testing_data(this, srcData, bufferAlloc, bufferOffset, currentRowBytes,
-                                       config, currentRowBytes, currentRowBytes,
-                                       currentWidth, currentHeight, &color);
-        } else {
-            const size_t trimRowBytes = w * bpp;
-            if (!srcRowBytes) {
-                srcRowBytes = trimRowBytes;
-            }
+    if (!srcData) {
+        GrCompression compression = GrVkFormat2Compression(vkFormat);
 
-            size_t currentRowBytes = bpp * currentWidth;
-            result = copy_testing_data(this, srcData, bufferAlloc, bufferOffset, srcRowBytes,
-                                       config, currentRowBytes, trimRowBytes,
-                                       currentWidth, currentHeight, &color);
+
+
+        char* dstPixels = nullptr;
+
+        GrFillInData(compression, config, bytesPerPixel, w, h,
+                     individualMipOffsets, dstPixels, colorf);
+    } else {
+        SkASSERT(1 == mipLevels);
+
+        int currentWidth = w;
+        int currentHeight = h;
+        for (uint32_t currentMipLevel = 0; currentMipLevel < mipLevels; currentMipLevel++) {
+            SkASSERT(0 == currentMipLevel || !srcData);
+            size_t bufferOffset = individualMipOffsets[currentMipLevel];
+            bool result;
+            if (GrVkFormatIsCompressed(vkFormat)) {
+                size_t levelSize = GrVkFormatCompressedDataSize(vkFormat, currentWidth, currentHeight);
+                size_t currentRowBytes = levelSize / currentHeight;
+                result = copy_testing_data(this, srcData, bufferAlloc, bufferOffset, currentRowBytes,
+                                            config, currentRowBytes, currentRowBytes,
+                                            currentWidth, currentHeight, &colorf);
+            } else {
+                const size_t trimRowBytes = w * bytesPerPixel;
+                if (!srcRowBytes) {
+                    srcRowBytes = trimRowBytes;
+                }
+
+                size_t currentRowBytes = bytesPerPixel * currentWidth;
+                result = copy_testing_data(this, srcData, bufferAlloc, bufferOffset, srcRowBytes,
+                                            config, currentRowBytes, trimRowBytes,
+                                            currentWidth, currentHeight, &colorf);
+            }
+            if (!result) {
+                GrVkImage::DestroyImageInfo(this, info);
+                GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
+                VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
+                VK_CALL(EndCommandBuffer(cmdBuffer));
+                VK_CALL(FreeCommandBuffers(fDevice, fCmdPool->vkCommandPool(), 1, &cmdBuffer));
+                return false;
+            }
+            currentWidth = SkTMax(1, currentWidth / 2);
+            currentHeight = SkTMax(1, currentHeight / 2);
         }
-        if (!result) {
-            GrVkImage::DestroyImageInfo(this, info);
-            GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
-            VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
-            VK_CALL(EndCommandBuffer(cmdBuffer));
-            VK_CALL(FreeCommandBuffers(fDevice, fCmdPool->vkCommandPool(), 1, &cmdBuffer));
-            return false;
-        }
-        currentWidth = SkTMax(1, currentWidth / 2);
-        currentHeight = SkTMax(1, currentHeight / 2);
     }
 
     // Set image layout and add barrier
@@ -1707,8 +1722,8 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
 
     SkTArray<VkBufferImageCopy> regions(mipLevels);
 
-    currentWidth = w;
-    currentHeight = h;
+    int currentWidth = w;
+    int currentHeight = h;
     for (uint32_t currentMipLevel = 0; currentMipLevel < mipLevels; currentMipLevel++) {
         // Submit copy command
         VkBufferImageCopy& region = regions.push_back();

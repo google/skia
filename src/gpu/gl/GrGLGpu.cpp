@@ -4062,7 +4062,7 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
                                                const GrBackendFormat& format,
                                                GrMipMapped mipMapped,
                                                GrRenderable renderable,
-                                               const void* pixels, size_t rowBytes,
+                                               const void* srcPixels, size_t rowBytes,
                                                const SkColor4f& colorf) {
     this->handleDirtyContext();
 
@@ -4087,7 +4087,7 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
     }
 
     // Currently we don't support uploading pixel data when mipped.
-    if (pixels && GrMipMapped::kYes == mipMapped) {
+    if (srcPixels && GrMipMapped::kYes == mipMapped) {
         return GrBackendTexture();  // invalid
     }
 
@@ -4101,43 +4101,39 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
     }
 
-    SkAutoMalloc pixelStorage;
-
-    if (GrGLFormatIsCompressed(*glFormat)) {
-        // we have to do something special for compressed textures
-        SkASSERT(0 == rowBytes);
-
-        if (!pixels) {
-            size_t etc1Size = GrGLFormatCompressedDataSize(*glFormat, w, h);
-            pixelStorage.reset(etc1Size);
-            GrFillInETC1WithColor(w, h, colorf, pixelStorage.get());
-            pixels = pixelStorage.get();
-            rowBytes = 0;
-        }
-    } else {
-        int bpp = GrBytesPerPixel(config);
-        const size_t trimRowBytes = w * bpp;
-        if (!rowBytes) {
-            rowBytes = trimRowBytes;
-        }
-
-        if (!pixels) {
-            size_t baseLayerSize = trimRowBytes * h;
-            pixelStorage.reset(baseLayerSize);
-            if (!GrFillBufferWithColor(config, w, h, colorf, pixelStorage.get())) {
-                return GrBackendTexture();  // invalid
-            }
-
-            pixels = pixelStorage.get();
-            rowBytes = trimRowBytes;
-        }
-    }
-
     SkAutoTMalloc<GrMipLevel> texels(mipLevelCount);
 
-    for (int i = 0; i < mipLevelCount; ++i) {
-        // TODO: this isn't correct when pixels for additional mip levels are passed in
-        texels.get()[i] = { pixels, rowBytes };
+    size_t bytesPerPixel = GrBytesPerPixel(config);
+
+    SkAutoMalloc pixelStorage;
+
+    if (!srcPixels) {
+        GrCompression compression = GrGLFormat2Compression(*glFormat);
+
+        SkTArray<size_t> individualMipOffsets(mipLevelCount);
+
+        size_t totalSize = GrComputeCombinedBufferSize(compression, bytesPerPixel, w, h,
+                                                       &individualMipOffsets, mipLevelCount);
+
+        char* tmpPixels = (char *) pixelStorage.reset(totalSize);
+
+        GrFillInData(compression, config, bytesPerPixel, w, h, individualMipOffsets,
+                     tmpPixels, colorf);
+
+        for (int i = 0; i < mipLevelCount; ++i) {
+            size_t offset = individualMipOffsets[i];
+
+            texels.get()[i] = { &(tmpPixels[offset]), 0 };
+        }
+
+    } else {
+        SkASSERT(1 == mipLevelCount);
+
+        if (GrGLFormatIsCompressed(*glFormat)) {
+            SkASSERT(0 == rowBytes);
+        }
+
+        texels.get()[0] = { srcPixels, rowBytes };
     }
 
     GrSurfaceDesc desc;
