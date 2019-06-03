@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "0596fc58_986e06f6",
+        "filename": "include/core/SkPicture.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-06-03T15:29:56Z",
+      "side": 1,
+      "message": "Let\u0027s add a comment here.\n\ne.g. does that flag mean the picture only contains blobs, or we only want to serialize the blobs, or we only want to serialize the draw calls that contain blobs?",
+      "range": {
+        "startLine": 225,
+        "startChar": 13,
+        "endLine": 225,
+        "endChar": 26
+      },
+      "revId": "703f814a59788590889e471075402c243eadd26f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "51141e26_12b28db6",
         "filename": "src/core/SkPictureData.cpp",
         "patchSetId": 9
