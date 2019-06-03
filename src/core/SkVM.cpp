@@ -114,6 +114,17 @@ namespace skvm {
     ID Builder::push(Op op, ID x=NA, ID y=NA, ID z=NA, int imm=0) {
         Instruction inst{op, /*life=*/NA, x, y, z, imm};
 
+        // Simple peepholes that come up fairly often.
+
+        auto is_zero = [&](ID id) {
+            return fProgram[id].op  == Op::splat
+                && fProgram[id].imm == 0;
+        };
+
+        // x*y+0 --> x*y
+        if (op == Op::mad_f32 && is_zero(z)) { inst = { Op::mul_f32, NA, x,y,NA, 0 }; }
+
+
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
         auto lookup = fIndex.find(inst);
