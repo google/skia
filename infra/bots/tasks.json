@@ -3583,6 +3583,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -3628,8 +3633,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3708,6 +3712,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -3753,8 +3762,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -4106,6 +4114,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -4151,8 +4164,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -4231,6 +4243,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -4276,8 +4293,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -4356,6 +4372,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -4401,8 +4422,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -4481,6 +4501,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -4526,8 +4551,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -4606,6 +4630,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -4651,8 +4680,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5004,6 +5032,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -5049,8 +5082,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5129,6 +5161,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -5174,8 +5211,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5254,6 +5290,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -5299,8 +5340,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5379,6 +5419,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -5424,8 +5469,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5504,6 +5548,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -5549,8 +5598,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5629,6 +5677,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -5674,8 +5727,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5754,6 +5806,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -5799,8 +5856,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -6067,6 +6123,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -6112,8 +6173,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -6192,6 +6252,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -6237,8 +6302,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -6446,6 +6510,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -6491,8 +6560,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -6571,6 +6639,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -6616,8 +6689,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -6696,6 +6768,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -6741,8 +6818,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -6821,6 +6897,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:14"
         }
       ],
       "command": [
@@ -6866,8 +6947,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
