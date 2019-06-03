@@ -1035,17 +1035,6 @@ HRESULT SkFontMgr_DirectWrite::getByFamilyName(const WCHAR wideFamilyName[],
     return S_OK;
 }
 
-HRESULT SkFontMgr_DirectWrite::getDefaultFontFamily(IDWriteFontFamily** fontFamily) const {
-    NONCLIENTMETRICSW metrics;
-    metrics.cbSize = sizeof(metrics);
-    if (0 == SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0)) {
-        return E_UNEXPECTED;
-    }
-    HRM(this->getByFamilyName(metrics.lfMessageFont.lfFaceName, fontFamily),
-        "Could not create DWrite font family from LOGFONT.");
-    return S_OK;
-}
-
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::onLegacyMakeTypeface(const char familyName[],
                                                               SkFontStyle style) const {
     SkTScopedComPtr<IDWriteFontFamily> fontFamily;
@@ -1058,7 +1047,10 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onLegacyMakeTypeface(const char familyN
 
     if (nullptr == fontFamily.get()) {
         // No family with given name, try default.
-        this->getDefaultFontFamily(&fontFamily);
+        sk_sp<SkTypeface> face(this->onMatchFamilyStyleCharacter(nullptr, style, nullptr, 0, 32));
+        if (face) {
+            return face;
+        }
     }
 
     if (nullptr == fontFamily.get()) {
