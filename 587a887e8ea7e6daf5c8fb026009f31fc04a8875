@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f4f292_f836168e",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2580,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-03T18:15:23Z",
+      "side": 1,
+      "message": "Is this going away or around for a while? I strongly question the value of continuing the pattern of having classes like GrRTCPriv. GrRTC is already a non-API class. This method is callable from anywhere that GrRTC methods are. I think there is an argument that it adds an extra layer of caution before calling the method but I think proliferation of \".priv()\" throughout are code argues otherwise.\n\nAlso I don\u0027t see any reason why this method should be avoided. It\u0027s hard for me to imagine the scenario where someone wouldn\u0027t call this because it is in GRTPriv and not GrRTC.",
+      "range": {
+        "startLine": 2580,
+        "startChar": 5,
+        "endLine": 2580,
+        "endChar": 42
+      },
+      "revId": "587a887e8ea7e6daf5c8fb026009f31fc04a8875",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "144cce03_51bd4738",
+        "filename": "src/gpu/GrSurfaceContextPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-03T18:15:23Z",
+      "side": 1,
+      "message": "Same question re. putting this in Priv.",
+      "range": {
+        "startLine": 35,
+        "startChar": 3,
+        "endLine": 35,
+        "endChar": 91
+      },
+      "revId": "587a887e8ea7e6daf5c8fb026009f31fc04a8875",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1ec8b53_33efd0df",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-03T18:15:23Z",
+      "side": 1,
+      "message": "not sure if it\u0027s much better but it could be something like:\n\n..., const GrTextureType* dsTypeIfTexture,..., const GrTextureType* srcTypeIfTexture)",
+      "range": {
+        "startLine": 399,
+        "startChar": 28,
+        "endLine": 399,
+        "endChar": 79
+      },
+      "revId": "587a887e8ea7e6daf5c8fb026009f31fc04a8875",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8117a52_a5ccf94b",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-03T18:15:23Z",
+      "side": 1,
+      "message": "kSurfSize? Looks like a macro.",
+      "range": {
+        "startLine": 349,
+        "startChar": 17,
+        "endLine": 349,
+        "endChar": 26
+      },
+      "revId": "587a887e8ea7e6daf5c8fb026009f31fc04a8875",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
