@@ -194,9 +194,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                         memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
                         if (texCtx->readPixels(info, data.get(), 0, 0, 0)) {
                             uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
-                            for (int i = 0; i < kSize * kSize; ++i) {
-                                if (cmp != data.get()[i]) {
-                                    ERRORF(reporter, "Failed on config %d", desc.fConfig);
+                            for (int j = 0; j < kSize * kSize; ++j) {
+                                if (cmp != data.get()[j]) {
+                                    ERRORF(reporter,
+                                           "Failed on config %d e: 0x%x a: 0x%x pass %d fit %d",
+                                           desc.fConfig, cmp, data.get()[j], i, fit);
                                     break;
                                 }
                             }
@@ -228,9 +230,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                         memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
                         if (surfCtx->readPixels(info, data.get(), 0, 0, 0)) {
                             uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
-                            for (int i = 0; i < kSize * kSize; ++i) {
-                                if (cmp != data.get()[i]) {
-                                    ERRORF(reporter, "Failed on config %d", desc.fConfig);
+                            for (int j = 0; j < kSize * kSize; ++j) {
+                                if (cmp != data.get()[j]) {
+                                    ERRORF(reporter,
+                                           "Failed on config %d e: 0x%x a: 0x%x pass: %d fit %d",
+                                           desc.fConfig, cmp, data.get()[j], i, fit);
                                     break;
                                 }
                             }
