@@ -1876,11 +1876,14 @@ sk_sp<GrRenderTargetContext> GrRenderTargetContext::rescale(const SkImageInfo& i
                 srcContext->asSurfaceProxy()->backendFormat().makeTexture2D();
         GrPixelConfig config = srcContext->asSurfaceProxy()->config();
         auto cs = srcContext->colorSpaceInfo().refColorSpace();
+        sk_sp<GrColorSpaceXform> xform;
         if (!stepsX && !stepsY) {
             // Might as well fold conversion to final info in the last step.
             backendFormat = this->caps()->getBackendFormatFromColorType(info.colorType());
             config = this->caps()->getConfigFromBackendFormat(backendFormat, info.colorType());
             cs = info.refColorSpace();
+            xform = GrColorSpaceXform::Make(srcContext->colorSpaceInfo().colorSpace(),
+                                            kPremul_SkAlphaType, cs.get(), info.alphaType());
         }
         auto nextRTC = fContext->priv().makeDeferredRenderTargetContextWithFallback(
                 backendFormat, SkBackingFit::kExact, nextW, nextH, config, std::move(cs), 1,
@@ -1908,6 +1911,9 @@ sk_sp<GrRenderTargetContext> GrRenderTargetContext::rescale(const SkImageInfo& i
                 fp = GrBicubicEffect::Make(srcContext->asTextureProxyRef(), matrix, dir,
                                            kPremul_SkAlphaType);
             }
+            if (xform) {
+                fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
+            }
             GrPaint paint;
             paint.addColorFragmentProcessor(std::move(fp));
             paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -1920,7 +1926,7 @@ sk_sp<GrRenderTargetContext> GrRenderTargetContext::rescale(const SkImageInfo& i
             nextRTC->drawTexture(GrNoClip(), srcContext->asTextureProxyRef(), filter,
                                  SkBlendMode::kSrc, SK_PMColor4fWHITE, srcSubset, dstRect,
                                  GrAA::kNo, GrQuadAAFlags::kNone, constraint, SkMatrix::I(),
-                                 nullptr);
+                                 std::move(xform));
         }
         srcContext = std::move(nextRTC);
         srcX = srcY = 0;
