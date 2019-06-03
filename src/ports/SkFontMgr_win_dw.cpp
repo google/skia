@@ -534,6 +534,10 @@ public:
         DWRITE_GLYPH_RUN_DESCRIPTION const* glyphRunDescription,
         IUnknown* clientDrawingEffect) override
     {
+        if (!glyphRun->fontFace) {
+            HRM(E_INVALIDARG, "Glyph run without font face.");
+        }
+
         SkTScopedComPtr<IDWriteFont> font;
         HRM(fOuter->fFontCollection->GetFontFromFontFace(glyphRun->fontFace, &font),
             "Could not get font from font face.");
@@ -771,7 +775,7 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
         dwBcp47 = &dwBcp47Local;
     }
 
-    if (fFactory2.get()) {
+    if (fFontFallback.get() || fFactory2.get()) {
         SkTScopedComPtr<IDWriteFontFallback> systemFontFallback;
         IDWriteFontFallback* fontFallback = fFontFallback.get();
         if (!fontFallback) {
@@ -781,8 +785,8 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
         }
 
         SkTScopedComPtr<IDWriteNumberSubstitution> numberSubstitution;
-        HRNM(fFactory2->CreateNumberSubstitution(DWRITE_NUMBER_SUBSTITUTION_METHOD_NONE, nullptr, TRUE,
-                                                 &numberSubstitution),
+        HRNM(fFactory->CreateNumberSubstitution(DWRITE_NUMBER_SUBSTITUTION_METHOD_NONE, *dwBcp47,
+                                                TRUE, &numberSubstitution),
              "Could not create number substitution.");
         SkTScopedComPtr<FontFallbackSource> fontFallbackSource(
             new FontFallbackSource(str, strLen, *dwBcp47, numberSubstitution.get()));
@@ -1035,17 +1039,6 @@ HRESULT SkFontMgr_DirectWrite::getByFamilyName(const WCHAR wideFamilyName[],
     return S_OK;
 }
 
-HRESULT SkFontMgr_DirectWrite::getDefaultFontFamily(IDWriteFontFamily** fontFamily) const {
-    NONCLIENTMETRICSW metrics;
-    metrics.cbSize = sizeof(metrics);
-    if (0 == SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0)) {
-        return E_UNEXPECTED;
-    }
-    HRM(this->getByFamilyName(metrics.lfMessageFont.lfFaceName, fontFamily),
-        "Could not create DWrite font family from LOGFONT.");
-    return S_OK;
-}
-
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::onLegacyMakeTypeface(const char familyName[],
                                                               SkFontStyle style) const {
     SkTScopedComPtr<IDWriteFontFamily> fontFamily;
@@ -1058,7 +1051,10 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onLegacyMakeTypeface(const char familyN
 
     if (nullptr == fontFamily.get()) {
         // No family with given name, try default.
-        this->getDefaultFontFamily(&fontFamily);
+        sk_sp<SkTypeface> face(this->onMatchFamilyStyleCharacter(nullptr, style, nullptr, 0, 32));
+        if (face) {
+            return face;
+        }
     }
 
     if (nullptr == fontFamily.get()) {
