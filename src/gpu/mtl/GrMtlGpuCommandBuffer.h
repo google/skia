@@ -98,25 +98,18 @@ private:
 
     MTLRenderPassDescriptor* createRenderPassDesc() const;
 
-    void bindGeometry(const GrBuffer* vertexBuffer, const GrBuffer* instanceBuffer);
+    void bindGeometry(const GrBuffer* vertexBuffer, size_t vertexOffset,
+                      const GrBuffer* instanceBuffer);
 
     // GrMesh::SendToGpuImpl methods. These issue the actual Metal draw commands.
     // Marked final as a hint to the compiler to not use virtual dispatch.
     void sendMeshToGpu(GrPrimitiveType primType, const GrBuffer* vertexBuffer, int vertexCount,
-                       int baseVertex) final {
-        this->sendInstancedMeshToGpu(primType, vertexBuffer, vertexCount, baseVertex, nullptr, 1,
-                                     0);
-    }
+                       int baseVertex) final;
 
     void sendIndexedMeshToGpu(GrPrimitiveType primType, const GrBuffer* indexBuffer, int indexCount,
                               int baseIndex, uint16_t /*minIndexValue*/, uint16_t /*maxIndexValue*/,
                               const GrBuffer* vertexBuffer, int baseVertex,
-                              GrPrimitiveRestart restart) final {
-        SkASSERT(restart == GrPrimitiveRestart::kNo);
-        this->sendIndexedInstancedMeshToGpu(primType, indexBuffer, indexCount, baseIndex,
-                                            vertexBuffer, baseVertex, nullptr, 1, 0,
-                                            GrPrimitiveRestart::kNo);
-    }
+                              GrPrimitiveRestart restart) final;
 
     void sendInstancedMeshToGpu(GrPrimitiveType, const GrBuffer* vertexBuffer, int vertexCount,
                                 int baseVertex, const GrBuffer* instanceBuffer, int instanceCount,
@@ -127,7 +120,8 @@ private:
                                        const GrBuffer* instanceBuffer, int instanceCount,
                                        int baseInstance, GrPrimitiveRestart) final;
 
-    void setVertexBuffer(id<MTLRenderCommandEncoder>, const GrMtlBuffer*, size_t index);
+    void setVertexBuffer(id<MTLRenderCommandEncoder>, const GrMtlBuffer*, size_t offset,
+                         size_t index);
     void resetBufferBindings();
 
     GrMtlGpu*                                     fGpu;
@@ -143,6 +137,7 @@ private:
 
     struct CommandBufferInfo {
         SkRect fBounds;
+        size_t fCurrentVertexStride;
     };
 
     CommandBufferInfo fCommandBufferInfo;
