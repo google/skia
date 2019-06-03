@@ -1663,7 +1663,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
                                        config, currentRowBytes, currentRowBytes,
                                        currentWidth, currentHeight, &color);
         } else {
-            const size_t trimRowBytes = w * bpp;
+            const size_t trimRowBytes = bpp * currentWidth;
             if (!srcRowBytes) {
                 srcRowBytes = trimRowBytes;
             }
@@ -1716,7 +1716,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         region.bufferOffset = individualMipOffsets[currentMipLevel];
         region.bufferRowLength = currentWidth;
         region.bufferImageHeight = currentHeight;
-        region.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+        region.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, currentMipLevel, 0, 1};
         region.imageOffset = {0, 0, 0};
         region.imageExtent = {(uint32_t)currentWidth, (uint32_t)currentHeight, 1};
         currentWidth = SkTMax(1, currentWidth / 2);
