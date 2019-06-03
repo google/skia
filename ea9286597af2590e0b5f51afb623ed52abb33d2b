@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5307985_dc372306",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-03T20:23:35Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this go later in the list ?",
+      "revId": "ea9286597af2590e0b5f51afb623ed52abb33d2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df2ea3a0_41909281",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-03T20:23:35Z",
+      "side": 1,
+      "message": "after \"effects\" ?",
+      "revId": "ea9286597af2590e0b5f51afb623ed52abb33d2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
