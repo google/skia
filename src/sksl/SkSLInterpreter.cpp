@@ -103,8 +103,7 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
     switch ((ByteCodeInstruction) READ16()) {
         VECTOR_MATRIX_DISASSEMBLE(kAddF, "addf")
         VECTOR_DISASSEMBLE(kAddI, "addi")
-        VECTOR_DISASSEMBLE(kAndB, "andb")
-        VECTOR_DISASSEMBLE(kAndI, "andb")
+        case ByteCodeInstruction::kAndB: printf("andb"); break;
         case ByteCodeInstruction::kBranch: printf("branch %d", READ16()); break;
         case ByteCodeInstruction::kCall: printf("call %d", READ8()); break;
         case ByteCodeInstruction::kCallExternal: {
@@ -137,7 +136,6 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kConvertStoF, "convertstof")
         VECTOR_DISASSEMBLE(kConvertUtoF, "convertutof")
         VECTOR_DISASSEMBLE(kCos, "cos")
-        case ByteCodeInstruction::kDebugPrint: printf("debugprint"); break;
         VECTOR_MATRIX_DISASSEMBLE(kDivideF, "dividef")
         VECTOR_DISASSEMBLE(kDivideS, "divideS")
         VECTOR_DISASSEMBLE(kDivideU, "divideu")
@@ -191,9 +189,8 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kMultiplyI, "multiplyi")
         VECTOR_MATRIX_DISASSEMBLE(kNegateF, "negatef")
         VECTOR_DISASSEMBLE(kNegateI, "negatei")
-        VECTOR_DISASSEMBLE(kNot, "not")
-        VECTOR_DISASSEMBLE(kOrB, "orb")
-        VECTOR_DISASSEMBLE(kOrI, "ori")
+        case ByteCodeInstruction::kNot: printf("not"); break;
+        case ByteCodeInstruction::kOrB: printf("orb"); break;
         VECTOR_MATRIX_DISASSEMBLE(kPop, "pop")
         case ByteCodeInstruction::kPushImmediate: {
             uint32_t v = READ32();
@@ -384,7 +381,10 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
         switch (inst) {
             VECTOR_BINARY_OP(kAddI, fSigned, +)
             VECTOR_MATRIX_BINARY_OP(kAddF, fFloat, +)
-            VECTOR_BINARY_OP(kAndB, fBool, &&)
+            case ByteCodeInstruction::kAndB:
+                sp[-1] = sp[-1].fBool && sp[0].fBool;
+                POP();
+                break;
 
             case ByteCodeInstruction::kBranch:
                 ip = code + READ16();
@@ -474,12 +474,6 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 sp[-2] = cross.fX;
                 sp[-1] = cross.fY;
                 sp[ 0] = cross.fZ;
-                break;
-            }
-
-            case ByteCodeInstruction::kDebugPrint: {
-                Value v = POP();
-                printf("Debug: %d(int), %d(uint), %f(float)\n", v.fSigned, v.fUnsigned, v.fFloat);
                 break;
             }
 
@@ -650,7 +644,10 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
             case ByteCodeInstruction::kNegateI : sp[ 0] = -sp [0].fSigned;
                                                  break;
 
-            VECTOR_BINARY_OP(kOrB, fBool, ||)
+            case ByteCodeInstruction::kOrB:
+                sp[-1] = sp[-1].fBool || sp[0].fBool;
+                POP();
+                break;
 
             case ByteCodeInstruction::kPop4: POP();
             case ByteCodeInstruction::kPop3: POP();
