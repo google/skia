@@ -254,10 +254,8 @@ private:
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
-    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                       GrSurface* src, GrSurfaceOrigin srcOrigin,
-                       const SkIRect& srcRect, const SkIPoint& dstPoint,
-                       bool canDiscardOutsideDstRect) override;
+    bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+                       const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override;
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
@@ -300,15 +298,12 @@ private:
 
     bool waitSync(GrGLsync, uint64_t timeout, bool flush);
 
-    bool copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                           GrSurface* src, GrSurfaceOrigin srcOrigin,
-                           const SkIRect& srcRect, const SkIPoint& dstPoint);
-    void copySurfaceAsCopyTexSubImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                                      GrSurface* src, GrSurfaceOrigin srcOrigin,
-                                      const SkIRect& srcRect, const SkIPoint& dstPoint);
-    bool copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                                      GrSurface* src, GrSurfaceOrigin srcOrigin,
-                                      const SkIRect& srcRect, const SkIPoint& dstPoint);
+    bool copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+                           const SkIPoint& dstPoint);
+    void copySurfaceAsCopyTexSubImage(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+                                      const SkIPoint& dstPoint);
+    bool copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+                                      const SkIPoint& dstPoint);
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
@@ -429,7 +424,6 @@ private:
     void onDumpJSON(SkJSONWriter*) const override;
 #endif
 
-    bool createCopyProgram(GrTexture* srcTexture);
     bool createMipmapProgram(int progIdx);
 
     std::unique_ptr<GrGLContext> fGLContext;
