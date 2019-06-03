@@ -26,8 +26,7 @@ enum class ByteCodeInstruction : uint16_t {
     // B = bool, F = float, I = int, S = signed, U = unsigned
     VECTOR_MATRIX(kAddF),
     VECTOR(kAddI),
-    VECTOR(kAndB),
-    VECTOR(kAndI),
+    kAndB,
     kBranch,
     // Followed by a byte indicating the index of the function to call
     kCall,
@@ -57,8 +56,6 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kConvertUtoF),
     VECTOR(kCos),
     kCross,
-    // Pops and prints the top value from the stack
-    kDebugPrint,
     VECTOR_MATRIX(kDivideF),
     VECTOR(kDivideS),
     VECTOR(kDivideU),
@@ -86,9 +83,8 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kMix),
     VECTOR_MATRIX(kMultiplyF),
     VECTOR(kMultiplyI),
-    VECTOR(kNot),
-    VECTOR(kOrB),
-    VECTOR(kOrI),
+    kNot,
+    kOrB,
     VECTOR_MATRIX(kPop),
     // Followed by a 32 bit value containing the value to push
     kPushImmediate,
@@ -126,8 +122,6 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR_MATRIX(kSubtractF),
     VECTOR(kSubtractI),
     VECTOR(kTan),
-    VECTOR(kXorB),
-    VECTOR(kXorI),
     // Followed by a byte indicating external value to write
     VECTOR(kWriteExternal),
 };
