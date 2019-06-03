@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "acee195f_f5639335",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-06-03T15:28:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "994dfc78_1a232193",
+      "range": {
+        "startLine": 63,
+        "startChar": 22,
+        "endLine": 63,
+        "endChar": 31
+      },
+      "revId": "227062dce2bbb33ef0443172067c9c84e15181e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da375087_ae26eec3",
         "filename": "fuzz/Fuzz.h",
         "patchSetId": 5
@@ -59,6 +83,24 @@
     },
     {
       "key": {
+        "uuid": "099307d8_041cafb6",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-06-03T15:28:07Z",
+      "side": 1,
+      "message": "UBSAN was failing inside of nextRange, on line 102 when it evaluated *value and found it to be out of bounds - before we could clamp it into the appropriate range.",
+      "parentUuid": "da375087_ae26eec3",
+      "revId": "227062dce2bbb33ef0443172067c9c84e15181e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "088f16bf_f614b956",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 5
@@ -73,6 +115,24 @@
       "revId": "227062dce2bbb33ef0443172067c9c84e15181e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6a90503_ba72fa9e",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-06-03T15:28:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "088f16bf_f614b956",
+      "revId": "227062dce2bbb33ef0443172067c9c84e15181e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -96,6 +156,30 @@
       "revId": "227062dce2bbb33ef0443172067c9c84e15181e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46b6cdc9_a95cc9c0",
+        "filename": "site/dev/testing/fuzz.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-06-03T15:28:07Z",
+      "side": 1,
+      "message": "Just those last two, the others are needed to make reproducing builds match what is fuzzed (but I broke this into a new CL)",
+      "parentUuid": "67752790_c50ca8cb",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 41
+      },
+      "revId": "227062dce2bbb33ef0443172067c9c84e15181e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
