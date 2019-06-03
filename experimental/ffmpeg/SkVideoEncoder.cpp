@@ -110,7 +110,9 @@ static int64_t sk_seek_packet(void* ctx, int64_t pos, int whence) {
     return pos;
 }
 
-SkVideoEncoder::SkVideoEncoder() {}
+SkVideoEncoder::SkVideoEncoder() {
+    fInfo = SkImageInfo::MakeUnknown();
+}
 
 SkVideoEncoder::~SkVideoEncoder() {
     this->reset();
@@ -137,14 +139,11 @@ void SkVideoEncoder::reset() {
     av_packet_free(&fPacket);
     fPacket = nullptr;
 
+    fSurface.reset();
     fWStream.reset();
 }
 
-bool SkVideoEncoder::init(const SkImageInfo& info, int fps) {
-    if ((info.width() & 1) || (info.height() & 1)) {
-        SkDebugf("dimensinos must be even (it appears)\n");
-        return false;
-    }
+bool SkVideoEncoder::init(int fps) {
     // only support this for now
     AVPixelFormat pix_fmt = AV_PIX_FMT_YUV420P;
 
@@ -182,8 +181,8 @@ bool SkVideoEncoder::init(const SkImageInfo& info, int fps) {
     SkASSERT(fEncoderCtx);
 
     fEncoderCtx->codec_id = output_format->video_codec;
-    fEncoderCtx->width    = info.width();
-    fEncoderCtx->height   = info.height();
+    fEncoderCtx->width    = fInfo.width();
+    fEncoderCtx->height   = fInfo.height();
     fEncoderCtx->time_base = fStream->time_base;
     fEncoderCtx->pix_fmt  = pix_fmt;
 
@@ -219,18 +218,26 @@ bool SkVideoEncoder::init(const SkImageInfo& info, int fps) {
 #include "include/core/SkColorFilter.h"
 #include "src/core/SkYUVMath.h"
 
-bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
+static bool is_valid(SkISize dim) {
     if (dim.width() <= 0 || dim.height() <= 0) {
+        return false;
+    }
+    // need the dimensions to be even for YUV 420
+    return ((dim.width() | dim.height()) & 1) == 0;
+}
+
+bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
+    if (!is_valid(dim)) {
         return false;
     }
 
     // need opaque and bgra to efficiently use libyuv / convert-to-yuv-420
-    auto info = SkImageInfo::Make(dim.width(), dim.height(),
-                                  kRGBA_8888_SkColorType, kOpaque_SkAlphaType, nullptr);
-    if (!this->init(info, fps)) {
+    SkAlphaType alphaType = kOpaque_SkAlphaType;
+    sk_sp<SkColorSpace> cs = nullptr;   // should we use this?
+    fInfo = SkImageInfo::Make(dim.width(), dim.height(), kRGBA_8888_SkColorType, alphaType, cs);
+    if (!this->init(fps)) {
         return false;
     }
-    fSurface = SkSurface::MakeRaster(info);
 
     fCurrentPTS = 0;
     fDeltaPTS = 1;
@@ -248,14 +255,23 @@ bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
     return fSWScaleCtx != nullptr;
 }
 
-SkCanvas* SkVideoEncoder::beginFrame() {
-    if (!fSurface) {
-        return nullptr;
+bool SkVideoEncoder::addFrame(const SkPixmap& pm) {
+    if (!is_valid(pm.dimensions())) {
+        return false;
     }
-    SkCanvas* canvas = fSurface->getCanvas();
-    canvas->restoreToCount(1);
-    canvas->clear(0);
-    return canvas;
+    /* make sure the frame data is writable */
+    if (check_err(av_frame_make_writable(fFrame))) {
+        return false;
+    }
+
+    fFrame->pts = fCurrentPTS;
+    fCurrentPTS += fDeltaPTS;
+
+    const uint8_t* src[] = { (const uint8_t*)pm.addr() };
+    const int strides[] = { SkToInt(pm.rowBytes()) };
+    sws_scale(fSWScaleCtx, src, strides, 0, fInfo.height(), fFrame->data, fFrame->linesize);
+
+    return this->sendFrame(fFrame);
 }
 
 bool SkVideoEncoder::sendFrame(AVFrame* frame) {
@@ -283,22 +299,25 @@ bool SkVideoEncoder::sendFrame(AVFrame* frame) {
     return true;
 }
 
+SkCanvas* SkVideoEncoder::beginFrame() {
+    if (!fSurface) {
+        fSurface = SkSurface::MakeRaster(fInfo);
+        if (!fSurface) {
+            return nullptr;
+        }
+    }
+    SkCanvas* canvas = fSurface->getCanvas();
+    canvas->restoreToCount(1);
+    canvas->clear(0);
+    return canvas;
+}
+
 bool SkVideoEncoder::endFrame() {
-    /* make sure the frame data is writable */
-    if (check_err(av_frame_make_writable(fFrame))) {
+    if (!fSurface) {
         return false;
     }
-
-    fFrame->pts = fCurrentPTS;
-    fCurrentPTS += fDeltaPTS;
-
     SkPixmap pm;
-    SkAssertResult(fSurface->peekPixels(&pm));
-    const uint8_t* src[] = { (const uint8_t*)pm.addr() };
-    const int strides[] = { SkToInt(pm.rowBytes()) };
-    sws_scale(fSWScaleCtx, src, strides, 0, fSurface->height(), fFrame->data, fFrame->linesize);
-
-    return this->sendFrame(fFrame);
+    return fSurface->peekPixels(&pm) && this->addFrame(pm);
 }
 
 sk_sp<SkData> SkVideoEncoder::endRecording() {

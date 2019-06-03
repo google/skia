@@ -149,6 +149,11 @@ public:
     */
     int height() const { return fInfo.height(); }
 
+    /**
+     *  Return the dimensions of the pixmap (from its ImageInfo)
+     */
+    SkISize dimensions() const { return fInfo.dimensions(); }
+
     /** Returns SkColorType, one of:
         kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
         kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,

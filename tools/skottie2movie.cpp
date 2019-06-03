@@ -7,6 +7,8 @@
 
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTime.h"
 #include "src/utils/SkOSPath.h"
@@ -79,14 +81,20 @@ int main(int argc, char** argv) {
 
     encoder.beginRecording(dim, fps);
 
+    auto surf = SkSurface::MakeRaster(encoder.preferredInfo());
+
     for (int i = 0; i <= frames; ++i) {
         double ts = i * 1.0 / fps;
         if (FLAGS_verbose) {
             SkDebugf("rendering frame %d ts %g\n", i, ts);
         }
         animation->seek(i * 1.0 / frames);  // normalized time
-        animation->render(encoder.beginFrame());
-        encoder.endFrame();
+        surf->getCanvas()->clear(SK_ColorWHITE);
+        animation->render(surf->getCanvas());
+
+        SkPixmap pm;
+        SkAssertResult(surf->peekPixels(&pm));
+        encoder.addFrame(pm);
     }
 
     if (FLAGS_output.count() == 0) {
