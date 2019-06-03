@@ -181,11 +181,11 @@ public:
 
     ~TextureOp() override {
         for (unsigned p = 0; p < fProxyCnt; ++p) {
-            if (fFinalized) {
-                fProxies[p].fProxy->completedRead();
-            } else {
+//            if (fFinalized) {
+//                fProxies[p].fProxy->completedRead();
+//            } else {
                 fProxies[p].fProxy->unref();
-            }
+//            }
         }
     }
 
@@ -228,10 +228,12 @@ public:
             const GrCaps& caps, const GrAppliedClip*, GrFSAAType, GrClampType clampType) override {
         SkASSERT(!fFinalized);
         fFinalized = true;
+#if 0
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy->addPendingRead();
             fProxies[p].fProxy->unref();
         }
+#endif
         fColorType = static_cast<unsigned>(ColorType::kNone);
         for (int q = 0; q < fQuads.count(); ++q) {
             const ColorDomainAndAA& info = fQuads.metadata(q);

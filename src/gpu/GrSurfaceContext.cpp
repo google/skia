@@ -109,8 +109,7 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::copy");
 
-    if (!fContext->priv().caps()->canCopySurface(this->asSurfaceProxy(), src, srcRect,
-                                                        dstPoint)) {
+    if (!fContext->priv().caps()->canCopySurface(this->asSurfaceProxy(), src, srcRect, dstPoint)) {
         return false;
     }
 
