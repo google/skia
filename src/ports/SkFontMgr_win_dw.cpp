@@ -266,24 +266,19 @@ HRESULT StreamFontCollectionLoader::CreateEnumeratorFromKey(
 
 class SkFontMgr_DirectWrite : public SkFontMgr {
 public:
-    /** localeNameLength must include the null terminator. */
+    /** localeNameLength and defaultFamilyNameLength must include the null terminator. */
     SkFontMgr_DirectWrite(IDWriteFactory* factory, IDWriteFontCollection* fontCollection,
-                          IDWriteFontFallback* fallback, WCHAR* localeName, int localeNameLength)
+                          IDWriteFontFallback* fallback,
+                          WCHAR* localeName, int localeNameLength,
+                          WCHAR* defaultFamilyName, int defaultFamilyNameLength)
         : fFactory(SkRefComPtr(factory))
         , fFontFallback(SkSafeRefComPtr(fallback))
         , fFontCollection(SkRefComPtr(fontCollection))
         , fLocaleName(localeNameLength)
+        , fDefaultFamilyName(defaultFamilyNameLength)
     {
-        if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
-            // IUnknown::QueryInterface states that if it fails, punk will be set to nullptr.
-            // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
-            SkASSERT_RELEASE(nullptr == fFactory2.get());
-        }
-        if (fFontFallback.get()) {
-            // factory must be provided if fallback is non-null, else the fallback will not be used.
-            SkASSERT(fFactory2.get());
-        }
         memcpy(fLocaleName.get(), localeName, localeNameLength * sizeof(WCHAR));
+        memcpy(fDefaultFamilyName.get(), defaultFamilyName, defaultFamilyNameLength*sizeof(WCHAR));
     }
 
 protected:
@@ -306,7 +301,10 @@ protected:
 
 private:
     HRESULT getByFamilyName(const WCHAR familyName[], IDWriteFontFamily** fontFamily) const;
-    HRESULT getDefaultFontFamily(IDWriteFontFamily** fontFamily) const;
+    sk_sp<SkTypeface> fallback(const WCHAR* dwFamilyName, DWriteStyle,
+                               const WCHAR* dwBcp47, UINT32 character) const;
+    sk_sp<SkTypeface> layoutFallback(const WCHAR* dwFamilyName, DWriteStyle,
+                                     const WCHAR* dwBcp47, UINT32 character) const;
 
     /** Creates a typeface using a typeface cache. */
     sk_sp<SkTypeface> makeTypefaceFromDWriteFont(IDWriteFontFace* fontFace,
@@ -314,10 +312,10 @@ private:
                                                  IDWriteFontFamily* fontFamily) const;
 
     SkTScopedComPtr<IDWriteFactory> fFactory;
-    SkTScopedComPtr<IDWriteFactory2> fFactory2;
     SkTScopedComPtr<IDWriteFontFallback> fFontFallback;
     SkTScopedComPtr<IDWriteFontCollection> fFontCollection;
     SkSMallocWCHAR fLocaleName;
+    SkSMallocWCHAR fDefaultFamilyName;
     mutable SkMutex fTFCacheMutex;
     mutable SkTypefaceCache fTFCache;
 
@@ -534,6 +532,10 @@ public:
         DWRITE_GLYPH_RUN_DESCRIPTION const* glyphRunDescription,
         IUnknown* clientDrawingEffect) override
     {
+        if (!glyphRun->fontFace) {
+            HRM(E_INVALIDARG, "Glyph run without font face.");
+        }
+
         SkTScopedComPtr<IDWriteFont> font;
         HRM(fOuter->fFontCollection->GetFontFromFontFace(glyphRun->fontFace, &font),
             "Could not get font from font face.");
@@ -549,7 +551,7 @@ public:
             HRM(font->GetFontFamily(&fontFamily), "Could not get family.");
             fResolvedTypeface = fOuter->makeTypefaceFromDWriteFont(glyphRun->fontFace,
                                                                    font.get(),
-                                                                   fontFamily.get()).release();
+                                                                   fontFamily.get());
         }
 
         return S_OK;
@@ -633,20 +635,21 @@ public:
         return E_FAIL;
     }
 
-    SkTypeface* FallbackTypeface() { return fResolvedTypeface; }
+    sk_sp<SkTypeface> ConsumeFallbackTypeface() { return std::move(fResolvedTypeface); }
 
 protected:
     ULONG fRefCount;
     sk_sp<const SkFontMgr_DirectWrite> fOuter;
     UINT32 fCharacter;
-    SkTypeface* fResolvedTypeface;
+    sk_sp<SkTypeface> fResolvedTypeface;
 };
 
 class FontFallbackSource : public IDWriteTextAnalysisSource {
 public:
     FontFallbackSource(const WCHAR* string, UINT32 length, const WCHAR* locale,
                        IDWriteNumberSubstitution* numberSubstitution)
-        : fString(string)
+        : fRefCount(1)
+        , fString(string)
         , fLength(length)
         , fLocale(locale)
         , fNumberSubstitution(numberSubstitution)
@@ -755,10 +758,6 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
         dwFamilyName = dwFamilyNameLocal;
     }
 
-    WCHAR str[16];
-    UINT32 strLen = static_cast<UINT32>(
-        SkUTF::ToUTF16(character, reinterpret_cast<uint16_t*>(str)));
-
     const SkSMallocWCHAR* dwBcp47;
     SkSMallocWCHAR dwBcp47Local;
     if (bcp47Count < 1) {
@@ -771,48 +770,67 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
         dwBcp47 = &dwBcp47Local;
     }
 
-    if (fFactory2.get()) {
-        SkTScopedComPtr<IDWriteFontFallback> systemFontFallback;
-        IDWriteFontFallback* fontFallback = fFontFallback.get();
-        if (!fontFallback) {
-            HRNM(fFactory2->GetSystemFontFallback(&systemFontFallback),
-                 "Could not get system fallback.");
-            fontFallback = systemFontFallback.get();
-        }
-
-        SkTScopedComPtr<IDWriteNumberSubstitution> numberSubstitution;
-        HRNM(fFactory2->CreateNumberSubstitution(DWRITE_NUMBER_SUBSTITUTION_METHOD_NONE, nullptr, TRUE,
-                                                 &numberSubstitution),
-             "Could not create number substitution.");
-        SkTScopedComPtr<FontFallbackSource> fontFallbackSource(
-            new FontFallbackSource(str, strLen, *dwBcp47, numberSubstitution.get()));
-
-        UINT32 mappedLength;
-        SkTScopedComPtr<IDWriteFont> font;
-        FLOAT scale;
-        HRNM(fontFallback->MapCharacters(fontFallbackSource.get(),
-                                         0, // textPosition,
-                                         strLen,
-                                         fFontCollection.get(),
-                                         dwFamilyName,
-                                         dwStyle.fWeight,
-                                         dwStyle.fSlant,
-                                         dwStyle.fWidth,
-                                         &mappedLength,
-                                         &font,
-                                         &scale),
-             "Could not map characters");
-        if (!font.get()) {
-            return nullptr;
-        }
-
-        SkTScopedComPtr<IDWriteFontFace> fontFace;
-        HRNM(font->CreateFontFace(&fontFace), "Could not get font face from font.");
-
-        SkTScopedComPtr<IDWriteFontFamily> fontFamily;
-        HRNM(font->GetFontFamily(&fontFamily), "Could not get family from font.");
-        return this->makeTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get()).release();
+    if (fFontFallback) {
+        return this->fallback(dwFamilyName, dwStyle, dwBcp47->get(), character).release();
     }
+
+    // LayoutFallback may use the system font collection for fallback.
+    return this->layoutFallback(dwFamilyName, dwStyle, dwBcp47->get(), character).release();
+}
+
+sk_sp<SkTypeface> SkFontMgr_DirectWrite::fallback(const WCHAR* dwFamilyName,
+                                                  DWriteStyle dwStyle,
+                                                  const WCHAR* dwBcp47,
+                                                  UINT32 character) const
+{
+    WCHAR str[16];
+    UINT32 strLen = SkTo<UINT32>(SkUTF::ToUTF16(character, reinterpret_cast<uint16_t*>(str)));
+
+    if (!fFontFallback) {
+        return nullptr;
+    }
+
+    SkTScopedComPtr<IDWriteNumberSubstitution> numberSubstitution;
+    HRNM(fFactory->CreateNumberSubstitution(DWRITE_NUMBER_SUBSTITUTION_METHOD_NONE, dwBcp47,
+                                            TRUE, &numberSubstitution),
+         "Could not create number substitution.");
+    SkTScopedComPtr<FontFallbackSource> fontFallbackSource(
+        new FontFallbackSource(str, strLen, dwBcp47, numberSubstitution.get()));
+
+    UINT32 mappedLength;
+    SkTScopedComPtr<IDWriteFont> font;
+    FLOAT scale;
+    HRNM(fFontFallback->MapCharacters(fontFallbackSource.get(),
+                                      0, // textPosition,
+                                      strLen,
+                                      fFontCollection.get(),
+                                      dwFamilyName,
+                                      dwStyle.fWeight,
+                                      dwStyle.fSlant,
+                                      dwStyle.fWidth,
+                                      &mappedLength,
+                                      &font,
+                                      &scale),
+         "Could not map characters");
+    if (!font.get()) {
+        return nullptr;
+    }
+
+    SkTScopedComPtr<IDWriteFontFace> fontFace;
+    HRNM(font->CreateFontFace(&fontFace), "Could not get font face from font.");
+
+    SkTScopedComPtr<IDWriteFontFamily> fontFamily;
+    HRNM(font->GetFontFamily(&fontFamily), "Could not get family from font.");
+    return this->makeTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get());
+}
+
+sk_sp<SkTypeface> SkFontMgr_DirectWrite::layoutFallback(const WCHAR* dwFamilyName,
+                                                        DWriteStyle dwStyle,
+                                                        const WCHAR* dwBcp47,
+                                                        UINT32 character) const
+{
+    WCHAR str[16];
+    UINT32 strLen = SkTo<UINT32>(SkUTF::ToUTF16(character, reinterpret_cast<uint16_t*>(str)));
 
     SkTScopedComPtr<IDWriteTextFormat> fallbackFormat;
     HRNM(fFactory->CreateTextFormat(dwFamilyName ? dwFamilyName : L"",
@@ -821,10 +839,12 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
                                     dwStyle.fSlant,
                                     dwStyle.fWidth,
                                     72.0f,
-                                    *dwBcp47,
+                                    dwBcp47,
                                     &fallbackFormat),
          "Could not create text format.");
 
+    // No matter how the font collection is set on this IDWriteTextLayout, it is not possible to
+    // disable use of the system font collection in fallback.
     SkTScopedComPtr<IDWriteTextLayout> fallbackLayout;
     HRNM(fFactory->CreateTextLayout(str, strLen, fallbackFormat.get(),
                                     200.0f, 200.0f,
@@ -834,10 +854,12 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
     SkTScopedComPtr<FontFallbackRenderer> fontFallbackRenderer(
         new FontFallbackRenderer(this, character));
 
+    HRNM(fallbackLayout->SetFontCollection(fFontCollection.get(), { 0, strLen }),
+         "Could not set layout font collection.");
     HRNM(fallbackLayout->Draw(nullptr, fontFallbackRenderer.get(), 50.0f, 50.0f),
          "Could not draw layout with renderer.");
 
-    return fontFallbackRenderer->FallbackTypeface();
+    return fontFallbackRenderer->ConsumeFallbackTypeface();
 }
 
 SkTypeface* SkFontMgr_DirectWrite::onMatchFaceStyle(const SkTypeface* familyMember,
@@ -1035,40 +1057,37 @@ HRESULT SkFontMgr_DirectWrite::getByFamilyName(const WCHAR wideFamilyName[],
     return S_OK;
 }
 
-HRESULT SkFontMgr_DirectWrite::getDefaultFontFamily(IDWriteFontFamily** fontFamily) const {
-    NONCLIENTMETRICSW metrics;
-    metrics.cbSize = sizeof(metrics);
-    if (0 == SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0)) {
-        return E_UNEXPECTED;
-    }
-    HRM(this->getByFamilyName(metrics.lfMessageFont.lfFaceName, fontFamily),
-        "Could not create DWrite font family from LOGFONT.");
-    return S_OK;
-}
-
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::onLegacyMakeTypeface(const char familyName[],
                                                               SkFontStyle style) const {
     SkTScopedComPtr<IDWriteFontFamily> fontFamily;
+    const DWriteStyle dwStyle(style);
     if (familyName) {
-        SkSMallocWCHAR wideFamilyName;
-        if (SUCCEEDED(sk_cstring_to_wchar(familyName, &wideFamilyName))) {
-            this->getByFamilyName(wideFamilyName, &fontFamily);
+        SkSMallocWCHAR dwFamilyName;
+        if (SUCCEEDED(sk_cstring_to_wchar(familyName, &dwFamilyName))) {
+            this->getByFamilyName(dwFamilyName, &fontFamily);
+            if (!fontFamily && fFontFallback) {
+                return this->fallback(dwFamilyName, dwStyle, fLocaleName.get(), 32);
+            }
         }
     }
 
-    if (nullptr == fontFamily.get()) {
-        // No family with given name, try default.
-        this->getDefaultFontFamily(&fontFamily);
+    if (!fontFamily) {
+        if (fFontFallback) {
+            return this->fallback(nullptr, dwStyle, fLocaleName.get(), 32);
+        }
+        // SPI_GETNONCLIENTMETRICS lfMessageFont can fail in Win8. (DisallowWin32kSystemCalls)
+        // layoutFallback causes DCHECK in Chromium. (Uses system font collection.)
+        HRNM(this->getByFamilyName(fDefaultFamilyName, &fontFamily),
+             "Could not create DWrite font family from LOGFONT.");
     }
 
-    if (nullptr == fontFamily.get()) {
+    if (!fontFamily) {
         // Could not obtain the default font.
         HRNM(fFontCollection->GetFontFamily(0, &fontFamily),
              "Could not get default-default font family.");
     }
 
     SkTScopedComPtr<IDWriteFont> font;
-    DWriteStyle dwStyle(style);
     HRNM(fontFamily->GetFirstMatchingFont(dwStyle.fWeight, dwStyle.fWidth, dwStyle.fSlant, &font),
          "Could not get matching font.");
 
@@ -1149,6 +1168,32 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
         collection = systemFontCollection.get();
     }
 
+    // It is possible to have been provided a font fallback when factory2 is not available.
+    SkTScopedComPtr<IDWriteFontFallback> systemFontFallback;
+    if (nullptr == fallback) {
+        SkTScopedComPtr<IDWriteFactory2> factory2;
+        if (!SUCCEEDED(factory->QueryInterface(&factory2))) {
+            // IUnknown::QueryInterface states that if it fails, punk will be set to nullptr.
+            // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
+            SkASSERT_RELEASE(nullptr == factory2.get());
+        } else {
+            HRNM(factory2->GetSystemFontFallback(&systemFontFallback),
+                 "Could not get system fallback.");
+            fallback = systemFontFallback.get();
+        }
+    }
+
+    WCHAR* defaultFamilyName = nullptr;
+    int defaultFamilyNameLen = 0;
+    NONCLIENTMETRICSW metrics;
+    metrics.cbSize = sizeof(metrics);
+    if (nullptr == fallback) {
+        if (SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0)) {
+            defaultFamilyName = metrics.lfMessageFont.lfFaceName;
+            defaultFamilyNameLen = LF_FACESIZE;
+        }
+    }
+
     WCHAR localeNameStorage[LOCALE_NAME_MAX_LENGTH];
     WCHAR* localeName = nullptr;
     int localeNameLen = 0;
@@ -1166,7 +1211,8 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
     }
 
     return sk_make_sp<SkFontMgr_DirectWrite>(factory, collection, fallback,
-                                             localeName, localeNameLen);
+                                             localeName, localeNameLen,
+                                             defaultFamilyName, defaultFamilyNameLen);
 }
 
 #include "include/ports/SkFontMgr_indirect.h"
