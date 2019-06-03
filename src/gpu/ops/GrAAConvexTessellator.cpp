@@ -9,7 +9,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkString.h"
-#include "src/gpu/GrPathUtils.h"
+#include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/ops/GrAAConvexTessellator.h"
 
 // Next steps:

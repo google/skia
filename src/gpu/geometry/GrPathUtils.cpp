@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrPathUtils.h"
+#include "src/gpu/geometry/GrPathUtils.h"
 
 #include "include/gpu/GrTypes.h"
 #include "src/core/SkMathPriv.h"

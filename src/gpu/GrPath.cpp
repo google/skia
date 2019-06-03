@@ -6,7 +6,7 @@
  */
 
 #include "src/gpu/GrPath.h"
-#include "src/gpu/GrShape.h"
+#include "src/gpu/geometry/GrShape.h"
 
 static inline void write_style_key(uint32_t* key, const GrStyle& style)  {
     // Pass 1 for the scale since the GPU will apply the style not GrStyle::applyToPath().
