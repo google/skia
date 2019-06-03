@@ -709,24 +709,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                      flags, &localMatrix);
     }), allow_raw_pointers());
 
-    function("_MakeSkVertices", optional_override([](SkVertices::VertexMode mode, int vertexCount,
-                                uintptr_t /* SkPoint*     */ pPtr,  uintptr_t /* SkPoint*     */ tPtr,
-                                uintptr_t /* SkColor*     */ cPtr,
-                                uintptr_t /* BoneIndices* */ biPtr, uintptr_t /* BoneWeights* */ bwPtr,
-                                int indexCount,                     uintptr_t /* uint16_t  *  */ iPtr,
-                                bool isVolatile)->sk_sp<SkVertices> {
-        // See comment above for uintptr_t explanation
-        const SkPoint* positions       = reinterpret_cast<const SkPoint*>(pPtr);
-        const SkPoint* texs            = reinterpret_cast<const SkPoint*>(tPtr);
-        const SkColor* colors          = reinterpret_cast<const SkColor*>(cPtr);
-        const BoneIndices* boneIndices = reinterpret_cast<const BoneIndices*>(biPtr);
-        const BoneWeights* boneWeights = reinterpret_cast<const BoneWeights*>(bwPtr);
-        const uint16_t* indices        = reinterpret_cast<const uint16_t*>(iPtr);
-
-        return SkVertices::MakeCopy(mode, vertexCount, positions, texs, colors,
-                                    boneIndices, boneWeights, indexCount, indices, isVolatile);
-    }), allow_raw_pointers());
-
 #if SK_SUPPORT_GPU
     class_<GrContext>("GrContext")
         .smart_ptr<sk_sp<GrContext>>("sk_sp<GrContext>")
@@ -1131,6 +1113,35 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }))
 #endif
         .function("vertexCount", &SkVertices::vertexCount);
+
+    // Not intended to be called directly by clients
+    class_<SkVertices::Builder>("_SkVerticesBuilder")
+        .constructor<SkVertices::VertexMode, int, int, uint32_t>()
+        .function("boneIndices", optional_override([](SkVertices::Builder& self)->uintptr_t /* BoneIndices* */{
+            // Emscripten won't let us return bare pointers, but we can return ints just fine.
+            return reinterpret_cast<uintptr_t>(self.boneIndices());
+        }))
+        .function("boneWeights", optional_override([](SkVertices::Builder& self)->uintptr_t /* BoneWeights* */{
+            // Emscripten won't let us return bare pointers, but we can return ints just fine.
+            return reinterpret_cast<uintptr_t>(self.boneWeights());
+        }))
+        .function("colors", optional_override([](SkVertices::Builder& self)->uintptr_t /* SkColor* */{
+            // Emscripten won't let us return bare pointers, but we can return ints just fine.
+            return reinterpret_cast<uintptr_t>(self.colors());
+        }))
+        .function("detach", &SkVertices::Builder::detach)
+        .function("indices", optional_override([](SkVertices::Builder& self)->uintptr_t /* uint16_t* */{
+            // Emscripten won't let us return bare pointers, but we can return ints just fine.
+            return reinterpret_cast<uintptr_t>(self.indices());
+        }))
+        .function("positions", optional_override([](SkVertices::Builder& self)->uintptr_t /* SkPoint* */{
+            // Emscripten won't let us return bare pointers, but we can return ints just fine.
+            return reinterpret_cast<uintptr_t>(self.positions());
+        }))
+        .function("texCoords", optional_override([](SkVertices::Builder& self)->uintptr_t /* SkPoint* */{
+            // Emscripten won't let us return bare pointers, but we can return ints just fine.
+            return reinterpret_cast<uintptr_t>(self.texCoords());
+        }));
 
     enum_<SkAlphaType>("AlphaType")
         .value("Opaque",   SkAlphaType::kOpaque_SkAlphaType)

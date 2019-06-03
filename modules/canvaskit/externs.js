@@ -315,6 +315,17 @@ var CanvasKit = {
 		_applyBones: function() {},
 	},
 
+	_SkVerticesBuilder: {
+		// public API (from C++ bindings)
+		boneIndices: function() {},
+		boneWeights: function() {},
+		colors: function() {},
+		detach: function() {},
+		indices: function() {},
+		positions: function() {},
+		texCoords: function() {},
+	},
+
 	// Constants and Enums
 	gpu: {},
 	skottie: {},
