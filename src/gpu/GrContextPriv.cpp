@@ -18,6 +18,7 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/GrTextureContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/text/GrTextBlobCache.h"
@@ -513,7 +514,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         }
 
         auto tempProxy = this->proxyProvider()->createProxy(
-                format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
+                format, desc, dst->asSurfaceProxy()->origin(), SkBackingFit::kApprox,
+                SkBudgeted::kYes);
         if (!tempProxy) {
             return false;
         }
@@ -533,8 +535,32 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
             return false;
         }
 
+#if 0
+        if (canvas2DFastPath) {
+    //        SkDebugf("doing canvas2DFastPath\n");
+            auto fp = fContext->createUPMToPMEffect(
+                    GrSimpleTextureEffect::Make(std::move(tempProxy), SkMatrix::I()));
+            if (srcColorType == GrColorType::kBGRA_8888) {
+                fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
+            }
+            if (!fp) {
+                return false;
+            }
+            GrPaint paint;
+            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+            paint.addColorFragmentProcessor(std::move(fp));
+            dst->asRenderTargetContext()->fillRectToRect(
+                    GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                    SkRect::MakeXYWH(left, top, width, height), SkRect::MakeWH(width, height));
+        } else {
+            if (!dst->copy(tempProxy.get(), SkIRect::MakeWH(width, height),
+                           SkIPoint::Make(left, top))) {
+                return false;
+            }
+        }
+#else
         if (dst->asRenderTargetContext()) {
-        std::unique_ptr<GrFragmentProcessor> fp;
+            std::unique_ptr<GrFragmentProcessor> fp;
             if (canvas2DFastPath) {
                 fp = fContext->createUPMToPMEffect(
                         GrSimpleTextureEffect::Make(std::move(tempProxy), SkMatrix::I()));
@@ -556,12 +582,11 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         } else {
             SkIRect srcRect = SkIRect::MakeWH(width, height);
             SkIPoint dstPoint = SkIPoint::Make(left, top);
-            if (!this->caps()->canCopySurface(dst->asSurfaceProxy(), tempProxy.get(), srcRect,
-                                              dstPoint)) {
+            if (!dst->surfPriv().copyNoDraw(tempProxy.get(), srcRect, dstPoint)) {
                 return false;
             }
-            SkAssertResult(dst->copy(tempProxy.get(), srcRect, dstPoint));
         }
+#endif
         return true;
     }
 

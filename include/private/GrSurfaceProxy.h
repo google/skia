@@ -437,10 +437,16 @@ public:
         return fGpuMemorySize;
     }
 
+    enum class RectsMustMatch : bool {
+        kNo = false,
+        kYes = true
+    };
+
     // Helper function that creates a temporary SurfaceContext to perform the copy
     // The copy is is not a render target and not multisampled.
     static sk_sp<GrTextureProxy> Copy(GrRecordingContext*, GrSurfaceProxy* src, GrMipMapped,
-                                      SkIRect srcRect, SkBackingFit, SkBudgeted);
+                                      const SkIRect& srcRect, SkBackingFit, SkBudgeted,
+                                      RectsMustMatch = RectsMustMatch::kNo);
 
     // Copy the entire 'src'
     static sk_sp<GrTextureProxy> Copy(GrRecordingContext*, GrSurfaceProxy* src, GrMipMapped,
@@ -449,7 +455,7 @@ public:
     // Test-only entry point - should decrease in use as proxies propagate
     static sk_sp<GrSurfaceContext> TestCopy(GrRecordingContext* context,
                                             const GrSurfaceDesc& dstDesc,
-                                            GrSurfaceOrigin, GrSurfaceProxy* srcProxy);
+                                            GrSurfaceProxy* srcProxy);
 
     bool isWrapped_ForTesting() const;
 

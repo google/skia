@@ -39,6 +39,7 @@
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrShape.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/GrTracing.h"
@@ -254,7 +255,19 @@ void SkGpuDevice::replaceRenderTargetContext(sk_sp<GrRenderTargetContext> rtc,
         if (this->context()->abandoned()) {
             return;
         }
-        rtc->copy(fRenderTargetContext->asSurfaceProxy());
+
+        if (rtc->asSurfaceProxy()->origin() == fRenderTargetContext->asSurfaceProxy()->origin()) {
+            if (rtc->surfPriv().copyNoDraw(fRenderTargetContext->asSurfaceProxy())) {
+                fRenderTargetContext = std::move(rtc);
+                return;
+            }
+        }
+        if (!fRenderTargetContext->asTextureProxy() ||
+            !rtc->priv().copyAsDraw(fRenderTargetContext->asTextureProxy(),
+                                    SkIRect::MakeWH(this->width(), this->height()),
+                                    SkIPoint::Make(0,0))) {
+            SkDebugf("Failed to copy in replaceRenderTargetContext.\n");
+        }
     }
 
     fRenderTargetContext = std::move(rtc);
