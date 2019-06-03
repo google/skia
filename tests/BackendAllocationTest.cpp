@@ -83,6 +83,18 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
     context->deleteBackendTexture(backendTex);
 }
 
+static bool colors_eq(SkColor colA, SkColor colB, int tol) {
+    int maxDiff = 0;
+    for (int i = 0; i < 4; ++i) {
+        int diff = SkTAbs<int>((0xFF & (colA >> i*8)) - (0xFF & (colB >> i*8)));
+        if (maxDiff < diff) {
+            maxDiff = diff;
+        }
+    }
+
+    return maxDiff <= tol;
+}
+
 static void compare_pixmaps(const SkPixmap& expected, const SkPixmap& actual,
                             SkColorType colorType, skiatest::Reporter* reporter) {
     SkASSERT(expected.info() == actual.info());
@@ -92,22 +104,14 @@ static void compare_pixmaps(const SkPixmap& expected, const SkPixmap& actual,
             SkColor expectedCol = expected.getColor(x, y);
             SkColor actualCol = actual.getColor(x, y);
 
-            int maxDiff = 0;
-            for (int i = 0; i < 4; ++i) {
-                int diff = SkTAbs<int>((0xFF & (actualCol >> i*8)) - (0xFF & (expectedCol >> i*8)));
-                if (maxDiff < diff) {
-                    maxDiff = diff;
-                }
-            }
-
             // GPU and raster differ a bit on kGray_8_SkColorType and kRGBA_1010102_SkColorType
-            if (maxDiff <= 12) {
+            if (colors_eq(actualCol, expectedCol, 12)) {
                 continue;
             }
 
             ERRORF(reporter,
-                   "Mismatched pixels at %d %d ct: %d expected: 0x%x actual: 0x%x diff: %d\n",
-                   x, y, colorType, expectedCol, actualCol, maxDiff);
+                   "Mismatched pixels at %d %d ct: %d expected: 0x%x actual: 0x%x\n",
+                   x, y, colorType, expectedCol, actualCol);
             return;
         }
     }
@@ -138,15 +142,18 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
 
     SkImageInfo ii = SkImageInfo::Make(32, 32, colorType, at);
 
-    SkAutoPixmapStorage expected;
-    SkAssertResult(expected.tryAlloc(ii));
+    SkColor4f rasterColor = color;
     if (kGray_8_SkColorType == colorType) {
         // For the GPU backends gray implies a single channel which is opaque.
-        SkColor4f gray { color.fA, color.fA, color.fA, 1 };
-        expected.erase(gray);
-    } else {
-        expected.erase(color);
+        rasterColor.fR = color.fA;
+        rasterColor.fG = color.fA;
+        rasterColor.fB = color.fA;
+        rasterColor.fA = 1.0f;
     }
+
+    SkAutoPixmapStorage expected;
+    SkAssertResult(expected.tryAlloc(ii));
+    expected.erase(rasterColor);
 
     SkAutoPixmapStorage actual;
     SkAssertResult(actual.tryAlloc(ii));
@@ -177,16 +184,65 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                                                       at,
                                                       nullptr);
         if (img) {
-            bool result = img->readPixels(actual, 0, 0);
-            if (!result) {
-                // TODO: we need a better way to tell a priori if readPixels will work for an
-                // arbitrary colorType
+            // If possible, read back the pixels and check that they're correct
+            {
+                bool result = img->readPixels(actual, 0, 0);
+                if (!result) {
+                    // TODO: we need a better way to tell a priori if readPixels will work for an
+                    // arbitrary colorType
 #if 0
-                ERRORF(reporter, "Couldn't readback from SkImage for colorType: %d\n",
-                        colorType);
+                    ERRORF(reporter, "Couldn't readback from SkImage for colorType: %d\n",
+                            colorType);
 #endif
-            } else {
-                compare_pixmaps(expected, actual, colorType, reporter);
+                } else {
+                    compare_pixmaps(expected, actual, colorType, reporter);
+                }
+            }
+
+            // Draw the wrapped image into an RGBA surface attempting to access all the
+            // mipMap levels.
+            {
+                SkImageInfo newII = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType,
+                                                      kPremul_SkAlphaType);
+
+                SkAutoPixmapStorage actual2;
+                SkAssertResult(actual2.tryAlloc(newII));
+                actual2.erase(SkColors::kTransparent);
+
+                sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context,
+                                                                    SkBudgeted::kNo,
+                                                                    newII, 1,
+                                                                    kTopLeft_GrSurfaceOrigin,
+                                                                    nullptr);
+                if (!surf) {
+                    context->deleteBackendTexture(backendTex);
+                    return;
+                }
+
+                SkCanvas* canvas = surf->getCanvas();
+
+                SkPaint p;
+                p.setFilterQuality(kHigh_SkFilterQuality);
+
+                int numMipLevels = (GrMipMapped::kYes == mipMapped) ? 6 : 1;
+
+                for (int i = 0, rectSize = 32; i < numMipLevels; ++i, rectSize /= 2) {
+                    SkASSERT(rectSize >= 1);
+
+                    SkRect r = SkRect::MakeWH(rectSize, rectSize);
+                    canvas->clear(SK_ColorTRANSPARENT);
+                    canvas->drawImageRect(img, r, &p);
+
+                    bool result = surf->readPixels(actual2, 0, 0);
+                    REPORTER_ASSERT(reporter, result);
+
+                    SkColor actualColor = actual2.getColor(0, 0);
+
+                    if (!colors_eq(actualColor, rasterColor.toSkColor(), 1)) {
+                        ERRORF(reporter, "Pixel mismatch colorType %d: level: %d e: 0x%x a: 0x%x\n",
+                               colorType, i, rasterColor.toSkColor(), actualColor);
+                    }
+                }
             }
         }
     }
