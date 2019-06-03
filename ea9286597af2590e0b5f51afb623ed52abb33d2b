@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6c17250e_428213ef",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-03T20:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b5307985_dc372306",
+      "revId": "ea9286597af2590e0b5f51afb623ed52abb33d2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df2ea3a0_41909281",
         "filename": "src/utils/SkShadowUtils.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "ea9286597af2590e0b5f51afb623ed52abb33d2b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69c8be29_7937727d",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-03T20:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df2ea3a0_41909281",
+      "revId": "ea9286597af2590e0b5f51afb623ed52abb33d2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
