@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b893428_1e982593",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2371,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-03T15:02:29Z",
+      "side": 1,
+      "message": "for blit some devices require the blit to be full screen when doing it with MSAA. Before we allowed falling backing to draw at execution time if we ended up using an approx texture, but now we must check for that up front. Though in the end this will rarely actually get hit.",
+      "range": {
+        "startLine": 2371,
+        "startChar": 53,
+        "endLine": 2371,
+        "endChar": 69
+      },
+      "revId": "613b83d709718347b6c66edc304efbc93e3e0c71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

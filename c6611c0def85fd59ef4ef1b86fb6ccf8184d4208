@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f3003ee_4321fa3a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2359,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-03T15:02:29Z",
+      "side": 0,
+      "message": "this was too restrictive before by not allowing rectangle textures. Now that copyAsDraw is gone we weren\u0027t able to copy them before change this to only exclude external.",
+      "range": {
+        "startLine": 2359,
+        "startChar": 28,
+        "endLine": 2359,
+        "endChar": 45
+      },
+      "revId": "c6611c0def85fd59ef4ef1b86fb6ccf8184d4208",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
