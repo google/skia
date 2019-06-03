@@ -12,7 +12,7 @@
 #include "include/pathops/SkPathOps.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkRectPriv.h"
-#include "src/gpu/GrShape.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "tests/Test.h"
 
 #include <initializer_list>

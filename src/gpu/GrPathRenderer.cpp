@@ -11,8 +11,8 @@
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrShape.h"
 #include "src/gpu/GrUserStencilSettings.h"
+#include "src/gpu/geometry/GrShape.h"
 
 #ifdef SK_DEBUG
 void GrPathRenderer::StencilPathArgs::validate() const {

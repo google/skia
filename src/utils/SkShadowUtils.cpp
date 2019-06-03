@@ -25,8 +25,8 @@
 #include "src/utils/SkShadowTessellator.h"
 #include <new>
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrShape.h"
 #include "src/gpu/effects/generated/GrBlurredEdgeFragmentProcessor.h"
+#include "src/gpu/geometry/GrShape.h"
 #endif
 
 /**

@@ -11,8 +11,8 @@
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrPathRenderer.h"
-#include "src/gpu/GrRect.h"
-#include "src/gpu/GrShape.h"
+#include "src/gpu/geometry/GrRect.h"
+#include "src/gpu/geometry/GrShape.h"
 
 #include "src/core/SkOpts.h"
 #include "src/core/SkTDynamicHash.h"

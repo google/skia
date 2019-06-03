@@ -12,10 +12,10 @@
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrResourceCache.h"
-#include "src/gpu/GrShape.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/ops/GrTessellatingPathRenderer.h"
 
 static SkPath create_concave_path() {
