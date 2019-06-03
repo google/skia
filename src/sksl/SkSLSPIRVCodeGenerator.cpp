@@ -10,6 +10,7 @@
 #include "src/sksl/GLSL.std.450.h"
 
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"

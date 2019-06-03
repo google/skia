@@ -40,6 +40,7 @@
 #include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/ir/SkSLWhileStatement.h"
+#include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/spirv.h"
 
 union ConstantValue {

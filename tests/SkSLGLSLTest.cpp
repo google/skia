@@ -27,15 +27,17 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
     }
     REPORTER_ASSERT(r, program);
-    *inputs = program->fInputs;
-    REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
     if (program) {
-        SkSL::String skExpected(expected);
-        if (output != skExpected) {
-            SkDebugf("GLSL MISMATCH:\nsource:\n%s\n\nexpected:\n'%s'\n\nreceived:\n'%s'", src,
-                     expected, output.c_str());
+        *inputs = program->fInputs;
+        REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
+        if (program) {
+            SkSL::String skExpected(expected);
+            if (output != skExpected) {
+                SkDebugf("GLSL MISMATCH:\nsource:\n%s\n\nexpected:\n'%s'\n\nreceived:\n'%s'", src,
+                         expected, output.c_str());
+            }
+            REPORTER_ASSERT(r, output == skExpected);
         }
-        REPORTER_ASSERT(r, output == skExpected);
     }
 }
 
@@ -64,7 +66,7 @@ DEF_TEST(SkSLControl, r) {
          "if (sqrt(2) > 5) { sk_FragColor = half4(0.75); } else { discard; }"
          "int i = 0;"
          "while (i < 10) { sk_FragColor *= 0.5; i++; }"
-         "do { sk_FragColor += 0.01; } while (sk_FragColor.x < 0.75);"
+         "do { sk_FragColor += 0.25; } while (sk_FragColor.x < 0.75);"
          "for (int i = 0; i < 10; i++) {"
          "if (i % 2 == 1) break; else continue;"
          "}"
@@ -85,7 +87,7 @@ DEF_TEST(SkSLControl, r) {
          "        i++;\n"
          "    }\n"
          "    do {\n"
-         "        sk_FragColor += 0.01;\n"
+         "        sk_FragColor += 0.25;\n"
          "    } while (sk_FragColor.x < 0.75);\n"
          "    for (int i = 0;i < 10; i++) {\n"
          "        if (i % 2 == 1) break; else continue;\n"
@@ -1373,16 +1375,16 @@ DEF_TEST(SkSLArrayIndexTypes, r) {
 
 DEF_TEST(SkSLGeometry, r) {
     test(r,
-         "layout(points) in;"
-         "layout(invocations = 2) in;"
-         "layout(line_strip, max_vertices = 2) out;"
-         "void main() {"
-         "sk_Position = sk_in[0].sk_Position + float4(-0.5, 0, 0, sk_InvocationID);"
-         "EmitVertex();"
-         "sk_Position = sk_in[0].sk_Position + float4(0.5, 0, 0, sk_InvocationID);"
-         "EmitVertex();"
-         "EndPrimitive();"
-         "}",
+         "layout(points) in;\n"
+         "layout(invocations = 2) in;\n"
+         "layout(line_strip, max_vertices = 2) out;\n"
+         "void main() {\n"
+         "sk_Position = sk_in[0].sk_Position + float4(-0.5, 0, 0, sk_InvocationID);\n"
+         "EmitVertex();\n"
+         "sk_Position = sk_in[0].sk_Position + float4(0.5, 0, 0, sk_InvocationID);\n"
+         "EmitVertex();\n"
+         "EndPrimitive();\n"
+         "}\n",
          *SkSL::ShaderCapsFactory::GeometryShaderSupport(),
          "#version 400\n"
          "layout (points) in ;\n"
