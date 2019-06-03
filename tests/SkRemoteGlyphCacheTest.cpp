@@ -14,6 +14,7 @@
 #include "src/core/SkRemoteGlyphCacheImpl.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/core/SkTypeface_remote.h"
 #include "tests/Test.h"
@@ -449,7 +450,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(0);
-    REPORTER_ASSERT(reporter, SkDraw::ShouldDrawTextAsPaths(SkFont(), paint, SkMatrix::I()));
+    REPORTER_ASSERT(reporter,
+            SkStrikeSpecStorage::ShouldDrawAsPath(paint, SkFont(), SkMatrix::I()));
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
@@ -489,7 +491,8 @@ sk_sp<SkTextBlob> make_blob_causing_fallback(
     font.setHinting(SkFontHinting::kNormal);
     font.setTypeface(targetTf);
 
-    REPORTER_ASSERT(reporter, !SkDraw::ShouldDrawTextAsPaths(font, SkPaint(), SkMatrix::I()));
+    REPORTER_ASSERT(reporter,
+            !SkStrikeSpecStorage::ShouldDrawAsPath(SkPaint(), font, SkMatrix::I()));
 
     char s[] = "Skia";
     int runSize = strlen(s);
