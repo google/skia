@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51141e26_12b28db6",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-03T15:24:07Z",
+      "side": 1,
+      "message": "Sometimes it helps the reader to add little inline comments, e.g.\n\n  pic-\u003eserialize(\u0026devnull, nullptr, typefaceSet, /*textBlobsOnly\u003d*/true);",
+      "range": {
+        "startLine": 231,
+        "startChar": 55,
+        "endLine": 231,
+        "endChar": 59
+      },
+      "revId": "703f814a59788590889e471075402c243eadd26f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
