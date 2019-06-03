@@ -114,21 +114,6 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const GrRenderTargetContext& rtc)
 
 #endif
 
-bool SkGlyphRunListPainter::ShouldDrawAsPath(
-        const SkPaint& paint, const SkFont& font, const SkMatrix& matrix) {
-    // hairline glyphs are fast enough so we don't need to cache them
-    if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
-        return true;
-    }
-
-    // we don't cache perspective
-    if (matrix.hasPerspective()) {
-        return true;
-    }
-
-    return SkFontPriv::TooBigToUseCache(matrix, SkFontPriv::MakeTextMatrix(font), 1024);
-}
-
 static bool check_glyph_position(SkPoint position) {
     // Prevent glyphs from being drawn outside of or straddling the edge of device space.
     // Comparisons written a little weirdly so that NaN coordinates are treated safely.
@@ -157,7 +142,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
         const SkFont& runFont = glyphRun.font();
         auto runSize = glyphRun.runSize();
 
-        if (ShouldDrawAsPath(runPaint, runFont, deviceMatrix)) {
+        if (SkStrikeSpecStorage::ShouldDrawAsPath(runPaint, runFont, deviceMatrix)) {
             SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
                     fPositions, glyphRun.positions().data(), runSize);
 
@@ -446,7 +431,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 this->processARGBFallback(maxFallbackDimension * strikeSpec.strikeToSourceRatio(),
                                           runPaint, runFont, viewMatrix, process);
             }
-        } else if (SkGlyphRunListPainter::ShouldDrawAsPath(runPaint, runFont, viewMatrix)) {
+        } else if (SkStrikeSpecStorage::ShouldDrawAsPath(runPaint, runFont, viewMatrix)) {
 
             // Translate all glyphs to the origin.
             SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
