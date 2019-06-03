@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac7de9dd_aca93b0c",
+        "filename": "include/core/SkSharingProc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-03T14:24:45Z",
+      "side": 1,
+      "message": "This name sharingproc::SharingSerialContext has missed the main important job we have for naming our crap, which is that it should somehow be scoped to Skia, to avoid conflicts with things that are not Skia.  Our typical approach to this is to name types with an Sk- prefix, but if there is a large set of related types and routines, we\u0027ve also lately been using sk-prefixed namespaces for the same.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 29
+      },
+      "revId": "9422d530e7f59f42a6ac27fd3bdd0b474f94179f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baf16c68_b17937ca",
+        "filename": "include/core/SkSharingProc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-03T14:24:45Z",
+      "side": 1,
+      "message": "Let\u0027s maybe never use std::map if we can avoid it.  It\u0027s really kind of a complete piece of crap unless you specifically need a red-black tree.  std::unordered_map is probably a better default, though I often wish that we\u0027d written a btree_map equivalent that we could use in Skia.",
+      "range": {
+        "startLine": 20,
+        "startChar": 4,
+        "endLine": 20,
+        "endChar": 12
+      },
+      "revId": "9422d530e7f59f42a6ac27fd3bdd0b474f94179f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ad06739_32b76117",
+        "filename": "include/core/SkSharingProc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-03T14:24:45Z",
+      "side": 1,
+      "message": "Isn\u0027t this already tracked by imageMap.size()?\n\nWe typically use size_t to count bytes, and int to count all other things, even if it means you have to awkwardly cast some std:: types\u0027 size_ts to int.",
+      "revId": "9422d530e7f59f42a6ac27fd3bdd0b474f94179f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5b74820_186e9ce0",
+        "filename": "include/core/SkSharingProc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-03T14:24:45Z",
+      "side": 1,
+      "message": "Why do the Sharing*Context types need to be in the header at all?  Who creates them?",
+      "revId": "9422d530e7f59f42a6ac27fd3bdd0b474f94179f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fae35aa5_f2377ea3",
+        "filename": "src/core/SkSharingProc.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-03T14:24:45Z",
+      "side": 1,
+      "message": "Generally we make functions like this static instead of placing them in an anonymous namespace, and name them like serialize_image().  This is just historical practice... there\u0027s no major difference between a function in an anonymous namespace and a static function, except maybe that compilers are a bit better at optimizing static functions.",
+      "revId": "9422d530e7f59f42a6ac27fd3bdd0b474f94179f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
