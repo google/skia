@@ -9,6 +9,7 @@
 #define SkCanvasPriv_DEFINED
 
 #include "include/core/SkCanvas.h"
+#include "include/private/SkNoncopyable.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;
