@@ -706,4 +706,18 @@ private:
     };
 };
 
+void SkUnref(SkPathEffect*);
+void SkUnref(SkShader*);
+void SkUnref(SkMaskFilter*);
+void SkUnref(SkColorFilter*);
+void SkUnref(SkDrawLooper*);
+void SkUnref(SkImageFilter*);
+
+void SkRef(SkPathEffect*);
+void SkRef(SkShader*);
+void SkRef(SkMaskFilter*);
+void SkRef(SkColorFilter*);
+void SkRef(SkDrawLooper*);
+void SkRef(SkImageFilter*);
+
 #endif
