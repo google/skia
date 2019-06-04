@@ -1,4 +1,5 @@
 A8 over A8
+3 registers, 15 instructions:
 r0 = load8 arg(0)
 r1 = splat 3B808081 (0.0039215689)
 r0 = to_f32 r0
@@ -16,6 +17,7 @@ r0 = to_i32 r0
 store8 arg(1) r0
 
 A8 over G8
+4 registers, 21 instructions:
 r0 = load8 arg(0)
 r1 = splat 3B808081 (0.0039215689)
 r0 = to_f32 r0
@@ -39,6 +41,7 @@ r1 = to_i32 r1
 store8 arg(1) r1
 
 A8 over RGBA_8888
+6 registers, 37 instructions:
 r0 = load8 arg(0)
 r1 = splat 3B808081 (0.0039215689)
 r0 = to_f32 r0
@@ -78,6 +81,7 @@ r0 = pack r4 r0 16
 store32 arg(1) r0
 
 G8 over A8
+3 registers, 12 instructions:
 r0 = splat 3B808081 (0.0039215689)
 r1 = splat 3F800000 (1)
 r2 = load8 arg(1)
@@ -92,6 +96,7 @@ r1 = to_i32 r1
 store8 arg(1) r1
 
 G8 over G8
+4 registers, 21 instructions:
 r0 = load8 arg(0)
 r1 = splat 3B808081 (0.0039215689)
 r0 = to_f32 r0
@@ -115,6 +120,7 @@ r2 = to_i32 r2
 store8 arg(1) r2
 
 G8 over RGBA_8888
+7 registers, 37 instructions:
 r0 = load8 arg(0)
 r1 = splat 3B808081 (0.0039215689)
 r0 = to_f32 r0
@@ -154,6 +160,7 @@ r2 = pack r5 r2 16
 store32 arg(1) r2
 
 RGBA_8888 over A8
+3 registers, 16 instructions:
 r0 = load32 arg(0)
 r1 = splat 3B808081 (0.0039215689)
 r0 = shr r0 24
@@ -172,6 +179,7 @@ r0 = to_i32 r0
 store8 arg(1) r0
 
 RGBA_8888 over G8
+6 registers, 33 instructions:
 r0 = load32 arg(0)
 r1 = extract r0 FF
 r2 = splat 3B808081 (0.0039215689)
@@ -207,6 +215,7 @@ r1 = to_i32 r1
 store8 arg(1) r1
 
 RGBA_8888 over RGBA_8888
+9 registers, 47 instructions:
 r0 = load32 arg(0)
 r1 = extract r0 FF
 r2 = splat 3B808081 (0.0039215689)
@@ -256,6 +265,7 @@ r0 = pack r7 r0 16
 store32 arg(1) r0
 
 I32 8888 over 8888
+9 registers, 24 instructions:
 r0 = load32 arg(0)
 r1 = extract r0 FF
 r2 = extract r0 FF00
@@ -282,6 +292,7 @@ r8 = pack r6 r8 16
 store32 arg(1) r8
 
 I32 (SWAR) 8888 over 8888
+6 registers, 20 instructions:
 r0 = load32 arg(0)
 r1 = extract r0 FF00FF
 r0 = extract r0 FF00FF00

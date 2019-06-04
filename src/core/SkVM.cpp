@@ -224,6 +224,10 @@ namespace skvm {
     }
 
     void Program::dump(SkWStream* o) const {
+        o->writeDecAsText(fRegs);
+        o->writeText(" registers, ");
+        o->writeDecAsText(fInstructions.size());
+        o->writeText(" instructions:\n");
         for (const Instruction& inst : fInstructions) {
             Op  op = inst.op;
             ID   d = inst.d,
