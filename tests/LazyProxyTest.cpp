@@ -471,7 +471,7 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
         desc.fHeight = kSize;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-        GrBackendTexture backendTex = ctx->priv().createBackendTexture(
+        GrBackendTexture backendTex = ctx->createBackendTexture(
                 kSize, kSize, kRGBA_8888_SkColorType, SkColors::kTransparent,
                 GrMipMapped::kNo, GrRenderable::kNo);
 

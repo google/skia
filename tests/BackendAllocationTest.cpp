@@ -365,8 +365,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                                           const SkColor4f& color,
                                                           GrMipMapped mipMapped,
                                                           GrRenderable renderable) {
-                        return context->priv().createBackendTexture(32, 32, colorType, color,
-                                                                    mipMapped, renderable);
+                        return context->createBackendTexture(32, 32, colorType, color,
+                                                             mipMapped, renderable);
                     };
 
                     test_color_init(context, reporter, createWithColorMtd,
@@ -527,8 +527,8 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                                                        const SkColor4f& color,
                                                        GrMipMapped mipMapped,
                                                        GrRenderable renderable) {
-                        return context->priv().createBackendTexture(32, 32, format, color,
-                                                                    mipMapped, renderable);
+                        return context->createBackendTexture(32, 32, format, color,
+                                                             mipMapped, renderable);
                     };
 
                     test_color_init(context, reporter, createWithColorMtd,
@@ -637,8 +637,8 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                                                        const SkColor4f& color,
                                                        GrMipMapped mipMapped,
                                                        GrRenderable renderable) {
-                        return context->priv().createBackendTexture(32, 32, format, color,
-                                                                    mipMapped, renderable);
+                        return context->createBackendTexture(32, 32, format, color,
+                                                             mipMapped, renderable);
                     };
 
                     test_color_init(context, reporter, createWithColorMtd,

@@ -292,20 +292,6 @@ public:
     void testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif
 
-    // If possible, create a backend texture initialized to a particular color. The client should
-    // ensure that the returned backend texture is valid.
-    GrBackendTexture createBackendTexture(int width, int height,
-                                          GrBackendFormat, const SkColor4f& color,
-                                          GrMipMapped, GrRenderable);
-
-    // If possible, create a backend texture initialized to a particular color. The client should
-    // ensure that the returned backend texture is valid.
-    // If successful, the created backend texture will be compatible with the provided
-    // SkColorType.
-    GrBackendTexture createBackendTexture(int width, int height,
-                                          SkColorType, const SkColor4f& color,
-                                          GrMipMapped, GrRenderable);
-
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
     GrContextPriv(const GrContextPriv&); // unimpl

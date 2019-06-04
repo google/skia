@@ -455,7 +455,7 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
                                           int sampleCnt) {
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        GrBackendTexture backendTex = context->priv().createBackendTexture(
+        GrBackendTexture backendTex = context->createBackendTexture(
                 DEV_W, DEV_H, kRGBA_8888_SkColorType,
                 SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes);
         if (!backendTex.isValid()) {

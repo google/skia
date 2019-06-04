@@ -185,9 +185,9 @@ public:
                                                           fColorType, fColorSpace, &fSurfaceProps);
         }
 
-        *backend = context->priv().createBackendTexture(fWidth, fHeight, fColorType,
-                                                        SkColors::kTransparent,
-                                                        mipmapped, GrRenderable::kYes);
+        *backend = context->createBackendTexture(fWidth, fHeight, fColorType,
+                                                 SkColors::kTransparent,
+                                                 mipmapped, GrRenderable::kYes);
         if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
             return nullptr;
         }
@@ -578,7 +578,7 @@ enum class DDLStage { kMakeImage, kDrawImage, kDetach, kDrawDDL };
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    GrBackendTexture backendTex = context->priv().createBackendTexture(
+    GrBackendTexture backendTex = context->createBackendTexture(
             kSize, kSize, kRGBA_8888_SkColorType,
             SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo);
     if (!backendTex.isValid()) {
