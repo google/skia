@@ -19,6 +19,9 @@ class Group;
 } // namespace sksg
 
 namespace skottie {
+namespace internal {
+
+class TextAnimator;
 
 class TextAdapter final : public SkNVRefCnt<TextAdapter> {
 public:
@@ -38,7 +41,7 @@ public:
                   rotation = 0;
     };
 
-    void applyAnimatedProps(const AnimatedProps&);
+    void applyAnimators(const std::vector<sk_sp<TextAnimator>>&);
 
 private:
     struct FragmentRec;
@@ -47,12 +50,15 @@ private:
 
     void apply();
 
+    void applyAnimatedProps(size_t fragment_index, const AnimatedProps&);
+
     sk_sp<sksg::Group>       fRoot;
     std::vector<FragmentRec> fFragments;
 
     const bool               fHasAnimators;
 };
 
+} // namespace internal
 } // namespace skottie
 
 #endif // SkottieTextAdapter_DEFINED
