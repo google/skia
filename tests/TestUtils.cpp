@@ -133,22 +133,12 @@ void fill_pixel_data(int width, int height, GrColor* data) {
 }
 
 bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
-                            const SkImageInfo& ii, GrMipMapped mipMapped, SkColor color,
+                            const SkImageInfo& ii, const SkColor4f& color, GrMipMapped mipMapped,
                             GrRenderable renderable) {
-    GrGpu* gpu = context->priv().getGpu();
-    if (!gpu) {
-        return false;
-    }
 
-    SkBitmap bm;
-    bm.allocPixels(ii);
-    // TODO: a SkBitmap::eraseColor would be better here
-    sk_memset32(bm.getAddr32(0, 0), color, ii.width() * ii.height());
-
-    *backendTex = gpu->createTestingOnlyBackendTexture(ii.width(), ii.height(), ii.colorType(),
-                                                       mipMapped, renderable,
-                                                       bm.getPixels(), bm.rowBytes());
-    if (!backendTex->isValid() || !gpu->isTestingOnlyBackendTexture(*backendTex)) {
+    *backendTex = context->priv().createBackendTexture(ii.width(), ii.height(), ii.colorType(),
+                                                       color, mipMapped, renderable);
+    if (!backendTex->isValid()) {
         return false;
     }
 
