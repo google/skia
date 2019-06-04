@@ -10,6 +10,7 @@
 
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/text/SkottieShaper.h"
+#include "modules/skottie/src/text/TextAnimator.h"
 #include "modules/skottie/src/text/TextValue.h"
 
 #include <vector>
@@ -19,6 +20,7 @@ class Group;
 } // namespace sksg
 
 namespace skottie {
+namespace internal {
 
 class TextAdapter final : public SkNVRefCnt<TextAdapter> {
 public:
@@ -29,16 +31,7 @@ public:
 
     const sk_sp<sksg::Group>& root() const { return fRoot; }
 
-    struct AnimatedProps {
-        SkPoint   position = { 0, 0 };
-        SkColor fill_color = SK_ColorTRANSPARENT,
-              stroke_color = SK_ColorTRANSPARENT;
-        float      opacity = 1,
-                     scale = 1,
-                  rotation = 0;
-    };
-
-    void applyAnimatedProps(const AnimatedProps&);
+    void applyAnimators(const std::vector<sk_sp<TextAnimator>>&);
 
 private:
     struct FragmentRec;
@@ -47,12 +40,15 @@ private:
 
     void apply();
 
+    void pushPropsToFragment(const TextAnimator::AnimatedProps&, const FragmentRec&) const;
+
     sk_sp<sksg::Group>       fRoot;
     std::vector<FragmentRec> fFragments;
 
     const bool               fHasAnimators;
 };
 
+} // namespace internal
 } // namespace skottie
 
 #endif // SkottieTextAdapter_DEFINED

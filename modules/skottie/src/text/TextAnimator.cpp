@@ -9,7 +9,8 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkPoint.h"
-#include "modules/skottie/src/SkottiePriv.h"
+#include "include/private/SkNx.h"
+#include "modules/skottie/src/text/RangeSelector.h"
 #include "modules/skottie/src/text/TextAdapter.h"
 #include "src/utils/SkJSON.h"
 
@@ -56,95 +57,128 @@ namespace internal {
  *   ...
  * }
  */
-class TextAnimator final : public SkNVRefCnt<TextAnimator> {
-public:
-    static sk_sp<TextAnimator> Make(const skjson::ObjectValue* janimator,
-                                    const AnimationBuilder* abuilder,
-                                    AnimatorScope* ascope) {
-        if (!janimator) {
-            return nullptr;
-        }
-
-        if (const skjson::ObjectValue* jselector = (*janimator)["s"]) {
-            abuilder->log(Logger::Level::kWarning, jselector, "Unsupported text range selector.");
-        }
-
-        const skjson::ObjectValue* jprops = (*janimator)["a"];
-
-        return jprops
-            ? sk_sp<TextAnimator>(new TextAnimator(*jprops, abuilder, ascope))
-            : nullptr;
+sk_sp<TextAnimator> TextAnimator::Make(const skjson::ObjectValue* janimator,
+                                       const AnimationBuilder* abuilder,
+                                       AnimatorScope* ascope) {
+    if (!janimator) {
+        return nullptr;
     }
 
-    void modulateProps(TextAdapter::AnimatedProps* dst) const {
-        // Transform props compose.
-        if (fHasPosition) {
-            dst->position += fTextProps.position;
-        }
-        if (fHasScale) {
-            dst->scale *= fTextProps.scale;
-        }
-        if (fHasRotation) {
-            dst->rotation += fTextProps.rotation;
-        }
-
-        // Colors and opacity are overridden.
-        if (fHasFillColor) {
-            dst->fill_color = fTextProps.fill_color;
-        }
-        if (fHasStrokeColor) {
-            dst->stroke_color = fTextProps.stroke_color;
-        }
-        if (fHasOpacity) {
-            dst->opacity = fTextProps.opacity;
+    std::vector<sk_sp<RangeSelector>> selectors;
+    if (const skjson::ObjectValue* jselector = (*janimator)["s"]) {
+        // Single range selector for now.
+        if (auto sel = RangeSelector::Make(jselector, abuilder, ascope)) {
+            selectors.reserve(1);
+            selectors.push_back(std::move(sel));
         }
     }
 
-private:
-    TextAnimator(const skjson::ObjectValue& jprops,
-                 const AnimationBuilder* abuilder,
-                 AnimatorScope* ascope) {
-        // It's *probably* OK to capture a raw pointer to this animator, because the lambda
-        // life time is limited to |ascope|, which is also the container for the TextAnimatorList
-        // owning us. But for peace of mind (and future-proofing) let's grab a ref.
-        auto animator = sk_ref_sp(this);
+    const skjson::ObjectValue* jprops = (*janimator)["a"];
 
-        fHasPosition    = abuilder->bindProperty<VectorValue>(jprops["p"], ascope,
-            [animator](const VectorValue& p) {
-                animator->fTextProps.position = ValueTraits<VectorValue>::As<SkPoint>(p);
-            });
-        fHasScale       = abuilder->bindProperty<ScalarValue>(jprops["s"], ascope,
-            [animator](const ScalarValue& s) {
-                // Scale is 100-based.
-                animator->fTextProps.scale = s * 0.01f;
-            });
-        fHasRotation    = abuilder->bindProperty<ScalarValue>(jprops["r"], ascope,
-            [animator](const ScalarValue& r) {
-                animator->fTextProps.rotation = r;
-            });
-        fHasFillColor   = abuilder->bindProperty<VectorValue>(jprops["fc"], ascope,
-            [animator](const VectorValue& fc) {
-                animator->fTextProps.fill_color = ValueTraits<VectorValue>::As<SkColor>(fc);
-            });
-        fHasStrokeColor = abuilder->bindProperty<VectorValue>(jprops["sc"], ascope,
-            [animator](const VectorValue& sc) {
-                animator->fTextProps.stroke_color = ValueTraits<VectorValue>::As<SkColor>(sc);
-            });
-        fHasOpacity     = abuilder->bindProperty<ScalarValue>(jprops["o"], ascope,
-            [animator](const ScalarValue& o) {
-                // Opacity is 100-based.
-                animator->fTextProps.opacity = SkTPin<float>(o * 0.01f, 0, 1);
-            });
+    return jprops
+        ? sk_sp<TextAnimator>(new TextAnimator(std::move(selectors), *jprops, abuilder, ascope))
+        : nullptr;
+}
+
+void TextAnimator::modulateProps(ModulatorBuffer& buf) const {
+    // Coverage is scoped per animator.
+    for (auto& mod : buf) {
+        mod.coverage = 0;
     }
 
-    TextAdapter::AnimatedProps fTextProps;
-    bool                       fHasPosition    : 1,
-                               fHasScale       : 1,
-                               fHasRotation    : 1,
-                               fHasFillColor   : 1,
-                               fHasStrokeColor : 1,
-                               fHasOpacity     : 1;
-};
+    // Accumulate selector coverage.
+    for (const auto& selector : fSelectors) {
+        selector->modulateCoverage(buf);
+    }
+
+    // Modulate animated props.
+    for (auto& mod : buf) {
+        mod.props = this->modulateProps(mod.props, mod.coverage);
+    }
+}
+
+TextAnimator::AnimatedProps TextAnimator::modulateProps(const AnimatedProps& props,
+                                                        float amount) const {
+    auto modulated_props = props;
+
+    // Transform props compose.
+    if (fHasPosition) {
+        modulated_props.position += fTextProps.position * amount;
+    }
+    if (fHasScale) {
+        modulated_props.scale *= 1 + (fTextProps.scale - 1) * amount;
+    }
+    if (fHasRotation) {
+        modulated_props.rotation += fTextProps.rotation * amount;
+    }
+
+    const auto lerp_color = [](SkColor c0, SkColor c1, float t) {
+        const auto c0_4f = SkNx_cast<float>(Sk4b::Load(&c0)),
+                   c1_4f = SkNx_cast<float>(Sk4b::Load(&c1)),
+                    c_4f = c0_4f + (c1_4f - c0_4f) * t;
+
+        SkColor c;
+        SkNx_cast<uint8_t>(Sk4f_round(c_4f)).store(&c);
+        return c;
+    };
+
+    // Colors and opacity are overridden, and use a clamped amount value.
+    const auto clamped_amount = std::max(amount, 0.0f);
+    if (fHasFillColor) {
+        modulated_props.fill_color = lerp_color(props.fill_color,
+                                                fTextProps.fill_color,
+                                                clamped_amount);
+    }
+    if (fHasStrokeColor) {
+        modulated_props.stroke_color = lerp_color(props.stroke_color,
+                                                  fTextProps.stroke_color,
+                                                  clamped_amount);
+    }
+    if (fHasOpacity) {
+        modulated_props.opacity = 1 + (fTextProps.opacity - 1) * clamped_amount;
+    }
+
+    return modulated_props;
+}
+
+TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
+                           const skjson::ObjectValue& jprops,
+                           const AnimationBuilder* abuilder,
+                           AnimatorScope* ascope)
+    : fSelectors(std::move(selectors)) {
+
+    // It's *probably* OK to capture a raw pointer to this animator, because the lambda
+    // life time is limited to |ascope|, which is also the container for the TextAnimatorList
+    // owning us. But for peace of mind (and future-proofing) let's grab a ref.
+    auto animator = sk_ref_sp(this);
+
+    fHasPosition    = abuilder->bindProperty<VectorValue>(jprops["p"], ascope,
+        [animator](const VectorValue& p) {
+            animator->fTextProps.position = ValueTraits<VectorValue>::As<SkPoint>(p);
+        });
+    fHasScale       = abuilder->bindProperty<ScalarValue>(jprops["s"], ascope,
+        [animator](const ScalarValue& s) {
+            // Scale is 100-based.
+            animator->fTextProps.scale = s * 0.01f;
+        });
+    fHasRotation    = abuilder->bindProperty<ScalarValue>(jprops["r"], ascope,
+        [animator](const ScalarValue& r) {
+            animator->fTextProps.rotation = r;
+        });
+    fHasFillColor   = abuilder->bindProperty<VectorValue>(jprops["fc"], ascope,
+        [animator](const VectorValue& fc) {
+            animator->fTextProps.fill_color = ValueTraits<VectorValue>::As<SkColor>(fc);
+        });
+    fHasStrokeColor = abuilder->bindProperty<VectorValue>(jprops["sc"], ascope,
+        [animator](const VectorValue& sc) {
+            animator->fTextProps.stroke_color = ValueTraits<VectorValue>::As<SkColor>(sc);
+    });
+    fHasOpacity     = abuilder->bindProperty<ScalarValue>(jprops["o"], ascope,
+        [animator](const ScalarValue& o) {
+            // Opacity is 100-based.
+            animator->fTextProps.opacity = SkTPin<float>(o * 0.01f, 0, 1);
+        });
+}
 
 std::unique_ptr<TextAnimatorList> TextAnimatorList::Make(const skjson::ArrayValue& janimators,
                                                          const AnimationBuilder* abuilder,
@@ -182,22 +216,7 @@ void TextAnimatorList::onTick(float t) {
     this->INHERITED::onTick(t);
 
     // Then push the final property values to the text adapter.
-    this->applyAnimators();
-}
-
-void TextAnimatorList::applyAnimators() const {
-    const auto& txt_val = fAdapter->getText();
-
-    // Seed props from the current text value.
-    TextAdapter::AnimatedProps modulated_props;
-    modulated_props.fill_color   = txt_val.fFillColor;
-    modulated_props.stroke_color = txt_val.fStrokeColor;
-
-    for (const auto& animator : fAnimators) {
-        animator->modulateProps(&modulated_props);
-    }
-
-    fAdapter->applyAnimatedProps(modulated_props);
+    fAdapter->applyAnimators(fAnimators);
 }
 
 } // namespace internal
