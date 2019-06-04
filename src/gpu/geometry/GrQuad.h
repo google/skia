@@ -13,9 +13,6 @@
 #include "include/core/SkPoint3.h"
 #include "include/private/SkVx.h"
 
-enum class GrQuadAAFlags;
-enum class GrAA : bool;
-
 /**
  * GrQuad is a collection of 4 points which can be used to represent an arbitrary quadrilateral. The
  * points make a triangle strip with CCW triangles (top-left, bottom-left, top-right, bottom-right).
@@ -129,6 +126,7 @@ public:
     float* ws() { return fW; }
 
     void setQuadType(Type newType) { fType = newType; }
+
 private:
     template<typename T>
     friend class GrQuadListBase; // for access to fX, fY, fW

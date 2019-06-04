@@ -8,7 +8,6 @@
 #include "src/gpu/geometry/GrQuad.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/private/GrTypesPriv.h"
 
 using V4f = skvx::Vec<4, float>;
 
