@@ -10,10 +10,9 @@
 
 #include "include/core/SkContourMeasure.h"
 #include "include/core/SkPath.h"
-#include "include/private/SkNoncopyable.h"
 #include "include/private/SkTDArray.h"
 
-class SK_API SkPathMeasure : SkNoncopyable {
+class SK_API SkPathMeasure {
 public:
     SkPathMeasure();
     /** Initialize the pathmeasure with the specified path. The parts of the path that are needed
@@ -81,6 +80,9 @@ public:
 private:
     SkContourMeasureIter    fIter;
     sk_sp<SkContourMeasure> fContour;
+
+    SkPathMeasure(const SkPathMeasure&) = delete;
+    SkPathMeasure& operator=(const SkPathMeasure&) = delete;
 };
 
 #endif

@@ -14,7 +14,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkPoint.h"
-#include "include/private/SkNoncopyable.h"
 
 class  SkArenaAlloc;
 class  SkCanvas;
@@ -38,7 +37,7 @@ public:
      *  Subclasses of SkDrawLooper should create a subclass of this object to
      *  hold state specific to their subclass.
      */
-    class SK_API Context : ::SkNoncopyable {
+    class SK_API Context {
     public:
         Context() {}
         virtual ~Context() {}
@@ -58,6 +57,10 @@ public:
          *  initially, before createContext() was first called.
          */
         virtual bool next(SkCanvas* canvas, SkPaint* paint) = 0;
+
+    private:
+        Context(const Context&) = delete;
+        Context& operator=(const Context&) = delete;
     };
 
     /**

@@ -14,7 +14,6 @@
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
-#include "include/private/SkNoncopyable.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkWeakRefCnt.h"
 
@@ -272,11 +271,16 @@ public:
         SkString fString;
         SkString fLanguage;
     };
-    class LocalizedStrings : ::SkNoncopyable {
+    class LocalizedStrings {
     public:
+        LocalizedStrings() = default;
         virtual ~LocalizedStrings() { }
         virtual bool next(LocalizedString* localizedString) = 0;
         void unref() { delete this; }
+
+    private:
+        LocalizedStrings(const LocalizedStrings&) = delete;
+        LocalizedStrings& operator=(const LocalizedStrings&) = delete;
     };
     /**
      *  Returns an iterator which will attempt to enumerate all of the
