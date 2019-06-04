@@ -7,6 +7,7 @@
 
 #include "src/gpu/geometry/GrQuad.h"
 
+#include "include/core/SkMatrix.h"
 #include "include/private/GrTypesPriv.h"
 
 using V4f = skvx::Vec<4, float>;
@@ -70,23 +71,23 @@ static void rearrange_sk_to_gr_points(const SkPoint skQuadPts[4], V4f* xs, V4f* 
 }
 
 // If an SkRect is transformed by this matrix, what class of quad is required to represent it.
-static GrQuadType quad_type_for_transformed_rect(const SkMatrix& matrix) {
+static GrQuad::Type quad_type_for_transformed_rect(const SkMatrix& matrix) {
     if (matrix.rectStaysRect()) {
-        return GrQuadType::kRect;
+        return GrQuad::Type::kAxisAligned;
     } else if (matrix.preservesRightAngles()) {
-        return GrQuadType::kRectilinear;
+        return GrQuad::Type::kRectilinear;
     } else if (matrix.hasPerspective()) {
-        return GrQuadType::kPerspective;
+        return GrQuad::Type::kPerspective;
     } else {
-        return GrQuadType::kStandard;
+        return GrQuad::Type::kGeneral;
     }
 }
 
 // Perform minimal analysis of 'pts' (which are suitable for MakeFromSkQuad), and determine a
 // quad type that will be as minimally general as possible.
-static GrQuadType quad_type_for_points(const SkPoint pts[4], const SkMatrix& matrix) {
+static GrQuad::Type quad_type_for_points(const SkPoint pts[4], const SkMatrix& matrix) {
     if (matrix.hasPerspective()) {
-        return GrQuadType::kPerspective;
+        return GrQuad::Type::kPerspective;
     }
     // If 'pts' was formed by SkRect::toQuad() and not transformed further, it is safe to use the
     // quad type derived from 'matrix'. Otherwise don't waste any more time and assume kStandard
@@ -95,13 +96,12 @@ static GrQuadType quad_type_for_points(const SkPoint pts[4], const SkMatrix& mat
         (pts[0].fY == pts[1].fY && pts[2].fY == pts[3].fY)) {
         return quad_type_for_transformed_rect(matrix);
     } else {
-        return GrQuadType::kStandard;
+        return GrQuad::Type::kGeneral;
     }
 }
 
-template <typename Q>
 void GrResolveAATypeForQuad(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags,
-                            const Q& quad, GrAAType* outAAType, GrQuadAAFlags* outEdgeFlags) {
+                            const GrQuad& quad, GrAAType* outAAType, GrQuadAAFlags* outEdgeFlags) {
     // Most cases will keep the requested types unchanged
     *outAAType = requestedAAType;
     *outEdgeFlags = requestedEdgeFlags;
@@ -115,7 +115,7 @@ void GrResolveAATypeForQuad(GrAAType requestedAAType, GrQuadAAFlags requestedEdg
             } else {
                 // For coverage AA, if the quad is a rect and it lines up with pixel boundaries
                 // then overall aa and per-edge aa can be completely disabled
-                if (quad.quadType() == GrQuadType::kRect && !quad.aaHasEffectOnRect()) {
+                if (quad.quadType() == GrQuad::Type::kAxisAligned && !quad.aaHasEffectOnRect()) {
                     *outAAType = GrAAType::kNone;
                     *outEdgeFlags = GrQuadAAFlags::kNone;
                 }
@@ -135,91 +135,36 @@ void GrResolveAATypeForQuad(GrAAType requestedAAType, GrQuadAAFlags requestedEdg
     }
 };
 
-// Instantiate GrResolve... for GrQuad and GrPerspQuad
-template void GrResolveAATypeForQuad(GrAAType, GrQuadAAFlags, const GrQuad&,
-                                     GrAAType*, GrQuadAAFlags*);
-template void GrResolveAATypeForQuad(GrAAType, GrQuadAAFlags, const GrPerspQuad&,
-                                     GrAAType*, GrQuadAAFlags*);
-
 GrQuad GrQuad::MakeFromRect(const SkRect& rect, const SkMatrix& m) {
-    V4f x, y;
+    V4f x, y, w;
     SkMatrix::TypeMask tm = m.getType();
-    GrQuadType type;
+    Type type;
     if (tm <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
         map_rect_translate_scale(rect, m, &x, &y);
-        type = GrQuadType::kRect;
+        w = 1.f;
+        type = Type::kAxisAligned;
     } else {
-        map_rect_general(rect, m, &x, &y, nullptr);
+        map_rect_general(rect, m, &x, &y, &w);
         type = quad_type_for_transformed_rect(m);
-        if (type == GrQuadType::kPerspective) {
-            // While the matrix created perspective, the coordinates were projected to a 2D quad
-            // in map_rect_general since no w V4f was provided.
-            type = GrQuadType::kStandard;
-        }
     }
-    return GrQuad(x, y, type);
+    return GrQuad(x, y, w, type);
 }
 
 GrQuad GrQuad::MakeFromSkQuad(const SkPoint pts[4], const SkMatrix& matrix) {
     V4f xs, ys;
     rearrange_sk_to_gr_points(pts, &xs, &ys);
-    GrQuadType type = quad_type_for_points(pts, matrix);
-    if (type == GrQuadType::kPerspective) {
-        // While the matrix created perspective, the coordinates were projected to a 2D quad
-        // in map_rect_general since no w V4f was provided.
-        type = GrQuadType::kStandard;
-    }
-
+    Type type = quad_type_for_points(pts, matrix);
     if (matrix.isIdentity()) {
-        return GrQuad(xs, ys, type);
+        return GrQuad(xs, ys, 1.f, type);
     } else {
-        V4f mx, my;
-        map_quad_general(xs, ys, matrix, &mx, &my, nullptr);
-        return GrQuad(mx, my, type);
+        V4f mx, my, mw;
+        map_quad_general(xs, ys, matrix, &mx, &my, &mw);
+        return GrQuad(mx, my, mw, type);
     }
 }
 
 bool GrQuad::aaHasEffectOnRect() const {
-    return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
-}
-
-// Private constructor used by GrQuadList to quickly fill in a quad's values from the channel arrays
-GrPerspQuad::GrPerspQuad(const float* xs, const float* ys, const float* ws, GrQuadType type)
-        : fType(type) {
-    memcpy(fX, xs, 4 * sizeof(float));
-    memcpy(fY, ys, 4 * sizeof(float));
-    memcpy(fW, ws, 4 * sizeof(float));
-}
-
-GrPerspQuad GrPerspQuad::MakeFromRect(const SkRect& rect, const SkMatrix& m) {
-    V4f x, y, w;
-    SkMatrix::TypeMask tm = m.getType();
-    GrQuadType type;
-    if (tm <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
-        map_rect_translate_scale(rect, m, &x, &y);
-        w = 1.f;
-        type = GrQuadType::kRect;
-    } else {
-        map_rect_general(rect, m, &x, &y, &w);
-        type = quad_type_for_transformed_rect(m);
-    }
-    return GrPerspQuad(x, y, w, type);
-}
-
-GrPerspQuad GrPerspQuad::MakeFromSkQuad(const SkPoint pts[4], const SkMatrix& matrix) {
-    V4f xs, ys;
-    rearrange_sk_to_gr_points(pts, &xs, &ys);
-    GrQuadType type = quad_type_for_points(pts, matrix);
-    if (matrix.isIdentity()) {
-        return GrPerspQuad(xs, ys, 1.f, type);
-    } else {
-        V4f mx, my, mw;
-        map_quad_general(xs, ys, matrix, &mx, &my, &mw);
-        return GrPerspQuad(mx, my, mw, type);
-    }
-}
-
-bool GrPerspQuad::aaHasEffectOnRect() const {
+    SkASSERT(this->quadType() == Type::kAxisAligned);
     // If rect, ws must all be 1s so no need to divide
     return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
 }

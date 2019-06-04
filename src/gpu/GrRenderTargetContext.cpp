@@ -499,7 +499,7 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
     std::unique_ptr<GrDrawOp> op = GrFillRectOp::Make(
             fContext, std::move(paint), GrAAType::kNone, GrQuadAAFlags::kNone,
-            GrPerspQuad(r), GrPerspQuad::MakeFromRect(r, localMatrix));
+            GrQuad(r), GrQuad::MakeFromRect(r, localMatrix));
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -695,7 +695,7 @@ bool GrRenderTargetContext::drawFilledRectAsClear(const GrClip& clip, GrPaint&& 
     GrAAType aaType = this->chooseAAType(aa);
     this->addDrawOp(GrFixedClip::Disabled(),
                     GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeFlags,
-                                       GrPerspQuad(combinedRect), GrPerspQuad(combinedRect)));
+                                       GrQuad(combinedRect), GrQuad(combinedRect)));
     return true;
 }
 
@@ -724,8 +724,8 @@ void GrRenderTargetContext::drawFilledRect(const GrClip& clip,
     GrQuadAAFlags edgeFlags = aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
     this->addDrawOp(clip,
                     GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeFlags,
-                                       GrPerspQuad::MakeFromRect(croppedRect, viewMatrix),
-                                       GrPerspQuad(croppedRect), ss));
+                                       GrQuad::MakeFromRect(croppedRect, viewMatrix),
+                                       GrQuad(croppedRect), ss));
 }
 
 void GrRenderTargetContext::drawRect(const GrClip& clip,
@@ -908,11 +908,11 @@ void GrRenderTargetContextPriv::stencilRect(const GrClip& clip,
 
     auto aaType = (GrAA::kYes == doStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
 
-    GrPerspQuad localQuad = localMatrix ? GrPerspQuad::MakeFromRect(rect, *localMatrix)
-                                        : GrPerspQuad(rect);
+    GrQuad localQuad = localMatrix ? GrQuad::MakeFromRect(rect, *localMatrix)
+                                   : GrQuad(rect);
     std::unique_ptr<GrDrawOp> op = GrFillRectOp::Make(
             fRenderTargetContext->fContext, std::move(paint), aaType, GrQuadAAFlags::kNone,
-            GrPerspQuad::MakeFromRect(rect, viewMatrix), localQuad, ss);
+            GrQuad::MakeFromRect(rect, viewMatrix), localQuad, ss);
     fRenderTargetContext->addDrawOp(clip, std::move(op));
 }
 
@@ -937,8 +937,8 @@ void GrRenderTargetContext::fillRectWithEdgeAA(const GrClip& clip, GrPaint&& pai
             return;
         }
         op = GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeAA,
-                                GrPerspQuad::MakeFromRect(croppedRect, viewMatrix),
-                                GrPerspQuad(croppedLocalRect));
+                                GrQuad::MakeFromRect(croppedRect, viewMatrix),
+                                GrQuad(croppedLocalRect));
     } else {
         // If aaType turns into MSAA, make sure to keep quads with no AA edges as MSAA. Sending
         // those to drawFilledRect() would have it turn off MSAA in that case, which breaks seaming
@@ -957,8 +957,8 @@ void GrRenderTargetContext::fillRectWithEdgeAA(const GrClip& clip, GrPaint&& pai
             return;
         }
         op = GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeAA,
-                                GrPerspQuad::MakeFromRect(croppedRect, viewMatrix),
-                                GrPerspQuad(croppedRect));
+                                GrQuad::MakeFromRect(croppedRect, viewMatrix),
+                                GrQuad(croppedRect));
     }
 
     AutoCheckFlush acf(this->drawingManager());
@@ -979,8 +979,8 @@ void GrRenderTargetContext::fillQuadWithEdgeAA(const GrClip& clip, GrPaint&& pai
     const SkPoint* localPoints = localQuad ? localQuad : quad;
     this->addDrawOp(clip,
                     GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeAA,
-                                       GrPerspQuad::MakeFromSkQuad(quad, viewMatrix),
-                                       GrPerspQuad::MakeFromSkQuad(localPoints, SkMatrix::I())));
+                                       GrQuad::MakeFromSkQuad(quad, viewMatrix),
+                                       GrQuad::MakeFromSkQuad(localPoints, SkMatrix::I())));
 }
 
 // Creates a paint for GrFillRectOp that matches behavior of GrTextureOp
@@ -1047,8 +1047,8 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
                 constraint == SkCanvas::kStrict_SrcRectConstraint ? &srcRect : nullptr,
                 filter, mode, color, std::move(textureColorSpaceXform), &paint);
         op = GrFillRectOp::Make(fContext, std::move(paint), aaType, aaFlags,
-                                GrPerspQuad::MakeFromRect(clippedDstRect, viewMatrix),
-                                GrPerspQuad(clippedSrcRect));
+                                GrQuad::MakeFromRect(clippedDstRect, viewMatrix),
+                                GrQuad(clippedSrcRect));
     } else {
         // Can use a lighter weight op that can chain across proxies
         op = GrTextureOp::Make(fContext, std::move(proxy), filter, color, clippedSrcRect,
@@ -1087,8 +1087,8 @@ void GrRenderTargetContext::drawTextureQuad(const GrClip& clip, sk_sp<GrTextureP
         draw_texture_to_grpaint(
                 std::move(proxy), domain, filter, mode, color, std::move(texXform), &paint);
         op = GrFillRectOp::Make(fContext, std::move(paint), aaType, aaFlags,
-                                GrPerspQuad::MakeFromSkQuad(dstQuad, viewMatrix),
-                                GrPerspQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()));
+                                GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
+                                GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()));
     } else {
         // Use lighter weight GrTextureOp
         op = GrTextureOp::MakeQuad(fContext, std::move(proxy), filter, color, srcQuad, dstQuad,
@@ -1168,8 +1168,8 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
     GrQuadAAFlags edgeFlags = aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
     this->addDrawOp(clip,
                     GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeFlags,
-                                       GrPerspQuad::MakeFromRect(croppedRect, viewMatrix),
-                                       GrPerspQuad::MakeFromRect(croppedRect, localMatrix)));
+                                       GrQuad::MakeFromRect(croppedRect, viewMatrix),
+                                       GrQuad::MakeFromRect(croppedRect, localMatrix)));
 }
 
 void GrRenderTargetContext::drawVertices(const GrClip& clip,

@@ -36,7 +36,7 @@ namespace GrQuadPerEdgeAA {
     // GPAttributes maintains. If hasLocalCoords is false, then the local quad type can be ignored.
     struct VertexSpec {
     public:
-        VertexSpec(GrQuadType deviceQuadType, ColorType colorType, GrQuadType localQuadType,
+        VertexSpec(GrQuad::Type deviceQuadType, ColorType colorType, GrQuad::Type localQuadType,
                    bool hasLocalCoords, Domain domain, GrAAType aa, bool coverageAsAlpha)
                 : fDeviceQuadType(static_cast<unsigned>(deviceQuadType))
                 , fLocalQuadType(static_cast<unsigned>(localQuadType))
@@ -46,10 +46,10 @@ namespace GrQuadPerEdgeAA {
                 , fUsesCoverageAA(aa == GrAAType::kCoverage)
                 , fCompatibleWithCoverageAsAlpha(coverageAsAlpha)
                 , fRequiresGeometryDomain(aa == GrAAType::kCoverage &&
-                                          deviceQuadType > GrQuadType::kRectilinear) { }
+                                          deviceQuadType > GrQuad::Type::kRectilinear) { }
 
-        GrQuadType deviceQuadType() const { return static_cast<GrQuadType>(fDeviceQuadType); }
-        GrQuadType localQuadType() const { return static_cast<GrQuadType>(fLocalQuadType); }
+        GrQuad::Type deviceQuadType() const { return static_cast<GrQuad::Type>(fDeviceQuadType); }
+        GrQuad::Type localQuadType() const { return static_cast<GrQuad::Type>(fLocalQuadType); }
         bool hasLocalCoords() const { return fHasLocalCoords; }
         ColorType colorType() const { return static_cast<ColorType>(fColorType); }
         bool hasVertexColors() const { return ColorType::kNone != this->colorType(); }
@@ -64,7 +64,7 @@ namespace GrQuadPerEdgeAA {
 
         int verticesPerQuad() const { return fUsesCoverageAA ? 8 : 4; }
     private:
-        static_assert(kGrQuadTypeCount <= 4, "GrQuadType doesn't fit in 2 bits");
+        static_assert(GrQuad::kTypeCount <= 4, "GrQuad::Type doesn't fit in 2 bits");
         static_assert(kColorTypeCount <= 4, "Color doesn't fit in 2 bits");
 
         unsigned fDeviceQuadType: 2;
@@ -91,12 +91,12 @@ namespace GrQuadPerEdgeAA {
     // based on the configuration in the vertex spec; if that attribute is disabled in the spec,
     // then its corresponding function argument is ignored.
     //
-    // Tessellation is based on the quad type of the vertex spec, not the provided GrPerspQuad's
+    // Tessellation is based on the quad type of the vertex spec, not the provided GrQuad's
     // so that all quads in a batch are tessellated the same.
     //
     // Returns the advanced pointer in vertices.
-    void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& deviceQuad,
-                     const SkPMColor4f& color, const GrPerspQuad& localQuad, const SkRect& domain,
+    void* Tessellate(void* vertices, const VertexSpec& spec, const GrQuad& deviceQuad,
+                     const SkPMColor4f& color, const GrQuad& localQuad, const SkRect& domain,
                      GrQuadAAFlags aa);
 
     // The mesh will have its index data configured to meet the expectations of the Tessellate()

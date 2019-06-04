@@ -13,7 +13,7 @@
 
 class GrDrawOp;
 class GrPaint;
-class GrPerspQuad;
+class GrQuad;
 class GrRecordingContext;
 struct GrUserStencilSettings;
 class SkMatrix;
@@ -31,8 +31,8 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                GrPaint&& paint,
                                GrAAType aaType,
                                GrQuadAAFlags aaFlags,
-                               const GrPerspQuad& deviceQuad,
-                               const GrPerspQuad& localQuad,
+                               const GrQuad& deviceQuad,
+                               const GrQuad& localQuad,
                                const GrUserStencilSettings* stencil = nullptr);
 
 // Utility function to create a non-AA rect transformed by view. This is used commonly enough in
