@@ -131,17 +131,13 @@ sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info,
     return r.finishRecordingAsPicture();
 }
 
-sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialProcs* procs) {
-    return MakeFromStream(stream, procs, nullptr);
-}
-
 sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size,
                                          const SkDeserialProcs* procs) {
     if (!data) {
         return nullptr;
     }
     SkMemoryStream stream(data, size);
-    return MakeFromStream(&stream, procs, nullptr);
+    return MakeFromStream(&stream, procs);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, const SkDeserialProcs* procs) {
@@ -149,11 +145,10 @@ sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, const SkDeserialPro
         return nullptr;
     }
     SkMemoryStream stream(data->data(), data->size());
-    return MakeFromStream(&stream, procs, nullptr);
+    return MakeFromStream(&stream, procs);
 }
 
-sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialProcs* procsPtr,
-                                           SkTypefacePlayback* typefaces) {
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialProcs* procsPtr) {
     SkPictInfo info;
     if (!StreamIsSKP(stream, &info)) {
         return nullptr;
@@ -169,7 +164,7 @@ sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialPro
     switch (trailingStreamByteAfterPictInfo) {
         case kPictureData_TrailingStreamByteAfterPictInfo: {
             std::unique_ptr<SkPictureData> data(
-                    SkPictureData::CreateFromStream(stream, info, procs, typefaces));
+                    SkPictureData::CreateFromStream(stream, info, procs));
             return Forwardport(info, data.get(), nullptr);
         }
         case kCustom_TrailingStreamByteAfterPictInfo: {
@@ -222,13 +217,9 @@ SkPictureData* SkPicture::backport() const {
     return new SkPictureData(rec, info);
 }
 
-void SkPicture::serialize(SkWStream* stream, const SkSerialProcs* procs) const {
-    this->serialize(stream, procs, nullptr);
-}
-
 sk_sp<SkData> SkPicture::serialize(const SkSerialProcs* procs) const {
     SkDynamicMemoryWStream stream;
-    this->serialize(&stream, procs, nullptr);
+    this->serialize(&stream, procs);
     return stream.detachAsData();
 }
 
@@ -257,8 +248,7 @@ static bool write_pad32(SkWStream* stream, const void* data, size_t size) {
     return true;
 }
 
-void SkPicture::serialize(SkWStream* stream, const SkSerialProcs* procsPtr,
-                          SkRefCntSet* typefaceSet) const {
+void SkPicture::serialize(SkWStream* stream, const SkSerialProcs* procsPtr) const {
     SkSerialProcs procs;
     if (procsPtr) {
         procs = *procsPtr;
@@ -282,7 +272,7 @@ void SkPicture::serialize(SkWStream* stream, const SkSerialProcs* procsPtr,
     std::unique_ptr<SkPictureData> data(this->backport());
     if (data) {
         stream->write8(kPictureData_TrailingStreamByteAfterPictInfo);
-        data->serialize(stream, procs, typefaceSet);
+        data->serialize(stream, procs);
     } else {
         stream->write8(kFailure_TrailingStreamByteAfterPictInfo);
     }
