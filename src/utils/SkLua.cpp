@@ -33,6 +33,7 @@
 #include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkMakeUnique.h"
+#include "src/shaders/SkShaderBase.h"
 #include <new>
 
 extern "C" {
@@ -1025,12 +1026,12 @@ static const char* mode2string(SkTileMode mode) {
     return gNames[static_cast<int>(mode)];
 }
 
-static const char* gradtype2string(SkShader::GradientType t) {
+static const char* gradtype2string(SkGradientType t) {
     static const char* gNames[] = {
         "none", "color", "linear", "radial", "radial2", "sweep", "conical"
     };
     SkASSERT((unsigned)t < SK_ARRAY_COUNT(gNames));
-    return gNames[t];
+    return gNames[(unsigned)t];
 }
 
 static int lshader_isOpaque(lua_State* L) {
@@ -1043,7 +1044,7 @@ static int lshader_isAImage(lua_State* L) {
     if (shader) {
         SkMatrix matrix;
         SkTileMode modes[2];
-        if (SkImage* image = shader->isAImage(&matrix, modes)) {
+        if (SkImage* image = as_SB(shader)->isAImage(&matrix, modes)) {
             lua_newtable(L);
             setfield_number(L, "id", image->uniqueID());
             setfield_number(L, "width", image->width());
@@ -1059,15 +1060,15 @@ static int lshader_isAImage(lua_State* L) {
 static int lshader_asAGradient(lua_State* L) {
     SkShader* shader = get_ref<SkShader>(L, 1);
     if (shader) {
-        SkShader::GradientInfo info;
+        SkGradientInfo info;
         sk_bzero(&info, sizeof(info));
 
-        SkShader::GradientType t = shader->asAGradient(&info);
+        SkGradientType t = as_SB(shader)->asAGradient(&info);
 
-        if (SkShader::kNone_GradientType != t) {
+        if (SkGradientType::kNone != t) {
             SkAutoTArray<SkScalar> pos(info.fColorCount);
             info.fColorOffsets = pos.get();
-            shader->asAGradient(&info);
+            as_SB(shader)->asAGradient(&info);
 
             lua_newtable(L);
             setfield_string(L,  "type",           gradtype2string(t));

@@ -313,7 +313,7 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
 }
 
 static SkColor4f adjust_color(SkShader* shader, SkColor4f paintColor) {
-    if (SkImage* img = shader->isAImage(nullptr, (SkTileMode*)nullptr)) {
+    if (SkImage* img = as_SB(shader)->isAImage(nullptr, (SkTileMode*)nullptr)) {
         if (img->isAlphaOnly()) {
             return paintColor;
         }
@@ -328,7 +328,7 @@ SkPDFIndirectReference SkPDFMakeShader(SkPDFDocument* doc,
                                        SkColor4f paintColor) {
     SkASSERT(shader);
     SkASSERT(doc);
-    if (SkShader::kNone_GradientType != shader->asAGradient(nullptr)) {
+    if (SkGradientType::kNone != as_SB(shader)->asAGradient(nullptr)) {
         return SkPDFGradientShader::Make(doc, shader, canvasTransform, surfaceBBox);
     }
     if (surfaceBBox.isEmpty()) {
@@ -343,8 +343,8 @@ SkPDFIndirectReference SkPDFMakeShader(SkPDFDocument* doc,
         {SkTileMode::kClamp, SkTileMode::kClamp},
         adjust_color(shader, paintColor)};
 
-    SkASSERT(shader->asAGradient(nullptr) == SkShader::kNone_GradientType) ;
-    if (SkImage* skimg = shader->isAImage(&key.fShaderTransform, key.fImageTileModes)) {
+    SkASSERT(as_SB(shader)->asAGradient(nullptr) == SkGradientType::kNone) ;
+    if (SkImage* skimg = as_SB(shader)->isAImage(&key.fShaderTransform, key.fImageTileModes)) {
         key.fBitmapKey = SkBitmapKeyFromImage(skimg);
         SkPDFIndirectReference* shaderPtr = doc->fImageShaderMap.find(key);
         if (shaderPtr) {

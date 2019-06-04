@@ -22,8 +22,8 @@ public:
     , fProxyShader(std::move(proxy))
     {}
 
-    GradientType asAGradient(GradientInfo* info) const override {
-        return fProxyShader->asAGradient(info);
+    SkGradientType asAGradient(SkGradientInfo* info) const override {
+        return as_SB(fProxyShader)->asAGradient(info);
     }
 
 #if SK_SUPPORT_GPU

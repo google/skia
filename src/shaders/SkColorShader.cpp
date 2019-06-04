@@ -28,7 +28,7 @@ void SkColorShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeColor(fColor);
 }
 
-SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
+SkGradientType SkColorShader::asAGradient(SkGradientInfo* info) const {
     if (info) {
         if (info->fColors && info->fColorCount >= 1) {
             info->fColors[0] = fColor;
@@ -36,7 +36,7 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
         info->fColorCount = 1;
         info->fTileMode = SkTileMode::kRepeat;
     }
-    return kColor_GradientType;
+    return SkGradientType::kColor;
 }
 
 SkColor4Shader::SkColor4Shader(const SkColor4f& color, sk_sp<SkColorSpace> space)

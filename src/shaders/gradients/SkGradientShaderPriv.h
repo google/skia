@@ -72,7 +72,7 @@ protected:
     SkGradientShaderBase(SkReadBuffer& );
     void flatten(SkWriteBuffer&) const override;
 
-    void commonAsAGradient(GradientInfo*) const;
+    void commonAsAGradient(SkGradientInfo*) const;
 
     bool onAsLuminanceColor(SkColor*) const override;
 
