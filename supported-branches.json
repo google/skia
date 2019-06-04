@@ -17,6 +17,10 @@
       "owner": "hcm@google.com"
     },
     {
+      "ref": "refs/heads/refs/heads/chrome/m76",
+      "owner": "borenet@google.com"
+    },
+    {
       "ref": "refs/heads/skqp/dev",
       "owner": "halcanary@google.com"
     },
