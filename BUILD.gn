@@ -1672,6 +1672,17 @@ if (skia_enable_tools) {
     ]
   }
 
+  test_lib("skinflate") {
+    deps = [
+      ":skia",
+      "//third_party/zlib",
+    ]
+    sources = [
+      "tools/Inflate.cpp",
+      "tools/Inflate.h",
+    ]
+  }
+
   import("gn/tests.gni")
   test_lib("tests") {
     sources = tests_sources + pathops_tests_sources
@@ -1695,7 +1706,7 @@ if (skia_enable_tools) {
       "modules/skshaper",
       "//third_party/libpng",
       "//third_party/libwebp",
-      "//third_party/zlib",
+      ":skinflate",
     ]
     public_deps = [
       ":gpu_tool_utils",  # Test.h #includes headers from this target.
