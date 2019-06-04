@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55591118_fe2eccd6",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-04T19:01:43Z",
+      "side": 1,
+      "message": "Various thoughts (none of which warrant changes to this CL):\n1) This particular peephole could be expanded to any left-justified mask, right? Basically:\nif ((~immy + 1) \u0026 (~immy) \u003d\u003d 0) { ... }\n2) Similarly, extract with zero shift can be peepholed into bit_and.\n3) For these kinds of substitutions, does it make sense to move them to the instruction function of the builder, rather than checking the op here? You lose the central list of peephole opts, but it might be clearer when you\u0027re in ::extract()?",
+      "revId": "52cc88b87af510eb9b13ec7e1d6b02195a4d7709",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
