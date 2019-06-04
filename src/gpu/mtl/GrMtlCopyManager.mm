@@ -42,8 +42,7 @@ void GrMtlCopyManager::createCopyProgramBuffer() {
 void GrMtlCopyManager::createCopyProgramShaders() {
      // Create shaders required by pipeline state
     const GrShaderCaps* shaderCaps = fGpu->caps()->shaderCaps();
-    const char* version = shaderCaps->versionDeclString();
-    SkString vertShaderText(version);
+    SkString vertShaderText;
     vertShaderText.appendf(
         "#extension GL_ARB_separate_shader_objects : enable\n"
         "#extension GL_ARB_shading_language_420pack : enable\n"
@@ -63,7 +62,7 @@ void GrMtlCopyManager::createCopyProgramShaders() {
         kUniform_BufferIndex
     );
 
-    SkString fragShaderText(version);
+    SkString fragShaderText;
     fragShaderText.append(
         "#extension GL_ARB_separate_shader_objects : enable\n"
         "#extension GL_ARB_shading_language_420pack : enable\n"
