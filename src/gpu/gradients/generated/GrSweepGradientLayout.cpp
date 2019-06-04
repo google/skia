@@ -36,7 +36,7 @@ public:
         fragBuilder->codeAppendf(
                 "half angle;\nif (sk_Caps.atan2ImplementedAsAtanYOverX) {\n    angle = half(2.0 * "
                 "atan(-%s.y, length(%s) - %s.x));\n} else {\n    angle = half(atan(-%s.y, "
-                "-%s.x));\n}\nhalf t = ((angle * 0.15915494309180001 + 0.5) + %s) * %s;\n%s = "
+                "-%s.x));\n}\nhalf t = ((angle * 0.15915493667125702 + 0.5) + %s) * %s;\n%s = "
                 "half4(t, 1.0, 0.0, 0.0);\n",
                 sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
                 sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
