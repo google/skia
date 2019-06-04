@@ -124,6 +124,8 @@ namespace SK_OPTS_NS {
 
                     CASE(Op::mul_unorm8): r(d).i32 = (r(x).i32 * r(y).i32 + 255) / 256; break;
 
+                    CASE(Op::pack): r(d).i32 = r(x).i32 | (r(y).i32 << z.imm); break;
+
                     CASE(Op::to_f32): r(d).f32 = skvx::cast<float>(r(x).i32); break;
                     CASE(Op::to_i32): r(d).i32 = skvx::cast<int>  (r(x).f32); break;
                 #undef CASE

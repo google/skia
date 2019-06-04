@@ -77,14 +77,14 @@ SrcoverBuilder_F32::SrcoverBuilder_F32(Fmt srcFmt, Fmt dstFmt) {
         } break;
 
         case Fmt::RGBA_8888: {
-            skvm::I32 R =     f32_to_byte(r)     ,
-                      G = shl(f32_to_byte(g),  8),
-                      B = shl(f32_to_byte(b), 16),
-                      A = shl(f32_to_byte(a), 24);
+            skvm::I32 R = f32_to_byte(r),
+                      G = f32_to_byte(g),
+                      B = f32_to_byte(b),
+                      A = f32_to_byte(a);
 
-            R = bit_or(R,G);
-            R = bit_or(R,B);
-            R = bit_or(R,A);
+            R = pack(R, G, 8);
+            B = pack(B, A, 8);
+            R = pack(R, B, 16);
 
             store32(dst, R);
         } break;
@@ -117,10 +117,9 @@ SrcoverBuilder_I32::SrcoverBuilder_I32() {
     b = add(b, mul_unorm8(db, invA));
     a = add(a, mul_unorm8(da, invA));
 
-    r = bit_or(r, shl(g,  8));
-    r = bit_or(r, shl(b, 16));
-    r = bit_or(r, shl(a, 24));
-
+    r = pack(r, g, 8);
+    b = pack(b, a, 8);
+    r = pack(r, b, 16);
     store32(dst, r);
 }
 
@@ -156,5 +155,5 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
     rb = add(rb, mul_unorm8_SWAR(drb, invA));
     ga = add(ga, mul_unorm8_SWAR(dga, invA));
 
-    store32(dst, bit_or(rb, shl(ga, 8)));
+    store32(dst, pack(rb, ga, 8));
 }
