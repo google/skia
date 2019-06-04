@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b98b8643_b552a325",
+        "filename": "include/ports/SkCFObject.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-04T19:57:41Z",
+      "side": 1,
+      "message": "Are CFTypeRef and all other C*Refs comparable?",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 1
+      },
+      "revId": "5e06e1447f2fbc1089ebb470d43b2abf4b6b03e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
