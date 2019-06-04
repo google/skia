@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfbb2c08_25325180",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 912,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-04T19:15:26Z",
+      "side": 1,
+      "message": "line this up with the \u0027?\u0027 ?",
+      "range": {
+        "startLine": 912,
+        "startChar": 40,
+        "endLine": 912,
+        "endChar": 41
+      },
+      "revId": "3ef290520f053ac9dc137a5dc66d27e25cbcf42e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47e51052_7f556ebc",
+        "filename": "src/gpu/geometry/GrQuad.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-04T19:15:26Z",
+      "side": 1,
+      "message": "originally ?",
+      "range": {
+        "startLine": 26,
+        "startChar": 63,
+        "endLine": 26,
+        "endChar": 71
+      },
+      "revId": "3ef290520f053ac9dc137a5dc66d27e25cbcf42e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99511565_9a8148ef",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-04T19:15:26Z",
+      "side": 1,
+      "message": "line up with \u0027(\u0027 ?",
+      "range": {
+        "startLine": 79,
+        "startChar": 45,
+        "endLine": 79,
+        "endChar": 76
+      },
+      "revId": "3ef290520f053ac9dc137a5dc66d27e25cbcf42e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37dd2232_ea8941d9",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-04T19:15:26Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 66
+      },
+      "revId": "3ef290520f053ac9dc137a5dc66d27e25cbcf42e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
