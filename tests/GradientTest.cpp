@@ -47,15 +47,15 @@ struct GradRec {
     SkTileMode      fTileMode;
 
     void gradCheck(skiatest::Reporter* reporter, const sk_sp<SkShader>& shader,
-                   SkShader::GradientInfo* info,
-                   SkShader::GradientType gt) const {
+                   SkGradientInfo* info,
+                   SkGradientType gt) const {
         SkAutoTMalloc<SkColor> colorStorage(fColorCount);
         SkAutoTMalloc<SkScalar> posStorage(fColorCount);
 
         info->fColorCount = fColorCount;
         info->fColors = colorStorage;
         info->fColorOffsets = posStorage.get();
-        REPORTER_ASSERT(reporter, shader->asAGradient(info) == gt);
+        REPORTER_ASSERT(reporter, as_SB(shader)->asAGradient(info) == gt);
 
         REPORTER_ASSERT(reporter, info->fColorCount == fColorCount);
         REPORTER_ASSERT(reporter,
@@ -69,17 +69,17 @@ struct GradRec {
 
 static void none_gradproc(skiatest::Reporter* reporter, const GradRec&, const GradRec&) {
     sk_sp<SkShader> s(SkShaders::Empty());
-    REPORTER_ASSERT(reporter, SkShader::kNone_GradientType == s->asAGradient(nullptr));
+    REPORTER_ASSERT(reporter, SkGradientType::kNone == as_SB(s)->asAGradient(nullptr));
 }
 
 static void color_gradproc(skiatest::Reporter* reporter, const GradRec& rec, const GradRec&) {
     sk_sp<SkShader> s(new SkColorShader(rec.fColors[0]));
-    REPORTER_ASSERT(reporter, SkShader::kColor_GradientType == s->asAGradient(nullptr));
+    REPORTER_ASSERT(reporter, SkGradientType::kColor == as_SB(s)->asAGradient(nullptr));
 
-    SkShader::GradientInfo info;
+    SkGradientInfo info;
     info.fColors = nullptr;
     info.fColorCount = 0;
-    s->asAGradient(&info);
+    as_SB(s)->asAGradient(&info);
     REPORTER_ASSERT(reporter, 1 == info.fColorCount);
 }
 
@@ -88,8 +88,8 @@ static void linear_gradproc(skiatest::Reporter* reporter, const GradRec& buildRe
     sk_sp<SkShader> s(SkGradientShader::MakeLinear(buildRec.fPoint, buildRec.fColors, buildRec.fPos,
                                                    buildRec.fColorCount, buildRec.fTileMode));
 
-    SkShader::GradientInfo info;
-    checkRec.gradCheck(reporter, s, &info, SkShader::kLinear_GradientType);
+    SkGradientInfo info;
+    checkRec.gradCheck(reporter, s, &info, SkGradientType::kLinear);
     REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint, 2 * sizeof(SkPoint)));
 }
 
@@ -99,8 +99,8 @@ static void radial_gradproc(skiatest::Reporter* reporter, const GradRec& buildRe
                                                    buildRec.fColors, buildRec.fPos,
                                                    buildRec.fColorCount, buildRec.fTileMode));
 
-    SkShader::GradientInfo info;
-    checkRec.gradCheck(reporter, s, &info, SkShader::kRadial_GradientType);
+    SkGradientInfo info;
+    checkRec.gradCheck(reporter, s, &info, SkGradientType::kRadial);
     REPORTER_ASSERT(reporter, info.fPoint[0] == checkRec.fPoint[0]);
     REPORTER_ASSERT(reporter, info.fRadius[0] == checkRec.fRadius[0]);
 }
@@ -111,8 +111,8 @@ static void sweep_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec
                                                   buildRec.fColors, buildRec.fPos,
                                                   buildRec.fColorCount));
 
-    SkShader::GradientInfo info;
-    checkRec.gradCheck(reporter, s, &info, SkShader::kSweep_GradientType);
+    SkGradientInfo info;
+    checkRec.gradCheck(reporter, s, &info, SkGradientType::kSweep);
     REPORTER_ASSERT(reporter, info.fPoint[0] == checkRec.fPoint[0]);
 }
 
@@ -127,8 +127,8 @@ static void conical_gradproc(skiatest::Reporter* reporter, const GradRec& buildR
                                                             buildRec.fColorCount,
                                                             buildRec.fTileMode));
 
-    SkShader::GradientInfo info;
-    checkRec.gradCheck(reporter, s, &info, SkShader::kConical_GradientType);
+    SkGradientInfo info;
+    checkRec.gradCheck(reporter, s, &info, SkGradientType::kConical);
     REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint, 2 * sizeof(SkPoint)));
     REPORTER_ASSERT(reporter, !memcmp(info.fRadius, checkRec.fRadius, 2 * sizeof(SkScalar)));
 }

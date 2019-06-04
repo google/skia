@@ -14,7 +14,7 @@ class SkLinearGradient : public SkGradientShaderBase {
 public:
     SkLinearGradient(const SkPoint pts[2], const Descriptor&);
 
-    GradientType asAGradient(GradientInfo* info) const override;
+    SkGradientType asAGradient(SkGradientInfo* info) const override;
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
