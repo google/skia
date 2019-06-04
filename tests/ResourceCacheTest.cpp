@@ -209,10 +209,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     static const int kW = 100;
     static const int kH = 100;
 
-    backendTextures[0] = context->createBackendTexture(kW, kH, kRGBA_8888_SkColorType,
-                                                       GrMipMapped::kNo, GrRenderable::kNo);
-    backendTextures[1] = context->createBackendTexture(kW, kH, kRGBA_8888_SkColorType,
-                                                       GrMipMapped::kNo, GrRenderable::kNo);
+    backendTextures[0] = context->priv().createBackendTexture(kW, kH, kRGBA_8888_SkColorType,
+                                                              SkColors::kTransparent,
+                                                              GrMipMapped::kNo, GrRenderable::kNo);
+    backendTextures[1] = context->priv().createBackendTexture(kW, kH, kRGBA_8888_SkColorType,
+                                                              SkColors::kTransparent,
+                                                              GrMipMapped::kNo, GrRenderable::kNo);
     REPORTER_ASSERT(reporter, backendTextures[0].isValid());
     REPORTER_ASSERT(reporter, backendTextures[1].isValid());
     if (!backendTextures[0].isValid() || !backendTextures[1].isValid()) {
