@@ -598,3 +598,17 @@ uint32_t SkPaint::getHash() const {
     return SkOpts::hash(reinterpret_cast<const uint32_t*>(this),
                         offsetof(SkPaint, fBitfieldsUInt) + sizeof(fBitfieldsUInt));
 }
+
+SkPathEffect*  SkRef(SkPathEffect*  ptr) { ptr->ref(); return ptr; }
+SkShader*      SkRef(SkShader*      ptr) { ptr->ref(); return ptr; }
+SkMaskFilter*  SkRef(SkMaskFilter*  ptr) { ptr->ref(); return ptr; }
+SkColorFilter* SkRef(SkColorFilter* ptr) { ptr->ref(); return ptr; }
+SkDrawLooper*  SkRef(SkDrawLooper*  ptr) { ptr->ref(); return ptr; }
+SkImageFilter* SkRef(SkImageFilter* ptr) { ptr->ref(); return ptr; }
+
+void SkUnref(SkPathEffect*  ptr) { ptr->unref(); }
+void SkUnref(SkShader*      ptr) { ptr->unref(); }
+void SkUnref(SkMaskFilter*  ptr) { ptr->unref(); }
+void SkUnref(SkColorFilter* ptr) { ptr->unref(); }
+void SkUnref(SkDrawLooper*  ptr) { ptr->unref(); }
+void SkUnref(SkImageFilter* ptr) { ptr->unref(); }
