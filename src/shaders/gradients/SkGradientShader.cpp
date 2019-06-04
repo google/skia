@@ -458,7 +458,7 @@ SkColor4fXformer::SkColor4fXformer(const SkColor4f* colors, int colorCount,
     }
 }
 
-void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
+void SkGradientShaderBase::commonAsAGradient(SkGradientInfo* info) const {
     if (info) {
         if (info->fColorCount >= fColorCount) {
             if (info->fColors) {

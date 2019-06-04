@@ -87,13 +87,13 @@ void SkLinearGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline*,
     // No extra stage needed for linear gradients.
 }
 
-SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
+SkGradientType SkLinearGradient::asAGradient(SkGradientInfo* info) const {
     if (info) {
         commonAsAGradient(info);
         info->fPoint[0] = fStart;
         info->fPoint[1] = fEnd;
     }
-    return kLinear_GradientType;
+    return SkGradientType::kLinear;
 }
 
 /////////////////////////////////////////////////////////////////////

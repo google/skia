@@ -12,6 +12,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
+#include "src/shaders/SkShaderBase.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "tests/Test.h"
 
@@ -26,7 +27,7 @@ static void check_isaimage(skiatest::Reporter* reporter, SkShader* shader,
     localM.setScale(9999, -9999);
     tileModes[0] = tileModes[1] = (SkTileMode)99;
 
-    SkImage* image = shader->isAImage(&localM, tileModes);
+    SkImage* image = as_SB(shader)->isAImage(&localM, tileModes);
     REPORTER_ASSERT(reporter, image);
     REPORTER_ASSERT(reporter, image->width() == expectedW);
     REPORTER_ASSERT(reporter, image->height() == expectedH);

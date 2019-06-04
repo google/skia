@@ -18,6 +18,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
+#include "src/shaders/SkShaderBase.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -58,10 +59,10 @@ DEF_SIMPLE_GM(localmatriximageshader, canvas, 250, 250) {
     // Use isAImage() and confirm that the shaders will draw exactly the same (to the right by 100).
     SkTileMode mode[2];
     SkMatrix matrix;
-    SkImage* image = redLocalMatrixShader->isAImage(&matrix, mode);
+    SkImage* image = as_SB(redLocalMatrixShader)->isAImage(&matrix, mode);
     paint.setShader(image->makeShader(mode[0], mode[1], &matrix));
     canvas->drawIRect(SkIRect::MakeWH(250, 250), paint);
-    image = blueLocalMatrixShader->isAImage(&matrix, mode);
+    image = as_SB(blueLocalMatrixShader)->isAImage(&matrix, mode);
     paint.setShader(image->makeShader(mode[0], mode[1], &matrix));
     canvas->drawIRect(SkIRect::MakeWH(250, 250), paint);
 }

@@ -53,7 +53,7 @@ SkShaderBase::Context* SkLocalMatrixShader::onMakeContext(
 
 SkImage* SkLocalMatrixShader::onIsAImage(SkMatrix* outMatrix, SkTileMode* mode) const {
     SkMatrix imageMatrix;
-    SkImage* image = fProxyShader->isAImage(&imageMatrix, mode);
+    SkImage* image = as_SB(fProxyShader)->isAImage(&imageMatrix, mode);
     if (image && outMatrix) {
         // Local matrix must be applied first so it is on the right side of the concat.
         *outMatrix = SkMatrix::Concat(imageMatrix, this->getLocalMatrix());
