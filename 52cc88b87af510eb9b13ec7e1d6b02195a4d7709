@@ -16,6 +16,24 @@
       "revId": "52cc88b87af510eb9b13ec7e1d6b02195a4d7709",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b556af7e_16f2fd9b",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-04T19:21:37Z",
+      "side": 1,
+      "message": "1) Yep, just wasn\u0027t feeling particularly smart enough to write the math.\n   Now that I\u0027m thinking about it, it\u0027s a lot easier to do if you start\n   from shift... it\u0027s mask \u003d\u003d (~0u \u003c\u003c shift), right?\n \n2) Been avoiding this, because bit_and right now is register-register,\n   and would require another splat.  I\u0027m not sure if that implies adding\n   Op::bit_and_immediate, and if so at both Builder and Program levels or\n   just Program, or should I leave this all to the ultimate eval() engine?\n\n3) Yes, I think you\u0027re right.  Not only is it clearer there, it also means\n   we don\u0027t keep re-checking each Op type for peepholes that don\u0027t apply.\n\nWill try to cover all this in the next CL.",
+      "parentUuid": "55591118_fe2eccd6",
+      "revId": "52cc88b87af510eb9b13ec7e1d6b02195a4d7709",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
