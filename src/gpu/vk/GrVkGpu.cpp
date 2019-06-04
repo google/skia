@@ -1458,33 +1458,61 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRen
 ////////////////////////////////////////////////////////////////////////////////
 
 bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc,
-                       size_t bufferOffset, size_t srcRowBytes,
-                       GrPixelConfig destConfig, size_t dstRowBytes,
-                       size_t trimRowBytes, int width, int height, const SkColor4f* color) {
-    SkASSERT(srcData || color);
+                       size_t srcRowBytes,
+                       int width, int height, VkFormat vkFormat) {
+    SkASSERT(srcData);
 
-    VkDeviceSize size = dstRowBytes * height;
-    VkDeviceSize offset = bufferOffset;
-    SkASSERT(size + offset <= alloc.fSize);
     void* mapPtr = GrVkMemory::MapAlloc(gpu, alloc);
     if (!mapPtr) {
         return false;
     }
-    mapPtr = reinterpret_cast<char*>(mapPtr) + offset;
+    mapPtr = reinterpret_cast<char*>(mapPtr);
 
-    if (srcData) {
-        SkRectMemcpy(mapPtr, dstRowBytes, srcData, srcRowBytes, trimRowBytes, height);
+    if (GrVkFormatIsCompressed(vkFormat)) {
+        SkASSERT(0 == srcRowBytes);
+        size_t levelSize = GrVkFormatCompressedDataSize(vkFormat, width, height);
+
+        SkASSERT(levelSize <= alloc.fSize);
+        memcpy(mapPtr, srcData, levelSize);
     } else {
-        if (kRGB_ETC1_GrPixelConfig == destConfig) {
-            GrFillInETC1WithColor(width, height, *color, mapPtr);
-        } else {
-            GrFillBufferWithColor(destConfig, width, height, *color, mapPtr);
+        size_t bytesPerPixel = GrVkBytesPerFormat(vkFormat);
+        const size_t trimRowBytes = width * bytesPerPixel;
+        if (!srcRowBytes) {
+            srcRowBytes = trimRowBytes;
         }
+        SkASSERT(trimRowBytes * height <= alloc.fSize);
+
+        SkRectMemcpy(mapPtr, trimRowBytes, srcData, srcRowBytes, trimRowBytes, height);
     }
-    GrVkMemory::FlushMappedAlloc(gpu, alloc, offset, size);
+
+    GrVkMemory::FlushMappedAlloc(gpu, alloc, 0, alloc.fSize);
     GrVkMemory::UnmapAlloc(gpu, alloc);
     return true;
 }
+
+bool fill_in_with_color(GrVkGpu* gpu, const GrVkAlloc& alloc,
+                        const SkTArray<size_t>& individualMipOffsets,
+                        GrPixelConfig config,
+                        int baseWidth, int baseHeight,
+                        const SkColor4f& colorf, VkFormat vkFormat) {
+
+    GrCompression compression = GrVkFormat2Compression(vkFormat);
+    size_t bytesPerPixel = GrVkBytesPerFormat(vkFormat);
+
+    void* mapPtr = GrVkMemory::MapAlloc(gpu, alloc);
+    if (!mapPtr) {
+        return false;
+    }
+
+    // TODO: pass in alloc.fSize and assert we never write past it
+    GrFillInData(compression, config, bytesPerPixel, baseWidth, baseHeight,
+                 individualMipOffsets, (char*) mapPtr, colorf);
+
+    GrVkMemory::FlushMappedAlloc(gpu, alloc, 0, alloc.fSize);
+    GrVkMemory::UnmapAlloc(gpu, alloc);
+    return true;
+}
+
 
 static size_t compute_combined_buffer_size(VkFormat format, size_t bpp, int w, int h,
                                            SkTArray<size_t>* individualMipOffsets,
@@ -1528,7 +1556,7 @@ static size_t compute_combined_buffer_size(VkFormat format, size_t bpp, int w, i
 
 bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool texturable,
                                        bool renderable, GrMipMapped mipMapped, const void* srcData,
-                                       size_t srcRowBytes, const SkColor4f& color,
+                                       size_t srcRowBytes, const SkColor4f& colorf,
                                        GrVkImageInfo* info) {
     SkASSERT(texturable || renderable);
     if (!texturable) {
@@ -1614,13 +1642,13 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     err = VK_CALL(BeginCommandBuffer(cmdBuffer, &cmdBufferBeginInfo));
     SkASSERT(!err);
 
-    size_t bpp = GrVkBytesPerFormat(vkFormat);
+    size_t bytesPerPixel = GrVkBytesPerFormat(vkFormat);
     SkASSERT(w && h);
 
     SkTArray<size_t> individualMipOffsets(mipLevels);
     individualMipOffsets.push_back(0);
 
-    size_t combinedBufferSize = compute_combined_buffer_size(vkFormat, bpp, w, h,
+    size_t combinedBufferSize = compute_combined_buffer_size(vkFormat, bytesPerPixel, w, h,
                                                              &individualMipOffsets, mipLevels);
 
     VkBufferCreateInfo bufInfo;
@@ -1650,40 +1678,26 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         return false;
     }
 
-    int currentWidth = w;
-    int currentHeight = h;
-    for (uint32_t currentMipLevel = 0; currentMipLevel < mipLevels; currentMipLevel++) {
-        SkASSERT(0 == currentMipLevel || !srcData);
-        size_t bufferOffset = individualMipOffsets[currentMipLevel];
-        bool result;
-        if (GrVkFormatIsCompressed(vkFormat)) {
-            size_t levelSize = GrVkFormatCompressedDataSize(vkFormat, currentWidth, currentHeight);
-            size_t currentRowBytes = levelSize / currentHeight;
-            result = copy_testing_data(this, srcData, bufferAlloc, bufferOffset, currentRowBytes,
-                                       config, currentRowBytes, currentRowBytes,
-                                       currentWidth, currentHeight, &color);
-        } else {
-            const size_t trimRowBytes = bpp * currentWidth;
-            if (!srcRowBytes) {
-                srcRowBytes = trimRowBytes;
-            }
+    bool result;
+    if (!srcData) {
+        result = fill_in_with_color(this, bufferAlloc, individualMipOffsets,
+                                    config, w, h, colorf, vkFormat);
+    } else {
+        SkASSERT(1 == mipLevels);
 
-            size_t currentRowBytes = bpp * currentWidth;
-            result = copy_testing_data(this, srcData, bufferAlloc, bufferOffset, srcRowBytes,
-                                       config, currentRowBytes, trimRowBytes,
-                                       currentWidth, currentHeight, &color);
-        }
-        if (!result) {
-            GrVkImage::DestroyImageInfo(this, info);
-            GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
-            VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
-            VK_CALL(EndCommandBuffer(cmdBuffer));
-            VK_CALL(FreeCommandBuffers(fDevice, fCmdPool->vkCommandPool(), 1, &cmdBuffer));
-            return false;
-        }
-        currentWidth = SkTMax(1, currentWidth / 2);
-        currentHeight = SkTMax(1, currentHeight / 2);
+        result = copy_testing_data(this, srcData, bufferAlloc, srcRowBytes,
+                                    w, h, vkFormat);
     }
+
+    if (!result) {
+        GrVkImage::DestroyImageInfo(this, info);
+        GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
+        VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
+        VK_CALL(EndCommandBuffer(cmdBuffer));
+        VK_CALL(FreeCommandBuffers(fDevice, fCmdPool->vkCommandPool(), 1, &cmdBuffer));
+        return false;
+    }
+
 
     // Set image layout and add barrier
     VkImageMemoryBarrier barrier;
@@ -1707,8 +1721,8 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
 
     SkTArray<VkBufferImageCopy> regions(mipLevels);
 
-    currentWidth = w;
-    currentHeight = h;
+    int currentWidth = w;
+    int currentHeight = h;
     for (uint32_t currentMipLevel = 0; currentMipLevel < mipLevels; currentMipLevel++) {
         // Submit copy command
         VkBufferImageCopy& region = regions.push_back();

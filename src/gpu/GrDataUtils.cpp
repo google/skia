@@ -267,3 +267,70 @@ bool GrFillBufferWithColor(GrPixelConfig config, int width, int height,
 
     return true;
 }
+
+size_t GrComputeTightCombinedBufferSize(GrCompression compression, size_t bytesPerPixel,
+                                        int baseWidth, int baseHeight,
+                                        SkTArray<size_t>* individualMipOffsets,
+                                        int mipLevelCount) {
+    SkASSERT(individualMipOffsets && !individualMipOffsets->count());
+    SkASSERT(mipLevelCount >= 1);
+
+    individualMipOffsets->push_back(0);
+
+    size_t combinedBufferSize = baseWidth * bytesPerPixel * baseHeight;
+    if (GrCompression::kETC1 == compression) {
+        SkASSERT(0 == bytesPerPixel);
+        combinedBufferSize = GrETC1CompressedDataSize(baseWidth, baseHeight);
+    }
+
+    int currentWidth = baseWidth;
+    int currentHeight = baseHeight;
+
+    for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; ++currentMipLevel) {
+        currentWidth = SkTMax(1, currentWidth / 2);
+        currentHeight = SkTMax(1, currentHeight / 2);
+
+        size_t trimmedSize;
+        if (GrCompression::kETC1 == compression) {
+            trimmedSize = GrETC1CompressedDataSize(currentWidth, currentHeight);
+        } else {
+            trimmedSize = currentWidth * bytesPerPixel * currentHeight;
+        }
+//        const size_t alignmentDiff = combinedBufferSize % desiredAlignment;
+//        if (alignmentDiff != 0) {
+//            combinedBufferSize += desiredAlignment - alignmentDiff;
+//        }
+//        SkASSERT((0 == combinedBufferSize % 4) && (0 == combinedBufferSize % bpp));
+
+        individualMipOffsets->push_back(combinedBufferSize);
+        combinedBufferSize += trimmedSize;
+    }
+
+    SkASSERT(individualMipOffsets->count() == mipLevelCount);
+    return combinedBufferSize;
+}
+
+void GrFillInData(GrCompression compression, GrPixelConfig config, size_t bytesPerPixel,
+                  int baseWidth, int baseHeight,
+                  const SkTArray<size_t>& individualMipOffsets, char* dstPixels,
+                  const SkColor4f& colorf) {
+
+    int mipLevels = individualMipOffsets.count();
+
+    int currentWidth = baseWidth;
+    int currentHeight = baseHeight;
+    for (int currentMipLevel = 0; currentMipLevel < mipLevels; ++currentMipLevel) {
+        size_t offset = individualMipOffsets[currentMipLevel];
+
+        if (GrCompression::kETC1 == compression) {
+            GrFillInETC1WithColor(currentWidth, currentHeight, colorf, &(dstPixels[offset]));
+        } else {
+            GrFillBufferWithColor(config, currentWidth, currentHeight, colorf,
+                                  &(dstPixels[offset]));
+        }
+
+        currentWidth = SkTMax(1, currentWidth / 2);
+        currentHeight = SkTMax(1, currentHeight / 2);
+    }
+}
+
