@@ -7,7 +7,7 @@
 
 #include "tests/Test.h"
 
-#include "src/gpu/geometry/GrQuad.h"
+#include "src/gpu/geometry/GrQuadList.h"
 
 #define ASSERT(cond) REPORTER_ASSERT(r, cond)
 #define ASSERTF(cond, ...) REPORTER_ASSERT(r, cond, __VA_ARGS__)
