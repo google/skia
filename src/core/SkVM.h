@@ -33,10 +33,10 @@ namespace skvm {
 
     class Program {
     public:
-        struct Instruction {   // d = op(x,y, z.id/z.imm)
+        struct Instruction {   // d = op(x, y.id/y.imm, z.id/z.imm)
             Op op;
-            ID d,x,y;
-            union { ID id; int imm; } z;
+            ID d,x;
+            union { ID id; int imm; } y,z;
         };
 
         Program(std::vector<Instruction>, int regs);
@@ -117,11 +117,14 @@ namespace skvm {
         I32 to_i32(F32 x);
 
     private:
+        // We reserve the last ID as a sentinel meaning none, n/a, null, nil, etc.
+        static const ID NA = ~0;
+
         struct Instruction {
-            Op  op;      // v* = op(x,y,z,imm), where * == index of this Instruction.
-            ID  life;    // ID of last instruction using this instruction's result.
-            ID  x,y,z;   // Enough arguments for mad().
-            int imm;     // Immediate bit pattern, shift count, or argument index.
+            Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
+            ID  life;       // ID of last instruction using this instruction's result.
+            ID  x,y,z;      // Enough arguments for mad().
+            int immy,immz;  // Immediate bit patterns, shift counts, argument indexes.
 
             bool operator==(const Instruction& o) const {
                 return op   == o.op
@@ -129,7 +132,8 @@ namespace skvm {
                     && x    == o.x
                     && y    == o.y
                     && z    == o.z
-                    && imm  == o.imm;
+                    && immy == o.immy
+                    && immz == o.immz;
             }
         };
 
@@ -144,14 +148,15 @@ namespace skvm {
                      ^ Hash(inst.x)
                      ^ Hash(inst.y)
                      ^ Hash(inst.z)
-                     ^ Hash(inst.imm);
+                     ^ Hash(inst.immy)
+                     ^ Hash(inst.immz);
             }
         };
 
         std::unordered_map<Instruction, ID, InstructionHash> fIndex;
         std::vector<Instruction>                             fProgram;
 
-        ID push(Op, ID, ID, ID, int);
+        ID push(Op, ID x, ID y=NA, ID z=NA, int immy=0, int immz=0);
     };
 
     // TODO: comparison operations, if_then_else
