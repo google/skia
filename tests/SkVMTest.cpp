@@ -58,13 +58,20 @@ DEF_TEST(SkVM, r) {
     {
 
         sk_sp<SkData> expected = GetResourceAsData("SkVMTest.expected");
-        REPORTER_ASSERT(r, expected
-                        && blob->size() == expected->size()
-                        && 0 == memcmp(blob->data(), expected->data(), blob->size()));
+        REPORTER_ASSERT(r, expected, "Couldn't load SkVMTest.expected.");
+        if (expected) {
+            if (blob->size() != expected->size()
+                    || 0 != memcmp(blob->data(), expected->data(), blob->size())) {
 
-        SkFILEWStream out(GetResourcePath("SkVMTest.expected").c_str());
-        if (out.isValid()) {
-            out.write(blob->data(), blob->size());
+                ERRORF(r, "SkVMTest expected\n%.*s\nbut got\n%.*s\n",
+                       expected->size(), expected->data(),
+                       blob->size(), blob->data());
+            }
+
+            SkFILEWStream out(GetResourcePath("SkVMTest.expected").c_str());
+            if (out.isValid()) {
+                out.write(blob->data(), blob->size());
+            }
         }
     }
 
