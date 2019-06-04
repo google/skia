@@ -96,7 +96,8 @@ private:
 
 void GrVkGpuTextureCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin,
                                        const SkIRect& srcRect, const SkIPoint& dstPoint) {
-    fTasks.emplace<Copy>(src, srcOrigin, srcRect, dstPoint, false);
+  SkASSERT(!src->isProtected() || (fTexture->isProtected() && fGpu->protectedContext()));
+  fTasks.emplace<Copy>(src, srcOrigin, srcRect, dstPoint, false);
 }
 
 void GrVkGpuTextureCommandBuffer::transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
@@ -626,6 +627,7 @@ void GrVkGpuRTCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin, con
         const GrVkRenderPass* oldRP = cbInfo.fRenderPass;
 
         GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
+        SkASSERT(!src->isProtected() || (fRenderTarget->isProtected() && fGpu->protectedContext()));
         const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
                 vkRT->compatibleRenderPassHandle();
         if (rpHandle.isValid()) {
@@ -792,6 +794,9 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
             }
         }
         cbInfo.fSampledTextures.push_back(vkTexture);
+
+        SkASSERT(!texture->isProtected() ||
+                 (fRenderTarget->isProtected() && fGpu->protectedContext()));
     };
 
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
