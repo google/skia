@@ -369,7 +369,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
 
     return fGpu->createBackendTexture(width, height, backendFormat,
                                       mipMapped, renderable,
-                                      nullptr, 0);
+                                      nullptr, 0, nullptr);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,

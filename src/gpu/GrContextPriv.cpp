@@ -782,7 +782,7 @@ GrBackendTexture GrContextPriv::createBackendTexture(int width, int height,
     GrGpu* gpu = fContext->fGpu.get();
 
     return gpu->createBackendTexture(width, height, backendFormat,
-                                     mipMapped, renderable, nullptr, 0, color);
+                                     mipMapped, renderable, nullptr, 0, &color);
 }
 
 GrBackendTexture GrContextPriv::createBackendTexture(int width, int height,
