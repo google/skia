@@ -13,6 +13,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkSurfaceProps.h"
+#include "include/private/SkNoncopyable.h"
 
 class SkBitmap;
 struct SkDrawShadowRec;

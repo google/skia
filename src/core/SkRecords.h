@@ -88,7 +88,7 @@ enum Type { SK_RECORD_TYPES(ENUM) };
 
 // An Optional doesn't own the pointer's memory, but may need to destroy non-POD data.
 template <typename T>
-class Optional : SkNoncopyable {
+class Optional {
 public:
     Optional() : fPtr(nullptr) {}
     Optional(T* ptr) : fPtr(ptr) {}
@@ -100,6 +100,8 @@ public:
     ACT_AS_PTR(fPtr)
 private:
     T* fPtr;
+    Optional(const Optional&) = delete;
+    Optional& operator=(const Optional&) = delete;
 };
 
 // Like Optional, but ptr must not be NULL.

@@ -12,6 +12,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkFixed.h"
+#include "include/private/SkNoncopyable.h"
 
 class SkFontData {
 public:
