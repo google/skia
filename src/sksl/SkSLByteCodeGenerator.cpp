@@ -11,9 +11,10 @@
 namespace SkSL {
 
 ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                  ByteCode* output)
+                  ByteCode* output, bool vectorize)
     : INHERITED(program, errors, nullptr)
     , fContext(*context)
+    , fVectorize(vectorize)
     , fOutput(output)
     , fIntrinsics {
          { "cos",   ByteCodeInstruction::kCos },
@@ -744,15 +745,25 @@ void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
 }
 
 void ByteCodeGenerator::writeTernaryExpression(const TernaryExpression& t) {
-    this->writeExpression(*t.fTest);
-    this->write(ByteCodeInstruction::kConditionalBranch);
-    DeferredLocation trueLocation(this);
-    this->writeExpression(*t.fIfFalse);
-    this->write(ByteCodeInstruction::kBranch);
-    DeferredLocation endLocation(this);
-    trueLocation.set();
-    this->writeExpression(*t.fIfTrue);
-    endLocation.set();
+    if (fVectorize) {
+        this->writeExpression(*t.fTest);
+        this->write(ByteCodeInstruction::kMaskPush);
+        this->writeExpression(*t.fIfTrue);
+        this->write(ByteCodeInstruction::kMaskNegate);
+        this->writeExpression(*t.fIfFalse);
+        this->write(ByteCodeInstruction::kMaskBlend);
+        this->write8(SlotCount(t.fType));
+    } else {
+        this->writeExpression(*t.fTest);
+        this->write(ByteCodeInstruction::kConditionalBranch);
+        DeferredLocation trueLocation(this);
+        this->writeExpression(*t.fIfFalse);
+        this->write(ByteCodeInstruction::kBranch);
+        DeferredLocation endLocation(this);
+        trueLocation.set();
+        this->writeExpression(*t.fIfTrue);
+        endLocation.set();
+    }
 }
 
 void ByteCodeGenerator::writeExpression(const Expression& e, bool discard) {
@@ -1031,25 +1042,42 @@ void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
 }
 
 void ByteCodeGenerator::writeIfStatement(const IfStatement& i) {
-    if (i.fIfFalse) {
-        // if (test) { ..ifTrue.. } else { .. ifFalse .. }
+    if (fVectorize) {
         this->writeExpression(*i.fTest);
-        this->write(ByteCodeInstruction::kConditionalBranch);
-        DeferredLocation trueLocation(this);
-        this->writeStatement(*i.fIfFalse);
-        this->write(ByteCodeInstruction::kBranch);
-        DeferredLocation endLocation(this);
-        trueLocation.set();
+        this->write(ByteCodeInstruction::kMaskPush);
+        this->write(ByteCodeInstruction::kBranchIfAllFalse);
+        DeferredLocation falseLocation(this);
         this->writeStatement(*i.fIfTrue);
-        endLocation.set();
+        falseLocation.set();
+        if (i.fIfFalse) {
+            this->write(ByteCodeInstruction::kMaskNegate);
+            this->write(ByteCodeInstruction::kBranchIfAllFalse);
+            DeferredLocation endLocation(this);
+            this->writeStatement(*i.fIfFalse);
+            endLocation.set();
+        }
+        this->write(ByteCodeInstruction::kMaskPop);
     } else {
-        // if (test) { ..ifTrue.. }
-        this->writeExpression(*i.fTest);
-        this->write(ByteCodeInstruction::kNot);
-        this->write(ByteCodeInstruction::kConditionalBranch);
-        DeferredLocation endLocation(this);
-        this->writeStatement(*i.fIfTrue);
-        endLocation.set();
+        if (i.fIfFalse) {
+            // if (test) { ..ifTrue.. } else { .. ifFalse .. }
+            this->writeExpression(*i.fTest);
+            this->write(ByteCodeInstruction::kConditionalBranch);
+            DeferredLocation trueLocation(this);
+            this->writeStatement(*i.fIfFalse);
+            this->write(ByteCodeInstruction::kBranch);
+            DeferredLocation endLocation(this);
+            trueLocation.set();
+            this->writeStatement(*i.fIfTrue);
+            endLocation.set();
+        } else {
+            // if (test) { ..ifTrue.. }
+            this->writeExpression(*i.fTest);
+            this->write(ByteCodeInstruction::kNot);
+            this->write(ByteCodeInstruction::kConditionalBranch);
+            DeferredLocation endLocation(this);
+            this->writeStatement(*i.fIfTrue);
+            endLocation.set();
+        }
     }
 }
 
