@@ -24,8 +24,8 @@ public:
         const GrLumaColorFilterEffect& _outer = args.fFp.cast<GrLumaColorFilterEffect>();
         (void)_outer;
         fragBuilder->codeAppendf(
-                "\nhalf luma = clamp(dot(half3(0.21260000000000001, 0.71519999999999995, 0.0722), "
-                "%s.xyz), 0.0, 1.0);\n%s = half4(0.0, 0.0, 0.0, luma);\n",
+                "\nhalf luma = clamp(dot(half3(0.2125999927520752, 0.71520000696182251, "
+                "0.072200000286102295), %s.xyz), 0.0, 1.0);\n%s = half4(0.0, 0.0, 0.0, luma);\n",
                 args.fInputColor, args.fOutputColor);
     }
 
