@@ -249,7 +249,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
-    auto fillPixels = [](const SkPixmap* p, const std::function<uint32_t(int x, int y)>& f) {
+    auto fillPixels = [](SkPixmap* p, const std::function<uint32_t(int x, int y)>& f) {
         for (int y = 0; y < p->height(); ++y) {
             for (int x = 0; x < p->width(); ++x) {
                 *p->writable_addr32(x, y) = f(x, y);
@@ -664,8 +664,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
 
             GrBackendTexture backendTexture;
 
-            if (!create_backend_texture(context, &backendTexture, info,
-                                        GrMipMapped::kNo, SK_ColorBLACK, GrRenderable::kNo)) {
+            if (!create_backend_texture(context, &backendTexture, info, SkColors::kBlack,
+                                        GrMipMapped::kNo, GrRenderable::kNo)) {
                 REPORTER_ASSERT(reporter, false);
                 continue;
             }
