@@ -105,12 +105,6 @@ SrcoverBuilder_I32::SrcoverBuilder_I32() {
         *a =         shr(rgba, 24)        ;
     };
 
-    auto mul_unorm8 = [&](skvm::I32 x, skvm::I32 y) {
-        // (x*y + 127)/255 ~= (x*y+255)/256
-        skvm::I32 _255 = splat(255);
-        return shr(add(mul(x, y), _255), 8);
-    };
-
     skvm::I32 r,g,b,a;
     load(src, &r,&g,&b,&a);
 
@@ -142,7 +136,7 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
         *ga = bit_and(shr(rgba, 8), mask);
     };
 
-    auto mul_unorm8 = [&](skvm::I32 x, skvm::I32 y) {
+    auto mul_unorm8_SWAR = [&](skvm::I32 x, skvm::I32 y) {
         // As above, assuming x is two SWAR bytes in lanes 0 and 2, and y is a byte.
         skvm::I32 _255 = splat(0x00ff00ff);
         return bit_and(shr(add(mul(x, y),
@@ -159,8 +153,8 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
 
     skvm::I32 _255 = splat(0xff),
               invA = sub(_255, shr(ga, 16));
-    rb = add(rb, mul_unorm8(drb, invA));
-    ga = add(ga, mul_unorm8(dga, invA));
+    rb = add(rb, mul_unorm8_SWAR(drb, invA));
+    ga = add(ga, mul_unorm8_SWAR(dga, invA));
 
     store32(dst, bit_or(rb, shl(ga, 8)));
 }

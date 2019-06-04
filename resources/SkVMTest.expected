@@ -294,30 +294,22 @@ r7 = bit_and r7 r1
 r8 = shr r5 10 (2.2420775e-44)
 r8 = bit_and r8 r1
 r5 = shr r5 18 (3.3631163e-44)
-r9 = sub_i32 r1 r0
-r6 = mul_i32 r6 r9
-r6 = add_i32 r6 r1
-r6 = shr r6 8 (1.1210388e-44)
+r1 = sub_i32 r1 r0
+r6 = mul_unorm8 r6 r1
 r6 = add_i32 r2 r6
-r7 = mul_i32 r7 r9
-r7 = add_i32 r7 r1
-r7 = shr r7 8 (1.1210388e-44)
+r7 = mul_unorm8 r7 r1
 r7 = add_i32 r3 r7
-r8 = mul_i32 r8 r9
-r8 = add_i32 r8 r1
-r8 = shr r8 8 (1.1210388e-44)
+r8 = mul_unorm8 r8 r1
 r8 = add_i32 r4 r8
-r9 = mul_i32 r5 r9
-r9 = add_i32 r9 r1
-r9 = shr r9 8 (1.1210388e-44)
-r9 = add_i32 r0 r9
+r1 = mul_unorm8 r5 r1
+r1 = add_i32 r0 r1
 r7 = shl r7 8 (1.1210388e-44)
 r7 = bit_or r6 r7
 r8 = shl r8 10 (2.2420775e-44)
 r8 = bit_or r7 r8
-r9 = shl r9 18 (3.3631163e-44)
-r9 = bit_or r8 r9
-store32 arg(1) r9
+r1 = shl r1 18 (3.3631163e-44)
+r1 = bit_or r8 r1
+store32 arg(1) r1
 
 I32 (SWAR) 8888 over 8888
 r0 = load32 arg(0)
