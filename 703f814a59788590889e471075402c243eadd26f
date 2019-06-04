@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a0075732_cfb2eeae",
+        "filename": "include/core/SkPicture.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-06-04T14:32:52Z",
+      "side": 1,
+      "message": "Comments added in cpp file.\n\nThe design of this function is terrible in my opinion. \"Dummy serialize our sub-pictures for the side effect of filling typefaceSet\"? The author didn\u0027t think about how slow it was or how unreadable the resulting changes to all the function signatures would be. Maybe they didn\u0027t want to make it more unreadable with one more parameter and decided to settle for the (number of subpictures)^2 growth of this algorithm by leaving it alone. I can\u0027t have it that slow. every serialization of a subpicture involves playback (moderately costly) and serialization of all it\u0027s images (very costly). I\u0027d like to rewrite it but my attempts have all gotten caught in the muck and I need more info on why this was designed the way it was.\n\nI *think* a more ideal method of sharing resources between subpictures is to either do it all with a composable serial proc, or recursively turn everything into SkPictureData first (and only once!), then have a method of SkPictureData that collects all resources in the top (only once!).\nA larger rewrite of serialization is probably a risky endeavor because there are dozens of important sounding classes here that don\u0027t look necessary, indicating my current understanding of what this code must do is way too simple.",
+      "parentUuid": "0596fc58_986e06f6",
+      "range": {
+        "startLine": 225,
+        "startChar": 13,
+        "endLine": 225,
+        "endChar": 26
+      },
+      "revId": "703f814a59788590889e471075402c243eadd26f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "51141e26_12b28db6",
         "filename": "src/core/SkPictureData.cpp",
         "patchSetId": 9
