@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8f51e75e_6f55842c",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-06-04T12:29:09Z",
+      "side": 1,
+      "message": "Discussed offline",
+      "parentUuid": "61fb92c8_061dbc65",
+      "range": {
+        "startLine": 225,
+        "startChar": 3,
+        "endLine": 225,
+        "endChar": 73
+      },
+      "revId": "be57afbd302ab248d64e444d303b5073e28f5876",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d8f65626_62440e0d",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2019-06-04T12:22:30Z",
       "side": 1,
       "message": "Assuming we always want Vulkan bots as well.",
+      "range": {
+        "startLine": 226,
+        "startChar": 73,
+        "endLine": 226,
+        "endChar": 80
+      },
+      "revId": "be57afbd302ab248d64e444d303b5073e28f5876",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "71615b17_0df37588",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-06-04T12:29:09Z",
+      "side": 1,
+      "message": "Only if the device supports Vulkan - did you try a tryjob with Vulkan?",
+      "parentUuid": "d8f65626_62440e0d",
       "range": {
         "startLine": 226,
         "startChar": 73,
