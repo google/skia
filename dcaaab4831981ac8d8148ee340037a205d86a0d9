@@ -16,6 +16,24 @@
       "revId": "dcaaab4831981ac8d8148ee340037a205d86a0d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35d5d06b_991b3f81",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-04T15:19:23Z",
+      "side": 1,
+      "message": "Intellisense actually gave me a warning here that the declaration of this method isn\u0027t supposed to take nullptr (it\u0027s marked as _In_z_, if it were nullable it shoud be marked _In_opt_z_). I happen to have the right thing to pass it, so this is a partially unrelated bugfix, I think.",
+      "parentUuid": "6bc3d608_b40364af",
+      "revId": "dcaaab4831981ac8d8148ee340037a205d86a0d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
