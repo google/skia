@@ -115,6 +115,7 @@ namespace skvm {
         Instruction inst{op, /*life=*/NA, x, y, z, imm};
 
         // Simple peepholes that come up fairly often.
+        if (op == Op::extract && imm == (int)0xff000000) { inst = { Op::shr, NA, x,NA,NA, 24 }; }
 
         auto is_zero = [&](ID id) {
             return fProgram[id].op  == Op::splat
@@ -174,6 +175,7 @@ namespace skvm {
 
     I32 Builder::mul_unorm8(I32 x, I32 y) { return {this->push(Op::mul_unorm8, x.id, y.id)}; }
 
+    I32 Builder::extract(I32 x, int mask) { return {this->push(Op::extract, x.id,NA,NA, mask)}; }
     I32 Builder::pack(I32 x, I32 y, int bits) { return {this->push(Op::pack, x.id,y.id,NA, bits)}; }
 
     F32 Builder::to_f32(I32 x) { return {this->push(Op::to_f32, x.id)}; }
@@ -183,6 +185,7 @@ namespace skvm {
 
     struct Reg { ID id; };
     struct Shift { int bits; };
+    struct Mask  { int bits; };
     struct Splat { int bits; };
 
     static void write(SkWStream* o, const char* s) {
@@ -200,6 +203,9 @@ namespace skvm {
     }
     static void write(SkWStream* o, Shift s) {
         o->writeDecAsText(s.bits);
+    }
+    static void write(SkWStream* o, Mask m) {
+        o->writeHexAsText(m.bits);
     }
     static void write(SkWStream* o, Splat s) {
         float f;
@@ -253,6 +259,7 @@ namespace skvm {
 
                 case Op::mul_unorm8: write(o, Reg{d}, "= mul_unorm8", Reg{x}, Reg{y}); break;
 
+                case Op::extract: write(o, Reg{d}, "= extract", Reg{x}, Mask{z.imm}); break;
                 case Op::pack: write(o, Reg{d}, "= pack", Reg{x}, Reg{y}, Shift{z.imm}); break;
 
                 case Op::to_f32: write(o, Reg{d}, "= to_f32", Reg{x}); break;
