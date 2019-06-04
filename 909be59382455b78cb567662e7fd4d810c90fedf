@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "949d703b_b460fc5a",
+        "filename": "src/gpu/vk/GrVkUtil.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-04T20:44:20Z",
+      "side": 1,
+      "message": "extra \\n",
+      "revId": "909be59382455b78cb567662e7fd4d810c90fedf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
