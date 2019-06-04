@@ -495,6 +495,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"Pixel":           {"sailfish", "PPR1.180610.009"},
 				"Pixel2XL":        {"taimen", "PPR1.180610.009"},
 				"Pixel3":          {"blueline", "PQ1A.190105.004"},
+				"TecnoSpark3Pro":  {"TECNO-KB8", "PPR1.180610.011"},
 			}[parts["model"]]
 			if !ok {
 				glog.Fatalf("Entry %q not found in Android mapping.", parts["model"])
