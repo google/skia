@@ -23,6 +23,7 @@ namespace skvm {
         add_i32, sub_i32, mul_i32,
         bit_and, bit_or, bit_xor,
         shl, shr, sra,
+        mul_unorm8,
         to_f32, to_i32,
     };
 
@@ -91,6 +92,8 @@ namespace skvm {
         I32 shl(I32 x, int bits);
         I32 shr(I32 x, int bits);
         I32 sra(I32 x, int bits);
+
+        I32 mul_unorm8(I32 x, I32 y);   // (x*y+255)/256, approximating (x*y+127)/255.
 
         F32 to_f32(I32 x);
         I32 to_i32(F32 x);

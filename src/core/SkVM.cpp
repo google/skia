@@ -172,6 +172,8 @@ namespace skvm {
     I32 Builder::shr(I32 x, int bits) { return {this->push(Op::shr, x.id,NA,NA, bits)}; }
     I32 Builder::sra(I32 x, int bits) { return {this->push(Op::sra, x.id,NA,NA, bits)}; }
 
+    I32 Builder::mul_unorm8(I32 x, I32 y) { return {this->push(Op::mul_unorm8, x.id, y.id)}; }
+
     F32 Builder::to_f32(I32 x) { return {this->push(Op::to_f32, x.id)}; }
     I32 Builder::to_i32(F32 x) { return {this->push(Op::to_i32, x.id)}; }
 
@@ -242,6 +244,8 @@ namespace skvm {
                 case Op::shl: write(o, Reg{d}, "= shl", Reg{x}, z.imm); break;
                 case Op::shr: write(o, Reg{d}, "= shr", Reg{x}, z.imm); break;
                 case Op::sra: write(o, Reg{d}, "= sra", Reg{x}, z.imm); break;
+
+                case Op::mul_unorm8: write(o, Reg{d}, "= mul_unorm8", Reg{x}, Reg{y}); break;
 
                 case Op::to_f32: write(o, Reg{d}, "= to_f32", Reg{x}); break;
                 case Op::to_i32: write(o, Reg{d}, "= to_i32", Reg{x}); break;
