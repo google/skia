@@ -153,10 +153,11 @@ namespace skvm {
             }
         };
 
+        ID push(Op, ID x, ID y=NA, ID z=NA, int immy=0, int immz=0);
+        bool isZero(ID) const;
+
         std::unordered_map<Instruction, ID, InstructionHash> fIndex;
         std::vector<Instruction>                             fProgram;
-
-        ID push(Op, ID x, ID y=NA, ID z=NA, int immy=0, int immz=0);
     };
 
     // TODO: comparison operations, if_then_else
