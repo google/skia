@@ -6,6 +6,9 @@
  */
 
 #include "modules/skottie/src/text/TextAdapter.h"
+
+#include "modules/skottie/src/text/RangeSelector.h"
+#include "modules/skottie/src/text/TextAnimator.h"
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGPaint.h"
@@ -14,6 +17,7 @@
 #include "modules/sksg/include/SkSGTransform.h"
 
 namespace skottie {
+namespace internal {
 
 TextAdapter::TextAdapter(sk_sp<sksg::Group> root, bool hasAnimators)
     : fRoot(std::move(root))
@@ -117,7 +121,47 @@ void TextAdapter::apply() {
 #endif
 }
 
-void TextAdapter::applyAnimatedProps(const AnimatedProps& props) {
+void TextAdapter::applyAnimators(const std::vector<sk_sp<TextAnimator>>& animators) {
+    if (fFragments.empty()) {
+        return;
+    }
+
+    const auto& txt_val = this->getText();
+
+    // Seed props from the current text value.
+    AnimatedProps seed_props;
+    seed_props.fill_color   = txt_val.fFillColor;
+    seed_props.stroke_color = txt_val.fStrokeColor;
+
+    std::vector<AnimatedProps> modulated_props;
+    modulated_props.resize(fFragments.size(), seed_props);
+
+    std::vector<float> coverage;
+    coverage.resize(fFragments.size());
+
+    for (const auto& animator : animators) {
+        memset(coverage.data(), 0, coverage.size() * sizeof(float));
+        for (const auto& selector : animator->selectors()) {
+            selector->modulateCoverage(coverage);
+        }
+
+        if (0) {
+            printf("*** coverage: [");
+            for (float f : coverage) { printf("%f ", f); }
+            printf("]\n");
+        }
+
+        for (size_t i = 0; i < fFragments.size(); ++i) {
+            animator->modulateProps(coverage[i], &modulated_props[i]);
+        }
+    }
+
+    for (size_t i = 0; i < fFragments.size(); ++i) {
+        this->applyAnimatedProps(i, modulated_props[i]);
+    }
+}
+
+void TextAdapter::applyAnimatedProps(size_t fragment_index, const AnimatedProps& props) {
     // TODO: share this with TransformAdapter2D?
     auto t = SkMatrix::MakeTrans(props.position.x(), props.position.y());
     t.preRotate(props.rotation);
@@ -128,18 +172,17 @@ void TextAdapter::applyAnimatedProps(const AnimatedProps& props) {
                sc = SkColorSetA(props.stroke_color,
                                 SkScalarRoundToInt(props.opacity*SkColorGetA(props.stroke_color)));
 
-    for (const auto& rec : fFragments) {
-        rec.fMatrixNode->setMatrix(SkMatrix::Concat(SkMatrix::MakeTrans(rec.fOrigin.x(),
-                                                                        rec.fOrigin.y()),
-                                                    t));
+    const auto& rec = fFragments[fragment_index];
+    rec.fMatrixNode->setMatrix(SkMatrix::Concat(SkMatrix::MakeTrans(rec.fOrigin.x(),
+                                                                    rec.fOrigin.y()), t));
 
-        if (rec.fFillColorNode) {
-            rec.fFillColorNode->setColor(fc);
-        }
-        if (rec.fStrokeColorNode) {
-            rec.fStrokeColorNode->setColor(sc);
-        }
+    if (rec.fFillColorNode) {
+        rec.fFillColorNode->setColor(fc);
+    }
+    if (rec.fStrokeColorNode) {
+        rec.fStrokeColorNode->setColor(sc);
     }
 }
 
+} // namespace internal
 } // namespace skottie
