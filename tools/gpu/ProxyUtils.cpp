@@ -78,8 +78,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, GrRenderable 
     if (!sContext) {
         return nullptr;
     }
-    if (!context->priv().writeSurfacePixels(sContext.get(), 0, 0, width, height, colorType,
-                                            nullptr, data, rowBytes)) {
+    if (!sContext->writePixels(context, 0, 0, width, height, colorType, nullptr, data, rowBytes)) {
         return nullptr;
     }
     return proxy;
