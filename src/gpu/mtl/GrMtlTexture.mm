@@ -98,7 +98,7 @@ GrBackendTexture GrMtlTexture::getBackendTexture() const {
     GrMipMapped mipMapped = fTexture.mipmapLevelCount > 1 ? GrMipMapped::kYes
                                                           : GrMipMapped::kNo;
     GrMtlTextureInfo info;
-    info.fTexture = GrGetPtrFromId(fTexture);
+    info.fTexture.reset(GrRetainPtrFromId(fTexture));
     return GrBackendTexture(this->width(), this->height(), mipMapped, info);
 }
 
