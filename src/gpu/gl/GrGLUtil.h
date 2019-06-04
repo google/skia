@@ -10,6 +10,7 @@
 
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/gl/GrGLDefines.h"
 
@@ -265,8 +266,15 @@ GrGLenum GrToGLStencilFunc(GrStencilTest test);
 bool GrGLFormatIsCompressed(GrGLenum glFormat);
 
 /**
+ * Maps a gl format into the GrCompressed enum.
+ */
+GrCompression GrGLFormat2Compression(GrGLenum glFormat);
+
+/**
  * Returns the data size for the given compressed format
  */
 size_t GrGLFormatCompressedDataSize(GrGLenum glFormat, int width, int height);
+
+size_t GrGLBytesPerFormat(GrGLenum glFormat);
 
 #endif
