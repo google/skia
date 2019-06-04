@@ -52,8 +52,9 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
 
-    GrBackendTexture backendTex = context->createBackendTexture(
-        256, 256, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
+    GrBackendTexture backendTex = context->priv().createBackendTexture(
+        256, 256, kRGBA_8888_SkColorType,
+        SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo);
 
     sk_sp<GrSurface> texRT2 = resourceProvider->wrapRenderableBackendTexture(
             backendTex, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
@@ -330,8 +331,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         // Mip regen should not work with a read only texture.
         if (context->priv().caps()->mipMapSupport()) {
             delete_backend_texture(context, backendTex);
-            backendTex = context->createBackendTexture(
-                    kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kYes, GrRenderable::kYes);
+            backendTex = context->priv().createBackendTexture(
+                    kSize, kSize, kRGBA_8888_SkColorType,
+                    SkColors::kTransparent, GrMipMapped::kYes, GrRenderable::kYes);
             proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                       kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
                                                       ioType);
@@ -346,8 +348,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 }
 
 static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable renderable) {
-    auto backendTexture = context->createBackendTexture(
-            10, 10, kRGBA_8888_SkColorType, GrMipMapped::kNo, renderable);
+    auto backendTexture = context->priv().createBackendTexture(
+            10, 10, kRGBA_8888_SkColorType, SkColors::kTransparent, GrMipMapped::kNo, renderable);
     sk_sp<GrTexture> texture;
     if (GrRenderable::kYes == renderable) {
         texture = context->priv().resourceProvider()->wrapRenderableBackendTexture(
