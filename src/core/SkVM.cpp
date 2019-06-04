@@ -111,18 +111,6 @@ namespace skvm {
     ID Builder::push(Op op, ID x, ID y, ID z, int immy, int immz) {
         Instruction inst{op, /*life=*/NA, x, y, z, immy, immz};
 
-        // Simple peepholes that come up fairly often.
-        if (op == Op::extract && immy == (int)0xff000000) { inst = {Op::shr,NA, x,NA,NA, 24,0}; }
-
-        auto is_zero = [&](ID id) {
-            return fProgram[id].op   == Op::splat
-                && fProgram[id].immy == 0;
-        };
-
-        // x*y+0 --> x*y
-        if (op == Op::mad_f32 && is_zero(z)) { inst = {Op::mul_f32,NA, x,y,NA, 0,0}; }
-
-
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
         auto lookup = fIndex.find(inst);
@@ -134,6 +122,11 @@ namespace skvm {
         fProgram.push_back(inst);
         fIndex[inst] = id;
         return id;
+    }
+
+    bool Builder::isZero(ID id) const {
+        return fProgram[id].op   == Op::splat
+            && fProgram[id].immy == 0;
     }
 
     Arg Builder::arg(int ix) { return {ix}; }
@@ -152,11 +145,16 @@ namespace skvm {
         return {this->push(Op::splat, NA,NA,NA, bits)};
     }
 
-    F32 Builder::add(F32 x, F32 y       ) { return {this->push(Op::add_f32, x.id, y.id      )}; }
-    F32 Builder::sub(F32 x, F32 y       ) { return {this->push(Op::sub_f32, x.id, y.id      )}; }
-    F32 Builder::mul(F32 x, F32 y       ) { return {this->push(Op::mul_f32, x.id, y.id      )}; }
-    F32 Builder::div(F32 x, F32 y       ) { return {this->push(Op::div_f32, x.id, y.id      )}; }
-    F32 Builder::mad(F32 x, F32 y, F32 z) { return {this->push(Op::mad_f32, x.id, y.id, z.id)}; }
+    F32 Builder::add(F32 x, F32 y       ) { return {this->push(Op::add_f32, x.id, y.id)}; }
+    F32 Builder::sub(F32 x, F32 y       ) { return {this->push(Op::sub_f32, x.id, y.id)}; }
+    F32 Builder::mul(F32 x, F32 y       ) { return {this->push(Op::mul_f32, x.id, y.id)}; }
+    F32 Builder::div(F32 x, F32 y       ) { return {this->push(Op::div_f32, x.id, y.id)}; }
+    F32 Builder::mad(F32 x, F32 y, F32 z) {
+        if (this->isZero(z.id)) {
+            return this->mul(x,y);
+        }
+        return {this->push(Op::mad_f32, x.id, y.id, z.id)};
+    }
 
     I32 Builder::add(I32 x, I32 y) { return {this->push(Op::add_i32, x.id, y.id)}; }
     I32 Builder::sub(I32 x, I32 y) { return {this->push(Op::sub_i32, x.id, y.id)}; }
@@ -180,6 +178,9 @@ namespace skvm {
     #else
         const int shift = __builtin_ctz(mask);
     #endif
+        if ((unsigned)mask == (~0u << shift)) {
+            return this->shr(x, shift);
+        }
         return {this->push(Op::extract, x.id,NA,NA, mask, shift)};
     }
 
