@@ -36,11 +36,11 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 
     GrGpu* gpu = context->priv().getGpu();
 
-    GrBackendTexture origBackendTex = context->priv().createBackendTexture(kW, kH,
-                                                                           kColorType,
-                                                                           SkColors::kTransparent,
-                                                                           GrMipMapped::kNo,
-                                                                           GrRenderable::kNo);
+    GrBackendTexture origBackendTex = context->createBackendTexture(kW, kH,
+                                                                    kColorType,
+                                                                    SkColors::kTransparent,
+                                                                    GrMipMapped::kNo,
+                                                                    GrRenderable::kNo);
     GrVkImageInfo imageInfo;
     SkAssertResult(origBackendTex.getVkImageInfo(&imageInfo));
 
@@ -91,11 +91,11 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
     GrGpu* gpu = context->priv().getGpu();
 
-    GrBackendTexture origBackendTex = context->priv().createBackendTexture(kW, kH,
-                                                                           kColorType,
-                                                                           SkColors::kTransparent,
-                                                                           GrMipMapped::kNo,
-                                                                           GrRenderable::kYes);
+    GrBackendTexture origBackendTex = context->createBackendTexture(kW, kH,
+                                                                    kColorType,
+                                                                    SkColors::kTransparent,
+                                                                    GrMipMapped::kNo,
+                                                                    GrRenderable::kYes);
 
     GrVkImageInfo imageInfo;
     SkAssertResult(origBackendTex.getVkImageInfo(&imageInfo));
@@ -135,11 +135,11 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
 void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
     GrGpu* gpu = context->priv().getGpu();
 
-    GrBackendTexture origBackendTex = context->priv().createBackendTexture(kW, kH,
-                                                                           kColorType,
-                                                                           SkColors::kTransparent,
-                                                                           GrMipMapped::kNo,
-                                                                           GrRenderable::kYes);
+    GrBackendTexture origBackendTex = context->createBackendTexture(kW, kH,
+                                                                    kColorType,
+                                                                    SkColors::kTransparent,
+                                                                    GrMipMapped::kNo,
+                                                                    GrRenderable::kYes);
     GrVkImageInfo imageInfo;
     SkAssertResult(origBackendTex.getVkImageInfo(&imageInfo));
 

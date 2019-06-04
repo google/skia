@@ -275,11 +275,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 // Tests wrapBackendRenderTarget with a GrBackendTexture
                 {
                     GrBackendTexture backendTex =
-                            context->priv().createBackendTexture(kWidthHeight, kWidthHeight,
-                                                                 colorType,
-                                                                 SkColors::kTransparent,
-                                                                 GrMipMapped::kNo,
-                                                                 GrRenderable::kYes);
+                            context->createBackendTexture(kWidthHeight, kWidthHeight,
+                                                          colorType,
+                                                          SkColors::kTransparent,
+                                                          GrMipMapped::kNo,
+                                                          GrRenderable::kYes);
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTextureAsRenderTarget(
                             backendTex, origin, supportedNumSamples);
                     if (!sProxy) {
@@ -301,11 +301,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 // Tests wrapBackendTexture that is only renderable
                 {
                     GrBackendTexture backendTex =
-                            context->priv().createBackendTexture(kWidthHeight, kWidthHeight,
-                                                                 colorType,
-                                                                 SkColors::kTransparent,
-                                                                 GrMipMapped::kNo,
-                                                                 GrRenderable::kYes);
+                            context->createBackendTexture(kWidthHeight, kWidthHeight,
+                                                          colorType,
+                                                          SkColors::kTransparent,
+                                                          GrMipMapped::kNo,
+                                                          GrRenderable::kYes);
 
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapRenderableBackendTexture(
                             backendTex, origin, supportedNumSamples, kBorrow_GrWrapOwnership,
@@ -330,11 +330,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 {
                     // Internal offscreen texture
                     GrBackendTexture backendTex =
-                            context->priv().createBackendTexture(kWidthHeight, kWidthHeight,
-                                                                 colorType,
-                                                                 SkColors::kTransparent,
-                                                                 GrMipMapped::kNo,
-                                                                 GrRenderable::kNo);
+                            context->createBackendTexture(kWidthHeight, kWidthHeight,
+                                                          colorType,
+                                                          SkColors::kTransparent,
+                                                          GrMipMapped::kNo,
+                                                          GrRenderable::kNo);
 
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTexture(
                             backendTex, origin, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,

@@ -52,7 +52,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
 
-    GrBackendTexture backendTex = context->priv().createBackendTexture(
+    GrBackendTexture backendTex = context->createBackendTexture(
         256, 256, kRGBA_8888_SkColorType,
         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo);
 
@@ -331,7 +331,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         // Mip regen should not work with a read only texture.
         if (context->priv().caps()->mipMapSupport()) {
             delete_backend_texture(context, backendTex);
-            backendTex = context->priv().createBackendTexture(
+            backendTex = context->createBackendTexture(
                     kSize, kSize, kRGBA_8888_SkColorType,
                     SkColors::kTransparent, GrMipMapped::kYes, GrRenderable::kYes);
             proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
@@ -348,7 +348,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 }
 
 static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable renderable) {
-    auto backendTexture = context->priv().createBackendTexture(
+    auto backendTexture = context->createBackendTexture(
             10, 10, kRGBA_8888_SkColorType, SkColors::kTransparent, GrMipMapped::kNo, renderable);
     sk_sp<GrTexture> texture;
     if (GrRenderable::kYes == renderable) {
