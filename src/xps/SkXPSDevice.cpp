@@ -983,7 +983,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     info.fColorCount = 0;
     info.fColors = nullptr;
     info.fColorOffsets = nullptr;
-    SkShader::GradientType gradientType = shader->asAGradient(&info);
+    SkShader::GradientType gradientType = as_SB(shader)->asAGradient(&info);
 
     if (SkShader::kNone_GradientType == gradientType) {
         //Nothing to see, move along.
@@ -992,7 +992,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
         SkASSERT(1 == info.fColorCount);
         SkColor color;
         info.fColors = &color;
-        shader->asAGradient(&info);
+        as_SB(shader)->asAGradient(&info);
         SkAlpha alpha = skPaint.getAlpha();
         HR(this->createXpsSolidColorBrush(color, alpha, brush));
         return S_OK;
@@ -1008,7 +1008,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
         SkAutoTArray<SkScalar> colorOffsets(info.fColorCount);
         info.fColors = colors.get();
         info.fColorOffsets = colorOffsets.get();
-        shader->asAGradient(&info);
+        as_SB(shader)->asAGradient(&info);
 
         if (1 == info.fColorCount) {
             SkColor color = info.fColors[0];
@@ -1054,7 +1054,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     SkBitmap outTexture;
     SkMatrix outMatrix;
     SkTileMode xy[2];
-    SkImage* image = shader->isAImage(&outMatrix, xy);
+    SkImage* image = as_SB(shader)->isAImage(&outMatrix, xy);
     if (image && image->asLegacyBitmap(&outTexture)) {
         //TODO: outMatrix??
         SkMatrix localMatrix = as_SB(shader)->getLocalMatrix();
