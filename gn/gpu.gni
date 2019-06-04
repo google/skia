@@ -347,6 +347,8 @@ skia_gpu_sources = [
   "$_src/gpu/geometry/GrQuad.cpp",
   "$_src/gpu/geometry/GrQuad.h",
   "$_src/gpu/geometry/GrQuadList.h",
+  "$_src/gpu/geometry/GrQuadUtils.cpp",
+  "$_src/gpu/geometry/GrQuadUtils.h",
   "$_src/gpu/geometry/GrRect.h",
   "$_src/gpu/geometry/GrShape.cpp",
   "$_src/gpu/geometry/GrShape.h",

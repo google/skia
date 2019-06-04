@@ -13,9 +13,6 @@
 #include "include/core/SkPoint3.h"
 #include "include/private/SkVx.h"
 
-enum class GrAAType : unsigned;
-enum class GrQuadAAFlags;
-
 /**
  * GrQuad is a collection of 4 points which can be used to represent an arbitrary quadrilateral. The
  * points make a triangle strip with CCW triangles (top-left, bottom-left, top-right, bottom-right).
@@ -130,10 +127,5 @@ private:
 
     Type fType;
 };
-
-// Resolve disagreements between the overall requested AA type and the per-edge quad AA flags.
-// Both outAAType and outEdgeFlags will be updated.
-void GrResolveAATypeForQuad(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags,
-                            const GrQuad& quad, GrAAType* outAAtype, GrQuadAAFlags* outEdgeFlags);
 
 #endif
