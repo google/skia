@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3e899f2_4e4c262d",
+        "filename": "DEPS",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-04T13:23:40Z",
+      "side": 1,
+      "message": "Add to .gitignores ?",
+      "range": {
+        "startLine": 10,
+        "startChar": 3,
+        "endLine": 10,
+        "endChar": 12
+      },
+      "revId": "39d156955773730bcf04dec69598a2e9f7eb241b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
