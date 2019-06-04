@@ -11,7 +11,6 @@
 #define SkDeque_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkNoncopyable.h"
 
 /*
  * The deque class works by blindly creating memory space of a specified element
@@ -24,7 +23,7 @@
  * on the block boundaries don't cause thrashing). This can result in the first/
  * last element not residing in the first/last block.
  */
-class SK_API SkDeque : SkNoncopyable {
+class SK_API SkDeque {
 public:
     /**
      * elemSize specifies the size of each individual element in the deque
@@ -134,6 +133,9 @@ private:
      * can be used to gauge the effectiveness of the selected allocCount.
      */
     int  numBlocksAllocated() const;
+
+    SkDeque(const SkDeque&) = delete;
+    SkDeque& operator=(const SkDeque&) = delete;
 };
 
 #endif
