@@ -37,6 +37,7 @@ public:
 
     static sk_sp<GrGLTextureRenderTarget> MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
                                                       const GrGLTexture::IDDesc& texIDDesc,
+                                                      sk_sp<GrGLTextureParameters> parameters,
                                                       const GrGLRenderTarget::IDDesc& rtIDDesc,
                                                       GrWrapCacheable cacheble, GrMipMapsStatus);
 
@@ -61,6 +62,7 @@ private:
     GrGLTextureRenderTarget(GrGLGpu* gpu,
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
+                            sk_sp<GrGLTextureParameters> parameters,
                             const GrGLRenderTarget::IDDesc& rtIDDesc,
                             GrWrapCacheable,
                             GrMipMapsStatus);

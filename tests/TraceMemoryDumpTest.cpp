@@ -127,8 +127,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLTexture, report
     idDesc.fInfo = glInfo;
     idDesc.fOwnership = GrBackendObjectOwnership::kBorrowed;
 
-    auto texture = GrGLTexture::MakeWrapped(gpu, desc, GrMipMapsStatus::kNotAllocated, idDesc,
-                                            GrWrapCacheable::kNo, kRead_GrIOType);
+    auto params = sk_make_sp<GrGLTextureParameters>();
+
+    auto texture =
+            GrGLTexture::MakeWrapped(gpu, desc, GrMipMapsStatus::kNotAllocated, idDesc,
+                                     std::move(params), GrWrapCacheable::kNo, kRead_GrIOType);
 
     ValidateMemoryDumps(reporter, context, texture->gpuMemorySize(), false /* isOwned */);
 }
