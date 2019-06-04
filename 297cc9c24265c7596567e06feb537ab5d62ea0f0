@@ -22,6 +22,30 @@
       "revId": "297cc9c24265c7596567e06feb537ab5d62ea0f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b7f2cee_5dc59c7b",
+        "filename": "gm/preservefillrule.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-06-04T18:28:35Z",
+      "side": 1,
+      "message": "Added a comment. Short answer, yes.\n\nI had SkASSERTS previously to verify the cache was behaving as expected. I changed this to a system that draws a failure message even in release mode, rather than just asserting. Also added comments.",
+      "parentUuid": "a15645c0_51e044bd",
+      "range": {
+        "startLine": 31,
+        "startChar": 12,
+        "endLine": 31,
+        "endChar": 58
+      },
+      "revId": "297cc9c24265c7596567e06feb537ab5d62ea0f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
