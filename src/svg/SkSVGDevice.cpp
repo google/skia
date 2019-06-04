@@ -119,7 +119,7 @@ bool RequiresViewportReset(const SkPaint& paint) {
     return false;
 
   SkTileMode xy[2];
-  SkImage* image = shader->isAImage(nullptr, xy);
+  SkImage* image = as_SB(shader)->isAImage(nullptr, xy);
 
   if (!image)
     return false;
@@ -261,7 +261,7 @@ private:
     void addPaint(const SkPaint& paint, const Resources& resources);
 
 
-    SkString addLinearGradientDef(const SkShader::GradientInfo& info, const SkShader* shader);
+    SkString addLinearGradientDef(const SkGradientInfo& info, const SkShader* shader);
 
     SkXMLWriter*               fWriter;
     ResourceBucket*            fResourceBucket;
@@ -349,9 +349,9 @@ Resources SkSVGDevice::AutoElement::addResources(const MxCp& mc, const SkPaint& 
 void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader,
                                                           const SkPaint& paint,
                                                           Resources* resources) {
-    SkShader::GradientInfo grInfo;
+    SkGradientInfo grInfo;
     grInfo.fColorCount = 0;
-    if (SkShader::kLinear_GradientType != shader->asAGradient(&grInfo)) {
+    if (SkGradientType::kLinear != as_SB(shader)->asAGradient(&grInfo)) {
         // TODO: non-linear gradient support
         return;
     }
@@ -362,7 +362,7 @@ void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader
     grInfo.fColorOffsets = grOffsets.get();
 
     // One more call to get the actual colors/offsets.
-    shader->asAGradient(&grInfo);
+    as_SB(shader)->asAGradient(&grInfo);
     SkASSERT(grInfo.fColorCount <= grColors.count());
     SkASSERT(grInfo.fColorCount <= grOffsets.count());
 
@@ -445,7 +445,7 @@ void SkSVGDevice::AutoElement::addImageShaderResources(const SkShader* shader, c
     SkMatrix outMatrix;
 
     SkTileMode xy[2];
-    SkImage* image = shader->isAImage(&outMatrix, xy);
+    SkImage* image = as_SB(shader)->isAImage(&outMatrix, xy);
     SkASSERT(image);
 
     SkString patternDims[2];  // width, height
@@ -496,9 +496,9 @@ void SkSVGDevice::AutoElement::addShaderResources(const SkPaint& paint, Resource
     const SkShader* shader = paint.getShader();
     SkASSERT(shader);
 
-    if (shader->asAGradient(nullptr) != SkShader::kNone_GradientType) {
+    if (as_SB(shader)->asAGradient(nullptr) != SkGradientType::kNone) {
         this->addGradientShaderResources(shader, paint, resources);
-    } else if (shader->isAImage()) {
+    } else if (as_SB(shader)->isAImage()) {
         this->addImageShaderResources(shader, paint, resources);
     }
     // TODO: other shader types?
@@ -534,7 +534,7 @@ void SkSVGDevice::AutoElement::addClipResources(const MxCp& mc, Resources* resou
     resources->fClip.printf("url(#%s)", clipID.c_str());
 }
 
-SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkShader::GradientInfo& info,
+SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkGradientInfo& info,
                                                         const SkShader* shader) {
     SkASSERT(fResourceBucket);
     SkString id = fResourceBucket->addLinearGradient();

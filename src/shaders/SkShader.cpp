@@ -115,11 +115,15 @@ bool SkShaderBase::ContextRec::isLegacyCompatible(SkColorSpace* shaderColorSpace
 }
 
 SkImage* SkShader::isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const {
-    return as_SB(this)->onIsAImage(localMatrix, xy);
+    return as_SB(this)->isAImage(localMatrix, xy);
 }
 
-SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
-    return kNone_GradientType;
+SkImage* SkShaderBase::isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const {
+    return this->onIsAImage(localMatrix, xy);
+}
+
+SkGradientType SkShaderBase::asAGradient(SkGradientInfo* info) const {
+    return SkGradientType::kNone;
 }
 
 #if SK_SUPPORT_GPU

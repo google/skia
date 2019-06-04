@@ -29,6 +29,28 @@ struct SkImageInfo;
 class SkPaint;
 class SkRasterPipeline;
 
+enum class SkGradientType {
+    kNone,
+    kColor,
+    kLinear,
+    kRadial,
+    kSweep,
+    kConical,
+};
+
+struct SkGradientInfo {
+    int         fColorCount;    //!< In-out parameter, specifies passed size
+                                //   of fColors/fColorOffsets on input, and
+                                //   actual number of colors/offsets on
+                                //   output.
+    SkColor*    fColors;        //!< The colors in the gradient.
+    SkScalar*   fColorOffsets;  //!< The unit offset for color transitions.
+    SkPoint     fPoint[2];      //!< Type specific, see above.
+    SkScalar    fRadius[2];     //!< Type specific, see above.
+    SkTileMode  fTileMode;
+    uint32_t    fGradientFlags; //!< see SkGradientShader::Flags
+};
+
 class SkShaderBase : public SkShader {
 public:
     ~SkShaderBase() override;
@@ -163,6 +185,48 @@ public:
     //
     SkTCopyOnFirstWrite<SkMatrix> totalLocalMatrix(const SkMatrix* preLocalMatrix,
                                                    const SkMatrix* postLocalMatrix = nullptr) const;
+
+    /**
+     *  Iff this shader is backed by a single SkImage, return its ptr (the caller must ref this
+     *  if they want to keep it longer than the lifetime of the shader). If not, return nullptr.
+     */
+    SkImage* isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const;
+
+    bool isAImage() const {
+        return this->isAImage(nullptr, (SkTileMode*)nullptr) != nullptr;
+    }
+
+    /**
+     *  If the shader subclass can be represented as a gradient, asAGradient
+     *  returns the matching SkGradientType enum (or SkGradientType::kNone if it
+     *  cannot). Also, if info is not null, asAGradient populates info with
+     *  the relevant (see below) parameters for the gradient.  fColorCount
+     *  is both an input and output parameter.  On input, it indicates how
+     *  many entries in fColors and fColorOffsets can be used, if they are
+     *  non-NULL.  After asAGradient has run, fColorCount indicates how
+     *  many color-offset pairs there are in the gradient.  If there is
+     *  insufficient space to store all of the color-offset pairs, fColors
+     *  and fColorOffsets will not be altered.  fColorOffsets specifies
+     *  where on the range of 0 to 1 to transition to the given color.
+     *  The meaning of fPoint and fRadius is dependent on the type of gradient.
+     *
+     *  None:
+     *      info is ignored.
+     *  Color:
+     *      fColorOffsets[0] is meaningless.
+     *  Linear:
+     *      fPoint[0] and fPoint[1] are the end-points of the gradient
+     *  Radial:
+     *      fPoint[0] and fRadius[0] are the center and radius
+     *  Conical:
+     *      fPoint[0] and fRadius[0] are the center and radius of the 1st circle
+     *      fPoint[1] and fRadius[1] are the center and radius of the 2nd circle
+     *  Sweep:
+     *      fPoint[0] is the center of the sweep.
+     */
+
+    // DEPRECATED. skbug.com/8941
+    virtual SkGradientType asAGradient(SkGradientInfo* info) const;
 
     virtual SkImage* onIsAImage(SkMatrix*, SkTileMode[2]) const {
         return nullptr;

@@ -830,7 +830,7 @@ HRESULT SkXPSDevice::createXpsGradientStop(const SkColor skColor,
     return S_OK;
 }
 
-HRESULT SkXPSDevice::createXpsLinearGradient(SkShader::GradientInfo info,
+HRESULT SkXPSDevice::createXpsLinearGradient(SkGradientInfo info,
                                              const SkAlpha alpha,
                                              const SkMatrix& localMatrix,
                                              IXpsOMMatrixTransform* xpsMatrix,
@@ -892,7 +892,7 @@ HRESULT SkXPSDevice::createXpsLinearGradient(SkShader::GradientInfo info,
     return S_OK;
 }
 
-HRESULT SkXPSDevice::createXpsRadialGradient(SkShader::GradientInfo info,
+HRESULT SkXPSDevice::createXpsRadialGradient(SkGradientInfo info,
                                              const SkAlpha alpha,
                                              const SkMatrix& localMatrix,
                                              IXpsOMMatrixTransform* xpsMatrix,
@@ -979,20 +979,20 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     }
 
     //Gradient shaders.
-    SkShader::GradientInfo info;
+    SkGradientInfo info;
     info.fColorCount = 0;
     info.fColors = nullptr;
     info.fColorOffsets = nullptr;
-    SkShader::GradientType gradientType = shader->asAGradient(&info);
+    SkGradientType gradientType = as_SB(shader)->asAGradient(&info);
 
-    if (SkShader::kNone_GradientType == gradientType) {
+    if (SkGradientType::kNone == gradientType) {
         //Nothing to see, move along.
 
-    } else if (SkShader::kColor_GradientType == gradientType) {
+    } else if (SkGradientType::kColor == gradientType) {
         SkASSERT(1 == info.fColorCount);
         SkColor color;
         info.fColors = &color;
-        shader->asAGradient(&info);
+        as_SB(shader)->asAGradient(&info);
         SkAlpha alpha = skPaint.getAlpha();
         HR(this->createXpsSolidColorBrush(color, alpha, brush));
         return S_OK;
@@ -1008,7 +1008,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
         SkAutoTArray<SkScalar> colorOffsets(info.fColorCount);
         info.fColors = colors.get();
         info.fColorOffsets = colorOffsets.get();
-        shader->asAGradient(&info);
+        as_SB(shader)->asAGradient(&info);
 
         if (1 == info.fColorCount) {
             SkColor color = info.fColors[0];
@@ -1024,7 +1024,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
         SkTScopedComPtr<IXpsOMMatrixTransform> xpsMatrixToUse;
         HR(this->createXpsTransform(localMatrix, &xpsMatrixToUse));
 
-        if (SkShader::kLinear_GradientType == gradientType) {
+        if (SkGradientType::kLinear == gradientType) {
             HR(this->createXpsLinearGradient(info,
                                              skPaint.getAlpha(),
                                              localMatrix,
@@ -1033,7 +1033,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
-        if (SkShader::kRadial_GradientType == gradientType) {
+        if (SkGradientType::kRadial == gradientType) {
             HR(this->createXpsRadialGradient(info,
                                              skPaint.getAlpha(),
                                              localMatrix,
@@ -1042,11 +1042,11 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
-        if (SkShader::kConical_GradientType == gradientType) {
+        if (SkGradientType::kConical == gradientType) {
             //simple if affine and one is 0, otherwise will have to fake
         }
 
-        if (SkShader::kSweep_GradientType == gradientType) {
+        if (SkGradientType::kSweep == gradientType) {
             //have to fake
         }
     }
@@ -1054,7 +1054,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     SkBitmap outTexture;
     SkMatrix outMatrix;
     SkTileMode xy[2];
-    SkImage* image = shader->isAImage(&outMatrix, xy);
+    SkImage* image = as_SB(shader)->isAImage(&outMatrix, xy);
     if (image && image->asLegacyBitmap(&outTexture)) {
         //TODO: outMatrix??
         SkMatrix localMatrix = as_SB(shader)->getLocalMatrix();
