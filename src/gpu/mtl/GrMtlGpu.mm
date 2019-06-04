@@ -632,6 +632,8 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, MTLPixelFor
         return false;
     }
 
+    test
+
     bool mipmapped = mipMapped == GrMipMapped::kYes ? true : false;
     MTLTextureDescriptor* desc =
             [MTLTextureDescriptor texture2DDescriptorWithPixelFormat: format
