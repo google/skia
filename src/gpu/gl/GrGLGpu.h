@@ -216,8 +216,9 @@ private:
     // The texture is populated with |texels|, if it exists.
     // The texture parameters are cached in |initialTexParams|.
     bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info, GrRenderable,
-                           GrGLTexture::SamplerParams* initialTexParams, const GrMipLevel texels[],
-                           int mipLevelCount, GrMipMapsStatus* mipMapsStatus);
+                           GrGLTextureParameters::SamplerOverriddenState* initialState,
+                           const GrMipLevel texels[], int mipLevelCount,
+                           GrMipMapsStatus* mipMapsStatus);
 
     // Checks whether glReadPixels can be called to get pixel values in readConfig from the
     // render target.
@@ -664,6 +665,8 @@ private:
     }
 
     GrPrimitiveType fLastPrimitiveType;
+
+    GrGLTextureParameters::ResetTimestamp fResetTimestampForTextureParameters = 0;
 
     class SamplerObjectCache;
     std::unique_ptr<SamplerObjectCache> fSamplerObjectCache;
