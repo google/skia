@@ -474,6 +474,8 @@ DM_SRCS_ALL = struct(
         "tools/ResourceFactory.h",
         "tools/Resources.cpp",
         "tools/Resources.h",
+        "tools/SkVMBuilders.cpp",
+        "tools/SkVMBuilders.h",
         "tools/UrlDataManager.cpp",
         "tools/UrlDataManager.h",
         "tools/debugger/*.cpp",
