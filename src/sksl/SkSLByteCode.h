@@ -124,6 +124,11 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kTan),
     // Followed by a byte indicating external value to write
     VECTOR(kWriteExternal),
+
+    kMaskPush,
+    kMaskPop,
+    // Followed by count byte
+    kMaskBlend,
 };
 #undef VECTOR
 
