@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6bc3d608_b40364af",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2019-06-04T14:47:20Z",
+      "side": 1,
+      "message": "I am curious - what \"defense in depth\" is changing this to fFactory here?",
+      "revId": "dcaaab4831981ac8d8148ee340037a205d86a0d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
