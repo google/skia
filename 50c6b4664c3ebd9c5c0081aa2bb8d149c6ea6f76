@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95cbab83_c95c776e",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2336,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-04T20:10:09Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be checking that the dst is NOT external?",
+      "range": {
+        "startLine": 2336,
+        "startChar": 8,
+        "endLine": 2336,
+        "endChar": 53
+      },
+      "revId": "50c6b4664c3ebd9c5c0081aa2bb8d149c6ea6f76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f2f3867_3b67665b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 3284,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-04T20:10:09Z",
+      "side": 1,
+      "message": "I\u0027m not sure my suggestion was really a good idea :) Though, I\u0027m fine if you want to leave it like this now.",
+      "range": {
+        "startLine": 3272,
+        "startChar": 0,
+        "endLine": 3284,
+        "endChar": 0
+      },
+      "revId": "50c6b4664c3ebd9c5c0081aa2bb8d149c6ea6f76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
