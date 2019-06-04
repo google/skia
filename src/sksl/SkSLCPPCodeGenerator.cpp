@@ -309,7 +309,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
                 String var = String::printf("args.fUniformHandler->getUniformCStr(%sVar)",
                                             HCodeGenerator::FieldName(name.c_str()).c_str());
                 String code;
-                if (ref.fVariable.fModifiers.fLayout.fWhen.size()) {
+                if (ref.fVariable.fModifiers.fLayout.fWhen.fLength) {
                     code = String::printf("%sVar.isValid() ? %s : \"%s\"",
                                           HCodeGenerator::FieldName(name.c_str()).c_str(),
                                           var.c_str(),
@@ -555,14 +555,14 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
         ABORT("unsupported uniform type: %s %s;\n", String(var.fType.fName).c_str(),
               String(var.fName).c_str());
     }
-    if (var.fModifiers.fLayout.fWhen.size()) {
-        this->writef("        if (%s) {\n    ", var.fModifiers.fLayout.fWhen.c_str());
+    if (var.fModifiers.fLayout.fWhen.fLength) {
+        this->writef("        if (%s) {\n    ", String(var.fModifiers.fLayout.fWhen).c_str());
     }
     String name(var.fName);
     this->writef("        %sVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, %s, "
                  "\"%s\");\n", HCodeGenerator::FieldName(name.c_str()).c_str(), type,
                  name.c_str());
-    if (var.fModifiers.fLayout.fWhen.size()) {
+    if (var.fModifiers.fLayout.fWhen.fLength) {
         this->write("        }\n");
     }
 }
@@ -1105,8 +1105,8 @@ void CPPCodeGenerator::writeGetKey() {
         }
         switch (param->fModifiers.fLayout.fKey) {
             case Layout::kKey_Key:
-                if (param->fModifiers.fLayout.fWhen.size()) {
-                    this->writef("if (%s) {", param->fModifiers.fLayout.fWhen.c_str());
+                if (param->fModifiers.fLayout.fWhen.fLength) {
+                    this->writef("if (%s) {", String(param->fModifiers.fLayout.fWhen).c_str());
                 }
                 if (param->fType == *fContext.fFloat4x4_Type) {
                     ABORT("no automatic key handling for float4x4\n");
@@ -1139,7 +1139,7 @@ void CPPCodeGenerator::writeGetKey() {
                     this->writef("    b->add32((int32_t) %s);\n",
                                  HCodeGenerator::FieldName(name).c_str());
                 }
-                if (param->fModifiers.fLayout.fWhen.size()) {
+                if (param->fModifiers.fLayout.fWhen.fLength) {
                     this->write("}");
                 }
                 break;

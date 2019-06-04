@@ -110,6 +110,7 @@ bench_sources = [
   "$_bench/SkGlyphCacheBench.cpp",
   "$_bench/SKPAnimationBench.cpp",
   "$_bench/SKPBench.cpp",
+  "$_bench/SkSLBench.cpp",
   "$_bench/StreamBench.cpp",
   "$_bench/SortBench.cpp",
   "$_bench/StrokeBench.cpp",
