@@ -186,6 +186,8 @@ void GrVkBuffer::internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer) 
 
 void GrVkBuffer::copyCpuDataToGpuBuffer(GrVkGpu* gpu, const void* src, size_t size) {
     SkASSERT(src);
+    // We should never call this method in protected contexts.
+    SkASSERT(!gpu->protectedContext());
     // The vulkan api restricts the use of vkCmdUpdateBuffer to updates that are less than or equal
     // to 65536 bytes and a size the is 4 byte aligned.
     if ((size <= 65536) && (0 == (size & 0x3)) && !gpu->vkCaps().avoidUpdateBuffers()) {
