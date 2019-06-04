@@ -139,16 +139,20 @@ template <typename T> static inline T* SkRef(T* obj) {
  */
 template <typename T> static inline T* SkSafeRef(T* obj) {
     if (obj) {
-        obj->ref();
+        SkRef(obj);
     }
     return obj;
 }
 
-/** Check if the argument is non-null, and if so, call obj->unref()
+/** Call obj->unref().
+ */
+template <typename T> static inline void SkUnref(T* obj) { obj->unref(); }
+
+/** Check if the argument is non-null, and if so, call SkUnref(obj)
  */
 template <typename T> static inline void SkSafeUnref(T* obj) {
     if (obj) {
-        obj->unref();
+        SkUnref(obj);
     }
 }
 
