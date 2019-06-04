@@ -24,6 +24,7 @@ namespace skvm {
         bit_and, bit_or, bit_xor,
         shl, shr, sra,
         mul_unorm8,
+        extract,
         pack,
         to_f32, to_i32,
     };
@@ -95,6 +96,17 @@ namespace skvm {
         I32 sra(I32 x, int bits);
 
         I32 mul_unorm8(I32 x, I32 y);   // (x*y+255)/256, approximating (x*y+127)/255.
+
+        // (x & mask) >> k, where k is the lowest set bit of mask. E.g.
+        //    extract(x, 0xff)   == (x & 0xff)
+        //    extract(x, 0xff00) == (x & 0xff00) >> 8
+        //
+        //    extract(x, 0x00ff00ff) == (x & 0x00ff00ff)
+        //    extract(x, 0xff00ff00) == (x & 0xff00ff00) >> 8
+        //
+        //    extract(x, 0x003ff) == (x & 0x003ff)
+        //    extract(x, 0xffc00) == (x & 0xffc00) >> 10
+        I32 extract(I32 x, int mask);
 
         // Interlace bits from x and y as if x | (y << bits),
         // assuming no bits from x and (y << bits) collide with each other, (x & (y << bits)) == 0.

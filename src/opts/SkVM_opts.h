@@ -9,6 +9,9 @@
 #define SkVM_opts_DEFINED
 
 #include "src/core/SkVM.h"
+#if defined(SK_BUILD_FOR_WIN)
+    #include <intrin.h>
+#endif
 
 namespace SK_OPTS_NS {
 
@@ -123,6 +126,17 @@ namespace SK_OPTS_NS {
                     CASE(Op::shr): r(d).i32 = skvx::cast<int>(r(x).u32 >> z.imm); break;
 
                     CASE(Op::mul_unorm8): r(d).i32 = (r(x).i32 * r(y).i32 + 255) / 256; break;
+
+                    CASE(Op::extract): {
+                        SkASSERT(z.imm != 0);
+                    #if defined(SK_BUILD_FOR_WIN)
+                        unsigned long shift;
+                        _BitScanForward(&shift, z.imm);
+                    #else
+                        const int shift = __builtin_ctz(z.imm);
+                    #endif
+                        r(d).i32 = skvx::cast<int>( (r(x).u32 & z.imm) >> shift );
+                    } break;
 
                     CASE(Op::pack): r(d).i32 = r(x).i32 | (r(y).i32 << z.imm); break;
 

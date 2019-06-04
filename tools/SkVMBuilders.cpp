@@ -35,12 +35,11 @@ SrcoverBuilder_F32::SrcoverBuilder_F32(Fmt srcFmt, Fmt dstFmt) {
             } break;
 
             case Fmt::RGBA_8888: {
-                skvm::I32 rgba = load32(ptr),
-                          _255 = splat(255);
-                *r = byte_to_f32(bit_and(    rgba     , _255));
-                *g = byte_to_f32(bit_and(shr(rgba,  8), _255));
-                *b = byte_to_f32(bit_and(shr(rgba, 16), _255));
-                *a = byte_to_f32(        shr(rgba, 24)       );
+                skvm::I32 rgba = load32(ptr);
+                *r = byte_to_f32(extract(rgba, 0xff));
+                *g = byte_to_f32(extract(rgba, 0xff00));
+                *b = byte_to_f32(extract(rgba, 0xff0000));
+                *a = byte_to_f32(extract(rgba, 0xff000000));
             } break;
         }
     };
@@ -97,12 +96,11 @@ SrcoverBuilder_I32::SrcoverBuilder_I32() {
 
     auto load = [&](skvm::Arg ptr,
                     skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) {
-        skvm::I32 rgba = load32(ptr),
-                  mask = splat(0xff);
-        *r = bit_and(    rgba     ,  mask);
-        *g = bit_and(shr(rgba,  8),  mask);
-        *b = bit_and(shr(rgba, 16),  mask);
-        *a =         shr(rgba, 24)        ;
+        skvm::I32 rgba = load32(ptr);
+        *r = extract(rgba, 0xff);
+        *g = extract(rgba, 0xff00);
+        *b = extract(rgba, 0xff0000);
+        *a = extract(rgba, 0xff000000);
     };
 
     skvm::I32 r,g,b,a;
@@ -129,19 +127,16 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
 
     auto load = [&](skvm::Arg ptr,
                     skvm::I32* rb, skvm::I32* ga) {
-        skvm::I32 rgba = load32(ptr),
-                  mask = splat(0x00ff00ff);
-        *rb = bit_and(    rgba,     mask);
-        *ga = bit_and(shr(rgba, 8), mask);
+        skvm::I32 rgba = load32(ptr);
+        *rb = extract(rgba, 0x00ff00ff);
+        *ga = extract(rgba, 0xff00ff00);
     };
 
     auto mul_unorm8_SWAR = [&](skvm::I32 x, skvm::I32 y) {
         // As above, assuming x is two SWAR bytes in lanes 0 and 2, and y is a byte.
         skvm::I32 _255 = splat(0x00ff00ff);
-        return bit_and(shr(add(mul(x, y),
-                               _255),
-                           8),
-                       _255);
+        return extract(add(mul(x, y), _255),
+                       0xff00ff00);
     };
 
     skvm::I32 rb, ga;
