@@ -695,7 +695,7 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, MTLPixelFor
     [cmdBuffer waitUntilCompleted];
     transferBuffer = nil;
 
-    info->fTexture = GrGetPtrFromId(testTexture);
+    info->fTexture.reset(GrRetainPtrFromId(testTexture));
 
     return true;
 }
