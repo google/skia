@@ -22,6 +22,30 @@
       "revId": "bb6af26738a70077e1b67bea6292f56c8caa5d2d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4211eaee_c3cd762d",
+        "filename": "src/gpu/geometry/GrQuadList.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-04T15:34:32Z",
+      "side": 1,
+      "message": "That does seem to be the trend",
+      "parentUuid": "2478d4e0_6a73cc78",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "bb6af26738a70077e1b67bea6292f56c8caa5d2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
