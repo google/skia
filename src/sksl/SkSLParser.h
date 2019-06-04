@@ -12,8 +12,10 @@
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
+#include "src/sksl/SkSLASTFile.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLLexer.h"
+#include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/ir/SkSLLayout.h"
 
 struct yy_buffer_state;
@@ -22,27 +24,6 @@ typedef struct yy_buffer_state *YY_BUFFER_STATE;
 
 namespace SkSL {
 
-struct ASTBlock;
-struct ASTBreakStatement;
-struct ASTContinueStatement;
-struct ASTDeclaration;
-struct ASTDiscardStatement;
-struct ASTDoStatement;
-struct ASTExpression;
-struct ASTExpressionStatement;
-struct ASTForStatement;
-struct ASTIfStatement;
-struct ASTInterfaceBlock;
-struct ASTParameter;
-struct ASTPrecision;
-struct ASTReturnStatement;
-struct ASTStatement;
-struct ASTSuffix;
-struct ASTSwitchCase;
-struct ASTSwitchStatement;
-struct ASTType;
-struct ASTWhileStatement;
-struct ASTVarDeclarations;
 struct Modifiers;
 class SymbolTable;
 
@@ -105,11 +86,10 @@ public:
     Parser(const char* text, size_t length, SymbolTable& types, ErrorReporter& errors);
 
     /**
-     * Consumes a complete .sksl file and produces a list of declarations. Errors are reported via
-     * the ErrorReporter; the return value may contain some declarations even when errors have
-     * occurred.
+     * Consumes a complete .sksl file and returns the parse tree. Errors are reported via the
+     * ErrorReporter; the return value may contain some declarations even when errors have occurred.
      */
-    std::vector<std::unique_ptr<ASTDeclaration>> file();
+    std::unique_ptr<ASTFile> file();
 
     StringFragment text(Token token);
 
@@ -166,37 +146,40 @@ private:
      */
     bool isType(StringFragment name);
 
+    // The pointer to the node may be invalidated by modifying the fNodes vector
+    ASTNode& getNode(ASTNode::ID id) {
+        return fFile->fNodes[id.fValue];
+    }
+
     // these functions parse individual grammar rules from the current parse position; you probably
     // don't need to call any of these outside of the parser. The function declarations in the .cpp
     // file have comments describing the grammar rules.
 
-    std::unique_ptr<ASTDeclaration> precision();
+    ASTNode::ID precision();
 
-    std::unique_ptr<ASTDeclaration> directive();
+    ASTNode::ID directive();
 
-    std::unique_ptr<ASTDeclaration> section();
+    ASTNode::ID section();
 
-    std::unique_ptr<ASTDeclaration> enumDeclaration();
+    ASTNode::ID enumDeclaration();
 
-    std::unique_ptr<ASTDeclaration> declaration();
+    ASTNode::ID declaration();
 
-    std::unique_ptr<ASTVarDeclarations> varDeclarations();
+    ASTNode::ID varDeclarations();
 
-    std::unique_ptr<ASTType> structDeclaration();
+    ASTNode::ID structDeclaration();
 
-    std::unique_ptr<ASTVarDeclarations> structVarDeclaration(Modifiers modifiers);
+    ASTNode::ID structVarDeclaration(Modifiers modifiers);
 
-    std::unique_ptr<ASTVarDeclarations> varDeclarationEnd(Modifiers modifiers,
-                                                          std::unique_ptr<ASTType> type,
-                                                          StringFragment name);
+    ASTNode::ID varDeclarationEnd(Modifiers modifiers, ASTNode::ID type, StringFragment name);
 
-    std::unique_ptr<ASTParameter> parameter();
+    ASTNode::ID parameter();
 
     int layoutInt();
 
     StringFragment layoutIdentifier();
 
-    String layoutCode();
+    StringFragment layoutCode();
 
     Layout::Key layoutKey();
 
@@ -208,77 +191,75 @@ private:
 
     Modifiers modifiersWithDefaults(int defaultFlags);
 
-    std::unique_ptr<ASTStatement> statement();
+    ASTNode::ID statement();
 
-    std::unique_ptr<ASTType> type();
+    ASTNode::ID type();
 
-    std::unique_ptr<ASTDeclaration> interfaceBlock(Modifiers mods);
+    ASTNode::ID interfaceBlock(Modifiers mods);
 
-    std::unique_ptr<ASTIfStatement> ifStatement();
+    ASTNode::ID ifStatement();
 
-    std::unique_ptr<ASTDoStatement> doStatement();
+    ASTNode::ID doStatement();
 
-    std::unique_ptr<ASTWhileStatement> whileStatement();
+    ASTNode::ID whileStatement();
 
-    std::unique_ptr<ASTForStatement> forStatement();
+    ASTNode::ID forStatement();
 
-    std::unique_ptr<ASTSwitchCase> switchCase();
+    ASTNode::ID switchCase();
 
-    std::unique_ptr<ASTStatement> switchStatement();
+    ASTNode::ID switchStatement();
 
-    std::unique_ptr<ASTReturnStatement> returnStatement();
+    ASTNode::ID returnStatement();
 
-    std::unique_ptr<ASTBreakStatement> breakStatement();
+    ASTNode::ID breakStatement();
 
-    std::unique_ptr<ASTContinueStatement> continueStatement();
+    ASTNode::ID continueStatement();
 
-    std::unique_ptr<ASTDiscardStatement> discardStatement();
+    ASTNode::ID discardStatement();
 
-    std::unique_ptr<ASTBlock> block();
+    ASTNode::ID block();
 
-    std::unique_ptr<ASTExpressionStatement> expressionStatement();
+    ASTNode::ID expressionStatement();
 
-    std::unique_ptr<ASTExpression> expression();
+    ASTNode::ID expression();
 
-    std::unique_ptr<ASTExpression> commaExpression();
+    ASTNode::ID assignmentExpression();
 
-    std::unique_ptr<ASTExpression> assignmentExpression();
+    ASTNode::ID ternaryExpression();
 
-    std::unique_ptr<ASTExpression> ternaryExpression();
+    ASTNode::ID logicalOrExpression();
 
-    std::unique_ptr<ASTExpression> logicalOrExpression();
+    ASTNode::ID logicalXorExpression();
 
-    std::unique_ptr<ASTExpression> logicalXorExpression();
+    ASTNode::ID logicalAndExpression();
 
-    std::unique_ptr<ASTExpression> logicalAndExpression();
+    ASTNode::ID bitwiseOrExpression();
 
-    std::unique_ptr<ASTExpression> bitwiseOrExpression();
+    ASTNode::ID bitwiseXorExpression();
 
-    std::unique_ptr<ASTExpression> bitwiseXorExpression();
+    ASTNode::ID bitwiseAndExpression();
 
-    std::unique_ptr<ASTExpression> bitwiseAndExpression();
+    ASTNode::ID equalityExpression();
 
-    std::unique_ptr<ASTExpression> equalityExpression();
+    ASTNode::ID relationalExpression();
 
-    std::unique_ptr<ASTExpression> relationalExpression();
+    ASTNode::ID shiftExpression();
 
-    std::unique_ptr<ASTExpression> shiftExpression();
+    ASTNode::ID additiveExpression();
 
-    std::unique_ptr<ASTExpression> additiveExpression();
+    ASTNode::ID multiplicativeExpression();
 
-    std::unique_ptr<ASTExpression> multiplicativeExpression();
+    ASTNode::ID unaryExpression();
 
-    std::unique_ptr<ASTExpression> unaryExpression();
+    ASTNode::ID postfixExpression();
 
-    std::unique_ptr<ASTExpression> postfixExpression();
+    ASTNode::ID suffix(ASTNode::ID base);
 
-    std::unique_ptr<ASTSuffix> suffix();
+    ASTNode::ID term();
 
-    std::unique_ptr<ASTExpression> term();
+    bool intLiteral(SKSL_INT* dest);
 
-    bool intLiteral(int64_t* dest);
-
-    bool floatLiteral(double* dest);
+    bool floatLiteral(SKSL_FLOAT* dest);
 
     bool boolLiteral(bool* dest);
 
@@ -295,6 +276,8 @@ private:
     Token fPushback;
     SymbolTable& fTypes;
     ErrorReporter& fErrors;
+
+    std::unique_ptr<ASTFile> fFile;
 
     friend class AutoDepth;
     friend class HCodeGenerator;
