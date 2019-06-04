@@ -221,9 +221,6 @@ private:
     friend class SkPicturePriv;
     template <typename> friend class SkMiniPicture;
 
-    void serialize(SkWStream*, const SkSerialProcs*, class SkRefCntSet* typefaces) const;
-    static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs*,
-                                           class SkTypefacePlayback*);
     friend class SkPictureData;
 
     /** Return true if the SkStream/Buffer represents a serialized picture, and

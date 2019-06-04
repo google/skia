@@ -80,11 +80,10 @@ public:
     // Does not affect ownership of SkStream.
     static SkPictureData* CreateFromStream(SkStream*,
                                            const SkPictInfo&,
-                                           const SkDeserialProcs&,
-                                           SkTypefacePlayback*);
+                                           const SkDeserialProcs&);
     static SkPictureData* CreateFromBuffer(SkReadBuffer&, const SkPictInfo&);
 
-    void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet*) const;
+    void serialize(SkWStream*, const SkSerialProcs&) const;
     void flatten(SkWriteBuffer&) const;
 
     const sk_sp<SkData>& opData() const { return fOpData; }
@@ -93,7 +92,7 @@ protected:
     explicit SkPictureData(const SkPictInfo& info);
 
     // Does not affect ownership of SkStream.
-    bool parseStream(SkStream*, const SkDeserialProcs&, SkTypefacePlayback*);
+    bool parseStream(SkStream*, const SkDeserialProcs&);
     bool parseBuffer(SkReadBuffer& buffer);
 
 public:
@@ -138,7 +137,7 @@ private:
     // these help us with reading/writing
     // Does not affect ownership of SkStream.
     bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size,
-                        const SkDeserialProcs&, SkTypefacePlayback*);
+                        const SkDeserialProcs&);
     void parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&) const;
 
