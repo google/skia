@@ -346,8 +346,10 @@ public:
     * before deleting the GrContext used to create them. Additionally, clients should only
     * delete these objects on the thread for which that GrContext is active.
     *
-    * Additionally, the client is responsible for ensuring synchronization between different uses
-    * of the backend object.
+    * The client is responsible for ensuring synchronization between different uses
+    * of the backend object (i.e., wrapping it in a surface, rendering to it, deleting the
+    * surface, rewrapping it in a image and drawing the image will require explicit
+    * sychronization on the client's part).
     */
 
     // If possible, create an uninitialized backend texture. The client should ensure that the
@@ -365,6 +367,20 @@ public:
                                           SkColorType,
                                           GrMipMapped,
                                           GrRenderable);
+
+    // If possible, create a backend texture initialized to a particular color. The client should
+    // ensure that the returned backend texture is valid.
+    GrBackendTexture createBackendTexture(int width, int height,
+                                          GrBackendFormat, const SkColor4f& color,
+                                          GrMipMapped, GrRenderable);
+
+    // If possible, create a backend texture initialized to a particular color. The client should
+    // ensure that the returned backend texture is valid.
+    // If successful, the created backend texture will be compatible with the provided
+    // SkColorType.
+    GrBackendTexture createBackendTexture(int width, int height,
+                                          SkColorType, const SkColor4f& color,
+                                          GrMipMapped, GrRenderable);
 
     void deleteBackendTexture(GrBackendTexture);
 
