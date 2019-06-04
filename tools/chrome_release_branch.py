@@ -77,15 +77,15 @@ def update_infra_config(old_branch, new_branch):
     sys.exit(1)
   go.get(go.INFRA_GO+'/go/supported_branches/cmd/new-branch')
   subprocess.check_call(['new-branch',
-                         '--branch', new_branch,
-                         '--delete', old_branch,
+                         '--branch', new_branch[len(REFS_HEADS_PREFIX):],
+                         '--delete', old_branch[len(REFS_HEADS_PREFIX):],
                          '--owner', owner,
                          '--exclude-trybots=chromium.*',
                          '--exclude-trybots=.*Android_Framework.*'])
 
 
 def main():
-  if len(sys.argv) != 2:
+  if len(sys.argv) != 2 or '--help' in sys.argv or '-h' in sys.argv:
     print >> sys.stderr, 'Usage: %s <commit hash for branch>' % sys.argv[0]
     sys.exit(1)
   go.check()
