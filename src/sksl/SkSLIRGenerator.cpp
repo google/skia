@@ -131,7 +131,6 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
     capsMap->insert(std::make_pair(String(#name), Program::Settings::Value(caps.name())))
     CAP(fbFetchSupport);
     CAP(fbFetchNeedsCustomOutput);
-    CAP(dropsTileOnZeroDivide);
     CAP(flatInterpolationSupport);
     CAP(noperspectiveInterpolationSupport);
     CAP(sampleVariablesSupport);

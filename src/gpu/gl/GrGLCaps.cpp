@@ -2794,9 +2794,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fFBFetchSupport = false;
     }
 
-    // Adreno GPUs have a tendency to drop tiles when there is a divide-by-zero in a shader
-    shaderCaps->fDropsTileOnZeroDivide = kQualcomm_GrGLVendor == ctxInfo.vendor();
-
     // On the NexusS and GalaxyNexus, the use of 'any' causes the compilation error "Calls to any
     // function that may require a gradient calculation inside a conditional block may return
     // undefined results". This appears to be an issue with the 'any' call since even the simple

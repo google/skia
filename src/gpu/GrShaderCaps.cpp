@@ -23,7 +23,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fDualSourceBlendingSupport = false;
     fIntegerSupport = false;
     fImageLoadStoreSupport = false;
-    fDropsTileOnZeroDivide = false;
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
     fUsesPrecisionModifiers = false;
@@ -101,7 +100,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kAdvBlendEqInteractionStr) == kLast_AdvBlendEqInteraction + 1);
 
     writer->appendBool("FB Fetch Support", fFBFetchSupport);
-    writer->appendBool("Drops tile on zero divide", fDropsTileOnZeroDivide);
     writer->appendBool("Uses precision modifiers", fUsesPrecisionModifiers);
     writer->appendBool("Can use any() function", fCanUseAnyFunctionInShader);
     writer->appendBool("Can use min() and abs() together", fCanUseMinAndAbsTogether);

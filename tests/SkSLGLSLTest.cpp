@@ -1012,18 +1012,16 @@ DEF_TEST(SkSLCaps, r) {
          "int x = 0;"
          "int y = 0;"
          "int z = 0;"
-         "int w = 0;"
          "if (sk_Caps.externalTextureSupport) x = 1;"
          "if (sk_Caps.fbFetchSupport) y = 1;"
-         "if (sk_Caps.dropsTileOnZeroDivide) z = 1;"
-         "if (sk_Caps.canUseAnyFunctionInShader) w = 1;"
-         "sk_FragColor = half4(x, y, z, w);"
+         "if (sk_Caps.canUseAnyFunctionInShader) z = 1;"
+         "sk_FragColor = half4(x, y, z, 0.0);"
          "}",
          *SkSL::ShaderCapsFactory::VariousCaps(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    sk_FragColor = vec4(1.0, 0.0, 1.0, 0.0);\n"
+         "    sk_FragColor = vec4(1.0, 0.0, 0.0, 0.0);\n"
          "}\n");
 }
 
