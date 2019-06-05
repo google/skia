@@ -9,21 +9,7 @@
 #include "samplecode/Sample.h"
 #include "src/core/SkBlurMask.h"
 
-class BigBlurView : public Sample {
-public:
-    BigBlurView() {
-    }
-
-protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "BigBlur");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
-    virtual void onDrawContent(SkCanvas* canvas) {
+static void big_blur(SkCanvas* canvas, SkSize) {
         SkPaint paint;
         canvas->save();
         paint.setColor(SK_ColorBLUE);
@@ -33,12 +19,5 @@ protected:
         canvas->translate(200, 200);
         canvas->drawCircle(100, 100, 200, paint);
         canvas->restore();
-    }
-
-private:
-    typedef Sample INHERITED;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-DEF_SAMPLE( return new BigBlurView(); )
+}
+DEF_SIMPLE_SAMPLE("BigBlur", big_blur);

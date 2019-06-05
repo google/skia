@@ -16,34 +16,14 @@ static sk_sp<SkShader> make_grad(SkScalar w, SkScalar h) {
     return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 }
 
-class BigGradientView : public Sample {
-public:
-    BigGradientView() {}
-
-protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "BigGradient");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
-        SkRect r;
-        r.set(0, 0, this->width(), this->height());
-        SkPaint p;
-        p.setShader(make_grad(this->width(), this->height()));
-        canvas->drawRect(r, p);
-    }
-
-private:
-    typedef Sample INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-DEF_SAMPLE( return new BigGradientView(); )
+void big_gradient(SkCanvas* canvas, SkSize size) {
+    SkRect r;
+    r.set(0, 0, size.width(), size.height());
+    SkPaint p;
+    p.setShader(make_grad(size.width(), size.height()));
+    canvas->drawRect(r, p);
+}
+DEF_SIMPLE_SAMPLE("BigGradient", big_gradient);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -259,20 +239,7 @@ public:
 #endif
 
 #ifdef MyAllocator
-class RasterAllocatorSample : public Sample {
-public:
-    RasterAllocatorSample() {}
-
-protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "raster-allocator");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
-    void doDraw(GraphicsPort* port) {
+static void do_draw(GraphicsPort* port) {
         SkAutoCanvasRestore acr(port->peekCanvas(), true);
 
         port->drawRect({0, 0, 256, 256}, SK_ColorRED);
@@ -288,27 +255,25 @@ protected:
 
         port->clip({150, 50, 200, 200});
         port->drawRect({0, 0, 256, 256}, 0xFFCCCCCC);
-    }
+}
 
-    void onDrawContent(SkCanvas* canvas) override {
+static void draw_raster_allocator(SkCanvas* canvas, SkSize) {
         GraphicsPort skp(canvas);
-        doDraw(&skp);
+        do_draw(&skp);
 
         const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
         std::unique_ptr<SkCanvas> c2 =
             SkRasterHandleAllocator::MakeCanvas(skstd::make_unique<MyAllocator>(), info);
         MyPort cgp(c2.get());
-        doDraw(&cgp);
+        do_draw(&cgp);
 
         SkPixmap pm;
         c2->peekPixels(&pm);
         SkBitmap bm;
         bm.installPixels(pm);
         canvas->drawBitmap(bm, 280, 0, nullptr);
-    }
+}
 
-private:
-    typedef Sample INHERITED;
-};
-DEF_SAMPLE( return new RasterAllocatorSample; )
+DEF_SIMPLE_SAMPLE(raster-allocator, draw_raster_allocator);
+
 #endif
