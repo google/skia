@@ -20,10 +20,8 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
 
     const int kWidth = 16;
     const int kHeight = 16;
-    SkAutoTMalloc<GrColor> srcBuffer;
+    SkAutoTMalloc<GrColor> srcBuffer(kWidth * kHeight);
     if (doDataUpload) {
-        srcBuffer.reset(kWidth * kHeight);
-        fill_pixel_data(kWidth, kHeight, srcBuffer.get());
     }
     SkAutoTMalloc<GrColor> dstBuffer(kWidth * kHeight);
 
@@ -44,9 +42,22 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
         return;
     }
 
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                                        kWidth, kHeight, ct,
-                                        mipMapped, renderable, srcBuffer);
+    GrBackendTexture backendTex;
+
+    if (doDataUpload) {
+        fill_pixel_data(kWidth, kHeight, srcBuffer.get());
+
+        backendTex = gpu->createTestingOnlyBackendTexture(
+                                            kWidth, kHeight, ct,
+                                            mipMapped, renderable, srcBuffer);
+    } else {
+        backendTex = context->createBackendTexture(kWidth, kHeight, ct, SkColors::kTransparent,
+                                                   mipMapped, renderable);
+
+        // createBackendTexture will fill the texture with 0's if no data is provided, so
+        // we set the expected result likewise.
+        memset(srcBuffer, 0, kWidth * kHeight * sizeof(GrColor));
+    }
     if (!backendTex.isValid()) {
         return;
     }
@@ -65,12 +76,6 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
     bool result = gpu->readPixels(wrappedTex.get(), 0, 0, kWidth,
                                   kHeight, grCT, dstBuffer, rowBytes);
 
-    if (!doDataUpload) {
-        // createTestingOnlyBackendTexture will fill the texture with 0's if no data is provided, so
-        // we set the expected result likewise.
-        srcBuffer.reset(kWidth * kHeight);
-        memset(srcBuffer, 0, kWidth * kHeight * sizeof(GrColor));
-    }
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(srcBuffer, dstBuffer,
                                                                      kWidth, kHeight));
