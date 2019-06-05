@@ -56,6 +56,14 @@ public:
 
     const void* get() const { return fCFObject; }
 
+    void reset(const void* resource) {
+        const void* oldObject = fCFObject;
+        fCFObject = resource;
+        if (oldObject) {
+            CFRelease(oldObject);
+        }
+    }
+
     bool operator==(const GrCFResource& that) const {
         return this->fCFObject == that.fCFObject;
     }
