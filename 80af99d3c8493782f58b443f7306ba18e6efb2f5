@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f9b9327_5091aa0e",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-05T14:30:54Z",
+      "side": 1,
+      "message": "For std::max",
+      "revId": "80af99d3c8493782f58b443f7306ba18e6efb2f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "715c0100_66c062fb",
+        "filename": "src/sksl/SkSLDefines.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-05T14:30:54Z",
+      "side": 1,
+      "message": "To squelch warnings about empty statements when we do:\n\nSkASSERT(condition);",
+      "revId": "80af99d3c8493782f58b443f7306ba18e6efb2f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
