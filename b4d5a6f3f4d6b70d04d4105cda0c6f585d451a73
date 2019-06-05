@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c81e4827_9a5fe135",
+        "filename": "src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-05T19:40:54Z",
+      "side": 1,
+      "message": "curious if you know why changed? I assume before they were copied as text and now their going through an actual float representation and then becoming text again?",
+      "range": {
+        "startLine": 49,
+        "startChar": 40,
+        "endLine": 49,
+        "endChar": 61
+      },
+      "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "699d7f0b_4e9d766b",
+        "filename": "src/sksl/SkSLASTNode.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-05T19:40:54Z",
+      "side": 1,
+      "message": "I don\u0027t really care but it seems like sometimes you\u0027re indenting these by four spaces and other times not (e.g. line 258)",
+      "range": {
+        "startLine": 299,
+        "startChar": 8,
+        "endLine": 299,
+        "endChar": 9
+      },
+      "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c152532b_c46863ba",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-05T19:40:54Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 69,
+        "startChar": 31,
+        "endLine": 69,
+        "endChar": 35
+      },
+      "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "463aacd5_d83c2237",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 1385,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-05T19:40:54Z",
+      "side": 1,
+      "message": "why the \\ns?",
+      "range": {
+        "startLine": 1376,
+        "startChar": 0,
+        "endLine": 1385,
+        "endChar": 15
+      },
+      "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "134a31c9_fc45748f",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 1900,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-05T19:40:54Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 1896,
+        "startChar": 0,
+        "endLine": 1900,
+        "endChar": 45
+      },
+      "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
