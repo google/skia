@@ -110,10 +110,10 @@ SrcoverBuilder_I32::SrcoverBuilder_I32() {
     load(dst, &dr,&dg,&db,&da);
 
     skvm::I32 invA = sub(splat(0xff), a);
-    r = add(r, mul_unorm8(dr, invA));
-    g = add(g, mul_unorm8(dg, invA));
-    b = add(b, mul_unorm8(db, invA));
-    a = add(a, mul_unorm8(da, invA));
+    r = mad_unorm8(dr, invA, r);
+    g = mad_unorm8(dg, invA, g);
+    b = mad_unorm8(db, invA, b);
+    a = mad_unorm8(da, invA, a);
 
     r = pack(r, g, 8);
     b = pack(b, a, 8);

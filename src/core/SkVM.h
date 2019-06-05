@@ -23,7 +23,7 @@ namespace skvm {
         add_i32, sub_i32, mul_i32,
         bit_and, bit_or, bit_xor,
         shl, shr, sra,
-        mul_unorm8,
+        mul_unorm8, mad_unorm8,
         extract,
         pack,
         to_f32, to_i32,
@@ -96,7 +96,8 @@ namespace skvm {
         I32 shr(I32 x, int bits);
         I32 sra(I32 x, int bits);
 
-        I32 mul_unorm8(I32 x, I32 y);   // (x*y+255)/256, approximating (x*y+127)/255.
+        I32 mul_unorm8(I32 x, I32 y);          // (x*y+255)/256, approximating (x*y+127)/255.
+        I32 mad_unorm8(I32 x, I32 y, I32 z);   // mul_unorm8(x,y) + z
 
         // (x & mask) >> k, where k is the lowest set bit of mask. E.g.
         //    extract(x, 0xff)   == (x & 0xff)
