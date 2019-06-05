@@ -29,9 +29,8 @@ public:
 
     ~GrMtlGpuTextureCommandBuffer() override {}
 
-    void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-              const SkIPoint& dstPoint) override {
-        fGpu->copySurface(fTexture, fOrigin, src, srcOrigin, srcRect, dstPoint);
+    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
+        fGpu->copySurface(fTexture, src, srcRect, dstPoint);
     }
     void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
                       GrGpuBuffer* transferBuffer, size_t offset) override {
@@ -68,8 +67,7 @@ public:
     }
     void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
                       GrGpuBuffer* transferBuffer, size_t offset) override;
-    void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-              const SkIPoint& dstPoint) override;
+    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
     void submit();
 

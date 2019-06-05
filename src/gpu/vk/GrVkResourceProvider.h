@@ -27,7 +27,6 @@
 #include <thread>
 
 class GrVkCommandPool;
-class GrVkCopyPipeline;
 class GrVkGpu;
 class GrVkPipeline;
 class GrVkPipelineState;
@@ -54,10 +53,6 @@ public:
                                  GrPrimitiveType primitiveType,
                                  VkRenderPass compatibleRenderPass,
                                  VkPipelineLayout layout);
-
-    GrVkCopyPipeline* findOrCreateCopyPipeline(const GrVkRenderTarget* dst,
-                                               VkPipelineShaderStageCreateInfo*,
-                                               VkPipelineLayout);
 
     GR_DEFINE_RESOURCE_HANDLE_CLASS(CompatibleRPHandle);
 
@@ -268,9 +263,6 @@ private:
 
     // Central cache for creating pipelines
     VkPipelineCache fPipelineCache;
-
-    // Cache of previously created copy pipelines
-    SkTArray<GrVkCopyPipeline*> fCopyPipelines;
 
     SkSTArray<4, CompatibleRenderPassSet> fRenderPassArray;
 
