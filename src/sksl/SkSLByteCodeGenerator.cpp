@@ -8,6 +8,8 @@
 #include "src/sksl/SkSLByteCodeGenerator.h"
 #include "src/sksl/SkSLInterpreter.h"
 
+#include <algorithm>
+
 namespace SkSL {
 
 ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
