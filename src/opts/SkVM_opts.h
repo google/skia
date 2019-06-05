@@ -12,7 +12,8 @@
 
 namespace SK_OPTS_NS {
 
-    inline void eval(const skvm::Program::Instruction insts[], const int ninsts, const int nregs,
+    inline void eval(const skvm::Program::Instruction insts[], const int ninsts,
+                     const int nregs, const int loop,
                      int n, void* args[], size_t strides[], const int nargs) {
         using namespace skvm;
 
@@ -66,11 +67,12 @@ namespace SK_OPTS_NS {
             SkASSERT(arg == args + nargs);
         };
 
-        int stride;
-        for ( ; n > 0; n -= stride, step_args(stride)) {
+        int start = 0,
+            stride;
+        for ( ; n > 0; start = loop, n -= stride, step_args(stride)) {
             stride = n >= K ? K : 1;
 
-            for (int i = 0; i < ninsts; i++) {
+            for (int i = start; i < ninsts; i++) {
                 skvm::Program::Instruction inst = insts[i];
 
                 // d = op(x, y.id/z.imm, z.id/z.imm)
