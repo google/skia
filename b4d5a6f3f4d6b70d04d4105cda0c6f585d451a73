@@ -330,6 +330,30 @@
       "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6f1e49b_8951c69f",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 1900,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-06-05T23:37:27Z",
+      "side": 1,
+      "message": "We\u0027re not getting anywhere near this level of expression complexity in actual code, so I don\u0027t think it\u0027s really a major issue as things stand.\n\nI agree that I should look into fixing this, especially as we contemplate letting end users (ab)use SkSL. Given that the issue is recursion depth, the only way I know of to fix this is convert everything to a non-recursive form. That is of course not a trivial change, so I think it\u0027s well out of scope for this CL.",
+      "parentUuid": "878520c1_38432870",
+      "range": {
+        "startLine": 1896,
+        "startChar": 0,
+        "endLine": 1900,
+        "endChar": 45
+      },
+      "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
