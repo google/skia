@@ -521,8 +521,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
     sk_sp<SkSurface> dest = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, fullII);
 
     {
-        // Seed the resource cached with a scratch texture that will be
-        // reused by writeSurfacePixels
+        // Seed the resource cached with a scratch texture that will be reused by writePixels
         GrSurfaceDesc desc;
         desc.fFlags = kNone_GrSurfaceFlags;
         desc.fWidth = 32;
