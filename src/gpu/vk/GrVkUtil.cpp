@@ -83,6 +83,13 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
         case kAlpha_half_as_Red_GrPixelConfig:
             *format = VK_FORMAT_R16_SFLOAT;
             return true;
+        // Experimental (for P016 and P010)
+        case kR_16_GrPixelConfig:
+            *format = VK_FORMAT_R16_UNORM;
+            return true;
+        case kRG_1616_GrPixelConfig:
+            *format = VK_FORMAT_R16G16_UNORM;
+            return true;
     }
     SK_ABORT("Unexpected config");
     return false;
@@ -129,6 +136,11 @@ bool GrVkFormatPixelConfigPairIsValid(VkFormat format, GrPixelConfig config) {
         case VK_FORMAT_R16_SFLOAT:
             return kAlpha_half_GrPixelConfig == config ||
                    kAlpha_half_as_Red_GrPixelConfig == config;
+        // Experimental (for P016 and P010)
+        case VK_FORMAT_R16_UNORM:
+            return kR_16_GrPixelConfig == config;
+        case VK_FORMAT_R16G16_UNORM:
+            return kRG_1616_GrPixelConfig == config;
         default:
             return false;
     }
@@ -153,6 +165,10 @@ bool GrVkFormatIsSupported(VkFormat format) {
         case VK_FORMAT_R32G32_SFLOAT:
         case VK_FORMAT_R16G16B16A16_SFLOAT:
         case VK_FORMAT_R16_SFLOAT:
+
+        // Experimental (for P016 and P010)
+        case VK_FORMAT_R16_UNORM:
+        case VK_FORMAT_R16G16_UNORM:
             return true;
         default:
             return false;
@@ -289,6 +305,12 @@ size_t GrVkBytesPerFormat(VkFormat vkFormat) {
 
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
             return 8;
+
+        // Experimental (for P016 and P010)
+        case VK_FORMAT_R16_UNORM:
+            return 2;
+        case VK_FORMAT_R16G16_UNORM:
+            return 4;
 
         default:
             SK_ABORT("Invalid Vk format");
