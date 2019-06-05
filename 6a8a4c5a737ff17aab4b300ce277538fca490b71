@@ -16,6 +16,23 @@
       "revId": "6a8a4c5a737ff17aab4b300ce277538fca490b71",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b94a05f7_fdbb069f",
+        "filename": "samplecode/SampleParagraph.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 1352,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-06-05T16:09:50Z",
+      "side": 1,
+      "message": "Style nit:\n\nI would do something like this:\n\n    class SimpleSample : public Sample {\n    public:\n        SimpleSample(const char* title, void (*draw)(SkCanvas*))\n            : fTitle(title), fDraw(draw) {}\n        bool onQuery(Sample::Event* evt) override {\n            if (Sample::TitleQ(*evt)) {\n                Sample::TitleR(evt, fTitle);\n                return true;\n            }\n            return this-\u003eSample::onQuery(evt);\n        }\n        void onDrawContent(SkCanvas* canvas) override { fDraw(canvas); }\n    private:    \n        const char* fTitle;\n        void (*fDraw)(SkCanvas*);\n    };\n    ////////////////////////////////////////////////////////////////////////////////\n    void drawParagraphview11(SkCanvas* canvas) {\n        // ....insert drawing code here....\n    }\n    DEF_SAMPLE(return new SimpleSample(\"ParagraphView11\", \u0026drawParagraphView11);)",
+      "revId": "6a8a4c5a737ff17aab4b300ce277538fca490b71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
