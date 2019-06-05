@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "134a0e1c_16f98e8f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-05T15:52:48Z",
+      "side": 1,
+      "message": "To be fair, isn\u0027t 1e-5 a non-zero denorm value in fp16?\n\n1e-05 (3727c5ac) -\u003e 1.00136e-05 (00a8)\n\nSo may be better to say \"1e-5 might be treated as zero in fp16\"?",
+      "revId": "e8ebe232689095b25adcd54be50543f345ce83a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
