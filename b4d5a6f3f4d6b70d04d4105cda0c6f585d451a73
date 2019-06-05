@@ -306,6 +306,30 @@
       "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "878520c1_38432870",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 1900,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-05T23:02:17Z",
+      "side": 1,
+      "message": "I was also wondering that. Especially with that fuzzer bug that showed up the other day (crazy expression overflowing the stack). That one appeared to claim it was fixed within a day, but I didn\u0027t see anything land - was that just slight nondeterminism tricking the fuzzer?",
+      "parentUuid": "c64136bf_2f7153f0",
+      "range": {
+        "startLine": 1896,
+        "startChar": 0,
+        "endLine": 1900,
+        "endChar": 45
+      },
+      "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
