@@ -44,10 +44,8 @@ public:
         SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
         uint64_t fColor;  // Color always stored as 4 x fp16
 
-        void set(const GrOctoBounds&, const SkIVector& devToAtlasOffset, uint64_t,
-                 DoEvenOddFill = DoEvenOddFill::kNo);
-        void set(const GrCCPathCacheEntry&, const SkIVector& shift, uint64_t,
-                 DoEvenOddFill = DoEvenOddFill::kNo);
+        void set(const GrOctoBounds&, const SkIVector& devToAtlasOffset, uint64_t, DoEvenOddFill);
+        void set(const GrCCPathCacheEntry&, const SkIVector& shift, uint64_t, DoEvenOddFill);
     };
 
     GR_STATIC_ASSERT(4 * 12 == sizeof(Instance));
