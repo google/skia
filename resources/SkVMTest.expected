@@ -274,7 +274,7 @@ r12 = pack r10 r12 16
 store32 arg(1) r12
 
 I32 8888 over 8888
-10 registers, 24 instructions:
+10 registers, 20 instructions:
 r0 = splat FF (3.5733111e-43)
 loop:
 r1 = load32 arg(0)
@@ -288,14 +288,10 @@ r7 = extract r5 FF00
 r8 = extract r5 FF0000
 r5 = shr r5 24
 r9 = sub_i32 r0 r1
-r6 = mul_unorm8 r6 r9
-r6 = add_i32 r2 r6
-r7 = mul_unorm8 r7 r9
-r7 = add_i32 r3 r7
-r8 = mul_unorm8 r8 r9
-r8 = add_i32 r4 r8
-r9 = mul_unorm8 r5 r9
-r9 = add_i32 r1 r9
+r6 = mad_unorm8 r6 r9 r2
+r7 = mad_unorm8 r7 r9 r3
+r8 = mad_unorm8 r8 r9 r4
+r9 = mad_unorm8 r5 r9 r1
 r7 = pack r6 r7 8
 r9 = pack r8 r9 8
 r9 = pack r7 r9 16
