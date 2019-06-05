@@ -305,3 +305,121 @@ DEF_SIMPLE_GM(tinyanglearcs, canvas, 620, 330) {
             canvas->translate(20, 0);
         }
 }
+
+class Xform : public SkRefCnt {
+public:
+    static sk_sp<Xform> Make(sk_sp<Xform> parent = nullptr) {
+        return sk_sp<Xform>(new Xform(std::move(parent)));
+    }
+
+    Xform(sk_sp<Xform> parent = nullptr) : fParent(std::move(parent)) {
+        fLocalMatrix.reset();
+    }
+
+    Xform* parent() const { return fParent.get(); }
+    void setParent(sk_sp<Xform> p) {
+        fParent = std::move(p);
+    }
+
+    const SkMatrix& getLocalMatrix() const { return fLocalMatrix; }
+
+    Xform& setLocalMatrix(const SkMatrix& m) {
+        fLocalMatrix = m;
+        return *this;
+    }
+    Xform& setTranslate(SkScalar sx, SkScalar sy) {
+        fLocalMatrix.setTranslate(sx, sy);
+        return *this;
+    }
+    Xform& preTranslate(SkScalar sx, SkScalar sy) {
+        fLocalMatrix.preTranslate(sx, sy);
+        return *this;
+    }
+    Xform& setScale(SkScalar sx, SkScalar sy) {
+        fLocalMatrix.setScale(sx, sy);
+        return *this;
+    }
+    Xform& preScale(SkScalar sx, SkScalar sy) {
+        fLocalMatrix.preScale(sx, sy);
+        return *this;
+    }
+    Xform& setRotate(SkScalar degrees) {
+        fLocalMatrix.preRotate(degrees);
+        return *this;
+    }
+    Xform& preRotate(SkScalar degrees) {
+        fLocalMatrix.setRotate(degrees);
+        return *this;
+    }
+
+    SkMatrix getCTM() {
+        SkMatrix ctm = fLocalMatrix;
+        Xform* xform = this;
+        while (Xform* parent = xform->parent()) {
+            ctm.postConcat(parent->getLocalMatrix());
+            xform = parent;
+        }
+        return ctm;
+    }
+
+private:
+    sk_sp<Xform> fParent;
+    SkMatrix     fLocalMatrix;
+};
+
+class XformGM : public skiagm::GM {
+    sk_sp<Xform> fRoot, fRA, fRB, fA, fB;
+
+public:
+    XformGM() {
+        fRoot = Xform::Make();
+
+        fRA = Xform::Make(fRoot);
+        fRB = Xform::Make(fRoot);
+
+        fA = Xform::Make(fRA);
+        fB = Xform::Make(fRB);
+
+        fRA->preRotate(30);
+        fA->preTranslate(100, 0);
+
+        fRB->preTranslate(100, 0);
+        fB->preRotate(30);
+    }
+
+protected:
+    SkString onShortName() override { return SkString("xform"); }
+
+    SkISize onISize() override { return SkISize::Make(520, 520); }
+
+    void onDraw(SkCanvas* canvas) override {
+        fRoot->setScale(fScale, fScale);
+
+        SkPaint p;
+        SkRect r = { 20, 20, 80, 50 };
+
+        p.setColor(SK_ColorRED);
+        canvas->save();
+        canvas->concat(fA->getCTM());
+        canvas->drawRect(r, p);
+        canvas->restore();
+
+        p.setColor(0x880000FF);
+        canvas->save();
+        canvas->concat(fB->getCTM());
+        canvas->drawRect(r, p);
+        canvas->restore();
+    }
+
+    bool onAnimate(const AnimTimer& timer) override {
+        fScale = timer.scaled(1, 4);
+        return true;
+    }
+
+private:
+    SkScalar fScale = 1;
+
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM( return new XformGM; )
+
