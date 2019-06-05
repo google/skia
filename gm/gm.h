@@ -152,7 +152,7 @@ namespace skiagm {
         bool getControls(SkMetaData* controls) { return this->onGetControls(controls); }
         void setControls(const SkMetaData& controls) { this->onSetControls(controls); }
 
-        virtual void modifyGrContextOptions(GrContextOptions* options);
+        virtual void modifyGrContextOptions(GrContextOptions*);
 
     protected:
         virtual void onOnceBeforeDraw();

@@ -358,8 +358,8 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
 #endif
             op->recordInstance(fCacheEntry->cachedAtlas()->getOnFlushProxy(),
                                resources->nextPathInstanceIdx());
-            resources->appendDrawPathInstance().set(*fCacheEntry, fCachedMaskShift,
-                                                    SkPMColor4f_toFP16(fColor));
+            resources->appendDrawPathInstance().set(
+                    *fCacheEntry, fCachedMaskShift, SkPMColor4f_toFP16(fColor), doEvenOddFill);
             return;
         }
     }
