@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "4d5f515c_4db43d3d",
+        "filename": "src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-05T21:12:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e4540be9_e10e713b",
+      "range": {
+        "startLine": 49,
+        "startChar": 40,
+        "endLine": 49,
+        "endChar": 61
+      },
+      "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "699d7f0b_4e9d766b",
         "filename": "src/sksl/SkSLASTNode.h",
         "patchSetId": 18
@@ -143,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "2cb2cf81_2da7e5b7",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-05T21:12:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d3dd9324_656fe1d6",
+      "range": {
+        "startLine": 69,
+        "startChar": 31,
+        "endLine": 69,
+        "endChar": 35
+      },
+      "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "463aacd5_d83c2237",
         "filename": "tests/SkSLGLSLTest.cpp",
         "patchSetId": 18
@@ -225,6 +273,30 @@
       "side": 1,
       "message": "Allocating entire nodes on the stack (rather than just pointers to them) means we\u0027re using a bit more stack space now, and this expression causes deep recursion. We ran out of stack space on one of the bots, so I broke the expression up into two parts.",
       "parentUuid": "134a31c9_fc45748f",
+      "range": {
+        "startLine": 1896,
+        "startChar": 0,
+        "endLine": 1900,
+        "endChar": 45
+      },
+      "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c64136bf_2f7153f0",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 1900,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-05T21:12:50Z",
+      "side": 1,
+      "message": "I wondered if that was it. Could this be a real problem in practice? Google3 has small stacks. I\u0027m wondering if there should be a way to overflow to the heap for large nodes.",
+      "parentUuid": "dba4d69e_70029f53",
       "range": {
         "startLine": 1896,
         "startChar": 0,
