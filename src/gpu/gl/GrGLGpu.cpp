@@ -4031,7 +4031,7 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
                                                GrMipMapped mipMapped,
                                                GrRenderable renderable,
                                                const void* srcPixels, size_t rowBytes,
-                                               const SkColor4f& colorf) {
+                                               const SkColor4f* color) {
     this->handleDirtyContext();
 
     const GrGLenum* glFormat = format.getGLFormat();
@@ -4063,20 +4063,30 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();  // invalid
     }
 
-    // Figure out the number of mip levels.
-    int mipLevelCount = 1;
-    if (GrMipMapped::kYes == mipMapped) {
-        mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
-    }
-
-    SkAutoTMalloc<GrMipLevel> texels(mipLevelCount);
-
+    int mipLevelCount = 0;
+    SkAutoTMalloc<GrMipLevel> texels;
     SkAutoMalloc pixelStorage;
 
-    if (!srcPixels) {
-        GrCompression compression = GrGLFormat2Compression(*glFormat);
+    if (srcPixels) {
+        mipLevelCount = 1;
 
+        texels.reset(mipLevelCount);
+
+        if (GrGLFormatIsCompressed(*glFormat)) {
+            SkASSERT(0 == rowBytes);
+        }
+
+        texels.get()[0] = { srcPixels, rowBytes };
+    } else if (color) {
+        mipLevelCount = 1;
+        if (GrMipMapped::kYes == mipMapped) {
+            mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
+        }
+
+        texels.reset(mipLevelCount);
         SkTArray<size_t> individualMipOffsets(mipLevelCount);
+
+        GrCompression compression = GrGLFormat2Compression(*glFormat);
         size_t bytesPerPixel = GrGLBytesPerFormat(*glFormat);
 
         size_t totalSize = GrComputeTightCombinedBufferSize(compression, bytesPerPixel, w, h,
@@ -4084,21 +4094,13 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
 
         char* tmpPixels = (char *) pixelStorage.reset(totalSize);
 
-        GrFillInData(compression, config, w, h, individualMipOffsets, tmpPixels, colorf);
+        GrFillInData(compression, config, w, h, individualMipOffsets, tmpPixels, *color);
 
         for (int i = 0; i < mipLevelCount; ++i) {
             size_t offset = individualMipOffsets[i];
 
             texels.get()[i] = { &(tmpPixels[offset]), 0 };
         }
-    } else {
-        SkASSERT(1 == mipLevelCount);
-
-        if (GrGLFormatIsCompressed(*glFormat)) {
-            SkASSERT(0 == rowBytes);
-        }
-
-        texels.get()[0] = { srcPixels, rowBytes };
     }
 
     GrSurfaceDesc desc;
