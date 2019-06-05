@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e497a5df_2d9d5f08",
+        "filename": "tests/GLBackendSurfaceTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-05T01:00:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "746ef4da_65803e3a",
+      "range": {
+        "startLine": 8,
+        "startChar": 60,
+        "endLine": 8,
+        "endChar": 71
+      },
+      "revId": "4a23ee1da6cdafe7ec2408832f71d43bd0e0a085",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
