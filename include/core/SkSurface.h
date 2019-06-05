@@ -711,6 +711,33 @@ public:
                                    RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
                                    ReadPixelsCallback callback, ReadPixelsContext context);
 
+    /**
+     * Similar to asyncRescaleAndReadPixels but performs an additional conversion to YUV. The
+     * RGB->YUV conversion is controlled by 'yuvColorSpace'. The YUV data is always 8 bit per
+     * channel and subsampling and interleaved vs planar as described by 'planes' and 'subsampling'.
+     * 'callback' receives 1 to 3 data and rowbytes values depending upon the value of 'planes'.
+     *
+     * On failure the callback is called with a null data pointer array.
+     *
+     * @param yuvColorSpace
+     * @param planes
+     * @param subsampling
+     * @param dstColorSpace
+     * @param srcRect
+     * @param dstW
+     * @param dstH
+     * @param rescaleGamma
+     * @param rescaleQuality
+     * @param callback
+     */
+    using ReadPixelsCallbackYUV420 = void(ReadPixelsContext, const void* data[2],
+            size_t rowBytes[2]);
+    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace, const SkIRect& srcRect,
+                                         int dstW, int dstH, RescaleGamma rescaleGamma,
+                                         SkFilterQuality rescaleQuality,
+                                         ReadPixelsCallbackYUV420 callback, ReadPixelsContext);
+
     /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
 
         Source SkRect corners are (0, 0) and (src.width(), src.height()).

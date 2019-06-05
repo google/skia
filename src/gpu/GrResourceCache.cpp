@@ -880,6 +880,7 @@ void GrResourceCache::validate() const {
                 if (!uniqueKey.isValid()) {
                     ++fCouldBeScratch;
                     SkASSERT(fScratchMap->countForKey(scratchKey));
+                    SkASSERT(fScratchMap->countForKey(scratchKey));
                 }
                 SkASSERT(!resource->resourcePriv().refsWrappedObjects());
             }
