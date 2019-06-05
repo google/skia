@@ -59,6 +59,15 @@ public:
                           SkIPoint::Make(0, 0));
     }
 
+   /**
+    * These flags can be used with the read/write pixels functions below.
+    */
+    enum PixelOpsFlags {
+        /** The src for write or dst read is unpremultiplied. This is only respected if both the
+            config src and dst configs are an RGBA/BGRA 8888 format. */
+        kUnpremul_PixelOpsFlag  = 0x4,
+    };
+
     /**
      * Reads a rectangle of pixels from the render target context.
      * @param dstInfo       image info for the destination
@@ -87,6 +96,23 @@ public:
      */
     bool writePixels(const SkImageInfo& srcInfo, const void* srcBuffer, size_t srcRowBytes,
                      int x, int y, uint32_t flags = 0);
+
+#if GR_TEST_UTILS
+    // Accessors for tests to directly call read/writePixelsImpl
+    bool writePixels(GrContext* direct, int left, int top, int width, int height,
+                     GrColorType srcColorType, SkColorSpace* srcColorSpace,
+                     const void* srcBuffer, size_t srcRowBytes = 0, uint32_t pixelOpsFlags = 0) {
+        return writePixelsImpl(direct, left, top, width, height, srcColorType, srcColorSpace,
+                               srcBuffer, srcRowBytes, pixelOpsFlags);
+    }
+
+    bool readPixels(GrContext* direct, int left, int top, int width, int height,
+                    GrColorType dstColorType, SkColorSpace* dstColorSpace, void* buffer,
+                    size_t rowBytes = 0, uint32_t pixelOpsFlags = 0) {
+        return readPixelsImpl(direct, left, top, width, height, dstColorType, dstColorSpace,
+                              buffer, rowBytes, pixelOpsFlags);
+    }
+#endif
 
     // TODO: this is virtual b.c. this object doesn't have a pointer to the wrapped GrSurfaceProxy?
     virtual GrSurfaceProxy* asSurfaceProxy() = 0;
@@ -124,6 +150,15 @@ protected:
     GrRecordingContext* fContext;
 
 private:
+    bool writePixelsImpl(GrContext* direct, int left, int top, int width, int height,
+                         GrColorType srcColorType, SkColorSpace* srcColorSpace,
+                         const void* srcBuffer, size_t srcRowBytes, uint32_t pixelOpsFlags);
+
+    bool readPixelsImpl(GrContext* direct, int left, int top, int width,
+                        int height, GrColorType dstColorType,
+                        SkColorSpace* dstColorSpace, void* buffer, size_t rowBytes,
+                        uint32_t pixelOpsFlags);
+
     GrColorSpaceInfo    fColorSpaceInfo;
 
     typedef SkRefCnt INHERITED;

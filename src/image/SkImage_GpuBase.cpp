@@ -184,7 +184,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
     if (kUnpremul_SkAlphaType == rec.fInfo.alphaType() &&
         kPremul_SkAlphaType == this->alphaType()) {
         // let the GPU perform this transformation for us
-        flags = GrContextPriv::kUnpremul_PixelOpsFlag;
+        flags = GrSurfaceContext::kUnpremul_PixelOpsFlag;
     }
 
     sk_sp<GrSurfaceContext> sContext = direct->priv().makeWrappedSurfaceContext(

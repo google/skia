@@ -498,7 +498,7 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
                     // type.
                     // Tell the read to perform an unpremul step since it doesn't know alpha type.
                     if (gReadPixelsConfigs[c].fAlphaType == kUnpremul_SkAlphaType) {
-                        flags = GrContextPriv::kUnpremul_PixelOpsFlag;
+                        flags = GrSurfaceContext::kUnpremul_PixelOpsFlag;
                     }
                     // The surface context doesn't know that the src is opaque. We don't support
                     // converting non-opaque data to opaque during a read.

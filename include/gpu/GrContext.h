@@ -422,12 +422,6 @@ private:
     std::unique_ptr<GrFragmentProcessor> createPMToUPMEffect(std::unique_ptr<GrFragmentProcessor>);
     std::unique_ptr<GrFragmentProcessor> createUPMToPMEffect(std::unique_ptr<GrFragmentProcessor>);
 
-    /**
-     * Returns true if createPMToUPMEffect and createUPMToPMEffect will succeed. In other words,
-     * did we find a pair of round-trip preserving conversion effects?
-     */
-    bool validPMUPMConversionExists();
-
     typedef GrRecordingContext INHERITED;
 };
 

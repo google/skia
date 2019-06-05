@@ -58,8 +58,8 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context, T min, T max, T
                                                                             std::move(fpProxy));
         REPORTER_ASSERT(reporter, sContext);
 
-        bool result = context->priv().readSurfacePixels(
-                sContext.get(), 0, 0, DEV_W, DEV_H, colorType, nullptr, readBuffer.begin(), 0);
+        bool result = sContext->readPixels(context, 0, 0, DEV_W, DEV_H, colorType, nullptr,
+                                           readBuffer.begin(), 0);
         REPORTER_ASSERT(reporter, result);
         REPORTER_ASSERT(reporter,
                         0 == memcmp(readBuffer.begin(), controlPixelData.begin(), readBuffer.bytes()));

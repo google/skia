@@ -179,57 +179,18 @@ public:
      * allowed. */
     void flushSurface(GrSurfaceProxy*);
 
-   /**
-    * These flags can be used with the read/write pixels functions below.
-    */
-    enum PixelOpsFlags {
-        /** The src for write or dst read is unpremultiplied. This is only respected if both the
-            config src and dst configs are an RGBA/BGRA 8888 format. */
-        kUnpremul_PixelOpsFlag  = 0x4,
-    };
+    /**
+     * Returns true if createPMToUPMEffect and createUPMToPMEffect will succeed. In other words,
+     * did we find a pair of round-trip preserving conversion effects?
+     */
+    bool validPMUPMConversionExists();
 
     /**
-     * Reads a rectangle of pixels from a surface.
-     *
-     * @param src           the surface context to read from.
-     * @param left          left edge of the rectangle to read (inclusive)
-     * @param top           top edge of the rectangle to read (inclusive)
-     * @param width         width of rectangle to read in pixels.
-     * @param height        height of rectangle to read in pixels.
-     * @param dstColorType  the color type of the destination buffer
-     * @param dstColorSpace color space of the destination buffer
-     * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
-     *                      packed.
-     * @param pixelOpsFlags see PixelOpsFlags enum above.
-     *
-     * @return true if the read succeeded, false if not. The read can fail because of an unsupported
-     *         pixel configs
+     * These functions create premul <-> unpremul effects, using the specialized round-trip effects
+     * from GrConfigConversionEffect.
      */
-    bool readSurfacePixels(GrSurfaceContext* src, int left, int top, int width, int height,
-                           GrColorType dstColorType, SkColorSpace* dstColorSpace, void* buffer,
-                           size_t rowBytes = 0, uint32_t pixelOpsFlags = 0);
-
-    /**
-     * Writes a rectangle of pixels to a surface.
-     *
-     * @param dst           the surface context to write to.
-     * @param left          left edge of the rectangle to write (inclusive)
-     * @param top           top edge of the rectangle to write (inclusive)
-     * @param width         width of rectangle to write in pixels.
-     * @param height        height of rectangle to write in pixels.
-     * @param srcColorType  the color type of the source buffer
-     * @param srcColorSpace color space of the source buffer
-     * @param buffer        memory to read pixels from
-     * @param rowBytes      number of bytes between consecutive rows. Zero
-     *                      means rows are tightly packed.
-     * @param pixelOpsFlags see PixelOpsFlags enum above.
-     * @return true if the write succeeded, false if not. The write can fail because of an
-     *         unsupported combination of surface and src configs.
-     */
-    bool writeSurfacePixels(GrSurfaceContext* dst, int left, int top, int width, int height,
-                            GrColorType srcColorType, SkColorSpace* srcColorSpace,
-                            const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags = 0);
+    std::unique_ptr<GrFragmentProcessor> createPMToUPMEffect(std::unique_ptr<GrFragmentProcessor>);
+    std::unique_ptr<GrFragmentProcessor> createUPMToPMEffect(std::unique_ptr<GrFragmentProcessor>);
 
     SkTaskGroup* getTaskGroup() { return fContext->fTaskGroup.get(); }
 
