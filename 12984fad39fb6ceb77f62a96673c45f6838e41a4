@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7f3646a_e66accbc",
+        "filename": "src/sksl/SkSLASTNode.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-05T18:24:38Z",
+      "side": 1,
+      "message": "Missing: \u0027\"case \" +\u0027 ? (Not necessary, but since this otherwise generates code so perfectly...)",
+      "range": {
+        "startLine": 176,
+        "startChar": 27,
+        "endLine": 176,
+        "endChar": 28
+      },
+      "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c70e414_a2024e6c",
+        "filename": "src/sksl/SkSLASTNode.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-05T18:24:38Z",
+      "side": 1,
+      "message": "Two things:\n1) Any reason these aren\u0027t in the header? It\u0027s just odd, because everything else is (and these are one-liners).\n2) Similar code in the header is relying on ID\u0027s operator bool -- maybe make these asserts just be SkASSERT(fID) ?",
+      "range": {
+        "startLine": 229,
+        "startChar": 0,
+        "endLine": 232,
+        "endChar": 1
+      },
+      "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df6093ab_3004e340",
+        "filename": "src/sksl/SkSLASTNode.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-05T18:24:38Z",
+      "side": 1,
+      "message": "Could this just be a union?",
+      "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5abc760_524bdc57",
+        "filename": "src/sksl/SkSLASTNode.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-05T18:24:38Z",
+      "side": 1,
+      "message": "Looks like static switch got lost here? (The old AST switch statement supported it).",
+      "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1061b76c_079c20e7",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-05T18:24:38Z",
+      "side": 1,
+      "message": "Is this because of the change in precision of rounded float literals? What triggered that?",
+      "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "695fc8c4_42482f47",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1899,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-05T18:24:38Z",
+      "side": 1,
+      "message": "Just curious why this test was changed like this?",
+      "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
