@@ -75,7 +75,7 @@ namespace SkOpts {
     extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, void**);
 #undef M
 
-    extern void (*eval)(const skvm::Program::Instruction[], int ninsts, int nregs,
+    extern void (*eval)(const skvm::Program::Instruction[], int ninsts, int nregs, int loop,
                         int n, void* args[], size_t strides[], int nargs);
 
 }

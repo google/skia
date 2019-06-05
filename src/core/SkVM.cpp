@@ -15,9 +15,10 @@
 
 namespace skvm {
 
-    Program::Program(std::vector<Instruction> instructions, int regs)
+    Program::Program(std::vector<Instruction> instructions, int regs, int loop)
         : fInstructions(std::move(instructions))
         , fRegs(regs)
+        , fLoop(loop)
     {}
 
     Program Builder::done() {
@@ -38,19 +39,49 @@ namespace skvm {
             }
         }
 
+        // Look to see if there are any instructions that can be hoisted outside the program's loop.
+        for (ID id = 0; id < (ID)fProgram.size(); id++) {
+            Instruction& inst = fProgram[id];
+
+            // Loads and stores cannot be hoisted out of the loop.
+            if (inst.op <= Op::load32) {
+                inst.hoist = false;
+            }
+
+            // If any of an instruction's arguments can't be hoisted, it can't be hoisted itself.
+            if (inst.hoist) {
+                if (inst.x != NA) { inst.hoist &= fProgram[inst.x].hoist; }
+                if (inst.y != NA) { inst.hoist &= fProgram[inst.y].hoist; }
+                if (inst.z != NA) { inst.hoist &= fProgram[inst.z].hoist; }
+            }
+        }
+
         // We'll need to map each live value to a register.
         std::unordered_map<ID, ID> val_to_reg;
 
-        // Count the registers we've used so far, and track any registers available to reuse.
+        // Count the registers we've used so far.
         ID next_reg = 0;
-        std::vector<ID> avail;
 
-        // A schedule of which registers become available as we reach any given instruction.
+        // Our first pass of register assignment assigns hoisted values to eternal registers.
+        for (ID val = 0; val < (ID)fProgram.size(); val++) {
+            Instruction& inst = fProgram[val];
+            if (inst.life == NA || !inst.hoist) {
+                continue;
+            }
+
+            // Hoisted values are needed forever, so they each get their own register.
+            val_to_reg[val] = next_reg++;
+        }
+
+        // Now we'll assign registers to values that can't be hoisted out of the loop.  These
+        // values have finite liftimes, so we track pre-owned registers that have become available
+        // and a schedule of which registers become available as we reach a given instruction.
+        std::vector<ID>                         avail;
         std::unordered_map<ID, std::vector<ID>> deaths;
 
         for (ID val = 0; val < (ID)fProgram.size(); val++) {
             Instruction& inst = fProgram[val];
-            if (inst.life == NA) {
+            if (inst.life == NA || inst.hoist) {
                 continue;
             }
 
@@ -83,13 +114,14 @@ namespace skvm {
                              : val_to_reg[val];
         };
 
-        std::vector<Program::Instruction> program;
-        for (ID id = 0; id < (ID)fProgram.size(); id++) {
-            Instruction& inst = fProgram[id];
-            if (inst.life == NA) {
-                continue;
-            }
+        // Finally translate Builder::Instructions to Program::Instructions by mapping values to
+        // registers.  This will be two passes again, first outside the loop, then inside.
 
+        // The loop begins at the loop'th Instruction.
+        int loop = 0;
+        std::vector<Program::Instruction> program;
+
+        auto push_instruction = [&](ID id, const Builder::Instruction& inst) {
             Program::Instruction pinst{
                 inst.op,
                 lookup_register(id),
@@ -100,16 +132,34 @@ namespace skvm {
             if (inst.y == NA) { pinst.y.imm = inst.immy; }
             if (inst.z == NA) { pinst.z.imm = inst.immz; }
             program.push_back(pinst);
+        };
+
+        for (ID id = 0; id < (ID)fProgram.size(); id++) {
+            Instruction& inst = fProgram[id];
+            if (inst.life == NA || !inst.hoist) {
+                continue;
+            }
+
+            push_instruction(id, inst);
+            loop++;
+        }
+        for (ID id = 0; id < (ID)fProgram.size(); id++) {
+            Instruction& inst = fProgram[id];
+            if (inst.life == NA || inst.hoist) {
+                continue;
+            }
+
+            push_instruction(id, inst);
         }
 
-        return { std::move(program), /*register count = */next_reg };
+        return { std::move(program), /*register count = */next_reg, loop };
     }
 
     // Most instructions produce a value and return it by ID,
     // the value-producing instruction's own index in the program vector.
 
     ID Builder::push(Op op, ID x, ID y, ID z, int immy, int immz) {
-        Instruction inst{op, /*life=*/NA, x, y, z, immy, immz};
+        Instruction inst{op, /*hoist=*/true, /*life=*/NA, x, y, z, immy, immz};
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
@@ -238,7 +288,11 @@ namespace skvm {
         o->writeText(" registers, ");
         o->writeDecAsText(fInstructions.size());
         o->writeText(" instructions:\n");
-        for (const Instruction& inst : fInstructions) {
+        for (int i = 0; i < (int)fInstructions.size(); i++) {
+            if (i == fLoop) {
+                write(o, "loop:\n");
+            }
+            const Instruction& inst = fInstructions[i];
             Op  op = inst.op;
             ID   d = inst.d,
                  x = inst.x;
@@ -286,7 +340,7 @@ namespace skvm {
     // ~~~~ Program::eval() and co. ~~~~ //
 
     void Program::eval(int n, void* args[], size_t strides[], int nargs) const {
-        SkOpts::eval(fInstructions.data(), (int)fInstructions.size(), fRegs,
+        SkOpts::eval(fInstructions.data(), (int)fInstructions.size(), fRegs, fLoop,
                      n, args, strides, nargs);
     }
 }

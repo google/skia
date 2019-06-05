@@ -39,8 +39,8 @@ namespace skvm {
             union { ID id; int imm; } y,z;
         };
 
-        Program(std::vector<Instruction>, int regs);
-        Program() : Program({}, 0) {}
+        Program(std::vector<Instruction>, int regs, int loop);
+        Program() : Program({}, 0, 0) {}
 
         void dump(SkWStream*) const;
 
@@ -56,6 +56,7 @@ namespace skvm {
 
         std::vector<Instruction> fInstructions;
         int                      fRegs;
+        int                      fLoop;
     };
 
     struct Arg { int ix; };
@@ -121,19 +122,21 @@ namespace skvm {
         static const ID NA = ~0;
 
         struct Instruction {
-            Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
-            ID  life;       // ID of last instruction using this instruction's result.
-            ID  x,y,z;      // Enough arguments for mad().
-            int immy,immz;  // Immediate bit patterns, shift counts, argument indexes.
+            Op   op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
+            bool hoist;      // Can this instruction be hoisted outside our implicit loop?
+            ID   life;       // ID of last instruction using this instruction's result.
+            ID   x,y,z;      // Enough arguments for mad().
+            int  immy,immz;  // Immediate bit patterns, shift counts, argument indexes.
 
             bool operator==(const Instruction& o) const {
-                return op   == o.op
-                    && life == o.life
-                    && x    == o.x
-                    && y    == o.y
-                    && z    == o.z
-                    && immy == o.immy
-                    && immz == o.immz;
+                return op    == o.op
+                    && hoist == o.hoist
+                    && life  == o.life
+                    && x     == o.x
+                    && y     == o.y
+                    && z     == o.z
+                    && immy  == o.immy
+                    && immz  == o.immz;
             }
         };
 
@@ -144,6 +147,7 @@ namespace skvm {
             }
             size_t operator()(const Instruction& inst) const {
                 return Hash((uint8_t)inst.op)
+                     ^ Hash(inst.hoist)
                      ^ Hash(inst.life)
                      ^ Hash(inst.x)
                      ^ Hash(inst.y)
