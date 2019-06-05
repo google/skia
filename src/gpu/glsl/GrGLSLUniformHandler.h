@@ -76,6 +76,7 @@ protected:
 
 private:
     virtual const GrShaderVar& samplerVariable(SamplerHandle) const = 0;
+    // Only called if GrShaderCaps(:textureSwizzleAppliedInShader() == true.
     virtual GrSwizzle samplerSwizzle(SamplerHandle) const = 0;
 
     virtual SamplerHandle addSampler(const GrTexture*, const GrSamplerState&, const char* name,

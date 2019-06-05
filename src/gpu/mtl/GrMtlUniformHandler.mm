@@ -277,6 +277,7 @@ GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(const GrText
     info.fVariable.addLayoutQualifier(layoutQualifier.c_str());
     info.fVisibility = kFragment_GrShaderFlag;
     info.fUBOffset = 0;
+    SkASSERT(caps->textureSwizzleAppliedInShader());
     fSamplerSwizzles.push_back(swizzle);
     SkASSERT(fSamplerSwizzles.count() == fSamplers.count());
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);

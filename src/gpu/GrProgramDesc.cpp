@@ -44,8 +44,12 @@ static uint32_t sampler_key(GrTextureType textureType, GrPixelConfig config,
     int samplerTypeKey = texture_type_key(textureType);
 
     GR_STATIC_ASSERT(2 == sizeof(caps.configTextureSwizzle(config).asKey()));
+    uint16_t swizzleKey = 0;
+    if (caps.textureSwizzleAppliedInShader()) {
+        swizzleKey = caps.configTextureSwizzle(config).asKey();
+    }
     return SkToU32(samplerTypeKey |
-                   caps.configTextureSwizzle(config).asKey() << kSamplerOrImageTypeKeyBits |
+                   swizzleKey << kSamplerOrImageTypeKeyBits |
                    (GrSLSamplerPrecision(config) << (16 + kSamplerOrImageTypeKeyBits)));
 }
 

@@ -3079,8 +3079,8 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture*
 
     const GrGLTextureParameters::NonsamplerState& oldNonsamplerState =
             texture->parameters()->nonsamplerState();
-    if (this->glCaps().textureSwizzleSupport()) {
-        auto swizzle = this->glCaps().configSwizzle(texture->config());
+    if (!this->caps()->shaderCaps()->textureSwizzleAppliedInShader()) {
+        const auto& swizzle = this->caps()->shaderCaps()->configTextureSwizzle(texture->config());
         newNonsamplerState.fSwizzleKey = swizzle.asKey();
         if (setAll || swizzle.asKey() != oldNonsamplerState.fSwizzleKey) {
             GrGLenum glValues[4];

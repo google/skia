@@ -56,7 +56,10 @@ public:
     }
 
     GrSwizzle samplerSwizzle(SamplerHandle handle) const {
-        return this->uniformHandler()->samplerSwizzle(handle);
+        if (this->caps()->shaderCaps()->textureSwizzleAppliedInShader()) {
+            return this->uniformHandler()->samplerSwizzle(handle);
+        }
+        return GrSwizzle::RGBA();
     }
 
     // Used to add a uniform for the RenderTarget width (used for sk_Width) without mangling
