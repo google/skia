@@ -78,8 +78,10 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(const GrTextu
     sampler.fVariable.setName(mangleName);
     sampler.fLocation = -1;
     sampler.fVisibility = kFragment_GrShaderFlag;
-    fSamplerSwizzles.push_back(swizzle);
-    SkASSERT(fSamplers.count() == fSamplerSwizzles.count());
+    if (shaderCaps->textureSwizzleAppliedInShader()) {
+        fSamplerSwizzles.push_back(swizzle);
+        SkASSERT(fSamplers.count() == fSamplerSwizzles.count());
+    }
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }
 

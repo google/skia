@@ -3113,8 +3113,8 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture*
     newNonSamplerParams.fMaxMipMapLevel = texture->texturePriv().maxMipMapLevel();
 
     const GrGLTexture::NonSamplerParams& oldNonSamplerParams = texture->getCachedNonSamplerParams();
-    if (this->glCaps().textureSwizzleSupport()) {
-        auto swizzle = this->glCaps().configSwizzle(texture->config());
+    if (!this->caps()->shaderCaps()->textureSwizzleAppliedInShader()) {
+        const auto& swizzle = this->caps()->shaderCaps()->configTextureSwizzle(texture->config());
         newNonSamplerParams.fSwizzleKey = swizzle.asKey();
         if (setAll || swizzle.asKey() != oldNonSamplerParams.fSwizzleKey) {
             GrGLenum glValues[4];
