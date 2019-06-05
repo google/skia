@@ -16,6 +16,24 @@
       "revId": "e8ebe232689095b25adcd54be50543f345ce83a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8349b0f2_4546dbb0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-05T15:53:48Z",
+      "side": 1,
+      "message": "I have started to deal with fp16 enough lately that I made a little translator...\n\n\n~ $ cat half.c \n#include \u003cstdio.h\u003e\n#include \u003cstdlib.h\u003e\n#include \u003cstring.h\u003e\n\n__attribute__((target(\"arch\u003divybridge\")))\nint main(int argc, char** argv) {\n\n    for (int i \u003d 1; i \u003c argc; i++) {\n        float f \u003d atof(argv[i]);\n        __fp16 h \u003d f;\n\n        int bits \u003d 0;\n        memcpy(\u0026bits, \u0026f, 4);\n        printf(\"%g (%08x) -\u003e \", f, bits);\n        bits \u003d 0;\n        memcpy(\u0026bits, \u0026h, 2);\n        printf(\"%g (%04x)\\n\", (float)h, bits);\n    }\n\n    return 0;\n}\n~ $ clang half.c \u0026\u0026 ./a.out 0.00001\n1e-05 (3727c5ac) -\u003e 1.00136e-05 (00a8)",
+      "parentUuid": "134a0e1c_16f98e8f",
+      "revId": "e8ebe232689095b25adcd54be50543f345ce83a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
