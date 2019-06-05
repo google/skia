@@ -218,4 +218,26 @@ private:
     bool fHaveCalledOnceBeforeDraw;
 };
 
+class SimpleSample : public Sample {
+public:
+    using DrawProc = void(*)(SkCanvas*, SkSize);
+    SimpleSample(const char* title, DrawProc draw) : fTitle(title), fDraw(draw) {}
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, fTitle);
+            return true;
+        }
+        return this->Sample::onQuery(evt);
+    }
+    void onDrawContent(SkCanvas* canvas) override {
+        fDraw(canvas, SkSize{this->width(), this->height()});
+    }
+
+private:
+    const char* fTitle;
+    DrawProc fDraw;
+};
+#define DEF_SIMPLE_SAMPLE(TITLE, DRAW_FUNCTTION) \
+    DEF_SAMPLE(return new SimpleSample(TITLE, DRAW_FUNCTTION);)
+
 #endif
