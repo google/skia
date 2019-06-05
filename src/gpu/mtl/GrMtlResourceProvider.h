@@ -10,7 +10,6 @@
 
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
-#include "src/gpu/mtl/GrMtlCopyPipelineState.h"
 #include "src/gpu/mtl/GrMtlDepthStencil.h"
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
 #include "src/gpu/mtl/GrMtlSampler.h"
@@ -22,11 +21,6 @@ class GrMtlGpu;
 class GrMtlResourceProvider {
 public:
     GrMtlResourceProvider(GrMtlGpu* gpu);
-
-    GrMtlCopyPipelineState* findOrCreateCopyPipelineState(MTLPixelFormat dstPixelFormat,
-                                                          id<MTLFunction> vertexFunction,
-                                                          id<MTLFunction> fragmentFunction,
-                                                          MTLVertexDescriptor* vertexDescriptor);
 
     GrMtlPipelineState* findOrCreateCompatiblePipelineState(
         GrRenderTarget*, GrSurfaceOrigin,
@@ -88,8 +82,6 @@ private:
         int                         fCacheMisses;
 #endif
     };
-
-    SkTArray<std::unique_ptr<GrMtlCopyPipelineState>> fCopyPipelineStateCache;
 
     GrMtlGpu* fGpu;
 

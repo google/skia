@@ -8,7 +8,6 @@
 #include "src/gpu/mtl/GrMtlResourceProvider.h"
 
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
-#include "src/gpu/mtl/GrMtlCopyManager.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
@@ -23,23 +22,6 @@ GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
     : fGpu(gpu)
     , fBufferState({nil, 0, 0}) {
     fPipelineStateCache.reset(new PipelineStateCache(gpu));
-}
-
-GrMtlCopyPipelineState* GrMtlResourceProvider::findOrCreateCopyPipelineState(
-        MTLPixelFormat dstPixelFormat,
-        id<MTLFunction> vertexFunction,
-        id<MTLFunction> fragmentFunction,
-        MTLVertexDescriptor* vertexDescriptor) {
-
-    for (const auto& copyPipelineState: fCopyPipelineStateCache) {
-        if (GrMtlCopyManager::IsCompatible(copyPipelineState.get(), dstPixelFormat)) {
-            return copyPipelineState.get();
-        }
-    }
-
-    fCopyPipelineStateCache.emplace_back(GrMtlCopyPipelineState::CreateCopyPipelineState(
-             fGpu, dstPixelFormat, vertexFunction, fragmentFunction, vertexDescriptor));
-    return fCopyPipelineStateCache.back().get();
 }
 
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
