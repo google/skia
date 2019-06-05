@@ -288,7 +288,7 @@ size_t GrVkBytesPerFormat(VkFormat vkFormat) {
             return 16;
 
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
-            return 8;
+            return 0;
 
         default:
             SK_ABORT("Invalid Vk format");
@@ -308,6 +308,17 @@ bool GrVkFormatIsCompressed(VkFormat vkFormat) {
     }
     SK_ABORT("Invalid format");
     return false;
+}
+
+GrCompression GrVkFormat2Compression(VkFormat vkFormat) {
+    switch (vkFormat) {
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+            return GrCompression::kETC1;
+        default:
+            return GrCompression::kNone;
+    }
+    SK_ABORT("Invalid format");
+    return GrCompression::kNone;
 }
 
 size_t GrVkFormatCompressedDataSize(VkFormat vkFormat, int width, int height) {
