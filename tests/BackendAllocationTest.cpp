@@ -454,6 +454,12 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
           kRGB_ETC1_GrPixelConfig,          SkColors::kRed      },
         { kUnknown_SkColorType,             GR_GL_COMPRESSED_ETC1_RGB8,
           kRGB_ETC1_GrPixelConfig,          SkColors::kRed      },
+
+        // Experimental (for P016 and P010)
+        { kUnknown_SkColorType,             GR_GL_R16,
+          kR_16_GrPixelConfig,              SkColors::kRed      },
+        { kUnknown_SkColorType,             GR_GL_RG16,
+          kRG_1616_GrPixelConfig,           SkColors::kYellow      },
     };
 
     for (auto combo : combinations) {
@@ -593,7 +599,11 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         { kUnknown_SkColorType,      VK_FORMAT_R32G32_SFLOAT,            { 0.7f, 0.7f, 0, 0 } },
         { kUnknown_SkColorType,      VK_FORMAT_R8G8_UNORM,               { 0.5f, 0.5f, 0, 0 } },
         { kUnknown_SkColorType,      VK_FORMAT_R16_SFLOAT,               { 1.0f, 0, 0, 0.5f } },
-        { kUnknown_SkColorType,      VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,  SkColors::kRed },
+        { kUnknown_SkColorType,      VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,  SkColors::kRed       },
+
+        // Experimental (for P016 and P010)
+        { kUnknown_SkColorType,      VK_FORMAT_R16_UNORM,                SkColors::kRed       },
+        { kUnknown_SkColorType,      VK_FORMAT_R16G16_UNORM,             SkColors::kYellow    },
     };
 
     for (auto combo : combinations) {
