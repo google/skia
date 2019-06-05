@@ -219,6 +219,9 @@ namespace skvm {
     I32 Builder::sra(I32 x, int bits) { return {this->push(Op::sra, x.id,NA,NA, bits)}; }
 
     I32 Builder::mul_unorm8(I32 x, I32 y) { return {this->push(Op::mul_unorm8, x.id, y.id)}; }
+    I32 Builder::mad_unorm8(I32 x, I32 y, I32 z) {
+        return {this->push(Op::mad_unorm8, x.id, y.id, z.id)};
+    }
 
     I32 Builder::extract(I32 x, int mask) {
         SkASSERT(mask != 0);
@@ -325,7 +328,8 @@ namespace skvm {
                 case Op::shr: write(o, R{d}, "= shr", R{x}, Shift{y.imm}); break;
                 case Op::sra: write(o, R{d}, "= sra", R{x}, Shift{y.imm}); break;
 
-                case Op::mul_unorm8: write(o, R{d}, "= mul_unorm8", R{x}, R{y.id}); break;
+                case Op::mul_unorm8: write(o, R{d}, "= mul_unorm8", R{x}, R{y.id}         ); break;
+                case Op::mad_unorm8: write(o, R{d}, "= mad_unorm8", R{x}, R{y.id}, R{z.id}); break;
 
                 case Op::extract: write(o, R{d}, "= extract", R{x}, Mask{y.imm}); break;
                 case Op::pack: write(o, R{d}, "= pack", R{x}, R{y.id}, Shift{z.imm}); break;
