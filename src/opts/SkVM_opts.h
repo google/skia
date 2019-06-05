@@ -132,7 +132,7 @@ namespace SK_OPTS_NS {
                     CASE(Op::sra): r(d).i32 = r(x).i32 >> y.imm; break;
                     CASE(Op::shr): r(d).u32 = r(x).u32 >> y.imm; break;
 
-                    CASE(Op::mul_unorm8): r(d).i32 = (r(x).i32 * r(y.id).i32 + 255) / 256; break;
+                    CASE(Op::mul_unorm8): r(d).u32 = (r(x).u32 * r(y.id).u32 + 255) / 256; break;
 
                     CASE(Op::extract): r(d).u32 = (r(x).u32 & y.imm) >> z.imm; break;
 
