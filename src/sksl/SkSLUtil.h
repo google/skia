@@ -90,10 +90,6 @@ public:
         return false;
     }
 
-    bool dropsTileOnZeroDivide() const {
-        return false;
-    }
-
     bool flatInterpolationSupport() const {
         return true;
     }
@@ -338,7 +334,6 @@ public:
         result->fVersionDeclString = "#version 400";
         result->fExternalTextureSupport = true;
         result->fFBFetchSupport = false;
-        result->fDropsTileOnZeroDivide = true;
         result->fCanUseAnyFunctionInShader = false;
         return result;
     }

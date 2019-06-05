@@ -65,8 +65,6 @@ public:
 
     const char* fbFetchExtensionString() const { return fFBFetchExtensionString; }
 
-    bool dropsTileOnZeroDivide() const { return fDropsTileOnZeroDivide; }
-
     bool flatInterpolationSupport() const { return fFlatInterpolationSupport; }
 
     bool preferFlatInterpolation() const { return fPreferFlatInterpolation; }
@@ -261,7 +259,6 @@ private:
     bool fDualSourceBlendingSupport         : 1;
     bool fIntegerSupport                    : 1;
     bool fImageLoadStoreSupport             : 1;
-    bool fDropsTileOnZeroDivide             : 1;
     bool fFBFetchSupport                    : 1;
     bool fFBFetchNeedsCustomOutput          : 1;
     bool fUsesPrecisionModifiers            : 1;
