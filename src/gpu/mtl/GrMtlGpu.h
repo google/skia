@@ -14,6 +14,7 @@
 #include "src/gpu/GrSemaphore.h"
 
 #include "src/gpu/mtl/GrMtlCaps.h"
+#include "src/gpu/mtl/GrMtlCopyManager.h"
 #include "src/gpu/mtl/GrMtlResourceProvider.h"
 #include "src/gpu/mtl/GrMtlStencilAttachment.h"
 
@@ -71,11 +72,22 @@ public:
     void testingOnly_flushGpuAndSync() override;
 #endif
 
-    bool copySurfaceAsBlit(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                           const SkIPoint& dstPoint);
+    bool copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                           GrSurface* src, GrSurfaceOrigin srcOrigin,
+                           const SkIRect& srcRect, const SkIPoint& dstPoint);
 
-    bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                       const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override;
+    // This function is needed when we want to copy between two surfaces with different origins and
+    // the destination surface is not a render target. We will first draw to a temporary render
+    // target to adjust for the different origins and then blit from there to the destination.
+    bool copySurfaceAsDrawThenBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                                   GrSurface* src, GrSurfaceOrigin srcOrigin,
+                                   const SkIRect& srcRect, const SkIPoint& dstPoint);
+
+    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                       GrSurface* src, GrSurfaceOrigin srcOrigin,
+                       const SkIRect& srcRect,
+                       const SkIPoint& dstPoint,
+                       bool canDiscardOutsideDstRect) override;
 
     GrGpuRTCommandBuffer* getCommandBuffer(
                                     GrRenderTarget*, GrSurfaceOrigin, const SkRect& bounds,
@@ -210,6 +222,7 @@ private:
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
 
+    GrMtlCopyManager      fCopyManager;
     GrMtlResourceProvider fResourceProvider;
 
     bool fDisconnected;

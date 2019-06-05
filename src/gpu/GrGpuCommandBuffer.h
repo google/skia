@@ -30,9 +30,9 @@ public:
     virtual ~GrGpuCommandBuffer() {}
 
     // Copy src into current surface owned by either a GrGpuTextureCommandBuffer or
-    // GrGpuRenderTargetCommandBuffer. The srcRect and dstPoint must be in dst coords and have
-    // already been adjusted for any origin flips.
-    virtual void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
+    // GrGpuRenderTargetCommandBuffer.
+    virtual void copy(GrSurface* src, GrSurfaceOrigin srcOrigin,
+                      const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
     // Initiates a transfer from the surface owned by the command buffer to the GrGpuBuffer.
     virtual void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
                               GrGpuBuffer* transferBuffer, size_t offset) = 0;
@@ -47,14 +47,19 @@ public:
     void set(GrTexture* texture, GrSurfaceOrigin origin) {
         SkASSERT(!fTexture);
 
+        fOrigin = origin;
         fTexture = texture;
     }
 
 protected:
-    GrGpuTextureCommandBuffer() : fTexture(nullptr) {}
+    GrGpuTextureCommandBuffer() : fOrigin(kTopLeft_GrSurfaceOrigin), fTexture(nullptr) {}
 
-    GrGpuTextureCommandBuffer(GrTexture* texture, GrSurfaceOrigin origin) : fTexture(texture) {}
+    GrGpuTextureCommandBuffer(GrTexture* texture, GrSurfaceOrigin origin)
+            : fOrigin(origin)
+            , fTexture(texture) {
+    }
 
+    GrSurfaceOrigin fOrigin;
     GrTexture*      fTexture;
 
 private:

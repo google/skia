@@ -13,11 +13,11 @@
 #include "include/utils/SkBase64.h"
 #include "src/core/SkUtils.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrSurfaceContext.h"
-#include "src/gpu/GrTextureContext.h"
+#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/SkGr.h"
+#include "tools/gpu/ProxyUtils.h"
 
 void test_read_pixels(skiatest::Reporter* reporter,
                       GrSurfaceContext* srcContext, uint32_t expectedPixelValues[],
@@ -74,16 +74,51 @@ void test_write_pixels(skiatest::Reporter* reporter,
 
 void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
                             GrSurfaceProxy* proxy, uint32_t expectedPixelValues[],
-                            const char* testName) {
-    sk_sp<GrTextureProxy> dstProxy = GrSurfaceProxy::Copy(context,  proxy, GrMipMapped::kNo,
-                                                          SkBackingFit::kExact, SkBudgeted::kYes);
-    SkASSERT(dstProxy);
+                            bool onlyTestRTConfig, const char* testName) {
+    GrSurfaceDesc copyDstDesc;
+    copyDstDesc.fWidth = proxy->width();
+    copyDstDesc.fHeight = proxy->height();
+    copyDstDesc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    sk_sp<GrSurfaceContext> dstContext =
-            context->priv().drawingManager()->makeTextureContext(dstProxy, nullptr);
-    SkASSERT(dstContext.get());
+    for (auto flags : { kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag }) {
+        if (kNone_GrSurfaceFlags == flags && onlyTestRTConfig) {
+            continue;
+        }
 
-    test_read_pixels(reporter, dstContext.get(), expectedPixelValues, testName);
+        copyDstDesc.fFlags = flags;
+        auto origin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
+                                                      : kBottomLeft_GrSurfaceOrigin;
+
+        sk_sp<GrSurfaceContext> dstContext(
+                GrSurfaceProxy::TestCopy(context, copyDstDesc, origin, proxy));
+
+        test_read_pixels(reporter, dstContext.get(), expectedPixelValues, testName);
+    }
+}
+
+void test_copy_to_surface(skiatest::Reporter* reporter,
+                          GrContext* context,
+                          GrSurfaceContext* dstContext,
+                          const char* testName) {
+
+    int pixelCnt = dstContext->width() * dstContext->height();
+    SkAutoTMalloc<uint32_t> pixels(pixelCnt);
+    for (int y = 0; y < dstContext->width(); ++y) {
+        for (int x = 0; x < dstContext->height(); ++x) {
+            pixels.get()[y * dstContext->width() + x] =
+                SkColorToPremulGrColor(SkColorSetARGB(2*y, y, x, x * y));
+        }
+    }
+
+    for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
+        for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
+            auto src = sk_gpu_test::MakeTextureProxyFromData(
+                    context, renderable, dstContext->width(),
+                    dstContext->height(), kRGBA_8888_SkColorType, origin, pixels.get(), 0);
+            dstContext->copy(src.get());
+            test_read_pixels(reporter, dstContext, pixels.get(), testName);
+        }
+    }
 }
 
 void fill_pixel_data(int width, int height, GrColor* data) {
