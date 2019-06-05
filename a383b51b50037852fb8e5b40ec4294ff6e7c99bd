@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a180080_dd09f33f",
+        "filename": "resources/SkVMTest.expected",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-05T15:57:40Z",
+      "side": 1,
+      "message": "Pretty neat, huh?",
+      "revId": "a383b51b50037852fb8e5b40ec4294ff6e7c99bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
