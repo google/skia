@@ -241,6 +241,8 @@ public:
         return fConfigTextureSwizzle[config];
     }
 
+    bool textureSwizzleAppliedInShader() const { return fTextureSwizzleAppliedInShader; }
+
     /** Swizzle that should occur on the fragment shader outputs for a given config. */
     const GrSwizzle& configOutputSwizzle(GrPixelConfig config) const {
         return fConfigOutputSwizzle[config];
@@ -277,6 +279,7 @@ private:
     bool fHalfIs32Bits                      : 1;
     bool fHasLowFragmentPrecision           : 1;
     bool fUnsignedSupport                   : 1;
+    bool fTextureSwizzleAppliedInShader     : 1;
 
     // Used by SkSL to know when to generate polyfills.
     bool fBuiltinFMASupport : 1;

@@ -133,11 +133,6 @@ public:
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseTexStorage_Flag);
     }
 
-    /** Returns the mapping between GrPixelConfig components and GL internal format components. */
-    const GrSwizzle& configSwizzle(GrPixelConfig config) const {
-        return fConfigTable[config].fSwizzle;
-    }
-
     GrGLenum configSizedInternalFormat(GrPixelConfig config) const {
         return fConfigTable[config].fFormats.fSizedInternalFormat;
     }
@@ -330,9 +325,6 @@ public:
     /// Are textures with GL_TEXTURE_RECTANGLE type supported.
     bool rectangleTextureSupport() const { return fRectangleTextureSupport; }
 
-    /// GL_ARB_texture_swizzle
-    bool textureSwizzleSupport() const { return fTextureSwizzleSupport; }
-
     bool mipMapLevelAndLodControlSupport() const { return fMipMapLevelAndLodControlSupport; }
 
     bool doManualMipmapping() const { return fDoManualMipmapping; }
@@ -502,7 +494,6 @@ private:
     bool fPartialFBOReadIsSlow : 1;
     bool fBindUniformLocationSupport : 1;
     bool fRectangleTextureSupport : 1;
-    bool fTextureSwizzleSupport : 1;
     bool fMipMapLevelAndLodControlSupport : 1;
     bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
     bool fUseBufferDataNullHint                : 1;
@@ -596,8 +587,6 @@ private:
         // verification of color attachment validity is done while flushing. Although only ever
         // used in the (sole) rendering thread it can cause races if it is glommed into fFlags.
         bool fVerifiedColorAttachment = false;
-
-        GrSwizzle fSwizzle;
     };
 
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
