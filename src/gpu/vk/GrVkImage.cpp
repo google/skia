@@ -137,8 +137,8 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
         nullptr,                                         // pNext
-        srcAccessMask,                                   // outputMask
-        dstAccessMask,                                   // inputMask
+        srcAccessMask,                                   // srcAccessMask
+        dstAccessMask,                                   // dstAccessMask
         currentLayout,                                   // oldLayout
         newLayout,                                       // newLayout
         srcQueueFamilyIndex,                             // srcQueueFamilyIndex
