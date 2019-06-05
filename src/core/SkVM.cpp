@@ -218,23 +218,11 @@ namespace skvm {
         o->writeHexAsText(m.bits);
     }
     static void write(SkWStream* o, Splat s) {
-        o->writeHexAsText(s.bits);
         float f;
         memcpy(&f, &s.bits, 4);
+        o->writeHexAsText(s.bits);
         write(o, " (");
-
-        // It's friendlier to print floats that represent 1/K as fractions.
-        const int d = (int)(1.0f/f);
-
-        if (f < 1.0f && f == 1.0f/d) {
-            write(o, "1/");
-            o->writeDecAsText(d);
-        } else if (f < 1.0f && f == 1.0f/(d+1)) {
-            write(o, "1/");
-            o->writeDecAsText(d+1);
-        } else {
-            o->writeScalarAsText(f);
-        }
+        o->writeScalarAsText(f);
         write(o, ")");
     }
 

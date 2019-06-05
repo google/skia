@@ -1,7 +1,7 @@
 A8 over A8
 3 registers, 15 instructions:
 r0 = load8 arg(0)
-r1 = splat 3B808081 (1/255)
+r1 = splat 3B808081 (0.0039215689)
 r0 = to_f32 r0
 r0 = mul_f32 r1 r0
 r2 = load8 arg(1)
@@ -11,7 +11,7 @@ r1 = splat 3F800000 (1)
 r1 = sub_f32 r1 r0
 r1 = mad_f32 r2 r1 r0
 r2 = splat 437F0000 (255)
-r0 = splat 3F000000 (1/2)
+r0 = splat 3F000000 (0.5)
 r0 = mad_f32 r1 r2 r0
 r0 = to_i32 r0
 store8 arg(1) r0
@@ -19,7 +19,7 @@ store8 arg(1) r0
 A8 over G8
 4 registers, 21 instructions:
 r0 = load8 arg(0)
-r1 = splat 3B808081 (1/255)
+r1 = splat 3B808081 (0.0039215689)
 r0 = to_f32 r0
 r0 = mul_f32 r1 r0
 r2 = load8 arg(1)
@@ -35,7 +35,7 @@ r3 = mul_f32 r1 r3
 r3 = mad_f32 r1 r0 r3
 r3 = mad_f32 r1 r2 r3
 r2 = splat 437F0000 (255)
-r1 = splat 3F000000 (1/2)
+r1 = splat 3F000000 (0.5)
 r1 = mad_f32 r3 r2 r1
 r1 = to_i32 r1
 store8 arg(1) r1
@@ -43,7 +43,7 @@ store8 arg(1) r1
 A8 over RGBA_8888
 6 registers, 37 instructions:
 r0 = load8 arg(0)
-r1 = splat 3B808081 (1/255)
+r1 = splat 3B808081 (0.0039215689)
 r0 = to_f32 r0
 r0 = mul_f32 r1 r0
 r2 = load32 arg(1)
@@ -66,7 +66,7 @@ r4 = mul_f32 r4 r1
 r5 = mul_f32 r5 r1
 r1 = mad_f32 r2 r1 r0
 r2 = splat 437F0000 (255)
-r0 = splat 3F000000 (1/2)
+r0 = splat 3F000000 (0.5)
 r3 = mad_f32 r3 r2 r0
 r3 = to_i32 r3
 r4 = mad_f32 r4 r2 r0
@@ -82,7 +82,7 @@ store32 arg(1) r0
 
 G8 over A8
 3 registers, 12 instructions:
-r0 = splat 3B808081 (1/255)
+r0 = splat 3B808081 (0.0039215689)
 r1 = splat 3F800000 (1)
 r2 = load8 arg(1)
 r2 = to_f32 r2
@@ -90,7 +90,7 @@ r2 = mul_f32 r0 r2
 r0 = sub_f32 r1 r1
 r0 = mad_f32 r2 r0 r1
 r2 = splat 437F0000 (255)
-r1 = splat 3F000000 (1/2)
+r1 = splat 3F000000 (0.5)
 r1 = mad_f32 r0 r2 r1
 r1 = to_i32 r1
 store8 arg(1) r1
@@ -98,7 +98,7 @@ store8 arg(1) r1
 G8 over G8
 4 registers, 21 instructions:
 r0 = load8 arg(0)
-r1 = splat 3B808081 (1/255)
+r1 = splat 3B808081 (0.0039215689)
 r0 = to_f32 r0
 r0 = mul_f32 r1 r0
 r2 = splat 3F800000 (1)
@@ -114,7 +114,7 @@ r1 = mul_f32 r2 r1
 r1 = mad_f32 r2 r0 r1
 r1 = mad_f32 r2 r3 r1
 r3 = splat 437F0000 (255)
-r2 = splat 3F000000 (1/2)
+r2 = splat 3F000000 (0.5)
 r2 = mad_f32 r1 r3 r2
 r2 = to_i32 r2
 store8 arg(1) r2
@@ -122,7 +122,7 @@ store8 arg(1) r2
 G8 over RGBA_8888
 7 registers, 37 instructions:
 r0 = load8 arg(0)
-r1 = splat 3B808081 (1/255)
+r1 = splat 3B808081 (0.0039215689)
 r0 = to_f32 r0
 r0 = mul_f32 r1 r0
 r2 = splat 3F800000 (1)
@@ -145,7 +145,7 @@ r5 = mad_f32 r5 r1 r0
 r6 = mad_f32 r6 r1 r0
 r1 = mad_f32 r3 r1 r2
 r3 = splat 437F0000 (255)
-r2 = splat 3F000000 (1/2)
+r2 = splat 3F000000 (0.5)
 r4 = mad_f32 r4 r3 r2
 r4 = to_i32 r4
 r5 = mad_f32 r5 r3 r2
@@ -162,7 +162,7 @@ store32 arg(1) r2
 RGBA_8888 over A8
 3 registers, 16 instructions:
 r0 = load32 arg(0)
-r1 = splat 3B808081 (1/255)
+r1 = splat 3B808081 (0.0039215689)
 r0 = shr r0 24
 r0 = to_f32 r0
 r0 = mul_f32 r1 r0
@@ -173,7 +173,7 @@ r1 = splat 3F800000 (1)
 r1 = sub_f32 r1 r0
 r1 = mad_f32 r2 r1 r0
 r2 = splat 437F0000 (255)
-r0 = splat 3F000000 (1/2)
+r0 = splat 3F000000 (0.5)
 r0 = mad_f32 r1 r2 r0
 r0 = to_i32 r0
 store8 arg(1) r0
@@ -182,7 +182,7 @@ RGBA_8888 over G8
 6 registers, 33 instructions:
 r0 = load32 arg(0)
 r1 = extract r0 FF
-r2 = splat 3B808081 (1/255)
+r2 = splat 3B808081 (0.0039215689)
 r1 = to_f32 r1
 r1 = mul_f32 r2 r1
 r3 = extract r0 FF00
@@ -209,7 +209,7 @@ r0 = mul_f32 r2 r0
 r0 = mad_f32 r3 r4 r0
 r0 = mad_f32 r1 r5 r0
 r5 = splat 437F0000 (255)
-r1 = splat 3F000000 (1/2)
+r1 = splat 3F000000 (0.5)
 r1 = mad_f32 r0 r5 r1
 r1 = to_i32 r1
 store8 arg(1) r1
@@ -218,7 +218,7 @@ RGBA_8888 over RGBA_8888
 9 registers, 47 instructions:
 r0 = load32 arg(0)
 r1 = extract r0 FF
-r2 = splat 3B808081 (1/255)
+r2 = splat 3B808081 (0.0039215689)
 r1 = to_f32 r1
 r1 = mul_f32 r2 r1
 r3 = extract r0 FF00
@@ -250,7 +250,7 @@ r7 = mad_f32 r7 r2 r3
 r8 = mad_f32 r8 r2 r4
 r2 = mad_f32 r5 r2 r0
 r5 = splat 437F0000 (255)
-r0 = splat 3F000000 (1/2)
+r0 = splat 3F000000 (0.5)
 r6 = mad_f32 r6 r5 r0
 r6 = to_i32 r6
 r7 = mad_f32 r7 r5 r0
