@@ -15,6 +15,10 @@ class GrGpu;
 
 class GrGpuBuffer : public GrGpuResource, public GrBuffer {
 public:
+    ~GrGpuBuffer() override  {
+        int x = 9;
+        ++x;
+    }
     /**
      * Computes a scratch key for a GPU-side buffer with a "dynamic" access pattern. (Buffers with
      * "static" and "stream" patterns are disqualified by nature from being cached and reused.)

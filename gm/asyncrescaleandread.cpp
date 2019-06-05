@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkYUVAIndex.h"
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -14,6 +15,8 @@
 #include "include/gpu/GrContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -50,11 +53,77 @@ static sk_sp<SkImage> do_read_and_scale(SkSurface* surface, const SkIRect& srcRe
     return SkImage::MakeFromBitmap(bmp);
 }
 
+static sk_sp<SkImage> do_read_and_scale_yuv(SkSurface* surface, const SkIRect& srcRect,
+                                            int dstW, int dstH,
+                                            SkSurface::RescaleGamma rescaleGamma,
+                                            SkFilterQuality quality) {
+    SkASSERT(!(dstW & 0b1) && !(dstH & 0b1));
+    std::unique_ptr<uint8_t[]> yData(new uint8_t[dstW * dstH]);
+    // Because we don't have a RG8 color type we stick the UV data in a RGBA8 buffer where U is
+    // in R, V is in G, and B and A are ignored.
+    std::unique_ptr<uint32_t[]> uvxxData(new uint32_t[dstW / 2 * dstH / 2]);
+    struct Context {
+        int fW;
+        int fH;
+        uint8_t* fYData;
+        uint32_t* fUVXXData;
+        bool fCalled = false;
+    } context {dstW, dstH, yData.get(), uvxxData.get()};
+    auto callback = [](void* c, const void* data[2], size_t rowBytes[2]) {
+        auto context = reinterpret_cast<Context*>(c);
+        context->fCalled = true;
+        if (!data) {
+            return;
+        }
+        SkRectMemcpy(context->fYData, context->fW, data[0], rowBytes[0], context->fW, context->fH);
+        const auto* srcUV = static_cast<const uint16_t*>(data[1]);
+        int uvW = context->fW / 2;
+        int uvH = context->fH / 2;
+        for (int y = 0; y < uvH; ++y) {
+            for (int x = 0; x < uvW; ++x) {
+              auto u = (srcUV[x] >> 0) & 0xff;
+              auto v = (srcUV[x] >> 8) & 0xff;
+              // Put 0xff in the unused alpha channel to assist debugging display of this as rgba
+              // image.
+              context->fUVXXData[x + uvW  * y] = u | (v << 8) | (0xff << 24);
+            }
+            auto nextRow = reinterpret_cast<const char*>(srcUV) + rowBytes[1];
+            srcUV = reinterpret_cast<const uint16_t*>(nextRow);
+        }
+    };
+    surface->asyncRescaleAndReadPixelsYUV420(kRec601_SkYUVColorSpace, SkColorSpace::MakeSRGB(), srcRect, dstW, dstH, rescaleGamma, quality, callback, &context);
+    while (!context.fCalled) {
+        // Only GPU should actually be asynchronous.
+        SkASSERT(surface->getCanvas()->getGrContext());
+        surface->getCanvas()->getGrContext()->checkAsyncWorkCompletion();
+    }
+    auto* gr = surface->getCanvas()->getGrContext();
+    GrBackendTexture backendTexures[2];
+    backendTexures[0] = gr->priv().getGpu()->createTestingOnlyBackendTexture(dstW, dstH, kAlpha_8_SkColorType, GrMipMapped::kNo, GrRenderable::kNo, yData.get());
+    backendTexures[1] = gr->priv().getGpu()->createTestingOnlyBackendTexture(dstW / 2, dstH / 2, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo, uvxxData.get());
+    bool yIsRed = backendTexures[0].pixelConfig() == kAlpha_8_as_Red_GrPixelConfig;
+     SkYUVAIndex indices[4] {
+            { 0, yIsRed ? SkColorChannel::kR : SkColorChannel::kA},
+            { 1, SkColorChannel::kR},
+            { 1, SkColorChannel::kG},
+            {-1, SkColorChannel::kR}
+    };
+    // return SkImage::MakeFromTexture(gr, backendTexures[0], kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr);
+    //return SkImage::MakeFromTexture(gr, backendTexures[1], kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
+    return SkImage::MakeFromYUVATextures(gr, kRec601_SkYUVColorSpace, backendTexures, indices, {dstW, dstH}, kTopLeft_GrSurfaceOrigin, SkColorSpace::MakeSRGB());
+}
+
 // Draws a grid of rescales. The columns are none, low, and high filter quality. The rows are
 // rescale in src gamma and rescale in linear gamma.
 static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas, SkSurface* surface,
                                           const SkIRect& srcRect, int newW, int newH,
-                                          SkString* errorMsg, int pad = 0) {
+                                          bool doYUV420, SkString* errorMsg, int pad = 0) {
+    if (doYUV420) {
+        if (!canvas->getGrContext()) {
+            errorMsg->printf("YUV420 only supported on GPU for now.");
+            return skiagm::DrawResult::kSkip;
+        }
+    }
     if (canvas->imageInfo().colorType() == kUnknown_SkColorType) {
         *errorMsg = "Not supported on recording/vector backends.";
         return skiagm::DrawResult::kSkip;
@@ -62,14 +131,21 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas, SkSurface* surface,
     const auto ii = canvas->imageInfo().makeWH(newW, newH);
 
     canvas->save();
-    for (auto linear : {SkSurface::RescaleGamma::kSrc, SkSurface::RescaleGamma::kLinear}) {
+    for (auto gamma : {SkSurface::RescaleGamma::kSrc, SkSurface::RescaleGamma::kLinear}) {
         canvas->save();
         for (auto quality : {kNone_SkFilterQuality, kLow_SkFilterQuality, kHigh_SkFilterQuality}) {
-            auto rescaled = do_read_and_scale(surface, srcRect, ii, linear, quality);
-            canvas->drawImage(rescaled, 0, 0);
+            sk_sp<SkImage> result;
+            if (doYUV420) {
+                result = do_read_and_scale_yuv(surface, srcRect, newW, newH, gamma, quality);
+            } else {
+                result = do_read_and_scale(surface, srcRect, ii, gamma, quality);
+            }
+            canvas->drawImage(result, 0, 0);
             canvas->translate(newW + pad, 0);
+            break;
         }
         canvas->restore();
+        break;
         canvas->translate(0, newH + pad);
     }
     canvas->restore();
@@ -78,7 +154,7 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas, SkSurface* surface,
 
 static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas, const char* imageFile,
                                                 const SkIRect& srcRect, int newW, int newH,
-                                                SkString* errorMsg) {
+                                                bool doYUV420, SkString* errorMsg) {
     auto image = GetResourceAsImage(imageFile);
     if (!image) {
         errorMsg->printf("Could not load image file %s.", imageFile);
@@ -106,27 +182,30 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas, const char* im
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
     surface->getCanvas()->drawImage(image, 0, 0, &paint);
-    return do_rescale_grid(canvas, surface.get(), srcRect, newW, newH, errorMsg);
+    return do_rescale_grid(canvas, surface.get(), srcRect, newW, newH, doYUV420, errorMsg);
 }
 
-#define DEF_RESCALE_AND_READ_GM(IMAGE_FILE, TAG, SRC_RECT, W, H)                           \
-    DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_##TAG, canvas, errorMsg, 3 * W, 2 * H) { \
-        ToolUtils::draw_checkerboard(canvas, SK_ColorDKGRAY, SK_ColorLTGRAY, 25);          \
-        return do_rescale_image_grid(canvas, #IMAGE_FILE, SRC_RECT, W, H, errorMsg);       \
+#define DEF_RESCALE_AND_READ_GM(IMAGE_FILE, TAG, SRC_RECT, W, H, YUV420)                     \
+    DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_##TAG, canvas, errorMsg, 3 * W, 2 * H) {   \
+        ToolUtils::draw_checkerboard(canvas, SK_ColorDKGRAY, SK_ColorLTGRAY, 25);            \
+        return do_rescale_image_grid(canvas, #IMAGE_FILE, SRC_RECT, W, H, YUV420, errorMsg); \
     }
 
-DEF_RESCALE_AND_READ_GM(images/yellow_rose.webp, rose, SkIRect::MakeXYWH(100, 20, 100, 100),
-                        410, 410)
+//DEF_RESCALE_AND_READ_GM(images/yellow_rose.webp, rose, SkIRect::MakeXYWH(100, 20, 100, 100),
+//                        410, 410, false)
 
-DEF_RESCALE_AND_READ_GM(images/dog.jpg, dog_down, SkIRect::MakeXYWH(0, 10, 180, 150), 45, 45)
-DEF_RESCALE_AND_READ_GM(images/dog.jpg, dog_up, SkIRect::MakeWH(180, 180), 800, 400)
+DEF_RESCALE_AND_READ_GM(images/yellow_rose.webp, rose, SkIRect::MakeXYWH(100, 20, 100, 100),
+                        410, 410, true)
+
+DEF_RESCALE_AND_READ_GM(images/dog.jpg, dog_down, SkIRect::MakeXYWH(0, 10, 180, 150), 45, 45, false)
+DEF_RESCALE_AND_READ_GM(images/dog.jpg, dog_up, SkIRect::MakeWH(180, 180), 800, 400, false)
 
 DEF_RESCALE_AND_READ_GM(images/text.png, text_down, SkIRect::MakeWH(637, 105), (int)(0.7 * 637),
-                        (int)(0.7 * 105))
+                        (int)(0.7 * 105), false)
 DEF_RESCALE_AND_READ_GM(images/text.png, text_up, SkIRect::MakeWH(637, 105), (int)(1.2 * 637),
-                        (int)(1.2 * 105))
+                        (int)(1.2 * 105), false)
 DEF_RESCALE_AND_READ_GM(images/text.png, text_up_large, SkIRect::MakeXYWH(300, 0, 300, 105),
-                        (int)(2.4 * 300), (int)(2.4 * 105))
+                        (int)(2.4 * 300), (int)(2.4 * 105), false)
 
 DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60) {
     if (canvas->imageInfo().colorType() == kUnknown_SkColorType) {
@@ -159,14 +238,14 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
     skiagm::DrawResult result;
     auto downW = static_cast<int>(kInner / 2);
     auto downH = static_cast<int>(kInner / 2);
-    result = do_rescale_grid(canvas, surface.get(), srcRect, downW, downH, errorMsg, kPad);
+    result = do_rescale_grid(canvas, surface.get(), srcRect, downW, downH, false, errorMsg, kPad);
     if (result != skiagm::DrawResult::kOk) {
         return result;
     }
     canvas->translate(0, 2 * downH);
     auto upW = static_cast<int>(kInner * 3.5);
     auto upH = static_cast<int>(kInner * 4.6);
-    result = do_rescale_grid(canvas, surface.get(), srcRect, upW, upH, errorMsg, kPad);
+    result = do_rescale_grid(canvas, surface.get(), srcRect, upW, upH, false, errorMsg, kPad);
     if (result != skiagm::DrawResult::kOk) {
         return result;
     }
