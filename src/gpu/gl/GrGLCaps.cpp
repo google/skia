@@ -1339,9 +1339,9 @@ bool GrGLCaps::getExternalFormat(GrPixelConfig surfaceConfig, GrPixelConfig memo
     // We don't currently support moving RGBA data into and out of ALPHA surfaces. It could be
     // made to work. However, this is complicated by the use of GL_RED for alpha-only textures but
     // is not needed currently.
-    if (surfaceIsAlphaOnly && !memoryIsAlphaOnly) {
-        return false;
-    }
+    //    if (surfaceIsAlphaOnly && !memoryIsAlphaOnly) {
+    //        return false;
+    //    }
 
     *externalFormat = fConfigTable[memoryConfig].fFormats.fExternalFormat[usage];
     *externalType = fConfigTable[memoryConfig].fFormats.fExternalType;
