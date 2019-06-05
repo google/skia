@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6f51f10_1dc7bacc",
+        "filename": "modules/skparagraph/src/ParagraphBuilderImpl.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 6360
+      },
+      "writtenOn": "2019-06-05T15:09:32Z",
+      "side": 1,
+      "message": "Google LLC",
+      "revId": "6a8a4c5a737ff17aab4b300ce277538fca490b71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
