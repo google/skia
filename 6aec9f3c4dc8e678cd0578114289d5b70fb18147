@@ -16,6 +16,24 @@
       "revId": "6aec9f3c4dc8e678cd0578114289d5b70fb18147",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "745d54cf_fe3235c0",
+        "filename": "include/gpu/mtl/GrMtlTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-06-05T13:29:12Z",
+      "side": 1,
+      "message": "It\u0027s what sk_sp does, and it refers to this: https://wg21.cmeerw.net/lwg/issue998",
+      "parentUuid": "2c4b97e1_d0e1c274",
+      "revId": "6aec9f3c4dc8e678cd0578114289d5b70fb18147",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
