@@ -254,7 +254,11 @@ void SkGpuDevice::replaceRenderTargetContext(sk_sp<GrRenderTargetContext> rtc,
         if (this->context()->abandoned()) {
             return;
         }
-        rtc->copy(fRenderTargetContext->asSurfaceProxy());
+
+        SkASSERT(fRenderTargetContext->asTextureProxy());
+        SkAssertResult(rtc->blitTexture(fRenderTargetContext->asTextureProxy(),
+                                        SkIRect::MakeWH(this->width(), this->height()),
+                                        SkIPoint::Make(0,0)));
     }
 
     fRenderTargetContext = std::move(rtc);
