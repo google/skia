@@ -36,6 +36,7 @@ tools/skp/page_sets/data/*.wpr
 
 common
 buildtools
+resources
 third_party/externals
 
 bin/gn
