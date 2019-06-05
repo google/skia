@@ -34,16 +34,24 @@ namespace SK_OPTS_NS {
             F32 f32;
         };
 
-        // Annoyingly we can't trust that malloc() or new will work with Slot because
-        // the skvx::Vec types may have alignment greater than what they provide.
-        // We'll overallocate one extra register so we can align manually.
-        std::unique_ptr<char[]> regs_buf{ new char[ sizeof(Slot) * (nregs + 1) ]};
+        Slot                     few_regs[16];
+        std::unique_ptr<char[]> many_regs;
 
-        uintptr_t addr = (uintptr_t)regs_buf.get();
-        while (addr & (alignof(Slot) - 1)) {
-            addr++;
+        Slot* regs = few_regs;
+
+        if (nregs > (int)SK_ARRAY_COUNT(few_regs)) {
+            // Annoyingly we can't trust that malloc() or new will work with Slot because
+            // the skvx::Vec types may have alignment greater than what they provide.
+            // We'll overallocate one extra register so we can align manually.
+            many_regs.reset(new char[ sizeof(Slot) * (nregs + 1) ]);
+
+            uintptr_t addr = (uintptr_t)many_regs.get();
+            addr += alignof(Slot) -
+                     (addr & (alignof(Slot) - 1));
+            SkASSERT((addr & (alignof(Slot) - 1)) == 0);
+            regs = (Slot*)addr;
         }
-        Slot* regs = (Slot*)addr;
+
 
         auto r = [&](ID id) -> Slot& {
             SkASSERT(0 <= id && id < nregs);
