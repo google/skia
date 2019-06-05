@@ -156,6 +156,9 @@ static const char* pixel_config_name(GrPixelConfig config) {
         case kRGBA_half_GrPixelConfig: return "RGBAHalf";
         case kRGBA_half_Clamped_GrPixelConfig: return "RGBAHalfClamped";
         case kRGB_ETC1_GrPixelConfig: return "RGBETC1";
+        // Experimental (for P016 and P010)
+        case kR_16_GrPixelConfig: return "R16";
+        case kRG_1616_GrPixelConfig: return "RG1616";
     }
     SK_ABORT("Invalid pixel config");
     return "<invalid>";
