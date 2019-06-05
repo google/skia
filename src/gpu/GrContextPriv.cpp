@@ -366,3 +366,66 @@ std::unique_ptr<GrFragmentProcessor> GrContextPriv::createUPMToPMEffect(
 
     return GrConfigConversionEffect::Make(std::move(fp), PMConversion::kToPremul);
 }
+
+//////////////////////////////////////////////////////////////////////////////
+GrBackendTexture GrContextPriv::createBackendTexture(const SkPixmap srcData[], int numLevels,
+                                                     GrRenderable renderable) {
+    if (!fContext->asDirectContext()) {
+        return {};
+    }
+
+    if (this->abandoned()) {
+        return {};
+    }
+
+    if (!srcData || !numLevels) {
+        return {};
+    }
+
+    int baseWidth = srcData[0].width();
+    int baseHeight = srcData[0].height();
+    SkColorType colorType = srcData[0].colorType();
+
+    if (numLevels > 1) {
+        for (int i = 1; i < numLevels; ++i) {
+            if (srcData[i].colorType() != colorType) {
+                return {};
+            }
+        }
+
+        int currentWidth = baseWidth;
+        int currentHeight = baseHeight;
+        for (int currentMipLevel = 0; currentMipLevel < mipLevels; ++currentMipLevel) {
+            size_t offset = individualMipOffsets[currentMipLevel];
+
+            if (GrCompression::kETC1 == compression) {
+                // TODO: compute the ETC1 block for 'colorf' just once
+                fillin_ETC1_with_color(currentWidth, currentHeight, colorf, &(dstPixels[offset]));
+            } else {
+                fill_buffer_with_color(config, currentWidth, currentHeight, colorf,
+                                       &(dstPixels[offset]));
+            }
+
+            currentWidth = SkTMax(1, currentWidth / 2);
+            currentHeight = SkTMax(1, currentHeight / 2);
+        }
+    }
+
+    // TODO: check all levels are present
+
+
+    GrBackendFormat backendFormat = this->caps()->getBackendFormatFromColorType(colorType);
+    if (!backendFormat.isValid()) {
+        return {};
+    }
+
+    if (!backendFormat.isValid()) {
+        return {};
+    }
+
+    GrGpu* gpu = fContext->fGpu.get();
+
+    return gpu->createBackendTexture(baseWidth, baseHeight, backendFormat,
+                                     (1 == numLevels) ? GrMipMapped::kNo : GrMipMapped::kYes,
+                                     renderable, srcData, numLevels, nullptr);
+}
