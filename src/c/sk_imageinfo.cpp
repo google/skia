@@ -104,11 +104,11 @@ void sk_imageinfo_delete(sk_imageinfo_t* cinfo) {
     delete ToImageInfo(cinfo);
 }
 
-int sk_imageinfo_get_width(const sk_imageinfo_t* cinfo) {
+int32_t sk_imageinfo_get_width(const sk_imageinfo_t* cinfo) {
     return ToImageInfo(cinfo)->width();
 }
 
-int sk_imageinfo_get_height(const sk_imageinfo_t* cinfo) {
+int32_t sk_imageinfo_get_height(const sk_imageinfo_t* cinfo) {
     return ToImageInfo(cinfo)->height();
 }
 
