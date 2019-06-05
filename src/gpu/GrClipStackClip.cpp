@@ -205,8 +205,16 @@ bool GrClipStackClip::apply(GrRecordingContext* context, GrRenderTargetContext* 
         return true;
     }
 
+    // An default count of 4 was chosen because of the common pattern in Blink of:
+    //   isect RR
+    //   diff  RR
+    //   isect convex_poly
+    //   isect convex_poly
+    // when drawing rounded div borders.
+    constexpr int kMaxAnalyticFPs = 4;
+
     int maxWindowRectangles = renderTargetContext->priv().maxWindowRectangles();
-    int maxAnalyticFPs = context->priv().caps()->maxClipAnalyticFPs();
+    int maxAnalyticFPs = kMaxAnalyticFPs;
     if (GrFSAAType::kNone != renderTargetContext->fsaaType()) {
         // With mixed samples (non-msaa color buffer), any coverage info is lost from color once it
         // hits the color buffer anyway, so we may as well use coverage AA if nothing else in the

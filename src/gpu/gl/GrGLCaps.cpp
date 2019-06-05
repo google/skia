@@ -2675,13 +2675,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fMipMapSupport = false;
     }
 
-    if (isX86PowerVRRogue) {
-        // Temporarily disabling clip analytic fragments processors on Nexus player while we work
-        // around a driver bug related to gl_FragCoord.
-        // https://bugs.chromium.org/p/skia/issues/detail?id=7286
-        fMaxClipAnalyticFPs = 0;
-    }
-
 #ifndef SK_BUILD_FOR_IOS
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer() ||
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
@@ -2889,6 +2882,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // gl_FragCoord has an incorrect subpixel offset on legacy Tegra hardware.
     if (kTegra_PreK1_GrGLRenderer == ctxInfo.renderer()) {
+        shaderCaps->fCanUseFragCoord = false;
+    }
+
+    if (isX86PowerVRRogue) {
+        // NexusPlayer seems to render garbage when accessing gl_FragCoord
+        // https://bugs.chromium.org/p/skia/issues/detail?id=7286
         shaderCaps->fCanUseFragCoord = false;
     }
 

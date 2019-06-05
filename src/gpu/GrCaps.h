@@ -157,10 +157,6 @@ public:
         return this->maxWindowRectangles() > 0 && this->onIsWindowRectanglesSupportedForRT(rt);
     }
 
-    // A tuned, platform-specific value for the maximum number of analytic fragment processors we
-    // should use to implement a clip, before falling back on a mask.
-    int maxClipAnalyticFPs() const { return fMaxClipAnalyticFPs; }
-
     virtual bool isConfigTexturable(GrPixelConfig) const = 0;
 
     // Returns whether a texture of the given config can be copied to a texture of the same config.
@@ -429,7 +425,6 @@ protected:
     int fMaxTextureSize;
     int fMaxTileSize;
     int fMaxWindowRectangles;
-    int fMaxClipAnalyticFPs;
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;
 

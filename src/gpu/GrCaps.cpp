@@ -58,14 +58,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMaxTextureSize = 1;
     fMaxWindowRectangles = 0;
 
-    // An default count of 4 was chosen because of the common pattern in Blink of:
-    //   isect RR
-    //   diff  RR
-    //   isect convex_poly
-    //   isect convex_poly
-    // when drawing rounded div borders.
-    fMaxClipAnalyticFPs = 4;
-
     fSuppressPrints = options.fSuppressPrints;
 #if GR_TEST_UTILS
     fWireframeMode = options.fWireframeMode;
@@ -241,7 +233,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max Render Target Size", fMaxRenderTargetSize);
     writer->appendS32("Max Preferred Render Target Size", fMaxPreferredRenderTargetSize);
     writer->appendS32("Max Window Rectangles", fMaxWindowRectangles);
-    writer->appendS32("Max Clip Analytic Fragment Processors", fMaxClipAnalyticFPs);
 
     static const char* kBlendEquationSupportNames[] = {
         "Basic",
