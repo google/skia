@@ -18,8 +18,8 @@
 #endif // SKSL_STANDALONE
 
 #ifdef SKSL_STANDALONE
-#define SkASSERT(x) if (!(x)) abort();
-#define SkAssertResult(x) if (!(x)) abort();
+#define SkASSERT(x) do { if (!(x)) abort(); } while (false)
+#define SkAssertResult(x) do { if (!(x)) abort(); } while (false)
 #define SkDEBUGCODE(...) __VA_ARGS__
 #else
 #include "include/core/SkTypes.h"
