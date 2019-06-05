@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "93b42c37_cdf22945",
+        "filename": "src/sksl/SkSLASTNode.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-06-05T18:56:26Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "f7f3646a_e66accbc",
+      "range": {
+        "startLine": 176,
+        "startChar": 27,
+        "endLine": 176,
+        "endChar": 28
+      },
+      "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c70e414_a2024e6c",
         "filename": "src/sksl/SkSLASTNode.cpp",
         "patchSetId": 16
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "38801a73_8a4559e7",
+        "filename": "src/sksl/SkSLASTNode.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-06-05T18:56:26Z",
+      "side": 1,
+      "message": "1) Good catch. When these were first implemented, I had an issue with circular header dependencies which required me to move an include (and this code which depended on that include) out into the .cpp file. The code has changed since then so it\u0027s no longer a problem, but I never moved these back into the header. Done.\n2) Done.",
+      "parentUuid": "3c70e414_a2024e6c",
+      "range": {
+        "startLine": 229,
+        "startChar": 0,
+        "endLine": 232,
+        "endChar": 1
+      },
+      "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df6093ab_3004e340",
         "filename": "src/sksl/SkSLASTNode.h",
         "patchSetId": 16
@@ -59,6 +107,24 @@
       "writtenOn": "2019-06-05T18:24:38Z",
       "side": 1,
       "message": "Could this just be a union?",
+      "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bf2ffce_93ab464a",
+        "filename": "src/sksl/SkSLASTNode.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-06-05T18:56:26Z",
+      "side": 1,
+      "message": "Several of these have non-trivial constructors, so unfortunately not.",
+      "parentUuid": "df6093ab_3004e340",
       "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -82,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "c593a9bd_c074a6e0",
+        "filename": "src/sksl/SkSLASTNode.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-06-05T18:56:26Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "b5abc760_524bdc57",
+      "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1061b76c_079c20e7",
         "filename": "tests/SkSLGLSLTest.cpp",
         "patchSetId": 16
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "1252fc19_f0392531",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-06-05T18:56:26Z",
+      "side": 1,
+      "message": "Yes; 0.01 was obviously a stupid choice for a constant on my part since it cannot be precisely represented in binary.\n\nI originally used doubles internally since GLSL supported them, and 0.01 made the round trip ok there. In the years since we have never had a need for doubles, so I came to regard my decision to use doubles internally as a mistake. The SKSL_FLOAT macro will at least make it easy to revisit in the future.",
+      "parentUuid": "1061b76c_079c20e7",
+      "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "695fc8c4_42482f47",
         "filename": "tests/SkSLGLSLTest.cpp",
         "patchSetId": 16
@@ -110,6 +212,24 @@
       "writtenOn": "2019-06-05T18:24:38Z",
       "side": 1,
       "message": "Just curious why this test was changed like this?",
+      "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df49555c_cbd6fb1a",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1899,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-06-05T18:56:26Z",
+      "side": 1,
+      "message": "Storing entire nodes on the stack, rather than pointers to nodes, means we blow through stack space faster. This was causing a stack overflow on one bot.",
+      "parentUuid": "695fc8c4_42482f47",
       "revId": "12984fad39fb6ceb77f62a96673c45f6838e41a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
