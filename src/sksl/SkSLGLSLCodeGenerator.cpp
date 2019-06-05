@@ -811,6 +811,10 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->write(fProgram.fSettings.fCaps->fbFetchColorName());
             break;
         default:
+            if (ref.fVariable.fModifiers.fLayout.fBuiltin != -1) {
+                printf("FAILURE ON: %s\n", ref.description().c_str());
+            }
+            SkASSERT(ref.fVariable.fModifiers.fLayout.fBuiltin == -1);
             this->write(ref.fVariable.fName);
     }
 }
