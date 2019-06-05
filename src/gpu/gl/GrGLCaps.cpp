@@ -2126,6 +2126,37 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     } // No WebGL support
     fConfigTable[kRGB_ETC1_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
+    // Experimental (for P016 and P010)
+    {
+        fConfigTable[kR_16_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_COMPRESSED_RGB8_ETC2;
+        fConfigTable[kR_16_GrPixelConfig].fFormats.fSizedInternalFormat =
+            GR_GL_COMPRESSED_RGB8_ETC2;
+        fConfigTable[kR_16_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage]
+            = 0;
+        fConfigTable[kR_16_GrPixelConfig].fFormats.fExternalType = 0;
+        fConfigTable[kR_16_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
+        if (GR_IS_GR_GL(standard)) {
+            if (version >= GR_GL_VER(4, 3) || ctxInfo.hasExtension("GL_ARB_ES3_compatibility")) {
+                fConfigTable[kR_16_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+            }
+        } else if (GR_IS_GR_GL_ES(standard)) {
+            if (version >= GR_GL_VER(3, 0) ||
+                ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGB8_texture")) {
+                fConfigTable[kR_16_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+            } else if (ctxInfo.hasExtension("GL_OES_compressed_ETC1_RGB8_texture")) {
+                fConfigTable[kR_16_GrPixelConfig].fFormats.fBaseInternalFormat =
+                    GR_GL_COMPRESSED_ETC1_RGB8;
+                fConfigTable[kR_16_GrPixelConfig].fFormats.fSizedInternalFormat =
+                    GR_GL_COMPRESSED_ETC1_RGB8;
+                fConfigTable[kR_16_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+            }
+        } // No WebGL support
+        fConfigTable[kR_16_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
+
+
+    }
+
+
     // Bulk populate the texture internal/external formats here and then deal with exceptions below.
 
     // ES 2.0 requires that the internal/external formats match.
@@ -3254,6 +3285,13 @@ static GrPixelConfig get_yuva_config(GrGLenum format) {
         case GR_GL_R16F:
             config = kAlpha_half_as_Red_GrPixelConfig;
             break;
+        // Experimental (for P016 and P010)
+        case GR_GL_R16:
+            config = kR_16_GrPixelConfig;
+            break;
+        case GR_GL_RG16:
+            config = kRG_1616_GrPixelConfig;
+            break;
     }
 
     return config;
@@ -3311,6 +3349,11 @@ static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType)
             return GR_GL_RGBA32F == format;
         case GrColorType::kRGB_ETC1:
             return GR_GL_COMPRESSED_RGB8_ETC2 == format || GR_GL_COMPRESSED_ETC1_RGB8 == format;
+        // Experimental (for P016 and P010)
+        case GrColorType::kR_16:
+            return GR_GL_R16 == format;
+        case GrColorType::kRG_1616:
+            return GR_GL_RG16 == format;
     }
     SK_ABORT("Unknown color type");
     return false;
