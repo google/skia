@@ -196,11 +196,29 @@ protected:
             return fProxy;
         }
 
+        // need to copy the subset into a new texture
+        GrSurfaceDesc desc;
+        desc.fWidth = info.width();
+        desc.fHeight = info.height();
+        desc.fConfig = fProxy->config();
+
         GrMipMapped mipMapped = willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-        return GrSurfaceProxy::Copy(fCtx.get(), fProxy.get(), mipMapped,
-                SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
-                SkBackingFit::kExact, SkBudgeted::kYes);
+        sk_sp<GrSurfaceContext> dstContext(fCtx->priv().makeDeferredSurfaceContext(
+                fProxy->backendFormat(), desc, fProxy->origin(), mipMapped, SkBackingFit::kExact,
+                SkBudgeted::kYes));
+        if (!dstContext) {
+            return nullptr;
+        }
+
+        if (!dstContext->copy(
+                            fProxy.get(),
+                            SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
+                            SkIPoint::Make(0, 0))) {
+            return nullptr;
+        }
+
+        return dstContext->asTextureProxyRef();
     }
 
 private:

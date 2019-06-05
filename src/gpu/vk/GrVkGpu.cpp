@@ -262,6 +262,9 @@ void GrVkGpu::destroyResources() {
     }
     fSemaphoresToSignal.reset();
 
+
+    fCopyManager.destroyResources(this);
+
     // must call this just before we destroy the command pool and VkDevice
     fResourceProvider.destroyResources(VK_ERROR_DEVICE_LOST == res);
 
@@ -296,6 +299,7 @@ void GrVkGpu::disconnect(DisconnectType type) {
             for (int i = 0; i < fSemaphoresToSignal.count(); ++i) {
                 fSemaphoresToSignal[i]->unrefAndAbandon();
             }
+            fCopyManager.abandonResources();
 
             // must call this just before we destroy the command pool and VkDevice
             fResourceProvider.abandonResources();
@@ -781,11 +785,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
     // R8G8B8A8_UNORM image and then copy it.
     sk_sp<GrVkTexture> copyTexture;
     if (dataColorType == GrColorType::kRGB_888x && tex->imageFormat() == VK_FORMAT_R8G8B8_UNORM) {
-        bool dstHasYcbcr = tex->ycbcrConversionInfo().isValid();
-        if (!this->vkCaps().canCopyAsBlit(tex->config(), 1, false, dstHasYcbcr,
-                                          kRGBA_8888_GrPixelConfig, 1, false, false)) {
-            return false;
-        }
         GrSurfaceDesc surfDesc;
         surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
         surfDesc.fWidth = width;
@@ -811,6 +810,16 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         copyTexture = GrVkTexture::MakeNewTexture(this, SkBudgeted::kYes, surfDesc, imageDesc,
                                                   GrMipMapsStatus::kNotAllocated);
         if (!copyTexture) {
+            return false;
+        }
+
+        bool dstHasYcbcr = tex->ycbcrConversionInfo().isValid();
+        if (!this->vkCaps().canCopyAsBlit(tex->config(), 1, false, dstHasYcbcr,
+                                          copyTexture->config(), 1, false,
+                                          false) &&
+            !this->vkCaps().canCopyAsDraw(tex->config(), SkToBool(tex->asRenderTarget()),
+                                          dstHasYcbcr,
+                                          copyTexture->config(), true, false)) {
             return false;
         }
 
@@ -874,8 +883,10 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
     // now.
     if (copyTexture.get()) {
         SkASSERT(dataColorType == GrColorType::kRGB_888x);
-        SkAssertResult(this->copySurface(tex, copyTexture.get(), SkIRect::MakeWH(width, height),
-                                         SkIPoint::Make(left, top), false));
+        static const GrSurfaceOrigin kOrigin = kTopLeft_GrSurfaceOrigin;
+        SkAssertResult(this->copySurface(tex, kOrigin, copyTexture.get(), kOrigin,
+                                         SkIRect::MakeWH(width, height), SkIPoint::Make(left, top),
+                                         false));
     }
     if (1 == mipLevelCount) {
         tex->texturePriv().markMipMapsDirty();
@@ -2057,16 +2068,19 @@ static int get_surface_sample_cnt(GrSurface* surf) {
     return 0;
 }
 
-void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* dstImage,
-                                     GrVkImage* srcImage, const SkIRect& srcRect,
+void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                                     GrSurface* src, GrSurfaceOrigin srcOrigin,
+                                     GrVkImage* dstImage,
+                                     GrVkImage* srcImage,
+                                     const SkIRect& srcRect,
                                      const SkIPoint& dstPoint) {
 #ifdef SK_DEBUG
     int dstSampleCnt = get_surface_sample_cnt(dst);
     int srcSampleCnt = get_surface_sample_cnt(src);
     bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
     bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
-    SkASSERT(this->vkCaps().canCopyImage(dst->config(), dstSampleCnt, dstHasYcbcr,
-                                         src->config(), srcSampleCnt, srcHasYcbcr));
+    SkASSERT(this->vkCaps().canCopyImage(dst->config(), dstSampleCnt, dstOrigin, dstHasYcbcr,
+                                         src->config(), srcSampleCnt, srcOrigin, srcHasYcbcr));
 
 #endif
 
@@ -2084,13 +2098,24 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* 
                              VK_PIPELINE_STAGE_TRANSFER_BIT,
                              false);
 
+    // Flip rect if necessary
+    SkIRect srcVkRect = srcRect;
+    int32_t dstY = dstPoint.fY;
+
+    if (kBottomLeft_GrSurfaceOrigin == srcOrigin) {
+        SkASSERT(kBottomLeft_GrSurfaceOrigin == dstOrigin);
+        srcVkRect.fTop = src->height() - srcRect.fBottom;
+        srcVkRect.fBottom =  src->height() - srcRect.fTop;
+        dstY = dst->height() - dstPoint.fY - srcVkRect.height();
+    }
+
     VkImageCopy copyRegion;
     memset(&copyRegion, 0, sizeof(VkImageCopy));
     copyRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-    copyRegion.srcOffset = { srcRect.fLeft, srcRect.fTop, 0 };
+    copyRegion.srcOffset = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
     copyRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-    copyRegion.dstOffset = { dstPoint.fX, dstPoint.fY, 0 };
-    copyRegion.extent = { (uint32_t)srcRect.width(), (uint32_t)srcRect.height(), 1 };
+    copyRegion.dstOffset = { dstPoint.fX, dstY, 0 };
+    copyRegion.extent = { (uint32_t)srcVkRect.width(), (uint32_t)srcVkRect.height(), 1 };
 
     fCurrentCmdBuffer->copyImage(this,
                                  srcImage,
@@ -2102,12 +2127,14 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* 
 
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
-    // The rect is already in device space so we pass in kTopLeft so no flip is done.
-    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
+    this->didWriteToSurface(dst, dstOrigin, &dstRect);
 }
 
-void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, GrVkImage* dstImage,
-                                GrVkImage* srcImage, const SkIRect& srcRect,
+void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                                GrSurface* src, GrSurfaceOrigin srcOrigin,
+                                GrVkImage* dstImage,
+                                GrVkImage* srcImage,
+                                const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) {
 #ifdef SK_DEBUG
     int dstSampleCnt = get_surface_sample_cnt(dst);
@@ -2132,14 +2159,40 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, GrVkImage* dstIm
                              false);
 
     // Flip rect if necessary
-    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY, srcRect.width(),
-                                        srcRect.height());
+    SkIRect srcVkRect;
+    srcVkRect.fLeft = srcRect.fLeft;
+    srcVkRect.fRight = srcRect.fRight;
+    SkIRect dstRect;
+    dstRect.fLeft = dstPoint.fX;
+    dstRect.fRight = dstPoint.fX + srcRect.width();
+
+    if (kBottomLeft_GrSurfaceOrigin == srcOrigin) {
+        srcVkRect.fTop = src->height() - srcRect.fBottom;
+        srcVkRect.fBottom = src->height() - srcRect.fTop;
+    } else {
+        srcVkRect.fTop = srcRect.fTop;
+        srcVkRect.fBottom = srcRect.fBottom;
+    }
+
+    if (kBottomLeft_GrSurfaceOrigin == dstOrigin) {
+        dstRect.fTop = dst->height() - dstPoint.fY - srcVkRect.height();
+    } else {
+        dstRect.fTop = dstPoint.fY;
+    }
+    dstRect.fBottom = dstRect.fTop + srcVkRect.height();
+
+    // If we have different origins, we need to flip the top and bottom of the dst rect so that we
+    // get the correct origintation of the copied data.
+    if (srcOrigin != dstOrigin) {
+        using std::swap;
+        swap(dstRect.fTop, dstRect.fBottom);
+    }
 
     VkImageBlit blitRegion;
     memset(&blitRegion, 0, sizeof(VkImageBlit));
     blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-    blitRegion.srcOffsets[0] = { srcRect.fLeft, srcRect.fTop, 0 };
-    blitRegion.srcOffsets[1] = { srcRect.fRight, srcRect.fBottom, 1 };
+    blitRegion.srcOffsets[0] = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
+    blitRegion.srcOffsets[1] = { srcVkRect.fRight, srcVkRect.fBottom, 1 };
     blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     blitRegion.dstOffsets[0] = { dstRect.fLeft, dstRect.fTop, 0 };
     blitRegion.dstOffsets[1] = { dstRect.fRight, dstRect.fBottom, 1 };
@@ -2151,22 +2204,32 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, GrVkImage* dstIm
                                  &blitRegion,
                                  VK_FILTER_NEAREST); // We never scale so any filter works here
 
-    // The rect is already in device space so we pass in kTopLeft so no flip is done.
-    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
+    dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY, srcRect.width(), srcRect.height());
+    this->didWriteToSurface(dst, dstOrigin, &dstRect);
 }
 
-void GrVkGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                                   const SkIPoint& dstPoint) {
+void GrVkGpu::copySurfaceAsResolve(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
+                                   GrSurfaceOrigin srcOrigin, const SkIRect& origSrcRect,
+                                   const SkIPoint& origDstPoint) {
     GrVkRenderTarget* srcRT = static_cast<GrVkRenderTarget*>(src->asRenderTarget());
+    SkIRect srcRect = origSrcRect;
+    SkIPoint dstPoint = origDstPoint;
+    if (kBottomLeft_GrSurfaceOrigin == srcOrigin) {
+        SkASSERT(kBottomLeft_GrSurfaceOrigin == dstOrigin);
+        srcRect = {origSrcRect.fLeft, src->height() - origSrcRect.fBottom,
+                   origSrcRect.fRight, src->height() - origSrcRect.fTop};
+        dstPoint.fY = dst->height() - dstPoint.fY - srcRect.height();
+    }
     this->resolveImage(dst, srcRT, srcRect, dstPoint);
-    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
+    SkIRect dstRect = SkIRect::MakeXYWH(origDstPoint.fX, origDstPoint.fY,
                                         srcRect.width(), srcRect.height());
-    // The rect is already in device space so we pass in kTopLeft so no flip is done.
-    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
+    this->didWriteToSurface(dst, dstOrigin, &dstRect);
 }
 
-bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                            const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) {
+bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                            GrSurface* src, GrSurfaceOrigin srcOrigin,
+                            const SkIRect& srcRect, const SkIPoint& dstPoint,
+                            bool canDiscardOutsideDstRect) {
 #ifdef SK_DEBUG
     if (GrVkRenderTarget* srcRT = static_cast<GrVkRenderTarget*>(src->asRenderTarget())) {
         SkASSERT(!srcRT->wrapsSecondaryCommandBuffer());
@@ -2207,22 +2270,33 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
     bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
 
-    if (this->vkCaps().canCopyAsResolve(dstConfig, dstSampleCnt, dstHasYcbcr,
-                                        srcConfig, srcSampleCnt, srcHasYcbcr)) {
-        this->copySurfaceAsResolve(dst, src, srcRect, dstPoint);
+    if (this->vkCaps().canCopyAsResolve(dstConfig, dstSampleCnt, dstOrigin, dstHasYcbcr,
+                                        srcConfig, srcSampleCnt, srcOrigin, srcHasYcbcr)) {
+        this->copySurfaceAsResolve(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
         return true;
     }
 
-    if (this->vkCaps().canCopyImage(dstConfig, dstSampleCnt, dstHasYcbcr,
-                                    srcConfig, srcSampleCnt, srcHasYcbcr)) {
-        this->copySurfaceAsCopyImage(dst, src, dstImage, srcImage, srcRect, dstPoint);
+    if (this->vkCaps().canCopyAsDraw(dstConfig, SkToBool(dst->asRenderTarget()), dstHasYcbcr,
+                                     srcConfig, SkToBool(src->asTexture()), srcHasYcbcr)) {
+        SkAssertResult(fCopyManager.copySurfaceAsDraw(this, dst, dstOrigin, src, srcOrigin, srcRect,
+                                                      dstPoint, canDiscardOutsideDstRect));
+        auto dstRect = srcRect.makeOffset(dstPoint.fX, dstPoint.fY);
+        this->didWriteToSurface(dst, dstOrigin, &dstRect);
+        return true;
+    }
+
+    if (this->vkCaps().canCopyImage(dstConfig, dstSampleCnt, dstOrigin, dstHasYcbcr,
+                                    srcConfig, srcSampleCnt, srcOrigin, srcHasYcbcr)) {
+        this->copySurfaceAsCopyImage(dst, dstOrigin, src, srcOrigin, dstImage, srcImage,
+                                     srcRect, dstPoint);
         return true;
     }
 
     if (this->vkCaps().canCopyAsBlit(dstConfig, dstSampleCnt, dstImage->isLinearTiled(),
                                      dstHasYcbcr, srcConfig, srcSampleCnt,
                                      srcImage->isLinearTiled(), srcHasYcbcr)) {
-        this->copySurfaceAsBlit(dst, src, dstImage, srcImage, srcRect, dstPoint);
+        this->copySurfaceAsBlit(dst, dstOrigin, src, srcOrigin, dstImage, srcImage,
+                                srcRect, dstPoint);
         return true;
     }
 
@@ -2272,17 +2346,6 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     if (dstColorType == GrColorType::kRGB_888x && image->imageFormat() == VK_FORMAT_R8G8B8_UNORM) {
         SkASSERT(surface->config() == kRGB_888_GrPixelConfig);
 
-        int srcSampleCount = 0;
-        if (rt) {
-            srcSampleCount = rt->numColorSamples();
-        }
-        bool srcHasYcbcr = image->ycbcrConversionInfo().isValid();
-        if (!this->vkCaps().canCopyAsBlit(kRGBA_8888_GrPixelConfig, 1, false, false,
-                                          surface->config(), srcSampleCount, image->isLinearTiled(),
-                                          srcHasYcbcr)) {
-            return false;
-        }
-
         // Make a new surface that is RGBA to copy the RGB surface into.
         GrSurfaceDesc surfDesc;
         surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -2313,9 +2376,25 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
             return false;
         }
 
+        int srcSampleCount = 0;
+        if (rt) {
+            srcSampleCount = rt->numColorSamples();
+        }
+        bool srcHasYcbcr = image->ycbcrConversionInfo().isValid();
+        if (!this->vkCaps().canCopyAsBlit(copySurface->config(), 1, false, false,
+                                          surface->config(), srcSampleCount, image->isLinearTiled(),
+                                          srcHasYcbcr) &&
+            !this->vkCaps().canCopyAsDraw(copySurface->config(), false, false,
+                                          surface->config(), SkToBool(surface->asTexture()),
+                                          srcHasYcbcr)) {
+            return false;
+        }
         SkIRect srcRect = SkIRect::MakeXYWH(left, top, width, height);
-        SkAssertResult(this->copySurface(copySurface.get(), surface, srcRect, SkIPoint::Make(0,0)));
-
+        static const GrSurfaceOrigin kOrigin = kTopLeft_GrSurfaceOrigin;
+        if (!this->copySurface(copySurface.get(), kOrigin, surface, kOrigin,
+                               srcRect, SkIPoint::Make(0,0))) {
+            return false;
+        }
         top = 0;
         left = 0;
         dstColorType = GrColorType::kRGBA_8888;

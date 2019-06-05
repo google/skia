@@ -388,17 +388,21 @@ public:
     }
 
     bool canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARenderBuffer,
-                            const GrTextureType* dstTypeIfTexture,
+                            bool dstIsTextureable, bool dstIsGLTexture2D,
+                            GrSurfaceOrigin dstOrigin,
                             GrPixelConfig srcConfig, bool srcHasMSAARenderBuffer,
-                            const GrTextureType* srcTypeIfTexture) const;
+                            bool srcIsTextureable, bool srcIsGLTexture2D,
+                            GrSurfaceOrigin srcOrigin) const;
     bool canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
-                       const GrTextureType* dstTypeIfTexture,
+                       bool dstIsTextureable, bool dstIsGLTexture2D,
+                       GrSurfaceOrigin dstOrigin,
                        GrPixelConfig srcConfig, int srcSampleCnt,
-                        const GrTextureType* srcTypeIfTexture,
-                       const SkRect& srcBounds, bool srcBoundsExact,
+                       bool srcIsTextureable, bool srcIsGLTexture2D,
+                       GrSurfaceOrigin srcOrigin, const SkRect& srcBounds,
                        const SkIRect& srcRect, const SkIPoint& dstPoint) const;
+    bool canCopyAsDraw(GrPixelConfig dstConfig, bool srcIsTextureable) const;
 
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrSurfaceOrigin*,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
     bool programBinarySupport() const { return fProgramBinarySupport; }

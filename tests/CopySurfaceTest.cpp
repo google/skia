@@ -19,7 +19,6 @@
 #include "src/core/SkUtils.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
@@ -107,14 +106,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 sk_sp<GrSurfaceContext> dstContext =
                                         context->priv().makeWrappedSurfaceContext(std::move(dst));
 
-                                bool result = false;
-                                if (sOrigin == dOrigin) {
-                                    result = dstContext->testCopy(src.get(), srcRect, dstPoint);
-                                } else if (dRenderable == GrRenderable::kYes) {
-                                    SkASSERT(dstContext->asRenderTargetContext());
-                                    result = dstContext->asRenderTargetContext()->blitTexture(
-                                            src.get(), srcRect, dstPoint);
-                                }
+                                bool result = dstContext->copy(src.get(), srcRect, dstPoint);
 
                                 bool expectedResult = true;
                                 SkIPoint dstOffset = { dstPoint.fX - srcRect.fLeft,
@@ -140,10 +132,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                     !copiedDstRect.intersect(SkIRect::MakeWH(kW, kH))) {
                                     expectedResult = false;
                                 }
-                                if (sOrigin != dOrigin && dRenderable == GrRenderable::kNo) {
-                                    expectedResult = false;
-                                }
-
                                 // To make the copied src rect correct we would apply any dst
                                 // clipping back to the src rect, but we don't use it again so
                                 // don't bother.

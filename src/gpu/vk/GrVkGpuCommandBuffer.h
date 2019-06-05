@@ -31,6 +31,7 @@ public:
     struct Args {
         GrGpu* fGpu;
         GrSurface* fSurface;
+        GrSurfaceOrigin fOrigin;
     };
 
     virtual void execute(const Args& args) = 0;
@@ -45,7 +46,8 @@ class GrVkGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
     GrVkGpuTextureCommandBuffer(GrVkGpu* gpu) : fGpu(gpu) {}
 
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
+    void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+              const SkIPoint& dstPoint) override;
     void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
                       GrGpuBuffer* transferBuffer, size_t offset) override;
 
@@ -79,7 +81,8 @@ public:
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
 
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
+    void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+              const SkIPoint& dstPoint) override;
     void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
                       GrGpuBuffer* transferBuffer, size_t offset) override;
 
