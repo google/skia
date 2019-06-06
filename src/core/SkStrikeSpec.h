@@ -49,6 +49,10 @@ public:
     static SkStrikeSpec MakeCanonicalized(
             const SkFont& font, const SkPaint* paint = nullptr);
 
+    // Create a strike spec without a device, and does not switch over to path for large sizes.
+    // This means that strikeToSourceRatio() is always 1.
+    static SkStrikeSpec MakeWithNoDevice(const SkFont& font, const SkPaint* paint = nullptr);
+
     // Make a canonical strike spec for device-less measurements using default typeface and size.
     static SkStrikeSpec MakeDefault();
 
