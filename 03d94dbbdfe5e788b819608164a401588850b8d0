@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42a27433_9fe9b47a",
+        "filename": "experimental/jni/README.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-06-06T17:45:29Z",
+      "side": 1,
+      "message": "nit: Can you format this file better?\n\nAlso, can this be a .md file instead of a .txt file, so it will look nice in a browser/github?",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 160
+      },
+      "revId": "03d94dbbdfe5e788b819608164a401588850b8d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4be4865e_099ce0aa",
+        "filename": "experimental/jni/README.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-06-06T17:45:29Z",
+      "side": 1,
+      "message": "I think ninja lets you put your output in any folder you want (that \"-C\" tells it the folder). Would it make more sense to make the instructions say to build directly in the folder you want, rather than copying?",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 164
+      },
+      "revId": "03d94dbbdfe5e788b819608164a401588850b8d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a13e71e_fbd2b8d8",
+        "filename": "experimental/jni/README.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-06-06T17:45:29Z",
+      "side": 1,
+      "message": "I don\u0027t understand this feature. Why do we use the phone to generate new bindings? Can they have changed since the last build? Can\u0027t we just do this on the desktop?\n\nAlso, the instructions below say to Replace Java files and Replace C++ file. Maybe this is obvious once I have pulled the result, but maybe this should be more explicit? e.g.\n\nadb pull /sdcard/jni JNI_DIR\nmv JNI_DIR/*.java SKIA_ROOT/experimental/jni/skiajni/src/main/java/org/skia\nmv JNI_DIR/org.skia_jni.cpp SKIA_ROOT/experimental/jni/skiajni/src/main/cpp",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 74
+      },
+      "revId": "03d94dbbdfe5e788b819608164a401588850b8d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b39d53f0_293a8b78",
+        "filename": "experimental/jni/skiajni/src/main/cpp/Binder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-06-06T17:45:29Z",
+      "side": 1,
+      "message": "Why? Would it make sense for the Java object to own it directly?",
+      "range": {
+        "startLine": 19,
+        "startChar": 44,
+        "endLine": 19,
+        "endChar": 54
+      },
+      "revId": "03d94dbbdfe5e788b819608164a401588850b8d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
