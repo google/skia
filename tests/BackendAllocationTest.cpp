@@ -6,10 +6,10 @@
  */
 
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
-#include "src/gpu/GrContextPriv.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "tests/Test.h"
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrDataUtils.h"
+#include "src/gpu/GrDataUtils.h"
 
 #include "include/private/GrColor.h"
 #include "src/core/SkUtils.h"

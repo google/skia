@@ -214,8 +214,8 @@ bool SkVideoEncoder::init(int fps) {
 }
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkSurface.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkSurface.h"
 #include "src/core/SkYUVMath.h"
 
 static bool is_valid(SkISize dim) {

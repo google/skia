@@ -1260,10 +1260,10 @@ DEF_GM(return new YUVMakeColorSpaceGM();)
 
 ///////////////
 
-#include "tools/Resources.h"
-#include "src/core/SkYUVMath.h"
-#include "src/core/SkAutoPixmapStorage.h"
 #include "include/effects/SkColorMatrix.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkYUVMath.h"
+#include "tools/Resources.h"
 
 static void draw_into_alpha(const SkImage* img, sk_sp<SkColorFilter> cf, const SkPixmap& dst) {
     auto canvas = SkCanvas::MakeRasterDirect(dst.info(), dst.writable_addr(), dst.rowBytes());
