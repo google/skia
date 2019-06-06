@@ -49,7 +49,8 @@ void MetalWindowContext::initializeContext() {
 
     fValid = this->onInitializeContext();
 
-    fContext = GrContext::MakeMetal(fDevice, fQueue, fDisplayParams.fGrContextOptions);
+    fContext = GrContext::MakeMetal((__bridge void*)fDevice, (__bridge void*)fQueue,
+                                    fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();
@@ -69,9 +70,8 @@ void MetalWindowContext::destroyContext() {
     fMetalLayer = nil;
     fValid = false;
 
-    // TODO: figure out why we can't release these
-    // [fQueue release];
-    // [fDevice release];
+    [fQueue release];
+    [fDevice release];
 }
 
 sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
