@@ -175,6 +175,9 @@ public:
     // Returns the size allocated on the arena.
     size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc);
 
+    void ensureIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
+                          SkScalar* array, int* count, SkArenaAlloc* alloc);
+
     void*     fImage    = nullptr;
 
     // Path data has tricky state. If the glyph isEmpty, then fPathData should always be nullptr,

@@ -186,11 +186,6 @@ private:
     // then x and y are assumed to be zero. Limit the amount of work using type.
     SkGlyph* lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID, MetricsType type);
 
-    static void OffsetResults(const SkGlyph::Intercept* intercept, SkScalar scale,
-                              SkScalar xPos, SkScalar* array, int* count);
-    static const SkGlyph::Intercept* MatchBounds(const SkGlyph* glyph,
-                                                 const SkScalar bounds[2]);
-
     const SkAutoDescriptor fDesc;
     const std::unique_ptr<SkScalerContext> fScalerContext;
     SkFontMetrics          fFontMetrics;
