@@ -327,6 +327,10 @@ void GrVkGpuRTCommandBuffer::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
     SkASSERT(fGpu == rt->getContext()->priv().getGpu());
     SkASSERT(!fLastPipelineState);
 
+#ifdef SK_DEBUG
+    fIsActive = true;
+#endif
+
     this->INHERITED::set(rt, origin);
 
     if (this->wrapsSecondaryCommandBuffer()) {
@@ -360,6 +364,10 @@ void GrVkGpuRTCommandBuffer::reset() {
 
     fLastPipelineState = nullptr;
     fRenderTarget = nullptr;
+
+#ifdef SK_DEBUG
+    fIsActive = false;
+#endif
 }
 
 bool GrVkGpuRTCommandBuffer::wrapsSecondaryCommandBuffer() const {
