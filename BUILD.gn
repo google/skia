@@ -37,6 +37,7 @@ declare_args() {
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
   skia_use_x11 = is_linux
+  skia_use_xbyak = false
   skia_use_xps = true
 
   skia_android_serial = ""
@@ -817,6 +818,15 @@ optional("xml") {
   ]
 }
 
+optional("skvm_jit") {
+  enabled = skia_use_xbyak
+  public_defines = [ "SKVM_JIT" ]
+
+  public_deps = [
+    "//third_party/xbyak",
+  ]
+}
+
 if (skia_enable_gpu && skia_generate_workarounds) {
   action("workaround_list") {
     script = "tools/build_workaround_header.py"
@@ -875,6 +885,7 @@ component("skia") {
     ":none",
     ":png",
     ":raw",
+    ":skvm_jit",
     ":sse2",
     ":sse41",
     ":sse42",

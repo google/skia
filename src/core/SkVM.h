@@ -42,6 +42,12 @@ namespace skvm {
         Program(std::vector<Instruction>, int regs, int loop);
         Program() : Program({}, 0, 0) {}
 
+        ~Program();
+        Program(Program&&);
+        Program& operator=(Program&&);
+        Program(const Program&) = delete;
+        Program& operator=(const Program&) = delete;
+
         void dump(SkWStream*) const;
 
         template <typename... T>
@@ -57,6 +63,11 @@ namespace skvm {
         std::vector<Instruction> fInstructions;
         int                      fRegs;
         int                      fLoop;
+
+    #if defined(SKVM_JIT)
+        struct JIT;
+        mutable std::unique_ptr<JIT> fJIT;
+    #endif
     };
 
     struct Arg { int ix; };
