@@ -56,13 +56,37 @@ public:
     void reset() {
         fTasks.reset();
         fTexture = nullptr;
+#ifdef SK_DEBUG
+        fIsActive = false;
+#endif
     }
+
+    void setVk(GrTexture* tex, GrSurfaceOrigin origin) {
+#ifdef SK_DEBUG
+        fIsActive = true;
+#endif
+        this->INHERITED::set(tex, origin);
+    }
+
+#ifdef SK_DEBUG
+    bool isActive() const { return fIsActive; }
+#endif
 
     void submit();
 
 private:
     GrVkGpu*                                    fGpu;
     GrTRecorder<GrVkPrimaryCommandBufferTask>   fTasks{1024};
+
+#ifdef SK_DEBUG
+    // When we are actively recording into the GrVkGpuCommandBuffer we set this flag to true. This
+    // then allows us to assert that we never submit a primary command buffer to the queue while in
+    // a recording state. This is needed since when we submit to the queue we change command pools
+    // and may trigger the old one to be reset, but a recording GrVkGpuCommandBuffer may still have
+    // a outstanding secondary command buffer allocated from that pool that we'll try to access
+    // after the pool as been reset.
+    bool fIsActive = false;
+#endif
 
     typedef GrGpuTextureCommandBuffer INHERITED;
 };
@@ -94,6 +118,10 @@ public:
     void reset();
 
     void submit();
+
+#ifdef SK_DEBUG
+    bool isActive() const { return fIsActive; }
+#endif
 
 private:
     void init();
@@ -195,6 +223,16 @@ private:
     VkAttachmentLoadOp                          fVkStencilLoadOp;
     VkAttachmentStoreOp                         fVkStencilStoreOp;
     int                                         fCurrentCmdInfo = -1;
+
+#ifdef SK_DEBUG
+    // When we are actively recording into the GrVkGpuCommandBuffer we set this flag to true. This
+    // then allows us to assert that we never submit a primary command buffer to the queue while in
+    // a recording state. This is needed since when we submit to the queue we change command pools
+    // and may trigger the old one to be reset, but a recording GrVkGpuCommandBuffer may still have
+    // a outstanding secondary command buffer allocated from that pool that we'll try to access
+    // after the pool as been reset.
+    bool fIsActive = false;
+#endif
 
     typedef GrGpuRTCommandBuffer INHERITED;
 };
