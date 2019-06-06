@@ -133,8 +133,31 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
         return nullptr;
     }
 
-    return GrSurfaceProxy::Copy(ctx, baseProxy, GrMipMapped::kYes, SkBackingFit::kExact,
-                                SkBudgeted::kYes);
+    GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
+    GrSurfaceDesc desc;
+    desc.fFlags = kNone_GrSurfaceFlags;
+    desc.fWidth = baseProxy->width();
+    desc.fHeight = baseProxy->height();
+    desc.fConfig = baseProxy->config();
+    desc.fSampleCnt = 1;
+
+    GrBackendFormat format = baseProxy->backendFormat().makeTexture2D();
+    if (!format.isValid()) {
+        return nullptr;
+    }
+
+    sk_sp<GrTextureProxy> proxy =
+            proxyProvider->createMipMapProxy(format, desc, baseProxy->origin(), SkBudgeted::kYes);
+    if (!proxy) {
+        return nullptr;
+    }
+
+    // Copy the base layer to our proxy
+    sk_sp<GrSurfaceContext> sContext = ctx->priv().makeWrappedSurfaceContext(proxy);
+    SkASSERT(sContext);
+    SkAssertResult(sContext->copy(baseProxy));
+
+    return proxy;
 }
 
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext* ctx,
