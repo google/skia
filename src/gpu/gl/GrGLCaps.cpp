@@ -1545,7 +1545,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         GR_GL_RGBA;
     fConfigTable[kRGBA_8888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     fConfigTable[kRGBA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kRGBA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    fConfigTable[kRGBA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                    ConfigInfo::kCanUseCopyTexSubImage_Flag;
     if (GR_IS_GR_GL(standard)) {
         // We require some form of FBO support and all GLs with FBO support can render to RGBA8
         fConfigTable[kRGBA_8888_GrPixelConfig].fFlags |= allRenderFlags;
@@ -1574,7 +1575,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kRGB_888_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RGBA;
     fConfigTable[kRGB_888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     fConfigTable[kRGB_888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kRGB_888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    fConfigTable[kRGB_888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                  ConfigInfo::kCanUseCopyTexSubImage_Flag;
     if (GR_IS_GR_GL(standard)) {
         // Even in OpenGL 4.6 GL_RGB8 is required to be color renderable but not required to be a
         // supported render buffer format. Since we usually use render buffers for MSAA on non-ES GL
@@ -1606,7 +1608,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     // Currently we don't allow RGB_888X to be renderable because we don't have a way to handle
     // blends that reference the dst alpha when the values in the dst alpha channel are
     // uninitialized.
-    fConfigTable[kRGB_888X_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    fConfigTable[kRGB_888X_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                   ConfigInfo::kCanUseCopyTexSubImage_Flag;
 
     fConfigTable[kRG_88_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RG;
     fConfigTable[kRG_88_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RG8;
@@ -1615,7 +1618,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kRG_88_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     fConfigTable[kRG_88_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     if (textureRedSupport) {
-        fConfigTable[kRG_88_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag | allRenderFlags;
+        fConfigTable[kRG_88_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag | allRenderFlags |
+                                                    ConfigInfo::kCanUseCopyTexSubImage_Flag;
         // ES2 Command Buffer does not allow TexStorage with RG8_EXT
         if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
             fConfigTable[kRG_88_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
@@ -1687,6 +1691,12 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if (texStorageSupported && supportsBGRATexStorage) {
         fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
+    if (kANGLE_GrGLDriver != ctxInfo.driver()) {
+        // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
+        // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it.
+        // Perhaps many drivers would allow it to work, but ANGLE does not.
+        fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
     shaderCaps->fConfigTextureSwizzle[kBGRA_8888_GrPixelConfig] = GrSwizzle::RGBA();
 
     // We only enable srgb support if both textures and FBOs support srgb.
@@ -1747,6 +1757,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     if (fSRGBSupport) {
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                         ConfigInfo::kCanUseCopyTexSubImage_Flag |
                                                          srgbRenderFlags;
     }
     // ES2 Command Buffer does not allow TexStorage with SRGB8_ALPHA8_EXT
@@ -1767,6 +1778,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kSBGRA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     if (fSRGBSupport && GR_IS_GR_GL(standard)) {
         fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                         ConfigInfo::kCanUseCopyTexSubImage_Flag |
                                                          srgbRenderFlags;
     }
 
@@ -1785,7 +1797,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         GR_GL_RGB;
     fConfigTable[kRGB_565_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_SHORT_5_6_5;
     fConfigTable[kRGB_565_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kRGB_565_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    fConfigTable[kRGB_565_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                  ConfigInfo::kCanUseCopyTexSubImage_Flag;
     if (GR_IS_GR_GL(standard)) {
         if (version >= GR_GL_VER(4, 2) || ctxInfo.hasExtension("GL_ARB_ES2_compatibility")) {
             fConfigTable[kRGB_565_GrPixelConfig].fFlags |= allRenderFlags;
@@ -1813,7 +1826,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         GR_GL_RGBA;
     fConfigTable[kRGBA_4444_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
     fConfigTable[kRGBA_4444_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kRGBA_4444_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    fConfigTable[kRGBA_4444_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                    ConfigInfo::kCanUseCopyTexSubImage_Flag;
     if (GR_IS_GR_GL(standard)) {
         if (version >= GR_GL_VER(4, 2)) {
             fConfigTable[kRGBA_4444_GrPixelConfig].fFlags |= allRenderFlags;
@@ -1843,6 +1857,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                ctxInfo.hasExtension("GL_EXT_texture_type_2_10_10_10_REV")) {
         fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
     } // No WebGL support
+    fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags |= ConfigInfo::kCanUseCopyTexSubImage_Flag;
 
     if (texStorageSupported) {
         fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
@@ -1858,7 +1873,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     alphaInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     alphaInfo.fFormatType = kNormalizedFixedPoint_FormatType;
     if (alpha8IsValidForGL || alpha8IsValidForGLES || alpha8IsValidForWebGL) {
-        alphaInfo.fFlags = ConfigInfo::kTextureable_Flag;
+        alphaInfo.fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kCanUseCopyTexSubImage_Flag;
     }
     alphaInfo.fFormats.fBaseInternalFormat = GR_GL_ALPHA;
     alphaInfo.fFormats.fSizedInternalFormat = GR_GL_ALPHA8;
@@ -1885,7 +1900,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
 
     if (textureRedSupport) {
-        redInfo.fFlags |= ConfigInfo::kTextureable_Flag | allRenderFlags;
+        redInfo.fFlags |= ConfigInfo::kTextureable_Flag | ConfigInfo::kCanUseCopyTexSubImage_Flag |
+                          allRenderFlags;
         fConfigTable[kAlpha_8_GrPixelConfig] = redInfo;
         shaderCaps->fConfigTextureSwizzle[kAlpha_8_GrPixelConfig] =
                 shaderCaps->fConfigTextureSwizzle[kAlpha_8_as_Red_GrPixelConfig];
@@ -1908,7 +1924,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if ((GR_IS_GR_GL(standard) && version <= GR_GL_VER(3, 0)) ||
         (GR_IS_GR_GL_ES(standard) && version < GR_GL_VER(3, 0)) ||
         (GR_IS_GR_WEBGL(standard))) {
-        grayLumInfo.fFlags = ConfigInfo::kTextureable_Flag;
+        grayLumInfo.fFlags = ConfigInfo::kTextureable_Flag |
+                             ConfigInfo::kCanUseCopyTexSubImage_Flag;
     }
 
     ConfigInfo& grayRedInfo = fConfigTable[kGray_8_as_Red_GrPixelConfig];
@@ -1918,7 +1935,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     grayRedInfo.fFormats.fSizedInternalFormat = GR_GL_R8;
     grayRedInfo.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
     shaderCaps->fConfigTextureSwizzle[kGray_8_as_Red_GrPixelConfig] = GrSwizzle::RRRA();
-    grayRedInfo.fFlags = ConfigInfo::kTextureable_Flag;
+    grayRedInfo.fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kCanUseCopyTexSubImage_Flag;
 
     // Leaving Gray8 as non-renderable, to keep things simple and match raster. However, we do
     // enable the FBOColorAttachment_Flag so that we can bind it to an FBO for copies.
@@ -2033,7 +2050,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[fpconfig].fFormats.fExternalType = GR_GL_FLOAT;
         fConfigTable[fpconfig].fFormatType = kFloat_FormatType;
         if (hasFP32Textures) {
-            fConfigTable[fpconfig].fFlags = rgIsTexturable ? ConfigInfo::kTextureable_Flag : 0;
+            fConfigTable[fpconfig].fFlags = rgIsTexturable ?
+                    ConfigInfo::kTextureable_Flag | ConfigInfo::kCanUseCopyTexSubImage_Flag : 0;
             if (hasFP32RenderTargets) {
                 fConfigTable[fpconfig].fFlags |= fpRenderFlags;
             }
@@ -2059,7 +2077,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     redHalf.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
     shaderCaps->fConfigTextureSwizzle[kAlpha_half_as_Red_GrPixelConfig] = GrSwizzle::RRRR();
     if (textureRedSupport && hasFP16Textures) {
-        redHalf.fFlags = ConfigInfo::kTextureable_Flag;
+        redHalf.fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kCanUseCopyTexSubImage_Flag;
 
         if (halfFPRenderTargetSupport == HalfFPRenderTargetSupport::kAll) {
             redHalf.fFlags |= fpRenderFlags;
@@ -2085,7 +2103,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
     fConfigTable[kRGBA_half_GrPixelConfig].fFormatType = kFloat_FormatType;
     if (hasFP16Textures) {
-        fConfigTable[kRGBA_half_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+        fConfigTable[kRGBA_half_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                        ConfigInfo::kCanUseCopyTexSubImage_Flag;
         // ES requires 3.2 or EXT_color_buffer_half_float.
         if (halfFPRenderTargetSupport != HalfFPRenderTargetSupport::kNone) {
             fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= fpRenderFlags;
@@ -2313,11 +2332,8 @@ bool GrGLCaps::canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARender
                                   GrPixelConfig srcConfig, bool srcHasMSAARenderBuffer,
                                   bool srcIsTextureable, bool srcIsGLTexture2D,
                                   GrSurfaceOrigin srcOrigin) const {
-    // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
-    // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
-    // many drivers would allow it to work, but ANGLE does not.
-    if (GR_IS_GR_GL_ES(fStandard) && this->bgraIsInternalFormat() &&
-        (kBGRA_8888_GrPixelConfig == dstConfig || kBGRA_8888_GrPixelConfig == srcConfig)) {
+    if (!SkToBool(fConfigTable[dstConfig].fFlags & ConfigInfo::kCanUseCopyTexSubImage_Flag) ||
+        !SkToBool(fConfigTable[srcConfig].fFlags & ConfigInfo::kCanUseCopyTexSubImage_Flag)) {
         return false;
     }
 
