@@ -77,7 +77,11 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     // double hit a texel.
     fragBuilder->codeAppendf("half2 f = half2(fract(coord * %s.zw));", dims);
     fragBuilder->codeAppendf("coord = coord + (half2(0.5) - f) * %s.xy;", dims);
+    // On some GPUs we can wind up with less than fully opaque results for an opaque input.
+    fragBuilder->codeAppend("half alphaSum = 0;");
+    int alphaN;
     if (bicubicEffect.direction() == GrBicubicEffect::Direction::kXY) {
+        alphaN = 16;
         fragBuilder->codeAppend(
                 "half4 wx = kMitchellCoefficients * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
         fragBuilder->codeAppend(
@@ -101,10 +105,14 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
                     "half4 s%d = wx.x * rowColors[0] + wx.y * rowColors[1] + wx.z * rowColors[2] + "
                     "wx.w * rowColors[3];",
                     y);
+            fragBuilder->codeAppend(
+                    "alphaSum += rowColors[0].a + rowColors[1].a + rowColors[2].a + "
+                    "rowColors[3].a;");
         }
         fragBuilder->codeAppend(
                 "half4 bicubicColor = wy.x * s0 + wy.y * s1 + wy.z * s2 + wy.w * s3;");
     } else {
+        alphaN = 4;
         // One of the dims.xy values will be zero. So v here selects the nonzero value of f.
         fragBuilder->codeAppend("half v = f.x + f.y;");
         fragBuilder->codeAppend("half v2 = v * v;");
@@ -128,15 +136,17 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
         }
         fragBuilder->codeAppend(
                 "half4 bicubicColor = c[0] * w.x + c[1] * w.y + c[2] * w.z + c[3] * w.w;");
+        fragBuilder->codeAppend("alphaSum += c[0].a + c[1].a + c[2].a + c[3].a;");
     }
+    fragBuilder->codeAppendf("bicubicColor.a = (alphaSum == %d) ? 1 : max(0, bicubicColor.a);",
+                             alphaN);
     // Bicubic can send colors out of range, so clamp to get them back in (source) gamut.
     // The kind of clamp we have to do depends on the alpha type.
     if (kPremul_SkAlphaType == bicubicEffect.alphaType()) {
-        fragBuilder->codeAppend("bicubicColor.a = saturate(bicubicColor.a);");
         fragBuilder->codeAppend(
                 "bicubicColor.rgb = max(half3(0.0), min(bicubicColor.rgb, bicubicColor.aaa));");
     } else {
-        fragBuilder->codeAppend("bicubicColor = saturate(bicubicColor);");
+        fragBuilder->codeAppend("bicubicColor.rgb = saturate(bicubicColor.rgb);");
     }
     fragBuilder->codeAppendf("%s = bicubicColor * %s;", args.fOutputColor, args.fInputColor);
 }
