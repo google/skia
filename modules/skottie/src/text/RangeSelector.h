@@ -45,10 +45,19 @@ public:
         // kDifference,
     };
 
+    enum class Shape : uint8_t {
+        kSquare,
+        kRampUp,
+        kRampDown,
+        kTriangle,
+        kRound,
+        kSmooth,
+    };
+
     void modulateCoverage(TextAnimator::ModulatorBuffer&) const;
 
 private:
-    RangeSelector(Units, Domain, Mode);
+    RangeSelector(Units, Domain, Mode, Shape);
 
     // Resolves this selector to a range in the coverage buffer index domain.
     std::tuple<float, float> resolve(size_t domain_size) const;
@@ -56,6 +65,7 @@ private:
     const Units  fUnits;
     const Domain fDomain;
     const Mode   fMode;
+    const Shape  fShape;
 
     float        fStart,
                  fEnd,

@@ -63,20 +63,63 @@ struct UnitTraits<RangeSelector::Units::kIndex> {
     }
 };
 
-template <RangeSelector::Mode>
-struct ModeTraits;
+using CoverageProcT = void(*)(float amount,
+                              TextAnimator::AnimatedPropsModulator* dst,
+                              size_t count);
 
-template <>
-struct ModeTraits<RangeSelector::Mode::kAdd> {
-    static void modulate(TextAnimator::AnimatedPropsModulator* c_begin,
-                         const TextAnimator::AnimatedPropsModulator* c_end, float amount) {
-        if (!amount) return; // 0 -> noop
+static const CoverageProcT gCoverageProcs[] = {
+    // Mode::kAdd
+    [](float amount, TextAnimator::AnimatedPropsModulator* dst, size_t count) {
+        if (!amount || !count) return;
 
-        for (auto c = c_begin; c < c_end; ++c) {
-            c->coverage = SkTPin<float>(c->coverage + amount, -1, 1);
+        for (size_t i = 0; i < count; ++i) {
+            dst[i].coverage = SkTPin<float>(dst[i].coverage + amount, -1, 1);
         }
+    },
+};
+
+// Each shape generator is defined in a normalized domain, over three |t| intervals:
+//
+//   (-inf..0) -> lo (constant value)
+//   [0..1]    -> func(t)
+//   (1..+inf) -> hi (constant value)
+//
+struct ShapeGenerator {
+    float lo,             // constant value for t < 0
+          hi;             // constant value for t > 1
+    float (*func)(float); // shape generator for t in [0..1]
+
+    // Apply the shape generator, scale, and coverage proc to a single fragment.
+    // Should not be called outside the shape domain [0..1].
+    void operator()(const CoverageProcT& coverage_proc,
+                    float t, float scale,
+                    TextAnimator::AnimatedPropsModulator* dst) const {
+        SkASSERT(0 <= t && t <= 1);
+        const auto coverage = this->func(t);
+        coverage_proc(coverage * scale, dst, 1);
     }
 };
+
+static const ShapeGenerator gShapeGenerators[] = {
+    // Shape::kSquare
+    { 0, 0, [](float  )->float { return 1.0f; }},
+    // Shape::kRampUp
+    { 0, 1, [](float t)->float { return t; }},
+    // Shape::kRampDown
+    { 1, 0, [](float t)->float { return 1 - t; }},
+    // Shape::kTriangle
+    { 0, 0, [](float t)->float { return 1 - std::abs(0.5f - t) / 0.5f; }},
+    // Shape::kRound
+    { 0, 0, [](float t)->float {
+                                 static constexpr auto cx  = 0.5f,
+                                                       cx2 = cx * cx;
+                                 return std::sqrt(cx2 - (t - cx) * (t - cx));
+    }},
+    // Shape::kSmooth
+    { 0, 0, [](float t)->float { return (std::cos(SK_FloatPI * (1 + 2 * t)) + 1) * 0.5f; }},
+};
+
+float Lerp(float a, float b, float t) { return a + (b - a) * t; }
 
 } // namespace
 
@@ -100,10 +143,20 @@ sk_sp<RangeSelector> RangeSelector::Make(const skjson::ObjectValue* jrange,
         Mode::kAdd,          // 'm': 1
     };
 
+    static constexpr Shape gShapeMap[] = {
+        Shape::kSquare,      // 'sh': 1
+        Shape::kRampUp,      // 'sh': 2
+        Shape::kRampDown,    // 'sh': 3
+        Shape::kTriangle,    // 'sh': 4
+        Shape::kRound,       // 'sh': 5
+        Shape::kSmooth,      // 'sh': 6
+    };
+
     auto selector = sk_sp<RangeSelector>(
-            new RangeSelector(ParseEnum<Units> (gUnitMap  , (*jrange)["r"], abuilder, "units" ),
-                              ParseEnum<Domain>(gDomainMap, (*jrange)["b"], abuilder, "domain"),
-                              ParseEnum<Mode>  (gModeMap  , (*jrange)["m"], abuilder, "mode"  )));
+            new RangeSelector(ParseEnum<Units> (gUnitMap  , (*jrange)["r" ], abuilder, "units" ),
+                              ParseEnum<Domain>(gDomainMap, (*jrange)["b" ], abuilder, "domain"),
+                              ParseEnum<Mode>  (gModeMap  , (*jrange)["m" ], abuilder, "mode"  ),
+                              ParseEnum<Shape> (gShapeMap , (*jrange)["sh"], abuilder, "shape" )));
 
     abuilder->bindProperty<ScalarValue>((*jrange)["s"], ascope,
         [selector](const ScalarValue& s) {
@@ -125,10 +178,11 @@ sk_sp<RangeSelector> RangeSelector::Make(const skjson::ObjectValue* jrange,
     return selector;
 }
 
-RangeSelector::RangeSelector(Units u, Domain d, Mode m)
+RangeSelector::RangeSelector(Units u, Domain d, Mode m, Shape sh)
     : fUnits(u)
     , fDomain(d)
-    , fMode(m) {
+    , fMode(m)
+    , fShape(sh) {
 
     // Range defaults are unit-specific.
     switch (fUnits) {
@@ -154,10 +208,26 @@ std::tuple<float, float> RangeSelector::resolve(size_t len) const {
         std::swap(f_i0, f_i1);
     }
 
-    return std::make_tuple(SkTPin<float>(f_i0, 0, len),
-                           SkTPin<float>(f_i1, 0, len));
+    return std::make_tuple(f_i0, f_i1);
 }
 
+/*
+ * General RangeSelector operation:
+ *
+ *   1) The range is resolved to a target domain (characters, words, etc) interval, based on
+ *      |start|, |end|, |offset|, |units|.
+ *
+ *   2) A shape generator is mapped to this interval and applied across the whole domain, yielding
+ *      coverage values in [0..1].
+ *
+ *   2') When the interval extremes don't coincide with fragment boundaries, the corresponding
+ *      fragment coverage is further modulated for partial interval overlap.
+ *
+ *   3) The coverage is then scaled by the |amount| parameter.
+ *
+ *   4) Finally, the resulting coverage is accumulated to existing fragment coverage based on
+ *      the specified Mode (add, difference, etc).
+ */
 void RangeSelector::modulateCoverage(TextAnimator::ModulatorBuffer& buf) const {
     SkASSERT(!buf.empty());
 
@@ -168,32 +238,67 @@ void RangeSelector::modulateCoverage(TextAnimator::ModulatorBuffer& buf) const {
     SkAssertResult(fDomain == Domain::kChars);
     const auto f_range = this->resolve(buf.size());
 
-    // Figure out the integral/index coverage range.
-    const auto i0 = std::min<size_t>(std::get<0>(f_range), buf.size() - 1),
-               i1 = std::min<size_t>(std::get<1>(f_range), buf.size() - 1);
+    // f_range pinned to [0..size].
+    const auto f0 = SkTPin<float>(std::get<0>(f_range), 0, buf.size()),
+               f1 = SkTPin<float>(std::get<1>(f_range), 0, buf.size());
 
-    SkAssertResult(fMode == Mode::kAdd);
-    const auto modulate = ModeTraits<Mode::kAdd>::modulate;
+    // Integral/index range.
+    const auto i0 = std::min<size_t>(f0, buf.size() - 1),
+               i1 = std::min<size_t>(f1, buf.size() - 1);
+    SkASSERT(i0 <= i1);
 
-    // Apply coverage modulation across different domain segments.
-    modulate(buf.data()         , buf.data() + i0        ,      0); // [0 ..i0) -> zero coverage.
-    modulate(buf.data() + i0 + 1, buf.data() + i1        , amount); // (i0..i1) -> full coverage.
-    modulate(buf.data() + i1 + 1, buf.data() + buf.size(),      0); // (i1.. N] -> zero coverage.
+    SkASSERT(static_cast<size_t>(fMode) < SK_ARRAY_COUNT(gCoverageProcs));
+    const auto& coverage_proc = gCoverageProcs[static_cast<size_t>(fMode)];
 
-    // For i0 and i1 we have fractional coverage.
-    const auto fract_0 = 1 - (std::get<0>(f_range) - i0),
-               fract_1 =      std::get<1>(f_range) - i1;
-    SkASSERT(fract_0 >= 0 && fract_0 <= 1);
-    SkASSERT(fract_1 >= 0 && fract_1 <= 1);
+    SkASSERT(static_cast<size_t>(fShape) < SK_ARRAY_COUNT(gShapeGenerators));
+    const auto& generator = gShapeGenerators[static_cast<size_t>(fShape)];
+
+    // First, coverage-blit constant intervals:
+    //   - modulate [0..i0) with constant coverage lo.
+    //   - modulate (i1..N] with constant coverage hi.
+    coverage_proc(amount * generator.lo, buf.data(), i0);
+    coverage_proc(amount * generator.hi, buf.data() + i1 + 1, buf.size() - i1 - 1);
+
+    const auto range_span = std::get<1>(f_range) - std::get<0>(f_range);
+    if (SkScalarNearlyZero(range_span)) {
+        // Empty range - the shape is collapsed. Modulate with lo/hi weighted average.
+        SkASSERT(i0 == i1);
+        const auto ratio = f0 - i0,
+                coverage = Lerp(generator.lo, generator.hi, ratio);
+        coverage_proc(amount * coverage, buf.data() + i0, 1);
+
+        return;
+    }
+
+    // Modulate [i0..i1] with shape-generated coverage.
+    const auto dt = 1 / range_span;
+          // note: we sample mid-fragment
+          auto  t = (i0 + 0.5f - std::get<0>(f_range)) / range_span;
 
     if (i0 == i1) {
-        // The range falls within a single index.
-        SkASSERT(fract_0 + fract_1 >= 1);
-        modulate(buf.data() + i0, buf.data() + i0 + 1, (fract_0 + fract_1 - 1) * amount);
+        // The whole interval falls within a single fragment.
+        const auto fract_coverage = f1 - f0;
+        SkASSERT(fract_coverage <= 1);
+        generator(coverage_proc, SkTPin(t, 0.0f, 1.0f), amount * fract_coverage, buf.data() + i0);
     } else {
-        // Separate indices for i0, i1.
-        modulate(buf.data() + i0, buf.data() + i0 + 1, fract_0 * amount);
-        modulate(buf.data() + i1, buf.data() + i1 + 1, fract_1 * amount);
+        // The range spans multiple fragments.
+
+        // [i0] -> partial interval coverage modulates the specified amount vs generator.lo
+        const auto fract_coverage_0 = 1 - (f0 - i0);
+        generator(coverage_proc, std::max(t, 0.0f),
+                  amount * Lerp(generator.lo, 1, fract_coverage_0), buf.data() + i0);
+        t += dt;
+
+        // (i0..i1) -> full interval coverage => using full amount
+        for (auto i = i0 + 1; i < i1; ++i) {
+            generator(coverage_proc, t, amount, buf.data() + i);
+            t += dt;
+        }
+
+        // [i1] -> partial interval coverage modulates the specified amount vs generator.hi
+        const auto fract_coverage_1 = (f1 - i1);
+        generator(coverage_proc, std::min(t, 1.0f),
+                  amount * Lerp(generator.hi, 1, fract_coverage_1), buf.data() + i1);
     }
 }
 
