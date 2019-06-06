@@ -175,6 +175,15 @@ public:
     // Returns the size allocated on the arena.
     size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc);
 
+    // Make sure that the intercept information is on the glyph and return it, or return it if it
+    // already exists.
+    // * bounds - either end of the gap for the character.
+    // * scale, xPos - information about how wide the gap is.
+    // * array - accumulated gaps for many characters if not null.
+    // * count - the number of gaps.
+    void ensureIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
+                          SkScalar* array, int* count, SkArenaAlloc* alloc);
+
     void*     fImage    = nullptr;
 
     // Path data has tricky state. If the glyph isEmpty, then fPathData should always be nullptr,
