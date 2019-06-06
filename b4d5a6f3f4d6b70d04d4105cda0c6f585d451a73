@@ -354,6 +354,30 @@
       "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4a124ac_e72f7c85",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 1900,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-06T13:53:22Z",
+      "side": 1,
+      "message": "I\u0027m ok if you land it, but keep an eye out for failure. Client code may already have a lot on the stack by the time we get called and some clients use smaller max stack sizes.",
+      "parentUuid": "a6f1e49b_8951c69f",
+      "range": {
+        "startLine": 1896,
+        "startChar": 0,
+        "endLine": 1900,
+        "endChar": 45
+      },
+      "revId": "b4d5a6f3f4d6b70d04d4105cda0c6f585d451a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
