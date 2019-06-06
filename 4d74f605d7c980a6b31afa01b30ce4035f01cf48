@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0814f28_97cc1fa1",
+        "filename": "samplecode/SampleBigBlur.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T18:06:32Z",
+      "side": 0,
+      "message": "This is a bit simplistic to be a sample, probably should just be an example. Note that there is a bigblurs gm which probably more interesting technically, but doesn\u0027t look the same. We can probably remove this sample.",
+      "revId": "4d74f605d7c980a6b31afa01b30ce4035f01cf48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5875cb5f_de01b231",
+        "filename": "samplecode/SampleBigGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T18:06:32Z",
+      "side": 0,
+      "message": "This seems to have been made into a gm now known as shallow_gradient_linear. I think we can just remove this guy as noise at this point.",
+      "revId": "4d74f605d7c980a6b31afa01b30ce4035f01cf48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7aa1069b_0e510872",
+        "filename": "samplecode/SampleBigGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T18:06:32Z",
+      "side": 0,
+      "message": "This seems to have been made into a gm now known as shallow_gradient_linear. I think we can just remove this guy as noise at this point.",
+      "range": {
+        "startLine": 19,
+        "startChar": 5,
+        "endLine": 19,
+        "endChar": 21
+      },
+      "revId": "4d74f605d7c980a6b31afa01b30ce4035f01cf48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d099193_59934989",
+        "filename": "samplecode/SampleBigGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T18:06:32Z",
+      "side": 0,
+      "message": "This isn\u0027t a sample, this is a test? I think the idea is to make sure two things draw the same. The Windows code never compiles, I have a patch for that now though. I would be more interested in getting this out of here in general than trying to simplify anything about the samples.",
+      "range": {
+        "startLine": 313,
+        "startChar": 23,
+        "endLine": 313,
+        "endChar": 44
+      },
+      "revId": "4d74f605d7c980a6b31afa01b30ce4035f01cf48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac78e102_bee52dff",
+        "filename": "samplecode/SampleConcavePaths.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T18:06:32Z",
+      "side": 0,
+      "message": "This file appears to be an old version of the concavepaths gm and should probably just be deleted at this point.",
+      "revId": "4d74f605d7c980a6b31afa01b30ce4035f01cf48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a073747_c8ac6fec",
+        "filename": "samplecode/SamplePoints.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T18:06:32Z",
+      "side": 0,
+      "message": "There is a points gm which does ~the same thing, this one can probably also be removed.",
+      "revId": "4d74f605d7c980a6b31afa01b30ce4035f01cf48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
