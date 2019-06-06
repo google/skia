@@ -47,7 +47,7 @@ private:
 
     void onDelayedSetup() override {
         SkFont defaultFont;
-        SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(defaultFont);
+        SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(defaultFont);
         auto cache = strikeSpec.findOrCreateExclusiveStrike();
         for (int i = 0; i < kNumGlyphs; ++i) {
             SkPackedGlyphID id(defaultFont.unicharToGlyph(kGlyphs[i]));

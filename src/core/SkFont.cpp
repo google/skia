@@ -231,7 +231,7 @@ using SmallPointsArray = SkAutoSTArray<kTypicalGlyphCount, SkPoint>;
 
 SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding encoding,
                              SkRect* bounds, const SkPaint* paint) const {
-    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(*this, paint);
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this, paint);
 
     SkAutoToGlyphs atg(*this, text, length, encoding);
     const int count = atg.count();
@@ -293,7 +293,7 @@ void VisitGlyphs(const SkFont& origFont, const SkPaint* paint, const SkGlyphID g
         return;
     }
 
-    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(origFont, paint);
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(origFont, paint);
 
     auto cache = strikeSpec.findOrCreateExclusiveStrike();
     handler(cache.get(), glyphs, count, strikeSpec.strikeToSourceRatio());
@@ -314,7 +314,7 @@ void SkFont::getWidthsBounds(const SkGlyphID glyphs[], int count, SkScalar width
             }
         });
     } else if (widths) {
-        SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(*this, paint);
+        SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this, paint);
         auto cache = strikeSpec.findOrCreateExclusiveStrike();
         SmallPointsArray advances{count};
         cache->getAdvances(SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(count)}, advances.get());
@@ -326,7 +326,7 @@ void SkFont::getWidthsBounds(const SkGlyphID glyphs[], int count, SkScalar width
 
 void SkFont::getPos(const SkGlyphID glyphs[], int count, SkPoint pos[], SkPoint origin) const {
 
-    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(*this);
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this);
     auto cache = strikeSpec.findOrCreateExclusiveStrike();
     SmallPointsArray advances{count};
     cache->getAdvances(SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(count)}, advances.get());
@@ -340,7 +340,7 @@ void SkFont::getPos(const SkGlyphID glyphs[], int count, SkPoint pos[], SkPoint 
 
 void SkFont::getXPos(const SkGlyphID glyphs[], int count, SkScalar xpos[], SkScalar origin) const {
 
-    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(*this);
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this);
     auto cache = strikeSpec.findOrCreateExclusiveStrike();
     SmallPointsArray advances{count};
     cache->getAdvances(SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(count)}, advances.get());
@@ -357,7 +357,7 @@ void SkFont::getPaths(const SkGlyphID glyphs[], int count,
     SkScalar scale = font.setupForAsPaths(nullptr);
     const SkMatrix mx = SkMatrix::MakeScale(scale, scale);
 
-    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(font);
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(font);
     auto exclusive = strikeSpec.findOrCreateExclusiveStrike();
     auto cache = exclusive.get();
 
@@ -384,7 +384,7 @@ bool SkFont::getPath(SkGlyphID glyphID, SkPath* path) const {
 
 SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
 
-    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(*this, nullptr);
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this, nullptr);
 
     SkFontMetrics storage;
     if (nullptr == metrics) {

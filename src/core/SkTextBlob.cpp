@@ -918,7 +918,7 @@ TextInterceptsIter::TextInterceptsIter(const SkGlyphID glyphs[],
     fPaint.setStyle(SkPaint::kFill_Style);
     fPaint.setPathEffect(nullptr);
 
-    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(fFont, &fPaint);
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(fFont, &fPaint);
     fCache = strikeSpec.findOrCreateExclusiveStrike();
 
     fPaint.setStyle(prevStyle);

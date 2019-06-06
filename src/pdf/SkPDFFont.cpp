@@ -374,7 +374,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     int16_t defaultWidth = 0;
     {
         int emSize;
-        SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakePDFVector(*face, &emSize);
+        SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(*face, &emSize);
         auto glyphCache = strikeSpec.findOrCreateExclusiveStrike();
         std::unique_ptr<SkPDFArray> widths = SkPDFMakeCIDGlyphWidthsArray(
                 glyphCache.get(), &font.glyphUsage(), SkToS16(emSize), &defaultWidth);
@@ -529,7 +529,7 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
         --lastGlyphID;
     }
     int unitsPerEm;
-    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakePDFVector(*typeface, &unitsPerEm);
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(*typeface, &unitsPerEm);
     auto cache = strikeSpec.findOrCreateExclusiveStrike();
     SkASSERT(cache);
     SkScalar emSize = (SkScalar)unitsPerEm;

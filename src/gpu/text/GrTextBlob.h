@@ -276,7 +276,7 @@ private:
 
     class SubRun {
     public:
-        SubRun(Run* run, const SkStrikeSpecStorage& strikeSpec, GrColor color)
+        SubRun(Run* run, const SkStrikeSpec& strikeSpec, GrColor color)
             : fColor{color}
             , fRun{run}
             , fStrikeSpec{strikeSpec} {}
@@ -349,7 +349,7 @@ private:
         void setFallback() { fFlags.argbFallback = true; }
         bool isFallback() { return fFlags.argbFallback; }
 
-        const SkStrikeSpecStorage& strikeSpec() const { return fStrikeSpec; }
+        const SkStrikeSpec& strikeSpec() const { return fStrikeSpec; }
 
     private:
         GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
@@ -374,7 +374,7 @@ private:
             bool argbFallback:1;
         } fFlags{false, false, false, false, false, false};
         Run* const fRun;
-        const SkStrikeSpecStorage& fStrikeSpec;
+        const SkStrikeSpec& fStrikeSpec;
     };  // SubRunInfo
 
     /*
@@ -416,7 +416,7 @@ private:
         // inits the override descriptor on the current run.  All following subruns must use this
         // descriptor
         SubRun* initARGBFallback() {
-            fFallbackStrikeSpec.reset(new SkStrikeSpecStorage{});
+            fFallbackStrikeSpec.reset(new SkStrikeSpec{});
             // Push back a new subrun to fill and set the override descriptor
             SubRun* subRun = this->pushBackSubRun(*fFallbackStrikeSpec, fColor);
             subRun->setMaskFormat(kARGB_GrMaskFormat);
@@ -446,7 +446,7 @@ private:
                                     SkPoint origin,
                                     SkScalar textScale);
 
-        void setupFont(const SkStrikeSpecStorage& strikeSpec);
+        void setupFont(const SkStrikeSpec& strikeSpec);
 
         void setRunFontAntiAlias(bool aa) {
             fAntiAlias = aa;
@@ -461,7 +461,7 @@ private:
             subRun.setHasWCoord(hasWCoord);
         }
 
-        SubRun* pushBackSubRun(const SkStrikeSpecStorage& desc, GrColor color) {
+        SubRun* pushBackSubRun(const SkStrikeSpec& desc, GrColor color) {
             // Forward glyph / vertex information to seed the new sub run
             SubRun& newSubRun = fSubRunInfo.emplace_back(this, desc, color);
 
@@ -489,13 +489,13 @@ private:
         };
 
         SkSTArray<1, SubRun> fSubRunInfo;
-        SkStrikeSpecStorage fStrikeSpec;
+        SkStrikeSpec fStrikeSpec;
 
         // Distance field text cannot draw coloremoji, and so has to fall back.  However,
         // though the distance field text and the coloremoji may share the same run, they
         // will have different descriptors.  If fFallbackStrikeSpec is non-nullptr, then it
         // will be used in place of the run's descriptor to regen texture coords
-        std::unique_ptr<SkStrikeSpecStorage> fFallbackStrikeSpec;
+        std::unique_ptr<SkStrikeSpec> fFallbackStrikeSpec;
 
         SkTArray<PathGlyph> fPathGlyphs;
 
@@ -519,26 +519,26 @@ private:
     void startRun(const SkGlyphRun& glyphRun, bool useSDFT) override;
 
     void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
-                            const SkStrikeSpecStorage& strikeSpec) override;
+                            const SkStrikeSpec& strikeSpec) override;
 
     void processSourcePaths(SkSpan<const SkGlyphPos> paths,
-                            const SkStrikeSpecStorage& strikeSpec) override;
+                            const SkStrikeSpec& strikeSpec) override;
 
     void processDevicePaths(SkSpan<const SkGlyphPos> paths) override;
 
     void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
-                           const SkStrikeSpecStorage& strikeSpec,
+                           const SkStrikeSpec& strikeSpec,
                            const SkFont& runFont,
                            SkScalar minScale,
                            SkScalar maxScale,
                            bool hasWCoord) override;
 
     void processSourceFallback(SkSpan<const SkGlyphPos> masks,
-                               const SkStrikeSpecStorage& strikeSpec,
+                               const SkStrikeSpec& strikeSpec,
                                bool hasW) override;
 
     void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
-                               const SkStrikeSpecStorage& strikeSpec) override;
+                               const SkStrikeSpec& strikeSpec) override;
 
     struct StrokeInfo {
         SkScalar fFrameWidth;
