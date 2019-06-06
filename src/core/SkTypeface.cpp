@@ -178,25 +178,22 @@ void SkTypeface::serialize(SkWStream* wstream, SerializeBehavior behavior) const
         (*gSerializeTypefaceDelegate)(this, wstream);
         return;
     }
+
     bool isLocalData = false;
     SkFontDescriptor desc;
     this->onGetFontDescriptor(&desc, &isLocalData);
 
+    bool shouldSerializeData = false;
     switch (behavior) {
-        case SerializeBehavior::kDoIncludeData:
-            isLocalData = true;
-            break;
-        case SerializeBehavior::kDontIncludeData:
-            isLocalData = false;
-            break;
-        case SerializeBehavior::kIncludeDataIfLocal:
-            break;
+        case SerializeBehavior::kDoIncludeData:      shouldSerializeData = true;        break;
+        case SerializeBehavior::kDontIncludeData:    shouldSerializeData = false;       break;
+        case SerializeBehavior::kIncludeDataIfLocal: shouldSerializeData = isLocalData; break;
     }
 
     // TODO: why do we check hasFontData() and allow the data to pass through even if the caller
     //       has said they don't want the fontdata? Does this actually happen (getDescriptor returns
     //       fontdata as well?)
-    if (isLocalData && !desc.hasFontData()) {
+    if (shouldSerializeData && !desc.hasFontData()) {
         desc.setFontData(this->onMakeFontData());
     }
     desc.serialize(wstream);
