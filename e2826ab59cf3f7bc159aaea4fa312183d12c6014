@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "3def4fec_78bc2f85",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-06T13:33:24Z",
+      "side": 1,
+      "message": "The first branch? It\u0027s checking that.isValid() not this-\u003eisValid(). I think Ben is right.",
+      "parentUuid": "fdc4c3a9_1f2618d6",
+      "range": {
+        "startLine": 288,
+        "startChar": 15,
+        "endLine": 288,
+        "endChar": 29
+      },
+      "revId": "e2826ab59cf3f7bc159aaea4fa312183d12c6014",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c3b185e_7ca36de4",
         "filename": "src/gpu/GrBackendSurface.cpp",
         "patchSetId": 11
