@@ -22,7 +22,7 @@
     #include "include/core/SkString.h"
 #endif
 
-#include "SkSLUtil.h"
+#include "src/sksl/SkSLUtil.h"
 
 namespace SkSL {
 

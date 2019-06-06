@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrGLTypesPriv.h"
 #include "include/core/SkScalar.h"
+#include "include/private/GrGLTypesPriv.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/gl/GrGLDefines.h"
 

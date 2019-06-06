@@ -8,8 +8,8 @@
 #ifndef SkVM_DEFINED
 #define SkVM_DEFINED
 
-#include "include/core/SkTypes.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
 #include <unordered_map>
 #include <vector>
 

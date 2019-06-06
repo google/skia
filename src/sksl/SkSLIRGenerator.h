@@ -8,9 +8,9 @@
 #ifndef SKSL_IRGENERATOR
 #define SKSL_IRGENERATOR
 
-#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLASTFile.h"
 #include "src/sksl/SkSLASTNode.h"
+#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExtension.h"

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "experimental/ffmpeg/SkVideoEncoder.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTime.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
-#include "include/core/SkCanvas.h"
-#include "include/core/SkSurface.h"
-#include "include/core/SkStream.h"
-#include "include/core/SkTime.h"
 #include "src/utils/SkOSPath.h"
-#include "experimental/ffmpeg/SkVideoEncoder.h"
 #include "tools/flags/CommandLineFlags.h"
 
 static DEFINE_string2(input, i, "", "skottie animation to render");

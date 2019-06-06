@@ -14,6 +14,7 @@
 
 #include "src/sksl/SkSLCodeGenerator.h"
 #include "src/sksl/SkSLMemoryLayout.h"
+#include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
@@ -40,7 +41,6 @@
 #include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/ir/SkSLWhileStatement.h"
-#include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/spirv.h"
 
 union ConstantValue {

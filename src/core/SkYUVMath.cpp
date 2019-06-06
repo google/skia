@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkYUVMath.h"
 #include "include/core/SkMatrix44.h"
+#include "src/core/SkYUVMath.h"
 
 // in SkColorMatrix order (row-major)
 // Created by running SkColorMatrix_DumpYUVMatrixTables()
