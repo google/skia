@@ -107,20 +107,10 @@ public:
         SkAAClip clip;
         SkIRect r = { -2, -3, 842, 18 };
         clip.setRect(r);
-    }
-
-    virtual ~ClipView() {
+        this->setTitle("Clip");
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Clip");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));

@@ -12,17 +12,10 @@
 class BigBlurView : public Sample {
 public:
     BigBlurView() {
+        this->setTitle("BigBlur");
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "BigBlur");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         canvas->save();

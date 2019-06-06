@@ -48,17 +48,10 @@ public:
             sk_sp<SkShader> normalMap = normalBitmap.makeShader();
             fNormalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap), SkMatrix::I());
         }
+        this->setTitle("Lighting");
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Lighting");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         sk_sp<SkLights> lights(create_lights(fLightAngle, fColorFactor));
 

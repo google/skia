@@ -22,17 +22,10 @@ public:
         fPath.addCircle(SkIntToScalar(100), SkIntToScalar(100), radius);
 
         this->setBGColor(0xFFDDDDDD);
+        this->setTitle("FillType");
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FillType");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void showPath(SkCanvas* canvas, int x, int y, SkPath::FillType ft,
                   SkScalar scale, const SkPaint& paint) {
 

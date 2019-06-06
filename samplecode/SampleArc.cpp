@@ -84,17 +84,11 @@ public:
     sk_sp<MyDrawable> fAnimatingDrawable;
     sk_sp<SkDrawable> fRootDrawable;
 
-    ArcsView() { }
-
-protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Arcs");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+    ArcsView() {
+        this->setTitle("Arcs");
     }
 
+protected:
     static void DrawRectWithLines(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
         canvas->drawRect(r, p);
         canvas->drawLine(r.fLeft, r.fTop, r.fRight, r.fBottom, p);

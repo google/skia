@@ -25,21 +25,14 @@
 // the glyph atlas and test that we don't see corruption or bad slowdowns.
 class FlutterAnimateView : public Sample {
 public:
-    FlutterAnimateView() : fCurrTime(0), fResetTime(0) {}
+    FlutterAnimateView() : fCurrTime(0), fResetTime(0) {
+        this->setTitle("FlutterAnimate");
+    }
 
 protected:
     void onOnceBeforeDraw() override {
         fTypeface = SkTypeface::MakeFromFile("/skimages/samplefont.ttf");
         initChars();
-    }
-
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FlutterAnimate");
-            return true;
-        }
-
-        return this->INHERITED::onQuery(evt);
     }
 
     void onDrawContent(SkCanvas* canvas) override {

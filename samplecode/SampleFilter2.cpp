@@ -43,6 +43,8 @@ public:
         fCurrIndex = 0;
 
         this->setBGColor(SK_ColorGRAY);
+
+        this->setTitle(SkStringPrintf("Filter/Dither %s", gNames[fCurrIndex]));
     }
 
     virtual ~Filter2View() {
@@ -50,16 +52,6 @@ public:
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            SkString str("Filter/Dither ");
-            str.append(gNames[fCurrIndex]);
-            Sample::TitleR(evt, str.c_str());
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(50));
 

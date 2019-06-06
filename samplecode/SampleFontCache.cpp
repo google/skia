@@ -97,6 +97,7 @@ public:
             SkASSERT(0 == status);
         }
         this->setBGColor(0xFFDDDDDD);
+        this->setTitle("FontCache");
     }
 
     virtual ~FontCacheView() {
@@ -111,14 +112,6 @@ public:
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FontCache");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         SkScalar x = 0;
         SkScalar y = 0;

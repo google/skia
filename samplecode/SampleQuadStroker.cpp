@@ -206,14 +206,11 @@ public:
         fTextButton.fEnabled = false;
         fAnimate = false;
         setAsNeeded();
+        this->setTitle("QuadStroker");
     }
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "QuadStroker");
-            return true;
-        }
         SkUnichar uni;
         if (fTextButton.fEnabled && Sample::CharQ(*evt, &uni)) {
             switch (uni) {

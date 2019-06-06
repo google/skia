@@ -28,18 +28,11 @@ public:
             fBM.allocN32Pixels(1, 1);
             *(fBM.getAddr32(0,0)) = 0xFF0000FF; // red == bad
         }
+        this->setTitle("IdentityScale");
     }
 
 protected:
     SkBitmap fBM;
-
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "IdentityScale");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
 
     void onDrawContent(SkCanvas* canvas) override {
 

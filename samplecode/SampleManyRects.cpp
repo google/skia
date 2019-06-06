@@ -20,17 +20,11 @@ private:
     };
 
 public:
-    ManyRectsView() {}
-
-protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ManyRects");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+    ManyRectsView() {
+        this->setTitle("ManyRects");
     }
 
+protected:
     void onDrawContent(SkCanvas* canvas) override {
         SkISize dsize = canvas->getBaseLayerSize();
         canvas->clear(0xFFF0E0F0);

@@ -34,7 +34,6 @@ bool Sample::Event::isType(const char type[]) const {
 }
 
 const char* Sample::kCharEvtName = "SampleCode_Char_Event";
-const char* Sample::kTitleEvtName = "SampleCode_Title_Event";
 
 bool Sample::CharQ(const Event& evt, SkUnichar* outUni) {
     if (evt.isType(kCharEvtName)) {
@@ -46,23 +45,7 @@ bool Sample::CharQ(const Event& evt, SkUnichar* outUni) {
     return false;
 }
 
-bool Sample::TitleQ(const Event& evt) {
-    return evt.isType(kTitleEvtName);
-}
-
-void Sample::TitleR(Event* evt, const char title[]) {
-    SkASSERT(evt && TitleQ(*evt));
-    evt->setString(kTitleEvtName, title);
-}
-
-bool Sample::RequestTitle(Sample* view, SkString* title) {
-    Event evt(kTitleEvtName);
-    if (view->doQuery(&evt)) {
-        title->set(evt.findString(kTitleEvtName));
-        return true;
-    }
-    return false;
-}
+void Sample::setTitle(SkString title) { fTitle = std::move(title); }
 
 ///////////////////////////////////////////////////////////////////////////////
 

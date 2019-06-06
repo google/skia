@@ -21,8 +21,9 @@ namespace {
 
 class SVGFileView : public Sample {
 public:
-    SVGFileView(const SkString& path)
-        : fPath(path), fLabel(SkStringPrintf("[%s]", SkOSPath::Basename(path.c_str()).c_str())) {}
+    SVGFileView(const SkString& path) : fPath(path) {
+        this->setTitle(SkStringPrintf("[%s]", SkOSPath::Basename(path.c_str()).c_str()));
+    }
     ~SVGFileView() override = default;
 
 protected:
@@ -59,18 +60,9 @@ protected:
         this->INHERITED::onSizeChange();
     }
 
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, fLabel.c_str());
-            return true;
-        }
-
-        return this->INHERITED::onQuery(evt);
-    }
 private:
     sk_sp<SkSVGDOM> fDom;
     SkString        fPath;
-    SkString        fLabel;
 
     typedef Sample INHERITED;
 };

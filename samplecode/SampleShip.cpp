@@ -47,7 +47,8 @@ static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xfo
 
 class DrawShipView : public Sample {
 public:
-    DrawShipView(const char name[], DrawAtlasProc proc) : fName(name), fProc(proc) {
+    DrawShipView(const char name[], DrawAtlasProc proc) : fProc(proc) {
+        this->setTitle(name);
         fAtlas = GetResourceAsImage("images/ship.png");
         if (!fAtlas) {
             SkDebugf("\nCould not decode file ship.png. Falling back to penguin mode.\n");
@@ -88,14 +89,6 @@ public:
     ~DrawShipView() override {}
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, fName);
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         const float kCosDiff = 0.99984769515f;
         const float kSinDiff = 0.01745240643f;
@@ -164,7 +157,6 @@ protected:
 #endif
 
 private:
-    const char*         fName;
     DrawAtlasProc       fProc;
 
     sk_sp<SkImage> fAtlas;

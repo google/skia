@@ -31,17 +31,10 @@ public:
     CircleView() {
         fDX = fDY = fRAD = 0;
         fN = 3;
+        this->setTitle("Circles");
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Circles");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void circle(SkCanvas* canvas, int width, bool aa) {
         SkPaint paint;
 

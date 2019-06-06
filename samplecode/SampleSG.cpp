@@ -63,17 +63,10 @@ public:
         p = sksg::Color::Make(SK_ColorBLUE);
         d = sksg::Draw::Make(r, p);
         this->appendNode(d, r, p);
+        this->setTitle("SceneGraph");
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "SceneGraph");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         fScene->render(canvas);
     }

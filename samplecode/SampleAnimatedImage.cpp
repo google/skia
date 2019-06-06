@@ -27,7 +27,9 @@ public:
     SampleAnimatedImage()
         : INHERITED()
         , fYOffset(0)
-    {}
+    {
+        this->setTitle("AnimatedImage");
+    }
 
 protected:
     void onDrawBackground(SkCanvas* canvas) override {
@@ -97,11 +99,6 @@ protected:
     }
 
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AnimatedImage");
-            return true;
-        }
-
         SkUnichar uni;
         if (fImage && Sample::CharQ(*evt, &uni)) {
             switch (uni) {

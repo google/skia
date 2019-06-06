@@ -23,17 +23,11 @@
 
 class ConcavePathView : public Sample {
 public:
-    ConcavePathView() {}
-
-protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ConcavePaths");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+    ConcavePathView() {
+        this->setTitle("ConcavePaths");
     }
 
+protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
 

@@ -130,14 +130,12 @@ public:
         fTrans.setKeyFrame(3, GetMSecs() + 4000, values);
         values[0] = 0;
         fTrans.setKeyFrame(4, GetMSecs() + 5000, values);
+
+        this->setTitle("ClipDrawMatch");
     }
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ClipDrawMatch");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

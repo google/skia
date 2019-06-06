@@ -38,19 +38,16 @@ class AARectView : public Sample {
         N = 64
     };
 
+public:
+    AARectView() {
+        this->setTitle("AA Rects");
+    }
+
 protected:
     void onOnceBeforeDraw() override {
         fBitmap = createBitmap(N);
 
         fWidth = N;
-    }
-
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AA Rects");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
     }
 
     void onDrawContent(SkCanvas* canvas) override {

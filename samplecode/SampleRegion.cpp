@@ -160,6 +160,7 @@ public:
         fRect.inset(5, 5);
         fRect.offset(25, 25);
         this->setBGColor(0xFFDDDDDD);
+        this->setTitle("Regions");
     }
 
     void build_base_rgn(SkRegion* rgn) {
@@ -176,14 +177,6 @@ public:
 
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Regions");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     static void drawstr(SkCanvas* canvas, const char text[], const SkPoint& loc,
                         bool hilite) {
         SkPaint paint;

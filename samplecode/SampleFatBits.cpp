@@ -384,6 +384,7 @@ public:
         fPts[2].set(2, 6);
         SkMatrix::MakeScale(SkIntToScalar(fZoom)).mapPoints(fPts, 3);
         fIsRect = false;
+        this->setTitle("FatBits");
     }
 
     void setStyle(FatBits::Style s) {
@@ -392,10 +393,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FatBits");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

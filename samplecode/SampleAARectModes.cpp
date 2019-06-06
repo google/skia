@@ -73,17 +73,10 @@ class AARectsModesView : public Sample {
 public:
     AARectsModesView () {
         fBGPaint.setShader(make_bg_shader());
+        this->setTitle("AARectsModes");
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AARectsModes");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         const SkRect bounds = SkRect::MakeWH(W, H);
         static const SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };

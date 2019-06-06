@@ -51,14 +51,11 @@ public:
             std::unique_ptr<GrRectanizer>(new GrRectanizerPow2(kWidth, kHeight)));
         fRectanizers.push_back(
             std::unique_ptr<GrRectanizer>(new GrRectanizerSkyline(kWidth, kHeight)));
+        this->setTitle("Rectanizer");
     }
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Rectanizer");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             char utf8[SkUTF::kMaxBytesInUTF8Sequence];

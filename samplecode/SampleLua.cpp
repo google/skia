@@ -36,7 +36,9 @@ static const char gMissingCode[] = ""
 
 class LuaView : public Sample {
 public:
-    LuaView() : fLua(nullptr) {}
+    LuaView() : fLua(nullptr) {
+        this->setTitle("Lua");
+    }
 
     ~LuaView() override { delete fLua; }
 
@@ -69,10 +71,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Lua");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             lua_State* L = this->ensureLua();

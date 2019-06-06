@@ -12,23 +12,13 @@
 
 class LCDView : public Sample {
 public:
-    LCDView() {}
+    LCDView() {
+        this->setTitle("LCD Text");
+    }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "LCD Text");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
-        this->drawBG(canvas);
+        canvas->drawColor(SK_ColorWHITE);
 
         SkPaint paint;
 

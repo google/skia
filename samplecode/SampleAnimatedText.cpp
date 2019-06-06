@@ -44,15 +44,11 @@ public:
         fCurrentTime = 0;
         fTimer.start();
         memset(fTimes, 0, sizeof(fTimes));
+        this->setTitle("AnimatedText");
     }
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AnimatedText");
-            return true;
-        }
-
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             if ('2' == uni) {

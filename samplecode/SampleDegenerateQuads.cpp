@@ -241,6 +241,7 @@ public:
         for (int i = 0; i < 4; ++i) {
             fEdgeAA[i] = true;
         }
+        this->setTitle("DegenerateQuad");
     }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -453,9 +454,10 @@ private:
 class DegenerateQuadSample::Click : public Sample::Click {
 public:
     Click(Sample* target, const SkRect& clamp, int index)
-            : Sample::Click(target)
-            , fOuterRect(clamp)
-            , fIndex(index) {}
+        : Sample::Click(target)
+        , fOuterRect(clamp)
+        , fIndex(index) {
+        }
 
     void doClick(SkPoint points[4]) {
         if (fIndex >= 0) {
@@ -496,10 +498,6 @@ bool DegenerateQuadSample::onClick(Sample::Click* click) {
 }
 
 bool DegenerateQuadSample::onQuery(Sample::Event* event) {
-    if (Sample::TitleQ(*event)) {
-        Sample::TitleR(event, "DegenerateQuad");
-        return true;
-    }
     SkUnichar code;
     if (Sample::CharQ(*event, &code)) {
         switch(code) {

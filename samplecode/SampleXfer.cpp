@@ -134,17 +134,10 @@ public:
         fSelected = nullptr;
 
         this->addButtons();
+        this->setTitle("XferDemo");
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "XferDemo");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         for (int i = 0; i < N_Modes; ++i) {
             fModeButtons[i].draw(canvas);

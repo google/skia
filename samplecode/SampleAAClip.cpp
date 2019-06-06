@@ -58,17 +58,10 @@ class AAClipView : public Sample {
 public:
     AAClipView() {
         testop();
+        this->setTitle("AAClip");
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AAClip");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
 #if 1
         SkAAClip aaclip;

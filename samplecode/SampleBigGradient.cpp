@@ -18,17 +18,11 @@ static sk_sp<SkShader> make_grad(SkScalar w, SkScalar h) {
 
 class BigGradientView : public Sample {
 public:
-    BigGradientView() {}
-
-protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "BigGradient");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+    BigGradientView() {
+        this->setTitle("BigGradient");
     }
 
+protected:
     void onDrawContent(SkCanvas* canvas) override {
         SkRect r;
         r.set(0, 0, this->width(), this->height());
@@ -266,7 +260,7 @@ public:
 protected:
     bool onQuery(Sample::Event* evt) override {
         if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "raster-allocator");
+            this->setTitle("raster-allocator");
             return true;
         }
         return this->INHERITED::onQuery(evt);

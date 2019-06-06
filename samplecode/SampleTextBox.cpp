@@ -35,17 +35,11 @@ static const char gText[] =
 
 class TextBoxView : public Sample {
 public:
-    TextBoxView() : fShaper(SkShaper::Make()) {}
-
-protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "TextBox");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+    TextBoxView() : fShaper(SkShaper::Make()) {
+        this->setTitle("TextBox");
     }
 
+protected:
     void drawTest(SkCanvas* canvas, SkScalar w, SkScalar h, SkColor fg, SkColor bg) {
         SkAutoCanvasRestore acr(canvas, true);
 

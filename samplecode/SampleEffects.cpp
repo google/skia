@@ -87,17 +87,10 @@ public:
         cm.setIdentity();
 
         this->setBGColor(0xFFDDDDDD);
+        this->setTitle("Effects");
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Effects");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->scale(3, 3);
         canvas->translate(10, 30);

@@ -40,17 +40,10 @@ public:
     DegenerateTwoPtRadialsView() {
         fTime = 0;
         this->setBGColor(0xFFDDDDDD);
+        this->setTitle("DegenerateTwoPtRadials");
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "DegenerateTwoPtRadials");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         SkScalar delta = fTime / 15.f;
         int intPart = SkScalarFloorToInt(delta);

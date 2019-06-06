@@ -139,17 +139,10 @@ public:
             fArray[i].fDrawable->unref();
         }
         fRoot = recorder.finishRecordingAsDrawable();
+        this->setTitle("HT");
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "HT");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawDrawable(fRoot.get());
     }

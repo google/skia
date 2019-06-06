@@ -82,6 +82,7 @@ public:
     PathView() {
         fPrevSecs = 0;
         fOnce = false;
+        this->setTitle("Paths");
     }
 
     void init() {
@@ -130,14 +131,6 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paths");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void drawPath(SkCanvas* canvas, const SkPath& path, SkPaint::Join j) {
         SkPaint paint;
 
@@ -243,6 +236,8 @@ public:
         fSkeletonPaint.setAntiAlias(true);
         fSkeletonPaint.setStyle(SkPaint::kStroke_Style);
         fSkeletonPaint.setColor(SK_ColorRED);
+
+        this->setTitle("ArcTo");
     }
 
     void toggle(bool& value) {
@@ -251,10 +246,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ArcTo");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {
@@ -356,6 +347,8 @@ public:
         fSkeletonPaint.setAntiAlias(true);
         fSkeletonPaint.setStyle(SkPaint::kStroke_Style);
         fSkeletonPaint.setColor(SK_ColorRED);
+
+        this->setTitle("FatStroke");
     }
 
     void toggle(bool& value) {
@@ -368,10 +361,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FatStroke");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {
@@ -485,17 +474,10 @@ public:
             fPts[i].fX = 20 + rand.nextUScalar1() * 640;
             fPts[i].fY = 20 + rand.nextUScalar1() * 480;
         }
+        this->setTitle("CubicCurve");
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "CubicCurve");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -614,14 +596,11 @@ public:
         fQuad[0] = fPts[0] + SkVector{ 300, 0};
         fQuad[1] = fPts[1] + SkVector{ 300, 0};
         fQuad[2] = fPts[2] + SkVector{ 300, 0};
+        this->setTitle("CubicCurve2");
     }
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "CubicCurve2");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

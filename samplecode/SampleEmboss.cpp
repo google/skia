@@ -30,17 +30,10 @@ public:
         fLight.fDirection[2] = SK_Scalar1;
         fLight.fAmbient = 128;
         fLight.fSpecular = 16*2;
+        this->setTitle("Emboss");
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Emboss");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
 

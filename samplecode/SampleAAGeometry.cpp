@@ -880,6 +880,7 @@ public:
         fWidthControl.fVisible = true;
         init_controlList();
         init_buttonList();
+        this->setTitle("AAGeometry");
     }
 
     bool constructPath() {
@@ -1820,10 +1821,6 @@ void AAGeometryView::draw_legend(SkCanvas* canvas) {
 }
 
 bool AAGeometryView::onQuery(Sample::Event* evt) {
-    if (Sample::TitleQ(*evt)) {
-        Sample::TitleR(evt, "AAGeometry");
-        return true;
-    }
     SkUnichar uni;
     if (false) {
         return this->INHERITED::onQuery(evt);

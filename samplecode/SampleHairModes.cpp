@@ -72,16 +72,10 @@ class HairModesView : public Sample {
 public:
     HairModesView() {
         fBGPaint.setShader(make_bg_shader());
+        this->setTitle("HairlineModes");
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "HairlineModes");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
 
     virtual void onDrawContent(SkCanvas* canvas) {
         const SkRect bounds = SkRect::MakeWH(W, H);

@@ -12,18 +12,10 @@
 class HairCurvesView : public Sample {
 public:
     HairCurvesView() {
+        this->setTitle("HairCurves");
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "HairCurves");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
-
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);

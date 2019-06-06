@@ -45,17 +45,10 @@ public:
             }
         }
         this->setBGColor(0xFFDDDDDD);
+        this->setTitle("Camera");
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Camera");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         canvas->translate(this->width()/2, this->height()/2);
 

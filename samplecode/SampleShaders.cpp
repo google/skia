@@ -58,17 +58,10 @@ public:
         auto shaderB = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 
         fShader = SkShaders::Blend(SkBlendMode::kDstIn, std::move(shaderA), std::move(shaderB));
+        this->setTitle("Shaders");
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Shaders");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawBitmap(fBitmap, 0, 0);
 

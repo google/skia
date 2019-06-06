@@ -29,17 +29,11 @@ static void create_bitmap(SkBitmap* bitmap) {
 class WritePixelsView : public Sample {
     SkPath fPath;
 public:
-    WritePixelsView() {}
-
-protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "WritePixels");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+    WritePixelsView() {
+        this->setTitle("WritePixels");
     }
 
+protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         SkBitmap bitmap;
         create_bitmap(&bitmap);

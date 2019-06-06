@@ -33,6 +33,7 @@ public:
         }
         fCurPos = SkPoint::Make(0,0);
         fSize = 200;
+        this->setTitle("SubpixelTranslate");
     }
 
 protected:
@@ -41,14 +42,6 @@ protected:
     float fHorizontalVelocity, fVerticalVelocity;
 
     SkPoint fCurPos;
-
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "SubpixelTranslate");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
 
     void onDrawContent(SkCanvas* canvas) override {
 

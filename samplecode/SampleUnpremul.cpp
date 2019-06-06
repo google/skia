@@ -39,14 +39,11 @@ public:
     , fPremul(true)
     , fDecodeSucceeded(false) {
         this->nextImage();
+        this->setTitle("unpremul");
     }
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "unpremul");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             char utf8[SkUTF::kMaxBytesInUTF8Sequence];

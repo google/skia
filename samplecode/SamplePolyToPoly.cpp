@@ -66,17 +66,10 @@ public:
                 m0.setPolyToPoly(src, dst, 3);
             }
         }
+        this->setTitle("PolyToPolyView");
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt)  {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "PolyToPolyView");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     static void doDraw(SkCanvas* canvas, SkPaint* paint, const SkFont& font, const int isrc[],
                        const int idst[], int count) {
         SkMatrix matrix;

@@ -26,17 +26,11 @@ public:
     SkRect fOval;
     SkPoint fCenter;
 
-    PathClipView() : fOval(SkRect::MakeWH(200, 50)), fCenter(SkPoint::Make(250, 250)) {}
-
-protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "PathClip");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+    PathClipView() : fOval(SkRect::MakeWH(200, 50)), fCenter(SkPoint::Make(250, 250)) {
+        this->setTitle("PathClip");
     }
 
+protected:
     void onDrawContent(SkCanvas* canvas) override {
         const SkRect oval = fOval.makeOffset(fCenter.fX - fOval.centerX(),
                                              fCenter.fY - fOval.centerY());
@@ -168,17 +162,10 @@ public:
         fEdgeColor[0] = 0xFFFF0000;
         fEdgeColor[1] = 0xFF00FF00;
         fEdgeColor[2] = 0xFF0000FF;
+        this->setTitle("EdgeClip");
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "EdgeClip");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     static SkScalar snap(SkScalar x) {
         return SkScalarRoundToScalar(x * 0.5f) * 2;
     }

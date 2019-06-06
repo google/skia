@@ -17,7 +17,7 @@ SampleSlide::SampleSlide(const SampleFactory factory)
     : fSampleFactory(factory)
     , fClick(nullptr) {
     sk_sp<Sample> sample(factory());
-    Sample::RequestTitle(sample.get(), &fName);
+    fName = sample->title();
 }
 
 SampleSlide::~SampleSlide() { delete fClick; }

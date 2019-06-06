@@ -39,17 +39,11 @@ static sk_sp<SkTypeface> chinese_typeface() {
 
 class ChineseFlingView : public Sample {
 public:
-    ChineseFlingView() : fBlobs(kNumBlobs) {}
-
-protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "chinese-fling");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+    ChineseFlingView() : fBlobs(kNumBlobs) {
+        this->setTitle("chinese-fling");
     }
 
+protected:
     void onDrawContent(SkCanvas* canvas) override {
         if (!fInitialized) {
             this->init();
@@ -125,14 +119,12 @@ private:
 
 class ChineseZoomView : public Sample {
 public:
-    ChineseZoomView() : fBlobs(kNumBlobs), fScale(15.0f), fTranslate(0.0f) {}
+    ChineseZoomView() : fBlobs(kNumBlobs), fScale(15.0f), fTranslate(0.0f) {
+        this->setTitle("chinese-zoom");
+    }
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "chinese-zoom");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             if ('>' == uni) {

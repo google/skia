@@ -48,6 +48,11 @@ private:
 public:
     PdfFileViewer(const char name[] = nullptr) : fFilename(name) {
         fPicture = nullptr;
+
+        SkString name("P:");
+        const char* basename = strrchr(fFilename.c_str(), SkPATH_SEPARATOR);
+        name.append(basename ? basename+1: fFilename.c_str());
+        this->setTitle(name);
     }
 
     virtual ~PdfFileViewer() {
@@ -55,17 +60,6 @@ public:
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            SkString name("P:");
-            const char* basename = strrchr(fFilename.c_str(), SkPATH_SEPARATOR);
-            name.append(basename ? basename+1: fFilename.c_str());
-            Sample::TitleR(evt, name.c_str());
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual bool onEvent(const SkEvent& evt) {
         // TODO(edisonn): add here event handlers to disable clipping, or to show helpful info
         // like pdf object from click, ...

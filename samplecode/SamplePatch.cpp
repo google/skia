@@ -233,17 +233,10 @@ public:
         fPts[11].set(S*0, T*2);
 
         this->setBGColor(SK_ColorGRAY);
+        this->setTitle("Patch");
     }
 
 protected:
-    bool onQuery(Sample::Event* evt)  override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Patch");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         const int nu = 10;
         const int nv = 10;
@@ -384,17 +377,10 @@ public:
         fStrokeP.setStyle(SkPaint::kStroke_Style);
         fStrokeP.setStrokeWidth(30);
         fStrokeP.setColor(0x44888888);
+        this->setTitle("PseudoInk");
     }
 
 protected:
-    bool onQuery(Sample::Event* evt)  override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "PseudoInk");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     bool onAnimate(const AnimTimer& timer) override { return true; }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -455,17 +441,10 @@ public:
         fPE[3] = SkMergePathEffect::Make(nullptr, p1, SkPathOp::kUnion_SkPathOp);
         fPE[4] = SkMergePathEffect::Make(p0, nullptr, SkPathOp::kDifference_SkPathOp);
         fPE[5] = SkMergePathEffect::Make(p0, nullptr, SkPathOp::kIntersect_SkPathOp);
+        this->setTitle("ManyStrokes");
     }
 
 protected:
-    bool onQuery(Sample::Event* evt)  override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ManyStrokes");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     bool onAnimate(const AnimTimer& timer) override { return true; }
 
     void dodraw(SkCanvas* canvas, sk_sp<SkPathEffect> pe, SkScalar x, SkScalar y,

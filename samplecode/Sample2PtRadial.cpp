@@ -11,17 +11,11 @@
 
 class TwoPtConicalView : public Sample {
 public:
-    TwoPtConicalView() {}
-
-protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "2PtConical");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+    TwoPtConicalView() {
+        this->setTitle("2PtConical");
     }
 
+protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 

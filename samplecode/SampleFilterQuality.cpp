@@ -163,14 +163,11 @@ public:
         fTrans.setKeyFrame(0, fCurrTime, values);
         values[0] = values[1] = 1;
         fTrans.setKeyFrame(1, fCurrTime + 2000, values);
+        this->setTitle("FilterQuality");
     }
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FilterQuality");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

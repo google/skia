@@ -58,7 +58,9 @@ public:
         , fUseAlt(false)
         , fShowObject(true)
         , fIgnoreShadowAlpha(false)
-        , fDoAlphaAnimation(false) {}
+        , fDoAlphaAnimation(false) {
+            this->setTitle("AndroidShadows");
+        }
 
 protected:
     void onOnceBeforeDraw() override {
@@ -107,11 +109,6 @@ protected:
     }
 
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AndroidShadows");
-            return true;
-        }
-
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             bool handled = false;

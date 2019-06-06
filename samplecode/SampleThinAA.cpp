@@ -247,6 +247,7 @@ class ThinAASample : public Sample {
 public:
     ThinAASample() {
         this->setBGColor(0xFFFFFFFF);
+        this->setTitle("Thin-AA");
     }
 
 protected:
@@ -374,11 +375,6 @@ protected:
     }
 
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Thin-AA");
-            return true;
-        }
-
         SkUnichar key;
         if (Sample::CharQ(*evt, &key)) {
             switch(key) {

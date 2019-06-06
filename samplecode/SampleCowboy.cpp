@@ -21,14 +21,15 @@
 
 namespace {
 
-class CowboyView : public Sample {
+class SvgView : public Sample {
 public:
-    CowboyView()
-        : fLabel("SampleCowboy")
+    SvgView(const char* path, const char* title)
+        : fPath(path)
         , fState(kZoomIn)
         , fAnimationLoop(kAnimationIterations)
-        , fDelta(1) {}
-    ~CowboyView() override = default;
+        , fDelta(1) {
+            this->setTitle(title);
+        }
 
 protected:
     static constexpr auto kAnimationIterations = 5;
@@ -40,17 +41,16 @@ protected:
     };
 
     void onOnceBeforeDraw() override {
-        constexpr char path[] = "Cowboy.svg";
-        auto data = GetResourceAsData(path);
+        auto data = GetResourceAsData(fPath);
         if (!data) {
-            SkDebugf("file not found: \"%s\"\n", path);
+            SkDebugf("file not found: \"%s\"\n", fPath);
             return;
         }
         SkMemoryStream svgStream(std::move(data));
 
         SkDOM xmlDom;
         if (!xmlDom.build(svgStream)) {
-            SkDebugf("XML parsing failed: \"path\"\n", fPath.c_str());
+            SkDebugf("XML parsing failed: \"path\"\n", fPath);
             return;
         }
 
@@ -96,15 +96,6 @@ protected:
         this->INHERITED::onSizeChange();
     }
 
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, fLabel.c_str());
-            return true;
-        }
-
-        return this->INHERITED::onQuery(evt);
-    }
-
     bool onAnimate(const AnimTimer& timer) override {
         if (!fDom) {
             return false;
@@ -133,8 +124,7 @@ protected:
 
 private:
     sk_sp<SkSVGDOM> fDom;
-    SkString        fPath;
-    SkString        fLabel;
+    const char*     fPath;
     State           fState;
     int             fAnimationLoop;
     SkScalar        fDelta;
@@ -144,6 +134,6 @@ private:
 
 } // anonymous namespace
 
-DEF_SAMPLE( return new CowboyView(); )
+DEF_SAMPLE( return new SvgView("Cowboy.svg", "SampleCowboy"); )
 
 #endif  // SK_XML

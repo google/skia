@@ -22,17 +22,11 @@
 
 class PointsView : public Sample {
 public:
-    PointsView() {}
-
-protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Points");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+    PointsView() {
+        this->setTitle("Points");
     }
 
+protected:
     static void fill_pts(SkPoint pts[], size_t n, SkRandom* rand) {
         for (size_t i = 0; i < n; i++)
             pts[i].set(rand->nextUScalar1() * 640, rand->nextUScalar1() * 480);
