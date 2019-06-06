@@ -380,12 +380,6 @@ public:
     Stats* stats() { return &fStats; }
     void dumpJSON(SkJSONWriter*) const;
 
-    // TODO: remove this method
-    GrBackendTexture createTestingOnlyBackendTexture(int w, int h, SkColorType,
-                                                     GrMipMapped, GrRenderable,
-                                                     const void* pixels = nullptr,
-                                                     size_t rowBytes = 0);
-
     /**
      * Creates a texture directly in the backend API without wrapping it in a GrTexture.
      * Must be matched with a call to deleteBackendTexture().
