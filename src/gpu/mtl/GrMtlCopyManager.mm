@@ -41,7 +41,6 @@ void GrMtlCopyManager::createCopyProgramBuffer() {
 
 void GrMtlCopyManager::createCopyProgramShaders() {
      // Create shaders required by pipeline state
-    const GrShaderCaps* shaderCaps = fGpu->caps()->shaderCaps();
     SkString vertShaderText;
     vertShaderText.appendf(
         "#extension GL_ARB_separate_shader_objects : enable\n"
