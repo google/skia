@@ -5,10 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkOnce.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
 #include <string.h>
+#if defined(SKVM_JIT)
+    #define XBYAK_NO_OP_NAMES
+    #include "xbyak/xbyak.h"
+#endif
 
 namespace skvm {
 
@@ -327,7 +332,118 @@ namespace skvm {
     // ~~~~ Program::eval() and co. ~~~~ //
 
     void Program::eval(int n, void* args[], size_t strides[], int nargs) const {
+    #if defined(SKVM_JIT)
+
+        struct AVX2 : Xbyak::CodeGenerator {
+            AVX2(const std::vector<Program::Instruction>& instructions, int regs, int loop,
+                 size_t strides[], int nargs)
+            {
+                // Register holding our counter N.  TODO better register?
+                Xbyak::Reg N = rax;
+
+                // TODO: pick some better registers for arguments.
+                Xbyak::Reg  arg[] = { r8, r9, r10, r11, r12 };
+
+                // Mapping of logical registers to ymm registers.
+                Xbyak::Ymm r[] = {
+                    ymm0, ymm1, ymm2 , ymm3 , ymm4 , ymm5 , ymm6 , ymm7 ,
+                    ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15,
+                };
+
+                // Label / 4-byte values we need to write after ret.
+                std::vector<std::pair<Xbyak::Label, int>> splats;
+
+                for (int i = 0; i < (int)instructions.size(); i++) {
+                    if (i == loop) {
+                        L("loop");
+                    }
+                    const Instruction& inst = instructions[i];
+                    Op  op = inst.op;
+
+                    ID   d = inst.d,
+                         x = inst.x;
+                    auto y = inst.y,
+                         z = inst.z;
+                    switch (op) {
+                        case Op::store8:  break;
+                        case Op::store32: vmovups(ptr[arg[y.imm]], r[x]); break;
+
+                        case Op::load8:  break;
+                        case Op::load32: vmovups(r[d], ptr[arg[y.imm]]); break;
+
+                        case Op::splat: splats.emplace_back(Xbyak::Label(), y.imm);
+                                        vbroadcastss(r[d], ptr[rip + splats.back().first]);
+                                        break;
+
+                        case Op::add_f32: vaddps(r[d], r[x], r[y.id]); break;
+                        case Op::sub_f32: vsubps(r[d], r[x], r[y.id]); break;
+                        case Op::mul_f32: vmulps(r[d], r[x], r[y.id]); break;
+                        case Op::div_f32: vdivps(r[d], r[x], r[y.id]); break;
+                        case Op::mad_f32:
+                            if (d == x   ) { vfmadd132ps(r[x   ], r[z.id], r[y.id]); } else
+                            if (d == y.id) { vfmadd213ps(r[y.id], r[x   ], r[z.id]); } else
+                            if (d == z.id) { vfmadd231ps(r[z.id], r[x   ], r[y.id]); } else
+                                           { vmulps(r[d], r[x], r[y.id]);
+                                             vaddps(r[d], r[d], r[z.id]); }
+                            break;
+
+                        case Op::add_i32: vpaddd (r[d], r[x], r[y.id]); break;
+                        case Op::sub_i32: vpsubd (r[d], r[x], r[y.id]); break;
+                        case Op::mul_i32: vpmulld(r[d], r[x], r[y.id]); break;
+
+                        case Op::bit_and: vandps(r[d], r[x], r[y.id]); break;
+                        case Op::bit_or : vorps (r[d], r[x], r[y.id]); break;
+                        case Op::bit_xor: vxorps(r[d], r[x], r[y.id]); break;
+
+                        case Op::shl: vpslld(r[d], r[x], y.imm); break;
+                        case Op::shr: vpsrld(r[d], r[x], y.imm); break;
+                        case Op::sra: vpsrad(r[d], r[x], y.imm); break;
+
+                        case Op::mul_unorm8: break;
+                        case Op::mad_unorm8: break;
+
+                        case Op::extract: if (y.imm) { vpsrld(r[d], r[x], y.imm); }
+                                          vandps(r[d], r[d], r[z.id]);
+                                          break;
+
+                        case Op::pack: vpslld(r[d], r[y.id], z.imm);
+                                       vorps (r[d], r[d   ], r[x]);
+                                       break;
+
+                        case Op::to_f32: break;
+                        case Op::to_i32: break;
+                    }
+                }
+
+                for (int i = 0; i < nargs; i++) {
+                    add(arg[i], 8*(int)strides[i]);
+                }
+
+                sub(N, 8);
+                jnz("loop");
+
+                L("done");
+                vzeroupper();
+                ret();
+
+                for (auto splat : splats) {
+                    align(4);
+                    L(splat.first);
+                    dd(splat.second);
+                }
+            }
+        } avx2{fInstructions, fRegs, fLoop, strides, nargs};
+
+        static SkOnce once;
+        once([&]{
+            SkFILEWStream code("/tmp/code.bin");
+            code.write(avx2.getCode(), avx2.getSize());
+        });
+
+    #endif
         SkOpts::eval(fInstructions.data(), (int)fInstructions.size(), fRegs, fLoop,
                      n, args, strides, nargs);
     }
 }
+
+// TODO: argument strides (more generally types) should come earlier, the pointers themselves later.
