@@ -10,6 +10,8 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkScalerContext.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsQuad.h"
 
 SkMask SkGlyph::mask() const {
     // getMetrics had to be called.
@@ -127,4 +129,165 @@ SkPath* SkGlyph::addPath(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
         }
     }
     return this->path();
+}
+
+static std::tuple<SkScalar, SkScalar> calculate_path_gap(
+        SkScalar topOffset, SkScalar bottomOffset, const SkPath& path) {
+
+    // Left and Right of an ever expanding gap around the path.
+    SkScalar left  = SK_ScalarMax,
+            right = SK_ScalarMin;
+    auto expandGap = [&left, &right](SkScalar v) {
+        left  = SkTMin(left, v);
+        right = SkTMax(right, v);
+    };
+
+    // Handle all the different verbs for the path.
+    SkPoint pts[4];
+    auto addLine = [&expandGap, &pts](SkScalar offset) {
+        SkScalar t = sk_ieee_float_divide(offset - pts[0].fY, pts[1].fY - pts[0].fY);
+        if (0 <= t && t < 1) {   // this handles divide by zero above
+            expandGap(pts[0].fX + t * (pts[1].fX - pts[0].fX));
+        }
+    };
+
+    auto addQuad = [&expandGap, &pts](SkScalar offset) {
+        SkDQuad quad;
+        quad.set(pts);
+        double roots[2];
+        int count = quad.horizontalIntersect(offset, roots);
+        while (--count >= 0) {
+            expandGap(quad.ptAtT(roots[count]).asSkPoint().fX);
+        }
+    };
+
+    auto addCubic = [&expandGap, &pts](SkScalar offset) {
+        SkDCubic cubic;
+        cubic.set(pts);
+        double roots[3];
+        int count = cubic.horizontalIntersect(offset, roots);
+        while (--count >= 0) {
+            expandGap(cubic.ptAtT(roots[count]).asSkPoint().fX);
+        }
+    };
+
+    // Handle when a verb's points are in the gap between top and bottom.
+    auto addPts = [&expandGap, &pts, topOffset, bottomOffset](int ptCount) {
+        for (int i = 0; i < ptCount; ++i) {
+            if (topOffset < pts[i].fY && pts[i].fY < bottomOffset) {
+                expandGap(pts[i].fX);
+            }
+        }
+    };
+
+    SkPath::Iter iter(path, false);
+    SkPath::Verb verb;
+    while (SkPath::kDone_Verb != (verb = iter.next(pts))) {
+        switch (verb) {
+            case SkPath::kMove_Verb: {
+                break;
+            }
+            case SkPath::kLine_Verb: {
+                addLine(topOffset);
+                addLine(bottomOffset);
+                addPts(2);
+                break;
+            }
+            case SkPath::kQuad_Verb: {
+                SkScalar quadTop = SkTMin(SkTMin(pts[0].fY, pts[1].fY), pts[2].fY);
+                if (bottomOffset < quadTop) { break; }
+                SkScalar quadBottom = SkTMax(SkTMax(pts[0].fY, pts[1].fY), pts[2].fY);
+                if (topOffset > quadBottom) { break; }
+                addQuad(topOffset);
+                addQuad(bottomOffset);
+                addPts(3);
+                break;
+            }
+            case SkPath::kConic_Verb: {
+                SkASSERT(0);  // no support for text composed of conics
+                break;
+            }
+            case SkPath::kCubic_Verb: {
+                SkScalar quadTop =
+                        SkTMin(SkTMin(SkTMin(pts[0].fY, pts[1].fY), pts[2].fY), pts[3].fY);
+                if (bottomOffset < quadTop) { break; }
+                SkScalar quadBottom =
+                        SkTMax(SkTMax(SkTMax(pts[0].fY, pts[1].fY), pts[2].fY), pts[3].fY);
+                if (topOffset > quadBottom) { break; }
+                addCubic(topOffset);
+                addCubic(bottomOffset);
+                addPts(4);
+                break;
+            }
+            case SkPath::kClose_Verb: {
+                break;
+            }
+            default: {
+                SkASSERT(0);
+                break;
+            }
+        }
+    }
+
+    return std::tie(left, right);
+}
+
+void SkGlyph::ensureIntercepts(const SkScalar* bounds, SkScalar scale, SkScalar xPos,
+                               SkScalar* array, int* count, SkArenaAlloc* alloc) {
+
+    auto offsetResults = [scale, xPos](
+            const SkGlyph::Intercept* intercept,SkScalar* array, int* count) {
+        if (array) {
+            array += *count;
+            for (int index = 0; index < 2; index++) {
+                *array++ = intercept->fInterval[index] * scale + xPos;
+            }
+        }
+        *count += 2;
+    };
+
+    const SkGlyph::Intercept* match =
+            [this](const SkScalar bounds[2]) -> const SkGlyph::Intercept* {
+                if (!fPathData) {
+                    return nullptr;
+                }
+                const SkGlyph::Intercept* intercept = fPathData->fIntercept;
+                while (intercept) {
+                    if (bounds[0] == intercept->fBounds[0] && bounds[1] == intercept->fBounds[1]) {
+                        return intercept;
+                    }
+                    intercept = intercept->fNext;
+                }
+                return nullptr;
+            }(bounds);
+
+    if (match) {
+        if (match->fInterval[0] < match->fInterval[1]) {
+            offsetResults(match, array, count);
+        }
+        return;
+    }
+
+    SkGlyph::Intercept* intercept = alloc->make<SkGlyph::Intercept>();
+    intercept->fNext = fPathData->fIntercept;
+    intercept->fBounds[0] = bounds[0];
+    intercept->fBounds[1] = bounds[1];
+    intercept->fInterval[0] = SK_ScalarMax;
+    intercept->fInterval[1] = SK_ScalarMin;
+    fPathData->fIntercept = intercept;
+    const SkPath* path = &(fPathData->fPath);
+    const SkRect& pathBounds = path->getBounds();
+    if (pathBounds.fBottom < bounds[0] || bounds[1] < pathBounds.fTop) {
+        return;
+    }
+
+    std::tie(intercept->fInterval[0], intercept->fInterval[1])
+            = calculate_path_gap(bounds[0], bounds[1], *path);
+
+    if (intercept->fInterval[0] >= intercept->fInterval[1]) {
+        intercept->fInterval[0] = SK_ScalarMax;
+        intercept->fInterval[1] = SK_ScalarMin;
+        return;
+    }
+    offsetResults(intercept, array, count);
 }
