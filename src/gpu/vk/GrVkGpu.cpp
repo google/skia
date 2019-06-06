@@ -335,8 +335,6 @@ GrGpuTextureCommandBuffer* GrVkGpu::getCommandBuffer(GrTexture* texture, GrSurfa
 void GrVkGpu::submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc,
                                   GrGpuFinishedContext finishedContext) {
     SkASSERT(fCurrentCmdBuffer);
-    SkASSERT(!fCachedRTCommandBuffer || !fCachedRTCommandBuffer->isActive());
-    SkASSERT(!fCachedTexCommandBuffer || !fCachedTexCommandBuffer->isActive());
 
     if (!fCurrentCmdBuffer->hasWork() && kForce_SyncQueue != sync &&
         !fSemaphoresToSignal.count() && !fSemaphoresToWaitOn.count()) {
@@ -571,6 +569,10 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
                                VK_PIPELINE_STAGE_TRANSFER_BIT,
                                VK_PIPELINE_STAGE_HOST_BIT,
                                false);
+
+    // The caller is responsible for syncing.
+    this->submitCommandBuffer(kSkip_SyncQueue);
+
     return true;
 }
 
