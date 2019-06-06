@@ -285,7 +285,7 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
         this->cleanup();
         fIsValid = false;
         return *this;
-    } else if (this->fBackend != that.fBackend) {
+    } else if (fIsValid && this->fBackend != that.fBackend) {
         this->cleanup();
         fIsValid = false;
     }
@@ -590,7 +590,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
         this->cleanup();
         fIsValid = false;
         return *this;
-    } else if (this->fBackend != that.fBackend) {
+    } else if (fIsValid && this->fBackend != that.fBackend) {
         this->cleanup();
         fIsValid = false;
     }
