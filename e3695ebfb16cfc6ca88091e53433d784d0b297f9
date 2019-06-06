@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d2dba5bb_70475fb8",
+        "filename": "modules/skottie/src/text/RangeSelector.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-06-06T12:58:25Z",
+      "side": 1,
+      "message": "Good point, done :)",
+      "parentUuid": "6bdb8a2c_e0dda3a4",
+      "range": {
+        "startLine": 94,
+        "startChar": 4,
+        "endLine": 94,
+        "endChar": 19
+      },
+      "revId": "e3695ebfb16cfc6ca88091e53433d784d0b297f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0ad3fbcc_7aa55991",
         "filename": "modules/skottie/src/text/RangeSelector.cpp",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2019-06-06T04:29:15Z",
       "side": 1,
       "message": "can this be constexpr as well?",
+      "range": {
+        "startLine": 119,
+        "startChar": 7,
+        "endLine": 119,
+        "endChar": 12
+      },
+      "revId": "e3695ebfb16cfc6ca88091e53433d784d0b297f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed9112c9_4e89f509",
+        "filename": "modules/skottie/src/text/RangeSelector.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-06-06T12:58:25Z",
+      "side": 1,
+      "message": "That was my first thought as well, but the compiler is not happy: something-something-no-lambdas-in-constexpr.",
+      "parentUuid": "0ad3fbcc_7aa55991",
       "range": {
         "startLine": 119,
         "startChar": 7,
