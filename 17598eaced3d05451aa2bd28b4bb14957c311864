@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6053a7af_bb576d56",
+        "filename": "modules/skparagraph/include/FontCollection.h",
+        "patchSetId": 49
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T20:09:31Z",
+      "side": 1,
+      "message": "Is this used anywhere? Should it be?",
+      "range": {
+        "startLine": 47,
+        "startChar": 17,
+        "endLine": 47,
+        "endChar": 24
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22ef8157_fe3523bd",
+        "filename": "modules/skparagraph/include/TextStyle.h",
+        "patchSetId": 49
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T20:09:31Z",
+      "side": 1,
+      "message": "Any real reason to have a \".equals\" in addition to \"\u003d\u003d\" ? A few classes seem to have this.",
+      "range": {
+        "startLine": 54,
+        "startChar": 9,
+        "endLine": 54,
+        "endChar": 15
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a794e1b_048e6198",
+        "filename": "modules/skparagraph/include/TextStyle.h",
+        "patchSetId": 49
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T20:09:31Z",
+      "side": 1,
+      "message": "SkFontMetrics documents these values to mean something (though the previous useful documentation appears to have been replaced with mostly useless vague documentation, need to fix that), and here they mean something quite different. Perhaps it would be better to at least have a different name / type for these kinds of metrics. At the very least it seems that fLeading would need to be set to 0 here to make sense (since the leading is being forced into the ascent and descent)?",
+      "range": {
+        "startLine": 130,
+        "startChar": 8,
+        "endLine": 130,
+        "endChar": 26
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e488af6d_9e56fb67",
+        "filename": "modules/skparagraph/src/ParagraphBuilderImpl.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T20:09:31Z",
+      "side": 1,
+      "message": "These will always print (even in release). If this is just for logging in debug or some such, it should probably be SkDEBUGF which is compiled out in release. (Here and elsewhere.)",
+      "range": {
+        "startLine": 51,
+        "startChar": 8,
+        "endLine": 51,
+        "endChar": 16
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1d7a94e_83e071d4",
+        "filename": "modules/skparagraph/src/ParagraphCache.h",
+        "patchSetId": 49
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T20:09:31Z",
+      "side": 1,
+      "message": "nit: don\u0027t seem to need a new line here? (same on next line)",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 30
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fe32b6d_d0038ce7",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T20:09:31Z",
+      "side": 1,
+      "message": "nit: don\u0027t need newline? (same on next line)",
+      "range": {
+        "startLine": 421,
+        "startChar": 0,
+        "endLine": 421,
+        "endChar": 41
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e2612fa_3aa4f5ee",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T20:09:31Z",
+      "side": 1,
+      "message": "Is there anything extra needed for rtl anymore? Seems this is just looking at where glyphs are and their clusters.",
+      "range": {
+        "startLine": 529,
+        "startChar": 0,
+        "endLine": 529,
+        "endChar": 27
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5481b9b4_a3a23ad7",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T20:09:31Z",
+      "side": 1,
+      "message": "While clever, this appears to be used twice and might better just be named \"intersect\". It wasn\u0027t clear way down this file what the \u0027*\u0027 meant.",
+      "range": {
+        "startLine": 13,
+        "startChar": 19,
+        "endLine": 13,
+        "endChar": 28
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1876e8e9_c4921302",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T20:09:31Z",
+      "side": 1,
+      "message": "It looks like this could just return a bool, though that bool is more like intersectOrAreAdjacent.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 7
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
