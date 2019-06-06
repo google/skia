@@ -162,12 +162,12 @@ void delete_backend_texture(GrContext* context, const GrBackendTexture& backendT
     context->deleteBackendTexture(backendTex);
 }
 
-bool does_full_buffer_contain_correct_color(GrColor* srcBuffer,
-                                            GrColor* dstBuffer,
+bool does_full_buffer_contain_correct_color(const GrColor* srcBuffer,
+                                            const GrColor* dstBuffer,
                                             int width,
                                             int height) {
-    GrColor* srcPtr = srcBuffer;
-    GrColor* dstPtr = dstBuffer;
+    const GrColor* srcPtr = srcBuffer;
+    const GrColor* dstPtr = dstBuffer;
     for (int j = 0; j < height; ++j) {
         for (int i = 0; i < width; ++i) {
             if (srcPtr[i] != dstPtr[i]) {

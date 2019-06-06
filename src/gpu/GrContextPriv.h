@@ -253,6 +253,14 @@ public:
     void testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif
 
+    // If possible, create a backend texture initialized with the provided pixmap data. The client
+    // should ensure that the returned backend texture is valid.
+    // If successful, the created backend texture will be compatible with the provided
+    // pixmap(s).
+    // If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
+    // the data for all the mipmap levels must be provided.
+    GrBackendTexture createBackendTexture(const SkPixmap srcData[], int numLevels, GrRenderable);
+
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
     GrContextPriv(const GrContextPriv&); // unimpl
