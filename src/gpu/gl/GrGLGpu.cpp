@@ -1247,8 +1247,6 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     const GrGLInterface* interface = this->glInterface();
     const GrGLCaps& caps = this->glCaps();
 
-    size_t bpp = GrBytesPerPixel(dataConfig);
-
     if (width == 0 || height == 0) {
         return false;
     }
@@ -1279,6 +1277,8 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     if (mipMapsStatus) {
         *mipMapsStatus = GrMipMapsStatus::kValid;
     }
+
+    size_t bpp = GrGLBytesPerFormat(internalFormat);
 
     const bool usesMips = mipLevelCount > 1;
 
@@ -3866,7 +3866,10 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         for (int i = 0; i < mipLevelCount; ++i) {
             size_t offset = individualMipOffsets[i];
 
-            texels.get()[i] = { &(tmpPixels[offset]), 0 };
+            int twoToTheMipLevel = 1 << i;
+            int currentWidth = SkTMax(1, w / twoToTheMipLevel);
+
+            texels.get()[i] = { &(tmpPixels[offset]), currentWidth*bytesPerPixel };
         }
     } else {
         SkASSERT(1 == mipLevelCount);
