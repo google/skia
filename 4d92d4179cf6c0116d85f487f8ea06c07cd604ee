@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9d2a58e_397fb8dd",
+        "filename": "src/sksl/SkSLASTNode.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-06T13:13:00Z",
+      "side": 1,
+      "message": "nit: Inject the \u0027@\u0027 if getBool() ?",
+      "revId": "4d92d4179cf6c0116d85f487f8ea06c07cd604ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
