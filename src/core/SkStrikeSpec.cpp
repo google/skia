@@ -13,21 +13,21 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTLazy.h"
 
-SkStrikeSpecStorage SkStrikeSpecStorage::MakeMask(const SkFont& font, const SkPaint& paint,
-                                                  const SkSurfaceProps& surfaceProps,
-                                                  SkScalerContextFlags scalerContextFlags,
-                                                  const SkMatrix& deviceMatrix) {
-    SkStrikeSpecStorage storage;
+SkStrikeSpec SkStrikeSpec::MakeMask(const SkFont& font, const SkPaint& paint,
+                                    const SkSurfaceProps& surfaceProps,
+                                    SkScalerContextFlags scalerContextFlags,
+                                    const SkMatrix& deviceMatrix) {
+    SkStrikeSpec storage;
 
     storage.commonSetup(font, paint, surfaceProps, scalerContextFlags, deviceMatrix);
 
     return storage;
 }
 
-SkStrikeSpecStorage SkStrikeSpecStorage::MakePath(const SkFont& font, const SkPaint& paint,
-                                                  const SkSurfaceProps& surfaceProps,
-                                                  SkScalerContextFlags scalerContextFlags) {
-    SkStrikeSpecStorage storage;
+SkStrikeSpec SkStrikeSpec::MakePath(const SkFont& font, const SkPaint& paint,
+                                    const SkSurfaceProps& surfaceProps,
+                                    SkScalerContextFlags scalerContextFlags) {
+    SkStrikeSpec storage;
 
     // setup our std runPaint, in hopes of getting hits in the cache
     SkPaint pathPaint{paint};
@@ -45,13 +45,13 @@ SkStrikeSpecStorage SkStrikeSpecStorage::MakePath(const SkFont& font, const SkPa
     return storage;
 }
 
-SkStrikeSpecStorage SkStrikeSpecStorage::MakeSourceFallback(
+SkStrikeSpec SkStrikeSpec::MakeSourceFallback(
         const SkFont& font,
         const SkPaint& paint,
         const SkSurfaceProps& surfaceProps,
         SkScalerContextFlags scalerContextFlags,
         SkScalar maxSourceGlyphDimension) {
-    SkStrikeSpecStorage storage;
+    SkStrikeSpec storage;
 
     // Subtract 2 to account for the bilerp pad around the glyph
     SkScalar maxAtlasDimension = SkStrikeCommon::kSkSideTooBigForAtlas - 2;
@@ -76,9 +76,8 @@ SkStrikeSpecStorage SkStrikeSpecStorage::MakeSourceFallback(
     return storage;
 }
 
-SkStrikeSpecStorage SkStrikeSpecStorage::MakeCanonicalized(
-        const SkFont& font, const SkPaint* paint) {
-    SkStrikeSpecStorage storage;
+SkStrikeSpec SkStrikeSpec::MakeCanonicalized(const SkFont& font, const SkPaint* paint) {
+    SkStrikeSpec storage;
 
     SkPaint canonicalizedPaint;
     if (paint != nullptr) {
@@ -101,12 +100,12 @@ SkStrikeSpecStorage SkStrikeSpecStorage::MakeCanonicalized(
     return storage;
 }
 
-SkStrikeSpecStorage SkStrikeSpecStorage::MakeDefault() {
+SkStrikeSpec SkStrikeSpec::MakeDefault() {
     SkFont defaultFont;
     return MakeCanonicalized(defaultFont);
 }
 
-bool SkStrikeSpecStorage::ShouldDrawAsPath(
+bool SkStrikeSpec::ShouldDrawAsPath(
         const SkPaint& paint, const SkFont& font, const SkMatrix& viewMatrix) {
 
     // hairline glyphs are fast enough so we don't need to cache them
@@ -134,7 +133,7 @@ bool SkStrikeSpecStorage::ShouldDrawAsPath(
         || distance(SkMatrix::kMSkewX,  SkMatrix::kMScaleY) > maxSizeSquared;
 }
 
-SkStrikeSpecStorage SkStrikeSpecStorage::MakePDFVector(const SkTypeface& typeface, int* size) {
+SkStrikeSpec SkStrikeSpec::MakePDFVector(const SkTypeface& typeface, int* size) {
     SkFont font;
     font.setHinting(SkFontHinting::kNone);
     font.setEdging(SkFont::Edging::kAlias);
@@ -148,7 +147,7 @@ SkStrikeSpecStorage SkStrikeSpecStorage::MakePDFVector(const SkTypeface& typefac
     }
     font.setSize((SkScalar)unitsPerEm);
 
-    SkStrikeSpecStorage storage;
+    SkStrikeSpec storage;
     storage.commonSetup(font,
                         SkPaint(),
                         SkSurfaceProps(0, kUnknown_SkPixelGeometry),
@@ -159,11 +158,11 @@ SkStrikeSpecStorage SkStrikeSpecStorage::MakePDFVector(const SkTypeface& typefac
 }
 
 #if SK_SUPPORT_GPU
-std::tuple<SkStrikeSpecStorage, SkScalar, SkScalar>
-SkStrikeSpecStorage::MakeSDFT(const SkFont& font, const SkPaint& paint,
-                              const SkSurfaceProps& surfaceProps, const SkMatrix& deviceMatrix,
-                              const GrTextContext::Options& options) {
-    SkStrikeSpecStorage storage;
+std::tuple<SkStrikeSpec, SkScalar, SkScalar>
+SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
+                       const SkSurfaceProps& surfaceProps, const SkMatrix& deviceMatrix,
+                       const GrTextContext::Options& options) {
+    SkStrikeSpec storage;
 
     SkPaint dfPaint = GrTextContext::InitDistanceFieldPaint(paint);
     SkFont dfFont = GrTextContext::InitDistanceFieldFont(
@@ -182,15 +181,15 @@ SkStrikeSpecStorage::MakeSDFT(const SkFont& font, const SkPaint& paint,
     return std::tie(storage, minScale, maxScale);
 }
 
-sk_sp<GrTextStrike> SkStrikeSpecStorage::findOrCreateGrStrike(GrStrikeCache* cache) const {
+sk_sp<GrTextStrike> SkStrikeSpec::findOrCreateGrStrike(GrStrikeCache* cache) const {
     return cache->getStrike(*fAutoDescriptor.getDesc());
 }
 #endif
 
-void SkStrikeSpecStorage::commonSetup(const SkFont& font, const SkPaint& paint,
-                                      const SkSurfaceProps& surfaceProps,
-                                      SkScalerContextFlags scalerContextFlags,
-                                      const SkMatrix& deviceMatrix) {
+void SkStrikeSpec::commonSetup(const SkFont& font, const SkPaint& paint,
+                               const SkSurfaceProps& surfaceProps,
+                               SkScalerContextFlags scalerContextFlags,
+                               const SkMatrix& deviceMatrix) {
     SkScalerContextEffects effects;
 
     SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
@@ -202,12 +201,12 @@ void SkStrikeSpecStorage::commonSetup(const SkFont& font, const SkPaint& paint,
     fTypeface = font.refTypefaceOrDefault();
 }
 
-SkScopedStrike SkStrikeSpecStorage::findOrCreateScopedStrike(SkStrikeCacheInterface* cache) const {
+SkScopedStrike SkStrikeSpec::findOrCreateScopedStrike(SkStrikeCacheInterface* cache) const {
     SkScalerContextEffects effects{fPathEffect.get(), fMaskFilter.get()};
     return cache->findOrCreateScopedStrike(*fAutoDescriptor.getDesc(), effects, *fTypeface);
 }
 
-SkExclusiveStrikePtr SkStrikeSpecStorage::findOrCreateExclusiveStrike(SkStrikeCache* cache) const {
+SkExclusiveStrikePtr SkStrikeSpec::findOrCreateExclusiveStrike(SkStrikeCache* cache) const {
     SkScalerContextEffects effects{fPathEffect.get(), fMaskFilter.get()};
     return cache->findOrCreateStrikeExclusive(*fAutoDescriptor.getDesc(), effects, *fTypeface);
 }

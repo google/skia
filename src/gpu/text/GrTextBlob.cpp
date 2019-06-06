@@ -59,7 +59,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
     return blob;
 }
 
-void GrTextBlob::Run::setupFont(const SkStrikeSpecStorage& strikeSpec) {
+void GrTextBlob::Run::setupFont(const SkStrikeSpec& strikeSpec) {
 
     if (fFallbackStrikeSpec != nullptr) {
         *fFallbackStrikeSpec = strikeSpec;

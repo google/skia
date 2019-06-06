@@ -34,7 +34,7 @@ public:
 
     void onOnceBeforeDraw() final {
         SkFont defaultFont;
-        SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(defaultFont);
+        SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(defaultFont);
         auto cache = strikeSpec.findOrCreateExclusiveStrike();
         SkPath glyphPaths[52];
         for (int i = 0; i < 52; ++i) {
