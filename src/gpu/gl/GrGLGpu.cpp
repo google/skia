@@ -4075,7 +4075,7 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         GrCompression compression = GrGLFormat2Compression(*glFormat);
 
         SkTArray<size_t> individualMipOffsets(mipLevelCount);
-        size_t bytesPerPixel = GrGLBytesPerFormat(*glFormat);
+        size_t bytesPerPixel = GrBytesPerPixel(config);
 
         size_t totalSize = GrComputeTightCombinedBufferSize(compression, bytesPerPixel, w, h,
                                                             &individualMipOffsets, mipLevelCount);
@@ -4087,7 +4087,10 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         for (int i = 0; i < mipLevelCount; ++i) {
             size_t offset = individualMipOffsets[i];
 
-            texels.get()[i] = { &(tmpPixels[offset]), 0 };
+            int twoToTheMipLevel = 1 << i;
+            int currentWidth = SkTMax(1, w / twoToTheMipLevel);
+
+            texels.get()[i] = { &(tmpPixels[offset]), currentWidth*bytesPerPixel };
         }
     } else {
         SkASSERT(1 == mipLevelCount);
