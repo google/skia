@@ -2361,9 +2361,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 }
 
 bool GrGLCaps::canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARenderBuffer,
-                                  const GrTextureType* dstTypeIfTexture,
+                                  bool dstIsTextureable, bool dstIsGLTexture2D,
+                                  GrSurfaceOrigin dstOrigin,
                                   GrPixelConfig srcConfig, bool srcHasMSAARenderBuffer,
-                                  const GrTextureType* srcTypeIfTexture) const {
+                                  bool srcIsTextureable, bool srcIsGLTexture2D,
+                                  GrSurfaceOrigin srcOrigin) const {
     // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
     // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
     // many drivers would allow it to work, but ANGLE does not.
@@ -2379,15 +2381,16 @@ bool GrGLCaps::canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARender
 
     // CopyTex(Sub)Image writes to a texture and we have no way of dynamically wrapping a RT in a
     // texture.
-    if (!dstTypeIfTexture) {
+    if (!dstIsTextureable) {
         return false;
     }
 
-    // Check that we could wrap the source in an FBO, that the dst is not TEXTURE_EXTERNAL, that no
-    // mirroring is required
+    // Check that we could wrap the source in an FBO, that the dst is TEXTURE_2D, that no mirroring
+    // is required
     if (this->canConfigBeFBOColorAttachment(srcConfig) &&
-        (!srcTypeIfTexture || *srcTypeIfTexture != GrTextureType::kExternal) &&
-        *dstTypeIfTexture != GrTextureType::kExternal) {
+        (!srcIsTextureable || srcIsGLTexture2D) &&
+        dstIsGLTexture2D &&
+        dstOrigin == srcOrigin) {
         return true;
     } else {
         return false;
@@ -2395,10 +2398,11 @@ bool GrGLCaps::canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARender
 }
 
 bool GrGLCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
-                             const GrTextureType* dstTypeIfTexture,
+                             bool dstIsTextureable, bool dstIsGLTexture2D,
+                             GrSurfaceOrigin dstOrigin,
                              GrPixelConfig srcConfig, int srcSampleCnt,
-                             const GrTextureType* srcTypeIfTexture,
-                             const SkRect& srcBounds, bool srcBoundsExact,
+                             bool srcIsTextureable, bool srcIsGLTexture2D,
+                             GrSurfaceOrigin srcOrigin, const SkRect& srcBounds,
                              const SkIRect& srcRect, const SkIPoint& dstPoint) const {
     auto blitFramebufferFlags = this->blitFramebufferSupportFlags();
     if (!this->canConfigBeFBOColorAttachment(dstConfig) ||
@@ -2406,15 +2410,22 @@ bool GrGLCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
         return false;
     }
 
-    if (dstTypeIfTexture && *dstTypeIfTexture == GrTextureType::kExternal) {
+    if (dstIsTextureable && !dstIsGLTexture2D) {
         return false;
     }
-    if (srcTypeIfTexture && *srcTypeIfTexture == GrTextureType::kExternal) {
+    if (srcIsTextureable && !srcIsGLTexture2D) {
         return false;
     }
 
     if (GrGLCaps::kNoSupport_BlitFramebufferFlag & blitFramebufferFlags) {
         return false;
+    }
+    if (GrGLCaps::kNoScalingOrMirroring_BlitFramebufferFlag & blitFramebufferFlags) {
+        // We would mirror to compensate for origin changes. Note that copySurface is
+        // specified such that the src and dst rects are the same.
+        if (dstOrigin != srcOrigin) {
+            return false;
+        }
     }
 
     if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag & blitFramebufferFlags) {
@@ -2422,7 +2433,7 @@ bool GrGLCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
             if (1 == dstSampleCnt) {
                 return false;
             }
-            if (SkRect::Make(srcRect) != srcBounds || !srcBoundsExact) {
+            if (SkRect::Make(srcRect) != srcBounds) {
                 return false;
             }
         }
@@ -2449,9 +2460,16 @@ bool GrGLCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
             if (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop) {
                 return false;
             }
+            if (dstOrigin != srcOrigin) {
+                return false;
+            }
         }
     }
     return true;
+}
+
+bool GrGLCaps::canCopyAsDraw(GrPixelConfig dstConfig, bool srcIsTextureable) const {
+    return this->canConfigBeFBOColorAttachment(dstConfig) && srcIsTextureable;
 }
 
 static bool has_msaa_render_buffer(const GrSurfaceProxy* surf, const GrGLCaps& glCaps) {
@@ -2470,6 +2488,9 @@ static bool has_msaa_render_buffer(const GrSurfaceProxy* surf, const GrGLCaps& g
 
 bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                 const SkIRect& srcRect, const SkIPoint& dstPoint) const {
+    GrSurfaceOrigin dstOrigin = dst->origin();
+    GrSurfaceOrigin srcOrigin = src->origin();
+
     GrPixelConfig dstConfig = dst->config();
     GrPixelConfig srcConfig = src->config();
 
@@ -2484,7 +2505,8 @@ bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
     SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
 
-    // None of our copy methods can handle a swizzle.
+    // None of our copy methods can handle a swizzle. TODO: Make copySurfaceAsDraw handle the
+    // swizzle.
     if (this->shaderCaps()->configOutputSwizzle(src->config()) !=
         this->shaderCaps()->configOutputSwizzle(dst->config())) {
         return false;
@@ -2493,28 +2515,37 @@ bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
     const GrTextureProxy* dstTex = dst->asTextureProxy();
     const GrTextureProxy* srcTex = src->asTextureProxy();
 
-    GrTextureType dstTexType;
-    GrTextureType* dstTexTypePtr = nullptr;
-    GrTextureType srcTexType;
-    GrTextureType* srcTexTypePtr = nullptr;
-    if (dstTex) {
-        dstTexType = dstTex->textureType();
-        dstTexTypePtr = &dstTexType;
-    }
-    if (srcTex) {
-        srcTexType = srcTex->textureType();
-        srcTexTypePtr = &srcTexType;
-    }
+    bool dstIsTex2D = dstTex ? (dstTex->textureType() == GrTextureType::k2D) : false;
+    bool srcIsTex2D = srcTex ? (srcTex->textureType() == GrTextureType::k2D) : false;
 
-    return this->canCopyTexSubImage(dstConfig, has_msaa_render_buffer(dst, *this), dstTexTypePtr,
-                                    srcConfig, has_msaa_render_buffer(src, *this), srcTexTypePtr) ||
-           this->canCopyAsBlit(dstConfig, dstSampleCnt, dstTexTypePtr, srcConfig, srcSampleCnt,
-                               srcTexTypePtr, src->getBoundsRect(), src->priv().isExact(),
-                               srcRect, dstPoint);
+    // One of the possible requirements for copy as blit is that the srcRect must match the bounds
+    // of the src surface. If we have a approx fit surface we can't know for sure what the src
+    // bounds will be at this time. Thus we assert that if we say we can copy as blit and the src is
+    // approx that we also can copy as draw. Therefore when it comes time to do the copy we will
+    // know we will at least be able to do it as a draw.
+#ifdef SK_DEBUG
+    if (this->canCopyAsBlit(dstConfig, dstSampleCnt, SkToBool(dstTex),
+                            dstIsTex2D, dstOrigin, srcConfig, srcSampleCnt, SkToBool(srcTex),
+                            srcIsTex2D, srcOrigin, src->getBoundsRect(), srcRect, dstPoint) &&
+        !src->priv().isExact()) {
+        SkASSERT(this->canCopyAsDraw(dstConfig, SkToBool(srcTex)));
+    }
+#endif
+
+    return this->canCopyTexSubImage(dstConfig, has_msaa_render_buffer(dst, *this),
+                                    SkToBool(dstTex), dstIsTex2D, dstOrigin,
+                                    srcConfig, has_msaa_render_buffer(src, *this),
+                                    SkToBool(srcTex), srcIsTex2D, srcOrigin) ||
+           this->canCopyAsBlit(dstConfig, dstSampleCnt, SkToBool(dstTex),
+                               dstIsTex2D, dstOrigin, srcConfig, srcSampleCnt, SkToBool(srcTex),
+                               srcIsTex2D, srcOrigin, src->getBoundsRect(), srcRect,
+                               dstPoint) ||
+           this->canCopyAsDraw(dstConfig, SkToBool(srcTex));
 }
 
 bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                                  bool* rectsMustMatch, bool* disallowSubrect) const {
+                                  GrSurfaceOrigin* origin, bool* rectsMustMatch,
+                                  bool* disallowSubrect) const {
     // By default, we don't require rects to match.
     *rectsMustMatch = false;
 
@@ -2524,6 +2555,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     // If the src is a texture, we can implement the blit as a draw assuming the config is
     // renderable.
     if (src->asTextureProxy() && !this->isConfigRenderable(src->config())) {
+        *origin = kBottomLeft_GrSurfaceOrigin;
         desc->fFlags = kRenderTarget_GrSurfaceFlag;
         desc->fConfig = src->config();
         return true;
@@ -2544,6 +2576,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     // possible and we return false to fallback to creating a render target dst for render-to-
     // texture. This code prefers CopyTexSubImage to fbo blit and avoids triggering temporary fbo
     // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
+    GrSurfaceOrigin originForBlitFramebuffer = kTopLeft_GrSurfaceOrigin;
     bool rectsMustMatchForBlitFramebuffer = false;
     bool disallowSubrectForBlitFramebuffer = false;
     if (src->numColorSamples() > 1 &&
@@ -2551,9 +2584,14 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
         rectsMustMatchForBlitFramebuffer = true;
         disallowSubrectForBlitFramebuffer = true;
         // Mirroring causes rects to mismatch later, don't allow it.
+        originForBlitFramebuffer = src->origin();
     } else if (src->numColorSamples() > 1 && (this->blitFramebufferSupportFlags() &
                                               kRectsMustMatchForMSAASrc_BlitFramebufferFlag)) {
         rectsMustMatchForBlitFramebuffer = true;
+        // Mirroring causes rects to mismatch later, don't allow it.
+        originForBlitFramebuffer = src->origin();
+    } else if (this->blitFramebufferSupportFlags() & kNoScalingOrMirroring_BlitFramebufferFlag) {
+        originForBlitFramebuffer = src->origin();
     }
 
     // Check for format issues with glCopyTexSubImage2D
@@ -2561,6 +2599,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
         // glCopyTexSubImage2D doesn't work with this config. If the bgra can be used with fbo blit
         // then we set up for that, otherwise fail.
         if (this->canConfigBeFBOColorAttachment(kBGRA_8888_GrPixelConfig)) {
+            *origin = originForBlitFramebuffer;
             desc->fConfig = kBGRA_8888_GrPixelConfig;
             *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
             *disallowSubrect = disallowSubrectForBlitFramebuffer;
@@ -2576,6 +2615,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
             // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO
             // blit or fail.
             if (this->canConfigBeFBOColorAttachment(src->config())) {
+                *origin = originForBlitFramebuffer;
                 desc->fConfig = src->config();
                 *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
                 *disallowSubrect = disallowSubrectForBlitFramebuffer;
@@ -2586,6 +2626,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     }
 
     // We'll do a CopyTexSubImage. Make the dst a plain old texture.
+    *origin = src->origin();
     desc->fConfig = src->config();
     desc->fFlags = kNone_GrSurfaceFlags;
     return true;

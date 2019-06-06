@@ -15,7 +15,6 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTextureContext.h"
 #include "src/gpu/SkGr.h"

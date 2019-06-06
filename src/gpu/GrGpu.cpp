@@ -222,8 +222,10 @@ sk_sp<GrGpuBuffer> GrGpu::createBuffer(size_t size, GrGpuBufferType intendedType
     return buffer;
 }
 
-bool GrGpu::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                        const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) {
+bool GrGpu::copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                        GrSurface* src, GrSurfaceOrigin srcOrigin,
+                        const SkIRect& srcRect, const SkIPoint& dstPoint,
+                        bool canDiscardOutsideDstRect) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrGpu", "copySurface", fContext);
     SkASSERT(dst && src);
 
@@ -233,7 +235,8 @@ bool GrGpu::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
 
     this->handleDirtyContext();
 
-    return this->onCopySurface(dst, src, srcRect, dstPoint, canDiscardOutsideDstRect);
+    return this->onCopySurface(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint,
+                               canDiscardOutsideDstRect);
 }
 
 bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int height,

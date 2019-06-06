@@ -112,17 +112,31 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
 
     sk_sp<GrSurfaceProxy> proxy = this->asTextureProxyRef(context);
 
-    sk_sp<GrTextureProxy> copyProxy = GrSurfaceProxy::Copy(
-            context, proxy.get(), GrMipMapped::kNo, subset, SkBackingFit::kExact,
-            proxy->isBudgeted());
+    GrSurfaceDesc desc;
+    desc.fWidth = subset.width();
+    desc.fHeight = subset.height();
+    desc.fConfig = proxy->config();
 
-    if (!copyProxy) {
+    GrBackendFormat format = proxy->backendFormat().makeTexture2D();
+    if (!format.isValid()) {
+        return nullptr;
+    }
+
+    // TODO: Should this inherit our proxy's budgeted status?
+    sk_sp<GrSurfaceContext> sContext(context->priv().makeDeferredSurfaceContext(
+            format, desc, proxy->origin(), GrMipMapped::kNo, SkBackingFit::kExact,
+            proxy->isBudgeted()));
+    if (!sContext) {
+        return nullptr;
+    }
+
+    if (!sContext->copy(proxy.get(), subset, SkIPoint::Make(0, 0))) {
         return nullptr;
     }
 
     // MDB: this call is okay bc we know 'sContext' was kExact
     return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, this->alphaType(),
-                                   std::move(copyProxy), this->refColorSpace());
+                                   sContext->asTextureProxyRef(), this->refColorSpace());
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
