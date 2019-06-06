@@ -5,49 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/effects/SkGradientShader.h"
-#include "samplecode/Sample.h"
-#include "src/core/SkMakeUnique.h"
-
-static sk_sp<SkShader> make_grad(SkScalar w, SkScalar h) {
-    SkColor colors[] = { 0xFF000000, 0xFF333333 };
-    SkPoint pts[] = { { 0, 0 }, { w, h } };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
-}
-
-class BigGradientView : public Sample {
-public:
-    BigGradientView() {}
-
-protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "BigGradient");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
-        SkRect r;
-        r.set(0, 0, this->width(), this->height());
-        SkPaint p;
-        p.setShader(make_grad(this->width(), this->height()));
-        canvas->drawRect(r, p);
-    }
-
-private:
-    typedef Sample INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-DEF_SAMPLE( return new BigGradientView(); )
-
-///////////////////////////////////////////////////////////////////////////////
-
+#include "include/core/SkPixmap.h"
 #include "include/core/SkRasterHandleAllocator.h"
+#include "src/core/SkMakeUnique.h"
 
 class GraphicsPort {
 protected:
@@ -148,7 +111,9 @@ public:
 #define MyPort CGGraphicsPort
 #define MyAllocator Allocator_CG
 
-#elif defined(WIN32)
+#elif defined(SK_BUILD_FOR_WIN)
+
+#include "src/core/SkLeanWindows.h"
 
 static RECT toRECT(const SkIRect& r) {
     return { r.left(), r.top(), r.right(), r.bottom() };
@@ -171,13 +136,6 @@ public:
         fCanvas->drawRect(r, paint);
     }
 };
-
-static void DeleteHDCCallback(void*, void* context) {
-    HDC hdc = static_cast<HDC>(context);
-    HBITMAP hbitmap = static_cast<HBITMAP>(SelectObject(hdc, nullptr));
-    DeleteObject(hbitmap);
-    DeleteDC(hdc);
-}
 
 // We use this static factory function instead of the regular constructor so
 // that we can create the pixel data before calling the constructor. This is
@@ -210,10 +168,20 @@ static bool Create(int width, int height, bool is_opaque, SkRasterHandleAllocato
         return false;
     }
     SetGraphicsMode(hdc, GM_ADVANCED);
-    SelectObject(hdc, hbitmap);
+    HGDIOBJ origBitmap = SelectObject(hdc, hbitmap);
 
-    rec->fReleaseProc = DeleteHDCCallback;
-    rec->fReleaseCtx = hdc;
+    struct ReleaseContext {
+        HDC hdc;
+        HGDIOBJ hbitmap;
+    };
+    rec->fReleaseProc = [](void*, void* context) {
+        ReleaseContext* ctx = static_cast<ReleaseContext*>(context);
+        HBITMAP hbitmap = static_cast<HBITMAP>(SelectObject(ctx->hdc, ctx->hbitmap));
+        DeleteObject(hbitmap);
+        DeleteDC(ctx->hdc);
+        delete ctx;
+    };
+    rec->fReleaseCtx = new ReleaseContext{hdc, origBitmap};
     rec->fPixels = pixels;
     rec->fRowBytes = row_bytes;
     rec->fHandle = hdc;
@@ -259,20 +227,8 @@ public:
 #endif
 
 #ifdef MyAllocator
-class RasterAllocatorSample : public Sample {
-public:
-    RasterAllocatorSample() {}
-
-protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "raster-allocator");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
-    void doDraw(GraphicsPort* port) {
+DEF_SIMPLE_GM(rasterallocator, canvas, 600, 300) {
+    auto doDraw = [](GraphicsPort* port) {
         SkAutoCanvasRestore acr(port->peekCanvas(), true);
 
         port->drawRect({0, 0, 256, 256}, SK_ColorRED);
@@ -288,27 +244,22 @@ protected:
 
         port->clip({150, 50, 200, 200});
         port->drawRect({0, 0, 256, 256}, 0xFFCCCCCC);
-    }
+    };
 
-    void onDrawContent(SkCanvas* canvas) override {
-        GraphicsPort skp(canvas);
-        doDraw(&skp);
+    GraphicsPort skp(canvas);
+    doDraw(&skp);
 
-        const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-        std::unique_ptr<SkCanvas> c2 =
-            SkRasterHandleAllocator::MakeCanvas(skstd::make_unique<MyAllocator>(), info);
-        MyPort cgp(c2.get());
-        doDraw(&cgp);
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
+    std::unique_ptr<SkCanvas> c2 =
+        SkRasterHandleAllocator::MakeCanvas(skstd::make_unique<MyAllocator>(), info);
+    MyPort cgp(c2.get());
+    doDraw(&cgp);
 
-        SkPixmap pm;
-        c2->peekPixels(&pm);
-        SkBitmap bm;
-        bm.installPixels(pm);
-        canvas->drawBitmap(bm, 280, 0, nullptr);
-    }
+    SkPixmap pm;
+    c2->peekPixels(&pm);
+    SkBitmap bm;
+    bm.installPixels(pm);
+    canvas->drawBitmap(bm, 280, 0, nullptr);
 
-private:
-    typedef Sample INHERITED;
-};
-DEF_SAMPLE( return new RasterAllocatorSample; )
+}
 #endif

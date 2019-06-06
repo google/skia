@@ -283,6 +283,7 @@ gm_sources = [
   "$_gm/postercircle.cpp",
   "$_gm/quadpaths.cpp",
   "$_gm/radial_gradient_precision.cpp",
+  "$_gm/rasterhandleallocator.cpp",
   "$_gm/readpixels.cpp",
   "$_gm/recordopts.cpp",
   "$_gm/rectangletexture.cpp",
