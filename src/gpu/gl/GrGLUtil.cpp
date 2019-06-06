@@ -634,6 +634,11 @@ size_t GrGLBytesPerFormat(GrGLenum glFormat) {
         case GR_GL_COMPRESSED_ETC1_RGB8:
             return 0;
 
+        // lameness
+        case GR_GL_BGRA:
+        case GR_GL_RGBA:
+            return 4;
+
         // Experimental (for P016 and P010)
         case GR_GL_R16:
             return 2;
