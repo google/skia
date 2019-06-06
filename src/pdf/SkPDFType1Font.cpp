@@ -300,7 +300,7 @@ void SkPDFEmitType1Font(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     font.insertInt("LastChar", (size_t)glyphCount);
     {
         int emSize;
-        SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakePDFVector(*typeface, &emSize);
+        SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(*typeface, &emSize);
         auto glyphCache = strikeSpec.findOrCreateExclusiveStrike();
         auto widths = SkPDFMakeArray();
 

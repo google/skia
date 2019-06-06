@@ -22,11 +22,10 @@ class SkPaint;
 class SkStrikeCache;
 class SkSurfaceProps;
 
-// TODO: rename to SkStrikeSpec when the current SkStrikeSpec is remove from the code.
-class SkStrikeSpecStorage {
+class SkStrikeSpec {
 public:
     // Create a strike spec for mask style cache entries.
-    static SkStrikeSpecStorage MakeMask(
+    static SkStrikeSpec MakeMask(
             const SkFont& font,
             const SkPaint& paint,
             const SkSurfaceProps& surfaceProps,
@@ -34,31 +33,31 @@ public:
             const SkMatrix& deviceMatrix);
 
     // Create a strike spec for path style cache entries.
-    static SkStrikeSpecStorage MakePath(
+    static SkStrikeSpec MakePath(
             const SkFont& font,
             const SkPaint& paint,
             const SkSurfaceProps& surfaceProps,
             SkScalerContextFlags scalerContextFlags);
 
-    static SkStrikeSpecStorage MakeSourceFallback(const SkFont& font,
+    static SkStrikeSpec MakeSourceFallback(const SkFont& font,
                                                   const SkPaint& paint,
                                                   const SkSurfaceProps& surfaceProps,
                                                   SkScalerContextFlags scalerContextFlags,
                                                   SkScalar maxSourceGlyphDimension);
 
     // Create a canonical strike spec for device-less measurements.
-    static SkStrikeSpecStorage MakeCanonicalized(
+    static SkStrikeSpec MakeCanonicalized(
             const SkFont& font, const SkPaint* paint = nullptr);
 
     // Make a canonical strike spec for device-less measurements using default typeface and size.
-    static SkStrikeSpecStorage MakeDefault();
+    static SkStrikeSpec MakeDefault();
 
     // Make a strike spec for PDF Vector strikes
-    static SkStrikeSpecStorage MakePDFVector(const SkTypeface& typeface, int* size);
+    static SkStrikeSpec MakePDFVector(const SkTypeface& typeface, int* size);
 
 #if SK_SUPPORT_GPU
     // Create a strike spec for scaled distance field text.
-    static std::tuple<SkStrikeSpecStorage, SkScalar, SkScalar> MakeSDFT(
+    static std::tuple<SkStrikeSpec, SkScalar, SkScalar> MakeSDFT(
             const SkFont& font,
             const SkPaint& paint,
             const SkSurfaceProps& surfaceProps,

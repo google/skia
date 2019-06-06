@@ -451,7 +451,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, 
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(0);
     REPORTER_ASSERT(reporter,
-            SkStrikeSpecStorage::ShouldDrawAsPath(paint, SkFont(), SkMatrix::I()));
+            SkStrikeSpec::ShouldDrawAsPath(paint, SkFont(), SkMatrix::I()));
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
@@ -492,7 +492,7 @@ sk_sp<SkTextBlob> make_blob_causing_fallback(
     font.setTypeface(targetTf);
 
     REPORTER_ASSERT(reporter,
-            !SkStrikeSpecStorage::ShouldDrawAsPath(SkPaint(), font, SkMatrix::I()));
+            !SkStrikeSpec::ShouldDrawAsPath(SkPaint(), font, SkMatrix::I()));
 
     char s[] = "Skia";
     int runSize = strlen(s);

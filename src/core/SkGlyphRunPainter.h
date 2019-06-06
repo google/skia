@@ -21,7 +21,7 @@ class GrRenderTargetContext;
 #endif
 
 class SkGlyphRunPainterInterface;
-class SkStrikeSpecStorage;
+class SkStrikeSpec;
 
 class SkStrikeCommon {
 public:
@@ -143,26 +143,26 @@ public:
     virtual void startRun(const SkGlyphRun& glyphRun, bool useSDFT) = 0;
 
     virtual void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
-                                    const SkStrikeSpecStorage& strikeSpec) = 0;
+                                    const SkStrikeSpec& strikeSpec) = 0;
 
     virtual void processSourcePaths(SkSpan<const SkGlyphPos> paths,
-                                    const SkStrikeSpecStorage& strikeSpec) = 0;
+                                    const SkStrikeSpec& strikeSpec) = 0;
 
     virtual void processDevicePaths(SkSpan<const SkGlyphPos> paths) = 0;
 
     virtual void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
-                                   const SkStrikeSpecStorage& strikeSpec,
+                                   const SkStrikeSpec& strikeSpec,
                                    const SkFont& runFont,
                                    SkScalar minScale,
                                    SkScalar maxScale,
                                    bool hasWCoord) = 0;
 
     virtual void processSourceFallback(SkSpan<const SkGlyphPos> masks,
-                                       const SkStrikeSpecStorage& strikeSpec,
+                                       const SkStrikeSpec& strikeSpec,
                                        bool hasW) = 0;
 
     virtual void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
-                                       const SkStrikeSpecStorage& strikeSpec) = 0;
+                                       const SkStrikeSpec& strikeSpec) = 0;
 
 };
 

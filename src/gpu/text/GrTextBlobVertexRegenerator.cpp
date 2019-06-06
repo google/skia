@@ -164,7 +164,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     if (regenTexCoords) {
         fSubRun->resetBulkUseToken();
 
-        const SkStrikeSpecStorage& strikeSpec = fSubRun->strikeSpec();
+        const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
 
         if (!*fLazyStrike || (*fLazyStrike)->getDescriptor() != strikeSpec.descriptor()) {
             *fLazyStrike =
