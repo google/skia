@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "125823bf_0234512c",
+        "filename": "modules/skparagraph/src/TextWrapper.h",
+        "patchSetId": 50
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T20:16:58Z",
+      "side": 1,
+      "message": "Just to avoid issues in the future, I think we prefer always putting braces after conditionals (it can all stay on one line, just add braces around the statement.",
+      "range": {
+        "startLine": 41,
+        "startChar": 41,
+        "endLine": 41,
+        "endChar": 64
+      },
+      "revId": "4bf2ea96a6483302aaf4f42a728bb14b3b448c32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
