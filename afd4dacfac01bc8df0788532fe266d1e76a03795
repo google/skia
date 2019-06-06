@@ -22,6 +22,30 @@
       "revId": "afd4dacfac01bc8df0788532fe266d1e76a03795",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aea54120_7f564262",
+        "filename": "src/core/SkStrikeSpec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-06T17:31:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd3cfae9_888fb156",
+      "range": {
+        "startLine": 28,
+        "startChar": 36,
+        "endLine": 28,
+        "endChar": 50
+      },
+      "revId": "afd4dacfac01bc8df0788532fe266d1e76a03795",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
