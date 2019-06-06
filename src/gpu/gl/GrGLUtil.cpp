@@ -573,6 +573,18 @@ bool GrGLFormatIsCompressed(GrGLenum glFormat) {
     return false;
 }
 
+GrCompression GrGLFormat2Compression(GrGLenum glFormat) {
+    switch (glFormat) {
+        case GR_GL_COMPRESSED_RGB8_ETC2: // fall through
+        case GR_GL_COMPRESSED_ETC1_RGB8:
+            return GrCompression::kETC1;
+        default:
+            return GrCompression::kNone;
+    }
+    SK_ABORT("Invalid format");
+    return GrCompression::kNone;
+}
+
 size_t GrGLFormatCompressedDataSize(GrGLenum glFormat, int width, int height) {
     SkASSERT(GrGLFormatIsCompressed(glFormat));
 
@@ -589,3 +601,40 @@ size_t GrGLFormatCompressedDataSize(GrGLenum glFormat, int width, int height) {
     return 4 * width * height;
 }
 
+size_t GrGLBytesPerFormat(GrGLenum glFormat) {
+    switch (glFormat) {
+        case GR_GL_LUMINANCE8:
+        case GR_GL_ALPHA8:
+        case GR_GL_R8:
+            return 1;
+
+        case GR_GL_RGB565:
+        case GR_GL_RGBA4:
+        case GR_GL_RG8:
+        case GR_GL_R16F:
+            return 2;
+
+        case GR_GL_RGB8:
+            return 3;
+
+        case GR_GL_RGBA8:
+        case GR_GL_SRGB8_ALPHA8:
+        case GR_GL_BGRA8:
+        case GR_GL_RGB10_A2:
+            return 4;
+
+        case GR_GL_RGBA16F:
+        case GR_GL_RG32F:
+            return 8;
+
+        case GR_GL_RGBA32F:
+            return 16;
+
+        case GR_GL_COMPRESSED_RGB8_ETC2: // fall through
+        case GR_GL_COMPRESSED_ETC1_RGB8:
+            return 0;
+    }
+
+    SK_ABORT("Invalid GL format");
+    return 0;
+}

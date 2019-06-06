@@ -117,7 +117,8 @@ size_t GrETC1CompressedDataSize(int width, int height) {
     return numBlocks * sizeof(ETC1Block);
 }
 
-void GrFillInETC1WithColor(int width, int height, const SkColor4f& colorf, void* dest) {
+// Fill in 'dest' with ETC1 blocks derived from 'colorf'
+static void fillin_ETC1_with_color(int width, int height, const SkColor4f& colorf, void* dest) {
     SkColor color = colorf.toSkColor();
 
     ETC1Block block;
@@ -130,8 +131,9 @@ void GrFillInETC1WithColor(int width, int height, const SkColor4f& colorf, void*
     }
 }
 
-bool GrFillBufferWithColor(GrPixelConfig config, int width, int height,
-                           const SkColor4f& colorf, void* dest) {
+// Fill in the width x height 'dest' with the munged version of 'colorf' that matches 'config'
+static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
+                                   const SkColor4f& colorf, void* dest) {
     SkASSERT(kRGB_ETC1_GrPixelConfig != config);
 
     GrColor color = colorf.toBytes_RGBA();
@@ -267,3 +269,78 @@ bool GrFillBufferWithColor(GrPixelConfig config, int width, int height,
 
     return true;
 }
+
+size_t GrComputeTightCombinedBufferSize(GrCompression compression, size_t bytesPerPixel,
+                                        int baseWidth, int baseHeight,
+                                        SkTArray<size_t>* individualMipOffsets,
+                                        int mipLevelCount) {
+    SkASSERT(individualMipOffsets && !individualMipOffsets->count());
+    SkASSERT(mipLevelCount >= 1);
+
+    individualMipOffsets->push_back(0);
+
+    size_t combinedBufferSize = baseWidth * bytesPerPixel * baseHeight;
+    if (GrCompression::kETC1 == compression) {
+        SkASSERT(0 == bytesPerPixel);
+        bytesPerPixel = 4; // munge Bpp to make the following code work (and not assert)
+        combinedBufferSize = GrETC1CompressedDataSize(baseWidth, baseHeight);
+    }
+
+    int currentWidth = baseWidth;
+    int currentHeight = baseHeight;
+
+    // The Vulkan spec for copying a buffer to an image requires that the alignment must be at
+    // least 4 bytes and a multiple of the bytes per pixel of the image config.
+    SkASSERT(bytesPerPixel == 1 || bytesPerPixel == 2 || bytesPerPixel == 3 ||
+             bytesPerPixel == 4 || bytesPerPixel == 8 || bytesPerPixel == 16);
+    int desiredAlignment = (bytesPerPixel == 3) ? 12 : (bytesPerPixel > 4 ? bytesPerPixel : 4);
+
+    for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; ++currentMipLevel) {
+        currentWidth = SkTMax(1, currentWidth / 2);
+        currentHeight = SkTMax(1, currentHeight / 2);
+
+        size_t trimmedSize;
+        if (GrCompression::kETC1 == compression) {
+            trimmedSize = GrETC1CompressedDataSize(currentWidth, currentHeight);
+        } else {
+            trimmedSize = currentWidth * bytesPerPixel * currentHeight;
+        }
+        const size_t alignmentDiff = combinedBufferSize % desiredAlignment;
+        if (alignmentDiff != 0) {
+            combinedBufferSize += desiredAlignment - alignmentDiff;
+        }
+        SkASSERT((0 == combinedBufferSize % 4) && (0 == combinedBufferSize % bytesPerPixel));
+
+        individualMipOffsets->push_back(combinedBufferSize);
+        combinedBufferSize += trimmedSize;
+    }
+
+    SkASSERT(individualMipOffsets->count() == mipLevelCount);
+    return combinedBufferSize;
+}
+
+void GrFillInData(GrCompression compression, GrPixelConfig config,
+                  int baseWidth, int baseHeight,
+                  const SkTArray<size_t>& individualMipOffsets, char* dstPixels,
+                  const SkColor4f& colorf) {
+
+    int mipLevels = individualMipOffsets.count();
+
+    int currentWidth = baseWidth;
+    int currentHeight = baseHeight;
+    for (int currentMipLevel = 0; currentMipLevel < mipLevels; ++currentMipLevel) {
+        size_t offset = individualMipOffsets[currentMipLevel];
+
+        if (GrCompression::kETC1 == compression) {
+            // TODO: compute the ETC1 block for 'colorf' just once
+            fillin_ETC1_with_color(currentWidth, currentHeight, colorf, &(dstPixels[offset]));
+        } else {
+            fill_buffer_with_color(config, currentWidth, currentHeight, colorf,
+                                   &(dstPixels[offset]));
+        }
+
+        currentWidth = SkTMax(1, currentWidth / 2);
+        currentHeight = SkTMax(1, currentHeight / 2);
+    }
+}
+
