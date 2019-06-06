@@ -633,6 +633,11 @@ size_t GrGLBytesPerFormat(GrGLenum glFormat) {
         case GR_GL_COMPRESSED_RGB8_ETC2: // fall through
         case GR_GL_COMPRESSED_ETC1_RGB8:
             return 0;
+
+        // lameness
+        case GR_GL_BGRA:
+        case GR_GL_RGBA:
+            return 4;
     }
 
     SK_ABORT("Invalid GL format");
