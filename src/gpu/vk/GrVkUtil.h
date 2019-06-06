@@ -12,7 +12,6 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/GrColor.h"
 #include "include/private/SkMacros.h"
-#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/vk/GrVkInterface.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
@@ -71,10 +70,5 @@ bool GrVkFormatIsCompressed(VkFormat);
  * Returns the data size for the given compressed format
  */
 size_t GrVkFormatCompressedDataSize(VkFormat, int width, int height);
-
-/**
- * Maps a vk format into the GrCompressed enum.
- */
-GrCompression GrVkFormat2Compression(VkFormat);
 
 #endif
