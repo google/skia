@@ -12,6 +12,10 @@
 #if defined(SK_BUILD_FOR_WIN)
     #include <intrin.h>
 #endif
+#if defined(SKVM_JIT)
+    #define XBYAK_NO_OP_NAMES
+    #include "xbyak/xbyak.h"
+#endif
 
 namespace skvm {
 
@@ -343,7 +347,14 @@ namespace skvm {
 
     // ~~~~ Program::eval() and co. ~~~~ //
 
+    #if defined(SKVM_JIT)
+
+    #endif
+
     void Program::eval(int n, void* args[], size_t strides[], int nargs) const {
+    #if defined(SKVM_JIT)
+
+    #endif
         SkOpts::eval(fInstructions.data(), (int)fInstructions.size(), fRegs, fLoop,
                      n, args, strides, nargs);
     }
