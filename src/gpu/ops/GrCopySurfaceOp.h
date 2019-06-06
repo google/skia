@@ -45,11 +45,9 @@ public:
 private:
     friend class GrOpMemoryPool; // for ctor
 
-    GrCopySurfaceOp(GrSurfaceProxy* src, GrSurfaceProxy* dst, const SkIRect& srcRect,
-                    const SkIPoint& dstPoint)
+    GrCopySurfaceOp(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint)
             : INHERITED(ClassID())
             , fSrc(src)
-            , fDst(dst)
             , fSrcRect(srcRect)
             , fDstPoint(dstPoint) {
         SkRect bounds =
@@ -63,7 +61,6 @@ private:
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType>  fSrc;
-    GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fDst;
     SkIRect                                              fSrcRect;
     SkIPoint                                             fDstPoint;
 

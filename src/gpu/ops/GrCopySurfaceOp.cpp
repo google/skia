@@ -11,7 +11,57 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/geometry/GrRect.h"
+
+// returns true if the read/written rect intersects the src/dst and false if not.
+static bool clip_src_rect_and_dst_point(const GrSurfaceProxy* dst,
+                                        const GrSurfaceProxy* src,
+                                        const SkIRect& srcRect,
+                                        const SkIPoint& dstPoint,
+                                        SkIRect* clippedSrcRect,
+                                        SkIPoint* clippedDstPoint) {
+    *clippedSrcRect = srcRect;
+    *clippedDstPoint = dstPoint;
+
+    // clip the left edge to src and dst bounds, adjusting dstPoint if necessary
+    if (clippedSrcRect->fLeft < 0) {
+        clippedDstPoint->fX -= clippedSrcRect->fLeft;
+        clippedSrcRect->fLeft = 0;
+    }
+    if (clippedDstPoint->fX < 0) {
+        clippedSrcRect->fLeft -= clippedDstPoint->fX;
+        clippedDstPoint->fX = 0;
+    }
+
+    // clip the top edge to src and dst bounds, adjusting dstPoint if necessary
+    if (clippedSrcRect->fTop < 0) {
+        clippedDstPoint->fY -= clippedSrcRect->fTop;
+        clippedSrcRect->fTop = 0;
+    }
+    if (clippedDstPoint->fY < 0) {
+        clippedSrcRect->fTop -= clippedDstPoint->fY;
+        clippedDstPoint->fY = 0;
+    }
+
+    // clip the right edge to the src and dst bounds.
+    if (clippedSrcRect->fRight > src->width()) {
+        clippedSrcRect->fRight = src->width();
+    }
+    if (clippedDstPoint->fX + clippedSrcRect->width() > dst->width()) {
+        clippedSrcRect->fRight = clippedSrcRect->fLeft + dst->width() - clippedDstPoint->fX;
+    }
+
+    // clip the bottom edge to the src and dst bounds.
+    if (clippedSrcRect->fBottom > src->height()) {
+        clippedSrcRect->fBottom = src->height();
+    }
+    if (clippedDstPoint->fY + clippedSrcRect->height() > dst->height()) {
+        clippedSrcRect->fBottom = clippedSrcRect->fTop + dst->height() - clippedDstPoint->fY;
+    }
+
+    // The above clipping steps may have inverted the rect if it didn't intersect either the src or
+    // dst bounds.
+    return !clippedSrcRect->isEmpty();
+}
 
 std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrRecordingContext* context,
                                             GrSurfaceProxy* dstProxy,
@@ -23,54 +73,22 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrRecordingContext* context,
     SkIRect clippedSrcRect;
     SkIPoint clippedDstPoint;
     // If the rect is outside the srcProxy or dstProxy then we've already succeeded.
-    if (!GrClipSrcRectAndDstPoint(dstProxy->isize(), srcProxy->isize(), srcRect, dstPoint,
-                                  &clippedSrcRect, &clippedDstPoint)) {
+    if (!clip_src_rect_and_dst_point(dstProxy, srcProxy, srcRect, dstPoint,
+                                     &clippedSrcRect, &clippedDstPoint)) {
         return nullptr;
     }
     if (GrPixelConfigIsCompressed(dstProxy->config())) {
         return nullptr;
     }
 
-    SkASSERT(dstProxy->origin() == srcProxy->origin());
-    SkIRect adjSrcRect;
-    adjSrcRect.fLeft = clippedSrcRect.fLeft;
-    adjSrcRect.fRight = clippedSrcRect.fRight;
-    SkIPoint adjDstPoint;
-    adjDstPoint.fX = clippedDstPoint.fX;
-
-    // If it is bottom left origin we must flip the rects.
-    SkASSERT(dstProxy->origin() == srcProxy->origin());
-    if (kBottomLeft_GrSurfaceOrigin == srcProxy->origin()) {
-        adjSrcRect.fTop = srcProxy->height() - clippedSrcRect.fBottom;
-        adjSrcRect.fBottom = srcProxy->height() - clippedSrcRect.fTop;
-        adjDstPoint.fY = dstProxy->height() - clippedDstPoint.fY - clippedSrcRect.height();
-    } else {
-        adjSrcRect.fTop = clippedSrcRect.fTop;
-        adjSrcRect.fBottom = clippedSrcRect.fBottom;
-        adjDstPoint.fY = clippedDstPoint.fY;
-    }
-
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
-    return pool->allocate<GrCopySurfaceOp>(srcProxy, dstProxy, adjSrcRect, adjDstPoint);
+    return pool->allocate<GrCopySurfaceOp>(srcProxy, clippedSrcRect, clippedDstPoint);
 }
 
 void GrCopySurfaceOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     SkASSERT(fSrc.get()->isInstantiated());
 
-    // If we are using approx surfaces we may need to adjust our srcRect or dstPoint if the origin
-    // is bottom left.
-    GrSurfaceProxy* src = fSrc.get();
-    if (src->origin() == kBottomLeft_GrSurfaceOrigin) {
-        GrSurfaceProxy* dst = fDst.get();
-        SkASSERT(dst->isInstantiated());
-        if (src->height() != src->peekSurface()->height()) {
-            fSrcRect.offset(0, src->peekSurface()->height() - src->height());
-        }
-        if (dst->height() != dst->peekSurface()->height()) {
-            fDstPoint.fY = fDstPoint.fY + (dst->peekSurface()->height() - dst->height());
-        }
-    }
-
-    state->commandBuffer()->copy(fSrc.get()->peekSurface(), fSrcRect, fDstPoint);
+    state->commandBuffer()->copy(fSrc.get()->peekSurface(), fSrc.get()->origin(), fSrcRect,
+                                 fDstPoint);
 }
