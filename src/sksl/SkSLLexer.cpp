@@ -1034,4 +1034,4 @@ Token Lexer::next() {
     return Token(kind, startOffset, fOffset - startOffset);
 }
 
-}  // namespace SkSL
+}  // namespace

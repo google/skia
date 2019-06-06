@@ -28,7 +28,7 @@ public:
         (void)mode;
         fragBuilder->codeAppendf(
                 "half factor = 1.0 - %s.w;\n@switch (%d) {\n    case 0:\n        factor = "
-                "exp((-factor * factor) * 4.0) - 0.017999999999999999;\n        break;\n    case "
+                "exp((-factor * factor) * 4.0) - 0.017999999225139618;\n        break;\n    case "
                 "1:\n        factor = smoothstep(1.0, 0.0, factor);\n        break;\n}\n%s = "
                 "half4(factor);\n",
                 args.fInputColor, (int)_outer.mode, args.fOutputColor);

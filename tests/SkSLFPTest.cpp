@@ -6,6 +6,7 @@
  */
 
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLStringStream.h"
 
 #include "tests/Test.h"
 
