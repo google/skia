@@ -127,9 +127,13 @@ def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
 
   Raises an exception if any calls to git fail.
   """
+  def is_hash(s):
+    return len(s) == 40 and all(c in '0123456789abcdef' for c in s)
+
   if not os.path.isdir(directory):
     subprocess.check_call(
-      [git, 'clone', '--quiet', repo, directory])
+      [git, 'clone', '--quiet', '--no-checkout', '--depth', '1',
+       repo, directory])
 
   if not is_git_toplevel(git, directory):
     # if the directory exists, but isn't a git repo, you will modify
@@ -157,9 +161,18 @@ def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
   subprocess.check_call(
       [git, 'remote', 'set-url', 'origin', repo], cwd=directory)
 
-  subprocess.check_call([git, 'fetch', '--quiet'], cwd=directory)
-
-  subprocess.check_call([git, 'checkout', '--quiet', checkoutable], cwd=directory)
+  if is_hash(checkoutable):
+    subprocess.check_call(
+        [git, 'fetch', '--quiet', '--depth', '1', 'origin', checkoutable],
+        cwd=directory)
+    subprocess.check_call([git, 'checkout', '--quiet', checkoutable],
+        cwd=directory)
+  else:
+    subprocess.check_call(
+        [git, 'fetch', '--quiet', '--depth', '1', '--tags', 'origin', checkoutable],
+        cwd=directory)
+    subprocess.check_call([git, 'checkout', '--quiet', 'FETCH_HEAD'],
+        cwd=directory)
 
   if verbose:
     status(directory, checkoutable)  # Success.
@@ -206,7 +219,7 @@ def git_sync_deps(deps_file_path, command_line_os_requests, verbose):
   for directory in sorted(dependencies):
     if not isinstance(dependencies[directory], basestring):
       if verbose:
-        print 'Skipping "%s".' % directory
+        sys.stderr.write('Skipping "%s".\n' % directory)
       continue
     if '@' in dependencies[directory]:
       repo, checkoutable = dependencies[directory].split('@', 1)
