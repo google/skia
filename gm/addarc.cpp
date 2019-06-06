@@ -305,3 +305,267 @@ DEF_SIMPLE_GM(tinyanglearcs, canvas, 620, 330) {
             canvas->translate(20, 0);
         }
 }
+
+class XformResolver {
+public:
+    virtual void concat(const SkMatrix&) = 0;
+    virtual void clipRect(const SkRect&, SkClipOp) = 0;
+    virtual void clipRRect(const SkRRect&, SkClipOp) = 0;
+    virtual void clipPath(const SkPath&, SkClipOp) = 0;
+};
+
+class Xform : public SkRefCnt {
+public:
+    Xform* parent() const { return fParent.get(); }
+    void setParent(sk_sp<Xform> p) {
+        fParent = std::move(p);
+    }
+
+    void visit(XformResolver* resolver) {
+        constexpr int kPreAllocated = 32;   // each is small: just a pointer
+        constexpr bool kCanMemMove = true;  // since each is just a pointer
+        SkSTArray<kPreAllocated, Xform*, kCanMemMove> stack;
+
+        for (Xform* xform = this; xform; xform = xform->parent()) {
+            stack.push_back(xform);
+        }
+        for (int i = stack.count() - 1; i >= 0; --i) {
+            stack[i]->onVisit(resolver);
+        }
+    }
+
+protected:
+    Xform(sk_sp<Xform> parent = nullptr) : fParent(std::move(parent)) {}
+
+    virtual void onVisit(XformResolver*) {}
+
+private:
+    sk_sp<Xform> fParent;
+};
+
+class MatrixXF : public Xform {
+public:
+    static sk_sp<MatrixXF> Make(sk_sp<Xform> parent = nullptr) {
+        return sk_sp<MatrixXF>(new MatrixXF(std::move(parent)));
+    }
+
+    MatrixXF(sk_sp<Xform> parent) : Xform(std::move(parent)) {
+        fLocalMatrix.reset();
+    }
+
+    void setLocalMatrix(const SkMatrix& m) {
+        fLocalMatrix = m;
+    }
+    void setTranslate(SkScalar sx, SkScalar sy) {
+        fLocalMatrix.setTranslate(sx, sy);
+    }
+    void setScale(SkScalar sx, SkScalar sy) {
+        fLocalMatrix.setScale(sx, sy);
+    }
+    void setRotate(SkScalar degrees) {
+        fLocalMatrix.setRotate(degrees);
+    }
+
+protected:
+    void onVisit(XformResolver* resolver) override {
+        resolver->concat(fLocalMatrix);
+    }
+
+private:
+    SkMatrix fLocalMatrix;
+};
+
+class ClipXF : public Xform {
+public:
+    ClipXF(sk_sp<Xform> parent = nullptr) : Xform(std::move(parent)) {}
+    ClipXF(sk_sp<Xform> parent, const SkRect& r, SkClipOp op = SkClipOp::kIntersect)
+        : Xform(std::move(parent))
+        , fRect(r)
+        , fOp(op)
+    {}
+
+    void setRect(const SkRect& r, SkClipOp op = SkClipOp::kIntersect) {
+        fRect = r;
+        fOp = op;
+    }
+
+protected:
+    void onVisit(XformResolver* resolver) override {
+        resolver->clipRect(fRect, fOp);
+    }
+
+private:
+    SkRect      fRect;
+    SkClipOp    fOp;
+};
+
+class Shape : public SkRefCnt {
+    sk_sp<Xform>    fXform;
+
+public:
+    Shape(sk_sp<Xform> x = nullptr) : fXform(std::move(x)) {}
+
+    Xform* xform() const { return fXform.get(); }
+    void setXform(sk_sp<Xform> x) {
+        fXform = std::move(x);
+    }
+
+    virtual void draw(SkCanvas*, const SkMatrix*) {}
+};
+
+class MatrixResolver {
+    SkMatrix privateStorage;
+    const SkMatrix* fCTM;
+
+public:
+    MatrixResolver(Xform* xform, const SkMatrix* ctm) {
+        if (xform) {
+            privateStorage = xform->getCTM();
+            if (ctm) {
+                privateStorage.postConcat(*ctm);
+            }
+            ctm = &privateStorage;
+        }
+        if (ctm && ctm->isIdentity()) {
+            ctm = nullptr;
+        }
+        fCTM = ctm;
+    }
+
+    const SkMatrix* ctm() const { return fCTM; }
+};
+
+class GeoShape : public Shape {
+    SkRect  fRect;
+    SkPaint fPaint;
+
+    GeoShape(sk_sp<Xform> x, const SkRect& r, SkColor c) : Shape(std::move(x)), fRect(r) {
+        fPaint.setColor(c);
+    }
+
+public:
+    static sk_sp<Shape> Make(sk_sp<Xform> x, const SkRect& r, SkColor c) {
+        return sk_sp<Shape>(new GeoShape(std::move(x), r, c));
+    }
+
+    void draw(SkCanvas* canvas, const SkMatrix* ctm) override {
+        MatrixResolver resolver(this->xform(), ctm);
+        ctm = resolver.ctm();
+        if (ctm) {
+            canvas->save();
+            canvas->concat(*ctm);
+        }
+        canvas->drawRect(fRect, fPaint);
+        if (ctm) {
+            canvas->restore();
+        }
+    }
+};
+
+class GroupShape : public Shape {
+    SkTDArray<Shape*> fArray;
+
+    GroupShape(sk_sp<Xform> x) : Shape(std::move(x)) {}
+
+public:
+    static sk_sp<GroupShape> Make(sk_sp<Xform> x = nullptr) {
+        return sk_sp<GroupShape>(new GroupShape(std::move(x)));
+    }
+
+    static sk_sp<GroupShape> Make(sk_sp<Xform> x, sk_sp<Shape> s) {
+        auto g = sk_sp<GroupShape>(new GroupShape(std::move(x)));
+        g->append(std::move(s));
+        return g;
+    }
+
+    ~GroupShape() override {
+        fArray.unrefAll();
+    }
+
+    int count() const { return fArray.count(); }
+    Shape* get(int index) const { return fArray[index]; }
+    void set(int index, sk_sp<Shape> s) {
+        fArray[index] = s.release();
+    }
+
+    void append(sk_sp<Shape> s) {
+        *fArray.append() = s.release();
+    }
+    void insert(int index, sk_sp<Shape> s) {
+        *fArray.insert(index) = s.release();
+    }
+    void remove(int index) {
+        SkSafeUnref(fArray[index]);
+        fArray.remove(index);
+    }
+
+    void draw(SkCanvas* canvas, const SkMatrix* ctm) override {
+        MatrixResolver resolver(this->xform(), ctm);
+        ctm = resolver.ctm();
+        for (auto s : fArray) {
+            s->draw(canvas, ctm);
+        }
+    }
+};
+
+class XformGM : public skiagm::GM {
+    sk_sp<MatrixXF> fRoot, fRA, fRB, fA, fB;
+    sk_sp<Shape> fShape;
+
+public:
+    XformGM() {
+        fRoot = MatrixXF::Make();
+
+        fRA = MatrixXF::Make(fRoot);
+        fRB = MatrixXF::Make(fRoot);
+
+        fA = MatrixXF::Make(fRA);
+        fB = MatrixXF::Make(fRB);
+
+        fRA->setRotate(30);
+        fA->setTranslate(100, 0);
+
+        fRB->setTranslate(100, 0);
+        fB->setRotate(30);
+
+        sk_sp<GroupShape> g = GroupShape::Make();
+        g->append(GeoShape::Make(fA,  {0, 0, 100, 60}, SK_ColorRED));
+        g->append(GeoShape::Make(fB,  {0, 0, 100, 60}, SK_ColorGREEN));
+        g->append(GeoShape::Make(fRA, {0, 0, 100, 60}, SK_ColorBLUE));
+        g->append(GeoShape::Make(fRB, {0, 0, 100, 60}, SK_ColorGRAY));
+        g->append(GeoShape::Make(fRoot, {0, 0, 100, 60}, 0xFFCC8844));
+
+        sk_sp<MatrixXF> sub = MatrixXF::Make();
+        SkMatrix m;
+        m.setScale(0.5, 0.5);
+        m.postTranslate(50, 50);
+        sub->setLocalMatrix(m);
+
+        sk_sp<GroupShape> parent = GroupShape::Make();
+        parent->append(g);
+        parent->append(GroupShape::Make(sub, g));
+        fShape = parent;
+    }
+
+protected:
+    SkString onShortName() override { return SkString("xform"); }
+
+    SkISize onISize() override { return SkISize::Make(520, 520); }
+
+    void onDraw(SkCanvas* canvas) override {
+        fShape->draw(canvas, nullptr);
+    }
+
+    bool onAnimate(const AnimTimer& timer) override {
+        float scale = 3 + sinf(timer.scaled(1, 0)) * 2;
+        fRoot->setScale(scale, scale);
+        fRA->setRotate(timer.scaled(40, 0));
+        fB->setRotate(timer.scaled(40*sqrtf(2), 0));
+        return true;
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM( return new XformGM; )
+
