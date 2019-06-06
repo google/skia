@@ -346,14 +346,10 @@ void GrMtlCaps::initShaderCaps() {
 
     shaderCaps->fIntegerSupport = true;
     shaderCaps->fVertexIDSupport = false;
-    shaderCaps->fImageLoadStoreSupport = false;
 
     // Metal uses IEEE float and half floats so assuming those values here.
     shaderCaps->fFloatIs32Bits = true;
     shaderCaps->fHalfIs32Bits = false;
-
-    // Metal supports unsigned integers.
-    shaderCaps->fUnsignedSupport = true;
 
     shaderCaps->fMaxFragmentSamplers = 16;
 }
