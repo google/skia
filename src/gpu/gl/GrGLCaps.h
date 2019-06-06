@@ -581,6 +581,9 @@ private:
                 still attach it to a FBO for blitting or reading pixels. */
             kFBOColorAttachment_Flag      = 0x8,
             kCanUseTexStorage_Flag        = 0x10,
+            /** Whether or not the config is an allowed format for copyTexSubImage. This does not
+             * include checks to make sure if the config is a src it must be attachable to FBO. */
+            kCanUseCopyTexSubImage_Flag   = 0x20,
         };
         uint32_t fFlags;
 
