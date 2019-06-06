@@ -119,13 +119,18 @@ void GrMtlCaps::initFeatureSet(MTLFeatureSet featureSet) {
 }
 
 bool GrMtlCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCount,
+                              GrSurfaceOrigin dstOrigin,
                               GrPixelConfig srcConfig, int srcSampleCount,
+                              GrSurfaceOrigin srcOrigin,
                               const SkIRect& srcRect, const SkIPoint& dstPoint,
                               bool areDstSrcSameObj) const {
     if (dstConfig != srcConfig) {
         return false;
     }
     if ((dstSampleCount > 1 || srcSampleCount > 1) && (dstSampleCount != srcSampleCount)) {
+        return false;
+    }
+    if (dstOrigin != srcOrigin) {
         return false;
     }
     if (areDstSrcSameObj) {
@@ -138,8 +143,38 @@ bool GrMtlCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCount,
     return true;
 }
 
+bool GrMtlCaps::canCopyAsDraw(GrPixelConfig dstConfig, bool dstIsRenderable,
+                              GrPixelConfig srcConfig, bool srcIsTextureable) const {
+    // TODO: Make copySurfaceAsDraw handle the swizzle
+    if (this->shaderCaps()->configOutputSwizzle(srcConfig) !=
+        this->shaderCaps()->configOutputSwizzle(dstConfig)) {
+        return false;
+    }
+
+    if (!dstIsRenderable || !srcIsTextureable) {
+        return false;
+    }
+    return true;
+}
+
+bool GrMtlCaps::canCopyAsDrawThenBlit(GrPixelConfig dstConfig, GrPixelConfig srcConfig,
+                                      bool srcIsTextureable) const {
+    // TODO: Make copySurfaceAsDraw handle the swizzle
+    if (this->shaderCaps()->configOutputSwizzle(srcConfig) !=
+        this->shaderCaps()->configOutputSwizzle(dstConfig)) {
+        return false;
+    }
+    if (!srcIsTextureable) {
+        return false;
+    }
+    return true;
+}
+
 bool GrMtlCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                  const SkIRect& srcRect, const SkIPoint& dstPoint) const {
+    GrSurfaceOrigin dstOrigin = dst->origin();
+    GrSurfaceOrigin srcOrigin = src->origin();
+
     int dstSampleCnt = 0;
     int srcSampleCnt = 0;
     if (const GrRenderTargetProxy* rtProxy = dst->asRenderTargetProxy()) {
@@ -151,8 +186,13 @@ bool GrMtlCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
     SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
 
-    return this->canCopyAsBlit(dst->config(), dstSampleCnt, src->config(), srcSampleCnt, srcRect,
-                               dstPoint, dst == src);
+    return this->canCopyAsBlit(dst->config(), dstSampleCnt, dstOrigin,
+                               src->config(), srcSampleCnt, srcOrigin,
+                               srcRect, dstPoint, dst == src) ||
+           this->canCopyAsDraw(dst->config(), SkToBool(dst->asRenderTargetProxy()),
+                               src->config(), SkToBool(src->asTextureProxy())) ||
+           this->canCopyAsDrawThenBlit(dst->config(), src->config(),
+                                       SkToBool(src->asTextureProxy()));
 }
 
 void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {

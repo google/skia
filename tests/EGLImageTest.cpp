@@ -194,7 +194,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     // Only test RT-config
     // TODO: why do we always need to draw to copy from an external texture?
     test_copy_from_surface(reporter, context0, surfaceContext->asSurfaceProxy(),
-                           pixels.get(), "EGLImageTest-copy");
+                           pixels.get(), true, "EGLImageTest-copy");
 
     cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
 }

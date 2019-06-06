@@ -13,9 +13,9 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLUtil.h"
@@ -93,38 +93,12 @@ static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectConte
     }
 }
 
-static void test_copy_to_surface(skiatest::Reporter* reporter,
-                                 GrContext* context,
-                                 GrSurfaceContext* dstContext,
-                                 const char* testName) {
-
-    int pixelCnt = dstContext->width() * dstContext->height();
-    SkAutoTMalloc<uint32_t> pixels(pixelCnt);
-    for (int y = 0; y < dstContext->width(); ++y) {
-        for (int x = 0; x < dstContext->height(); ++x) {
-            pixels.get()[y * dstContext->width() + x] =
-                SkColorToPremulGrColor(SkColorSetARGB(2*y, y, x, x * y));
-        }
-    }
-
-    for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
-        auto origin = dstContext->asSurfaceProxy()->origin();
-        auto src = sk_gpu_test::MakeTextureProxyFromData(
-                context, renderable, dstContext->width(),
-                dstContext->height(), kRGBA_8888_SkColorType, origin, pixels.get(), 0);
-        // If this assert ever fails we can add a fallback to do copy as draw, but until then we can
-        // be more restrictive.
-        SkAssertResult(dstContext->testCopy(src.get()));
-        test_read_pixels(reporter, dstContext, pixels.get(), testName);
-    }
-}
-
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     sk_gpu_test::GLTestContext* glContext = ctxInfo.glContext();
-    static const int kWidth = 16;
-    static const int kHeight = 16;
+    static const int kWidth = 13;
+    static const int kHeight = 13;
 
     GrColor pixels[kWidth * kHeight];
     for (int y = 0; y < kHeight; ++y) {
@@ -185,7 +159,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
 
         // Test copy to both a texture and RT
         test_copy_from_surface(reporter, context, rectProxy.get(), refPixels,
-                               "RectangleTexture-copy-from");
+                               false, "RectangleTexture-copy-from");
 
         sk_sp<GrSurfaceContext> rectContext = context->priv().makeWrappedSurfaceContext(
                                                                             std::move(rectProxy));
