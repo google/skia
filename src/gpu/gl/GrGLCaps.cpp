@@ -2313,14 +2313,6 @@ bool GrGLCaps::canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARender
                                   GrPixelConfig srcConfig, bool srcHasMSAARenderBuffer,
                                   bool srcIsTextureable, bool srcIsGLTexture2D,
                                   GrSurfaceOrigin srcOrigin) const {
-    // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
-    // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
-    // many drivers would allow it to work, but ANGLE does not.
-    if (GR_IS_GR_GL_ES(fStandard) && this->bgraIsInternalFormat() &&
-        (kBGRA_8888_GrPixelConfig == dstConfig || kBGRA_8888_GrPixelConfig == srcConfig)) {
-        return false;
-    }
-
     // CopyTexSubImage is invalid or doesn't copy what we want when we have msaa render buffers.
     if (dstHasMSAARenderBuffer || srcHasMSAARenderBuffer) {
         return false;
