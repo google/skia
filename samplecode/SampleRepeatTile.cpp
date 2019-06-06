@@ -40,19 +40,11 @@ static void make_paint(SkPaint* paint, SkTileMode tm) {
 
 class RepeatTileView : public Sample {
 public:
-    RepeatTileView() {
+    RepeatTileView() : Sample("RepeatTile") {
         this->setBGColor(SK_ColorGRAY);
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "RepeatTile");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
         make_paint(&paint, SkTileMode::kRepeat);

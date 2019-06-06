@@ -82,20 +82,9 @@ static void gen_paths(const SkTDArray<SkScalar>& topData,
 // filling
 class ChartView : public Sample {
 public:
-    ChartView() {
-        fShift = 0;
-        fSize.set(-1, -1);
-    }
+    ChartView() : Sample("Chart") {}
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Chart");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         bool sizeChanged = false;
         if (canvas->getBaseLayerSize() != fSize) {
@@ -171,8 +160,8 @@ private:
         kPixelsPerTick = 3,
         kShiftPerFrame = 1,
     };
-    int                 fShift;
-    SkISize             fSize;
+    int                 fShift = 0;
+    SkISize             fSize = {-1, -1};
     SkTDArray<SkScalar> fData[kNumGraphs];
     typedef Sample INHERITED;
 };

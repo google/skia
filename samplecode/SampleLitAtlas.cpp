@@ -444,14 +444,12 @@ private:
 
 class DrawLitAtlasView : public Sample {
 public:
-    DrawLitAtlasView() : fDrawable(new DrawLitAtlasDrawable(SkRect::MakeWH(640, 480))) {}
+    DrawLitAtlasView()
+        : Sample("DrawLitAtlas")
+        , fDrawable(new DrawLitAtlasDrawable(SkRect::MakeWH(640, 480))) {}
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "DrawLitAtlas");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

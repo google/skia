@@ -110,21 +110,13 @@ class TextEffectsView : public Sample {
     SkScalar fDx;
 
 public:
-    TextEffectsView() {
+    TextEffectsView() : Sample("Text Effects") {
         fFace = SkTypeface::MakeFromFile("/Users/reed/Downloads/p052024l.pfb");
         fInterp = 0;
         fDx = SK_Scalar1/64;
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Text Effects");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
     }

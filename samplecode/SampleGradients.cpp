@@ -113,19 +113,11 @@ static const GradMaker gGradMakers[] = {
 
 class GradientsView : public Sample {
 public:
-    GradientsView() {
+    GradientsView() : Sample("Gradients") {
         this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Gradients");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         SkPoint pts[2] = {
             { 0, 0 },

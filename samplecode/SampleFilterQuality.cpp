@@ -146,7 +146,7 @@ class FilterQualityView : public Sample {
     bool            fShowFatBits;
 
 public:
-    FilterQualityView() : fTrans(2, 2), fShowFatBits(true) {
+    FilterQualityView() : Sample("FilterQuality"), fTrans(2, 2), fShowFatBits(true) {
         fCell.set(256, 256);
 
         fScale.set(1, SK_Scalar1 / 8, 1);
@@ -167,10 +167,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FilterQuality");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

@@ -22,9 +22,8 @@
 class PathText : public Sample {
 public:
     constexpr static int kNumPaths = 1500;
-    virtual const char* getName() const { return "PathText"; }
 
-    PathText() {}
+    PathText() : Sample("PathText") {}
 
     virtual void reset() {
         for (Glyph& glyph : fGlyphs) {
@@ -55,10 +54,6 @@ public:
     void onSizeChange() final { this->INHERITED::onSizeChange(); this->reset(); }
 
     bool onQuery(Sample::Event* evt) final {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, this->getName());
-            return true;
-        }
         SkUnichar unichar;
         if (Sample::CharQ(*evt, &unichar)) {
             if (unichar == 'X') {
@@ -137,11 +132,10 @@ void PathText::Glyph::reset(SkRandom& rand, int w, int h) {
 // Text from paths with animated transformation matrices.
 class MovingPathText : public PathText {
 public:
-    const char* getName() const override { return "MovingPathText"; }
-
     MovingPathText()
-        : fFrontMatrices(kNumPaths)
-        , fBackMatrices(kNumPaths) {
+        : Sample("MovingPathText")
+        , fFrontMatrices(kNumPaths)
+        , fBackMatrices(kNumPaths)  {
     }
 
     ~MovingPathText() override {
@@ -249,11 +243,11 @@ protected:
 // Text from paths with animated control points.
 class WavyPathText : public MovingPathText {
 public:
-    const char* getName() const override { return "WavyPathText"; }
-
     WavyPathText()
-        : fFrontPaths(kNumPaths)
-        , fBackPaths(kNumPaths) {}
+        : Sample("WavyPathText")
+        , fFrontPaths(kNumPaths)
+        , fBackPaths(kNumPaths)  {
+    }
 
     ~WavyPathText() override {
         fBackgroundAnimationTask.wait();

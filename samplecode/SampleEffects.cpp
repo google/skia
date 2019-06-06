@@ -60,7 +60,7 @@ public:
     SkPath fPath;
     SkPaint fPaint[SK_ARRAY_COUNT(gPaintProcs)];
 
-    EffectsView() {
+    EffectsView() : Sample("Effects"){
         size_t i;
         const float pts[] = {
             0, 0,
@@ -90,14 +90,6 @@ public:
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Effects");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->scale(3, 3);
         canvas->translate(10, 30);

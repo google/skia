@@ -99,6 +99,9 @@ static const struct {
 class StrokePathView : public Sample {
     SkScalar    fWidth;
     SkPath      fPath;
+public:
+    StrokePathView() : Sample("StrokePath") {}
+
 protected:
     void onOnceBeforeDraw() override {
 //        test_blur();
@@ -121,14 +124,6 @@ protected:
         fPath.offset(-bounds.fLeft, -bounds.fTop);
 
         this->setBGColor(0xFFDDDDDD);
-    }
-
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "StrokePath");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
     }
 
     SkRandom rand;

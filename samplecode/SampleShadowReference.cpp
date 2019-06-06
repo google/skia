@@ -27,10 +27,12 @@ class ShadowRefView : public Sample {
 
 public:
     ShadowRefView()
-        : fShowAmbient(true)
+        : Sample("ShadowReference")
+        , fShowAmbient(true)
         , fShowSpot(true)
         , fUseAlt(false)
-        , fShowObject(true) {}
+        , fShowObject(true)  {
+    }
 
 protected:
     void onOnceBeforeDraw() override {
@@ -39,11 +41,6 @@ protected:
     }
 
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ShadowReference");
-            return true;
-        }
-
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             bool handled = false;

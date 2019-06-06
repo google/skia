@@ -70,11 +70,10 @@ static sk_sp<SkPathEffect> make_warp_pe(SkScalar phase) {
 class PathEffectView : public Sample {
     SkPath  fPath;
     SkPoint fClickPt;
-    SkScalar fPhase;
+    SkScalar fPhase = 0;
 
 public:
-    PathEffectView() : fPhase(0) {
-        }
+    PathEffectView()  : Sample("PathEffects") {}
 
 protected:
     void onOnceBeforeDraw() override {
@@ -106,14 +105,6 @@ protected:
         fClickPt.set(SkIntToScalar(200), SkIntToScalar(200));
 
         this->setBGColor(0xFFDDDDDD);
-    }
-
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "PathEffects");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
     }
 
     void onDrawContent(SkCanvas* canvas) override {

@@ -15,19 +15,11 @@
 
 class LayerMaskView : public Sample {
 public:
-    LayerMaskView() {
+    LayerMaskView() : Sample("LayerMask") {
         this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "LayerMask");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void drawMask(SkCanvas* canvas, const SkRect& r) {
         SkPaint paint;
         paint.setAntiAlias(true);

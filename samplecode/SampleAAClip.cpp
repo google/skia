@@ -56,19 +56,11 @@ static void drawClip(SkCanvas* canvas, const SkAAClip& clip) {
 
 class AAClipView : public Sample {
 public:
-    AAClipView() {
+    AAClipView() : Sample("AAClip") {
         testop();
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AAClip");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
 #if 1
         SkAAClip aaclip;

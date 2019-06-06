@@ -19,7 +19,7 @@
 // Intended to exercise pixel snapping observed with scaled images (and
 // with non-scaled images, but for a different reason):  Bug 1145
 
-class SubpixelTranslateView : public Sample {
+class SubpixelTranslateView : Sample("SubpixelTranslate") : public Sample {
 public:
     SubpixelTranslateView(const char imageFilename[],
                           float horizontalVelocity,
@@ -41,14 +41,6 @@ protected:
     float fHorizontalVelocity, fVerticalVelocity;
 
     SkPoint fCurPos;
-
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "SubpixelTranslate");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
 
     void onDrawContent(SkCanvas* canvas) override {
 

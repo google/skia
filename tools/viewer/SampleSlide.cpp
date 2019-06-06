@@ -17,7 +17,7 @@ SampleSlide::SampleSlide(const SampleFactory factory)
     : fSampleFactory(factory)
     , fClick(nullptr) {
     sk_sp<Sample> sample(factory());
-    Sample::RequestTitle(sample.get(), &fName);
+    fName = sample->title();
 }
 
 SampleSlide::~SampleSlide() { delete fClick; }
@@ -29,6 +29,7 @@ SkISize SampleSlide::getDimensions() const  {
 void SampleSlide::draw(SkCanvas* canvas) {
     SkASSERT(fSample);
     fSample->draw(canvas);
+    fName = fSample->title();
 }
 
 void SampleSlide::load(SkScalar winWidth, SkScalar winHeight) {

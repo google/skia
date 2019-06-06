@@ -35,7 +35,8 @@ static SkPMColor premultiply_unpmcolor(SkPMColor c) {
 class UnpremulView : public Sample {
 public:
     UnpremulView(SkString res)
-    : fResPath(res)
+    : Sample("unpremul")
+    , fResPath(res)
     , fPremul(true)
     , fDecodeSucceeded(false) {
         this->nextImage();
@@ -43,10 +44,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "unpremul");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             char utf8[SkUTF::kMaxBytesInUTF8Sequence];

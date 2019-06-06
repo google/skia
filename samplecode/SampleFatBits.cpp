@@ -377,7 +377,7 @@ class DrawLineView : public Sample {
     bool    fIsRect;
     int     fZoom = 64;
 public:
-    DrawLineView() {
+    DrawLineView() : Sample("FatBits") {
         fFB.setWHZ(24*2, 16*2, fZoom);
         fPts[0].set(1, 1);
         fPts[1].set(5, 4);
@@ -392,10 +392,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FatBits");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

@@ -39,7 +39,7 @@ public:
     sk_sp<SkShader> fShader;
     SkBitmap        fBitmap;
 
-    ShaderView() {
+    ShaderView() : Sample("Shaders") {
         decode_file("/skimages/logo.gif", &fBitmap);
 
         SkPoint pts[2];
@@ -61,14 +61,6 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Shaders");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawBitmap(fBitmap, 0, 0);
 

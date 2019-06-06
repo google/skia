@@ -12,7 +12,7 @@
 
 class MegaStrokeView : public Sample {
 public:
-    MegaStrokeView() {
+    MegaStrokeView() : Sample("MegaStroke") {
         fClip.set(0, 0, 950, 600);
         fAngle = 0;
         fPlusMinus = 0;
@@ -27,11 +27,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "MegaStroke");
-            return true;
-        }
-
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
            fClip.set(0, 0, 950, 600);

@@ -172,23 +172,13 @@ class HairlineView : public Sample {
     int fProcIndex;
     bool fDoAA;
 public:
-    HairlineView() {
+    HairlineView() : Sample(SkStringPrintf("Hair-%s", gProcs[0].fName)) {
         fProcIndex = 0;
         fDoAA = true;
         fNow = 0;
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            SkString str;
-            str.printf("Hair-%s", gProcs[fProcIndex].fName);
-            Sample::TitleR(evt, str.c_str());
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void show_bitmaps(SkCanvas* canvas, const SkBitmap& b0, const SkBitmap& b1,
                       const SkIRect& inset) {
         canvas->drawBitmap(b0, 0, 0, nullptr);
@@ -219,6 +209,7 @@ protected:
     bool onAnimate(const AnimTimer&) override {
         if (fDoAA) {
             fProcIndex = cycle_hairproc_index(fProcIndex);
+            this->setTitle(SkStringPrintf("Hair-%s", gProcs[fProcIndex].fName));
             // todo: signal that we want to rebuild our TITLE
         }
         fDoAA = !fDoAA;

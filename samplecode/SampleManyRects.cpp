@@ -14,27 +14,15 @@
  * Animated sample used to develop a predecessor of GrDrawOp combining.
  */
 class ManyRectsView : public Sample {
-private:
-    enum {
-        N = 1000,
-    };
-
 public:
-    ManyRectsView() {}
+    ManyRectsView() : Sample("ManyRects") {}
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ManyRects");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         SkISize dsize = canvas->getBaseLayerSize();
         canvas->clear(0xFFF0E0F0);
 
+        static constexpr int N = 1000;
         for (int i = 0; i < N; ++i) {
             SkRect rect = SkRect::MakeWH(SkIntToScalar(fRandom.nextRangeU(10, 100)),
                                          SkIntToScalar(fRandom.nextRangeU(10, 100)));

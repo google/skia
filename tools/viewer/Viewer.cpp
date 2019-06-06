@@ -1330,6 +1330,7 @@ void Viewer::drawSlide(SkSurface* surface) {
         paint.setColor(0x40FFFF00);
         surface->getCanvas()->drawRect(r, paint);
     }
+    this->updateTitle();
 }
 
 void Viewer::onBackendCreated() {

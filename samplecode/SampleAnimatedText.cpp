@@ -40,19 +40,14 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length, SkSc
 
 class AnimatedTextView : public Sample {
 public:
-    AnimatedTextView() : fScale(1.0f), fScaleInc(0.1f), fRotation(0.0f), fSizeScale(1) {
-        fCurrentTime = 0;
+    AnimatedTextView() : Sample("AnimatedText")
+    {
         fTimer.start();
         memset(fTimes, 0, sizeof(fTimes));
     }
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AnimatedText");
-            return true;
-        }
-
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             if ('2' == uni) {
@@ -143,15 +138,14 @@ protected:
     }
 
 private:
-    float fScale;
-    float fScaleInc;
-    float fRotation;
-    int   fSizeScale;
+    float fScale = 1;
+    float fScaleInc = 0.1f;
+    float fRotation = 0;
+    int   fSizeScale = 1;
 
     WallTimer   fTimer;
     float       fTimes[32];
-    int         fCurrentTime;
-
+    int         fCurrentTime = 0;
 
     typedef Sample INHERITED;
 };

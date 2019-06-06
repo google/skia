@@ -154,7 +154,7 @@ static void paint_rgn(SkCanvas* canvas, const SkRegion& rgn,
 
 class RegionView : public Sample {
 public:
-    RegionView() {
+    RegionView() : Sample("Regions") {
         fBase.set(100, 100, 150, 150);
         fRect = fBase;
         fRect.inset(5, 5);
@@ -176,14 +176,6 @@ public:
 
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Regions");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     static void drawstr(SkCanvas* canvas, const char text[], const SkPoint& loc,
                         bool hilite) {
         SkPaint paint;

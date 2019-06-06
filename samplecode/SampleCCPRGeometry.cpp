@@ -45,7 +45,9 @@ static constexpr float kDebugBloat = 40;
  */
 class CCPRGeometryView : public Sample {
 public:
-    CCPRGeometryView() { this->updateGpuData(); }
+    CCPRGeometryView() : Sample("CCPRGeometry") {
+        this->updateGpuData();
+    }
     void onDrawContent(SkCanvas*) override;
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override;
@@ -445,10 +447,6 @@ bool CCPRGeometryView::onClick(Sample::Click* click) {
 }
 
 bool CCPRGeometryView::onQuery(Sample::Event* evt) {
-    if (Sample::TitleQ(*evt)) {
-        Sample::TitleR(evt, "CCPRGeometry");
-        return true;
-    }
     SkUnichar unichar;
     if (Sample::CharQ(*evt, &unichar)) {
         if (unichar >= '1' && unichar <= '4') {

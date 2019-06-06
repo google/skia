@@ -22,7 +22,7 @@ class OverstrokeView : public Sample {
     bool fClosePath;
     bool fDrawFillPath;
     bool fDumpHex;
-    OverstrokeView() {
+    OverstrokeView() : Sample("PathOverstroke") {
         fStroke = 5;
         fPathType = 0;
         fClosePath = false;
@@ -33,10 +33,6 @@ class OverstrokeView : public Sample {
 
    protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "PathOverstroke");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

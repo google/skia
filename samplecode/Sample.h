@@ -31,18 +31,13 @@ using SampleRegistry = sk_tools::Registry<SampleFactory>;
 
 class Sample : public SkRefCnt {
 public:
-    Sample()
-        : fBGColor(SK_ColorWHITE)
-        , fWidth(0), fHeight(0)
-        , fHaveCalledOnceBeforeDraw(false)
-    {}
-
     SkScalar    width() const { return fWidth; }
     SkScalar    height() const { return fHeight; }
     void        setSize(SkScalar width, SkScalar height);
     void        setSize(const SkPoint& size) { this->setSize(size.fX, size.fY); }
     void        setWidth(SkScalar width) { this->setSize(width, fHeight); }
     void        setHeight(SkScalar height) { this->setSize(fWidth, height); }
+    const SkString& title() { return fTitle; }
 
     /** Call this to have the view draw into the specified canvas. */
     virtual void draw(SkCanvas* canvas);
@@ -185,13 +180,15 @@ public:
     bool doQuery(Event* query);
 
     static const char* kCharEvtName;
-    static const char* kTitleEvtName;
     static bool CharQ(const Event&, SkUnichar* outUni);
-    static bool TitleQ(const Event&);
-    static void TitleR(Event*, const char title[]);
-    static bool RequestTitle(Sample* view, SkString* title);
 
 protected:
+    Sample() : fTitle("sample") {}
+    Sample(const char* title) : fTitle(title) {}
+    Sample(SkString title) : fTitle(std::move(title)) {}
+
+    void setTitle(SkString s) { fTitle = std::move(s); }
+
     /** Override to handle events in your subclass.
      *  Overriders must call the super class for unhandled events.
      */
@@ -213,9 +210,10 @@ protected:
     virtual void onOnceBeforeDraw() {}
 
 private:
-    SkColor fBGColor;
-    SkScalar fWidth, fHeight;
-    bool fHaveCalledOnceBeforeDraw;
+    SkString fTitle;
+    SkColor fBGColor = SK_ColorWHITE;
+    SkScalar fWidth = 0, fHeight = 0;
+    bool fHaveCalledOnceBeforeDraw = false;
 };
 
 #endif

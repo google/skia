@@ -49,7 +49,8 @@ class ShadowsView : public Sample {
 
 public:
     ShadowsView()
-        : fZDelta(0)
+        : Sample("AndroidShadows")
+        , fZDelta(0)
         , fAnimTranslate(0)
         , fAnimAngle(0)
         , fAnimAlpha(1)
@@ -107,11 +108,6 @@ protected:
     }
 
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AndroidShadows");
-            return true;
-        }
-
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             bool handled = false;

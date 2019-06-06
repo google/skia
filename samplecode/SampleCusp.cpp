@@ -101,16 +101,9 @@ size_t datCount = SK_ARRAY_COUNT(dat);
 
 class CuspView : public Sample {
 public:
-    CuspView() {}
-protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Cusp");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    CuspView() : Sample("Cusp") {}
 
+protected:
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint p;
         p.setAntiAlias(true);

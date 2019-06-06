@@ -26,22 +26,13 @@ public:
     static const SkScalar ANIM_DX;
     static const SkScalar ANIM_DY;
     static const SkScalar ANIM_RAD;
-    SkScalar fDX, fDY, fRAD;
+    SkScalar fDX = 0;
+    SkScalar fDY = 0;
+    SkScalar fRAD = 0;
 
-    CircleView() {
-        fDX = fDY = fRAD = 0;
-        fN = 3;
-    }
+    CircleView() : Sample("Circles") {}
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Circles");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void circle(SkCanvas* canvas, int width, bool aa) {
         SkPaint paint;
 
@@ -103,7 +94,6 @@ protected:
     }
 
 private:
-    int fN;
     typedef Sample INHERITED;
 };
 

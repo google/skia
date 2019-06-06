@@ -32,17 +32,9 @@ class MixerView : public Sample {
     float fDW = 0.02f;
 
 public:
-    MixerView() {}
+    MixerView() : Sample("Mixer") {}
 
 protected:
-    bool onQuery(Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Mixer");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void dodraw(SkCanvas* canvas, sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1, float gap) {
         SkPaint paint;
         paint.setColorFilter(cf0);
@@ -123,7 +115,7 @@ class ShaderMixerView : public Sample {
     const SkRect fRect = SkRect::MakeXYWH(10, 10 + SIZE + 10, SIZE, SIZE);
 
 public:
-    ShaderMixerView() {}
+    ShaderMixerView() : Sample("ShaderMixer") {}
 
     void onOnceBeforeDraw() override {
         fSH0 = make_resource_shader("images/mandrill_256.png", SIZE);
@@ -131,14 +123,6 @@ public:
     }
 
 protected:
-    bool onQuery(Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ShaderMixer");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         if (!fSurface) {
             fSurface = canvas->makeSurface(SkImageInfo::MakeN32Premul(SIZE, SIZE));

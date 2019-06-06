@@ -49,7 +49,7 @@ class SampleSG : public Sample {
     }
 
 public:
-    SampleSG() {
+    SampleSG() : Sample("SceneGraph") {
         fGroup = sksg::Group::Make();
 
         fScene = sksg::Scene::Make(fGroup, sksg::AnimatorList());
@@ -66,14 +66,6 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "SceneGraph");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         fScene->render(canvas);
     }

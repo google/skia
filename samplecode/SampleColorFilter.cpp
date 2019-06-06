@@ -113,6 +113,9 @@ class ColorFilterView : public Sample {
         N = 64
     };
 
+public:
+    ColorFilterView() : Sample("ColorFilter") {}
+
 protected:
     void onOnceBeforeDraw() override {
         fBitmap = createBitmap(N);
@@ -121,14 +124,6 @@ protected:
         if (false) { // avoid bit rot, suppress warning
             test_5bits();
         }
-    }
-
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ColorFilter");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
     }
 
     void onDrawBackground(SkCanvas* canvas) override {

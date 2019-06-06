@@ -97,17 +97,9 @@ static void test_fade(SkCanvas* canvas) {
 
 class LayersView : public Sample {
 public:
-    LayersView() {}
+    LayersView() : Sample("Layers") {}
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Layers");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorGRAY);
     }
@@ -193,7 +185,7 @@ class BackdropView : public Sample {
     sk_sp<SkImage> fImage;
     sk_sp<SkImageFilter> fFilter;
 public:
-    BackdropView() {
+    BackdropView() : Sample("Backdrop") {
         fCenter.set(200, 150);
         fAngle = 0;
         fImage = GetResourceAsImage("images/mandrill_512.png");
@@ -201,14 +193,6 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Backdrop");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawImage(fImage.get(), 0, 0, nullptr);
 

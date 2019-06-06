@@ -70,18 +70,11 @@ static sk_sp<SkShader> make_bg_shader() {
 class HairModesView : public Sample {
     SkPaint fBGPaint;
 public:
-    HairModesView() {
+    HairModesView() : Sample("HairlineModes") {
         fBGPaint.setShader(make_bg_shader());
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "HairlineModes");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
 
     virtual void onDrawContent(SkCanvas* canvas) {
         const SkRect bounds = SkRect::MakeWH(W, H);

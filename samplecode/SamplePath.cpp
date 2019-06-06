@@ -72,17 +72,14 @@ static void test_cubic2() {
 }
 
 class PathView : public Sample {
-    SkScalar fPrevSecs;
+    SkScalar fPrevSecs = 0;
 public:
     SkScalar fDStroke, fStroke, fMinStroke, fMaxStroke;
     SkPath fPath[6];
     bool fShowHairline;
-    bool fOnce;
+    bool fOnce = false;
 
-    PathView() {
-        fPrevSecs = 0;
-        fOnce = false;
-    }
+    PathView() : Sample("Paths") {}
 
     void init() {
         if (fOnce) {
@@ -130,14 +127,6 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Paths");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void drawPath(SkCanvas* canvas, const SkPath& path, SkPaint::Join j) {
         SkPaint paint;
 
@@ -220,7 +209,7 @@ public:
     SkPoint fPts[N];
 
     ArcToView()
-        : fDoFrame(false), fDoCorner(false), fDoConic(false)
+        : Sample("ArcTo"), fDoFrame(false), fDoCorner(false), fDoConic(false)
     {
         SkRandom rand;
         for (int i = 0; i < N; ++i) {
@@ -251,10 +240,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ArcTo");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {
@@ -331,8 +316,8 @@ public:
     };
     SkPoint fPts[N];
 
-    FatStroke() : fClosed(false), fShowStroke(true), fShowHidden(false), fShowSkeleton(true),
-                  fJoinType(0), fCapType(0)
+    FatStroke() : Sample("FatStroke"), fClosed(false), fShowStroke(true), fShowHidden(false),
+                  fShowSkeleton(true), fJoinType(0), fCapType(0)
     {
         SkRandom rand;
         for (int i = 0; i < N; ++i) {
@@ -368,10 +353,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FatStroke");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {
@@ -479,7 +460,7 @@ public:
     };
     SkPoint fPts[N];
 
-    CubicCurve() {
+    CubicCurve() : Sample("CubicCurve") {
         SkRandom rand;
         for (int i = 0; i < N; ++i) {
             fPts[i].fX = 20 + rand.nextUScalar1() * 640;
@@ -488,14 +469,6 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "CubicCurve");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -605,7 +578,7 @@ public:
     bool fShowFlatness = false;
     SkScalar fScale = 0.75;
 
-    CubicCurve2() {
+    CubicCurve2() : Sample("CubicCurve2") {
         fPts[0] = { 90, 300 };
         fPts[1] = { 30, 60 };
         fPts[2] = { 250, 30 };
@@ -618,10 +591,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "CubicCurve2");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

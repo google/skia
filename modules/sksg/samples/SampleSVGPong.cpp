@@ -76,7 +76,9 @@ void update_pos(const sk_sp<sksg::RRect>& rr, const SkPoint& pos) {
 
 class PongView final : public Sample {
 public:
-    PongView() = default;
+    PongView() {
+        this->setTitle("SGPong");
+    }
 
 protected:
     void onOnceBeforeDraw() override {
@@ -151,11 +153,6 @@ protected:
     }
 
     bool onQuery(Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "SGPong");
-            return true;
-        }
-
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

@@ -34,12 +34,14 @@ class ShadowUtilsView : public Sample {
 
 public:
     ShadowUtilsView()
-        : fZDelta(0)
+        : Sample("ShadowUtils")
+        , fZDelta(0)
         , fShowAmbient(true)
         , fShowSpot(true)
         , fUseAlt(false)
         , fShowObject(false)
-        , fIgnoreShadowAlpha(false) {}
+        , fIgnoreShadowAlpha(false)  {
+    }
 
 protected:
     void onOnceBeforeDraw() override {
@@ -74,11 +76,6 @@ protected:
     }
 
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ShadowUtils");
-            return true;
-        }
-
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             bool handled = false;

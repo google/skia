@@ -24,7 +24,7 @@ class CameraView : public Sample {
     int     fShaderIndex;
     bool    fFrontFace;
 public:
-    CameraView() {
+    CameraView() : Sample("Camera") {
         fRX = fRY = fRZ = 0;
         fShaderIndex = 0;
         fFrontFace = false;
@@ -48,14 +48,6 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Camera");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         canvas->translate(this->width()/2, this->height()/2);
 

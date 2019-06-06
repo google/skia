@@ -203,19 +203,14 @@ private:
 };
 
 class DrawAtlasView : public Sample {
-    const char* fName;
     DrawAtlasProc fProc;
     sk_sp<DrawAtlasDrawable> fDrawable;
 
 public:
-    DrawAtlasView(const char name[], DrawAtlasProc proc) : fName(name), fProc(proc) { }
+    DrawAtlasView(const char name[], DrawAtlasProc proc) : Sample(name), fProc(proc) {}
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, fName);
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

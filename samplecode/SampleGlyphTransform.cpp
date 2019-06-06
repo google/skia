@@ -22,20 +22,12 @@
 
 class GlyphTransformView : public Sample {
 public:
-    GlyphTransformView() {}
+    GlyphTransformView() : Sample("Glyph Transform") {}
 
 protected:
     void onOnceBeforeDraw() override {
         fEmojiFont.fTypeface = ToolUtils::emoji_typeface();
         fEmojiFont.fText     = ToolUtils::emoji_sample_text();
-    }
-
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Glyph Transform");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
     }
 
     void onDrawContent(SkCanvas* canvas) override {

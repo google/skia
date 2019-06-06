@@ -824,7 +824,8 @@ class AAGeometryView : public Sample {
 public:
 
     AAGeometryView()
-        : fResControl("error", 0, 10)
+        : Sample("AAGeometry")
+        , fResControl("error", 0, 10)
         , fWeightControl("weight", 0, 5)
         , fWidthControl("width", FLT_EPSILON, 100)
         , fFilterControl("filter", 0, 255)
@@ -1820,10 +1821,6 @@ void AAGeometryView::draw_legend(SkCanvas* canvas) {
 }
 
 bool AAGeometryView::onQuery(Sample::Event* evt) {
-    if (Sample::TitleQ(*evt)) {
-        Sample::TitleR(evt, "AAGeometry");
-        return true;
-    }
     SkUnichar uni;
     if (false) {
         return this->INHERITED::onQuery(evt);

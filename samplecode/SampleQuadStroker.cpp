@@ -156,7 +156,7 @@ class QuadStrokerView : public Sample {
     #define kWidthMin 1
     #define kWidthMax 100
 public:
-    QuadStrokerView() {
+    QuadStrokerView() : Sample("QuadStroker") {
         this->setBGColor(SK_ColorLTGRAY);
 
         fPts[0].set(50, 200);  // cubic
@@ -210,10 +210,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "QuadStroker");
-            return true;
-        }
         SkUnichar uni;
         if (fTextButton.fEnabled && Sample::CharQ(*evt, &uni)) {
             switch (uni) {

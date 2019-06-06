@@ -31,13 +31,15 @@ class ShadowColorView : public Sample {
 
 public:
     ShadowColorView()
-        : fZIndex(8)
+        : Sample("ShadowColor")
+        , fZIndex(8)
         , fShowAmbient(true)
         , fShowSpot(true)
         , fUseAlt(false)
         , fShowObject(true)
         , fTwoPassColor(false)
-        , fDarkBackground(false) {}
+        , fDarkBackground(false)  {
+    }
 
 protected:
     void onOnceBeforeDraw() override {
@@ -45,11 +47,6 @@ protected:
     }
 
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ShadowColor");
-            return true;
-        }
-
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             bool handled = false;

@@ -19,17 +19,9 @@
 
 class ClockView : public Sample {
 public:
-    ClockView() {}
+    ClockView() : Sample("Clock") {}
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Clock");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paintFill;
         SkPaint paintStroke;

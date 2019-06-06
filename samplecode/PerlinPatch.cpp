@@ -74,7 +74,7 @@ class PerlinPatchView : public Sample {
     bool     fShowGrid = false;
 
 public:
-    PerlinPatchView() : fXFreq(0.025f), fYFreq(0.025f), fSeed(0.0f),
+    PerlinPatchView() : Sample("PerlinPatch"), fXFreq(0.025f), fYFreq(0.025f), fSeed(0.0f),
                         fTexX(100.0), fTexY(50.0), fTexScale(1.0f) {
         const SkScalar s = 2;
         // The order of the colors and points is clockwise starting at upper-left corner.
@@ -111,10 +111,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt)  override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "PerlinPatch");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {

@@ -30,7 +30,7 @@ public:
     int         fBitmapCount;
     int         fCurrIndex;
 
-    Filter2View() {
+    Filter2View() : Sample(SkStringPrintf("Filter/Dither %s", gNames[0])) {
         fBitmapCount = SK_ARRAY_COUNT(gNames)*2;
         fBitmaps = new SkBitmap[fBitmapCount];
 
@@ -50,16 +50,6 @@ public:
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            SkString str("Filter/Dither ");
-            str.append(gNames[fCurrIndex]);
-            Sample::TitleR(evt, str.c_str());
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(50));
 

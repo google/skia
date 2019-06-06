@@ -25,17 +25,9 @@
 
 class LinesView : public Sample {
 public:
-    LinesView() {}
+    LinesView() : Sample("Lines") {}
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Lines");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     /*
      0x1F * x + 0x1F * (32 - x)
      */

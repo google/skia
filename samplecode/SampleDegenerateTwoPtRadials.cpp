@@ -37,20 +37,11 @@ static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta)
 
 class DegenerateTwoPtRadialsView : public Sample {
 public:
-    DegenerateTwoPtRadialsView() {
-        fTime = 0;
+    DegenerateTwoPtRadialsView() : Sample("DegenerateTwoPtRadials") {
         this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "DegenerateTwoPtRadials");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         SkScalar delta = fTime / 15.f;
         int intPart = SkScalarFloorToInt(delta);
@@ -79,7 +70,7 @@ protected:
     }
 
 private:
-    SkScalar           fTime;
+    SkScalar           fTime = 0;
     typedef Sample INHERITED;
 };
 

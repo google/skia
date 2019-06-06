@@ -27,7 +27,8 @@
 class RectanizerView : public Sample {
 public:
     RectanizerView()
-        : fCurRandRect(0)
+        : Sample("Rectanizer")
+        , fCurRandRect(0)
         , fCurRectanizer(0) {
         for (int i = 0; i < 3; ++i) {
            fRects[i].setReserve(kNumRandRects);
@@ -55,10 +56,6 @@ public:
 
 protected:
     bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Rectanizer");
-            return true;
-        }
         SkUnichar uni;
         if (Sample::CharQ(*evt, &uni)) {
             char utf8[SkUTF::kMaxBytesInUTF8Sequence];

@@ -50,7 +50,7 @@ class VerticesView : public Sample {
     sk_sp<SkShader> fShader1;
 
 public:
-    VerticesView() {
+    VerticesView() : Sample("Vertices") {
         SkIPoint    size;
 
         fShader0 = make_shader0(&size);
@@ -66,14 +66,6 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Vertices");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     SkScalar fScale;
 
     void onDrawContent(SkCanvas* canvas) override {

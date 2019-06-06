@@ -10,17 +10,9 @@
 
 class StrokeRectSample : public Sample {
 public:
-    StrokeRectSample() {}
+    StrokeRectSample() : Sample("Stroke Rects") {}
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Stroke Rects");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);

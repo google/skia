@@ -13,19 +13,11 @@
 
 class ComplexClipView : public Sample {
 public:
-    ComplexClipView() {
+    ComplexClipView(): Sample("ComplexClip") {
         this->setBGColor(0xFFA0DDA0);
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ComplexClip");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPath path;
         path.moveTo(SkIntToScalar(0),   SkIntToScalar(50));

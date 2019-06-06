@@ -82,7 +82,7 @@ public:
     pthread_t   fDThreads[N];
     SkBitmap    fBitmaps[N];
 
-    FontCacheView() {
+    FontCacheView() : Sample("FontCache") {
         gDone = false;
         for (int i = 0; i < N; i++) {
             int status;
@@ -111,14 +111,6 @@ public:
     }
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "FontCache");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         SkScalar x = 0;
         SkScalar y = 0;

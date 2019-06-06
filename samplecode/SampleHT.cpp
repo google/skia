@@ -128,7 +128,7 @@ public:
     sk_sp<SkDrawable> fRoot;
     SkMSec fTime;
 
-    HTView() {
+    HTView() : Sample("HT") {
         SkRandom rand;
 
         SkPictureRecorder recorder;
@@ -142,14 +142,6 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "HT");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawDrawable(fRoot.get());
     }

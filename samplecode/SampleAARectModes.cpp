@@ -71,20 +71,12 @@ static sk_sp<SkShader> make_bg_shader() {
 class AARectsModesView : public Sample {
     SkPaint fBGPaint;
 public:
-    AARectsModesView () {
-        fBGPaint.setShader(make_bg_shader());
-    }
+    AARectsModesView () : Sample("AARectsModes") {}
 
 protected:
-    virtual bool onQuery(Sample::Event* evt) {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AARectsModes");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    void onOnceBeforeDraw() override { fBGPaint.setShader(make_bg_shader()); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         const SkRect bounds = SkRect::MakeWH(W, H);
         static const SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
 

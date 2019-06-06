@@ -24,17 +24,9 @@ SkScalar get_anim_sin(double secs, SkScalar amplitude, SkScalar periodInSec, SkS
 
 class AnimBlurView : public Sample {
 public:
-    AnimBlurView() : fBlurSigma(0), fCircleRadius(100) {}
+    AnimBlurView() : Sample("AnimBlur"), fBlurSigma(0), fCircleRadius(100) {}
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "AnimBlur");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         static const SkBlurStyle gStyles[] = {
             kNormal_SkBlurStyle,

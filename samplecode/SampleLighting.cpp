@@ -31,7 +31,7 @@ static sk_sp<SkLights> create_lights(SkScalar angle, SkScalar blue) {
 
 class LightingView : public Sample {
 public:
-    LightingView() : fLightAngle(0.0f) , fColorFactor(0.0f) {
+    LightingView() : Sample("Lighting"), fLightAngle(0.0f) , fColorFactor(0.0f) {
         {
             SkBitmap diffuseBitmap;
             SkAssertResult(GetResourceAsBitmap("images/brickwork-texture.jpg", &diffuseBitmap));
@@ -51,14 +51,6 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt) override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Lighting");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         sk_sp<SkLights> lights(create_lights(fLightAngle, fColorFactor));
 

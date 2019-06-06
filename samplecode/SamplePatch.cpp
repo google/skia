@@ -209,7 +209,7 @@ class PatchView : public Sample {
     SkPoint     fPts[12];
 
 public:
-    PatchView() : fAngle(0) {
+    PatchView() : Sample("Patch"), fAngle(0) {
         fShader0 = make_shader0(&fSize0);
         fSize1 = fSize0;
         if (fSize0.fX == 0 || fSize0.fY == 0) {
@@ -236,14 +236,6 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt)  override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "Patch");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         const int nu = 10;
         const int nv = 10;
@@ -377,7 +369,7 @@ class PseudoInkView : public Sample {
     bool              fDirty = true;
 
 public:
-    PseudoInkView() {
+    PseudoInkView() : Sample("PseudoInk") {
         fSkeletonP.setStyle(SkPaint::kStroke_Style);
         fSkeletonP.setAntiAlias(true);
 
@@ -387,14 +379,6 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt)  override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "PseudoInk");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     bool onAnimate(const AnimTimer& timer) override { return true; }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -444,7 +428,7 @@ class ManyStrokesView : public Sample {
     sk_sp<SkPathEffect> fPE[6];
 
 public:
-    ManyStrokesView() {
+    ManyStrokesView()  : Sample("ManyStrokes") {
         fPE[0] = SkStrokePathEffect::Make(20, SkPaint::kRound_Join, SkPaint::kRound_Cap);
 
         auto p0 = SkStrokePathEffect::Make(25, SkPaint::kRound_Join, SkPaint::kRound_Cap);
@@ -458,14 +442,6 @@ public:
     }
 
 protected:
-    bool onQuery(Sample::Event* evt)  override {
-        if (Sample::TitleQ(*evt)) {
-            Sample::TitleR(evt, "ManyStrokes");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
     bool onAnimate(const AnimTimer& timer) override { return true; }
 
     void dodraw(SkCanvas* canvas, sk_sp<SkPathEffect> pe, SkScalar x, SkScalar y,
