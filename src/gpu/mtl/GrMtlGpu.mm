@@ -668,7 +668,7 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, MTLPixelFor
                                              options: options];
     } else {
         transferBuffer = [fDevice newBufferWithLength: bufferSize
-                                              options: options];
+                                             options: options];
     }
     if (nil == transferBuffer) {
         return false;
