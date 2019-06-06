@@ -1120,14 +1120,6 @@ void MetalCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool 
             this->write(" = ");
             this->writeVarInitializer(*var.fVar, *var.fValue);
         }
-        if (!fFoundImageDecl && var.fVar->fType == *fContext.fImage2D_Type) {
-            if (fProgram.fSettings.fCaps->imageLoadStoreExtensionString()) {
-                fHeader.writeText("#extension ");
-                fHeader.writeText(fProgram.fSettings.fCaps->imageLoadStoreExtensionString());
-                fHeader.writeText(" : require\n");
-            }
-            fFoundImageDecl = true;
-        }
     }
     if (wroteType) {
         this->write(";");

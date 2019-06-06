@@ -110,10 +110,6 @@ public:
         return true;
     }
 
-    bool imageLoadStoreSupport() const {
-        return true;
-    }
-
     bool mustDoOpBetweenFloorAndAbs() const {
         return false;
     }
@@ -147,10 +143,6 @@ public:
     }
 
     const char* fragCoordConventionsExtensionString() const {
-        return nullptr;
-    }
-
-    const char* imageLoadStoreExtensionString() const {
         return nullptr;
     }
 

@@ -1260,12 +1260,6 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
             this->write(" = ");
             this->writeVarInitializer(*var.fVar, *var.fValue);
         }
-        if (!fFoundImageDecl && var.fVar->fType == *fContext.fImage2D_Type) {
-            if (fProgram.fSettings.fCaps->imageLoadStoreExtensionString()) {
-                this->writeExtension(fProgram.fSettings.fCaps->imageLoadStoreExtensionString());
-            }
-            fFoundImageDecl = true;
-        }
         if (!fFoundExternalSamplerDecl && var.fVar->fType == *fContext.fSamplerExternalOES_Type) {
             if (fProgram.fSettings.fCaps->externalTextureExtensionString()) {
                 this->writeExtension(fProgram.fSettings.fCaps->externalTextureExtensionString());
