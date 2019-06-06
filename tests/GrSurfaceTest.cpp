@@ -323,13 +323,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
                 SkImage::MakeFromRaster(write, nullptr, nullptr), kNone_GrSurfaceFlags, 1,
                 SkBudgeted::kYes, SkBackingFit::kExact);
         REPORTER_ASSERT(reporter, copySrc);
-        auto copyResult = surfContext->copy(copySrc.get());
+        auto copyResult = surfContext->testCopy(copySrc.get());
         REPORTER_ASSERT(reporter, copyResult == (ioType == kRW_GrIOType));
         // Try the low level copy.
         context->flush();
         auto gpuCopyResult = context->priv().getGpu()->copySurface(
-                proxy->peekTexture(), kTopLeft_GrSurfaceOrigin, copySrc->peekTexture(),
-                kTopLeft_GrSurfaceOrigin, SkIRect::MakeWH(kSize, kSize), {0, 0});
+                proxy->peekTexture(), copySrc->peekTexture(), SkIRect::MakeWH(kSize, kSize),
+                {0, 0});
         REPORTER_ASSERT(reporter, gpuCopyResult == (ioType == kRW_GrIOType));
 
         // Mip regen should not work with a read only texture.
@@ -351,9 +351,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     }
 }
 
+static const int kSurfSize = 10;
+
 static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable renderable) {
     auto backendTexture = context->createBackendTexture(
-            10, 10, kRGBA_8888_SkColorType, SkColors::kTransparent, GrMipMapped::kNo, renderable);
+            kSurfSize, kSurfSize, kRGBA_8888_SkColorType, SkColors::kTransparent, GrMipMapped::kNo,
+            renderable);
     sk_sp<GrTexture> texture;
     if (GrRenderable::kYes == renderable) {
         texture = context->priv().resourceProvider()->wrapRenderableBackendTexture(
@@ -380,7 +383,7 @@ static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable re
 static sk_sp<GrTexture> make_normal_texture(GrContext* context, GrRenderable renderable) {
     GrSurfaceDesc desc;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fWidth = desc.fHeight = 10;
+    desc.fWidth = desc.fHeight = kSurfSize;
     desc.fFlags = GrRenderable::kYes == renderable ? kRenderTarget_GrSurfaceFlag
                                                    : kNone_GrSurfaceFlags;
     return context->priv().resourceProvider()->createTexture(
@@ -725,14 +728,14 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleStateTest, reporter, contextInfo) {
 
         // Insert a copy from idleTexture to another texture so that we have some queued IO on
         // idleTexture.
-        auto proxy = context->priv().proxyProvider()->testingOnly_createWrapped(
-                std::move(idleTexture), kTopLeft_GrSurfaceOrigin);
-        SkImageInfo info = SkImageInfo::Make(proxy->width(), proxy->height(),
-                                             kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+        SkImageInfo info = SkImageInfo::Make(kSurfSize, kSurfSize, kRGBA_8888_SkColorType,
+                                             kPremul_SkAlphaType);
         auto rt = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
         auto rtc = rt->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
+        auto proxy = context->priv().proxyProvider()->testingOnly_createWrapped(
+                std::move(idleTexture), rtc->asSurfaceProxy()->origin());
         context->flush();
-        rtc->copy(proxy.get());
+        SkAssertResult(rtc->testCopy(proxy.get()));
         proxy.reset();
         REPORTER_ASSERT(reporter, flags == 0);
 
