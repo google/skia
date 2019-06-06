@@ -14,8 +14,6 @@
 #include "string.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLLexer.h"
-#include "src/sksl/SkSLString.h"
-#include "src/sksl/SkSLStringStream.h"
 
 #ifndef SKSL_STANDALONE
 #include "include/core/SkTypes.h"
@@ -24,6 +22,9 @@
 #include "src/gpu/GrShaderCaps.h"
 #endif // SK_SUPPORT_GPU
 #endif // SKSL_STANDALONE
+
+using SKSL_INT = uint32_t;
+using SKSL_FLOAT = float;
 
 class GrShaderCaps;
 
