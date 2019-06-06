@@ -1492,7 +1492,6 @@ bool fill_in_with_color(GrVkGpu* gpu, const GrVkAlloc& alloc, VkFormat vkFormat,
                         int baseWidth, int baseHeight,
                         const SkTArray<size_t>& individualMipOffsets,
                         GrPixelConfig config, const SkColor4f& color) {
-
     GrCompression compression = GrVkFormat2Compression(vkFormat);
 
     void* mapPtr = GrVkMemory::MapAlloc(gpu, alloc);
