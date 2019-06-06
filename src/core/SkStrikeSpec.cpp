@@ -100,6 +100,24 @@ SkStrikeSpec SkStrikeSpec::MakeCanonicalized(const SkFont& font, const SkPaint* 
     return storage;
 }
 
+SkStrikeSpec SkStrikeSpec::MakeWithNoDevice(const SkFont& font, const SkPaint* paint) {
+    SkStrikeSpec storage;
+
+    SkPaint setupPaint;
+    if (paint != nullptr) {
+        setupPaint = *paint;
+    }
+
+    storage.commonSetup(font,
+                        setupPaint,
+                        SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
+                        kFakeGammaAndBoostContrast,
+                        SkMatrix::I());
+
+    return storage;
+
+}
+
 SkStrikeSpec SkStrikeSpec::MakeDefault() {
     SkFont defaultFont;
     return MakeCanonicalized(defaultFont);

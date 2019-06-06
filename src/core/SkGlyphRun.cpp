@@ -309,11 +309,9 @@ void SkGlyphRunBuilder::simplifyDrawText(
 
     if (!glyphIDs.empty()) {
         fScratchAdvances.resize(runSize);
-        {
-            SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(font);
-            auto cache = strikeSpec.findOrCreateExclusiveStrike();
-            cache->getAdvances(glyphIDs, fScratchAdvances.data());
-        }
+        SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(font);
+        auto cache = strikeSpec.findOrCreateExclusiveStrike();
+        cache->getAdvances(glyphIDs, fScratchAdvances.data());
 
         SkPoint endOfLastGlyph = origin;
 
