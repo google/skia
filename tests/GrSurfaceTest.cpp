@@ -104,10 +104,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         kRGBA_half_GrPixelConfig,
         kRGBA_half_Clamped_GrPixelConfig,
         kRGB_ETC1_GrPixelConfig,
-
-        // Experimental (for P016 and P010)
-        kR_16_GrPixelConfig,
-        kRG_1616_GrPixelConfig,
     };
     GR_STATIC_ASSERT(kGrPixelConfigCnt == SK_ARRAY_COUNT(configs));
 
