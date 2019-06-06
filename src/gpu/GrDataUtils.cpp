@@ -260,6 +260,21 @@ bool GrFillBufferWithColor(GrPixelConfig config, int width, int height,
             sk_memset64((uint64_t *) dest, rgbaHalf, width * height);
             break;
         }
+        // Experimental (for P016 and P010)
+        case kR_16_GrPixelConfig: {
+            uint16_t r16 = SkScalarRoundToInt(colorf.fR * 65535.0f);
+            sk_memset16((uint16_t*) dest, r16, width * height);
+            break;
+        }
+        case kRG_1616_GrPixelConfig: {
+            uint16_t r16 = SkScalarRoundToInt(colorf.fR * 65535.0f);
+            uint16_t g16 = SkScalarRoundToInt(colorf.fG * 65535.0f);
+
+            uint32_t rg1616 = r16 << 16 | g16;
+
+            sk_memset32((uint32_t*) dest, rg1616, width * height);
+            break;
+        }
         default:
             return false;
             break;

@@ -70,6 +70,9 @@ static bool valid_premul_color_type(GrColorType ct) {
         case GrColorType::kRG_F32:           return false;
         case GrColorType::kRGBA_F32:         return true;
         case GrColorType::kRGB_ETC1:         return false;
+        // Experimental (for P016 and P010)
+        case GrColorType::kR_16:             return false;
+        case GrColorType::kRG_1616:          return false;
     }
     SK_ABORT("Invalid GrColorType");
     return false;
@@ -103,6 +106,9 @@ static bool valid_premul_config(GrPixelConfig config) {
         case kAlpha_half_as_Red_GrPixelConfig:  return false;
         case kGray_8_as_Lum_GrPixelConfig:      return false;
         case kGray_8_as_Red_GrPixelConfig:      return false;
+        // Experimental (for P016 and P010)
+        case kR_16_GrPixelConfig:               return false;
+        case kRG_1616_GrPixelConfig:            return false;
     }
     SK_ABORT("Invalid GrPixelConfig");
     return false;
