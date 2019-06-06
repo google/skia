@@ -36,20 +36,24 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context,
                                             GrContextOptions::ShaderErrorHandler* errorHandler) {
     SkSL::Compiler* compiler = context.compiler();
     std::unique_ptr<SkSL::Program> program;
-    program = compiler->convertProgram(programKind, sksl, settings);
+#ifdef SK_DEBUG
+    SkSL::String src = GrShaderUtils::PrettyPrint(sksl);
+#else
+    const SkSL::String& src = sksl;
+#endif
+    program = compiler->convertProgram(programKind, src, settings);
     if (!program || !compiler->toGLSL(*program, glsl)) {
-        errorHandler->compileError(GrShaderUtils::PrettyPrint(sksl).c_str(),
-                                   compiler->errorText().c_str());
+        errorHandler->compileError(src.c_str(), compiler->errorText().c_str());
         return nullptr;
     }
 
     if (gPrintSKSL || gPrintGLSL) {
         print_shader_banner(programKind);
         if (gPrintSKSL) {
-            GrShaderUtils::PrintLineByLine("SKSL:", sksl);
+            GrShaderUtils::PrintLineByLine("SKSL:", GrShaderUtils::PrettyPrint(sksl));
         }
         if (gPrintGLSL) {
-            GrShaderUtils::PrintLineByLine("GLSL:", *glsl);
+            GrShaderUtils::PrintLineByLine("GLSL:", GrShaderUtils::PrettyPrint(*glsl));
         }
     }
 
