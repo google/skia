@@ -4103,7 +4103,7 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         for (int i = 0; i < mipLevelCount; ++i) {
             size_t offset = individualMipOffsets[i];
 
-            texels.get()[i] = { &(tmpPixels[offset]), 0 };
+            texels.get()[i] = { &(tmpPixels[offset]), w*bytesPerPixel };
         }
     } else {
         SkASSERT(1 == mipLevelCount);
