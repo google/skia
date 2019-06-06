@@ -1545,7 +1545,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         GR_GL_RGBA;
     fConfigTable[kRGBA_8888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     fConfigTable[kRGBA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kRGBA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    fConfigTable[kRGBA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                    ConfigInfo::kCanUseCopyTexSubImage_Flag;
     if (GR_IS_GR_GL(standard)) {
         // We require some form of FBO support and all GLs with FBO support can render to RGBA8
         fConfigTable[kRGBA_8888_GrPixelConfig].fFlags |= allRenderFlags;
@@ -1574,7 +1575,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kRGB_888_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RGBA;
     fConfigTable[kRGB_888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     fConfigTable[kRGB_888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kRGB_888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    fConfigTable[kRGB_888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                  ConfigInfo::kCanUseCopyTexSubImage_Flag;
     if (GR_IS_GR_GL(standard)) {
         // Even in OpenGL 4.6 GL_RGB8 is required to be color renderable but not required to be a
         // supported render buffer format. Since we usually use render buffers for MSAA on non-ES GL
@@ -1606,7 +1608,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     // Currently we don't allow RGB_888X to be renderable because we don't have a way to handle
     // blends that reference the dst alpha when the values in the dst alpha channel are
     // uninitialized.
-    fConfigTable[kRGB_888X_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    fConfigTable[kRGB_888X_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                   ConfigInfo::kCanUseCopyTexSubImage_Flag;
 
     fConfigTable[kRG_88_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RG;
     fConfigTable[kRG_88_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RG8;
@@ -1615,7 +1618,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kRG_88_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     fConfigTable[kRG_88_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     if (textureRedSupport) {
-        fConfigTable[kRG_88_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag | allRenderFlags;
+        fConfigTable[kRG_88_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag | allRenderFlags |
+                                                    ConfigInfo::kCanUseCopyTexSubImage_Flag;
         // ES2 Command Buffer does not allow TexStorage with RG8_EXT
         if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
             fConfigTable[kRG_88_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
@@ -1687,6 +1691,12 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if (texStorageSupported && supportsBGRATexStorage) {
         fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
+    if (kANGLE_GrGLDriver != ctxInfo.driver()) {
+        // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
+        // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it.
+        // Perhaps many drivers would allow it to work, but ANGLE does not.
+        fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
     shaderCaps->fConfigTextureSwizzle[kBGRA_8888_GrPixelConfig] = GrSwizzle::RGBA();
 
     // We only enable srgb support if both textures and FBOs support srgb.
@@ -1747,6 +1757,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     if (fSRGBSupport) {
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                         ConfigInfo::kCanUseCopyTexSubImage_Flag |
                                                          srgbRenderFlags;
     }
     // ES2 Command Buffer does not allow TexStorage with SRGB8_ALPHA8_EXT
@@ -1767,6 +1778,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kSBGRA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     if (fSRGBSupport && GR_IS_GR_GL(standard)) {
         fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                         ConfigInfo::kCanUseCopyTexSubImage_Flag |
                                                          srgbRenderFlags;
     }
 
@@ -1785,7 +1797,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         GR_GL_RGB;
     fConfigTable[kRGB_565_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_SHORT_5_6_5;
     fConfigTable[kRGB_565_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kRGB_565_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    fConfigTable[kRGB_565_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                  ConfigInfo::kCanUseCopyTexSubImage_Flag;
     if (GR_IS_GR_GL(standard)) {
         if (version >= GR_GL_VER(4, 2) || ctxInfo.hasExtension("GL_ARB_ES2_compatibility")) {
             fConfigTable[kRGB_565_GrPixelConfig].fFlags |= allRenderFlags;
@@ -1813,7 +1826,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         GR_GL_RGBA;
     fConfigTable[kRGBA_4444_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
     fConfigTable[kRGBA_4444_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kRGBA_4444_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    fConfigTable[kRGBA_4444_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                    ConfigInfo::kCanUseCopyTexSubImage_Flag;
     if (GR_IS_GR_GL(standard)) {
         if (version >= GR_GL_VER(4, 2)) {
             fConfigTable[kRGBA_4444_GrPixelConfig].fFlags |= allRenderFlags;
@@ -1843,6 +1857,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                ctxInfo.hasExtension("GL_EXT_texture_type_2_10_10_10_REV")) {
         fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
     } // No WebGL support
+    fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags |= ConfigInfo::kCanUseCopyTexSubImage_Flag;
 
     if (texStorageSupported) {
         fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
@@ -1858,7 +1873,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     alphaInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     alphaInfo.fFormatType = kNormalizedFixedPoint_FormatType;
     if (alpha8IsValidForGL || alpha8IsValidForGLES || alpha8IsValidForWebGL) {
-        alphaInfo.fFlags = ConfigInfo::kTextureable_Flag;
+        alphaInfo.fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kCanUseCopyTexSubImage_Flag;
     }
     alphaInfo.fFormats.fBaseInternalFormat = GR_GL_ALPHA;
     alphaInfo.fFormats.fSizedInternalFormat = GR_GL_ALPHA8;
@@ -1885,7 +1900,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
 
     if (textureRedSupport) {
-        redInfo.fFlags |= ConfigInfo::kTextureable_Flag | allRenderFlags;
+        redInfo.fFlags |= ConfigInfo::kTextureable_Flag | ConfigInfo::kCanUseCopyTexSubImage_Flag |
+                          allRenderFlags;
         fConfigTable[kAlpha_8_GrPixelConfig] = redInfo;
         shaderCaps->fConfigTextureSwizzle[kAlpha_8_GrPixelConfig] =
                 shaderCaps->fConfigTextureSwizzle[kAlpha_8_as_Red_GrPixelConfig];
@@ -1908,7 +1924,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if ((GR_IS_GR_GL(standard) && version <= GR_GL_VER(3, 0)) ||
         (GR_IS_GR_GL_ES(standard) && version < GR_GL_VER(3, 0)) ||
         (GR_IS_GR_WEBGL(standard))) {
-        grayLumInfo.fFlags = ConfigInfo::kTextureable_Flag;
+        grayLumInfo.fFlags = ConfigInfo::kTextureable_Flag |
+                             ConfigInfo::kCanUseCopyTexSubImage_Flag;
     }
 
     ConfigInfo& grayRedInfo = fConfigTable[kGray_8_as_Red_GrPixelConfig];
@@ -1918,7 +1935,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     grayRedInfo.fFormats.fSizedInternalFormat = GR_GL_R8;
     grayRedInfo.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
     shaderCaps->fConfigTextureSwizzle[kGray_8_as_Red_GrPixelConfig] = GrSwizzle::RRRA();
-    grayRedInfo.fFlags = ConfigInfo::kTextureable_Flag;
+    grayRedInfo.fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kCanUseCopyTexSubImage_Flag;
 
     // Leaving Gray8 as non-renderable, to keep things simple and match raster. However, we do
     // enable the FBOColorAttachment_Flag so that we can bind it to an FBO for copies.
@@ -2033,7 +2050,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[fpconfig].fFormats.fExternalType = GR_GL_FLOAT;
         fConfigTable[fpconfig].fFormatType = kFloat_FormatType;
         if (hasFP32Textures) {
-            fConfigTable[fpconfig].fFlags = rgIsTexturable ? ConfigInfo::kTextureable_Flag : 0;
+            fConfigTable[fpconfig].fFlags = rgIsTexturable ?
+                    ConfigInfo::kTextureable_Flag | ConfigInfo::kCanUseCopyTexSubImage_Flag : 0;
             if (hasFP32RenderTargets) {
                 fConfigTable[fpconfig].fFlags |= fpRenderFlags;
             }
@@ -2059,7 +2077,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     redHalf.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
     shaderCaps->fConfigTextureSwizzle[kAlpha_half_as_Red_GrPixelConfig] = GrSwizzle::RRRR();
     if (textureRedSupport && hasFP16Textures) {
-        redHalf.fFlags = ConfigInfo::kTextureable_Flag;
+        redHalf.fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kCanUseCopyTexSubImage_Flag;
 
         if (halfFPRenderTargetSupport == HalfFPRenderTargetSupport::kAll) {
             redHalf.fFlags |= fpRenderFlags;
@@ -2085,7 +2103,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
     fConfigTable[kRGBA_half_GrPixelConfig].fFormatType = kFloat_FormatType;
     if (hasFP16Textures) {
-        fConfigTable[kRGBA_half_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+        fConfigTable[kRGBA_half_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                        ConfigInfo::kCanUseCopyTexSubImage_Flag;
         // ES requires 3.2 or EXT_color_buffer_half_float.
         if (halfFPRenderTargetSupport != HalfFPRenderTargetSupport::kNone) {
             fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= fpRenderFlags;
@@ -2308,16 +2327,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 }
 
 bool GrGLCaps::canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARenderBuffer,
-                                  bool dstIsTextureable, bool dstIsGLTexture2D,
-                                  GrSurfaceOrigin dstOrigin,
+                                  const GrTextureType* dstTypeIfTexture,
                                   GrPixelConfig srcConfig, bool srcHasMSAARenderBuffer,
-                                  bool srcIsTextureable, bool srcIsGLTexture2D,
-                                  GrSurfaceOrigin srcOrigin) const {
-    // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
-    // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
-    // many drivers would allow it to work, but ANGLE does not.
-    if (GR_IS_GR_GL_ES(fStandard) && this->bgraIsInternalFormat() &&
-        (kBGRA_8888_GrPixelConfig == dstConfig || kBGRA_8888_GrPixelConfig == srcConfig)) {
+                                  const GrTextureType* srcTypeIfTexture) const {
+    if (!(fConfigTable[dstConfig].fFlags & ConfigInfo::kCanUseCopyTexSubImage_Flag) ||
+        !(fConfigTable[srcConfig].fFlags & ConfigInfo::kCanUseCopyTexSubImage_Flag)) {
         return false;
     }
 
@@ -2328,16 +2342,15 @@ bool GrGLCaps::canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARender
 
     // CopyTex(Sub)Image writes to a texture and we have no way of dynamically wrapping a RT in a
     // texture.
-    if (!dstIsTextureable) {
+    if (!dstTypeIfTexture) {
         return false;
     }
 
-    // Check that we could wrap the source in an FBO, that the dst is TEXTURE_2D, that no mirroring
-    // is required
+    // Check that we could wrap the source in an FBO, that the dst is not TEXTURE_EXTERNAL, that no
+    // mirroring is required
     if (this->canConfigBeFBOColorAttachment(srcConfig) &&
-        (!srcIsTextureable || srcIsGLTexture2D) &&
-        dstIsGLTexture2D &&
-        dstOrigin == srcOrigin) {
+        (!srcTypeIfTexture || *srcTypeIfTexture != GrTextureType::kExternal) &&
+        *dstTypeIfTexture != GrTextureType::kExternal) {
         return true;
     } else {
         return false;
@@ -2345,11 +2358,10 @@ bool GrGLCaps::canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARender
 }
 
 bool GrGLCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
-                             bool dstIsTextureable, bool dstIsGLTexture2D,
-                             GrSurfaceOrigin dstOrigin,
+                             const GrTextureType* dstTypeIfTexture,
                              GrPixelConfig srcConfig, int srcSampleCnt,
-                             bool srcIsTextureable, bool srcIsGLTexture2D,
-                             GrSurfaceOrigin srcOrigin, const SkRect& srcBounds,
+                             const GrTextureType* srcTypeIfTexture,
+                             const SkRect& srcBounds, bool srcBoundsExact,
                              const SkIRect& srcRect, const SkIPoint& dstPoint) const {
     auto blitFramebufferFlags = this->blitFramebufferSupportFlags();
     if (!this->canConfigBeFBOColorAttachment(dstConfig) ||
@@ -2357,22 +2369,15 @@ bool GrGLCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
         return false;
     }
 
-    if (dstIsTextureable && !dstIsGLTexture2D) {
+    if (dstTypeIfTexture && *dstTypeIfTexture == GrTextureType::kExternal) {
         return false;
     }
-    if (srcIsTextureable && !srcIsGLTexture2D) {
+    if (srcTypeIfTexture && *srcTypeIfTexture == GrTextureType::kExternal) {
         return false;
     }
 
     if (GrGLCaps::kNoSupport_BlitFramebufferFlag & blitFramebufferFlags) {
         return false;
-    }
-    if (GrGLCaps::kNoScalingOrMirroring_BlitFramebufferFlag & blitFramebufferFlags) {
-        // We would mirror to compensate for origin changes. Note that copySurface is
-        // specified such that the src and dst rects are the same.
-        if (dstOrigin != srcOrigin) {
-            return false;
-        }
     }
 
     if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag & blitFramebufferFlags) {
@@ -2380,7 +2385,7 @@ bool GrGLCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
             if (1 == dstSampleCnt) {
                 return false;
             }
-            if (SkRect::Make(srcRect) != srcBounds) {
+            if (SkRect::Make(srcRect) != srcBounds || !srcBoundsExact) {
                 return false;
             }
         }
@@ -2407,16 +2412,9 @@ bool GrGLCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
             if (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop) {
                 return false;
             }
-            if (dstOrigin != srcOrigin) {
-                return false;
-            }
         }
     }
     return true;
-}
-
-bool GrGLCaps::canCopyAsDraw(GrPixelConfig dstConfig, bool srcIsTextureable) const {
-    return this->canConfigBeFBOColorAttachment(dstConfig) && srcIsTextureable;
 }
 
 static bool has_msaa_render_buffer(const GrSurfaceProxy* surf, const GrGLCaps& glCaps) {
@@ -2435,9 +2433,6 @@ static bool has_msaa_render_buffer(const GrSurfaceProxy* surf, const GrGLCaps& g
 
 bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                 const SkIRect& srcRect, const SkIPoint& dstPoint) const {
-    GrSurfaceOrigin dstOrigin = dst->origin();
-    GrSurfaceOrigin srcOrigin = src->origin();
-
     GrPixelConfig dstConfig = dst->config();
     GrPixelConfig srcConfig = src->config();
 
@@ -2452,8 +2447,7 @@ bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
     SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
 
-    // None of our copy methods can handle a swizzle. TODO: Make copySurfaceAsDraw handle the
-    // swizzle.
+    // None of our copy methods can handle a swizzle.
     if (this->shaderCaps()->configOutputSwizzle(src->config()) !=
         this->shaderCaps()->configOutputSwizzle(dst->config())) {
         return false;
@@ -2462,37 +2456,28 @@ bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
     const GrTextureProxy* dstTex = dst->asTextureProxy();
     const GrTextureProxy* srcTex = src->asTextureProxy();
 
-    bool dstIsTex2D = dstTex ? (dstTex->textureType() == GrTextureType::k2D) : false;
-    bool srcIsTex2D = srcTex ? (srcTex->textureType() == GrTextureType::k2D) : false;
-
-    // One of the possible requirements for copy as blit is that the srcRect must match the bounds
-    // of the src surface. If we have a approx fit surface we can't know for sure what the src
-    // bounds will be at this time. Thus we assert that if we say we can copy as blit and the src is
-    // approx that we also can copy as draw. Therefore when it comes time to do the copy we will
-    // know we will at least be able to do it as a draw.
-#ifdef SK_DEBUG
-    if (this->canCopyAsBlit(dstConfig, dstSampleCnt, SkToBool(dstTex),
-                            dstIsTex2D, dstOrigin, srcConfig, srcSampleCnt, SkToBool(srcTex),
-                            srcIsTex2D, srcOrigin, src->getBoundsRect(), srcRect, dstPoint) &&
-        !src->priv().isExact()) {
-        SkASSERT(this->canCopyAsDraw(dstConfig, SkToBool(srcTex)));
+    GrTextureType dstTexType;
+    GrTextureType* dstTexTypePtr = nullptr;
+    GrTextureType srcTexType;
+    GrTextureType* srcTexTypePtr = nullptr;
+    if (dstTex) {
+        dstTexType = dstTex->textureType();
+        dstTexTypePtr = &dstTexType;
     }
-#endif
+    if (srcTex) {
+        srcTexType = srcTex->textureType();
+        srcTexTypePtr = &srcTexType;
+    }
 
-    return this->canCopyTexSubImage(dstConfig, has_msaa_render_buffer(dst, *this),
-                                    SkToBool(dstTex), dstIsTex2D, dstOrigin,
-                                    srcConfig, has_msaa_render_buffer(src, *this),
-                                    SkToBool(srcTex), srcIsTex2D, srcOrigin) ||
-           this->canCopyAsBlit(dstConfig, dstSampleCnt, SkToBool(dstTex),
-                               dstIsTex2D, dstOrigin, srcConfig, srcSampleCnt, SkToBool(srcTex),
-                               srcIsTex2D, srcOrigin, src->getBoundsRect(), srcRect,
-                               dstPoint) ||
-           this->canCopyAsDraw(dstConfig, SkToBool(srcTex));
+    return this->canCopyTexSubImage(dstConfig, has_msaa_render_buffer(dst, *this), dstTexTypePtr,
+                                    srcConfig, has_msaa_render_buffer(src, *this), srcTexTypePtr) ||
+           this->canCopyAsBlit(dstConfig, dstSampleCnt, dstTexTypePtr, srcConfig, srcSampleCnt,
+                               srcTexTypePtr, src->getBoundsRect(), src->priv().isExact(),
+                               srcRect, dstPoint);
 }
 
 bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                                  GrSurfaceOrigin* origin, bool* rectsMustMatch,
-                                  bool* disallowSubrect) const {
+                                  bool* rectsMustMatch, bool* disallowSubrect) const {
     // By default, we don't require rects to match.
     *rectsMustMatch = false;
 
@@ -2502,7 +2487,6 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     // If the src is a texture, we can implement the blit as a draw assuming the config is
     // renderable.
     if (src->asTextureProxy() && !this->isConfigRenderable(src->config())) {
-        *origin = kBottomLeft_GrSurfaceOrigin;
         desc->fFlags = kRenderTarget_GrSurfaceFlag;
         desc->fConfig = src->config();
         return true;
@@ -2523,7 +2507,6 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     // possible and we return false to fallback to creating a render target dst for render-to-
     // texture. This code prefers CopyTexSubImage to fbo blit and avoids triggering temporary fbo
     // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
-    GrSurfaceOrigin originForBlitFramebuffer = kTopLeft_GrSurfaceOrigin;
     bool rectsMustMatchForBlitFramebuffer = false;
     bool disallowSubrectForBlitFramebuffer = false;
     if (src->numColorSamples() > 1 &&
@@ -2531,14 +2514,9 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
         rectsMustMatchForBlitFramebuffer = true;
         disallowSubrectForBlitFramebuffer = true;
         // Mirroring causes rects to mismatch later, don't allow it.
-        originForBlitFramebuffer = src->origin();
     } else if (src->numColorSamples() > 1 && (this->blitFramebufferSupportFlags() &
                                               kRectsMustMatchForMSAASrc_BlitFramebufferFlag)) {
         rectsMustMatchForBlitFramebuffer = true;
-        // Mirroring causes rects to mismatch later, don't allow it.
-        originForBlitFramebuffer = src->origin();
-    } else if (this->blitFramebufferSupportFlags() & kNoScalingOrMirroring_BlitFramebufferFlag) {
-        originForBlitFramebuffer = src->origin();
     }
 
     // Check for format issues with glCopyTexSubImage2D
@@ -2546,7 +2524,6 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
         // glCopyTexSubImage2D doesn't work with this config. If the bgra can be used with fbo blit
         // then we set up for that, otherwise fail.
         if (this->canConfigBeFBOColorAttachment(kBGRA_8888_GrPixelConfig)) {
-            *origin = originForBlitFramebuffer;
             desc->fConfig = kBGRA_8888_GrPixelConfig;
             *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
             *disallowSubrect = disallowSubrectForBlitFramebuffer;
@@ -2562,7 +2539,6 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
             // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO
             // blit or fail.
             if (this->canConfigBeFBOColorAttachment(src->config())) {
-                *origin = originForBlitFramebuffer;
                 desc->fConfig = src->config();
                 *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
                 *disallowSubrect = disallowSubrectForBlitFramebuffer;
@@ -2573,7 +2549,6 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     }
 
     // We'll do a CopyTexSubImage. Make the dst a plain old texture.
-    *origin = src->origin();
     desc->fConfig = src->config();
     desc->fFlags = kNone_GrSurfaceFlags;
     return true;

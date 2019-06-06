@@ -388,21 +388,17 @@ public:
     }
 
     bool canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARenderBuffer,
-                            bool dstIsTextureable, bool dstIsGLTexture2D,
-                            GrSurfaceOrigin dstOrigin,
+                            const GrTextureType* dstTypeIfTexture,
                             GrPixelConfig srcConfig, bool srcHasMSAARenderBuffer,
-                            bool srcIsTextureable, bool srcIsGLTexture2D,
-                            GrSurfaceOrigin srcOrigin) const;
+                            const GrTextureType* srcTypeIfTexture) const;
     bool canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
-                       bool dstIsTextureable, bool dstIsGLTexture2D,
-                       GrSurfaceOrigin dstOrigin,
+                       const GrTextureType* dstTypeIfTexture,
                        GrPixelConfig srcConfig, int srcSampleCnt,
-                       bool srcIsTextureable, bool srcIsGLTexture2D,
-                       GrSurfaceOrigin srcOrigin, const SkRect& srcBounds,
+                        const GrTextureType* srcTypeIfTexture,
+                       const SkRect& srcBounds, bool srcBoundsExact,
                        const SkIRect& srcRect, const SkIPoint& dstPoint) const;
-    bool canCopyAsDraw(GrPixelConfig dstConfig, bool srcIsTextureable) const;
 
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrSurfaceOrigin*,
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
     bool programBinarySupport() const { return fProgramBinarySupport; }
@@ -581,6 +577,9 @@ private:
                 still attach it to a FBO for blitting or reading pixels. */
             kFBOColorAttachment_Flag      = 0x8,
             kCanUseTexStorage_Flag        = 0x10,
+            /** Whether or not the config is an allowed format for copyTexSubImage. This does not
+             * include checks to make sure if the config is a src it must be attachable to FBO. */
+            kCanUseCopyTexSubImage_Flag   = 0x20,
         };
         uint32_t fFlags;
 

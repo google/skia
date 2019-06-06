@@ -310,8 +310,7 @@ public:
      * copy rect must equal src's bounds.
      */
     virtual bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                                    GrSurfaceOrigin* origin, bool* rectsMustMatch,
-                                    bool* disallowSubrect) const = 0;
+                                    bool* rectsMustMatch, bool* disallowSubrect) const = 0;
 
     bool validateSurfaceDesc(const GrSurfaceDesc&, GrMipMapped) const;
 
