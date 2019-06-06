@@ -31,6 +31,8 @@
 #define SK_MAIN_Y_BUILTIN              10010
 #define SK_WIDTH_BUILTIN               10011
 #define SK_HEIGHT_BUILTIN              10012
+#define UNPREMUL_FLOAT_BUILTIN         10013
+#define UNPREMUL_HALF_BUILTIN          10014
 #define SK_FRAGCOORD_BUILTIN              15
 #define SK_CLOCKWISE_BUILTIN              17
 #define SK_VERTEXID_BUILTIN               42
