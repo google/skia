@@ -38,7 +38,7 @@ public:
         vVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "v");
         fragBuilder->codeAppendf(
                 "half4 inputColor = %s;\n@if (%s) {\n    half nonZeroAlpha = max(inputColor.w, "
-                "0.0001);\n    inputColor = half4(inputColor.xyz / nonZeroAlpha, "
+                "9.9999997473787516e-05);\n    inputColor = half4(inputColor.xyz / nonZeroAlpha, "
                 "nonZeroAlpha);\n}\n%s = %s * inputColor + %s;\n@if (%s) {\n    %s = clamp(%s, "
                 "0.0, 1.0);\n} else {\n    %s.w = clamp(%s.w, 0.0, 1.0);\n}\n@if (%s) {\n    "
                 "%s.xyz *= %s.w;\n}\n",
