@@ -232,20 +232,16 @@ void RangeSelector::modulateCoverage(TextAnimator::ModulatorBuffer& buf) const {
     SkASSERT(!buf.empty());
 
     // Amount is percentage based [-100% .. 100%].
-    const auto amount  = SkTPin<float>(fAmount / 100, -1, 1);
+    const auto amount = SkTPin<float>(fAmount / 100, -1, 1);
 
     // First, resolve to a float range in the given domain.
     SkAssertResult(fDomain == Domain::kChars);
     const auto f_range = this->resolve(buf.size());
 
     // f_range pinned to [0..size].
-    const auto f0 = SkTPin<float>(std::get<0>(f_range), 0, buf.size()),
-               f1 = SkTPin<float>(std::get<1>(f_range), 0, buf.size());
-
-    // Integral/index range.
-    const auto i0 = std::min<size_t>(f0, buf.size() - 1),
-               i1 = std::min<size_t>(f1, buf.size() - 1);
-    SkASSERT(i0 <= i1);
+    const auto f_buf_size = static_cast<float>(buf.size()),
+                       f0 = SkTPin(std::get<0>(f_range), 0.0f, f_buf_size),
+                       f1 = SkTPin(std::get<1>(f_range), 0.0f, f_buf_size);
 
     SkASSERT(static_cast<size_t>(fMode) < SK_ARRAY_COUNT(gCoverageProcs));
     const auto& coverage_proc = gCoverageProcs[static_cast<size_t>(fMode)];
@@ -253,11 +249,27 @@ void RangeSelector::modulateCoverage(TextAnimator::ModulatorBuffer& buf) const {
     SkASSERT(static_cast<size_t>(fShape) < SK_ARRAY_COUNT(gShapeGenerators));
     const auto& generator = gShapeGenerators[static_cast<size_t>(fShape)];
 
-    // First, coverage-blit constant intervals:
-    //   - modulate [0..i0) with constant coverage lo.
-    //   - modulate (i1..N] with constant coverage hi.
-    coverage_proc(amount * generator.lo, buf.data(), i0);
-    coverage_proc(amount * generator.hi, buf.data() + i1 + 1, buf.size() - i1 - 1);
+    // Blit constant coverage outside the shape.
+    {
+        // Constant coverage count before the shape left edge, and after the right edge.
+        const auto count_lo = static_cast<size_t>(std::floor(f0)),
+                   count_hi = static_cast<size_t>(f_buf_size - std::ceil (f1));
+        SkASSERT(count_lo <= buf.size());
+        SkASSERT(count_hi <= buf.size());
+
+        coverage_proc(amount * generator.lo, buf.data()                        , count_lo);
+        coverage_proc(amount * generator.hi, buf.data() + buf.size() - count_hi, count_hi);
+
+        if (count_lo == buf.size() || count_hi == buf.size()) {
+            // The shape is completely outside the domain - we're done.
+            return;
+        }
+    }
+
+    // Integral/index range.
+    const auto i0 = std::min<size_t>(f0, buf.size() - 1),
+               i1 = std::min<size_t>(f1, buf.size() - 1);
+    SkASSERT(i0 <= i1);
 
     const auto range_span = std::get<1>(f_range) - std::get<0>(f_range);
     if (SkScalarNearlyZero(range_span)) {
