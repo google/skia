@@ -21,7 +21,7 @@ static void do_font_stuff(SkFont* font) {
     SkPaint defaultPaint;
     for (SkScalar i = 8; i < 64; i++) {
         font->setSize(i);
-        auto strikeSpec = SkStrikeSpecStorage::MakeMask(
+        auto strikeSpec = SkStrikeSpec::MakeMask(
                 *font,  defaultPaint, SkSurfaceProps(0, kUnknown_SkPixelGeometry),
                 SkScalerContextFlags::kNone, SkMatrix::I());
         auto cache = strikeSpec.findOrCreateExclusiveStrike();

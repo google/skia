@@ -310,7 +310,7 @@ void SkGlyphRunBuilder::simplifyDrawText(
     if (!glyphIDs.empty()) {
         fScratchAdvances.resize(runSize);
         {
-            SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(font);
+            SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(font);
             auto cache = strikeSpec.findOrCreateExclusiveStrike();
             cache->getAdvances(glyphIDs, fScratchAdvances.data());
         }
