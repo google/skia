@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85abf84d_9062d410",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T05:50:31Z",
+      "side": 1,
+      "message": "fBackend may be uninitialized if !fIsValid (created from the default constructor). I think this should be\n\nthis-\u003eisValid() \u0026\u0026 ...",
+      "range": {
+        "startLine": 288,
+        "startChar": 15,
+        "endLine": 288,
+        "endChar": 29
+      },
+      "revId": "e2826ab59cf3f7bc159aaea4fa312183d12c6014",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c3b185e_7ca36de4",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-06T05:50:31Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 593,
+        "startChar": 15,
+        "endLine": 593,
+        "endChar": 46
+      },
+      "revId": "e2826ab59cf3f7bc159aaea4fa312183d12c6014",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
