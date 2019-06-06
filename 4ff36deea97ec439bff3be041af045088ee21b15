@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "632d3938_52faaf4d",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-06T15:55:05Z",
+      "side": 1,
+      "message": "Brief note about what this does?  It\u0027s not super obvious from the names and the parameters.",
+      "revId": "4ff36deea97ec439bff3be041af045088ee21b15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
