@@ -86,6 +86,15 @@ private:
     std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(const ASTNode& m);
 
     const Type* convertType(const ASTNode& type);
+    // Converts an expression to a variable reference. Returns (via out parameters) the variable
+    // itself, as well as the initial expression which should be used to refer to its value.
+    // If the expression is already a variable reference, the return values will simply be the
+    // existing variable and variable reference. Otherwise, a new variable will be created and the
+    // initial reference to it will be an expression whose side effect initializes the variable.
+    void toVariable(std::unique_ptr<Expression> expr, const Variable** outVariable,
+                    std::unique_ptr<Expression>* outInitialReference);
+    std::unique_ptr<Expression> intrinsicCall(int offset, const FunctionDeclaration& function,
+                                              std::vector<std::unique_ptr<Expression>>* arguments);
     std::unique_ptr<Expression> call(int offset,
                                      const FunctionDeclaration& function,
                                      std::vector<std::unique_ptr<Expression>> arguments);
@@ -157,6 +166,8 @@ private:
     std::shared_ptr<SymbolTable> fSymbolTable;
     // holds extra temp variable declarations needed for the current function
     std::vector<std::unique_ptr<Statement>> fExtraVars;
+    // holds Strings for temporary variable names
+    std::vector<String> fExtraStrings;
     int fLoopLevel;
     int fSwitchLevel;
     // count of temporary variables we have created

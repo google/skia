@@ -295,4 +295,7 @@ float2 interpolateAtOffset(float2 interpolant, float2 offset);
 float3 interpolateAtOffset(float3 interpolant, float2 offset);
 float4 interpolateAtOffset(float4 interpolant, float2 offset);
 
+layout(builtin=10013) float4 unpremul(float4 c);
+layout(builtin=10014) half4 unpremul(half4 c);
+
 )

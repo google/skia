@@ -1704,6 +1704,104 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
                                                              std::move(ifFalse)));
 }
 
+void IRGenerator::toVariable(std::unique_ptr<Expression> expr, const Variable** outVariable,
+                             std::unique_ptr<Expression>* outInitialReference) {
+    int offset = expr->fOffset;
+    if (expr->fKind == Expression::kVariableReference_Kind) {
+        *outVariable = &((VariableReference&) *expr).fVariable;
+        *outInitialReference = std::move(expr);
+        return;
+    }
+    fExtraStrings.push_back("tmpUnpremul" + to_string(++fTmpCount));
+    String& name = *new String("tmpUnpremul" + to_string(++fTmpCount));//fExtraStrings.back();
+    const Type& type = expr->fType;
+    *outVariable = (Variable*) fSymbolTable->takeOwnership(
+                               std::unique_ptr<Symbol>(new Variable(offset,
+                                                                    Modifiers(),
+                                                                    StringFragment(name.c_str(),
+                                                                                   name.length()),
+                                                                    type,
+                                                                    Variable::kLocal_Storage,
+                                                                    expr.get())));
+    std::vector<std::unique_ptr<VarDeclaration>> declVec;
+    declVec.emplace_back(new VarDeclaration(*outVariable, {}, nullptr));
+    fExtraVars.emplace_back(new VarDeclarationsStatement(std::unique_ptr<VarDeclarations>(
+                                          new VarDeclarations(offset, &type, std::move(declVec)))));
+    std::unique_ptr<Expression> left(new VariableReference(offset, **outVariable,
+                                                           VariableReference::kReadWrite_RefKind));
+    *outInitialReference = std::unique_ptr<Expression>(new BinaryExpression(offset,
+                                                                            std::move(left),
+                                                                            Token::EQ,
+                                                                            std::move(expr),
+                                                                            type));
+}
+
+std::unique_ptr<Expression> IRGenerator::intrinsicCall(
+                                              int offset,
+                                              const FunctionDeclaration& function,
+                                              std::vector<std::unique_ptr<Expression>>* arguments) {
+    switch (function.fModifiers.fLayout.fBuiltin) {
+        case UNPREMUL_FLOAT_BUILTIN:
+        case UNPREMUL_HALF_BUILTIN: {
+            const Variable* argVar;
+            std::unique_ptr<Expression> initialArgValue;
+            this->toVariable(std::move((*arguments)[0]), &argVar, &initialArgValue);
+            std::vector<std::unique_ptr<Expression>> maxArgs;
+            std::unique_ptr<Expression> alpha = convertSwizzle(std::move(initialArgValue), "a");
+            if (!alpha) {
+                return nullptr;
+            }
+            maxArgs.emplace_back(std::move(alpha));
+            maxArgs.emplace_back(new FloatLiteral(fContext, offset, 0.0001));
+            SymbolTable* symbols = fSymbolTable.get();
+            while (symbols->fParent != fRootSymbolTable) {
+                symbols = symbols->fParent.get();
+            }
+            const Symbol* max = (*symbols)["max"];
+            SkASSERT(max->fKind == Symbol::kUnresolvedFunction_Kind);
+            const UnresolvedFunction* maxFunction = (const UnresolvedFunction*) max;
+            std::unique_ptr<FunctionReference> fref(new FunctionReference(fContext,
+                                                                          offset,
+                                                                          maxFunction->fFunctions));
+            std::unique_ptr<Expression> maxCall = this->call(offset,
+                                                             std::move(fref),
+                                                             std::move(maxArgs));
+            if (!maxCall) {
+                return nullptr;
+            }
+            std::unique_ptr<Expression> rgb = convertSwizzle(std::unique_ptr<Expression>(
+                                                                    new VariableReference(offset,
+                                                                                          *argVar)),
+                                                             "rgb");
+            if (!rgb) {
+                return nullptr;
+            }
+            const Variable* nonZeroAlpha;
+            std::unique_ptr<Expression> initialNonZeroAlpha;
+            this->toVariable(std::move(maxCall), &nonZeroAlpha, &initialNonZeroAlpha);
+            std::unique_ptr<Expression> mul(new BinaryExpression(offset,
+                                                                 std::move(rgb),
+                                                                 Token::STAR,
+                                                                 std::move(initialNonZeroAlpha),
+                                                                 // FIXME half or float, depending
+                                                                 *fContext.fHalf3_Type));
+            if (!mul) {
+                return nullptr;
+            }
+            std::vector<std::unique_ptr<Expression>> constructArgs;
+            constructArgs.push_back(std::move(mul));
+            constructArgs.push_back(std::unique_ptr<Expression>(
+                                                     new VariableReference(offset, *nonZeroAlpha)));
+            return this->convertConstructor(offset,
+                                            // FIXME half or float, depending
+                                            *fContext.fHalf4_Type,
+                                            std::move(constructArgs));
+        }
+        default:
+            return nullptr;
+    }
+}
+
 std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               const FunctionDeclaration& function,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
@@ -1744,8 +1842,12 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                              VariableReference::kPointer_RefKind);
         }
     }
-    return std::unique_ptr<FunctionCall>(new FunctionCall(offset, *returnType, function,
-                                                          std::move(arguments)));
+
+    std::unique_ptr<Expression> result = this->intrinsicCall(offset, function, &arguments);
+    if (!result) {
+        result.reset(new FunctionCall(offset, *returnType, function, std::move(arguments)));
+    }
+    return result;
 }
 
 /**

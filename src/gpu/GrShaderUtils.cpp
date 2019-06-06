@@ -194,9 +194,8 @@ void PrintLineByLine(const char* header, const SkSL::String& text) {
     if (header) {
         SkDebugf("%s\n", header);
     }
-    SkSL::String pretty = PrettyPrint(text);
     SkTArray<SkString> lines;
-    SkStrSplit(pretty.c_str(), "\n", kStrict_SkStrSplitMode, &lines);
+    SkStrSplit(text.c_str(), "\n", kStrict_SkStrSplitMode, &lines);
     for (int i = 0; i < lines.count(); ++i) {
         SkDebugf("%4i\t%s\n", i + 1, lines[i].c_str());
     }
