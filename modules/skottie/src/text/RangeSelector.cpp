@@ -288,10 +288,16 @@ void RangeSelector::modulateCoverage(TextAnimator::ModulatorBuffer& buf) const {
           auto  t = (i0 + 0.5f - std::get<0>(f_range)) / range_span;
 
     if (i0 == i1) {
-        // The whole interval falls within a single fragment.
-        const auto fract_coverage = f1 - f0;
-        SkASSERT(fract_coverage <= 1);
-        generator(coverage_proc, SkTPin(t, 0.0f, 1.0f), amount * fract_coverage, buf.data() + i0);
+        // When the whole interval falls within a single fragment, the resulting coverage is
+        // a 3-way weighted average of lo/generated/hi values.
+        const auto lo_weight = f0 - std::floor(f0),
+                   mi_weight = f1 - f0,
+                   hi_weight = std::ceil(f1) - f1,
+                    coverage = lo_weight * generator.lo +
+                               mi_weight * generator.func(SkTPin(t, 0.0f, 1.0f)) +
+                               hi_weight * generator.hi;
+
+        coverage_proc(amount * coverage, buf.data() + i0, 1);
     } else {
         // The range spans multiple fragments.
 
