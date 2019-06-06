@@ -49,8 +49,10 @@ public:
         kMatrix_Kind,
         kOther_Kind,
         kSampler_Kind,
+        kSeparateSampler_Kind,  // FIMXE: this should be sampler, and Sampler should be TextureSampler
         kScalar_Kind,
         kStruct_Kind,
+        kTexture_Kind,
         kVector_Kind
     };
 
@@ -349,27 +351,27 @@ public:
     }
 
     SpvDim_ dimensions() const {
-        SkASSERT(kSampler_Kind == fTypeKind);
+        SkASSERT(kSampler_Kind == fTypeKind || kTexture_Kind == fTypeKind);
         return fDimensions;
     }
 
     bool isDepth() const {
-        SkASSERT(kSampler_Kind == fTypeKind);
+        SkASSERT(kSampler_Kind == fTypeKind || kTexture_Kind == fTypeKind);
         return fIsDepth;
     }
 
     bool isArrayed() const {
-        SkASSERT(kSampler_Kind == fTypeKind);
+        SkASSERT(kSampler_Kind == fTypeKind || kTexture_Kind == fTypeKind);
         return fIsArrayed;
     }
 
     bool isMultisampled() const {
-        SkASSERT(kSampler_Kind == fTypeKind);
+        SkASSERT(kSampler_Kind == fTypeKind || kTexture_Kind == fTypeKind);
         return fIsMultisampled;
     }
 
     bool isSampled() const {
-        SkASSERT(kSampler_Kind == fTypeKind);
+        SkASSERT(kSampler_Kind == fTypeKind || kTexture_Kind == fTypeKind);
         return fIsSampled;
     }
 

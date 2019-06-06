@@ -211,6 +211,8 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(GSamplerCubeArrayShadow);
     ADD_TYPE(FragmentProcessor);
     ADD_TYPE(SkRasterPipeline);
+    ADD_TYPE(Sampler);
+    ADD_TYPE(Texture2D);
 
     StringFragment skCapsName("sk_Caps");
     Variable* skCaps = new Variable(-1, Modifiers(), skCapsName,
@@ -1332,7 +1334,7 @@ bool Compiler::optimize(Program& program) {
                     VarDeclarations& vars = (VarDeclarations&) **iter;
                     for (auto varIter = vars.fVars.begin(); varIter != vars.fVars.end();) {
                         const Variable& var = *((VarDeclaration&) **varIter).fVar;
-                        if (var.dead()) {
+                        if (var.dead() && false) {
                             varIter = vars.fVars.erase(varIter);
                         } else {
                             ++varIter;

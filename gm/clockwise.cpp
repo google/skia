@@ -61,7 +61,7 @@ class GrGLSLProgramDataManager;
 namespace skiagm {
 
 static constexpr GrGeometryProcessor::Attribute gVertex =
-        {"vertex", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
 
 /**
  * This is a GPU-backend specific test. It ensures that SkSL properly identifies clockwise-winding
@@ -104,7 +104,7 @@ class GLSLClockwiseTestProcessor : public GrGLSLGeometryProcessor {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const ClockwiseTestProcessor& proc = args.fGP.cast<ClockwiseTestProcessor>();
         args.fVaryingHandler->emitAttributes(proc);
-        gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");
+        gpArgs->fPositionVar.set(kFloat2_GrSLType, "position");
         args.fFragBuilder->codeAppendf(
                 "%s = sk_Clockwise ? half4(0,1,0,1) : half4(1,0,0,1);", args.fOutputColor);
         if (!proc.fReadSkFragCoord) {

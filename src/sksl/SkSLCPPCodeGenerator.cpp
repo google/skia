@@ -138,7 +138,7 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
             }
             int64_t index = ((IntLiteral&) *i.fIndex).fValue;
             fFormatArgs.push_back("        fragBuilder->getProgramBuilder()->samplerVariable("
-                                            "args.fTexSamplers[" + to_string(index) + "]).c_str()");
+                                            "args.fTexSamplers[" + to_string(index) + "])");
             return;
         }
     }
@@ -306,7 +306,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
             if (ref.fVariable.fType.kind() == Type::kSampler_Kind) {
                 this->write("%s");
                 fFormatArgs.push_back("fragBuilder->getProgramBuilder()->samplerVariable(" +
-                                      this->getSamplerHandle(ref.fVariable) + ").c_str()");
+                                      this->getSamplerHandle(ref.fVariable) + ")");
                 return;
             }
             if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {

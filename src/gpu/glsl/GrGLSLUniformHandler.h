@@ -75,7 +75,7 @@ protected:
     GrGLSLProgramBuilder* fProgramBuilder;
 
 private:
-    virtual const GrShaderVar& samplerVariable(SamplerHandle) const = 0;
+    virtual const char * samplerVariable(SamplerHandle) const = 0;
     virtual GrSwizzle samplerSwizzle(SamplerHandle) const = 0;
 
     virtual SamplerHandle addSampler(const GrTexture*, const GrSamplerState&, const char* name,
