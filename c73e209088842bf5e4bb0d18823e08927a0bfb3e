@@ -91,6 +91,30 @@
       "revId": "c73e209088842bf5e4bb0d18823e08927a0bfb3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9be436e_4e907014",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1755,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-06T13:47:41Z",
+      "side": 1,
+      "message": "This was already being done on line 1767.",
+      "parentUuid": "d25a3ba4_dcf559b1",
+      "range": {
+        "startLine": 1755,
+        "startChar": 8,
+        "endLine": 1755,
+        "endChar": 86
+      },
+      "revId": "c73e209088842bf5e4bb0d18823e08927a0bfb3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
