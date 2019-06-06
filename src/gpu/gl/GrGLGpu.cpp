@@ -887,12 +887,6 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
         case kRGB_ETC1_GrPixelConfig:
         case kUnknown_GrPixelConfig:
             return 0;
-
-        // Experimental (for P016 and P010)
-        case kR_16_GrPixelConfig:
-            return 2;
-        case kRG_1616_GrPixelConfig:
-            return 4;
     }
     SK_ABORT("Invalid pixel config");
     return 0;
@@ -4023,14 +4017,6 @@ static bool gl_format_to_pixel_config(GrGLenum format, GrPixelConfig* config) {
             return true;
         case GR_GL_R16F:
             *config = kAlpha_half_GrPixelConfig;
-            return true;
-
-        // Experimental (for P016 and P010)
-        case GR_GL_R16:
-            *config = kR_16_GrPixelConfig;
-            return true;
-        case GR_GL_RG16:
-            *config = kRG_1616_GrPixelConfig;
             return true;
     }
 

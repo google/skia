@@ -1827,13 +1827,6 @@ static bool vk_format_to_pixel_config(VkFormat format, GrPixelConfig* config) {
         case VK_FORMAT_R16_SFLOAT:
             *config = kAlpha_half_GrPixelConfig;
             return true;
-        // Experimental (for P016 and P010)
-        case VK_FORMAT_R16_UNORM:
-            *config = kR_16_GrPixelConfig;
-            return true;
-        case VK_FORMAT_R16G16_UNORM:
-            *config = kRG_1616_GrPixelConfig;
-            return true;
         default:
             return false;
     }

@@ -319,9 +319,6 @@ static inline int32_t dither_range_type_for_config(GrPixelConfig dstConfig) {
         case kRGB_888X_GrPixelConfig:
         case kRG_88_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
-        // Experimental (for P016 and P010)
-        case kR_16_GrPixelConfig:
-        case kRG_1616_GrPixelConfig:
             return 0;
         case kRGB_565_GrPixelConfig:
             return 1;

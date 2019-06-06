@@ -353,9 +353,6 @@ static constexpr inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
             return sizeof(int32_t);
         case kUint_GrVertexAttribType:
             return sizeof(uint32_t);
-        // Experimental (for P016 and P010)
-        case kUShort_norm_GrVertexAttribType:
-            return sizeof(uint16_t);
     }
     // GCC fails because SK_ABORT evaluates to non constexpr. clang and cl.exe think this is
     // unreachable and don't complain.

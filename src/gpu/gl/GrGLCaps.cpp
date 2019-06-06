@@ -1869,11 +1869,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
 
     ConfigInfo& redInfo = fConfigTable[kAlpha_8_as_Red_GrPixelConfig];
+    redInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+    redInfo.fFormatType = kNormalizedFixedPoint_FormatType;
     redInfo.fFormats.fBaseInternalFormat = GR_GL_RED;
     redInfo.fFormats.fSizedInternalFormat = GR_GL_R8;
     redInfo.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
-    redInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    redInfo.fFormatType = kNormalizedFixedPoint_FormatType;
     shaderCaps->fConfigTextureSwizzle[kAlpha_8_as_Red_GrPixelConfig] = GrSwizzle::RRRR();
 
     // ES2 Command Buffer does not allow TexStorage with R8_EXT (so Alpha_8 and Gray_8)
@@ -1898,11 +1898,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
 
     ConfigInfo& grayLumInfo = fConfigTable[kGray_8_as_Lum_GrPixelConfig];
+    grayLumInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+    grayLumInfo.fFormatType = kNormalizedFixedPoint_FormatType;
     grayLumInfo.fFormats.fBaseInternalFormat = GR_GL_LUMINANCE;
     grayLumInfo.fFormats.fSizedInternalFormat = GR_GL_LUMINANCE8;
     grayLumInfo.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_LUMINANCE;
-    grayLumInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    grayLumInfo.fFormatType = kNormalizedFixedPoint_FormatType;
     shaderCaps->fConfigTextureSwizzle[kGray_8_as_Lum_GrPixelConfig] = GrSwizzle::RGBA();
 
     if ((GR_IS_GR_GL(standard) && version <= GR_GL_VER(3, 0)) ||
@@ -1912,13 +1912,13 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
 
     ConfigInfo& grayRedInfo = fConfigTable[kGray_8_as_Red_GrPixelConfig];
+    grayRedInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+    grayRedInfo.fFormatType = kNormalizedFixedPoint_FormatType;
     grayRedInfo.fFormats.fBaseInternalFormat = GR_GL_RED;
     grayRedInfo.fFormats.fSizedInternalFormat = GR_GL_R8;
     grayRedInfo.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
-    grayRedInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    grayRedInfo.fFormatType = kNormalizedFixedPoint_FormatType;
-    grayRedInfo.fFlags = ConfigInfo::kTextureable_Flag;
     shaderCaps->fConfigTextureSwizzle[kGray_8_as_Red_GrPixelConfig] = GrSwizzle::RRRA();
+    grayRedInfo.fFlags = ConfigInfo::kTextureable_Flag;
 
     // Leaving Gray8 as non-renderable, to keep things simple and match raster. However, we do
     // enable the FBOColorAttachment_Flag so that we can bind it to an FBO for copies.
@@ -2134,59 +2134,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         }
     } // No WebGL support
     shaderCaps->fConfigTextureSwizzle[kRGB_ETC1_GrPixelConfig] = GrSwizzle::RGBA();
-
-    // Experimental (for P016 and P010)
-    {
-        // For desktop:
-        //    GL 3.0 requires support for R16 & RG16
-        //    GL_ARB_texture_rg adds R16 & RG16 support for OpenGL 1.1 and above
-        // For ES:
-        //    GL_EXT_texture_norm16 adds support but it requires ES 3.1
-        //    There is also the GL_NV_image_formats extension - for further investigation
-        bool r16AndRG1616Supported = false;
-        if (GR_IS_GR_GL(standard)) {
-            if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_texture_rg")) {
-                r16AndRG1616Supported = true;
-            }
-        } else if (GR_IS_GR_GL_ES(standard)) {
-            if (version >= GR_GL_VER(3, 1) && ctxInfo.hasExtension("GL_EXT_texture_norm16")) {
-                r16AndRG1616Supported = true;
-            }
-        } // No WebGL support
-
-        {
-            ConfigInfo& r16Info = fConfigTable[kR_16_GrPixelConfig];
-
-            r16Info.fFormats.fBaseInternalFormat = GR_GL_RED;
-            r16Info.fFormats.fSizedInternalFormat = GR_GL_R16;
-            r16Info.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
-            r16Info.fFormats.fExternalType = GR_GL_UNSIGNED_SHORT;
-            r16Info.fFormatType = kNormalizedFixedPoint_FormatType;
-            if (r16AndRG1616Supported) {
-                r16Info.fFlags = ConfigInfo::kTextureable_Flag;
-            }
-            // We should only ever be sampling the R channel of this format so don't bother
-            // with a fancy swizzle.
-            shaderCaps->fConfigTextureSwizzle[kR_16_GrPixelConfig] = GrSwizzle::RGBA();
-        }
-
-        {
-            ConfigInfo& rg1616Info = fConfigTable[kRG_1616_GrPixelConfig];
-
-            rg1616Info.fFormats.fBaseInternalFormat = GR_GL_RG;
-            rg1616Info.fFormats.fSizedInternalFormat = GR_GL_RG16;
-            rg1616Info.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RG;
-            rg1616Info.fFormats.fExternalType = GR_GL_UNSIGNED_SHORT;
-            rg1616Info.fFormatType = kNormalizedFixedPoint_FormatType;
-            if (r16AndRG1616Supported) {
-                rg1616Info.fFlags = ConfigInfo::kTextureable_Flag;
-            }
-            // We should only ever be sampling the R and G channels of this format so don't bother
-            // with a fancy swizzle.
-            shaderCaps->fConfigTextureSwizzle[kRG_1616_GrPixelConfig] = GrSwizzle::RGBA();
-        }
-    }
-
 
     // Bulk populate the texture internal/external formats here and then deal with exceptions below.
 
@@ -3305,13 +3252,6 @@ static GrPixelConfig get_yuva_config(GrGLenum format) {
         case GR_GL_R16F:
             config = kAlpha_half_as_Red_GrPixelConfig;
             break;
-        // Experimental (for P016 and P010)
-        case GR_GL_R16:
-            config = kR_16_GrPixelConfig;
-            break;
-        case GR_GL_RG16:
-            config = kRG_1616_GrPixelConfig;
-            break;
     }
 
     return config;
@@ -3369,11 +3309,6 @@ static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType)
             return GR_GL_RGBA32F == format;
         case GrColorType::kRGB_ETC1:
             return GR_GL_COMPRESSED_RGB8_ETC2 == format || GR_GL_COMPRESSED_ETC1_RGB8 == format;
-        // Experimental (for P016 and P010)
-        case GrColorType::kR_16:
-            return GR_GL_R16 == format;
-        case GrColorType::kRG_1616:
-            return GR_GL_RG16 == format;
     }
     SK_ABORT("Unknown color type");
     return false;
