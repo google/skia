@@ -573,6 +573,18 @@ bool GrGLFormatIsCompressed(GrGLenum glFormat) {
     return false;
 }
 
+GrCompression GrGLFormat2Compression(GrGLenum glFormat) {
+    switch (glFormat) {
+        case GR_GL_COMPRESSED_RGB8_ETC2: // fall through
+        case GR_GL_COMPRESSED_ETC1_RGB8:
+            return GrCompression::kETC1;
+        default:
+            return GrCompression::kNone;
+    }
+    SK_ABORT("Invalid format");
+    return GrCompression::kNone;
+}
+
 size_t GrGLFormatCompressedDataSize(GrGLenum glFormat, int width, int height) {
     SkASSERT(GrGLFormatIsCompressed(glFormat));
 
