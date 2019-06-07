@@ -21,16 +21,16 @@
 // [1] Ideally we'd only align to T, but that tanks ARMv7 NEON codegen.
 // [2] Some compilers barf if we try to use N*sizeof(T), so instead we leave them at T.
 
-#include "include/core/SkTypes.h"
+// Please try to keep this file independent of Skia headers.
 #include <algorithm>         // std::min, std::max
 #include <cmath>             // std::ceil, std::floor, std::trunc, std::round, std::sqrt, etc.
 #include <cstdint>           // intXX_t
 #include <cstring>           // memcpy()
 #include <initializer_list>  // std::initializer_list
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+#if defined(__SSE__)
     #include <immintrin.h>
-#elif defined(SK_ARM_HAS_NEON)
+#elif defined(__ARM_NEON)
     #include <arm_neon.h>
 #endif
 
@@ -114,7 +114,7 @@ struct Vec<1,T> {
     }
 };
 
-#if defined(__GNUC__) && !defined(__clang__) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+#if defined(__GNUC__) && !defined(__clang__) && defined(__SSE__)
     // GCC warns about ABI changes when returning >= 32 byte vectors when -mavx is not enabled.
     // This only happens for types like VExt whose ABI we don't care about, not for Vec itself.
     #pragma GCC diagnostic ignored "-Wpsabi"
@@ -427,7 +427,7 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
     return cast<uint8_t>( (X*Y+X)/256 );
 }
 
-#if !defined(SKNX_NO_SIMD) && defined(SK_ARM_HAS_NEON)
+#if !defined(SKNX_NO_SIMD) && defined(__ARM_NEON)
     // With NEON we can do eight u8*u8 -> u16 in one instruction, vmull_u8 (read, mul-long).
     static inline Vec<8,uint16_t> mull(const Vec<8,uint8_t>& x,
                                        const Vec<8,uint8_t>& y) {
@@ -463,9 +463,10 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
 #endif
 
 #if !defined(SKNX_NO_SIMD)
+
     // Platform-specific specializations and overloads can now drop in here.
 
-    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+    #if defined(__SSE__)
         static inline Vec<4,float> sqrt(const Vec<4,float>& x) {
             return bit_pun<Vec<4,float>>(_mm_sqrt_ps(bit_pun<__m128>(x)));
         }
@@ -487,7 +488,7 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
         }
     #endif
 
-    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+    #if defined(__SSE4_1__)
         static inline Vec<4,float> if_then_else(const Vec<4,int  >& c,
                                                 const Vec<4,float>& t,
                                                 const Vec<4,float>& e) {
@@ -495,7 +496,7 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
                                                        bit_pun<__m128>(t),
                                                        bit_pun<__m128>(c)));
         }
-    #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+    #elif defined(__SSE__)
         static inline Vec<4,float> if_then_else(const Vec<4,int  >& c,
                                                 const Vec<4,float>& t,
                                                 const Vec<4,float>& e) {
@@ -504,7 +505,7 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
                                                    _mm_andnot_ps(bit_pun<__m128>(c),
                                                                  bit_pun<__m128>(e))));
         }
-    #elif defined(SK_ARM_HAS_NEON)
+    #elif defined(__ARM_NEON)
         static inline Vec<4,float> if_then_else(const Vec<4,int  >& c,
                                                 const Vec<4,float>& t,
                                                 const Vec<4,float>& e) {
@@ -514,7 +515,7 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
         }
     #endif
 
-#endif  // !defined(SKNX_NO_SIMD)
+#endif // !defined(SKNX_NO_SIMD)
 
 }  // namespace skvx
 
