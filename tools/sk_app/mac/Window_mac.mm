@@ -125,6 +125,11 @@ bool Window_mac::attach(BackendType attachType) {
         case kRaster_BackendType:
             fWindowContext = NewRasterForMac(info, fRequestedDisplayParams);
             break;
+#ifdef SK_DAWN
+        case kDawn_BackendType:
+            fWindowContext = window_context_factory::NewDawnMTLForMac(info, fRequestedDisplayParams);
+            break;
+#endif
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
             fWindowContext = NewVulkanForMac(info, fRequestedDisplayParams);

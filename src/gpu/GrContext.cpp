@@ -442,4 +442,3 @@ void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
 
     fGpu->deleteBackendTexture(backendTex);
 }
-
