@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "863a56db_ca29573f",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1535,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-07T13:00:32Z",
+      "side": 1,
+      "message": "Done - switched to a \u0027dstStageMask\u0027 parameter.",
+      "parentUuid": "dcf45c7f_8d480eab",
+      "range": {
+        "startLine": 1535,
+        "startChar": 31,
+        "endLine": 1535,
+        "endChar": 69
+      },
+      "revId": "c73e209088842bf5e4bb0d18823e08927a0bfb3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1003eeb9_205d6223",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 6
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "bc2a4499_512013ab",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1629,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-07T13:00:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1003eeb9_205d6223",
+      "range": {
+        "startLine": 1605,
+        "startChar": 4,
+        "endLine": 1629,
+        "endChar": 19
+      },
+      "revId": "c73e209088842bf5e4bb0d18823e08927a0bfb3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "77db9828_cb445f69",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 6
@@ -59,6 +107,30 @@
       "writtenOn": "2019-06-06T13:45:30Z",
       "side": 1,
       "message": "for uninitialized images it is better to leave this in the default unknown or preintialized state.",
+      "range": {
+        "startLine": 1721,
+        "startChar": 8,
+        "endLine": 1722,
+        "endChar": 78
+      },
+      "revId": "c73e209088842bf5e4bb0d18823e08927a0bfb3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "beb55909_9c7a34d8",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1722,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-07T13:00:32Z",
+      "side": 1,
+      "message": "The contract is now:\n\nIf no data:\n  layout is VK_IMAGE_LAYOUT_UNDEFINED\nif color or srcData:\n  layout is VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL",
+      "parentUuid": "77db9828_cb445f69",
       "range": {
         "startLine": 1721,
         "startChar": 8,
