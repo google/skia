@@ -237,6 +237,30 @@
     },
     {
       "key": {
+        "uuid": "8196c9aa_0a6501fc",
+        "filename": "modules/skparagraph/src/ParagraphCache.h",
+        "patchSetId": 49
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-07T15:46:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a1d7a94e_83e071d4",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 30
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9fe32b6d_d0038ce7",
         "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
         "patchSetId": 49
@@ -257,6 +281,30 @@
       "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3b67915_3b89fc71",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-07T15:46:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fe32b6d_d0038ce7",
+      "range": {
+        "startLine": 421,
+        "startChar": 0,
+        "endLine": 421,
+        "endChar": 41
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -354,6 +402,30 @@
     },
     {
       "key": {
+        "uuid": "4be069d3_b4a6faee",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-07T15:46:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5481b9b4_a3a23ad7",
+      "range": {
+        "startLine": 13,
+        "startChar": 19,
+        "endLine": 13,
+        "endChar": 28
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1876e8e9_c4921302",
         "filename": "modules/skparagraph/src/TextLine.cpp",
         "patchSetId": 49
@@ -388,6 +460,30 @@
       "writtenOn": "2019-06-07T15:43:47Z",
       "side": 1,
       "message": "Well, it can return negative in case the spans are far away from each other.",
+      "parentUuid": "1876e8e9_c4921302",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 7
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff65d9ac_93d4c564",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-07T15:46:11Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "1876e8e9_c4921302",
       "range": {
         "startLine": 19,
