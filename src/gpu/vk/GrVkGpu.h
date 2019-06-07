@@ -82,7 +82,7 @@ public:
     GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
                                           GrMipMapped, GrRenderable,
                                           const void* pixels, size_t rowBytes,
-                                          const SkColor4f& color = SkColors::kTransparent) override;
+                                          const SkColor4f* color) override;
     void deleteBackendTexture(const GrBackendTexture&) override;
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
@@ -261,7 +261,7 @@ private:
 
     bool createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool texturable,
                                   bool renderable, GrMipMapped mipMapped, const void* srcData,
-                                  size_t srcRowBytes, const SkColor4f& color, GrVkImageInfo* info);
+                                  size_t srcRowBytes, const SkColor4f* color, GrVkImageInfo* info);
 
     sk_sp<const GrVkInterface>                            fInterface;
     sk_sp<GrVkMemoryAllocator>                            fMemoryAllocator;

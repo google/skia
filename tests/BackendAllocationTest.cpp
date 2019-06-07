@@ -634,8 +634,17 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                     auto uninitCreateMtd = [format](GrContext* context,
                                                     GrMipMapped mipMapped,
                                                     GrRenderable renderable) {
-                        return context->createBackendTexture(32, 32, format,
-                                                             mipMapped, renderable);
+                        GrBackendTexture beTex = context->createBackendTexture(32, 32, format,
+                                                                               mipMapped,
+                                                                               renderable);
+                        GrVkImageInfo vkII;
+                        if (!beTex.getVkImageInfo(&vkII)) {
+                            return GrBackendTexture();
+                        }
+
+                        SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED == vkII.fImageLayout);
+                        SkASSERT(VK_IMAGE_TILING_OPTIMAL == vkII.fImageTiling);
+                        return beTex;
                     };
 
                     test_wrapping(context, reporter, uninitCreateMtd,
@@ -647,8 +656,17 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                                                        const SkColor4f& color,
                                                        GrMipMapped mipMapped,
                                                        GrRenderable renderable) {
-                        return context->createBackendTexture(32, 32, format, color,
-                                                             mipMapped, renderable);
+                        GrBackendTexture beTex = context->createBackendTexture(32, 32, format,
+                                                                               color, mipMapped,
+                                                                               renderable);
+                        GrVkImageInfo vkII;
+                        if (!beTex.getVkImageInfo(&vkII)) {
+                            return GrBackendTexture();
+                        }
+
+                        SkASSERT(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == vkII.fImageLayout);
+                        SkASSERT(VK_IMAGE_TILING_OPTIMAL == vkII.fImageTiling);
+                        return beTex;
                     };
 
                     test_color_init(context, reporter, createWithColorMtd,
