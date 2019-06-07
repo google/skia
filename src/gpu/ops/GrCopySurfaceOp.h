@@ -60,9 +60,9 @@ private:
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-    GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType>  fSrc;
-    SkIRect                                              fSrcRect;
-    SkIPoint                                             fDstPoint;
+    GrProxyPendingIO fSrc;
+    SkIRect          fSrcRect;
+    SkIPoint         fDstPoint;
 
     typedef GrOp INHERITED;
 };
