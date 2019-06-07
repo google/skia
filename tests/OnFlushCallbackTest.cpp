@@ -351,11 +351,10 @@ public:
             return;
         }
 
-        // At this point all the GrAtlasedOp's should have lined up to read from 'atlasDest' and
-        // there should either be two writes to clear it or no writes.
-        SkASSERT(9 == fAtlasProxy->getPendingReadCnt_TestOnly());
-        SkASSERT(2 == fAtlasProxy->getPendingWriteCnt_TestOnly() ||
-                 0 == fAtlasProxy->getPendingWriteCnt_TestOnly());
+        // At this point 'fAtlasProxy' should be instantiated and have:
+        //    1 ref from the 'fAtlasProxy' sk_sp
+        //    9 refs from the 9 AtlasedRectOps
+        SkASSERT(10 == fAtlasProxy->getBackingRefCnt_TestOnly());
         sk_sp<GrRenderTargetContext> rtc = resourceProvider->makeRenderTargetContext(
                                                                            fAtlasProxy,
                                                                            nullptr, nullptr);
