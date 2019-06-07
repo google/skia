@@ -23,7 +23,7 @@ def build_command_buffer(api, chrome_dir, skia_dir, out):
         '--no-sync', '--no-hooks', '--make-output-dir'])
 
 
-def compile_swiftshader(api, swiftshader_root, cc, cxx, out):
+def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
   """Build SwiftShader with CMake.
 
   Building SwiftShader works differently from any other Skia third_party lib.
@@ -42,8 +42,11 @@ def compile_swiftshader(api, swiftshader_root, cc, cxx, out):
   }
   api.file.ensure_directory('makedirs swiftshader_out', out)
   with api.context(cwd=out, env=env):
+    opts = ['-DBUILD_TESTS=OFF', '-DWARNINGS_AS_ERRORS=0']
+    if 'MSAN' in extra_tokens:
+      opts.append('-DMSAN=ON')
     api.run(api.step, 'swiftshader cmake',
-            cmd=['cmake', '-DBUILD_TESTS=OFF', '-DWARNINGS_AS_ERRORS=0', swiftshader_root, '-GNinja'])
+            cmd=['cmake'] + opts + [swiftshader_root, '-GNinja'])
     api.run(api.step, 'swiftshader ninja',
             cmd=['ninja', '-C', out, 'libEGL.so', 'libGLESv2.so'])
 
@@ -169,7 +172,7 @@ def compile_fn(api, checkout_root, out_dir):
   if 'SwiftShader' in extra_tokens:
     swiftshader_root = skia_dir.join('third_party', 'externals', 'swiftshader')
     swiftshader_out = out_dir.join('swiftshader_out')
-    compile_swiftshader(api, swiftshader_root, cc, cxx, swiftshader_out)
+    compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, swiftshader_out)
     args['skia_use_egl'] = 'true'
     extra_cflags.extend([
         '-DGR_EGL_TRY_GLES3_THEN_GLES2',
