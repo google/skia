@@ -101,7 +101,8 @@ public:
                                             GrMipMapped = GrMipMapped::kNo,
                                             GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
                                             const SkSurfaceProps* surfaceProps = nullptr,
-                                            SkBudgeted = SkBudgeted::kYes);
+                                            SkBudgeted = SkBudgeted::kYes,
+                                            bool isProtected = false);
 
     /*
      * This method will attempt to create a renderTargetContext that has, at least, the number of
