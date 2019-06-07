@@ -56,6 +56,7 @@ bool ByteCodeGenerator::generateCode() {
                     return false;
                 }
                 fOutput->fFunctions.push_back(std::move(f));
+                fFunctions.push_back(&(FunctionDefinition&)e);
                 break;
             }
             case ProgramElement::kVar_Kind: {
@@ -90,15 +91,11 @@ bool ByteCodeGenerator::generateCode() {
 std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fFunction = &f;
     std::unique_ptr<ByteCodeFunction> result(new ByteCodeFunction(&f.fDeclaration));
-    fParameterCount = 0;
-    for (const auto& p : f.fDeclaration.fParameters) {
-        fParameterCount += SlotCount(p->fType);
-    }
+    fParameterCount = result->fParameterCount;
     fCode = &result->fCode;
     this->writeStatement(*f.fBody);
     this->write(ByteCodeInstruction::kReturn);
     this->write8(0);
-    result->fParameterCount = fParameterCount;
     result->fLocalCount = fLocals.size();
     const Type& returnType = f.fDeclaration.fReturnType;
     if (returnType != *fContext.fVoid_Type) {
@@ -1146,6 +1143,16 @@ void ByteCodeGenerator::writeStatement(const Statement& s) {
             break;
         default:
             SkASSERT(false);
+    }
+}
+
+ByteCodeFunction::ByteCodeFunction(const FunctionDeclaration* declaration)
+        : fName(declaration->fName) {
+    fParameterCount = 0;
+    for (const auto& p : declaration->fParameters) {
+        int slots = ByteCodeGenerator::SlotCount(p->fType);
+        fParameters.push_back({ slots, (bool)(p->fModifiers.fFlags & Modifiers::kOut_Flag) });
+        fParameterCount += slots;
     }
 }
 
