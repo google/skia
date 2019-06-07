@@ -62,16 +62,25 @@ static const int kDomainPadding = 8;
 static const int kPad = 1;
 
 enum YUVFormat {
+    // 4:2:0 formats, 24 bpp
+    kP016_YUVFormat, // 16-bit Y plane + 2x2 down sampled interleaved U/V plane (2 textures)
+    // 4:2:0 formats, "15 bpp" but really 24 bpp
+    kP010_YUVFormat, // same as kP016 except "10 bpp". Note that it is the same memory layout
+                     // except that the bottom 6 bits are zeroed out (2 textures)
+
+    // 4:4:4 formats, 64 bpp
+    kY416_YUVFormat,  // 16-bit AVYU valaues all interleaved (1 texture)
+
     // 4:4:4 formats, 32 bpp
-    kAYUV_YUVFormat,  // 8-bit YUVA values all interleaved
-    kY410_YUVFormat,  // AVYU w/ 10bpp for YUV and 2 for A all interleaved
+    kAYUV_YUVFormat,  // 8-bit YUVA values all interleaved (1 texture)
+    kY410_YUVFormat,  // AVYU w/ 10bpp for YUV and 2 for A all interleaved (1 texture)
 
     // 4:2:0 formats, 12 bpp
-    kNV12_YUVFormat, // 8-bit Y plane + 2x2 down sampled interleaved U/V planes
-    kNV21_YUVFormat, // same as kNV12 but w/ U/V reversed in the interleaved plane
+    kNV12_YUVFormat, // 8-bit Y plane + 2x2 down sampled interleaved U/V planes (2 textures)
+    kNV21_YUVFormat, // same as kNV12 but w/ U/V reversed in the interleaved texture (2 textures)
 
-    kI420_YUVFormat, // 8-bit Y plane + 2x2 down sampled U and V planes
-    kYV12_YUVFormat, // 8-bit Y plane + 2x2 down sampled V and U planes
+    kI420_YUVFormat, // 8-bit Y plane + separate 2x2 down sampled U and V planes (3 textures)
+    kYV12_YUVFormat, // 8-bit Y plane + separate 2x2 down sampled V and U planes (3 textures)
 
     kLast_YUVFormat = kYV12_YUVFormat
 };
