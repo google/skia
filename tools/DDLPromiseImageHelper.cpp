@@ -86,12 +86,12 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkPixmap& pm,
                                                                        GrSRGBEncoded::kNo);
         tex = gpu->createBackendTexture(pm.width(), pm.height(), format,
                                         GrMipMapped::kNo, GrRenderable::kNo,
-                                        pixels, 2 * pm.width());
+                                        pixels, 2 * pm.width(), nullptr);
     } else {
         tex = gpu->createTestingOnlyBackendTexture(
             pm.width(), pm.height(), pm.colorType(),
             GrMipMapped::kNo, GrRenderable::kNo,
-            pm.addr(), pm.rowBytes());
+            pm.addr(), pm.rowBytes(), nullptr);
     }
     return tex;
 }
@@ -128,7 +128,7 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
             callbackContext->setBackendTexture(gpu->createTestingOnlyBackendTexture(
                                                         bm.width(), bm.height(), bm.colorType(),
                                                         GrMipMapped::kNo, GrRenderable::kNo,
-                                                        bm.getPixels(), bm.rowBytes()));
+                                                        bm.getPixels(), bm.rowBytes(), nullptr));
             // The GMs sometimes request too large an image
             //SkAssertResult(callbackContext->backendTexture().isValid());
 

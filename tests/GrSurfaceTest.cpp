@@ -290,7 +290,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     for (auto ioType : {kRead_GrIOType, kRW_GrIOType}) {
         auto backendTex = context->priv().getGpu()->createTestingOnlyBackendTexture(
                 kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes,
-                pixels.addr());
+                pixels.addr(), 0, nullptr);
         auto proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                        kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, ioType);

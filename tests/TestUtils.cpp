@@ -112,7 +112,7 @@ bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
 
     *backendTex = gpu->createTestingOnlyBackendTexture(ii.width(), ii.height(), ii.colorType(),
                                                        mipMapped, renderable,
-                                                       bm.getPixels(), bm.rowBytes());
+                                                       bm.getPixels(), bm.rowBytes(), nullptr);
     if (!backendTex->isValid() || !gpu->isTestingOnlyBackendTexture(*backendTex)) {
         return false;
     }

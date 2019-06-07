@@ -354,6 +354,8 @@ public:
 
     // If possible, create an uninitialized backend texture. The client should ensure that the
     // returned backend texture is valid.
+    // For the Vulkan backend the layout of the created VkImage will be:
+    //      VK_IMAGE_LAYOUT_UNDEFINED.
     GrBackendTexture createBackendTexture(int width, int height,
                                           GrBackendFormat,
                                           GrMipMapped,
@@ -363,6 +365,8 @@ public:
     // returned backend texture is valid.
     // If successful, the created backend texture will be compatible with the provided
     // SkColorType.
+    // For the Vulkan backend the layout of the created VkImage will be:
+    //      VK_IMAGE_LAYOUT_UNDEFINED.
     GrBackendTexture createBackendTexture(int width, int height,
                                           SkColorType,
                                           GrMipMapped,
@@ -370,6 +374,8 @@ public:
 
     // If possible, create a backend texture initialized to a particular color. The client should
     // ensure that the returned backend texture is valid.
+    // For the Vulkan backend the layout of the created VkImage will be:
+    //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
     GrBackendTexture createBackendTexture(int width, int height,
                                           GrBackendFormat, const SkColor4f& color,
                                           GrMipMapped, GrRenderable);
@@ -378,6 +384,8 @@ public:
     // ensure that the returned backend texture is valid.
     // If successful, the created backend texture will be compatible with the provided
     // SkColorType.
+    // For the Vulkan backend the layout of the created VkImage will be:
+    //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
     GrBackendTexture createBackendTexture(int width, int height,
                                           SkColorType, const SkColor4f& color,
                                           GrMipMapped, GrRenderable);
