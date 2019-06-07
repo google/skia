@@ -847,7 +847,7 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,
                                                                        GrSRGBEncoded::kNo);
         tex = gpu->createBackendTexture(bm.width(), bm.height(), format,
                                         GrMipMapped::kNo, GrRenderable::kNo,
-                                        pixels, 2*bm.width());
+                                        pixels, 2*bm.width(), nullptr);
     }
     if (!tex.isValid()) {
         tex = gpu->createTestingOnlyBackendTexture(
@@ -855,7 +855,7 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,
             bm.height(),
             bm.colorType(),
             GrMipMapped::kNo, GrRenderable::kNo,
-            bm.getPixels(), bm.rowBytes());
+            bm.getPixels(), bm.rowBytes(), nullptr);
     }
     return tex;
 }

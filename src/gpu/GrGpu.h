@@ -381,8 +381,9 @@ public:
     // TODO: remove this method
     GrBackendTexture createTestingOnlyBackendTexture(int w, int h, SkColorType,
                                                      GrMipMapped, GrRenderable,
-                                                     const void* pixels = nullptr,
-                                                     size_t rowBytes = 0);
+                                                     const void* pixels,
+                                                     size_t rowBytes,
+                                                     const SkColor4f* color);
 
     /**
      * Creates a texture directly in the backend API without wrapping it in a GrTexture.
@@ -394,7 +395,7 @@ public:
     virtual GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
                                                   GrMipMapped, GrRenderable,
                                                   const void* pixels, size_t rowBytes,
-                                                  const SkColor4f& = SkColors::kTransparent) = 0;
+                                                  const SkColor4f* color) = 0;
 
     /**
      * Frees a texture created by createBackendTexture(). If ownership of the backend

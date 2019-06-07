@@ -135,7 +135,9 @@ protected:
                                                                   kAlpha_8_SkColorType,
                                                                   GrMipMapped::kNo,
                                                                   GrRenderable::kNo,
-                                                                  fYUVBmps[i].getPixels());
+                                                                  fYUVBmps[i].getPixels(),
+                                                                  fYUVBmps[i].rowBytes(),
+                                                                  nullptr);
         }
         context->resetContext();
     }
