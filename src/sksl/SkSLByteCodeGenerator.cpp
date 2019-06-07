@@ -13,9 +13,10 @@
 namespace SkSL {
 
 ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                  ByteCode* output)
+                  ByteCode* output, bool vectorize)
     : INHERITED(program, errors, nullptr)
     , fContext(*context)
+    , fVectorize(vectorize)
     , fOutput(output)
     , fIntrinsics {
          { "cos",   ByteCodeInstruction::kCos },
@@ -472,7 +473,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
 
 void ByteCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
     this->write(ByteCodeInstruction::kPushImmediate);
-    this->write32(b.fValue ? 1 : 0);
+    this->write32(b.fValue ? (fVectorize ? ~0 : 1) : 0);
 }
 
 void ByteCodeGenerator::writeConstructor(const Constructor& c) {
@@ -743,15 +744,25 @@ void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
 }
 
 void ByteCodeGenerator::writeTernaryExpression(const TernaryExpression& t) {
-    this->writeExpression(*t.fTest);
-    this->write(ByteCodeInstruction::kConditionalBranch);
-    DeferredLocation trueLocation(this);
-    this->writeExpression(*t.fIfFalse);
-    this->write(ByteCodeInstruction::kBranch);
-    DeferredLocation endLocation(this);
-    trueLocation.set();
-    this->writeExpression(*t.fIfTrue);
-    endLocation.set();
+    if (fVectorize) {
+        this->writeExpression(*t.fTest);
+        this->write(ByteCodeInstruction::kMaskPush);
+        this->writeExpression(*t.fIfTrue);
+        this->write(ByteCodeInstruction::kMaskNegate);
+        this->writeExpression(*t.fIfFalse);
+        this->write(ByteCodeInstruction::kMaskBlend);
+        this->write8(SlotCount(t.fType));
+    } else {
+        this->writeExpression(*t.fTest);
+        this->write(ByteCodeInstruction::kConditionalBranch);
+        DeferredLocation trueLocation(this);
+        this->writeExpression(*t.fIfFalse);
+        this->write(ByteCodeInstruction::kBranch);
+        DeferredLocation endLocation(this);
+        trueLocation.set();
+        this->writeExpression(*t.fIfTrue);
+        endLocation.set();
+    }
 }
 
 void ByteCodeGenerator::writeExpression(const Expression& e, bool discard) {
@@ -976,25 +987,51 @@ void ByteCodeGenerator::setContinueTargets() {
 }
 
 void ByteCodeGenerator::writeBreakStatement(const BreakStatement& b) {
-    this->write(ByteCodeInstruction::kBranch);
-    fBreakTargets.top().emplace_back(this);
+    if (fVectorize) {
+        // TODO: Include BranchIfAllFalse to top-most LoopNext
+        this->write(ByteCodeInstruction::kLoopBreak);
+    } else {
+        this->write(ByteCodeInstruction::kBranch);
+        fBreakTargets.top().emplace_back(this);
+    }
 }
 
 void ByteCodeGenerator::writeContinueStatement(const ContinueStatement& c) {
-    this->write(ByteCodeInstruction::kBranch);
-    fContinueTargets.top().emplace_back(this);
+    if (fVectorize) {
+        // TODO: Include BranchIfAllFalse to top-most LoopNext
+        this->write(ByteCodeInstruction::kLoopContinue);
+    } else {
+        this->write(ByteCodeInstruction::kBranch);
+        fContinueTargets.top().emplace_back(this);
+    }
 }
 
 void ByteCodeGenerator::writeDoStatement(const DoStatement& d) {
-    fContinueTargets.emplace();
-    fBreakTargets.emplace();
-    size_t start = fCode->size();
-    this->writeStatement(*d.fStatement);
-    this->setContinueTargets();
-    this->writeExpression(*d.fTest);
-    this->write(ByteCodeInstruction::kConditionalBranch);
-    this->write16(start);
-    this->setBreakTargets();
+    if (fVectorize) {
+        this->write(ByteCodeInstruction::kLoopBegin);
+        size_t start = fCode->size();
+        this->writeStatement(*d.fStatement);
+        this->write(ByteCodeInstruction::kLoopNext);
+        this->writeExpression(*d.fTest);
+        this->write(ByteCodeInstruction::kLoopMask);
+        // TODO: Could shorten this with kBranchIfAnyTrue
+        this->write(ByteCodeInstruction::kBranchIfAllFalse);
+        DeferredLocation endLocation(this);
+        this->write(ByteCodeInstruction::kBranch);
+        this->write16(start);
+        endLocation.set();
+        this->write(ByteCodeInstruction::kLoopEnd);
+    } else {
+        fContinueTargets.emplace();
+        fBreakTargets.emplace();
+        size_t start = fCode->size();
+        this->writeStatement(*d.fStatement);
+        this->setContinueTargets();
+        this->writeExpression(*d.fTest);
+        this->write(ByteCodeInstruction::kConditionalBranch);
+        this->write16(start);
+        this->setBreakTargets();
+    }
 }
 
 void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
@@ -1003,52 +1040,89 @@ void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
     if (f.fInitializer) {
         this->writeStatement(*f.fInitializer);
     }
-    size_t start = fCode->size();
-    if (f.fTest) {
-        this->writeExpression(*f.fTest);
-        this->write(ByteCodeInstruction::kNot);
-        this->write(ByteCodeInstruction::kConditionalBranch);
+    if (fVectorize) {
+        this->write(ByteCodeInstruction::kLoopBegin);
+        size_t start = fCode->size();
+        if (f.fTest) {
+            this->writeExpression(*f.fTest);
+            this->write(ByteCodeInstruction::kLoopMask);
+        }
+        this->write(ByteCodeInstruction::kBranchIfAllFalse);
         DeferredLocation endLocation(this);
         this->writeStatement(*f.fStatement);
-        this->setContinueTargets();
+        this->write(ByteCodeInstruction::kLoopNext);
         if (f.fNext) {
             this->writeExpression(*f.fNext, true);
         }
         this->write(ByteCodeInstruction::kBranch);
         this->write16(start);
         endLocation.set();
+        this->write(ByteCodeInstruction::kLoopEnd);
     } else {
-        this->writeStatement(*f.fStatement);
-        this->setContinueTargets();
-        if (f.fNext) {
-            this->writeExpression(*f.fNext, true);
+        size_t start = fCode->size();
+        if (f.fTest) {
+            this->writeExpression(*f.fTest);
+            this->write(ByteCodeInstruction::kNot);
+            this->write(ByteCodeInstruction::kConditionalBranch);
+            DeferredLocation endLocation(this);
+            this->writeStatement(*f.fStatement);
+            this->setContinueTargets();
+            if (f.fNext) {
+                this->writeExpression(*f.fNext, true);
+            }
+            this->write(ByteCodeInstruction::kBranch);
+            this->write16(start);
+            endLocation.set();
+        } else {
+            this->writeStatement(*f.fStatement);
+            this->setContinueTargets();
+            if (f.fNext) {
+                this->writeExpression(*f.fNext, true);
+            }
+            this->write(ByteCodeInstruction::kBranch);
+            this->write16(start);
         }
-        this->write(ByteCodeInstruction::kBranch);
-        this->write16(start);
+        this->setBreakTargets();
     }
-    this->setBreakTargets();
 }
 
 void ByteCodeGenerator::writeIfStatement(const IfStatement& i) {
-    if (i.fIfFalse) {
-        // if (test) { ..ifTrue.. } else { .. ifFalse .. }
+    if (fVectorize) {
         this->writeExpression(*i.fTest);
-        this->write(ByteCodeInstruction::kConditionalBranch);
-        DeferredLocation trueLocation(this);
-        this->writeStatement(*i.fIfFalse);
-        this->write(ByteCodeInstruction::kBranch);
-        DeferredLocation endLocation(this);
-        trueLocation.set();
+        this->write(ByteCodeInstruction::kMaskPush);
+        this->write(ByteCodeInstruction::kBranchIfAllFalse);
+        DeferredLocation falseLocation(this);
         this->writeStatement(*i.fIfTrue);
-        endLocation.set();
+        falseLocation.set();
+        if (i.fIfFalse) {
+            this->write(ByteCodeInstruction::kMaskNegate);
+            this->write(ByteCodeInstruction::kBranchIfAllFalse);
+            DeferredLocation endLocation(this);
+            this->writeStatement(*i.fIfFalse);
+            endLocation.set();
+        }
+        this->write(ByteCodeInstruction::kMaskPop);
     } else {
-        // if (test) { ..ifTrue.. }
-        this->writeExpression(*i.fTest);
-        this->write(ByteCodeInstruction::kNot);
-        this->write(ByteCodeInstruction::kConditionalBranch);
-        DeferredLocation endLocation(this);
-        this->writeStatement(*i.fIfTrue);
-        endLocation.set();
+        if (i.fIfFalse) {
+            // if (test) { ..ifTrue.. } else { .. ifFalse .. }
+            this->writeExpression(*i.fTest);
+            this->write(ByteCodeInstruction::kConditionalBranch);
+            DeferredLocation trueLocation(this);
+            this->writeStatement(*i.fIfFalse);
+            this->write(ByteCodeInstruction::kBranch);
+            DeferredLocation endLocation(this);
+            trueLocation.set();
+            this->writeStatement(*i.fIfTrue);
+            endLocation.set();
+        } else {
+            // if (test) { ..ifTrue.. }
+            this->writeExpression(*i.fTest);
+            this->write(ByteCodeInstruction::kNot);
+            this->write(ByteCodeInstruction::kConditionalBranch);
+            DeferredLocation endLocation(this);
+            this->writeStatement(*i.fIfTrue);
+            endLocation.set();
+        }
     }
 }
 
@@ -1086,19 +1160,34 @@ void ByteCodeGenerator::writeVarDeclarations(const VarDeclarations& v) {
 }
 
 void ByteCodeGenerator::writeWhileStatement(const WhileStatement& w) {
-    fContinueTargets.emplace();
-    fBreakTargets.emplace();
-    size_t start = fCode->size();
-    this->writeExpression(*w.fTest);
-    this->write(ByteCodeInstruction::kNot);
-    this->write(ByteCodeInstruction::kConditionalBranch);
-    DeferredLocation endLocation(this);
-    this->writeStatement(*w.fStatement);
-    this->setContinueTargets();
-    this->write(ByteCodeInstruction::kBranch);
-    this->write16(start);
-    endLocation.set();
-    this->setBreakTargets();
+    if (fVectorize) {
+        this->write(ByteCodeInstruction::kLoopBegin);
+        size_t cond = fCode->size();
+        this->writeExpression(*w.fTest);
+        this->write(ByteCodeInstruction::kLoopMask);
+        this->write(ByteCodeInstruction::kBranchIfAllFalse);
+        DeferredLocation endLocation(this);
+        this->writeStatement(*w.fStatement);
+        this->write(ByteCodeInstruction::kLoopNext);
+        this->write(ByteCodeInstruction::kBranch);
+        this->write16(cond);
+        endLocation.set();
+        this->write(ByteCodeInstruction::kLoopEnd);
+    } else {
+        fContinueTargets.emplace();
+        fBreakTargets.emplace();
+        size_t start = fCode->size();
+        this->writeExpression(*w.fTest);
+        this->write(ByteCodeInstruction::kNot);
+        this->write(ByteCodeInstruction::kConditionalBranch);
+        DeferredLocation endLocation(this);
+        this->writeStatement(*w.fStatement);
+        this->setContinueTargets();
+        this->write(ByteCodeInstruction::kBranch);
+        this->write16(start);
+        endLocation.set();
+        this->setBreakTargets();
+    }
 }
 
 void ByteCodeGenerator::writeStatement(const Statement& s) {
