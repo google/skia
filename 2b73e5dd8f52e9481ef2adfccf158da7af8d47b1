@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "60cc0b89_fd1cf825",
+        "filename": "include/private/GrProxyRef.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-07T18:06:59Z",
+      "side": 1,
+      "message": "That\u0027s the next CL.",
+      "parentUuid": "e6bebd91_4b196b65",
+      "revId": "2b73e5dd8f52e9481ef2adfccf158da7af8d47b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "78eef77d_d15b7b0c",
         "filename": "include/private/GrProxyRef.h",
         "patchSetId": 21
@@ -30,6 +48,30 @@
       "writtenOn": "2019-06-07T17:55:24Z",
       "side": 1,
       "message": "isn\u0027t this just (fProxy !\u003d null) now?",
+      "range": {
+        "startLine": 54,
+        "startChar": 20,
+        "endLine": 54,
+        "endChar": 36
+      },
+      "revId": "2b73e5dd8f52e9481ef2adfccf158da7af8d47b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3f06c37_6e927ba3",
+        "filename": "include/private/GrProxyRef.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-07T18:06:59Z",
+      "side": 1,
+      "message": "I decided to leave it for now since the whole class is going away in the next CL.",
+      "parentUuid": "78eef77d_d15b7b0c",
       "range": {
         "startLine": 54,
         "startChar": 20,
