@@ -226,7 +226,6 @@ public:
 
 #endif
 
-#ifdef MyAllocator
 DEF_SIMPLE_GM(rasterallocator, canvas, 600, 300) {
     auto doDraw = [](GraphicsPort* port) {
         SkAutoCanvasRestore acr(port->peekCanvas(), true);
@@ -246,20 +245,20 @@ DEF_SIMPLE_GM(rasterallocator, canvas, 600, 300) {
         port->drawRect({0, 0, 256, 256}, 0xFFCCCCCC);
     };
 
-    GraphicsPort skp(canvas);
-    doDraw(&skp);
+    GraphicsPort skiaPort(canvas);
+    doDraw(&skiaPort);
 
+#ifdef MyAllocator
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    std::unique_ptr<SkCanvas> c2 =
+    std::unique_ptr<SkCanvas> nativeCanvas =
         SkRasterHandleAllocator::MakeCanvas(skstd::make_unique<MyAllocator>(), info);
-    MyPort cgp(c2.get());
-    doDraw(&cgp);
+    MyPort nativePort(nativeCanvas.get());
+    doDraw(&nativePort);
 
     SkPixmap pm;
-    c2->peekPixels(&pm);
+    nativeCanvas->peekPixels(&pm);
     SkBitmap bm;
     bm.installPixels(pm);
     canvas->drawBitmap(bm, 280, 0, nullptr);
-
-}
 #endif
+}
