@@ -89,15 +89,7 @@ struct ShapeGenerator {
           hi;             // constant value for t > 1
     float (*func)(float); // shape generator for t in [0..1]
 
-    // Apply the shape generator, scale, and coverage proc to a single fragment.
-    // Should not be called outside the shape domain [0..1].
-    void operator()(const CoverageProcT& coverage_proc,
-                    float t, float scale,
-                    TextAnimator::AnimatedPropsModulator* dst) const {
-        SkASSERT(0 <= t && t <= 1);
-        const auto coverage = this->func(t);
-        coverage_proc(coverage * scale, dst, 1);
-    }
+    float operator()(float t) const { return this->func(t); }
 };
 
 static const ShapeGenerator gShapeGenerators[] = {
@@ -282,42 +274,65 @@ void RangeSelector::modulateCoverage(TextAnimator::ModulatorBuffer& buf) const {
         return;
     }
 
-    // Modulate [i0..i1] with shape-generated coverage.
+    // At this point the clamped range maps to the index interval [i0..i1],
+    // with the left/right edges falling within i0/i1, respectively:
+    //
+    //    -----------  ------------------  ------------------  -----------
+    //   |  0 |    | .. |    | i0 |    | .. |    | i1 |    | .. |    |  N |
+    //    -----------  ------------------  ------------------  -----------
+    //                          ^                   ^
+    //                          [___________________]
+    //
+    //                         f0                   f1
+    //
+    // Note: i0 and i1 can have partial coverage, and also i0 may be the same as i1.
+
+    // Computes partial coverage when one or both range edges fall within the same index [i].
+    const auto partial_coverage = [&](float shape_val, float i) {
+        // At least one of the range edges falls within the current fragment.
+        SkASSERT(SkScalarNearlyEqual(i, std::round(i)));
+        SkASSERT((i <= f0 && f0 <= i + 1) || (i <= f1 && f1 <= i + 1));
+
+        // The resulting coverage is a three-way weighted average
+        // of the three range segments (lo, shape_val, hi).
+        const auto lo_weight = std::max(f0 - i, 0.0f),
+                   mi_weight = std::min(f1 - i, 1.0f) - lo_weight,
+                   hi_weight = std::max(i + 1 - f1, 0.0f);
+
+        SkASSERT(0 <= lo_weight && lo_weight <= 1);
+        SkASSERT(0 <= mi_weight && mi_weight <= 1);
+        SkASSERT(0 <= hi_weight && hi_weight <= 1);
+        SkASSERT(SkScalarNearlyEqual(lo_weight + mi_weight + hi_weight, 1));
+
+        return lo_weight * generator.lo +
+               mi_weight * shape_val +
+               hi_weight * generator.hi;
+    };
+
+    // The shape domain [0..1] is mapped to the range.
     const auto dt = 1 / range_span;
           // note: we sample mid-fragment
           auto  t = (i0 + 0.5f - std::get<0>(f_range)) / range_span;
 
+    // [i0] may have partial coverage.
+    coverage_proc(amount * partial_coverage(generator(std::max(t, 0.0f)), i0), buf.data() + i0, 1);
+
+    // If the whole range falls within a single fragment, we're done.
     if (i0 == i1) {
-        // When the whole interval falls within a single fragment, the resulting coverage is
-        // a 3-way weighted average of lo/generated/hi values.
-        const auto lo_weight = f0 - std::floor(f0),
-                   mi_weight = f1 - f0,
-                   hi_weight = std::ceil(f1) - f1,
-                    coverage = lo_weight * generator.lo +
-                               mi_weight * generator.func(SkTPin(t, 0.0f, 1.0f)) +
-                               hi_weight * generator.hi;
-
-        coverage_proc(amount * coverage, buf.data() + i0, 1);
-    } else {
-        // The range spans multiple fragments.
-
-        // [i0] -> partial interval coverage modulates the specified amount vs generator.lo
-        const auto fract_coverage_0 = 1 - (f0 - i0);
-        generator(coverage_proc, std::max(t, 0.0f),
-                  amount * Lerp(generator.lo, 1, fract_coverage_0), buf.data() + i0);
-        t += dt;
-
-        // (i0..i1) -> full interval coverage => using full amount
-        for (auto i = i0 + 1; i < i1; ++i) {
-            generator(coverage_proc, t, amount, buf.data() + i);
-            t += dt;
-        }
-
-        // [i1] -> partial interval coverage modulates the specified amount vs generator.hi
-        const auto fract_coverage_1 = (f1 - i1);
-        generator(coverage_proc, std::min(t, 1.0f),
-                  amount * Lerp(generator.hi, 1, fract_coverage_1), buf.data() + i1);
+        return;
     }
+
+    t += dt;
+
+    // [i0+1..i1-1] has full coverage.
+    for (auto* dst = buf.data() + i0 + 1; dst < buf.data() + i1; ++dst) {
+        SkASSERT(0 <= t && t <= 1);
+        coverage_proc(amount * generator(t), dst, 1);
+        t += dt;
+    }
+
+    // [i1] may have partial coverage.
+    coverage_proc(amount * partial_coverage(generator(std::min(t, 1.0f)), i1), buf.data() + i1, 1);
 }
 
 } // namespace internal
