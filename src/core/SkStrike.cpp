@@ -36,15 +36,63 @@ SkStrike::SkStrike(
     fMemoryUsed = sizeof(*this);
 }
 
-const SkDescriptor& SkStrike::getDescriptor() const {
-    return *fDesc.getDesc();
-}
-
 #ifdef SK_DEBUG
 #define VALIDATE()  AutoValidate av(this)
 #else
 #define VALIDATE()
 #endif
+
+// -- glyph creation -------------------------------------------------------------------------------
+SkGlyph* SkStrike::makeGlyph(SkPackedGlyphID packedGlyphID) {
+    fMemoryUsed += sizeof(SkGlyph);
+    SkGlyph* glyph = fAlloc.make<SkGlyph>(packedGlyphID);
+    fGlyphMap.set(glyph);
+    return glyph;
+}
+
+SkGlyph* SkStrike::uninitializedGlyph(SkPackedGlyphID id) {
+    SkGlyph* glyph = fGlyphMap.findOrNull(id);
+    if (glyph == nullptr) {
+        glyph = this->makeGlyph(id);
+    }
+    return glyph;
+}
+
+SkGlyph* SkStrike::glyph(SkPackedGlyphID packedGlyphID) {
+    SkGlyph* glyph = fGlyphMap.findOrNull(packedGlyphID);
+    if (glyph == nullptr) {
+        glyph = this->makeGlyph(packedGlyphID);
+        fScalerContext->getMetrics(glyph);
+    }
+    return glyph;
+}
+
+SkGlyph* SkStrike::glyph(SkGlyphID glyphID) {
+    return this->glyph(SkPackedGlyphID{glyphID});
+}
+
+SkGlyph* SkStrike::getRawGlyphByID(SkPackedGlyphID id) {
+    return this->uninitializedGlyph(id);
+}
+
+const SkGlyph& SkStrike::getGlyphIDMetrics(SkGlyphID glyphID) {
+    VALIDATE();
+    return *this->glyph(glyphID);
+}
+
+const SkGlyph& SkStrike::getGlyphIDMetrics(SkPackedGlyphID id) {
+    VALIDATE();
+    return *this->glyph(id);
+}
+
+const SkGlyph& SkStrike::getGlyphIDMetrics(SkGlyphID glyphID, SkFixed x, SkFixed y) {
+    SkPackedGlyphID packedGlyphID(glyphID, x, y);
+    return *this->glyph(packedGlyphID);
+}
+
+const SkDescriptor& SkStrike::getDescriptor() const {
+    return *fDesc.getDesc();
+}
 
 unsigned SkStrike::getGlyphCount() const {
     return fScalerContext->getGlyphCount();
@@ -59,70 +107,11 @@ bool SkStrike::isGlyphCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const {
     return fGlyphMap.find(packedGlyphID) != nullptr;
 }
 
-SkGlyph* SkStrike::getRawGlyphByID(SkPackedGlyphID id) {
-    return lookupByPackedGlyphID(id, kNothing_MetricsType);
-}
-
-const SkGlyph& SkStrike::getGlyphIDAdvance(uint16_t glyphID) {
-    VALIDATE();
-    SkPackedGlyphID packedGlyphID(glyphID);
-    return *this->lookupByPackedGlyphID(packedGlyphID, kJustAdvance_MetricsType);
-}
-
-const SkGlyph& SkStrike::getGlyphIDMetrics(uint16_t glyphID) {
-    VALIDATE();
-    SkPackedGlyphID packedGlyphID(glyphID);
-    return *this->lookupByPackedGlyphID(packedGlyphID, kFull_MetricsType);
-}
-
-const SkGlyph& SkStrike::getGlyphIDMetrics(uint16_t glyphID, SkFixed x, SkFixed y) {
-    SkPackedGlyphID packedGlyphID(glyphID, x, y);
-    return this->getGlyphIDMetrics(packedGlyphID);
-}
-
-const SkGlyph& SkStrike::getGlyphIDMetrics(SkPackedGlyphID id) {
-    VALIDATE();
-    return *this->lookupByPackedGlyphID(id, kFull_MetricsType);
-}
-
 void SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
     for (auto glyphID : glyphIDs) {
-        auto glyph = this->getGlyphIDAdvance(glyphID);
-        *advances++ = SkPoint::Make(glyph.fAdvanceX, glyph.fAdvanceY);
+        auto glyph = this->glyph(glyphID);
+        *advances++ = SkPoint::Make(glyph->fAdvanceX, glyph->fAdvanceY);
     }
-}
-
-SkGlyph* SkStrike::lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID, MetricsType type) {
-    SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID);
-
-    if (glyphPtr == nullptr) {
-        // Glyph is not present in the stirke. Make a new glyph and fill it in.
-
-        fMemoryUsed += sizeof(SkGlyph);
-        glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
-        fGlyphMap.set(glyphPtr);
-
-        switch (type) {
-            // * Nothing - is only used for raw glyphs. It is assumed that the advances, etc. are
-            // filled in by external code. This is used by the remote glyph cache to fill in glyphs.
-            case kNothing_MetricsType:
-                break;
-            case kJustAdvance_MetricsType:
-                fScalerContext->getAdvance(glyphPtr);
-                break;
-            case kFull_MetricsType:
-                fScalerContext->getMetrics(glyphPtr);
-                break;
-        }
-    } else {
-        // Glyph is present in strike. Make sure the glyph has the right data.
-
-        if (type == kFull_MetricsType && glyphPtr->isJustAdvance()) {
-            fScalerContext->getMetrics(glyphPtr);
-        }
-    }
-
-    return glyphPtr;
 }
 
 const void* SkStrike::findImage(const SkGlyph& glyph) {
