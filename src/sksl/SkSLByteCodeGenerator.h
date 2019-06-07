@@ -145,7 +145,7 @@ private:
 
         bool set() {
             size_t idx;
-            const auto& functions(fGenerator.fOutput->fFunctions);
+            const auto& functions(fGenerator.fFunctions);
             for (idx = 0; idx < functions.size(); ++idx) {
                 if (fFunction.matches(functions[idx]->fDeclaration)) {
                     break;
@@ -294,6 +294,7 @@ private:
 
     std::stack<std::vector<DeferredLocation>> fBreakTargets;
 
+    std::vector<const FunctionDefinition*> fFunctions;
     std::vector<DeferredCallTarget> fCallTargets;
 
     int fParameterCount;

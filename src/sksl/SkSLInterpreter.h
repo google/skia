@@ -8,22 +8,15 @@
 #ifndef SKSL_INTERPRETER
 #define SKSL_INTERPRETER
 
-#include "src/sksl/SkSLByteCode.h"
-#include "src/sksl/ir/SkSLAppendStage.h"
-#include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLFunctionCall.h"
-#include "src/sksl/ir/SkSLFunctionDefinition.h"
-#include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLStatement.h"
-
-#include <stack>
+#include "src/sksl/SkSLDefines.h"
 
 namespace SkSL {
 
-class Interpreter {
-    typedef int StackIndex;
+struct ByteCode;
+struct ByteCodeFunction;
 
-public:
+namespace Interpreter {
+
     union Value {
         Value() {}
 
@@ -45,43 +38,20 @@ public:
         bool fBool;
     };
 
-    enum TypeKind {
-        kFloat_TypeKind,
-        kInt_TypeKind,
-        kBool_TypeKind
-    };
-
-    /**
-     * 'inputs' contains the values of global 'in' variables in source order.
-     */
-    Interpreter(std::unique_ptr<Program> program, std::unique_ptr<ByteCode> byteCode,
-                Value inputs[] = nullptr);
-
     /**
      * Invokes the specified function with the given arguments. 'out' and 'inout' parameters will
      * result in the 'args' array being modified. The return value is stored in 'outReturn' (may be
      * null, in which case the return value is discarded).
      */
-    void run(const ByteCodeFunction& f, Value args[], Value* outReturn);
-
-    /**
-     * Updates the global inputs.
-     */
-    void setInputs(Value inputs[]);
+    void Run(const ByteCode*, const ByteCodeFunction*, Value args[], Value* outReturn,
+             Value uniforms[], int uniformCount);
 
     /**
      * Print bytecode disassembly to stdout.
      */
-    void disassemble(const ByteCodeFunction&);
-private:
-    void innerRun(const ByteCodeFunction& f, Value* stack, Value* outReturn);
+    void Disassemble(const ByteCodeFunction*);
 
-
-    std::unique_ptr<Program> fProgram;
-    std::unique_ptr<ByteCode> fByteCode;
-    std::vector<Value> fGlobals;
-};
-
-} // namespace
+} // namespace Interpreter
+} // namespace SkSL
 
 #endif

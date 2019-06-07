@@ -8,72 +8,15 @@
 #ifndef SKSL_STANDALONE
 
 #include "include/core/SkPoint3.h"
-#include "src/core/SkRasterPipeline.h"
+#include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLByteCodeGenerator.h"
 #include "src/sksl/SkSLExternalValue.h"
 #include "src/sksl/SkSLInterpreter.h"
-#include "src/sksl/ir/SkSLBinaryExpression.h"
-#include "src/sksl/ir/SkSLExpressionStatement.h"
-#include "src/sksl/ir/SkSLForStatement.h"
-#include "src/sksl/ir/SkSLFunctionCall.h"
-#include "src/sksl/ir/SkSLFunctionReference.h"
-#include "src/sksl/ir/SkSLIfStatement.h"
-#include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLPostfixExpression.h"
-#include "src/sksl/ir/SkSLPrefixExpression.h"
-#include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLStatement.h"
-#include "src/sksl/ir/SkSLTernaryExpression.h"
-#include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
-#include "src/sksl/ir/SkSLVariableReference.h"
+
+#include <vector>
 
 namespace SkSL {
-
-static constexpr int UNINITIALIZED = 0xDEADBEEF;
-
-Interpreter::Interpreter(std::unique_ptr<Program> program,
-                         std::unique_ptr<ByteCode> byteCode,
-                         Interpreter::Value inputs[])
-    : fProgram(std::move(program))
-    , fByteCode(std::move(byteCode))
-    , fGlobals(fByteCode->fGlobalCount, UNINITIALIZED) {
-    this->setInputs(inputs);
-}
-
-void Interpreter::setInputs(Interpreter::Value inputs[]) {
-    for (uint8_t slot : fByteCode->fInputSlots) {
-        fGlobals[slot] = *inputs++;
-    }
-}
-
-void Interpreter::run(const ByteCodeFunction& f, Interpreter::Value args[],
-                      Interpreter::Value* outReturn) {
-#ifdef TRACE
-    this->disassemble(f);
-#endif
-    Value smallStack[128];
-    std::unique_ptr<Value[]> largeStack;
-    Value* stack = smallStack;
-    if ((int) SK_ARRAY_COUNT(smallStack) < f.fStackCount) {
-        largeStack.reset(new Value[f.fStackCount]);
-        stack = largeStack.get();
-    }
-
-    if (f.fParameterCount) {
-        memcpy(stack, args, f.fParameterCount * sizeof(Value));
-    }
-    this->innerRun(f, stack, outReturn);
-
-    for (const Variable* p : f.fDeclaration.fParameters) {
-        const int nvalues = ByteCodeGenerator::SlotCount(p->fType);
-        if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
-            memcpy(args, stack, nvalues * sizeof(Value));
-        }
-        args  += nvalues;
-        stack += nvalues;
-    }
-}
+namespace Interpreter {
 
 template <typename T>
 static T unaligned_load(const void* ptr) {
@@ -280,10 +223,10 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
     return ip;
 }
 
-void Interpreter::disassemble(const ByteCodeFunction& f) {
-    const uint8_t* ip = f.fCode.data();
-    while (ip < f.fCode.data() + f.fCode.size()) {
-        printf("%d: ", (int) (ip - f.fCode.data()));
+void Disassemble(const ByteCodeFunction* f) {
+    const uint8_t* ip = f->fCode.data();
+    while (ip < f->fCode.data() + f->fCode.size()) {
+        printf("%d: ", (int) (ip - f->fCode.data()));
         ip = disassemble_instruction(ip);
         printf("\n");
     }
@@ -361,13 +304,14 @@ static float mix(float start, float end, float t) {
     return start * (1 - t) + end * t;
 }
 
-void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outReturn) {
-    Value* sp = stack + f.fParameterCount + f.fLocalCount - 1;
+void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, Value* stack, Value* outReturn,
+              Value globals[], int globalCount) {
+    Value* sp = stack + f->fParameterCount + f->fLocalCount - 1;
 
     auto POP =  [&]          { SkASSERT(sp     >= stack); return *(sp--); };
     auto PUSH = [&](Value v) { SkASSERT(sp + 1 >= stack); *(++sp) = v;    };
 
-    const uint8_t* code = f.fCode.data();
+    const uint8_t* code = f->fCode.data();
     const uint8_t* ip = code;
     std::vector<StackFrame> frames;
 
@@ -395,7 +339,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 // stack to point at the first parameter, and our sp to point past those parameters
                 // (plus space for locals).
                 int target = READ8();
-                const ByteCodeFunction* fun = fByteCode->fFunctions[target].get();
+                const ByteCodeFunction* fun = byteCode->fFunctions[target].get();
                 frames.push_back({ code, ip, stack });
                 ip = code = fun->fCode.data();
                 stack = sp - fun->fParameterCount + 1;
@@ -407,7 +351,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 int argumentCount = READ8();
                 int returnCount = READ8();
                 int target = READ8();
-                ExternalValue* v = fByteCode->fExternalValues[target];
+                ExternalValue* v = byteCode->fExternalValues[target];
                 sp -= argumentCount - 1;
 
                 Value tmp[4];
@@ -502,10 +446,10 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                                               sp += (int)inst - (int)ByteCodeInstruction::kLoad + 1;
                                               break;
 
-            case ByteCodeInstruction::kLoadGlobal4: sp[4] = fGlobals[*ip + 3];
-            case ByteCodeInstruction::kLoadGlobal3: sp[3] = fGlobals[*ip + 2];
-            case ByteCodeInstruction::kLoadGlobal2: sp[2] = fGlobals[*ip + 1];
-            case ByteCodeInstruction::kLoadGlobal : sp[1] = fGlobals[*ip + 0];
+            case ByteCodeInstruction::kLoadGlobal4: sp[4] = globals[*ip + 3];
+            case ByteCodeInstruction::kLoadGlobal3: sp[3] = globals[*ip + 2];
+            case ByteCodeInstruction::kLoadGlobal2: sp[2] = globals[*ip + 1];
+            case ByteCodeInstruction::kLoadGlobal : sp[1] = globals[*ip + 0];
                                                     ++ip;
                                                     sp += (int)inst -
                                                           (int)ByteCodeInstruction::kLoadGlobal + 1;
@@ -522,8 +466,8 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
             case ByteCodeInstruction::kLoadExtendedGlobal: {
                 int count = READ8();
                 int src = POP().fSigned;
-                SkASSERT(src + count <= (int) fGlobals.size());
-                memcpy(sp + 1, &fGlobals[src], count * sizeof(Value));
+                SkASSERT(src + count <= globalCount);
+                memcpy(sp + 1, &globals[src], count * sizeof(Value));
                 sp += count;
                 break;
             }
@@ -540,10 +484,10 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
 
             case ByteCodeInstruction::kLoadSwizzleGlobal: {
                 int src = READ8();
-                SkASSERT(src < (int) fGlobals.size());
                 int count = READ8();
                 for (int i = 0; i < count; ++i) {
-                    PUSH(fGlobals[src + *(ip + i)]);
+                    SkASSERT(src + *(ip + i) < globalCount);
+                    PUSH(globals[src + *(ip + i)]);
                 }
                 ip += count;
                 break;
@@ -668,7 +612,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
             case ByteCodeInstruction::kReadExternal3: // fall through
             case ByteCodeInstruction::kReadExternal4: {
                 int src = READ8();
-                fByteCode->fExternalValues[src]->read(sp + 1);
+                byteCode->fExternalValues[src]->read(sp + 1);
                 sp += (int) inst - (int) ByteCodeInstruction::kReadExternal + 1;
                 break;
             }
@@ -723,10 +667,10 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                                                ++ip;
                                                break;
 
-            case ByteCodeInstruction::kStoreGlobal4: fGlobals[*ip + 3] = POP();
-            case ByteCodeInstruction::kStoreGlobal3: fGlobals[*ip + 2] = POP();
-            case ByteCodeInstruction::kStoreGlobal2: fGlobals[*ip + 1] = POP();
-            case ByteCodeInstruction::kStoreGlobal : fGlobals[*ip + 0] = POP();
+            case ByteCodeInstruction::kStoreGlobal4: globals[*ip + 3] = POP();
+            case ByteCodeInstruction::kStoreGlobal3: globals[*ip + 2] = POP();
+            case ByteCodeInstruction::kStoreGlobal2: globals[*ip + 1] = POP();
+            case ByteCodeInstruction::kStoreGlobal : globals[*ip + 0] = POP();
                                                      ++ip;
                                                      break;
 
@@ -740,8 +684,8 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
             case ByteCodeInstruction::kStoreExtendedGlobal: {
                 int count = READ8();
                 int target = POP().fSigned;
-                SkASSERT(target + count <= (int) fGlobals.size());
-                memcpy(&fGlobals[target], sp - count + 1, count * sizeof(Value));
+                SkASSERT(target + count <= globalCount);
+                memcpy(&globals[target], sp - count + 1, count * sizeof(Value));
                 sp -= count;
                 break;
             }
@@ -760,7 +704,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 int target = READ8();
                 int count = READ8();
                 for (int i = count - 1; i >= 0; --i) {
-                    fGlobals[target + *(ip + i)] = POP();
+                    globals[target + *(ip + i)] = POP();
                 }
                 ip += count;
                 break;
@@ -778,7 +722,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
                 int target = POP().fSigned;
                 int count = READ8();
                 for (int i = count - 1; i >= 0; --i) {
-                    fGlobals[target + *(ip + i)] = POP();
+                    globals[target + *(ip + i)] = POP();
                 }
                 ip += count;
                 break;
@@ -806,7 +750,7 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
             case ByteCodeInstruction::kWriteExternal4: {
                 int count = (int) inst - (int) ByteCodeInstruction::kWriteExternal + 1;
                 int target = READ8();
-                fByteCode->fExternalValues[target]->write(sp - count + 1);
+                byteCode->fExternalValues[target]->write(sp - count + 1);
                 sp -= count;
                 break;
             }
@@ -825,6 +769,46 @@ void Interpreter::innerRun(const ByteCodeFunction& f, Value* stack, Value* outRe
     }
 }
 
-} // namespace
+void Run(const ByteCode* byteCode, const ByteCodeFunction* f, Value args[], Value* outReturn,
+         Value uniforms[], int uniformCount) {
+#ifdef TRACE
+    disassemble(f);
+#endif
+    Value smallStack[128];
+    std::unique_ptr<Value[]> largeStack;
+    Value* stack = smallStack;
+    if ((int)SK_ARRAY_COUNT(smallStack) < f->fStackCount) {
+        largeStack.reset(new Value[f->fStackCount]);
+        stack = largeStack.get();
+    }
+
+    if (f->fParameterCount) {
+        memcpy(stack, args, f->fParameterCount * sizeof(Value));
+    }
+
+    SkASSERT(uniformCount == (int)byteCode->fInputSlots.size());
+    Value smallGlobals[32];
+    std::unique_ptr<Value[]> largeGlobals;
+    Value* globals = smallGlobals;
+    if ((int)SK_ARRAY_COUNT(smallGlobals) < byteCode->fGlobalCount) {
+        largeGlobals.reset(new Value[byteCode->fGlobalCount]);
+        globals = largeGlobals.get();
+    }
+    for (uint8_t slot : byteCode->fInputSlots) {
+        globals[slot] = *uniforms++;
+    }
+    innerRun(byteCode, f, stack, outReturn, globals, byteCode->fGlobalCount);
+
+    for (const auto& p : f->fParameters) {
+        if (p.fIsOutParameter) {
+            memcpy(args, stack, p.fSlotCount * sizeof(Value));
+        }
+        args += p.fSlotCount;
+        stack += p.fSlotCount;
+    }
+}
+
+} // namespace Interpreter
+} // namespace SkSL
 
 #endif
