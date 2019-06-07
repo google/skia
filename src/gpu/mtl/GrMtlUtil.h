@@ -54,6 +54,15 @@ SK_ALWAYS_INLINE const void* GrGetPtrFromId(id idObject) {
 }
 
 /**
+ * Returns a const void* to whatever the id object is pointing to.
+ * Will call CFRetain on the object.
+ */
+SK_ALWAYS_INLINE const void* GrRetainPtrFromId(id idObject) {
+    return (__bridge_retained const void*)idObject;
+}
+
+
+/**
  * Returns a MTLTextureDescriptor which describes the MTLTexture. Useful when creating a duplicate
  * MTLTexture without the same storage allocation.
  */
