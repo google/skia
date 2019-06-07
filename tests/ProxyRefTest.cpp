@@ -26,39 +26,17 @@ int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
     return -1; // no backing GrSurface
 }
 
-int32_t GrIORefProxy::getPendingReadCnt_TestOnly() const {
-    if (fTarget) {
-        return fTarget->fPendingReads;
-    }
-
-    return fPendingReads;
-}
-
-int32_t GrIORefProxy::getPendingWriteCnt_TestOnly() const {
-    if (fTarget) {
-        return fTarget->fPendingWrites;
-    }
-
-    return fPendingWrites;
-}
-
 static const int kWidthHeight = 128;
 
 static void check_refs(skiatest::Reporter* reporter,
                        GrTextureProxy* proxy,
                        int32_t expectedProxyRefs,
-                       int32_t expectedBackingRefs,
-                       int32_t expectedNumReads,
-                       int32_t expectedNumWrites) {
+                       int32_t expectedBackingRefs) {
     REPORTER_ASSERT(reporter, proxy->priv().getProxyRefCnt() == expectedProxyRefs);
     REPORTER_ASSERT(reporter, proxy->getBackingRefCnt_TestOnly() == expectedBackingRefs);
-    REPORTER_ASSERT(reporter, proxy->getPendingReadCnt_TestOnly() == expectedNumReads);
-    REPORTER_ASSERT(reporter, proxy->getPendingWriteCnt_TestOnly() == expectedNumWrites);
 
     SkASSERT(proxy->priv().getProxyRefCnt() == expectedProxyRefs);
     SkASSERT(proxy->getBackingRefCnt_TestOnly() == expectedBackingRefs);
-    SkASSERT(proxy->getPendingReadCnt_TestOnly() == expectedNumReads);
-    SkASSERT(proxy->getPendingWriteCnt_TestOnly() == expectedNumWrites);
 }
 
 static sk_sp<GrTextureProxy> make_deferred(GrProxyProvider* proxyProvider, const GrCaps* caps) {
@@ -94,19 +72,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
         {
             sk_sp<GrTextureProxy> proxy((*make)(proxyProvider, caps));
             if (proxy.get()) {
-                GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fWrite(proxy.get());
-
-                static const int kExpectedReads = 0;
-                static const int kExpectedWrites = 1;
+                GrProxyPendingIO fWrite(proxy.get());
 
                 int backingRefs = proxy->isWrapped_ForTesting() ? 1 : -1;
 
-                check_refs(reporter, proxy.get(), 1, backingRefs, kExpectedReads, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 1, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
                 // In the deferred case, this checks that the refs transfered to the GrSurface
-                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 1, 1);
             }
         }
 
@@ -114,19 +89,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
         {
             sk_sp<GrTextureProxy> proxy((*make)(proxyProvider, caps));
             if (proxy.get()) {
-                GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType> fRead(proxy.get());
-
-                static const int kExpectedReads = 1;
-                static const int kExpectedWrites = 0;
+                GrProxyPendingIO fRead(proxy.get());
 
                 int backingRefs = proxy->isWrapped_ForTesting() ? 1 : -1;
 
-                check_refs(reporter, proxy.get(), 1, backingRefs, kExpectedReads, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 1, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
                 // In the deferred case, this checks that the refs transfered to the GrSurface
-                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 1, 1);
             }
         }
 
@@ -134,19 +106,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
         {
             sk_sp<GrTextureProxy> proxy((*make)(proxyProvider, caps));
             if (proxy.get()) {
-                GrPendingIOResource<GrSurfaceProxy, kRW_GrIOType> fRW(proxy.get());
-
-                static const int kExpectedReads = 1;
-                static const int kExpectedWrites = 1;
+                GrProxyPendingIO fRW(proxy.get());
 
                 int backingRefs = proxy->isWrapped_ForTesting() ? 1 : -1;
 
-                check_refs(reporter, proxy.get(), 1, backingRefs, kExpectedReads, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 1, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
                 // In the deferred case, this checks that the refs transferred to the GrSurface
-                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 1, 1);
             }
         }
 
@@ -157,17 +126,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
                 proxy->ref();
                 proxy->ref();
 
-                static const int kExpectedReads = 0;
-                static const int kExpectedWrites = 0;
-
                 int backingRefs = proxy->isWrapped_ForTesting() ? 3 : -1;
 
-                check_refs(reporter, proxy.get(), 3, backingRefs, kExpectedReads, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 3, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
                 // In the deferred case, this checks that the refs transferred to the GrSurface
-                check_refs(reporter, proxy.get(), 3, 3, kExpectedReads, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 3, 3);
 
                 proxy->unref();
                 proxy->unref();
@@ -180,24 +146,22 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
             if (proxy.get()) {
                 proxy->ref();
 
-                GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fWrite(proxy.get());
-
-                static const int kExpectedWrites = 1;
+                GrProxyPendingIO fWrite(proxy.get());
 
                 int backingRefs = proxy->isWrapped_ForTesting() ? 2 : -1;
 
-                check_refs(reporter, proxy.get(), 2, backingRefs, 0, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 2, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
                 // In the deferred case, this checks that the refs transfered to the GrSurface
-                check_refs(reporter, proxy.get(), 2, 2, 0, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 2, 2);
 
                 proxy->unref();
-                check_refs(reporter, proxy.get(), 1, 1, 0, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 1, 1);
 
-                GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType> fRead(proxy.get());
-                check_refs(reporter, proxy.get(), 1, 1, 1, kExpectedWrites);
+                GrProxyPendingIO fRead(proxy.get());
+                check_refs(reporter, proxy.get(), 1, 1);
             }
         }
     }
