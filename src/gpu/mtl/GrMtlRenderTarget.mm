@@ -54,7 +54,7 @@ GrMtlRenderTarget::~GrMtlRenderTarget() {
 
 GrBackendRenderTarget GrMtlRenderTarget::getBackendRenderTarget() const {
     GrMtlTextureInfo info;
-    info.fTexture = GrGetPtrFromId(fRenderTexture);
+    info.fTexture.reset(GrRetainPtrFromId(fRenderTexture));
     return GrBackendRenderTarget(this->width(), this->height(), fRenderTexture.sampleCount, info);
 }
 
