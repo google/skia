@@ -8,6 +8,7 @@
 #ifndef GrTypesPriv_DEFINED
 #define GrTypesPriv_DEFINED
 
+#include <src/core/SkRasterPipeline.h>
 #include <chrono>
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImageInfo.h"
@@ -1191,6 +1192,34 @@ enum class GrColorType {
     kRG_1616,    // Not in SkColorType
 };
 
+static bool GrColorTypeIsCompressed(GrColorType ct) {
+    switch (ct) {
+        case GrColorType::kRGB_ETC1:
+            return true;
+        case GrColorType::kUnknown:
+        case GrColorType::kAlpha_8:
+        case GrColorType::kRGB_565:
+        case GrColorType::kABGR_4444:
+        case GrColorType::kRGBA_8888:
+        case GrColorType::kRGB_888x:
+        case GrColorType::kRG_88:
+        case GrColorType::kBGRA_8888:
+        case GrColorType::kRGBA_1010102:
+        case GrColorType::kGray_8:
+        case GrColorType::kAlpha_F16:
+        case GrColorType::kRGBA_F16:
+        case GrColorType::kRGBA_F16_Clamped:
+        case GrColorType::kRG_F32:
+        case GrColorType::kRGBA_F32:
+        case GrColorType::kR_16:
+        case GrColorType::kRG_1616:
+            return false;
+    }
+    SK_ABORT("Invalid GrColorType");
+    return false;
+}
+
+
 static inline SkColorType GrColorTypeToSkColorType(GrColorType ct) {
     switch (ct) {
         case GrColorType::kUnknown:          return kUnknown_SkColorType;
@@ -1298,6 +1327,40 @@ static inline int GrColorTypeBytesPerPixel(GrColorType ct) {
     }
     SK_ABORT("Invalid GrColorType");
     return 0;
+}
+
+#include "src/gpu/GrSwizzle.h"
+
+static inline bool swizzle_pixels(void* dst, GrColorType dstCT, size_t dstRB,
+                    const void* src, GrColorType srcCT, size_t srcRB,
+                    int w, int h, const GrSwizzle& swizzle) {
+    if (srcCT == GrColorType::kUnknown || dstCT == GrColorType::kUnknown) {
+        return false;
+    }
+    if (GrColorTypeIsCompressed(srcCT) || GrColorTypeIsCompressed(dstCT)) {
+        return false;
+    }
+    if (GrColorTypeComponentFlags(dstCT) & ~GrColorTypeComponentFlags(srcCT)) {
+        return false;
+    }
+
+    auto sCT = GrColorTypeToSkColorType(srcCT);
+    auto dCT = GrColorTypeToSkColorType(dstCT);
+    if (sCT == kUnknown_SkColorType || dCT == kUnknown_SkColorType) {
+        return false;
+    }
+
+    auto sBPP = GrColorTypeBytesPerPixel(srcCT);
+    auto dBPP = GrColorTypeBytesPerPixel(dstCT);
+    SkRasterPipeline_MemoryCtx srcCtx = {(void*)src, (int)(srcRB / sBPP)};
+    SkRasterPipeline_MemoryCtx dstCtx = {       dst, (int)(dstRB / dBPP)};
+
+    SkRasterPipeline_<256> pipeline;
+    pipeline.append_load(sCT, &srcCtx);
+    swizzle.apply(&pipeline);
+    pipeline.append_store(dCT, &dstCtx);
+    pipeline.run(0,0, w, h);
+    return true;
 }
 
 static inline GrColorType GrPixelConfigToColorTypeAndEncoding(GrPixelConfig config,

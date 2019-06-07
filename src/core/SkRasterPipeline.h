@@ -46,8 +46,11 @@
     M(load_565)  M(load_565_dst)  M(store_565)  M(gather_565)      \
     M(load_4444) M(load_4444_dst) M(store_4444) M(gather_4444)     \
     M(load_f16)  M(load_f16_dst)  M(store_f16)  M(gather_f16)      \
+    M(load_f16_a)  M(store_f16_a)                                  \
     M(load_f32)  M(load_f32_dst)  M(store_f32)  M(gather_f32)      \
+    M(load_f32_rg) M(store_f32_rg)                                 \
     M(load_8888) M(load_8888_dst) M(store_8888) M(gather_8888)     \
+    M(load_88) M(store_88)                                         \
     M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102) \
     M(alpha_to_gray) M(alpha_to_gray_dst) M(luminance_to_alpha)    \
     M(bilerp_clamp_8888)                                           \
@@ -93,7 +96,8 @@
     M(byte_tables)                                                 \
     M(rgb_to_hsl) M(hsl_to_rgb)                                    \
     M(gauss_a_to_rgba)                                             \
-    M(emboss)
+    M(emboss)                                                      \
+    M(swizzle)
 
 // The largest number of pixels we handle at a time.
 static const int SkRasterPipeline_kMaxStride = 16;
