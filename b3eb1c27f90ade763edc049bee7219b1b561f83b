@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ae4ad2d_42b3da7b",
+        "filename": "tests/SkParagraphTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-07T15:43:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5bd200c6_02f6acfa",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 3
+      },
+      "revId": "b3eb1c27f90ade763edc049bee7219b1b561f83b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

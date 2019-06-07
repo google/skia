@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a4f9d62e_cf7de418",
+        "filename": "modules/skparagraph/src/TextWrapper.h",
+        "patchSetId": 50
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-07T15:43:47Z",
+      "side": 1,
+      "message": "I normally don\u0027t do that. Don\u0027t know how it happened...",
+      "parentUuid": "125823bf_0234512c",
+      "range": {
+        "startLine": 41,
+        "startChar": 41,
+        "endLine": 41,
+        "endChar": 64
+      },
+      "revId": "4bf2ea96a6483302aaf4f42a728bb14b3b448c32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d36de47_58115424",
         "filename": "samplecode/SampleParagraph.cpp",
         "patchSetId": 50
@@ -45,6 +69,30 @@
       "revId": "4bf2ea96a6483302aaf4f42a728bb14b3b448c32",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d602c96_3e13af1a",
+        "filename": "samplecode/SampleParagraph.cpp",
+        "patchSetId": 50
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-07T15:43:47Z",
+      "side": 1,
+      "message": "Probably. It\u0027s just copy/paste problem.",
+      "parentUuid": "8d36de47_58115424",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 6
+      },
+      "revId": "4bf2ea96a6483302aaf4f42a728bb14b3b448c32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

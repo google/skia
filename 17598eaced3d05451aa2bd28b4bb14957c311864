@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "88dd90ae_02eca73b",
+        "filename": "modules/skparagraph/include/FontCollection.h",
+        "patchSetId": 49
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-07T15:43:47Z",
+      "side": 1,
+      "message": "Not\u0027s not for now. I postponed locale work until after the first CL.",
+      "parentUuid": "6053a7af_bb576d56",
+      "range": {
+        "startLine": 47,
+        "startChar": 17,
+        "endLine": 47,
+        "endChar": 24
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22ef8157_fe3523bd",
         "filename": "modules/skparagraph/include/TextStyle.h",
         "patchSetId": 49
@@ -45,6 +69,30 @@
       "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "424ab289_d2dfbf90",
+        "filename": "modules/skparagraph/include/TextStyle.h",
+        "patchSetId": 49
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-07T15:43:47Z",
+      "side": 1,
+      "message": "I didn\u0027t want to define \u003d\u003d with different functionality so I called it equals. Maybe I should use a different name.",
+      "parentUuid": "22ef8157_fe3523bd",
+      "range": {
+        "startLine": 54,
+        "startChar": 9,
+        "endLine": 54,
+        "endChar": 15
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "e10abd59_6e34f461",
+        "filename": "modules/skparagraph/include/TextStyle.h",
+        "patchSetId": 49
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-07T15:43:47Z",
+      "side": 1,
+      "message": "I will sort it out in the next version. (Adding TODO).",
+      "parentUuid": "5a794e1b_048e6198",
+      "range": {
+        "startLine": 130,
+        "startChar": 8,
+        "endLine": 130,
+        "endChar": 26
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e488af6d_9e56fb67",
         "filename": "modules/skparagraph/src/ParagraphBuilderImpl.cpp",
         "patchSetId": 49
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "f126e1b9_e89b7149",
+        "filename": "modules/skparagraph/src/ParagraphBuilderImpl.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-07T15:43:47Z",
+      "side": 1,
+      "message": "This one I would like to keep for now. It\u0027s not clear to me why we even allow this situation, but we do...",
+      "parentUuid": "e488af6d_9e56fb67",
+      "range": {
+        "startLine": 51,
+        "startChar": 8,
+        "endLine": 51,
+        "endChar": 16
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a1d7a94e_83e071d4",
         "filename": "modules/skparagraph/src/ParagraphCache.h",
         "patchSetId": 49
@@ -114,6 +210,30 @@
       "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "239ea881_6a9441f7",
+        "filename": "modules/skparagraph/src/ParagraphCache.h",
+        "patchSetId": 49
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-07T15:43:47Z",
+      "side": 1,
+      "message": "The file is not in use at the moment, but you are right. Fixed.",
+      "parentUuid": "a1d7a94e_83e071d4",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 30
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "c1ef38ee_fa2b9e5e",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-07T15:43:47Z",
+      "side": 1,
+      "message": "I mostly meant testing. Some TODOs stay until I have tests confirmed it works.",
+      "parentUuid": "8e2612fa_3aa4f5ee",
+      "range": {
+        "startLine": 529,
+        "startChar": 0,
+        "endLine": 529,
+        "endChar": 27
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5481b9b4_a3a23ad7",
         "filename": "modules/skparagraph/src/TextLine.cpp",
         "patchSetId": 49
@@ -186,6 +330,30 @@
     },
     {
       "key": {
+        "uuid": "8226f89d_be619c42",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-07T15:43:47Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "5481b9b4_a3a23ad7",
+      "range": {
+        "startLine": 13,
+        "startChar": 19,
+        "endLine": 13,
+        "endChar": 28
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1876e8e9_c4921302",
         "filename": "modules/skparagraph/src/TextLine.cpp",
         "patchSetId": 49
@@ -206,6 +374,30 @@
       "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6058b44_4224ee43",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-07T15:43:47Z",
+      "side": 1,
+      "message": "Well, it can return negative in case the spans are far away from each other.",
+      "parentUuid": "1876e8e9_c4921302",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 7
+      },
+      "revId": "17598eaced3d05451aa2bd28b4bb14957c311864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
