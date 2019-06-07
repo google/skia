@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7cb0fe20_249ed0d1",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1599,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-07T14:14:48Z",
+      "side": 1,
+      "message": "lets just return true if we don\u0027t have things to upload so we don\u0027t need this whole block with it tabbed.",
+      "range": {
+        "startLine": 1598,
+        "startChar": 0,
+        "endLine": 1599,
+        "endChar": 17
+      },
+      "revId": "e64c2e543137808b81509d6859cb3cf1006f1e38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8ab02af_5c75023c",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1600,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-07T14:14:48Z",
+      "side": 1,
+      "message": "100",
+      "range": {
+        "startLine": 1600,
+        "startChar": 101,
+        "endLine": 1600,
+        "endChar": 102
+      },
+      "revId": "e64c2e543137808b81509d6859cb3cf1006f1e38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
