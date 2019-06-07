@@ -1014,7 +1014,12 @@ Modifiers Parser::modifiersWithDefaults(int defaultFlags) {
 
 /* ifStatement | forStatement | doStatement | whileStatement | block | expression */
 ASTNode::ID Parser::statement() {
-    Token start = this->peek();
+    Token start = this->nextToken();
+    AutoDepth depth(this);
+    if (!depth.checkValid()) {
+        return ASTNode::ID::Invalid();
+    }
+    this->pushback(start);
     switch (start.fKind) {
         case Token::IF: // fall through
         case Token::STATIC_IF:
@@ -1440,12 +1445,12 @@ ASTNode::ID Parser::discardStatement() {
 
 /* LBRACE statement* RBRACE */
 ASTNode::ID Parser::block() {
-    AutoDepth depth(this);
-    if (!depth.checkValid()) {
-        return ASTNode::ID::Invalid();
-    }
     Token start;
     if (!this->expect(Token::LBRACE, "'{'", &start)) {
+        return ASTNode::ID::Invalid();
+    }
+    AutoDepth depth(this);
+    if (!depth.checkValid()) {
         return ASTNode::ID::Invalid();
     }
     CREATE_NODE(result, start.fOffset, ASTNode::Kind::kBlock);
@@ -1842,11 +1847,11 @@ ASTNode::ID Parser::unaryExpression() {
         case Token::BITWISENOT: // fall through
         case Token::PLUSPLUS:   // fall through
         case Token::MINUSMINUS: {
+            Token t = this->nextToken();
             AutoDepth depth(this);
             if (!depth.checkValid()) {
                 return ASTNode::ID::Invalid();
             }
-            Token t = this->nextToken();
             ASTNode::ID expr = this->unaryExpression();
             if (!expr) {
                 return ASTNode::ID::Invalid();
@@ -1886,6 +1891,10 @@ ASTNode::ID Parser::postfixExpression() {
    PLUSPLUS | MINUSMINUS | COLONCOLON IDENTIFIER */
 ASTNode::ID Parser::suffix(ASTNode::ID base) {
     Token next = this->nextToken();
+    AutoDepth depth(this);
+    if (!depth.checkValid()) {
+        return ASTNode::ID::Invalid();
+    }
     switch (next.fKind) {
         case Token::LBRACKET: {
             if (this->checkNext(Token::RBRACKET)) {
@@ -1983,6 +1992,10 @@ ASTNode::ID Parser::term() {
             RETURN_NODE(t.fOffset, ASTNode::Kind::kNull);
         case Token::LPAREN: {
             this->nextToken();
+            AutoDepth depth(this);
+            if (!depth.checkValid()) {
+                return ASTNode::ID::Invalid();
+            }
             ASTNode::ID result = this->expression();
             if (result) {
                 this->expect(Token::RPAREN, "')' to complete expression");
