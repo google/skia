@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrSurfaceContext.h"
+
 #include "include/private/GrAuditTrail.h"
 #include "include/private/GrOpList.h"
 #include "include/private/GrRecordingContext.h"
@@ -15,7 +17,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTextureContext.h"
 #include "src/gpu/SkGr.h"
@@ -377,7 +379,7 @@ bool GrSurfaceContext::writePixelsImpl(GrContext* direct, int left, int top, int
         }
 
         auto tempProxy = direct->priv().proxyProvider()->createProxy(
-                format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
+                format, desc, dstProxy->origin(), SkBackingFit::kApprox, SkBudgeted::kYes);
         if (!tempProxy) {
             return false;
         }
@@ -399,7 +401,7 @@ bool GrSurfaceContext::writePixelsImpl(GrContext* direct, int left, int top, int
         }
 
         if (this->asRenderTargetContext()) {
-        std::unique_ptr<GrFragmentProcessor> fp;
+            std::unique_ptr<GrFragmentProcessor> fp;
             if (canvas2DFastPath) {
                 fp = direct->priv().createUPMToPMEffect(
                         GrSimpleTextureEffect::Make(std::move(tempProxy), SkMatrix::I()));
@@ -421,10 +423,9 @@ bool GrSurfaceContext::writePixelsImpl(GrContext* direct, int left, int top, int
         } else {
             SkIRect srcRect = SkIRect::MakeWH(width, height);
             SkIPoint dstPoint = SkIPoint::Make(left, top);
-            if (!caps->canCopySurface(this->asSurfaceProxy(), tempProxy.get(), srcRect, dstPoint)) {
+            if (!this->copy(tempProxy.get(), srcRect, dstPoint)) {
                 return false;
             }
-            SkAssertResult(this->copy(tempProxy.get(), srcRect, dstPoint));
         }
         return true;
     }
@@ -531,13 +532,17 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::copy");
+    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContextPriv::copy");
 
-    if (!fContext->priv().caps()->canCopySurface(this->asSurfaceProxy(), src, srcRect,
-                                                        dstPoint)) {
+    SkASSERT(src->backendFormat().textureType() != GrTextureType::kExternal);
+    SkASSERT(src->origin() == this->asSurfaceProxy()->origin());
+
+    GrSurfaceProxy* dst = this->asSurfaceProxy();
+
+    if (!fContext->priv().caps()->canCopySurface(dst, src, srcRect, dstPoint)) {
         return false;
     }
 
-    return this->getOpList()->copySurface(fContext, this->asSurfaceProxy(),
-                                          src, srcRect, dstPoint);
+    return this->getOpList()->copySurface(fContext, dst, src, srcRect, dstPoint);
 }
+

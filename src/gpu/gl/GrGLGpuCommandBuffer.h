@@ -21,9 +21,8 @@ class GrGLGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
     GrGLGpuTextureCommandBuffer(GrGLGpu* gpu) : fGpu(gpu) {}
 
-    void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-              const SkIPoint& dstPoint) override {
-        fGpu->copySurface(fTexture, fOrigin, src, srcOrigin, srcRect, dstPoint);
+    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
+        fGpu->copySurface(fTexture, src, srcRect, dstPoint);
     }
 
     void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,
@@ -68,9 +67,8 @@ public:
         state->doUpload(upload);
     }
 
-    void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-              const SkIPoint& dstPoint) override {
-        fGpu->copySurface(fRenderTarget, fOrigin, src, srcOrigin, srcRect, dstPoint);
+    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
+        fGpu->copySurface(fRenderTarget, src,srcRect, dstPoint);
     }
 
     void transferFrom(const SkIRect& srcRect, GrColorType bufferColorType,

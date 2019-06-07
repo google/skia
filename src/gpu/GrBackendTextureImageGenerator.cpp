@@ -208,28 +208,10 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         // because Vulkan will want to do the copy as a draw. All other copies would require a
         // layout change in Vulkan and we do not change the layout of borrowed images.
         GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
-
-        GrBackendFormat format = proxy->backendFormat().makeTexture2D();
-        if (!format.isValid()) {
-            return nullptr;
-        }
-
-        sk_sp<GrRenderTargetContext> rtContext(
-            context->priv().makeDeferredRenderTargetContext(
-                format, SkBackingFit::kExact, info.width(), info.height(),
-                proxy->config(), nullptr, 1, mipMapped, proxy->origin(), nullptr,
-                SkBudgeted::kYes));
-
-        if (!rtContext) {
-            return nullptr;
-        }
-
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
-        if (!rtContext->copy(proxy.get(), subset, SkIPoint::Make(0, 0))) {
-            return nullptr;
-        }
 
-        return rtContext->asTextureProxyRef();
+        return GrSurfaceProxy::Copy(context, proxy.get(), mipMapped, subset, SkBackingFit::kExact,
+                                    SkBudgeted::kYes);
     }
 }
 
