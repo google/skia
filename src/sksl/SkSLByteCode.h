@@ -8,7 +8,7 @@
 #ifndef SKSL_BYTECODE
 #define SKSL_BYTECODE
 
-#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/SkSLString.h"
 
 #include <memory>
 #include <vector>
@@ -128,11 +128,17 @@ enum class ByteCodeInstruction : uint16_t {
 #undef VECTOR
 
 struct ByteCodeFunction {
-    ByteCodeFunction(const FunctionDeclaration* declaration)
-        : fDeclaration(*declaration) {}
+    ByteCodeFunction(const FunctionDeclaration* declaration);
 
-    const FunctionDeclaration& fDeclaration;
-    int fParameterCount = 0;
+    struct Parameter {
+        int fSlotCount;
+        bool fIsOutParameter;
+    };
+
+    SkSL::String fName;
+    std::vector<Parameter> fParameters;
+    int fParameterCount;
+
     int fLocalCount = 0;
     // TODO: Compute this value analytically. For now, just pick an arbitrary value that we probably
     // won't overflow.
@@ -149,7 +155,7 @@ struct ByteCode {
 
     const ByteCodeFunction* getFunction(const char* name) const {
         for (const auto& f : fFunctions) {
-            if (f->fDeclaration.fName == name) {
+            if (f->fName == name) {
                 return f.get();
             }
         }

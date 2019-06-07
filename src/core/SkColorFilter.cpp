@@ -404,12 +404,14 @@ public:
             rec.fPipeline->append(SkRasterPipeline::callback, ctx);
         } else {
             struct InterpreterCtx : public SkRasterPipeline_CallbackCtx {
+                std::unique_ptr<SkSL::ByteCode> byteCode;
                 SkSL::ByteCodeFunction* main;
-                std::unique_ptr<SkSL::Interpreter> interpreter;
                 const void* inputs;
+                int ninputs;
             };
             auto ctx = rec.fAlloc->make<InterpreterCtx>();
             ctx->inputs = fInputs->data();
+            ctx->ninputs = fInputs->size() / 4;
             SkSL::Compiler c;
             std::unique_ptr<SkSL::Program> prog =
                                                 c.convertProgram(SkSL::Program::kPipelineStage_Kind,
@@ -419,16 +421,15 @@ public:
                 SkDebugf("%s\n", c.errorText().c_str());
                 SkASSERT(false);
             }
-            std::unique_ptr<SkSL::ByteCode> byteCode = c.toByteCode(*prog);
-            ctx->main = byteCode->fFunctions[0].get();
-            ctx->interpreter.reset(new SkSL::Interpreter(std::move(prog), std::move(byteCode),
-                                                         (SkSL::Interpreter::Value*) ctx->inputs));
+            ctx->byteCode = c.toByteCode(*prog);
+            ctx->main = ctx->byteCode->fFunctions[0].get();
             ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
                 auto ctx = (InterpreterCtx*)arg;
                 for (int i = 0; i < active_pixels; i++) {
-                    ctx->interpreter->run(*ctx->main,
-                                          (SkSL::Interpreter::Value*) (ctx->rgba + i * 4),
-                                          nullptr);
+                    SkSL::Interpreter::Run(ctx->byteCode.get(), ctx->main,
+                                           (SkSL::Interpreter::Value*) (ctx->rgba + i * 4),
+                                           nullptr, (SkSL::Interpreter::Value*)ctx->inputs,
+                                           ctx->ninputs);
                 }
             };
             rec.fPipeline->append(SkRasterPipeline::callback, ctx);
