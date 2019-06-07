@@ -4,6 +4,7 @@
 #include "include/core/SkPaint.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "src/core/SkSpan.h"
+#include "src/core/SkMakeUnique.h"
 #include "unicode/unistr.h"
 
 namespace skia {
@@ -97,7 +98,7 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
     if (!fUtf8.isEmpty()) {
         this->endRunIfNeeded();
     }
-    return std::make_unique<ParagraphImpl>(fUtf8, fParagraphStyle, fStyledBlocks, fFontCollection);
+    return skstd::make_unique<ParagraphImpl>(fUtf8, fParagraphStyle, fStyledBlocks, fFontCollection);
 }
 
 }  // namespace textlayout
