@@ -479,10 +479,10 @@ public:
     REFLECTED(SkInterpreterAffector, SkParticleAffector)
 
     void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
-        fInterpreter->setInputs((SkSL::Interpreter::Value*)&params);
         for (int i = 0; i < count; ++i) {
             fRandomValue->setRandom(&ps[i].fRandom);
-            fInterpreter->run(*fMain, (SkSL::Interpreter::Value*)&ps[i].fAge, nullptr);
+            SkSL::Interpreter::Run(fByteCode.get(), fMain, (SkSL::Interpreter::Value*)&ps[i].fAge,
+                                   nullptr, (SkSL::Interpreter::Value*)&params, 2);
         }
     }
 
@@ -501,7 +501,7 @@ private:
     SkString fCode;
 
     // Cached
-    std::unique_ptr<SkSL::Interpreter> fInterpreter;
+    std::unique_ptr<SkSL::ByteCode> fByteCode;
     std::unique_ptr<SkRandomExternalValue> fRandomValue;
     SkSL::ByteCodeFunction* fMain;
 
@@ -523,11 +523,8 @@ private:
             return;
         }
 
-        // These will be replaced with the real inputs in onApply, before running
-        SkParticleUpdateParams defaultInputs = { 0.0f, 0.0f, 0 };
         fMain = byteCode->fFunctions[0].get();
-        fInterpreter.reset(new SkSL::Interpreter(std::move(program), std::move(byteCode),
-                                                 (SkSL::Interpreter::Value*)&defaultInputs));
+        fByteCode = std::move(byteCode);
         fRandomValue = std::move(rand);
     }
 };
