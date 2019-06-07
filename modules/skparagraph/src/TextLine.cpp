@@ -7,6 +7,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkDiscretePathEffect.h"
+#include "src/core/SkMakeUnique.h"
 
 namespace {
 
@@ -451,7 +452,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
                 if (cached == nullptr) {
                     cached = shapeEllipsis(ellipsis, cluster->run());
                 }
-                fEllipsis = std::make_unique<Run>(*cached);
+                fEllipsis = skstd::make_unique<Run>(*cached);
 
                 // See if it fits
                 if (width + fEllipsis->advance().fX > maxWidth) {
@@ -499,6 +500,7 @@ Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
 
     ShapeHandler handler(run->lineHeight());
     std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder();
+    SkASSERT_RELEASE(shaper != nullptr);
     shaper->shape(ellipsis.c_str(), ellipsis.size(), run->font(), true,
                   std::numeric_limits<SkScalar>::max(), &handler);
     handler.run()->fText = SkSpan<const char>(ellipsis.c_str(), ellipsis.size());
