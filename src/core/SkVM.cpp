@@ -9,9 +9,6 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
 #include <string.h>
-#if defined(SK_BUILD_FOR_WIN)
-    #include <intrin.h>
-#endif
 
 namespace skvm {
 
@@ -223,18 +220,8 @@ namespace skvm {
         return {this->push(Op::mad_unorm8, x.id, y.id, z.id)};
     }
 
-    I32 Builder::extract(I32 x, int mask) {
-        SkASSERT(mask != 0);
-    #if defined(SK_BUILD_FOR_WIN)
-        unsigned long shift;
-        _BitScanForward(&shift, mask);
-    #else
-        const int shift = __builtin_ctz(mask);
-    #endif
-        if ((unsigned)mask == (~0u << shift)) {
-            return this->shr(x, shift);
-        }
-        return {this->push(Op::extract, x.id,NA,NA, mask, shift)};
+    I32 Builder::extract(I32 x, int bits, I32 z) {
+        return {this->push(Op::extract, x.id,NA,z.id, bits,0)};
     }
 
     I32 Builder::pack(I32 x, I32 y, int bits) {
@@ -248,7 +235,6 @@ namespace skvm {
 
     struct R { ID id; };
     struct Shift { int bits; };
-    struct Mask  { int bits; };
     struct Splat { int bits; };
 
     static void write(SkWStream* o, const char* s) {
@@ -266,9 +252,6 @@ namespace skvm {
     }
     static void write(SkWStream* o, Shift s) {
         o->writeDecAsText(s.bits);
-    }
-    static void write(SkWStream* o, Mask m) {
-        o->writeHexAsText(m.bits);
     }
     static void write(SkWStream* o, Splat s) {
         float f;
@@ -331,8 +314,8 @@ namespace skvm {
                 case Op::mul_unorm8: write(o, R{d}, "= mul_unorm8", R{x}, R{y.id}         ); break;
                 case Op::mad_unorm8: write(o, R{d}, "= mad_unorm8", R{x}, R{y.id}, R{z.id}); break;
 
-                case Op::extract: write(o, R{d}, "= extract", R{x}, Mask{y.imm}); break;
-                case Op::pack: write(o, R{d}, "= pack", R{x}, R{y.id}, Shift{z.imm}); break;
+                case Op::extract: write(o, R{d}, "= extract", R{x}, Shift{y.imm}, R{z.id}); break;
+                case Op::pack:    write(o, R{d}, "= pack",    R{x}, R{y.id}, Shift{z.imm}); break;
 
                 case Op::to_f32: write(o, R{d}, "= to_f32", R{x}); break;
                 case Op::to_i32: write(o, R{d}, "= to_i32", R{x}); break;
