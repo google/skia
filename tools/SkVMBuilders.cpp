@@ -36,10 +36,10 @@ SrcoverBuilder_F32::SrcoverBuilder_F32(Fmt srcFmt, Fmt dstFmt) {
 
             case Fmt::RGBA_8888: {
                 skvm::I32 rgba = load32(ptr);
-                *r = byte_to_f32(extract(rgba, 0xff));
-                *g = byte_to_f32(extract(rgba, 0xff00));
-                *b = byte_to_f32(extract(rgba, 0xff0000));
-                *a = byte_to_f32(extract(rgba, 0xff000000));
+                *r = byte_to_f32(extract(rgba,  0, splat(0xff)));
+                *g = byte_to_f32(extract(rgba,  8, splat(0xff)));
+                *b = byte_to_f32(extract(rgba, 16, splat(0xff)));
+                *a = byte_to_f32(extract(rgba, 24, splat(0xff)));
             } break;
         }
     };
@@ -97,10 +97,10 @@ SrcoverBuilder_I32::SrcoverBuilder_I32() {
     auto load = [&](skvm::Arg ptr,
                     skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) {
         skvm::I32 rgba = load32(ptr);
-        *r = extract(rgba, 0xff);
-        *g = extract(rgba, 0xff00);
-        *b = extract(rgba, 0xff0000);
-        *a = extract(rgba, 0xff000000);
+        *r = extract(rgba,  0, splat(0xff));
+        *g = extract(rgba,  8, splat(0xff));
+        *b = extract(rgba, 16, splat(0xff));
+        *a = extract(rgba, 24, splat(0xff));
     };
 
     skvm::I32 r,g,b,a;
@@ -128,15 +128,14 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
     auto load = [&](skvm::Arg ptr,
                     skvm::I32* rb, skvm::I32* ga) {
         skvm::I32 rgba = load32(ptr);
-        *rb = extract(rgba, 0x00ff00ff);
-        *ga = extract(rgba, 0xff00ff00);
+        *rb = extract(rgba, 0, splat(0x00ff00ff));
+        *ga = extract(rgba, 8, splat(0x00ff00ff));
     };
 
     auto mul_unorm8_SWAR = [&](skvm::I32 x, skvm::I32 y) {
         // As above, assuming x is two SWAR bytes in lanes 0 and 2, and y is a byte.
         skvm::I32 _255 = splat(0x00ff00ff);
-        return extract(add(mul(x, y), _255),
-                       0xff00ff00);
+        return extract(add(mul(x, y), _255), 8, _255);
     };
 
     skvm::I32 rb, ga;
