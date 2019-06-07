@@ -323,7 +323,7 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     FontIterator font(fTextSpan, styles, fFontCollection, fParagraphStyle.hintingIsOn());
     ShapeHandler handler(*this, &font);
     std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder();
-
+    SkASSERT_RELEASE(shaper != nullptr);
     auto bidi = SkShaper::MakeIcuBiDiRunIterator(
             fTextSpan.begin(), fTextSpan.size(),
             fParagraphStyle.getTextDirection() == TextDirection::kLtr ? (uint8_t)2 : (uint8_t)1);
@@ -343,10 +343,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
     TextWrapper textWrapper;
     textWrapper.breakTextIntoLines(
             this,
-            SkSpan<Cluster>(fClusters.begin(), fClusters.size()),
             maxWidth,
-            fParagraphStyle.getMaxLines(),
-            fParagraphStyle.getEllipsis(),
             [&](SkSpan<const char> text,
                 SkSpan<const char> textWithSpaces,
                 Cluster* start,

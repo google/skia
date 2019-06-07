@@ -141,10 +141,7 @@ public:
                                                   LineMetrics metrics,
                                                   bool addEllipsis)>;
     void breakTextIntoLines(ParagraphImpl* parent,
-                            SkSpan<Cluster> span,
                             SkScalar maxWidth,
-                            size_t maxLines,
-                            const SkString& ellipsisStr,
                             const AddLineToParagraph& addLine);
 
     SkScalar height() const { return fHeight; }
@@ -176,7 +173,7 @@ private:
 
     void lookAhead(SkScalar maxWidth, Cluster* endOfClusters);
     void moveForward();
-    void trimEndSpaces();
+    void trimEndSpaces(bool includingClusters);
     void trimStartSpaces(Cluster* endOfClusters);
     SkScalar getClustersTrimmedWidth();
 };
