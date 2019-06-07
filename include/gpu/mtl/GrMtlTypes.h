@@ -56,12 +56,12 @@ public:
 
     const void* get() const { return fCFObject; }
 
-    void reset(const void* resource) {
-        const void* oldObject = fCFObject;
-        fCFObject = resource;
-        if (oldObject) {
-            CFRelease(oldObject);
-        }
+    /* Explicitly retains ownership of the object rather than transferring it.
+     * For translating from other shared_ptr/unique_ptr classes that wish to
+     * maintain their own ownership.
+     */
+    void retain(const void* resource) {
+        this->assign(resource);
     }
 
     bool operator==(const GrCFResource& that) const {
