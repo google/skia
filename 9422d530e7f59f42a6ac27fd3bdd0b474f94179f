@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f5a62b82_17fe82b1",
+        "filename": "include/core/SkSharingProc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-06-07T18:28:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac7de9dd_aca93b0c",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 29
+      },
+      "revId": "9422d530e7f59f42a6ac27fd3bdd0b474f94179f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baf16c68_b17937ca",
         "filename": "include/core/SkSharingProc.h",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "69fcb345_3b0f711c",
+        "filename": "include/core/SkSharingProc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-06-07T18:28:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "baf16c68_b17937ca",
+      "range": {
+        "startLine": 20,
+        "startChar": 4,
+        "endLine": 20,
+        "endChar": 12
+      },
+      "revId": "9422d530e7f59f42a6ac27fd3bdd0b474f94179f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ad06739_32b76117",
         "filename": "include/core/SkSharingProc.h",
         "patchSetId": 1
@@ -62,6 +110,24 @@
       "revId": "9422d530e7f59f42a6ac27fd3bdd0b474f94179f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac6c5da5_4a9491b0",
+        "filename": "include/core/SkSharingProc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-06-07T18:28:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ad06739_32b76117",
+      "revId": "9422d530e7f59f42a6ac27fd3bdd0b474f94179f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "271c638b_a700f2b1",
+        "filename": "include/core/SkSharingProc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-06-07T18:28:01Z",
+      "side": 1,
+      "message": "The user of a SerialProc must also create instances of the context for it. In my case this is android and the wasm debugger.\nThis is part of the SerialProc design.",
+      "parentUuid": "f5b74820_186e9ce0",
+      "revId": "9422d530e7f59f42a6ac27fd3bdd0b474f94179f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fae35aa5_f2377ea3",
         "filename": "src/core/SkSharingProc.cpp",
         "patchSetId": 1
@@ -96,6 +180,24 @@
       "revId": "9422d530e7f59f42a6ac27fd3bdd0b474f94179f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be1ca327_8907a028",
+        "filename": "src/core/SkSharingProc.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-06-07T18:28:01Z",
+      "side": 1,
+      "message": "Done but they should still be in an anonymous namespace right? because they are not supposed to be used outside this file.",
+      "parentUuid": "fae35aa5_f2377ea3",
+      "revId": "9422d530e7f59f42a6ac27fd3bdd0b474f94179f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
