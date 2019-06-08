@@ -316,7 +316,7 @@ struct Line {
         point->fX = double_to_clamped_scalar((fB * other.fC - other.fB * fC) * scale);
         point->fY = double_to_clamped_scalar((other.fA * fC - fA * other.fC) * scale);
         round(point);
-        return true;
+        return point->isFinite();
     }
     double fA, fB, fC;
 };
