@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68c9d1a4_2ce31d13",
+        "filename": "modules/skparagraph/src/ParagraphBuilderImpl.h",
+        "patchSetId": 56
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-08T13:52:24Z",
+      "side": 1,
+      "message": "So one of the rollers is complaining about not being able to find this include. The reason for that being that we\u0027re trying to limit the number of include paths on the compile line. It would probably be best to just run\n\npython tools/rewrite_includes.py\n\nto make these all relative to the skia checkout.",
+      "range": {
+        "startLine": 9,
+        "startChar": 9,
+        "endLine": 9,
+        "endChar": 27
+      },
+      "revId": "10ad0b9b01e4b8a4721ae2ec1adee9ca7d0fe534",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
