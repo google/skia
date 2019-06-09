@@ -15,6 +15,7 @@ if (skia_enable_skparagraph) {
   }
 
   component("skparagraph") {
+    check_includes = false
     import("skparagraph.gni")
     public_configs = [ ":public_config" ]
     public = skparagraph_public
@@ -33,6 +34,7 @@ if (skia_enable_skparagraph) {
   if (defined(is_skia_standalone) && skia_enable_tools) {
     source_set("tests") {
       if (skia_use_icu && skia_use_harfbuzz && paragraph_tests_enabled) {
+        check_includes = false
         testonly = true
         sources = [
           "//tests/SkParagraphTest.cpp"
@@ -50,6 +52,7 @@ if (skia_enable_skparagraph) {
     source_set("bench") {
       if (skia_use_icu && skia_use_harfbuzz && paragraph_bench_enabled) {
         testonly = true
+        check_includes = false
         sources = [
           "//bench/ParagraphBench.cpp"
         ]
@@ -65,6 +68,7 @@ if (skia_enable_skparagraph) {
     source_set("samples") {
       if (skia_use_icu && skia_use_harfbuzz) {
         testonly = true
+        check_includes = false
         sources = [
           "//samplecode/SampleParagraph.cpp",
         ]
