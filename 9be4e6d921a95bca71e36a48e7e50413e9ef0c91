@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac203815_c95bd21e",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 1052,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-10T13:40:02Z",
+      "side": 1,
+      "message": "This seems kind of weird.  Things in src/core are usually part of libskia, the :skia target. Why aren\u0027t we adding it there, or putting this in tools/?\n\nIf you asked someone how to get access to SkSharingProc, you wouldn\u0027t say \"oh, that\u0027s logically part of the debug canvas, depend on that target,\" would you?",
+      "revId": "9be4e6d921a95bca71e36a48e7e50413e9ef0c91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
