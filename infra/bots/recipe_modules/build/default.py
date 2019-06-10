@@ -23,7 +23,7 @@ def build_command_buffer(api, chrome_dir, skia_dir, out):
         '--no-sync', '--no-hooks', '--make-output-dir'])
 
 
-def compile_swiftshader(api, swiftshader_root, cc, cxx, out):
+def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
   """Build SwiftShader with CMake.
 
   Building SwiftShader works differently from any other Skia third_party lib.
@@ -34,16 +34,37 @@ def compile_swiftshader(api, swiftshader_root, cc, cxx, out):
     cc, cxx: compiler binaries to use
     out: target directory for libEGL.so and libGLESv2.so
   """
+  swiftshader_opts = ['-DBUILD_TESTS=OFF', '-DWARNINGS_AS_ERRORS=0']
   cmake_bin = str(api.vars.slave_dir.join('cmake_linux', 'bin'))
   env = {
       'CC': cc,
       'CXX': cxx,
       'PATH': '%%(PATH)s:%s' % cmake_bin
   }
+
+  # Extra flags for MSAN, if necessary.
+  if 'MSAN' in extra_tokens:
+    clang_linux = str(api.vars.slave_dir.join('clang_linux'))
+    libcxx_msan = clang_linux + '/msan'
+    msan_cflags = ' '.join([
+      '-fsanitize=memory',
+      '-stdlib=libc++',
+      '-L%s/lib' % libcxx_msan,
+      '-lc++abi',
+      '-I%s/include' % libcxx_msan,
+      '-I%s/include/c++/v1' % libcxx_msan,
+    ])
+    swiftshader_opts.extend([
+      '-DMSAN=ON',
+      '-DCMAKE_C_FLAGS=%s' % msan_cflags,
+      '-DCMAKE_CXX_FLAGS=%s' % msan_cflags,
+    ])
+
+  # Build SwiftShader.
   api.file.ensure_directory('makedirs swiftshader_out', out)
   with api.context(cwd=out, env=env):
     api.run(api.step, 'swiftshader cmake',
-            cmd=['cmake', '-DBUILD_TESTS=OFF', '-DWARNINGS_AS_ERRORS=0', swiftshader_root, '-GNinja'])
+            cmd=['cmake'] + swiftshader_opts + [swiftshader_root, '-GNinja'])
     api.run(api.step, 'swiftshader ninja',
             cmd=['ninja', '-C', out, 'libEGL.so', 'libGLESv2.so'])
 
@@ -169,7 +190,7 @@ def compile_fn(api, checkout_root, out_dir):
   if 'SwiftShader' in extra_tokens:
     swiftshader_root = skia_dir.join('third_party', 'externals', 'swiftshader')
     swiftshader_out = out_dir.join('swiftshader_out')
-    compile_swiftshader(api, swiftshader_root, cc, cxx, swiftshader_out)
+    compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, swiftshader_out)
     args['skia_use_egl'] = 'true'
     extra_cflags.extend([
         '-DGR_EGL_TRY_GLES3_THEN_GLES2',
