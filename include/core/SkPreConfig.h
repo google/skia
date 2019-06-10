@@ -120,9 +120,9 @@
     #if defined(__AVX512F__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX512
     #elif defined(__AVX2__)
-        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX2
+  //      #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX2
     #elif defined(__AVX__)
-        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX
+//        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX
     #elif defined(__SSE4_2__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE42
     #elif defined(__SSE4_1__)
