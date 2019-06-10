@@ -2,8 +2,8 @@
 #ifndef ParagraphStyle_DEFINED
 #define ParagraphStyle_DEFINED
 
-#include "DartTypes.h"
-#include "TextStyle.h"
+#include "modules/skparagraph/include/DartTypes.h"
+#include "modules/skparagraph/include/TextStyle.h"
 #include "include/core/SkFontStyle.h"
 
 namespace skia {

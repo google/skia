@@ -2,9 +2,9 @@
 #ifndef Paragraph_DEFINED
 #define Paragraph_DEFINED
 
-#include "FontCollection.h"
-#include "ParagraphStyle.h"
-#include "TextStyle.h"
+#include "modules/skparagraph/include/FontCollection.h"
+#include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/include/TextStyle.h"
 
 class SkCanvas;
 

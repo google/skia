@@ -3,7 +3,7 @@
 #define TextWrapper_DEFINED
 
 #include <string>
-#include "TextLine.h"
+#include "modules/skparagraph/src/TextLine.h"
 #include "src/core/SkSpan.h"
 
 namespace skia {

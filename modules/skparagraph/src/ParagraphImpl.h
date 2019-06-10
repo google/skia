@@ -2,8 +2,8 @@
 #ifndef ParagraphImpl_DEFINED
 #define ParagraphImpl_DEFINED
 
-#include "TextLine.h"
-#include "Run.h"
+#include "modules/skparagraph/src/TextLine.h"
+#include "modules/skparagraph/src/Run.h"
 #include "include/core/SkPicture.h"
 #include "include/private//SkTHash.h"
 #include "modules/skparagraph/include/Paragraph.h"

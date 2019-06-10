@@ -3,8 +3,8 @@
 #define TextStyle_DEFINED
 
 #include <vector>
-#include "DartTypes.h"
-#include "TextShadow.h"
+#include "modules/skparagraph/include/DartTypes.h"
+#include "modules/skparagraph/include/TextShadow.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"

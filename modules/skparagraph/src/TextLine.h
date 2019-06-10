@@ -2,7 +2,7 @@
 #ifndef TextLine_DEFINED
 #define TextLine_DEFINED
 
-#include "Run.h"
+#include "modules/skparagraph/src/Run.h"
 #include "include/core/SkCanvas.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"

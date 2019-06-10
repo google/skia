@@ -6,10 +6,10 @@
 #include <stack>
 #include <string>
 #include <tuple>
-#include "FontCollection.h"
-#include "Paragraph.h"
-#include "ParagraphStyle.h"
-#include "TextStyle.h"
+#include "modules/skparagraph/include/FontCollection.h"
+#include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/include/TextStyle.h"
 
 namespace skia {
 namespace textlayout {
