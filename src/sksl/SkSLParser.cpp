@@ -688,7 +688,7 @@ StringFragment Parser::layoutCode() {
                 break;
             case Token::END_OF_FILE:
                 this->error(start, "reached end of file while parsing layout");
-                return nullptr;
+                return "";
             default:
                 break;
         }
