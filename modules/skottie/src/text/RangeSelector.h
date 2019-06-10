@@ -30,10 +30,10 @@ public:
     };
 
     enum class Domain : uint8_t {
-        kChars,                      // domain indices map to glyph indices
-        // kCharsExcludingSpaces,    // domain indices map to glyph indices (ignoring spaces)
-        // kWords,                   // domain indices map to word indices
-        // kLines,                   // domain indices map to line indices
+        kChars,                   // domain indices map to glyph indices
+        kCharsExcludingSpaces,    // domain indices map to glyph indices (ignoring spaces)
+        kWords,                   // domain indices map to word indices
+        kLines,                   // domain indices map to line indices
     };
 
     enum class Mode : uint8_t {
@@ -54,7 +54,7 @@ public:
         kSmooth,
     };
 
-    void modulateCoverage(TextAnimator::ModulatorBuffer&) const;
+    void modulateCoverage(const TextAnimator::DomainMaps&, TextAnimator::ModulatorBuffer&) const;
 
 private:
     RangeSelector(Units, Domain, Mode, Shape);
