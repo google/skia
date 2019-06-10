@@ -72,8 +72,6 @@ public:
     void submit();
 
 private:
-    void addNullCommand();
-
     GrGpu* gpu() override { return fGpu; }
 
     GrMtlPipelineState* prepareDrawState(
@@ -94,7 +92,8 @@ private:
 
     void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override;
 
-    MTLRenderPassDescriptor* createRenderPassDesc() const;
+    void setupRenderPass(const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+                         const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo);
 
     void bindGeometry(const GrBuffer* vertexBuffer, size_t vertexOffset,
                       const GrBuffer* instanceBuffer);
@@ -121,24 +120,18 @@ private:
     void setVertexBuffer(id<MTLRenderCommandEncoder>, const GrMtlBuffer*, size_t offset,
                          size_t index);
     void resetBufferBindings();
+    void precreateCmdEncoder();
 
-    GrMtlGpu*                                     fGpu;
+    GrMtlGpu*                   fGpu;
     // GrRenderTargetProxy bounds
 #ifdef SK_DEBUG
-    SkRect                                        fBounds;
+    SkRect                      fRTBounds;
 #endif
-    GrGpuRTCommandBuffer::LoadAndStoreInfo        fColorLoadAndStoreInfo;
-    GrGpuRTCommandBuffer::StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
 
     id<MTLRenderCommandEncoder> fActiveRenderCmdEncoder;
     MTLRenderPassDescriptor*    fRenderPassDesc;
-
-    struct CommandBufferInfo {
-        SkRect fBounds;
-        size_t fCurrentVertexStride;
-    };
-
-    CommandBufferInfo fCommandBufferInfo;
+    SkRect                      fBounds;
+    size_t                      fCurrentVertexStride;
 
     static constexpr size_t kNumBindings = GrMtlUniformHandler::kLastUniformBinding + 3;
     id<MTLBuffer> fBufferBindings[kNumBindings];
