@@ -6,31 +6,113 @@ vars = {
 
 deps = {
   "buildtools"                            : "https://chromium.googlesource.com/chromium/buildtools.git@505de88083136eefd056e5ee4ca0f01fe9b33de8",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "common"                                : "https://skia.googlesource.com/common.git@9737551d7a52c3db3262db5856e6bcd62c462b92",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
+  "resources"                             : "https://skia.googlesource.com/resources.git@d1b239d8b0ed5e206b3e825775f339cce7417143",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/angle2"          : "https://chromium.googlesource.com/angle/angle.git@2d0a9acb05511a8fdaf0cd27d0da22599516a68b",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/dng_sdk"         : "https://android.googlesource.com/platform/external/dng_sdk.git@96443b262250c390b0caefbf3eed8463ba35ecae",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/egl-registry"    : "https://skia.googlesource.com/external/github.com/KhronosGroup/EGL-Registry@a0bca08de07c7d7651047bedc0b653cfaaa4f2ae",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/expat"           : "https://android.googlesource.com/platform/external/expat.git@android-6.0.1_r55",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/freetype"        : "https://skia.googlesource.com/third_party/freetype2.git@7edc937fe679d14d66f55cf6f7fa607925d38f3c",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/harfbuzz"        : "https://chromium.googlesource.com/external/github.com/harfbuzz/harfbuzz.git@4f37ab63de9705d7bf74ee75364747e41b7c06a1",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/icu"             : "https://chromium.googlesource.com/chromium/deps/icu.git@407b39301e71006b68bd38e770f35d32398a7b14",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/imgui"           : "https://skia.googlesource.com/external/github.com/ocornut/imgui.git@d38d7c6628bebd02692cfdd6fa76b4d992a35b75",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/libjpeg-turbo"   : "https://skia.googlesource.com/external/github.com/libjpeg-turbo/libjpeg-turbo.git@2.0.0",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/libpng"          : "https://skia.googlesource.com/third_party/libpng.git@386707c6d19b974ca2e3db7f5c61873813c6fe44",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/libwebp"         : "https://chromium.googlesource.com/webm/libwebp.git@v1.0.2-rc1",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/lua"             : "https://skia.googlesource.com/external/github.com/lua/lua.git@v5-3-4",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/microhttpd"      : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/opencl-lib"      : "https://skia.googlesource.com/external/github.com/GPUOpen-Tools/common-lib-amd-APPSDK-3.0@4e6d30e406d2e5a65e1d65e404fe6df5f772a32b",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/opencl-registry" : "https://skia.googlesource.com/external/github.com/KhronosGroup/OpenCL-Registry@932ed55c85f887041291cef8019e54280c033c35",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/opengl-registry" : "https://skia.googlesource.com/external/github.com/KhronosGroup/OpenGL-Registry@14b80ebeab022b2c78f84a573f01028c96075553",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/piex"            : "https://android.googlesource.com/platform/external/piex.git@bb217acdca1cc0c16b704669dd6f91a1b509c406",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/sdl"             : "https://skia.googlesource.com/third_party/sdl@5d7cfcca344034aff9327f77fc181ae3754e7a90",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/sfntly"          : "https://chromium.googlesource.com/external/github.com/googlei18n/sfntly.git@b55ff303ea2f9e26702b514cf6a3196a2e3e2974",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/spirv-headers"   : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git@661ad91124e6af2272afd00f804d8aa276e17107",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/spirv-tools"     : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@e9e4393b1c5aad7553c05782acefbe32b42644bd",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@f60a2d59c9f2cee2f3749ee9bf03bdb1bf2bccaa",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   #"third_party/externals/v8"              : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/wuffs"           : "https://skia.googlesource.com/external/github.com/google/wuffs.git@f58ffbc927899b9534a273d3057094ce6ac1ed61",
+  # Three lines of non-changing comments so that
+  # the commit queue can handle CLS rolling these
+  # dependencies without interference from each other.
   "third_party/externals/zlib"            : "https://chromium.googlesource.com/chromium/src/third_party/zlib@47af7c547f8551bd25424e56354a2ae1e9062859",
 
   "../src": {
