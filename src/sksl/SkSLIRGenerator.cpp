@@ -1523,15 +1523,27 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             case Token::BITWISEAND: return RESULT(Int,  &);
             case Token::BITWISEOR:  return RESULT(Int,  |);
             case Token::BITWISEXOR: return RESULT(Int,  ^);
-            case Token::SHL:        return RESULT(Int,  <<);
-            case Token::SHR:        return RESULT(Int,  >>);
             case Token::EQEQ:       return RESULT(Bool, ==);
             case Token::NEQ:        return RESULT(Bool, !=);
             case Token::GT:         return RESULT(Bool, >);
             case Token::GTEQ:       return RESULT(Bool, >=);
             case Token::LT:         return RESULT(Bool, <);
             case Token::LTEQ:       return RESULT(Bool, <=);
-            default:                return nullptr;
+            case Token::SHL:
+                if (rightVal >= 0 && rightVal <= 31) {
+                    return RESULT(Int,  <<);
+                }
+                fErrors.error(right.fOffset, "shift value out of range");
+                return nullptr;
+            case Token::SHR:
+                if (rightVal >= 0 && rightVal <= 31) {
+                    return RESULT(Int,  >>);
+                }
+                fErrors.error(right.fOffset, "shift value out of range");
+                return nullptr;
+
+            default:
+                return nullptr;
         }
     }
     if (left.fKind == Expression::kFloatLiteral_Kind &&
