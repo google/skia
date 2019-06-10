@@ -210,6 +210,7 @@ DEF_TEST(serial_typeface, reporter) {
 
     // The picture has 2 references to each typeface, but we want the serialized picture to
     // only have written the data 1 time per typeface.
+    SkDebugf("counter %d", counter);
     REPORTER_ASSERT(reporter, counter == 2);
 }
 

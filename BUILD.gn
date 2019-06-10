@@ -279,6 +279,14 @@ opts("hsw") {
   } else {
     cflags = [ "-march=haswell" ]
   }
+
+  # Oddly, clang-cl doesn't recognize this as a valid flag.
+  # If it ever does, it'd nice to move this up with -mavx2 and co.
+  if (is_clang && !is_win) {
+    # This flag lets Clang generate FMAs when it sees a mul-then-add.  It's optional,
+    # but nice to have, generating slightly better code for paths without explicit FMAs.
+    cflags += [ "-ffp-contract=fast" ]
+  }
 }
 
 # Any feature of Skia that requires third-party code should be optional and use this template.
@@ -1041,6 +1049,7 @@ if (target_cpu == "wasm") {
     public_configs = [ ":skia_public" ]
 
     sources = [
+      "src/core/SkSharingProc.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/DebugCanvas.cpp",
       "tools/debugger/DrawCommand.cpp",
@@ -1564,7 +1573,6 @@ if (skia_enable_tools) {
   test_lib("tool_utils") {
     sources = [
       "tools/AndroidSkDebugToStdOut.cpp",
-      "tools/AutoreleasePool.h",
       "tools/CrashHandler.cpp",
       "tools/DDLPromiseImageHelper.cpp",
       "tools/DDLTileHelper.cpp",
@@ -1592,16 +1600,7 @@ if (skia_enable_tools) {
     libs = []
     if (is_ios) {
       sources += [ "tools/ios_utils.m" ]
-      sources += [ "tools/ios_utils.h" ]
-      if (skia_use_metal) {
-        sources += [ "tools/AutoreleasePool.mm" ]
-      }
       libs += [ "Foundation.framework" ]
-    } else if (is_mac) {
-      if (skia_use_metal) {
-        sources += [ "tools/AutoreleasePool.mm" ]
-        libs += [ "Foundation.framework" ]
-      }
     } else if (is_win) {
       libs += [ "DbgHelp.lib" ]
     }
@@ -1630,11 +1629,8 @@ if (skia_enable_tools) {
       sources = [
         "experimental/ffmpeg/SkVideoDecoder.cpp",
         "experimental/ffmpeg/SkVideoDecoder.h",
-        "experimental/ffmpeg/SkVideoEncoder.cpp",
-        "experimental/ffmpeg/SkVideoEncoder.h",
       ]
       libs = [
-        "swscale",
         "avcodec",
         "avformat",
         "avutil",
@@ -1925,21 +1921,6 @@ if (skia_enable_tools) {
       ":flags",
       ":skia",
     ]
-  }
-
-  if (skia_use_ffmpeg) {
-    test_app("skottie2movie") {
-      sources = [
-        "tools/skottie2movie.cpp",
-      ]
-      deps = [
-        ":flags",
-        ":skia",
-        ":video_decoder",
-        "modules/skottie",
-        "modules/skottie:utils",
-      ]
-    }
   }
 
   test_app("skpbench") {
