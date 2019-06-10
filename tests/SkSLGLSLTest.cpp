@@ -2296,3 +2296,19 @@ DEF_TEST(SkSLSwizzleConstants, r) {
          SkSL::Program::kFragment_Kind
          );
 }
+
+DEF_TEST(SkSLNegatedVectorLiteral, r) {
+    test(r,
+         "void main() {"
+         "    if (half4(1) == half4(-half2(-1), half2(1)))"
+         "        sk_FragColor = half4(0, 1, 0, 1);"
+         "    else"
+         "        sk_FragColor = half4(1, 0, 0, 1);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
+         "}\n");
+}
