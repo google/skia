@@ -84,7 +84,7 @@ sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
         fCurrentDrawable = [fMetalLayer nextDrawable];
 
         GrMtlTextureInfo fbInfo;
-        fbInfo.fTexture.reset(CFRetain((__bridge const void*)(fCurrentDrawable.texture)));
+        fbInfo.fTexture.retain((__bridge const void*)(fCurrentDrawable.texture));
 
         GrBackendRenderTarget backendRT(fWidth,
                                         fHeight,
