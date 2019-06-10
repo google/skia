@@ -44,7 +44,23 @@ public:
     };
     using ModulatorBuffer = std::vector<AnimatedPropsModulator>;
 
-    void modulateProps(ModulatorBuffer&) const;
+    // Domain maps describe how a given index domain (words, lines, etc) relates
+    // to the full fragment index range.
+    //
+    // Each domain[i] represents a [domain[i].fOffset.. domain[i].fOffset+domain[i].fCount-1]
+    // fragment subset.
+    struct DomainSpan {
+        size_t fOffset, fCount;
+    };
+    using DomainMap = std::vector<DomainSpan>;
+
+    struct DomainMaps {
+        DomainMap fNonWhitespaceMap,
+                  fWordsMap,
+                  fLinesMap;
+    };
+
+    void modulateProps(const DomainMaps&, ModulatorBuffer&) const;
 
 private:
     TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,

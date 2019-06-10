@@ -36,7 +36,8 @@ public:
 private:
     struct FragmentRec;
 
-    void addFragment(const skottie::Shaper::Fragment&);
+    void addFragment(const Shaper::Fragment&);
+    void buildDomainMaps(const Shaper::Result&);
 
     void apply();
 
@@ -44,6 +45,7 @@ private:
 
     sk_sp<sksg::Group>       fRoot;
     std::vector<FragmentRec> fFragments;
+    TextAnimator::DomainMaps fMaps;
 
     const bool               fHasAnimators;
 };

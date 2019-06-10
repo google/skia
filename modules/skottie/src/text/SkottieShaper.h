@@ -24,6 +24,10 @@ public:
     struct Fragment {
         sk_sp<SkTextBlob> fBlob;
         SkPoint           fPos;
+
+        // Only valid for kFragmentGlyphs
+        uint32_t          fLineIndex;
+        bool              fIsWhitespace;
     };
 
     struct Result {
