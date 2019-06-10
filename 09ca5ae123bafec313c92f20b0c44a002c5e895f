@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "992c0984_4445fed7",
+        "filename": "modules/skottie/src/text/SkottieShaper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-10T16:42:08Z",
+      "side": 1,
+      "message": "So this says whitespace is any cluster which starts with a whitespace? No idea what the right thing is, but it might be good to document thats what this is doing.",
+      "range": {
+        "startLine": 205,
+        "startChar": 68,
+        "endLine": 205,
+        "endChar": 86
+      },
+      "revId": "09ca5ae123bafec313c92f20b0c44a002c5e895f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17209986_7561f4ce",
+        "filename": "modules/skottie/src/text/TextAdapter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-10T16:42:08Z",
+      "side": 1,
+      "message": "Note that ICU has a word break iterator which implements a \u0027real\u0027 word boundary algorithm. Once again, I have no idea if that\u0027s the right thing to use or not, but note that it exists.",
+      "range": {
+        "startLine": 94,
+        "startChar": 16,
+        "endLine": 94,
+        "endChar": 23
+      },
+      "revId": "09ca5ae123bafec313c92f20b0c44a002c5e895f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4724a33e_535c78e1",
+        "filename": "modules/skottie/src/text/TextAdapter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-10T16:42:08Z",
+      "side": 1,
+      "message": "Just noticed this, but std::vector doesn\u0027t technically support declarations where T is incomplete. I\u0027m not sure if it is complete or not here, but there is a forward declaration above which makes me suspicious. Note that libc++ and libstdc++ tend to allow this as an extension, but Microsoft\u0027s generally doesn\u0027t. If FragmentRec is complete here anyway, the forward declaration above should probably be removed.",
+      "range": {
+        "startLine": 47,
+        "startChar": 4,
+        "endLine": 47,
+        "endChar": 28
+      },
+      "revId": "09ca5ae123bafec313c92f20b0c44a002c5e895f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
