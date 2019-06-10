@@ -113,7 +113,7 @@ struct Expression : public IRNode {
      * For a literal vector expression, return the floating point value of the n'th vector
      * component. It is an error to call this method on an expression which is not a literal vector.
      */
-    virtual double getFVecComponent(int n) const {
+    virtual SKSL_FLOAT getFVecComponent(int n) const {
         SkASSERT(false);
         return 0;
     }
@@ -122,7 +122,7 @@ struct Expression : public IRNode {
      * For a literal vector expression, return the integer value of the n'th vector component. It is
      * an error to call this method on an expression which is not a literal vector.
      */
-    virtual int64_t getIVecComponent(int n) const {
+    virtual SKSL_INT getIVecComponent(int n) const {
         SkASSERT(false);
         return 0;
     }
@@ -132,7 +132,7 @@ struct Expression : public IRNode {
      * [col][row]. It is an error to call this method on an expression which is not a literal
      * matrix.
      */
-    virtual double getMatComponent(int col, int row) const {
+    virtual SKSL_FLOAT getMatComponent(int col, int row) const {
         SkASSERT(false);
         return 0;
     }

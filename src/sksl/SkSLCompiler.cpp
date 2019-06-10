@@ -535,9 +535,15 @@ bool is_constant(const Expression& expr, double value) {
             return ((FloatLiteral&) expr).fValue == value;
         case Expression::kConstructor_Kind: {
             Constructor& c = (Constructor&) expr;
+            bool isFloat = c.fType.columns() > 1 ? c.fType.componentType().isFloat()
+                                                 : c.fType.isFloat();
             if (c.fType.kind() == Type::kVector_Kind && c.isConstant()) {
                 for (int i = 0; i < c.fType.columns(); ++i) {
-                    if (!is_constant(*c.getVecComponent(i), value)) {
+                    if (isFloat) {
+                        if (c.getFVecComponent(i) != value) {
+                            return false;
+                        }
+                    } else if (c.getIVecComponent(i) != value) {
                         return false;
                     }
                 }
