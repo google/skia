@@ -96,7 +96,7 @@ namespace skvm {
         I32 shr(I32 x, int bits);
         I32 sra(I32 x, int bits);
 
-        I32 mul_unorm8(I32 x, I32 y);          // (x*y+255)/256, approximating (x*y+127)/255.
+        I32 mul_unorm8(I32 x, I32 y);          // (x*y+x)/256, approximating (x*y+127)/255.
         I32 mad_unorm8(I32 x, I32 y, I32 z);   // mul_unorm8(x,y) + z
 
         I32 extract(I32 x, int bits, I32 z);   // (x >> bits) & z
