@@ -450,20 +450,6 @@ void GrGpu::dumpJSON(SkJSONWriter* writer) const {
 void GrGpu::dumpJSON(SkJSONWriter* writer) const { }
 #endif
 
-GrBackendTexture GrGpu::createTestingOnlyBackendTexture(int w, int h, SkColorType colorType,
-                                                        GrMipMapped mipMapped,
-                                                        GrRenderable renderable,
-                                                        const void* pixels, size_t rowBytes,
-                                                        const SkColor4f* color) {
-    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(colorType);
-    if (!format.isValid()) {
-        return GrBackendTexture();
-    }
-
-    return this->createBackendTexture(w, h, format, mipMapped, renderable,
-                                      pixels, rowBytes, color);
-}
-
 #if GR_TEST_UTILS
 
 #if GR_GPU_STATS

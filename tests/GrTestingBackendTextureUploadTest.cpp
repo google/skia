@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrTexture.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/SkGr.h"
@@ -20,12 +21,12 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
 
     const int kWidth = 16;
     const int kHeight = 16;
-    SkAutoTMalloc<GrColor> srcBuffer;
-    if (doDataUpload) {
-        srcBuffer.reset(kWidth * kHeight);
-        fill_pixel_data(kWidth, kHeight, srcBuffer.get());
-    }
-    SkAutoTMalloc<GrColor> dstBuffer(kWidth * kHeight);
+
+    SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, ct, kPremul_SkAlphaType);
+
+    SkAutoPixmapStorage expectedPixels, actualPixels;
+    expectedPixels.alloc(ii);
+    actualPixels.alloc(ii);
 
     const GrCaps* caps = context->priv().caps();
     GrGpu* gpu = context->priv().getGpu();
@@ -44,10 +45,23 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
         return;
     }
 
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                                        kWidth, kHeight, ct,
-                                        mipMapped, renderable, srcBuffer, 0,
-                                        &SkColors::kTransparent);
+    GrBackendTexture backendTex;
+
+    if (doDataUpload) {
+        SkASSERT(GrMipMapped::kNo == mipMapped);
+
+        fill_pixel_data(kWidth, kHeight, expectedPixels.writable_addr32(0, 0));
+
+        backendTex = context->priv().createBackendTexture(&expectedPixels, 1, renderable);
+    } else {
+        backendTex = context->createBackendTexture(kWidth, kHeight, ct, SkColors::kTransparent,
+                                                   mipMapped, renderable);
+
+        size_t allocSize = SkAutoPixmapStorage::AllocSize(ii, nullptr);
+        // createBackendTexture will fill the texture with 0's if no data is provided, so
+        // we set the expected result likewise.
+        memset(expectedPixels.writable_addr32(0, 0), 0, allocSize);
+    }
     if (!backendTex.isValid()) {
         return;
     }
@@ -62,18 +76,14 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
     }
     REPORTER_ASSERT(reporter, wrappedTex);
 
-    int rowBytes = GrColorTypeBytesPerPixel(grCT) * kWidth;
     bool result = gpu->readPixels(wrappedTex.get(), 0, 0, kWidth,
-                                  kHeight, grCT, dstBuffer, rowBytes);
+                                  kHeight, grCT,
+                                  actualPixels.writable_addr32(0, 0),
+                                  actualPixels.rowBytes());
 
-    if (!doDataUpload) {
-        // createTestingOnlyBackendTexture will fill the texture with 0's if no data is provided, so
-        // we set the expected result likewise.
-        srcBuffer.reset(kWidth * kHeight);
-        memset(srcBuffer, 0, kWidth * kHeight * sizeof(GrColor));
-    }
     REPORTER_ASSERT(reporter, result);
-    REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(srcBuffer, dstBuffer,
+    REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(expectedPixels.addr32(),
+                                                                     actualPixels.addr32(),
                                                                      kWidth, kHeight));
 }
 

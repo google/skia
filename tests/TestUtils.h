@@ -39,8 +39,8 @@ bool create_backend_texture(GrContext*, GrBackendTexture* backendTex,
 void delete_backend_texture(GrContext*, const GrBackendTexture& backendTex);
 
 // Checks srcBuffer and dstBuffer contain the same colors
-bool does_full_buffer_contain_correct_color(GrColor* srcBuffer, GrColor* dstBuffer, int width,
-                                            int height);
+bool does_full_buffer_contain_correct_color(const GrColor* srcBuffer, const GrColor* dstBuffer,
+                                            int width, int height);
 
 // Encodes the bitmap into a data:/image/png;base64,... url suitable to view in a browser after
 // printing to a log. If false is returned, dst holds an error message instead of a URI.

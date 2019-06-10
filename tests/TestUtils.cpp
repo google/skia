@@ -100,24 +100,15 @@ void fill_pixel_data(int width, int height, GrColor* data) {
 bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
                             const SkImageInfo& ii, GrMipMapped mipMapped, SkColor color,
                             GrRenderable renderable) {
-    GrGpu* gpu = context->priv().getGpu();
-    if (!gpu) {
-        return false;
-    }
-
     SkBitmap bm;
     bm.allocPixels(ii);
-    // TODO: a SkBitmap::eraseColor would be better here
     sk_memset32(bm.getAddr32(0, 0), color, ii.width() * ii.height());
 
-    *backendTex = gpu->createTestingOnlyBackendTexture(ii.width(), ii.height(), ii.colorType(),
-                                                       mipMapped, renderable,
-                                                       bm.getPixels(), bm.rowBytes(), nullptr);
-    if (!backendTex->isValid() || !gpu->isTestingOnlyBackendTexture(*backendTex)) {
-        return false;
-    }
+    SkASSERT(GrMipMapped::kNo == mipMapped);
+    // TODO: replace w/ the color-init version of createBackendTexture once Metal supports it.
+    *backendTex = context->priv().createBackendTexture(&bm.pixmap(), 1, renderable);
 
-    return true;
+    return backendTex->isValid();
 }
 
 void delete_backend_texture(GrContext* context, const GrBackendTexture& backendTex) {
@@ -127,12 +118,12 @@ void delete_backend_texture(GrContext* context, const GrBackendTexture& backendT
     context->deleteBackendTexture(backendTex);
 }
 
-bool does_full_buffer_contain_correct_color(GrColor* srcBuffer,
-                                            GrColor* dstBuffer,
+bool does_full_buffer_contain_correct_color(const GrColor* srcBuffer,
+                                            const GrColor* dstBuffer,
                                             int width,
                                             int height) {
-    GrColor* srcPtr = srcBuffer;
-    GrColor* dstPtr = dstBuffer;
+    const GrColor* srcPtr = srcBuffer;
+    const GrColor* dstPtr = dstBuffer;
     for (int j = 0; j < height; ++j) {
         for (int i = 0; i < width; ++i) {
             if (srcPtr[i] != dstPtr[i]) {

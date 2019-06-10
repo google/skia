@@ -123,23 +123,11 @@ protected:
     }
 
     void createYUVTextures(GrContext* context, GrBackendTexture yuvTextures[3]) {
-        GrGpu* gpu = context->priv().getGpu();
-        if (!gpu) {
-            return;
-        }
-
         for (int i = 0; i < 3; ++i) {
             SkASSERT(fYUVBmps[i].width() == SkToInt(fYUVBmps[i].rowBytes()));
-            yuvTextures[i] = gpu->createTestingOnlyBackendTexture(fYUVBmps[i].width(),
-                                                                  fYUVBmps[i].height(),
-                                                                  kAlpha_8_SkColorType,
-                                                                  GrMipMapped::kNo,
-                                                                  GrRenderable::kNo,
-                                                                  fYUVBmps[i].getPixels(),
-                                                                  fYUVBmps[i].rowBytes(),
-                                                                  nullptr);
+            yuvTextures[i] = context->priv().createBackendTexture(&fYUVBmps[i].pixmap(), 1,
+                                                                  GrRenderable::kNo);
         }
-        context->resetContext();
     }
 
     void createResultTexture(GrContext* context, int width, int height,
@@ -147,8 +135,6 @@ protected:
         *resultTexture = context->createBackendTexture(
                 width, height, kRGBA_8888_SkColorType, SkColors::kTransparent,
                 GrMipMapped::kNo, GrRenderable::kYes);
-
-        context->resetContext();
     }
 
     void deleteBackendTextures(GrContext* context, GrBackendTexture textures[], int n) {
@@ -156,18 +142,13 @@ protected:
             return;
         }
 
-        GrGpu* gpu = context->priv().getGpu();
-        if (!gpu) {
-            return;
-        }
+        GrFlushInfo flushInfo;
+        flushInfo.fFlags = kSyncCpu_GrFlushFlag;
+        context->flush(flushInfo);
 
-        context->flush();
-        gpu->testingOnly_flushGpuAndSync();
         for (int i = 0; i < n; ++i) {
             context->deleteBackendTexture(textures[i]);
         }
-
-        context->resetContext();
     }
 
     void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {

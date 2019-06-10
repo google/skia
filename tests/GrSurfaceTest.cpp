@@ -254,7 +254,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
-    auto fillPixels = [](const SkPixmap* p, const std::function<uint32_t(int x, int y)>& f) {
+    auto fillPixels = [](SkPixmap* p, const std::function<uint32_t(int x, int y)>& f) {
         for (int y = 0; y < p->height(); ++y) {
             for (int x = 0; x < p->width(); ++x) {
                 *p->writable_addr32(x, y) = f(x, y);
@@ -277,9 +277,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     static constexpr int kSize = 100;
     SkAutoPixmapStorage pixels;
     pixels.alloc(SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
-    fillPixels(&pixels, [](int x, int y) {
-        return (0xFFU << 24) | (x << 16) | (y << 8) | uint8_t((x * y) & 0xFF);
-    });
+    fillPixels(&pixels,
+               [](int x, int y) {
+                    return (0xFFU << 24) | (x << 16) | (y << 8) | uint8_t((x * y) & 0xFF);
+               });
 
     GrContext* context = context_info.grContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
@@ -288,9 +289,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     // that they'd succeed if the texture wasn't kRead. We want to be sure we're failing with
     // kRead for the right reason.
     for (auto ioType : {kRead_GrIOType, kRW_GrIOType}) {
-        auto backendTex = context->priv().getGpu()->createTestingOnlyBackendTexture(
-                kSize, kSize, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes,
-                pixels.addr(), 0, nullptr);
+        auto backendTex = context->priv().createBackendTexture(&pixels, 1, GrRenderable::kYes);
+
         auto proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                        kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, ioType);
