@@ -30,11 +30,14 @@ DEF_TEST(SkVM, r) {
     for (int d = 0; d < 3; d++) {
         auto srcFmt = (Fmt)s,
              dstFmt = (Fmt)d;
-        skvm::Program program = SrcoverBuilder_F32{srcFmt, dstFmt}.done();
+        SrcoverBuilder_F32 builder{srcFmt, dstFmt};
+        skvm::Program program = builder.done();
 
         buf.writeText(fmt_name(srcFmt));
         buf.writeText(" over ");
         buf.writeText(fmt_name(dstFmt));
+        buf.writeText("\n");
+        builder.dump(&buf);
         buf.writeText("\n");
         program.dump(&buf);
         buf.writeText("\n");

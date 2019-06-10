@@ -109,6 +109,9 @@ namespace skvm {
         F32 to_f32(I32 x);
         I32 to_i32(F32 x);
 
+        // Call after done() to make sure all analysis has been performed.
+        void dump(SkWStream*) const;
+
     private:
         // We reserve the last ID as a sentinel meaning none, n/a, null, nil, etc.
         static const ID NA = ~0;

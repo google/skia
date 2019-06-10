@@ -233,6 +233,7 @@ namespace skvm {
 
     // ~~~~ Program::dump() and co. ~~~~ //
 
+    struct V { ID id; };
     struct R { ID id; };
     struct Shift { int bits; };
     struct Splat { int bits; };
@@ -245,6 +246,10 @@ namespace skvm {
         write(o, "arg(");
         o->writeDecAsText(a.ix);
         write(o, ")");
+    }
+    static void write(SkWStream* o, V v) {
+        write(o, "v");
+        o->writeDecAsText(v.id);
     }
     static void write(SkWStream* o, R r) {
         write(o, "r");
@@ -267,6 +272,60 @@ namespace skvm {
         write(o, first);
         write(o, " ");
         write(o, rest...);
+    }
+
+    void Builder::dump(SkWStream* o) const {
+        o->writeDecAsText(fProgram.size());
+        o->writeText(" values:\n");
+        for (ID id = 0; id < (ID)fProgram.size(); id++) {
+            const Instruction& inst = fProgram[id];
+            Op  op = inst.op;
+            ID   x = inst.x,
+                 y = inst.y,
+                 z = inst.z;
+            int immy = inst.immy,
+                immz = inst.immz;
+            write(o, inst.life == NA ? "☠ " :
+                     inst.hoist      ? "⤴ " : "  ");
+            switch (op) {
+                case Op::store8:  write(o, "store8" , Arg{immy}, V{x}); break;
+                case Op::store32: write(o, "store32", Arg{immy}, V{x}); break;
+
+                case Op::load8:  write(o, V{id}, "= load8" , Arg{immy}); break;
+                case Op::load32: write(o, V{id}, "= load32", Arg{immy}); break;
+
+                case Op::splat:  write(o, V{id}, "= splat", Splat{immy}); break;
+
+                case Op::add_f32: write(o, V{id}, "= add_f32", V{x}, V{y}      ); break;
+                case Op::sub_f32: write(o, V{id}, "= sub_f32", V{x}, V{y}      ); break;
+                case Op::mul_f32: write(o, V{id}, "= mul_f32", V{x}, V{y}      ); break;
+                case Op::div_f32: write(o, V{id}, "= div_f32", V{x}, V{y}      ); break;
+                case Op::mad_f32: write(o, V{id}, "= mad_f32", V{x}, V{y}, V{z}); break;
+
+                case Op::add_i32: write(o, V{id}, "= add_i32", V{x}, V{y}); break;
+                case Op::sub_i32: write(o, V{id}, "= sub_i32", V{x}, V{y}); break;
+                case Op::mul_i32: write(o, V{id}, "= mul_i32", V{x}, V{y}); break;
+
+                case Op::bit_and: write(o, V{id}, "= bit_and", V{x}, V{y}); break;
+                case Op::bit_or : write(o, V{id}, "= bit_or" , V{x}, V{y}); break;
+                case Op::bit_xor: write(o, V{id}, "= bit_xor", V{x}, V{y}); break;
+
+                case Op::shl: write(o, V{id}, "= shl", V{x}, Shift{immy}); break;
+                case Op::shr: write(o, V{id}, "= shr", V{x}, Shift{immy}); break;
+                case Op::sra: write(o, V{id}, "= sra", V{x}, Shift{immy}); break;
+
+                case Op::mul_unorm8: write(o, V{id}, "= mul_unorm8", V{x}, V{y}      ); break;
+                case Op::mad_unorm8: write(o, V{id}, "= mad_unorm8", V{x}, V{y}, V{z}); break;
+
+                case Op::extract: write(o, V{id}, "= extract", V{x}, Shift{immy}, V{z}); break;
+                case Op::pack:    write(o, V{id}, "= pack",    V{x}, V{y}, Shift{immz}); break;
+
+                case Op::to_f32: write(o, V{id}, "= to_f32", V{x}); break;
+                case Op::to_i32: write(o, V{id}, "= to_i32", V{x}); break;
+            }
+
+            write(o, "\n");
+        }
     }
 
     void Program::dump(SkWStream* o) const {
