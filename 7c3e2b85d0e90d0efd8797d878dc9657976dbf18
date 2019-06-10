@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b14ba39_86c37ffc",
+        "filename": "infra/bots/build_task_drivers.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-06-10T16:42:03Z",
+      "side": 1,
+      "message": "nit: remove",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 5
+      },
+      "revId": "7c3e2b85d0e90d0efd8797d878dc9657976dbf18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75f6c803_1433c0cf",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-06-10T16:42:03Z",
+      "side": 1,
+      "message": "Seems like this only needs go.mod?",
+      "range": {
+        "startLine": 719,
+        "startChar": 12,
+        "endLine": 719,
+        "endChar": 30
+      },
+      "revId": "7c3e2b85d0e90d0efd8797d878dc9657976dbf18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8ae49d8_d926770d",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 739,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-06-10T16:42:03Z",
+      "side": 1,
+      "message": "Should this be skia?",
+      "range": {
+        "startLine": 739,
+        "startChar": 24,
+        "endLine": 739,
+        "endChar": 32
+      },
+      "revId": "7c3e2b85d0e90d0efd8797d878dc9657976dbf18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
