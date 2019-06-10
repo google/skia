@@ -363,3 +363,20 @@ DEF_TEST(Typeface_glyph_to_char, reporter) {
                         originalCodepoints[i], newCodepoints[i], glyphs[i]);
     }
 }
+
+// This test makes sure the legacy typeface creation does not lose its specified
+// style. See https://bugs.chromium.org/p/skia/issues/detail?id=8447 for more
+// context.
+DEF_TEST(LegacyMakeTypeface, reporter) {
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    sk_sp<SkTypeface> typeface1 = fm->legacyMakeTypeface(nullptr, SkFontStyle::Italic());
+    sk_sp<SkTypeface> typeface2 = fm->legacyMakeTypeface(nullptr, SkFontStyle::Bold());
+    sk_sp<SkTypeface> typeface3 = fm->legacyMakeTypeface(nullptr, SkFontStyle::BoldItalic());
+
+    REPORTER_ASSERT(reporter, typeface1->isItalic());
+    REPORTER_ASSERT(reporter, !typeface1->isBold());
+    REPORTER_ASSERT(reporter, !typeface2->isItalic());
+    REPORTER_ASSERT(reporter, typeface2->isBold());
+    REPORTER_ASSERT(reporter, typeface3->isItalic());
+    REPORTER_ASSERT(reporter, typeface3->isBold());
+}

@@ -853,13 +853,43 @@ static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyNam
             CTFontDescriptorCreateWithAttributes(cfAttributes.get()));
 }
 
+// Same as the above function except style is included so we can
+// compare whether the created font conforms to the style. If not, we need
+// to recreate the font with symbolic traits. This is needed due to MacOS 10.11
+// font creation problem https://bugs.chromium.org/p/skia/issues/detail?id=8447.
+static sk_sp<SkTypeface> create_from_desc_and_style(CTFontDescriptorRef desc,
+                                                    const SkFontStyle& style) {
+    SkUniqueCFRef<CTFontRef> ctFont(CTFontCreateWithFontDescriptor(desc, 0, nullptr));
+    if (!ctFont) {
+        return nullptr;
+    }
+
+    const CTFontSymbolicTraits traits = CTFontGetSymbolicTraits(ctFont.get());
+    CTFontSymbolicTraits expected_traits = traits;
+    if (style.slant() != SkFontStyle::kUpright_Slant) {
+        expected_traits |= kCTFontItalicTrait;
+    }
+    if (style.weight() >= SkFontStyle::kBold_Weight) {
+        expected_traits |= kCTFontBoldTrait;
+    }
+
+    if (expected_traits != traits) {
+        SkUniqueCFRef<CTFontRef> ctNewFont(CTFontCreateCopyWithSymbolicTraits(ctFont.get(), 0,                                       nullptr, expected_traits, expected_traits));
+        if (ctNewFont) {
+            ctFont = std::move(ctNewFont);
+        }
+    }
+
+    return create_from_CTFontRef(std::move(ctFont), nullptr, nullptr);
+}
+
 /** Creates a typeface from a name, searching the cache. */
 static sk_sp<SkTypeface> create_from_name(const char familyName[], const SkFontStyle& style) {
     SkUniqueCFRef<CTFontDescriptorRef> desc = create_descriptor(familyName, style);
     if (!desc) {
         return nullptr;
     }
-    return create_from_desc(desc.get());
+    return create_from_desc_and_style(desc.get(), style);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
