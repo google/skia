@@ -262,7 +262,6 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             sk_memset64((uint64_t *) dest, rgbaHalf, width * height);
             break;
         }
-        // Experimental (for P016 and P010)
         case kR_16_GrPixelConfig: {
             uint16_t r16 = SkScalarRoundToInt(colorf.fR * 65535.0f);
             sk_memset16((uint16_t*) dest, r16, width * height);
@@ -275,6 +274,15 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             uint32_t rg1616 = r16 << 16 | g16;
 
             sk_memset32((uint32_t*) dest, rg1616, width * height);
+            break;
+        }
+        // Experimental (for Y416 and mutant P016/P010)
+        case kRGBA_16161616_GrPixelConfig: {
+            $$
+            break;
+        }
+        case kRG_half_GrPixelConfig: {
+            $$
             break;
         }
         default:

@@ -403,11 +403,17 @@ void GrMtlCaps::initConfigTable() {
     info = &fConfigTable[kRGBA_half_Clamped_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
 
-    // Experimental (for P016 and P010)
     info = &fConfigTable[kR_16_GrPixelConfig];
     info->fFlags = 0;
 
     info = &fConfigTable[kRG_1616_GrPixelConfig];
+    info->fFlags = 0;
+
+    // Experimental (for Y416 and mutant P016/P010)
+    info = &fConfigTable[kRGBA_16161616_GrPixelConfig];
+    info->fFlags = 0;
+
+    info = &fConfigTable[kRG_half_GrPixelConfig];
     info->fFlags = 0;
 }
 
@@ -497,6 +503,7 @@ GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, SkColorType ct) {
                 return kRGBA_float_GrPixelConfig;
             }
             break;
+            $$
     }
 
     return kUnknown_GrPixelConfig;
@@ -541,12 +548,18 @@ static GrPixelConfig get_yuva_config(GrMTLPixelFormat grFormat) {
         case MTLPixelFormatBGRA8Unorm:
             return kBGRA_8888_GrPixelConfig;
             break;
-        // Experimental (for P016 and P010)
         case MTLPixelFormatR16Unorm:
             return kR_16_GrPixelConfig;
             break;
         case MTLPixelFormatRG16Unorm:
             return kRG_1616_GrPixelConfig;
+            break;
+        // Experimental (for Y416 and mutant P016/P010)
+        case MTLPixelFormatRGBA16Unorm:
+            return kRGBA_16161616_GrPixelConfig;
+            break;
+        case MTLPixelFormatRG16Float:
+            return kRG_half_GrPixelConfig;
             break;
         default:
             return kUnknown_GrPixelConfig;

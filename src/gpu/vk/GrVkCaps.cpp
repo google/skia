@@ -85,6 +85,7 @@ static int get_compatible_format_class(GrPixelConfig config) {
         case kRG_88_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
         case kAlpha_half_as_Red_GrPixelConfig:
+        case kR_16_GrPixelConfig:
             return 2;
         case kRGB_888_GrPixelConfig:
             return 3;
@@ -94,6 +95,7 @@ static int get_compatible_format_class(GrPixelConfig config) {
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
         case kRGBA_1010102_GrPixelConfig:
+        case kRG_1616_GrPixelConfig:
             return 4;
         case kRGBA_half_GrPixelConfig:
         case kRGBA_half_Clamped_GrPixelConfig:
@@ -108,10 +110,11 @@ static int get_compatible_format_class(GrPixelConfig config) {
         case kGray_8_as_Lum_GrPixelConfig:
             SK_ABORT("Unsupported Vulkan pixel config");
             return 0;
-        // Experimental (for P016 and P010)
-        case kR_16_GrPixelConfig:
-            return 2;
-        case kRG_1616_GrPixelConfig:
+
+        // Experimental (for Y416 and mutant P016/P010)
+        case kRGBA_16161616_GrPixelConfig:
+            return 8;
+        case kRG_half_GrPixelConfig:
             return 4;
     }
     SK_ABORT("Invalid pixel config");
@@ -1050,11 +1053,15 @@ static GrPixelConfig get_yuva_config(VkFormat vkFormat) {
             return kBGRA_8888_GrPixelConfig;
         case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
             return kRGBA_1010102_GrPixelConfig;
-        // Experimental (for P016 and P010)
         case VK_FORMAT_R16_UNORM:
             return kR_16_GrPixelConfig;
         case VK_FORMAT_R16G16_UNORM:
             return kRG_1616_GrPixelConfig;
+        // Experimental (for Y416 and mutant P016/P010)
+        case VK_FORMAT_R16G16B16A16_UNORM:
+            return kRGBA_16161616_GrPixelConfig;
+        case VK_FORMAT_R16G16_SFLOAT:
+            return kRG_half_GrPixelConfig;
         default:
             return kUnknown_GrPixelConfig;
     }

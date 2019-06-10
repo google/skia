@@ -110,6 +110,14 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
         case kRG_1616_GrPixelConfig:
             *format = MTLPixelFormatRG16Unorm;
             return true;
+
+        // Experimental (for Y416 and mutant P016/P010)
+        case kRGBA_16161616_GrPixelConfig:
+            *format = MTLPixelFormatRGBA16Unorm;
+            return true;
+        case kRG_half_GrPixelConfig:
+            *format = MTLPixelFormatRG16Float;
+            return true;
     }
     SK_ABORT("Unexpected config");
     return false;

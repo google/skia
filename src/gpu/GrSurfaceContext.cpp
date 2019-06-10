@@ -108,9 +108,11 @@ static bool valid_premul_config(GrPixelConfig config) {
         case kAlpha_half_as_Red_GrPixelConfig:  return false;
         case kGray_8_as_Lum_GrPixelConfig:      return false;
         case kGray_8_as_Red_GrPixelConfig:      return false;
-        // Experimental (for P016 and P010)
         case kR_16_GrPixelConfig:               return false;
         case kRG_1616_GrPixelConfig:            return false;
+        // Experimental (for Y416 and mutant P016/P010)
+        case kRGBA_16161616_GrPixelConfig:      return false;
+        case kRG_half_GrPixelConfig:            return false;
     }
     SK_ABORT("Invalid GrPixelConfig");
     return false;

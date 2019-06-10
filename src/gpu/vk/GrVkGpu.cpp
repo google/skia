@@ -1823,6 +1823,13 @@ static bool vk_format_to_pixel_config(VkFormat format, GrPixelConfig* config) {
         case VK_FORMAT_R16G16_UNORM:
             *config = kRG_1616_GrPixelConfig;
             return true;
+        // Experimental (for Y416 and mutant P016/P010)
+        case VK_FORMAT_R16G16B16A16_UNORM:
+            *config = kRGBA_16161616_GrPixelConfig;
+            return true;
+        case VK_FORMAT_R16G16_SFLOAT:
+            *config = kRG_half_GrPixelConfig;
+            return true;
         default:
             return false;
     }

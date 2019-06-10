@@ -2132,7 +2132,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     } // No WebGL support
     shaderCaps->fConfigTextureSwizzle[kRGB_ETC1_GrPixelConfig] = GrSwizzle::RGBA();
 
-    // Experimental (for P016 and P010)
+    // 16 bit formats
     {
         // For desktop:
         //    GL 3.0 requires support for R16 & RG16
@@ -2182,8 +2182,28 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             // with a fancy swizzle.
             shaderCaps->fConfigTextureSwizzle[kRG_1616_GrPixelConfig] = GrSwizzle::RGBA();
         }
+
+        // Experimental (for Y416)
+        {
+            $$
+            ConfigInfo& rgba16161616Info = fConfigTable[kRGBA_16161616_GrPixelConfig];
+
+            rgba16161616Info.fFormats.fBaseInternalFormat = GR_GL_RGBA;
+            rgba16161616Info.fFormats.fSizedInternalFormat = GR_GL_RG16;
+            rgba16161616Info.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RG;
+            rgba16161616Info.fFormats.fExternalType = GR_GL_UNSIGNED_SHORT;
+            rgba16161616Info.fFormatType = kNormalizedFixedPoint_FormatType;
+            if (r16AndRG1616Supported) {
+                rgba16161616Info.fFlags = ConfigInfo::kTextureable_Flag;
+            }
+            shaderCaps->fConfigTextureSwizzle[kRG_1616_GrPixelConfig] = GrSwizzle::RGBA();
+        }
     }
 
+    // Experimental (for Y416 and mutant P016/P010)
+    {
+        $$
+    }
 
     // Bulk populate the texture internal/external formats here and then deal with exceptions below.
 
@@ -3266,12 +3286,18 @@ static GrPixelConfig get_yuva_config(GrGLenum format) {
         case GR_GL_R16F:
             config = kAlpha_half_as_Red_GrPixelConfig;
             break;
-        // Experimental (for P016 and P010)
         case GR_GL_R16:
             config = kR_16_GrPixelConfig;
             break;
         case GR_GL_RG16:
             config = kRG_1616_GrPixelConfig;
+            break;
+        // Experimental (for Y416 and mutant P016/P010)
+        case GR_GL_RGBA16:
+            config = kRGBA_16161616_GrPixelConfig;
+            break;
+        case GR_GL_RG16F:
+            config = kRG_half_GrPixelConfig;
             break;
     }
 

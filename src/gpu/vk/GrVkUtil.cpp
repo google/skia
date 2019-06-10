@@ -83,13 +83,20 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
         case kAlpha_half_as_Red_GrPixelConfig:
             *format = VK_FORMAT_R16_SFLOAT;
             return true;
-        // Experimental (for P016 and P010)
         case kR_16_GrPixelConfig:
             *format = VK_FORMAT_R16_UNORM;
             return true;
         case kRG_1616_GrPixelConfig:
             *format = VK_FORMAT_R16G16_UNORM;
             return true;
+        // Experimental (for Y416 and mutant P016/P010)
+        case kRGBA_16161616_GrPixelConfig:
+            *format = VK_FORMAT_R16G16B16A16_UNORM;
+            return true;
+        case kRG_half_GrPixelConfig:
+            *format = VK_FORMAT_R16G16_SFLOAT;
+            return true;
+
     }
     SK_ABORT("Unexpected config");
     return false;
@@ -136,11 +143,15 @@ bool GrVkFormatPixelConfigPairIsValid(VkFormat format, GrPixelConfig config) {
         case VK_FORMAT_R16_SFLOAT:
             return kAlpha_half_GrPixelConfig == config ||
                    kAlpha_half_as_Red_GrPixelConfig == config;
-        // Experimental (for P016 and P010)
         case VK_FORMAT_R16_UNORM:
             return kR_16_GrPixelConfig == config;
         case VK_FORMAT_R16G16_UNORM:
             return kRG_1616_GrPixelConfig == config;
+        // Experimental (for Y416 and mutant P016/P010)
+        case VK_FORMAT_R16G16B16A16_UNORM:
+            return kRGBA_16161616_GrPixelConfig == config;
+        case VK_FORMAT_R16G16_SFLOAT:
+            return kRG_half_GrPixelConfig == config;
         default:
             return false;
     }
