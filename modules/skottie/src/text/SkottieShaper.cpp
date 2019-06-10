@@ -62,6 +62,7 @@ public:
     void beginLine() override {
         fLineGlyphs.reset(0);
         fLinePos.reset(0);
+        fLineClusters.reset(0);
         fLineRuns.reset();
         fLineGlyphCount = 0;
 
@@ -81,15 +82,16 @@ public:
 
         fLineGlyphs.realloc(fLineGlyphCount);
         fLinePos.realloc(fLineGlyphCount);
+        fLineClusters.realloc(fLineGlyphCount);
         fLineRuns.push_back({info.fFont, info.glyphCount});
 
         SkVector alignmentOffset { fHAlignFactor * (fPendingLineAdvance.x() - fBox.width()), 0 };
 
         return {
-            fLineGlyphs.get() + run_start_index,
-            fLinePos.get()    + run_start_index,
+            fLineGlyphs.get()   + run_start_index,
+            fLinePos.get()      + run_start_index,
             nullptr,
-            nullptr,
+            fLineClusters.get() + run_start_index,
             fCurrentPosition + alignmentOffset
         };
     }
@@ -103,59 +105,22 @@ public:
 
         // TODO: justification adjustments
 
-        using CommitProc = void(*)(const RunRec&,
-                                   const SkRect&,
-                                   const SkGlyphID*,
-                                   const SkPoint*,
-                                   SkTextBlobBuilder*,
-                                   Shaper::Result*);
-
-        static const CommitProc fragment_commit_proc = [](const RunRec& rec,
-                                                          const SkRect& box,
-                                                          const SkGlyphID* glyphs,
-                                                          const SkPoint* pos,
-                                                          SkTextBlobBuilder* builder,
-                                                          Shaper::Result* result) {
-            // In fragmented mode we immediately push the glyphs to fResult,
-            // one fragment (blob) per glyph.  Glyph positioning is externalized
-            // (positions returned in Fragment::fPos).
-            for (size_t i = 0; i < rec.fGlyphCount; ++i) {
-                const auto& blob_buffer = builder->allocRunPos(rec.fFont, 1);
-                blob_buffer.glyphs[0] = glyphs[i];
-                blob_buffer.pos[0] = blob_buffer.pos[1] = 0;
-
-                result->fFragments.push_back({builder->make(), { box.x() + pos[i].fX,
-                                                                 box.y() + pos[i].fY }});
-            }
-        };
-
-        static const CommitProc consolidated_commit_proc = [](const RunRec& rec,
-                                                              const SkRect& box,
-                                                              const SkGlyphID* glyphs,
-                                                              const SkPoint* pos,
-                                                              SkTextBlobBuilder* builder,
-                                                              Shaper::Result*) {
-            // In consolidated mode we just accumulate glyphs to the blob builder, then push
-            // to fResult as a single blob in finalize().  Glyph positions are baked in the
-            // blob (Fragment::fPos only reflects the box origin).
-            const auto& blob_buffer = builder->allocRunPos(rec.fFont, rec.fGlyphCount);
-            sk_careful_memcpy(blob_buffer.glyphs, glyphs, rec.fGlyphCount * sizeof(SkGlyphID));
-            sk_careful_memcpy(blob_buffer.pos   , pos   , rec.fGlyphCount * sizeof(SkPoint));
-        };
-
         const auto commit_proc = (fDesc.fFlags & Shaper::Flags::kFragmentGlyphs)
-            ? fragment_commit_proc : consolidated_commit_proc;
+            ? &BlobMaker::commitFragementedRun
+            : &BlobMaker::commitConsolidatedRun;
 
         size_t run_offset = 0;
         for (const auto& rec : fLineRuns) {
             SkASSERT(run_offset < fLineGlyphCount);
-            commit_proc(rec, fBox,
-                        fLineGlyphs.get() + run_offset,
-                        fLinePos.get()    + run_offset,
-                        &fBuilder, &fResult);
-
+            (this->*commit_proc)(rec,
+                        fLineGlyphs.get()   + run_offset,
+                        fLinePos.get()      + run_offset,
+                        fLineClusters.get() + run_offset,
+                        fLineIndex);
             run_offset += rec.fGlyphCount;
         }
+
+        fLineIndex++;
     }
 
     Shaper::Result finalize() {
@@ -163,7 +128,7 @@ public:
             // All glyphs are pending in a single blob.
             SkASSERT(fResult.fFragments.empty());
             fResult.fFragments.reserve(1);
-            fResult.fFragments.push_back({fBuilder.make(), {fBox.x(), fBox.y()}});
+            fResult.fFragments.push_back({fBuilder.make(), {fBox.x(), fBox.y()}, 0, false});
         }
 
         // By default, first line is vertical-aligned on a baseline of 0.
@@ -206,10 +171,57 @@ public:
         const auto shape_width = fBox.isEmpty() ? SK_ScalarMax
                                                 : fBox.width();
 
+        fUTF8 = start;
         fShaper->shape(start, SkToSizeT(end - start), fFont, true, shape_width, this);
+        fUTF8 = nullptr;
     }
 
 private:
+    struct RunRec {
+        SkFont fFont;
+        size_t fGlyphCount;
+    };
+
+    void commitFragementedRun(const RunRec& rec,
+                              const SkGlyphID* glyphs,
+                              const SkPoint* pos,
+                              const uint32_t* clusters,
+                              uint32_t line_index) {
+
+        static const auto is_whitespace = [](char c) {
+            return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+        };
+
+        // In fragmented mode we immediately push the glyphs to fResult,
+        // one fragment (blob) per glyph.  Glyph positioning is externalized
+        // (positions returned in Fragment::fPos).
+        for (size_t i = 0; i < rec.fGlyphCount; ++i) {
+            const auto& blob_buffer = fBuilder.allocRunPos(rec.fFont, 1);
+            blob_buffer.glyphs[0] = glyphs[i];
+            blob_buffer.pos[0] = blob_buffer.pos[1] = 0;
+
+            // Note: we only check the first code point in the cluster for whitespace.
+            // It's unclear whether thers's a saner approach.
+            fResult.fFragments.push_back({fBuilder.make(),
+                                          { fBox.x() + pos[i].fX, fBox.y() + pos[i].fY },
+                                          line_index, is_whitespace(fUTF8[clusters[i]])
+                                         });
+        }
+    }
+
+    void commitConsolidatedRun(const RunRec& rec,
+                               const SkGlyphID* glyphs,
+                               const SkPoint* pos,
+                               const uint32_t*,
+                               uint32_t) {
+        // In consolidated mode we just accumulate glyphs to the blob builder, then push
+        // to fResult as a single blob in finalize().  Glyph positions are baked in the
+        // blob (Fragment::fPos only reflects the box origin).
+        const auto& blob_buffer = fBuilder.allocRunPos(rec.fFont, rec.fGlyphCount);
+        sk_careful_memcpy(blob_buffer.glyphs, glyphs, rec.fGlyphCount * sizeof(SkGlyphID));
+        sk_careful_memcpy(blob_buffer.pos   , pos   , rec.fGlyphCount * sizeof(SkPoint));
+    }
+
     static float HAlignFactor(SkTextUtils::Align align) {
         switch (align) {
         case SkTextUtils::kLeft_Align:   return  0.0f;
@@ -227,19 +239,18 @@ private:
     SkTextBlobBuilder         fBuilder;
     std::unique_ptr<SkShaper> fShaper;
 
-    struct RunRec {
-        SkFont fFont;
-        size_t fGlyphCount;
-    };
-
-    SkAutoSTMalloc<64, SkGlyphID>  fLineGlyphs;
-    SkAutoSTMalloc<64, SkPoint>    fLinePos;
-    SkSTArray<16, RunRec>          fLineRuns;
-    size_t                         fLineGlyphCount = 0;
+    SkAutoSTMalloc<64, SkGlyphID> fLineGlyphs;
+    SkAutoSTMalloc<64, SkPoint>   fLinePos;
+    SkAutoSTMalloc<64, uint32_t>  fLineClusters;
+    SkSTArray<16, RunRec>         fLineRuns;
+    size_t                        fLineGlyphCount = 0;
 
     SkPoint  fCurrentPosition{ 0, 0 };
     SkPoint  fOffset{ 0, 0 };
     SkVector fPendingLineAdvance{ 0, 0 };
+    uint32_t fLineIndex = 0;
+
+    const char* fUTF8 = nullptr; // only valid during shapeLine() calls
 
     Shaper::Result fResult;
 };

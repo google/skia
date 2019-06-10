@@ -7,7 +7,6 @@
 
 #include "modules/skottie/src/text/TextAdapter.h"
 
-#include "modules/skottie/src/text/RangeSelector.h"
 #include "modules/skottie/src/text/TextAnimator.h"
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
@@ -25,15 +24,7 @@ TextAdapter::TextAdapter(sk_sp<sksg::Group> root, bool hasAnimators)
 
 TextAdapter::~TextAdapter() = default;
 
-struct TextAdapter::FragmentRec {
-    SkPoint                       fOrigin; // fragment position
-
-    sk_sp<sksg::Matrix<SkMatrix>> fMatrixNode;
-    sk_sp<sksg::Color>            fFillColorNode,
-                                  fStrokeColorNode;
-};
-
-void TextAdapter::addFragment(const skottie::Shaper::Fragment& frag) {
+void TextAdapter::addFragment(const Shaper::Fragment& frag) {
     // For a given shaped fragment, build a corresponding SG fragment:
     //
     //   [TransformEffect] -> [Transform]
@@ -77,6 +68,52 @@ void TextAdapter::addFragment(const skottie::Shaper::Fragment& frag) {
     fFragments.push_back(std::move(rec));
 }
 
+void TextAdapter::buildDomainMaps(const Shaper::Result& shape_result) {
+    fMaps.fNonWhitespaceMap.clear();
+    fMaps.fWordsMap.clear();
+    fMaps.fLinesMap.clear();
+
+    size_t i          = 0,
+           line       = 0,
+           line_start = 0,
+           word_start = 0;
+    bool in_word = false;
+
+    // TODO: use ICU for building the word map?
+    for (; i  < shape_result.fFragments.size(); ++i) {
+        const auto& frag = shape_result.fFragments[i];
+
+        if (frag.fIsWhitespace) {
+            if (in_word) {
+                in_word = false;
+                fMaps.fWordsMap.push_back({word_start, i - word_start});
+            }
+        } else {
+            fMaps.fNonWhitespaceMap.push_back({i, 1});
+
+            if (!in_word) {
+                in_word = true;
+                word_start = i;
+            }
+        }
+
+        if (frag.fLineIndex != line) {
+            SkASSERT(frag.fLineIndex == line + 1);
+            fMaps.fLinesMap.push_back({line_start, i - line_start});
+            line = frag.fLineIndex;
+            line_start = i;
+        }
+    }
+
+    if (i > word_start) {
+        fMaps.fWordsMap.push_back({word_start, i - word_start});
+    }
+
+    if (i > line_start) {
+        fMaps.fLinesMap.push_back({line_start, i - line_start});
+    }
+}
+
 void TextAdapter::apply() {
     if (!fText.fHasFill && !fText.fHasStroke) {
         return;
@@ -100,6 +137,11 @@ void TextAdapter::apply() {
 
     for (const auto& frag : shape_result.fFragments) {
         this->addFragment(frag);
+    }
+
+    if (fHasAnimators) {
+        // Range selectors require fragment domain maps.
+        this->buildDomainMaps(shape_result);
     }
 
 #if (0)
@@ -138,7 +180,7 @@ void TextAdapter::applyAnimators(const std::vector<sk_sp<TextAnimator>>& animato
 
     // Apply all animators to the modulator buffer.
     for (const auto& animator : animators) {
-        animator->modulateProps(buf);
+        animator->modulateProps(fMaps, buf);
     }
 
     // Finally, push all props to their corresponding fragment.
