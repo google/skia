@@ -566,8 +566,15 @@ skia_skpicture_sources = [
   "$_src/shaders/SkPictureShader.h",
 ]
 
+skia_xform_sources = [
+  "experimental/xform/SkShape.cpp",
+  "experimental/xform/SkXform.cpp",
+  "experimental/xform/XContext.cpp",
+]
+
 skia_core_sources += skia_pathops_sources
 skia_core_sources += skia_skpicture_sources
+skia_core_sources += skia_xform_sources
 
 skia_core_public += skia_pathops_public
 skia_core_public += skia_skpicture_public
