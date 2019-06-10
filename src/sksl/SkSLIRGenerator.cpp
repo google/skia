@@ -1572,13 +1572,13 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     if (left.fType.kind() == Type::kVector_Kind && left.fType.componentType().isFloat() &&
         left.fType == right.fType) {
         std::vector<std::unique_ptr<Expression>> args;
-        #define RETURN_VEC_COMPONENTWISE_RESULT(op)                                    \
-            for (int i = 0; i < left.fType.columns(); i++) {                           \
-                float value = left.getFVecComponent(i) op             \
-                              right.getFVecComponent(i);              \
-                args.emplace_back(new FloatLiteral(fContext, -1, value));              \
-            }                                                                          \
-            return std::unique_ptr<Expression>(new Constructor(-1, left.fType,         \
+        #define RETURN_VEC_COMPONENTWISE_RESULT(op)                              \
+            for (int i = 0; i < left.fType.columns(); i++) {                     \
+                float value = left.getFVecComponent(i) op                        \
+                              right.getFVecComponent(i);                         \
+                args.emplace_back(new FloatLiteral(fContext, -1, value));        \
+            }                                                                    \
+            return std::unique_ptr<Expression>(new Constructor(-1, left.fType,   \
                                                                std::move(args)))
         switch (op) {
             case Token::EQEQ:
@@ -1590,7 +1590,18 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             case Token::PLUS:  RETURN_VEC_COMPONENTWISE_RESULT(+);
             case Token::MINUS: RETURN_VEC_COMPONENTWISE_RESULT(-);
             case Token::STAR:  RETURN_VEC_COMPONENTWISE_RESULT(*);
-            case Token::SLASH: RETURN_VEC_COMPONENTWISE_RESULT(/);
+            case Token::SLASH:
+                for (int i = 0; i < left.fType.columns(); i++) {
+                    SKSL_FLOAT rvalue = right.getFVecComponent(i);
+                    if (rvalue == 0.0) {
+                        fErrors.error(right.fOffset, "division by zero");
+                        return nullptr;
+                    }
+                    float value = left.getFVecComponent(i) / rvalue;
+                    args.emplace_back(new FloatLiteral(fContext, -1, value));
+                }
+                return std::unique_ptr<Expression>(new Constructor(-1, left.fType,
+                                                                   std::move(args)));
             default:           return nullptr;
         }
     }
