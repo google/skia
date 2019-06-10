@@ -72,7 +72,6 @@ public:
     }
     SkSpan<TextLine> lines() { return SkSpan<TextLine>(fLines.data(), fLines.size()); }
     ParagraphStyle paragraphStyle() const { return fParagraphStyle; }
-    SkSpan<Cluster> clusters() { return SkSpan<Cluster>(fClusters.begin(), fClusters.size()); }
     void formatLines(SkScalar maxWidth);
 
     bool strutEnabled() const { return paragraphStyle().getStrutStyle().getStrutEnabled(); }
