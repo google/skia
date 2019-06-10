@@ -818,9 +818,9 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     canvas->drawString(rowLabel, 0, y, font, paint);
 }
 
-static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,
+static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& bm,
                                             SkYUVAIndex yuvaIndices[4], int texIndex) {
-    const GrCaps* caps = gpu->caps();
+
 
     SkASSERT(texIndex >= 0 && texIndex <= 3);
     int channelCount = 0;
@@ -832,6 +832,9 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,
     // Need to create an RG texture for two-channel planes
     GrBackendTexture tex;
     if (2 == channelCount) {
+        const GrCaps* caps = context->priv().caps();
+        GrGpu* gpu = context->priv().getGpu();
+
         SkASSERT(kRGBA_8888_SkColorType == bm.colorType());
         SkAutoTMalloc<char> pixels(2 * bm.width()*bm.height());
         char* currPixel = pixels;
@@ -850,12 +853,7 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,
                                         pixels, 2*bm.width(), nullptr);
     }
     if (!tex.isValid()) {
-        tex = gpu->createTestingOnlyBackendTexture(
-            bm.width(),
-            bm.height(),
-            bm.colorType(),
-            GrMipMapped::kNo, GrRenderable::kNo,
-            bm.getPixels(), bm.rowBytes(), nullptr);
+        tex = context->priv().createBackendTexture(&bm.pixmap(), 1, GrRenderable::kNo);
     }
     return tex;
 }
@@ -961,16 +959,11 @@ protected:
                             return;
                         }
 
-                        GrGpu* gpu = context->priv().getGpu();
-                        if (!gpu) {
-                            return;
-                        }
-
                         GrBackendTexture yuvaTextures[4];
                         SkPixmap yuvaPixmaps[4];
 
                         for (int i = 0; i < numTextures; ++i) {
-                            yuvaTextures[i] = create_yuva_texture(gpu, resultBMs[i],
+                            yuvaTextures[i] = create_yuva_texture(context, resultBMs[i],
                                                                   yuvaIndices, i);
                             if (yuvaTextures[i].isValid()) {
                                 fBackendTextures.push_back(yuvaTextures[i]);
@@ -1168,14 +1161,9 @@ protected:
                 continue;
             }
 
-            GrGpu* gpu = context->priv().getGpu();
-            if (!gpu) {
-                return;
-            }
-
             GrBackendTexture yuvaTextures[4];
             for (int i = 0; i < numTextures; ++i) {
-                yuvaTextures[i] = create_yuva_texture(gpu, resultBMs[i], yuvaIndices, i);
+                yuvaTextures[i] = create_yuva_texture(context, resultBMs[i], yuvaIndices, i);
                 if (yuvaTextures[i].isValid()) {
                     fBackendTextures.push_back(yuvaTextures[i]);
                 }

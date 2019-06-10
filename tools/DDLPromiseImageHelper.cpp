@@ -56,10 +56,8 @@ sk_sp<SkData> DDLPromiseImageHelper::deflateSKP(const SkPicture* inputPicture) {
 }
 
 // needed until we have SkRG_88_ColorType;
-static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkPixmap& pm,
+static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& pm,
                                             const SkYUVAIndex yuvaIndices[4], int texIndex) {
-    const GrCaps* caps = gpu->caps();
-
     SkASSERT(texIndex >= 0 && texIndex <= 3);
     int channelCount = 0;
     for (int i = 0; i < SkYUVAIndex::kIndexCount; ++i) {
@@ -70,6 +68,9 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkPixmap& pm,
     // Need to create an RG texture for two-channel planes
     GrBackendTexture tex;
     if (2 == channelCount) {
+        const GrCaps* caps = context->priv().caps();
+        GrGpu* gpu = context->priv().getGpu();
+
         SkASSERT(kRGBA_8888_SkColorType == pm.colorType());
         SkAutoTMalloc<char> pixels(2 * pm.width()*pm.height());
         char* currPixel = pixels;
@@ -88,18 +89,12 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkPixmap& pm,
                                         GrMipMapped::kNo, GrRenderable::kNo,
                                         pixels, 2 * pm.width(), nullptr);
     } else {
-        tex = gpu->createTestingOnlyBackendTexture(
-            pm.width(), pm.height(), pm.colorType(),
-            GrMipMapped::kNo, GrRenderable::kNo,
-            pm.addr(), pm.rowBytes(), nullptr);
+        tex = context->priv().createBackendTexture(&pm, 1, GrRenderable::kNo);
     }
     return tex;
 }
 
 void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
-    GrGpu* gpu = context->priv().getGpu();
-    SkASSERT(gpu);
-
     for (int i = 0; i < fImageInfo.count(); ++i) {
         const PromiseImageInfo& info = fImageInfo[i];
 
@@ -113,7 +108,7 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
                 sk_sp<PromiseImageCallbackContext> callbackContext(
                                                         new PromiseImageCallbackContext(context));
 
-                callbackContext->setBackendTexture(create_yuva_texture(gpu, yuvPixmap,
+                callbackContext->setBackendTexture(create_yuva_texture(context, yuvPixmap,
                                                                        info.yuvaIndices(), j));
                 SkASSERT(callbackContext->promiseImageTexture());
 
@@ -125,10 +120,11 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 
             const SkBitmap& bm = info.normalBitmap();
 
-            callbackContext->setBackendTexture(gpu->createTestingOnlyBackendTexture(
-                                                        bm.width(), bm.height(), bm.colorType(),
-                                                        GrMipMapped::kNo, GrRenderable::kNo,
-                                                        bm.getPixels(), bm.rowBytes(), nullptr));
+            GrBackendTexture backendTex = context->priv().createBackendTexture(
+                                                        &bm.pixmap(), 1, GrRenderable::kNo);
+
+            callbackContext->setBackendTexture(backendTex);
+
             // The GMs sometimes request too large an image
             //SkAssertResult(callbackContext->backendTexture().isValid());
 
