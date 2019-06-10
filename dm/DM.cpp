@@ -52,6 +52,10 @@
 #include <binder/IPCThreadState.h>
 #endif
 
+extern double gInterpreterTime;
+extern void* gStackPtr;
+extern void* gRGBAPtr;
+
 extern bool gSkForceRasterPipelineBlitter;
 
 static DEFINE_string(src, "tests gm skp image", "Source types to test.");
@@ -1500,6 +1504,8 @@ int main(int argc, char** argv) {
 
     SkGraphics::PurgeAllCaches();
     info("Finished!\n");
+
+    SkDebugf("Interpreter time: %g %p %p\n", gInterpreterTime * 1E-6, gRGBAPtr, gStackPtr);
 
     return 0;
 }
