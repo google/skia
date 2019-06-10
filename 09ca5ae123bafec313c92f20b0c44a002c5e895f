@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d125a316_2e0e522f",
+        "filename": "modules/skottie/src/text/SkottieShaper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-06-10T17:24:32Z",
+      "side": 1,
+      "message": "Right, I\u0027m not sure what the correct behavior is supposed to be either - so trying the simplest thing first.\n\nAdded comments.",
+      "parentUuid": "992c0984_4445fed7",
+      "range": {
+        "startLine": 205,
+        "startChar": 68,
+        "endLine": 205,
+        "endChar": 86
+      },
+      "revId": "09ca5ae123bafec313c92f20b0c44a002c5e895f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "17209986_7561f4ce",
         "filename": "modules/skottie/src/text/TextAdapter.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "435a0c7c_1e8e37a7",
+        "filename": "modules/skottie/src/text/TextAdapter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-06-10T17:24:32Z",
+      "side": 1,
+      "message": "Thanks, good to know. Sticking to the simple approach for now, but added a note.",
+      "parentUuid": "17209986_7561f4ce",
+      "range": {
+        "startLine": 94,
+        "startChar": 16,
+        "endLine": 94,
+        "endChar": 23
+      },
+      "revId": "09ca5ae123bafec313c92f20b0c44a002c5e895f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4724a33e_535c78e1",
         "filename": "modules/skottie/src/text/TextAdapter.h",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "09ca5ae123bafec313c92f20b0c44a002c5e895f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a5fb4e9_076faebe",
+        "filename": "modules/skottie/src/text/TextAdapter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-06-10T17:24:32Z",
+      "side": 1,
+      "message": "Aww, that\u0027s annoying... definitely incomplete.\n\nMoved the struct definition to the header.",
+      "parentUuid": "4724a33e_535c78e1",
+      "range": {
+        "startLine": 47,
+        "startChar": 4,
+        "endLine": 47,
+        "endChar": 28
+      },
+      "revId": "09ca5ae123bafec313c92f20b0c44a002c5e895f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
