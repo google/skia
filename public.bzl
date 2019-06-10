@@ -669,6 +669,16 @@ def sksg_lib_srcs():
     return native.glob(["modules/sksg/src/*.cpp"])
 
 ################################################################################
+## skparagraph_lib
+################################################################################
+
+def skparagraph_lib_hdrs():
+    return native.glob(["modules/skparagraph/include/*.h"])
+
+def skparagraph_lib_srcs():
+    return native.glob(["modules/skparagraph/src/*.cpp"])
+
+################################################################################
 ## skottie_lib
 ################################################################################
 
