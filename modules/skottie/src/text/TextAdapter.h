@@ -15,10 +15,6 @@
 
 #include <vector>
 
-namespace sksg {
-class Group;
-} // namespace sksg
-
 namespace skottie {
 namespace internal {
 
@@ -34,9 +30,16 @@ public:
     void applyAnimators(const std::vector<sk_sp<TextAnimator>>&);
 
 private:
-    struct FragmentRec;
+    struct FragmentRec {
+        SkPoint                       fOrigin; // fragment position
 
-    void addFragment(const skottie::Shaper::Fragment&);
+        sk_sp<sksg::Matrix<SkMatrix>> fMatrixNode;
+        sk_sp<sksg::Color>            fFillColorNode,
+                                      fStrokeColorNode;
+    };
+
+    void addFragment(const Shaper::Fragment&);
+    void buildDomainMaps(const Shaper::Result&);
 
     void apply();
 
@@ -44,6 +47,7 @@ private:
 
     sk_sp<sksg::Group>       fRoot;
     std::vector<FragmentRec> fFragments;
+    TextAnimator::DomainMaps fMaps;
 
     const bool               fHasAnimators;
 };

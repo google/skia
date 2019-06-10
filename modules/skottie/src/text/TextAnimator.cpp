@@ -80,7 +80,7 @@ sk_sp<TextAnimator> TextAnimator::Make(const skjson::ObjectValue* janimator,
         : nullptr;
 }
 
-void TextAnimator::modulateProps(ModulatorBuffer& buf) const {
+void TextAnimator::modulateProps(const DomainMaps& maps, ModulatorBuffer& buf) const {
     // Coverage is scoped per animator.
     for (auto& mod : buf) {
         mod.coverage = 0;
@@ -88,7 +88,7 @@ void TextAnimator::modulateProps(ModulatorBuffer& buf) const {
 
     // Accumulate selector coverage.
     for (const auto& selector : fSelectors) {
-        selector->modulateCoverage(buf);
+        selector->modulateCoverage(maps, buf);
     }
 
     // Modulate animated props.
