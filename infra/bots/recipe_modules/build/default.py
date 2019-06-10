@@ -60,13 +60,18 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
       '-DCMAKE_CXX_FLAGS=%s' % msan_cflags,
     ])
 
+  # Determine which targets to build.
+  targets = ['libEGL.so', 'libGLESv2.so']
+  if 'Vulkan' in extra_tokens:
+    targets = ['libvk_swiftshader']
+
   # Build SwiftShader.
   api.file.ensure_directory('makedirs swiftshader_out', out)
   with api.context(cwd=out, env=env):
     api.run(api.step, 'swiftshader cmake',
             cmd=['cmake'] + swiftshader_opts + [swiftshader_root, '-GNinja'])
     api.run(api.step, 'swiftshader ninja',
-            cmd=['ninja', '-C', out, 'libEGL.so', 'libGLESv2.so'])
+            cmd=['ninja', '-C', out] + targets)
 
 
 def compile_fn(api, checkout_root, out_dir):
