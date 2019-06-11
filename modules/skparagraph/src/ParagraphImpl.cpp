@@ -1,15 +1,15 @@
 // Copyright 2019 Google LLC.
-#include "ParagraphImpl.h"
+#include "modules/skparagraph/src/ParagraphImpl.h"
 #include <unicode/brkiter.h>
 #include <unicode/ubidi.h>
 #include <unicode/unistr.h>
-#include "FontIterator.h"
-#include "Run.h"
-#include "TextWrapper.h"
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkPictureRecorder.h"
+#include "modules/skparagraph/src/FontIterator.h"
+#include "modules/skparagraph/src/Run.h"
+#include "modules/skparagraph/src/TextWrapper.h"
 #include "src/core/SkSpan.h"
 #include "src/utils/SkUTF.h"
 
@@ -87,8 +87,10 @@ namespace textlayout {
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              ParagraphStyle style,
-                             std::vector<Block> blocks,
-                             sk_sp<FontCollection> fonts)
+                             std::vector<Block>
+                                     blocks,
+                             sk_sp<FontCollection>
+                                     fonts)
         : Paragraph(std::move(style), std::move(fonts)), fPicture(nullptr) {
     icu::UnicodeString unicode((UChar*)utf16text.data(), SkToS32(utf16text.size()));
     std::string str;
@@ -345,7 +347,8 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
             this,
             maxWidth,
             [&](SkSpan<const char> text,
-                SkSpan<const char> textWithSpaces,
+                SkSpan<const char>
+                        textWithSpaces,
                 Cluster* start,
                 Cluster* end,
                 size_t startPos,
@@ -357,8 +360,8 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 // Add the line
                 // TODO: Take in account clipped edges
                 SkSpan<const Cluster> clusters(start, end - start + 1);
-                auto& line =
-                        this->addLine(offset, advance, text, textWithSpaces, clusters, startPos, endPos, metrics);
+                auto& line = this->addLine(offset, advance, text, textWithSpaces, clusters,
+                                           startPos, endPos, metrics);
                 if (addEllipsis) {
                     line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
                 }
@@ -414,9 +417,12 @@ SkSpan<const TextBlock> ParagraphImpl::findAllBlocks(SkSpan<const char> text) {
 
 TextLine& ParagraphImpl::addLine(SkVector offset,
                                  SkVector advance,
-                                 SkSpan<const char> text,
-                                 SkSpan<const char> textWithSpaces,
-                                 SkSpan<const Cluster> clusters,
+                                 SkSpan<const char>
+                                         text,
+                                 SkSpan<const char>
+                                         textWithSpaces,
+                                 SkSpan<const Cluster>
+                                         clusters,
                                  size_t start,
                                  size_t end,
                                  LineMetrics sizes) {
@@ -424,7 +430,8 @@ TextLine& ParagraphImpl::addLine(SkVector offset,
     // Define a list of styles that covers the line
     auto blocks = findAllBlocks(text);
 
-    return fLines.emplace_back(offset, advance, blocks, text, textWithSpaces, clusters, start, end, sizes);
+    return fLines.emplace_back(offset, advance, blocks, text, textWithSpaces, clusters, start, end,
+                               sizes);
 }
 
 // Returns a vector of bounding boxes that enclose all text between

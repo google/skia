@@ -1,12 +1,12 @@
 // Copyright 2019 Google LLC.
-#include "FontIterator.h"
+#include "modules/skparagraph/src/FontIterator.h"
 #include <unicode/brkiter.h>
 #include <unicode/ubidi.h>
-#include "ParagraphImpl.h"
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkPictureRecorder.h"
+#include "modules/skparagraph/src/ParagraphImpl.h"
 #include "src/core/SkSpan.h"
 #include "src/utils/SkUTF.h"
 
@@ -22,8 +22,10 @@ namespace skia {
 namespace textlayout {
 
 FontIterator::FontIterator(SkSpan<const char> utf8,
-                           SkSpan<TextBlock> styles,
-                           sk_sp<FontCollection> fonts,
+                           SkSpan<TextBlock>
+                                   styles,
+                           sk_sp<FontCollection>
+                                   fonts,
                            bool hintingOn)
         : fText(utf8)
         , fStyles(styles)
@@ -140,7 +142,7 @@ void FontIterator::findAllFontsForStyledBlock(const TextStyle& style, SkSpan<con
     // In case something still unresolved
     if (fResolvedFonts.count() == 0) {
         makeFont(fFontCollection->defaultFallback(firstUnresolved(), style.getFontStyle()),
-                         style.getFontSize(), style.getHeight());
+                 style.getFontSize(), style.getHeight());
         if (fFirstResolvedFont.first.getTypeface() != nullptr) {
             SkString name;
             fFirstResolvedFont.first.getTypeface()->getFamilyName(&name);
@@ -239,8 +241,8 @@ void FontIterator::addResolvedWhitespacesToMapping() {
 }
 
 std::pair<SkFont, SkScalar> FontIterator::makeFont(sk_sp<SkTypeface> typeface,
-                                                     SkScalar size,
-                                                     SkScalar height) {
+                                                   SkScalar size,
+                                                   SkScalar height) {
     SkFont font(typeface, size);
     font.setEdging(SkFont::Edging::kAntiAlias);
     if (!fHintingOn) {

@@ -1,10 +1,10 @@
 // Copyright 2019 Google LLC.
-#include "ParagraphBuilderImpl.h"
-#include "ParagraphImpl.h"
+#include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "include/core/SkPaint.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
-#include "src/core/SkSpan.h"
+#include "modules/skparagraph/src/ParagraphImpl.h"
 #include "src/core/SkMakeUnique.h"
+#include "src/core/SkSpan.h"
 #include "unicode/unistr.h"
 
 namespace skia {
@@ -72,12 +72,12 @@ void ParagraphBuilderImpl::addText(const std::u16string& text) {
     unicode.setTo((UChar*)text.data());
     std::string str;
     unicode.toUTF8String(str);
-    //SkDebugf("Layout text16: '%s'\n", str.c_str());
+    // SkDebugf("Layout text16: '%s'\n", str.c_str());
     fUtf8.insert(fUtf8.size(), str.c_str());
 }
 
 void ParagraphBuilderImpl::addText(const char* text) {
-    //SkDebugf("Layout text8: '%s'\n", text);
+    // SkDebugf("Layout text8: '%s'\n", text);
     fUtf8.insert(fUtf8.size(), text);
 }
 
@@ -98,7 +98,8 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
     if (!fUtf8.isEmpty()) {
         this->endRunIfNeeded();
     }
-    return skstd::make_unique<ParagraphImpl>(fUtf8, fParagraphStyle, fStyledBlocks, fFontCollection);
+    return skstd::make_unique<ParagraphImpl>(
+            fUtf8, fParagraphStyle, fStyledBlocks, fFontCollection);
 }
 
 }  // namespace textlayout

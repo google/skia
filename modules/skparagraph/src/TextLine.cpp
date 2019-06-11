@@ -1,8 +1,8 @@
 // Copyright 2019 Google LLC.
-#include "TextLine.h"
+#include "modules/skparagraph/src/TextLine.h"
 #include <unicode/brkiter.h>
 #include <unicode/ubidi.h>
-#include "ParagraphImpl.h"
+#include "modules/skparagraph/src/ParagraphImpl.h"
 
 #include "include/core/SkMaskFilter.h"
 #include "include/effects/SkDashPathEffect.h"
@@ -164,7 +164,7 @@ void TextLine::scanRuns(const RunVisitor& visitor) {
 }
 
 SkScalar TextLine::paintText(SkCanvas* canvas, SkSpan<const char> text, const TextStyle& style,
-                           SkScalar offsetX) const {
+                             SkScalar offsetX) const {
     TRACE_EVENT0("skia", TRACE_FUNC);
     SkPaint paint;
     if (style.hasForeground()) {
@@ -192,21 +192,20 @@ SkScalar TextLine::paintText(SkCanvas* canvas, SkSpan<const char> text, const Te
 }
 
 SkScalar TextLine::paintBackground(SkCanvas* canvas, SkSpan<const char> text,
-                                 const TextStyle& style, SkScalar offsetX) const {
+                                   const TextStyle& style, SkScalar offsetX) const {
     TRACE_EVENT0("skia", TRACE_FUNC);
-    return this->iterateThroughRuns(
-            text, offsetX, false,
-            [canvas, style](Run* run, int32_t pos, size_t size, SkRect clip, SkScalar shift,
-                            bool clippingNeeded) {
-                if (style.hasBackground()) {
-                    canvas->drawRect(clip, style.getBackground());
-                }
-                return true;
-            });
+    return this->iterateThroughRuns(text, offsetX, false,
+                                    [canvas, style](Run* run, int32_t pos, size_t size, SkRect clip,
+                                                    SkScalar shift, bool clippingNeeded) {
+                                        if (style.hasBackground()) {
+                                            canvas->drawRect(clip, style.getBackground());
+                                        }
+                                        return true;
+                                    });
 }
 
 SkScalar TextLine::paintShadow(SkCanvas* canvas, SkSpan<const char> text, const TextStyle& style,
-                             SkScalar offsetX) const {
+                               SkScalar offsetX) const {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (style.getShadowNumber() == 0) {
         // Still need to calculate text advance
@@ -251,7 +250,7 @@ SkScalar TextLine::paintShadow(SkCanvas* canvas, SkSpan<const char> text, const 
 }
 
 SkScalar TextLine::paintDecorations(SkCanvas* canvas, SkSpan<const char> text,
-                                  const TextStyle& style, SkScalar offsetX) const {
+                                    const TextStyle& style, SkScalar offsetX) const {
     TRACE_EVENT0("skia", TRACE_FUNC);
     return this->iterateThroughRuns(
             text, offsetX, false,
@@ -321,9 +320,9 @@ SkScalar TextLine::paintDecorations(SkCanvas* canvas, SkSpan<const char> text,
 }
 
 void TextLine::computeDecorationPaint(SkPaint& paint,
-                                    SkRect clip,
-                                    const TextStyle& style,
-                                    SkPath& path) const {
+                                      SkRect clip,
+                                      const TextStyle& style,
+                                      SkPath& path) const {
     paint.setStyle(SkPaint::kStroke_Style);
     if (style.getDecorationColor() == SK_ColorTRANSPARENT) {
         paint.setColor(style.getColor());
@@ -507,11 +506,8 @@ Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
     return handler.run();
 }
 
-SkRect TextLine::measureTextInsideOneRun(SkSpan<const char> text,
-                                       Run* run,
-                                       size_t& pos,
-                                       size_t& size,
-                                       bool& clippingNeeded) const {
+SkRect TextLine::measureTextInsideOneRun(
+        SkSpan<const char> text, Run* run, size_t& pos, size_t& size, bool& clippingNeeded) const {
     TRACE_EVENT0("skia", TRACE_FUNC);
     SkASSERT(intersectedSize(run->text(), text) >= 0);
 
@@ -550,13 +546,13 @@ SkRect TextLine::measureTextInsideOneRun(SkSpan<const char> text,
     clip.fRight -= rightCorrection;
     clippingNeeded = leftCorrection != 0 || rightCorrection != 0;
 
-    //SkDebugf("measureTextInsideOneRun: '%s'[%d:%d]\n", text.begin(), pos, pos + size);
+    // SkDebugf("measureTextInsideOneRun: '%s'[%d:%d]\n", text.begin(), pos, pos + size);
 
     return clip;
 }
 
 void TextLine::iterateThroughClustersInGlyphsOrder(bool reverse,
-                                                 const ClustersVisitor& visitor) const {
+                                                   const ClustersVisitor& visitor) const {
     TRACE_EVENT0("skia", TRACE_FUNC);
     for (size_t r = 0; r != fLogical.size(); ++r) {
         auto& run = fLogical[reverse ? fLogical.size() - r - 1 : r];
@@ -577,9 +573,9 @@ void TextLine::iterateThroughClustersInGlyphsOrder(bool reverse,
 
 // Walk through the runs in the logical order
 SkScalar TextLine::iterateThroughRuns(SkSpan<const char> text,
-                                    SkScalar runOffset,
-                                    bool includeEmptyText,
-                                    const RunVisitor& visitor) const {
+                                      SkScalar runOffset,
+                                      bool includeEmptyText,
+                                      const RunVisitor& visitor) const {
     TRACE_EVENT0("skia", TRACE_FUNC);
 
     SkScalar width = 0;
@@ -632,7 +628,7 @@ SkScalar TextLine::iterateThroughRuns(SkSpan<const char> text,
 }
 
 void TextLine::iterateThroughStylesInTextOrder(StyleType styleType,
-                                             const StyleVisitor& visitor) const {
+                                               const StyleVisitor& visitor) const {
     TRACE_EVENT0("skia", TRACE_FUNC);
     const char* start = nullptr;
     size_t size = 0;
