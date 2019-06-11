@@ -121,6 +121,10 @@ public:
     constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} {}
     static constexpr SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedGlyphID::kSubBits;
 
+    SkVector advanceVector() const { return SkVector{fAdvanceX, fAdvanceY}; }
+    SkScalar advanceX() const { return fAdvanceX; }
+    SkScalar advanceY() const { return fAdvanceY; }
+
     bool isEmpty() const { return fWidth == 0 || fHeight == 0; }
     bool isJustAdvance() const { return MASK_FORMAT_JUST_ADVANCE == fMaskFormat; }
     bool isFullMetrics() const { return MASK_FORMAT_JUST_ADVANCE != fMaskFormat; }
@@ -191,10 +195,6 @@ public:
     // may still be null after the request meaning that there is no path for this glyph.
     PathData* fPathData = nullptr;
 
-    // The advance for this glyph.
-    float     fAdvanceX = 0,
-              fAdvanceY = 0;
-
     // The width and height of the glyph mask.
     uint16_t  fWidth  = 0,
               fHeight = 0;
@@ -209,7 +209,18 @@ public:
     uint8_t   fMaskFormat = MASK_FORMAT_UNKNOWN;
 
 private:
+    // There are two sides to an SkGlyph, the scaler side (things that create glyph data) have
+    // access to all the fields. Scalers are assumed to maintain all the SkGlyph invariants. The
+    // consumer side has a tighter interface.
+    friend class SkScalerContext_FreeType;
     friend class SkScalerContext_DW;
+    friend class SkScalerContext_GDI;
+    friend class SkScalerContext_Mac;
+    friend class SkStrikeClient;
+    friend class SkTestScalerContext;
+    friend class SkTestSVGScalerContext;
+    friend class TestSVGTypeface;
+    friend class TestTypeface;
 
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,
@@ -227,6 +238,10 @@ private:
         SkPath     fPath;
         bool       fHasPath{false};
     };
+
+    // The advance for this glyph.
+    float     fAdvanceX = 0,
+              fAdvanceY = 0;
 
     // Used by the DirectWrite scaler to track state.
     int8_t    fForceBW = 0;

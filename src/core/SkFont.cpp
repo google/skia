@@ -249,11 +249,11 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
     if (bounds) {
         const SkGlyph* g = &cache->getGlyphIDMetrics(glyphs[0]);
         set_bounds(*g, bounds);
-        width = g->fAdvanceX;
+        width = g->advanceX();
         for (int i = 1; i < count; ++i) {
             g = &cache->getGlyphIDMetrics(glyphs[i]);
             join_bounds_x(*g, bounds, width);
-            width += g->fAdvanceX;
+            width += g->advanceX();
         }
     } else {
         SmallPointsArray advances{count};
@@ -309,7 +309,7 @@ void SkFont::getWidthsBounds(const SkGlyphID glyphs[], int count, SkScalar width
                 g = &cache->getGlyphIDMetrics(glyphs[i]);
                 bounds[i] = make_bounds(*g, scale);
                 if (widths) {
-                    widths[i] = g->fAdvanceX * scale;
+                    widths[i] = g->advanceX() * scale;
                 }
             }
         });
