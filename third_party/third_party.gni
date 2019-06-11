@@ -23,10 +23,17 @@ template("third_party") {
         }
       } else {
         foreach(dir, invoker.public_include_dirs) {
-          cflags += [
-            "-isystem",
-            rebase_path(dir),
-          ]
+          if (werror) {
+            cflags += [
+              "-isystem",
+              rebase_path(dir),
+            ]
+          } else {
+            cflags += [
+              "-I",
+              rebase_path(dir),
+            ]
+          }
         }
       }
     } else {
