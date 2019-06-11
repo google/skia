@@ -973,7 +973,7 @@ func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
 // should add as a dependency.
 func g3FrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
 	task := kitchenTask(name, "g3_compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
-	timeout(task, time.Hour)
+	timeout(task, 3*time.Hour)
 	b.MustAddTask(name, task)
 	return name
 }
