@@ -1352,7 +1352,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		if strings.Contains(name, "SAN") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
 		}
-		if strings.Contains(name, "Vulkan") {
+		if strings.Contains(name, "Vulkan") && !strings.Contains(name, "SwiftShader") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_sdk"))
 		}
 		if strings.Contains(name, "Intel") && strings.Contains(name, "GPU") {
