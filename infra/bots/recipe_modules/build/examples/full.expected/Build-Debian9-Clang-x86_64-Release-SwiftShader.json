@@ -50,6 +50,7 @@
       "ninja",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/Release/swiftshader_out",
+      "-v",
       "libEGL.so",
       "libGLESv2.so"
     ],

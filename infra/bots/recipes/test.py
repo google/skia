@@ -102,8 +102,11 @@ def dm_flags(api, bot):
     args.append('--ignoreSigInt')
 
   if 'SwiftShader' in api.vars.extra_tokens:
-    configs.extend(['gles', 'glesdft'])
     args.append('--disableDriverCorrectnessWorkarounds')
+    if 'Vulkan' in bot:
+      configs.extend(['vk', 'vkmsaa8'])
+    else:
+      configs.extend(['gles', 'glesdft'])
 
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
     args.append('--nogpu')
@@ -1066,6 +1069,7 @@ TEST_BUILDERS = [
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
    '-SK_FORCE_RASTER_PIPELINE_BLITTER'),
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
+  'Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_MSAN_Vulkan',
   'Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader',
   'Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan',
   'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
