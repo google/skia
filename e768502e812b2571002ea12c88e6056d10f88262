@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82e72a10_19e0171d",
+        "filename": "src/gpu/GrSwizzle.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-11T16:37:30Z",
+      "side": 1,
+      "message": "Ooh, now this is tricky.  I like it.  Maybe\n\n  // Rather than allocate the 4 control bytes on the heap\n  // somewhere, just jam them right into the context \"pointer\".\n\nI wonder if we should make this sort of thing dejure by adding append() methods that take a size_t instead of a void*?  Seems totally sane.",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 50
+      },
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf5e8784_f6a34395",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-11T16:37:30Z",
+      "side": 1,
+      "message": "Might feel better to memcpy / unaligned_load\u003cint\u003e(ptr) these out rather than cast ptr up to int32_t*?",
+      "range": {
+        "startLine": 424,
+        "startChar": 48,
+        "endLine": 424,
+        "endChar": 59
+      },
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e2239e0_961bfcc2",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-11T16:37:30Z",
+      "side": 1,
+      "message": "I think we can use _mm_packs_epi32() to make this easier?  The one tricky bit is that it converts i32 -\u003e i16, not u16, but that\u0027s pretty easy to work around by sign-extending the inputs as you isolate red and green anyway by using srai (Shift Right Arithmetic by Immediate):\n\n  *r \u003d _mm_packs_epi32(_mm_srai_epi32(_mm_slli_epi32(_0123, 16), 16),\n                       _mm_srai_epi32(_mm_slli_epi32(_4567, 16), 16));\n  *g \u003d _mm_packs_epi32(_mm_srai_epi32(_0123, 16),\n                       _mm_srai_epi32(_4567, 16));\n\nSSE4.1 and up do have _mm_packus_epi32() to translate i32 -\u003e u16, so you could technically cut one math instruction here by replacing the two shifts for red with an \u00260xffff, but I don\u0027t really see much downside to just using _mm_packs_epi32 across the board.",
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df60b812_343a15f5",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-11T16:37:30Z",
+      "side": 1,
+      "message": "Probably better as a single xmm load and a (free) xmm -\u003e ymm cast?\n\n  *d \u003d _mm256_castps128_ps256(_mm_loadu_ps(ptr));",
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c99400c_e5d537b3",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-11T16:37:30Z",
+      "side": 1,
+      "message": "May just be easier to use memcpy() for all of this than have to maintain each path through the preprocessor logic?",
+      "range": {
+        "startLine": 633,
+        "startChar": 0,
+        "endLine": 643,
+        "endChar": 10
+      },
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ba699fd_63c92ff2",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 774,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-11T16:37:30Z",
+      "side": 1,
+      "message": "Feels like a bug to reassign tmp?",
+      "range": {
+        "startLine": 773,
+        "startChar": 0,
+        "endLine": 774,
+        "endChar": 78
+      },
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39647bfa_2cb8f18d",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 786,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-11T16:37:30Z",
+      "side": 1,
+      "message": "As usually, this sort of up cast isn\u0027t generally legal, but you can always use memcpy().",
+      "range": {
+        "startLine": 786,
+        "startChar": 20,
+        "endLine": 786,
+        "endChar": 40
+      },
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
