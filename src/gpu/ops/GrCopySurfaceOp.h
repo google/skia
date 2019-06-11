@@ -27,6 +27,7 @@ public:
 
     void visitProxies(const VisitProxyFunc& func) const override {
         func(fSrc.get(), GrMipMapped::kNo);
+        func(fDst.get(), GrMipMapped::kNo);
     }
 
 #ifdef SK_DEBUG
@@ -56,6 +57,15 @@ private:
                 SkRect::MakeXYWH(SkIntToScalar(dstPoint.fX), SkIntToScalar(dstPoint.fY),
                                  SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
+
+        SkASSERT(dst->origin() == src->origin());
+        if (kBottomLeft_GrSurfaceOrigin == src->origin()) {
+            int rectHeight = fSrcRect.height();
+            fSrcRect.fTop = src->height() - fSrcRect.fBottom;
+            fSrcRect.fBottom = fSrcRect.fTop + rectHeight;
+            fDstPoint.fY = dst->height() - fDstPoint.fY - rectHeight;
+        }
+
     }
 
     void onPrepare(GrOpFlushState*) override {}
