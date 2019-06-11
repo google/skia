@@ -6,6 +6,8 @@
  */
 
 #include "include/core/SkString.h"
+#include "include/private/SkSpinlock.h"
+#include "include/private/SkThreadID.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
@@ -523,38 +525,105 @@ namespace skvm {
         };
     #endif
 
+
     void Program::eval(int n, void* args[], size_t strides[], int nargs) const {
     #if defined(SKVM_JIT)
         if (!fJIT) {
             fJIT.reset(new JIT{fInstructions, fRegs, fLoop, strides, nargs});
 
         #if 1
+            // We're doing some really stateful things below,
+            // so one thread at a time please...
+            static SkSpinlock dump_lock;
+            SkAutoSpinlock lock(dump_lock);
+
             uint32_t hash = SkOpts::hash(fJIT->getCode(), fJIT->getSize());
 
-            SkString name = SkStringPrintf("skvm-jit-%08x", hash),
-                      bin = SkStringPrintf("/tmp/%s.bin", name.c_str()),
-                      map = SkStringPrintf("/tmp/perf-%d.map", getpid());
+            SkString name = SkStringPrintf("skvm-jit-%08x", hash);
 
-
+            // Dump out each program as a binary that can be disassembled with
+            //
+            //   objdump -D -b binary -mi386:x86-64 --insn-width=10 skvm-jit-<hash>.bin
+            //
+            // We're naming by hash of the code, so provided there are no collisions,
+            // you should see one .bin file per Program JIT'd.
             {
+                SkString bin = SkStringPrintf("%s.bin", name.c_str());
                 SkFILEWStream code(bin.c_str());
                 code.write(fJIT->getCode(), fJIT->getSize());
             }
 
-            {
-                FILE* f = fopen(map.c_str(), "a");
+            // Create a jit-<pid>.dump file that we can `perf inject -j` into a
+            // perf.data captured with `perf record -k 1`, letting us see each
+            // JIT'd Program as if a function named skvm-jit-<hash>.   E.g.
+            //
+            //   ninja -C out nanobench
+            //   perf record -k 1 out/nanobench -m SkVM_4096_I32\$
+            //   perf inject -j -i perf.data -o perf.data.jit
+            //   perf report -i perf.data.jit
 
-                auto code = (size_t)fJIT->getCode();
-                fprintf(f, "%zx %zx %s-head\n"
-                           "%zx %zx %s-body\n"
-                           "%zx %zx %s-tail\n"
-                           "%zx %zx %s-exit\n",
-                           code                  , fJIT->head_ends                  , name.c_str(),
-                           code + fJIT->head_ends, fJIT->body_ends - fJIT->head_ends, name.c_str(),
-                           code + fJIT->body_ends, fJIT->tail_ends - fJIT->body_ends, name.c_str(),
-                           code + fJIT->tail_ends, fJIT->getSize() - fJIT->tail_ends, name.c_str());
-                fclose(f);
-            }
+            auto timestamp_ns = []() -> uint64_t {
+                // It's important to use CLOCK_MONOTONIC here so that perf can
+                // correlate our timestamps with those captured by `perf record
+                // -k 1`.  That's also what `-k 1` does, by the way, tell perf
+                // record to use CLOCK_MONOTONIC.
+                struct timespec ts;
+                clock_gettime(CLOCK_MONOTONIC, &ts);
+                return ts.tv_sec * (uint64_t)1e9 + ts.tv_nsec;
+            };
+
+            // We'll open the jit-<pid>.dump file and write a small header once,
+            // and just leave it open forever because we're lazy.
+            static FILE* jitdump = [&]{
+                // Must map as w+ for the mmap() call below to work.
+                FILE* f = fopen(SkStringPrintf("jit-%d.dump", getpid()).c_str(), "w+");
+
+                // Calling mmap() on the file adds a "hey they mmap()'d this" record to
+                // the perf.data file that will point `perf inject -j` at this log file.
+                // Kind of a strange way to tell `perf inject` where the file is...
+                void* marker = mmap(nullptr,
+                                    sysconf(_SC_PAGESIZE),
+                                    PROT_READ|PROT_EXEC,
+                                    MAP_PRIVATE,
+                                    fileno(f),
+                                    /*offset=*/0);
+                SkASSERT_RELEASE(marker != MAP_FAILED);
+                // Like never calling fclose(f), we'll also just always leave marker mmap()'d.
+
+                struct Header {
+                    uint32_t magic, version, header_size, elf_mach, reserved, pid;
+                    uint64_t timestamp_us, flags;
+                } header = {
+                    0x4A695444, 1, sizeof(Header), 62/*x86-64*/, 0, (uint32_t)getpid(),
+                    timestamp_ns() / 1000, 0,
+                };
+                fwrite(&header, sizeof(header), 1, f);
+
+                return f;
+            }();
+
+            // Each CodeLoad event needs a unique ID.  We use successive IDs from 0...
+            static uint64_t id = 0;
+
+            struct CodeLoad {
+                uint32_t event_type, event_size;
+                uint64_t timestamp_ns;
+
+                uint32_t pid, tid;
+                uint64_t vma/*???*/, code_addr, code_size, id;
+            } load = {
+                0/*code load*/, (uint32_t)(sizeof(CodeLoad) + name.size() + 1 + fJIT->getSize()),
+                timestamp_ns(),
+
+                (uint32_t)getpid(), (uint32_t)SkGetThreadID(),
+                (uint64_t)fJIT->getCode(), (uint64_t)fJIT->getCode(), fJIT->getSize(), id++,
+            };
+
+            // Write the header, the JIT'd function name, and the JIT'd code itself.
+            fwrite(&load, sizeof(load), 1, jitdump);
+            fwrite(name.c_str(), 1, name.size(), jitdump);
+            fwrite("\0", 1, 1, jitdump);
+            fwrite(fJIT->getCode(), 1, fJIT->getSize(), jitdump);
         #endif
         }
 
