@@ -1497,12 +1497,12 @@ bool Compiler::toPipelineStage(const Program& program, String* out,
     return result;
 }
 
-std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
+std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program, bool vectorize) {
     if (!this->optimize(program)) {
         return nullptr;
     }
     std::unique_ptr<ByteCode> result(new ByteCode());
-    ByteCodeGenerator cg(fContext.get(), &program, this, result.get());
+    ByteCodeGenerator cg(fContext.get(), &program, this, result.get(), vectorize);
     if (cg.generateCode()) {
         return result;
     }

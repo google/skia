@@ -421,17 +421,32 @@ public:
                 SkDebugf("%s\n", c.errorText().c_str());
                 SkASSERT(false);
             }
+#define SCALAR 0
+#if SCALAR
+            // Scalar Interpreter
             ctx->byteCode = c.toByteCode(*prog);
             ctx->main = ctx->byteCode->fFunctions[0].get();
             ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
                 auto ctx = (InterpreterCtx*)arg;
                 for (int i = 0; i < active_pixels; i++) {
                     SkSL::Interpreter::Run(ctx->byteCode.get(), ctx->main,
-                                           (SkSL::Interpreter::Value*) (ctx->rgba + i * 4),
-                                           nullptr, (SkSL::Interpreter::Value*)ctx->inputs,
-                                           ctx->ninputs);
+                                              (SkSL::Interpreter::Value*) (ctx->rgba + i * 4),
+                                              nullptr,
+                                              (SkSL::Interpreter::Value*)ctx->inputs, ctx->ninputs);
                 }
+        };
+#else
+            // Vector Interpreter
+            ctx->byteCode = c.toByteCode(*prog, true);
+            ctx->main = ctx->byteCode->fFunctions[0].get();
+            ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
+                auto ctx = (InterpreterCtx*)arg;
+                SkSL::Interpreter::VecRun(ctx->byteCode.get(), ctx->main,
+                                            (SkSL::Interpreter::Value*)ctx->rgba,
+                                            nullptr, active_pixels,
+                                            (SkSL::Interpreter::Value*)ctx->inputs, ctx->ninputs);
             };
+#endif
             rec.fPipeline->append(SkRasterPipeline::callback, ctx);
         }
         return true;
