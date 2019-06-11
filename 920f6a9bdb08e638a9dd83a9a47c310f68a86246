@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ad66177_835b1dfd",
+        "filename": "bin/list-skia-bots",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-11T14:56:42Z",
+      "side": 0,
+      "message": "Drive-by: This was the only non executable in the directory (other than try.bat, but that one is ok).",
+      "revId": "920f6a9bdb08e638a9dd83a9a47c310f68a86246",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
