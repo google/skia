@@ -16,6 +16,24 @@
       "revId": "2fd0efd9d8c3e6281966ba9fc08054c9e2de3c96",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0c43004_898dceb8",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-11T19:18:59Z",
+      "side": 1,
+      "message": "Soon, I\u0027m going to rip the constness off the code so we don\u0027t have the dumb const_casts. I don\u0027t want to do the setAdvance* because I hope to make almost all the fields const. The ultimate goal is SkGlyph(id, advanceX, advanceY, width, height, top, left, format). Those should fields all be const.\n\nMainly, I want to work on the client side, and save the scaler side for later. The client code doesn\u0027t seem to get all the invariants right at call sites. Now fAdvance* is not really a problem, but fPathData, and fImage are. Basically clients abuse the openness of SkGlyph while the Scalers seem to be more careful.",
+      "parentUuid": "ebdc5197_1da51731",
+      "revId": "2fd0efd9d8c3e6281966ba9fc08054c9e2de3c96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
