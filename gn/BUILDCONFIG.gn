@@ -34,6 +34,7 @@ declare_args() {
   clang_win = ""
 
   skia_moltenvk_path = ""
+  werror = false
 }
 declare_args() {
   is_debug = !is_official_build
