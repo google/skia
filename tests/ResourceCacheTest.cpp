@@ -160,14 +160,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
         // An RT with a different sample count should not share.
         sk_sp<GrRenderTarget> smallMSAART0 = create_RT_with_SB(resourceProvider, 4,
                                                                smallSampleCount, SkBudgeted::kNo);
-#ifdef SK_BUILD_FOR_ANDROID
-        if (!smallMSAART0) {
-            // The nexus player seems to fail to create MSAA textures.
-            return;
-        }
-#else
         REPORTER_ASSERT(reporter, smallMSAART0);
-#endif
 
         REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) != get_SB(smallMSAART0.get()));
 
