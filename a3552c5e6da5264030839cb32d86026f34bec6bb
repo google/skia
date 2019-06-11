@@ -16,6 +16,24 @@
       "revId": "a3552c5e6da5264030839cb32d86026f34bec6bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bf922f9_ec031054",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 716,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-11T18:04:06Z",
+      "side": 0,
+      "message": "The call to glyph.init(glyphID) will set it to zero.",
+      "parentUuid": "0216c428_5778e9d1",
+      "revId": "a3552c5e6da5264030839cb32d86026f34bec6bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
