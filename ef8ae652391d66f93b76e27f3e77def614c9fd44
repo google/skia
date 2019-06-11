@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e41902c_4f4ecb94",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-11T16:00:48Z",
+      "side": 1,
+      "message": "... is the reason for the change to test expectations here.",
+      "revId": "ef8ae652391d66f93b76e27f3e77def614c9fd44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

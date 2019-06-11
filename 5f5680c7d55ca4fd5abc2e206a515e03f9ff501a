@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60d9cd25_412324f7",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-11T16:00:48Z",
+      "side": 0,
+      "message": "Note: The difference in CPU numbering here...",
+      "revId": "5f5680c7d55ca4fd5abc2e206a515e03f9ff501a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
