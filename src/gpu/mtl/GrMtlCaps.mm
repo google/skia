@@ -417,8 +417,7 @@ void GrMtlCaps::initConfigTable() {
     if (this->isMac()) {
         info->fFlags = ConfigInfo::kAllFlags;
     } else {
-        info->fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kRenderable_Flag |
-                       ConfigInfo::kMSAA_Flag;
+        info->fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kRenderable_Flag;
     }
 
     // RG_1616 uses RG16Unorm
@@ -426,8 +425,7 @@ void GrMtlCaps::initConfigTable() {
     if (this->isMac()) {
         info->fFlags = ConfigInfo::kAllFlags;
     } else {
-        info->fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kRenderable_Flag |
-                       ConfigInfo::kMSAA_Flag;
+        info->fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kRenderable_Flag;
     }
 }
 
