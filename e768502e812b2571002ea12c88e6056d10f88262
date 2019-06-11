@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0fde4ac9_ce04eba7",
+        "filename": "src/gpu/GrSwizzle.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-11T19:59:47Z",
+      "side": 1,
+      "message": "Done, went with uintptr_t rather than size_t.",
+      "parentUuid": "82e72a10_19e0171d",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 50
+      },
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf5e8784_f6a34395",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 10
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "78ac8df6_3d5fb12f",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-11T19:59:47Z",
+      "side": 1,
+      "message": "Done (vector array access)",
+      "parentUuid": "cf5e8784_f6a34395",
+      "range": {
+        "startLine": 424,
+        "startChar": 48,
+        "endLine": 424,
+        "endChar": 59
+      },
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4e2239e0_961bfcc2",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 10
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "e6e1b2e3_4353d91f",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-11T19:59:47Z",
+      "side": 1,
+      "message": "Ah that\u0027s much nicer. This one felt really cobbled together.",
+      "parentUuid": "4e2239e0_961bfcc2",
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df60b812_343a15f5",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 10
@@ -79,6 +145,24 @@
       "revId": "e768502e812b2571002ea12c88e6056d10f88262",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdbc4efc_8a33aa94",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-11T19:59:47Z",
+      "side": 1,
+      "message": "Didn\u0027t know about _mm256_castps128_ps256. That\u0027s nicer.",
+      "parentUuid": "df60b812_343a15f5",
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "8ba8efae_6ee81dd7",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-11T19:59:47Z",
+      "side": 1,
+      "message": "Done (vector array access)",
+      "parentUuid": "8c99400c_e5d537b3",
+      "range": {
+        "startLine": 633,
+        "startChar": 0,
+        "endLine": 643,
+        "endChar": 10
+      },
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ba699fd_63c92ff2",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 10
@@ -128,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "2b82aebf_38d5e392",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 774,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-11T19:59:47Z",
+      "side": 1,
+      "message": "oops! supposed to be tmp on the inside too. Updated with clearer names for intermediate values. Also fixed test that should have caught this.",
+      "parentUuid": "9ba699fd_63c92ff2",
+      "range": {
+        "startLine": 773,
+        "startChar": 0,
+        "endLine": 774,
+        "endChar": 78
+      },
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "39647bfa_2cb8f18d",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 10
@@ -148,6 +280,30 @@
       "revId": "e768502e812b2571002ea12c88e6056d10f88262",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed79df11_b08e174a",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 786,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-11T19:59:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39647bfa_2cb8f18d",
+      "range": {
+        "startLine": 786,
+        "startChar": 20,
+        "endLine": 786,
+        "endChar": 40
+      },
+      "revId": "e768502e812b2571002ea12c88e6056d10f88262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
