@@ -376,6 +376,14 @@ void GrMtlCaps::initConfigTable() {
     info = &fConfigTable[kSBGRA_8888_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
 
+    // kRGBA_1010102 uses RGB10A2Unorm
+    info = &fConfigTable[kRGBA_1010102_GrPixelConfig];
+    if (this->isMac() || fFamilyGroup >= 3) {
+        info->fFlags = ConfigInfo::kAllFlags;
+    } else {
+        info->fFlags = ConfigInfo::kTextureable_Flag;
+    }
+
     // RGBA_float uses RGBA32Float
     info = &fConfigTable[kRGBA_float_GrPixelConfig];
     if (this->isMac()) {
@@ -404,11 +412,23 @@ void GrMtlCaps::initConfigTable() {
     info->fFlags = ConfigInfo::kAllFlags;
 
     // Experimental (for P016 and P010)
+    // R_16 uses R16Unorm
     info = &fConfigTable[kR_16_GrPixelConfig];
-    info->fFlags = 0;
+    if (this->isMac()) {
+        info->fFlags = ConfigInfo::kAllFlags;
+    } else {
+        info->fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kRenderable_Flag |
+                       ConfigInfo::kMSAA_Flag;
+    }
 
+    // RG_1616 uses RG16Unorm
     info = &fConfigTable[kRG_1616_GrPixelConfig];
-    info->fFlags = 0;
+    if (this->isMac()) {
+        info->fFlags = ConfigInfo::kAllFlags;
+    } else {
+        info->fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kRenderable_Flag |
+                       ConfigInfo::kMSAA_Flag;
+    }
 }
 
 void GrMtlCaps::initStencilFormat(id<MTLDevice> physDev) {
@@ -540,6 +560,9 @@ static GrPixelConfig get_yuva_config(GrMTLPixelFormat grFormat) {
             break;
         case MTLPixelFormatBGRA8Unorm:
             return kBGRA_8888_GrPixelConfig;
+            break;
+        case MTLPixelFormatRGB10A2Unorm:
+            return kRGBA_1010102_GrPixelConfig;
             break;
         // Experimental (for P016 and P010)
         case MTLPixelFormatR16Unorm:
