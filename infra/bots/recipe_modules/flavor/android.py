@@ -53,7 +53,6 @@ class AndroidFlavor(default.DefaultFlavor):
     # frequency.  See also disable_for_nanobench.
     self.cpus_to_scale = {
       'Nexus5x': [4],
-      'NexusPlayer': [0, 2], # has 2 identical chips, so scale them both.
       'Pixel': [2],
       'Pixel2XL': [4]
     }

@@ -83,8 +83,6 @@ def dm_flags(api, bot):
   # These bots run out of memory easily.
   if 'Chromecast' in bot or 'MotoG4' in bot or 'Nexus7' in bot:
     thread_limit = MAIN_THREAD_ONLY
-  if 'NexusPlayer' in bot:
-    thread_limit = 2
 
   # Avoid issues with dynamically exceeding resource cache limits.
   if 'Test' in bot and 'DISCARDABLE' in bot:
@@ -97,8 +95,7 @@ def dm_flags(api, bot):
   # SIGINT, in an effort to free up resources. If requested, that signal
   # is ignored and dm will keep attempting to proceed until we actually
   # exhaust the available resources.
-  if ('NexusPlayer' in bot or
-      'Chromecast' in bot):
+  if 'Chromecast' in bot:
     args.append('--ignoreSigInt')
 
   if 'SwiftShader' in api.vars.extra_tokens:
@@ -143,10 +140,8 @@ def dm_flags(api, bot):
       if sample_count:
         configs.append(gl_prefix + 'msaa' + sample_count)
 
-    # The NP produces a long error stream when we run with MSAA. The Tegra3 just
-    # doesn't support it.
-    if ('NexusPlayer' in bot or
-        'Tegra3'      in bot or
+    # The Tegra3 doesn't support MSAA
+    if ('Tegra3'      in bot or
         # We aren't interested in fixing msaa bugs on current iOS devices.
         'iPad4' in bot or
         'iPadPro' in bot or
@@ -156,10 +151,6 @@ def dm_flags(api, bot):
         'IntelHD530'   in bot or
         'IntelIris540' in bot):
       configs = [x for x in configs if 'msaa' not in x]
-
-    # The NP produces different images for dft on every run.
-    if 'NexusPlayer' in bot:
-      configs = [x for x in configs if 'dft' not in x]
 
     # We want to test both the OpenGL config and the GLES config on Linux Intel:
     # GL is used by Chrome, GLES is used by ChromeOS.
@@ -225,7 +216,6 @@ def dm_flags(api, bot):
     # skbug.com/9033 - these devices run out of memory on this test
     # when opList splitting reduction is enabled
     if 'GPU' in bot and ('Nexus7' in bot or
-                         'NexusPlayer' in bot or
                          'NVIDIA_Shield' in bot or
                          'Nexus5x' in bot or
                          ('Win10' in bot and 'GTX660' in bot and 'Vulkan' in bot) or
@@ -835,7 +825,7 @@ def dm_flags(api, bot):
 
   # These bots run out of memory running RAW codec tests. Do not run them in
   # parallel
-  if 'NexusPlayer' in bot or 'Nexus5' in bot or 'Nexus9' in bot:
+  if 'Nexus5' in bot or 'Nexus9' in bot:
     args.append('--noRAW_threading')
 
   if 'FSAA' in bot:
@@ -1047,7 +1037,6 @@ TEST_BUILDERS = [
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android',
   'Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
-  'Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android',
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan',
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm-Debug-All-Android_ASAN',
   'Test-Android-Clang-Pixel3-GPU-Adreno630-arm64-Debug-All-Android_Vulkan',
@@ -1215,8 +1204,7 @@ def GenTests(api):
     api.step_data('get uninteresting hashes', retcode=1)
   )
 
-  builder = ('Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-'
-             'Debug-All-Android')
+  builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android'
   yield (
     api.test('failed_push') +
     api.properties(buildername=builder,
@@ -1242,7 +1230,6 @@ def GenTests(api):
                   '/sdcard/revenge_of_the_skiabot/resources', retcode=1)
   )
 
-  builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android'
   retry_step_name = 'adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out'
   yield (
     api.test('failed_pull') +

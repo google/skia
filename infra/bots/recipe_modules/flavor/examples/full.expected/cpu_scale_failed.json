@@ -611,7 +611,7 @@
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
       "/usr/bin/adb.1.0.35",
-      "0",
+      "4",
       "userspace"
     ],
     "env": {
@@ -619,7 +619,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Set CPU 0's governor to userspace",
+    "name": "Set CPU 4's governor to userspace",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -654,14 +654,14 @@
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ntarget_percent = float(sys.argv[2])\ncpu = int(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nroot = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu\n\n# All devices we test on give a list of their available frequencies.\navailable_freqs = subprocess.check_output([ADB, 'shell',\n    'cat %s/scaling_available_frequencies' % root])\n\n# Check for message like '/system/bin/sh: file not found'\nif available_freqs and '/system/bin/sh' not in available_freqs:\n  available_freqs = sorted(\n      int(i) for i in available_freqs.strip().split())\nelse:\n  raise Exception('Could not get list of available frequencies: %s' %\n                  available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\n# If scaling_max_freq is lower than our attempted setting, it won't take.\n# We must set min first, because if we try to set max to be less than min\n# (which sometimes happens after certain devices reboot) it returns a\n# perplexing permissions error.\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '%s/scaling_min_freq' % root])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_max_freq' % (freq, root)])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_setspeed' % (freq, root)])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '%s/scaling_cur_freq' % root]).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
       "/usr/bin/adb.1.0.35",
       "0.6",
-      "0"
+      "4"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Scale CPU 0 to 0.600000",
+    "name": "Scale CPU 4 to 0.600000",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -729,14 +729,14 @@
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ntarget_percent = float(sys.argv[2])\ncpu = int(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nroot = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu\n\n# All devices we test on give a list of their available frequencies.\navailable_freqs = subprocess.check_output([ADB, 'shell',\n    'cat %s/scaling_available_frequencies' % root])\n\n# Check for message like '/system/bin/sh: file not found'\nif available_freqs and '/system/bin/sh' not in available_freqs:\n  available_freqs = sorted(\n      int(i) for i in available_freqs.strip().split())\nelse:\n  raise Exception('Could not get list of available frequencies: %s' %\n                  available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\n# If scaling_max_freq is lower than our attempted setting, it won't take.\n# We must set min first, because if we try to set max to be less than min\n# (which sometimes happens after certain devices reboot) it returns a\n# perplexing permissions error.\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '%s/scaling_min_freq' % root])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_max_freq' % (freq, root)])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_setspeed' % (freq, root)])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '%s/scaling_cur_freq' % root]).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
       "/usr/bin/adb.1.0.35",
       "0.6",
-      "0"
+      "4"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Scale CPU 0 to 0.600000 (attempt 2)",
+    "name": "Scale CPU 4 to 0.600000 (attempt 2)",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -804,14 +804,14 @@
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ntarget_percent = float(sys.argv[2])\ncpu = int(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nroot = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu\n\n# All devices we test on give a list of their available frequencies.\navailable_freqs = subprocess.check_output([ADB, 'shell',\n    'cat %s/scaling_available_frequencies' % root])\n\n# Check for message like '/system/bin/sh: file not found'\nif available_freqs and '/system/bin/sh' not in available_freqs:\n  available_freqs = sorted(\n      int(i) for i in available_freqs.strip().split())\nelse:\n  raise Exception('Could not get list of available frequencies: %s' %\n                  available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\n# If scaling_max_freq is lower than our attempted setting, it won't take.\n# We must set min first, because if we try to set max to be less than min\n# (which sometimes happens after certain devices reboot) it returns a\n# perplexing permissions error.\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '%s/scaling_min_freq' % root])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_max_freq' % (freq, root)])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_setspeed' % (freq, root)])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '%s/scaling_cur_freq' % root]).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
       "/usr/bin/adb.1.0.35",
       "0.6",
-      "0"
+      "4"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Scale CPU 0 to 0.600000 (attempt 3)",
+    "name": "Scale CPU 4 to 0.600000 (attempt 3)",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -935,7 +935,7 @@
   },
   {
     "failure": {
-      "humanReason": "Infra Failure: Step('Scale CPU 0 to 0.600000 (attempt 3)') (retcode: 1)"
+      "humanReason": "Infra Failure: Step('Scale CPU 4 to 0.600000 (attempt 3)') (retcode: 1)"
     },
     "name": "$result"
   }

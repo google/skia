@@ -413,12 +413,6 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         this->applyDriverCorrectnessWorkarounds(properties);
     }
 
-    // On nexus player we disable suballocating VkImage memory since we've seen large slow downs on
-    // bot run times.
-    if (kImagination_VkVendor == properties.vendorID) {
-        fShouldAlwaysUseDedicatedImageMemory = true;
-    }
-
     this->applyOptionsOverrides(contextOptions);
     fShaderCaps->applyOptionsOverrides(contextOptions);
 }
