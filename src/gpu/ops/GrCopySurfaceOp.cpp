@@ -31,28 +31,9 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrRecordingContext* context,
         return nullptr;
     }
 
-    SkASSERT(dstProxy->origin() == srcProxy->origin());
-    SkIRect adjSrcRect;
-    adjSrcRect.fLeft = clippedSrcRect.fLeft;
-    adjSrcRect.fRight = clippedSrcRect.fRight;
-    SkIPoint adjDstPoint;
-    adjDstPoint.fX = clippedDstPoint.fX;
-
-    // If it is bottom left origin we must flip the rects.
-    SkASSERT(dstProxy->origin() == srcProxy->origin());
-    if (kBottomLeft_GrSurfaceOrigin == srcProxy->origin()) {
-        adjSrcRect.fTop = srcProxy->height() - clippedSrcRect.fBottom;
-        adjSrcRect.fBottom = srcProxy->height() - clippedSrcRect.fTop;
-        adjDstPoint.fY = dstProxy->height() - clippedDstPoint.fY - clippedSrcRect.height();
-    } else {
-        adjSrcRect.fTop = clippedSrcRect.fTop;
-        adjSrcRect.fBottom = clippedSrcRect.fBottom;
-        adjDstPoint.fY = clippedDstPoint.fY;
-    }
-
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
-    return pool->allocate<GrCopySurfaceOp>(srcProxy, dstProxy, adjSrcRect, adjDstPoint);
+    return pool->allocate<GrCopySurfaceOp>(srcProxy, dstProxy, clippedSrcRect, clippedDstPoint);
 }
 
 void GrCopySurfaceOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
