@@ -212,10 +212,12 @@ public:
         fLeading = l;
     }
 
-    LineMetrics(const SkFontMetrics& fm) {
-        fAscent = fm.fAscent;
-        fDescent = fm.fDescent;
-        fLeading = fm.fLeading;
+    LineMetrics(const SkFont& font) {
+        SkFontMetrics metrics;
+        font.getMetrics(&metrics);
+        fAscent = metrics.fAscent;
+        fDescent = metrics.fDescent;
+        fLeading = metrics.fLeading;
     }
 
     void add(Run* run) {

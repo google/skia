@@ -1292,21 +1292,7 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
-        const char* text =
-                "😀😃😄😁😆😅😂🤣☺😇🙂😍😡😟😢😻👽💩👍👎🙏👌👋👄👁👦👼👨‍🚀👨‍🚒🙋‍♂️👳👨‍👨‍👧"
-                "‍"
-                "👧"
-                "💼👡👠☂🐶🐰🐻🐼🐷🐒🐵🐔🐧🐦🐋🐟🐡🕸🐌🐴🐊🐄🐪🐘🌸🌏🔥🌟🌚🌝"
-                "💦"
-                "💧"
-                "❄🍕🍔🍟🥝🍱🕶🎩🏈⚽🚴‍♀️🎻🎼🎹🚨🚎🚐⚓🛳🚀🚁🏪🏢🖱⏰📱💾💉📉🛏"
-                "🔑"
-                "🔓"
-                "📁🗓📊❤💯🚫🔻♠♣🕓❗🏳🏁🏳️‍🌈🇮🇹🇱🇷🇺🇸🇬🇧🇨🇳"
-                "🇧"
-                "🇴";
-        text =  "🍀\0‬";
-        text = "qwerty   ";
+        const char* text = "\n";
 
         ParagraphStyle paragraph_style;
         paragraph_style.turnHintingOff();
@@ -1323,7 +1309,7 @@ protected:
 
         auto paragraph = builder.Build();
         paragraph->layout(1000);
-        auto result = paragraph->getRectsForRange(6, 10, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        auto result = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
         SkPaint paint;
         paint.setColor(SK_ColorLTGRAY);
         canvas->drawRect(result[0].rect, paint);
