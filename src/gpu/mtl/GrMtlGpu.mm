@@ -643,8 +643,10 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, MTLPixelFor
     if (!srcRowBytes) {
         srcRowBytes = w * bpp;
 #ifdef SK_BUILD_FOR_MAC
-        // On MacOS, the fillBuffer command needs a range with a multiple of 4 bytes
-        srcRowBytes = ((srcRowBytes + 3) & (~3));
+        if (!srcData) {
+            // On MacOS, the fillBuffer command needs a range with a multiple of 4 bytes
+            srcRowBytes = ((srcRowBytes + 3) & (~3));
+        }
 #endif
     }
     size_t bufferSize = srcRowBytes * h;
