@@ -22,6 +22,30 @@
       "revId": "1341391e6f4ee41bf5a15a92d971b8f96232fa72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2263b705_9d4b575c",
+        "filename": "bin/try-clients",
+        "patchSetId": 5
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-11T16:10:14Z",
+      "side": 1,
+      "message": "It did work because you have it including chromium trybots from update_meta_config.",
+      "parentUuid": "2692d120_0f7aace4",
+      "range": {
+        "startLine": 10,
+        "startChar": 27,
+        "endLine": 10,
+        "endChar": 51
+      },
+      "revId": "1341391e6f4ee41bf5a15a92d971b8f96232fa72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
