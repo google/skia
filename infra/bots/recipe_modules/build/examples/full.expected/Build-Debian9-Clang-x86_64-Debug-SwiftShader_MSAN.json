@@ -34,8 +34,10 @@
       "-DBUILD_TESTS=OFF",
       "-DWARNINGS_AS_ERRORS=0",
       "-DMSAN=ON",
-      "-DCMAKE_C_FLAGS=-fsanitize=memory -stdlib=libc++ -L[START_DIR]/clang_linux/msan/lib -lc++abi -I[START_DIR]/clang_linux/msan/include -I[START_DIR]/clang_linux/msan/include/c++/v1",
-      "-DCMAKE_CXX_FLAGS=-fsanitize=memory -stdlib=libc++ -L[START_DIR]/clang_linux/msan/lib -lc++abi -I[START_DIR]/clang_linux/msan/include -I[START_DIR]/clang_linux/msan/include/c++/v1",
+      "-DCMAKE_C_FLAGS=-fsanitize=memory -stdlib=libc++ -I[START_DIR]/clang_linux/msan/include -I[START_DIR]/clang_linux/msan/include/c++/v1",
+      "-DCMAKE_CXX_FLAGS=-fsanitize=memory -stdlib=libc++ -I[START_DIR]/clang_linux/msan/include -I[START_DIR]/clang_linux/msan/include/c++/v1",
+      "-DCMAKE_SHARED_LINKER_FLAGS=-L[START_DIR]/clang_linux/msan/lib -lc++abi",
+      "-v",
       "[START_DIR]/cache/work/skia/third_party/externals/swiftshader",
       "-GNinja"
     ],
@@ -53,6 +55,7 @@
       "ninja",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Debug-SwiftShader_MSAN/Debug/swiftshader_out",
+      "-v",
       "libEGL.so",
       "libGLESv2.so"
     ],

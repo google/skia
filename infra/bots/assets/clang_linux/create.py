@@ -66,6 +66,8 @@ def create_asset(target_dir):
                          "-DCMAKE_BUILD_TYPE=MinSizeRel",
                          "-DCMAKE_C_COMPILER="   + target_dir + "/bin/clang",
                          "-DCMAKE_CXX_COMPILER=" + target_dir + "/bin/clang++",
+                         "-DCMAKE_C_FLAGS=-fPIC",
+                         "-DCMAKE_CXX_FLAGS=-fPIC",
                          "-DLLVM_USE_SANITIZER=MemoryWithOrigins"])
   subprocess.check_call(["ninja", "cxx"])
   subprocess.check_call(["cp", "-r", "lib",  target_dir + "/msan"])
