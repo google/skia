@@ -102,15 +102,10 @@ TextAnimator::AnimatedProps TextAnimator::modulateProps(const AnimatedProps& pro
     auto modulated_props = props;
 
     // Transform props compose.
-    if (fHasPosition) {
-        modulated_props.position += fTextProps.position * amount;
-    }
-    if (fHasScale) {
-        modulated_props.scale *= 1 + (fTextProps.scale - 1) * amount;
-    }
-    if (fHasRotation) {
-        modulated_props.rotation += fTextProps.rotation * amount;
-    }
+    modulated_props.position += fTextProps.position * amount;
+    modulated_props.rotation += fTextProps.rotation * amount;
+    modulated_props.tracking += fTextProps.tracking * amount;
+    modulated_props.scale    *= 1 + (fTextProps.scale - 1) * amount;
 
     const auto lerp_color = [](SkColor c0, SkColor c1, float t) {
         const auto c0_4f = SkNx_cast<float>(Sk4b::Load(&c0)),
@@ -134,9 +129,7 @@ TextAnimator::AnimatedProps TextAnimator::modulateProps(const AnimatedProps& pro
                                                   fTextProps.stroke_color,
                                                   clamped_amount);
     }
-    if (fHasOpacity) {
-        modulated_props.opacity = 1 + (fTextProps.opacity - 1) * clamped_amount;
-    }
+    modulated_props.opacity *= 1 + (fTextProps.opacity - 1) * clamped_amount;
 
     return modulated_props;
 }
@@ -152,16 +145,16 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
     // owning us. But for peace of mind (and future-proofing) let's grab a ref.
     auto animator = sk_ref_sp(this);
 
-    fHasPosition    = abuilder->bindProperty<VectorValue>(jprops["p"], ascope,
+    abuilder->bindProperty<VectorValue>(jprops["p"], ascope,
         [animator](const VectorValue& p) {
             animator->fTextProps.position = ValueTraits<VectorValue>::As<SkPoint>(p);
         });
-    fHasScale       = abuilder->bindProperty<ScalarValue>(jprops["s"], ascope,
+    abuilder->bindProperty<ScalarValue>(jprops["s"], ascope,
         [animator](const ScalarValue& s) {
             // Scale is 100-based.
             animator->fTextProps.scale = s * 0.01f;
         });
-    fHasRotation    = abuilder->bindProperty<ScalarValue>(jprops["r"], ascope,
+    abuilder->bindProperty<ScalarValue>(jprops["r"], ascope,
         [animator](const ScalarValue& r) {
             animator->fTextProps.rotation = r;
         });
@@ -173,10 +166,14 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
         [animator](const VectorValue& sc) {
             animator->fTextProps.stroke_color = ValueTraits<VectorValue>::As<SkColor>(sc);
     });
-    fHasOpacity     = abuilder->bindProperty<ScalarValue>(jprops["o"], ascope,
+    abuilder->bindProperty<ScalarValue>(jprops["o"], ascope,
         [animator](const ScalarValue& o) {
             // Opacity is 100-based.
             animator->fTextProps.opacity = SkTPin<float>(o * 0.01f, 0, 1);
+        });
+    abuilder->bindProperty<ScalarValue>(jprops["t"], ascope,
+        [animator](const ScalarValue& t) {
+            animator->fTextProps.tracking = t;
         });
 }
 
