@@ -51,6 +51,16 @@ static bool is_valid_non_lazy(const GrSurfaceDesc& desc) {
 }
 #endif
 
+#if GR_TEST_UTILS
+int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
+    if (fTarget) {
+        return fTarget->fRefCnt;
+    }
+
+    return -1; // no backing GrSurface
+}
+#endif
+
 // Lazy-callback version
 GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
                                const GrBackendFormat& format, const GrSurfaceDesc& desc,
@@ -179,7 +189,8 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
         return nullptr;
     }
 
-    if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, surface.get(), needsStencil)) {
+    if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, surface.get(),
+                                                   needsStencil)) {
         return nullptr;
     }
 
@@ -206,9 +217,7 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 
     SkDEBUGCODE(this->validateSurface(surface.get());)
 
-    fTarget = surface.release();
-
-    this->INHERITED::transferRefs();
+    fTarget = std::move(surface);
 
 #ifdef SK_DEBUG
     if (this->asRenderTargetProxy()) {
@@ -232,7 +241,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
         if (uniqueKey && uniqueKey->isValid()) {
             SkASSERT(fTarget->getUniqueKey().isValid() && fTarget->getUniqueKey() == *uniqueKey);
         }
-        return GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, fTarget, needsStencil);
+        return GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, fTarget.get(), needsStencil);
     }
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, needsStencil,
@@ -254,8 +263,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
 
 void GrSurfaceProxy::deinstantiate() {
     SkASSERT(this->isInstantiated());
-
-    this->release();
+    fTarget = nullptr;
 }
 
 void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
@@ -327,8 +335,6 @@ void GrSurfaceProxy::validate(GrContext_Base* context) const {
     if (fTarget) {
         SkASSERT(fTarget->getContext() == context);
     }
-
-    INHERITED::validate();
 }
 #endif
 
