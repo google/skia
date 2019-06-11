@@ -410,22 +410,21 @@ public:
     void drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>, const SkRect& bounds);
 
     using ReadPixelsCallback = SkSurface::ReadPixelsCallback;
+    using ReadPixelsCallbackYUV420 = SkSurface::ReadPixelsCallbackYUV420;
     using ReadPixelsContext = SkSurface::ReadPixelsContext;
-    /**
-     * Performs an asynchronous read (if possible) into a transfer buffer and then calls callback
-     * with context. If asynchronous reads are not supported then this is done as a synchronous
-     * read via readPixels(). The callback is called with the data pointer equal to nullptr on
-     * failure.
-     */
-    void asyncReadPixels(const SkImageInfo& info, int x, int y, ReadPixelsCallback callback,
-                         ReadPixelsContext context);
-    /**
-     * Like asyncReadPixels but first rescales the contents before read back.
-     */
+    using RescaleGamma = SkSurface::RescaleGamma;
+
+    // GPU implementation for SkSurface::asyncRescaleAndReadPixels.
     void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
-                                   SkSurface::RescaleGamma rescaleGamma,
-                                   SkFilterQuality rescaleQuality, ReadPixelsCallback callback,
-                                   ReadPixelsContext context);
+                                   RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
+                                   ReadPixelsCallback callback, ReadPixelsContext context);
+    // GPU implementation for SkSurface::asyncRescaleAndReadPixelsYUV420.
+    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace, const SkIRect& srcRect,
+                                         int dstW, int dstH, RescaleGamma rescaleGamma,
+                                         SkFilterQuality rescaleQuality,
+                                         ReadPixelsCallbackYUV420 callback,
+                                         ReadPixelsContext context);
 
     /**
      * After this returns any pending surface IO will be issued to the backend 3D API and
@@ -560,10 +559,28 @@ private:
                                              const GrOp& op,
                                              GrXferProcessor::DstProxy* result);
 
-    // The rescaling step of asyncRescaleAndReadPixels().
+    // The rescaling step of asyncRescaleAndReadPixels[YUV420]().
     sk_sp<GrRenderTargetContext> rescale(const SkImageInfo& info, const SkIRect& srcRect,
                                          SkSurface::RescaleGamma rescaleGamma,
                                          SkFilterQuality rescaleQuality);
+    // The async read step of asyncRescaleAndReadPixels()
+    void asyncReadPixels(const SkIRect& rect, SkColorType colorType, ReadPixelsCallback callback,
+                         ReadPixelsContext context);
+
+    // Inserts a transfer, part of the implementation of asyncReadPixels and
+    // asyncRescaleAndReadPixelsYUV420().
+    struct PixelTransferResult {
+        using ConversionSignature = void(void* dst, const void* mappedBuffer);
+        // If null then the transfer could not be performed. Otherwise this buffer will contain
+        // the pixel data when the transfer is complete.
+        sk_sp<GrGpuBuffer> fTransferBuffer;
+        // If this is null then the transfer buffer will contain the data in the requested
+        // color type. Otherwise, when the transfer is done this must be called to convert
+        // from the transfer buffer's color type to the requested color type.
+        std::function<ConversionSignature> fPixelConverter;
+    };
+    // Inserts a transfer of rect to a buffer that this call will create.
+    PixelTransferResult transferPixels(GrColorType colorType, const SkIRect& rect);
 
     GrRenderTargetOpList* getRTOpList();
     GrOpList* getOpList() override;
