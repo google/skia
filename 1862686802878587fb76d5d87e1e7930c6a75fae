@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "674bb758_056fcea9",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 2619,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-11T14:52:35Z",
+      "side": 1,
+      "message": "Seems simpler to have these stages exist unconditionally?  Who knows, someone might want to use it outside Ganesh?",
+      "range": {
+        "startLine": 2617,
+        "startChar": 0,
+        "endLine": 2619,
+        "endChar": 27
+      },
+      "revId": "1862686802878587fb76d5d87e1e7930c6a75fae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6175e677_d1aeb37c",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 2623,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-11T14:52:35Z",
+      "side": 1,
+      "message": "or sizeof(swiz) perhaps?",
+      "range": {
+        "startLine": 2623,
+        "startChar": 23,
+        "endLine": 2623,
+        "endChar": 39
+      },
+      "revId": "1862686802878587fb76d5d87e1e7930c6a75fae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
