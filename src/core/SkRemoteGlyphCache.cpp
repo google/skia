@@ -462,8 +462,8 @@ void SkStrikeServer::SkGlyphCacheState::addGlyph(SkPackedGlyphID glyph, bool asP
 // be called on the GPU side.
 static void writeGlyph(SkGlyph* glyph, Serializer* serializer) {
     serializer->write<SkPackedGlyphID>(glyph->getPackedID());
-    serializer->write<float>(glyph->fAdvanceX);
-    serializer->write<float>(glyph->fAdvanceY);
+    serializer->write<float>(glyph->advanceX());
+    serializer->write<float>(glyph->advanceY());
     serializer->write<uint16_t>(glyph->fWidth);
     serializer->write<uint16_t>(glyph->fHeight);
     serializer->write<int16_t>(glyph->fTop);
@@ -706,7 +706,7 @@ SkStrikeClient::~SkStrikeClient() = default;
 
 // No need to read fForceBW because it is a flag private to SkScalerContext_DW, which will never
 // be called on the GPU side.
-static bool readGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer) {
+bool SkStrikeClient::ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer) {
     SkPackedGlyphID glyphID;
     if (!deserializer->read<SkPackedGlyphID>(&glyphID)) return false;
     glyph.init(glyphID);
@@ -788,7 +788,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         if (!deserializer.read<uint64_t>(&glyphImagesCount)) READ_FAILURE
         for (size_t j = 0; j < glyphImagesCount; j++) {
             SkTLazy<SkGlyph> glyph;
-            if (!readGlyph(glyph, &deserializer)) READ_FAILURE
+            if (!SkStrikeClient::ReadGlyph(glyph, &deserializer)) READ_FAILURE
 
             SkGlyph* allocatedGlyph = strike->getRawGlyphByID(glyph->getPackedID());
 
@@ -817,7 +817,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         if (!deserializer.read<uint64_t>(&glyphPathsCount)) READ_FAILURE
         for (size_t j = 0; j < glyphPathsCount; j++) {
             SkTLazy<SkGlyph> glyph;
-            if (!readGlyph(glyph, &deserializer)) READ_FAILURE
+            if (!SkStrikeClient::ReadGlyph(glyph, &deserializer)) READ_FAILURE
 
             SkGlyph* allocatedGlyph = strike->getRawGlyphByID(glyph->getPackedID());
 
