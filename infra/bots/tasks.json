@@ -3505,11 +3505,11 @@
           "cache/vpython"
         ]
       },
-      "execution_timeout_ns": 3600000000000,
+      "execution_timeout_ns": 10800000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
-      "io_timeout_ns": 3600000000000,
+      "io_timeout_ns": 10800000000000,
       "isolate": "swarm_recipe.isolate",
       "max_attempts": 2,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
