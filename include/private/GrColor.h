@@ -13,6 +13,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkColorPriv.h"
+#include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkHalf.h"
 
