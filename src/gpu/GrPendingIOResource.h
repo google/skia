@@ -10,7 +10,40 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrGpuResource.h"
+#include "include/private/GrSurfaceProxy.h"
 #include "include/private/SkNoncopyable.h"
+
+class GrProxyPendingIO : SkNoncopyable {
+public:
+    GrProxyPendingIO() = default;
+    GrProxyPendingIO(GrSurfaceProxy* resource) { this->reset(resource); }
+    ~GrProxyPendingIO() { this->reset(nullptr); }
+
+    void reset(GrSurfaceProxy* resource = nullptr) {
+        if (resource == fResource) {
+            return;
+        }
+
+        if (fResource) {
+            fResource->unref();
+        }
+
+        fResource = resource;
+        if (fResource) {
+            fResource->ref();
+        }
+    }
+
+    explicit operator bool() const { return SkToBool(fResource); }
+
+    GrSurfaceProxy* get() const { return fResource; }
+    GrSurfaceProxy* operator->() const { return fResource; }
+
+private:
+    bool operator==(const GrProxyPendingIO& other) const = delete;
+
+    GrSurfaceProxy* fResource = nullptr;
+};
 
 /**
  * Helper for owning a pending read, write, read-write on a GrGpuResource. It never owns a regular
