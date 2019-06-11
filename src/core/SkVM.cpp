@@ -539,19 +539,7 @@ namespace skvm {
 
             uint32_t hash = SkOpts::hash(fJIT->getCode(), fJIT->getSize());
 
-            SkString name = SkStringPrintf("skvm-jit-%08x", hash);
-
-            // Dump out each program as a binary that can be disassembled with
-            //
-            //   objdump -D -b binary -mi386:x86-64 --insn-width=10 skvm-jit-<hash>.bin
-            //
-            // We're naming by hash of the code, so provided there are no collisions,
-            // you should see one .bin file per Program JIT'd.
-            {
-                SkString bin = SkStringPrintf("%s.bin", name.c_str());
-                SkFILEWStream code(bin.c_str());
-                code.write(fJIT->getCode(), fJIT->getSize());
-            }
+            SkString name = SkStringPrintf("skvm-jit-%u", hash);
 
             // Create a jit-<pid>.dump file that we can `perf inject -j` into a
             // perf.data captured with `perf record -k 1`, letting us see each
@@ -561,6 +549,9 @@ namespace skvm {
             //   perf record -k 1 out/nanobench -m SkVM_4096_I32\$
             //   perf inject -j -i perf.data -o perf.data.jit
             //   perf report -i perf.data.jit
+            //
+            // Running `perf inject -j` will also dump an .so for each JIT'd
+            // program, named jitted-<pid>-<hash>.so.
 
             auto timestamp_ns = []() -> uint64_t {
                 // It's important to use CLOCK_MONOTONIC here so that perf can
@@ -602,9 +593,6 @@ namespace skvm {
                 return f;
             }();
 
-            // Each CodeLoad event needs a unique ID.  We use successive IDs from 0...
-            static uint64_t id = 0;
-
             struct CodeLoad {
                 uint32_t event_type, event_size;
                 uint64_t timestamp_ns;
@@ -616,7 +604,7 @@ namespace skvm {
                 timestamp_ns(),
 
                 (uint32_t)getpid(), (uint32_t)SkGetThreadID(),
-                (uint64_t)fJIT->getCode(), (uint64_t)fJIT->getCode(), fJIT->getSize(), id++,
+                (uint64_t)fJIT->getCode(), (uint64_t)fJIT->getCode(), fJIT->getSize(), hash,
             };
 
             // Write the header, the JIT'd function name, and the JIT'd code itself.
