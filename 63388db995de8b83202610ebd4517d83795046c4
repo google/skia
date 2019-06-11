@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a871a82_2221b92c",
+        "filename": "modules/skottie/src/text/TextAnimator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-06-11T02:53:26Z",
+      "side": 1,
+      "message": "note: default values for these props are idempotent - so it\u0027s safe to pass through and simplify the implementation.",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 68
+      },
+      "revId": "63388db995de8b83202610ebd4517d83795046c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
