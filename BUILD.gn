@@ -21,7 +21,6 @@ declare_args() {
   skia_use_angle = false
   skia_use_egl = false
   skia_use_expat = true
-  skia_use_experimental_xform = false
   skia_use_ffmpeg = false
   skia_use_fontconfig = is_linux
   skia_use_fonthost_mac = is_mac
@@ -1750,17 +1749,6 @@ if (skia_enable_tools) {
     }
   }
 
-  test_lib("experimental_xform") {
-    sources = [
-      "experimental/xform/SkShape.cpp",
-      "experimental/xform/SkXform.cpp",
-      "experimental/xform/XContext.cpp",
-    ]
-    deps = [
-      ":skia",
-    ]
-  }
-
   if (skia_use_lua) {
     test_lib("lua") {
       sources = [
@@ -2389,10 +2377,6 @@ if (skia_enable_tools) {
       "modules/sksg:samples",
       "//third_party/imgui",
     ]
-    if (skia_use_experimental_xform) {
-      deps += [ ":experimental_xform" ]
-      sources += [ "gm/xform.cpp" ]
-    }
   }
 
   if (!skia_use_angle && (is_linux || is_win || is_mac)) {
