@@ -183,11 +183,7 @@ public:
 
     ~TextureOp() override {
         for (unsigned p = 0; p < fProxyCnt; ++p) {
-            if (fFinalized) {
-                fProxies[p].fProxy->completedRead();
-            } else {
-                fProxies[p].fProxy->unref();
-            }
+            fProxies[p].fProxy->unref();
         }
     }
 
@@ -228,12 +224,6 @@ public:
 
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip*, GrFSAAType, GrClampType clampType) override {
-        SkASSERT(!fFinalized);
-        fFinalized = true;
-        for (unsigned p = 0; p < fProxyCnt; ++p) {
-            fProxies[p].fProxy->addPendingRead();
-            fProxies[p].fProxy->unref();
-        }
         fColorType = static_cast<unsigned>(ColorType::kNone);
         for (int q = 0; q < fQuads.count(); ++q) {
             const ColorDomainAndAA& info = fQuads.metadata(q);
@@ -263,8 +253,7 @@ private:
               GrQuadAAFlags aaFlags, sk_sp<GrColorSpaceXform> textureColorSpaceXform)
             : INHERITED(ClassID())
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
-            , fFilter(static_cast<unsigned>(filter))
-            , fFinalized(0) {
+            , fFilter(static_cast<unsigned>(filter)) {
         // Clean up disparities between the overall aa type and edge configuration and apply
         // optimizations based on the rect and matrix when appropriate
         GrQuadUtils::ResolveAAType(aaType, aaFlags, dstQuad, &aaType, &aaFlags);
@@ -302,8 +291,7 @@ private:
               sk_sp<GrColorSpaceXform> textureColorSpaceXform)
             : INHERITED(ClassID())
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
-            , fFilter(static_cast<unsigned>(filter))
-            , fFinalized(0) {
+            , fFilter(static_cast<unsigned>(filter)) {
         fProxyCnt = SkToUInt(cnt);
         SkRect bounds = SkRectPriv::MakeLargestInverted();
         GrAAType overallAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
@@ -655,9 +643,7 @@ private:
     unsigned fDomain : 1;
     unsigned fColorType : 2;
     GR_STATIC_ASSERT(GrQuadPerEdgeAA::kColorTypeCount <= 4);
-    // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
-    unsigned fFinalized : 1;
-    unsigned fProxyCnt : 32 - 8;
+    unsigned fProxyCnt : 32 - 7;
     Proxy fProxies[1];
 
     static_assert(GrQuad::kTypeCount <= 4, "GrQuad::Type does not fit in 2 bits");

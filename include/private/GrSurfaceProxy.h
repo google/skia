@@ -49,22 +49,17 @@ public:
         }
 
         --fRefCnt;
-        this->didRemoveRefOrPendingIO();
+        this->didRemoveRef();
     }
 
 #ifdef SK_DEBUG
     bool isUnique_debugOnly() const { // For asserts.
-        SkASSERT(fRefCnt >= 0 && fPendingWrites >= 0 && fPendingReads >= 0);
-        return 1 == fRefCnt + fPendingWrites + fPendingReads;
+        SkASSERT(fRefCnt >= 0);
+        return 1 == fRefCnt;
     }
 #endif
 
     void release() {
-        // The proxy itself may still have multiple refs. It can be owned by an SkImage and multiple
-        // SkDeferredDisplayLists at the same time if we are using DDLs.
-        SkASSERT(0 == fPendingReads);
-        SkASSERT(0 == fPendingWrites);
-
         // In the current hybrid world, the proxy and backing surface are ref/unreffed in
         // synchrony. Each ref we've added or removed to the proxy was mirrored to the backing
         // surface. Though, that backing surface could be owned by other proxies as well. Remove
@@ -79,69 +74,22 @@ public:
 
     void validate() const {
 #ifdef SK_DEBUG
-        SkASSERT(fRefCnt >= 0);
-        SkASSERT(fPendingReads >= 0);
-        SkASSERT(fPendingWrites >= 0);
-        SkASSERT(fRefCnt + fPendingReads + fPendingWrites >= 1);
+        SkASSERT(fRefCnt >= 1);
 
         if (fTarget) {
             // The backing GrSurface can have more refs than the proxy if the proxy
             // started off wrapping an external resource (that came in with refs).
             // The GrSurface should never have fewer refs than the proxy however.
             SkASSERT(fTarget->fRefCnt >= fRefCnt);
-            SkASSERT(fTarget->fPendingReads >= fPendingReads);
-            SkASSERT(fTarget->fPendingWrites >= fPendingWrites);
         }
 #endif
     }
 
     int32_t getBackingRefCnt_TestOnly() const;
-    int32_t getPendingReadCnt_TestOnly() const;
-    int32_t getPendingWriteCnt_TestOnly() const;
-
-    void addPendingRead() const {
-        this->validate();
-
-        ++fPendingReads;
-        if (fTarget) {
-            fTarget->addPendingRead();
-        }
-    }
-
-    void completedRead() const {
-        this->validate();
-
-        if (fTarget) {
-            fTarget->completedRead();
-        }
-
-        --fPendingReads;
-        this->didRemoveRefOrPendingIO();
-    }
-
-    void addPendingWrite() const {
-        this->validate();
-
-        ++fPendingWrites;
-        if (fTarget) {
-            fTarget->addPendingWrite();
-        }
-    }
-
-    void completedWrite() const {
-        this->validate();
-
-        if (fTarget) {
-            fTarget->completedWrite();
-        }
-
-        --fPendingWrites;
-        this->didRemoveRefOrPendingIO();
-    }
 
 protected:
-    GrIORefProxy() : fTarget(nullptr), fRefCnt(1), fPendingReads(0), fPendingWrites(0) {}
-    GrIORefProxy(sk_sp<GrSurface> surface) : fRefCnt(1), fPendingReads(0), fPendingWrites(0) {
+    GrIORefProxy() : fTarget(nullptr), fRefCnt(1) {}
+    GrIORefProxy(sk_sp<GrSurface> surface) : fRefCnt(1) {
         // Since we're manually forwarding on refs & unrefs we don't want sk_sp doing
         // anything extra.
         fTarget = surface.release();
@@ -166,12 +114,8 @@ protected:
     void transferRefs() {
         SkASSERT(fTarget);
         // Make sure we're going to take some ownership of our target.
-        SkASSERT(fRefCnt > 0 || fPendingReads > 0 || fPendingWrites > 0);
+        SkASSERT(fRefCnt > 0);
 
-        // Transfer pending read/writes first so that if we decrement the target's ref cnt we don't
-        // cause a purge of the target.
-        fTarget->fPendingReads += fPendingReads;
-        fTarget->fPendingWrites += fPendingWrites;
         SkASSERT(fTarget->fRefCnt > 0);
         SkASSERT(fRefCnt >= 0);
         // Don't xfer the proxy's creation ref. If we're going to subtract a ref do it via unref()
@@ -184,7 +128,7 @@ protected:
     }
 
     int32_t internalGetProxyRefCnt() const { return fRefCnt; }
-    int32_t internalGetTotalRefs() const { return fRefCnt + fPendingReads + fPendingWrites; }
+    int32_t internalGetTotalRefs() const { return fRefCnt; }
 
     // For deferred proxies this will be null. For wrapped proxies it will point to the
     // wrapped resource.
@@ -194,15 +138,13 @@ private:
     // This class is used to manage conversion of refs to pending reads/writes.
     template <typename> friend class GrProxyRef;
 
-    void didRemoveRefOrPendingIO() const {
-        if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
+    void didRemoveRef() const {
+        if (0 == fRefCnt) {
             delete this;
         }
     }
 
     mutable int32_t fRefCnt;
-    mutable int32_t fPendingReads;
-    mutable int32_t fPendingWrites;
 };
 
 class GrSurfaceProxy : public GrIORefProxy {

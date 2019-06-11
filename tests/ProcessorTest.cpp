@@ -71,7 +71,7 @@ private:
 };
 
 /**
- * FP used to test ref/IO counts on owned GrGpuResources. Can also be a parent FP to test counts
+ * FP used to test ref counts on owned GrGpuResources. Can also be a parent FP to test counts
  * of resources owned by child FPs.
  */
 class TestFP : public GrFragmentProcessor {
@@ -143,17 +143,18 @@ private:
 };
 }
 
-template <typename T>
-inline void testingOnly_getIORefCnts(const T* resource, int* refCnt, int* readCnt, int* writeCnt) {
-    *refCnt = resource->fRefCnt;
-    *readCnt = resource->fPendingReads;
-    *writeCnt = resource->fPendingWrites;
-}
+static void check_refs(skiatest::Reporter* reporter,
+                       GrTextureProxy* proxy,
+                       int32_t expectedProxyRefs,
+                       int32_t expectedBackingRefs) {
+    int32_t actualProxyRefs = proxy->priv().getProxyRefCnt();
+    int32_t actualBackingRefs = proxy->getBackingRefCnt_TestOnly();
 
-void testingOnly_getIORefCnts(GrTextureProxy* proxy, int* refCnt, int* readCnt, int* writeCnt) {
-    *refCnt = proxy->getBackingRefCnt_TestOnly();
-    *readCnt = proxy->getPendingReadCnt_TestOnly();
-    *writeCnt = proxy->getPendingWriteCnt_TestOnly();
+    SkASSERT(actualProxyRefs == expectedProxyRefs);
+    SkASSERT(actualBackingRefs == expectedBackingRefs);
+
+    REPORTER_ASSERT(reporter, actualProxyRefs == expectedProxyRefs);
+    REPORTER_ASSERT(reporter, actualBackingRefs == expectedBackingRefs);
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
@@ -175,22 +176,14 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                                                              format, SkBackingFit::kApprox, 1, 1,
                                                              kRGBA_8888_GrPixelConfig, nullptr));
             {
-                sk_sp<GrTextureProxy> proxy1 = proxyProvider->createProxy(
+                sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
                         format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact,
                         SkBudgeted::kYes);
-                sk_sp<GrTextureProxy> proxy2 = proxyProvider->createProxy(
-                        format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact,
-                        SkBudgeted::kYes);
-                sk_sp<GrTextureProxy> proxy3 = proxyProvider->createProxy(
-                        format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact,
-                        SkBudgeted::kYes);
-                sk_sp<GrTextureProxy> proxy4 = proxyProvider->createProxy(
-                        format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact,
-                        SkBudgeted::kYes);
+
                 {
                     SkTArray<sk_sp<GrTextureProxy>> proxies;
                     SkTArray<sk_sp<GrGpuBuffer>> buffers;
-                    proxies.push_back(proxy1);
+                    proxies.push_back(proxy);
                     auto fp = TestFP::Make(std::move(proxies), std::move(buffers));
                     for (int i = 0; i < parentCnt; ++i) {
                         fp = TestFP::Make(std::move(fp));
@@ -206,22 +199,15 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                         renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                     }
                 }
-                int refCnt, readCnt, writeCnt;
 
-                testingOnly_getIORefCnts(proxy1.get(), &refCnt, &readCnt, &writeCnt);
-                // IO counts should be double if there is a clone of the FP.
-                int ioRefMul = makeClone ? 2 : 1;
-                REPORTER_ASSERT(reporter, -1 == refCnt);
-                REPORTER_ASSERT(reporter, ioRefMul * 1 == readCnt);
-                REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
+                // If the fp is cloned the number of refs should increase by one (for the clone)
+                int expectedProxyRefs = makeClone ? 3 : 2;
+
+                check_refs(reporter, proxy.get(), expectedProxyRefs, -1);
 
                 context->flush();
 
-                testingOnly_getIORefCnts(proxy1.get(), &refCnt, &readCnt, &writeCnt);
-                REPORTER_ASSERT(reporter, 1 == refCnt);
-                REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
-                REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
-
+                check_refs(reporter, proxy.get(), 1, 1); // just one from the 'proxy' sk_sp
             }
         }
     }

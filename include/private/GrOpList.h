@@ -49,7 +49,6 @@ public:
     virtual void makeClosed(const GrCaps&) {
         if (!this->isClosed()) {
             this->setFlag(kClosed_Flag);
-            fTarget.removeRef();
         }
     }
 
