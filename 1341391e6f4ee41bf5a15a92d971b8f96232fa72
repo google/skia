@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2692d120_0f7aace4",
+        "filename": "bin/try-clients",
+        "patchSetId": 5
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-06-11T15:50:26Z",
+      "side": 1,
+      "message": "This isn\u0027t going to work, since it\u0027s not in jobs.json.",
+      "range": {
+        "startLine": 10,
+        "startChar": 27,
+        "endLine": 10,
+        "endChar": 51
+      },
+      "revId": "1341391e6f4ee41bf5a15a92d971b8f96232fa72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
