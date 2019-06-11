@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a0bfd9c_f132a618",
+        "filename": "gm/asyncrescaleandread.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-11T14:18:16Z",
+      "side": 1,
+      "message": "can we assert that if this isn\u0027t true then we have *_as_Alpha_* and not the default non specific one?",
+      "range": {
+        "startLine": 103,
+        "startChar": 55,
+        "endLine": 103,
+        "endChar": 84
+      },
+      "revId": "e9032682b4008df77d75b23db13ee85c6221a48c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
