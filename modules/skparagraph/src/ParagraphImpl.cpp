@@ -120,10 +120,13 @@ void ParagraphImpl::layout(SkScalar width) {
                           SkSpan<TextBlock>(&fTextStyles.back(), 1),
                           fFontCollection,
                           fParagraphStyle.hintingIsOn());
+        // Get the font metrics
         font.consume();
-        SkFontMetrics metrics;
-        font.currentFont().getMetrics(&metrics);
-        fHeight = LineMetrics(metrics).height();
+        LineMetrics lineMetrics(font.currentFont());
+        // Set the important values that are not zero
+        fHeight = lineMetrics.height();
+        fAlphabeticBaseline = lineMetrics.alphabeticBaseline();
+        fIdeographicBaseline = lineMetrics.ideographicBaseline();
         return;
     }
 
