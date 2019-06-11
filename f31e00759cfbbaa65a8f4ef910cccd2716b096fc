@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f61e163_ce2746f6",
+        "filename": "tools/SkSharingProc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-06-11T14:51:25Z",
+      "side": 1,
+      "message": "nit: why not use the fField convention here?",
+      "range": {
+        "startLine": 19,
+        "startChar": 43,
+        "endLine": 19,
+        "endChar": 51
+      },
+      "revId": "f31e00759cfbbaa65a8f4ef910cccd2716b096fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aba4d121_eb9f246c",
+        "filename": "tools/SkSharingProc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-06-11T14:51:25Z",
+      "side": 1,
+      "message": "why not just make the function that this returns part of the declaration in SkSharingSerialContext?\n\nstruct SkSharingSerialContext {\n ... unordered\n  static void function(...);\n};\n\nTrivial for clients to assign that to a SerialProc if they want.",
+      "revId": "f31e00759cfbbaa65a8f4ef910cccd2716b096fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
