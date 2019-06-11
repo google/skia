@@ -184,8 +184,24 @@ void TextAdapter::applyAnimators(const std::vector<sk_sp<TextAnimator>>& animato
     }
 
     // Finally, push all props to their corresponding fragment.
-    for (size_t i = 0; i < fFragments.size(); ++i) {
-        this->pushPropsToFragment(buf[i].props, fFragments[i]);
+    for (const auto& line_span : fMaps.fLinesMap) {
+        float line_tracking = 0;
+        bool line_has_tracking = false;
+
+        // Tracking requires special treatment: unlike other props, its effect is not localized
+        // to a single fragment, but requires re-alignment of the whole line.
+        for (size_t i = line_span.fOffset; i < line_span.fOffset + line_span.fCount; ++i) {
+            const auto& props = buf[i].props;
+            const auto& frag  = fFragments[i];
+            this->pushPropsToFragment(props, frag);
+
+            line_tracking += props.tracking;
+            line_has_tracking |= !SkScalarNearlyZero(props.tracking);
+        }
+
+        if (line_has_tracking) {
+            this->adjustLineTracking(buf, line_span, line_tracking);
+        }
     }
 }
 
@@ -207,6 +223,55 @@ void TextAdapter::pushPropsToFragment(const TextAnimator::AnimatedProps& props,
     }
     if (rec.fStrokeColorNode) {
         rec.fStrokeColorNode->setColor(scale_alpha(props.stroke_color, props.opacity));
+    }
+}
+
+void TextAdapter::adjustLineTracking(const TextAnimator::ModulatorBuffer& buf,
+                                     const TextAnimator::DomainSpan& line_span,
+                                     float total_tracking) const {
+    SkASSERT(line_span.fCount > 0);
+
+    // AE tracking is defined per glyph, based on two components: |before| and |after|.
+    // BodyMovin only exports "balanced" tracking values, where before == after == tracking / 2.
+    //
+    // Tracking is applied as a local glyph offset, and contributes to the line width for alignment
+    // purposes.
+
+    // The first glyph does not contribute |before| tracking, and the last one does not contribute
+    // |after| tracking.  Rather than spill this logic into applyAnimators, post-adjust here.
+    total_tracking -= 0.5f * (buf[line_span.fOffset].props.tracking +
+                              buf[line_span.fOffset + line_span.fCount - 1].props.tracking);
+
+    static const auto align_factor = [](SkTextUtils::Align a) {
+        switch (a) {
+        case SkTextUtils::kLeft_Align  : return  0.0f;
+        case SkTextUtils::kCenter_Align: return -0.5f;
+        case SkTextUtils::kRight_Align : return -1.0f;
+        }
+
+        SkASSERT(false);
+        return 0.0f;
+    };
+
+    const auto align_offset = total_tracking * align_factor(fText.fHAlign);
+
+    float tracking_acc = 0;
+    for (size_t i = line_span.fOffset; i < line_span.fOffset + line_span.fCount; ++i) {
+        const auto& props = buf[i].props;
+
+        // No |before| tracking for the first glyph, nor |after| tracking for the last one.
+        const auto track_before = i > line_span.fOffset
+                                    ? props.tracking * 0.5f : 0.0f,
+                   track_after  = i < line_span.fOffset + line_span.fCount - 1
+                                    ? props.tracking * 0.5f : 0.0f,
+                fragment_offset = align_offset + tracking_acc + track_before;
+
+        const auto& frag = fFragments[i];
+        const auto m = SkMatrix::Concat(SkMatrix::MakeTrans(fragment_offset, 0),
+                                        frag.fMatrixNode->getMatrix());
+        frag.fMatrixNode->setMatrix(m);
+
+        tracking_acc += track_before + track_after;
     }
 }
 
