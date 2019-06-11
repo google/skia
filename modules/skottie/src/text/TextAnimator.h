@@ -33,7 +33,8 @@ public:
         SkPoint   position = { 0, 0 };
         float      opacity = 1,
                      scale = 1,
-                  rotation = 0;
+                  rotation = 0,
+                  tracking = 0;
         SkColor fill_color = SK_ColorTRANSPARENT,
               stroke_color = SK_ColorTRANSPARENT;
     };
@@ -73,12 +74,8 @@ private:
     const std::vector<sk_sp<RangeSelector>> fSelectors;
 
     AnimatedProps fTextProps;
-    bool          fHasPosition    : 1,
-                  fHasScale       : 1,
-                  fHasRotation    : 1,
-                  fHasFillColor   : 1,
-                  fHasStrokeColor : 1,
-                  fHasOpacity     : 1;
+    bool          fHasFillColor   : 1,
+                  fHasStrokeColor : 1;
 };
 
 class TextAnimatorList final : public sksg::GroupAnimator {
