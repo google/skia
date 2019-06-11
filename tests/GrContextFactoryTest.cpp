@@ -92,10 +92,6 @@ DEF_GPUTEST(GrContextFactory_sharedContexts, reporter, options) {
 
         // Create a new base context
         ContextInfo info3 = testFactory.getContextInfo(ctxType);
-        if (!info3.grContext()) {
-            // Vulkan NexusPlayer bot fails here. Sigh.
-            continue;
-        }
 
         // Creating a context in a share group may fail, but should never crash.
         ContextInfo info4 = testFactory.getSharedContextInfo(info3.grContext());

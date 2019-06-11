@@ -127,7 +127,7 @@ def GenTests(api):
                      is_testing_exceptions='True')
   )
 
-  builder = ('Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All'
+  builder = ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All'
              '-Android')
   yield (
       api.test('failed_infra_step') +
@@ -201,15 +201,15 @@ def GenTests(api):
       api.step_data(fail_step_name + ' (attempt 2)', retcode=1)
   )
 
-  builder = ('Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-All-' +
-             'Android')
+  builder = ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All'
+             '-Android')
   yield (
     api.test('cpu_scale_failed_once') +
     api.properties(buildername=builder,
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.step_data('Scale CPU 0 to 0.600000', retcode=1)
+    api.step_data('Scale CPU 4 to 0.600000', retcode=1)
   )
 
   yield (
@@ -220,9 +220,9 @@ def GenTests(api):
                    swarm_out_dir='[SWARM_OUT_DIR]') +
     api.step_data('get swarming bot id',
                   stdout=api.raw_io.output('skia-rpi-022')) +
-    api.step_data('Scale CPU 0 to 0.600000', retcode=1)+
-    api.step_data('Scale CPU 0 to 0.600000 (attempt 2)', retcode=1)+
-    api.step_data('Scale CPU 0 to 0.600000 (attempt 3)', retcode=1)
+    api.step_data('Scale CPU 4 to 0.600000', retcode=1)+
+    api.step_data('Scale CPU 4 to 0.600000 (attempt 2)', retcode=1)+
+    api.step_data('Scale CPU 4 to 0.600000 (attempt 3)', retcode=1)
   )
 
   builder = ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release'
