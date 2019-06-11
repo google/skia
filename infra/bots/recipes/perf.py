@@ -83,11 +83,9 @@ def nanobench_flags(api, bot):
       # instead of ES.
       if 'NVIDIA_Shield' not in bot:
         gl_prefix = 'gles'
-      # The NP produces a long error stream when we run with MSAA.
-      # iOS crashes (skia:6399)
+      # iOS crashes with MSAA (skia:6399)
       # Nexus7 (Tegra3) does not support MSAA.
-      if ('NexusPlayer' in bot or
-          'iOS'         in bot or
+      if ('iOS'         in bot or
           'Nexus7'      in bot):
         sample_count = ''
     elif 'Intel' in bot:

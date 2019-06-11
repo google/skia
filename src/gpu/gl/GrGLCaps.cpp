@@ -1436,7 +1436,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
     // Correctness workarounds.
     bool disableTextureRedForMesa = false;
-    bool disableSRGBForX86PowerVR = false;
     bool disableSRGBWriteControlForAdreno4xx = false;
     bool disableR8TexStorageForANGLEGL = false;
     bool disableSRGBRenderWithMSAAForMacAMD = false;
@@ -1452,15 +1451,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
         disableGrayLumFBOForMesa = kOSMesa_GrGLRenderer == ctxInfo.renderer();
 
-        bool isX86PowerVR = false;
-#if defined(SK_CPU_X86)
-        if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
-            isX86PowerVR = true;
-        }
-#endif
-        // NexusPlayer has strange bugs with sRGB (skbug.com/4148). This is a targeted fix to
-        // blacklist that device (and any others that might be sharing the same driver).
-        disableSRGBForX86PowerVR = isX86PowerVR;
         disableSRGBWriteControlForAdreno4xx =
                 (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
                  kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer());
@@ -1702,9 +1692,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         }
     } else if (GR_IS_GR_GL_ES(standard)) {
         fSRGBSupport = version >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB");
-        if (disableSRGBForX86PowerVR) {
-            fSRGBSupport = false;
-        }
         // ES through 3.1 requires EXT_srgb_write_control to support toggling
         // sRGB writing for destinations.
         // See https://bug.skia.org/5329 for Adreno4xx issue.
@@ -2596,13 +2583,6 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
 void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
                                                  const GrContextOptions& contextOptions,
                                                  GrShaderCaps* shaderCaps) {
-    bool isX86PowerVRRogue = false;
-#if defined(SK_CPU_X86)
-    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
-        isX86PowerVRRogue = true;
-    }
-#endif
-
     // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
     // Thus we are blacklisting this extension for now on Adreno4xx devices.
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
@@ -2617,11 +2597,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (GR_IS_GR_GL(ctxInfo.standard()) &&
         ctxInfo.driver() == kNVIDIA_GrGLDriver &&
         ctxInfo.driverVersion() < GR_GL_DRIVER_VER(367, 57, 0)) {
-        fClearTextureSupport = false;
-    }
-
-    // Calling glClearTexImage crashes on the NexusPlayer.
-    if (isX86PowerVRRogue) {
         fClearTextureSupport = false;
     }
 
@@ -2885,12 +2860,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fCanUseFragCoord = false;
     }
 
-    if (isX86PowerVRRogue) {
-        // NexusPlayer seems to render garbage when accessing gl_FragCoord
-        // https://bugs.chromium.org/p/skia/issues/detail?id=7286
-        shaderCaps->fCanUseFragCoord = false;
-    }
-
     // On Mali G71, mediump ints don't appear capable of representing every integer beyond +/-2048.
     // (Are they implemented with fp16?)
     if (kARM_GrGLVendor == ctxInfo.vendor()) {
@@ -2993,11 +2962,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // https://bugreport.apple.com/web/?problemID=39948888
     fUnpackRowLengthSupport = false;
 #endif
-
-    if (isX86PowerVRRogue) {
-        // On Nexus Player we get incorrect filter modes when using sampler objects.
-        fSamplerObjectSupport = false;
-    }
 
     // CCPR edge AA is busted on Mesa, Sandy Bridge/Bay Trail.
     // http://skbug.com/8162
