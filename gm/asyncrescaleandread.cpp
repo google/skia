@@ -33,6 +33,7 @@ static sk_sp<SkImage> do_read_and_scale(SkSurface* surface, const SkIRect& srcRe
     struct Context {
         SkPixmap fPixmap;
         bool fCalled = false;
+        bool fSucceeded = false;
     } context;
     SkAssertResult(bmp.peekPixels(&context.fPixmap));
     auto callback = [](void* c, const void* data, size_t rowBytes) {
@@ -42,6 +43,7 @@ static sk_sp<SkImage> do_read_and_scale(SkSurface* surface, const SkIRect& srcRe
             context->fPixmap.reset();
             return;
         }
+        context->fSucceeded = true;
         SkRectMemcpy(context->fPixmap.writable_addr(), context->fPixmap.rowBytes(), data, rowBytes,
                      context->fPixmap.info().minRowBytes(), context->fPixmap.height());
     };
@@ -51,7 +53,7 @@ static sk_sp<SkImage> do_read_and_scale(SkSurface* surface, const SkIRect& srcRe
         SkASSERT(surface->getCanvas()->getGrContext());
         surface->getCanvas()->getGrContext()->checkAsyncWorkCompletion();
     }
-    return SkImage::MakeFromBitmap(bmp);
+    return context.fSucceeded ? SkImage::MakeFromBitmap(bmp) : nullptr;
 }
 
 static sk_sp<SkImage> do_read_and_scale_yuv(SkSurface* surface, SkYUVColorSpace yuvCS,
@@ -69,6 +71,7 @@ static sk_sp<SkImage> do_read_and_scale_yuv(SkSurface* surface, SkYUVColorSpace 
         uint8_t* fUData;
         uint8_t* fVData;
         bool fCalled = false;
+        bool fSucceeded = false;
     } context{dstW, dstH, yData.get(), uData.get(), vData.get()};
     auto callback = [](void* c, const void* data[2], size_t rowBytes[2]) {
         auto context = reinterpret_cast<Context*>(c);
@@ -76,6 +79,7 @@ static sk_sp<SkImage> do_read_and_scale_yuv(SkSurface* surface, SkYUVColorSpace 
         if (!data) {
             return;
         }
+        context->fSucceeded = true;
         int w = context->fW;
         int h = context->fH;
         SkRectMemcpy(context->fYData, w, data[0], rowBytes[0], w, h);
@@ -88,6 +92,9 @@ static sk_sp<SkImage> do_read_and_scale_yuv(SkSurface* surface, SkYUVColorSpace 
         // Only GPU should actually be asynchronous.
         SkASSERT(surface->getCanvas()->getGrContext());
         surface->getCanvas()->getGrContext()->checkAsyncWorkCompletion();
+    }
+    if (!context.fSucceeded) {
+        return nullptr;
     }
     auto* gr = surface->getCanvas()->getGrContext();
     GrBackendTexture backendTextures[3];
@@ -128,8 +135,8 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas, SkSurface* surface,
                                           const SkIRect& srcRect, int newW, int newH, bool doYUV420,
                                           SkString* errorMsg, int pad = 0) {
     if (doYUV420) {
-        if (!canvas->getGrContext()) {
-            errorMsg->printf("YUV420 only supported on GPU for now.");
+        if (!canvas->getGrContext() || !canvas->getGrContext()->priv().asDirectContext()) {
+            errorMsg->printf("YUV420 only supported on direct GPU for now.");
             return skiagm::DrawResult::kSkip;
         }
     }
@@ -149,10 +156,18 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas, SkSurface* surface,
             if (doYUV420) {
                 result = do_read_and_scale_yuv(surface, yuvColorSpace, srcRect, newW, newH, gamma,
                                                quality, &cleanup);
+                if (!result) {
+                    errorMsg->printf("YUV420 async call failed. Allowed for now.");
+                    return skiagm::DrawResult::kSkip;
+                }
                 int nextCS = static_cast<int>(yuvColorSpace + 1) % (kLastEnum_SkYUVColorSpace + 1);
                 yuvColorSpace = static_cast<SkYUVColorSpace>(nextCS);
             } else {
                 result = do_read_and_scale(surface, srcRect, ii, gamma, quality);
+                if (!result) {
+                    errorMsg->printf("async read call failed.");
+                    return skiagm::DrawResult::kFail;
+                }
             }
             canvas->drawImage(result, 0, 0);
             canvas->translate(newW + pad, 0);
