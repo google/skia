@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# Copyright 2019 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+base_dir=$(dirname "$0")
+
+python "$base_dir/try.py" "mac_chromium_compile_dbg|G3_Framework|Android_Framework|Build-.*-Flutter"
