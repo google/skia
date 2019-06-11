@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b042321_7c933749",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-11T20:56:49Z",
+      "side": 1,
+      "message": "is there a reason for this be offset from the base set at this point?",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 64,
+        "endChar": 27
+      },
+      "revId": "23e23b44fcd36501bf447995822e202c9c26cfad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "069577e6_6dfe4bfb",
+        "filename": "src/gpu/GrDataUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-11T20:56:49Z",
+      "side": 1,
+      "message": "extra break",
+      "range": {
+        "startLine": 298,
+        "startChar": 12,
+        "endLine": 298,
+        "endChar": 17
+      },
+      "revId": "23e23b44fcd36501bf447995822e202c9c26cfad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3b585a8_db8d87c9",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-11T20:56:49Z",
+      "side": 1,
+      "message": "extra newline here.",
+      "revId": "23e23b44fcd36501bf447995822e202c9c26cfad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
