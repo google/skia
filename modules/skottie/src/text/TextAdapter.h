@@ -36,6 +36,7 @@ private:
         sk_sp<sksg::Matrix<SkMatrix>> fMatrixNode;
         sk_sp<sksg::Color>            fFillColorNode,
                                       fStrokeColorNode;
+        size_t                        fLineIndex;
     };
 
     void addFragment(const Shaper::Fragment&);
@@ -44,6 +45,9 @@ private:
     void apply();
 
     void pushPropsToFragment(const TextAnimator::AnimatedProps&, const FragmentRec&) const;
+
+    void adjustLineForTracking(const TextAnimator::ModulatorBuffer&,
+                               size_t start_index, size_t count, float line_tracking) const;
 
     sk_sp<sksg::Group>       fRoot;
     std::vector<FragmentRec> fFragments;

@@ -34,6 +34,9 @@ public:
     struct Result {
         std::vector<Fragment> fFragments;
 
+        // Only useful with kFragmentGlyphs
+        std::vector<float>    fLineWidths;
+
         SkRect computeBounds() const;
     };
 

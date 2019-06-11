@@ -112,15 +112,17 @@ public:
         size_t run_offset = 0;
         for (const auto& rec : fLineRuns) {
             SkASSERT(run_offset < fLineGlyphCount);
+            const auto line_index = fResult.fLineWidths.size();
+
             (this->*commit_proc)(rec,
                         fLineGlyphs.get()   + run_offset,
                         fLinePos.get()      + run_offset,
                         fLineClusters.get() + run_offset,
-                        fLineIndex);
+                        line_index);
             run_offset += rec.fGlyphCount;
         }
 
-        fLineIndex++;
+        fResult.fLineWidths.push_back(fPendingLineAdvance.x());
     }
 
     Shaper::Result finalize() {
@@ -248,7 +250,6 @@ private:
     SkPoint  fCurrentPosition{ 0, 0 };
     SkPoint  fOffset{ 0, 0 };
     SkVector fPendingLineAdvance{ 0, 0 };
-    uint32_t fLineIndex = 0;
 
     const char* fUTF8 = nullptr; // only valid during shapeLine() calls
 

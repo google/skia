@@ -37,7 +37,8 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag) {
     auto blob_node = sksg::TextBlob::Make(frag.fBlob);
 
     FragmentRec rec;
-    rec.fOrigin = frag.fPos;
+    rec.fOrigin     = frag.fPos;
+    rec.fLineIndex  = frag.fLineIndex;
     rec.fMatrixNode = sksg::Matrix<SkMatrix>::Make(SkMatrix::MakeTrans(frag.fPos.x(),
                                                                        frag.fPos.y()));
 
@@ -183,9 +184,38 @@ void TextAdapter::applyAnimators(const std::vector<sk_sp<TextAnimator>>& animato
         animator->modulateProps(fMaps, buf);
     }
 
+    // per-line tracking info
+    size_t line_index        = 0,
+           line_start        = 0;
+    float  line_tracking     = 0; // total fragment tracking for the current line.
+    bool   line_has_tracking = false;
+
     // Finally, push all props to their corresponding fragment.
-    for (size_t i = 0; i < fFragments.size(); ++i) {
-        this->pushPropsToFragment(buf[i].props, fFragments[i]);
+    size_t i = 0;
+    for (; i < fFragments.size(); ++i) {
+        const auto& props = buf[i].props;
+        const auto& frag  = fFragments[i];
+        this->pushPropsToFragment(props, frag);
+
+        // Tracking requires special treatment: unlike other props, its effect is not localized
+        // to a single fragment, but requires re-alignment of the whole line.
+        if (frag.fLineIndex != line_index) {
+            if (line_has_tracking) {
+                this->adjustLineForTracking(buf, line_start, i - line_start, line_tracking);
+            }
+
+            line_index = frag.fLineIndex;
+            line_start = i;
+            line_tracking = 0;
+            line_has_tracking = false;
+        }
+
+        line_tracking += props.tracking;
+        line_has_tracking |= !SkScalarNearlyZero(props.tracking);
+    }
+
+    if (line_has_tracking) {
+        this->adjustLineForTracking(buf, line_start, i - line_start, line_tracking);
     }
 }
 
@@ -207,6 +237,45 @@ void TextAdapter::pushPropsToFragment(const TextAnimator::AnimatedProps& props,
     }
     if (rec.fStrokeColorNode) {
         rec.fStrokeColorNode->setColor(scale_alpha(props.stroke_color, props.opacity));
+    }
+}
+
+void TextAdapter::adjustLineForTracking(const TextAnimator::ModulatorBuffer& buf,
+                                        size_t start_index,
+                                        size_t count,
+                                        float total_tracking) const {
+    SkASSERT(count > 0);
+
+    total_tracking -= 0.5f * (buf[start_index].props.tracking +
+                              buf[start_index + count - 1].props.tracking);
+
+    static const auto align_factor = [](SkTextUtils::Align a) {
+        switch (a) {
+        case SkTextUtils::kLeft_Align  : return  0.0f;
+        case SkTextUtils::kCenter_Align: return -0.5f;
+        case SkTextUtils::kRight_Align : return -1.0f;
+        }
+
+        SkASSERT(false);
+        return 0.0f;
+    };
+
+    const auto align_offset = total_tracking * align_factor(fText.fHAlign);
+
+    float tracking_acc = 0;
+    for (size_t i = start_index; i < start_index + count; ++i) {
+        const auto& props = buf[i].props;
+
+        const auto track_before = i > start_index             ? props.tracking * 0.5f : 0.0f,
+                   track_after  = i < start_index + count - 1 ? props.tracking * 0.5f : 0.0f,
+                fragment_offset = align_offset + tracking_acc + track_before;
+
+        const auto& frag = fFragments[i];
+        const auto m = SkMatrix::Concat(SkMatrix::MakeTrans(fragment_offset, 0),
+                                        frag.fMatrixNode->getMatrix());
+        frag.fMatrixNode->setMatrix(m);
+
+        tracking_acc += track_before + track_after;
     }
 }
 
