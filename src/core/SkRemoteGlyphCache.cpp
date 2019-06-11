@@ -458,6 +458,8 @@ void SkStrikeServer::SkGlyphCacheState::addGlyph(SkPackedGlyphID glyph, bool asP
     pending->push_back(glyph);
 }
 
+// No need to write fForceBW because it is a flag private to SkScalerContext_DW, which will never
+// be called on the GPU side.
 static void writeGlyph(SkGlyph* glyph, Serializer* serializer) {
     serializer->write<SkPackedGlyphID>(glyph->getPackedID());
     serializer->write<float>(glyph->fAdvanceX);
@@ -466,7 +468,6 @@ static void writeGlyph(SkGlyph* glyph, Serializer* serializer) {
     serializer->write<uint16_t>(glyph->fHeight);
     serializer->write<int16_t>(glyph->fTop);
     serializer->write<int16_t>(glyph->fLeft);
-    serializer->write<int8_t>(glyph->fForceBW);
     serializer->write<uint8_t>(glyph->fMaskFormat);
 }
 
@@ -703,6 +704,8 @@ SkStrikeClient::~SkStrikeClient() = default;
         return false;                                               \
     }
 
+// No need to read fForceBW because it is a flag private to SkScalerContext_DW, which will never
+// be called on the GPU side.
 static bool readGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer) {
     SkPackedGlyphID glyphID;
     if (!deserializer->read<SkPackedGlyphID>(&glyphID)) return false;
@@ -713,7 +716,6 @@ static bool readGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer) {
     if (!deserializer->read<uint16_t>(&glyph->fHeight)) return false;
     if (!deserializer->read<int16_t>(&glyph->fTop)) return false;
     if (!deserializer->read<int16_t>(&glyph->fLeft)) return false;
-    if (!deserializer->read<int8_t>(&glyph->fForceBW)) return false;
     if (!deserializer->read<uint8_t>(&glyph->fMaskFormat)) return false;
     if (!SkMask::IsValidFormat(glyph->fMaskFormat)) return false;
 
