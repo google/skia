@@ -22,6 +22,30 @@
       "revId": "e9032682b4008df77d75b23db13ee85c6221a48c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9258701_44133304",
+        "filename": "gm/asyncrescaleandread.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-11T14:25:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a0bfd9c_f132a618",
+      "range": {
+        "startLine": 103,
+        "startChar": 55,
+        "endLine": 103,
+        "endChar": 84
+      },
+      "revId": "e9032682b4008df77d75b23db13ee85c6221a48c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
