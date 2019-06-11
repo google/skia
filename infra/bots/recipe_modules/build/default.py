@@ -49,16 +49,25 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
     msan_cflags = ' '.join([
       '-fsanitize=memory',
       '-stdlib=libc++',
-      '-L%s/lib' % libcxx_msan,
-      '-lc++abi',
       '-I%s/include' % libcxx_msan,
       '-I%s/include/c++/v1' % libcxx_msan,
+    ])
+    msan_ldflags = ' '.join([
+      '-L%s/lib' % libcxx_msan,
+      '-lc++abi',
+      '--noextern-protected-data',
     ])
     swiftshader_opts.extend([
       '-DMSAN=ON',
       '-DCMAKE_C_FLAGS=%s' % msan_cflags,
       '-DCMAKE_CXX_FLAGS=%s' % msan_cflags,
+      '-DCMAKE_SHARED_LINKER_FLAGS=%s' % msan_ldflags,
     ])
+
+  # Determine which targets to build.
+  targets = ['libEGL.so', 'libGLESv2.so']
+  if 'Vulkan' in extra_tokens:
+    targets = ['libvk_swiftshader']
 
   # Build SwiftShader.
   api.file.ensure_directory('makedirs swiftshader_out', out)
@@ -66,7 +75,7 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
     api.run(api.step, 'swiftshader cmake',
             cmd=['cmake'] + swiftshader_opts + [swiftshader_root, '-GNinja'])
     api.run(api.step, 'swiftshader ninja',
-            cmd=['ninja', '-C', out, 'libEGL.so', 'libGLESv2.so'])
+            cmd=['ninja', '-C', out] + targets)
 
 
 def compile_fn(api, checkout_root, out_dir):
