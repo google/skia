@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebdc5197_1da51731",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-11T19:09:15Z",
+      "side": 1,
+      "message": "This seems fine to me, but why not also just make setAdvanceX(), setAdvanceY() methods for the scalers to use?\n\nIs the constness of an SkGlyph not enough to control who should be modifying it and not?",
+      "revId": "2fd0efd9d8c3e6281966ba9fc08054c9e2de3c96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
