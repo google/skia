@@ -203,15 +203,13 @@ public:
     int16_t   fTop  = 0,
               fLeft = 0;
 
-    // Used by the GDI scaler to track state.
-    int8_t    fForceBW = 0;
-
     // This is a combination of SkMask::Format and SkGlyph state. The SkGlyph can be in one of two
     // states, just the advances have been calculated, and all the metrics are available. The
     // illegal mask format is used to signal that only the advances are available.
     uint8_t   fMaskFormat = MASK_FORMAT_UNKNOWN;
 
 private:
+    friend class SkScalerContext_DW;
 
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,
@@ -229,6 +227,9 @@ private:
         SkPath     fPath;
         bool       fHasPath{false};
     };
+
+    // Used by the DirectWrite scaler to track state.
+    int8_t    fForceBW = 0;
 
     // TODO(herb) remove friend statement after SkStrike cleanup.
     friend class SkStrike;
