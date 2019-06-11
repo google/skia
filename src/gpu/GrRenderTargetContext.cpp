@@ -2265,7 +2265,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
 
     // This matrix generates (r,g,b,a) = (0, 0, 0, y)
     float yM[20];
-    std::fill_n(yM, 15, 0);
+    std::fill_n(yM, 15, 0.f);
     yM[15] = baseM[0]; yM[16] = baseM[1]; yM[17] = baseM[2]; yM[18] = 0; yM[19] = baseM[3];
     GrPaint yPaint;
     yPaint.addColorTextureProcessor(srcProxy, texMatrix);
@@ -2284,7 +2284,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
     texMatrix.preScale(2.f, 2.f);
     // This matrix generates (r,g,b,a) = (0, 0, 0, u)
     float uM[20];
-    std::fill_n(uM, 15, 0);
+    std::fill_n(uM, 15, 0.f);
     uM[15] = baseM[4]; uM[16] = baseM[5]; uM[17] = baseM[6]; uM[18] = 0; uM[19] = baseM[7];
     GrPaint uPaint;
     uPaint.addColorTextureProcessor(srcProxy, texMatrix, GrSamplerState::ClampBilerp());
@@ -2302,7 +2302,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
 
     // This matrix generates (r,g,b,a) = (0, 0, 0, v)
     float vM[20];
-    std::fill_n(vM, 15, 0);
+    std::fill_n(vM, 15, 0.f);
     vM[15] = baseM[8]; vM[16] = baseM[9]; vM[17] = baseM[10]; vM[18] = 0; vM[19] = baseM[11];
     GrPaint vPaint;
     vPaint.addColorTextureProcessor(srcProxy, texMatrix, GrSamplerState::ClampBilerp());
