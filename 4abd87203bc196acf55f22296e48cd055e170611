@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c0e7b95_8179e83c",
+        "filename": "samplecode/SampleParagraph.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1312,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-11T20:54:21Z",
+      "side": 1,
+      "message": "Line length",
+      "range": {
+        "startLine": 1312,
+        "startChar": 33,
+        "endLine": 1312,
+        "endChar": 49
+      },
+      "revId": "4abd87203bc196acf55f22296e48cd055e170611",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
