@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "df20af9f_fa675be4",
+        "filename": "tools/SkSharingProc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-06-12T16:13:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f61e163_ce2746f6",
+      "range": {
+        "startLine": 19,
+        "startChar": 43,
+        "endLine": 19,
+        "endChar": 51
+      },
+      "revId": "f31e00759cfbbaa65a8f4ef910cccd2716b096fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aba4d121_eb9f246c",
         "filename": "tools/SkSharingProc.h",
         "patchSetId": 6
@@ -39,6 +63,24 @@
       "revId": "f31e00759cfbbaa65a8f4ef910cccd2716b096fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d66f380d_5f18a081",
+        "filename": "tools/SkSharingProc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-06-12T16:13:25Z",
+      "side": 1,
+      "message": "Done. \nFor the record, I was going with the pattern here. https://cs.chromium.org/chromium/src/printing/common/metafile_utils.cc?rcl\u003d18b760b17014096e86a6e60598561c0241ec0e56\u0026l\u003d91",
+      "parentUuid": "aba4d121_eb9f246c",
+      "revId": "f31e00759cfbbaa65a8f4ef910cccd2716b096fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
