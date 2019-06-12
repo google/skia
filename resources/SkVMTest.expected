@@ -590,7 +590,7 @@ r9 = pack r7 r9 16
 store32 arg(1) r9
 
 I32 (SWAR) 8888 over 8888
-7 registers, 20 instructions:
+8 registers, 20 instructions:
 r0 = splat FF00FF (2.3418409e-38)
 r1 = splat FF (3.5733111e-43)
 loop:
@@ -602,14 +602,14 @@ r5 = extract r4 0 r0
 r4 = extract r4 8 r0
 r6 = shr r2 16
 r6 = sub_i32 r1 r6
-r5 = mul_i32 r5 r6
-r5 = add_i32 r5 r0
-r5 = extract r5 8 r0
-r5 = add_i32 r3 r5
+r7 = mul_i32 r5 r6
+r7 = add_i32 r7 r5
+r7 = extract r7 8 r0
+r7 = add_i32 r3 r7
 r6 = mul_i32 r4 r6
-r6 = add_i32 r6 r0
+r6 = add_i32 r6 r4
 r6 = extract r6 8 r0
 r6 = add_i32 r2 r6
-r6 = pack r5 r6 8
+r6 = pack r7 r6 8
 store32 arg(1) r6
 

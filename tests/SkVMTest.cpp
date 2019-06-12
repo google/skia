@@ -78,76 +78,58 @@ DEF_TEST(SkVM, r) {
         }
     }
 
-    {
-        skvm::Program program = SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::RGBA_8888}.done();
+    auto test_8888 = [&](const skvm::Program& program) {
+        uint32_t src[9];
+        uint32_t dst[SK_ARRAY_COUNT(src)];
 
-        uint32_t src = 0xbb007733,
-                 dst = 0xffaaccee;
-        SkPMColor want = SkPMSrcOver(src, dst);  // 0xff2dad73
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(src); i++) {
+            src[i] = 0xbb007733;
+            dst[i] = 0xffaaccee;
+        }
 
-        program.eval(1, &src, &dst);
+        SkPMColor expected = SkPMSrcOver(src[0], dst[0]);  // 0xff2dad73
+
+        program.eval((int)SK_ARRAY_COUNT(src), src, dst);
 
         // dst is probably 0xff2dad72.
-        for (int i = 0; i < 4; i++) {
-            uint8_t d = dst  & 0xff,
-                    w = want & 0xff;
-            REPORTER_ASSERT(r, abs(d-w) < 2);
-            dst  >>= 8;
-            want >>= 8;
+        for (auto got : dst) {
+            auto want = expected;
+            for (int i = 0; i < 4; i++) {
+                uint8_t d = got  & 0xff,
+                        w = want & 0xff;
+                REPORTER_ASSERT(r, abs(d-w) < 2);
+                got  >>= 8;
+                want >>= 8;
+            }
         }
-    }
+    };
 
-    {
-        skvm::Program program = SrcoverBuilder_I32{}.done();
-
-        uint32_t src = 0xbb007733,
-                 dst = 0xffaaccee;
-        SkPMColor want = SkPMSrcOver(src, dst);  // 0xff2dad73
-
-        program.eval(1, &src, &dst);
-
-        // dst is probably 0xff2dad72.
-        for (int i = 0; i < 4; i++) {
-            uint8_t d = dst  & 0xff,
-                    w = want & 0xff;
-            REPORTER_ASSERT(r, abs(d-w) < 2);
-            dst  >>= 8;
-            want >>= 8;
-        }
-    }
-
-    {
-        skvm::Program program = SrcoverBuilder_I32_SWAR{}.done();
-
-        uint32_t src = 0xbb007733,
-                 dst = 0xffaaccee;
-        SkPMColor want = SkPMSrcOver(src, dst);  // 0xff2dad73
-
-        program.eval(1, &src, &dst);
-
-        // dst is probably 0xff2dad72.
-        for (int i = 0; i < 4; i++) {
-            uint8_t d = dst  & 0xff,
-                    w = want & 0xff;
-            REPORTER_ASSERT(r, abs(d-w) < 2);
-            dst  >>= 8;
-            want >>= 8;
-        }
-    }
+    test_8888(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::RGBA_8888}.done());
+    //test_8888(SrcoverBuilder_I32{}.done());
+    test_8888(SrcoverBuilder_I32_SWAR{}.done());
 
     {
         skvm::Program program = SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::G8}.done();
 
-        uint32_t src = 0xbb007733;
-        uint8_t dst = 0x42;
-        SkPMColor over = SkPMSrcOver(SkPackARGB32(0xbb, 0x33, 0x77, 0x00), 0xff424242);
+        uint32_t src[9];
+        uint8_t  dst[SK_ARRAY_COUNT(src)];
+
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(src); i++) {
+            src[i] = 0xbb007733;
+            dst[i] = 0x42;
+        }
+
+        SkPMColor over = SkPMSrcOver(SkPackARGB32(0xbb, 0x33, 0x77, 0x00),
+                                     0xff424242);
 
         uint8_t want = SkComputeLuminance(SkGetPackedR32(over),
                                           SkGetPackedG32(over),
                                           SkGetPackedB32(over));
-        program.eval(1, &src, &dst);
+        program.eval((int)SK_ARRAY_COUNT(src), src, dst);
 
-        REPORTER_ASSERT(r, abs(dst-want) < 3);
+        for (auto got : dst) {
+            REPORTER_ASSERT(r, abs(got-want) < 3);
+        }
     }
 
     {

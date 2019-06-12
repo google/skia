@@ -494,8 +494,12 @@ namespace skvm {
                                              vpaddd(r[d], r[d], r[z.id]);
                                              break;
 
-                        case Op::extract: if (y.imm) { vpsrld(r[d], r[x], y.imm); }
-                                          vandps(r[d], r[d], r[z.id]);
+                        case Op::extract: if (y.imm) {
+                                              vpsrld(r[d], r[x], y.imm);
+                                              vandps(r[d], r[d], r[z.id]);
+                                          } else {
+                                              vandps(r[d], r[x], r[z.id]);
+                                          }
                                           break;
 
                         case Op::pack: vpslld(r[d], r[y.id], z.imm);

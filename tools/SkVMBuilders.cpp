@@ -135,7 +135,7 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
     auto mul_unorm8_SWAR = [&](skvm::I32 x, skvm::I32 y) {
         // As above, assuming x is two SWAR bytes in lanes 0 and 2, and y is a byte.
         skvm::I32 _255 = splat(0x00ff00ff);
-        return extract(add(mul(x, y), _255), 8, _255);
+        return extract(add(mul(x, y), x), 8, _255);
     };
 
     skvm::I32 rb, ga;
