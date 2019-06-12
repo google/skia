@@ -1257,17 +1257,23 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     GrAAType aaType = this->chooseAAType(aa);
 
     std::unique_ptr<GrDrawOp> op;
-    if (style.isSimpleFill()) {
+    bool canUseOvalOpFactory = GrAAType::kCoverage == aaType;
+    if (canUseOvalOpFactory) {
+        assert_alive(paint);
+        op = GrOvalOpFactory::MakeRRectOp(fContext, std::move(paint), viewMatrix, rrect, stroke,
+                                          this->caps()->shaderCaps(), true /* circularOnly */);
+    }
+    if (!op && style.isSimpleFill()) {
         assert_alive(paint);
         op = GrFillRRectOp::Make(
                 fContext, aaType, viewMatrix, rrect, *this->caps(), std::move(paint));
     }
-    if (!op && GrAAType::kCoverage == aaType) {
+    if (!op && canUseOvalOpFactory) {
         assert_alive(paint);
-        op = GrOvalOpFactory::MakeRRectOp(
-                fContext, std::move(paint), viewMatrix, rrect, stroke, this->caps()->shaderCaps());
-
+        op = GrOvalOpFactory::MakeRRectOp(fContext, std::move(paint), viewMatrix, rrect, stroke,
+                                          this->caps()->shaderCaps(), false /* circularOnly */);
     }
+
     if (op) {
         this->addDrawOp(*clip, std::move(op));
         return;

@@ -2905,7 +2905,8 @@ static std::unique_ptr<GrDrawOp> make_rrect_op(GrRecordingContext* context,
                                                GrPaint&& paint,
                                                const SkMatrix& viewMatrix,
                                                const SkRRect& rrect,
-                                               const SkStrokeRec& stroke) {
+                                               const SkStrokeRec& stroke,
+                                               bool circularOnly = false) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(rrect.isSimple());
     SkASSERT(!rrect.isOval());
@@ -2971,8 +2972,10 @@ static std::unique_ptr<GrDrawOp> make_rrect_op(GrRecordingContext* context,
     if (isCircular) {
         return CircularRRectOp::Make(context, std::move(paint), viewMatrix, bounds, xRadius,
                                      scaledStroke.fX, isStrokeOnly);
-        // otherwise we use the ellipse renderer
+    } else if (circularOnly) {
+        return nullptr;
     } else {
+        // otherwise we use the ellipse renderer
         return EllipticalRRectOp::Make(context, std::move(paint), viewMatrix, bounds,
                                        xRadius, yRadius, scaledStroke, isStrokeOnly);
     }
@@ -2983,7 +2986,8 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrRecordingContext* conte
                                                        const SkMatrix& viewMatrix,
                                                        const SkRRect& rrect,
                                                        const SkStrokeRec& stroke,
-                                                       const GrShaderCaps* shaderCaps) {
+                                                       const GrShaderCaps* shaderCaps,
+                                                       bool circularOnly) {
     if (rrect.isOval()) {
         return MakeOvalOp(context, std::move(paint), viewMatrix, rrect.getBounds(),
                           GrStyle(stroke, nullptr), shaderCaps);
@@ -2993,7 +2997,7 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrRecordingContext* conte
         return nullptr;
     }
 
-    return make_rrect_op(context, std::move(paint), viewMatrix, rrect, stroke);
+    return make_rrect_op(context, std::move(paint), viewMatrix, rrect, stroke, circularOnly);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -38,7 +38,8 @@ public:
                                                  const SkMatrix&,
                                                  const SkRRect&,
                                                  const SkStrokeRec&,
-                                                 const GrShaderCaps*);
+                                                 const GrShaderCaps*,
+                                                 bool circularOnly);
 
     static std::unique_ptr<GrDrawOp> MakeArcOp(GrRecordingContext*,
                                                GrPaint&&,
