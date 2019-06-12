@@ -35,6 +35,7 @@ class SkShader;
     SkPaint does not directly implement dashing or blur, but contains the objects that do so.
 */
 class SK_API SkPaint {
+error
 public:
 
     /** Constructs SkPaint with default values.
