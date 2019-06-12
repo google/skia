@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e06a520_35945a48",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-12T13:59:21Z",
+      "side": 1,
+      "message": "Perhaps instead of asking the client to choose this (they\u0027re not going to know what to do) we could say if sampleCount \u003e 1 then it means use normal MSAA with sampleCount color samples. If they say 1 then we get to decide to attach a multisampled stencil using mixed samples if we feel like it.",
+      "revId": "2671dbbf2a8859e99f3de9a834bd34a122285cdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
