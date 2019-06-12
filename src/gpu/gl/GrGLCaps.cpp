@@ -2126,31 +2126,46 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         //    GL 3.0 requires support for R16 & RG16
         //    GL_ARB_texture_rg adds R16 & RG16 support for OpenGL 1.1 and above
         // For ES:
-        //    GL_EXT_texture_norm16 adds support but it requires ES 3.1
+        //    ES 3.2 requires both texture and render support
+        //    ES 3.0 only requires texture support
+        //    GL_EXT_texture_norm16 adds support for both texturing and rendering
         //    There is also the GL_NV_image_formats extension - for further investigation
-        bool r16AndRG1616Supported = false;
+        bool r16AndRG1616TexturesSupported = false;
+        bool r16AndRG1616RenderingSupported = false;
         if (GR_IS_GR_GL(standard)) {
             if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_texture_rg")) {
-                r16AndRG1616Supported = true;
+                r16AndRG1616TexturesSupported = true;
+                r16AndRG1616RenderingSupported = true;
             }
         } else if (GR_IS_GR_GL_ES(standard)) {
-            if (version >= GR_GL_VER(3, 1) && ctxInfo.hasExtension("GL_EXT_texture_norm16")) {
-                r16AndRG1616Supported = true;
+            if (version >= GR_GL_VER(3, 2) || ctxInfo.hasExtension("GL_EXT_texture_norm16")) {
+                r16AndRG1616TexturesSupported = true;
+                r16AndRG1616RenderingSupported = true;
+            } else if (version >= GR_GL_VER(3, 0)) {
+                r16AndRG1616TexturesSupported = true; // texture only
             }
         } // No WebGL support
 
         // For desktop:
-        //    GL 3.0 requires support for RGBA16
+        //    GL 3.0 requires both texture and render support for RGBA16
         // For ES:
-        //    GL_EXT_texture_norm16 adds support but it requires ES 3.1
-        bool rgba16161616Supported = false;
-        if (GR_IS_GR_GL(standard)) {
-            if (version >= GR_GL_VER(3, 0)) {
-                rgba16161616Supported = true;
-            }
+        //    ES 3.2 requires both texture and render support
+        //    ES 3.0 requires texture-only support
+        //    GL_EXT_texture_norm16 adds support for both texturing and rendering
+        //
+        // This is basically the same as R16F and RG16F except the GL_ARB_texture_rg extension
+        // doesn't add this format
+        bool rgba16161616TexturesSupported = false;
+        bool rgba16161616RenderingSupported = false;
+        if (GR_IS_GR_GL(standard) && version >= GR_GL_VER(3, 0)) {
+            rgba16161616TexturesSupported = true;
+            rgba16161616RenderingSupported = true;
         } else if (GR_IS_GR_GL_ES(standard)) {
-            if (version >= GR_GL_VER(3, 1) && ctxInfo.hasExtension("GL_EXT_texture_norm16")) {
-                rgba16161616Supported = true;
+            if (version >= GR_GL_VER(3, 2) || ctxInfo.hasExtension("GL_EXT_texture_norm16")) {
+                rgba16161616TexturesSupported = true;
+                rgba16161616RenderingSupported = true;
+            } else if (version >= GR_GL_VER(3, 0)) {
+                rgba16161616TexturesSupported = true; // texture only
             }
         } // No WebGL support
 
@@ -2162,8 +2177,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             r16Info.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
             r16Info.fFormats.fExternalType = GR_GL_UNSIGNED_SHORT;
             r16Info.fFormatType = kNormalizedFixedPoint_FormatType;
-            if (r16AndRG1616Supported) {
-                r16Info.fFlags = ConfigInfo::kTextureable_Flag | allRenderFlags;
+            if (r16AndRG1616TexturesSupported) {
+                r16Info.fFlags |= ConfigInfo::kTextureable_Flag;
+            }
+            if (r16AndRG1616RenderingSupported) {
+                r16Info.fFlags |= allRenderFlags;
             }
             // We should only ever be sampling the R channel of this format so don't bother
             // with a fancy swizzle.
@@ -2178,8 +2196,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             rg1616Info.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RG;
             rg1616Info.fFormats.fExternalType = GR_GL_UNSIGNED_SHORT;
             rg1616Info.fFormatType = kNormalizedFixedPoint_FormatType;
-            if (r16AndRG1616Supported) {
-                rg1616Info.fFlags = ConfigInfo::kTextureable_Flag | allRenderFlags;
+            if (r16AndRG1616TexturesSupported) {
+                rg1616Info.fFlags |= ConfigInfo::kTextureable_Flag;
+            }
+            if (r16AndRG1616RenderingSupported) {
+                rg1616Info.fFlags |= allRenderFlags;
             }
             // We should only ever be sampling the R and G channels of this format so don't bother
             // with a fancy swizzle.
@@ -2195,8 +2216,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             rgba16161616Info.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RGBA;
             rgba16161616Info.fFormats.fExternalType = GR_GL_UNSIGNED_SHORT;
             rgba16161616Info.fFormatType = kNormalizedFixedPoint_FormatType;
-            if (rgba16161616Supported) {
-                rgba16161616Info.fFlags = ConfigInfo::kTextureable_Flag | allRenderFlags;
+            if (rgba16161616TexturesSupported) {
+                rgba16161616Info.fFlags |= ConfigInfo::kTextureable_Flag;
+            }
+            if (rgba16161616RenderingSupported) {
+                rgba16161616Info.fFlags |= allRenderFlags;
             }
             shaderCaps->fConfigTextureSwizzle[kRGBA_16161616_GrPixelConfig] = GrSwizzle::RGBA();
         }

@@ -999,12 +999,8 @@ static void make_RGBA_16(const GrCaps* caps,
         }
     }
 
-    // For this to work we need GrColorType::kRGBA_16 support, i.e.:
-    //    GL:  RGBA16 (required in GL 3.0, added by GL_EXT_texture_norm16 for ES3.1)
-    //    Vk:  VK_FORMAT_R16G16B16A16_UNORM
-    //    Mtl: MTLPixelFormatRGBA16Unorm
-//    *format = caps->getBackendFormatFromGrColorType(GrColorType::kRGBA_16161616,
-//                                                    GrSRGBEncoded::kNo);
+    *format = caps->getBackendFormatFromGrColorType(GrColorType::kRGBA_16161616,
+                                                    GrSRGBEncoded::kNo);
     return;
 }
 
@@ -1201,7 +1197,7 @@ protected:
                             yuvaPixmaps[i] = resultBMs[i].pixmap();
                         }
 
-                        int counterMod = counter % 3;
+                        int counterMod = 1; // counter % 3;
                         if (format_cant_be_represented_with_pixmaps((YUVFormat) format) &&
                             counterMod == 2) {
                             // These formats don't work as pixmaps
