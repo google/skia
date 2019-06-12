@@ -51,6 +51,7 @@ GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& st
     args.fCaps = &state.caps();
     args.fResourceProvider = state.resourceProvider();
     args.fDstProxy = state.drawOpArgs().fDstProxy;
+    args.fOutputSwizzle = state.drawOpArgs().fOutputSwizzle;
     return args;
 }
 

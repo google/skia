@@ -254,9 +254,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 // Test wrapping FBO 0 (with made up properties). This tests sample count and the
                 // special case where FBO 0 doesn't support window rectangles.
                 if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
+                    GrBackendFormat beFormat = caps.getBackendFormatFromColorType(colorType);
                     GrGLFramebufferInfo fboInfo;
                     fboInfo.fFBOID = 0;
-                    fboInfo.fFormat = GR_GL_RGBA8;
+                    SkASSERT(beFormat.getGLFormat());
+                    fboInfo.fFormat = *beFormat.getGLFormat();
                     static constexpr int kStencilBits = 8;
                     GrBackendRenderTarget backendRT(kWidthHeight, kWidthHeight, numSamples,
                                                     kStencilBits, fboInfo);
