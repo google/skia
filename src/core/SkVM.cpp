@@ -420,8 +420,9 @@ namespace skvm {
                 // All 16 ymm registers are available as scratch.
                 Xbyak::Ymm r[] = {
                     ymm0, ymm1, ymm2 , ymm3 , ymm4 , ymm5 , ymm6 , ymm7 ,
-                    ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15,
-                };
+                    ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14,
+                }, tmp = ymm15;
+
              #endif
 
                 // Label / 4-byte values we need to write after ret.
@@ -440,14 +441,18 @@ namespace skvm {
                     auto y = inst.y,
                          z = inst.z;
                     switch (op) {
+
+                        // Ops producing multiple AVX instructions should always
+                        // use tmp as the result of all but the final instruction
+                        // to avoid any possible dst/arg aliasing.  You don't want
+                        // to overwrite your arguments before you're done using them!
+
                         case Op::store8:
-                            // Like any other instruction, store8 has been assigned
-                            // a "destination" register we can use as a temporary scratch.
-                            vpackusdw(r[d], r[x], r[x]);       // pack 32-bit -> 16-bit
-                            vpermq   (r[d], r[d], 0xd8);       // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
-                            vpackuswb(r[d], r[d], r[d]);       // pack 16-bit -> 8-bit
-                            vmovq(ptr[arg[y.imm]],             // store low 8 bytes
-                                  Xbyak::Xmm{r[d].getIdx()});  // (arg must be an xmm register)
+                            vpackusdw(tmp, r[x], r[x]);      // pack 32-bit -> 16-bit
+                            vpermq   (tmp, tmp, 0xd8);       // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
+                            vpackuswb(tmp, tmp, tmp);        // pack 16-bit -> 8-bit
+                            vmovq(ptr[arg[y.imm]],           // store low 8 bytes
+                                  Xbyak::Xmm{tmp.getIdx()}); // (arg must be an xmm register)
                             break;
 
                         case Op::store32: vmovups(ptr[arg[y.imm]], r[x]); break;
@@ -467,8 +472,8 @@ namespace skvm {
                             if (d == x   ) { vfmadd132ps(r[x   ], r[z.id], r[y.id]); } else
                             if (d == y.id) { vfmadd213ps(r[y.id], r[x   ], r[z.id]); } else
                             if (d == z.id) { vfmadd231ps(r[z.id], r[x   ], r[y.id]); } else
-                                           { vmulps(r[d], r[x], r[y.id]);
-                                             vaddps(r[d], r[d], r[z.id]); }
+                                           { vmulps(tmp, r[x], r[y.id]);
+                                             vaddps(r[d], tmp, r[z.id]); }
                             break;
 
                         case Op::add_i32: vpaddd (r[d], r[x], r[y.id]); break;
@@ -483,27 +488,27 @@ namespace skvm {
                         case Op::shr: vpsrld(r[d], r[x], y.imm); break;
                         case Op::sra: vpsrad(r[d], r[x], y.imm); break;
 
-                        case Op::mul_unorm8: vpmulld(r[d], r[x], r[y.id]);
-                                             vpaddd(r[d], r[d], r[x]);
-                                             vpsrad(r[d], r[d], 8);
+                        case Op::mul_unorm8: vpmulld(tmp, r[x], r[y.id]);
+                                             vpaddd (tmp, tmp, r[x]);
+                                             vpsrad (r[d],tmp, 8);
                                              break;
 
-                        case Op::mad_unorm8: vpmulld(r[d], r[x], r[y.id]);
-                                             vpaddd(r[d], r[d], r[x]);
-                                             vpsrad(r[d], r[d], 8);
-                                             vpaddd(r[d], r[d], r[z.id]);
+                        case Op::mad_unorm8: vpmulld(tmp, r[x], r[y.id]);
+                                             vpaddd (tmp, tmp, r[x]);
+                                             vpsrad (tmp, tmp, 8);
+                                             vpaddd (r[d],tmp, r[z.id]);
                                              break;
 
                         case Op::extract: if (y.imm) {
-                                              vpsrld(r[d], r[x], y.imm);
-                                              vandps(r[d], r[d], r[z.id]);
+                                              vpsrld(tmp, r[x], y.imm);
+                                              vandps(r[d], tmp, r[z.id]);
                                           } else {
                                               vandps(r[d], r[x], r[z.id]);
                                           }
                                           break;
 
-                        case Op::pack: vpslld(r[d], r[y.id], z.imm);
-                                       vorps (r[d], r[d   ], r[x]);
+                        case Op::pack: vpslld(tmp, r[y.id], z.imm);
+                                       vorps (r[d], tmp, r[x]);
                                        break;
 
                         case Op::to_f32: vcvtdq2ps (r[d], r[x]); break;

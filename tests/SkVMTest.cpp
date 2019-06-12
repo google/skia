@@ -105,7 +105,7 @@ DEF_TEST(SkVM, r) {
     };
 
     test_8888(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::RGBA_8888}.done());
-    //test_8888(SrcoverBuilder_I32{}.done());
+    test_8888(SrcoverBuilder_I32{}.done());
     test_8888(SrcoverBuilder_I32_SWAR{}.done());
 
     {
