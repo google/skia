@@ -512,12 +512,11 @@ namespace skvm {
                 }
 
                 this->body_ends = this->getSize();
-                sub(N, K);
                 for (int i = 0; i < nargs; i++) {
                     add(arg[i], K*(int)strides[i]);
                 }
-                cmp(N, K-1);
-                jg("loop");
+                sub(N, K);
+                jne("loop");
 
                 this->tail_ends = this->getSize();
                 vzeroupper();
@@ -622,23 +621,22 @@ namespace skvm {
         #endif
         }
 
-        if (n >= JIT::K) {
+        if (const int jitN = (n / JIT::K) * JIT::K) {
             bool ran = true;
             switch (nargs) {
-                case 0: fJIT->getCode<void(*)(int              )>()(n                  ); break;
-                case 1: fJIT->getCode<void(*)(int, void*       )>()(n, args[0]         ); break;
-                case 2: fJIT->getCode<void(*)(int, void*, void*)>()(n, args[0], args[1]); break;
+                case 0: fJIT->getCode<void(*)(int              )>()(jitN                  ); break;
+                case 1: fJIT->getCode<void(*)(int, void*       )>()(jitN, args[0]         ); break;
+                case 2: fJIT->getCode<void(*)(int, void*, void*)>()(jitN, args[0], args[1]); break;
                 default: ran = false; break;
             }
             if (ran) {
                 // Step n and arguments forward to where the JIT stopped.
-                const int jit_stopped = (n / JIT::K) * JIT::K;
-                n -= jit_stopped;
+                n -= jitN;
 
                 void**        arg    = args;
                 const size_t* stride = strides;
                 for (; *arg; arg++, stride++) {
-                    *arg = (void*)( (char*)*arg + jit_stopped * *stride );
+                    *arg = (void*)( (char*)*arg + jitN * *stride );
                 }
                 SkASSERT(arg == args + nargs);
             }
