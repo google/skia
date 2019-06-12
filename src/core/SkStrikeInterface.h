@@ -70,8 +70,9 @@ public:
                                                        SkGlyphPos results[]) = 0;
 
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
-    // TODO: Deprecated. Do not use. Remove when ARGB fallback for bitmap device paths is working.
-    virtual void generatePath(const SkGlyph& glyph) = 0;
+
+    // If glyph does not have an existing path, then add a path to glyph using a scaler context.
+    virtual const SkPath* preparePath(SkGlyph* glyph) = 0;
     virtual void onAboutToExitScope() = 0;
 
     struct Deleter {

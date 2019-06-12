@@ -460,6 +460,12 @@ public:
     */
     int getVerbs(uint8_t verbs[], int max) const;
 
+    /** Returns the approximate byte size of SkPath.
+
+        @return  approximate size
+    */
+    size_t approximateBytesUsed() const;
+
     /** Exchanges the verb array, SkPoint array, weights, and SkPath::FillType with other.
         Cached state is also exchanged. swap() internally exchanges pointers, so
         it is lightweight and does not allocate memory.

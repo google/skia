@@ -153,21 +153,26 @@ public:
 
     SkMask mask(SkPoint position) const;
 
-    SkPath* addPath(SkScalerContext*, SkArenaAlloc*);
+    // If we haven't already tried to associate a path to this glyph
+    // (i.e. setPathHasBeenCalled() returns false), then use the
+    // SkScalerContext or SkPath argument to try to do so.  N.B. this
+    // may still result in no path being associated with this glyph,
+    // e.g. if you pass a null SkPath or the typeface is bitmap-only.
+    //
+    // This setPath() call is sticky... once you call it, the glyph
+    // stays in its state permanently, ignoring any future calls.
+    //
+    // Returns true if this is the first time you called setPath()
+    // and there actually is a path; call path() to get it.
+    bool setPath(SkArenaAlloc* alloc, SkScalerContext* scalerContext);
+    bool setPath(SkArenaAlloc* alloc, const SkPath* path);
 
-    SkPath* path() const {
-        return fPathData != nullptr && fPathData->fHasPath ? &fPathData->fPath : nullptr;
-    }
+    // Returns true if that path has been set.
+    bool setPathHasBeenCalled() const { return fPathData != nullptr; }
 
-    bool hasPath() const {
-        // Need to have called getMetrics before calling findPath.
-        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
-
-        // Find path must have been called to use this call.
-        SkASSERT(fPathData != nullptr);
-
-        return fPathData != nullptr && fPathData->fHasPath;
-    }
+    // Return a pointer to the path if it exists, otherwise return nullptr. Only works if the
+    // path was previously set.
+    const SkPath* path() const;
 
     int maxDimension() const {
         // width and height are only defined if a metrics call was made.
@@ -189,11 +194,6 @@ public:
                           SkScalar* array, int* count, SkArenaAlloc* alloc);
 
     void*     fImage    = nullptr;
-
-    // Path data has tricky state. If the glyph isEmpty, then fPathData should always be nullptr,
-    // else if fPathData is not null, then a path has been requested. The fPath field of fPathData
-    // may still be null after the request meaning that there is no path for this glyph.
-    PathData* fPathData = nullptr;
 
     // The width and height of the glyph mask.
     uint16_t  fWidth  = 0,
@@ -238,6 +238,14 @@ private:
         SkPath     fPath;
         bool       fHasPath{false};
     };
+
+    // path == nullptr indicates there is no path.
+    void installPath(SkArenaAlloc* alloc, const SkPath* path);
+
+    // Path data has tricky state. If the glyph isEmpty, then fPathData should always be nullptr,
+    // else if fPathData is not null, then a path has been requested. The fPath field of fPathData
+    // may still be null after the request meaning that there is no path for this glyph.
+    PathData* fPathData = nullptr;
 
     // The advance for this glyph.
     float     fAdvanceX = 0,
