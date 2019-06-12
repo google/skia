@@ -636,4 +636,3 @@ namespace skvm {
 }
 
 // TODO: argument strides (more generally types) should come earlier, the pointers themselves later.
-// TODO: share 255 splats
