@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddece78e_8a553448",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-12T19:19:35Z",
+      "side": 1,
+      "message": "If you make this jgt, then you don\u0027t need to worry about making it hit zero.",
+      "range": {
+        "startLine": 519,
+        "startChar": 16,
+        "endLine": 519,
+        "endChar": 19
+      },
+      "revId": "2c6e42e74fdbc70e47a17d270ee6da9baf651718",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37365ebb_94f64923",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-12T19:19:35Z",
+      "side": 1,
+      "message": "Consider using jge above, and then you can just use n instead of calculating this multiple of K.",
+      "range": {
+        "startLine": 624,
+        "startChar": 22,
+        "endLine": 624,
+        "endChar": 50
+      },
+      "revId": "2c6e42e74fdbc70e47a17d270ee6da9baf651718",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
