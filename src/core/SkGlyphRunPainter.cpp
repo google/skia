@@ -174,7 +174,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                 } else {
                     // TODO: this is here to have chrome layout tests pass. Remove this when
                     //  fallback for CPU works.
-                    strike->generatePath(glyph);
+                    strike->ensurePath((SkGlyph*)(&glyph));
                     if (check_glyph_position(position) && !glyph.isEmpty() && glyph.hasPath()) {
                         pathsAndPositions.push_back(SkPathPos{glyph.path(), position});
                     }
