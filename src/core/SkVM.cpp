@@ -424,9 +424,6 @@ namespace skvm {
                 Xbyak::Xmm tmplo = xmm15;
              #endif
 
-                // Label / 4-byte values we need to write after ret.
-                std::vector<std::pair<Xbyak::Label, int>> splats;
-
                 for (int i = 0; i < (int)instructions.size(); i++) {
                     if (i == loop) {
                         L("loop");
@@ -452,8 +449,7 @@ namespace skvm {
                         case Op::load8:  vpmovzxbd(r[d], ptr[arg[y.imm]]); break;
                         case Op::load32: vmovups  (r[d], ptr[arg[y.imm]]); break;
 
-                        case Op::splat: splats.emplace_back(Xbyak::Label(), y.imm);
-                                        vbroadcastss(r[d], ptr[rip + splats.back().first]);
+                        case Op::splat: vbroadcastss(r[d], ptr[rip + &inst.y.imm]);
                                         break;
 
                         case Op::add_f32: vaddps(r[d], r[x], r[y.id]); break;
@@ -515,12 +511,6 @@ namespace skvm {
                 this->tail_ends = this->getSize();
                 vzeroupper();
                 ret();
-
-                for (auto splat : splats) {
-                    align(4);
-                    L(splat.first);
-                    dd(splat.second);
-                }
             }
         };
     #endif
