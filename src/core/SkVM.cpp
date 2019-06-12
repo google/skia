@@ -467,7 +467,8 @@ namespace skvm {
                             if (d == x   ) { vfmadd132ps(r[x   ], r[z.id], r[y.id]); } else
                             if (d == y.id) { vfmadd213ps(r[y.id], r[x   ], r[z.id]); } else
                             if (d == z.id) { vfmadd231ps(r[z.id], r[x   ], r[y.id]); } else
-                                           { vmulps(r[d], r[x], r[y.id]);
+                                           { SkASSERT(d != z.id);  // would be unsafe to alias
+                                             vmulps(r[d], r[x], r[y.id]);
                                              vaddps(r[d], r[d], r[z.id]); }
                             break;
 
@@ -483,18 +484,22 @@ namespace skvm {
                         case Op::shr: vpsrld(r[d], r[x], y.imm); break;
                         case Op::sra: vpsrad(r[d], r[x], y.imm); break;
 
-                        case Op::mul_unorm8: vpmulld(r[d], r[x], r[y.id]);
-                                             vpaddd(r[d], r[d], r[x]);
-                                             vpsrad(r[d], r[d], 8);
+                        case Op::mul_unorm8: SkASSERT(d != x);  // TODO
+                                             vpmulld(r[d], r[x], r[y.id]);
+                                             vpaddd (r[d], r[d], r[x]);
+                                             vpsrad (r[d], r[d], 8);
                                              break;
 
-                        case Op::mad_unorm8: vpmulld(r[d], r[x], r[y.id]);
-                                             vpaddd(r[d], r[d], r[x]);
-                                             vpsrad(r[d], r[d], 8);
-                                             vpaddd(r[d], r[d], r[z.id]);
+                        case Op::mad_unorm8: SkASSERT(d != x);    // TODO
+                                             SkASSERT(d != z.id); // TODO
+                                             vpmulld(r[d], r[x], r[y.id]);
+                                             vpaddd (r[d], r[d], r[x]);
+                                             vpsrad (r[d], r[d], 8);
+                                             vpaddd (r[d], r[d], r[z.id]);
                                              break;
 
                         case Op::extract: if (y.imm) {
+                                              SkASSERT(d != z.id);  // TODO
                                               vpsrld(r[d], r[x], y.imm);
                                               vandps(r[d], r[d], r[z.id]);
                                           } else {
@@ -502,7 +507,8 @@ namespace skvm {
                                           }
                                           break;
 
-                        case Op::pack: vpslld(r[d], r[y.id], z.imm);
+                        case Op::pack: SkASSERT(d != x);  // TODO
+                                       vpslld(r[d], r[y.id], z.imm);
                                        vorps (r[d], r[d   ], r[x]);
                                        break;
 
