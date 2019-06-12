@@ -778,12 +778,12 @@ static bool needs_new_font(SkPDFFont* font, SkGlyphID gid, SkStrike* cache,
     if (fontType == SkAdvancedTypefaceMetrics::kOther_Font) {
         return false;
     }
-    const SkGlyph& glyph = cache->getGlyphIDMetrics(gid);
-    if (glyph.isEmpty()) {
+    SkGlyph* glyph = cache->glyph(gid);
+    if (glyph->isEmpty()) {
         return false;
     }
 
-    bool bitmapOnly = nullptr == cache->findPath(glyph);
+    bool bitmapOnly = nullptr == cache->preparePath(glyph);
     bool convertedToType3 = (font->getType() == SkAdvancedTypefaceMetrics::kOther_Font);
     return convertedToType3 != bitmapOnly;
 }
