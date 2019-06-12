@@ -46,8 +46,8 @@ public:
                 glyphIDs, positions, n, maxDimension, detail, results);
     }
 
-    void generatePath(const SkGlyph& glyph) override {
-        fStrike.generatePath(glyph);
+    const SkPath* preparePath(SkGlyph* glyph) override {
+        return fStrike.preparePath(glyph);
     }
 
     const SkDescriptor& getDescriptor() const override {
@@ -349,12 +349,11 @@ bool SkStrikeCache::desperationSearchForPath(
     // There is also a problem with accounting for cache size with shared path data.
     for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
         if (loose_compare(node->fStrike.getDescriptor(), desc)) {
-            if (node->fStrike.isGlyphCached(glyphID, 0, 0)) {
-                SkGlyph* from = node->fStrike.getRawGlyphByID(SkPackedGlyphID(glyphID));
-                if (from->fPathData != nullptr) {
+            if (SkGlyph *from = node->fStrike.glyphOrNull(SkPackedGlyphID{glyphID})) {
+                if (from->setPathHasBeenCalled() && from->path() != nullptr) {
                     // We can just copy the path out by value here, so no need to worry
                     // about the lifetime of this desperate-match node.
-                    *path = from->fPathData->fPath;
+                    *path = *from->path();
                     return true;
                 }
             }
