@@ -941,11 +941,11 @@ TextInterceptsIter::TextInterceptsIter(const SkGlyphID glyphs[],
 
 bool TextInterceptsIter::next(SkScalar* array, int* count) {
     SkASSERT(fGlyphs < fStop);
-    const SkGlyph& glyph = fCache->getGlyphIDMetrics(*fGlyphs++);
+    SkGlyph* glyph = fCache->glyph(*fGlyphs++);
     fXPos += fPrevAdvance * fScale;
-    fPrevAdvance = SkFloatToScalar(glyph.advanceX());
-    if (fCache->findPath(glyph)) {
-        fCache->findIntercepts(fBounds, fScale, fXPos, const_cast<SkGlyph*>(&glyph), array, count);
+    fPrevAdvance = glyph->advanceX();
+    if (fCache->preparePath(glyph) != nullptr) {
+        fCache->findIntercepts(fBounds, fScale, fXPos, glyph, array, count);
     }
     return fGlyphs < fStop;
 }
