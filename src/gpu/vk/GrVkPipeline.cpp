@@ -626,7 +626,7 @@ void GrVkPipeline::SetDynamicViewportState(GrVkGpu* gpu,
 
 void GrVkPipeline::SetDynamicBlendConstantState(GrVkGpu* gpu,
                                                 GrVkCommandBuffer* cmdBuffer,
-                                                GrPixelConfig pixelConfig,
+                                                const GrSwizzle& swizzle,
                                                 const GrXferProcessor& xferProcessor) {
     GrXferProcessor::BlendInfo blendInfo;
     xferProcessor.getBlendInfo(&blendInfo);
@@ -635,7 +635,6 @@ void GrVkPipeline::SetDynamicBlendConstantState(GrVkGpu* gpu,
     float floatColors[4];
     if (blend_coeff_refs_constant(srcCoeff) || blend_coeff_refs_constant(dstCoeff)) {
         // Swizzle the blend to match what the shader will output.
-        const GrSwizzle& swizzle = gpu->caps()->shaderCaps()->configOutputSwizzle(pixelConfig);
         SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
         floatColors[0] = blendConst.fR;
         floatColors[1] = blendConst.fG;

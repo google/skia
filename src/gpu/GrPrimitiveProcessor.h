@@ -255,24 +255,27 @@ class GrPrimitiveProcessor::TextureSampler {
 public:
     TextureSampler() = default;
 
-    TextureSampler(GrTextureType, GrPixelConfig, const GrSamplerState&, uint32_t extraSamplerKey);
+    TextureSampler(GrTextureType, GrPixelConfig, const GrSamplerState&, const GrSwizzle&,
+                   uint32_t extraSamplerKey);
 
-    explicit TextureSampler(GrTextureType, GrPixelConfig,
-                            GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
-                            GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp);
+    explicit TextureSampler(GrTextureType, GrPixelConfig, GrSamplerState::Filter,
+                            GrSamplerState::WrapMode wrapXAndY, const GrSwizzle&);
 
     TextureSampler(const TextureSampler&) = delete;
     TextureSampler& operator=(const TextureSampler&) = delete;
 
-    void reset(GrTextureType, GrPixelConfig, const GrSamplerState&, uint32_t extraSamplerKey = 0);
+    void reset(GrTextureType, GrPixelConfig, const GrSamplerState&, const GrSwizzle&,
+               uint32_t extraSamplerKey = 0);
     void reset(GrTextureType, GrPixelConfig,
                GrSamplerState::Filter,
-               GrSamplerState::WrapMode wrapXAndY);
+               GrSamplerState::WrapMode wrapXAndY,
+               const GrSwizzle& swizzle);
 
     GrTextureType textureType() const { return fTextureType; }
     GrPixelConfig config() const { return fConfig; }
 
     const GrSamplerState& samplerState() const { return fSamplerState; }
+    const GrSwizzle& swizzle() const { return fSwizzle; }
 
     uint32_t extraSamplerKey() const { return fExtraSamplerKey; }
 
@@ -280,6 +283,7 @@ public:
 
 private:
     GrSamplerState fSamplerState;
+    GrSwizzle fSwizzle;
     GrTextureType fTextureType = GrTextureType::k2D;
     GrPixelConfig fConfig = kUnknown_GrPixelConfig;
     uint32_t fExtraSamplerKey = 0;

@@ -759,7 +759,7 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
     }
     GrVkPipeline::SetDynamicViewportState(fGpu, cbInfo.currentCmdBuf(), fRenderTarget);
     GrVkPipeline::SetDynamicBlendConstantState(fGpu, cbInfo.currentCmdBuf(),
-                                               fRenderTarget->config(),
+                                               pipeline.outputSwizzle(),
                                                pipeline.getXferProcessor());
 
     return pipelineState;
