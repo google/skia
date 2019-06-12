@@ -922,11 +922,13 @@ namespace SK_OPTS_NS {
 // These named casts and bit_cast() are always what they seem to be.
 #if defined(JUMPER_IS_SCALAR)
     SI F   cast  (U32 v) { return   (F)v; }
+    SI F   cast64(U64 v) { return   (F)v; }
     SI U32 trunc_(F   v) { return (U32)v; }
     SI U32 expand(U16 v) { return (U32)v; }
     SI U32 expand(U8  v) { return (U32)v; }
 #else
     SI F   cast  (U32 v) { return      __builtin_convertvector((I32)v,   F); }
+    SI F   cast64(U64 v) { return      __builtin_convertvector(     v,   F); }
     SI U32 trunc_(F   v) { return (U32)__builtin_convertvector(     v, I32); }
     SI U32 expand(U16 v) { return      __builtin_convertvector(     v, U32); }
     SI U32 expand(U8  v) { return      __builtin_convertvector(     v, U32); }
@@ -1217,6 +1219,12 @@ SI void from_1010102(U32 rgba, F* r, F* g, F* b, F* a) {
 SI void from_1616(U32 _1616, F* r, F* g) {
     *r = cast((_1616      ) & 0xffff) * (1/65535.0f);
     *g = cast((_1616 >> 16) & 0xffff) * (1/65535.0f);
+}
+SI void from_16161616(U64 _16161616, F* r, F* g, F* b, F* a) {
+    *r = cast64((_16161616      ) & 0xffff) * (1/65535.0f);
+    *g = cast64((_16161616 >> 16) & 0xffff) * (1/65535.0f);
+    *b = cast64((_16161616 >> 32) & 0xffff) * (1/65535.0f);
+    *a = cast64((_16161616 >> 48) & 0xffff) * (1/65535.0f);
 }
 
 // Used by load_ and store_ stages to get to the right (dx,dy) starting point of contiguous memory.
@@ -2013,6 +2021,21 @@ STAGE(store_rg1616, const SkRasterPipeline_MemoryCtx* ctx) {
            | to_unorm(g, 65535) <<  16;
     store(ptr, px, tail);
 }
+STAGE(load_16161616, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint64_t>(ctx, dx,dy);
+    from_16161616(load<U64>(ptr, tail), &r,&g, &b, &a);
+}
+STAGE(store_16161616, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint16_t>(ctx, 4*dx,4*dy);
+
+    U16 R = pack(to_unorm(r, 65535)),
+        G = pack(to_unorm(g, 65535)),
+        B = pack(to_unorm(b, 65535)),
+        A = pack(to_unorm(a, 65535));
+
+    store4(ptr,tail, R,G,B,A);
+}
+
 
 STAGE(load_1010102, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint32_t>(ctx, dx,dy);
@@ -3825,6 +3848,8 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(dither)  // TODO
     NOT_IMPLEMENTED(from_srgb)
     NOT_IMPLEMENTED(to_srgb)
+    NOT_IMPLEMENTED(load_16161616)
+    NOT_IMPLEMENTED(store_16161616)
     NOT_IMPLEMENTED(load_a16)
     NOT_IMPLEMENTED(store_a16)
     NOT_IMPLEMENTED(load_rg1616)
