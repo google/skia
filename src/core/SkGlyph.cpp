@@ -117,18 +117,49 @@ size_t SkGlyph::copyImageData(const SkGlyph& from, SkArenaAlloc* alloc) {
     return 0u;
 }
 
-SkPath* SkGlyph::addPath(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
-    if (!this->isEmpty()) {
-        if (fPathData == nullptr) {
-            fPathData = alloc->make<SkGlyph::PathData>();
-            if (scalerContext->getPath(this->getPackedID(), &fPathData->fPath)) {
-                fPathData->fPath.updateBoundsCache();
-                fPathData->fPath.getGenerationID();
-                fPathData->fHasPath = true;
-            }
-        }
+const SkPath* SkGlyph::installPath(const SkPath* path, SkArenaAlloc* alloc) {
+    SkASSERT(fPathData == nullptr);
+    SkASSERT(!this->pathIsSet());
+    fPathData = alloc->make<SkGlyph::PathData>();
+    if (path != nullptr) {
+        fPathData->fPath = *path;
+        fPathData->fPath.updateBoundsCache();
+        fPathData->fPath.getGenerationID();
+        fPathData->fHasPath = true;
     }
+
     return this->path();
+}
+
+bool SkGlyph::setPath(SkArenaAlloc* alloc, SkScalerContext* scalerContext) {
+    if (!this->pathIsSet()) {
+        SkPath path;
+        SkPath* pathPtr = nullptr;
+        if (scalerContext->getPath(this->getPackedID(), &path)) {
+            pathPtr = &path;
+        }
+        this->installPath(pathPtr, alloc);
+        return true;
+    }
+
+    return false;
+}
+
+bool SkGlyph::setPath(SkArenaAlloc* alloc, const SkPath* path) {
+    if (!this->pathIsSet()) {
+        this->installPath(path, alloc);
+        return true;
+    }
+    return false;
+}
+
+const SkPath* SkGlyph::path() const {
+    // Find path must have been called to use this call.
+    SkASSERT(this->pathIsSet());
+    if (!this->isEmpty() && fPathData != nullptr && fPathData->fHasPath) {
+        return &fPathData->fPath;
+    }
+    return nullptr;
 }
 
 static std::tuple<SkScalar, SkScalar> calculate_path_gap(

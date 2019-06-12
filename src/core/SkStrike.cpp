@@ -16,12 +16,6 @@
 #include "src/core/SkMakeUnique.h"
 #include <cctype>
 
-namespace {
-size_t compute_path_size(const SkPath& path) {
-    return sizeof(SkPath) + path.countPoints() * sizeof(SkPoint);
-}
-}  // namespace
-
 SkStrike::SkStrike(
     const SkDescriptor& desc,
     std::unique_ptr<SkScalerContext> scaler,
@@ -71,6 +65,10 @@ SkGlyph* SkStrike::glyph(SkGlyphID glyphID) {
     return this->glyph(SkPackedGlyphID{glyphID});
 }
 
+SkGlyph* SkStrike::glyphOrNull(SkPackedGlyphID id) const {
+    return fGlyphMap.findOrNull(id);
+}
+
 SkGlyph* SkStrike::getRawGlyphByID(SkPackedGlyphID id) {
     return this->uninitializedGlyph(id);
 }
@@ -88,6 +86,21 @@ const SkGlyph& SkStrike::getGlyphIDMetrics(SkPackedGlyphID id) {
 const SkGlyph& SkStrike::getGlyphIDMetrics(SkGlyphID glyphID, SkFixed x, SkFixed y) {
     SkPackedGlyphID packedGlyphID(glyphID, x, y);
     return *this->glyph(packedGlyphID);
+}
+
+const SkPath* SkStrike::ensurePath(SkGlyph* glyph) {
+    if (!glyph->pathIsSet()) {
+        if (glyph->setPath(&fAlloc, fScalerContext.get()) && glyph->path() != nullptr) {
+            fMemoryUsed += glyph->path()->approximateBytesUsed();
+        }
+    }
+    return glyph->path();
+}
+
+void SkStrike::mergePath(SkGlyph* glyph, const SkPath* path) {
+    if (glyph->setPath(&fAlloc, path) && glyph->path() != nullptr) {
+        fMemoryUsed += glyph->path()->approximateBytesUsed();
+    }
 }
 
 const SkDescriptor& SkStrike::getDescriptor() const {
@@ -148,46 +161,6 @@ void SkStrike::initializeImage(const volatile void* data, size_t size, SkGlyph* 
     }
 }
 
-const SkPath* SkStrike::findPath(const SkGlyph& glyph) {
-
-    if (!glyph.isEmpty()) {
-        // If the path already exists, return it.
-        if (glyph.fPathData != nullptr) {
-            if (glyph.fPathData->fHasPath) {
-                return &glyph.fPathData->fPath;
-            }
-            return nullptr;
-        }
-
-        const_cast<SkGlyph&>(glyph).addPath(fScalerContext.get(), &fAlloc);
-        if (glyph.fPathData != nullptr) {
-            fMemoryUsed += compute_path_size(glyph.fPathData->fPath);
-        }
-
-        return glyph.path();
-    }
-
-    return nullptr;
-}
-
-bool SkStrike::initializePath(SkGlyph* glyph, const volatile void* data, size_t size) {
-    SkASSERT(!glyph->fPathData);
-
-    if (glyph->fWidth) {
-        SkGlyph::PathData* pathData = fAlloc.make<SkGlyph::PathData>();
-        glyph->fPathData = pathData;
-        if (size == 0u) return true;
-
-        auto path = skstd::make_unique<SkPath>();
-        if (!pathData->fPath.readFromMemory(const_cast<const void*>(data), size)) {
-            return false;
-        }
-        fMemoryUsed += compute_path_size(glyph->fPathData->fPath);
-        pathData->fHasPath = true;
-    }
-
-    return true;
-}
 
 bool SkStrike::belongsToCache(const SkGlyph* glyph) const {
     return glyph && fGlyphMap.findOrNull(glyph->getPackedID()) == glyph;
@@ -246,11 +219,11 @@ SkSpan<const SkGlyphPos> SkStrike::prepareForDrawing(const SkGlyphID glyphIDs[],
                 if (glyph.maxDimension() <= maxDimension) {
                     // Glyph fits in the atlas, good to go.
                     if (detail == SkStrikeInterface::kImageIfNeeded) {
-                        this->findImage(glyph);
+                        this->ensurePath((SkGlyph *)&glyph);
                     }
                 } else if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
                     // The out of atlas glyph is not color so we can draw it using paths.
-                    this->findPath(glyph);
+                    this->ensurePath((SkGlyph *)&glyph);
                 } else {
                     // This will be handled by the fallback strike.
                     SkASSERT(glyph.maxDimension() > maxDimension
@@ -285,10 +258,6 @@ void SkStrike::dump() const {
     SkDebugf("%s\n", msg.c_str());
 }
 
-void SkStrike::generatePath(const SkGlyph& glyph) {
-    if (!glyph.isEmpty()) { this->findPath(glyph); }
-}
-
 void SkStrike::onAboutToExitScope() { }
 
 #ifdef SK_DEBUG
@@ -299,8 +268,8 @@ void SkStrike::forceValidate() const {
         if (glyphPtr->fImage) {
             memoryUsed += glyphPtr->computeImageSize();
         }
-        if (glyphPtr->fPathData) {
-            memoryUsed += compute_path_size(glyphPtr->fPathData->fPath);
+        if (glyphPtr->pathIsSet() && glyphPtr->path() != nullptr) {
+            memoryUsed += glyphPtr->path()->approximateBytesUsed();
         }
     });
     SkASSERT(fMemoryUsed == memoryUsed);
