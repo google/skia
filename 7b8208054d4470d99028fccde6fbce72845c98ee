@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4fdbb982_630c5f9b",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1683,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-06-12T21:12:11Z",
+      "side": 1,
+      "message": "Whatever we work out for round rects, I think we should also apply it here rather than this quick-and-dirty check.",
+      "range": {
+        "startLine": 1683,
+        "startChar": 45,
+        "endLine": 1683,
+        "endChar": 74
+      },
+      "revId": "7b8208054d4470d99028fccde6fbce72845c98ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c345c6d8_4efb52af",
         "filename": "src/gpu/ops/GrOvalOpFactory.h",
         "patchSetId": 2
@@ -13,6 +36,30 @@
       "writtenOn": "2019-06-12T20:52:11Z",
       "side": 1,
       "message": "This does the job but I wasn\u0027t sure if this is the best way to structure the code. Let me know what you think.",
+      "range": {
+        "startLine": 42,
+        "startChar": 49,
+        "endLine": 42,
+        "endChar": 66
+      },
+      "revId": "7b8208054d4470d99028fccde6fbce72845c98ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5f25edf_610225a3",
+        "filename": "src/gpu/ops/GrOvalOpFactory.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-06-12T21:12:11Z",
+      "side": 1,
+      "message": "Let\u0027s rope in Jim, who owns the GrOvalOpFactory code.\n\nI think I would prefer a new entry point to do the circular checks and abort if not circular:\n\n  GrOvalRectOp::MakeCircularRRectOp\n\nThat way the second time we can just call GrOvalRectOp::MakeRRectOp, which won\u0027t do any circular checks.",
+      "parentUuid": "c345c6d8_4efb52af",
       "range": {
         "startLine": 42,
         "startChar": 49,
