@@ -44,6 +44,11 @@ MERGE_CONFLICT_ERROR_MSG = (
     'G3 tryjob failed because the change is causing a merge conflict when \n'
     'applying it to the Skia hash in G3.\n'
 )
+PATCHING_INFORMATION = (
+    '\n\n'
+    'Tip: If needed, could try patching in the CL into a local G3 client \n'
+    'with "g4 patch" and then hacking on it.'
+)
 
 
 class G3CompileException(Exception):
@@ -159,7 +164,8 @@ def trigger_and_wait(options):
       elif ret['status'] == 'merge_conflict':
           raise G3CompileException(MERGE_CONFLICT_ERROR_MSG)
       elif ret['status'] == 'failure':
-        raise G3CompileException('\n\nRun failed G3 TAP: cl/%s' % ret['cl'])
+        raise G3CompileException(
+            '\n\nRun failed G3 TAP: cl/%s' % ret['cl'] + PATCHING_INFORMATION)
       elif ret['status'] == 'success':
         print '\n\nRun passed G3 TAP: cl/%s' % ret['cl']
         return 0
