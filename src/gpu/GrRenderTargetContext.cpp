@@ -1256,18 +1256,28 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
 
     GrAAType aaType = this->chooseAAType(aa);
 
+    // The priority order in which we choose which op to use below is:
+    // 1) CircularRRectOp
+    // 2) FillRRectOp
+    // 3) EllipticalRRectOp
     std::unique_ptr<GrDrawOp> op;
-    if (style.isSimpleFill()) {
+    const bool canUseOvalFactory = GrAAType::kCoverage == aaType;
+    if (canUseOvalFactory && SkRRectPriv::IsCircle(rrect)) {
+        assert_alive(paint);
+        op = GrOvalOpFactory::MakeRRectOp(fContext, std::move(paint), viewMatrix, rrect, stroke,
+                                          this->caps()->shaderCaps());
+    }
+    if (!op && style.isSimpleFill()) {
         assert_alive(paint);
         op = GrFillRRectOp::Make(
                 fContext, aaType, viewMatrix, rrect, *this->caps(), std::move(paint));
     }
-    if (!op && GrAAType::kCoverage == aaType) {
+    if (!op && canUseOvalFactory) {
         assert_alive(paint);
         op = GrOvalOpFactory::MakeRRectOp(
                 fContext, std::move(paint), viewMatrix, rrect, stroke, this->caps()->shaderCaps());
-
     }
+
     if (op) {
         this->addDrawOp(*clip, std::move(op));
         return;
