@@ -155,19 +155,36 @@ public:
 
     SkPath* addPath(SkScalerContext*, SkArenaAlloc*);
 
-    SkPath* path() const {
-        return fPathData != nullptr && fPathData->fHasPath ? &fPathData->fPath : nullptr;
-    }
+    // Path calls - paths are subtlety different from image data. For example, you can only call
+    // pathSize() after you have called ensurePath() or mergePath(). You initialize a path using
+    // mergePath or ensurePath, after that you can call hasPath() and pathSize(). You can always
+    // call pathIsInitialized() to detect if you have to call ensurePath() or mergePath().
+    //
+    // The path information can be in one of three states.
+    //    1) pathIsInitialized() == false - a check if path initialization needs to happen.
+    //                                      The empty path is always initialized.
+    //    2) hasPath() == true - the path exists, and is associated with the glyph
+    //    3) hasPath() == false - the path is initialized, but no path exists
 
-    bool hasPath() const {
-        // Need to have called getMetrics before calling findPath.
-        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
+    // Initialize the path for this glyph if needed using the scalerContext.
+    const SkPath* ensurePath(SkScalerContext* scalerContext, SkArenaAlloc* alloc);
 
-        // Find path must have been called to use this call.
-        SkASSERT(fPathData != nullptr);
+    // Initialize the path for this glyph using path if no path is associated already.
+    bool mergePath(const SkPath* path, SkArenaAlloc* alloc);
 
-        return fPathData != nullptr && fPathData->fHasPath;
-    }
+    // Returns true if that path has been initialized. The empty glyph is always considered
+    // initialized.
+    bool pathIsInitialized() const { return fPathData != nullptr || this->isEmpty(); }
+
+    // Return a pointer to the path if it exists, otherwise return nullptr. Only works if the
+    // path data is initialized.
+    const SkPath* path() const;
+
+    // Returns true if the path exists. Only works after the path data is initialized.
+    bool hasPath() const;
+
+    // Returns the approximate size of the path. Only works after the path data is initialized.
+    size_t pathSize() const;
 
     int maxDimension() const {
         // width and height are only defined if a metrics call was made.
@@ -189,11 +206,6 @@ public:
                           SkScalar* array, int* count, SkArenaAlloc* alloc);
 
     void*     fImage    = nullptr;
-
-    // Path data has tricky state. If the glyph isEmpty, then fPathData should always be nullptr,
-    // else if fPathData is not null, then a path has been requested. The fPath field of fPathData
-    // may still be null after the request meaning that there is no path for this glyph.
-    PathData* fPathData = nullptr;
 
     // The width and height of the glyph mask.
     uint16_t  fWidth  = 0,
@@ -238,6 +250,14 @@ private:
         SkPath     fPath;
         bool       fHasPath{false};
     };
+
+    // If path == nullptr, then indicate that there is no path.
+    const SkPath* installPath(const SkPath* path, SkArenaAlloc* alloc);
+
+    // Path data has tricky state. If the glyph isEmpty, then fPathData should always be nullptr,
+    // else if fPathData is not null, then a path has been requested. The fPath field of fPathData
+    // may still be null after the request meaning that there is no path for this glyph.
+    PathData* fPathData = nullptr;
 
     // The advance for this glyph.
     float     fAdvanceX = 0,
