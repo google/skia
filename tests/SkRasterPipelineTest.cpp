@@ -433,6 +433,35 @@ DEF_TEST(SkRasterPipeline_u16, r) {
             }
         }
     }
+
+    {
+        alignas(8) uint16_t data[][4] = {
+            {0x0000, 0x1000, 0x2000, 0x3000},
+            {0x0001, 0x1001, 0x2001, 0x3001},
+            {0x0002, 0x1002, 0x2002, 0x3002},
+            {0x0003, 0x1003, 0x2003, 0x3003},
+        };
+        alignas(8) uint16_t buffer[4][4];
+        SkRasterPipeline_MemoryCtx src = { &data[0][0], 0 },
+                dst = { &buffer[0], 0 };
+
+        for (unsigned i = 1; i <= 4; i++) {
+            memset(buffer, 0xff, sizeof(buffer));
+            SkRasterPipeline_<256> p;
+            p.append(SkRasterPipeline::load_16161616, &src);
+            p.append(SkRasterPipeline::swap_rb);
+            p.append(SkRasterPipeline::store_16161616, &dst);
+            p.run(0,0, i,1);
+            for (unsigned j = 0; j < i; j++) {
+                uint16_t expected[4] = {data[j][2], data[j][1], data[j][0], data[j][3]};
+                REPORTER_ASSERT(r, !memcmp(&expected[0], &buffer[j], sizeof(expected)));
+            }
+            for (int j = i; j < 4; j++) {
+                for (uint16_t u16 : buffer[j])
+                REPORTER_ASSERT(r, u16 == 0xffff);
+            }
+        }
+    }
 }
 
 DEF_TEST(SkRasterPipeline_lowp, r) {
