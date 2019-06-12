@@ -402,11 +402,12 @@ namespace skvm {
                    body_ends = 0,
                    tail_ends = 0;
 
+            // 8 float values in a ymm register.
+            static constexpr int K = 8;
+
             JIT(const std::vector<Program::Instruction>& instructions, int regs, int loop,
                 size_t strides[], int nargs)
             {
-                // 8 float values in a ymm register.
-                constexpr int K = 8;
 
             #if defined(SK_BUILD_FOR_WIN)
                 // TODO  Windows ABI?
@@ -617,7 +618,7 @@ namespace skvm {
         #endif
         }
 
-        if (n >= 8) {
+        if (n >= JIT::K) {
             bool ran = true;
             switch (nargs) {
                 case 0: fJIT->getCode<void(*)(int              )>()(n                  ); break;
@@ -626,7 +627,16 @@ namespace skvm {
                 default: ran = false; break;
             }
             if (ran) {
-                n &= 7;
+                // Step n and arguments forward to where the JIT stopped.
+                const int jit_stopped = (n / JIT::K) * JIT::K;
+                n -= jit_stopped;
+
+                void**        arg    = args;
+                const size_t* stride = strides;
+                for (; *arg; arg++, stride++) {
+                    *arg = (void*)( (char*)*arg + jit_stopped * *stride );
+                }
+                SkASSERT(arg == args + nargs);
             }
         }
     #endif

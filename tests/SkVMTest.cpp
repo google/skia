@@ -169,3 +169,30 @@ DEF_TEST(SkVM, r) {
         }
     }
 }
+
+DEF_TEST(SkVM_LoopCounts, r) {
+    // Make sure we cover all the exact N we want.
+
+    int buf[64];
+    for (int N = 0; N <= (int)SK_ARRAY_COUNT(buf); N++) {
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
+            buf[i] = i;
+        }
+
+        // buf[i] += 1
+        skvm::Builder b;
+        b.store32(b.arg(0),
+                  b.add(b.splat(1),
+                        b.load32(b.arg(0))));
+
+        skvm::Program program = b.done();
+        program.eval(N, buf);
+
+        for (int i = 0; i < N; i++) {
+            REPORTER_ASSERT(r, buf[i] == i+1);
+        }
+        for (int i = N; i < (int)SK_ARRAY_COUNT(buf); i++) {
+            REPORTER_ASSERT(r, buf[i] == i);
+        }
+    }
+}
