@@ -467,7 +467,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
     for (const auto& ii : kImageInfos) {
         for (auto& origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
             sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
-                    ctxInfo.grContext(), SkBudgeted::kNo, ii, 0, origin, nullptr));
+                    ctxInfo.grContext(), SkBudgeted::kNo, ii, 1, GrFSAAType::kNone, origin,
+                    nullptr));
             if (!surface) {
                 continue;
             }
@@ -771,8 +772,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
         for (int sct = 0; sct <= kLastEnum_SkColorType; ++sct) {
             auto surfCT = static_cast<SkColorType>(sct);
             auto info = SkImageInfo::Make(kW, kH, surfCT, kPremul_SkAlphaType, nullptr);
-            auto surf = SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info, 1,
-                                                    origin, nullptr);
+            auto surf = SkSurface::MakeRenderTarget(
+                    ctxInfo.grContext(), SkBudgeted::kNo, info, 1, GrFSAAType::kNone, origin,
+                    nullptr);
             if (!surf) {
                 continue;
             }

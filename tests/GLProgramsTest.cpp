@@ -19,6 +19,7 @@
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "tests/Test.h"
+#include "tools/ToolUtils.h"
 #include "tools/gpu/GrContextFactory.h"
 
 #include "src/gpu/ops/GrDrawOp.h"
@@ -154,16 +155,11 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
 
     const GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-        context->priv().makeDeferredRenderTargetContext(format,
-                                                        SkBackingFit::kExact,
-                                                        kRenderTargetWidth,
-                                                        kRenderTargetHeight,
-                                                        kRGBA_8888_GrPixelConfig,
-                                                        nullptr,
-                                                        sampleCnt,
-                                                        GrMipMapped::kNo,
-                                                        origin));
+    auto renderTargetContext(context->priv().makeDeferredRenderTargetContext(
+            format, SkBackingFit::kExact, kRenderTargetWidth, kRenderTargetHeight,
+            kRGBA_8888_GrPixelConfig, nullptr, sampleCnt,
+            ToolUtils::choose_fsaa_type(sampleCnt, context->priv().caps()), GrMipMapped::kNo,
+            origin));
     return renderTargetContext;
 }
 
@@ -274,9 +270,9 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
         const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-        proxies[0] = proxyProvider->createProxy(format, dummyDesc, kBottomLeft_GrSurfaceOrigin,
-                                                mipMapped, SkBackingFit::kExact, SkBudgeted::kNo,
-                                                GrInternalSurfaceFlags::kNone);
+        proxies[0] = proxyProvider->createProxy(
+                format, dummyDesc, GrFSAAType::kNone, kBottomLeft_GrSurfaceOrigin, mipMapped,
+                SkBackingFit::kExact, SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
     }
     {
         GrSurfaceDesc dummyDesc;
@@ -286,9 +282,9 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
         const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
-        proxies[1] = proxyProvider->createProxy(format, dummyDesc, kTopLeft_GrSurfaceOrigin,
-                                                mipMapped, SkBackingFit::kExact, SkBudgeted::kNo,
-                                                GrInternalSurfaceFlags::kNone);
+        proxies[1] = proxyProvider->createProxy(
+                format, dummyDesc, GrFSAAType::kNone, kTopLeft_GrSurfaceOrigin, mipMapped,
+                SkBackingFit::kExact, SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
     }
 
     if (!proxies[0] || !proxies[1]) {

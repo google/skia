@@ -525,8 +525,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
     desc.fConfig = config;
 
     // We pass kReadOnly here since we should treat content of the client's texture as immutable.
-    return proxyProvider->createLazyProxy(std::move(callback), backendFormat, desc, origin,
-                                          mipMapped, GrInternalSurfaceFlags::kReadOnly,
-                                          SkBackingFit::kExact, SkBudgeted::kNo,
-                                          GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
+    return proxyProvider->createLazyProxy(
+            std::move(callback), backendFormat, desc, GrFSAAType::kNone, origin, mipMapped,
+            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
+            GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
 }

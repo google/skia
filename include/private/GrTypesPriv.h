@@ -306,16 +306,6 @@ static inline bool GrAATypeIsHW(GrAAType type) {
     return false;
 }
 
-/** The type of full scene antialiasing supported by a render target. */
-enum class GrFSAAType {
-    /** No FSAA */
-    kNone,
-    /** Regular MSAA where each attachment has the same sample count. */
-    kUnifiedMSAA,
-    /** One color sample, N stencil samples. */
-    kMixedSamples,
-};
-
 /**
  * Some pixel configs are inherently clamped to [0,1], some are allowed to go outside that range,
  * and some are FP but manually clamped in the XP.

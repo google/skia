@@ -12,6 +12,7 @@
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrRenderTargetOpList.h"
 #include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTargetProxyPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTextureRenderTargetProxy.h"
@@ -19,34 +20,49 @@
 // Deferred version
 // TODO: we can probably munge the 'desc' in both the wrapped and deferred
 // cases to make the sampleConfig/numSamples stuff more rational.
-GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendFormat& format,
-                                         const GrSurfaceDesc& desc, GrSurfaceOrigin origin,
-                                         SkBackingFit fit, SkBudgeted budgeted,
-                                         GrInternalSurfaceFlags surfaceFlags)
+GrRenderTargetProxy::GrRenderTargetProxy(
+        const GrCaps& caps, const GrBackendFormat& format, const GrSurfaceDesc& desc,
+        GrFSAAType fsaaType, GrSurfaceOrigin origin, SkBackingFit fit, SkBudgeted budgeted,
+        GrInternalSurfaceFlags surfaceFlags)
         : INHERITED(format, desc, origin, fit, budgeted, surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
         , fNeedsStencil(false)
         , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo) {
+    SkASSERT(SkToBool(fSampleCnt > 1) == (fsaaType != GrFSAAType::kNone));
     // Since we know the newly created render target will be internal, we are able to precompute
     // what the flags will ultimately end up being.
-    if (caps.usesMixedSamples() && fSampleCnt > 1) {
-        this->setHasMixedSamples();
+    if (GrFSAAType::kMixedSamples == fsaaType) {
+        fSurfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
     }
+#ifdef SK_DEBUG
+    if (fSurfaceFlags & GrInternalSurfaceFlags::kMixedSampled) {
+        SkASSERT(caps.mixedSamplesSupport());
+        SkASSERT(fSampleCnt > 1);
+    }
+#endif
 }
 
 // Lazy-callback version
-GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
-                                         LazyInstantiationType lazyType,
-                                         const GrBackendFormat& format, const GrSurfaceDesc& desc,
-                                         GrSurfaceOrigin origin,  SkBackingFit fit,
-                                         SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags,
-                                         WrapsVkSecondaryCB wrapsVkSecondaryCB)
+GrRenderTargetProxy::GrRenderTargetProxy(
+        LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
+        const GrBackendFormat& format, const GrSurfaceDesc& desc, GrFSAAType fsaaType,
+        GrSurfaceOrigin origin, SkBackingFit fit, SkBudgeted budgeted,
+        GrInternalSurfaceFlags surfaceFlags, WrapsVkSecondaryCB wrapsVkSecondaryCB)
         : INHERITED(std::move(callback), lazyType, format, desc, origin, fit, budgeted,
                     surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
         , fNeedsStencil(false)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
     SkASSERT(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags));
+    SkASSERT(SkToBool(fSampleCnt > 1) == (fsaaType != GrFSAAType::kNone));
+    if (GrFSAAType::kMixedSamples == fsaaType) {
+        fSurfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
+    }
+#ifdef SK_DEBUG
+    if (fSurfaceFlags & GrInternalSurfaceFlags::kMixedSampled) {
+        SkASSERT(fSampleCnt > 1);
+    }
+#endif
 }
 
 // Wrapped version

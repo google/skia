@@ -469,11 +469,10 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext*, const SkSurfac
     return nullptr;
 }
 
-sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext*, const GrBackendTexture&,
-                                                   GrSurfaceOrigin origin, int sampleCnt,
-                                                   SkColorType, sk_sp<SkColorSpace>,
-                                                   const SkSurfaceProps*,
-                                                   TextureReleaseProc, ReleaseContext) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(
+        GrContext*, const GrBackendTexture&, GrSurfaceOrigin origin, int sampleCnt, GrFSAAType,
+        SkColorType, sk_sp<SkColorSpace>, const SkSurfaceProps*, TextureReleaseProc, ReleaseContext)
+{
     return nullptr;
 }
 
@@ -487,13 +486,9 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
     return nullptr;
 }
 
-sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext*,
-                                                                 const GrBackendTexture&,
-                                                                 GrSurfaceOrigin origin,
-                                                                 int sampleCnt,
-                                                                 SkColorType,
-                                                                 sk_sp<SkColorSpace>,
-                                                                 const SkSurfaceProps*) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(
+        GrContext*, const GrBackendTexture&, GrSurfaceOrigin origin, int sampleCnt, GrFSAAType,
+        SkColorType, sk_sp<SkColorSpace>, const SkSurfaceProps*) {
     return nullptr;
 }
 

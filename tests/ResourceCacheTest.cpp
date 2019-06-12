@@ -25,6 +25,7 @@
 #include "src/core/SkMipMap.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
 #include <thread>
 
@@ -103,8 +104,9 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCount;
 
-    sk_sp<GrTexture> tex(provider->createTexture(desc, budgeted,
-                                                 GrResourceProvider::Flags::kNoPendingIO));
+    sk_sp<GrTexture> tex(provider->createTexture(
+            desc, ToolUtils::choose_fsaa_type(sampleCount, provider->caps()), budgeted,
+            GrResourceProvider::Flags::kNoPendingIO));
     if (!tex || !tex->asRenderTarget()) {
         return nullptr;
     }
@@ -1625,8 +1627,8 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCnt;
 
-    return provider->createTexture(desc, SkBudgeted::kYes,
-                                   GrResourceProvider::Flags::kNoPendingIO);
+    return provider->createTexture(desc, ToolUtils::choose_fsaa_type(sampleCnt, provider->caps()),
+                                   SkBudgeted::kYes, GrResourceProvider::Flags::kNoPendingIO);
 }
 
 static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
@@ -1642,10 +1644,11 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
     desc.fSampleCnt = sampleCnt;
 
     const GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+    const GrFSAAType fsaaType = ToolUtils::choose_fsaa_type(sampleCnt, caps);
     auto origin = (descFlags & kRenderTarget_GrSurfaceFlag) ? kBottomLeft_GrSurfaceOrigin
                                                             : kTopLeft_GrSurfaceOrigin;
 
-    return proxyProvider->createMipMapProxy(format, desc, origin, SkBudgeted::kYes);
+    return proxyProvider->createMipMapProxy(format, desc, fsaaType, origin, SkBudgeted::kYes);
 }
 
 // Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,
@@ -1742,8 +1745,10 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(OverbudgetFlush, reporter, ctxInfo) {
     };
 
     auto info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto surf1 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 1, nullptr);
-    auto surf2 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 1, nullptr);
+    auto surf1 = SkSurface::MakeRenderTarget(
+            context, SkBudgeted::kYes, info, 1, GrFSAAType::kNone, nullptr);
+    auto surf2 = SkSurface::MakeRenderTarget(
+            context, SkBudgeted::kYes, info, 1, GrFSAAType::kNone, nullptr);
 
     drawToSurf(surf1.get());
     drawToSurf(surf2.get());

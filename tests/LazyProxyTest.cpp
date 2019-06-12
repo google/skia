@@ -96,7 +96,8 @@ public:
                             desc.fHeight = 567;
                             desc.fConfig = kRGB_565_GrPixelConfig;
                             sk_sp<GrTexture> texture = rp->createTexture(
-                                desc, SkBudgeted::kYes, GrResourceProvider::Flags::kNoPendingIO);
+                                desc, GrFSAAType::kNone, SkBudgeted::kYes,
+                                GrResourceProvider::Flags::kNoPendingIO);
                             REPORTER_ASSERT(fTest->fReporter, texture);
                             return std::move(texture);
                         }
@@ -278,7 +279,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                 int* fValue = nullptr;
             };
             sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-                    TestCallback(&testCount), format, desc, kTopLeft_GrSurfaceOrigin,
+                    TestCallback(&testCount), format, desc, GrFSAAType::kNone, kTopLeft_GrSurfaceOrigin,
                     GrMipMapped::kNo, GrInternalSurfaceFlags::kNone, SkBackingFit::kExact,
                     SkBudgeted::kNo, lazyType);
 
@@ -344,12 +345,12 @@ private:
                         *testExecuteValue = 1;
                         return {};
                     }
-                    return {rp->createTexture(desc, SkBudgeted::kNo,
+                    return {rp->createTexture(desc, GrFSAAType::kNone, SkBudgeted::kNo,
                                               GrResourceProvider::Flags::kNoPendingIO),
                             GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },
-                format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
-                SkBudgeted::kNo);
+                format, desc, GrFSAAType::kNone, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                SkBackingFit::kExact, SkBudgeted::kNo);
 
         SkASSERT(fLazyProxy.get());
 
@@ -488,7 +489,7 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
                     texture->setRelease(DeinstantiateReleaseProc, releasePtr);
                     return std::move(texture);
                 },
-                format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                format, desc, GrFSAAType::kNone, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
                 GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
 
         REPORTER_ASSERT(reporter, lazyProxy.get());

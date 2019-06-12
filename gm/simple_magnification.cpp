@@ -32,8 +32,8 @@ class GrContext;
 static sk_sp<SkImage> make_image(GrContext* context, int size, GrSurfaceOrigin origin) {
     if (context) {
         SkImageInfo ii = SkImageInfo::Make(size, size, kN32_SkColorType, kPremul_SkAlphaType);
-        sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii, 0,
-                                                          origin, nullptr));
+        sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(
+                context, SkBudgeted::kYes, ii, 1, GrFSAAType::kNone, origin, nullptr));
         if (surf) {
             SkCanvas* canvas = surf->getCanvas();
 

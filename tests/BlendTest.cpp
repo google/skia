@@ -25,6 +25,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "tests/Test.h"
+#include "tools/ToolUtils.h"
 #include "tools/gpu/GrContextFactory.h"
 
 #include <initializer_list>
@@ -98,9 +99,11 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     backingDesc.fConfig = config;
     backingDesc.fSampleCnt = sampleCnt;
 
+    GrFSAAType fsaaType = ToolUtils::choose_fsaa_type(sampleCnt, context->priv().caps());
+
     auto resourceProvider = context->priv().resourceProvider();
 
-    *backingSurface = resourceProvider->createTexture(backingDesc, SkBudgeted::kNo,
+    *backingSurface = resourceProvider->createTexture(backingDesc, fsaaType, SkBudgeted::kNo,
                                                       GrResourceProvider::Flags::kNoPendingIO);
     if (!(*backingSurface)) {
         return nullptr;

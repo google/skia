@@ -263,6 +263,8 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
     GrContext* context = factory->getContextInfo(api, overrides)
                                  .grContext();
 
+    GrFSAAType fsaaType = ToolUtils::choose_fsaa_type(FLAGS_samples, context->priv().caps());
+
     uint32_t flags = FLAGS_dit ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag
                                : 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
@@ -277,6 +279,7 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
                                                   SkBudgeted::kNo,
                                                   info,
                                                   FLAGS_samples,
+                                                  fsaaType,
                                                   &props);
             break;
 

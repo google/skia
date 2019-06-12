@@ -13,6 +13,7 @@
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
 static SkBitmap read_pixels(sk_sp<SkSurface> surface, SkColor initColor) {
     SkBitmap bmp;
@@ -26,8 +27,11 @@ static SkBitmap read_pixels(sk_sp<SkSurface> surface, SkColor initColor) {
 
 static sk_sp<SkSurface> make_surface(GrContext* context) {
     SkImageInfo info = SkImageInfo::Make(50, 50, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 4,
-                                       kBottomLeft_GrSurfaceOrigin, nullptr);
+    constexpr int sampleCount = 4;
+    GrFSAAType fsaaType = ToolUtils::choose_fsaa_type(sampleCount, context->priv().caps());
+    return SkSurface::MakeRenderTarget(
+            context, SkBudgeted::kNo, info, sampleCount, fsaaType, kBottomLeft_GrSurfaceOrigin,
+            nullptr);
 }
 
 static void test_bug_6653(GrContext* ctx, skiatest::Reporter* reporter, const char* label) {

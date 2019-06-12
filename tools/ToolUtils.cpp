@@ -25,6 +25,7 @@
 #include "include/private/SkFloatingPoint.h"
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkFontPriv.h"
+#include "src/gpu/GrCaps.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/fonts/TestFontMgr.h"

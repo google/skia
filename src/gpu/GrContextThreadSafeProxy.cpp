@@ -63,8 +63,11 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
 
     GrFSAAType FSAAType = GrFSAAType::kNone;
     if (sampleCnt > 1) {
+        SkASSERT(0);
+#if 0
         FSAAType = this->caps()->usesMixedSamples() ? GrFSAAType::kMixedSamples
                                                     : GrFSAAType::kUnifiedMSAA;
+#endif
     }
 
     if (willUseGLFBO0 && isTextureable) {

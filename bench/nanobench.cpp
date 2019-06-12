@@ -41,6 +41,7 @@
 #include "tools/CrashHandler.h"
 #include "tools/ProcStats.h"
 #include "tools/Stats.h"
+#include "tools/ToolUtils.h"
 #include "tools/flags/CommonFlags.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/ios_utils.h"
@@ -243,9 +244,10 @@ struct GPUTarget : public Target {
         uint32_t flags = this->config.useDFText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag :
                                                   0;
         SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+        GrContext* ctx = this->factory->get(this->config.ctxType, this->config.ctxOverrides);
+        auto fsaaType = ToolUtils::choose_fsaa_type(this->config.samples, ctx->priv().caps());
         this->surface = SkSurface::MakeRenderTarget(
-                this->factory->get(this->config.ctxType, this->config.ctxOverrides),
-                SkBudgeted::kNo, info, this->config.samples, &props);
+                ctx, SkBudgeted::kNo, info, this->config.samples, fsaaType, &props);
         this->contextInfo =
                 this->factory->getContextInfo(this->config.ctxType, this->config.ctxOverrides);
         if (!this->surface.get()) {

@@ -148,7 +148,7 @@ static sk_sp<SkImage> create_codec_image() {
 }
 static sk_sp<SkImage> create_gpu_image(GrContext* context, bool withMips = false) {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0,
+    auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 1, GrFSAAType::kNone,
                                              kBottomLeft_GrSurfaceOrigin, nullptr, withMips));
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
@@ -589,7 +589,7 @@ DEF_GPUTEST(AbandonedContextImage, reporter, options) {
         auto gsurf = SkSurface::MakeRenderTarget(
                 factory->get(type), SkBudgeted::kYes,
                 SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType), 1,
-                nullptr);
+                GrFSAAType::kNone, nullptr);
         if (!gsurf) {
             continue;
         }
@@ -1394,7 +1394,8 @@ static sk_sp<SkImage> make_yuva_image(GrContext* c) {
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     auto c = ctxInfo.grContext();
     auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto s = SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kYes, ii, 1, nullptr);
+    auto s = SkSurface::MakeRenderTarget(
+            ctxInfo.grContext(), SkBudgeted::kYes, ii, 1, GrFSAAType::kNone, nullptr);
 
     s->getCanvas()->clear(SK_ColorRED);
     auto i0 = s->makeImageSnapshot();

@@ -417,8 +417,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // Setup blit framebuffer
     if (GR_IS_GR_GL(standard)) {
-        if (fUsesMixedSamples ||
-            version >= GR_GL_VER(3,0) ||
+        if (version >= GR_GL_VER(3,0) ||
             ctxInfo.hasExtension("GL_ARB_framebuffer_object") ||
             ctxInfo.hasExtension("GL_EXT_framebuffer_blit")) {
             fBlitFramebufferFlags = 0;
@@ -1013,19 +1012,13 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
     // renderer is available and enabled; no other path renderers support this feature.
     if (fMultisampleDisableSupport &&
         this->shaderCaps()->dualSourceBlendingSupport() &&
-        this->shaderCaps()->pathRenderingSupport()
-#if GR_TEST_UTILS
-        && (contextOptions.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover)
-#endif
-        ) {
-        fUsesMixedSamples = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
-                            ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
+        this->shaderCaps()->pathRenderingSupport()) {
+        fMixedSamplesSupport = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
+                               ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
     }
 
     if (GR_IS_GR_GL(ctxInfo.standard())) {
-        if (fUsesMixedSamples) {
-            fMSFBOType = kMixedSamples_MSFBOType;
-        } else if (ctxInfo.version() >= GR_GL_VER(3,0) ||
+        if (ctxInfo.version() >= GR_GL_VER(3,0) ||
                    ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
 
             fMSFBOType = kStandard_MSFBOType;
@@ -1050,12 +1043,12 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
         // We prefer multisampled-render-to-texture extensions over ES3 MSAA because we've observed
         // ES3 driver bugs on at least one device with a tiled GPU (N10). However, if we're using
         // mixed samples we can't use multisampled-render-to-texture.
-        if (fUsesMixedSamples) {
-            fMSFBOType = kMixedSamples_MSFBOType;
-        } else if (ctxInfo.hasExtension("GL_EXT_multisampled_render_to_texture")) {
+        if (ctxInfo.hasExtension("GL_EXT_multisampled_render_to_texture")) {
             fMSFBOType = kES_EXT_MsToTexture_MSFBOType;
+            fUsesImplicitMSAAResolve = true;
         } else if (ctxInfo.hasExtension("GL_IMG_multisampled_render_to_texture")) {
             fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
+            fUsesImplicitMSAAResolve = true;
         } else if (ctxInfo.version() >= GR_GL_VER(3,0)) {
             fMSFBOType = kStandard_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
@@ -1190,14 +1183,12 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
         "Apple",
         "IMG MS To Texture",
         "EXT MS To Texture",
-        "MixedSamples",
     };
     GR_STATIC_ASSERT(0 == kNone_MSFBOType);
     GR_STATIC_ASSERT(1 == kStandard_MSFBOType);
     GR_STATIC_ASSERT(2 == kES_Apple_MSFBOType);
     GR_STATIC_ASSERT(3 == kES_IMG_MsToTexture_MSFBOType);
     GR_STATIC_ASSERT(4 == kES_EXT_MsToTexture_MSFBOType);
-    GR_STATIC_ASSERT(5 == kMixedSamples_MSFBOType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kMSFBOExtStr) == kLast_MSFBOType + 1);
 
     static const char* kInvalidateFBTypeStr[] = {
@@ -1655,7 +1646,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                 supportsBGRATexStorage = true;
             }
             if (ctxInfo.hasExtension("GL_CHROMIUM_renderbuffer_format_BGRA8888") &&
-                (this->usesMSAARenderBuffers() || this->fMSFBOType == kMixedSamples_MSFBOType)) {
+                (!this->usesImplicitMSAAResolve())) {
                 fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |=
                     ConfigInfo::kRenderableWithMSAA_Flag;
             }
@@ -2455,18 +2446,11 @@ bool GrGLCaps::canCopyAsDraw(GrPixelConfig dstConfig, bool srcIsTextureable) con
     return this->canConfigBeFBOColorAttachment(dstConfig) && srcIsTextureable;
 }
 
-static bool has_msaa_render_buffer(const GrSurfaceProxy* surf, const GrGLCaps& glCaps) {
-    const GrRenderTargetProxy* rt = surf->asRenderTargetProxy();
-    if (!rt) {
-        return false;
+static bool has_msaa_render_buffer(const GrSurfaceProxy* surf, const GrCaps& caps) {
+    if (const GrRenderTargetProxy* rtProxy = surf->asRenderTargetProxy()) {
+        return rtProxy->rtPriv().hasIntermediateMSAARenderbuffer(caps);
     }
-    // A RT has a separate MSAA renderbuffer if:
-    // 1) It's multisampled
-    // 2) We're using an extension with separate MSAA renderbuffers
-    // 3) It's not FBO 0, which is special and always auto-resolves
-    return rt->numColorSamples() > 1 &&
-           glCaps.usesMSAARenderBuffers() &&
-           !rt->rtPriv().glRTFBOIDIs0();
+    return false;
 }
 
 bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
@@ -2571,20 +2555,16 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
         return false;
     }
 
-    {
-        bool srcIsMSAARenderbuffer = GrFSAAType::kUnifiedMSAA == src->fsaaType() &&
-                                     this->usesMSAARenderBuffers();
-        if (srcIsMSAARenderbuffer) {
-            // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO
-            // blit or fail.
-            if (this->canConfigBeFBOColorAttachment(src->config())) {
-                desc->fConfig = src->config();
-                *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
-                *disallowSubrect = disallowSubrectForBlitFramebuffer;
-                return true;
-            }
-            return false;
+    if (src->rtPriv().hasIntermediateMSAARenderbuffer(*this)) {
+        // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO blit or
+        // fail.
+        if (this->canConfigBeFBOColorAttachment(src->config())) {
+            desc->fConfig = src->config();
+            *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
+            *disallowSubrect = disallowSubrectForBlitFramebuffer;
+            return true;
         }
+        return false;
     }
 
     // We'll do a CopyTexSubImage. Make the dst a plain old texture.
@@ -2964,7 +2944,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (fMultisampleDisableSupport &&
         this->shaderCaps()->dualSourceBlendingSupport() &&
         this->shaderCaps()->pathRenderingSupport() &&
-        fUsesMixedSamples &&
+        fMixedSamplesSupport &&
 #if GR_TEST_UTILS
         (contextOptions.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) &&
 #endif
@@ -3051,7 +3031,7 @@ bool GrGLCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
         if (fUseDrawInsteadOfAllRenderTargetWrites) {
             return false;
         }
-        if (rt->numColorSamples() > 1 && this->usesMSAARenderBuffers()) {
+        if (rt->numColorSamples() > 1 && !this->usesImplicitMSAAResolve()) {
             return false;
         }
         return SkToBool(surface->asTexture());

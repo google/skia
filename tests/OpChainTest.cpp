@@ -172,8 +172,8 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
             context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     auto proxy = context->priv().proxyProvider()->createProxy(
-            format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
-            SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
+            format, desc, GrFSAAType::kNone, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+            SkBackingFit::kExact, SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
     SkASSERT(proxy);
     proxy->instantiate(context->priv().resourceProvider());
     int result[result_width()];

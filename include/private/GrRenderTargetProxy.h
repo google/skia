@@ -68,7 +68,7 @@ protected:
     friend class GrRenderTargetProxyPriv;
 
     // Deferred version
-    GrRenderTargetProxy(const GrCaps&, const GrBackendFormat&, const GrSurfaceDesc&,
+    GrRenderTargetProxy(const GrCaps&, const GrBackendFormat&, const GrSurfaceDesc&, GrFSAAType,
                         GrSurfaceOrigin, SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
     enum class WrapsVkSecondaryCB : bool { kNo = false, kYes = true };
@@ -84,7 +84,7 @@ protected:
     // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
     // know the final size until flush time.
     GrRenderTargetProxy(LazyInstantiateCallback&&, LazyInstantiationType lazyType,
-                        const GrBackendFormat&, const GrSurfaceDesc&, GrSurfaceOrigin,
+                        const GrBackendFormat&, const GrSurfaceDesc&, GrFSAAType, GrSurfaceOrigin,
                         SkBackingFit, SkBudgeted, GrInternalSurfaceFlags,
                         WrapsVkSecondaryCB wrapsVkSecondaryCB);
 
@@ -95,9 +95,6 @@ protected:
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
 private:
-    void setHasMixedSamples() {
-        fSurfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
-    }
     bool hasMixedSamples() const { return fSurfaceFlags & GrInternalSurfaceFlags::kMixedSampled; }
 
     void setGLRTFBOIDIs0() {

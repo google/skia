@@ -142,6 +142,9 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
     desc.fConfig = fConfig;
     desc.fSampleCnt = sampleCnt;
 
+    auto fsaaType = GrChooseFSAAType(
+            sampleCnt, fSurfaceFlags & GrInternalSurfaceFlags::kMixedSampled);
+
     // The explicit resource allocator requires that any resources it pulls out of the
     // cache have no pending IO.
     GrResourceProvider::Flags resourceProviderFlags = GrResourceProvider::Flags::kNoPendingIO;
@@ -163,17 +166,16 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
             texels[i].fRowBytes = 0;
         }
 
-        surface = resourceProvider->createTexture(desc, fBudgeted, texels.get(), mipCount);
+        surface = resourceProvider->createTexture(
+                desc, fsaaType, fBudgeted, texels.get(), mipCount);
         if (surface) {
             SkASSERT(surface->asTexture());
             SkASSERT(GrMipMapped::kYes == surface->asTexture()->texturePriv().mipMapped());
         }
+    } else if (SkBackingFit::kApprox == fFit) {
+        surface = resourceProvider->createApproxTexture(desc, fsaaType, resourceProviderFlags);
     } else {
-        if (SkBackingFit::kApprox == fFit) {
-            surface = resourceProvider->createApproxTexture(desc, resourceProviderFlags);
-        } else {
-            surface = resourceProvider->createTexture(desc, fBudgeted, resourceProviderFlags);
-        }
+        surface = resourceProvider->createTexture(desc, fsaaType, fBudgeted, resourceProviderFlags);
     }
     if (!surface) {
         return nullptr;
@@ -262,8 +264,10 @@ void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
     SkASSERT(LazyState::kFully != this->lazyInstantiationState());
     const GrRenderTargetProxy* rtp = this->asRenderTargetProxy();
     int sampleCount = 1;
+    GrFSAAType fsaaType = GrFSAAType::kNone;
     if (rtp) {
         sampleCount = rtp->numStencilSamples();
+        fsaaType = rtp->fsaaType();
     }
 
     const GrTextureProxy* tp = this->asTextureProxy();
@@ -276,7 +280,7 @@ void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
     int height = this->worstCaseHeight();
 
     GrTexturePriv::ComputeScratchKey(this->config(), width, height, SkToBool(rtp), sampleCount,
-                                     mipMapped, key);
+                                     fsaaType, mipMapped, key);
 }
 
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
@@ -360,8 +364,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
 
     if (src->backendFormat().textureType() != GrTextureType::kExternal) {
         sk_sp<GrSurfaceContext> dstContext(context->priv().makeDeferredSurfaceContext(
-                src->backendFormat().makeTexture2D(), dstDesc, src->origin(), mipMapped, fit,
-                budgeted));
+                src->backendFormat().makeTexture2D(), dstDesc, GrFSAAType::kNone, src->origin(),
+                mipMapped, fit, budgeted));
         if (!dstContext) {
             return nullptr;
         }
@@ -377,7 +381,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
 
         sk_sp<GrRenderTargetContext> dstContext = context->priv().makeDeferredRenderTargetContext(
                 format, fit, dstDesc.fWidth, dstDesc.fHeight, dstDesc.fConfig, nullptr, 1,
-                mipMapped, src->origin(), nullptr, budgeted);
+                GrFSAAType::kNone, mipMapped, src->origin(), nullptr, budgeted);
 
         if (dstContext && dstContext->blitTexture(src->asTextureProxy(), srcRect, dstPoint)) {
             return dstContext->asTextureProxyRef();

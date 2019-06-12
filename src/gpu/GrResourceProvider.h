@@ -75,17 +75,18 @@ public:
      * then result will be a render target. Format and sample count will always match the request.
      * The contents of the texture are undefined.
      */
-    sk_sp<GrTexture> createApproxTexture(const GrSurfaceDesc&, Flags);
+    sk_sp<GrTexture> createApproxTexture(const GrSurfaceDesc&, GrFSAAType, Flags);
 
     /** Create an exact fit texture with no initial data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, Flags = Flags::kNone);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrFSAAType, SkBudgeted,
+                                   Flags = Flags::kNone);
 
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel texels[],
-                                   int mipLevelCount);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrFSAAType, SkBudgeted,
+                                   const GrMipLevel texels[], int mipLevelCount);
 
     // Create a potentially loose fit texture with the provided data
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, SkBackingFit,
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrFSAAType, SkBudgeted, SkBackingFit,
                                    const GrMipLevel&, Flags);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -256,13 +257,13 @@ private:
 
     // Attempts to find a resource in the cache that exactly matches the GrSurfaceDesc. Failing that
     // it returns null. If non-null, the resulting texture is always budgeted.
-    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, Flags);
+    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, GrFSAAType, Flags);
 
     /*
      * Try to find an existing scratch texture that exactly matches 'desc'. If successful
      * update the budgeting accordingly.
      */
-    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, SkBudgeted, Flags);
+    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, GrFSAAType, SkBudgeted, Flags);
 
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }

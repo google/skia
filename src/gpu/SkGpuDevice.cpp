@@ -94,19 +94,17 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context,
                                               width, height, flags));
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
-                                     const SkImageInfo& info, int sampleCount,
-                                     GrSurfaceOrigin origin, const SkSurfaceProps* props,
-                                     GrMipMapped mipMapped, InitContents init) {
+sk_sp<SkGpuDevice> SkGpuDevice::Make(
+        GrContext* context, SkBudgeted budgeted, const SkImageInfo& info, int sampleCount,
+        GrFSAAType fsaaType, GrSurfaceOrigin origin, const SkSurfaceProps* props,
+        GrMipMapped mipMapped, InitContents init) {
     unsigned flags;
     if (!CheckAlphaTypeAndGetFlags(&info, init, &flags)) {
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(MakeRenderTargetContext(context, budgeted,
-                                                                             info, sampleCount,
-                                                                             origin, props,
-                                                                             mipMapped));
+    sk_sp<GrRenderTargetContext> renderTargetContext(MakeRenderTargetContext(
+        context, budgeted, info, sampleCount, fsaaType, origin, props, mipMapped));
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -139,13 +137,9 @@ SkGpuDevice::SkGpuDevice(GrContext* context, sk_sp<GrRenderTargetContext> render
 }
 
 sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
-                                                               GrContext* context,
-                                                               SkBudgeted budgeted,
-                                                               const SkImageInfo& origInfo,
-                                                               int sampleCount,
-                                                               GrSurfaceOrigin origin,
-                                                               const SkSurfaceProps* surfaceProps,
-                                                               GrMipMapped mipMapped) {
+        GrContext* context, SkBudgeted budgeted, const SkImageInfo& origInfo, int sampleCount,
+        GrFSAAType fsaaType, GrSurfaceOrigin origin, const SkSurfaceProps* surfaceProps,
+        GrMipMapped mipMapped) {
     if (kUnknown_SkColorType == origInfo.colorType() ||
         origInfo.width() < 0 || origInfo.height() < 0) {
         return nullptr;
@@ -164,10 +158,9 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
     // This method is used to create SkGpuDevice's for SkSurface_Gpus. In this case
     // they need to be exact.
     return context->priv().makeDeferredRenderTargetContext(
-                                    format, SkBackingFit::kExact,
-                                    origInfo.width(), origInfo.height(),
-                                    config, origInfo.refColorSpace(), sampleCount,
-                                    mipMapped, origin, surfaceProps, budgeted);
+            format, SkBackingFit::kExact, origInfo.width(), origInfo.height(), config,
+            origInfo.refColorSpace(), sampleCount, fsaaType, mipMapped, origin, surfaceProps,
+            budgeted);
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(SkSpecialImage* srcImg,
@@ -272,13 +265,9 @@ void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
     // This entry point is used by SkSurface_Gpu::onCopyOnWrite so it must create a
     // kExact-backed render target context.
     sk_sp<GrRenderTargetContext> newRTC(MakeRenderTargetContext(
-                                                            this->context(),
-                                                            budgeted,
-                                                            this->imageInfo(),
-                                                            fRenderTargetContext->numColorSamples(),
-                                                            fRenderTargetContext->origin(),
-                                                            &this->surfaceProps(),
-                                                            fRenderTargetContext->mipMapped()));
+            this->context(), budgeted, this->imageInfo(), fRenderTargetContext->numStencilSamples(),
+            fRenderTargetContext->fsaaType(), fRenderTargetContext->origin(), &this->surfaceProps(),
+            fRenderTargetContext->mipMapped()));
     if (!newRTC) {
         return;
     }
@@ -1691,8 +1680,8 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     sk_sp<GrRenderTargetContext> rtc(fContext->priv().makeDeferredRenderTargetContext(
             format, fit, cinfo.fInfo.width(), cinfo.fInfo.height(), config,
             fRenderTargetContext->colorSpaceInfo().refColorSpace(),
-            fRenderTargetContext->numStencilSamples(), GrMipMapped::kNo,
-            kBottomLeft_GrSurfaceOrigin, &props));
+            fRenderTargetContext->numStencilSamples(), fRenderTargetContext->fsaaType(),
+            GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin, &props));
     if (!rtc) {
         return nullptr;
     }
@@ -1708,9 +1697,9 @@ sk_sp<SkSurface> SkGpuDevice::makeSurface(const SkImageInfo& info, const SkSurfa
     ASSERT_SINGLE_OWNER
     // TODO: Change the signature of newSurface to take a budgeted parameter.
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
-    return SkSurface::MakeRenderTarget(fContext.get(), kBudgeted, info,
-                                       fRenderTargetContext->numStencilSamples(),
-                                       fRenderTargetContext->origin(), &props);
+    return SkSurface::MakeRenderTarget(
+            fContext.get(), kBudgeted, info, fRenderTargetContext->numStencilSamples(),
+            fRenderTargetContext->fsaaType(), fRenderTargetContext->origin(), &props);
 }
 
 SkImageFilterCache* SkGpuDevice::getImageFilterCache() {

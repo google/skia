@@ -80,17 +80,19 @@ void GrTexture::computeScratchKey(GrScratchKey* key) const {
     if (!GrPixelConfigIsCompressed(this->config())) {
         const GrRenderTarget* rt = this->asRenderTarget();
         int sampleCount = 1;
+        GrFSAAType fsaaType = GrFSAAType::kNone;
         if (rt) {
             sampleCount = rt->numStencilSamples();
+            fsaaType = rt->fsaaType();
         }
         GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
-                                         SkToBool(rt), sampleCount,
+                                         SkToBool(rt), sampleCount, fsaaType,
                                          this->texturePriv().mipMapped(), key);
     }
 }
 
 void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int height,
-                                      bool isRenderTarget, int sampleCnt,
+                                      bool isRenderTarget, int sampleCnt, GrFSAAType fsaaType,
                                       GrMipMapped mipMapped, GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
     uint32_t flags = isRenderTarget;
@@ -98,6 +100,7 @@ void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int heigh
     SkASSERT(height > 0);
     SkASSERT(sampleCnt > 0);
     SkASSERT(1 == sampleCnt || isRenderTarget);
+    SkASSERT(sampleCnt < (1 << 6));
 
     // make sure desc.fConfig fits in 5 bits
     SkASSERT(sk_float_log2(kLast_GrPixelConfig) <= 5);
@@ -109,12 +112,19 @@ void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int heigh
     GrScratchKey::Builder builder(key, kType, 3);
     builder[0] = width;
     builder[1] = height;
-    builder[2] = config | (static_cast<uint8_t>(mipMapped) << 5) | (sampleCnt << 6) | (flags << 14);
+    builder[2] = config;
+    builder[2] = (builder[2] << 1) | ((isRenderTarget) ? 1 : 0);
+    builder[2] = (builder[2] << 6) | sampleCnt;
+    // Sample count already communicates whether fsaaType is kNone or kUnified if it isnt kMixed.
+    builder[2] = (builder[2] << 2) | ((GrFSAAType::kMixedSamples == fsaaType) ? 1 : 0);
+    builder[2] = (builder[2] << 1) | ((GrMipMapped::kYes == mipMapped) ? 1 : 0);
+
 }
 
-void GrTexturePriv::ComputeScratchKey(const GrSurfaceDesc& desc, GrScratchKey* key) {
+void GrTexturePriv::ComputeScratchKey(
+        const GrSurfaceDesc& desc, GrFSAAType fsaaType, GrScratchKey* key) {
     // Note: the fOrigin field is not used in the scratch key
     return ComputeScratchKey(desc.fConfig, desc.fWidth, desc.fHeight,
                              SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag), desc.fSampleCnt,
-                             GrMipMapped::kNo, key);
+                             fsaaType, GrMipMapped::kNo, key);
 }

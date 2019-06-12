@@ -17,9 +17,11 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrPath.h"
 #include "src/gpu/geometry/GrShape.h"
 #include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
 #include <initializer_list>
 
@@ -78,9 +80,10 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GpuDrawPath, reporter, ctxInfo) {
     for (auto& test_func : { &test_drawPathEmpty, &test_drawSameRectOvals }) {
         for (auto& sampleCount : {1, 4, 16}) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(255, 255);
-            auto surface(
-                SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info,
-                                            sampleCount, nullptr));
+            GrFSAAType fsaaType =
+                    ToolUtils::choose_fsaa_type(sampleCount, ctxInfo.grContext()->priv().caps());
+            auto surface(SkSurface::MakeRenderTarget(
+                    ctxInfo.grContext(), SkBudgeted::kNo, info, sampleCount, fsaaType, nullptr));
             if (!surface) {
                 continue;
             }

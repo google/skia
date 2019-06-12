@@ -757,9 +757,9 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
             context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(format, desc, origin, mipMapped, fit,
-                                                             SkBudgeted::kNo,
-                                                             GrInternalSurfaceFlags::kNone);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
+            format, desc, GrFSAAType::kNone, origin, mipMapped, fit, SkBudgeted::kNo,
+            GrInternalSurfaceFlags::kNone);
 
     SkRect rect = GrTest::TestRect(random);
     SkRect srcRect;

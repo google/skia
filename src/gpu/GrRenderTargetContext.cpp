@@ -1827,7 +1827,7 @@ sk_sp<GrRenderTargetContext> GrRenderTargetContext::rescale(const SkImageInfo& i
         // We'll fall back to kRGBA_8888 if half float not supported.
         auto linearRTC = fContext->priv().makeDeferredRenderTargetContextWithFallback(
                 backendFormat, SkBackingFit::kExact, srcW, srcH, kRGBA_half_GrPixelConfig, cs, 1,
-                GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+                GrFSAAType::kNone, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
         if (!linearRTC) {
             return nullptr;
         }
@@ -1878,7 +1878,7 @@ sk_sp<GrRenderTargetContext> GrRenderTargetContext::rescale(const SkImageInfo& i
         }
         currRTC = fContext->priv().makeDeferredRenderTargetContextWithFallback(
                 backendFormat, SkBackingFit::kExact, nextW, nextH, config, std::move(cs), 1,
-                GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+                GrFSAAType::kNone, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
         if (!currRTC) {
             return nullptr;
         }
@@ -1999,8 +1999,8 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
             }
             rtc = direct->priv().makeDeferredRenderTargetContext(
                     backendFormat, SkBackingFit::kApprox, srcRect.width(), srcRect.height(),
-                    fRenderTargetProxy->config(), info.refColorSpace(), 1, GrMipMapped::kNo,
-                    kTopLeft_GrSurfaceOrigin);
+                    fRenderTargetProxy->config(), info.refColorSpace(), 1, GrFSAAType::kNone,
+                    GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
             if (!rtc) {
                 callback(context, nullptr, 0);
                 return;

@@ -31,9 +31,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ct
 
     auto info = SkImageInfo::MakeN32Premul(256, 256);
     for (auto allocateMips : {false, true}) {
-        auto surf1 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 0,
-                                                 kBottomLeft_GrSurfaceOrigin, nullptr,
-                                                 allocateMips);
+        auto surf1 = SkSurface::MakeRenderTarget(
+                context, SkBudgeted::kYes, info, 1, GrFSAAType::kNone, kBottomLeft_GrSurfaceOrigin,
+                nullptr, allocateMips);
         auto surf2 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
         // Draw something just in case we ever had a solid color optimization
         surf1->getCanvas()->drawCircle(128, 128, 50, SkPaint());
@@ -70,7 +70,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels, reporter, 
     auto surf = SkSurface::MakeRenderTarget(
             ctx, SkBudgeted::kYes,
             SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType), 1,
-            kTopLeft_GrSurfaceOrigin, nullptr, kCreateWithMipMaps);
+            GrFSAAType::kNone, kTopLeft_GrSurfaceOrigin, nullptr, kCreateWithMipMaps);
     if (!surf) {
         return;
     }
@@ -94,7 +94,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels, reporter, 
                                    kPremul_SkAlphaType, nullptr);
     const auto singlePixelInfo =
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
-    surf = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, singlePixelInfo, 1,
+    surf = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, singlePixelInfo, 1, GrFSAAType::kNone,
                                        kTopLeft_GrSurfaceOrigin, nullptr);
     SkPaint paint;
     paint.setFilterQuality(kMedium_SkFilterQuality);

@@ -18,6 +18,7 @@
 #include "src/gpu/GrResourceAllocator.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
+#include "tools/ToolUtils.h"
 
 #include "include/core/SkSurface.h"
 
@@ -44,9 +45,11 @@ static GrSurfaceProxy* make_deferred(GrProxyProvider* proxyProvider, const GrCap
     desc.fConfig = config;
     desc.fSampleCnt = p.fSampleCnt;
 
+    const GrFSAAType fsaaType = ToolUtils::choose_fsaa_type(desc.fSampleCnt, caps);
     const GrBackendFormat format = caps->getBackendFormatFromColorType(p.fColorType);
 
-    auto tmp = proxyProvider->createProxy(format, desc, p.fOrigin, p.fFit, p.fBudgeted);
+    auto tmp = proxyProvider->createProxy(
+            format, desc, fsaaType, p.fOrigin, p.fFit, p.fBudgeted);
     if (!tmp) {
         return nullptr;
     }
@@ -264,8 +267,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
 static void draw(GrContext* context) {
     SkImageInfo ii = SkImageInfo::Make(1024, 1024, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes,
-                                                     ii, 1, kTopLeft_GrSurfaceOrigin, nullptr);
+    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(
+            context, SkBudgeted::kYes, ii, 1, GrFSAAType::kNone, kTopLeft_GrSurfaceOrigin, nullptr);
 
     SkCanvas* c = s->getCanvas();
 
@@ -303,15 +306,17 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     desc.fConfig = config;
     desc.fSampleCnt = p.fSampleCnt;
 
+    GrFSAAType fsaaType = ToolUtils::choose_fsaa_type(desc.fSampleCnt, caps);
+
     SkBackingFit fit = p.fFit;
-    auto callback = [fit, desc](GrResourceProvider* resourceProvider) {
+    auto callback = [fit, desc, fsaaType](GrResourceProvider* resourceProvider) {
         sk_sp<GrTexture> texture;
         if (fit == SkBackingFit::kApprox) {
             texture = resourceProvider->createApproxTexture(
-                desc, GrResourceProvider::Flags::kNoPendingIO);
+                    desc, fsaaType, GrResourceProvider::Flags::kNoPendingIO);
         } else {
-            texture = resourceProvider->createTexture(desc, SkBudgeted::kNo,
-                                                      GrResourceProvider::Flags::kNoPendingIO);
+            texture = resourceProvider->createTexture(
+                    desc, fsaaType, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
         }
         return GrSurfaceProxy::LazyInstantiationResult(std::move(texture));
     };
@@ -319,8 +324,8 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     auto lazyType = deinstantiate ? GrSurfaceProxy::LazyInstantiationType ::kDeinstantiate
                                   : GrSurfaceProxy::LazyInstantiationType ::kSingleUse;
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
-    return proxyProvider->createLazyProxy(callback, format, desc, p.fOrigin, GrMipMapped::kNo,
-                                          flags, p.fFit, p.fBudgeted, lazyType);
+    return proxyProvider->createLazyProxy(callback, format, desc, fsaaType, p.fOrigin,
+                                          GrMipMapped::kNo, flags, p.fFit, p.fBudgeted, lazyType);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {

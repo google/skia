@@ -586,7 +586,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     if (resetBits & kMSAAEnable_GrGLBackendState) {
         fMSAAEnabled = kUnknown_TriState;
 
-        if (this->caps()->usesMixedSamples()) {
+        if (this->caps()->mixedSamplesSupport()) {
             // The skia blend modes all use premultiplied alpha and therefore expect RGBA coverage
             // modulation. This state has no effect when not rendering to a mixed sampled target.
             GL_CALL(CoverageModulation(GR_GL_RGBA));
@@ -748,7 +748,8 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     }
 
     GrGLRenderTarget::IDDesc rtIDDesc;
-    if (!this->createRenderTargetObjects(surfDesc, idDesc.fInfo, &rtIDDesc)) {
+    if (!this->createRenderTargetObjects(
+            surfDesc, GrChooseFSAAType(sampleCnt), idDesc.fInfo, &rtIDDesc)) {
         return nullptr;
     }
 
@@ -810,8 +811,14 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     surfDesc.fConfig = tex.config();
     surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config());
 
+    // FIXME: This method is on the chopping block.. So for now we just preserve the old mixed
+    // samples behavior, which is: make the texture mixed sampled if we have nvpr + nvfms.
+    bool preferMixedSamples = this->caps()->mixedSamplesSupport() &&
+                              this->caps()->shaderCaps()->pathRenderingSupport();
+
     GrGLRenderTarget::IDDesc rtIDDesc;
-    if (!this->createRenderTargetObjects(surfDesc, info, &rtIDDesc)) {
+    if (!this->createRenderTargetObjects(
+            surfDesc, GrChooseFSAAType(surfDesc.fSampleCnt, preferMixedSamples), info, &rtIDDesc)) {
         return nullptr;
     }
     return GrGLRenderTarget::MakeWrapped(this, surfDesc, info.fFormat, rtIDDesc, 0);
@@ -1437,7 +1444,6 @@ static bool renderbuffer_storage_msaa(const GrGLContext& ctx,
     SkASSERT(GrGLCaps::kNone_MSFBOType != ctx.caps()->msFBOType());
     switch (ctx.caps()->msFBOType()) {
         case GrGLCaps::kStandard_MSFBOType:
-        case GrGLCaps::kMixedSamples_MSFBOType:
             GL_ALLOC_CALL(ctx.interface(),
                             RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
                                                             sampleCount,
@@ -1466,16 +1472,16 @@ static bool renderbuffer_storage_msaa(const GrGLContext& ctx,
     return (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctx.interface()));
 }
 
-bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
-                                        const GrGLTextureInfo& texInfo,
-                                        GrGLRenderTarget::IDDesc* idDesc) {
+bool GrGLGpu::createRenderTargetObjects(
+        const GrSurfaceDesc& desc, GrFSAAType fsaaType, const GrGLTextureInfo& texInfo,
+        GrGLRenderTarget::IDDesc* idDesc) {
     idDesc->fMSColorRenderbufferID = 0;
     idDesc->fRTFBOID = 0;
     idDesc->fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
     idDesc->fTexFBOID = 0;
-    SkASSERT((GrGLCaps::kMixedSamples_MSFBOType == this->glCaps().msFBOType()) ==
-             this->caps()->usesMixedSamples());
-    idDesc->fIsMixedSampled = desc.fSampleCnt > 1 && this->caps()->usesMixedSamples();
+    SkASSERT(SkToBool(desc.fSampleCnt > 1) == (GrFSAAType::kNone != fsaaType));
+    SkASSERT(GrFSAAType::kMixedSamples != fsaaType || this->caps()->mixedSamplesSupport());
+    idDesc->fIsMixedSampled = (GrFSAAType::kMixedSamples == fsaaType);
 
     GrGLenum status;
 
@@ -1494,7 +1500,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
     // the texture bound to the other. The exception is the IMG multisample extension. With this
     // extension the texture is multisampled when rendered to and then auto-resolves it when it is
     // rendered from.
-    if (desc.fSampleCnt > 1 && this->glCaps().usesMSAARenderBuffers()) {
+    if (GrFSAAType::kUnifiedMSAA == fsaaType && !this->caps()->usesImplicitMSAAResolve()) {
         GL_CALL(GenFramebuffers(1, &idDesc->fRTFBOID));
         GL_CALL(GenRenderbuffers(1, &idDesc->fMSColorRenderbufferID));
         if (!idDesc->fRTFBOID ||
@@ -1590,6 +1596,7 @@ static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
 }
 
 sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
+                                          GrFSAAType fsaaType,
                                           SkBudgeted budgeted,
                                           const GrMipLevel texels[],
                                           int mipLevelCount) {
@@ -1637,7 +1644,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
         GL_CALL(BindTexture(idDesc.fInfo.fTarget, 0));
         GrGLRenderTarget::IDDesc rtIDDesc;
 
-        if (!this->createRenderTargetObjects(desc, idDesc.fInfo, &rtIDDesc)) {
+        if (!this->createRenderTargetObjects(desc, fsaaType, idDesc.fInfo, &rtIDDesc)) {
             GL_CALL(DeleteTextures(1, &idDesc.fInfo.fID));
             return return_null_texture();
         }
@@ -2322,9 +2329,10 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
         GrSurfaceDesc desc;
         desc.fConfig = rtConfig;
         desc.fWidth = desc.fHeight = 16;
+        SkASSERT(1 == desc.fSampleCnt);
         if (this->glCaps().isConfigRenderable(rtConfig)) {
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
-            temp = this->createTexture(desc, SkBudgeted::kNo);
+            temp = this->createTexture(desc, GrFSAAType::kNone, SkBudgeted::kNo);
             if (!temp) {
                 return false;
             }
@@ -2332,7 +2340,7 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
             this->flushRenderTargetNoColorWrites(glrt);
             return true;
         } else if (this->glCaps().canConfigBeFBOColorAttachment(rtConfig)) {
-            temp = this->createTexture(desc, SkBudgeted::kNo);
+            temp = this->createTexture(desc, GrFSAAType::kNone, SkBudgeted::kNo);
             if (!temp) {
                 return false;
             }
@@ -2751,7 +2759,8 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
     if (rt->needsResolve()) {
         // Some extensions automatically resolves the texture when it is read.
-        if (this->glCaps().usesMSAARenderBuffers()) {
+        if (!this->caps()->usesImplicitMSAAResolve() &&
+            GrFSAAType::kUnifiedMSAA == target->fsaaType()) {
             SkASSERT(rt->textureFBOID() != rt->renderFBOID());
             SkASSERT(rt->textureFBOID() != 0 && rt->renderFBOID() != 0);
             this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->renderFBOID());
@@ -3223,12 +3232,14 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
                               src->getBoundsRect(), true, srcRect, dstPoint);
 }
 
-static bool rt_has_msaa_render_buffer(const GrGLRenderTarget* rt, const GrGLCaps& glCaps) {
+static bool rt_has_msaa_render_buffer(const GrGLRenderTarget* rt, const GrCaps& caps) {
     // A RT has a separate MSAA renderbuffer if:
-    // 1) It's multisampled
-    // 2) We're using an extension with separate MSAA renderbuffers
+    // 1) It has unified msaa (e.g., not mixed samples)
+    // 2) We're not using an implicit resolve extension
     // 3) It's not FBO 0, which is special and always auto-resolves
-    return rt->numColorSamples() > 1 && glCaps.usesMSAARenderBuffers() && rt->renderFBOID() != 0;
+    return GrFSAAType::kUnifiedMSAA == rt->fsaaType() &&
+           !caps.usesImplicitMSAAResolve() &&
+           rt->renderFBOID() != 0;
 }
 
 static inline bool can_copy_texsubimage(const GrSurface* dst, const GrSurface* src,

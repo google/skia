@@ -63,7 +63,8 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
 
     SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
                                          kPremul_SkAlphaType);
-    auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, &props));
+    auto surface(SkSurface::MakeRenderTarget(
+            context, SkBudgeted::kNo, info, 1, GrFSAAType::kNone, &props));
     REPORTER_ASSERT(reporter, surface);
     if (!surface) {
         return;

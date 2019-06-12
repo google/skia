@@ -9,6 +9,7 @@
 #define GrRenderTargetProxyPriv_DEFINED
 
 #include "include/private/GrRenderTargetProxy.h"
+#include "src/gpu/GrCaps.h"
 
 /**
  * This class hides the more specialized capabilities of GrRenderTargetProxy.
@@ -21,6 +22,17 @@ public:
 
     bool glRTFBOIDIs0() const {
         return fRenderTargetProxy->glRTFBOIDIs0();
+    }
+
+    bool hasIntermediateMSAARenderbuffer(const GrCaps& caps) const {
+        // A RT has a separate MSAA renderbuffer if:
+        // 1) It's multisampled
+        // 2) We do not use implicit-resolve extensions.
+        // 3) It is not mixed sampled.
+        // 4) It's not FBO 0, which is special and always auto-resolves.
+        return !caps.usesImplicitMSAAResolve() &&
+               GrFSAAType::kUnifiedMSAA == fRenderTargetProxy->fsaaType() &&
+               !fRenderTargetProxy->rtPriv().glRTFBOIDIs0();
     }
 
 private:

@@ -21,6 +21,7 @@
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/gl/GrGLDefines.h"
+#include "tools/ToolUtils.h"
 
 // Check that the surface proxy's member vars are set as expected
 static void check_surface(skiatest::Reporter* reporter,
@@ -131,6 +132,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             desc.fConfig = config;
                             desc.fSampleCnt = numSamples;
 
+                            GrFSAAType fsaa = ToolUtils::choose_fsaa_type(numSamples, &caps);
+
                             GrSRGBEncoded srgbEncoded;
                             GrColorType colorType =
                                     GrPixelConfigToColorTypeAndEncoding(config, &srgbEncoded);
@@ -141,15 +144,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
                                     tex = resourceProvider->createApproxTexture(
-                                            desc, GrResourceProvider::Flags::kNoPendingIO);
+                                            desc, fsaa, GrResourceProvider::Flags::kNoPendingIO);
                                 } else {
                                     tex = resourceProvider->createTexture(
-                                        desc, budgeted, GrResourceProvider::Flags::kNoPendingIO);
+                                        desc, fsaa, budgeted,
+                                        GrResourceProvider::Flags::kNoPendingIO);
                                 }
 
-                                sk_sp<GrTextureProxy> proxy =
-                                        proxyProvider->createProxy(format, desc, origin, fit,
-                                                                   budgeted);
+                                sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
+                                        format, desc, fsaa, origin, fit, budgeted);
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
                                     REPORTER_ASSERT(reporter, proxy->asRenderTargetProxy());
@@ -177,15 +180,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
                                     tex = resourceProvider->createApproxTexture(
-                                            desc, GrResourceProvider::Flags::kNoPendingIO);
+                                            desc, fsaa, GrResourceProvider::Flags::kNoPendingIO);
                                 } else {
                                     tex = resourceProvider->createTexture(
-                                        desc, budgeted, GrResourceProvider::Flags::kNoPendingIO);
+                                        desc, fsaa, budgeted,
+                                        GrResourceProvider::Flags::kNoPendingIO);
                                 }
 
-                                sk_sp<GrTextureProxy> proxy(
-                                        proxyProvider->createProxy(format, desc, origin, fit,
-                                                                   budgeted));
+                                sk_sp<GrTextureProxy> proxy(proxyProvider->createProxy(
+                                        format, desc, fsaa, origin, fit, budgeted));
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
                                     // This forces the proxy to compute and cache its
@@ -380,7 +383,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                                 kRGBA_8888_SkColorType);
 
                     sk_sp<GrTextureProxy> proxy = provider->createProxy(
-                            format, desc, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kNo);
+                            format, desc, GrFSAAType::kNone, kBottomLeft_GrSurfaceOrigin, fit,
+                            SkBudgeted::kNo);
                     REPORTER_ASSERT(reporter, !proxy);
                 }
             }

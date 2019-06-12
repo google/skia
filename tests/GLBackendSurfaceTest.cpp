@@ -80,7 +80,8 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
 
     auto surf = SkSurface::MakeRenderTarget(
             context, SkBudgeted::kYes,
-            SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType), 1, nullptr);
+            SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType), 1,
+            GrFSAAType::kNone, nullptr);
     REPORTER_ASSERT(reporter, surf);
     surf->getCanvas()->drawImage(wrappedImage, 0, 0);
     surf->flush();

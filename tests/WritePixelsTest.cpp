@@ -433,9 +433,9 @@ DEF_TEST(WritePixels, reporter) {
 static void test_write_pixels(skiatest::Reporter* reporter, GrContext* context, int sampleCnt) {
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(context,
-                                                             SkBudgeted::kNo, ii, sampleCnt,
-                                                             origin, nullptr));
+        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
+                context, SkBudgeted::kNo, ii, sampleCnt,
+                ToolUtils::choose_fsaa_type(sampleCnt, context->priv().caps()), origin, nullptr));
         if (surface) {
             test_write_pixels(reporter, surface.get(), ii);
         }
@@ -532,7 +532,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
             context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
         sk_sp<GrTextureProxy> temp = proxyProvider->createProxy(
-                format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
+                format, desc, GrFSAAType::kNone, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox,
+                SkBudgeted::kYes);
         temp->instantiate(context->priv().resourceProvider());
     }
 

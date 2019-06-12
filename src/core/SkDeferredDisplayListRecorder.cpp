@@ -143,10 +143,17 @@ bool SkDeferredDisplayListRecorder::init() {
     // DDL is being replayed into.
 
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
+    SkASSERT(0);
+    bool preferMixedSamples = fContext->priv().caps()->mixedSamplesSupport() &&
+                              fContext->priv().caps()->shaderCaps()->pathRenderingSupport();
+    // FIXME: GrFSAAType::kMixedSamples when supported by characterization.
+    GrFSAAType fsaaType = GrChooseFSAAType(desc.fSampleCnt, preferMixedSamples);
+#if 0
     if (fContext->priv().caps()->usesMixedSamples() && desc.fSampleCnt > 1 && !usesGLFBO0) {
         // In GL, FBO 0 never supports mixed samples
         surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
     }
+#endif
     if (usesGLFBO0) {
         surfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
     }
@@ -170,6 +177,7 @@ bool SkDeferredDisplayListRecorder::init() {
             },
             format,
             desc,
+            fsaaType,
             fCharacterization.origin(),
             surfaceFlags,
             optionalTextureInfo,

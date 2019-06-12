@@ -314,7 +314,8 @@ public:
                     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
                     auto texture = resourceProvider->createTexture(
-                            desc, SkBudgeted::kYes, GrResourceProvider::Flags::kNoPendingIO);
+                            desc, GrFSAAType::kNone, SkBudgeted::kYes,
+                            GrResourceProvider::Flags::kNoPendingIO);
                     return std::move(texture);
                 },
                 format,

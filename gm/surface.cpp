@@ -46,7 +46,8 @@ static sk_sp<SkShader> make_shader() {
 static sk_sp<SkSurface> make_surface(GrContext* ctx, const SkImageInfo& info, SkPixelGeometry geo) {
     SkSurfaceProps props(0, geo);
     if (ctx) {
-        return SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props);
+        return SkSurface::MakeRenderTarget(
+                ctx, SkBudgeted::kNo, info, 1, GrFSAAType::kNone, &props);
     } else {
         return SkSurface::MakeRaster(info, &props);
     }

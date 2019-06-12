@@ -79,6 +79,7 @@ public:
 
     sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrBackendFormat&,
                                                        const GrSurfaceDesc&,
+                                                       GrFSAAType,
                                                        GrSurfaceOrigin,
                                                        GrMipMapped,
                                                        SkBackingFit,
@@ -98,6 +99,7 @@ public:
                                             GrPixelConfig config,
                                             sk_sp<SkColorSpace> colorSpace,
                                             int sampleCnt = 1,
+                                            GrFSAAType = GrFSAAType::kNone,
                                             GrMipMapped = GrMipMapped::kNo,
                                             GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
                                             const SkSurfaceProps* surfaceProps = nullptr,
@@ -116,6 +118,7 @@ public:
                                             GrPixelConfig config,
                                             sk_sp<SkColorSpace> colorSpace,
                                             int sampleCnt = 1,
+                                            GrFSAAType = GrFSAAType::kNone,
                                             GrMipMapped = GrMipMapped::kNo,
                                             GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
                                             const SkSurfaceProps* surfaceProps = nullptr,

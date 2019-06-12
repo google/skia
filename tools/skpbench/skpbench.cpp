@@ -424,13 +424,14 @@ int main(int argc, char** argv) {
     }
 
     // Create a render target.
-    SkImageInfo info =
-            SkImageInfo::Make(width, height, config->getColorType(), config->getAlphaType(),
-                              sk_ref_sp(config->getColorSpace()));
+    SkImageInfo info = SkImageInfo::Make(
+            width, height, config->getColorType(), config->getAlphaType(),
+            sk_ref_sp(config->getColorSpace()));
+    GrFSAAType fsaaType = ToolUtils::choose_fsaa_type(config->getSamples(), ctx->priv().caps());
     uint32_t flags = config->getUseDIText() ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-    sk_sp<SkSurface> surface =
-        SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, config->getSamples(), &props);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(
+            ctx, SkBudgeted::kNo, info, config->getSamples(), fsaaType, &props);
     if (!surface) {
         exitf(ExitErr::kUnavailable, "failed to create %ix%i render target for config %s",
                                      width, height, config->getTag().c_str());

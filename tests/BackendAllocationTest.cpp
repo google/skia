@@ -233,11 +233,9 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                 SkAssertResult(actual2.tryAlloc(newII));
                 actual2.erase(SkColors::kTransparent);
 
-                sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context,
-                                                                    SkBudgeted::kNo,
-                                                                    newII, 1,
-                                                                    kTopLeft_GrSurfaceOrigin,
-                                                                    nullptr);
+                sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(
+                        context, SkBudgeted::kNo, newII, 1, GrFSAAType::kNone,
+                        kTopLeft_GrSurfaceOrigin, nullptr);
                 if (!surf) {
                     context->deleteBackendTexture(backendTex);
                     return;

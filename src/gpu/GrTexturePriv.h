@@ -50,9 +50,9 @@ public:
                                              : GrSamplerState::Filter::kMipMap;
     }
 
-    static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
+    static void ComputeScratchKey(const GrSurfaceDesc&, GrFSAAType, GrScratchKey*);
     static void ComputeScratchKey(GrPixelConfig config, int width, int height,
-                                  bool isRenderTarget, int sampleCnt,
+                                  bool isRenderTarget, int sampleCnt, GrFSAAType,
                                   GrMipMapped, GrScratchKey* key);
 
 

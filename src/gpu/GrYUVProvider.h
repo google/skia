@@ -44,6 +44,7 @@ public:
     sk_sp<GrTextureProxy> refAsTextureProxy(GrRecordingContext*,
                                             const GrBackendFormat&,
                                             const GrSurfaceDesc&,
+                                            GrFSAAType,
                                             SkColorSpace* srcColorSpace,
                                             SkColorSpace* dstColorSpace);
 

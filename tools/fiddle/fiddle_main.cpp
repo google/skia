@@ -13,6 +13,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkUtils.h"
+#include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 
 #include "tools/fiddle/fiddle_main.h"
@@ -164,8 +165,8 @@ static bool setup_backend_objects(GrContext* context,
             texels[i].fRowBytes = 0;
         }
 
-        backingTexture = resourceProvider->createTexture(backingDesc, SkBudgeted::kNo, texels.get(),
-                                                         mipLevelCount);
+        backingTexture = resourceProvider->createTexture(
+                backingDesc, GrFSAAType::kNone, SkBudgeted::kNo, texels.get(), mipLevelCount);
         if (!backingTexture) {
             return false;
         }
@@ -181,6 +182,8 @@ static bool setup_backend_objects(GrContext* context,
     backingDesc.fHeight = options.fOffScreenHeight;
     backingDesc.fSampleCnt = options.fOffScreenSampleCount;
 
+    auto fsaaType = ToolUtils::choose_fsaa_type(backingDesc.fSampleCnt, context->priv().caps());
+
     SkAutoTMalloc<uint32_t> data(backingDesc.fWidth * backingDesc.fHeight);
     sk_memset32(data.get(), 0, backingDesc.fWidth * backingDesc.fHeight);
 
@@ -191,8 +194,8 @@ static bool setup_backend_objects(GrContext* context,
         // We use this fact to initialize it with data but don't allow mipmaps
         GrMipLevel level0 = { data.get(), backingDesc.fWidth*sizeof(uint32_t) };
 
-        sk_sp<GrTexture> tmp = resourceProvider->createTexture(backingDesc, SkBudgeted::kNo,
-                                                               &level0, 1);
+        sk_sp<GrTexture> tmp = resourceProvider->createTexture(
+                backingDesc, fsaaType, SkBudgeted::kNo, &level0, 1);
         if (!tmp || !tmp->asRenderTarget()) {
             return false;
         }
@@ -219,8 +222,8 @@ static bool setup_backend_objects(GrContext* context,
             texels[i].fRowBytes = 0;
         }
 
-        backingTextureRenderTarget = resourceProvider->createTexture(backingDesc, SkBudgeted::kNo,
-                                                                     texels.get(), mipLevelCount);
+        backingTextureRenderTarget = resourceProvider->createTexture(
+                backingDesc, fsaaType, SkBudgeted::kNo, texels.get(), mipLevelCount);
         if (!backingTextureRenderTarget || !backingTextureRenderTarget->asRenderTarget()) {
             return false;
         }

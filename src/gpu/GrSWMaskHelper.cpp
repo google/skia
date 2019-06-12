@@ -112,5 +112,5 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrRecordingContext* context
         clearFlag = kPerformInitialClear_GrSurfaceFlag;
     }
     return context->priv().proxyProvider()->createTextureProxy(
-            std::move(img), clearFlag, 1, SkBudgeted::kYes, fit);
+            std::move(img), clearFlag, 1, GrFSAAType::kNone, SkBudgeted::kYes, fit);
 }

@@ -190,7 +190,8 @@ sk_sp<SkImage> SkImage::MakeFromCompressed(GrContext* context, sk_sp<SkData> dat
     desc.fSampleCnt = 1;
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(std::move(data), desc);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
+            std::move(data), desc, GrFSAAType::kNone);
 
     if (!proxy) {
         return nullptr;
@@ -245,10 +246,9 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
             ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-            ctx->priv().makeDeferredRenderTargetContext(
-                    format, SkBackingFit::kExact, width, height, kRGBA_8888_GrPixelConfig,
-                    std::move(imageColorSpace), 1, GrMipMapped::kNo, imageOrigin));
+    sk_sp<GrRenderTargetContext> renderTargetContext(ctx->priv().makeDeferredRenderTargetContext(
+            format, SkBackingFit::kExact, width, height, kRGBA_8888_GrPixelConfig,
+            std::move(imageColorSpace), 1, GrFSAAType::kNone, GrMipMapped::kNo, imageOrigin));
     if (!renderTargetContext) {
         return nullptr;
     }

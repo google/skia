@@ -79,12 +79,13 @@ GrBackendRenderTarget SkSurface_Gpu::onGetBackendRenderTarget(BackendHandleAcces
 SkCanvas* SkSurface_Gpu::onNewCanvas() { return new SkCanvas(fDevice); }
 
 sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
-    int sampleCount = fDevice->accessRenderTargetContext()->numColorSamples();
+    int sampleCount = fDevice->accessRenderTargetContext()->numStencilSamples();
+    GrFSAAType fsaaType = fDevice->accessRenderTargetContext()->fsaaType();
     GrSurfaceOrigin origin = fDevice->accessRenderTargetContext()->origin();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
-    return SkSurface::MakeRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
-                                       origin, &this->props());
+    return SkSurface::MakeRenderTarget(
+            fDevice->context(), kBudgeted, info, sampleCount, fsaaType, origin, &this->props());
 }
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
@@ -360,15 +361,15 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
     desc.fConfig = c.config();
     desc.fSampleCnt = c.stencilCount();
 
+    // FIXME: mixed samples on characterization
+    auto fsaaType = GrFSAAType::kNone;
+
     const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(c.colorType());
 
-    sk_sp<GrSurfaceContext> sc(
-            context->priv().makeDeferredSurfaceContext(format, desc, c.origin(),
-                                                       GrMipMapped(c.isMipMapped()),
-                                                       SkBackingFit::kExact, budgeted,
-                                                       c.refColorSpace(),
-                                                       &c.surfaceProps()));
+    sk_sp<GrSurfaceContext> sc(context->priv().makeDeferredSurfaceContext(
+            format, desc, fsaaType, c.origin(), GrMipMapped(c.isMipMapped()), SkBackingFit::kExact,
+            budgeted, c.refColorSpace(), &c.surfaceProps()));
     if (!sc || !sc->asRenderTargetContext()) {
         return nullptr;
     }
@@ -394,10 +395,10 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
 }
 
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
-                                             const SkImageInfo& info, int sampleCount,
-                                             GrSurfaceOrigin origin, const SkSurfaceProps* props,
-                                             bool shouldCreateWithMips) {
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(
+        GrContext* ctx, SkBudgeted budgeted, const SkImageInfo& info, int sampleCount,
+        GrFSAAType fsaaType, GrSurfaceOrigin origin, const SkSurfaceProps* props,
+        bool shouldCreateWithMips) {
     if (!ctx) {
         return nullptr;
     }
@@ -412,7 +413,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted
     }
 
     sk_sp<SkGpuDevice> device(SkGpuDevice::Make(
-            ctx, budgeted, info, sampleCount, origin, props, mipMapped,
+            ctx, budgeted, info, sampleCount, fsaaType, origin, props, mipMapped,
             SkGpuDevice::kClear_InitContents));
     if (!device) {
         return nullptr;

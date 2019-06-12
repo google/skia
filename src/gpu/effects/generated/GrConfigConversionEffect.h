@@ -72,7 +72,8 @@ public:
         sk_sp<SkImage> image = SkImage::MakeFromRaster(pixmap, nullptr, nullptr);
 
         sk_sp<GrTextureProxy> dataProxy = proxyProvider->createTextureProxy(
-                std::move(image), kNone_GrSurfaceFlags, 1, SkBudgeted::kYes, SkBackingFit::kExact);
+                std::move(image), kNone_GrSurfaceFlags, 1, GrFSAAType::kNone, SkBudgeted::kYes,
+                SkBackingFit::kExact);
         if (!dataProxy) {
             return false;
         }

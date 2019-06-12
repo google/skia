@@ -97,9 +97,20 @@ bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texPr
     return false;
 }
 
-sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
-                                      const GrMipLevel texels[], int mipLevelCount) {
+sk_sp<GrTexture> GrGpu::createTexture(
+        const GrSurfaceDesc& origDesc, GrFSAAType fsaaType, SkBudgeted budgeted,
+        const GrMipLevel texels[], int mipLevelCount) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrGpu", "createTexture", fContext);
+
+#ifdef SK_DEBUG
+    SkASSERT(SkToBool(origDesc.fSampleCnt > 1) == SkToBool(GrFSAAType::kNone != fsaaType));
+    if (GrFSAAType::kMixedSamples == fsaaType) {
+        SkASSERT(this->caps()->mixedSamplesSupport());
+        SkASSERT(kRenderTarget_GrSurfaceFlag & origDesc.fFlags);
+        SkASSERT(origDesc.fSampleCnt > 1);
+    }
+#endif
+
     GrSurfaceDesc desc = origDesc;
 
     GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
@@ -123,7 +134,8 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
     SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig) || 1 == desc.fSampleCnt);
 
     this->handleDirtyContext();
-    sk_sp<GrTexture> tex = this->onCreateTexture(desc, budgeted, texels, mipLevelCount);
+    sk_sp<GrTexture> tex = this->onCreateTexture(
+            desc, fsaaType, budgeted, texels, mipLevelCount);
     if (tex) {
         if (!this->caps()->reuseScratchTextures() && !isRT) {
             tex->resourcePriv().removeScratchKey();
@@ -138,8 +150,9 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
     return tex;
 }
 
-sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
-    return this->createTexture(desc, budgeted, nullptr, 0);
+sk_sp<GrTexture> GrGpu::createTexture(
+        const GrSurfaceDesc& desc, GrFSAAType fsaaType, SkBudgeted budgeted) {
+    return this->createTexture(desc, fsaaType, budgeted, nullptr, 0);
 }
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,

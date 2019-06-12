@@ -210,6 +210,25 @@ static constexpr GrBackendApi kMock_GrBackend = GrBackendApi::kMock;
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
+ * The type of full scene antialiasing employed by a render target.
+ */
+enum class GrFSAAType {
+    /** No FSAA */
+    kNone,
+    /** Regular MSAA where each attachment has the same sample count. */
+    kUnifiedMSAA,
+    /** One color sample, N stencil samples. */
+    kMixedSamples
+};
+
+inline GrFSAAType GrChooseFSAAType(int numSamples, bool preferMixedSamples = false) {
+    if (numSamples <= 1) {
+        return GrFSAAType::kNone;
+    }
+    return (preferMixedSamples) ? GrFSAAType::kMixedSamples : GrFSAAType::kUnifiedMSAA;
+}
+
+/**
  * Used to say whether a texture has mip levels allocated or not.
  */
 enum class GrMipMapped : bool {

@@ -98,7 +98,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         SkColorType colorType = static_cast<SkColorType>(ct);
         auto info = SkImageInfo::Make(kSize, kSize, colorType, kOpaque_SkAlphaType, nullptr);
         bool can = context->colorTypeSupportedAsSurface(colorType);
-        auto surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 1, nullptr);
+        auto surf = SkSurface::MakeRenderTarget(
+                context, SkBudgeted::kYes, info, 1, GrFSAAType::kNone, nullptr);
         REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, can: %d, surf: %d",
                         colorType, can, SkToBool(surf));
 
@@ -124,7 +125,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         static constexpr int kSampleCnt = 2;
 
         can = context->maxSurfaceSampleCountForColorType(colorType) >= kSampleCnt;
-        surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, kSampleCnt, nullptr);
+        surf = SkSurface::MakeRenderTarget(
+                context, SkBudgeted::kYes, info, kSampleCnt,
+                ToolUtils::choose_fsaa_type(kSampleCnt, context->priv().caps()), nullptr);
         REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, can: %d, surf: %d",
                         colorType, can, SkToBool(surf));
 
@@ -1065,7 +1068,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReplaceSurfaceBackendTexture, reporter, ctxIn
         REPORTER_ASSERT(reporter,
                         !surf->replaceBackendTexture(backendTexture3, kTopLeft_GrSurfaceOrigin));
         // Can't replace texture of non-wrapped SkSurface.
-        surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii, sampleCnt, nullptr);
+        surf = SkSurface::MakeRenderTarget(
+                context, SkBudgeted::kYes, ii, sampleCnt,
+                ToolUtils::choose_fsaa_type(sampleCnt, context->priv().caps()), nullptr);
         REPORTER_ASSERT(reporter, surf);
         if (surf) {
             REPORTER_ASSERT(reporter, !surf->replaceBackendTexture(backendTexture1,

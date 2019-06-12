@@ -1009,8 +1009,9 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int w
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                          const GrMipLevel texels[], int mipLevelCount) {
+sk_sp<GrTexture> GrVkGpu::onCreateTexture(
+        const GrSurfaceDesc& desc, GrFSAAType, SkBudgeted budgeted, const GrMipLevel texels[],
+        int mipLevelCount) {
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     VkFormat pixelFormat;

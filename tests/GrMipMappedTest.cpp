@@ -263,9 +263,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             } else {
                 SkImageInfo info = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,
                                                      kPremul_SkAlphaType);
-                surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 0,
-                                                      kTopLeft_GrSurfaceOrigin, nullptr,
-                                                      willUseMips);
+                surface = SkSurface::MakeRenderTarget(
+                        context, SkBudgeted::kYes, info, 1, GrFSAAType::kNone,
+                        kTopLeft_GrSurfaceOrigin, nullptr, willUseMips);
             }
             REPORTER_ASSERT(reporter, surface);
             if (!surface) {

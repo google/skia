@@ -19,6 +19,7 @@
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
+#include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -33,6 +34,7 @@
 #include "src/gpu/text/GrStrikeCache.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 #include "src/image/SkImage_Gpu.h"
+#include "tools/ToolUtils.h"
 
 #include <algorithm>
 
@@ -159,6 +161,38 @@ const SkTInternalLList<GrCCPathCacheEntry>& GrCCPathCache::testingOnly_getLRU() 
 int GrCCPathCacheEntry::testingOnly_peekOnFlushRefCnt() const { return fOnFlushRefCnt; }
 
 int GrCCCachedAtlas::testingOnly_peekOnFlushRefCnt() const { return fOnFlushRefCnt; }
+
+//////////////////////////////////////////////////////////////////////////////
+
+sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
+        const GrSurfaceDesc& desc, GrSurfaceOrigin origin, SkBackingFit fit, SkBudgeted budgeted) {
+    GrContext* direct = fImageContext->priv().asDirectContext();
+    if (!direct) {
+        return nullptr;
+    }
+
+    GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
+    sk_sp<GrTexture> tex;
+
+    GrFSAAType fsaaType = ToolUtils::choose_fsaa_type(desc.fSampleCnt, this->caps());
+    if (SkBackingFit::kApprox == fit) {
+        tex = resourceProvider->createApproxTexture(
+                desc, fsaaType, GrResourceProvider::Flags::kNoPendingIO);
+    } else {
+        tex = resourceProvider->createTexture(
+                desc, fsaaType, budgeted, GrResourceProvider::Flags::kNoPendingIO);
+    }
+    if (!tex) {
+        return nullptr;
+    }
+
+    return this->createWrapped(std::move(tex), origin);
+}
+
+sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createWrapped(sk_sp<GrTexture> tex,
+                                                                 GrSurfaceOrigin origin) {
+    return this->createWrapped(std::move(tex), origin);
+}
 
 //////////////////////////////////////////////////////////////////////////////
 

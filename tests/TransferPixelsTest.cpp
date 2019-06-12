@@ -118,7 +118,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
         }
 
         sk_sp<GrTexture> tex = resourceProvider->createTexture(
-            desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
+            desc, GrFSAAType::kNone, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
         if (!tex) {
             continue;
         }
@@ -257,7 +257,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
         GrMipLevel data;
         data.fPixels = textureData.get();
         data.fRowBytes = kTextureWidth * sizeof(GrColor);
-        sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo, &data, 1);
+        sk_sp<GrTexture> tex = resourceProvider->createTexture(
+                desc, GrFSAAType::kNone, SkBudgeted::kNo, &data, 1);
         if (!tex) {
             continue;
         }

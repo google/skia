@@ -11,6 +11,7 @@
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLUtil.h"
 #include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInfo) {
 #define GL(F) GR_GL_CALL(ctxInfo.glContext()->gl(), F)
@@ -74,7 +75,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     GrSurfaceDesc desc;
     desc.fWidth = desc.fHeight = 10;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    auto tex = gpu->createTexture(desc, SkBudgeted::kNo);
+    auto tex = gpu->createTexture(desc, GrFSAAType::kNone, SkBudgeted::kNo);
     REPORTER_ASSERT(reporter, tex);
     context->resetGLTextureBindings();
     checkBindings();
@@ -84,7 +85,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     // Test drawing and then resetting bindings. This should force a MIP regeneration if MIP
     // maps are supported as well.
     auto info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 1, nullptr);
+    auto surf = SkSurface::MakeRenderTarget(
+            context, SkBudgeted::kYes, info, 1, GrFSAAType::kNone, nullptr);
     surf->getCanvas()->clear(0x80FF0000);
     auto img = surf->makeImageSnapshot();
     surf->getCanvas()->clear(SK_ColorBLUE);

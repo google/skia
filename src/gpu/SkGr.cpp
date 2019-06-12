@@ -196,7 +196,7 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
     }
     if (!proxy) {
         proxy = proxyProvider->createTextureProxy(srcImage, kNone_GrSurfaceFlags, 1,
-                                                  SkBudgeted::kYes, fit);
+                                                  GrFSAAType::kNone, SkBudgeted::kYes, fit);
         if (proxy && originalKey.isValid()) {
             proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
             const SkBitmap* bm = as_IB(srcImage.get())->onPeekBitmap();

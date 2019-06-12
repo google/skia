@@ -202,7 +202,7 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider) {
     SkBitmap srcBM = create_bm();
     sk_sp<SkImage> srcImage(SkImage::MakeFromBitmap(srcBM));
-    return proxyProvider->createTextureProxy(srcImage, kNone_GrSurfaceFlags, 1,
+    return proxyProvider->createTextureProxy(srcImage, kNone_GrSurfaceFlags, 1, GrFSAAType::kNone,
                                              SkBudgeted::kYes, SkBackingFit::kExact);
 }
 

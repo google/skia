@@ -187,7 +187,7 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
     // Draw the test to an off-screen, top-down render target.
     if (auto topLeftRTC = ctx->priv().makeDeferredRenderTargetContext(
             rtc->asSurfaceProxy()->backendFormat(), SkBackingFit::kExact, 100, 200,
-            rtc->asSurfaceProxy()->config(), nullptr, 1, GrMipMapped::kNo,
+            rtc->asSurfaceProxy()->config(), nullptr, 1, GrFSAAType::kNone, GrMipMapped::kNo,
             kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes)) {
         topLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
                           GrRenderTargetContext::CanClearFullscreen::kYes);
@@ -204,7 +204,7 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
     // Draw the test to an off-screen, bottom-up render target.
     if (auto topLeftRTC = ctx->priv().makeDeferredRenderTargetContext(
             rtc->asSurfaceProxy()->backendFormat(), SkBackingFit::kExact, 100, 200,
-            rtc->asSurfaceProxy()->config(), nullptr, 1, GrMipMapped::kNo,
+            rtc->asSurfaceProxy()->config(), nullptr, 1, GrFSAAType::kNone, GrMipMapped::kNo,
             kBottomLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes)) {
         topLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
                           GrRenderTargetContext::CanClearFullscreen::kYes);

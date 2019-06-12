@@ -71,9 +71,9 @@ void draw_child(skiatest::Reporter* reporter,
                                                   kPremul_SkAlphaType);
 
     GrContext* childCtx = childInfo.grContext();
-    sk_sp<SkSurface> childSurface(SkSurface::MakeRenderTarget(childCtx, SkBudgeted::kNo,
-                                                              childII, 0, kTopLeft_GrSurfaceOrigin,
-                                                              nullptr));
+    sk_sp<SkSurface> childSurface(SkSurface::MakeRenderTarget(
+            childCtx, SkBudgeted::kNo, childII, 1, GrFSAAType::kNone, kTopLeft_GrSurfaceOrigin,
+            nullptr));
 
     sk_sp<SkImage> childImage = SkImage::MakeFromTexture(childCtx,
                                                          backendTexture,
@@ -119,9 +119,8 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     const SkImageInfo ii = SkImageInfo::Make(MAIN_W, MAIN_H, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> mainSurface(SkSurface::MakeRenderTarget(mainCtx, SkBudgeted::kNo,
-                                                             ii, 0, kTopLeft_GrSurfaceOrigin,
-                                                             nullptr));
+    sk_sp<SkSurface> mainSurface(SkSurface::MakeRenderTarget(
+            mainCtx, SkBudgeted::kNo, ii, 1, GrFSAAType::kNone, kTopLeft_GrSurfaceOrigin, nullptr));
     SkCanvas* mainCanvas = mainSurface->getCanvas();
     auto blueSurface = mainSurface->makeSurface(ii);
     blueSurface->getCanvas()->clear(SK_ColorBLUE);
@@ -234,9 +233,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
     const SkImageInfo ii = SkImageInfo::Make(MAIN_W, MAIN_H, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> mainSurface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo,
-                                                             ii, 0, kTopLeft_GrSurfaceOrigin,
-                                                             nullptr));
+    sk_sp<SkSurface> mainSurface(SkSurface::MakeRenderTarget(
+            ctx, SkBudgeted::kNo, ii, 1, GrFSAAType::kNone, kTopLeft_GrSurfaceOrigin, nullptr));
 
     // Flush surface once without semaphores to make sure there is no peneding IO for it.
     mainSurface->flush();

@@ -53,9 +53,9 @@ public:
      * This entry point creates a kExact backing store. It is used when creating SkGpuDevices
      * for SkSurfaces.
      */
-    static sk_sp<SkGpuDevice> Make(GrContext*, SkBudgeted, const SkImageInfo&,
-                                   int sampleCount, GrSurfaceOrigin, const SkSurfaceProps*,
-                                   GrMipMapped mipMapped, InitContents);
+    static sk_sp<SkGpuDevice> Make(
+            GrContext*, SkBudgeted, const SkImageInfo&, int sampleCount, GrFSAAType,
+            GrSurfaceOrigin, const SkSurfaceProps*, GrMipMapped mipMapped, InitContents);
 
     ~SkGpuDevice() override {}
 
@@ -233,13 +233,9 @@ private:
                            const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                            const uint16_t indices[], int indexCount, const SkPaint&);
 
-    static sk_sp<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
-                                                                SkBudgeted,
-                                                                const SkImageInfo&,
-                                                                int sampleCount,
-                                                                GrSurfaceOrigin,
-                                                                const SkSurfaceProps*,
-                                                                GrMipMapped);
+    static sk_sp<GrRenderTargetContext> MakeRenderTargetContext(
+            GrContext*, SkBudgeted, const SkImageInfo&, int sampleCount, GrFSAAType,
+            GrSurfaceOrigin, const SkSurfaceProps*, GrMipMapped);
 
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps

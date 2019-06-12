@@ -181,7 +181,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* c
     sk_sp<GrRenderTargetContext> renderTargetContext(
         context->priv().makeDeferredRenderTargetContext(
                 format, SkBackingFit::kApprox, width, height, config, std::move(colorSpace), 1,
-                GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin, props));
+                GrFSAAType::kNone, GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin, props));
     if (!renderTargetContext) {
         return nullptr;
     }

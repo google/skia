@@ -429,6 +429,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
     //    the texture we fall through here and have the CPU generate the mip maps for us.
     if (!proxy && !willBeMipped && !ctx->priv().options().fDisableGpuYUVConversion) {
         const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(this->imageInfo());
+        SkASSERT(1 == desc.fSampleCnt);
+        constexpr GrFSAAType kFSAAType = GrFSAAType::kNone;
 
         SkColorType colorType = this->colorType();
         GrBackendFormat format =
@@ -446,7 +448,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
 
         // TODO: Update to create the mipped surface in the YUV generator and draw the base
         // layer directly into the mipped surface.
-        proxy = provider.refAsTextureProxy(ctx, format, desc, generatorColorSpace, thisColorSpace);
+        proxy = provider.refAsTextureProxy(
+                ctx, format, desc, kFSAAType, generatorColorSpace, thisColorSpace);
         if (proxy) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);

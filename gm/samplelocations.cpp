@@ -53,6 +53,7 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrOp.h"
+#include "tools/ToolUtils.h"
 
 #include <memory>
 #include <utility>
@@ -278,8 +279,9 @@ DrawResult SampleLocationsGM::onDraw(
 
     if (auto offscreenRTC = ctx->priv().makeDeferredRenderTargetContext(
             rtc->asSurfaceProxy()->backendFormat(), SkBackingFit::kExact, 200, 200,
-            rtc->asSurfaceProxy()->config(), nullptr, rtc->numStencilSamples(), GrMipMapped::kNo,
-            fOrigin)) {
+            rtc->asSurfaceProxy()->config(), nullptr, rtc->numStencilSamples(),
+            ToolUtils::choose_fsaa_type(rtc->numStencilSamples(), ctx->priv().caps()),
+            GrMipMapped::kNo, fOrigin)) {
         offscreenRTC->clear(nullptr, {0,1,0,1}, GrRenderTargetContext::CanClearFullscreen::kYes);
 
         // Stencil.

@@ -144,10 +144,9 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef(GrRecordingContext* con
         fContext->priv().caps()->getBackendFormatFromColorType(kAssumedColorType);
 
     // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->priv().makeDeferredRenderTargetContext(
-                    format, SkBackingFit::kExact, this->width(), this->height(),
-                    kRGBA_8888_GrPixelConfig, this->refColorSpace(), 1, GrMipMapped::kNo, fOrigin));
+    auto renderTargetContext(context->priv().makeDeferredRenderTargetContext(
+            format, SkBackingFit::kExact, this->width(), this->height(), kRGBA_8888_GrPixelConfig,
+            this->refColorSpace(), 1, GrFSAAType::kNone, GrMipMapped::kNo, fOrigin));
     if (!renderTargetContext) {
         return nullptr;
     }

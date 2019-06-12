@@ -40,11 +40,13 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
     fCaps = sk_ref_sp(fGpu->caps());
 }
 
-sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                                   const GrMipLevel texels[], int mipLevelCount) {
+sk_sp<GrTexture> GrResourceProvider::createTexture(
+        const GrSurfaceDesc& desc, GrFSAAType fsaaType, SkBudgeted budgeted,
+        const GrMipLevel texels[], int mipLevelCount) {
     ASSERT_SINGLE_OWNER
 
     SkASSERT(mipLevelCount > 0);
+    SkASSERT(SkToBool(desc.fSampleCnt > 1) == SkToBool(GrFSAAType::kNone != fsaaType));
 
     if (this->isAbandoned()) {
         return nullptr;
@@ -55,12 +57,12 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return nullptr;
     }
 
-    return fGpu->createTexture(desc, budgeted, texels, mipLevelCount);
+    return fGpu->createTexture(desc, fsaaType, budgeted, texels, mipLevelCount);
 }
 
-sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
-                                                     SkBudgeted budgeted, Flags flags) {
-    sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
+sk_sp<GrTexture> GrResourceProvider::getExactScratch(
+        const GrSurfaceDesc& desc, GrFSAAType fsaaType, SkBudgeted budgeted, Flags flags) {
+    sk_sp<GrTexture> tex(this->refScratchTexture(desc, fsaaType, flags));
     if (tex && SkBudgeted::kNo == budgeted) {
         tex->resourcePriv().makeUnbudgeted();
     }
@@ -68,11 +70,9 @@ sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
     return tex;
 }
 
-sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
-                                                   SkBudgeted budgeted,
-                                                   SkBackingFit fit,
-                                                   const GrMipLevel& mipLevel,
-                                                   Flags flags) {
+sk_sp<GrTexture> GrResourceProvider::createTexture(
+        const GrSurfaceDesc& desc, GrFSAAType fsaaType, SkBudgeted budgeted, SkBackingFit fit,
+        const GrMipLevel& mipLevel, Flags flags) {
     ASSERT_SINGLE_OWNER
 
     if (this->isAbandoned()) {
@@ -93,8 +93,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     SkColorType colorType;
     if (GrPixelConfigToColorType(desc.fConfig, &colorType)) {
         sk_sp<GrTexture> tex = (SkBackingFit::kApprox == fit)
-                ? this->createApproxTexture(desc, flags)
-                : this->createTexture(desc, budgeted, flags);
+                ? this->createApproxTexture(desc, fsaaType, flags)
+                : this->createTexture(desc, fsaaType, budgeted, flags);
         if (!tex) {
             return nullptr;
         }
@@ -114,12 +114,12 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         SkAssertResult(sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, 0, 0));
         return sk_ref_sp(sContext->asTextureProxy()->peekTexture());
     } else {
-        return fGpu->createTexture(desc, budgeted, &mipLevel, 1);
+        return fGpu->createTexture(desc, fsaaType, budgeted, &mipLevel, 1);
     }
 }
 
-sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                                   Flags flags) {
+sk_sp<GrTexture> GrResourceProvider::createTexture(
+        const GrSurfaceDesc& desc, GrFSAAType fsaaType, SkBudgeted budgeted, Flags flags) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
         return nullptr;
@@ -131,17 +131,17 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
 
     // Compressed textures are read-only so they don't support re-use for scratch.
     if (!GrPixelConfigIsCompressed(desc.fConfig)) {
-        sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, flags);
+        sk_sp<GrTexture> tex = this->getExactScratch(desc, fsaaType, budgeted, flags);
         if (tex) {
             return tex;
         }
     }
 
-    return fGpu->createTexture(desc, budgeted);
+    return fGpu->createTexture(desc, fsaaType, budgeted);
 }
 
-sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc,
-                                                         Flags flags) {
+sk_sp<GrTexture> GrResourceProvider::createApproxTexture(
+        const GrSurfaceDesc& desc, GrFSAAType fsaaType, Flags flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(Flags::kNone == flags || Flags::kNoPendingIO == flags);
 
@@ -158,7 +158,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    if (auto tex = this->refScratchTexture(desc, flags)) {
+    if (auto tex = this->refScratchTexture(desc, fsaaType, flags)) {
         return tex;
     }
 
@@ -172,14 +172,15 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         wdesc->fHeight = SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fHeight));
     }
 
-    if (auto tex = this->refScratchTexture(*copyDesc, flags)) {
+    if (auto tex = this->refScratchTexture(*copyDesc, fsaaType, flags)) {
         return tex;
     }
 
-    return fGpu->createTexture(*copyDesc, SkBudgeted::kYes);
+    return fGpu->createTexture(*copyDesc, fsaaType, SkBudgeted::kYes);
 }
 
-sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc, Flags flags) {
+sk_sp<GrTexture> GrResourceProvider::refScratchTexture(
+        const GrSurfaceDesc& desc, GrFSAAType fsaaType, Flags flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
@@ -191,7 +192,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
         (fGpu->caps()->reuseScratchTextures() || (desc.fFlags & kRenderTarget_GrSurfaceFlag))) {
 
         GrScratchKey key;
-        GrTexturePriv::ComputeScratchKey(desc, &key);
+        GrTexturePriv::ComputeScratchKey(desc, fsaaType, &key);
         auto scratchFlags = GrResourceCache::ScratchFlags::kNone;
         if (Flags::kNoPendingIO & flags) {
             scratchFlags |= GrResourceCache::ScratchFlags::kRequireNoPendingIO;

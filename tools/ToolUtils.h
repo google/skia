@@ -24,10 +24,16 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrTypes.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 
+
+//bleh
+#include "src/gpu/GrCaps.h"
+
+// class GrCaps;
 class SkBitmap;
 class SkCanvas;
 class SkFontStyle;
@@ -272,6 +278,21 @@ private:
     SkPixmap fPM;
     SkIPoint fLoc;
 };
+
+// If sampleCount > 1, decides whether a Skia tooling app should use mixed samples or unified msaa.
+// Otherwise returns GrFSAAType::kNone. We currenty preserve the historic behavior of Skia, namely,
+// using mixed samples if and only if nvpr is also supported.
+GrFSAAType choose_fsaa_type(int sampleCount, const GrCaps*);
+
+//bleh
+inline GrFSAAType choose_fsaa_type(int sampleCount, const GrCaps* caps) {
+    // We currenty preserve the historic behavior of Skia, namely, using mixed samples if and only
+    // if nvpr is also supported.
+    bool preferMixedSamples =
+        caps->mixedSamplesSupport() && caps->shaderCaps()->pathRenderingSupport();
+    return GrChooseFSAAType(sampleCount, preferMixedSamples);
+}
+
 
 }  // namespace ToolUtils
 

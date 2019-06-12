@@ -191,7 +191,8 @@ bool GrSurfaceContext::readPixelsImpl(GrContext* direct, int left, int top, int 
 
         sk_sp<GrRenderTargetContext> tempCtx = direct->priv().makeDeferredRenderTargetContext(
                 format, SkBackingFit::kApprox, width, height, config, std::move(cs), 1,
-                GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes);
+                GrFSAAType::kNone, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr,
+                SkBudgeted::kYes);
         if (!tempCtx) {
             return false;
         }
@@ -379,7 +380,8 @@ bool GrSurfaceContext::writePixelsImpl(GrContext* direct, int left, int top, int
         }
 
         auto tempProxy = direct->priv().proxyProvider()->createProxy(
-                format, desc, dstProxy->origin(), SkBackingFit::kApprox, SkBudgeted::kYes);
+                format, desc, GrFSAAType::kNone, dstProxy->origin(), SkBackingFit::kApprox,
+                SkBudgeted::kYes);
         if (!tempProxy) {
             return false;
         }

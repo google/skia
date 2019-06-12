@@ -341,11 +341,10 @@ public:
         @param shouldCreateWithMips  hint that SkSurface will host mip map images
         @return                      SkSurface if all parameters are valid; otherwise, nullptr
     */
-    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
-                                             const SkImageInfo& imageInfo,
-                                             int sampleCount, GrSurfaceOrigin surfaceOrigin,
-                                             const SkSurfaceProps* surfaceProps,
-                                             bool shouldCreateWithMips = false);
+    static sk_sp<SkSurface> MakeRenderTarget(
+            GrContext* context, SkBudgeted budgeted, const SkImageInfo& imageInfo, int sampleCount,
+            GrFSAAType, GrSurfaceOrigin surfaceOrigin, const SkSurfaceProps* surfaceProps,
+            bool shouldCreateWithMips = false);
 
     /** Returns SkSurface on GPU indicated by context. Allocates memory for
         pixels, based on the width, height, and SkColorType in SkImageInfo.  budgeted
@@ -369,10 +368,10 @@ public:
                             fonts; may be nullptr
         @return             SkSurface if all parameters are valid; otherwise, nullptr
     */
-    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
-                                             const SkImageInfo& imageInfo, int sampleCount,
-                                             const SkSurfaceProps* props) {
-        return MakeRenderTarget(context, budgeted, imageInfo, sampleCount,
+    static sk_sp<SkSurface> MakeRenderTarget(
+            GrContext* context, SkBudgeted budgeted, const SkImageInfo& imageInfo,
+            int sampleCount, GrFSAAType fsaaType, const SkSurfaceProps* props) {
+        return MakeRenderTarget(context, budgeted, imageInfo, sampleCount, fsaaType,
                                 kBottomLeft_GrSurfaceOrigin, props);
     }
 
@@ -395,8 +394,8 @@ public:
         if (!imageInfo.width() || !imageInfo.height()) {
             return nullptr;
         }
-        return MakeRenderTarget(context, budgeted, imageInfo, 0, kBottomLeft_GrSurfaceOrigin,
-                                nullptr);
+        return MakeRenderTarget(context, budgeted, imageInfo, 1, GrFSAAType::kNone,
+                                kBottomLeft_GrSurfaceOrigin, nullptr);
     }
 
     /** Returns SkSurface on GPU indicated by context that is compatible with the provided

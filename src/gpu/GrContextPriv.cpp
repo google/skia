@@ -57,13 +57,14 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(
 sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(
                                                     const GrBackendFormat& format,
                                                     const GrSurfaceDesc& dstDesc,
+                                                    GrFSAAType fsaaType,
                                                     GrSurfaceOrigin origin,
                                                     GrMipMapped mipMapped,
                                                     SkBackingFit fit,
                                                     SkBudgeted isDstBudgeted,
                                                     sk_sp<SkColorSpace> colorSpace,
                                                     const SkSurfaceProps* props) {
-    return fContext->makeDeferredSurfaceContext(format, dstDesc, origin, mipMapped, fit,
+    return fContext->makeDeferredSurfaceContext(format, dstDesc, fsaaType, origin, mipMapped, fit,
                                                 isDstBudgeted, std::move(colorSpace), props);
 }
 
@@ -74,13 +75,14 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
                                         GrPixelConfig config,
                                         sk_sp<SkColorSpace> colorSpace,
                                         int sampleCnt,
+                                        GrFSAAType fsaaType,
                                         GrMipMapped mipMapped,
                                         GrSurfaceOrigin origin,
                                         const SkSurfaceProps* surfaceProps,
                                         SkBudgeted budgeted) {
-    return fContext->makeDeferredRenderTargetContext(format, fit, width, height, config,
-                                                     std::move(colorSpace), sampleCnt, mipMapped,
-                                                     origin, surfaceProps, budgeted);
+    return fContext->makeDeferredRenderTargetContext(
+            format, fit, width, height, config, std::move(colorSpace), sampleCnt, fsaaType,
+            mipMapped, origin, surfaceProps, budgeted);
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithFallback(
@@ -90,14 +92,14 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithF
                                         GrPixelConfig config,
                                         sk_sp<SkColorSpace> colorSpace,
                                         int sampleCnt,
+                                        GrFSAAType fsaaType,
                                         GrMipMapped mipMapped,
                                         GrSurfaceOrigin origin,
                                         const SkSurfaceProps* surfaceProps,
                                         SkBudgeted budgeted) {
-    return fContext->makeDeferredRenderTargetContextWithFallback(format, fit, width, height, config,
-                                                                 std::move(colorSpace), sampleCnt,
-                                                                 mipMapped, origin, surfaceProps,
-                                                                 budgeted);
+    return fContext->makeDeferredRenderTargetContextWithFallback(
+            format, fit, width, height, config, std::move(colorSpace), sampleCnt, fsaaType,
+            mipMapped, origin, surfaceProps, budgeted);
 }
 
 sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackendTexture& tex,

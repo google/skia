@@ -41,7 +41,7 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, GrGL
 
 inline void GrGLRenderTarget::setFlags(const GrGLCaps& glCaps, const IDDesc& idDesc) {
     if (idDesc.fIsMixedSampled) {
-        SkASSERT(glCaps.usesMixedSamples() && idDesc.fRTFBOID); // FBO 0 can't be mixed sampled.
+        SkASSERT(glCaps.mixedSamplesSupport() && idDesc.fRTFBOID); // FBO 0 can't be mixed sampled.
         this->setHasMixedSamples();
     }
     if (!idDesc.fRTFBOID) {

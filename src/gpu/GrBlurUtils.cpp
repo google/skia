@@ -148,10 +148,9 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
             return false;
         }
 
-        filteredMask = proxyProvider->createTextureProxy(std::move(image),
-                                                         kNone_GrSurfaceFlags,
-                                                         1, SkBudgeted::kYes,
-                                                         SkBackingFit::kApprox);
+        filteredMask = proxyProvider->createTextureProxy(
+                std::move(image), kNone_GrSurfaceFlags, 1, GrFSAAType::kNone, SkBudgeted::kYes,
+                SkBackingFit::kApprox);
         if (!filteredMask) {
             return false;
         }
@@ -170,17 +169,15 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
 }
 
 // Create a mask of 'shape' and place the result in 'mask'.
-static sk_sp<GrTextureProxy> create_mask_GPU(GrRecordingContext* context,
-                                             const SkIRect& maskRect,
-                                             const SkMatrix& origViewMatrix,
-                                             const GrShape& shape,
-                                             int sampleCnt) {
+static sk_sp<GrTextureProxy> create_mask_GPU(
+        GrRecordingContext* context, const SkIRect& maskRect, const SkMatrix& origViewMatrix,
+        const GrShape& shape, int sampleCnt, GrFSAAType fsaaType) {
     GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
     sk_sp<GrRenderTargetContext> rtContext(
         context->priv().makeDeferredRenderTargetContextWithFallback(
             format, SkBackingFit::kApprox, maskRect.width(), maskRect.height(),
-            kAlpha_8_GrPixelConfig, nullptr, sampleCnt, GrMipMapped::kNo,
+            kAlpha_8_GrPixelConfig, nullptr, sampleCnt, fsaaType, GrMipMapped::kNo,
             kTopLeft_GrSurfaceOrigin));
     if (!rtContext) {
         return nullptr;
@@ -397,12 +394,10 @@ static void draw_shape_with_mask_filter(GrRecordingContext* context,
         }
 
         if (!filteredMask) {
+            int sampleCount = renderTargetContext->numStencilSamples();
             sk_sp<GrTextureProxy> maskProxy(create_mask_GPU(
-                                                        context,
-                                                        maskRect,
-                                                        viewMatrix,
-                                                        *shape,
-                                                        renderTargetContext->numColorSamples()));
+                    context, maskRect, viewMatrix, *shape, sampleCount,
+                    renderTargetContext->fsaaType()));
             if (maskProxy) {
                 filteredMask = maskFilter->filterMaskGPU(context,
                                                          std::move(maskProxy),

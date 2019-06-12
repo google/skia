@@ -191,7 +191,7 @@ private:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
-    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, GrFSAAType, SkBudgeted,
                                      const GrMipLevel texels[], int mipLevelCount) override;
 
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType intendedType, GrAccessPattern,
@@ -404,7 +404,7 @@ private:
                                  const GrMipLevel texels[], int mipLevelCount,
                                  GrMipMapsStatus* mipMapsStatus = nullptr);
 
-    bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
+    bool createRenderTargetObjects(const GrSurfaceDesc&, GrFSAAType, const GrGLTextureInfo& texInfo,
                                    GrGLRenderTarget::IDDesc*);
 
     enum TempFBOTarget {

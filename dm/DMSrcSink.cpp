@@ -48,6 +48,7 @@
 #include "tools/DDLPromiseImageHelper.h"
 #include "tools/DDLTileHelper.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 #include "tools/debugger/DebugCanvas.h"
 #include "tools/gpu/MemoryCache.h"
 #if defined(SK_BUILD_FOR_WIN)
@@ -1374,7 +1375,8 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
             SkImageInfo::Make(size.width(), size.height(), fColorType, fAlphaType, fColorSpace);
     sk_sp<SkSurface> surface;
     GrContext* context = factory.getContextInfo(fContextType, fContextOverrides).grContext();
-    const int maxDimension = context->priv().caps()->maxTextureSize();
+    const GrCaps* caps = context->priv().caps();
+    const int maxDimension = caps->maxTextureSize();
     if (maxDimension < SkTMax(size.width(), size.height())) {
         return Error::Nonfatal("Src too large to create a texture.\n");
     }
@@ -1384,8 +1386,9 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     GrBackendRenderTarget backendRT;
     switch (fSurfType) {
         case SkCommandLineConfigGpu::SurfType::kDefault:
-            surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, fSampleCount,
-                                                  &props);
+            surface = SkSurface::MakeRenderTarget(
+                    context, SkBudgeted::kNo, info, fSampleCount,
+                    ToolUtils::choose_fsaa_type(fSampleCount, caps), &props);
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendTexture:
             backendTexture = context->createBackendTexture(

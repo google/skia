@@ -220,8 +220,8 @@ void draw_drawable_test(skiatest::Reporter* reporter, GrContext* context, GrCont
 
     const SkImageInfo ii = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo,
-                                                         ii, 0, kTopLeft_GrSurfaceOrigin, nullptr));
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
+            context, SkBudgeted::kNo, ii, 1, GrFSAAType::kNone, kTopLeft_GrSurfaceOrigin, nullptr));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorBLUE);
 

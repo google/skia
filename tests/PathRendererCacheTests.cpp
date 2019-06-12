@@ -86,7 +86,7 @@ static void test_path(skiatest::Reporter* reporter,
 
     sk_sp<GrRenderTargetContext> rtc(ctx->priv().makeDeferredRenderTargetContext(
             format, SkBackingFit::kApprox, 800, 800, kRGBA_8888_GrPixelConfig, nullptr, 1,
-            GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin));
+            GrFSAAType::kNone, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin));
     if (!rtc) {
         return;
     }
