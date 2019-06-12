@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d792d09_aea93a27",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-12T19:41:47Z",
+      "side": 1,
+      "message": "did you mean subtly?",
+      "range": {
+        "startLine": 158,
+        "startChar": 30,
+        "endLine": 158,
+        "endChar": 38
+      },
+      "revId": "922efe7aed5b1e1272187ddad4f75cf2601992f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95f91255_2332f8e9",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-12T19:41:47Z",
+      "side": 1,
+      "message": "Can we just write\n\n\"You can only call path(), hasPath(), and pathSize() after having called ensurePath() or mergePath().\"\n\n?",
+      "range": {
+        "startLine": 158,
+        "startChar": 66,
+        "endLine": 161,
+        "endChar": 18
+      },
+      "revId": "922efe7aed5b1e1272187ddad4f75cf2601992f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "804f5141_19fc56ee",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-12T19:41:47Z",
+      "side": 1,
+      "message": "This feels like these comments should become an enum?\n\n  enum PathState { DontKnowYet, HasNoPath, HasPath }",
+      "range": {
+        "startLine": 161,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 92
+      },
+      "revId": "922efe7aed5b1e1272187ddad4f75cf2601992f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9c1dfe2_847a3a73",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-12T19:41:47Z",
+      "side": 1,
+      "message": "This doesn\u0027t really ensure there\u0027s a path, does it?  You could still end up in a no-path situation, where this returns nullptr?",
+      "range": {
+        "startLine": 170,
+        "startChar": 4,
+        "endLine": 170,
+        "endChar": 28
+      },
+      "revId": "922efe7aed5b1e1272187ddad4f75cf2601992f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08243f45_f4eb8979",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-12T19:41:47Z",
+      "side": 1,
+      "message": "Can these both be logically thought of as setPath()?",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 174,
+        "endChar": 60
+      },
+      "revId": "922efe7aed5b1e1272187ddad4f75cf2601992f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4e5d0de_9713942a",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-12T19:41:47Z",
+      "side": 1,
+      "message": "Let\u0027s maybe note what this is returning?",
+      "range": {
+        "startLine": 174,
+        "startChar": 4,
+        "endLine": 174,
+        "endChar": 8
+      },
+      "revId": "922efe7aed5b1e1272187ddad4f75cf2601992f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "698c8575_23bddce6",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-12T19:41:47Z",
+      "side": 1,
+      "message": "If these both only work after being initialized, what\u0027s the point of having both hasPath() and path()?\n\nIsn\u0027t hasPath() just return path() !\u003d nullptr; ?",
+      "range": {
+        "startLine": 180,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 0
+      },
+      "revId": "922efe7aed5b1e1272187ddad4f75cf2601992f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f77a8eab_6317c05a",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-12T19:41:47Z",
+      "side": 1,
+      "message": "Feels like this should be on SkPath?  What do we mean by size here, bytes in memory?\n\n   size_t SkPath::approxBytesUsed() const { .. }\n\n?  That\u0027s a pattern we seem to use in a few places.",
+      "revId": "922efe7aed5b1e1272187ddad4f75cf2601992f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
