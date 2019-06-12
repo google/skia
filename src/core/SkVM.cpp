@@ -419,9 +419,8 @@ namespace skvm {
                 // All 16 ymm registers are available as scratch.
                 Xbyak::Ymm r[] = {
                     ymm0, ymm1, ymm2 , ymm3 , ymm4 , ymm5 , ymm6 , ymm7 ,
-                    ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14,
-                }, tmp = ymm15;
-                Xbyak::Xmm tmplo = xmm15;
+                    ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15,
+                };
              #endif
 
                 // Label / 4-byte values we need to write after ret.
@@ -441,10 +440,13 @@ namespace skvm {
                          z = inst.z;
                     switch (op) {
                         case Op::store8:
-                            vpackusdw(tmp, r[x], r[x]);    // pack 32-bit -> 16-bit
-                            vpermq   (tmp, tmp, 0xd8);     // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
-                            vpackuswb(tmp, tmp, tmp);      // pack 16-bit -> 8-bit
-                            vmovq(ptr[arg[y.imm]], tmplo); // store low 8 bytes
+                            // Like any other instruction, store8 has been assigned
+                            // a "destination" register we can use as a temporary scratch.
+                            vpackusdw(r[d], r[x], r[x]);       // pack 32-bit -> 16-bit
+                            vpermq   (r[d], r[d], 0xd8);       // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
+                            vpackuswb(r[d], r[d], r[d]);       // pack 16-bit -> 8-bit
+                            vmovq(ptr[arg[y.imm]],             // store low 8 bytes
+                                  Xbyak::Xmm{r[d].getIdx()});  // (arg must be an xmm register)
                             break;
 
                         case Op::store32: vmovups(ptr[arg[y.imm]], r[x]); break;
