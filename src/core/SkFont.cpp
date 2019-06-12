@@ -355,14 +355,14 @@ void SkFont::getPaths(const SkGlyphID glyphs[], int count,
                       void (*proc)(const SkPath*, const SkMatrix&, void*), void* ctx) const {
     SkFont font(*this);
     SkScalar scale = font.setupForAsPaths(nullptr);
-    const SkMatrix mx = SkMatrix::MakeScale(scale, scale);
+    const SkMatrix mx = SkMatrix::MakeScale(scale);
 
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(font);
     auto exclusive = strikeSpec.findOrCreateExclusiveStrike();
     auto cache = exclusive.get();
 
     for (int i = 0; i < count; ++i) {
-        proc(cache->findPath(cache->getGlyphIDMetrics(glyphs[i])), mx, ctx);
+        proc(cache->preparePath(cache->glyph(glyphs[i])), mx, ctx);
     }
 }
 

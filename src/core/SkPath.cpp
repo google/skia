@@ -700,6 +700,17 @@ int SkPath::getVerbs(uint8_t dst[], int max) const {
     return fPathRef->countVerbs();
 }
 
+size_t SkPath::approximateBytesUsed() const {
+    size_t size = sizeof (SkPath);
+    if (fPathRef != nullptr) {
+        size += fPathRef->countPoints() * sizeof(SkPoint)
+              + fPathRef->countVerbs()
+              + fPathRef->countWeights() * sizeof(SkScalar);
+    }
+
+    return size;
+}
+
 bool SkPath::getLastPt(SkPoint* lastPt) const {
     SkDEBUGCODE(this->validate();)
 

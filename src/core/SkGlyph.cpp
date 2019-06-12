@@ -117,18 +117,47 @@ size_t SkGlyph::copyImageData(const SkGlyph& from, SkArenaAlloc* alloc) {
     return 0u;
 }
 
-SkPath* SkGlyph::addPath(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
-    if (!this->isEmpty()) {
-        if (fPathData == nullptr) {
-            fPathData = alloc->make<SkGlyph::PathData>();
-            if (scalerContext->getPath(this->getPackedID(), &fPathData->fPath)) {
-                fPathData->fPath.updateBoundsCache();
-                fPathData->fPath.getGenerationID();
-                fPathData->fHasPath = true;
-            }
-        }
+void SkGlyph::installPath(SkArenaAlloc* alloc, const SkPath* path) {
+    SkASSERT(fPathData == nullptr);
+    SkASSERT(!this->setPathHasBeenCalled());
+    fPathData = alloc->make<SkGlyph::PathData>();
+    if (path != nullptr) {
+        fPathData->fPath = *path;
+        fPathData->fPath.updateBoundsCache();
+        fPathData->fPath.getGenerationID();
+        fPathData->fHasPath = true;
     }
-    return this->path();
+}
+
+bool SkGlyph::setPath(SkArenaAlloc* alloc, SkScalerContext* scalerContext) {
+    if (!this->setPathHasBeenCalled()) {
+        SkPath path;
+        if (scalerContext->getPath(this->getPackedID(), &path)) {
+            this->installPath(alloc, &path);
+        } else {
+            this->installPath(alloc, nullptr);
+        }
+        return this->path() != nullptr;
+    }
+
+    return false;
+}
+
+bool SkGlyph::setPath(SkArenaAlloc* alloc, const SkPath* path) {
+    if (!this->setPathHasBeenCalled()) {
+        this->installPath(alloc, path);
+        return this->path() != nullptr;
+    }
+    return false;
+}
+
+const SkPath* SkGlyph::path() const {
+    // setPath must have been called previously.
+    SkASSERT(this->setPathHasBeenCalled());
+    if (fPathData->fHasPath) {
+        return &fPathData->fPath;
+    }
+    return nullptr;
 }
 
 static std::tuple<SkScalar, SkScalar> calculate_path_gap(
@@ -136,7 +165,7 @@ static std::tuple<SkScalar, SkScalar> calculate_path_gap(
 
     // Left and Right of an ever expanding gap around the path.
     SkScalar left  = SK_ScalarMax,
-            right = SK_ScalarMin;
+             right = SK_ScalarMin;
     auto expandGap = [&left, &right](SkScalar v) {
         left  = SkTMin(left, v);
         right = SkTMax(right, v);

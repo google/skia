@@ -66,8 +66,17 @@ public:
     SkGlyph* glyph(SkPackedGlyphID id);
     SkGlyph* glyph(SkGlyphID);
 
+    // Return a glyph or nullptr if it does not exits in the strike.
+    SkGlyph* glyphOrNull(SkPackedGlyphID id) const;
+
     // Return a glyph. Create it if it doesn't exist, but zero the data.
     SkGlyph* uninitializedGlyph(SkPackedGlyphID id);
+
+    // If the path has never been set, then use the scaler context to add the glyph.
+    const SkPath* preparePath(SkGlyph*) override;
+
+    // If the path has never been set, then add a path to glyph.
+    const SkPath* preparePath(SkGlyph* glyph, const SkPath* path);
 
     void getAdvances(SkSpan<const SkGlyphID>, SkPoint[]);
 
@@ -92,16 +101,6 @@ public:
     */
     void findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
                         SkGlyph* , SkScalar* array, int* count);
-
-    /** Return the Path associated with the glyph. If it has not been generated this will trigger
-        that.
-    */
-    const SkPath* findPath(const SkGlyph&);
-
-    /** Initializes the path associated with the glyph with |data|. Returns false if
-     *  data is invalid.
-     */
-    bool initializePath(SkGlyph*, const volatile void* data, size_t size);
 
     /** Fallback glyphs used during font remoting if the original glyph can't be found.
      */
@@ -130,8 +129,6 @@ public:
     SkVector rounding() const override;
 
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
-
-    void generatePath(const SkGlyph& glyph) override;
 
     const SkDescriptor& getDescriptor() const override;
 
