@@ -1095,7 +1095,8 @@ const Type* IRGenerator::convertType(const ASTNode& type) {
                                                                      new Type(name,
                                                                               Type::kArray_Kind,
                                                                               (const Type&) *result,
-                                                                              size)));
+                                                                              size ? size.getInt()
+                                                                                   : 0)));
         }
         return (const Type*) result;
     }
