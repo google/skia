@@ -483,14 +483,14 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
         SkASSERT(prev != CLR_INVALID);
     }
 
-    if (fBM && (fIsBW != isBW || fWidth < glyph.fWidth || fHeight < glyph.fHeight)) {
+    if (fBM && (fIsBW != isBW || fWidth < glyph.width() || fHeight < glyph.height())) {
         DeleteObject(fBM);
         fBM = 0;
     }
     fIsBW = isBW;
 
-    fWidth = SkMax32(fWidth, glyph.fWidth);
-    fHeight = SkMax32(fHeight, glyph.fHeight);
+    fWidth = SkMax32(fWidth, glyph.width());
+    fHeight = SkMax32(fHeight, glyph.height());
 
     int biWidth = isBW ? alignTo32(fWidth) : fWidth;
 
@@ -816,13 +816,13 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph) {
         // Bitmap FON cannot underhang, but vector FON may.
         // There appears no means of determining underhang of vector FON.
         glyph->fLeft = SkToS16(0);
-        glyph->fAdvanceX = glyph->fWidth;
+        glyph->fAdvanceX = glyph->width();
         glyph->fAdvanceY = 0;
 
         // Vector FON will transform nicely, but bitmap FON do not.
         if (fType == SkScalerContext_GDI::kLine_Type) {
             SkRect bounds = SkRect::MakeXYWH(glyph->fLeft, glyph->fTop,
-                                             glyph->fWidth, glyph->fHeight);
+                                             glyph->width(), glyph->height());
             SkMatrix m;
             m.setAll(SkFIXEDToScalar(fMat22.eM11), -SkFIXEDToScalar(fMat22.eM21), 0,
                      -SkFIXEDToScalar(fMat22.eM12), SkFIXEDToScalar(fMat22.eM22), 0,
@@ -1052,8 +1052,8 @@ template<bool APPLY_PREBLEND>
 static void rgb_to_a8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
                       const SkGlyph& glyph, const uint8_t* table8) {
     const size_t dstRB = glyph.rowBytes();
-    const int width = glyph.fWidth;
-    uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+    const int width = glyph.width();
+    uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)glyph.fImage + (glyph.height() - 1) * dstRB);
 
     for (int y = 0; y < glyph.fHeight; y++) {
         for (int i = 0; i < width; i++) {
@@ -1071,8 +1071,8 @@ template<bool APPLY_PREBLEND>
 static void rgb_to_lcd16(const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const SkGlyph& glyph,
                          const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
     const size_t dstRB = glyph.rowBytes();
-    const int width = glyph.fWidth;
-    uint16_t* SK_RESTRICT dst = (uint16_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+    const int width = glyph.width();
+    uint16_t* SK_RESTRICT dst = (uint16_t*)((char*)glyph.fImage + (glyph.height() - 1) * dstRB);
 
     for (int y = 0; y < glyph.fHeight; y++) {
         for (int i = 0; i < width; i++) {
@@ -1116,7 +1116,7 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         //one with this and one without.
         SkGdiRGB* addr = (SkGdiRGB*)bits;
         for (int y = 0; y < glyph.fHeight; ++y) {
-            for (int x = 0; x < glyph.fWidth; ++x) {
+            for (int x = 0; x < glyph.width(); ++x) {
                 int r = (addr[x] >> 16) & 0xFF;
                 int g = (addr[x] >>  8) & 0xFF;
                 int b = (addr[x] >>  0) & 0xFF;
@@ -1136,10 +1136,10 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
             dst -= dstRB;
         }
 #if SK_SHOW_TEXT_BLIT_COVERAGE
-            if (glyph.fWidth > 0 && glyph.fHeight > 0) {
-                int bitCount = glyph.fWidth & 7;
+            if (glyph.width() > 0 && glyph.fHeight > 0) {
+                int bitCount = glyph.width() & 7;
                 uint8_t* first = (uint8_t*)glyph.fImage;
-                uint8_t* last = (uint8_t*)((char*)glyph.fImage + glyph.fHeight * dstRB - 1);
+                uint8_t* last = (uint8_t*)((char*)glyph.fImage + glyph.height() * dstRB - 1);
                 *first |= 1 << 7;
                 *last |= bitCount == 0 ? 1 : 1 << (8 - bitCount);
             }

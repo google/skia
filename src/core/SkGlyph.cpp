@@ -117,18 +117,62 @@ size_t SkGlyph::copyImageData(const SkGlyph& from, SkArenaAlloc* alloc) {
     return 0u;
 }
 
-SkPath* SkGlyph::addPath(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
-    if (!this->isEmpty()) {
-        if (fPathData == nullptr) {
-            fPathData = alloc->make<SkGlyph::PathData>();
-            if (scalerContext->getPath(this->getPackedID(), &fPathData->fPath)) {
-                fPathData->fPath.updateBoundsCache();
-                fPathData->fPath.getGenerationID();
-                fPathData->fHasPath = true;
-            }
-        }
+const SkPath* SkGlyph::installPath(const SkPath* path, SkArenaAlloc* alloc) {
+    SkASSERT(fPathData == nullptr);
+    SkASSERT(!this->pathIsInitialized());
+    fPathData = alloc->make<SkGlyph::PathData>();
+    if (path != nullptr) {
+        fPathData->fPath = *path;
+        fPathData->fPath.updateBoundsCache();
+        fPathData->fPath.getGenerationID();
+        fPathData->fHasPath = true;
     }
+
     return this->path();
+}
+
+const SkPath* SkGlyph::ensurePath(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
+    if (!this->pathIsInitialized()) {
+        SkPath path;
+        SkPath* pathPtr = nullptr;
+        if (scalerContext->getPath(this->getPackedID(), &path)) {
+            pathPtr = &path;
+        }
+        return this->installPath(pathPtr, alloc);
+    }
+
+    return this->path();
+}
+
+bool SkGlyph::mergePath(const SkPath* path, SkArenaAlloc* alloc) {
+    if (!this->pathIsInitialized()) {
+        this->installPath(path, alloc);
+        return true;
+    }
+    return false;
+}
+
+const SkPath* SkGlyph::path() const {
+    // Find path must have been called to use this call.
+    SkASSERT(this->pathIsInitialized());
+    if (!this->isEmpty() && fPathData != nullptr && fPathData->fHasPath) {
+        return &fPathData->fPath;
+    }
+    return nullptr;
+}
+
+bool SkGlyph::hasPath() const {
+    SkASSERT( this->pathIsInitialized());
+    return this->path() != nullptr;
+}
+
+size_t SkGlyph::pathSize() const {
+    SkASSERT(this->pathIsInitialized());
+    // TODO: change to sizeof(PathData) instead of sizeof SkPath when centralized.
+    if (this->hasPath()) {
+        return sizeof(SkPath) + this->path()->countPoints() * sizeof(SkPoint);
+    }
+    return 0;
 }
 
 static std::tuple<SkScalar, SkScalar> calculate_path_gap(
