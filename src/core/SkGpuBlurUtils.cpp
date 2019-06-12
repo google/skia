@@ -130,7 +130,8 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* con
                                                          dstFit, dstII.width(), dstII.height(),
                                                          config, dstII.refColorSpace(),
                                                          1, GrMipMapped::kNo,
-                                                         proxy->origin());
+                                                         proxy->origin(), nullptr,
+                                                         SkBudgeted::kYes, proxy->isProtected());
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -180,7 +181,9 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrRecordingContext* contex
                                                                 config,
                                                                 dstII.refColorSpace(),
                                                                 1, GrMipMapped::kNo,
-                                                                proxy->origin());
+                                                                proxy->origin(), nullptr,
+                                                                SkBudgeted::kYes,
+                                                                proxy->isProtected());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
@@ -306,7 +309,8 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
                                                     dstRect.fBottom,
                                                     config, dstII.refColorSpace(),
                                                     1, GrMipMapped::kNo,
-                                                    src->origin());
+                                                    src->origin(), nullptr,
+                                                    SkBudgeted::kYes, src->isProtected());
         if (!dstRenderTargetContext) {
             return nullptr;
         }

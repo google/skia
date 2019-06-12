@@ -30,7 +30,7 @@ public:
     GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
              VkPhysicalDevice device, const VkPhysicalDeviceFeatures2& features,
              uint32_t instanceVersion, uint32_t physicalDeviceVersion,
-             const GrVkExtensions& extensions);
+             const GrVkExtensions& extensions, bool isProtected = false);
 
     bool isFormatTexturable(VkFormat) const;
     bool isConfigTexturable(GrPixelConfig config) const override;
@@ -46,7 +46,7 @@ public:
     int maxRenderTargetSampleCount(GrPixelConfig config) const override;
     int maxRenderTargetSampleCount(VkFormat format) const;
 
-    bool surfaceSupportsReadPixels(const GrSurface*) const override;
+    ReadFlags surfaceSupportsReadPixels(const GrSurface*) const override;
 
     bool isFormatTexturableLinearly(VkFormat format) const {
         return SkToBool(FormatInfo::kTextureable_Flag & this->getFormatInfo(format).fLinearFlags);
@@ -133,6 +133,9 @@ public:
 
     // Returns true if it supports ycbcr conversion for samplers
     bool supportsYcbcrConversion() const { return fSupportsYcbcrConversion; }
+
+    // Returns true if the device supports protected memory.
+    bool supportsProtectedMemory() const { return fSupportsProtectedMemory; }
 
     /**
      * Helpers used by canCopySurface. In all cases if the SampleCnt parameter is zero that means
@@ -227,6 +230,8 @@ private:
 
     SkSTArray<1, GrVkYcbcrConversionInfo> fYcbcrInfos;
 
+    bool fIsProtected = false;
+
     bool fMustDoCopiesFromOrigin = false;
     bool fMustSleepOnTearDown = false;
     bool fNewCBOnPipelineChange = false;
@@ -248,6 +253,8 @@ private:
     bool fSupportsAndroidHWBExternalMemory = false;
 
     bool fSupportsYcbcrConversion = false;
+
+    bool fSupportsProtectedMemory = false;
 
     typedef GrCaps INHERITED;
 };

@@ -367,14 +367,9 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrRecordingContext* c
             context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
     sk_sp<GrRenderTargetContext> rtc(
         context->priv().makeDeferredRenderTargetContextWithFallback(
-                                                                        format,
-                                                                        SkBackingFit::kApprox,
-                                                                        reducedClip.width(),
-                                                                        reducedClip.height(),
-                                                                        kAlpha_8_GrPixelConfig,
-                                                                        nullptr, 1,
-                                                                        GrMipMapped::kNo,
-                                                                        kTopLeft_GrSurfaceOrigin));
+                format, SkBackingFit::kApprox, reducedClip.width(), reducedClip.height(),
+                kAlpha_8_GrPixelConfig, nullptr, 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin,
+                nullptr, SkBudgeted::kYes, proxy->isProtected()));
     if (!rtc) {
         return nullptr;
     }

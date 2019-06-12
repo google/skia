@@ -411,6 +411,9 @@ public:
 
     GrInternalSurfaceFlags testingOnly_getFlags() const;
 
+    // Returns true if we are working with protected content.
+    bool isProtected() const { return fIsProtected; }
+
 protected:
     // Deferred version
     GrSurfaceProxy(const GrBackendFormat& format, const GrSurfaceDesc& desc,
@@ -504,6 +507,7 @@ private:
 
     bool                   fNeedsClear;
     bool                   fIgnoredByResourceAllocator = false;
+    bool                   fIsProtected;
 
     // This entry is lazily evaluated so, when the proxy wraps a resource, the resource
     // will be called but, when the proxy is deferred, it will compute the answer itself.
