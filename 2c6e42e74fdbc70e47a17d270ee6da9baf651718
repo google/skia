@@ -45,6 +45,30 @@
       "revId": "2c6e42e74fdbc70e47a17d270ee6da9baf651718",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4cf4fa0_00e1ff0a",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-12T19:20:58Z",
+      "side": 1,
+      "message": "will give this a shot, though either way I still need jitN for the update step in if (ran) {...}.",
+      "parentUuid": "37365ebb_94f64923",
+      "range": {
+        "startLine": 624,
+        "startChar": 22,
+        "endLine": 624,
+        "endChar": 50
+      },
+      "revId": "2c6e42e74fdbc70e47a17d270ee6da9baf651718",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
