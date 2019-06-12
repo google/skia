@@ -2040,9 +2040,12 @@ void Viewer::drawImGui() {
                     auto shaderCaps = ctx->priv().caps()->shaderCaps();
                     bool sksl = params.fGrContextOptions.fCacheSKSL;
 
-                    SkSL::String highlight = shaderCaps->versionDeclString();
-                    if (shaderCaps->usesPrecisionModifiers() && !sksl) {
-                        highlight.append("precision mediump float;\n");
+                    SkSL::String highlight;
+                    if (!sksl) {
+                        highlight = shaderCaps->versionDeclString();
+                        if (shaderCaps->usesPrecisionModifiers()) {
+                            highlight.append("precision mediump float;\n");
+                        }
                     }
                     const char* f4Type = sksl ? "half4" : "vec4";
                     highlight.appendf("out %s sk_FragColor;\n"
