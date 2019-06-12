@@ -421,16 +421,15 @@ public:
                 SkDebugf("%s\n", c.errorText().c_str());
                 SkASSERT(false);
             }
+            // Vector Interpreter
             ctx->byteCode = c.toByteCode(*prog);
             ctx->main = ctx->byteCode->fFunctions[0].get();
             ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
                 auto ctx = (InterpreterCtx*)arg;
-                for (int i = 0; i < active_pixels; i++) {
-                    SkSL::Interpreter::Run(ctx->byteCode.get(), ctx->main,
-                                           (SkSL::Interpreter::Value*) (ctx->rgba + i * 4),
-                                           nullptr, (SkSL::Interpreter::Value*)ctx->inputs,
-                                           ctx->ninputs);
-                }
+                SkSL::Interpreter::VecRun(ctx->byteCode.get(), ctx->main,
+                                            (SkSL::Interpreter::Value*)ctx->rgba,
+                                            nullptr, active_pixels,
+                                            (SkSL::Interpreter::Value*)ctx->inputs, ctx->ninputs);
             };
             rec.fPipeline->append(SkRasterPipeline::callback, ctx);
         }
