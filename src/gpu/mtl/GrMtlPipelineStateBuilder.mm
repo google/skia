@@ -141,9 +141,11 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
             return MTLVertexFormatInt;
         case kUint_GrVertexAttribType:
             return MTLVertexFormatUInt;
-        // Experimental (for P016 and P010)
         case kUShort_norm_GrVertexAttribType:
             return MTLVertexFormatUShortNormalized;
+        // Experimental (for Y416)
+        case kUShort4_norm_GrVertexAttribType:
+            return MTLVertexFormatUShort4Normalized;
     }
     SK_ABORT("Unknown vertex attribute type");
     return MTLVertexFormatInvalid;

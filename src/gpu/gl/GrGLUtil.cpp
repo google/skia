@@ -612,6 +612,7 @@ size_t GrGLBytesPerFormat(GrGLenum glFormat) {
         case GR_GL_RGBA4:
         case GR_GL_RG8:
         case GR_GL_R16F:
+        case GR_GL_R16:
             return 2;
 
         case GR_GL_RGB8:
@@ -621,6 +622,7 @@ size_t GrGLBytesPerFormat(GrGLenum glFormat) {
         case GR_GL_SRGB8_ALPHA8:
         case GR_GL_BGRA8:
         case GR_GL_RGB10_A2:
+        case GR_GL_RG16:
             return 4;
 
         case GR_GL_RGBA16F:
@@ -634,11 +636,11 @@ size_t GrGLBytesPerFormat(GrGLenum glFormat) {
         case GR_GL_COMPRESSED_ETC1_RGB8:
             return 0;
 
-        // Experimental (for P016 and P010)
-        case GR_GL_R16:
-            return 2;
-        case GR_GL_RG16:
+        // Experimental (for Y416 and mutant P016/P010)
+        case GR_GL_RG16F:
             return 4;
+        case GR_GL_RGBA16:
+            return 8;
     }
 
     SK_ABORT("Invalid GL format");
