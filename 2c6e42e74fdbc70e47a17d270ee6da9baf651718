@@ -69,6 +69,30 @@
       "revId": "2c6e42e74fdbc70e47a17d270ee6da9baf651718",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0cb55b5_52b80787",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-12T19:32:07Z",
+      "side": 1,
+      "message": "Oh right, I think the problem here is that we\u0027d loop once too many times.\n\nAs I\u0027ve got it at head, we\u0027re doing\n\nif (n \u003e\u003d 8)  // in caller\ndo {\n    ...\n    n -\u003d 8;\n} while (n \u003e\u003d 8);\n\nand I\u0027m switching that to\n\nn \u003d (n/8)*8;  // in caller\nif (n)        // in caller\ndo {\n   ...\n   n -\u003d 8;\n} while (n !\u003d 0);\n\nIf we switch to a check for (n \u003e 0) at the end of that loop,\nand we start with an odd n like 11, we\u0027ll run one more loop\nthat we\u0027d want, first correctly for 8 then erroneously for 3.",
+      "parentUuid": "c4cf4fa0_00e1ff0a",
+      "range": {
+        "startLine": 624,
+        "startChar": 22,
+        "endLine": 624,
+        "endChar": 50
+      },
+      "revId": "2c6e42e74fdbc70e47a17d270ee6da9baf651718",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
