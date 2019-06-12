@@ -1679,7 +1679,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     // Set image layout and add barrier
     set_image_layout(this->vkInterface(), cmdBuffer, info,
                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels,
-                     VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+                     VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
 
     SkTArray<VkBufferImageCopy> regions(mipLevels);
 
