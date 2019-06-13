@@ -226,11 +226,6 @@ namespace skvm {
     I32 Builder::shr(I32 x, int bits) { return {this->push(Op::shr, x.id,NA,NA, bits)}; }
     I32 Builder::sra(I32 x, int bits) { return {this->push(Op::sra, x.id,NA,NA, bits)}; }
 
-    I32 Builder::mul_unorm8(I32 x, I32 y) { return {this->push(Op::mul_unorm8, x.id, y.id)}; }
-    I32 Builder::mad_unorm8(I32 x, I32 y, I32 z) {
-        return {this->push(Op::mad_unorm8, x.id, y.id, z.id)};
-    }
-
     I32 Builder::extract(I32 x, int bits, I32 z) {
         return {this->push(Op::extract, x.id,NA,z.id, bits,0)};
     }
@@ -325,9 +320,6 @@ namespace skvm {
                 case Op::shr: write(o, V{id}, "= shr", V{x}, Shift{immy}); break;
                 case Op::sra: write(o, V{id}, "= sra", V{x}, Shift{immy}); break;
 
-                case Op::mul_unorm8: write(o, V{id}, "= mul_unorm8", V{x}, V{y}      ); break;
-                case Op::mad_unorm8: write(o, V{id}, "= mad_unorm8", V{x}, V{y}, V{z}); break;
-
                 case Op::extract: write(o, V{id}, "= extract", V{x}, Shift{immy}, V{z}); break;
                 case Op::pack:    write(o, V{id}, "= pack",    V{x}, V{y}, Shift{immz}); break;
 
@@ -380,9 +372,6 @@ namespace skvm {
                 case Op::shl: write(o, R{d}, "= shl", R{x}, Shift{y.imm}); break;
                 case Op::shr: write(o, R{d}, "= shr", R{x}, Shift{y.imm}); break;
                 case Op::sra: write(o, R{d}, "= sra", R{x}, Shift{y.imm}); break;
-
-                case Op::mul_unorm8: write(o, R{d}, "= mul_unorm8", R{x}, R{y.id}         ); break;
-                case Op::mad_unorm8: write(o, R{d}, "= mad_unorm8", R{x}, R{y.id}, R{z.id}); break;
 
                 case Op::extract: write(o, R{d}, "= extract", R{x}, Shift{y.imm}, R{z.id}); break;
                 case Op::pack:    write(o, R{d}, "= pack",    R{x}, R{y.id}, Shift{z.imm}); break;
@@ -487,17 +476,6 @@ namespace skvm {
                         case Op::shl: vpslld(r[d], r[x], y.imm); break;
                         case Op::shr: vpsrld(r[d], r[x], y.imm); break;
                         case Op::sra: vpsrad(r[d], r[x], y.imm); break;
-
-                        case Op::mul_unorm8: vpmulld(tmp, r[x], r[y.id]);
-                                             vpaddd (tmp, tmp, r[x]);
-                                             vpsrad (r[d],tmp, 8);
-                                             break;
-
-                        case Op::mad_unorm8: vpmulld(tmp, r[x], r[y.id]);
-                                             vpaddd (tmp, tmp, r[x]);
-                                             vpsrad (tmp, tmp, 8);
-                                             vpaddd (r[d],tmp, r[z.id]);
-                                             break;
 
                         case Op::extract: if (y.imm) {
                                               vpsrld(tmp, r[x], y.imm);
