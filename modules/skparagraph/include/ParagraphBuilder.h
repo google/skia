@@ -51,7 +51,7 @@ public:
     // Constructs a SkParagraph object that can be used to layout and paint the text to a SkCanvas.
     virtual std::unique_ptr<Paragraph> Build() = 0;
 
-    static std::shared_ptr<ParagraphBuilder> make(ParagraphStyle style,
+    static std::unique_ptr<ParagraphBuilder> make(ParagraphStyle style,
                                                   sk_sp<FontCollection> fontCollection);
 };
 }  // namespace textlayout

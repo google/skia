@@ -118,8 +118,7 @@ void ParagraphImpl::layout(SkScalar width) {
         // Apply the last style to the empty text
         FontIterator font(SkSpan<const char>(" "),
                           SkSpan<TextBlock>(&fTextStyles.back(), 1),
-                          fFontCollection,
-                          fParagraphStyle.hintingIsOn());
+                          fFontCollection);
         // Get the font metrics
         font.consume();
         LineMetrics lineMetrics(font.currentFont());
@@ -325,7 +324,7 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     }
 
     SkSpan<TextBlock> styles(fTextStyles.begin(), fTextStyles.size());
-    FontIterator font(fTextSpan, styles, fFontCollection, fParagraphStyle.hintingIsOn());
+    FontIterator font(fTextSpan, styles, fFontCollection);
     ShapeHandler handler(*this, &font);
     std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder();
     SkASSERT_RELEASE(shaper != nullptr);
