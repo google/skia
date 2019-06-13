@@ -13,6 +13,7 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrProcessor.h"
 
+class GrInvariantOutput;
 class SkPath;
 
 /**
