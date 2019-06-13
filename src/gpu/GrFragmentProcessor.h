@@ -449,6 +449,7 @@ public:
 
     GrTextureProxy* proxy() const { return fProxyRef.get(); }
     const GrSamplerState& samplerState() const { return fSamplerState; }
+    const GrSwizzle& swizzle() const { return this->proxy()->textureSwizzle(); }
 
     bool isInitialized() const { return SkToBool(fProxyRef.get()); }
     /**
