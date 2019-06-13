@@ -22,6 +22,30 @@
       "revId": "2bc926fc9fe9ee2d69d21cf1c472f92a38a8f74d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32885a4e_f6b1aa34",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1003,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-13T21:31:24Z",
+      "side": 1,
+      "message": "Yeah, the underlying assumption is that everything SkByteCode deals with is a 32-bit value (int/uint/float). I\u0027ll add in some asserts, though perhaps just using float (as the most likely user type) is the simple solution here.",
+      "parentUuid": "e2d39ad8_74dc6448",
+      "range": {
+        "startLine": 1003,
+        "startChar": 32,
+        "endLine": 1003,
+        "endChar": 44
+      },
+      "revId": "2bc926fc9fe9ee2d69d21cf1c472f92a38a8f74d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
