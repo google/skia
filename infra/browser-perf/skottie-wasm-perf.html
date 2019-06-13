@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lottie Filmstrip Capture</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=egde,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="res/canvaskit.js" type="text/javascript" charset="utf-8"></script>
+    <style type="text/css" media="screen">
+      body,
+      main,
+      #anim {
+        width: 300px;
+        height: 300px;
+      }
+
+      main {
+        display: flex;
+        width: 1000px;
+        height: 1000px;
+        flex-flow: row wrap;
+      }
+    </style>
+</head>
+<body>
+  <main>
+    <!-- This height and width was arbitrarily chosen -->
+    <canvas id=anim width=300 height=300></canvas>
+  </main>
+  <script type="text/javascript" charset="utf-8">
+    (function() {
+      const PATH = '/res/lottie.json';
+
+      let lottieJSON = null;
+      let CK = null;
+
+     CanvasKitInit({
+        locateFile: (file) => '/res/'+file,
+    }).ready().then((CanvasKit) => {
+        CK = CanvasKit;
+        Bench(CK, lottieJSON);
+    });
+
+    fetch(PATH).then((resp) => {
+      resp.text().then((json) => {
+        lottieJSON = json;
+        Bench(CK, lottieJSON);
+      });
+    });
+  })();
+
+  const runs = 10;
+  const frames = 25;
+  const width = 300;
+  const height = 300;
+
+  function Bench(CK, json) {
+    if (!CK || !json) {
+      return;
+    }
+
+    const animation = CK.MakeManagedAnimation(json, null);
+    if (!animation) {
+      console.error('Could not process JSON');
+      return
+    }
+
+    const surface = CK.MakeCanvasSurface("anim");
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const canvas = surface.getCanvas();
+
+    console.log("start")
+    const t_rate = 1.0 / (frames- 1);
+    let time = 0;
+    for(let run = 0; run < runs; run++) {
+      let seek = 0;
+      const start = Date.now();
+      for(let frame = 0; frame < frames; frame++) {
+        animation.seek(seek);
+        animation.render(canvas);
+        surface.flush();
+        seek += t_rate;
+      }
+      time += (Date.now() - start);
+    }
+
+    console.log("On average, took "+ (time/runs) +" ms" );
+    // These are global variables to talk with pupeteer.
+    window._avgTimeMs = time/runs;
+    window._skottieDone = true;
+  }
+  </script>
+</body>
+</html>
