@@ -109,11 +109,17 @@ SrcoverBuilder_I32::SrcoverBuilder_I32() {
     skvm::I32 dr,dg,db,da;
     load(dst, &dr,&dg,&db,&da);
 
-    skvm::I32 invA = sub(splat(0xff), a);
-    r = mad_unorm8(dr, invA, r);
-    g = mad_unorm8(dg, invA, g);
-    b = mad_unorm8(db, invA, b);
-    a = mad_unorm8(da, invA, a);
+    // (xy + x)/256 is a good approximation of (xy + 127)/255
+    //
+    //   == (d*(255-a) + d)/256
+    //   == (d*(255-a+1)  )/256
+    //   == (d*(256-a  )  )/256
+
+    skvm::I32 invA = sub(splat(256), a);
+    r = add(r, shr(mul(dr, invA), 8));
+    g = add(g, shr(mul(dg, invA), 8));
+    b = add(b, shr(mul(db, invA), 8));
+    a = add(a, shr(mul(da, invA), 8));
 
     r = pack(r, g, 8);
     b = pack(b, a, 8);
@@ -132,22 +138,23 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
         *ga = extract(rgba, 8, splat(0x00ff00ff));
     };
 
-    auto mul_unorm8_SWAR = [&](skvm::I32 x, skvm::I32 y) {
-        // As above, assuming x is two SWAR bytes in lanes 0 and 2, and y is a byte.
-        skvm::I32 _255 = splat(0x00ff00ff);
-        return extract(add(mul(x, y), x), 8, _255);
-    };
-
     skvm::I32 rb, ga;
     load(src, &rb, &ga);
 
     skvm::I32 drb, dga;
     load(dst, &drb, &dga);
 
-    skvm::I32 _255 = splat(0xff),
-              invA = sub(_255, shr(ga, 16));
-    rb = add(rb, mul_unorm8_SWAR(drb, invA));
-    ga = add(ga, mul_unorm8_SWAR(dga, invA));
+    // Same approximation as above.
+    skvm::I32 invA = sub(splat(256),
+                         shr(ga, 16));
 
-    store32(dst, pack(rb, ga, 8));
+    skvm::I32 RB = shr(mul(drb, invA), 8),  // 8 high bits of results shifted back down.
+              GA =     mul(dga, invA);      // Keep high bits of results in high lanes.
+    RB = bit_and(RB, splat(0x00ff00ff));  // Mask off any low bits remaining.
+    GA = bit_and(GA, splat(0xff00ff00));  // Ditto.
+
+    rb = add(    rb    , RB);   // src += dst*invA
+    ga = add(shl(ga, 8), GA);
+
+    store32(dst, bit_or(rb,ga));
 }

@@ -23,7 +23,6 @@ namespace skvm {
         add_i32, sub_i32, mul_i32,
         bit_and, bit_or, bit_xor,
         shl, shr, sra,
-        mul_unorm8, mad_unorm8,
         extract,
         pack,
         to_f32, to_i32,
@@ -86,8 +85,9 @@ namespace skvm {
         I32 load8 (Arg ptr);
         I32 load32(Arg ptr);
 
-        I32 splat(int   n);
-        F32 splat(float f);
+        I32 splat(int      n);
+        I32 splat(unsigned u) { return this->splat((int)u); }
+        F32 splat(float    f);
 
         F32 add(F32 x, F32 y);
         F32 sub(F32 x, F32 y);
@@ -107,15 +107,8 @@ namespace skvm {
         I32 shr(I32 x, int bits);
         I32 sra(I32 x, int bits);
 
-        I32 mul_unorm8(I32 x, I32 y);          // (x*y+x)/256, approximating (x*y+127)/255.
-        I32 mad_unorm8(I32 x, I32 y, I32 z);   // mul_unorm8(x,y) + z
-
         I32 extract(I32 x, int bits, I32 z);   // (x >> bits) & z
-
-        // Interlace bits from x and y as if x | (y << bits),
-        // assuming no bits from x and (y << bits) collide with each other, (x & (y << bits)) == 0.
-        // (This allows implementation with SSE punpckl?? or NEON vzip.?? instructions.)
-        I32 pack(I32 x, I32 y, int bits);
+        I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits)
 
         F32 to_f32(I32 x);
         I32 to_i32(F32 x);
