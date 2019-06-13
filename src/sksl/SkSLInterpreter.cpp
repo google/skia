@@ -25,10 +25,6 @@ using F32 = skvx::Vec<VecWidth, float>;
 using I32 = skvx::Vec<VecWidth, int32_t>;
 using U32 = skvx::Vec<VecWidth, uint32_t>;
 
-// Needs to be the first N non-negative integers, at least as large as VecWidth
-static const I32 gLanes = {  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
-                            16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 };
-
 template <typename T>
 static T unaligned_load(const void* ptr) {
     T val;
@@ -993,6 +989,9 @@ void VecRun(const ByteCode* byteCode, const ByteCodeFunction* f, Value args[], V
     disassemble(f);
 #endif
     VValue smallStack[128];
+
+    // Needs to be the first N non-negative integers, at least as large as VecWidth
+    static const I32 gLanes = { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 };
 
     SkASSERT(uniformCount == (int)byteCode->fInputSlots.size());
     VValue smallGlobals[32];
