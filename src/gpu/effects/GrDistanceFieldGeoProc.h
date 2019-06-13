@@ -14,7 +14,6 @@
 class GrGLDistanceFieldA8TextGeoProc;
 class GrGLDistanceFieldPathGeoProc;
 class GrGLDistanceFieldLCDTextGeoProc;
-class GrInvariantOutput;
 
 enum GrDistanceFieldEffectFlags {
     kSimilarity_DistanceFieldEffectFlag   = 0x01, // ctm is similarity matrix
