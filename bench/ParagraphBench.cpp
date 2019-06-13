@@ -7,7 +7,7 @@
 
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
-#include "modules/skparagraph/include/FontCollection.h"
+#include "modules/skparagraph/include/FontCollectionImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "tools/Resources.h"
 
@@ -32,7 +32,7 @@ struct ParagraphBench : public Benchmark {
 
         const char* text = (const char*)fData->data();
 
-        sk_sp<FontCollection> fontCollection = sk_make_sp<FontCollection>();
+        sk_sp<FontCollection> fontCollection = sk_make_sp<FontCollectionImpl>();
         ParagraphStyle paragraph_style;
         paragraph_style.turnHintingOff();
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
