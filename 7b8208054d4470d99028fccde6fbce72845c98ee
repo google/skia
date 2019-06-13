@@ -69,6 +69,30 @@
       "revId": "7b8208054d4470d99028fccde6fbce72845c98ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61355438_ba09801a",
+        "filename": "src/gpu/ops/GrOvalOpFactory.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-06-13T18:08:53Z",
+      "side": 1,
+      "message": "Do you mean just add a new API but still pass along a bool for circularOnly to make_rrect_op internally? That sounds fine to me, I can update if Jim agrees.",
+      "parentUuid": "e5f25edf_610225a3",
+      "range": {
+        "startLine": 42,
+        "startChar": 49,
+        "endLine": 42,
+        "endChar": 66
+      },
+      "revId": "7b8208054d4470d99028fccde6fbce72845c98ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
