@@ -20,7 +20,7 @@ namespace skvm {
         load8,  load32,
         splat,
         add_f32, sub_f32, mul_f32, div_f32, mad_f32,
-        add_i32, sub_i32, mul_i32,
+        add_i32, sub_i32, mul_i32, mul_i16x2,
         bit_and, bit_or, bit_xor,
         shl, shr, sra,
         extract,
@@ -98,6 +98,8 @@ namespace skvm {
         I32 add(I32 x, I32 y);
         I32 sub(I32 x, I32 y);
         I32 mul(I32 x, I32 y);
+
+        I32 mul_16x2(I32 x, I32 y);
 
         I32 bit_and(I32 x, I32 y);
         I32 bit_or (I32 x, I32 y);
