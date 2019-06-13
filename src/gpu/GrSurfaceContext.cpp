@@ -382,8 +382,16 @@ bool GrSurfaceContext::writePixelsImpl(GrContext* direct, int left, int top, int
             }
         }
 
+        // It is more efficient for us to write pixels into a top left origin so we prefer that.
+        // However, if the final proxy isn't a render target then we must use a copy to move the
+        // data into it which requires the origins to match. If the final proxy is a render target
+        // we can use a draw instead which doesn't have this origin restriction. Thus for render
+        // targets we will use top left and otherwise we will make the origins match.
+        GrSurfaceOrigin tempOrigin = this->asRenderTargetContext() ? kTopLeft_GrSurfaceOrigin :
+                                                                     dstProxy->origin();
         auto tempProxy = direct->priv().proxyProvider()->createProxy(
-                format, desc, dstProxy->origin(), SkBackingFit::kApprox, SkBudgeted::kYes);
+                format, desc, tempOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
+
         if (!tempProxy) {
             return false;
         }
