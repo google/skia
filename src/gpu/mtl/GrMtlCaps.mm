@@ -511,7 +511,7 @@ GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, SkColorType ct) {
             }
             break;
         case kRGBA_F32_SkColorType:
-            if (MTLPixelFormatR32Float == format) {
+            if (MTLPixelFormatRGBA32Float == format) {
                 return kRGBA_float_GrPixelConfig;
             }
             break;

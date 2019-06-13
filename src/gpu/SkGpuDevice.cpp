@@ -161,6 +161,9 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
     }
     GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(origInfo.colorType());
+    if (!format.isValid()) {
+        return nullptr;
+    }
     // This method is used to create SkGpuDevice's for SkSurface_Gpus. In this case
     // they need to be exact.
     return context->priv().makeDeferredRenderTargetContext(
