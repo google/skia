@@ -79,11 +79,15 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
                                         ? proxy->asRenderTargetProxy()->needsStencil()
                                         : false;
 
-    // If we're going to need to add a stencil buffer in assign, we
-    // need to add at least a symbolic interval
-    // TODO: adding this interval just to add a stencil buffer is
-    // a bit heavy weight. Is there a simpler way to accomplish this?
-    if (!needsStencil && proxy->canSkipResourceAllocator()) {
+    if (proxy->canSkipResourceAllocator()) {
+        if (needsStencil && proxy->isInstantiated()) {
+            // If the proxy is still not instantiated at this point but will need stencil, it will
+            // attach its own stencil buffer upon onFlush instantiation.
+            if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(
+                    fResourceProvider, proxy->peekSurface(), true /*needsStencil*/)) {
+                SkDebugf("WARNING: failed to attach stencil buffer. Rendering may be incorrect.\n");
+            }
+        }
         return;
     }
 
