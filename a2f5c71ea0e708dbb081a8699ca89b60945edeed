@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2c9c041_08e4fa38",
+        "filename": "infra/browser-perf/skottie-wasm-perf.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-13T19:49:29Z",
+      "side": 1,
+      "message": "update title",
+      "range": {
+        "startLine": 4,
+        "startChar": 5,
+        "endLine": 4,
+        "endChar": 10
+      },
+      "revId": "a2f5c71ea0e708dbb081a8699ca89b60945edeed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f63fed17_5ed8e2a6",
+        "filename": "infra/browser-perf/skottie-wasm-perf.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-13T19:49:29Z",
+      "side": 1,
+      "message": "Is this needed?",
+      "revId": "a2f5c71ea0e708dbb081a8699ca89b60945edeed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2b27b2e_c20b41f4",
+        "filename": "infra/browser-perf/skottie-wasm-perf.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-13T19:49:29Z",
+      "side": 1,
+      "message": "https://skia.googlesource.com/skia/+/master/infra/bots/recipes/perf_skottietrace.py#150 outputs frame_max_us, frame_min_us, frame_avg_us.\nCan we also add max and min here as well?",
+      "range": {
+        "startLine": 92,
+        "startChar": 11,
+        "endLine": 92,
+        "endChar": 21
+      },
+      "revId": "a2f5c71ea0e708dbb081a8699ca89b60945edeed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
