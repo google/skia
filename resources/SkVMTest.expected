@@ -571,14 +571,14 @@ r0 = splat FF (3.5733111e-43)
 r1 = splat 100 (3.5873241e-43)
 loop:
 r2 = load32 arg(0)
-r3 = extract r2 0 r0
-r4 = extract r2 8 r0
-r5 = extract r2 16 r0
+r3 = bit_and r2 r0
+r4 = bytes r2 2
+r5 = bytes r2 3
 r2 = shr r2 24
 r6 = load32 arg(1)
-r7 = extract r6 0 r0
-r8 = extract r6 8 r0
-r9 = extract r6 16 r0
+r7 = bit_and r6 r0
+r8 = bytes r6 2
+r9 = bytes r6 3
 r6 = shr r6 24
 r10 = sub_i32 r1 r2
 r7 = mul_i16x2 r7 r10
@@ -599,14 +599,13 @@ r10 = pack r8 r10 16
 store32 arg(1) r10
 
 I32 (SWAR) 8888 over 8888
-7 registers, 17 instructions:
+7 registers, 16 instructions:
 r0 = splat 1000100 (2.3510604e-38)
 r1 = splat FF00FF (2.3418409e-38)
 r2 = splat FF00FF00 (-1.7146522e+38)
 loop:
 r3 = load32 arg(0)
-r4 = shr r3 24
-r4 = pack r4 r4 16
+r4 = bytes r3 404
 r4 = sub_i16x2 r0 r4
 r5 = load32 arg(1)
 r6 = bit_and r5 r1
