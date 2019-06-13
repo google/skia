@@ -16,6 +16,7 @@
 #include "include/utils/SkRandom.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
+#include "modules/skparagraph/src/FontCollectionImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/src/TypefaceFontProvider.h"
 #include "src/core/SkOSFile.h"
@@ -32,7 +33,7 @@ sk_sp<SkShader> setgrad(const SkRect& r, SkColor c0, SkColor c1) {
     return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 }
 
-class TestFontCollection : public FontCollection {
+class TestFontCollection : public FontCollectionImpl {
 public:
     TestFontCollection() : fResourceDir(GetResourcePath("fonts").c_str()) {
         auto fontProvider = sk_make_sp<TypefaceFontProvider>();
@@ -101,7 +102,7 @@ protected:
         for (auto i = 1; i < 5; ++i) {
             defaultStyle.setFontSize(24 * i);
             paraStyle.setTextStyle(defaultStyle);
-            ParagraphBuilderImpl builder(paraStyle, sk_make_sp<FontCollection>());
+            ParagraphBuilderImpl builder(paraStyle, sk_make_sp<FontCollectionImpl>());
             std::string name = "Paragraph: " + std::to_string(24 * i);
             builder.addText(name.c_str());
             for (auto para : gParagraph) {
@@ -205,7 +206,7 @@ protected:
         ParagraphStyle paraStyle;
         paraStyle.setTextStyle(defaultStyle);
 
-        ParagraphBuilderImpl builder(paraStyle, sk_make_sp<FontCollection>());
+        ParagraphBuilderImpl builder(paraStyle, sk_make_sp<FontCollectionImpl>());
 
         builder.pushStyle(style(name));
         builder.addText("RaisedButton");
@@ -324,7 +325,7 @@ protected:
         paraStyle.setTextStyle(style);
         paraStyle.setTextAlign(align);
 
-        ParagraphBuilderImpl builder(paraStyle, sk_make_sp<FontCollection>());
+        ParagraphBuilderImpl builder(paraStyle, sk_make_sp<FontCollectionImpl>());
         builder.addText(text.c_str());
 
         auto paragraph = builder.Build();
@@ -452,7 +453,7 @@ protected:
         paraStyle.setEllipsis(ellipsis);
         // paraStyle.setTextDirection(RTL ? SkTextDirection::rtl : SkTextDirection::ltr);
 
-        ParagraphBuilderImpl builder(paraStyle, sk_make_sp<FontCollection>());
+        ParagraphBuilderImpl builder(paraStyle, sk_make_sp<FontCollectionImpl>());
         if (RTL) {
             builder.addText(mirror(text));
         } else {
@@ -1292,28 +1293,33 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
-        const char* text = "\n";
-
+        sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+        float scale = 3.0f;
         ParagraphStyle paragraph_style;
-        paragraph_style.turnHintingOff();
-        ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<FontCollection>());
-
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
-        text_style.setFontFamilies({SkString("???")});
-        text_style.setFontStyle(SkFontStyle::Bold());
+        text_style.setFontFamilies({SkString("Droid Serif")});
+        text_style.setFontSize(100 / scale);
+        text_style.setWordSpacing(0);
+        text_style.setLetterSpacing(0);
+        text_style.setHeight(1);
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontSize(50);
+
         builder.pushStyle(text_style);
-        builder.addText(text);
+        builder.addText("AVAVAWAH A0 V0 VA To The Lo");
+        builder.pushStyle(text_style);
+        builder.addText("A");
+        builder.pushStyle(text_style);
+        builder.addText("V");
+        text_style.setFontSize(14 / scale);
+        builder.pushStyle(text_style);
+        builder.addText(
+                " Dialog Text List lots of words to see if kerning works on a bigger set "
+                "of characters AVAVAW");
         builder.pop();
 
         auto paragraph = builder.Build();
-        paragraph->layout(1000);
-        auto result =
-                paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
-        SkPaint paint;
-        paint.setColor(SK_ColorLTGRAY);
-        canvas->drawRect(result[0].rect, paint);
+        paragraph->layout(1000 / scale);
         paragraph->paint(canvas, 0, 0);
     }
 

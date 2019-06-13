@@ -15,7 +15,8 @@ skparagraph_public = [
 ]
 
 skparagraph_sources = [
-  "$_src/FontCollection.cpp",
+  "$_src/FontCollectionImpl.h",
+  "$_src/FontCollectionImpl.cpp",
   "$_src/FontIterator.h",
   "$_src/FontIterator.cpp",
   "$_src/TextLine.h",
