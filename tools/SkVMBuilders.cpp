@@ -148,9 +148,9 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
     skvm::I32 ax2    = pack(a,a,16),
               invAx2 = sub_16x2(splat(0x01000100), ax2);
 
-    skvm::I32 d   = load32(dst),
-              rb = extract(d, 0, splat(0x00ff00ff)),
-              ga = extract(d, 8, splat(0x00ff00ff));
+    skvm::I32 d  = load32(dst),
+              rb = bit_and (d, splat(0x00ff00ff)),
+              ga = shr_16x2(d, 8);
 
     rb = shr_16x2(mul_16x2(rb, invAx2), 8);  // Put the high 8 bits back in the low lane.
     ga =          mul_16x2(ga, invAx2);      // Keep the high 8 bits up high...
