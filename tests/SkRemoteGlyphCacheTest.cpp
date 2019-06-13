@@ -892,7 +892,7 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
 
         REPORTER_ASSERT(reporter, lostGlyph.fHeight == 1);
         REPORTER_ASSERT(reporter, lostGlyph.fWidth == 2);
-        REPORTER_ASSERT(reporter, lostGlyph.fMaskFormat == SkMask::kA8_Format);
+        REPORTER_ASSERT(reporter, lostGlyph.maskFormat() == SkMask::kA8_Format);
         REPORTER_ASSERT(reporter, memcmp(lostGlyph.fImage, glyphImage, sizeof(glyphImage)) == 0);
     }
 
@@ -904,7 +904,7 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
 
         REPORTER_ASSERT(reporter, lostGlyph.fHeight == 1);
         REPORTER_ASSERT(reporter, lostGlyph.fWidth == 2);
-        REPORTER_ASSERT(reporter, lostGlyph.fMaskFormat == SkMask::kA8_Format);
+        REPORTER_ASSERT(reporter, lostGlyph.maskFormat() == SkMask::kA8_Format);
         REPORTER_ASSERT(reporter, memcmp(lostGlyph.fImage, glyphImage, sizeof(glyphImage)) == 0);
     }
 
@@ -959,7 +959,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         auto context = serverTf->createScalerContext(effects, desc, false);
         SkGlyph glyph{lostGlyphID};
         context->getMetrics(&glyph);
-        realMask = glyph.fMaskFormat;
+        realMask = glyph.maskFormat();
         REPORTER_ASSERT(reporter, realMask != MASK_FORMAT_UNKNOWN);
     }
 
@@ -1017,7 +1017,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         auto fallbackCache = strikeCache.findStrikeExclusive(*desc);
         REPORTER_ASSERT(reporter, fallbackCache.get() != nullptr);
         auto glyph = fallbackCache->getRawGlyphByID(lostGlyphID);
-        REPORTER_ASSERT(reporter, glyph->fMaskFormat == fakeMask);
+        REPORTER_ASSERT(reporter, glyph->maskFormat() == fakeMask);
         REPORTER_ASSERT(reporter,
                         memcmp(glyph->fImage, glyphImage, glyph->computeImageSize()) == 0);
     }
