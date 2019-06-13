@@ -126,9 +126,15 @@ namespace SK_OPTS_NS {
                     CASE(Op::sub_i32): r(d).i32 = r(x).i32 - r(y.id).i32; break;
                     CASE(Op::mul_i32): r(d).i32 = r(x).i32 * r(y.id).i32; break;
 
+                    CASE(Op::sub_i16x2):
+                        r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<I16x2>(r(x   ).i32) -
+                                                      skvx::bit_pun<I16x2>(r(y.id).i32) ); break;
                     CASE(Op::mul_i16x2):
                         r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<I16x2>(r(x   ).i32) *
                                                       skvx::bit_pun<I16x2>(r(y.id).i32) ); break;
+                    CASE(Op::shr_i16x2):
+                        r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<I16x2>(r(x).i32) >> y.imm);
+                        break;
 
                     CASE(Op::bit_and): r(d).i32 = r(x).i32 & r(y.id).i32; break;
                     CASE(Op::bit_or ): r(d).i32 = r(x).i32 | r(y.id).i32; break;
