@@ -148,6 +148,8 @@ namespace SK_OPTS_NS {
                     CASE(Op::extract): r(d).u32 = (r(x).u32 >> y.imm) & r(z.id).u32; break;
                     CASE(Op::pack):    r(d).u32 = r(x).u32 | (r(y.id).u32 << z.imm); break;
 
+                    CASE(Op::bytes):  SkASSERT(false); break;
+
                     CASE(Op::to_f32): r(d).f32 = skvx::cast<float>(r(x).i32); break;
                     CASE(Op::to_i32): r(d).i32 = skvx::cast<int>  (r(x).f32); break;
                 #undef CASE

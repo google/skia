@@ -239,6 +239,10 @@ namespace skvm {
         return {this->push(Op::pack, x.id,y.id,NA, 0,bits)};
     }
 
+    I32 Builder::bytes(I32 x, int control) {
+        return {this->push(Op::bytes, x.id,NA,NA, control)};
+    }
+
     F32 Builder::to_f32(I32 x) { return {this->push(Op::to_f32, x.id)}; }
     I32 Builder::to_i32(F32 x) { return {this->push(Op::to_i32, x.id)}; }
 
@@ -248,6 +252,7 @@ namespace skvm {
     struct R { ID id; };
     struct Shift { int bits; };
     struct Splat { int bits; };
+    struct Hex   { int bits; };
 
     static void write(SkWStream* o, const char* s) {
         o->writeText(s);
@@ -276,6 +281,9 @@ namespace skvm {
         write(o, " (");
         o->writeScalarAsText(f);
         write(o, ")");
+    }
+    static void write(SkWStream* o, Hex h) {
+        o->writeHexAsText(h.bits);
     }
 
     template <typename T, typename... Ts>
@@ -331,6 +339,8 @@ namespace skvm {
 
                 case Op::extract: write(o, V{id}, "= extract", V{x}, Shift{immy}, V{z}); break;
                 case Op::pack:    write(o, V{id}, "= pack",    V{x}, V{y}, Shift{immz}); break;
+
+                case Op::bytes:   write(o, V{id}, "= bytes", V{x}, Hex{immy}); break;
 
                 case Op::to_f32: write(o, V{id}, "= to_f32", V{x}); break;
                 case Op::to_i32: write(o, V{id}, "= to_i32", V{x}); break;
@@ -389,6 +399,8 @@ namespace skvm {
                 case Op::extract: write(o, R{d}, "= extract", R{x}, Shift{y.imm}, R{z.id}); break;
                 case Op::pack:    write(o, R{d}, "= pack",    R{x}, R{y.id}, Shift{z.imm}); break;
 
+                case Op::bytes: write(o, R{d}, "= bytes", R{x}, Hex{y.imm}); break;
+
                 case Op::to_f32: write(o, R{d}, "= to_f32", R{x}); break;
                 case Op::to_i32: write(o, R{d}, "= to_i32", R{x}); break;
             }
@@ -430,8 +442,11 @@ namespace skvm {
 
              #endif
 
-                // Label / 4-byte values we need to write after ret.
-                std::vector<std::pair<Xbyak::Label, int>> splats;
+                // Label / N-byte values we need to write after ret.
+                struct Data4  { Xbyak::Label label; int bits   ; };
+                struct Data32 { Xbyak::Label label; int bits[8]; };
+                std::vector<Data4 > data4;
+                std::vector<Data32> data32;
 
                 for (int i = 0; i < (int)instructions.size(); i++) {
                     if (i == loop) {
@@ -468,8 +483,8 @@ namespace skvm {
                         case Op::load8:  vpmovzxbd(r[d], ptr[arg[y.imm]]); break;
                         case Op::load32: vmovups  (r[d], ptr[arg[y.imm]]); break;
 
-                        case Op::splat: splats.emplace_back(Xbyak::Label(), y.imm);
-                                        vbroadcastss(r[d], ptr[rip + splats.back().first]);
+                        case Op::splat: data4.push_back(Data4{Xbyak::Label(), y.imm});
+                                        vbroadcastss(r[d], ptr[rip + data4.back().label]);
                                         break;
 
                         case Op::add_f32: vaddps(r[d], r[x], r[y.id]); break;
@@ -514,6 +529,9 @@ namespace skvm {
 
                         case Op::to_f32: vcvtdq2ps (r[d], r[x]); break;
                         case Op::to_i32: vcvttps2dq(r[d], r[x]); break;
+
+                        case Op::bytes: SkASSERT(false);
+                                        break;
                     }
                 }
 
@@ -526,10 +544,17 @@ namespace skvm {
                 vzeroupper();
                 ret();
 
-                for (auto splat : splats) {
+                for (auto data : data4) {
                     align(4);
-                    L(splat.first);
-                    dd(splat.second);
+                    L(data.label);
+                    dd(data.bits);
+                }
+                for (auto data : data32) {
+                    align(32);
+                    L(data.label);
+                    for (int i = 0; i < 8; i++) {
+                        dd(data.bits[i]);
+                    }
                 }
             }
         };
