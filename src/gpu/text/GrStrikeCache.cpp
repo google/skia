@@ -129,7 +129,7 @@ static bool get_packed_glyph_image(SkStrike* cache, const SkGlyph& glyph, int wi
     // The windows font host sometimes has BW glyphs in a non-BW strike. So it is important here to
     // check the glyph's format, not the strike's format, and to be able to convert to any of the
     // GrMaskFormats.
-    if (SkMask::kBW_Format == glyph.fMaskFormat) {
+    if (glyph.maskFormat() == SkMask::kBW_Format) {
         // expand bits to our mask type
         const uint8_t* bits = reinterpret_cast<const uint8_t*>(src);
         switch (expectedMaskFormat) {

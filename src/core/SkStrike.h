@@ -63,8 +63,9 @@ public:
 
     // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
     // advances.
-    SkGlyph* glyph(SkPackedGlyphID id);
-    SkGlyph* glyph(SkGlyphID);
+    SkGlyph* glyph(SkPackedGlyphID packedID);
+    SkGlyph* glyph(SkGlyphID glyphID);
+    SkGlyph* glyphFromPrototype(const SkGlyphPrototype& p);
 
     // Return a glyph or nullptr if it does not exits in the strike.
     SkGlyph* glyphOrNull(SkPackedGlyphID id) const;
