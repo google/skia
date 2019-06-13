@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2d39ad8_74dc6448",
+        "filename": "src/sksl/SkSLInterpreter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1003,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T21:16:26Z",
+      "side": 1,
+      "message": "If we do things through void* -\u003e int32_t* casted pointers like this, the compilers are going to assume the void* are 4-byte aligned.\n\nDo we want to enforce that alignment by declaring these as pointers to int or float, something like that?  Or some stategically placed SkASSERT(SkIsAlign4((uintptr_t)...)) ?",
+      "range": {
+        "startLine": 1003,
+        "startChar": 32,
+        "endLine": 1003,
+        "endChar": 44
+      },
+      "revId": "2bc926fc9fe9ee2d69d21cf1c472f92a38a8f74d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
