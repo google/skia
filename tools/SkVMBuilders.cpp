@@ -149,19 +149,19 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
     skvm::I32 rb, ga, a;
     load(src, &rb, &ga, &a);
 
+    skvm::I32 ax2    = pack(a,a, 16),
+              invAx2 = sub_16x2(splat(0x01000100/*256 x2*/), ax2);
+
     skvm::I32 drb, dga, da;
     load(dst, &drb, &dga, &da);
 
     // Same approximation as above,
     // but this time we make sure to use both i16 multiplies to our benefit,
     // one for r/g, the other for b/a simultaneously.
-    skvm::I32 invA   = sub(splat(256), a),
-              invAx2 = pack(invA, invA, 16);
 
-    skvm::I32 RB = shr(mul_16x2(drb, invAx2), 8),  // 8 high bits of results shifted back down.
-              GA =     mul_16x2(dga, invAx2);      // Keep high bits of results in high lanes.
-    RB = bit_and(RB, splat(0x00ff00ff));  // Mask off any low bits remaining.
-    GA = bit_and(GA, splat(0xff00ff00));  // Ditto.
+    skvm::I32 RB = shr_16x2(mul_16x2(drb, invAx2), 8),  // 8 high bits of results shifted back down.
+              GA =          mul_16x2(dga, invAx2)    ;  // Keep high bits of results in high lanes,
+    GA = bit_and(GA, splat(0xff00ff00));                // and mask off any low bits remaining.
 
     rb = add(    rb    , RB);   // src += dst*invA
     ga = add(shl(ga, 8), GA);
