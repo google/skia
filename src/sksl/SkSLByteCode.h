@@ -49,8 +49,6 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kCompareUGTEQ),
     VECTOR(kCompareULT),
     VECTOR(kCompareULTEQ),
-    // Followed by a 16 bit address
-    kConditionalBranch,
     VECTOR(kConvertFtoI),
     VECTOR(kConvertStoF),
     VECTOR(kConvertUtoF),
@@ -83,7 +81,7 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kMix),
     VECTOR_MATRIX(kMultiplyF),
     VECTOR(kMultiplyI),
-    kNot,
+    kNotB,
     kOrB,
     VECTOR_MATRIX(kPop),
     // Followed by a 32 bit value containing the value to push
@@ -124,6 +122,22 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kTan),
     // Followed by a byte indicating external value to write
     VECTOR(kWriteExternal),
+    kXorB,
+
+    kMaskPush,
+    kMaskPop,
+    kMaskNegate,
+    // Followed by count byte
+    kMaskBlend,
+    // Followed by address
+    kBranchIfAllFalse,
+
+    kLoopBegin,
+    kLoopNext,
+    kLoopMask,
+    kLoopEnd,
+    kLoopBreak,
+    kLoopContinue,
 };
 #undef VECTOR
 
