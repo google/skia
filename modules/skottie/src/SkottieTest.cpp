@@ -12,6 +12,7 @@
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/text/SkottieShaper.h"
+#include "src/core/SkTextBlobPriv.h"
 
 #include "tests/Test.h"
 
@@ -222,6 +223,42 @@ DEF_TEST(Skottie_Annotations, reporter) {
     REPORTER_ASSERT(reporter, std::get<2>(observer->fMarkers[1]) == 0.75f);
 }
 
+static SkRect ComputeBlobBounds(const sk_sp<SkTextBlob>& blob) {
+    auto bounds = SkRect::MakeEmpty();
+
+    if (!blob) {
+        return bounds;
+    }
+
+    SkAutoSTArray<16, SkRect> glyphBounds;
+
+    SkTextBlobRunIterator it(blob.get());
+
+    for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
+        glyphBounds.reset(SkToInt(it.glyphCount()));
+        it.font().getBounds(it.glyphs(), it.glyphCount(), glyphBounds.get(), nullptr);
+
+        SkASSERT(it.positioning() == SkTextBlobRunIterator::kFull_Positioning);
+        for (uint32_t i = 0; i < it.glyphCount(); ++i) {
+            bounds.join(glyphBounds[i].makeOffset(it.pos()[i * 2    ],
+                                                  it.pos()[i * 2 + 1]));
+        }
+    }
+
+    return bounds;
+}
+
+static SkRect ComputeShapeResultBounds(const skottie::Shaper::Result& res) {
+    auto bounds = SkRect::MakeEmpty();
+
+    for (const auto& fragment : res.fFragments) {
+        bounds.join(ComputeBlobBounds(fragment.fBlob).makeOffset(fragment.fPos.x(),
+                                                                 fragment.fPos.y()));
+    }
+
+    return bounds;
+}
+
 DEF_TEST(Skottie_Shaper_HAlign, reporter) {
     auto typeface = SkTypeface::MakeDefault();
     REPORTER_ASSERT(reporter, typeface);
@@ -266,7 +303,7 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
             REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
             REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
 
-            const auto shape_bounds = shape_result.computeBounds();
+            const auto shape_bounds = ComputeShapeResultBounds(shape_result);
             REPORTER_ASSERT(reporter, !shape_bounds.isEmpty());
 
             const auto expected_l = text_point.x() - shape_bounds.width() * talign.l_selector;
@@ -296,9 +333,9 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
         // These gross tolerances are required for the test to pass on NativeFonts bots.
         // Might be worth investigating why we need so much slack.
         {  5, 2.0f },
-        { 10, 2.0f },
-        { 15, 2.4f },
-        { 25, 4.4f },
+        { 10, 4.0f },
+        { 15, 5.5f },
+        { 25, 8.0f },
     };
 
     struct {
@@ -329,7 +366,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
             REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
             REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
 
-            const auto shape_bounds = shape_result.computeBounds();
+            const auto shape_bounds = ComputeShapeResultBounds(shape_result);
             REPORTER_ASSERT(reporter, !shape_bounds.isEmpty());
 
             const auto v_diff = text_box.height() - shape_bounds.height();
