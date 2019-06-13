@@ -967,6 +967,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     // the rest from the SkPaint.
     std::unique_ptr<GrFragmentProcessor> fp;
 
+    static constexpr auto kBicubicKernel = GrBicubicEffect::Kernel::kMitchell;
     if (needsTextureDomain && (SkCanvas::kStrict_SrcRectConstraint == constraint)) {
         // Use a constrained texture domain to avoid color bleeding
         SkRect domain;
@@ -984,7 +985,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         }
         if (bicubic) {
             static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-            fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, domain, kDir,
+            fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, domain, kBicubicKernel, kDir,
                                        bitmap.alphaType());
         } else {
             fp = GrTextureDomainEffect::Make(std::move(proxy), texMatrix, domain,
@@ -994,7 +995,8 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         SkASSERT(GrSamplerState::Filter::kNearest == samplerState.filter());
         GrSamplerState::WrapMode wrapMode[2] = {samplerState.wrapModeX(), samplerState.wrapModeY()};
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, wrapMode, kDir, bitmap.alphaType());
+        fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, wrapMode, kBicubicKernel, kDir,
+                                   bitmap.alphaType());
     } else {
         fp = GrSimpleTextureEffect::Make(std::move(proxy), texMatrix, samplerState);
     }
