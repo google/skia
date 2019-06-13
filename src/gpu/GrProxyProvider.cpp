@@ -402,6 +402,25 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     return proxy;
 }
 
+#ifdef SK_DEBUG
+static bool validate_backend_format_and_config(const GrCaps* caps,
+                                               const GrBackendFormat& format,
+                                               GrPixelConfig config) {
+    if (kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+    SkColorType colorType = GrColorTypeToSkColorType(GrPixelConfigToColorType(config));
+    if (colorType == kUnknown_SkColorType) {
+        // We should add support for validating GrColorType with a GrBackendFormat. Currently we
+        // only support SkColorType. For now we just assume things that don't have a corresponding
+        // SkColorType are correct.
+        return true;
+    }
+    GrPixelConfig testConfig = caps->getConfigFromBackendFormat(format, colorType);
+    return testConfig != kUnknown_GrPixelConfig;
+}
+#endif
+
 sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format,
                                                    const GrSurfaceDesc& desc,
                                                    GrSurfaceOrigin origin,
@@ -409,6 +428,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                                    SkBackingFit fit,
                                                    SkBudgeted budgeted,
                                                    GrInternalSurfaceFlags surfaceFlags) {
+    SkASSERT(validate_backend_format_and_config(this->caps(), format, desc.fConfig));
     if (GrMipMapped::kYes == mipMapped) {
         // SkMipMap doesn't include the base level in the level count so we have to add 1
         int mipCount = SkMipMap::ComputeLevelCount(desc.fWidth, desc.fHeight) + 1;
@@ -492,6 +512,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
+#ifdef SK_DEBUG
+    SkASSERT(validate_backend_format_and_config(this->caps(), backendTex.getBackendFormat(),
+                                                backendTex.config()));
+#endif
+
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
     sk_sp<GrTexture> tex =
@@ -524,6 +549,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
     if (!direct) {
         return nullptr;
     }
+
+    SkASSERT(validate_backend_format_and_config(this->caps(), backendTex.getBackendFormat(),
+                                                backendTex.config()));
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
@@ -562,6 +590,14 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
         return nullptr;
     }
 
+#ifdef SK_DEBUG
+    GrColorType colorType = GrPixelConfigToColorType(backendRT.config());
+    GrPixelConfig testConfig =
+            this->caps()->validateBackendRenderTarget(backendRT,
+                                                      GrColorTypeToSkColorType(colorType));
+    SkASSERT(testConfig != kUnknown_GrPixelConfig);
+#endif
+
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
     sk_sp<GrRenderTarget> rt = resourceProvider->wrapBackendRenderTarget(backendRT);
@@ -592,6 +628,9 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
     if (!direct) {
         return nullptr;
     }
+
+    SkASSERT(validate_backend_format_and_config(this->caps(), backendTex.getBackendFormat(),
+                                                backendTex.config()));
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
@@ -683,6 +722,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
         return nullptr;
     }
 
+    SkASSERT(validate_backend_format_and_config(this->caps(), format, desc.fConfig));
 
 #ifdef SK_DEBUG
     if (SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags)) {
@@ -714,6 +754,7 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
     }
 
     SkASSERT(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags));
+    SkASSERT(validate_backend_format_and_config(this->caps(), format, desc.fConfig));
 
 #ifdef SK_DEBUG
     if (SkToBool(surfaceFlags & GrInternalSurfaceFlags::kMixedSampled)) {
@@ -747,6 +788,7 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
 sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(
         LazyInstantiateCallback&& callback, const GrBackendFormat& format, Renderable renderable,
         GrSurfaceOrigin origin, GrPixelConfig config, const GrCaps& caps, int sampleCnt) {
+    SkASSERT(validate_backend_format_and_config(&caps, format, config));
     GrSurfaceDesc desc;
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
     if (Renderable::kYes == renderable) {

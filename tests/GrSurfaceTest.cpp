@@ -117,6 +117,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
 
     for (GrPixelConfig config : configs) {
         for (GrSurfaceOrigin origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
+            if (config == kUnknown_GrPixelConfig) {
+                // It is not valid to be calling into GrProxyProvider with an unknown pixel config.
+                continue;
+            }
             desc.fFlags = kNone_GrSurfaceFlags;
             desc.fConfig = config;
             desc.fSampleCnt = 1;
@@ -131,6 +135,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             GrColorType colorType = GrPixelConfigToColorTypeAndEncoding(config, &srgbEncoded);
             const GrBackendFormat format =
                     caps->getBackendFormatFromGrColorType(colorType, srgbEncoded);
+            if (!format.isValid()) {
+                continue;
+            }
 
             sk_sp<GrTextureProxy> proxy =
                     proxyProvider->createMipMapProxy(format, desc, origin, SkBudgeted::kNo);
