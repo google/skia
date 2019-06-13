@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6fa80dbf_6385cf09",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-13T16:15:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87120555_eccb6e6b",
+      "revId": "da7cda6f95d1cd209e00c2b6aae595f858fa392e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "679ba00d_3da4facf",
         "filename": "src/core/SkGlyph.h",
         "patchSetId": 10
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "446640bd_de250e15",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-13T16:15:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "679ba00d_3da4facf",
+      "revId": "da7cda6f95d1cd209e00c2b6aae595f858fa392e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "949a2d09_81182929",
         "filename": "src/core/SkGlyph.h",
         "patchSetId": 10
@@ -47,6 +83,30 @@
       "writtenOn": "2019-06-13T15:05:10Z",
       "side": 1,
       "message": "Is this less ambiguous as\n\n   bool setPathHasBeenCalled() const\n\n?  At first I thought this would\n\n    return fPathData ? \u0026fPathData-\u003efPath\n                     : nullptr\n\nBut this isn\u0027t really talking about the path, right?  It\u0027s talking about whether we\u0027ve attempted to lock in a path, no matter if it\u0027s null or non-null?",
+      "range": {
+        "startLine": 162,
+        "startChar": 3,
+        "endLine": 162,
+        "endChar": 20
+      },
+      "revId": "da7cda6f95d1cd209e00c2b6aae595f858fa392e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c90f60e3_fae4ff7e",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-13T16:15:16Z",
+      "side": 1,
+      "message": "Right. There is a difference between an empty path and no path. The distinction is tracked by the flag fHasPath. This differences is needed to handle fallback properly. If that glyph has a path, and it is empty, then the empty path is drawn. If there is no path e.g. colored glyphs or bitmap only glyphs, then we need to fallback and scale a bitmap to draw the glyph.\nSo, the code is:\n if (fPathData-\u003efHasPath) {\n        return \u0026fPathData-\u003efPath;\n    }\n    return nullptr;",
+      "parentUuid": "949a2d09_81182929",
       "range": {
         "startLine": 162,
         "startChar": 3,
