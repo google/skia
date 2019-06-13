@@ -34,6 +34,24 @@
       "revId": "9ee3447e499afbfdf7f087556ae88c464555f6eb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a850779c_c132eaea",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 3851,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T14:44:36Z",
+      "side": 1,
+      "message": "Oh, man, yes, brain fart.",
+      "parentUuid": "6e020b17_f81c1f45",
+      "revId": "9ee3447e499afbfdf7f087556ae88c464555f6eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
