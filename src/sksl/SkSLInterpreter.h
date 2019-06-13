@@ -46,6 +46,9 @@ namespace Interpreter {
     void Run(const ByteCode*, const ByteCodeFunction*, Value args[], Value* outReturn,
              Value uniforms[], int uniformCount);
 
+    void VecRun(const ByteCode*, const ByteCodeFunction*, Value args[], Value* outReturn,
+                int N, Value uniforms[], int uniformCount);
+
     /**
      * Print bytecode disassembly to stdout.
      */
