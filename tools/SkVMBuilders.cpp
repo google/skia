@@ -100,7 +100,7 @@ SrcoverBuilder_I32::SrcoverBuilder_I32() {
         *r = extract(rgba,  0, splat(0xff));
         *g = extract(rgba,  8, splat(0xff));
         *b = extract(rgba, 16, splat(0xff));
-        *a = extract(rgba, 24, splat(0xff));
+        *a = shr    (rgba, 24);
     };
 
     skvm::I32 r,g,b,a;
@@ -115,11 +115,18 @@ SrcoverBuilder_I32::SrcoverBuilder_I32() {
     //   == (d*(255-a+1)  )/256
     //   == (d*(256-a  )  )/256
 
+    // We're doing 8x8 bit multiplies in 32-bit lanes.
+    // Since the inputs and results both fit in 16 bits,
+    // we can use mul_16x2, which tends to be faster than mul.
+    //
+    // (The top 2 zero bytes of the inputs will also multiply
+    // with each other to produce zero... perfect.)
+
     skvm::I32 invA = sub(splat(256), a);
-    r = add(r, shr(mul(dr, invA), 8));
-    g = add(g, shr(mul(dg, invA), 8));
-    b = add(b, shr(mul(db, invA), 8));
-    a = add(a, shr(mul(da, invA), 8));
+    r = add(r, shr(mul_16x2(dr, invA), 8));
+    g = add(g, shr(mul_16x2(dg, invA), 8));
+    b = add(b, shr(mul_16x2(db, invA), 8));
+    a = add(a, shr(mul_16x2(da, invA), 8));
 
     r = pack(r, g, 8);
     b = pack(b, a, 8);
@@ -132,24 +139,27 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
               dst = arg(1);
 
     auto load = [&](skvm::Arg ptr,
-                    skvm::I32* rb, skvm::I32* ga) {
+                    skvm::I32* rb, skvm::I32* ga, skvm::I32* a) {
         skvm::I32 rgba = load32(ptr);
         *rb = extract(rgba, 0, splat(0x00ff00ff));
         *ga = extract(rgba, 8, splat(0x00ff00ff));
+        * a = shr    (rgba, 24);
     };
 
-    skvm::I32 rb, ga;
-    load(src, &rb, &ga);
+    skvm::I32 rb, ga, a;
+    load(src, &rb, &ga, &a);
 
-    skvm::I32 drb, dga;
-    load(dst, &drb, &dga);
+    skvm::I32 drb, dga, da;
+    load(dst, &drb, &dga, &da);
 
-    // Same approximation as above.
-    skvm::I32 invA = sub(splat(256),
-                         shr(ga, 16));
+    // Same approximation as above,
+    // but this time we make sure to use both i16 multiplies to our benefit,
+    // one for r/g, the other for b/a simultaneously.
+    skvm::I32 invA   = sub(splat(256), a),
+              invAx2 = pack(invA, invA, 16);
 
-    skvm::I32 RB = shr(mul(drb, invA), 8),  // 8 high bits of results shifted back down.
-              GA =     mul(dga, invA);      // Keep high bits of results in high lanes.
+    skvm::I32 RB = shr(mul_16x2(drb, invAx2), 8),  // 8 high bits of results shifted back down.
+              GA =     mul_16x2(dga, invAx2);      // Keep high bits of results in high lanes.
     RB = bit_and(RB, splat(0x00ff00ff));  // Mask off any low bits remaining.
     GA = bit_and(GA, splat(0xff00ff00));  // Ditto.
 

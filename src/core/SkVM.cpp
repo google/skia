@@ -218,6 +218,8 @@ namespace skvm {
     I32 Builder::sub(I32 x, I32 y) { return {this->push(Op::sub_i32, x.id, y.id)}; }
     I32 Builder::mul(I32 x, I32 y) { return {this->push(Op::mul_i32, x.id, y.id)}; }
 
+    I32 Builder::mul_16x2(I32 x, I32 y) { return {this->push(Op::mul_i16x2, x.id, y.id)}; }
+
     I32 Builder::bit_and(I32 x, I32 y) { return {this->push(Op::bit_and, x.id, y.id)}; }
     I32 Builder::bit_or (I32 x, I32 y) { return {this->push(Op::bit_or , x.id, y.id)}; }
     I32 Builder::bit_xor(I32 x, I32 y) { return {this->push(Op::bit_xor, x.id, y.id)}; }
@@ -312,6 +314,8 @@ namespace skvm {
                 case Op::sub_i32: write(o, V{id}, "= sub_i32", V{x}, V{y}); break;
                 case Op::mul_i32: write(o, V{id}, "= mul_i32", V{x}, V{y}); break;
 
+                case Op::mul_i16x2: write(o, V{id}, "= mul_i16x2", V{x}, V{y}); break;
+
                 case Op::bit_and: write(o, V{id}, "= bit_and", V{x}, V{y}); break;
                 case Op::bit_or : write(o, V{id}, "= bit_or" , V{x}, V{y}); break;
                 case Op::bit_xor: write(o, V{id}, "= bit_xor", V{x}, V{y}); break;
@@ -364,6 +368,8 @@ namespace skvm {
                 case Op::add_i32: write(o, R{d}, "= add_i32", R{x}, R{y.id}); break;
                 case Op::sub_i32: write(o, R{d}, "= sub_i32", R{x}, R{y.id}); break;
                 case Op::mul_i32: write(o, R{d}, "= mul_i32", R{x}, R{y.id}); break;
+
+                case Op::mul_i16x2: write(o, R{d}, "= mul_i16x2", R{x}, R{y.id}); break;
 
                 case Op::bit_and: write(o, R{d}, "= bit_and", R{x}, R{y.id}); break;
                 case Op::bit_or : write(o, R{d}, "= bit_or" , R{x}, R{y.id}); break;
@@ -468,6 +474,8 @@ namespace skvm {
                         case Op::add_i32: vpaddd (r[d], r[x], r[y.id]); break;
                         case Op::sub_i32: vpsubd (r[d], r[x], r[y.id]); break;
                         case Op::mul_i32: vpmulld(r[d], r[x], r[y.id]); break;
+
+                        case Op::mul_i16x2: vpmullw(r[d], r[x], r[y.id]); break;
 
                         case Op::bit_and: vandps(r[d], r[x], r[y.id]); break;
                         case Op::bit_or : vorps (r[d], r[x], r[y.id]); break;
