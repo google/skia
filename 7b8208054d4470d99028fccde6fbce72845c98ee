@@ -93,6 +93,30 @@
       "revId": "7b8208054d4470d99028fccde6fbce72845c98ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2258a7dd_0af1eb2c",
+        "filename": "src/gpu/ops/GrOvalOpFactory.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-06-13T18:51:16Z",
+      "side": 1,
+      "message": "I was hoping there might be some \"isCircular\" logic that we could put in \"MakeCircularRRectOp\" but not MakeRRectOp, however it looks a bit more complicated than I had hoped.\n\nNow I think I would like to see us simplify the \"isCircular\" check and lift it completely out of GrOvalRectOp. e.g.:\n\n bool canUseOvalOpFactory \u003d AAType::kCoverage \u0026\u0026 rrect.isSimple \u0026\u0026 viewMatrix.rectStaysRect\n if (canUseOvalOpFactory \u0026\u0026 rrect.getSimpleRadii().x() \u003d\u003d rrect.getSimpleRadii().y() \u0026\u0026 viewMatrix.isSimilarity()) {\n     // Definitely circular, stroke or no.\n     op \u003d GrOvalOpFactory::MakeCircularRRectOp(mappedBounds, mappedRadiiusX, ...);\n }\n if (!op \u0026\u0026 stlyle.isSimpleFill()) {\n     op \u003d GrFillRRectOp::Make(viewMatrix, rrect, ...);\n }\n if (!op \u0026\u0026 canUseOvalOpFactory) {\n     op \u003d GrOvalOpFactory::MakeRRectOp(mappedBounds, mappedRadiusX, mappedRadiusY, ...);\n }\n\nJim, how would you feel about this simplification? We would lose the circular optimization for cases where somebody draws a round rect that is NOT circular, but the viewMatrix maps it back to EXACTLY circular. Do you think this case matters enough to merit the extra complexity?\n\nKhushal, how do you feel about taking this on if we decide to go this route? Do you have the time and interest to pursue a larger refactor? Or would you rather pass it off? (Assuming this is the route we take..)",
+      "parentUuid": "61355438_ba09801a",
+      "range": {
+        "startLine": 42,
+        "startChar": 49,
+        "endLine": 42,
+        "endChar": 66
+      },
+      "revId": "7b8208054d4470d99028fccde6fbce72845c98ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
