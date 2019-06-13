@@ -141,12 +141,11 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
     // The s += d*invA adds won't overflow,
     // so we don't have to unpack s beyond grabbing the alpha channel.
     skvm::I32 s = load32(src),
-              a = shr(s, 24);
+            ax2 = bytes(s, 0xf3f3);  // rgba -> a0a0
 
     // We'll use the same approximation math as above, this time making sure to
     // use both i16 multiplies to our benefit, one for r/g, the other for b/a.
-    skvm::I32 ax2    = pack(a,a,16),
-              invAx2 = sub_16x2(splat(0x01000100), ax2);
+    skvm::I32 invAx2 = sub_16x2(splat(0x01000100), ax2);
 
     skvm::I32 d  = load32(dst),
               rb = bit_and (d, splat(0x00ff00ff)),

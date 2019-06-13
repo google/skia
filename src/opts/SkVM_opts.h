@@ -148,6 +148,25 @@ namespace SK_OPTS_NS {
                     CASE(Op::extract): r(d).u32 = (r(x).u32 >> y.imm) & r(z.id).u32; break;
                     CASE(Op::pack):    r(d).u32 = r(x).u32 | (r(y.id).u32 << z.imm); break;
 
+                    CASE(Op::bytes): {
+                        U32 table[] = {
+                            (r(x).u32      ) & 0xff,
+                            (r(x).u32 >>  8) & 0xff,
+                            (r(x).u32 >> 16) & 0xff,
+                            (r(x).u32 >> 24) & 0xff,
+                        };
+
+                        auto lookup = [&](unsigned ix) {
+                            return ix < 4 ? table[ix]
+                                          : 0;
+                        };
+
+                        r(d).u32 = lookup((y.imm >>  0) & 0xf) <<  0
+                                 | lookup((y.imm >>  4) & 0xf) <<  8
+                                 | lookup((y.imm >>  8) & 0xf) << 16
+                                 | lookup((y.imm >> 12) & 0xf) << 24;
+                    } break;
+
                     CASE(Op::to_f32): r(d).f32 = skvx::cast<float>(r(x).i32); break;
                     CASE(Op::to_i32): r(d).i32 = skvx::cast<int>  (r(x).f32); break;
                 #undef CASE
