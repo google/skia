@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87120555_eccb6e6b",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T15:05:10Z",
+      "side": 1,
+      "message": "Maybe note \"in memory\" somewhere in here?  It\u0027s a little ambiguous given that SkPath is serializable.",
+      "revId": "da7cda6f95d1cd209e00c2b6aae595f858fa392e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "679ba00d_3da4facf",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T15:05:10Z",
+      "side": 1,
+      "message": "Seems like we should note that these only work the first time you call them?\n\n  // If we haven\u0027t already tried to associate a path to this glyph\n  // (i.e. setPathHasBeenCalled() returns false), then use the \n  // SkScalerContext or SkPath argument to try to do so.  N.B. this\n  // may still result in no path being associated with this glyph,\n  // e.g. if you pass a null SkPath or the typeface is bitmap-only.\n  // \n  // This setPath() call is sticky... once you call it, the glyph\n  // stays in its state permanently, ignoring any future calls.\n  //\n  // Returns true if this is the first time you called setPath()\n  // and there actually is a path; call path() to get it.",
+      "revId": "da7cda6f95d1cd209e00c2b6aae595f858fa392e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "949a2d09_81182929",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T15:05:10Z",
+      "side": 1,
+      "message": "Is this less ambiguous as\n\n   bool setPathHasBeenCalled() const\n\n?  At first I thought this would\n\n    return fPathData ? \u0026fPathData-\u003efPath\n                     : nullptr\n\nBut this isn\u0027t really talking about the path, right?  It\u0027s talking about whether we\u0027ve attempted to lock in a path, no matter if it\u0027s null or non-null?",
+      "range": {
+        "startLine": 162,
+        "startChar": 3,
+        "endLine": 162,
+        "endChar": 20
+      },
+      "revId": "da7cda6f95d1cd209e00c2b6aae595f858fa392e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
