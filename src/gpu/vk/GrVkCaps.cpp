@@ -85,7 +85,6 @@ static int get_compatible_format_class(GrPixelConfig config) {
         case kRG_88_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
         case kAlpha_half_as_Red_GrPixelConfig:
-        case kR_16_GrPixelConfig:
             return 2;
         case kRGB_888_GrPixelConfig:
             return 3;
@@ -95,7 +94,6 @@ static int get_compatible_format_class(GrPixelConfig config) {
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
         case kRGBA_1010102_GrPixelConfig:
-        case kRG_1616_GrPixelConfig:
             return 4;
         case kRGBA_half_GrPixelConfig:
         case kRGBA_half_Clamped_GrPixelConfig:
@@ -110,11 +108,10 @@ static int get_compatible_format_class(GrPixelConfig config) {
         case kGray_8_as_Lum_GrPixelConfig:
             SK_ABORT("Unsupported Vulkan pixel config");
             return 0;
-
-        // Experimental (for Y416 and mutant P016/P010)
-        case kRGBA_16161616_GrPixelConfig:
-            return 8;
-        case kRG_half_GrPixelConfig:
+        // Experimental (for P016 and P010)
+        case kR_16_GrPixelConfig:
+            return 2;
+        case kRG_1616_GrPixelConfig:
             return 4;
     }
     SK_ABORT("Invalid pixel config");
@@ -675,11 +672,9 @@ static bool format_is_srgb(VkFormat format) {
         case VK_FORMAT_R32G32_SFLOAT:
         case VK_FORMAT_R16G16B16A16_SFLOAT:
         case VK_FORMAT_R16_SFLOAT:
+        // Experimental (for P016 and P010)
         case VK_FORMAT_R16_UNORM:
         case VK_FORMAT_R16G16_UNORM:
-        // Experimental (for Y416 and mutant P016/P010)
-        case VK_FORMAT_R16G16B16A16_UNORM:
-        case VK_FORMAT_R16G16_SFLOAT:
             return false;
         default:
             SK_ABORT("Unsupported VkFormat");
@@ -707,11 +702,10 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_R8G8B8A8_SRGB,
     VK_FORMAT_B8G8R8A8_SRGB,
     VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,
+
+    // Experimental (for P016 and P010)
     VK_FORMAT_R16_UNORM,
     VK_FORMAT_R16G16_UNORM,
-    // Experimental (for Y416 and mutant P016/P010)
-    VK_FORMAT_R16G16B16A16_UNORM,
-    VK_FORMAT_R16G16_SFLOAT,
 };
 
 const GrVkCaps::FormatInfo& GrVkCaps::getFormatInfo(VkFormat format) const {
@@ -1050,15 +1044,11 @@ static GrPixelConfig get_yuva_config(VkFormat vkFormat) {
             return kBGRA_8888_GrPixelConfig;
         case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
             return kRGBA_1010102_GrPixelConfig;
+        // Experimental (for P016 and P010)
         case VK_FORMAT_R16_UNORM:
             return kR_16_GrPixelConfig;
         case VK_FORMAT_R16G16_UNORM:
             return kRG_1616_GrPixelConfig;
-        // Experimental (for Y416 and mutant P016/P010)
-        case VK_FORMAT_R16G16B16A16_UNORM:
-            return kRGBA_16161616_GrPixelConfig;
-        case VK_FORMAT_R16G16_SFLOAT:
-            return kRG_half_GrPixelConfig;
         default:
             return kUnknown_GrPixelConfig;
     }
@@ -1121,15 +1111,11 @@ static bool format_color_type_valid_pair(VkFormat vkFormat, GrColorType colorTyp
             return VK_FORMAT_R32G32B32A32_SFLOAT == vkFormat;
         case GrColorType::kRGB_ETC1:
             return VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK == vkFormat;
+        // Experimental (for P016 and P010)
         case GrColorType::kR_16:
             return VK_FORMAT_R16_UNORM == vkFormat;
         case GrColorType::kRG_1616:
             return VK_FORMAT_R16G16_UNORM == vkFormat;
-        // Experimental (for Y416 and mutant P016/P010)
-        case GrColorType::kRGBA_16161616:
-            return VK_FORMAT_R16G16B16A16_UNORM == vkFormat;
-        case GrColorType::kRG_half:
-            return VK_FORMAT_R16G16_SFLOAT == vkFormat;
     }
     SK_ABORT("Unknown color type");
     return false;
