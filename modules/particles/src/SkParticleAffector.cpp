@@ -481,8 +481,7 @@ public:
     void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
             fRandomValue->setRandom(&ps[i].fRandom);
-            SkSL::Interpreter::Run(fByteCode.get(), fMain, (SkSL::Interpreter::Value*)&ps[i].fAge,
-                                   nullptr, (SkSL::Interpreter::Value*)&params, 2);
+            SkSL::Interpreter::Run(fByteCode.get(), fMain, &ps[i].fAge, nullptr, 1, &params, 2);
         }
     }
 

@@ -425,10 +425,8 @@ public:
             ctx->main = ctx->byteCode->fFunctions[0].get();
             ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
                 auto ctx = (InterpreterCtx*)arg;
-                SkSL::Interpreter::VecRun(ctx->byteCode.get(), ctx->main,
-                                            (SkSL::Interpreter::Value*)ctx->rgba,
-                                            nullptr, active_pixels,
-                                            (SkSL::Interpreter::Value*)ctx->inputs, ctx->ninputs);
+                SkSL::Interpreter::Run(ctx->byteCode.get(), ctx->main, ctx->rgba, nullptr,
+                                       active_pixels, ctx->inputs, ctx->ninputs);
             };
             rec.fPipeline->append(SkRasterPipeline::callback, ctx);
         }

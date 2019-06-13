@@ -83,7 +83,7 @@ public:
      * outResult must be a pointer to a region of sufficient size to hold the function's return
      * value.
      */
-    virtual void call(Interpreter::Value* arguments, Interpreter::Value* outResult) {
+    virtual void call(void* arguments, void* outResult) {
         SkASSERT(false);
     }
 

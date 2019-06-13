@@ -361,8 +361,8 @@ static T vec_mod(T a, T b) {
     return a - skvx::trunc(a / b) * b;
 }
 
-void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack, Value* outReturn,
-              I32 initMask, VValue globals[], int globalCount) {
+void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack,
+              int32_t* outReturn, I32 initMask, VValue globals[], int globalCount) {
     VValue* sp = stack + f->fParameterCount + f->fLocalCount - 1;
 
     auto POP =  [&]           { SkASSERT(sp     >= stack); return *(sp--); };
@@ -443,8 +443,8 @@ void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack
                 ExternalValue* v = byteCode->fExternalValues[target];
                 sp -= argumentCount - 1;
 
-                Value tmpArgs[4];
-                Value tmpReturn[4];
+                int32_t tmpArgs[4];
+                int32_t tmpReturn[4];
                 SkASSERT(argumentCount <= (int)SK_ARRAY_COUNT(tmpArgs));
                 SkASSERT(returnCount <= (int)SK_ARRAY_COUNT(tmpReturn));
 
@@ -452,11 +452,11 @@ void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack
                 for (int i = 0; i < VecWidth; ++i) {
                     if (m[i]) {
                         for (int j = 0; j < argumentCount; ++j) {
-                            tmpArgs[j].fSigned = sp[j].fSigned[i];
+                            tmpArgs[j] = sp[j].fSigned[i];
                         }
                         v->call(tmpArgs, tmpReturn);
                         for (int j = 0; j < returnCount; ++j) {
-                            sp[j].fSigned[i] = tmpReturn[j].fSigned;
+                            sp[j].fSigned[i] = tmpReturn[j];
                         }
                     }
                 }
@@ -741,7 +741,7 @@ void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack
                         for (int i = 0; i < count; ++i) {
                             for (int j = 0; j < VecWidth; ++j) {
                                 if (m[j]) {
-                                    outReturn[count * j].fSigned = src->fSigned[j];
+                                    outReturn[count * j] = src->fSigned[j];
                                 }
                             }
                             ++outReturn;
@@ -983,8 +983,9 @@ void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack
     }
 }
 
-void VecRun(const ByteCode* byteCode, const ByteCodeFunction* f, Value args[], Value* outReturn,
-            int N, Value uniforms[], int uniformCount) {
+void Run(const ByteCode* byteCode, const ByteCodeFunction* f,
+         void* args, void* outReturn, int N,
+         const void* uniforms, int uniformCount) {
 #ifdef TRACE
     disassemble(f);
 #endif
@@ -997,9 +998,13 @@ void VecRun(const ByteCode* byteCode, const ByteCodeFunction* f, Value args[], V
     VValue smallGlobals[32];
     VValue* globals = smallGlobals;
     SkASSERT((int)SK_ARRAY_COUNT(smallGlobals) >= byteCode->fGlobalCount);
+    int32_t* intUniforms = (int32_t*)uniforms;
     for (uint8_t slot : byteCode->fInputSlots) {
-        globals[slot].fUnsigned = (uniforms++)->fUnsigned;
+        globals[slot].fSigned = *intUniforms++;
     }
+
+    int32_t* intArgs = (int32_t*)args;
+    int32_t* intOut  = (int32_t*)outReturn;
 
     while (N) {
         VValue* stack = smallStack;
@@ -1009,9 +1014,9 @@ void VecRun(const ByteCode* byteCode, const ByteCodeFunction* f, Value args[], V
 
         // Transpose args into stack
         {
-            uint32_t* src = (uint32_t*)args;
+            int32_t* src = intArgs;
             for (int i = 0; i < w; ++i) {
-                uint32_t* dst = (uint32_t*)stack + i;
+                int32_t* dst = (int32_t*)stack + i;
                 for (int j = f->fParameterCount; j > 0; --j) {
                     *dst = *src++;
                     dst += VecWidth;
@@ -1020,13 +1025,13 @@ void VecRun(const ByteCode* byteCode, const ByteCodeFunction* f, Value args[], V
         }
 
         auto mask = w > gLanes;
-        innerRun(byteCode, f, stack, outReturn, mask, globals, byteCode->fGlobalCount);
+        innerRun(byteCode, f, stack, intOut, mask, globals, byteCode->fGlobalCount);
 
         // Transpose out parameters back
         {
-            uint32_t* dst = (uint32_t*)args;
+            int32_t* dst = intArgs;
             for (int i = 0; i < w; ++i) {
-                uint32_t* src = (uint32_t*)stack + i;
+                int32_t* src = (int32_t*)stack + i;
                 for (const auto& p : f->fParameters) {
                     if (p.fIsOutParameter) {
                         for (int j = p.fSlotCount; j > 0; --j) {
@@ -1041,14 +1046,9 @@ void VecRun(const ByteCode* byteCode, const ByteCodeFunction* f, Value args[], V
             }
         }
 
-        args += f->fParameterCount * w;
-        outReturn += f->fReturnCount * w;
+        intArgs += f->fParameterCount * w;
+        intOut += f->fReturnCount * w;
     }
-}
-
-void Run(const ByteCode* byteCode, const ByteCodeFunction* f, Value args[], Value* outReturn,
-         Value uniforms[], int uniformCount) {
-    VecRun(byteCode, f, args, outReturn, 1, uniforms, uniformCount);
 }
 
 } // namespace Interpreter
