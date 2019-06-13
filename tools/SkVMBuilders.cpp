@@ -138,33 +138,23 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
     skvm::Arg src = arg(0),
               dst = arg(1);
 
-    auto load = [&](skvm::Arg ptr,
-                    skvm::I32* rb, skvm::I32* ga, skvm::I32* a) {
-        skvm::I32 rgba = load32(ptr);
-        *rb = extract(rgba, 0, splat(0x00ff00ff));
-        *ga = extract(rgba, 8, splat(0x00ff00ff));
-        * a = shr    (rgba, 24);
-    };
+    // The s += d*invA adds won't overflow,
+    // so we don't have to unpack s beyond grabbing the alpha channel.
+    skvm::I32 s = load32(src),
+              a = shr(s, 24);
 
-    skvm::I32 rb, ga, a;
-    load(src, &rb, &ga, &a);
+    // We'll use the same approximation math as above, this time making sure to
+    // use both i16 multiplies to our benefit, one for r/g, the other for b/a.
+    skvm::I32 ax2    = pack(a,a,16),
+              invAx2 = sub_16x2(splat(0x01000100), ax2);
 
-    skvm::I32 ax2    = pack(a,a, 16),
-              invAx2 = sub_16x2(splat(0x01000100/*256 x2*/), ax2);
+    skvm::I32 d   = load32(dst),
+              rb = extract(d, 0, splat(0x00ff00ff)),
+              ga = extract(d, 8, splat(0x00ff00ff));
 
-    skvm::I32 drb, dga, da;
-    load(dst, &drb, &dga, &da);
+    rb = shr_16x2(mul_16x2(rb, invAx2), 8);  // Put the high 8 bits back in the low lane.
+    ga =          mul_16x2(ga, invAx2);      // Keep the high 8 bits up high...
+    ga = bit_and(ga, splat(0xff00ff00));     // ...and mask off the low bits.
 
-    // Same approximation as above,
-    // but this time we make sure to use both i16 multiplies to our benefit,
-    // one for r/g, the other for b/a simultaneously.
-
-    skvm::I32 RB = shr_16x2(mul_16x2(drb, invAx2), 8),  // 8 high bits of results shifted back down.
-              GA =          mul_16x2(dga, invAx2)    ;  // Keep high bits of results in high lanes,
-    GA = bit_and(GA, splat(0xff00ff00));                // and mask off any low bits remaining.
-
-    rb = add(    rb    , RB);   // src += dst*invA
-    ga = add(shl(ga, 8), GA);
-
-    store32(dst, bit_or(rb,ga));
+    store32(dst, add(s, bit_or(rb, ga)));
 }
