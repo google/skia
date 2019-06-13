@@ -967,25 +967,32 @@ public:
     */
     sk_sp<SkImage> makeRasterImage() const;
 
-    /** Creates filtered SkImage. filter processes original SkImage, potentially changing
-        color, position, and size. subset is the bounds of original SkImage processed
-        by filter. clipBounds is the expected bounds of the filtered SkImage. outSubset
-        is required storage for the actual bounds of the filtered SkImage. offset is
-        required storage for translation of returned SkImage.
+    /** Creates filtered SkImage. filter processes original SkImage, potentially
+        changing color, position, and size. subset is the bounds of original
+        SkImage processed by filter. Note that for pixel-moving filters, this
+        subset may not be strictly enforced, particularly for edge clamping.
+        Some portions of the input image that are outside subset might be used
+        as input and pulled into the clipBounds. clipBounds is the expected
+        bounds of the filtered SkImage. outSubset is required storage for the
+        actual bounds of the filtered SkImage. offset is required storage for
+        translation of returned SkImage.
 
-        Returns nullptr if SkImage could not be created. If nullptr is returned, outSubset
-        and offset are undefined.
+        Returns nullptr if SkImage could not be created. If nullptr is returned,
+        outSubset and offset are undefined.
 
-        Useful for animation of SkImageFilter that varies size from frame to frame.
-        Returned SkImage is created larger than required by filter so that GPU texture
-        can be reused with different sized effects. outSubset describes the valid bounds
-        of GPU texture returned. offset translates the returned SkImage to keep subsequent
-        animation frames aligned with respect to each other.
+        Useful for animation of SkImageFilter that varies size from frame to
+        frame. Returned SkImage is created larger than required by filter so
+        that GPU texture can be reused with different sized effects. outSubset
+        describes the valid bounds of GPU texture returned. offset translates
+        the returned SkImage to keep the input and output aligned with each
+        other. For example, for pixel-moving filters, the returned outSubset
+        will be larger than the input, and offset will indicate how to translate
+        the output to re-align it with the input.
 
         @param context     the GrContext in play - if it exists
         @param filter      how SkImage is sampled when transformed
         @param subset      bounds of SkImage processed by filter
-        @param clipBounds  expected bounds of filtered SkImage
+        @param clipBounds  expected output bounds of filtered SkImage
         @param outSubset   storage for returned SkImage bounds
         @param offset      storage for returned SkImage translation
         @return            filtered SkImage, or nullptr
