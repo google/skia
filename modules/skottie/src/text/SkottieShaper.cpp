@@ -7,16 +7,41 @@
 
 #include "modules/skottie/src/text/SkottieShaper.h"
 
-#include "include/core/SkFontMetrics.h"
 #include "include/core/SkTextBlob.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skshaper/include/SkShaper.h"
+#include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"
 
 #include <limits.h>
 
 namespace skottie {
 namespace {
+
+SkRect ComputeBlobBounds(const sk_sp<SkTextBlob>& blob) {
+    auto bounds = SkRect::MakeEmpty();
+
+    if (!blob) {
+        return bounds;
+    }
+
+    SkAutoSTArray<16, SkRect> glyphBounds;
+
+    SkTextBlobRunIterator it(blob.get());
+
+    for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
+        glyphBounds.reset(SkToInt(it.glyphCount()));
+        it.font().getBounds(it.glyphs(), it.glyphCount(), glyphBounds.get(), nullptr);
+
+        SkASSERT(it.positioning() == SkTextBlobRunIterator::kFull_Positioning);
+        for (uint32_t i = 0; i < it.glyphCount(); ++i) {
+            bounds.join(glyphBounds[i].makeOffset(it.pos()[i * 2    ],
+                                                  it.pos()[i * 2 + 1]));
+        }
+    }
+
+    return bounds;
+}
 
 // Helper for interfacing with SkShaper: buffers shaper-fed runs and performs
 // per-line position adjustments (for external line breaking, horizontal alignment, etc).
@@ -43,19 +68,10 @@ public:
 
         fCurrentPosition = fOffset;
         fPendingLineAdvance  = { 0, 0 };
-
-        fLastLineDescent = 0;
     }
 
     void runInfo(const RunInfo& info) override {
         fPendingLineAdvance += info.fAdvance;
-
-        SkFontMetrics metrics;
-        info.fFont.getMetrics(&metrics);
-        if (!fLineCount) {
-            fFirstLineAscent = SkTMin(fFirstLineAscent, metrics.fAscent);
-        }
-        fLastLineDescent = SkTMax(fLastLineDescent, metrics.fDescent);
     }
 
     void commitRunInfo() override {}
@@ -100,14 +116,14 @@ public:
                         fLineGlyphs.get()   + run_offset,
                         fLinePos.get()      + run_offset,
                         fLineClusters.get() + run_offset,
-                        fLineCount);
+                        fLineIndex);
             run_offset += rec.fGlyphCount;
         }
 
-        fLineCount++;
+        fLineIndex++;
     }
 
-    Shaper::Result finalize(float* shaped_height) {
+    Shaper::Result finalize() {
         if (!(fDesc.fFlags & Shaper::Flags::kFragmentGlyphs)) {
             // All glyphs are pending in a single blob.
             SkASSERT(fResult.fFragments.empty());
@@ -115,26 +131,21 @@ public:
             fResult.fFragments.push_back({fBuilder.make(), {fBox.x(), fBox.y()}, 0, false});
         }
 
-        // By default, first line is vertically-aligned on a baseline of 0.
-        // The content height considered for vertical alignment is the distance between the first
-        // line top (ascent) to the last line bottom (descent).
-        const auto content_height = fLastLineDescent - fFirstLineAscent +
-                                    fDesc.fLineHeight * (fLineCount > 0 ? fLineCount - 1 : 0ul);
-
+        // By default, first line is vertical-aligned on a baseline of 0.
         // Perform additional adjustments based on VAlign.
         float v_offset = 0;
         switch (fDesc.fVAlign) {
         case Shaper::VAlign::kTop:
-            v_offset = -fFirstLineAscent;
+            v_offset = fBox.fTop - fResult.computeBounds().fTop;
             break;
         case Shaper::VAlign::kTopBaseline:
             // Default behavior.
             break;
         case Shaper::VAlign::kCenter:
-            v_offset = -fFirstLineAscent + (fBox.height() - content_height) * 0.5f;
+            v_offset = fBox.centerY() - fResult.computeBounds().centerY();
             break;
         case Shaper::VAlign::kBottom:
-            v_offset = -fFirstLineAscent + (fBox.height() - content_height);
+            v_offset = fBox.fBottom - fResult.computeBounds().fBottom;
             break;
         case Shaper::VAlign::kResizeToFit:
             SkASSERT(false);
@@ -145,10 +156,6 @@ public:
             for (auto& fragment : fResult.fFragments) {
                 fragment.fPos.fY += v_offset;
             }
-        }
-
-        if (shaped_height) {
-            *shaped_height = content_height;
         }
 
         return std::move(fResult);
@@ -241,17 +248,14 @@ private:
     SkPoint  fCurrentPosition{ 0, 0 };
     SkPoint  fOffset{ 0, 0 };
     SkVector fPendingLineAdvance{ 0, 0 };
-    uint32_t fLineCount = 0;
-    float    fFirstLineAscent = 0,
-             fLastLineDescent = 0;
+    uint32_t fLineIndex = 0;
 
     const char* fUTF8 = nullptr; // only valid during shapeLine() calls
 
     Shaper::Result fResult;
 };
 
-Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
-                         const SkRect& box, float* shaped_height = nullptr) {
+Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc, const SkRect& box) {
     SkASSERT(desc.fVAlign != Shaper::VAlign::kResizeToFit);
 
     const auto& is_line_break = [](SkUnichar uch) {
@@ -272,7 +276,7 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
     }
     blobMaker.shapeLine(line_start, ptr);
 
-    return blobMaker.finalize(shaped_height);
+    return blobMaker.finalize();
 }
 
 Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc,
@@ -303,8 +307,8 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
         desc.fTextSize   = try_scale * orig_desc.fTextSize;
         desc.fLineHeight = try_scale * orig_desc.fLineHeight;
 
-        float res_height = 0;
-        auto res = ShapeImpl(txt, desc, box, &res_height);
+        auto res = ShapeImpl(txt, desc, box);
+        auto res_height = res.computeBounds().height();
 
         if (res_height > box.height()) {
             out_scale = try_scale;
@@ -342,6 +346,17 @@ Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const Sk
     return (desc.fVAlign == VAlign::kResizeToFit)
             ? ShapeToFit(txt, desc, box)
             : ShapeImpl(txt, desc, box);
+}
+
+SkRect Shaper::Result::computeBounds() const {
+    auto bounds = SkRect::MakeEmpty();
+
+    for (const auto& fragment : fFragments) {
+        bounds.join(ComputeBlobBounds(fragment.fBlob).makeOffset(fragment.fPos.x(),
+                                                                 fragment.fPos.y()));
+    }
+
+    return bounds;
 }
 
 } // namespace skottie
