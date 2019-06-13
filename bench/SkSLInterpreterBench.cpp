@@ -44,9 +44,9 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
-            SkSL::Interpreter::VecRun(fByteCode.get(), fMain,
-                                      (SkSL::Interpreter::Value*)fPixels.data(), nullptr, fCount,
-                                      nullptr, 0);
+            SkSL::Interpreter::Run(fByteCode.get(), fMain,
+                                   fPixels.data(), nullptr, fCount,
+                                   nullptr, 0);
         }
     }
 
@@ -169,11 +169,9 @@ protected:
         }
 
         // Trigger one run now to check correctness
-        SkSL::Interpreter::VecRun(fByteCode.get(), fMain,
-                                  (SkSL::Interpreter::Value*)fSrc.data(),
-                                  (SkSL::Interpreter::Value*)fDst.data(),
-                                  fGroups,
-                                  nullptr, 0);
+        SkSL::Interpreter::Run(fByteCode.get(), fMain,
+                               fSrc.data(), fDst.data(), fGroups,
+                               nullptr, 0);
         for (int i = 0; i < fGroups; ++i) {
             for (int j = 1; j < fValues; ++j) {
                 SkASSERT(fDst[i * fValues + j] >= fDst[i * fValues + j - 1]);
@@ -183,11 +181,9 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
-            SkSL::Interpreter::VecRun(fByteCode.get(), fMain,
-                                      (SkSL::Interpreter::Value*)fSrc.data(),
-                                      (SkSL::Interpreter::Value*)fDst.data(),
-                                      fGroups,
-                                      nullptr, 0);
+            SkSL::Interpreter::Run(fByteCode.get(), fMain,
+                                   fSrc.data(), fDst.data(), fGroups,
+                                   nullptr, 0);
         }
     }
 

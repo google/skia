@@ -16,38 +16,14 @@ struct ByteCode;
 struct ByteCodeFunction;
 
 namespace Interpreter {
-
-    union Value {
-        Value() {}
-
-        Value(float f)
-        : fFloat(f) {}
-
-        Value(int32_t s)
-        : fSigned(s) {}
-
-        Value(uint32_t u)
-        : fUnsigned(u) {}
-
-        Value(bool b)
-        : fBool(b) {}
-
-        float fFloat;
-        int32_t fSigned;
-        uint32_t fUnsigned;
-        bool fBool;
-    };
-
     /**
      * Invokes the specified function with the given arguments. 'out' and 'inout' parameters will
      * result in the 'args' array being modified. The return value is stored in 'outReturn' (may be
      * null, in which case the return value is discarded).
      */
-    void Run(const ByteCode*, const ByteCodeFunction*, Value args[], Value* outReturn,
-             Value uniforms[], int uniformCount);
-
-    void VecRun(const ByteCode*, const ByteCodeFunction*, Value args[], Value* outReturn,
-                int N, Value uniforms[], int uniformCount);
+    void Run(const ByteCode*, const ByteCodeFunction*,
+             void* args, void* outReturn, int N,
+             const void* uniforms, int uniformCount);
 
     /**
      * Print bytecode disassembly to stdout.
