@@ -74,9 +74,11 @@ static inline VkFormat attrib_type_to_vkformat(GrVertexAttribType type) {
             return VK_FORMAT_R32_SINT;
         case kUint_GrVertexAttribType:
             return VK_FORMAT_R32_UINT;
-        // Experimental (for P016 and P010)
         case kUShort_norm_GrVertexAttribType:
             return VK_FORMAT_R16_UNORM;
+        // Experimental (for Y416)
+        case kUShort4_norm_GrVertexAttribType:
+            return VK_FORMAT_R16G16B16A16_UNORM;
     }
     SK_ABORT("Unknown vertex attrib type");
     return VK_FORMAT_UNDEFINED;
