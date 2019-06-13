@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrSurfaceContext.h"
 
+#include "src/gpu/GrDataUtils.h"
 #include "include/private/GrAuditTrail.h"
 #include "include/private/GrOpList.h"
 #include "include/private/GrRecordingContext.h"
@@ -224,71 +225,52 @@ bool GrSurfaceContext::readPixelsImpl(GrContext* direct, int left, int top, int 
                                        buffer, rowBytes, flags);
     }
 
-    bool convert = unpremul || needColorConversion;
-
     bool flip = srcProxy->origin() == kBottomLeft_GrSurfaceOrigin;
-    if (flip) {
-        top = srcSurface->height() - top - height;
-    }
+    GrCaps::IntermediateColorType allowedColorType =
+            caps->supportedReadPixelsColorType(srcProxy->config(), dstColorType);
 
-    GrColorType allowedColorType = caps->supportedReadPixelsColorType(srcProxy->config(),
-                                                                      dstColorType);
-    convert = convert || (dstColorType != allowedColorType);
+    bool convert = unpremul || needColorConversion || flip ||
+                   (dstColorType != allowedColorType.fColorType) ||
+                   allowedColorType.fSwizzle != GrSwizzle::RGBA();
 
-    SkAutoPixmapStorage tempPixmap;
-    SkPixmap finalPixmap;
+    std::unique_ptr<char[]> tmpPixels;
+    GrPixelInfo tmpInfo;
+    GrPixelInfo dstInfo;
     if (convert) {
-        SkColorType srcSkColorType = GrColorTypeToSkColorType(allowedColorType);
-        SkColorType dstSkColorType = GrColorTypeToSkColorType(dstColorType);
-        bool srcAlwaysOpaque = SkColorTypeIsAlwaysOpaque(srcSkColorType);
-        bool dstAlwaysOpaque = SkColorTypeIsAlwaysOpaque(dstSkColorType);
-        if (kUnknown_SkColorType == srcSkColorType || kUnknown_SkColorType == dstSkColorType) {
-            return false;
-        }
-        auto tempAT = srcAlwaysOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-        auto tempII = SkImageInfo::Make(width, height, srcSkColorType, tempAT,
-                                        this->colorSpaceInfo().refColorSpace());
-        SkASSERT(!unpremul || !dstAlwaysOpaque);
-        auto finalAT = (srcAlwaysOpaque || dstAlwaysOpaque)
-                               ? kOpaque_SkAlphaType
-                               : unpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
-        auto finalII =
-                SkImageInfo::Make(width, height, dstSkColorType, finalAT, sk_ref_sp(dstColorSpace));
-        if (!SkImageInfoValidConversion(finalII, tempII)) {
-            return false;
-        }
-        if (!tempPixmap.tryAlloc(tempII)) {
-            return false;
-        }
-        finalPixmap.reset(finalII, buffer, rowBytes);
-        buffer = tempPixmap.writable_addr();
-        rowBytes = tempPixmap.rowBytes();
-        // Chrome msan bots require this.
-        sk_bzero(buffer, tempPixmap.computeByteSize());
+        tmpInfo.fColorInfo.fColorType = allowedColorType.fColorType;
+        tmpInfo.fColorInfo.fAlphaType = kPremul_SkAlphaType;
+        tmpInfo.fColorInfo.fColorSpace = this->colorSpaceInfo().colorSpace();
+        tmpInfo.fOrigin = srcProxy->origin();
+        tmpInfo.fRowBytes = GrColorTypeBytesPerPixel(allowedColorType.fColorType) * width;
+
+        dstInfo.fColorInfo.fColorType = dstColorType;
+        dstInfo.fColorInfo.fAlphaType = unpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
+        dstInfo.fColorInfo.fColorSpace = dstColorSpace;
+        dstInfo.fOrigin = kTopLeft_GrSurfaceOrigin;
+        dstInfo.fRowBytes = rowBytes;
+
+        dstInfo.fWidth  = tmpInfo.fWidth  = width;
+        dstInfo.fHeight = tmpInfo.fHeight = height;
+
+        size_t size = tmpInfo.fRowBytes * height;
+        tmpPixels.reset(new char[size]);
+        // Chrome MSAN bots require this.
+        sk_bzero(tmpPixels.get(), size);
     }
 
     direct->priv().flushSurface(srcProxy);
 
-    if (!direct->priv().getGpu()->readPixels(srcSurface, left, top, width, height, allowedColorType,
-                                             buffer, rowBytes)) {
+    void* readDst = convert ? tmpPixels.get() : buffer;
+    size_t readRB = convert ? tmpInfo.fRowBytes : rowBytes;
+    top = flip ? srcSurface->height() - top - height : top;
+    if (!direct->priv().getGpu()->readPixels(srcSurface, left, top, width, height,
+            allowedColorType.fColorType, readDst, readRB)) {
         return false;
     }
 
-    if (flip) {
-        size_t trimRowBytes = GrColorTypeBytesPerPixel(allowedColorType) * width;
-        std::unique_ptr<char[]> row(new char[trimRowBytes]);
-        char* upper = reinterpret_cast<char*>(buffer);
-        char* lower = reinterpret_cast<char*>(buffer) + (height - 1) * rowBytes;
-        for (int y = 0; y < height / 2; ++y, upper += rowBytes, lower -= rowBytes) {
-            memcpy(row.get(), upper, trimRowBytes);
-            memcpy(upper, lower, trimRowBytes);
-            memcpy(lower, row.get(), trimRowBytes);
-        }
-    }
     if (convert) {
-        if (!tempPixmap.readPixels(finalPixmap)) {
-            return false;
-        }
+        return GrConvertPixels(dstInfo, GrSwizzle::RGBA(), buffer,
+                               tmpInfo, allowedColorType.fSwizzle, tmpPixels.get());
     }
     return true;
 }

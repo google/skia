@@ -307,7 +307,7 @@ public:
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
     bool surfaceSupportsReadPixels(const GrSurface*) const override;
-    GrColorType supportedReadPixelsColorType(GrPixelConfig, GrColorType) const override;
+    IntermediateColorType supportedReadPixelsColorType(GrPixelConfig, GrColorType) const override;
 
     /// Does ReadPixels support reading readConfig pixels from a FBO that is surfaceConfig?
     bool readPixelsSupported(GrPixelConfig surfaceConfig,

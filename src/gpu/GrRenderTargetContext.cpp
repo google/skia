@@ -1955,6 +1955,10 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
                 this->caps()->getConfigFromBackendFormat(backendFormat, info.colorType());
     }
     auto readCT = this->caps()->supportedReadPixelsColorType(configOfFinalContext, dstCT);
+#if 1
+    callback(context, nullptr, 0);
+    return;
+#else
     // Fail if we can't do a CPU conversion from readCT to dstCT.
     if (GrColorTypeToSkColorType(readCT) == kUnknown_SkColorType) {
         callback(context, nullptr, 0);
@@ -2018,6 +2022,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
     }
     return rtc->asyncReadPixels(SkIRect::MakeXYWH(x, y, info.width(), info.height()),
                                 info.colorType(), callback, context);
+#endif
 }
 
 GrRenderTargetContext::PixelTransferResult GrRenderTargetContext::transferPixels(
@@ -2031,6 +2036,9 @@ GrRenderTargetContext::PixelTransferResult GrRenderTargetContext::transferPixels
     if (fRenderTargetProxy->wrapsVkSecondaryCB()) {
         return {};
     }
+#if 1
+    return {};
+#else
     auto readCT = this->caps()->supportedReadPixelsColorType(fRenderTargetProxy->config(), dstCT);
     // Fail if we can't do a CPU conversion from readCT to dstCT.
     if (readCT != dstCT && (GrColorTypeToSkColorType(readCT) == kUnknown_SkColorType ||
@@ -2069,6 +2077,7 @@ GrRenderTargetContext::PixelTransferResult GrRenderTargetContext::transferPixels
                 };
     }
     return result;
+#endif
 }
 
 void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType colorType,
@@ -2200,6 +2209,10 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
     }
     GrPixelConfig planeConfig = kAlpha_8_GrPixelConfig;
     GrColorType planeColorType = GrColorType::kAlpha_8;
+#if 1
+    callback(context, nullptr, nullptr);
+    return;
+#else
     if (this->caps()->supportedReadPixelsColorType(planeConfig, planeColorType) !=
         GrColorType::kAlpha_8) {
         // TODO: Because there are issues with reading back/transferring A8 textures on GL, we are
@@ -2387,6 +2400,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
     flushInfo.fFinishedContext = finishContext;
     flushInfo.fFinishedProc = finishCallback;
     this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+#endif
 }
 
 GrSemaphoresSubmitted GrRenderTargetContext::flush(SkSurface::BackendSurfaceAccess access,

@@ -2613,6 +2613,7 @@ STAGE(swizzle, void* ctx) {
             case 'g': *o[i] = ig;   break;
             case 'b': *o[i] = ib;   break;
             case 'a': *o[i] = ia;   break;
+            case '0': *o[i] = F(0); break;
             case '1': *o[i] = F(1); break;
             default:                break;
         }
@@ -3809,6 +3810,7 @@ STAGE_PP(swizzle, void* ctx) {
             case 'g': *o[i] = ig;       break;
             case 'b': *o[i] = ib;       break;
             case 'a': *o[i] = ia;       break;
+            case '0': *o[i] = U16(0);   break;
             case '1': *o[i] = U16(255); break;
             default:                    break;
         }

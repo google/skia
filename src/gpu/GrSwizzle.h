@@ -22,8 +22,11 @@ public:
     constexpr GrSwizzle(const GrSwizzle&);
     constexpr GrSwizzle& operator=(const GrSwizzle& that);
 
+    static constexpr GrSwizzle Concat(const GrSwizzle& a, const GrSwizzle& b);
+
     /** Recreates a GrSwizzle from the output of asKey() */
     constexpr void setFromKey(uint16_t key);
+
     constexpr bool operator==(const GrSwizzle& that) const { return fKey == that.fKey; }
     constexpr bool operator!=(const GrSwizzle& that) const { return !(*this == that); }
 
@@ -55,9 +58,10 @@ private:
     static constexpr int CToI(char c);
     static constexpr char IToC(int idx);
 
-    // The normal component swizzles map to key values 0-3. We set the key for constant 1 to the
-    // next int.
-    static const int k1KeyValue = 4;
+    // The normal component swizzles map to key values 0-3. We set the constants for 0 and 1 to the
+    // next ints.
+    static const int k0KeyValue = 4;
+    static const int k1KeyValue = 5;
     char fSwiz[5];
     uint16_t fKey;
 };
@@ -123,6 +127,7 @@ constexpr int GrSwizzle::CToI(char c) {
         case 'g': return (GrColor_SHIFT_G / 8);
         case 'b': return (GrColor_SHIFT_B / 8);
         case 'a': return (GrColor_SHIFT_A / 8);
+        case '0': return k0KeyValue;
         case '1': return k1KeyValue;
         default:  return -1;
     }
@@ -134,9 +139,24 @@ constexpr char GrSwizzle::IToC(int idx) {
         case GrColor_SHIFT_G  : return 'g';
         case GrColor_SHIFT_B  : return 'b';
         case GrColor_SHIFT_A  : return 'a';
+        case (k0KeyValue * 8) : return '0';
         case (k1KeyValue * 8) : return '1';
         default:                return -1;
     }
 }
+
+constexpr GrSwizzle GrSwizzle::Concat(const GrSwizzle& a, const GrSwizzle& b) {
+    char swiz[4] {};
+    for (int i = 0; i < 4; ++i) {
+        int idx = (b.fKey >> (4U * i)) & 0xfU;
+        switch (idx) {
+            case k0KeyValue: swiz[i] = '0';          break;
+            case k1KeyValue: swiz[i] = '1';          break;
+            default:         swiz[i] = a.fSwiz[idx]; break;
+        }
+    }
+    return GrSwizzle(swiz);
+}
+
 
 #endif

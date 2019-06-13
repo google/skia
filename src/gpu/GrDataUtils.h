@@ -8,6 +8,7 @@
 #ifndef GrDataUtils_DEFINED
 #define GrDataUtils_DEFINED
 
+#include "GrSwizzle.h"
 #include "include/core/SkColor.h"
 #include "include/private/GrTypesPriv.h"
 
@@ -32,5 +33,22 @@ void GrFillInData(GrCompression, GrPixelConfig,
                   int baseWidth, int baseHeight,
                   const SkTArray<size_t>& individualMipOffsets,
                   char* dest, const SkColor4f& color);
+
+struct GrColorInfo {
+    GrColorType fColorType = GrColorType::kUnknown;
+    SkColorSpace* fColorSpace = nullptr;
+    SkAlphaType fAlphaType = kPremul_SkAlphaType;
+};
+
+struct GrPixelInfo {
+    GrColorInfo fColorInfo = {};
+    GrSurfaceOrigin fOrigin = kTopLeft_GrSurfaceOrigin;
+    int fWidth = 0;
+    int fHeight = 0;
+    size_t fRowBytes = 0;
+};
+
+bool GrConvertPixels(const GrPixelInfo& dstInfo, GrSwizzle dstSwizzle, void* dst,
+                     const GrPixelInfo& srcInfo, GrSwizzle srcSwizzle, const void* src);
 
 #endif

@@ -200,6 +200,11 @@ public:
      */
     virtual bool surfaceSupportsReadPixels(const GrSurface*) const = 0;
 
+    struct IntermediateColorType {
+        GrSwizzle fSwizzle;
+        GrColorType fColorType;
+    };
+
     /**
      * Given a dst pixel config and a src color type what color type must the caller coax the
      * the data into in order to use GrGpu::writePixels().
@@ -213,10 +218,8 @@ public:
      * Given a src pixel config and a dst color type what color type must the caller read to using
      * GrGpu::readPixels() and then coax into dstColorType.
      */
-    virtual GrColorType supportedReadPixelsColorType(GrPixelConfig config,
-                                                     GrColorType /*dstColorType*/) const {
-        return GrPixelConfigToColorType(config);
-    }
+    virtual IntermediateColorType supportedReadPixelsColorType(GrPixelConfig config,
+                                                               GrColorType /*dstColorType*/) const;
 
     /** Are transfer buffers (to textures and from surfaces) supported? */
     bool transferBufferSupport() const { return fTransferBufferSupport; }

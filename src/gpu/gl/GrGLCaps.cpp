@@ -1333,13 +1333,6 @@ bool GrGLCaps::getExternalFormat(GrPixelConfig surfaceConfig, GrPixelConfig memo
     bool surfaceIsAlphaOnly = GrPixelConfigIsAlphaOnly(surfaceConfig);
     bool memoryIsAlphaOnly = GrPixelConfigIsAlphaOnly(memoryConfig);
 
-    // We don't currently support moving RGBA data into and out of ALPHA surfaces. It could be
-    // made to work. However, this is complicated by the use of GL_RED for alpha-only textures but
-    // is not needed currently.
-    if (surfaceIsAlphaOnly && !memoryIsAlphaOnly) {
-        return false;
-    }
-
     *externalFormat = fConfigTable[memoryConfig].fFormats.fExternalFormat[usage];
     *externalType = fConfigTable[memoryConfig].fFormats.fExternalType;
 
@@ -3033,30 +3026,31 @@ bool GrGLCaps::surfaceSupportsReadPixels(const GrSurface* surface) const {
     return true;
 }
 
-GrColorType GrGLCaps::supportedReadPixelsColorType(GrPixelConfig config,
-                                                   GrColorType dstColorType) const {
+GrCaps::IntermediateColorType GrGLCaps::supportedReadPixelsColorType(GrPixelConfig config,
+                                                                      GrColorType dstColorType) const {
     // For now, we mostly report the read back format that is required by the ES spec without
     // checking for implementation allowed formats or consider laxer rules in non-ES GL. TODO: Relax
     // this as makes sense to increase performance and correctness.
+    auto swizzle = this->shaderCaps()->configTextureSwizzle(config);
     switch (fConfigTable[config].fFormatType) {
         case kNormalizedFixedPoint_FormatType:
             if (kRGB_888X_GrPixelConfig == config) {
-                return GrColorType::kRGB_888x;
+                return {swizzle, GrColorType::kRGB_888x};
             }
-            return GrColorType::kRGBA_8888;
+            return {swizzle, GrColorType::kRGBA_8888};
         case kFloat_FormatType:
             if ((kAlpha_half_GrPixelConfig == config ||
                  kAlpha_half_as_Red_GrPixelConfig == config) &&
                 GrColorType::kAlpha_F16 == dstColorType) {
-                return GrColorType::kAlpha_F16;
+                return {swizzle, GrColorType::kAlpha_F16};
             }
             // And similar for full float RG.
             if (kRG_float_GrPixelConfig == config && GrColorType::kRG_F32 == dstColorType) {
-                return GrColorType::kRG_F32;
+                return {swizzle, GrColorType::kRG_F32};
             }
-            return GrColorType::kRGBA_F32;
+            return {swizzle, GrColorType::kRGBA_F32};
     }
-    return GrColorType::kUnknown;
+    return {GrSwizzle::RGBA(), GrColorType::kUnknown};
 }
 
 bool GrGLCaps::onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget& backendRT) const {
