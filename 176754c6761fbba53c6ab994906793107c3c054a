@@ -1,0 +1,222 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43e3e2ae_aef7e90c",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T17:19:26Z",
+      "side": 1,
+      "message": "Thanks, all these asserts and calls to this-\u003emethods make this very easy to reason through now.  The code reads just like the comments.  :)",
+      "revId": "176754c6761fbba53c6ab994906793107c3c054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "293c87e3_644a44ae",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T17:19:26Z",
+      "side": 1,
+      "message": "Is this easier to follow as\n\n\n   SkPath path;\n   if (scalerContext-\u003egetPath(this-\u003egetPackedID(), \u0026path)) {\n      this-\u003einstallPath(alloc, \u0026path);\n   } else {\n      this-\u003einstallPath(alloc, nullptr);\n   }\n\n?",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 42
+      },
+      "revId": "176754c6761fbba53c6ab994906793107c3c054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0bd1c86_420a3733",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T17:19:26Z",
+      "side": 1,
+      "message": "Can\u0027t we lean on setPath() to write this as\n\n  if (glyph-\u003esetPath(\u0026fAlloc, fContext.get()) {\n     fCachedGlyphPaths.add(...);\n     fPendingGlyphPaths.push_back(...)\n  }\n  return glyph-\u003epath();",
+      "range": {
+        "startLine": 566,
+        "startChar": 0,
+        "endLine": 574,
+        "endChar": 5
+      },
+      "revId": "176754c6761fbba53c6ab994906793107c3c054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12587025_c89840a5",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T17:19:26Z",
+      "side": 1,
+      "message": "Same here?",
+      "range": {
+        "startLine": 627,
+        "startChar": 6,
+        "endLine": 636,
+        "endChar": 17
+      },
+      "revId": "176754c6761fbba53c6ab994906793107c3c054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c411546_00fef985",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T17:19:26Z",
+      "side": 1,
+      "message": "Redundant?",
+      "range": {
+        "startLine": 92,
+        "startChar": 8,
+        "endLine": 92,
+        "endChar": 42
+      },
+      "revId": "176754c6761fbba53c6ab994906793107c3c054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2591ced6_63125cfe",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T17:19:26Z",
+      "side": 1,
+      "message": "Same?",
+      "range": {
+        "startLine": 99,
+        "startChar": 8,
+        "endLine": 99,
+        "endChar": 38
+      },
+      "revId": "176754c6761fbba53c6ab994906793107c3c054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03faa6ec_297ec30c",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T17:19:26Z",
+      "side": 1,
+      "message": "Do you think this idiom is coming up often enough that we want to make it its own method?\n\nIs it really dangerous to just make path() defined to return nullptr if !setPathHasBeenCalled()?",
+      "range": {
+        "startLine": 270,
+        "startChar": 12,
+        "endLine": 270,
+        "endChar": 76
+      },
+      "revId": "176754c6761fbba53c6ab994906793107c3c054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20cc3708_11fda8b2",
+        "filename": "src/core/SkStrike.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T17:19:26Z",
+      "side": 1,
+      "message": "Maybe mention that the path is sourced from the scaler context here?\n\nAs is kind of reads like this is the same as calling the other preparePath(glyph, nullptr)",
+      "revId": "176754c6761fbba53c6ab994906793107c3c054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbc7f476_79281e2d",
+        "filename": "src/core/SkStrike.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T17:19:26Z",
+      "side": 1,
+      "message": "This can\u0027t actually be what it does, can it?  Given all that protocol around paths and path data and stickiness, I don\u0027t think it\u0027s possible for something to promise that if a glyph doesn\u0027t have a path, this will add one?",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 73
+      },
+      "revId": "176754c6761fbba53c6ab994906793107c3c054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dafe5e9_2e00e3a9",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 948,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-13T17:19:26Z",
+      "side": 1,
+      "message": "Seems odd to call this twice?",
+      "range": {
+        "startLine": 947,
+        "startChar": 0,
+        "endLine": 948,
+        "endChar": 48
+      },
+      "revId": "176754c6761fbba53c6ab994906793107c3c054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
