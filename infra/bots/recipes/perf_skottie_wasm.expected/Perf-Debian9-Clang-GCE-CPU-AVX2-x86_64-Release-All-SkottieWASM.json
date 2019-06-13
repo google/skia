@@ -1,0 +1,78 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "cmd": [
+      "npm",
+      "install"
+    ],
+    "cwd": "[START_DIR]/cache/work/tools/skottie-wasm-perf",
+    "name": "npm install"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/lottie-samples"
+    ],
+    "infra_step": true,
+    "name": "list lottie files",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/LICENSE@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie1.json@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie2.json@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie3.json@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "node",
+      "[START_DIR]/cache/work/tools/skottie-wasm-perf/skottie-wasm.js",
+      "--input",
+      "[START_DIR]/lottie-samples/lottie1.json"
+    ],
+    "cwd": "[START_DIR]/cache/work/tools/skottie-wasm-perf",
+    "name": "Run skottie-wasm.js"
+  },
+  {
+    "cmd": [
+      "node",
+      "[START_DIR]/cache/work/tools/skottie-wasm-perf/skottie-wasm.js",
+      "--input",
+      "[START_DIR]/lottie-samples/lottie2.json"
+    ],
+    "cwd": "[START_DIR]/cache/work/tools/skottie-wasm-perf",
+    "name": "Run skottie-wasm.js (2)"
+  },
+  {
+    "cmd": [
+      "node",
+      "[START_DIR]/cache/work/tools/skottie-wasm-perf/skottie-wasm.js",
+      "--input",
+      "[START_DIR]/lottie-samples/lottie3.json"
+    ],
+    "cwd": "[START_DIR]/cache/work/tools/skottie-wasm-perf",
+    "name": "Run skottie-wasm.js (3)"
+  },
+  {
+    "name": "$result"
+  }
+]
