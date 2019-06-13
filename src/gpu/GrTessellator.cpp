@@ -2109,7 +2109,8 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
 void extract_boundary(EdgeList* boundary, Edge* e, SkPath::FillType fillType, SkArenaAlloc& alloc) {
     LOG("\nextracting boundary\n");
     bool down = apply_fill_type(fillType, e->fWinding);
-    while (e) {
+    Vertex* start = down ? e->fTop : e->fBottom;
+    do {
         e->fWinding = down ? 1 : -1;
         Edge* next;
         e->fLine.normalize();
@@ -2136,7 +2137,7 @@ void extract_boundary(EdgeList* boundary, Edge* e, SkPath::FillType fillType, Sk
         }
         disconnect(e);
         e = next;
-    }
+    } while (e && (down ? e->fTop : e->fBottom) != start);
 }
 
 // Stage 5b: Extract boundaries from mesh, simplify and stroke them into a new mesh.
