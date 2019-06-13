@@ -226,16 +226,17 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
                 GrSamplerState::WrapMode::kClampToBorder, GrSamplerState::WrapMode::kClampToBorder};
 
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
+        static constexpr auto kKernel = GrBicubicEffect::Kernel::kMitchell;
         if (kDomain_DomainMode == domainMode || (fDomainNeedsDecal && !clampToBorderSupport)) {
             GrTextureDomain::Mode wrapMode = fDomainNeedsDecal ? GrTextureDomain::kDecal_Mode
                                          : GrTextureDomain::kClamp_Mode;
             return GrBicubicEffect::Make(std::move(proxy), textureMatrix, kClampClamp, wrapMode,
-                                         wrapMode, kDir, this->alphaType(),
+                                         wrapMode, kKernel, kDir, this->alphaType(),
                                          kDomain_DomainMode == domainMode ? &domain : nullptr);
         } else {
             return GrBicubicEffect::Make(std::move(proxy), textureMatrix,
-                                         fDomainNeedsDecal ? kDecalDecal : kClampClamp, kDir,
-                                         this->alphaType());
+                                         fDomainNeedsDecal ? kDecalDecal : kClampClamp, kKernel,
+                                         kDir, this->alphaType());
         }
     }
 }

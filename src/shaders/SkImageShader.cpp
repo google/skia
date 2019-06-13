@@ -240,8 +240,9 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         // domainX and domainY will properly apply the decal effect with the texture domain used in
         // the bicubic filter if clamp to border was unsupported in hardware
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
+        static constexpr auto kKernel = GrBicubicEffect::Kernel::kMitchell;
         inner = GrBicubicEffect::Make(std::move(proxy), lmInverse, wrapModes, domainX, domainY,
-                                      kDir, fImage->alphaType());
+                                      kKernel, kDir, fImage->alphaType());
     } else {
         if (domainX != GrTextureDomain::kIgnore_Mode || domainY != GrTextureDomain::kIgnore_Mode) {
             SkRect domain = GrTextureDomain::MakeTexelDomain(

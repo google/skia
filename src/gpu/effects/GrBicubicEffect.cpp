@@ -20,8 +20,10 @@ public:
                               GrProcessorKeyBuilder* b) {
         const GrBicubicEffect& bicubicEffect = effect.cast<GrBicubicEffect>();
         b->add32(GrTextureDomain::GLDomain::DomainKey(bicubicEffect.domain()));
-        uint32_t bidir = bicubicEffect.direction() == GrBicubicEffect::Direction::kXY ? 1 : 0;
-        b->add32(bidir | (bicubicEffect.alphaType() << 1));
+        auto kernel = static_cast<uint32_t>(bicubicEffect.kernel());
+        SkASSERT((kernel & ~0b1U) == 0);
+        uint32_t bidir = bicubicEffect.direction() == GrBicubicEffect::Direction::kXY ? 0b10 : 0b00;
+        b->add32(kernel | bidir | (bicubicEffect.alphaType() << 2));
     }
 
 protected:
@@ -31,7 +33,7 @@ private:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
     UniformHandle fDimensions;
-    GrTextureDomain::GLDomain   fDomain;
+    GrTextureDomain::GLDomain fDomain;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
@@ -47,29 +49,48 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
 
-    /*
-     * Filter weights come from Don Mitchell & Arun Netravali's 'Reconstruction Filters in Computer
-     * Graphics', ACM SIGGRAPH Computer Graphics 22, 4 (Aug. 1988).
-     * ACM DL: http://dl.acm.org/citation.cfm?id=378514
-     * Free  : http://www.cs.utexas.edu/users/fussell/courses/cs384g/lectures/mitchell/Mitchell.pdf
-     *
-     * The authors define a family of cubic filters with two free parameters (B and C):
-     *
-     *            { (12 - 9B - 6C)|x|^3 + (-18 + 12B + 6C)|x|^2 + (6 - 2B)          if |x| < 1
-     * k(x) = 1/6 { (-B - 6C)|x|^3 + (6B + 30C)|x|^2 + (-12B - 48C)|x| + (8B + 24C) if 1 <= |x| < 2
-     *            { 0                                                               otherwise
-     *
-     * Various well-known cubic splines can be generated, and the authors select (1/3, 1/3) as their
-     * favorite overall spline - this is now commonly known as the Mitchell filter, and is the
-     * source of the specific weights below.
-     *
-     * This is GLSL, so the matrix is column-major (transposed from standard matrix notation).
-     */
-    fragBuilder->codeAppend("half4x4 kMitchellCoefficients = half4x4("
-                            " 1.0 / 18.0,  16.0 / 18.0,   1.0 / 18.0,  0.0 / 18.0,"
-                            "-9.0 / 18.0,   0.0 / 18.0,   9.0 / 18.0,  0.0 / 18.0,"
-                            "15.0 / 18.0, -36.0 / 18.0,  27.0 / 18.0, -6.0 / 18.0,"
-                            "-7.0 / 18.0,  21.0 / 18.0, -21.0 / 18.0,  7.0 / 18.0);");
+    if (bicubicEffect.kernel() == GrBicubicEffect::Kernel::kMitchell) {
+        /*
+         * Filter weights come from Don Mitchell & Arun Netravali's 'Reconstruction Filters in\
+         * Computer * Graphics', ACM SIGGRAPH Computer Graphics 22, 4 (Aug. 1988).
+         * ACM DL: http://dl.acm.org/citation.cfm?id=378514
+         * Free:
+         * http://www.cs.utexas.edu/users/fussell/courses/cs384g/lectures/mitchell/Mitchell.pdf
+         *
+         * The authors define a family of cubic filters with two free parameters (B and C):
+         *
+         *            { (12 - 9B - 6C)|x|^3 + (-18 + 12B + 6C)|x|^2 + (6 - 2B)          if |x| < 1
+         * k(x) = 1/6 { (-B - 6C)|x|^3 + (6B + 30C)|x|^2 + (-12B - 48C)|x| + (8B + 24C) if 1 <= |x| < 2
+         *            { 0                                                               otherwise
+         *
+         * Various well-known cubic splines can be generated, and the authors select (1/3, 1/3) as
+         * their favorite overall spline - this is now commonly known as the Mitchell filter, and
+         * is the source of the specific weights below.
+         *
+         * This is SkSL, so the matrix is column-major (transposed from standard matrix notation).
+         */
+        fragBuilder->codeAppend(
+                "half4x4 kCoefficients = half4x4("
+                " 1.0 / 18.0,  16.0 / 18.0,   1.0 / 18.0,  0.0 / 18.0,"
+                "-9.0 / 18.0,   0.0 / 18.0,   9.0 / 18.0,  0.0 / 18.0,"
+                "15.0 / 18.0, -36.0 / 18.0,  27.0 / 18.0, -6.0 / 18.0,"
+                "-7.0 / 18.0,  21.0 / 18.0, -21.0 / 18.0,  7.0 / 18.0);");
+    } else {
+        /*
+         * Centripetal variant of the Catmull-Rom spline.
+         *
+         * Catmull, Edwin; Rom, Raphael (1974). "A class of local interpolating splines". In
+         * Barnhill, Robert E.; Riesenfeld, Richard F. (eds.). Computer Aided Geometric Design.
+         * pp. 317–326.
+         */
+        SkASSERT(bicubicEffect.kernel() == GrBicubicEffect::Kernel::kCatmullRom);
+        fragBuilder->codeAppend(
+                "half4x4 kCoefficients = 0.5 * half4x4("
+                " 0,  2,  0,  0,"
+                "-1,  0,  1,  0,"
+                " 2, -5,  4, -1,"
+                "-1,  3, -3,  1);");
+    }
     fragBuilder->codeAppendf("float2 coord = %s - %s.xy * float2(0.5);", coords2D.c_str(), dims);
     // We unnormalize the coord in order to determine our fractional offset (f) within the texel
     // We then snap coord to a texel center and renormalize. The snap prevents cases where the
@@ -79,9 +100,9 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("coord = coord + (half2(0.5) - f) * %s.xy;", dims);
     if (bicubicEffect.direction() == GrBicubicEffect::Direction::kXY) {
         fragBuilder->codeAppend(
-                "half4 wx = kMitchellCoefficients * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
+                "half4 wx = kCoefficients * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
         fragBuilder->codeAppend(
-                "half4 wy = kMitchellCoefficients * half4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);");
+                "half4 wy = kCoefficients * half4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);");
         fragBuilder->codeAppend("half4 rowColors[4];");
         for (int y = 0; y < 4; ++y) {
             for (int x = 0; x < 4; ++x) {
@@ -108,7 +129,7 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
         // One of the dims.xy values will be zero. So v here selects the nonzero value of f.
         fragBuilder->codeAppend("half v = f.x + f.y;");
         fragBuilder->codeAppend("half v2 = v * v;");
-        fragBuilder->codeAppend("half4 w = kMitchellCoefficients * half4(1.0, v, v2, v2 * v);");
+        fragBuilder->codeAppend("half4 w = kCoefficients * half4(1.0, v, v2, v2 * v);");
         fragBuilder->codeAppend("half4 c[4];");
         for (int i = 0; i < 4; ++i) {
             SkString coord;
@@ -164,7 +185,7 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy, const SkMatrix& matrix,
                                  const SkRect& domain, const GrSamplerState::WrapMode wrapModes[2],
                                  GrTextureDomain::Mode modeX, GrTextureDomain::Mode modeY,
-                                 Direction direction, SkAlphaType alphaType)
+                                 Kernel kernel, Direction direction, SkAlphaType alphaType)
         : INHERITED{kGrBicubicEffect_ClassID,
                     ModulateForSamplerOptFlags(
                             proxy->config(),
@@ -174,6 +195,7 @@ GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy, const SkMatrix& ma
         , fTextureSampler(std::move(proxy),
                           GrSamplerState(wrapModes, GrSamplerState::Filter::kNearest))
         , fAlphaType(alphaType)
+        , fKernel(kernel)
         , fDirection(direction) {
     this->addCoordTransform(&fCoordTransform);
     this->setTextureSamplerCnt(1);
@@ -185,6 +207,7 @@ GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
         , fDomain(that.fDomain)
         , fTextureSampler(that.fTextureSampler)
         , fAlphaType(that.fAlphaType)
+        , fKernel(that.fKernel)
         , fDirection(that.fDirection) {
     this->addCoordTransform(&fCoordTransform);
     this->setTextureSamplerCnt(1);
@@ -214,6 +237,8 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
                                                            GrSamplerState::WrapMode::kClamp};
     SkAlphaType alphaType = d->fRandom->nextBool() ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
     Direction direction = Direction::kX;
+    auto kernel = d->fRandom->nextBool() ? GrBicubicEffect::Kernel::kMitchell
+                                         : GrBicubicEffect::Kernel::kCatmullRom;
     switch (d->fRandom->nextULessThan(3)) {
         case 0:
             direction = Direction::kX;
@@ -225,8 +250,8 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
             direction = Direction::kXY;
             break;
     }
-    return GrBicubicEffect::Make(d->textureProxy(texIdx), SkMatrix::I(), kClampClamp, direction,
-                                 alphaType);
+    return GrBicubicEffect::Make(d->textureProxy(texIdx), SkMatrix::I(), kClampClamp, kernel,
+                                 direction, alphaType);
 }
 #endif
 
