@@ -26,6 +26,7 @@ namespace skvm {
         shl, shr, sra,
         extract,
         pack,
+        bytes,
         to_f32, to_i32,
     };
 
@@ -114,6 +115,28 @@ namespace skvm {
 
         I32 extract(I32 x, int bits, I32 z);   // (x >> bits) & z
         I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits)
+
+        // Shuffle the bytes in x according to each nibble of control, as if
+        //
+        //    uint8_t bytes[] = {
+        //        0,
+        //        ((uint32_t)x      ) & 0xff,
+        //        ((uint32_t)x >>  8) & 0xff,
+        //        ((uint32_t)x >> 16) & 0xff,
+        //        ((uint32_t)x >> 24) & 0xff,
+        //    };
+        //    return (uint32_t)bytes[(control >>  0) & 0xf] <<  0
+        //         | (uint32_t)bytes[(control >>  4) & 0xf] <<  8
+        //         | (uint32_t)bytes[(control >>  8) & 0xf] << 16
+        //         | (uint32_t)bytes[(control >> 12) & 0xf] << 24;
+        //
+        // So, e.g.,
+        //    - bytes(x, 0x1111) splats the low byte of x to all four bytes
+        //    - bytes(x, 0x4321) is x, an identity
+        //    - bytes(x, 0x0000) is 0
+        //    - bytes(x, 0x0404) transforms an RGBA pixel into an A0A0 bit pattern.
+        //
+        I32 bytes(I32 x, int control);
 
         F32 to_f32(I32 x);
         I32 to_i32(F32 x);
