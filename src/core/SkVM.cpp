@@ -399,10 +399,6 @@ namespace skvm {
 
     #if defined(SKVM_JIT)
         struct Program::JIT : Xbyak::CodeGenerator {
-            size_t head_ends = 0,
-                   body_ends = 0,
-                   tail_ends = 0;
-
             // 8 float values in a ymm register.
             static constexpr int K = 8;
 
@@ -432,7 +428,6 @@ namespace skvm {
                 for (int i = 0; i < (int)instructions.size(); i++) {
                     if (i == loop) {
                         L("loop");
-                        this->head_ends = this->getSize();
                     }
                     const Instruction& inst = instructions[i];
                     Op  op = inst.op;
@@ -510,14 +505,12 @@ namespace skvm {
                     }
                 }
 
-                this->body_ends = this->getSize();
                 for (int i = 0; i < nargs; i++) {
                     add(arg[i], K*(int)strides[i]);
                 }
                 sub(N, K);
                 jne("loop");
 
-                this->tail_ends = this->getSize();
                 vzeroupper();
                 ret();
 
