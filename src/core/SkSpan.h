@@ -9,6 +9,7 @@
 #define SkSpan_DEFINED
 
 #include <cstddef>
+#include <string>
 #include <vector>
 
 template <typename T>
