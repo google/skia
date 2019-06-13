@@ -9,6 +9,7 @@
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkThreadID.h"
 #include "include/private/SkVx.h"
+#include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
 #include <string.h>
@@ -402,9 +403,16 @@ namespace skvm {
             // 8 float values in a ymm register.
             static constexpr int K = 8;
 
+            static bool Supported(int regs) {
+                return true
+                    && SkCpu::Supports(SkCpu::HSW)
+                    && regs < 16;
+            }
+
             JIT(const std::vector<Program::Instruction>& instructions, int regs, int loop,
                 size_t strides[], int nargs)
             {
+                SkASSERT(Supported(regs));
 
             #if defined(SK_BUILD_FOR_WIN)
                 // TODO  Windows ABI?
@@ -437,18 +445,22 @@ namespace skvm {
                     auto y = inst.y,
                          z = inst.z;
                     switch (op) {
-
                         // Ops producing multiple AVX instructions should always
                         // use tmp as the result of all but the final instruction
                         // to avoid any possible dst/arg aliasing.  You don't want
                         // to overwrite your arguments before you're done using them!
 
                         case Op::store8:
-                            vpackusdw(tmp, r[x], r[x]);      // pack 32-bit -> 16-bit
-                            vpermq   (tmp, tmp, 0xd8);       // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
-                            vpackuswb(tmp, tmp, tmp);        // pack 16-bit -> 8-bit
-                            vmovq(ptr[arg[y.imm]],           // store low 8 bytes
-                                  Xbyak::Xmm{tmp.getIdx()}); // (arg must be an xmm register)
+                            if (SkCpu::Supports(SkCpu::SKX)) {
+                                // One stop shop!  Pack 8x I32 -> U8 and store to ptr.
+                                vpmovusdb(ptr[arg[y.imm]], r[x]);
+                            } else {
+                                vpackusdw(tmp, r[x], r[x]);      // pack 32-bit -> 16-bit
+                                vpermq   (tmp, tmp, 0xd8);       // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
+                                vpackuswb(tmp, tmp, tmp);        // pack 16-bit -> 8-bit
+                                vmovq(ptr[arg[y.imm]],           // store low 8 bytes
+                                      Xbyak::Xmm{tmp.getIdx()}); // (arg must be an xmm register)
+                            }
                             break;
 
                         case Op::store32: vmovups(ptr[arg[y.imm]], r[x]); break;
@@ -526,7 +538,7 @@ namespace skvm {
 
     void Program::eval(int n, void* args[], size_t strides[], int nargs) const {
     #if defined(SKVM_JIT)
-        if (!fJIT) {
+        if (!fJIT && JIT::Supported(fRegs)) {
             fJIT.reset(new JIT{fInstructions, fRegs, fLoop, strides, nargs});
 
         #if 1
@@ -613,7 +625,8 @@ namespace skvm {
         #endif
         }
 
-        if (const int jitN = (n / JIT::K) * JIT::K) {
+        const int jitN = (n / JIT::K) * JIT::K;
+        if (fJIT && jitN > 0) {
             bool ran = true;
             switch (nargs) {
                 case 0: fJIT->getCode<void(*)(int              )>()(jitN                  ); break;
