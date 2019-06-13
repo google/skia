@@ -117,6 +117,30 @@
       "revId": "7b8208054d4470d99028fccde6fbce72845c98ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de405acb_13080f26",
+        "filename": "src/gpu/ops/GrOvalOpFactory.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-06-13T20:15:11Z",
+      "side": 1,
+      "message": "I think only handling the simpler case is fine -- the odds that someone is going to map a non-circle back to exactly a circle or circular corner are pretty low. It should use SkScalarNearlyEqual rather than operator\u003d\u003d though.",
+      "parentUuid": "2258a7dd_0af1eb2c",
+      "range": {
+        "startLine": 42,
+        "startChar": 49,
+        "endLine": 42,
+        "endChar": 66
+      },
+      "revId": "7b8208054d4470d99028fccde6fbce72845c98ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
