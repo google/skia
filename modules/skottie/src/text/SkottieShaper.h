@@ -33,8 +33,6 @@ public:
 
     struct Result {
         std::vector<Fragment> fFragments;
-
-        SkRect computeBounds() const;
     };
 
     enum class VAlign : uint8_t {
