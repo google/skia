@@ -449,7 +449,7 @@ static void writeGlyph(SkGlyph* glyph, Serializer* serializer) {
     serializer->write<uint16_t>(glyph->fHeight);
     serializer->write<int16_t>(glyph->fTop);
     serializer->write<int16_t>(glyph->fLeft);
-    serializer->write<uint8_t>(glyph->fMaskFormat);
+    serializer->write<uint8_t>(glyph->maskFormat());
 }
 
 void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serializer) {

@@ -1047,13 +1047,13 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     bool doAA = false;
     bool doLCD = false;
 
-    if (SkMask::kBW_Format != glyph.fMaskFormat) {
+    if (SkMask::kBW_Format != glyph.maskFormat()) {
         doLCD = true;
         doAA = true;
     }
 
     // FIXME: lcd smoothed un-hinted rasterization unsupported.
-    if (!generateA8FromLCD && SkMask::kA8_Format == glyph.fMaskFormat) {
+    if (!generateA8FromLCD && SkMask::kA8_Format == glyph.maskFormat()) {
         doLCD = false;
         doAA = true;
     }
@@ -1061,7 +1061,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     // If this font might have color glyphs, disable LCD as there's no way to support it.
     // CoreText doesn't tell us which format it ended up using, so we can't detect it.
     // A8 will end up black on transparent, but TODO: we can detect gray and set to A8.
-    if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
+    if (SkMask::kARGB32_Format == glyph.maskFormat()) {
         doLCD = false;
     }
 
@@ -1076,7 +1076,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
 
         rowBytes = fSize.fWidth * sizeof(CGRGBPixel);
         void* image = fImageStorage.reset(rowBytes * fSize.fHeight);
-        const CGImageAlphaInfo alpha = (SkMask::kARGB32_Format == glyph.fMaskFormat)
+        const CGImageAlphaInfo alpha = (glyph.isColor())
                                      ? kCGImageAlphaPremultipliedFirst
                                      : kCGImageAlphaNoneSkipFirst;
         const CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host | alpha;
@@ -1120,7 +1120,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     image += (fSize.fHeight - glyph.fHeight) * fSize.fWidth;
 
     // Erase to white (or transparent black if it's a color glyph, to not composite against white).
-    uint32_t bgColor = (SkMask::kARGB32_Format != glyph.fMaskFormat) ? 0xFFFFFFFF : 0x00000000;
+    uint32_t bgColor = (!glyph.isColor()) ? 0xFFFFFFFF : 0x00000000;
     sk_memset_rect32(image, bgColor, glyph.fWidth, glyph.fHeight, rowBytes);
 
     float subX = 0;

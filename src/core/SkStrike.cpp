@@ -65,6 +65,16 @@ SkGlyph* SkStrike::glyph(SkGlyphID glyphID) {
     return this->glyph(SkPackedGlyphID{glyphID});
 }
 
+SkGlyph* SkStrike::glyphFromPrototype(const SkGlyphPrototype& p) {
+    SkGlyph* glyph = fGlyphMap.findOrNull(p.id);
+    if (glyph == nullptr) {
+        fMemoryUsed += sizeof(SkGlyph);
+        glyph = fAlloc.make<SkGlyph>(p);
+        fGlyphMap.set(glyph);
+    }
+    return glyph;
+}
+
 SkGlyph* SkStrike::glyphOrNull(SkPackedGlyphID id) const {
     return fGlyphMap.findOrNull(id);
 }

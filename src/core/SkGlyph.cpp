@@ -67,6 +67,18 @@ static size_t format_rowbytes(int width, SkMask::Format format) {
                                         : width * format_alignment(format);
 }
 
+SkGlyph::SkGlyph(const SkGlyphPrototype& p)
+    : fWidth{p.width}
+    , fHeight{p.height}
+    , fTop{p.top}
+    , fLeft{p.left}
+    , fAdvanceX{p.advanceX}
+    , fAdvanceY{p.advanceY}
+    , fMaskFormat{(uint8_t)p.maskFormat}
+    , fForceBW{p.forceBW}
+    , fID{p.id}
+    {}
+
 size_t SkGlyph::formatAlignment() const {
     auto format = static_cast<SkMask::Format>(fMaskFormat);
     return format_alignment(format);
