@@ -86,7 +86,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
 
     sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef(context);
 
-    GrBackendFormat format = proxy->backendFormat().makeTexture2D();
+    GrBackendFormat format = context->priv().caps()->getBackendFormatFromColorType(targetCT);
     if (!format.isValid()) {
         return nullptr;
     }
