@@ -1359,6 +1359,8 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream* dstStream, SkStrin
 
 Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                       const GrContextOptions& baseOptions) const {
+    const char* pcName = _strdup(src.name().c_str());
+
     GrContextOptions grOptions = baseOptions;
 
     // We don't expect the src to mess with the persistent cache or the executor.
@@ -1418,6 +1420,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     if (!err.isEmpty()) {
         return err;
     }
+    SkDebugf("------- %s\n", pcName);
     surface->flush();
     if (FLAGS_gpuStats) {
         canvas->getGrContext()->priv().dumpCacheStats(log);

@@ -105,11 +105,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const GrUniqueKey& k
     GrTextureProxy* proxy = fUniquelyKeyedProxies.find(key);
     sk_sp<GrTextureProxy> result;
     if (proxy) {
-        GrResourceCache* cache = nullptr;
-        if (auto directContext = fImageContext->priv().asDirectContext()) {
-            cache = directContext->priv().getResourceCache();
-        }
-        proxy->firstRefAccess().ref(cache);
         result.reset(proxy);
         SkASSERT(result->origin() == origin);
     }
