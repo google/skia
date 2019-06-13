@@ -16,6 +16,24 @@
       "revId": "9ee3447e499afbfdf7f087556ae88c464555f6eb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e020b17_f81c1f45",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 3851,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-13T14:27:01Z",
+      "side": 1,
+      "message": "Wouldn\u0027t we lose the low 8 bits?",
+      "parentUuid": "0fff77ba_0dfe6734",
+      "revId": "9ee3447e499afbfdf7f087556ae88c464555f6eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
