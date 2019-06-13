@@ -12,6 +12,7 @@
 #include "src/gpu/GrProcessor.h"
 
 class GrGLBitmapTextGeoProc;
+class GrInvariantOutput;
 
 /**
  * The output color of this effect is a modulation of the input color and a sample from a texture.

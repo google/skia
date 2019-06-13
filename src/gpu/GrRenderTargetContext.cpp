@@ -1894,14 +1894,12 @@ sk_sp<GrRenderTargetContext> GrRenderTargetContext::rescale(const SkImageInfo& i
             } else if (nextH == srcH) {
                 dir = GrBicubicEffect::Direction::kX;
             }
-            static constexpr auto kKernel = GrBicubicEffect::Kernel::kCatmullRom;
             if (srcW != texProxy->width() || srcH != texProxy->height()) {
                 auto domain = GrTextureDomain::MakeTexelDomain(
                         SkIRect::MakeXYWH(srcX, srcY, srcW, srcH), GrTextureDomain::kClamp_Mode);
-                fp = GrBicubicEffect::Make(texProxy, matrix, domain, kKernel, dir,
-                                           kPremul_SkAlphaType);
+                fp = GrBicubicEffect::Make(texProxy, matrix, domain, dir, kPremul_SkAlphaType);
             } else {
-                fp = GrBicubicEffect::Make(texProxy, matrix, kKernel, dir, kPremul_SkAlphaType);
+                fp = GrBicubicEffect::Make(texProxy, matrix, dir, kPremul_SkAlphaType);
             }
             if (xform) {
                 fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
