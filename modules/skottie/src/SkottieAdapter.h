@@ -234,37 +234,6 @@ private:
     using INHERITED = GradientAdapter;
 };
 
-class GradientRampEffectAdapter final : public SkNVRefCnt<GradientRampEffectAdapter> {
-public:
-    explicit GradientRampEffectAdapter(sk_sp<sksg::RenderNode> child);
-    ~GradientRampEffectAdapter();
-
-    ADAPTER_PROPERTY(StartPoint, SkPoint , SkPoint::Make(0, 0))
-    ADAPTER_PROPERTY(EndPoint  , SkPoint , SkPoint::Make(0, 0))
-    ADAPTER_PROPERTY(StartColor, SkColor ,       SK_ColorBLACK)
-    ADAPTER_PROPERTY(EndColor  , SkColor ,       SK_ColorBLACK)
-    ADAPTER_PROPERTY(Blend     , SkScalar,                   0)
-    ADAPTER_PROPERTY(Scatter   , SkScalar,                   0)
-
-    // Really an enum: 1 -> linear, 7 -> radial (?!)
-    ADAPTER_PROPERTY(Shape     , SkScalar,                   0)
-
-    const sk_sp<sksg::ShaderEffect>& root() const { return fRoot; }
-
-private:
-    enum class InstanceType {
-        kNone,
-        kLinear,
-        kRadial,
-    };
-
-    void apply();
-
-    sk_sp<sksg::ShaderEffect> fRoot;
-    sk_sp<sksg::Gradient>     fGradient;
-    InstanceType              fInstanceType = InstanceType::kNone;
-};
-
 class TrimEffectAdapter final : public SkNVRefCnt<TrimEffectAdapter> {
 public:
     explicit TrimEffectAdapter(sk_sp<sksg::TrimEffect>);
@@ -278,79 +247,6 @@ private:
     void apply();
 
     sk_sp<sksg::TrimEffect> fTrimEffect;
-};
-
-class DropShadowEffectAdapter final : public SkNVRefCnt<DropShadowEffectAdapter> {
-public:
-    explicit DropShadowEffectAdapter(sk_sp<sksg::DropShadowImageFilter>);
-    ~DropShadowEffectAdapter();
-
-    ADAPTER_PROPERTY(Color     , SkColor , SK_ColorBLACK)
-    ADAPTER_PROPERTY(Opacity   , SkScalar,           255)
-    ADAPTER_PROPERTY(Direction , SkScalar,             0)
-    ADAPTER_PROPERTY(Distance  , SkScalar,             0)
-    ADAPTER_PROPERTY(Softness  , SkScalar,             0)
-    ADAPTER_PROPERTY(ShadowOnly, bool    ,         false)
-
-private:
-    void apply();
-
-    const sk_sp<sksg::DropShadowImageFilter> fDropShadow;
-};
-
-class GaussianBlurEffectAdapter final : public SkNVRefCnt<GaussianBlurEffectAdapter> {
-public:
-    explicit GaussianBlurEffectAdapter(sk_sp<sksg::BlurImageFilter>);
-    ~GaussianBlurEffectAdapter();
-
-    // AE/BM model properties.  These are all animatable/interpolatable.
-
-    // Controls the blur sigma.
-    ADAPTER_PROPERTY(Blurriness, SkScalar, 0)
-
-    // Enum selecting the blur dimensionality:
-    //
-    //   1 -> horizontal & vertical
-    //   2 -> horizontal
-    //   3 -> vertical
-    //
-    ADAPTER_PROPERTY(Dimensions, SkScalar, 1)
-
-    // Enum selecting edge behavior:
-    //
-    //   0 -> clamp
-    //   1 -> repeat
-    //
-    ADAPTER_PROPERTY(RepeatEdge, SkScalar, 0)
-
-private:
-    void apply();
-
-    const sk_sp<sksg::BlurImageFilter> fBlur;
-};
-
-class LevelsEffectAdapter final : public SkNVRefCnt<LevelsEffectAdapter> {
-public:
-    explicit LevelsEffectAdapter(sk_sp<sksg::RenderNode> child);
-    ~LevelsEffectAdapter();
-
-    // 1: RGB, 2: R, 3: G, 4: B, 5: A
-    ADAPTER_PROPERTY(  Channel, SkScalar, 1)
-    ADAPTER_PROPERTY(  InBlack, SkScalar, 0)
-    ADAPTER_PROPERTY(  InWhite, SkScalar, 1)
-    ADAPTER_PROPERTY( OutBlack, SkScalar, 0)
-    ADAPTER_PROPERTY( OutWhite, SkScalar, 1)
-    ADAPTER_PROPERTY(    Gamma, SkScalar, 1)
-    // 1: clip, 2,3: don't clip
-    ADAPTER_PROPERTY(ClipBlack, SkScalar, 1)
-    ADAPTER_PROPERTY(ClipWhite, SkScalar, 1)
-
-    const sk_sp<sksg::ExternalColorFilter>& root() const { return fEffect; }
-
-private:
-    void apply();
-
-    sk_sp<sksg::ExternalColorFilter> fEffect;
 };
 
 } // namespace skottie

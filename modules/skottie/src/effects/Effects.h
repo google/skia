@@ -13,19 +13,41 @@
 namespace skottie {
 namespace internal {
 
-class AnimationBuilder;
-
-// TODO: relocate SkottieLayerEffect builder logic here.
 class EffectBuilder final : public SkNoncopyable {
 public:
+    EffectBuilder(const AnimationBuilder*, AnimatorScope*);
+
+    sk_sp<sksg::RenderNode> attachEffects(const skjson::ArrayValue&,
+                                          sk_sp<sksg::RenderNode>) const;
+
+private:
+    using EffectBuilderT = sk_sp<sksg::RenderNode>(EffectBuilder::*)(const skjson::ArrayValue&,
+                                                                     sk_sp<sksg::RenderNode>) const;
+
+    sk_sp<sksg::RenderNode> attachTintEffect        (const skjson::ArrayValue&,
+                                                     sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachFillEffect        (const skjson::ArrayValue&,
+                                                     sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachTritoneEffect     (const skjson::ArrayValue&,
+                                                     sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachDropShadowEffect  (const skjson::ArrayValue&,
+                                                     sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachGaussianBlurEffect(const skjson::ArrayValue&,
+                                                     sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachGradientEffect    (const skjson::ArrayValue&,
+                                                     sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachLevelsEffect      (const skjson::ArrayValue&,
+                                                     sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachTransformEffect   (const skjson::ArrayValue&,
+                                                     sk_sp<sksg::RenderNode>) const;
+
+    EffectBuilderT findBuilder(const skjson::ObjectValue&) const;
+
     static const skjson::Value& GetPropValue(const skjson::ArrayValue& jprops, size_t prop_index);
+
+    const AnimationBuilder*   fBuilder;
+    AnimatorScope*            fScope;
 };
-
-sk_sp<sksg::RenderNode> AttachTransformEffect(const skjson::ArrayValue&,
-                                              const AnimationBuilder*,
-                                              AnimatorScope*,
-                                              sk_sp<sksg::RenderNode>);
-
 
 } // namespace internal
 } // namespace skottie
