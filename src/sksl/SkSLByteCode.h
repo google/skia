@@ -15,7 +15,6 @@
 
 namespace SkSL {
 
-struct ByteCode;
 class  ExternalValue;
 struct FunctionDeclaration;
 
@@ -159,6 +158,11 @@ struct ByteCodeFunction {
     int fStackCount = 128;
     int fReturnCount = 0;
     std::vector<uint8_t> fCode;
+
+    /**
+     * Print bytecode disassembly to stdout.
+     */
+    void disassemble() const;
 };
 
 struct ByteCode {
@@ -166,6 +170,7 @@ struct ByteCode {
     // one entry per input slot, contains the global slot to which the input slot maps
     std::vector<uint8_t> fInputSlots;
     std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;
+    std::vector<ExternalValue*> fExternalValues;
 
     const ByteCodeFunction* getFunction(const char* name) const {
         for (const auto& f : fFunctions) {
@@ -176,7 +181,16 @@ struct ByteCode {
         return nullptr;
     }
 
-    std::vector<ExternalValue*> fExternalValues;
+    /**
+     * Invokes the specified function with the given arguments, 'N' times.
+     * 'args', 'outReturn', and 'uniforms' are collections of 32-bit values (typically floats,
+     * but possibly int32_t or uint32_t, depending on the types used in the SkSL).
+     * Any 'out' or 'inout' parameters will result in the 'args' array being modified.
+     * The return value is stored in 'outReturn' (may be null, to discard the return value).
+     * 'uniforms' are mapped to 'uniform' globals, in order.
+     */
+    void run(const ByteCodeFunction*, float* args, float* outReturn, int N,
+             const float* uniforms, int uniformCount) const;
 };
 
 }

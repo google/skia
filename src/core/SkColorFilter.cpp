@@ -366,7 +366,6 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/sksl/SkSLByteCode.h"
-#include "src/sksl/SkSLInterpreter.h"
 
 class SkRuntimeColorFilter : public SkColorFilter {
 public:
@@ -425,10 +424,8 @@ public:
             ctx->main = ctx->byteCode->fFunctions[0].get();
             ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
                 auto ctx = (InterpreterCtx*)arg;
-                SkSL::Interpreter::VecRun(ctx->byteCode.get(), ctx->main,
-                                            (SkSL::Interpreter::Value*)ctx->rgba,
-                                            nullptr, active_pixels,
-                                            (SkSL::Interpreter::Value*)ctx->inputs, ctx->ninputs);
+                ctx->byteCode->run(ctx->main, ctx->rgba, nullptr, active_pixels,
+                                   (float*)ctx->inputs, ctx->ninputs);
             };
             rec.fPipeline->append(SkRasterPipeline::callback, ctx);
         }
