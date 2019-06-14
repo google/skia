@@ -5,13 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
-
-#include "include/gpu/GrTexture.h"
-#include "src/core/SkConvertPixels.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
@@ -29,7 +26,6 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
     actualPixels.alloc(ii);
 
     const GrCaps* caps = context->priv().caps();
-    GrGpu* gpu = context->priv().getGpu();
 
     GrPixelConfig config = SkColorType2GrPixelConfig(ct);
     if (!caps->isConfigTexturable(config)) {
@@ -66,20 +62,23 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
         return;
     }
 
-    sk_sp<GrTexture> wrappedTex;
+    sk_sp<GrTextureProxy> wrappedProxy;
     if (GrRenderable::kYes == renderable) {
-        wrappedTex = gpu->wrapRenderableBackendTexture(
-                backendTex, 1, GrWrapOwnership::kAdopt_GrWrapOwnership, GrWrapCacheable::kNo);
+        wrappedProxy = context->priv().proxyProvider()->wrapRenderableBackendTexture(
+                backendTex, kTopLeft_GrSurfaceOrigin, 1, kAdopt_GrWrapOwnership,
+                GrWrapCacheable::kNo);
     } else {
-        wrappedTex = gpu->wrapBackendTexture(backendTex, GrWrapOwnership::kAdopt_GrWrapOwnership,
-                                             GrWrapCacheable::kNo, kRead_GrIOType);
+        wrappedProxy = context->priv().proxyProvider()->wrapBackendTexture(
+                backendTex, kTopLeft_GrSurfaceOrigin, kAdopt_GrWrapOwnership, GrWrapCacheable::kNo,
+                GrIOType::kRW_GrIOType);
     }
-    REPORTER_ASSERT(reporter, wrappedTex);
+    REPORTER_ASSERT(reporter, wrappedProxy);
 
-    bool result = gpu->readPixels(wrappedTex.get(), 0, 0, kWidth,
-                                  kHeight, grCT,
-                                  actualPixels.writable_addr32(0, 0),
-                                  actualPixels.rowBytes());
+    auto surfaceContext = context->priv().makeWrappedSurfaceContext(std::move(wrappedProxy));
+    REPORTER_ASSERT(reporter, surfaceContext);
+
+    bool result = surfaceContext->readPixels(context, 0, 0, kWidth, kHeight, grCT, nullptr,
+                                             actualPixels.writable_addr(), actualPixels.rowBytes());
 
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(expectedPixels.addr32(),

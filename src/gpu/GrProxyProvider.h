@@ -117,14 +117,14 @@ public:
      */
     sk_sp<GrTextureProxy> wrapRenderableBackendTexture(const GrBackendTexture&, GrSurfaceOrigin,
                                                        int sampleCnt, GrWrapOwnership,
-                                                       GrWrapCacheable, ReleaseProc,
-                                                       ReleaseContext);
+                                                       GrWrapCacheable, ReleaseProc = nullptr,
+                                                       ReleaseContext = nullptr);
 
     /*
      * Create a render target proxy that wraps a backend render target
      */
     sk_sp<GrSurfaceProxy> wrapBackendRenderTarget(const GrBackendRenderTarget&, GrSurfaceOrigin,
-                                                  ReleaseProc, ReleaseContext);
+                                                  ReleaseProc = nullptr, ReleaseContext = nullptr);
 
     /*
      * Create a render target proxy that wraps a backend texture
