@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Skottie-WASM Perf</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=egde,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="res/canvaskit.js" type="text/javascript" charset="utf-8"></script>
+    <style type="text/css" media="screen">
+      body,
+      main,
+      #anim {
+        width: 300px;
+        height: 300px;
+      }
+
+      main {
+        display: flex;
+        width: 1000px;
+        height: 1000px;
+        flex-flow: row wrap;
+      }
+    </style>
+</head>
+<body>
+  <main>
+    <!-- This height and width was arbitrarily chosen -->
+    <canvas id=anim width=300 height=300></canvas>
+  </main>
+  <script type="text/javascript" charset="utf-8">
+    (function() {
+      const PATH = '/res/lottie.json';
+
+      let lottieJSON = null;
+      let CK = null;
+
+     CanvasKitInit({
+        locateFile: (file) => '/res/'+file,
+    }).ready().then((CanvasKit) => {
+        CK = CanvasKit;
+        Bench(CK, lottieJSON);
+    });
+
+    fetch(PATH).then((resp) => {
+      resp.text().then((json) => {
+        lottieJSON = json;
+        Bench(CK, lottieJSON);
+      });
+    });
+  })();
+
+  // Without flushing, nothing will show up on the screen, although
+  // everything else has been executed.
+  const shouldFlush = false;
+
+  const frames = 25;
+  const width = 300;
+  const height = 300;
+
+  function Bench(CK, json) {
+    if (!CK || !json) {
+      return;
+    }
+
+    const animation = CK.MakeManagedAnimation(json, null);
+    if (!animation) {
+      console.error('Could not process JSON');
+      return
+    }
+
+    const surface = CK.MakeCanvasSurface("anim");
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const canvas = surface.getCanvas();
+
+    let c = document.getElementById('anim');
+    // If CanvasKit was unable to instantiate a WebGL context, it will fallback
+    // to CPU and add a ck-replaced class to the canvas element.
+    window._gpu = CK.gpu && !c.classList.contains('ck-replaced');
+
+    console.log("start")
+    const t_rate = 1.0 / (frames- 1);
+    let time = 0;
+    let max = -1;
+    let min = 1000000000;
+    let seek = 0;
+    let frame = 0;
+    const drawFrame = () => {
+      if (frame >= frames) {
+        console.log("On average, took "+ (time/frames) +" ms" );
+        // These are global variables to talk with puppeteer.
+        window._avgFrameTimeMs = time/frames;
+        window._minFrameTimeMs = min;
+        window._maxFrameTimeMs = max;
+        window._skottieDone = true;
+        return;
+      }
+      let start = Date.now();
+      animation.seek(seek);
+      animation.render(canvas);
+      if (shouldFlush) {
+        surface.flush();
+      }
+      const t = Date.now() - start;
+
+      time += t;
+      if (t < min) {
+        min = t;
+      }
+      if (t > max) {
+        max = t;
+      }
+      seek += t_rate;
+      frame++;
+      window.requestAnimationFrame(drawFrame);
+    };
+    window.requestAnimationFrame(drawFrame);
+  }
+  </script>
+</body>
+</html>
