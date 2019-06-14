@@ -178,6 +178,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
     const GrCaps* caps = context->priv().caps();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
+    if (context_info.type() != sk_gpu_test::GrContextFactory::kVulkan_ContextType) {
+        return;
+    }
     for (int c = 0; c <= kLast_GrPixelConfig; ++c) {
         desc.fConfig = static_cast<GrPixelConfig>(c);
         if (!caps->isConfigTexturable(desc.fConfig)) {
