@@ -26,6 +26,13 @@ class SkStrokeRec;
  */
 class GrOvalOpFactory {
 public:
+    static std::unique_ptr<GrDrawOp> MakeCircleOp(GrRecordingContext*,
+                                                  GrPaint&&,
+                                                  const SkMatrix&,
+                                                  const SkRect& oval,
+                                                  const GrStyle& style,
+                                                  const GrShaderCaps*);
+
     static std::unique_ptr<GrDrawOp> MakeOvalOp(GrRecordingContext*,
                                                 GrPaint&&,
                                                 const SkMatrix&,
