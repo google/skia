@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkFloatBits.h"
 #include "src/sksl/SkSLByteCodeGenerator.h"
 
 #include <algorithm>
@@ -589,9 +588,15 @@ void ByteCodeGenerator::writeVariableExpression(const Expression& expr) {
     }
 }
 
+static inline uint32_t float_to_bits(float x) {
+    uint32_t u;
+    memcpy(&u, &x, sizeof(uint32_t));
+    return u;
+}
+
 void ByteCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
     this->write(ByteCodeInstruction::kPushImmediate);
-    this->write32(SkFloat2Bits(f.fValue));
+    this->write32(float_to_bits(f.fValue));
 }
 
 void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
@@ -659,7 +664,7 @@ bool ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p, bool di
             std::unique_ptr<LValue> lvalue = this->getLValue(*p.fOperand);
             lvalue->load();
             this->write(ByteCodeInstruction::kPushImmediate);
-            this->write32(type_category(p.fType) == TypeCategory::kFloat ? SkFloat2Bits(1.0f) : 1);
+            this->write32(type_category(p.fType) == TypeCategory::kFloat ? float_to_bits(1.0f) : 1);
             if (p.fOperator == Token::Kind::PLUSPLUS) {
                 this->writeTypedInstruction(p.fType,
                                             ByteCodeInstruction::kAddI,
@@ -703,7 +708,7 @@ bool ByteCodeGenerator::writePostfixExpression(const PostfixExpression& p, bool 
                 this->write(ByteCodeInstruction::kDup);
             }
             this->write(ByteCodeInstruction::kPushImmediate);
-            this->write32(type_category(p.fType) == TypeCategory::kFloat ? SkFloat2Bits(1.0f) : 1);
+            this->write32(type_category(p.fType) == TypeCategory::kFloat ? float_to_bits(1.0f) : 1);
             if (p.fOperator == Token::Kind::PLUSPLUS) {
                 this->writeTypedInstruction(p.fType,
                                             ByteCodeInstruction::kAddI,
