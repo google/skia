@@ -159,6 +159,7 @@ def parse_args(argv):
 
 
 def checkout_engine(engine_path, repo_root, recipes_cfg_path):
+  print 'DO NOT RUN!!'
   dep, recipes_path = parse(repo_root, recipes_cfg_path)
   if dep is None:
     # we're running from the engine repo already!
@@ -228,9 +229,12 @@ def main():
     recipes_cfg_path = os.path.join(repo_root, 'infra', 'config', 'recipes.cfg')
     args = ['--package', recipes_cfg_path] + args
 
-  engine_path = checkout_engine(engine_override, repo_root, recipes_cfg_path)
+  # engine_path = checkout_engine(engine_override, repo_root, recipes_cfg_path)
+  engine_path = "/usr/local/google/home/rmistry/skia/infra/bots/.recipe_deps/recipe_engine"
 
   try:
+    print 'HERE STUFF'
+    print [VPYTHON, '-u', os.path.join(engine_path, 'recipe_engine', 'main.py')] + args
     return _subprocess_call(
         [VPYTHON, '-u',
          os.path.join(engine_path, 'recipe_engine', 'main.py')] + args)
