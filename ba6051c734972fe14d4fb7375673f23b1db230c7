@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19b5c371_2b4c6f39",
+        "filename": "src/gpu/gl/GrGLContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-14T19:22:30Z",
+      "side": 1,
+      "message": "While we\u0027re at it, can we add a check for !options.fDisableDriverCorrectnessWorkarounds?",
+      "revId": "ba6051c734972fe14d4fb7375673f23b1db230c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
