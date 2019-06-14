@@ -1,0 +1,113 @@
+/*
+ * Copyright 2017 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "src/gpu/ccpr/GrSampleMaskProcessor.h"
+
+#include "src/gpu/GrMesh.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+
+// This class implements the coverage processor with vertex shaders.
+class GrSampleMaskProcessor::Impl : public GrGLSLGeometryProcessor {
+public:
+    Impl(std::unique_ptr<Shader> shader) : fShader(std::move(shader)) {}
+
+private:
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
+                 FPCoordTransformIter&& transformIter) final {}
+
+    void onEmitCode(EmitArgs&, GrGPArgs*) override;
+
+    const std::unique_ptr<Shader> fShader;
+};
+
+void GrSampleMaskProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
+    const GrSampleMaskProcessor& proc = args.fGP.cast<GrSampleMaskProcessor>();
+    GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+    GrGLSLVertexBuilder* v = args.fVertBuilder;
+    int numInputPoints = proc.numInputPoints();
+    int inputWidth = (4 == numInputPoints || proc.hasInputWeight()) ? 4 : 3;
+
+    varyingHandler->emitAttributes(proc);
+    SkASSERT(!args.fFPCoordTransformHandler->nextCoordTransform());
+
+    if (PrimitiveType::kTriangles == proc.fPrimitiveType) {
+        SkASSERT(!proc.hasInstanceAttributes());
+        gpArgs->fPositionVar = proc.fVertexAttribs.front().asShaderVar();
+    } else {
+        SkASSERT(!proc.hasVertexAttributes());
+        v->defineConstant("half", "bloat", ".5");
+
+        const char* swizzle = (4 == numInputPoints || proc.hasInputWeight()) ? "xyzw" : "xyz";
+        v->codeAppendf("float%ix2 pts = transpose(float2x%i(X.%s, Y.%s));",
+                       inputWidth, inputWidth, swizzle, swizzle);
+
+        const char* hullPts = "pts";
+        fShader->emitSetupCode(v, "pts", &hullPts);
+        v->codeAppendf("float2 vertexpos = %s[sk_VertexID ^ (sk_VertexID >> 1)];", hullPts);
+        gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
+
+        fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kVertToFrag,
+                              &AccessCodeString(v), "vertexpos", nullptr, nullptr, nullptr);
+    }
+
+    // Fragment shader.
+    fShader->emitStencilCode(args.fFragBuilder);
+}
+
+void GrSampleMaskProcessor::reset(PrimitiveType primitiveType, GrResourceProvider* rp) {
+    fPrimitiveType = primitiveType;  // This will affect the return values for numInputPoints, etc.
+    SkASSERT(PrimitiveType::kWeightedTriangles != fPrimitiveType);
+
+    fVertexAttribs.reset();
+    switch (fPrimitiveType) {
+        case PrimitiveType::kTriangles:
+        case PrimitiveType::kWeightedTriangles:
+            fVertexAttribs.emplace_back("point", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
+            this->setVertexAttributes(fVertexAttribs.begin(), 1);
+            this->setInstanceAttributes(nullptr, 0);
+            this->resetCustomFeatures();
+            break;
+        case PrimitiveType::kQuadratics:
+        case PrimitiveType::kCubics:
+        case PrimitiveType::kConics: {
+            auto instanceAttribType = (PrimitiveType::kQuadratics == fPrimitiveType)
+                    ? kFloat3_GrVertexAttribType : kFloat4_GrVertexAttribType;
+            auto shaderVarType =  (PrimitiveType::kQuadratics == fPrimitiveType)
+                    ? kFloat3_GrSLType : kFloat4_GrSLType;
+            fVertexAttribs.emplace_back("X", instanceAttribType, shaderVarType);
+            fVertexAttribs.emplace_back("Y", instanceAttribType, shaderVarType);
+            this->setVertexAttributes(nullptr, 0);
+            this->setInstanceAttributes(fVertexAttribs.begin(), fVertexAttribs.count());
+            this->setWillUseCustomFeature(CustomFeatures::kSampleLocations);
+            break;
+        }
+    }
+}
+
+void GrSampleMaskProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
+                                       int baseInstance, SkTArray<GrMesh>* out) const {
+    switch (fPrimitiveType) {
+        case PrimitiveType::kTriangles:
+        case PrimitiveType::kWeightedTriangles: {
+            GrMesh& mesh = out->emplace_back(GrPrimitiveType::kTriangles);
+            mesh.setNonIndexedNonInstanced(instanceCount * 3);
+            mesh.setVertexData(std::move(instanceBuffer), baseInstance * 3);
+            break;
+        }
+        case PrimitiveType::kQuadratics:
+        case PrimitiveType::kCubics:
+        case PrimitiveType::kConics:
+            out->emplace_back(GrPrimitiveType::kTriangleStrip).setInstanced(
+                    std::move(instanceBuffer), instanceCount, baseInstance, 4);
+            break;
+    }
+}
+
+GrGLSLPrimitiveProcessor* GrSampleMaskProcessor::onCreateGLSLInstance(
+        std::unique_ptr<Shader> shader) const {
+    return new Impl(std::move(shader));
+}

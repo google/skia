@@ -33,6 +33,8 @@ public:
 
     void onEmitFragmentCode(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
 
+    void emitStencilCode(GrGLSLFPFragmentBuilder*) const override;
+
 private:
     void calcHullCoverage(SkString* code, const char* klm, const char* grad,
                           const char* outputCoverage) const;

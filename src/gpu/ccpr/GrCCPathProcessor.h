@@ -53,11 +53,19 @@ public:
     static sk_sp<const GrGpuBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
     static sk_sp<const GrGpuBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
 
-    GrCCPathProcessor(const GrTexture* atlasTexture, GrSurfaceOrigin atlasOrigin,
+    enum class Flags {
+        kNone = 0,
+        kCoverageCount = (1 << 0),
+        kResolveStencilCoverage = (1 << 1),
+    };
+
+    GrCCPathProcessor(Flags, const GrTexture* atlasTexture, GrSurfaceOrigin atlasOrigin,
                       const SkMatrix& viewMatrixIfUsingLocalCoords = SkMatrix::I());
 
     const char* name() const override { return "GrCCPathProcessor"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+        b->add32((uint32_t)fFlags);
+    }
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
     void drawPaths(GrOpFlushState*, const GrPipeline&, const GrPipeline::FixedDynamicState*,
@@ -67,7 +75,8 @@ public:
 private:
     const TextureSampler& onTextureSampler(int) const override { return fAtlasAccess; }
 
-    const TextureSampler fAtlasAccess;
+    const Flags fFlags;
+    TextureSampler fAtlasAccess;
     SkISize fAtlasSize;
     GrSurfaceOrigin fAtlasOrigin;
 
@@ -82,7 +91,8 @@ private:
     static constexpr Attribute kCornersAttrib =
             {"corners", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
 
-    class Impl;
+    class DrawPathImpl;
+    class ResolveStencilCoverageImpl;
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -107,5 +117,7 @@ inline void GrCCPathProcessor::Instance::set(
     fDevToAtlasOffset = devToAtlasOffset;
     fColor = color;
 }
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrCCPathProcessor::Flags);
 
 #endif

@@ -116,7 +116,7 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
     if (!clippedDrawBounds.intersect(conservativeDevBounds, SkRect::Make(maskDevIBounds))) {
         clippedDrawBounds.setEmpty();
     }
-    this->setBounds(clippedDrawBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
+    this->setBounds(clippedDrawBounds, GrOp::HasAABloat::kYes/*fix msaa*/, GrOp::IsZeroArea::kNo);
 }
 
 GrCCDrawPathsOp::~GrCCDrawPathsOp() {
@@ -425,8 +425,12 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
         const GrTextureProxy* atlas = range.fAtlasProxy;
         SkASSERT(atlas->isInstantiated());
 
+        auto flags = (GrCCAtlas::CoverageType::kFP16_CoverageCount == resources->coverageType())
+                ? GrCCPathProcessor::Flags::kCoverageCount
+                : GrCCPathProcessor::Flags::kNone;
+
         GrCCPathProcessor pathProc(
-                atlas->peekTexture(), atlas->origin(), fViewMatrixIfUsingLocalCoords);
+                flags, atlas->peekTexture(), atlas->origin(), fViewMatrixIfUsingLocalCoords);
         GrTextureProxy* atlasProxy = range.fAtlasProxy;
         fixedDynamicState.fPrimitiveProcessorTextures = &atlasProxy;
         pathProc.drawPaths(flushState, pipeline, &fixedDynamicState, *resources, baseInstance,
