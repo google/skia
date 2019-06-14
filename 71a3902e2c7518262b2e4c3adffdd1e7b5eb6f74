@@ -16,6 +16,24 @@
       "revId": "71a3902e2c7518262b2e4c3adffdd1e7b5eb6f74",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c562ff20_2c4b1da9",
+        "filename": "tools/skottie-wasm-perf/skottie-wasm-perf.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-06-14T17:24:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0992b2e5_53ad059a",
+      "revId": "71a3902e2c7518262b2e4c3adffdd1e7b5eb6f74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
