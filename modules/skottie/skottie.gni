@@ -28,6 +28,10 @@ skia_skottie_sources = [
   "$_src/SkottieValue.cpp",
   "$_src/SkottieValue.h",
 
+  "$_src/effects/Effects.cpp",
+  "$_src/effects/Effects.h",
+  "$_src/effects/TransformEffect.cpp",
+
   "$_src/text/RangeSelector.cpp",
   "$_src/text/RangeSelector.h",
   "$_src/text/SkottieShaper.cpp",

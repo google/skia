@@ -700,6 +700,8 @@ def skottie_lib_srcs():
         [
             "modules/skottie/src/*.cpp",
             "modules/skottie/src/*.h",
+            "modules/skottie/src/effects/*.cpp",
+            "modules/skottie/src/effects/*.h",
             "modules/skottie/src/text/*.cpp",
             "modules/skottie/src/text/*.h",
         ],
