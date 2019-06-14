@@ -534,7 +534,8 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		} else if parts["cpu_or_gpu"] == "CPU" {
 			modelMapping, ok := map[string]map[string]string{
 				"AVX": {
-					"Golo": "x86-64-E5-2670",
+					"Golo":      "x86-64-E5-2670",
+					"VMware7.1": "x86-64-E5-2697_v2",
 				},
 				"AVX2": {
 					"GCE":            "x86-64-Haswell_GCE",
