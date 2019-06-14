@@ -2998,6 +2998,48 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrRecordingContext* conte
 
 ///////////////////////////////////////////////////////////////////////////////
 
+std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeCircleOp(GrRecordingContext* context,
+                                                        GrPaint&& paint,
+                                                        const SkMatrix& viewMatrix,
+                                                        const SkRect& oval,
+                                                        const GrStyle& style,
+                                                        const GrShaderCaps* shaderCaps) {
+    SkScalar width = oval.width();
+    SkASSERT(width > SK_ScalarNearlyZero && SkScalarNearlyEqual(width, oval.height()) &&
+             circle_stays_circle(viewMatrix));
+
+    auto r = width / 2.f;
+    SkPoint center = { oval.centerX(), oval.centerY() };
+    if (style.hasNonDashPathEffect()) {
+        return nullptr;
+    } else if (style.isDashed()) {
+        if (style.strokeRec().getCap() != SkPaint::kButt_Cap ||
+            style.dashIntervalCnt() != 2 || style.strokeRec().getWidth() >= width) {
+            return nullptr;
+        }
+        auto onInterval = style.dashIntervals()[0];
+        auto offInterval = style.dashIntervals()[1];
+        if (offInterval == 0) {
+            GrStyle strokeStyle(style.strokeRec(), nullptr);
+            return MakeOvalOp(context, std::move(paint), viewMatrix, oval,
+                              strokeStyle, shaderCaps);
+        } else if (onInterval == 0) {
+            // There is nothing to draw but we have no way to indicate that here.
+            return nullptr;
+        }
+        auto angularOnInterval = onInterval / r;
+        auto angularOffInterval = offInterval / r;
+        auto phaseAngle = style.dashPhase() / r;
+        // Currently this function doesn't accept ovals with different start angles, though
+        // it could.
+        static const SkScalar kStartAngle = 0.f;
+        return ButtCapDashedCircleOp::Make(context, std::move(paint), viewMatrix, center, r,
+                                           style.strokeRec().getWidth(), kStartAngle,
+                                           angularOnInterval, angularOffInterval, phaseAngle);
+    }
+    return CircleOp::Make(context, std::move(paint), viewMatrix, center, r, style);
+}
+
 std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrRecordingContext* context,
                                                       GrPaint&& paint,
                                                       const SkMatrix& viewMatrix,
@@ -3008,36 +3050,7 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrRecordingContext* contex
     SkScalar width = oval.width();
     if (width > SK_ScalarNearlyZero && SkScalarNearlyEqual(width, oval.height()) &&
         circle_stays_circle(viewMatrix)) {
-        auto r = width / 2.f;
-        SkPoint center = {oval.centerX(), oval.centerY()};
-        if (style.hasNonDashPathEffect()) {
-            return nullptr;
-        } else if (style.isDashed()) {
-            if (style.strokeRec().getCap() != SkPaint::kButt_Cap ||
-                style.dashIntervalCnt() != 2 || style.strokeRec().getWidth() >= width) {
-                return nullptr;
-            }
-            auto onInterval = style.dashIntervals()[0];
-            auto offInterval = style.dashIntervals()[1];
-            if (offInterval == 0) {
-                GrStyle strokeStyle(style.strokeRec(), nullptr);
-                return MakeOvalOp(context, std::move(paint), viewMatrix, oval,
-                                  strokeStyle, shaderCaps);
-            } else if (onInterval == 0) {
-                // There is nothing to draw but we have no way to indicate that here.
-                return nullptr;
-            }
-            auto angularOnInterval = onInterval / r;
-            auto angularOffInterval = offInterval / r;
-            auto phaseAngle = style.dashPhase() / r;
-            // Currently this function doesn't accept ovals with different start angles, though
-            // it could.
-            static const SkScalar kStartAngle = 0.f;
-            return ButtCapDashedCircleOp::Make(context, std::move(paint), viewMatrix, center, r,
-                                               style.strokeRec().getWidth(), kStartAngle,
-                                               angularOnInterval, angularOffInterval, phaseAngle);
-        }
-        return CircleOp::Make(context, std::move(paint), viewMatrix, center, r, style);
+        return MakeCircleOp(context, std::move(paint), viewMatrix, oval, style, shaderCaps);
     }
 
     if (style.pathEffect()) {
