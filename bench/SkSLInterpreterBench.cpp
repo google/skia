@@ -6,8 +6,8 @@
  */
 #include "bench/Benchmark.h"
 #include "include/utils/SkRandom.h"
+#include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLInterpreter.h"
 
 // Benchmarks the interpreter with a function that has a color-filter style signature
 class SkSLInterpreterCFBench : public Benchmark {
@@ -36,17 +36,15 @@ protected:
         fMain = fByteCode->getFunction("main");
 
         SkRandom rnd;
-        fPixels.resize(fCount);
-        for (int i = 0; i < fCount; ++i) {
-            fPixels[i] = SkColor4f::FromColor(rnd.nextU());
+        fPixels.resize(fCount * 4);
+        for (float& c : fPixels) {
+            c = rnd.nextF();
         }
     }
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
-            SkSL::Interpreter::VecRun(fByteCode.get(), fMain,
-                                      (SkSL::Interpreter::Value*)fPixels.data(), nullptr, fCount,
-                                      nullptr, 0);
+            fByteCode->run(fMain, fPixels.data(), nullptr, fCount, nullptr, 0);
         }
     }
 
@@ -57,7 +55,7 @@ private:
     const SkSL::ByteCodeFunction* fMain;
 
     int fCount;
-    std::vector<SkColor4f> fPixels;
+    std::vector<float> fPixels;
 
     typedef Benchmark INHERITED;
 };
@@ -164,16 +162,12 @@ protected:
         fDst.resize(fGroups * fValues);
 
         SkRandom rnd;
-        for (auto& x : fSrc) {
-            x = rnd.nextS();
+        for (float& x : fSrc) {
+            x = rnd.nextF();
         }
 
         // Trigger one run now to check correctness
-        SkSL::Interpreter::VecRun(fByteCode.get(), fMain,
-                                  (SkSL::Interpreter::Value*)fSrc.data(),
-                                  (SkSL::Interpreter::Value*)fDst.data(),
-                                  fGroups,
-                                  nullptr, 0);
+        fByteCode->run(fMain, fSrc.data(), fDst.data(), fGroups, nullptr, 0);
         for (int i = 0; i < fGroups; ++i) {
             for (int j = 1; j < fValues; ++j) {
                 SkASSERT(fDst[i * fValues + j] >= fDst[i * fValues + j - 1]);
@@ -183,11 +177,7 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
-            SkSL::Interpreter::VecRun(fByteCode.get(), fMain,
-                                      (SkSL::Interpreter::Value*)fSrc.data(),
-                                      (SkSL::Interpreter::Value*)fDst.data(),
-                                      fGroups,
-                                      nullptr, 0);
+            fByteCode->run(fMain, fSrc.data(), fDst.data(), fGroups, nullptr, 0);
         }
     }
 
@@ -199,8 +189,8 @@ private:
 
     int fGroups;
     int fValues;
-    std::vector<int32_t> fSrc;
-    std::vector<int32_t> fDst;
+    std::vector<float> fSrc;
+    std::vector<float> fDst;
 
     typedef Benchmark INHERITED;
 };
@@ -209,10 +199,10 @@ private:
 // bounds checking.
 #if 0
 DEF_BENCH(return new SkSLInterpreterSortBench(1024, 32, R"(
-    int[32] main(int v[32]) {
+    float[32] main(float v[32]) {
         for (int i = 1; i < 32; ++i) {
             for (int j = i; j > 0 && v[j-1] > v[j]; --j) {
-                int t = v[j];
+                float t = v[j];
                 v[j] = v[j-1];
                 v[j-1] = t;
             }

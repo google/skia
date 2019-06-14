@@ -17,9 +17,9 @@
 #include "src/core/SkMakeUnique.h"
 
 #if SK_SUPPORT_GPU
+#include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLExternalValue.h"
-#include "src/sksl/SkSLInterpreter.h"
 #endif
 
 void SkParticleAffector::apply(const SkParticleUpdateParams& params,
@@ -481,8 +481,7 @@ public:
     void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
             fRandomValue->setRandom(&ps[i].fRandom);
-            SkSL::Interpreter::Run(fByteCode.get(), fMain, (SkSL::Interpreter::Value*)&ps[i].fAge,
-                                   nullptr, (SkSL::Interpreter::Value*)&params, 2);
+            fByteCode->run(fMain, &ps[i].fAge, nullptr, 1, &params.fDeltaTime, 2);
         }
     }
 
