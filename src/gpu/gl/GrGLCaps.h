@@ -78,14 +78,6 @@ public:
         kRectsMustMatchForMSAASrc_BlitFramebufferFlag     = 1 << 6,
     };
 
-    enum InvalidateFBType {
-        kNone_InvalidateFBType,
-        kDiscard_InvalidateFBType,       //<! glDiscardFramebuffer()
-        kInvalidate_InvalidateFBType,    //<! glInvalidateFramebuffer()
-
-        kLast_InvalidateFBType = kInvalidate_InvalidateFBType
-    };
-
     enum MapBufferType {
         kNone_MapBufferType,
         kMapBuffer_MapBufferType,         // glMapBuffer()
@@ -241,16 +233,11 @@ public:
                kES_EXT_MsToTexture_MSFBOType == fMSFBOType;
     }
 
-    InvalidateFBType invalidateFBType() const { return fInvalidateFBType; }
-
     /// What type of buffer mapping is supported?
     MapBufferType mapBufferType() const { return fMapBufferType; }
 
     /// What type of transfer buffer is supported?
     TransferBufferType transferBufferType() const { return fTransferBufferType; }
-
-    /// The maximum number of fragment uniform vectors (GLES has min. 16).
-    int maxFragmentUniformVectors() const { return fMaxFragmentUniformVectors; }
 
     /**
      * Depending on the ES extensions present the BGRA external format may
@@ -302,9 +289,6 @@ public:
 
     /// Are the baseInstance fields supported in indirect draw commands?
     bool baseInstanceSupport() const { return fBaseInstanceSupport; }
-
-    /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
-    bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
     bool surfaceSupportsReadPixels(const GrSurface*) const override;
     GrColorType supportedReadPixelsColorType(GrPixelConfig, GrColorType) const override;
@@ -445,8 +429,6 @@ private:
 
     void onApplyOptionsOverrides(const GrContextOptions& options) override;
 
-    bool onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget&) const override;
-
     void initFSAASupport(const GrContextOptions& contextOptions, const GrGLContextInfo&,
                          const GrGLInterface*);
     void initBlendEqationSupport(const GrGLContextInfo&);
@@ -463,10 +445,7 @@ private:
 
     SkTArray<StencilFormat, true> fStencilFormats;
 
-    int fMaxFragmentUniformVectors;
-
     MSFBOType           fMSFBOType;
-    InvalidateFBType    fInvalidateFBType;
     MapBufferType       fMapBufferType;
     TransferBufferType  fTransferBufferType;
 
@@ -484,7 +463,6 @@ private:
     bool fDrawRangeElementsSupport : 1;
     bool fMultiDrawIndirectSupport : 1;
     bool fBaseInstanceSupport : 1;
-    bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
     bool fBindFragDataLocationSupport : 1;
     bool fRGBA8888PixelsOpsAreSlow : 1;

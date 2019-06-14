@@ -26,10 +26,8 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
 
     fStencilFormats.reset();
     fMSFBOType = kNone_MSFBOType;
-    fInvalidateFBType = kNone_InvalidateFBType;
     fMapBufferType = kNone_MapBufferType;
     fTransferBufferType = kNone_TransferBufferType;
-    fMaxFragmentUniformVectors = 0;
     fUnpackRowLengthSupport = false;
     fPackRowLengthSupport = false;
     fPackFlipYSupport = false;
@@ -79,23 +77,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     sk_ignore_unused_variable(standard);
     GrGLVersion version = ctxInfo.version();
 
-    if (GR_IS_GR_GL(standard)) {
-        GrGLint max;
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &max);
-        fMaxFragmentUniformVectors = max / 4;
-        if (version >= GR_GL_VER(3, 2)) {
-            GrGLint profileMask;
-            GR_GL_GetIntegerv(gli, GR_GL_CONTEXT_PROFILE_MASK, &profileMask);
-            fIsCoreProfile = SkToBool(profileMask & GR_GL_CONTEXT_CORE_PROFILE_BIT);
-        }
-    } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS,
-                          &fMaxFragmentUniformVectors);
-    }
-
-    if (fDriverBugWorkarounds.max_fragment_uniform_vectors_32) {
-        fMaxFragmentUniformVectors = SkMin32(fMaxFragmentUniformVectors, 32);
-    }
     GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttributes);
 
     if (GR_IS_GR_GL(standard)) {
@@ -144,16 +125,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     fImagingSupport = GR_IS_GR_GL(standard) &&
                       ctxInfo.hasExtension("GL_ARB_imaging");
-
-    if (((GR_IS_GR_GL(standard) && version >= GR_GL_VER(4,3)) ||
-         (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3,0)) ||
-         ctxInfo.hasExtension("GL_ARB_invalidate_subdata"))) {
-        fDiscardRenderTargetSupport = true;
-        fInvalidateFBType = kInvalidate_InvalidateFBType;
-    } else if (ctxInfo.hasExtension("GL_EXT_discard_framebuffer")) {
-        fDiscardRenderTargetSupport = true;
-        fInvalidateFBType = kDiscard_InvalidateFBType;
-    }
 
     // For future reference on Desktop GL, GL_PRIMITIVE_RESTART_FIXED_INDEX appears in 4.3, and
     // GL_PRIMITIVE_RESTART (where the client must call glPrimitiveRestartIndex) appears in 3.1.
@@ -1200,16 +1171,6 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     GR_STATIC_ASSERT(5 == kMixedSamples_MSFBOType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kMSFBOExtStr) == kLast_MSFBOType + 1);
 
-    static const char* kInvalidateFBTypeStr[] = {
-        "None",
-        "Discard",
-        "Invalidate",
-    };
-    GR_STATIC_ASSERT(0 == kNone_InvalidateFBType);
-    GR_STATIC_ASSERT(1 == kDiscard_InvalidateFBType);
-    GR_STATIC_ASSERT(2 == kInvalidate_InvalidateFBType);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kInvalidateFBTypeStr) == kLast_InvalidateFBType + 1);
-
     static const char* kMapBufferTypeStr[] = {
         "None",
         "MapBuffer",
@@ -1224,9 +1185,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
 
     writer->appendBool("Core Profile", fIsCoreProfile);
     writer->appendString("MSAA Type", kMSFBOExtStr[fMSFBOType]);
-    writer->appendString("Invalidate FB Type", kInvalidateFBTypeStr[fInvalidateFBType]);
     writer->appendString("Map Buffer Type", kMapBufferTypeStr[fMapBufferType]);
-    writer->appendS32("Max FS Uniform Vectors", fMaxFragmentUniformVectors);
     writer->appendBool("Unpack Row length support", fUnpackRowLengthSupport);
     writer->appendBool("Pack Row length support", fPackRowLengthSupport);
     writer->appendBool("Pack Flip Y support", fPackFlipYSupport);
@@ -2089,9 +2048,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     // glCompressedTexImage2D is available on all OpenGL ES devices. It is available on standard
     // OpenGL after version 1.3. We'll assume at least that level of OpenGL support.
 
-    // TODO: Fix command buffer bindings and remove this.
-    fCompressedTexSubImageSupport = (bool)(gli->fFunctions.fCompressedTexSubImage2D);
-
     // No sized/unsized internal format distinction for compressed formats, no external format.
     // Below we set the external formats and types to 0.
     fConfigTable[kRGB_ETC1_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_COMPRESSED_RGB8_ETC2;
@@ -2583,15 +2539,6 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
 void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
                                                  const GrContextOptions& contextOptions,
                                                  GrShaderCaps* shaderCaps) {
-    // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
-    // Thus we are blacklisting this extension for now on Adreno4xx devices.
-    if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
-        kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer() ||
-        fDriverBugWorkarounds.disable_discard_framebuffer) {
-        fDiscardRenderTargetSupport = false;
-        fInvalidateFBType = kNone_InvalidateFBType;
-    }
-
     // glClearTexImage seems to have a bug in NVIDIA drivers that was fixed sometime between
     // 340.96 and 367.57.
     if (GR_IS_GR_GL(ctxInfo.standard()) &&
@@ -2928,20 +2875,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         }
     }
 
-    // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
-    if (fMultisampleDisableSupport &&
-        this->shaderCaps()->dualSourceBlendingSupport() &&
-        this->shaderCaps()->pathRenderingSupport() &&
-        fUsesMixedSamples &&
-#if GR_TEST_UTILS
-        (contextOptions.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) &&
-#endif
-        (kNVIDIA_GrGLDriver == ctxInfo.driver() ||
-         kChromium_GrGLDriver == ctxInfo.driver())) {
-            fDiscardRenderTargetSupport = false;
-            fInvalidateFBType = kNone_InvalidateFBType;
-    }
-
     // Many ES3 drivers only advertise the ES2 image_external extension, but support the _essl3
     // extension, and require that it be enabled to work with ESSL3. Other devices require the ES2
     // extension to be enabled, even when using ESSL3. Enabling both extensions fixes both cases.
@@ -3010,7 +2943,8 @@ bool GrGLCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
                 return false;
             }
         }
-    }    if (auto rt = surface->asRenderTarget()) {
+    }
+    if (auto rt = surface->asRenderTarget()) {
         if (fUseDrawInsteadOfAllRenderTargetWrites) {
             return false;
         }
@@ -3057,13 +2991,6 @@ GrColorType GrGLCaps::supportedReadPixelsColorType(GrPixelConfig config,
             return GrColorType::kRGBA_F32;
     }
     return GrColorType::kUnknown;
-}
-
-bool GrGLCaps::onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget& backendRT) const {
-    GrGLFramebufferInfo fbInfo;
-    SkAssertResult(backendRT.getGLFramebufferInfo(&fbInfo));
-    // Window Rectangles are not supported for FBO 0;
-    return fbInfo.fFBOID != 0;
 }
 
 int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {

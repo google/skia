@@ -50,9 +50,7 @@ public:
      * Is there support for enabling/disabling sRGB writes for sRGB-capable color buffers?
      */
     bool srgbWriteControl() const { return fSRGBWriteControl; }
-    bool discardRenderTargetSupport() const { return fDiscardRenderTargetSupport; }
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
-    bool compressedTexSubImageSupport() const { return fCompressedTexSubImageSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
     bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
@@ -152,11 +150,6 @@ public:
 
     int maxWindowRectangles() const { return fMaxWindowRectangles; }
 
-    // Returns whether mixed samples is supported for the given backend render target.
-    bool isWindowRectanglesSupportedForRT(const GrBackendRenderTarget& rt) const {
-        return this->maxWindowRectangles() > 0 && this->onIsWindowRectanglesSupportedForRT(rt);
-    }
-
     virtual bool isConfigTexturable(GrPixelConfig) const = 0;
 
     // Returns whether a texture of the given config can be copied to a texture of the same config.
@@ -170,20 +163,11 @@ public:
         return this->maxRenderTargetSampleCount(config) > 0;
     }
 
-    // TODO: Remove this after Flutter updated to no longer use it.
-    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const {
-        return this->maxRenderTargetSampleCount(config) > (withMSAA ? 1 : 0);
-    }
-
     // Find a sample count greater than or equal to the requested count which is supported for a
     // color buffer of the given config or 0 if no such sample count is supported. If the requested
     // sample count is 1 then 1 will be returned if non-MSAA rendering is supported, otherwise 0.
     // For historical reasons requestedCount==0 is handled identically to requestedCount==1.
     virtual int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const = 0;
-    // TODO: Remove. Legacy name used by Chrome.
-    int getSampleCount(int requestedCount, GrPixelConfig config) const {
-        return this->getRenderTargetSampleCount(requestedCount, config);
-    }
 
     /**
      * Backends may have restrictions on what types of surfaces support GrGpu::writePixels().
@@ -367,11 +351,9 @@ protected:
     bool fMipMapSupport                              : 1;
     bool fSRGBSupport                                : 1;
     bool fSRGBWriteControl                           : 1;
-    bool fDiscardRenderTargetSupport                 : 1;
     bool fReuseScratchTextures                       : 1;
     bool fReuseScratchBuffers                        : 1;
     bool fGpuTracingSupport                          : 1;
-    bool fCompressedTexSubImageSupport               : 1;
     bool fOversizedStencilSupport                    : 1;
     bool fTextureBarrierSupport                      : 1;
     bool fSampleLocationsSupport                     : 1;
@@ -435,12 +417,6 @@ private:
     virtual bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                   const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
     virtual size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const = 0;
-
-    // Backends should implement this if they have any extra requirements for use of window
-    // rectangles for a specific GrBackendRenderTarget outside of basic support.
-    virtual bool onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget&) const {
-        return true;
-    }
 
     bool fSuppressPrints : 1;
     bool fWireframeMode  : 1;
