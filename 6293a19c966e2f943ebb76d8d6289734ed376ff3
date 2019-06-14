@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "114b9b15_c13110dd",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-14T12:52:13Z",
+      "side": 1,
+      "message": "TODO: cache everything before this with a little y.imm -\u003e data32 index map, so that if we use the same pattern twice (e.g. extracting blue channel from both src and dst) we only write out one 32-byte pattern instead of 2 (or N).",
+      "revId": "6293a19c966e2f943ebb76d8d6289734ed376ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35cd1df5_82af7047",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-14T12:52:13Z",
+      "side": 1,
+      "message": "Might be easier to follow as\n\nuint8_t bytes[] \u003d {\n      0,\n      ((uint32_t)x      ) \u0026 0xff,\n      ((uint32_t)x \u003e\u003e  8) \u0026 0xff,\n      ((uint32_t)x \u003e\u003e 16) \u0026 0xff,\n      ((uint32_t)x \u003e\u003e 24) \u0026 0xff,\n};\n\ni.e. 1,2,3,4 to index the bytes, 0 for a literal zero byte.  Since I\u0027m going to be mapping these anyway, might as well play around so that the bit patterns are easier to follow?",
+      "range": {
+        "startLine": 121,
+        "startChar": 14,
+        "endLine": 125,
+        "endChar": 45
+      },
+      "revId": "6293a19c966e2f943ebb76d8d6289734ed376ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba4b5ca0_13ad6e7c",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-14T12:52:13Z",
+      "side": 1,
+      "message": "Would become\n\n   bytes(x, 0x1111)\n   bytes(x, 0x4321)\n   bytes(x, 0x0000)\n   bytes(x, 0x0404)",
+      "revId": "6293a19c966e2f943ebb76d8d6289734ed376ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
