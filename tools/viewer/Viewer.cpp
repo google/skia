@@ -235,7 +235,7 @@ const char* kRefreshStateName = "Refresh";
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentSlide(-1)
-    , fRefresh(false)
+    , fRefresh(true)
     , fSaveToSKP(false)
     , fShowSlideDimensions(false)
     , fShowImGuiDebugWindow(false)

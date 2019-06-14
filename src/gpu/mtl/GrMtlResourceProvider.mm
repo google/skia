@@ -162,7 +162,7 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
 }
 
 id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offset) {
-    static size_t kSharedDynamicBufferSize = 16*1024;
+    static size_t kRingBufferSize = 8*1024*1024;
 
     // The idea here is that we create a ring buffer which is used for all dynamic allocations
     // below a certain size. When a dynamic GrMtlBuffer is mapped, it grabs a portion of this
@@ -175,36 +175,72 @@ id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offse
     // just make the allocation and the owning GrMtlBuffer will manage it (this
     // only happens with buffers created by GrBufferAllocPool).
     //
-    // TODO: By sending addCompletedHandler: to MTLCommandBuffer we can track when buffers
-    // are no longer in use and recycle them rather than creating a new one each time.
-    if (fBufferState.fAllocationSize - fBufferState.fNextOffset < size) {
-        size_t allocSize = (size >= kSharedDynamicBufferSize) ? size : kSharedDynamicBufferSize;
+
+    // Make the initial buffer
+    if (!fBufferState.fAllocation) {
         id<MTLBuffer> buffer;
-        buffer = [fGpu->device() newBufferWithLength: allocSize
-#ifdef SK_BUILD_FOR_MAC
-                                             options: MTLResourceStorageModeManaged];
-#else
+        buffer = [fGpu->device() newBufferWithLength: kRingBufferSize
+//#ifdef SK_BUILD_FOR_MAC
+//                                             options: MTLResourceStorageModeManaged];
+//#else
                                              options: MTLResourceStorageModeShared];
-#endif
+//#endif
         if (nil == buffer) {
             return nil;
         }
 
-        if (size >= kSharedDynamicBufferSize) {
-            *offset = 0;
-            return buffer;
-        }
-
         fBufferState.fAllocation = buffer;
-        fBufferState.fNextOffset = 0;
-        fBufferState.fAllocationSize = kSharedDynamicBufferSize;
+        fBufferState.fHead = 0;
+        fBufferState.fTail = 0;
     }
 
-    // Grab the next available block
-    *offset = fBufferState.fNextOffset;
-    fBufferState.fNextOffset += size;
-    // Uniform buffer offsets need to be aligned to the nearest 256-byte boundary.
-    fBufferState.fNextOffset = GrSizeAlignUp(fBufferState.fNextOffset, 256);
+    size_t head = fBufferState.fHead;
+    const size_t tail = fBufferState.fTail;
 
-    return fBufferState.fAllocation;
+    size_t modHead = (head & (kRingBufferSize - 1));
+    size_t modTail = (tail & (kRingBufferSize - 1));
+
+    bool full = (modHead == modTail && head != tail);
+
+    // Try to put in ring buffer
+    if (!full /*&& size < 32*1024*/) {
+        // capture current state
+        bool canAllocate = false;
+        if (modHead >= modTail) {
+            // room at the end
+            if (kRingBufferSize - modHead >= size) {
+                canAllocate = true;
+            // room at the front
+            } else if (modTail >= size) {
+                // jump to '0'
+                head += kRingBufferSize - modHead;
+                modHead = 0;
+                canAllocate = true;
+            }
+        } else if (modTail - modHead >= size) {
+            canAllocate = true;
+        }
+
+        if (canAllocate) {
+            *offset = modHead;
+            fBufferState.fHead = head + size;
+            return fBufferState.fAllocation;
+        }
+    }
+
+    id<MTLBuffer> buffer = [fGpu->device() newBufferWithLength: size
+//#ifdef SK_BUILD_FOR_MAC
+//                                                       options: MTLResourceStorageModeManaged];
+//#else
+                                                       options: MTLResourceStorageModeShared];
+//#endif
+    *offset = 0;
+    return buffer;
+}
+
+void GrMtlResourceProvider::addBufferCompletionHandler(GrMtlCommandBuffer* cmdBuffer) {
+    __block size_t newTail = fBufferState.fHead;
+    cmdBuffer->addCompletedHandler(^(id <MTLCommandBuffer>commandBuffer) {
+        this->fBufferState.fTail = newTail;
+    });
 }

@@ -17,6 +17,7 @@
 #import <metal/metal.h>
 
 class GrMtlGpu;
+class GrMtlCommandBuffer;
 
 class GrMtlResourceProvider {
 public:
@@ -37,6 +38,7 @@ public:
     GrMtlSampler* findOrCreateCompatibleSampler(const GrSamplerState&, uint32_t maxMipLevel);
 
     id<MTLBuffer> getDynamicBuffer(size_t size, size_t* offset);
+    void addBufferCompletionHandler(GrMtlCommandBuffer* cmdBuffer);
 
     // Destroy any cached resources. To be called before releasing the MtlDevice.
     void destroyResources();
@@ -94,8 +96,8 @@ private:
     // Buffer state
     struct BufferState {
         id<MTLBuffer> fAllocation;
-        size_t        fAllocationSize;
-        size_t        fNextOffset;
+        size_t        fHead;
+        size_t        fTail;
     };
     BufferState fBufferState;
 };

@@ -137,10 +137,10 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
         return;
     }
     if (fIsDynamic) {
-#ifdef SK_BUILD_FOR_MAC
-        // TODO: need to make sure offset and size have valid alignments.
-        [fMtlBuffer didModifyRange: NSMakeRange(fOffset, sizeInBytes)];
-#endif
+//#ifdef SK_BUILD_FOR_MAC
+//        // TODO: need to make sure offset and size have valid alignments.
+//        [fMtlBuffer didModifyRange: NSMakeRange(fOffset, sizeInBytes)];
+//#endif
     } else {
         GrMtlCommandBuffer* cmdBuffer = this->mtlGpu()->commandBuffer();
         id<MTLBlitCommandEncoder> blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
