@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/SkottiePriv.h"
+#include "modules/skottie/src/effects/Effects.h"
 
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
@@ -439,6 +439,9 @@ EffectBuilderT FindEffectBuilder(const AnimationBuilder* abuilder,
         }
         if (!strcmp(mn->begin(), "ADBE Easy Levels2")) {
             return AttachLevelsLayerEffect;
+        }
+        if (!strcmp(mn->begin(), "ADBE Geometry2")) {
+            return AttachTransformEffect;
         }
     }
 
