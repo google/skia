@@ -101,8 +101,6 @@ private:
 
     sk_sp<sksg::RenderNode> attachComposition(const skjson::ObjectValue&, AnimatorScope*) const;
     sk_sp<sksg::RenderNode> attachLayer(const skjson::ObjectValue*, AttachLayerContext*) const;
-    sk_sp<sksg::RenderNode> attachLayerEffects(const skjson::ArrayValue& jeffects, AnimatorScope*,
-                                               sk_sp<sksg::RenderNode>) const;
 
     sk_sp<sksg::RenderNode> attachBlendMode(const skjson::ObjectValue&,
                                             sk_sp<sksg::RenderNode>) const;
