@@ -170,6 +170,30 @@
       "revId": "a2f5c71ea0e708dbb081a8699ca89b60945edeed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af4536a2_52e33116",
+        "filename": "infra/browser-perf/skottie-wasm-perf.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-06-14T14:17:05Z",
+      "side": 1,
+      "message": "We want a single run where you record the time for each frame. Then report the min, max, and mean for the frame times gathered.",
+      "parentUuid": "8345a0ed_d56e097e",
+      "range": {
+        "startLine": 92,
+        "startChar": 11,
+        "endLine": 92,
+        "endChar": 21
+      },
+      "revId": "a2f5c71ea0e708dbb081a8699ca89b60945edeed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
