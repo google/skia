@@ -9,6 +9,7 @@
 #define SkRasterPipeline_opts_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "src/sksl/SkSLByteCode.h"
 
 // Every function in this file should be marked static and inline using SI.
 #if defined(__clang__)
@@ -2564,6 +2565,22 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
     load4(c->read_from,0, &r,&g,&b,&a);
 }
 
+STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
+    unaligned_store(c->r, r);
+    unaligned_store(c->g, g);
+    unaligned_store(c->b, b);
+    unaligned_store(c->a, a);
+
+    float* args[] = { c->r, c->g, c->b, c->a };
+    c->byteCode->runStriped(c->fn, args, SK_ARRAY_COUNT(args), tail ? tail : N,
+                            (const float*)c->inputs, c->ninputs);
+
+    r = unaligned_load<F>(c->r);
+    g = unaligned_load<F>(c->g);
+    b = unaligned_load<F>(c->b);
+    a = unaligned_load<F>(c->a);
+}
+
 STAGE(gauss_a_to_rgba, Ctx::None) {
     // x = 1 - x;
     // exp(-x * x * 4) - 0.018f;
@@ -3842,6 +3859,7 @@ STAGE_PP(swizzle, void* ctx) {
 // If a pipeline uses these stages, it'll boot it out of lowp into highp.
 #define NOT_IMPLEMENTED(st) static void (*st)(void) = nullptr;
     NOT_IMPLEMENTED(callback)
+    NOT_IMPLEMENTED(interpreter)
     NOT_IMPLEMENTED(unbounded_set_rgb)
     NOT_IMPLEMENTED(unbounded_uniform_color)
     NOT_IMPLEMENTED(unpremul)
