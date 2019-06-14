@@ -1257,16 +1257,22 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     GrAAType aaType = this->chooseAAType(aa);
 
     std::unique_ptr<GrDrawOp> op;
-    if (style.isSimpleFill()) {
+    bool canUseOvalOpFactory = (GrAAType::kCoverage == aaType);
+    if (canUseOvalOpFactory && rrect.isSimple() &&
+        SkScalarNearlyEqual(rrect.getSimpleRadii().fX, rrect.getSimpleRadii().fY) &&
+        viewMatrix.isSimilarity()) {
+        op = GrOvalOpFactory::MakeCircularRRectOp(
+            fContext, std::move(paint), viewMatrix, rrect, stroke, this->caps()->shaderCaps());
+    }
+    if (!op && style.isSimpleFill()) {
         assert_alive(paint);
         op = GrFillRRectOp::Make(
                 fContext, aaType, viewMatrix, rrect, *this->caps(), std::move(paint));
     }
-    if (!op && GrAAType::kCoverage == aaType) {
+    if (!op && canUseOvalOpFactory) {
         assert_alive(paint);
         op = GrOvalOpFactory::MakeRRectOp(
                 fContext, std::move(paint), viewMatrix, rrect, stroke, this->caps()->shaderCaps());
-
     }
     if (op) {
         this->addDrawOp(*clip, std::move(op));
@@ -1665,7 +1671,14 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     GrAAType aaType = this->chooseAAType(aa);
 
     std::unique_ptr<GrDrawOp> op;
-    if (style.isSimpleFill()) {
+    bool canUseOvalOpFactory = (GrAAType::kCoverage == aaType);
+    if (canUseOvalOpFactory && SkScalarNearlyEqual(oval.width(), oval.height()) &&
+        viewMatrix.isSimilarity()) {
+        // Definitely circular, stroke or no.
+        op = GrOvalOpFactory::MakeCircleOp(fContext, std::move(paint), viewMatrix, oval, style,
+                                           this->caps()->shaderCaps());
+    }
+    if (!op && style.isSimpleFill()) {
         // GrFillRRectOp has special geometry and a fragment-shader branch to conditionally evaluate
         // the arc equation. This same special geometry and fragment branch also turn out to be a
         // substantial optimization for drawing ovals (namely, by not evaluating the arc equation
@@ -1674,13 +1687,10 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
         //
         // However, we still don't draw true circles as round rects in coverage mode, because it can
         // cause perf regressions on some platforms as compared to the dedicated circle Op.
-        if (GrAAType::kCoverage != aaType || oval.height() != oval.width()) {
-            assert_alive(paint);
-            op = GrFillRRectOp::Make(fContext, aaType, viewMatrix, SkRRect::MakeOval(oval),
-                                     *this->caps(), std::move(paint));
-        }
+        op = GrFillRRectOp::Make(fContext, aaType, viewMatrix, SkRRect::MakeOval(oval),
+                                 *this->caps(), std::move(paint));
     }
-    if (!op && GrAAType::kCoverage == aaType) {
+    if (!op && canUseOvalOpFactory) {
         assert_alive(paint);
         op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), viewMatrix, oval, style,
                                          this->caps()->shaderCaps());

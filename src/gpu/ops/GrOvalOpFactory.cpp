@@ -2978,6 +2978,58 @@ static std::unique_ptr<GrDrawOp> make_rrect_op(GrRecordingContext* context,
     }
 }
 
+std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeCircularRRectOp(GrRecordingContext* context,
+                                                               GrPaint&& paint,
+                                                               const SkMatrix& viewMatrix,
+                                                               const SkRRect& rrect,
+                                                               const SkStrokeRec& stroke,
+                                                               const GrShaderCaps* shaderCaps) {
+    SkASSERT(circle_stays_circle(viewMatrix));
+    SkASSERT(rrect.isSimple());
+    SkASSERT(!rrect.isOval());
+    SkVector radii = SkRRectPriv::GetSimpleRadii(rrect);
+    SkASSERT(SkScalarNearlyEqual(radii.fX, radii.fY));
+
+    // RRect ops only handle simple, but not too simple, rrects.
+    // Do any matrix crunching before we reset the draw state for device coords.
+    const SkRect& rrectBounds = rrect.getBounds();
+    SkRect bounds;
+    viewMatrix.mapRect(&bounds, rrectBounds);
+
+    SkScalar scaleFactor = SkScalarSqrt(
+            viewMatrix[SkMatrix::kMScaleX] * viewMatrix[SkMatrix::kMScaleX] +
+            viewMatrix[SkMatrix::kMSkewY] * viewMatrix[SkMatrix::kMSkewY]);
+    SkScalar radius = scaleFactor * radii.fX;
+    SkStrokeRec::Style style = stroke.getStyle();
+
+    // Do mapping of stroke. Use -1 to indicate fill-only draws.
+    SkScalar scaledStroke = -1;
+    SkScalar strokeWidth = stroke.getWidth();
+
+    bool isStrokeOnly =
+        SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style;
+
+    if (SkStrokeRec::kFill_Style != style) {
+        if (SkStrokeRec::kHairline_Style == style) {
+            scaledStroke = 1;
+        } else {
+            scaledStroke = strokeWidth * scaleFactor;
+        }
+    }
+
+    // The way the effect interpolates the offset-to-ellipse/circle-center attribute only works on
+    // the interior of the rrect if the radii are >= 0.5. Otherwise, the inner rect of the nine-
+    // patch will have fractional coverage. This only matters when the interior is actually filled.
+    // We could consider falling back to rect rendering here, since a tiny radius is
+    // indistinguishable from a square corner.
+    if (!isStrokeOnly && (SK_ScalarHalf > radius)) {
+        return nullptr;
+    }
+
+    return CircularRRectOp::Make(context, std::move(paint), viewMatrix, bounds, radius,
+                                 scaledStroke, isStrokeOnly);
+}
+
 std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrRecordingContext* context,
                                                        GrPaint&& paint,
                                                        const SkMatrix& viewMatrix,
@@ -2998,6 +3050,48 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrRecordingContext* conte
 
 ///////////////////////////////////////////////////////////////////////////////
 
+std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeCircleOp(GrRecordingContext* context,
+                                                        GrPaint&& paint,
+                                                        const SkMatrix& viewMatrix,
+                                                        const SkRect& oval,
+                                                        const GrStyle& style,
+                                                        const GrShaderCaps* shaderCaps) {
+    SkScalar width = oval.width();
+    SkASSERT(width > SK_ScalarNearlyZero && SkScalarNearlyEqual(width, oval.height()) &&
+             circle_stays_circle(viewMatrix));
+
+    auto r = width / 2.f;
+    SkPoint center = { oval.centerX(), oval.centerY() };
+    if (style.hasNonDashPathEffect()) {
+        return nullptr;
+    } else if (style.isDashed()) {
+        if (style.strokeRec().getCap() != SkPaint::kButt_Cap ||
+            style.dashIntervalCnt() != 2 || style.strokeRec().getWidth() >= width) {
+            return nullptr;
+        }
+        auto onInterval = style.dashIntervals()[0];
+        auto offInterval = style.dashIntervals()[1];
+        if (offInterval == 0) {
+            GrStyle strokeStyle(style.strokeRec(), nullptr);
+            return MakeOvalOp(context, std::move(paint), viewMatrix, oval,
+                              strokeStyle, shaderCaps);
+        } else if (onInterval == 0) {
+            // There is nothing to draw but we have no way to indicate that here.
+            return nullptr;
+        }
+        auto angularOnInterval = onInterval / r;
+        auto angularOffInterval = offInterval / r;
+        auto phaseAngle = style.dashPhase() / r;
+        // Currently this function doesn't accept ovals with different start angles, though
+        // it could.
+        static const SkScalar kStartAngle = 0.f;
+        return ButtCapDashedCircleOp::Make(context, std::move(paint), viewMatrix, center, r,
+                                           style.strokeRec().getWidth(), kStartAngle,
+                                           angularOnInterval, angularOffInterval, phaseAngle);
+    }
+    return CircleOp::Make(context, std::move(paint), viewMatrix, center, r, style);
+}
+
 std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrRecordingContext* context,
                                                       GrPaint&& paint,
                                                       const SkMatrix& viewMatrix,
@@ -3008,36 +3102,7 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrRecordingContext* contex
     SkScalar width = oval.width();
     if (width > SK_ScalarNearlyZero && SkScalarNearlyEqual(width, oval.height()) &&
         circle_stays_circle(viewMatrix)) {
-        auto r = width / 2.f;
-        SkPoint center = {oval.centerX(), oval.centerY()};
-        if (style.hasNonDashPathEffect()) {
-            return nullptr;
-        } else if (style.isDashed()) {
-            if (style.strokeRec().getCap() != SkPaint::kButt_Cap ||
-                style.dashIntervalCnt() != 2 || style.strokeRec().getWidth() >= width) {
-                return nullptr;
-            }
-            auto onInterval = style.dashIntervals()[0];
-            auto offInterval = style.dashIntervals()[1];
-            if (offInterval == 0) {
-                GrStyle strokeStyle(style.strokeRec(), nullptr);
-                return MakeOvalOp(context, std::move(paint), viewMatrix, oval,
-                                  strokeStyle, shaderCaps);
-            } else if (onInterval == 0) {
-                // There is nothing to draw but we have no way to indicate that here.
-                return nullptr;
-            }
-            auto angularOnInterval = onInterval / r;
-            auto angularOffInterval = offInterval / r;
-            auto phaseAngle = style.dashPhase() / r;
-            // Currently this function doesn't accept ovals with different start angles, though
-            // it could.
-            static const SkScalar kStartAngle = 0.f;
-            return ButtCapDashedCircleOp::Make(context, std::move(paint), viewMatrix, center, r,
-                                               style.strokeRec().getWidth(), kStartAngle,
-                                               angularOnInterval, angularOffInterval, phaseAngle);
-        }
-        return CircleOp::Make(context, std::move(paint), viewMatrix, center, r, style);
+        return MakeCircleOp(context, std::move(paint), viewMatrix, oval, style, shaderCaps);
     }
 
     if (style.pathEffect()) {
