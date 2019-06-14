@@ -16,6 +16,24 @@
       "revId": "cc82972af115b2fecc857c39d55c308009eeca3a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25c3d189_f3c3ef6b",
+        "filename": "infra/browser-perf/.gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-06-14T13:53:40Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "5f35f2b1_cdebaf37",
+      "revId": "cc82972af115b2fecc857c39d55c308009eeca3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
