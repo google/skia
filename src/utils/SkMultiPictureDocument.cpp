@@ -61,7 +61,8 @@ struct MultiPictureDocument final : public SkDocument {
 
     SkCanvas* onBeginPage(SkScalar w, SkScalar h) override {
         fCurrentPageSize.set(w, h);
-        return fPictureRecorder.beginRecording(w, h);
+        return fPictureRecorder.beginRecording(w, h, nullptr,
+        SkPictureRecorder::kPlaybackDrawPicture_RecordFlag);
     }
     void onEndPage() override {
         fSizes.push_back(fCurrentPageSize);
