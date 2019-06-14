@@ -84,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "55796d19_8479d9fa",
+        "filename": "infra/browser-perf/skottie-wasm-perf.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-14T14:04:26Z",
+      "side": 1,
+      "message": "I think I misunderstood what this was doing.",
+      "parentUuid": "22417350_494c060b",
+      "revId": "a2f5c71ea0e708dbb081a8699ca89b60945edeed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b2b27b2e_c20b41f4",
         "filename": "infra/browser-perf/skottie-wasm-perf.html",
         "patchSetId": 1
@@ -119,6 +137,30 @@
       "side": 1,
       "message": "Done. To be clear, do you want the per-frame time? at the moment, I do the aggregate of all 25 frames.",
       "parentUuid": "b2b27b2e_c20b41f4",
+      "range": {
+        "startLine": 92,
+        "startChar": 11,
+        "endLine": 92,
+        "endChar": 21
+      },
+      "revId": "a2f5c71ea0e708dbb081a8699ca89b60945edeed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8345a0ed_d56e097e",
+        "filename": "infra/browser-perf/skottie-wasm-perf.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-14T14:04:26Z",
+      "side": 1,
+      "message": "I think we want the per-frame time since that\u0027s what it seems like DM is doing.\nSo maybe flip the 2 loops? and then find the max/min/avg for frames. Would also be useful to rename _avgTimeMs -\u003e _frameAvgTimeMs or just _frameAvgMs\n(Joe should do a sanity check of this as well)",
+      "parentUuid": "850330ab_7e9c9a6e",
       "range": {
         "startLine": 92,
         "startChar": 11,
