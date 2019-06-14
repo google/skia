@@ -228,8 +228,10 @@ protected:
             {  20,  20,  50,  50 },
         };
 
-        SkImageInfo info = SkImageInfo::MakeN32(100, 100, kUnpremul_SkAlphaType);
-        if (!fMainImage) {
+        // bool makeImages = (!fMainImage || !fAuxImage || ((canvas->getGrContext() != nullptr) && (!fMainImage->isTextureBacked() || !fAuxImage->isTextureBacked())));
+
+        // if (!fMainImage || !fAuxImage) {
+            SkImageInfo info = SkImageInfo::MakeN32(100, 100, kPremul_SkAlphaType);
             sk_sp<SkImage> colorImage = GetResourceAsImage("images/mandrill_128.png");
             sk_sp<SkSurface> surface = ToolUtils::makeSurface(canvas, info);
 
@@ -238,12 +240,12 @@ protected:
                     colorImage, SkRect::MakeWH(colorImage->width(), colorImage->height()),
                     SkRect::MakeWH(info.width(), info.height()), nullptr);
             fMainImage = surface->makeImageSnapshot();
-        }
-        if (!fAuxImage) {
-            sk_sp<SkSurface> surface = ToolUtils::makeSurface(canvas, info);
+
             ToolUtils::draw_checkerboard(surface->getCanvas());
             fAuxImage = surface->makeImageSnapshot();
-        }
+
+            SkDebugf("Made images: %d %d %d\n", !!canvas->getGrContext(), fMainImage->isTextureBacked(), fAuxImage->isTextureBacked());
+        // }
 
         SkScalar MARGIN = SkIntToScalar(40);
         SkScalar DX = fMainImage->width() + MARGIN;
@@ -340,5 +342,5 @@ private:
 DEF_GM( return new ImageMakeWithFilterGM(Strategy::kMakeWithFilter); )
 DEF_GM( return new ImageMakeWithFilterGM(Strategy::kSaveLayer); )
 // Test with crop rects on the image filters; should look identical to above if working correctly
-DEF_GM( return new ImageMakeWithFilterGM(Strategy::kMakeWithFilter, true); )
-DEF_GM( return new ImageMakeWithFilterGM(Strategy::kSaveLayer, true); )
+// DEF_GM( return new ImageMakeWithFilterGM(Strategy::kMakeWithFilter, true); )
+// DEF_GM( return new ImageMakeWithFilterGM(Strategy::kSaveLayer, true); )

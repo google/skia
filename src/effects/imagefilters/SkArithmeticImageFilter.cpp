@@ -144,9 +144,10 @@ template<bool EnforcePMColor> void arith_transparent(const float k[], SkPMColor 
     }
 }
 
-static bool intersect(SkPixmap* dst, SkPixmap* src, int srcDx, int srcDy) {
+static bool intersect(SkPixmap* dst, SkPixmap* src, int srcDx, int srcDy,
+                      const SkIRect& srcSubset) {
     SkIRect dstR = SkIRect::MakeWH(dst->width(), dst->height());
-    SkIRect srcR = SkIRect::MakeXYWH(srcDx, srcDy, src->width(), src->height());
+    SkIRect srcR = SkIRect::MakeXYWH(srcDx, srcDy, srcSubset.width(), srcSubset.height());
     SkIRect sect;
     if (!sect.intersect(dstR, srcR)) {
         return false;
@@ -155,7 +156,8 @@ static bool intersect(SkPixmap* dst, SkPixmap* src, int srcDx, int srcDy) {
                     dst->addr(sect.fLeft, sect.fTop),
                     dst->rowBytes());
     *src = SkPixmap(src->info().makeWH(sect.width(), sect.height()),
-                    src->addr(SkTMax(0, -srcDx), SkTMax(0, -srcDy)),
+                    src->addr(SkTMax(0, srcSubset.x() + (sect.x() - srcDx)),
+                              SkTMax(0, srcSubset.y() + (sect.y() - srcDy))),
                     src->rowBytes());
     return true;
 }
@@ -411,9 +413,9 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
 
         auto proc = fEnforcePMColor ? arith_span<true> : arith_span<false>;
         SkPixmap tmpDst = dst;
-        if (intersect(&tmpDst, &src, fgoffset.fLeft, fgoffset.fTop)) {
-            for (int y = 0; y < tmpDst.height(); ++y) {
-                proc(fK, tmpDst.writable_addr32(0, y), src.addr32(0, y), tmpDst.width());
+        if (intersect(&tmpDst, &src, fgoffset.fLeft, fgoffset.fTop, img->subset())) {
+            for (int y = 0; y < src.height(); ++y) {
+                proc(fK, tmpDst.writable_addr32(0, y), src.addr32(0, y), src.width());
             }
         }
     }

@@ -473,7 +473,9 @@ static sk_sp<SkSpecialImage> cpu_blur(
     }
 
     SkBitmap src;
-    inputBM.extractSubset(&src, srcBounds);
+    // inputBM represents the entire backing image, but srcBounds is relative to the subset of the
+    // image so it needs to be shifted to access the correct part of inputBM.
+    inputBM.extractSubset(&src, srcBounds.makeOffset(input->subset().x(), input->subset().y()));
 
     // Make everything relative to the destination bounds.
     srcBounds.offset(-dstBounds.x(), -dstBounds.y());
@@ -599,7 +601,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         // Ensure the input is in the destination's gamut. This saves us from having to do the
         // xform during the filter itself.
         input = ImageToColorSpace(input.get(), ctx.outputProperties());
-
+        SkDebugf("gpu blur?!!:!");
         result = this->gpuFilter(source, sigma, input, inputBounds, dstBounds, inputOffset,
                                  ctx.outputProperties(), &resultOffset);
     } else
@@ -633,6 +635,10 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
     if (!inputTexture) {
         return nullptr;
     }
+
+    // Adjust inputBounds to access the backing texture correctly, originally it is relative to the
+    // special image's subset.
+    inputBounds.offset(input->subset().x(), input->subset().y());
 
     sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(
                             context,

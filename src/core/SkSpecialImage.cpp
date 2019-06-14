@@ -165,7 +165,8 @@ sk_sp<SkSurface> SkSpecialImage::makeTightSurface(const SkImageFilter::OutputPro
 }
 
 sk_sp<SkSpecialImage> SkSpecialImage::makeSubset(const SkIRect& subset) const {
-    return as_SIB(this)->onMakeSubset(subset);
+    SkIRect relative = subset.makeOffset(this->subset().x(), this->subset().y());
+    return as_SIB(this)->onMakeSubset(relative);
 }
 
 sk_sp<SkImage> SkSpecialImage::asImage(const SkIRect* subset) const {
