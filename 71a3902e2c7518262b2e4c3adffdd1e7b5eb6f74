@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0992b2e5_53ad059a",
+        "filename": "tools/skottie-wasm-perf/skottie-wasm-perf.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-14T16:50:38Z",
+      "side": 1,
+      "message": "As discussed, please also add here if it used GPU.",
+      "revId": "71a3902e2c7518262b2e4c3adffdd1e7b5eb6f74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
