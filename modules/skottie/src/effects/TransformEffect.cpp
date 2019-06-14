@@ -41,10 +41,8 @@ private:
 
 } // anonymous ns
 
-sk_sp<sksg::RenderNode> AttachTransformEffect(const skjson::ArrayValue& jprops,
-                                              const AnimationBuilder* abuilder,
-                                              AnimatorScope* ascope,
-                                              sk_sp<sksg::RenderNode> layer) {
+sk_sp<sksg::RenderNode> EffectBuilder::attachTransformEffect(const skjson::ArrayValue& jprops,
+                                                             sk_sp<sksg::RenderNode> layer) const {
     enum : size_t {
         kAnchorPoint_Index            =  0,
         kPosition_Index               =  1,
@@ -64,44 +62,36 @@ sk_sp<sksg::RenderNode> AttachTransformEffect(const skjson::ArrayValue& jprops,
     auto t_adapter = sk_make_sp<TransformAdapter2D>(matrix);
     auto s_adapter = sk_make_sp<ScaleAdapter>(t_adapter);
 
-    abuilder->bindProperty<VectorValue>(EffectBuilder::GetPropValue(jprops, kAnchorPoint_Index),
-                                        ascope,
+    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kAnchorPoint_Index), fScope,
         [t_adapter](const VectorValue& ap) {
             t_adapter->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(ap));
         });
-    abuilder->bindProperty<VectorValue>(EffectBuilder::GetPropValue(jprops, kPosition_Index),
-                                        ascope,
+    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kPosition_Index), fScope,
         [t_adapter](const VectorValue& p) {
             t_adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
         });
-    abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops, kRotation_Index),
-                                        ascope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kRotation_Index), fScope,
         [t_adapter](const ScalarValue& r) {
             t_adapter->setRotation(r);
         });
-    abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops, kSkew_Index),
-                                        ascope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kSkew_Index), fScope,
         [t_adapter](const ScalarValue& s) {
             t_adapter->setSkew(s);
         });
-    abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops, kSkewAxis_Index),
-                                        ascope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kSkewAxis_Index), fScope,
         [t_adapter](const ScalarValue& sa) {
             t_adapter->setSkewAxis(sa);
         });
 
-    abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops, kUniformScale_Index),
-                                        ascope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kUniformScale_Index), fScope,
         [s_adapter](const ScalarValue& u) {
             s_adapter->setIsUniform(SkScalarRoundToInt(u));
         });
-    abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops, kScaleHeight_Index),
-                                        ascope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kScaleHeight_Index), fScope,
         [s_adapter](const ScalarValue& sh) {
             s_adapter->setScaleHeight(sh);
         });
-    abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops, kScaleWidth_Index),
-                                        ascope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kScaleWidth_Index), fScope,
         [s_adapter](const ScalarValue& sw) {
             s_adapter->setScaleWidth(sw);
         });
@@ -109,8 +99,7 @@ sk_sp<sksg::RenderNode> AttachTransformEffect(const skjson::ArrayValue& jprops,
     auto opacity_node = sksg::OpacityEffect::Make(sksg::TransformEffect::Make(std::move(layer),
                                                                               std::move(matrix)));
 
-    abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops, kOpacity_Index),
-                                        ascope,
+    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOpacity_Index), fScope,
         [opacity_node](const ScalarValue& o) {
             opacity_node->setOpacity(o * 0.01f);
         });
