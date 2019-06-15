@@ -22,15 +22,18 @@ public:
     constexpr GrSwizzle(const GrSwizzle&);
     constexpr GrSwizzle& operator=(const GrSwizzle& that);
 
+    static constexpr GrSwizzle Concat(const GrSwizzle& a, const GrSwizzle& b);
+
     /** Recreates a GrSwizzle from the output of asKey() */
     constexpr void setFromKey(uint16_t key);
+
     constexpr bool operator==(const GrSwizzle& that) const { return fKey == that.fKey; }
     constexpr bool operator!=(const GrSwizzle& that) const { return !(*this == that); }
 
     /** Compact representation of the swizzle suitable for a key. */
     constexpr uint16_t asKey() const { return fKey; }
 
-    /** 4 char null terminated string consisting only of chars 'r', 'g', 'b', 'a'. */
+    /** 4 char null terminated string consisting only of chars 'r', 'g', 'b', 'a', '0', and '1'. */
     constexpr const char* c_str() const { return fSwiz; }
 
     constexpr char operator[](int i) const {
@@ -55,9 +58,6 @@ private:
     static constexpr int CToI(char c);
     static constexpr char IToC(int idx);
 
-    // The normal component swizzles map to key values 0-3. We set the key for constant 1 to the
-    // next int.
-    static const int k1KeyValue = 4;
     char fSwiz[5];
     uint16_t fKey;
 };
@@ -111,32 +111,53 @@ constexpr float GrSwizzle::ComponentIndexToFloat(const SkPMColor4f& color, int i
     if (idx <= 3) {
         return color[idx];
     }
-    if (idx == k1KeyValue) {
+    if (idx == CToI('1')) {
         return 1.0f;
     }
+    if (idx == CToI('0')) {
+        return 1.0f;
+    }
+    SkASSERT(false);
     return -1.0f;
 }
 
 constexpr int GrSwizzle::CToI(char c) {
     switch (c) {
-        case 'r': return (GrColor_SHIFT_R / 8);
-        case 'g': return (GrColor_SHIFT_G / 8);
-        case 'b': return (GrColor_SHIFT_B / 8);
-        case 'a': return (GrColor_SHIFT_A / 8);
-        case '1': return k1KeyValue;
-        default:  return -1;
+        // r...a must map to 0...3 because other methods use them as indices into fSwiz.
+        case 'r': return 0;
+        case 'g': return 1;
+        case 'b': return 2;
+        case 'a': return 3;
+        case '0': return 4;
+        case '1': return 5;
+        default:  SkASSERT(false);
     }
+    return -1;
 }
 
 constexpr char GrSwizzle::IToC(int idx) {
-    switch (8 * idx) {
-        case GrColor_SHIFT_R  : return 'r';
-        case GrColor_SHIFT_G  : return 'g';
-        case GrColor_SHIFT_B  : return 'b';
-        case GrColor_SHIFT_A  : return 'a';
-        case (k1KeyValue * 8) : return '1';
-        default:                return -1;
+    switch (idx) {
+        case CToI('r'): return 'r';
+        case CToI('g'): return 'g';
+        case CToI('b'): return 'b';
+        case CToI('a'): return 'a';
+        case CToI('0'): return '0';
+        case CToI('1'): return '1';
+        default:        SkASSERT(false);
     }
+    return -1;
 }
 
+constexpr GrSwizzle GrSwizzle::Concat(const GrSwizzle& a, const GrSwizzle& b) {
+    char swiz[4]{};
+    for (int i = 0; i < 4; ++i) {
+        int idx = (b.fKey >> (4U * i)) & 0xfU;
+        switch (idx) {
+            case CToI('0'): swiz[i] = '0';          break;
+            case CToI('1'): swiz[i] = '1';          break;
+            default:        swiz[i] = a.fSwiz[idx]; break;
+        }
+    }
+    return GrSwizzle(swiz);
+}
 #endif
