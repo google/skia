@@ -141,6 +141,30 @@
       "revId": "7b8208054d4470d99028fccde6fbce72845c98ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e88c90ee_7c884d82",
+        "filename": "src/gpu/ops/GrOvalOpFactory.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-06-15T00:56:29Z",
+      "side": 1,
+      "message": "\u003e It should use SkScalarNearlyEqual rather than operator\u003d\u003d though.\n\nI might not agree here.. Since we are looking at the exact round rect they\u0027ve given us, I\u0027d argue that if they want a circle they will ensure radiusX\u003d\u003d\u003dradiusY.\n\nOtherwise there is room for subtle bugs to creep in when using an extreme transformation matrix.",
+      "parentUuid": "de405acb_13080f26",
+      "range": {
+        "startLine": 42,
+        "startChar": 49,
+        "endLine": 42,
+        "endChar": 66
+      },
+      "revId": "7b8208054d4470d99028fccde6fbce72845c98ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
