@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2dacec2d_93a2a8f6",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1261,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-06-15T01:15:26Z",
+      "side": 1,
+      "message": "I think it might be worth it to discuss the trade-offs of using SkScalarNearlyEqual.\n\nIMO this opens us up to rendering bugs when the view matrix is extreme. And I feel like it\u0027s pretty reasonable to expect that if somebody wants a circle, they will give us something with x\u003d\u003d\u003dy in the raw, untransformed radii.\n\nI might be inclined. Just check if \"x\u003d\u003dy\"? What do you think?",
+      "range": {
+        "startLine": 1261,
+        "startChar": 8,
+        "endLine": 1261,
+        "endChar": 27
+      },
+      "revId": "307934499e662193e37486576b63d5a8a94c2d7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e4c54af_bb898f1e",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1266,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-06-15T01:15:26Z",
+      "side": 1,
+      "message": "After all the checks above, is MakeRRectOp still necessary? I\u0027d rather not make the redundant circle checks a second time in that function. Any reason we can\u0027t bypass all that and go directly to creating a CircularRRectOp from here?",
+      "range": {
+        "startLine": 1266,
+        "startChar": 13,
+        "endLine": 1266,
+        "endChar": 41
+      },
+      "revId": "307934499e662193e37486576b63d5a8a94c2d7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
