@@ -66,7 +66,7 @@ protected:
         }
 
         SkString emitVertexFn;
-        SkSTArray<2, GrShaderVar> emitArgs;
+        SkSTArray<3, GrShaderVar> emitArgs;
         const char* corner = emitArgs.emplace_back("corner", kFloat2_GrSLType).c_str();
         const char* bloatdir = emitArgs.emplace_back("bloatdir", kFloat2_GrSLType).c_str();
         const char* inputCoverage = nullptr;

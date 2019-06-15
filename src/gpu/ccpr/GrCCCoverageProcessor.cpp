@@ -42,6 +42,8 @@ class GrCCCoverageProcessor::TriangleShader : public GrCCCoverageProcessor::Shad
         }
     }
 
+    void emitStencilCode(GrGLSLFPFragmentBuilder*) const override { return; }
+
     GrGLSLVarying fCoverages;
 };
 

@@ -46,14 +46,16 @@ public:
         void accountForSpace(int width, int height);
     };
 
-    enum class CoverageType : bool {
+    enum class CoverageType {
         kFP16_CoverageCount,
+        kA8_Multisample,
         kA8_LiteralCoverage
     };
 
     GrCCAtlas(CoverageType, const Specs&, const GrCaps&);
     ~GrCCAtlas();
 
+    CoverageType coverageType() const { return fCoverageType; }
     GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
     int currentWidth() const { return fWidth; }
     int currentHeight() const { return fHeight; }
@@ -63,12 +65,14 @@ public:
     bool addRect(const SkIRect& devIBounds, SkIVector* atlasOffset);
     const SkISize& drawBounds() { return fDrawBounds; }
 
-    // This is an optional space for the caller to jot down which user-defined batches to use when
-    // they render the content of this atlas.
+    // This is an optional space for the caller to jot down user-defined instance data to use when
+    // rendering atlas content.
     void setFillBatchID(int id);
     int getFillBatchID() const { return fFillBatchID; }
     void setStrokeBatchID(int id);
     int getStrokeBatchID() const { return fStrokeBatchID; }
+    void setPathEndInstanceIdx(int idx);
+    int getPathEndInstanceIdx() const { return fPathEndInstanceIdx; }
 
     sk_sp<GrCCCachedAtlas> refOrMakeCachedAtlas(GrOnFlushResourceProvider*);
 
@@ -95,6 +99,7 @@ private:
 
     int fFillBatchID;
     int fStrokeBatchID;
+    int fPathEndInstanceIdx;
 
     sk_sp<GrCCCachedAtlas> fCachedAtlas;
     sk_sp<GrTextureProxy> fTextureProxy;
@@ -112,6 +117,7 @@ public:
     GrCCAtlasStack(CoverageType coverageType, const GrCCAtlas::Specs& specs, const GrCaps* caps)
             : fCoverageType(coverageType), fSpecs(specs), fCaps(caps) {}
 
+    CoverageType coverageType() const { return fCoverageType; }
     bool empty() const { return fAtlases.empty(); }
     const GrCCAtlas& front() const { SkASSERT(!this->empty()); return fAtlases.front(); }
     GrCCAtlas& front() { SkASSERT(!this->empty()); return fAtlases.front(); }

@@ -71,6 +71,11 @@ public:
     // initialize each tile with a constant value rather than loading each pixel from memory.
     bool preferFullscreenClears() const { return fPreferFullscreenClears; }
 
+    // On tilers we can save memory bandwidth by clearing the stencil buffer at the beginning of
+    // a command buffer, and discarding it at the end. This encourages the driver to only use fast,
+    // on-chip tile memory and never actually transfer stencil values to and from main memory.
+    bool discardStencilAfterCommandBuffer() const { return fDiscardStencilAfterCommandBuffer; }
+
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
     bool preferTrianglesOverSampleMask() const { return fPreferTrianglesOverSampleMask; }
@@ -165,6 +170,12 @@ public:
     // Returns the maximum supported sample count for a config. 0 means the config is not renderable
     // 1 means the config is renderable but doesn't support MSAA.
     virtual int maxRenderTargetSampleCount(GrPixelConfig) const = 0;
+
+    // Returns the number of samples to use when performing internal draws with MSAA and the given
+    // pixel config. See maxRenderTargetSampleCount() for the meanings of 0 and 1 return values.
+    int preferredInternalMSAASampleCount(GrPixelConfig config) const {
+        return SkTMin(fPreferredInternalMSAASampleCount, this->maxRenderTargetSampleCount(config));
+    }
 
     bool isConfigRenderable(GrPixelConfig config) const {
         return this->maxRenderTargetSampleCount(config) > 0;
@@ -381,6 +392,7 @@ protected:
     bool fUsePrimitiveRestart                        : 1;
     bool fPreferClientSideDynamicBuffers             : 1;
     bool fPreferFullscreenClears                     : 1;
+    bool fDiscardStencilAfterCommandBuffer           : 1;
     bool fMustClearUploadedBufferData                : 1;
     bool fShouldInitializeTextures                   : 1;
     bool fSupportsAHardwareBufferImages              : 1;
@@ -425,6 +437,7 @@ protected:
     int fMaxTextureSize;
     int fMaxTileSize;
     int fMaxWindowRectangles;
+    int fPreferredInternalMSAASampleCount;
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;
 

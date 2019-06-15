@@ -32,6 +32,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fUsePrimitiveRestart = false;
     fPreferClientSideDynamicBuffers = false;
     fPreferFullscreenClears = false;
+    fDiscardStencilAfterCommandBuffer = false;
     fMustClearUploadedBufferData = false;
     fShouldInitializeTextures = false;
     fSupportsAHardwareBufferImages = false;
@@ -57,6 +58,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMaxPreferredRenderTargetSize = 1;
     fMaxTextureSize = 1;
     fMaxWindowRectangles = 0;
+    fPreferredInternalMSAASampleCount = 0;
 
     fSuppressPrints = options.fSuppressPrints;
 #if GR_TEST_UTILS
@@ -110,11 +112,20 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         fShaderCaps->fGeometryShaderSupport = false;
     }
 #endif
+
     if (fMaxWindowRectangles > GrWindowRectangles::kMaxWindows) {
         SkDebugf("WARNING: capping window rectangles at %i. HW advertises support for %i.\n",
                  GrWindowRectangles::kMaxWindows, fMaxWindowRectangles);
         fMaxWindowRectangles = GrWindowRectangles::kMaxWindows;
     }
+
+    if (options.fPreferredInternalMSAASampleCount) {
+        fPreferredInternalMSAASampleCount = options.fPreferredInternalMSAASampleCount;
+    }
+    if (!fPreferredInternalMSAASampleCount) {
+        fPreferredInternalMSAASampleCount = 8;
+    }
+
     fAvoidStencilBuffers = options.fAvoidStencilBuffers;
 
     fDriverBugWorkarounds.applyOverrides(options.fDriverBugWorkarounds);
@@ -202,6 +213,8 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Use primitive restart", fUsePrimitiveRestart);
     writer->appendBool("Prefer client-side dynamic buffers", fPreferClientSideDynamicBuffers);
     writer->appendBool("Prefer fullscreen clears", fPreferFullscreenClears);
+    writer->appendBool("Discard stencil values after executing a command buffer",
+                       fDiscardStencilAfterCommandBuffer);
     writer->appendBool("Must clear buffer memory", fMustClearUploadedBufferData);
     writer->appendBool("Should initialize textures", fShouldInitializeTextures);
     writer->appendBool("Supports importing AHardwareBuffers", fSupportsAHardwareBufferImages);
@@ -233,6 +246,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max Render Target Size", fMaxRenderTargetSize);
     writer->appendS32("Max Preferred Render Target Size", fMaxPreferredRenderTargetSize);
     writer->appendS32("Max Window Rectangles", fMaxWindowRectangles);
+    writer->appendS32("Preferred Sample Count for Internal MSAA", fPreferredInternalMSAASampleCount);
 
     static const char* kBlendEquationSupportNames[] = {
         "Basic",

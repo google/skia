@@ -17,6 +17,39 @@
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 
+// This class draws pixel-aligned rectangles directly on top of every path in the atlas. "Nonzero"
+// paths get clockwise rectangles and "even/odd" paths get counter-clockwise. Its purpose is to
+// convert winding counts in the stencil buffer to A8 coverage in the color buffer.
+class GrCCPathProcessor::ResolveStencilCoverageInPlaceImpl : public GrGLSLGeometryProcessor {
+    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
+        const GrCCPathProcessor& proc = args.fGP.cast<GrCCPathProcessor>();
+        GrGLSLVertexBuilder* v = args.fVertBuilder;
+        GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
+
+        SkASSERT(!proc.fAtlasAccess.isInitialized());
+
+        args.fVaryingHandler->emitAttributes(proc);
+
+        // Are we clockwise? (Positive wind => nonzero fill rule.)
+        // Or counter-clockwise? (negative wind => even/odd fill rule.)
+        v->codeAppendf("float wind = sign(devbounds.z - devbounds.x);");
+
+        v->codeAppendf("float2 devcoord;");
+        v->codeAppendf("devcoord.x = (0 == (sk_VertexID & 1)) "
+                               "? floor(devbounds.x * wind) "
+                               ": ceil(devbounds.z * wind);");
+        v->codeAppendf("devcoord.y = (sk_VertexID < 2) ? floor(devbounds.y) : ceil(devbounds.w);");
+
+        v->codeAppendf("float2 atlascoord = devcoord * float2(wind, 1) + dev_to_atlas_offset;");
+        gpArgs->fPositionVar.set(kFloat2_GrSLType, "atlascoord");
+
+        f->codeAppendf("%s = %s = half4(1);", args.fOutputColor, args.fOutputCoverage);
+    }
+
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
+                 FPCoordTransformIter&&) override {}
+};
+
 // Paths are drawn as octagons. Each point on the octagon is the intersection of two lines: one edge
 // from the path's bounding box and one edge from its 45-degree bounding box. The selectors
 // below indicate one corner from the bounding box, paired with a corner from the 45-degree bounding
@@ -79,30 +112,109 @@ sk_sp<const GrGpuBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourcePro
     }
 }
 
-GrCCPathProcessor::GrCCPathProcessor(const GrTexture* atlasTexture, GrSurfaceOrigin atlasOrigin,
-                                     const SkMatrix& viewMatrixIfUsingLocalCoords)
-        : INHERITED(kGrCCPathProcessor_ClassID)
-        , fAtlasAccess(atlasTexture->texturePriv().textureType(), atlasTexture->config(),
-                       GrSamplerState::Filter::kNearest, GrSamplerState::WrapMode::kClamp)
-        , fAtlasSize(SkISize::Make(atlasTexture->width(), atlasTexture->height()))
-        , fAtlasOrigin(atlasOrigin) {
-    // TODO: Can we just assert that atlas has GrCCAtlas::kTextureOrigin and remove fAtlasOrigin?
-    this->setInstanceAttributes(kInstanceAttribs, SK_ARRAY_COUNT(kInstanceAttribs));
-    SkASSERT(this->instanceStride() == sizeof(Instance));
+// This Impl draws octagons to the main canvas where the paths should be drawn, and reads path
+// coverage from the atlas.
+class GrCCPathProcessor::DrawPathToMainCanvasImpl : public GrGLSLGeometryProcessor {
+    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
+        using Interpolation = GrGLSLVaryingHandler::Interpolation;
 
-    this->setVertexAttributes(&kCornersAttrib, 1);
-    this->setTextureSamplerCnt(1);
+        const GrCCPathProcessor& proc = args.fGP.cast<GrCCPathProcessor>();
+        GrGLSLUniformHandler* uniHandler = args.fUniformHandler;
+        GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+        bool isCoverageCount = (Flags::kResolveCoverageCount & proc.fFlags);
 
-    if (!viewMatrixIfUsingLocalCoords.invert(&fLocalMatrix)) {
-        fLocalMatrix.setIdentity();
+        SkASSERT(proc.fAtlasAccess.isInitialized());
+
+        const char* atlasAdjust;
+        fAtlasAdjustUniform = uniHandler->addUniform(
+                kVertex_GrShaderFlag, kFloat2_GrSLType, "atlas_adjust", &atlasAdjust);
+
+        varyingHandler->emitAttributes(proc);
+
+        GrGLSLVarying texcoord((isCoverageCount) ? kFloat3_GrSLType : kFloat2_GrSLType);
+        varyingHandler->addVarying("texcoord", &texcoord);
+
+        GrGLSLVarying color(kHalf4_GrSLType);
+        varyingHandler->addPassThroughAttribute(
+                kInstanceAttribs[kColorAttribIdx], args.fOutputColor, Interpolation::kCanBeFlat);
+
+        // The vertex shader bloats and intersects the devBounds and devBounds45 rectangles, in
+        // order to find an octagon that circumscribes the (bloated) path.
+        GrGLSLVertexBuilder* v = args.fVertBuilder;
+
+        // Are we clockwise? (Positive wind => nonzero fill rule.)
+        // Or counter-clockwise? (negative wind => even/odd fill rule.)
+        v->codeAppendf("float wind = sign(devbounds.z - devbounds.x);");
+
+        // Find our reference corner from the device-space bounding box.
+        v->codeAppendf("float2 refpt = mix(devbounds.xy, devbounds.zw, corners.xy);");
+
+        // Find our reference corner from the 45-degree bounding box.
+        v->codeAppendf("float2 refpt45 = mix(devbounds45.xy, devbounds45.zw, corners.zw);");
+        // Transform back to device space.
+        v->codeAppendf("refpt45 *= float2x2(+1, +1, -wind, +wind) * .5;");
+
+        // Find the normals to each edge, then intersect them to find our octagon vertex.
+        v->codeAppendf("float2x2 N = float2x2("
+                               "corners.z + corners.w - 1, corners.w - corners.z, "
+                               "corners.xy*2 - 1);");
+        v->codeAppendf("N = float2x2(wind, 0, 0, 1) * N;");
+        v->codeAppendf("float2 K = float2(dot(N[0], refpt), dot(N[1], refpt45));");
+        v->codeAppendf("float2 octocoord = K * inverse(N);");
+
+        // Round the octagon out to ensure we rasterize every pixel the path might touch. (Positive
+        // bloatdir means we should take the "ceil" and negative means to take the "floor".)
+        //
+        // NOTE: If we were just drawing a rect, ceil/floor would be enough. But since there are
+        // also diagonals in the octagon that cross through pixel centers, we need to outset by
+        // another quarter px to ensure those pixels get rasterized.
+        v->codeAppendf("float2 bloatdir = (0 != N[0].x) "
+                               "? float2(N[0].x, N[1].y)"
+                               ": float2(N[1].x, N[0].y);");
+        v->codeAppendf("octocoord = (ceil(octocoord * bloatdir - 1e-4) + 0.25) * bloatdir;");
+        v->codeAppendf("float2 atlascoord = octocoord + float2(dev_to_atlas_offset);");
+
+        // Convert to atlas coordinates in order to do our texture lookup.
+        if (kTopLeft_GrSurfaceOrigin == proc.fAtlasOrigin) {
+            v->codeAppendf("%s.xy = atlascoord * %s;", texcoord.vsOut(), atlasAdjust);
+        } else {
+            SkASSERT(kBottomLeft_GrSurfaceOrigin == proc.fAtlasOrigin);
+            v->codeAppendf("%s.xy = float2(atlascoord.x * %s.x, 1 - atlascoord.y * %s.y);",
+                           texcoord.vsOut(), atlasAdjust, atlasAdjust);
+        }
+        if (isCoverageCount) {
+            v->codeAppendf("%s.z = wind * .5;", texcoord.vsOut());
+        }
+
+        gpArgs->fPositionVar.set(kFloat2_GrSLType, "octocoord");
+        this->emitTransforms(v, varyingHandler, uniHandler, gpArgs->fPositionVar,
+                             proc.fLocalMatrix, args.fFPCoordTransformHandler);
+
+        // Fragment shader.
+        GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
+
+        // Look up coverage in the atlas.
+        f->codeAppendf("half coverage = ");
+        f->appendTextureLookup(args.fTexSamplers[0],
+                               SkStringPrintf("%s.xy", texcoord.fsIn()).c_str(), kFloat2_GrSLType);
+        f->codeAppendf(".a;");
+
+        if (isCoverageCount) {
+            f->codeAppendf("coverage = abs(coverage);");
+
+            // Scale coverage count by .5. Make it negative for even-odd paths and positive for
+            // winding ones. Clamp winding coverage counts at 1.0 (i.e. min(coverage/2, .5)).
+            f->codeAppendf("coverage = min(abs(coverage) * half(%s.z), .5);", texcoord.fsIn());
+
+            // For negative values, this finishes the even-odd sawtooth function. Since positive
+            // (winding) values were clamped at "coverage/2 = .5", this only undoes the previous
+            // multiply by .5.
+            f->codeAppend ("coverage = 1 - abs(fract(coverage) * 2 - 1);");
+        }
+
+        f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
     }
-}
 
-class GrCCPathProcessor::Impl : public GrGLSLGeometryProcessor {
-public:
-    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override;
-
-private:
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
                  FPCoordTransformIter&& transformIter) override {
         const auto& proc = primProc.cast<GrCCPathProcessor>();
@@ -112,122 +224,67 @@ private:
     }
 
     GrGLSLUniformHandler::UniformHandle fAtlasAdjustUniform;
-
-    typedef GrGLSLGeometryProcessor INHERITED;
 };
 
+GrCCPathProcessor::GrCCPathProcessor(Flags flags, const GrTexture* atlasTexture,
+                                     GrSurfaceOrigin atlasOrigin,
+                                     const SkMatrix& viewMatrixIfUsingLocalCoords)
+        : INHERITED(kGrCCPathProcessor_ClassID)
+        , fFlags(flags) {
+    SkASSERT(SkToBool(Flags::kResolveStencilCoverageInPlace & fFlags) != SkToBool(atlasTexture));
+    if (atlasTexture) {
+        fAtlasAccess.reset(atlasTexture->texturePriv().textureType(), atlasTexture->config(),
+                           GrSamplerState::Filter::kNearest, GrSamplerState::WrapMode::kClamp);
+        fAtlasSize.set(atlasTexture->width(), atlasTexture->height());
+        // TODO: Just assert that atlas has GrCCAtlas::kTextureOrigin and remove fAtlasOrigin?
+        fAtlasOrigin = atlasOrigin;
+        this->setTextureSamplerCnt(1);
+    }
+    this->setInstanceAttributes(kInstanceAttribs, SK_ARRAY_COUNT(kInstanceAttribs));
+    SkASSERT(this->instanceStride() == sizeof(Instance));
+
+    if (!(Flags::kResolveStencilCoverageInPlace & fFlags)) {
+        this->setVertexAttributes(&kCornersAttrib, 1);
+    }
+
+    if (!viewMatrixIfUsingLocalCoords.invert(&fLocalMatrix)) {
+        fLocalMatrix.setIdentity();
+    }
+}
+
 GrGLSLPrimitiveProcessor* GrCCPathProcessor::createGLSLInstance(const GrShaderCaps&) const {
-    return new Impl();
+    return (Flags::kResolveStencilCoverageInPlace & fFlags)
+            ? (GrGLSLPrimitiveProcessor*) new ResolveStencilCoverageInPlaceImpl()
+            : new DrawPathToMainCanvasImpl();
 }
 
 void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& pipeline,
                                   const GrPipeline::FixedDynamicState* fixedDynamicState,
                                   const GrCCPerFlushResources& resources, int baseInstance,
                                   int endInstance, const SkRect& bounds) const {
-    const GrCaps& caps = flushState->caps();
-    GrPrimitiveType primitiveType = caps.usePrimitiveRestart()
-                                            ? GrPrimitiveType::kTriangleStrip
-                                            : GrPrimitiveType::kTriangles;
-    int numIndicesPerInstance = caps.usePrimitiveRestart()
-                                        ? SK_ARRAY_COUNT(kOctoIndicesAsStrips)
-                                        : SK_ARRAY_COUNT(kOctoIndicesAsTris);
-    GrMesh mesh(primitiveType);
-    auto enablePrimitiveRestart = GrPrimitiveRestart(flushState->caps().usePrimitiveRestart());
-
-    mesh.setIndexedInstanced(resources.refIndexBuffer(), numIndicesPerInstance,
-                             resources.refInstanceBuffer(), endInstance - baseInstance,
-                             baseInstance, enablePrimitiveRestart);
-    mesh.setVertexData(resources.refVertexBuffer());
-
-    flushState->rtCommandBuffer()->draw(*this, pipeline, fixedDynamicState, nullptr, &mesh, 1,
-                                        bounds);
-}
-
-void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
-    using Interpolation = GrGLSLVaryingHandler::Interpolation;
-
-    const GrCCPathProcessor& proc = args.fGP.cast<GrCCPathProcessor>();
-    GrGLSLUniformHandler* uniHandler = args.fUniformHandler;
-    GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
-
-    const char* atlasAdjust;
-    fAtlasAdjustUniform = uniHandler->addUniform(
-            kVertex_GrShaderFlag, kFloat2_GrSLType, "atlas_adjust", &atlasAdjust);
-
-    varyingHandler->emitAttributes(proc);
-
-    GrGLSLVarying texcoord(kFloat3_GrSLType);
-    GrGLSLVarying color(kHalf4_GrSLType);
-    varyingHandler->addVarying("texcoord", &texcoord);
-    varyingHandler->addPassThroughAttribute(
-            kInstanceAttribs[kColorAttribIdx], args.fOutputColor, Interpolation::kCanBeFlat);
-
-    // The vertex shader bloats and intersects the devBounds and devBounds45 rectangles, in order to
-    // find an octagon that circumscribes the (bloated) path.
-    GrGLSLVertexBuilder* v = args.fVertBuilder;
-
-    // Are we clockwise? (Positive wind => nonzero fill rule.)
-    // Or counter-clockwise? (negative wind => even/odd fill rule.)
-    v->codeAppendf("float wind = sign(devbounds.z - devbounds.x);");
-
-    // Find our reference corner from the device-space bounding box.
-    v->codeAppendf("float2 refpt = mix(devbounds.xy, devbounds.zw, corners.xy);");
-
-    // Find our reference corner from the 45-degree bounding box.
-    v->codeAppendf("float2 refpt45 = mix(devbounds45.xy, devbounds45.zw, corners.zw);");
-    // Transform back to device space.
-    v->codeAppendf("refpt45 *= float2x2(+1, +1, -wind, +wind) * .5;");
-
-    // Find the normals to each edge, then intersect them to find our octagon vertex.
-    v->codeAppendf("float2x2 N = float2x2("
-                           "corners.z + corners.w - 1, corners.w - corners.z, "
-                           "corners.xy*2 - 1);");
-    v->codeAppendf("N = float2x2(wind, 0, 0, 1) * N;");
-    v->codeAppendf("float2 K = float2(dot(N[0], refpt), dot(N[1], refpt45));");
-    v->codeAppendf("float2 octocoord = K * inverse(N);");
-
-    // Round the octagon out to ensure we rasterize every pixel the path might touch. (Positive
-    // bloatdir means we should take the "ceil" and negative means to take the "floor".)
-    //
-    // NOTE: If we were just drawing a rect, ceil/floor would be enough. But since there are also
-    // diagonals in the octagon that cross through pixel centers, we need to outset by another
-    // quarter px to ensure those pixels get rasterized.
-    v->codeAppendf("float2 bloatdir = (0 != N[0].x) "
-                           "? float2(N[0].x, N[1].y)"
-                           ": float2(N[1].x, N[0].y);");
-    v->codeAppendf("octocoord = (ceil(octocoord * bloatdir - 1e-4) + 0.25) * bloatdir;");
-
-    // Convert to atlas coordinates in order to do our texture lookup.
-    v->codeAppendf("float2 atlascoord = octocoord + float2(dev_to_atlas_offset);");
-    if (kTopLeft_GrSurfaceOrigin == proc.fAtlasOrigin) {
-        v->codeAppendf("%s.xy = atlascoord * %s;", texcoord.vsOut(), atlasAdjust);
+    if (Flags::kResolveStencilCoverageInPlace & fFlags) {
+        GrMesh mesh(GrPrimitiveType::kTriangleStrip);
+        mesh.setInstanced(
+                resources.refInstanceBuffer(), endInstance - baseInstance, baseInstance, 4);
+        flushState->rtCommandBuffer()->draw(
+                *this, pipeline, fixedDynamicState, nullptr, &mesh, 1, bounds);
     } else {
-        SkASSERT(kBottomLeft_GrSurfaceOrigin == proc.fAtlasOrigin);
-        v->codeAppendf("%s.xy = float2(atlascoord.x * %s.x, 1 - atlascoord.y * %s.y);",
-                       texcoord.vsOut(), atlasAdjust, atlasAdjust);
+        const GrCaps& caps = flushState->caps();
+        GrPrimitiveType primitiveType = caps.usePrimitiveRestart()
+                                                ? GrPrimitiveType::kTriangleStrip
+                                                : GrPrimitiveType::kTriangles;
+        int numIndicesPerInstance = caps.usePrimitiveRestart()
+                                            ? SK_ARRAY_COUNT(kOctoIndicesAsStrips)
+                                            : SK_ARRAY_COUNT(kOctoIndicesAsTris);
+        GrMesh mesh(primitiveType);
+        auto enablePrimitiveRestart = GrPrimitiveRestart(flushState->caps().usePrimitiveRestart());
+
+        mesh.setIndexedInstanced(resources.refIndexBuffer(), numIndicesPerInstance,
+                                 resources.refInstanceBuffer(), endInstance - baseInstance,
+                                 baseInstance, enablePrimitiveRestart);
+        mesh.setVertexData(resources.refVertexBuffer());
+
+        flushState->rtCommandBuffer()->draw(*this, pipeline, fixedDynamicState, nullptr, &mesh, 1,
+                                            bounds);
     }
-    v->codeAppendf("%s.z = wind * .5;", texcoord.vsOut());
-
-    gpArgs->fPositionVar.set(kFloat2_GrSLType, "octocoord");
-    this->emitTransforms(v, varyingHandler, uniHandler, gpArgs->fPositionVar, proc.fLocalMatrix,
-                         args.fFPCoordTransformHandler);
-
-    // Fragment shader.
-    GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
-
-    // Look up coverage count in the atlas.
-    f->codeAppend ("half coverage = ");
-    f->appendTextureLookup(args.fTexSamplers[0], SkStringPrintf("%s.xy", texcoord.fsIn()).c_str(),
-                           kFloat2_GrSLType);
-    f->codeAppend (".a;");
-
-    // Scale coverage count by .5. Make it negative for even-odd paths and positive for winding
-    // ones. Clamp winding coverage counts at 1.0 (i.e. min(coverage/2, .5)).
-    f->codeAppendf("coverage = min(abs(coverage) * half(%s.z), .5);", texcoord.fsIn());
-
-    // For negative values, this finishes the even-odd sawtooth function. Since positive (winding)
-    // values were clamped at "coverage/2 = .5", this only undoes the previous multiply by .5.
-    f->codeAppend ("coverage = 1 - abs(fract(coverage) * 2 - 1);");
-
-    f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
 }

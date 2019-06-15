@@ -207,6 +207,13 @@ struct SK_API GrContextOptions {
     int  fMaxTileSizeOverride = 0;
 
     /**
+     * If non-zero, specifies the number of samples Ganesh should use when performing internal draws
+     * with MSAA (hardware capabilities permitting). If zero, Ganesh will estimate a reasonable
+     * sample count using limited information available from compile flags and graphics drivers.
+     */
+    int  fPreferredInternalMSAASampleCount = 0;
+
+    /**
      * Prevents use of dual source blending, to test that all xfer modes work correctly without it.
      */
     bool fSuppressDualSourceBlending = false;

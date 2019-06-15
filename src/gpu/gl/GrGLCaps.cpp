@@ -169,6 +169,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         kImagination_GrGLVendor == ctxInfo.vendor() ||
         kQualcomm_GrGLVendor == ctxInfo.vendor() ) {
         fPreferFullscreenClears = true;
+        fDiscardStencilAfterCommandBuffer = true;
     }
 
     if (GR_IS_GR_GL(standard)) {
@@ -553,6 +554,22 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (ctxInfo.hasExtension("GL_EXT_window_rectangles")) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_WINDOW_RECTANGLES, &fMaxWindowRectangles);
     }
+
+    // Try to detect mobile platforms and limit their internal MSAA sample counts to 4. Everyone
+    // else can just get the default sample count.
+    //
+    // NOTE: EGL_HORIZONTAL_RESOLUTION would give us all the info we need to decide who gets 4
+    // samples, but that is unfortunately unavailable to us here. A client using EGL will have to
+    // convey that information to us via GrContextOptions::fPreferredInternalMSAASampleCount.
+#if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)
+    fPreferredInternalMSAASampleCount = 4;  // Use only 4 samples on mobile.
+#else
+    if (kARM_GrGLVendor == ctxInfo.vendor() || kQualcomm_GrGLVendor == ctxInfo.vendor() ||
+        kImagination_GrGLVendor == ctxInfo.vendor()) {
+        // Use only 4 samples on vendors associated with mobile graphics.
+        fPreferredInternalMSAASampleCount = 4;
+    }
+#endif
 
 #ifdef SK_BUILD_FOR_WIN
     // On ANGLE deferring flushes can lead to GPU starvation
@@ -2587,6 +2604,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // Thus we are blacklisting this extension for now on Adreno4xx devices.
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
         kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer() ||
+#ifndef SK_BUILD_FOR_IOS
+        kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
+#endif
         fDriverBugWorkarounds.disable_discard_framebuffer) {
         fDiscardRenderTargetSupport = false;
         fInvalidateFBType = kNone_InvalidateFBType;

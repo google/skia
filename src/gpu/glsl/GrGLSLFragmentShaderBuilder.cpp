@@ -133,8 +133,8 @@ void GrGLSLFragmentShaderBuilder::applyFnToMultisampleMask(
         // executing the same code. A per-pixel branch makes this pre-condition impossible to
         // fulfill.
         SkASSERT(!(ScopeFlags::kInsidePerPixelBranch & scopeFlags));
-        this->codeAppendf("float2 grad = float2(dFdx(fn), dFdy(fn));");
-        this->codeAppendf("float fnwidth = fwidth(fn);");
+        this->codeAppendf("float2 grad = float2(dFdx(%s), dFdy(%s));", fn, fn);
+        this->codeAppendf("float fnwidth = fwidth(%s);", fn);
         grad = "grad";
     } else {
         this->codeAppendf("float fnwidth = abs(%s.x) + abs(%s.y);", grad, grad);
