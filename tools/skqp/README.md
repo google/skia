@@ -73,11 +73,11 @@ Running a single test
 
 To run a single test, for example `gles_aarectmodes`:
 
-    adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#gles_aarectmodes' -w org.skia.skqp
+    adb shell am instrument -w -e class 'org.skia.skqp.SkQPRunner#gles_aarectmodes' org.skia.skqp
 
 Unit tests can be run with the `unitTest_` prefix:
 
-    adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#unitTest_GrSurface -w org.skia.skqp
+    adb shell am instrument -w -e class 'org.skia.skqp.SkQPRunner#unitTest_GrSurface org.skia.skqp
 
 Run as a non-APK executable
 ---------------------------
