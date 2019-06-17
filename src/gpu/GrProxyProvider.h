@@ -10,8 +10,8 @@
 
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrResourceKey.h"
-#include "include/private/GrTextureProxy.h"
 #include "src/core/SkTDynamicHash.h"
+#include "src/gpu/GrTextureProxy.h"
 
 class GrImageContext;
 class GrBackendRenderTarget;

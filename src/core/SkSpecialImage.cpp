@@ -18,11 +18,11 @@
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
 #include "include/private/GrRecordingContext.h"
-#include "include/private/GrTextureProxy.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "src/image/SkImage_Gpu.h"
 #endif
 

@@ -13,8 +13,8 @@
 #include <atomic>
 
 #if SK_SUPPORT_GPU
-#include "include/private/GrTextureProxy.h"
 #include "include/private/SkTDArray.h"
+#include "src/gpu/GrTextureProxy.h"
 
 class GrRecordingContext;
 class GrTexture;

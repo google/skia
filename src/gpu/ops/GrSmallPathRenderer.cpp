@@ -15,6 +15,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRasterClip.h"
+#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrBuffer.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDistanceFieldGenFromVector.h"

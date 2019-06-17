@@ -9,7 +9,7 @@
 #include "include/gpu/GrRenderTarget.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
-#include "include/private/GrRenderTargetProxy.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/vk/GrVkCaps.h"
@@ -682,7 +682,7 @@ static bool format_is_srgb(VkFormat format) {
     }
 }
 
-// These are all the valid VkFormats that we support in Skia. They are roughly order from most
+// These are all the valid VkFormats that we support in Skia. They are roughly ordered from most
 // frequently used to least to improve look up times in arrays.
 static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_R8G8B8A8_UNORM,

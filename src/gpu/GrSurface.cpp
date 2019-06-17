@@ -9,7 +9,7 @@
 #include "include/gpu/GrRenderTarget.h"
 #include "include/gpu/GrSurface.h"
 #include "include/gpu/GrTexture.h"
-#include "include/private/GrOpList.h"
+#include "src/gpu/GrOpList.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfacePriv.h"
 
