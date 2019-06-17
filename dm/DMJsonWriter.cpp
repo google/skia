@@ -20,10 +20,14 @@
 namespace DM {
 
 SkTArray<JsonWriter::BitmapResult> gBitmapResults;
-SK_DECLARE_STATIC_MUTEX(gBitmapResultLock);
+static SkMutex& bitmap_result_mutex() {
+    static SkMutex& mutex = *(new SkMutex);
+    return mutex;
+}
+
 
 void JsonWriter::AddBitmapResult(const BitmapResult& result) {
-    SkAutoMutexAcquire lock(&gBitmapResultLock);
+    SkAutoMutexExclusive lock(bitmap_result_mutex());
     gBitmapResults.push_back(result);
 }
 
@@ -57,7 +61,7 @@ void JsonWriter::DumpJson(const char* dir,
     }
 
     {
-        SkAutoMutexAcquire lock(&gBitmapResultLock);
+        SkAutoMutexExclusive lock(bitmap_result_mutex());
         writer.beginArray("results");
         for (int i = 0; i < gBitmapResults.count(); i++) {
             writer.beginObject();
