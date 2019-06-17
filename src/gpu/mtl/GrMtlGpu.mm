@@ -753,12 +753,19 @@ static bool mtl_format_to_pixel_config(MTLPixelFormat format, GrPixelConfig* con
             *config = kRGB_ETC1_GrPixelConfig;
             return true;
 #endif
-        // Experimental (for P016 and P010)
         case MTLPixelFormatR16Unorm:
             *config = kR_16_GrPixelConfig;
             return true;
         case MTLPixelFormatRG16Unorm:
             *config = kRG_1616_GrPixelConfig;
+            return true;
+
+        // Experimental (for Y416 and mutant P016/P010)
+        case MTLPixelFormatRGBA16Unorm:
+            *config = kRGBA_16161616_GrPixelConfig;
+            return true;
+        case MTLPixelFormatRG16Float:
+            *config = kRG_half_GrPixelConfig;
             return true;
         default:
             return false;

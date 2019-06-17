@@ -1977,6 +1977,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             // solve many precision issues and no clients actually want this yet.
             // hasFP32RenderTargets = true;
             halfFPRenderTargetSupport = HalfFPRenderTargetSupport::kAll;
+            rgIsTexturable = true;
         } else if (ctxInfo.hasExtension("GL_EXT_color_buffer_half_float")) {
             // This extension only enables half float support rendering for RGBA.
             halfFPRenderTargetSupport = HalfFPRenderTargetSupport::kRGBAOnly;
@@ -2119,7 +2120,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     } // No WebGL support
     shaderCaps->fConfigTextureSwizzle[kRGB_ETC1_GrPixelConfig] = GrSwizzle::RGBA();
 
-    // Experimental (for P016 and P010)
+    // 16 bit formats
     {
         // For desktop:
         //    GL 3.0 requires support for R16 & RG16
@@ -2138,6 +2139,21 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             }
         } // No WebGL support
 
+        // For desktop:
+        //    GL 3.0 requires support for RGBA16
+        // For ES:
+        //    GL_EXT_texture_norm16 adds support but it requires ES 3.1
+        bool rgba16161616Supported = false;
+        if (GR_IS_GR_GL(standard)) {
+            if (version >= GR_GL_VER(3, 0)) {
+                rgba16161616Supported = true;
+            }
+        } else if (GR_IS_GR_GL_ES(standard)) {
+            if (version >= GR_GL_VER(3, 1) && ctxInfo.hasExtension("GL_EXT_texture_norm16")) {
+                rgba16161616Supported = true;
+            }
+        } // No WebGL support
+
         {
             ConfigInfo& r16Info = fConfigTable[kR_16_GrPixelConfig];
 
@@ -2147,7 +2163,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             r16Info.fFormats.fExternalType = GR_GL_UNSIGNED_SHORT;
             r16Info.fFormatType = kNormalizedFixedPoint_FormatType;
             if (r16AndRG1616Supported) {
-                r16Info.fFlags = ConfigInfo::kTextureable_Flag;
+                r16Info.fFlags = ConfigInfo::kTextureable_Flag | allRenderFlags;
             }
             // We should only ever be sampling the R channel of this format so don't bother
             // with a fancy swizzle.
@@ -2163,14 +2179,53 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             rg1616Info.fFormats.fExternalType = GR_GL_UNSIGNED_SHORT;
             rg1616Info.fFormatType = kNormalizedFixedPoint_FormatType;
             if (r16AndRG1616Supported) {
-                rg1616Info.fFlags = ConfigInfo::kTextureable_Flag;
+                rg1616Info.fFlags = ConfigInfo::kTextureable_Flag | allRenderFlags;
             }
             // We should only ever be sampling the R and G channels of this format so don't bother
             // with a fancy swizzle.
             shaderCaps->fConfigTextureSwizzle[kRG_1616_GrPixelConfig] = GrSwizzle::RGBA();
         }
+
+        // Experimental (for Y416)
+        {
+            ConfigInfo& rgba16161616Info = fConfigTable[kRGBA_16161616_GrPixelConfig];
+
+            rgba16161616Info.fFormats.fBaseInternalFormat = GR_GL_RGBA;
+            rgba16161616Info.fFormats.fSizedInternalFormat = GR_GL_RGBA16;
+            rgba16161616Info.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RGBA;
+            rgba16161616Info.fFormats.fExternalType = GR_GL_UNSIGNED_SHORT;
+            rgba16161616Info.fFormatType = kNormalizedFixedPoint_FormatType;
+            if (rgba16161616Supported) {
+                rgba16161616Info.fFlags = ConfigInfo::kTextureable_Flag | allRenderFlags;
+            }
+            shaderCaps->fConfigTextureSwizzle[kRGBA_16161616_GrPixelConfig] = GrSwizzle::RGBA();
+        }
     }
 
+    // Experimental (for Y416 and mutant P016/P010)
+    {
+        ConfigInfo& rgHalf = fConfigTable[kRG_half_GrPixelConfig];
+
+        rgHalf.fFormats.fBaseInternalFormat = GR_GL_RG;
+        rgHalf.fFormats.fSizedInternalFormat = GR_GL_RG16F;
+        rgHalf.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RG;
+        if (GR_IS_GR_GL(standard) || (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0))) {
+            rgHalf.fFormats.fExternalType = GR_GL_HALF_FLOAT;
+        } else {
+            rgHalf.fFormats.fExternalType = GR_GL_HALF_FLOAT_OES;
+        }
+        rgHalf.fFormatType = kFloat_FormatType;
+        if (hasFP16Textures) {
+            rgHalf.fFlags = rgIsTexturable ? ConfigInfo::kTextureable_Flag : 0;
+
+            if (HalfFPRenderTargetSupport::kAll == halfFPRenderTargetSupport) {
+                rgHalf.fFlags |= fpRenderFlags;
+            }
+        }
+        // We should only ever be sampling the R and G channels of this format so don't bother
+        // with a fancy swizzle.
+        shaderCaps->fConfigTextureSwizzle[kRG_half_GrPixelConfig] = GrSwizzle::RGBA();
+    }
 
     // Bulk populate the texture internal/external formats here and then deal with exceptions below.
 
@@ -3229,12 +3284,18 @@ static GrPixelConfig get_yuva_config(GrGLenum format) {
         case GR_GL_R16F:
             config = kAlpha_half_as_Red_GrPixelConfig;
             break;
-        // Experimental (for P016 and P010)
         case GR_GL_R16:
             config = kR_16_GrPixelConfig;
             break;
         case GR_GL_RG16:
             config = kRG_1616_GrPixelConfig;
+            break;
+        // Experimental (for Y416 and mutant P016/P010)
+        case GR_GL_RGBA16:
+            config = kRGBA_16161616_GrPixelConfig;
+            break;
+        case GR_GL_RG16F:
+            config = kRG_half_GrPixelConfig;
             break;
     }
 
@@ -3293,11 +3354,16 @@ static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType)
             return GR_GL_RGBA32F == format;
         case GrColorType::kRGB_ETC1:
             return GR_GL_COMPRESSED_RGB8_ETC2 == format || GR_GL_COMPRESSED_ETC1_RGB8 == format;
-        // Experimental (for P016 and P010)
         case GrColorType::kR_16:
             return GR_GL_R16 == format;
         case GrColorType::kRG_1616:
             return GR_GL_RG16 == format;
+        // Experimental (for Y416 and mutant P016/P010)
+        case GrColorType::kRGBA_16161616:
+            return GR_GL_RGBA16 == format;
+        case GrColorType::kRG_half:
+            return GR_GL_RG16F == format;
+
     }
     SK_ABORT("Unknown color type");
     return false;
