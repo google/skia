@@ -1,8 +1,8 @@
 // Copyright 2019 Google LLC.
 #include <sstream>
+#include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "modules/skparagraph/src/TypefaceFontProvider.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkShaperJSONWriter.h"
 #include "tests/Test.h"
@@ -1965,16 +1965,7 @@ DEF_TEST(SkParagraph_KernScaleParagraph, reporter) {
     text_style.setColor(SK_ColorBLACK);
 
     builder.pushStyle(text_style);
-    builder.addText("AVAVAWAH A0 V0 VA To The Lo");
-    builder.pushStyle(text_style);
-    builder.addText("A");
-    builder.pushStyle(text_style);
-    builder.addText("V");
-    text_style.setFontSize(14 / scale);
-    builder.pushStyle(text_style);
-    builder.addText(
-            " Dialog Text List lots of words to see if kerning works on a bigger set "
-            "of characters AVAVAW");
+    builder.addText("AV00\nVA00\nA0V0");
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1982,16 +1973,17 @@ DEF_TEST(SkParagraph_KernScaleParagraph, reporter) {
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     // Some of the formatting lazily done on paint
-    impl->formatLines(TestCanvasWidth / 3);
+    impl->formatLines(TestCanvasWidth);
 
+    // First and second lines must have the same width, the third one must be bigger
     SkScalar epsilon = 0.01f;
-    REPORTER_ASSERT(reporter, impl->runs().size() == 2);
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[0].advance().fX, 538.66f, epsilon));
-    REPORTER_ASSERT(reporter,
-                    SkScalarNearlyEqual(impl->runs()[0].calculateHeight(), 39.046f, epsilon));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[1].advance().fX, 214.85f, epsilon));
-    REPORTER_ASSERT(reporter,
-                    SkScalarNearlyEqual(impl->runs()[1].calculateHeight(), 5.466f, epsilon));
+    REPORTER_ASSERT(reporter, impl->lines().size() == 3);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->lines()[0].width(), 80.58f, epsilon));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->lines()[1].width(), 80.58f, epsilon));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->lines()[2].width(), 83.25f, epsilon));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->lines()[0].height(), 39.00f, epsilon));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->lines()[1].height(), 39.00f, epsilon));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->lines()[2].height(), 39.00f, epsilon));
 }
 
 DEF_TEST(SkParagraph_NewlineParagraph, reporter) {

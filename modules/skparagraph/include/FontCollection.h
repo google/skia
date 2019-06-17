@@ -16,7 +16,7 @@ class FontCollection : public SkRefCnt {
 public:
     FontCollection();
 
-    ~FontCollection();
+    ~FontCollection() = default;
 
     size_t getFontManagersCount() const;
 

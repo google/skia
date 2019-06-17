@@ -10,9 +10,9 @@
 namespace skia {
 namespace textlayout {
 
-std::shared_ptr<ParagraphBuilder> ParagraphBuilder::make(
+std::unique_ptr<ParagraphBuilder> ParagraphBuilder::make(
         ParagraphStyle style, sk_sp<FontCollection> fontCollection) {
-    return std::make_shared<ParagraphBuilderImpl>(style, fontCollection);
+    return skstd::make_unique<ParagraphBuilderImpl>(style, fontCollection);
 }
 
 ParagraphBuilderImpl::ParagraphBuilderImpl(

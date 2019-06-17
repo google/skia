@@ -14,9 +14,9 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkRandom.h"
 #include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "modules/skparagraph/src/TypefaceFontProvider.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkOSFile.h"
 #include "src/shaders/SkColorShader.h"
@@ -1292,17 +1292,41 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
-        const char* text = "\n";
+        const char* text =
+                "// Create a raised button.\n"
+                "RaisedButton(\n"
+                "  child: const Text('BUTTON TITLE'),\n"
+                "  onPressed: () {\n"
+                "    // Perform some action\n"
+                "  },\n"
+                ");\n"
+                "\n"
+                "// Create a disabled button.\n"
+                "// Buttons are disabled when onPressed isn't\n"
+                "// specified or is null.\n"
+                "const RaisedButton(\n"
+                "  child: Text('BUTTON TITLE'),\n"
+                "  onPressed: null,\n"
+                ");\n"
+                "\n"
+                "// Create a button with an icon and a\n"
+                "// title.\n"
+                "RaisedButton.icon(\n"
+                "  icon: const Icon(Icons.add, size: 18.0),\n"
+                "  label: const Text('BUTTON TITLE'),\n"
+                "  onPressed: () {\n"
+                "    // Perform some action\n"
+                "  },\n"
+                ");";
 
         ParagraphStyle paragraph_style;
         paragraph_style.turnHintingOff();
         ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<FontCollection>());
 
         TextStyle text_style;
-        text_style.setFontFamilies({SkString("???")});
-        text_style.setFontStyle(SkFontStyle::Bold());
+        text_style.setFontFamilies({SkString("monospace")});
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontSize(50);
+        text_style.setFontSize(10);
         builder.pushStyle(text_style);
         builder.addText(text);
         builder.pop();
