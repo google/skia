@@ -166,6 +166,12 @@ public:
     // 1 means the config is renderable but doesn't support MSAA.
     virtual int maxRenderTargetSampleCount(GrPixelConfig) const = 0;
 
+    // Returns the number of samples to use when performing internal draws to the given config with
+    // MSAA or mixed samples. See maxRenderTargetSampleCount() for meanings of 0 or 1 return values.
+    int preferredInternalMSAASampleCount(GrPixelConfig config) const {
+        return SkTMin(fPreferredInternalMSAASampleCount, this->maxRenderTargetSampleCount(config));
+    }
+
     bool isConfigRenderable(GrPixelConfig config) const {
         return this->maxRenderTargetSampleCount(config) > 0;
     }
@@ -425,6 +431,7 @@ protected:
     int fMaxTextureSize;
     int fMaxTileSize;
     int fMaxWindowRectangles;
+    int fPreferredInternalMSAASampleCount;
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;
 
