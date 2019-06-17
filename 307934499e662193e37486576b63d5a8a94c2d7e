@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "547b91ab_7268728d",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1261,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-06-17T14:20:03Z",
+      "side": 1,
+      "message": "Just for the sake of going through the math:\n* we have a \"circle\" which is (for example) r by (r+e) in dimensions\n* in the worst case we (for example) non-uniformly scale the circle by a matrix s in x and (s+e) in y. \n* so the final scale for y is (r+e)*(s+e) \u003d s*r + e(s+r) + e^2\n* e \u003d\u003d 2^-12, so s+r would have to be \u003e 2^12 to see a radial difference of one pixel or greater. I don\u0027t know if you\u0027d even see a difference at that size.\n\nBut that said, I think it\u0027s reasonable to expect the client to give us equal radii if they want the fast path. It\u0027s a faster check as well.",
+      "parentUuid": "2dacec2d_93a2a8f6",
+      "range": {
+        "startLine": 1261,
+        "startChar": 8,
+        "endLine": 1261,
+        "endChar": 27
+      },
+      "revId": "307934499e662193e37486576b63d5a8a94c2d7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6e4c54af_bb898f1e",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2019-06-15T01:15:26Z",
       "side": 1,
       "message": "After all the checks above, is MakeRRectOp still necessary? I\u0027d rather not make the redundant circle checks a second time in that function. Any reason we can\u0027t bypass all that and go directly to creating a CircularRRectOp from here?",
+      "range": {
+        "startLine": 1266,
+        "startChar": 13,
+        "endLine": 1266,
+        "endChar": 41
+      },
+      "revId": "307934499e662193e37486576b63d5a8a94c2d7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19a12397_a0345872",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1266,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-06-17T14:20:03Z",
+      "side": 1,
+      "message": "I\u0027m not sure if you\u0027re proposing that we remove MakeRRectOp -- but we use it below. I tried creating CircularRRectOp but there was a lot of redundant code between it and MakeRRectOp, which I thought would be difficult to maintain. I\u0027ll take another stab at it -- maybe there\u0027s a way to share more code between the two.",
+      "parentUuid": "6e4c54af_bb898f1e",
       "range": {
         "startLine": 1266,
         "startChar": 13,
