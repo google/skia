@@ -17,7 +17,7 @@
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "modules/skparagraph/src/TypefaceFontProvider.h"
+#include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "src/core/SkOSFile.h"
 #include "src/shaders/SkColorShader.h"
 #include "src/utils/SkUTF.h"
@@ -1292,15 +1292,14 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
-        const char* text = "\n";
+        const char* text = "_";
 
         ParagraphStyle paragraph_style;
         paragraph_style.turnHintingOff();
         ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<FontCollection>());
 
         TextStyle text_style;
-        text_style.setFontFamilies({SkString("???")});
-        text_style.setFontStyle(SkFontStyle::Bold());
+        text_style.setFontFamilies({});
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontSize(50);
         builder.pushStyle(text_style);
