@@ -9,8 +9,8 @@
 
 #include "include/core/SkTypes.h"
 
-#include "include/private/GrSurfaceProxy.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"

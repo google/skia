@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrAuditTrail.h"
+#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/ops/GrOp.h"
 #include "src/utils/SkJSONWriter.h"
 

@@ -10,8 +10,8 @@
 
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/vk/GrVkTypes.h"
-#include "include/private/GrColor.h"
 #include "include/private/SkMacros.h"
+#include "src/gpu/GrColor.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/vk/GrVkInterface.h"
 #include "src/sksl/ir/SkSLProgram.h"

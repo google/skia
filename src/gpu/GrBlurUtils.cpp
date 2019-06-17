@@ -8,7 +8,6 @@
 #include "src/gpu/GrBlurUtils.h"
 
 #include "include/private/GrRecordingContext.h"
-#include "include/private/GrTextureProxy.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -17,6 +16,7 @@
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
 #include "src/gpu/geometry/GrShape.h"
 

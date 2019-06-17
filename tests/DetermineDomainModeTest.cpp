@@ -13,12 +13,12 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrSamplerState.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/GrTextureProxy.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrTextureProducer.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 

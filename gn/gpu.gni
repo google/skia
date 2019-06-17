@@ -32,7 +32,6 @@ skia_gpu_sources = [
   "$_include/gpu/gl/GrGLTypes.h",
 
   # Private includes
-  "$_include/private/GrAuditTrail.h",
   "$_include/private/GrColor.h",
   "$_include/private/GrContext_Base.h",
   "$_include/private/GrGLTypesPriv.h",
@@ -40,7 +39,6 @@ skia_gpu_sources = [
   "$_include/private/GrOpList.h",
   "$_include/private/GrProxyRef.h",
   "$_include/private/GrRecordingContext.h",
-  "$_include/private/GrRenderTargetProxy.h",
   "$_include/private/GrResourceKey.h",
   "$_include/private/GrSingleOwner.h",
   "$_include/private/GrSurfaceProxy.h",
@@ -49,6 +47,7 @@ skia_gpu_sources = [
 
   "$_src/gpu/GrAppliedClip.h",
   "$_src/gpu/GrAuditTrail.cpp",
+  "$_src/gpu/GrAuditTrail.h",
   "$_src/gpu/GrAutoLocaleSetter.h",
   "$_src/gpu/GrAllocator.h",
   "$_src/gpu/GrBackendSurface.cpp",
@@ -162,6 +161,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrRenderTarget.cpp",
   "$_src/gpu/GrRenderTargetPriv.h",
   "$_src/gpu/GrRenderTargetProxy.cpp",
+  "$_src/gpu/GrRenderTargetProxy.h",
   "$_src/gpu/GrRenderTargetProxyPriv.h",
   "$_src/gpu/GrReducedClip.cpp",
   "$_src/gpu/GrReducedClip.h",

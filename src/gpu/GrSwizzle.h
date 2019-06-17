@@ -8,8 +8,8 @@
 #ifndef GrSwizzle_DEFINED
 #define GrSwizzle_DEFINED
 
-#include "include/private/GrColor.h"
 #include "include/private/SkColorData.h"
+#include "src/gpu/GrColor.h"
 
 class SkRasterPipeline;
 
