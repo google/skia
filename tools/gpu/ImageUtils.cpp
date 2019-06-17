@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "tools/gpu/YUVUtils.h"
+#include "tools/gpu/ImageUtils.h"
 
 #include "include/core/SkData.h"
 #include "include/gpu/GrContext.h"
@@ -83,6 +83,38 @@ bool LazyYUVImage::ensureYUVImage(GrContext* context) {
             fSizeInfo.fSizes[0], kTopLeft_GrSurfaceOrigin, false, false);
     fOwningContextID = context->priv().contextID();
     return fYUVImage != nullptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<AutoGPUImage> AutoGPUImage::Make(sk_sp<SkImage> image) {
+    return std::unique_ptr<AutoGPUImage>(new AutoGPUImage(std::move(image)));
+}
+
+sk_sp<SkImage> AutoGPUImage::refImage(GrContext* context) {
+    return this->ensureGPUImage(context) ? fGPUImage : fRasterImage;
+}
+
+const SkImage* AutoGPUImage::getImage(GrContext* context) {
+    return this->ensureGPUImage(context) ? fGPUImage.get() : fRasterImage.get();
+}
+
+bool AutoGPUImage::ensureGPUImage(GrContext* context) {
+    if (context) {
+        if (fGPUImage) {
+            // This will do nothing if the gpu image was created on the context already
+            fGPUImage = fGPUImage->makeTextureImage(context, nullptr);
+        }
+        // But if the context has changed, fGPUImage has become null, so rebuild it
+        if (!fGPUImage) {
+            fGPUImage = fRasterImage->makeTextureImage(context, nullptr);
+        }
+        return fGPUImage != nullptr;
+    } else {
+        // Not a gpu-backed context so should just use the original raster
+        fGPUImage = nullptr;
+        return false;
+    }
 }
 
 } // namespace sk_gpu_test
