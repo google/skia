@@ -1183,8 +1183,8 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
         }
     }
 
-    WCHAR* defaultFamilyName = nullptr;
-    int defaultFamilyNameLen = 0;
+    WCHAR* defaultFamilyName = L"";
+    int defaultFamilyNameLen = 1;
     NONCLIENTMETRICSW metrics;
     metrics.cbSize = sizeof(metrics);
     if (nullptr == fallback) {
@@ -1195,8 +1195,8 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
     }
 
     WCHAR localeNameStorage[LOCALE_NAME_MAX_LENGTH];
-    WCHAR* localeName = nullptr;
-    int localeNameLen = 0;
+    WCHAR* localeName = L"";
+    int localeNameLen = 1;
 
     // Dynamically load GetUserDefaultLocaleName function, as it is not available on XP.
     SkGetUserDefaultLocaleNameProc getUserDefaultLocaleNameProc = nullptr;
