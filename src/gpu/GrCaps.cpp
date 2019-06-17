@@ -57,6 +57,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMaxPreferredRenderTargetSize = 1;
     fMaxTextureSize = 1;
     fMaxWindowRectangles = 0;
+    fPreferredInternalMSAASampleCount = 0;
 
     fSuppressPrints = options.fSuppressPrints;
 #if GR_TEST_UTILS
@@ -110,11 +111,17 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         fShaderCaps->fGeometryShaderSupport = false;
     }
 #endif
+
     if (fMaxWindowRectangles > GrWindowRectangles::kMaxWindows) {
         SkDebugf("WARNING: capping window rectangles at %i. HW advertises support for %i.\n",
                  GrWindowRectangles::kMaxWindows, fMaxWindowRectangles);
         fMaxWindowRectangles = GrWindowRectangles::kMaxWindows;
     }
+
+    if (!fPreferredInternalMSAASampleCount) {
+        fPreferredInternalMSAASampleCount = options.fPreferredInternalMSAASampleCount;
+    }
+
     fAvoidStencilBuffers = options.fAvoidStencilBuffers;
 
     fDriverBugWorkarounds.applyOverrides(options.fDriverBugWorkarounds);
@@ -233,6 +240,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max Render Target Size", fMaxRenderTargetSize);
     writer->appendS32("Max Preferred Render Target Size", fMaxPreferredRenderTargetSize);
     writer->appendS32("Max Window Rectangles", fMaxWindowRectangles);
+    writer->appendS32("Preferred Sample Count for Internal MSAA", fPreferredInternalMSAASampleCount);
 
     static const char* kBlendEquationSupportNames[] = {
         "Basic",
