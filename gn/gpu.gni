@@ -44,7 +44,6 @@ skia_gpu_sources = [
   "$_include/private/GrResourceKey.h",
   "$_include/private/GrSingleOwner.h",
   "$_include/private/GrSurfaceProxy.h",
-  "$_include/private/GrSwizzle.h",
   "$_include/private/GrTextureProxy.h",
   "$_include/private/GrTypesPriv.h",
 
@@ -195,6 +194,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrSurfaceContextPriv.h",
   "$_src/gpu/GrSurfaceProxyPriv.h",
   "$_src/gpu/GrSwizzle.cpp",
+  "$_src/gpu/GrSwizzle.h",
   "$_src/gpu/GrTessellator.cpp",
   "$_src/gpu/GrTessellator.h",
   "$_src/gpu/GrTextureOpList.cpp",

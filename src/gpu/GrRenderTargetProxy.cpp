@@ -21,12 +21,10 @@
 // cases to make the sampleConfig/numSamples stuff more rational.
 GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendFormat& format,
                                          const GrSurfaceDesc& desc, GrSurfaceOrigin origin,
-                                         const GrSwizzle& textureSwizzle,
-                                         const GrSwizzle& outputSwizzle, SkBackingFit fit,
-                                         SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
-        : INHERITED(format, desc, origin, textureSwizzle, fit, budgeted, surfaceFlags)
+                                         SkBackingFit fit, SkBudgeted budgeted,
+                                         GrInternalSurfaceFlags surfaceFlags)
+        : INHERITED(format, desc, origin, fit, budgeted, surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
-        , fOutputSwizzle(outputSwizzle)
         , fNeedsStencil(false)
         , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo) {
     // Since we know the newly created render target will be internal, we are able to precompute
@@ -40,14 +38,12 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendForm
 GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                                          LazyInstantiationType lazyType,
                                          const GrBackendFormat& format, const GrSurfaceDesc& desc,
-                                         GrSurfaceOrigin origin, const GrSwizzle& textureSwizzle,
-                                         const GrSwizzle& outputSwizzle, SkBackingFit fit,
+                                         GrSurfaceOrigin origin,  SkBackingFit fit,
                                          SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags,
                                          WrapsVkSecondaryCB wrapsVkSecondaryCB)
-        : INHERITED(std::move(callback), lazyType, format, desc, origin, textureSwizzle, fit,
-                    budgeted, surfaceFlags)
+        : INHERITED(std::move(callback), lazyType, format, desc, origin, fit, budgeted,
+                    surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
-        , fOutputSwizzle(outputSwizzle)
         , fNeedsStencil(false)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
     SkASSERT(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags));
@@ -55,12 +51,9 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
 
 // Wrapped version
 GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin,
-                                         const GrSwizzle& textureSwizzle,
-                                         const GrSwizzle& outputSwizzle,
                                          WrapsVkSecondaryCB wrapsVkSecondaryCB)
-        : INHERITED(std::move(surf), origin, textureSwizzle, SkBackingFit::kExact)
+        : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
         , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
-        , fOutputSwizzle(outputSwizzle)
         , fNeedsStencil(false)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
 }

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrSwizzle.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/gpu/GrSwizzle.h"
 #include "tests/Test.h"
 
 DEF_TEST(SkRasterPipeline, r) {

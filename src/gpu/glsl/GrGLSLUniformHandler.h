@@ -8,8 +8,8 @@
 #ifndef GrGLSLUniformHandler_DEFINED
 #define GrGLSLUniformHandler_DEFINED
 
-#include "include/private/GrSwizzle.h"
 #include "src/gpu/GrShaderVar.h"
+#include "src/gpu/GrSwizzle.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 
 // variable names beginning with this prefix will not be mangled

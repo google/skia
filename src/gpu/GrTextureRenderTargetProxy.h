@@ -29,20 +29,16 @@ private:
 
     // Deferred version
     GrTextureRenderTargetProxy(const GrCaps&, const GrBackendFormat&, const GrSurfaceDesc&,
-                               GrSurfaceOrigin, GrMipMapped, const GrSwizzle& textureSwizzle,
-                               const GrSwizzle& outputSwizzle, SkBackingFit, SkBudgeted,
+                               GrSurfaceOrigin, GrMipMapped, SkBackingFit, SkBudgeted,
                                GrInternalSurfaceFlags);
 
     // Lazy-callback version
     GrTextureRenderTargetProxy(LazyInstantiateCallback&&, LazyInstantiationType,
                                const GrBackendFormat&, const GrSurfaceDesc& desc, GrSurfaceOrigin,
-                               GrMipMapped, const GrSwizzle& textureSwizzle,
-                               const GrSwizzle& outputSwizzle, SkBackingFit, SkBudgeted,
-                               GrInternalSurfaceFlags);
+                               GrMipMapped, SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
     // Wrapped version
-    GrTextureRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle& textureSwizzle,
-                               const GrSwizzle& outputSwizzle);
+    GrTextureRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 
     bool instantiate(GrResourceProvider*) override;
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;

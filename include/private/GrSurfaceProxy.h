@@ -13,7 +13,6 @@
 #include "include/gpu/GrGpuResource.h"
 #include "include/gpu/GrSurface.h"
 #include "include/gpu/GrTexture.h"
-#include "include/private/GrSwizzle.h"
 #include "include/private/SkNoncopyable.h"
 
 class GrCaps;
@@ -250,8 +249,6 @@ public:
         return fOrigin;
     }
 
-    const GrSwizzle& textureSwizzle() const { return fTextureSwizzle; }
-
     const GrBackendFormat& backendFormat() const { return fFormat; }
 
     class UniqueID {
@@ -417,22 +414,20 @@ public:
 protected:
     // Deferred version
     GrSurfaceProxy(const GrBackendFormat& format, const GrSurfaceDesc& desc,
-                   GrSurfaceOrigin origin, const GrSwizzle& textureSwizzle, SkBackingFit fit,
+                   GrSurfaceOrigin origin, SkBackingFit fit,
                    SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
-            : GrSurfaceProxy(nullptr, LazyInstantiationType::kSingleUse, format, desc, origin,
-                             textureSwizzle, fit, budgeted, surfaceFlags) {
+            : GrSurfaceProxy(nullptr, LazyInstantiationType::kSingleUse, format, desc, origin, fit,
+                             budgeted, surfaceFlags) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
     // Lazy-callback version
     GrSurfaceProxy(LazyInstantiateCallback&&, LazyInstantiationType,
                    const GrBackendFormat& format, const GrSurfaceDesc&, GrSurfaceOrigin,
-                   const GrSwizzle& textureSwizzle, SkBackingFit, SkBudgeted,
-                   GrInternalSurfaceFlags);
+                   SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
     // Wrapped version.
-    GrSurfaceProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle& textureSwizzle,
-                   SkBackingFit);
+    GrSurfaceProxy(sk_sp<GrSurface>, GrSurfaceOrigin, SkBackingFit);
 
     virtual ~GrSurfaceProxy();
 
@@ -483,8 +478,6 @@ private:
     int                    fWidth;
     int                    fHeight;
     GrSurfaceOrigin        fOrigin;
-    GrSwizzle              fTextureSwizzle;
-
     SkBackingFit           fFit;      // always kApprox for lazy-callback resources
                                       // always kExact for wrapped resources
     mutable SkBudgeted     fBudgeted; // always kYes for lazy-callback resources

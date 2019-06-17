@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrSwizzle.h"
+#include "src/gpu/GrSwizzle.h"
 #include "src/core/SkRasterPipeline.h"
 
 void GrSwizzle::apply(SkRasterPipeline* pipeline) const {
