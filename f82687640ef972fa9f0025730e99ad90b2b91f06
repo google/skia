@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d63ef88f_56e820a4",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-17T14:22:39Z",
+      "side": 1,
+      "message": "I hated having to add this. I started pursuing an alternative direction of making the texture-swizzles be 000r for red_as_alpha formats. This would match what every 3D API does and what SkRasterPipeline does. To make things work I had to pass GrSwizzles to some fps  but I hit a snag in trying to do this in FragmentProcessors written as .fp files.",
+      "range": {
+        "startLine": 575,
+        "startChar": 18,
+        "endLine": 575,
+        "endChar": 34
+      },
+      "revId": "f82687640ef972fa9f0025730e99ad90b2b91f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
