@@ -254,7 +254,7 @@ sk_sp<SkTypeface> AnimationBuilder::findFont(const SkString& font_name) const {
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectValue& layer,
-                                                          const LayerInfo&,
+                                                          LayerInfo*,
                                                           AnimatorScope* ascope) const {
     // General text node format:
     // "t": {
