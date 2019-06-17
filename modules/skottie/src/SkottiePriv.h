@@ -110,22 +110,22 @@ private:
         const std::function<sk_sp<sksg::RenderNode>(const skjson::ObjectValue&,
                                                     AnimatorScope* ctx)>&) const;
     const ImageAssetInfo* loadImageAsset(const skjson::ObjectValue&) const;
-    sk_sp<sksg::RenderNode> attachImageAsset(const skjson::ObjectValue&, const LayerInfo&,
+    sk_sp<sksg::RenderNode> attachImageAsset(const skjson::ObjectValue&, LayerInfo*,
                                              AnimatorScope*) const;
 
     sk_sp<sksg::RenderNode> attachNestedAnimation(const char* name, AnimatorScope* ascope) const;
 
-    sk_sp<sksg::RenderNode> attachImageLayer  (const skjson::ObjectValue&, const LayerInfo&,
+    sk_sp<sksg::RenderNode> attachImageLayer  (const skjson::ObjectValue&, LayerInfo*,
                                                AnimatorScope*) const;
-    sk_sp<sksg::RenderNode> attachNullLayer   (const skjson::ObjectValue&, const LayerInfo&,
+    sk_sp<sksg::RenderNode> attachNullLayer   (const skjson::ObjectValue&, LayerInfo*,
                                                AnimatorScope*) const;
-    sk_sp<sksg::RenderNode> attachPrecompLayer(const skjson::ObjectValue&, const LayerInfo&,
+    sk_sp<sksg::RenderNode> attachPrecompLayer(const skjson::ObjectValue&, LayerInfo*,
                                                AnimatorScope*) const;
-    sk_sp<sksg::RenderNode> attachShapeLayer  (const skjson::ObjectValue&, const LayerInfo&,
+    sk_sp<sksg::RenderNode> attachShapeLayer  (const skjson::ObjectValue&, LayerInfo*,
                                                AnimatorScope*) const;
-    sk_sp<sksg::RenderNode> attachSolidLayer  (const skjson::ObjectValue&, const LayerInfo&,
+    sk_sp<sksg::RenderNode> attachSolidLayer  (const skjson::ObjectValue&, LayerInfo*,
                                                AnimatorScope*) const;
-    sk_sp<sksg::RenderNode> attachTextLayer   (const skjson::ObjectValue&, const LayerInfo&,
+    sk_sp<sksg::RenderNode> attachTextLayer   (const skjson::ObjectValue&, LayerInfo*,
                                                AnimatorScope*) const;
 
     bool dispatchColorProperty(const sk_sp<sksg::Color>&) const;
@@ -184,10 +184,10 @@ private:
     mutable const char*        fPropertyObserverContext;
     mutable bool               fHasNontrivialBlending : 1;
 
-
     struct LayerInfo {
-        float fInPoint,
-              fOutPoint;
+        SkSize      fSize;
+        const float fInPoint,
+                    fOutPoint;
     };
 
     struct AssetInfo {
