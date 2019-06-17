@@ -31,7 +31,10 @@ namespace {
 
 // Fontconfig is not threadsafe before 2.10.91. Before that, we lock with a global mutex.
 // See https://bug.skia.org/1497 for background.
-SK_DECLARE_STATIC_MUTEX(gFCMutex);
+static SkMutex& f_c_mutex() {
+    static SkMutex& mutex = *(new SkMutex);
+    return mutex;
+}
 
 #ifdef SK_DEBUG
 void* CreateThreadFcLocked() { return new bool(false); }
@@ -45,7 +48,7 @@ struct FCLocker {
 
     FCLocker() {
         if (FcGetVersion() < 21091) {
-            gFCMutex.acquire();
+            f_c_mutex().acquire();
         } else {
             SkDEBUGCODE(bool* threadLocked = THREAD_FC_LOCKED);
             SkASSERT(false == *threadLocked);
@@ -56,7 +59,7 @@ struct FCLocker {
     ~FCLocker() {
         AssertHeld();
         if (FcGetVersion() < 21091) {
-            gFCMutex.release();
+            f_c_mutex().release();
         } else {
             SkDEBUGCODE(*THREAD_FC_LOCKED = false);
         }
@@ -64,7 +67,7 @@ struct FCLocker {
 
     static void AssertHeld() { SkDEBUGCODE(
         if (FcGetVersion() < 21091) {
-            gFCMutex.assertHeld();
+            f_c_mutex().assertHeld();
         } else {
             SkASSERT(true == *THREAD_FC_LOCKED);
         }

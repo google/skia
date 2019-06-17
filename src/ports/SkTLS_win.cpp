@@ -13,15 +13,15 @@
 
 static bool gOnce = false;
 static DWORD gTlsIndex;
-SK_DECLARE_STATIC_MUTEX(gMutex);
 
 void* SkTLS::PlatformGetSpecific(bool forceCreateTheSlot) {
+    static SkMutex& mutex = *(new SkMutex);
     if (!forceCreateTheSlot && !gOnce) {
         return nullptr;
     }
 
     if (!gOnce) {
-        SkAutoMutexAcquire tmp(gMutex);
+        SkAutoMutexExclusive tmp(mutex);
         if (!gOnce) {
             gTlsIndex = TlsAlloc();
             gOnce = true;
