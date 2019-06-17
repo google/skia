@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87a92773_ebf6676c",
+        "filename": "site/dev/contrib/submit.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2019-06-17T04:20:02Z",
+      "side": 1,
+      "message": "change to \"Note that\"",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 11
+      },
+      "revId": "391b4f0c495f5260c08b31fd625aec7ff324a016",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
