@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39492c4a_2a03b2d9",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 6026
+      },
+      "writtenOn": "2019-06-17T23:51:06Z",
+      "side": 1,
+      "message": "Since this is C++, not C, is there any value in marking this static instead of inline?",
+      "revId": "2e281e8f81907470ba2b4d8247589a2fbdc6888b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6923a5c2_e100506c",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 6026
+      },
+      "writtenOn": "2019-06-17T23:51:06Z",
+      "side": 1,
+      "message": "Same question.",
+      "revId": "2e281e8f81907470ba2b4d8247589a2fbdc6888b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
