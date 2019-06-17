@@ -724,7 +724,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachShapeLayer(const skjson::ObjectValue& layer,
-                                                           const LayerInfo&,
+                                                           LayerInfo*,
                                                            AnimatorScope* ascope) const {
     std::vector<sk_sp<sksg::GeometryNode>> geometryStack;
     std::vector<GeometryEffectRec> geometryEffectStack;
