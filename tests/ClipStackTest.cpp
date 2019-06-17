@@ -24,7 +24,6 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTexture.h"
 #include "include/private/GrResourceKey.h"
-#include "include/private/GrTextureProxy.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkClipOpPriv.h"
@@ -35,6 +34,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrReducedClip.h"
 #include "src/gpu/GrResourceCache.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 

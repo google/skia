@@ -12,7 +12,7 @@
 
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/vk/GrVkTypes.h"
-#include "include/private/GrColor.h"
+#include "src/gpu/GrColor.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrTRecorder.h"
 #include "src/gpu/vk/GrVkPipelineState.h"

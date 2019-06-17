@@ -9,7 +9,7 @@
 #include "src/gpu/gl/GrGLPathRendering.h"
 #include "src/gpu/gl/GrGLUtil.h"
 
-#include "include/private/GrRenderTargetProxy.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/gl/GrGLPath.h"
 #include "src/gpu/gl/GrGLPathRendering.h"
 

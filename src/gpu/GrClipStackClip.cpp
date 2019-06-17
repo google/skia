@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrTextureProxy.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkMakeUnique.h"
@@ -24,6 +23,7 @@
 #include "src/gpu/GrSWMaskHelper.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/effects/GrTextureDomain.h"

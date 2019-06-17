@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
-#include "modules/skparagraph/include/TextShadow.h"
 #include "include/core/SkColor.h"
+#include "modules/skparagraph/include/TextShadow.h"
 
 namespace skia {
 namespace textlayout {

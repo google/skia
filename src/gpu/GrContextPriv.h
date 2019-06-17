@@ -121,7 +121,9 @@ public:
                                             const SkSurfaceProps* surfaceProps = nullptr,
                                             SkBudgeted budgeted = SkBudgeted::kYes);
 
+#if GR_TEST_UTILS
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
+#endif
 
     /**
      * Create a GrContext without a resource cache

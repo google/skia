@@ -7,12 +7,12 @@
 
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrSamplerState.h"
-#include "include/private/GrTextureProxy.h"
 #include "include/private/SkSpinlock.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrProcessor.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrXferProcessor.h"
 
 #if GR_TEST_UTILS

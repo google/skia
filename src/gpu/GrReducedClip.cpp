@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrColor.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrClip.h"
+#include "src/gpu/GrColor.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrPathRenderer.h"

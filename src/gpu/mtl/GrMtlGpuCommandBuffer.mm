@@ -7,7 +7,7 @@
 
 #include "src/gpu/mtl/GrMtlGpuCommandBuffer.h"
 
-#include "include/private/GrColor.h"
+#include "src/gpu/GrColor.h"
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrTexturePriv.h"

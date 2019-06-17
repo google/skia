@@ -12,9 +12,9 @@
 
 #if GR_TEST_UTILS
 
-#include "include/private/GrTextureProxy.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/GrTestUtils.h"
+#include "src/gpu/GrTextureProxy.h"
 
 class SkMatrix;
 class GrCaps;
