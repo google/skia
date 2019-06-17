@@ -13,6 +13,7 @@
 #include "include/core/SkYUVASizeInfo.h"
 #include "src/core/SkAutoMalloc.h"
 
+class SkBitmap;
 class SkData;
 
 namespace sk_gpu_test {
@@ -47,6 +48,31 @@ private:
     bool reset(sk_sp<SkData> data);
 
     bool ensureYUVImage(GrContext* context);
+};
+
+// Utility that stores an original raster-backed image, and then ensures that the image is available
+// as a texture-backed resource for a given context. This is useful when loading images from
+// resources, and not wanting to recreate/redecode the image every frame, and also be robust to
+// context changes (ex. in the viewer tool when it switches backends).
+class AutoGPUImage {
+public:
+    static std::unique_ptr<AutoGPUImage> Make(sk_sp<SkImage> image);
+
+    sk_sp<SkImage> refImage(GrContext* context);
+
+    const SkImage* getImage(GrContext* context);
+
+private:
+    // The original image data, guaranteed to be in-memory
+    sk_sp<SkImage> fRasterImage;
+    // The cached context-specific image
+    sk_sp<SkImage> fGPUImage;
+
+    AutoGPUImage(sk_sp<SkImage> image)
+            : fRasterImage(image->makeRasterImage())
+            , fGPUImage(nullptr) {}
+
+    bool ensureGPUImage(GrContext* context);
 };
 
 } // namespace sk_gpu_test
