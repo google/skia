@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f67466e8_e4ac1b33",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-17T15:11:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "114b9b15_c13110dd",
+      "revId": "6293a19c966e2f943ebb76d8d6289734ed376ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35cd1df5_82af7047",
         "filename": "src/core/SkVM.h",
         "patchSetId": 4
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "992d1dd1_ac635b53",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-17T15:11:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "35cd1df5_82af7047",
+      "range": {
+        "startLine": 121,
+        "startChar": 14,
+        "endLine": 125,
+        "endChar": 45
+      },
+      "revId": "6293a19c966e2f943ebb76d8d6289734ed376ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba4b5ca0_13ad6e7c",
         "filename": "src/core/SkVM.h",
         "patchSetId": 4
@@ -56,6 +98,24 @@
       "revId": "6293a19c966e2f943ebb76d8d6289734ed376ff3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41bd5560_3b87b49a",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-17T15:11:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba4b5ca0_13ad6e7c",
+      "revId": "6293a19c966e2f943ebb76d8d6289734ed376ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
