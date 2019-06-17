@@ -26,6 +26,10 @@ public:
     id<MTLRenderCommandEncoder> getRenderCommandEncoder(MTLRenderPassDescriptor*,
                                                         const GrMtlPipelineState*);
 
+    void addCompletedHandler(MTLCommandBufferHandler block) {
+        [fCmdBuffer addCompletedHandler:block];
+    }
+
 private:
     GrMtlCommandBuffer(id<MTLCommandBuffer> cmdBuffer)
         : fCmdBuffer(cmdBuffer)
