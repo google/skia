@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f38dcbb9_1fbac166",
+        "filename": "gm/runtimecolorfilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-17T14:04:06Z",
+      "side": 1,
+      "message": "You can probably just do this here?",
+      "range": {
+        "startLine": 119,
+        "startChar": 8,
+        "endLine": 119,
+        "endChar": 27
+      },
+      "revId": "09472a97d2a52d2b3a2d179ea6f668376f3d6383",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
