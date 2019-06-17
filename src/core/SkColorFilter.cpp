@@ -362,6 +362,8 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "include/private/SkMutex.h"
+
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/effects/GrSkSLFP.h"
@@ -403,7 +405,7 @@ public:
             rec.fPipeline->append(SkRasterPipeline::callback, ctx);
         } else {
             struct InterpreterCtx : public SkRasterPipeline_CallbackCtx {
-                std::unique_ptr<SkSL::ByteCode> byteCode;
+                SkSL::ByteCode* byteCode;
                 SkSL::ByteCodeFunction* main;
                 const void* inputs;
                 int ninputs;
@@ -411,16 +413,20 @@ public:
             auto ctx = rec.fAlloc->make<InterpreterCtx>();
             ctx->inputs = fInputs->data();
             ctx->ninputs = fInputs->size() / 4;
-            SkSL::Compiler c;
-            std::unique_ptr<SkSL::Program> prog =
-                                                c.convertProgram(SkSL::Program::kPipelineStage_Kind,
-                                                                 SkSL::String(fSkSL.c_str()),
-                                                                 SkSL::Program::Settings());
-            if (c.errorCount()) {
-                SkDebugf("%s\n", c.errorText().c_str());
-                SkASSERT(false);
+
+            SkAutoMutexExclusive ama(fByteCodeMutex);
+            if (!fByteCode) {
+                SkSL::Compiler c;
+                auto prog = c.convertProgram(SkSL::Program::kPipelineStage_Kind,
+                                             SkSL::String(fSkSL.c_str()),
+                                             SkSL::Program::Settings());
+                if (c.errorCount()) {
+                    SkDebugf("%s\n", c.errorText().c_str());
+                    return false;
+                }
+                fByteCode = c.toByteCode(*prog);
             }
-            ctx->byteCode = c.toByteCode(*prog);
+            ctx->byteCode = fByteCode.get();
             ctx->main = ctx->byteCode->fFunctions[0].get();
             ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
                 auto ctx = (InterpreterCtx*)arg;
@@ -452,6 +458,9 @@ private:
     SkString fSkSL;
     sk_sp<SkData> fInputs;
     SkRuntimeColorFilterFn fCpuFunction;
+
+    mutable SkMutex fByteCodeMutex;
+    mutable std::unique_ptr<SkSL::ByteCode> fByteCode;
 
     friend class SkColorFilter;
 
