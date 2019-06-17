@@ -2,6 +2,8 @@
 # Skylark macros
 ################################################################################
 
+asdfasdfasdf
+
 is_bazel = not hasattr(native, "genmpm")
 
 def portable_select(select_dict, bazel_condition, default_condition):
