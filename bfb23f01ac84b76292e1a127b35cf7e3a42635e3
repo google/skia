@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f822897_b5acefcd",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-17T14:14:24Z",
+      "side": 1,
+      "message": "thought about renaming this but didn\u0027t come with anything nice.",
+      "range": {
+        "startLine": 223,
+        "startChar": 26,
+        "endLine": 223,
+        "endChar": 54
+      },
+      "revId": "bfb23f01ac84b76292e1a127b35cf7e3a42635e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b16e32a6_85b5a232",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 3032,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-17T14:14:24Z",
+      "side": 1,
+      "message": "We don\u0027t use this currently but the plan is to loosen this function up when the GL supports more format options to glReadPixels.",
+      "range": {
+        "startLine": 3032,
+        "startChar": 73,
+        "endLine": 3032,
+        "endChar": 85
+      },
+      "revId": "bfb23f01ac84b76292e1a127b35cf7e3a42635e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2e0bb2f_c210ef24",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 3049,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-17T14:14:24Z",
+      "side": 1,
+      "message": "This is actually what GL is guaranteed to support. The old code made assumptions about what might work.",
+      "range": {
+        "startLine": 3048,
+        "startChar": 0,
+        "endLine": 3049,
+        "endChar": 53
+      },
+      "revId": "bfb23f01ac84b76292e1a127b35cf7e3a42635e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
