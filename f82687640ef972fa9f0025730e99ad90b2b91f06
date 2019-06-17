@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "fd0def8d_3ef01074",
+        "filename": "src/gpu/GrDataUtils.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-17T18:09:05Z",
+      "side": 1,
+      "message": "ASAN feels icky abou this too:\n\n  \u003d\u003d8542\u003d\u003dERROR: AddressSanitizer: stack-use-after-scope on address 0x7ffd359fd8b0 at pc 0x000006956d94 bp 0x7ffd359fcad0 sp 0x7ffd359fcac8\n\n\nUndid it.",
+      "parentUuid": "fdcf37e3_cf3eb719",
+      "range": {
+        "startLine": 524,
+        "startChar": 0,
+        "endLine": 544,
+        "endChar": 0
+      },
+      "revId": "f82687640ef972fa9f0025730e99ad90b2b91f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9bcfac01_4365b404",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 9
