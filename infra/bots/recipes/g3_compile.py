@@ -4,9 +4,13 @@
 
 
 DEPS = [
+  'recipe_engine/file',
+  'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
+  'recipe_engine/raw_io',
   'recipe_engine/step',
+  'recipe_engine/tempfile',
 ]
 
 
@@ -21,12 +25,24 @@ def RunSteps(api):
   trigger_wait_g3_script = infrabots_dir.join('g3_compile',
                                               'trigger_wait_g3_task.py')
 
-  # Trigger a compile task and wait for it to complete.
-  cmd = ['python', trigger_wait_g3_script,
-         '--issue', issue,
-         '--patchset', patchset,
-        ]
-  api.step('Trigger and wait for g3 compile task', cmd=cmd)
+  with api.tempfile.temp_dir('g3_try') as output_dir:
+    output_file = output_dir.join('output_file')
+    # Trigger a compile task and wait for it to complete.
+    cmd = ['python', trigger_wait_g3_script,
+           '--issue', issue,
+           '--patchset', patchset,
+           '--output_file', output_file,
+          ]
+    try:
+      api.step('Trigger and wait for g3 compile task', cmd=cmd)
+    except api.step.StepFailure as e:
+      # Add CL link if it exists in the output_file.
+      task_json = api.file.read_json(
+          'Read task json', output_file, test_data={'cl': 12345})
+      if task_json.get('cl'):
+        api.step.active_result.presentation.links['CL link'] = (
+            'http://cl/%d' % task_json['cl'])
+      raise e
 
 
 def GenTests(api):
