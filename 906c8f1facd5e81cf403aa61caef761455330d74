@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9505cc0_d1d3dd04",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 2572,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-17T13:38:40Z",
+      "side": 1,
+      "message": "Seems like you can use the stack for these instead of putting them in SkRP_ICtx?",
+      "range": {
+        "startLine": 2569,
+        "startChar": 0,
+        "endLine": 2572,
+        "endChar": 29
+      },
+      "revId": "906c8f1facd5e81cf403aa61caef761455330d74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f4ec696_9c5fe57d",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-17T13:38:40Z",
+      "side": 1,
+      "message": "If it\u0027s important, if you write the code twice, you\u0027ll probably be able to get the N sized memcpy()\u0027s inlined.  As is I think it\u0027ll always call out.",
+      "range": {
+        "startLine": 1079,
+        "startChar": 39,
+        "endLine": 1079,
+        "endChar": 56
+      },
+      "revId": "906c8f1facd5e81cf403aa61caef761455330d74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cac7700d_b6ed8ba5",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1099,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-17T13:38:40Z",
+      "side": 1,
+      "message": "might be a good spot for the N -\u003d w, to keep all the loop state tracking together?",
+      "revId": "906c8f1facd5e81cf403aa61caef761455330d74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
