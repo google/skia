@@ -14,6 +14,9 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
     for (auto cluster = fEndLine.endCluster(); cluster < endOfClusters; ++cluster) {
         if (fWords.width() + fClusters.width() + cluster->width() > maxWidth) {
             if (cluster->isWhitespaces()) {
+                // It's the end of the word
+                fMinIntrinsicWidth = SkTMax(fMinIntrinsicWidth, getClustersTrimmedWidth());
+                fWords.extend(fClusters);
                 break;
             }
             if (cluster->width() > maxWidth) {
@@ -76,16 +79,14 @@ void TextWrapper::moveForward() {
 }
 
 // Special case for start/end cluster since they can be clipped
-void TextWrapper::trimEndSpaces(bool includingClusters) {
+void TextWrapper::trimEndSpaces() {
     // Remember the breaking position
     fEndLine.saveBreak();
-    if (includingClusters) {
-        // Move the end of the line to the left
-        for (auto cluster = fEndLine.endCluster();
-             cluster >= fEndLine.startCluster() && cluster->isWhitespaces();
-             --cluster) {
-            fEndLine.trim(cluster);
-        }
+    // Move the end of the line to the left
+    for (auto cluster = fEndLine.endCluster();
+         cluster >= fEndLine.startCluster() && cluster->isWhitespaces();
+         --cluster) {
+        fEndLine.trim(cluster);
     }
     fEndLine.trim();
 }
@@ -132,7 +133,6 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     auto span = parent->clusters();
     auto maxLines = parent->paragraphStyle().getMaxLines();
     auto ellipsisStr = parent->paragraphStyle().getEllipsis();
-    auto textAlign = parent->paragraphStyle().effective_align();
 
     fHeight = 0;
     fMinIntrinsicWidth = 0;
@@ -146,7 +146,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         moveForward();
 
         // Do not trim end spaces on the naturally last line of the left aligned text
-        trimEndSpaces(textAlign != TextAlign::kLeft || fEndLine.endCluster() < end - 1);
+        trimEndSpaces();
 
         auto lastLine = maxLines == std::numeric_limits<size_t>::max() ||
             fLineNumber >= maxLines;

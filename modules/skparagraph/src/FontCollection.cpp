@@ -1,6 +1,5 @@
 // Copyright 2019 Google LLC.
 #include "modules/skparagraph/include/FontCollection.h"
-#include <string>
 
 namespace skia {
 namespace textlayout {
@@ -20,9 +19,7 @@ size_t FontCollection::FamilyKey::Hasher::operator()(const FontCollection::Famil
 FontCollection::FontCollection()
         : fEnableFontFallback(true)
         , fDefaultFontManager(SkFontMgr::RefDefault())
-        , fDefaultFamilyName(DEFAULT_FONT_FAMILY) {}
-
-FontCollection::~FontCollection() = default;
+        , fDefaultFamilyName(DEFAULT_FONT_FAMILY) { }
 
 size_t FontCollection::getFontManagersCount() const { return this->getFontManagerOrder().size(); }
 
