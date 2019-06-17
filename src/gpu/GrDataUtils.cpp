@@ -263,7 +263,6 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             sk_memset64((uint64_t *) dest, rgbaHalf, width * height);
             break;
         }
-        // Experimental (for P016 and P010)
         case kR_16_GrPixelConfig: {
             uint16_t r16 = SkScalarRoundToInt(colorf.fR * 65535.0f);
             sk_memset16((uint16_t*) dest, r16, width * height);
@@ -276,6 +275,26 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             uint32_t rg1616 = r16 << 16 | g16;
 
             sk_memset32((uint32_t*) dest, rg1616, width * height);
+            break;
+        }
+        // Experimental (for Y416 and mutant P016/P010)
+        case kRGBA_16161616_GrPixelConfig: {
+            uint64_t r16 = SkScalarRoundToInt(colorf.fR * 65535.0f);
+            uint64_t g16 = SkScalarRoundToInt(colorf.fG * 65535.0f);
+            uint64_t b16 = SkScalarRoundToInt(colorf.fB * 65535.0f);
+            uint64_t a16 = SkScalarRoundToInt(colorf.fA * 65535.0f);
+
+            uint64_t rgba16161616 = (a16 << 48) | (b16 << 32) | (g16 << 16) | r16;
+            sk_memset64((uint64_t*) dest, rgba16161616, width * height);
+            break;
+        }
+        case kRG_half_GrPixelConfig: {
+            uint32_t rHalf = SkFloatToHalf(colorf.fR);
+            uint32_t gHalf = SkFloatToHalf(colorf.fG);
+
+            uint32_t rgHalf = (rHalf << 16) | gHalf;
+
+            sk_memset32((uint32_t *) dest, rgHalf, width * height);
             break;
         }
         default:
@@ -400,6 +419,13 @@ static GrSwizzle get_load_and_get_swizzle(GrColorType ct, SkRasterPipeline::Stoc
         case GrColorType::kUnknown:
         case GrColorType::kRGB_ETC1:
             SK_ABORT("unexpected CT");
+
+        // Experimental (for Y416 and mutant P016/P010)
+        case GrColorType::kRGBA_16161616:
+            SK_ABORT("unexpected CT");
+        case GrColorType::kRG_half:          *load = SkRasterPipeline::load_rgf16;
+                                             *isNormalized = false;
+                                             break;
     }
     return swizzle;
 }
@@ -444,6 +470,13 @@ static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::Sto
         case GrColorType::kUnknown:
         case GrColorType::kRGB_ETC1:
             SK_ABORT("unexpected CT");
+
+        // Experimental (for Y416 and mutant P016/P010)
+        case GrColorType::kRGBA_16161616:
+            SK_ABORT("unexpected CT");
+        case GrColorType::kRG_half:          *store = SkRasterPipeline::store_rgf16;
+                                             *isNormalized = false;
+                                             break;
     }
     return swizzle;
 }
