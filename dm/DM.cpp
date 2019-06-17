@@ -18,7 +18,6 @@
 #include "include/ports/SkTypeface_win.h"
 #include "include/private/SkChecksum.h"
 #include "include/private/SkHalf.h"
-#include "include/private/SkMutex.h"
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -182,11 +181,11 @@ static void info(const char* fmt) {
     }
 }
 
-SK_DECLARE_STATIC_MUTEX(gFailuresMutex);
 static SkTArray<SkString> gFailures;
 
 static void fail(const SkString& err) {
-    SkAutoMutexAcquire lock(gFailuresMutex);
+    static SkSpinlock mutex;
+    SkAutoSpinlock lock(mutex);
     SkDebugf("\n\nFAILURE: %s\n\n", err.c_str());
     gFailures.push_back(err);
 }

@@ -557,11 +557,11 @@ static void show_op(SkPathOp op, const char* pathOne, const char* pathTwo) {
     SkDebugf("}\n");
 }
 
-SK_DECLARE_STATIC_MUTEX(gTestMutex);
-
 void SkPathOpsDebug::ShowPath(const SkPath& a, const SkPath& b, SkPathOp shapeOp,
         const char* testName) {
-    SkAutoMutexAcquire ac(gTestMutex);
+    static SkMutex& mutex = *(new SkMutex);
+
+    SkAutoMutexExclusive ac(mutex);
     show_function_header(testName);
     ShowOnePath(a, "path", true);
     ShowOnePath(b, "pathB", true);
@@ -574,10 +574,9 @@ void SkPathOpsDebug::ShowPath(const SkPath& a, const SkPath& b, SkPathOp shapeOp
 
 #if DEBUG_COIN
 
-SK_DECLARE_STATIC_MUTEX(gCoinDictMutex);
-
 void SkOpGlobalState::debugAddToGlobalCoinDicts() {
-    SkAutoMutexAcquire ac(&gCoinDictMutex);
+    static SkMutex& mutex = *(new SkMutex);
+    SkAutoMutexExclusive ac(mutex);
     SkPathOpsDebug::gCoinSumChangedDict.add(fCoinChangedDict);
     SkPathOpsDebug::gCoinSumVisitedDict.add(fCoinVisitedDict);
 }
