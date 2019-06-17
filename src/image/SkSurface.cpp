@@ -274,6 +274,11 @@ SkSurface::SkSurface(const SkImageInfo& info, const SkSurfaceProps* props)
     fGenerationID = 0;
 }
 
+SkImageInfo SkSurface::imageInfo() {
+    // TODO: do we need to go through canvas for this?
+    return this->getCanvas()->imageInfo();
+}
+
 uint32_t SkSurface::generationID() {
     if (0 == fGenerationID) {
         fGenerationID = asSB(this)->newGenerationID();
@@ -309,6 +314,10 @@ sk_sp<SkImage> SkSurface::makeImageSnapshot(const SkIRect& srcBounds) {
 
 sk_sp<SkSurface> SkSurface::makeSurface(const SkImageInfo& info) {
     return asSB(this)->onNewSurface(info);
+}
+
+sk_sp<SkSurface> SkSurface::makeSurface(int width, int height) {
+    return this->makeSurface(this->imageInfo().makeWH(width, height));
 }
 
 void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
