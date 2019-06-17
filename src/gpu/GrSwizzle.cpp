@@ -11,10 +11,16 @@
 void GrSwizzle::apply(SkRasterPipeline* pipeline) const {
     SkASSERT(pipeline);
     switch (fKey) {
-        case GrSwizzle::RGBA().asKey():
+        case GrSwizzle("rgba").asKey():
             return;
-        case GrSwizzle::BGRA().asKey():
+        case GrSwizzle("bgra").asKey():
             pipeline->append(SkRasterPipeline::swap_rb);
+            return;
+        case GrSwizzle("aaa1").asKey():
+            pipeline->append(SkRasterPipeline::alpha_to_gray);
+            return;
+        case GrSwizzle("rgb1").asKey():
+            pipeline->append(SkRasterPipeline::force_opaque);
             return;
         default: {
             GR_STATIC_ASSERT(sizeof(uintptr_t) >= 4 * sizeof(char));
