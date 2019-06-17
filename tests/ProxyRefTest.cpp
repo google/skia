@@ -18,14 +18,6 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceProvider.h"
 
-int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
-    if (fTarget) {
-        return fTarget->fRefCnt;
-    }
-
-    return -1; // no backing GrSurface
-}
-
 static const int kWidthHeight = 128;
 
 static void check_refs(skiatest::Reporter* reporter,
