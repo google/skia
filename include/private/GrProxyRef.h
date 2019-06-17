@@ -26,32 +26,17 @@ public:
     ~GrProxyRef() { this->reset(); }
 
     void setProxy(sk_sp<T> proxy) {
-        SkASSERT(SkToBool(fProxy) == fOwnRef);
-        SkSafeUnref(fProxy);
-        if (!proxy) {
-            fProxy = nullptr;
-            fOwnRef = false;
-        } else {
-            fProxy = proxy.release();  // due to the semantics of this class we unpack from sk_sp
-            fOwnRef = true;
-        }
+        fProxy = std::move(proxy);
     }
 
-    T* get() const { return fProxy; }
+    T* get() const { return fProxy.get(); }
 
-    // Shortcut for calling setProxy() with NULL.
     void reset() {
-        if (fOwnRef) {
-            SkASSERT(fProxy);
-            fProxy->unref();
-            fOwnRef = false;
-        }
         fProxy = nullptr;
     }
 
 private:
-    T*              fProxy = nullptr;
-    mutable bool    fOwnRef = false;
+    sk_sp<T> fProxy;
 };
 
 using GrSurfaceProxyRef = GrProxyRef<GrSurfaceProxy>;
