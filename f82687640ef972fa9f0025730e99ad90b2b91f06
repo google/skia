@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "7c3935ad_ea4f7904",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-17T16:47:11Z",
+      "side": 1,
+      "message": "just reading this it is slightly ambiguous, can we make it clear which inputs refer the src and which to the dst",
+      "range": {
+        "startLine": 218,
+        "startChar": 7,
+        "endLine": 218,
+        "endChar": 95
+      },
+      "revId": "f82687640ef972fa9f0025730e99ad90b2b91f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9edaf6d0_e09cea1a",
         "filename": "src/gpu/GrDataUtils.cpp",
         "patchSetId": 9
@@ -42,6 +65,29 @@
         "startChar": 0,
         "endLine": 544,
         "endChar": 0
+      },
+      "revId": "f82687640ef972fa9f0025730e99ad90b2b91f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bcfac01_4365b404",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 3043,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-17T16:47:11Z",
+      "side": 1,
+      "message": "as talked about offline, this needs to be fixed.",
+      "range": {
+        "startLine": 3043,
+        "startChar": 53,
+        "endLine": 3043,
+        "endChar": 76
       },
       "revId": "f82687640ef972fa9f0025730e99ad90b2b91f06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
