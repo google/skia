@@ -432,6 +432,10 @@ public:
     */
     int height() const { return fHeight; }
 
+    /** Returns an ImageInfo describing the surface.
+     */
+    SkImageInfo imageInfo();
+
     /** Returns unique value identifying the content of SkSurface. Returned value changes
         each time the content changes. Content is changed by drawing, or by calling
         notifyContentWillChange().
@@ -541,6 +545,11 @@ public:
         @return           compatible SkSurface or nullptr
     */
     sk_sp<SkSurface> makeSurface(const SkImageInfo& imageInfo);
+
+    /** Calls makeSurface(ImageInfo) with the same ImageInfo as this surface, but with the
+     *  specified width and height.
+     */
+    sk_sp<SkSurface> makeSurface(int width, int height);
 
     /** Returns SkImage capturing SkSurface contents. Subsequent drawing to SkSurface contents
         are not captured. SkImage allocation is accounted for if SkSurface was created with

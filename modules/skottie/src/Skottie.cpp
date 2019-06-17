@@ -604,6 +604,12 @@ void Animation::seek(SkScalar t) {
     fScene->animate(SkTPin(fInPoint + t * (fOutPoint - fInPoint), fInPoint, kLastValidFrame));
 }
 
+void Animation::seekFrameTime(double t) {
+    if (double dur = this->duration()) {
+        this->seek((SkScalar)(t / dur));
+    }
+}
+
 sk_sp<Animation> Animation::Make(const char* data, size_t length) {
     return Builder().make(data, length);
 }
