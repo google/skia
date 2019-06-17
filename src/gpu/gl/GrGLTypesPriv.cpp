@@ -7,7 +7,7 @@
 
 #include "include/core/SkScalar.h"
 #include "include/private/GrGLTypesPriv.h"
-#include "src/gpu/GrSwizzle.h"
+#include "include/private/GrSwizzle.h"
 #include "src/gpu/gl/GrGLDefines.h"
 
 GrGLTextureParameters::SamplerOverriddenState::SamplerOverriddenState()
