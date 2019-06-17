@@ -6,10 +6,10 @@
  */
 
 #include "src/gpu/GrDataUtils.h"
-#include "include/private/GrColor.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkUtils.h"
+#include "src/gpu/GrColor.h"
 
 struct ETC1Block {
     uint32_t fHigh;

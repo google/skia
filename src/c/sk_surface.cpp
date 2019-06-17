@@ -20,8 +20,8 @@
 #include "include/c/sk_image.h"
 #include "include/c/sk_paint.h"
 #include "include/c/sk_path.h"
-#include "include/c/sk_surface.h"
 #include "include/c/sk_picture.h"
+#include "include/c/sk_surface.h"
 #include "src/c/sk_types_priv.h"
 
 const struct {

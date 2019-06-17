@@ -9,7 +9,7 @@
 #define GrOvalOpFactory_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/GrColor.h"
+#include "src/gpu/GrColor.h"
 
 class GrDrawOp;
 class GrPaint;

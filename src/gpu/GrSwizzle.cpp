@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrSwizzle.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/gpu/GrSwizzle.h"
 
 void GrSwizzle::apply(SkRasterPipeline* pipeline) const {
     SkASSERT(pipeline);

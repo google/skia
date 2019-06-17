@@ -28,11 +28,11 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrSamplerState.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/GrTextureProxy.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
 

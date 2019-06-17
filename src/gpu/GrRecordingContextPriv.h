@@ -105,7 +105,9 @@ public:
                                             const SkSurfaceProps* surfaceProps = nullptr,
                                             SkBudgeted budgeted = SkBudgeted::kYes);
 
+#if GR_TEST_UTILS
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
+#endif
 
     // CONTEXT TODO: remove this backdoor
     // In order to make progress we temporarily need a way to break CL impasses.

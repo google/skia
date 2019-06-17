@@ -8,8 +8,8 @@
 #ifndef GrTextureRenderTargetProxy_DEFINED
 #define GrTextureRenderTargetProxy_DEFINED
 
-#include "include/private/GrRenderTargetProxy.h"
-#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrRenderTargetProxy.h"
+#include "src/gpu/GrTextureProxy.h"
 
 #ifdef SK_BUILD_FOR_WIN
 // Windows gives warnings about inheriting asTextureProxy/asRenderTargetProxy via dominance.
