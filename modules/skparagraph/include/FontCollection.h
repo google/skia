@@ -2,6 +2,7 @@
 #ifndef FontCollection_DEFINED
 #define FontCollection_DEFINED
 
+#include <src/core/SkSpan.h>
 #include <memory>
 #include <set>
 #include "include/core/SkFontMgr.h"
@@ -16,7 +17,7 @@ class FontCollection : public SkRefCnt {
 public:
     FontCollection();
 
-    ~FontCollection();
+    ~FontCollection() = default;
 
     size_t getFontManagersCount() const;
 
@@ -53,6 +54,14 @@ private:
             size_t operator()(const FamilyKey& key) const;
         };
     };
+
+    struct Hash {
+        uint32_t operator()(const std::pair<SkFont, SkScalar>& key) const {
+            return SkTypeface::UniqueID(key.first.getTypeface()) +
+                    SkScalarCeilToInt(key.first.getSize()) + SkScalarCeilToInt(key.second);
+        }
+    };
+
 
     bool fEnableFontFallback;
     SkTHashMap<FamilyKey, sk_sp<SkTypeface>, FamilyKey::Hasher> fTypefaces;
