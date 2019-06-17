@@ -1,2 +1,1 @@
-serve:
-	python -m SimpleHTTPServer 8004
+python -m SimpleHTTPServer 8004
