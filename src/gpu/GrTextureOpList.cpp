@@ -8,15 +8,15 @@
 #include "src/gpu/GrTextureOpList.h"
 
 #include "include/gpu/GrContext.h"
-#include "include/private/GrAuditTrail.h"
 #include "include/private/GrRecordingContext.h"
-#include "include/private/GrTextureProxy.h"
 #include "src/core/SkStringUtils.h"
+#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceAllocator.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/ops/GrCopySurfaceOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////

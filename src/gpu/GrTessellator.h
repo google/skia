@@ -9,8 +9,8 @@
 #define GrTessellator_DEFINED
 
 #include "include/core/SkPoint.h"
-#include "include/private/GrColor.h"
 #include "include/private/SkColorData.h"
+#include "src/gpu/GrColor.h"
 
 class SkPath;
 struct SkRect;

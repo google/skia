@@ -1,6 +1,6 @@
 // Copyright 2019 Google LLC.
-#include "modules/skparagraph/src/TextWrapper.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
+#include "modules/skparagraph/src/TextWrapper.h"
 
 namespace skia {
 namespace textlayout {

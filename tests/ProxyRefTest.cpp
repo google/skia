@@ -10,13 +10,13 @@
 #include "tests/Test.h"
 
 #include "include/gpu/GrTexture.h"
-#include "include/private/GrRenderTargetProxy.h"
-#include "include/private/GrSurfaceProxy.h"
-#include "include/private/GrTextureProxy.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrPendingIOResource.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/GrTextureProxy.h"
 
 int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
     if (fTarget) {

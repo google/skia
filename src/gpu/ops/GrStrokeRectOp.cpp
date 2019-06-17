@@ -8,10 +8,10 @@
 #include "src/gpu/ops/GrStrokeRectOp.h"
 
 #include "include/core/SkStrokeRec.h"
-#include "include/private/GrColor.h"
 #include "include/private/GrResourceKey.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrColor.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrOpFlushState.h"

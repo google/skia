@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 
 #include "include/gpu/GrContext.h"

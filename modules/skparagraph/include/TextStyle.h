@@ -3,13 +3,13 @@
 #define TextStyle_DEFINED
 
 #include <vector>
-#include "modules/skparagraph/include/DartTypes.h"
-#include "modules/skparagraph/include/TextShadow.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkPaint.h"
+#include "modules/skparagraph/include/DartTypes.h"
+#include "modules/skparagraph/include/TextShadow.h"
 
 // TODO: Make it external so the other platforms (Android) could use it
 #define DEFAULT_FONT_FAMILY "sans-serif"

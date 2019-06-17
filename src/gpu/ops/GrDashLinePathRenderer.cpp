@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrAuditTrail.h"
+#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/geometry/GrShape.h"

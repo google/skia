@@ -8,7 +8,7 @@
 #ifndef GrDebugMarkerOp_DEFINED
 #define GrDebugMarkerOp_DEFINED
 
-#include "include/private/GrRenderTargetProxy.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/ops/GrOp.h"
 
 class GrOpFlushState;

@@ -1,5 +1,4 @@
 // Copyright 2019 Google LLC.
-#include "Sample.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorPriv.h"
@@ -18,6 +17,7 @@
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/src/TypefaceFontProvider.h"
+#include "samplecode/Sample.h"
 #include "src/core/SkOSFile.h"
 #include "src/shaders/SkColorShader.h"
 #include "src/utils/SkUTF.h"

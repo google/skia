@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrAuditTrail.h"
-#include "include/private/GrOpList.h"
 #include "include/private/SkSemaphore.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDeferredProxyUploader.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpList.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
