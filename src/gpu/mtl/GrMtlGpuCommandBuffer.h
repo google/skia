@@ -61,6 +61,8 @@ public:
 
     void insertEventMarker(const char* msg) override {}
 
+    void initRenderState(id<MTLRenderCommandEncoder>);
+
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {
         // TODO: this could be more efficient
         state->doUpload(upload);

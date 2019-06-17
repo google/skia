@@ -43,7 +43,7 @@ void GrMtlGpuRTCommandBuffer::precreateCmdEncoder() {
     SkASSERT(nil == fActiveRenderCmdEncoder);
 
     SkDEBUGCODE(id<MTLRenderCommandEncoder> cmdEncoder =)
-            fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr);
+            fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
     SkASSERT(nil != cmdEncoder);
 }
 
@@ -152,17 +152,9 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     }
 
     SkASSERT(nil == fActiveRenderCmdEncoder);
-    fActiveRenderCmdEncoder = fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc,
-                                                                             pipelineState);
+    fActiveRenderCmdEncoder = fGpu->commandBuffer()->getRenderCommandEncoder(
+            fRenderPassDesc, pipelineState, this);
     SkASSERT(fActiveRenderCmdEncoder);
-    // TODO: can we set this once somewhere at the beginning of the draw?
-    [fActiveRenderCmdEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-    // Strictly speaking we shouldn't have to set this, as the default viewport is the size of
-    // the drawable used to generate the renderCommandEncoder -- but just in case.
-    MTLViewport viewport = { 0.0, 0.0,
-                             (double) fRenderTarget->width(), (double) fRenderTarget->height(),
-                             0.0, 1.0 };
-    [fActiveRenderCmdEncoder setViewport:viewport];
 
     [fActiveRenderCmdEncoder setRenderPipelineState:pipelineState->mtlPipelineState()];
     pipelineState->setDrawState(fActiveRenderCmdEncoder, fRenderTarget->config(),
@@ -209,7 +201,6 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     }
 
     fActiveRenderCmdEncoder = nil;
-    this->resetBufferBindings();
     fBounds.join(bounds);
 }
 
@@ -244,6 +235,17 @@ void GrMtlGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool i
     fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionClear;
     this->precreateCmdEncoder();
     fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionLoad;
+}
+
+void GrMtlGpuRTCommandBuffer::initRenderState(id<MTLRenderCommandEncoder> encoder) {
+    [encoder setFrontFacingWinding:MTLWindingCounterClockwise];
+    // Strictly speaking we shouldn't have to set this, as the default viewport is the size of
+    // the drawable used to generate the renderCommandEncoder -- but just in case.
+    MTLViewport viewport = { 0.0, 0.0,
+                             (double) fRenderTarget->width(), (double) fRenderTarget->height(),
+                             0.0, 1.0 };
+    [encoder setViewport:viewport];
+    this->resetBufferBindings();
 }
 
 void GrMtlGpuRTCommandBuffer::setupRenderPass(
