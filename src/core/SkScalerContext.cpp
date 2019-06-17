@@ -95,10 +95,13 @@ SkScalerContext::~SkScalerContext() {}
 
 /**
  * In order to call cachedDeviceLuminance, cachedPaintLuminance, or
- * cachedMaskGamma the caller must hold the gMaskGammaCacheMutex and continue
+ * cachedMaskGamma the caller must hold the mask_gamma_cache_mutex and continue
  * to hold it until the returned pointer is refed or forgotten.
  */
-SK_DECLARE_STATIC_MUTEX(gMaskGammaCacheMutex);
+static SkMutex& mask_gamma_cache_mutex() {
+    static SkMutex& mutex = *(new SkMutex);
+    return mutex;
+}
 
 static SkMaskGamma* gLinearMaskGamma = nullptr;
 static SkMaskGamma* gMaskGamma = nullptr;
@@ -107,12 +110,12 @@ static SkScalar gPaintGamma = SK_ScalarMin;
 static SkScalar gDeviceGamma = SK_ScalarMin;
 
 /**
- * The caller must hold the gMaskGammaCacheMutex and continue to hold it until
+ * The caller must hold the mask_gamma_cache_mutex() and continue to hold it until
  * the returned SkMaskGamma pointer is refed or forgotten.
  */
 static const SkMaskGamma& cached_mask_gamma(SkScalar contrast, SkScalar paintGamma,
                                             SkScalar deviceGamma) {
-    gMaskGammaCacheMutex.assertHeld();
+    mask_gamma_cache_mutex().assertHeld();
     if (0 == contrast && SK_Scalar1 == paintGamma && SK_Scalar1 == deviceGamma) {
         if (nullptr == gLinearMaskGamma) {
             gLinearMaskGamma = new SkMaskGamma;
@@ -133,7 +136,7 @@ static const SkMaskGamma& cached_mask_gamma(SkScalar contrast, SkScalar paintGam
  * Expands fDeviceGamma, fPaintGamma, fContrast, and fLumBits into a mask pre-blend.
  */
 SkMaskGamma::PreBlend SkScalerContext::GetMaskPreBlend(const SkScalerContextRec& rec) {
-    SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
+    SkAutoMutexExclusive ama(mask_gamma_cache_mutex());
 
     const SkMaskGamma& maskGamma = cached_mask_gamma(rec.getContrast(),
                                                      rec.getPaintGamma(),
@@ -145,7 +148,7 @@ SkMaskGamma::PreBlend SkScalerContext::GetMaskPreBlend(const SkScalerContextRec&
 
 size_t SkScalerContext::GetGammaLUTSize(SkScalar contrast, SkScalar paintGamma,
                                         SkScalar deviceGamma, int* width, int* height) {
-    SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
+    SkAutoMutexExclusive ama(mask_gamma_cache_mutex());
     const SkMaskGamma& maskGamma = cached_mask_gamma(contrast,
                                                      paintGamma,
                                                      deviceGamma);
@@ -158,7 +161,7 @@ size_t SkScalerContext::GetGammaLUTSize(SkScalar contrast, SkScalar paintGamma,
 
 bool SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
                                       uint8_t* data) {
-    SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
+    SkAutoMutexExclusive ama(mask_gamma_cache_mutex());
     const SkMaskGamma& maskGamma = cached_mask_gamma(contrast,
                                                      paintGamma,
                                                      deviceGamma);
