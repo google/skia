@@ -526,7 +526,7 @@ DEF_TEST(SkRasterPipeline_swizzle, r) {
             rg[i][1] = 2 * i + 1;
         }
 
-        GrSwizzle swizzle("1gra");
+        GrSwizzle swizzle("0gra");
 
         uint16_t buffer[64][4];
         SkRasterPipeline_MemoryCtx src = { rg,     0 },
@@ -539,7 +539,7 @@ DEF_TEST(SkRasterPipeline_swizzle, r) {
 
         for (int i = 0; i < 64; i++) {
             uint16_t want[4] {
-                h(1),
+                h(0),
                 h(2 * i + 1),
                 h(i + 1),
                 h(1),
