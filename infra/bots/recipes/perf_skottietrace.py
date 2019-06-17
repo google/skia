@@ -79,8 +79,9 @@ def perf_steps(api):
     if not trace_file_content and trace_test_data:
       trace_file_content = trace_test_data
 
-    perf_results[lottie_filename] = parse_trace(
-        trace_file_content, lottie_filename, api)
+    perf_results[lottie_filename] = {
+        'gles': parse_trace(trace_file_content, lottie_filename, api),
+    }
     api.flavor.remove_file_on_device(trace_output_path)
 
   # Construct contents of the output JSON.
@@ -88,13 +89,12 @@ def perf_steps(api):
       'gitHash': api.properties['revision'],
       'swarming_bot_id': api.vars.swarming_bot_id,
       'swarming_task_id': api.vars.swarming_task_id,
+      'renderer': 'skottie',
       'key': {
         'bench_type': 'tracing',
         'source_type': 'skottie',
       },
-      'results': {
-        'gles': perf_results,
-      },
+      'results': perf_results,
   }
   if api.vars.is_trybot:
     perf_json['issue'] = api.vars.issue

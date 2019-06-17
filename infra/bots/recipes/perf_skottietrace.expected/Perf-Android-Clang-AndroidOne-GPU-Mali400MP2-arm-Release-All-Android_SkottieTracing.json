@@ -939,7 +939,7 @@
     "cmd": [
       "python",
       "-u",
-      "import json\nwith open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:\n  json.dump(obj={'swarming_task_id': '', 'swarming_bot_id': '', 'results': {'gles': {\"lottie(test)'!2.json\": {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}, 'lottie1.json': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}, 'lottie 3!.json': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'key': {'extra_config': 'Android_SkottieTracing', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'Mali400MP2', 'arch': 'arm', 'source_type': 'skottie', 'cpu_or_gpu': 'GPU', 'model': 'AndroidOne', 'configuration': 'Release', 'os': 'Android', 'compiler': 'Clang'}, 'gitHash': 'abc123'}, fp=outfile, indent=4)\n"
+      "import json\nwith open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:\n  json.dump(obj={'gitHash': 'abc123', 'results': {\"lottie(test)'!2.json\": {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie 3!.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'swarming_task_id': '', 'renderer': 'skottie', 'key': {'extra_config': 'Android_SkottieTracing', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'Mali400MP2', 'arch': 'arm', 'source_type': 'skottie', 'cpu_or_gpu': 'GPU', 'model': 'AndroidOne', 'configuration': 'Release', 'os': 'Android', 'compiler': 'Clang'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)\n"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -949,7 +949,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import json@@@",
       "@@@STEP_LOG_LINE@python.inline@with open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  json.dump(obj={'swarming_task_id': '', 'swarming_bot_id': '', 'results': {'gles': {\"lottie(test)'!2.json\": {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}, 'lottie1.json': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}, 'lottie 3!.json': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'key': {'extra_config': 'Android_SkottieTracing', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'Mali400MP2', 'arch': 'arm', 'source_type': 'skottie', 'cpu_or_gpu': 'GPU', 'model': 'AndroidOne', 'configuration': 'Release', 'os': 'Android', 'compiler': 'Clang'}, 'gitHash': 'abc123'}, fp=outfile, indent=4)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  json.dump(obj={'gitHash': 'abc123', 'results': {\"lottie(test)'!2.json\": {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie 3!.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'swarming_task_id': '', 'renderer': 'skottie', 'key': {'extra_config': 'Android_SkottieTracing', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'Mali400MP2', 'arch': 'arm', 'source_type': 'skottie', 'cpu_or_gpu': 'GPU', 'model': 'AndroidOne', 'configuration': 'Release', 'os': 'Android', 'compiler': 'Clang'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
