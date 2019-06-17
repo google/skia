@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad6567d_7a68ad13",
+        "filename": "tools/cpu_modules.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-17T13:43:01Z",
+      "side": 1,
+      "message": "// Doesn\u0027t do anything important; just exists to show we can use modules/particles\n// without the GPU backend being available.\n\n?",
+      "revId": "a7505b285a7d43b373cf1f99e25ec35b5d194eee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
