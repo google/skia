@@ -216,6 +216,11 @@ public:
      */
     void seek(SkScalar t);
 
+    /** Update the animation state to match t, specifed in frame time
+     *  i.e. relative to duration().
+     */
+    void seekFrameTime(double t);
+
     /**
      * Returns the animation duration in seconds.
      */
