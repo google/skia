@@ -173,7 +173,7 @@ private:
 
     void lookAhead(SkScalar maxWidth, Cluster* endOfClusters);
     void moveForward();
-    void trimEndSpaces(bool includingClusters);
+    void trimEndSpaces();
     void trimStartSpaces(Cluster* endOfClusters);
     SkScalar getClustersTrimmedWidth();
 };
