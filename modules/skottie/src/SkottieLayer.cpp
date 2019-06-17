@@ -307,8 +307,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachAssetRef(
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachSolidLayer(const skjson::ObjectValue& jlayer,
-                                                           const LayerInfo&,
-                                                           AnimatorScope*) const {
+                                                           LayerInfo*, AnimatorScope*) const {
     const auto size = SkSize::Make(ParseDefault<float>(jlayer["sw"], 0.0f),
                                    ParseDefault<float>(jlayer["sh"], 0.0f));
     const skjson::StringValue* hex_str = jlayer["sc"];
@@ -358,7 +357,7 @@ AnimationBuilder::loadImageAsset(const skjson::ObjectValue& jimage) const {
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectValue& jimage,
-                                                           const LayerInfo& layer_info,
+                                                           LayerInfo* layer_info,
                                                            AnimatorScope* ascope) const {
     const auto* asset_info = this->loadImageAsset(jimage);
     if (!asset_info) {
@@ -398,13 +397,16 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
 
         ascope->push_back(skstd::make_unique<MultiFrameAnimator>(asset_info->fAsset,
                                                                  image_node,
-                                                                 -layer_info.fInPoint,
+                                                                 -layer_info->fInPoint,
                                                                  1 / fFrameRate));
     }
 
     const auto asset_size = SkISize::Make(
             asset_info->fSize.width()  > 0 ? asset_info->fSize.width()  : image->width(),
             asset_info->fSize.height() > 0 ? asset_info->fSize.height() : image->height());
+
+    // Image layers are sized explicitly.
+    layer_info->fSize = asset_size;
 
     if (asset_size == image->bounds().size()) {
         // No resize needed.
@@ -418,7 +420,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachImageLayer(const skjson::ObjectValue& jlayer,
-                                                           const LayerInfo& layer_info,
+                                                           LayerInfo* layer_info,
                                                            AnimatorScope* ascope) const {
     return this->attachAssetRef(jlayer, ascope,
         [this, &layer_info] (const skjson::ObjectValue& jimage, AnimatorScope* ascope) {
@@ -427,8 +429,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageLayer(const skjson::ObjectV
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachNullLayer(const skjson::ObjectValue& layer,
-                                                          const LayerInfo&,
-                                                          AnimatorScope*) const {
+                                                          LayerInfo*, AnimatorScope*) const {
     // Null layers are used solely to drive dependent transforms,
     // but we use free-floating sksg::Matrices for that purpose.
     return nullptr;
@@ -544,9 +545,10 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
         return nullptr;
     }
 
-    const LayerInfo layer_info = {
+    LayerInfo layer_info = {
+        fSize,
         ParseDefault<float>((*jlayer)["ip"], 0.0f),
-        ParseDefault<float>((*jlayer)["op"], 0.0f)
+        ParseDefault<float>((*jlayer)["op"], 0.0f),
     };
     if (layer_info.fInPoint >= layer_info.fOutPoint) {
         this->log(Logger::Level::kError, nullptr,
@@ -557,7 +559,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     const AutoPropertyTracker apt(this, *jlayer);
 
     using LayerBuilder = sk_sp<sksg::RenderNode> (AnimationBuilder::*)(const skjson::ObjectValue&,
-                                                                       const LayerInfo&,
+                                                                       LayerInfo*,
                                                                        AnimatorScope*) const;
 
     // AE is annoyingly inconsistent in how effects interact with layer transforms: depending on
@@ -606,7 +608,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     AnimatorScope layer_animators;
 
     // Build the layer content fragment.
-    auto layer = (this->*(build_info.fBuilder))(*jlayer, layer_info, &layer_animators);
+    auto layer = (this->*(build_info.fBuilder))(*jlayer, &layer_info, &layer_animators);
 
     // Clip layers with explicit dimensions.
     float w = 0, h = 0;
@@ -633,7 +635,8 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
 
     // Optional layer effects.
     if (const skjson::ArrayValue* jeffects = (*jlayer)["ef"]) {
-        layer = EffectBuilder(this, &layer_animators).attachEffects(*jeffects, std::move(layer));
+        layer = EffectBuilder(this, layer_info.fSize, &layer_animators)
+                    .attachEffects(*jeffects, std::move(layer));
     }
 
     // Attach the transform after effects, when needed.
