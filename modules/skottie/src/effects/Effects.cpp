@@ -14,8 +14,10 @@
 namespace skottie {
 namespace internal {
 
-EffectBuilder::EffectBuilder(const AnimationBuilder* abuilder, AnimatorScope* ascope)
+EffectBuilder::EffectBuilder(const AnimationBuilder* abuilder, const SkSize& layer_size,
+                             AnimatorScope* ascope)
     : fBuilder(abuilder)
+    , fLayerSize(layer_size)
     , fScope(ascope) {}
 
 EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectValue& jeffect) const {
@@ -50,6 +52,7 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
 
     static constexpr char kGradientEffectMN[] = "ADBE Ramp",
                             kLevelsEffectMN[] = "ADBE Easy Levels2",
+                        kMotionTileEffectMN[] = "ADBE Tile",
                          kTransformEffectMN[] = "ADBE Geometry2";
 
     if (const skjson::StringValue* mn = jeffect["mn"]) {
@@ -58,6 +61,9 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
         }
         if (!strcmp(mn->begin(), kLevelsEffectMN)) {
             return &EffectBuilder::attachLevelsEffect;
+        }
+        if (!strcmp(mn->begin(), kMotionTileEffectMN)) {
+            return &EffectBuilder::attachMotionTileEffect;
         }
         if (!strcmp(mn->begin(), kTransformEffectMN)) {
             return &EffectBuilder::attachTransformEffect;

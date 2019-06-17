@@ -113,6 +113,24 @@ private:
     typedef Node INHERITED;
 };
 
+/**
+ * Clients outside SkSG looking to implement custom render nodes,
+ * should derive from this class instead of RenderNode.  It handles
+ * various book-keeping, and provides a controlled extension point.
+ */
+class CustomRenderNode : public RenderNode {
+protected:
+    explicit CustomRenderNode(std::vector<sk_sp<RenderNode>>&& children);
+    ~CustomRenderNode() override;
+
+    const std::vector<sk_sp<RenderNode>>& children() const { return fChildren; }
+
+private:
+    std::vector<sk_sp<RenderNode>> fChildren;
+
+    using INHERITED = RenderNode;
+};
+
 } // namespace sksg
 
 #endif // SkSGRenderNode_DEFINED

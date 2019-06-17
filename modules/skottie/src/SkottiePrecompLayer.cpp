@@ -19,7 +19,7 @@ namespace skottie {
 namespace internal {
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::ObjectValue& jlayer,
-                                                             const LayerInfo&,
+                                                             LayerInfo* layer_info,
                                                              AnimatorScope* ascope) const {
     const skjson::ObjectValue* time_remap = jlayer["tm"];
     // Empirically, a time mapper supersedes start/stretch.
@@ -28,6 +28,10 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::Objec
     const auto requires_time_mapping = !SkScalarNearlyEqual(start_time  , 0) ||
                                        !SkScalarNearlyEqual(stretch_time, 1) ||
                                        time_remap;
+
+    // Precomp layers are sized explicitly.
+    layer_info->fSize = SkSize::Make(ParseDefault<float>(jlayer["w"], 0.0f),
+                                     ParseDefault<float>(jlayer["h"], 0.0f));
 
     AnimatorScope local_animators;
     auto precomp_layer = this->attachAssetRef(jlayer,

@@ -139,4 +139,18 @@ RenderNode::ScopedRenderContext::setFilterIsolation(const SkRect& bounds, const 
     return std::move(*this);
 }
 
+CustomRenderNode::CustomRenderNode(std::vector<sk_sp<RenderNode>>&& children)
+    : INHERITED(kOverrideDamage_Trait)  // We cannot make any assumptions - override conservatively.
+    , fChildren(std::move(children)) {
+    for (const auto& child : fChildren) {
+        this->observeInval(child);
+    }
+}
+
+CustomRenderNode::~CustomRenderNode() {
+    for (const auto& child : fChildren) {
+        this->unobserveInval(child);
+    }
+}
+
 } // namespace sksg

@@ -15,7 +15,7 @@ namespace internal {
 
 class EffectBuilder final : public SkNoncopyable {
 public:
-    EffectBuilder(const AnimationBuilder*, AnimatorScope*);
+    EffectBuilder(const AnimationBuilder*, const SkSize&, AnimatorScope*);
 
     sk_sp<sksg::RenderNode> attachEffects(const skjson::ArrayValue&,
                                           sk_sp<sksg::RenderNode>) const;
@@ -24,13 +24,9 @@ private:
     using EffectBuilderT = sk_sp<sksg::RenderNode>(EffectBuilder::*)(const skjson::ArrayValue&,
                                                                      sk_sp<sksg::RenderNode>) const;
 
-    sk_sp<sksg::RenderNode> attachTintEffect        (const skjson::ArrayValue&,
+    sk_sp<sksg::RenderNode> attachDropShadowEffect  (const skjson::ArrayValue&,
                                                      sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachFillEffect        (const skjson::ArrayValue&,
-                                                     sk_sp<sksg::RenderNode>) const;
-    sk_sp<sksg::RenderNode> attachTritoneEffect     (const skjson::ArrayValue&,
-                                                     sk_sp<sksg::RenderNode>) const;
-    sk_sp<sksg::RenderNode> attachDropShadowEffect  (const skjson::ArrayValue&,
                                                      sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachGaussianBlurEffect(const skjson::ArrayValue&,
                                                      sk_sp<sksg::RenderNode>) const;
@@ -38,7 +34,13 @@ private:
                                                      sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachLevelsEffect      (const skjson::ArrayValue&,
                                                      sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachMotionTileEffect  (const skjson::ArrayValue&,
+                                                     sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachTintEffect        (const skjson::ArrayValue&,
+                                                     sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachTransformEffect   (const skjson::ArrayValue&,
+                                                     sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachTritoneEffect     (const skjson::ArrayValue&,
                                                      sk_sp<sksg::RenderNode>) const;
 
     EffectBuilderT findBuilder(const skjson::ObjectValue&) const;
@@ -46,6 +48,7 @@ private:
     static const skjson::Value& GetPropValue(const skjson::ArrayValue& jprops, size_t prop_index);
 
     const AnimationBuilder*   fBuilder;
+    const SkSize              fLayerSize;
     AnimatorScope*            fScope;
 };
 
