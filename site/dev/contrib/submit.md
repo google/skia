@@ -67,6 +67,9 @@ review! Submit a patch and getting it reviewed is fairly easy with depot tools.
 Use `git-cl`, which comes with [depot
 tools](http://sites.google.com/a/chromium.org/dev/developers/how-tos/install-depot-tools).
 For help, run `git cl help`.
+Note that in order for `git cl` to work correctly, it needs to run on a clone of 
+<https://skia.googlesource.com/skia>. Using clones of mirrors, including Google's mirror
+on GitHub, might lead to issues with `git cl` usage.
 
 ### Find a reviewer
 
