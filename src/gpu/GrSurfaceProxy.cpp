@@ -54,14 +54,16 @@ static bool is_valid_non_lazy(const GrSurfaceDesc& desc) {
 // Lazy-callback version
 GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
                                const GrBackendFormat& format, const GrSurfaceDesc& desc,
-                               GrSurfaceOrigin origin, SkBackingFit fit,
-                               SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
+                               GrSurfaceOrigin origin, const GrSwizzle& textureSwizzle,
+                               SkBackingFit fit, SkBudgeted budgeted,
+                               GrInternalSurfaceFlags surfaceFlags)
         : fSurfaceFlags(surfaceFlags)
         , fFormat(format)
         , fConfig(desc.fConfig)
         , fWidth(desc.fWidth)
         , fHeight(desc.fHeight)
         , fOrigin(origin)
+        , fTextureSwizzle(textureSwizzle)
         , fFit(fit)
         , fBudgeted(budgeted)
         , fLazyInstantiateCallback(std::move(callback))
@@ -84,7 +86,8 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantia
 }
 
 // Wrapped version
-GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit)
+GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
+                               const GrSwizzle& textureSwizzle, SkBackingFit fit)
         : INHERITED(std::move(surface))
         , fSurfaceFlags(fTarget->surfacePriv().flags())
         , fFormat(fTarget->backendFormat())
@@ -92,6 +95,7 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fWidth(fTarget->width())
         , fHeight(fTarget->height())
         , fOrigin(origin)
+        , fTextureSwizzle(textureSwizzle)
         , fFit(fit)
         , fBudgeted(fTarget->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted
                             ? SkBudgeted::kYes
