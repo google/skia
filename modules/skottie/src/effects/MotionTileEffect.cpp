@@ -9,9 +9,13 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkShader.h"
+#include "include/effects/SkGradientShader.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "src/utils/SkJSON.h"
+
+#include <cmath>
 
 namespace skottie {
 namespace internal {
@@ -54,7 +58,49 @@ protected:
         SkASSERT(this->children().size() == 1ul);
         this->children()[0]->revalidate(ic, ctm);
 
-        // outputW and outputH are layer size percentage units.
+        // tileW and tileH use layer size percentage units.
+        const auto tileW = SkTPin(fTileW, 0.0f, 100.0f) * 0.01f * fLayerSize.width(),
+                   tileH = SkTPin(fTileH, 0.0f, 100.0f) * 0.01f * fLayerSize.height();
+        const auto tile_size = SkSize::Make(std::max(tileW, 1.0f),
+                                            std::max(tileH, 1.0f));
+        const auto tile  = SkRect::MakeXYWH(fTileCenter.fX - 0.5f * tile_size.width(),
+                                            fTileCenter.fY - 0.5f * tile_size.height(),
+                                            tile_size.width(),
+                                            tile_size.height());
+
+        fLayerShaderMatrix = SkMatrix::MakeRectToRect(SkRect::MakeWH(fLayerSize.width(),
+                                                                     fLayerSize.height()),
+                                                      tile, SkMatrix::kFill_ScaleToFit);
+
+        if (fPhase) {
+            // To implement AE phase semantics, we construct a mask shader for the pass-through
+            // rows/columns.  We then draw the layer content through this mask, and then again
+            // through the inverse mask with a phase shift.
+            const auto phase_vec = fHorizontalPhase
+                    ? SkVector::Make(tile.width(), 0)
+                    : SkVector::Make(0, tile.height());
+            const auto phase_shift = SkVector::Make(phase_vec.fX / fLayerShaderMatrix.getScaleX(),
+                                                    phase_vec.fY / fLayerShaderMatrix.getScaleY())
+                                     * std::fmod(fPhase * (1/360.0f), 1);
+            fPhaseShaderMatrix.setTranslate(phase_shift);
+
+            // The mask is generated using a step gradient shader, spanning 2 x tile width/height,
+            // and perpendicular to the phase vector.
+            static constexpr SkColor colors[] = { 0xffffffff, 0x00000000 };
+            static constexpr SkScalar   pos[] = {       0.5f,       0.5f };
+
+            const SkPoint pts[] = {{ tile.x(), tile.y() },
+                                   { tile.x() + 2 * (tile.width()  - phase_vec.fX),
+                                     tile.y() + 2 * (tile.height() - phase_vec.fY) }};
+
+            fMaskShader = SkGradientShader::MakeLinear(pts, colors, pos,
+                                                       SK_ARRAY_COUNT(colors),
+                                                       SkTileMode::kRepeat);
+        } else {
+            fMaskShader = nullptr;
+        }
+
+        // outputW and outputH also use layer size percentage units.
         const auto outputW = fOutputW * 0.01f * fLayerSize.width(),
                    outputH = fOutputH * 0.01f * fLayerSize.height();
 
@@ -64,42 +110,39 @@ protected:
     }
 
     void onRender(SkCanvas* canvas, const RenderContext* ctx) const override {
-        // tileW and tileH are also layer size percentage units
-        const auto tileW = SkTPin(fTileW, 0.0f, 100.0f) * 0.01f * fLayerSize.width(),
-                   tileH = SkTPin(fTileH, 0.0f, 100.0f) * 0.01f * fLayerSize.height();
-
         // AE allow one of the tile dimensions to collapse, but not both.
-        if (this->bounds().isEmpty() || (!tileW && !tileH)) {
+        if (this->bounds().isEmpty() || (fTileW <= 0 && fTileH <= 0)) {
             return;
         }
 
-        const auto tile_size = SkSize::Make(std::max(tileW, 1.0f),
-                                            std::max(tileH, 1.0f));
-        const auto tile = SkRect::MakeXYWH(fTileCenter.fX - 0.5f * tile_size.width(),
-                                           fTileCenter.fY - 0.5f * tile_size.height(),
-                                           tile_size.width(),
-                                           tile_size.height());
-
-        SkASSERT(this->children().size() == 1ul);
-        const auto& layer        = this->children()[0];
-        const auto  layer_bounds = SkRect::MakeWH(fLayerSize.width(), fLayerSize.height());
-
-        // TODO: phase
+        const auto tm = fMirrorEdges ? SkTileMode::kMirror : SkTileMode::kRepeat;
 
         SkPictureRecorder recorder;
-        layer->render(recorder.beginRecording(layer_bounds));
-        const auto layer_pic = recorder.finishRecordingAsPicture();
-
-        const auto shader_matrix = SkMatrix::MakeRectToRect(layer_bounds, tile,
-                                                            SkMatrix::kFill_ScaleToFit);
-
-        const auto tm = fMirrorEdges ? SkTileMode::kMirror : SkTileMode::kRepeat;
+        SkASSERT(this->children().size() == 1ul);
+        this->children()[0]->render(recorder.beginRecording(fLayerSize.width(),
+                                                            fLayerSize.height()));
+        const auto layer_shader =
+            recorder.finishRecordingAsPicture()->makeShader(tm, tm, &fLayerShaderMatrix);
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setShader(layer_pic->makeShader(tm, tm, &shader_matrix));
 
+        // First drawing pass: pass-through layer content, with an optional phase mask.
+        paint.setShader(fMaskShader
+                ? SkShaders::Blend(SkBlendMode::kSrcIn, fMaskShader, layer_shader)
+                : layer_shader);
         canvas->drawRect(this->bounds(), paint);
+
+        if (fMaskShader) {
+            // Second pass: phased/shifted layer rows/columns, with an inverse mask.
+
+            // TODO: would be nice for SkShaders::* to take an optional local matrix.
+            paint.setShader(
+                SkShaders::Blend(SkBlendMode::kSrcOut,
+                                 fMaskShader,
+                                 layer_shader->makeWithLocalMatrix(fPhaseShaderMatrix)));
+            canvas->drawRect(this->bounds(), paint);
+        }
     }
 
 private:
@@ -113,6 +156,11 @@ private:
              fPhase           = 0;
     bool     fMirrorEdges     = false;
     bool     fHorizontalPhase = false;
+
+    // These are computed/cached on revalidation.
+    SkMatrix        fLayerShaderMatrix, // matrix for the pass-through layer content shader
+                    fPhaseShaderMatrix; // matrix for the phased (shifted) rows/columns
+    sk_sp<SkShader> fMaskShader;        // cached mask shader for the pass-through rows/columns
 
     using INHERITED = sksg::CustomRenderNode;
 };
