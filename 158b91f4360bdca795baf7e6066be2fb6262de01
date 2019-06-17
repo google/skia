@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d0b1388_ac0ba82c",
+        "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-06-17T14:24:46Z",
+      "side": 1,
+      "message": "Probably need \"if options.output_file\"",
+      "range": {
+        "startLine": 155,
+        "startChar": 16,
+        "endLine": 155,
+        "endChar": 35
+      },
+      "revId": "158b91f4360bdca795baf7e6066be2fb6262de01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
