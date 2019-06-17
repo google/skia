@@ -70,4 +70,29 @@ namespace SkHexadecimalDigits {
     extern const char gLower[16];  // 0-9a-f
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+// If T is an 8-byte GCC or Clang vector extension type, it would naturally
+// pass or return in the MMX mm0 register on 32-bit x86 builds.  This has the
+// fun side effect of clobbering any state in the x87 st0 register.  (There is
+// no ABI governing who should preserve mm?/st? registers, so no one does!)
+//
+// We force-inline sk_unaligned_load() and sk_unaligned_store() to avoid that,
+// making them safe to use for all types on all platforms, thus solving the
+// problem once and for all!
+
+template <typename T, typename P>
+static SK_ALWAYS_INLINE T sk_unaligned_load(const P* ptr) {
+    // TODO: static_assert desirable things about T here so as not to be totally abused.
+    T val;
+    memcpy(&val, ptr, sizeof(val));
+    return val;
+}
+
+template <typename T, typename P>
+static SK_ALWAYS_INLINE void sk_unaligned_store(P* ptr, T val) {
+    // TODO: ditto
+    memcpy(ptr, &val, sizeof(val));
+}
+
 #endif
