@@ -76506,7 +76506,7 @@
       ],
       "dimensions": [
         "cpu:arm64-64-Snapdragon850",
-        "os:Windows-10-17763.503",
+        "os:Windows-10",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -76617,7 +76617,7 @@
       ],
       "dimensions": [
         "gpu:Adreno630",
-        "os:Windows-10-17763.503",
+        "os:Windows-10",
         "pool:Skia"
       ],
       "env_prefixes": {
