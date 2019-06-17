@@ -269,8 +269,8 @@ public:
     /** localeNameLength and defaultFamilyNameLength must include the null terminator. */
     SkFontMgr_DirectWrite(IDWriteFactory* factory, IDWriteFontCollection* fontCollection,
                           IDWriteFontFallback* fallback,
-                          WCHAR* localeName, int localeNameLength,
-                          WCHAR* defaultFamilyName, int defaultFamilyNameLength)
+                          const WCHAR* localeName, int localeNameLength,
+                          const WCHAR* defaultFamilyName, int defaultFamilyNameLength)
         : fFactory(SkRefComPtr(factory))
         , fFontFallback(SkSafeRefComPtr(fallback))
         , fFontCollection(SkRefComPtr(fontCollection))
@@ -1183,8 +1183,8 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
         }
     }
 
-    WCHAR* defaultFamilyName = nullptr;
-    int defaultFamilyNameLen = 0;
+    const WCHAR* defaultFamilyName = L"";
+    int defaultFamilyNameLen = 1;
     NONCLIENTMETRICSW metrics;
     metrics.cbSize = sizeof(metrics);
     if (nullptr == fallback) {
@@ -1195,8 +1195,8 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
     }
 
     WCHAR localeNameStorage[LOCALE_NAME_MAX_LENGTH];
-    WCHAR* localeName = nullptr;
-    int localeNameLen = 0;
+    const WCHAR* localeName = L"";
+    int localeNameLen = 1;
 
     // Dynamically load GetUserDefaultLocaleName function, as it is not available on XP.
     SkGetUserDefaultLocaleNameProc getUserDefaultLocaleNameProc = nullptr;
@@ -1204,9 +1204,10 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
     if (nullptr == getUserDefaultLocaleNameProc) {
         SK_TRACEHR(hr, "Could not get GetUserDefaultLocaleName.");
     } else {
-        localeNameLen = getUserDefaultLocaleNameProc(localeNameStorage, LOCALE_NAME_MAX_LENGTH);
-        if (localeNameLen) {
+        int size = getUserDefaultLocaleNameProc(localeNameStorage, LOCALE_NAME_MAX_LENGTH);
+        if (size) {
             localeName = localeNameStorage;
+            localeNameLen = size;
         }
     }
 
