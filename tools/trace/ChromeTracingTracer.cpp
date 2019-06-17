@@ -220,10 +220,10 @@ static void trace_event_to_json(SkJSONWriter*                 writer,
     // (standard time unit for tracing JSON files).
     uint64_t relativeTimestamp =
             static_cast<int64_t>(traceEvent->fClockBegin - serializationState->fClockOffset);
-    writer->appendDoubleDigits("ts", static_cast<double>(relativeTimestamp) * 1E-3, 3);
+    writer->appendDouble("ts", static_cast<double>(relativeTimestamp) * 1E-3);
     if (0 != traceEvent->fClockEnd) {
         double dur = static_cast<double>(traceEvent->fClockEnd - traceEvent->fClockBegin) * 1E-3;
-        writer->appendDoubleDigits("dur", dur, 3);
+        writer->appendDouble("dur", dur);
     }
 
     writer->appendS64("tid", serializationState->getShortThreadID(traceEvent->fThreadID));
