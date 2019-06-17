@@ -382,6 +382,8 @@ def dm_flags(api, bot):
     blacklist('pdf skp _ desk_baidu.skp')
     blacklist('pdf skp _ desk_wikipedia.skp')
     blacklist('_ svg _ _')
+    # skbug.com/9171 and 8847
+    blacklist('_ test _ InitialTextureClear')
 
   if 'iOS' in bot:
     blacklist(gl_prefix + ' skp _ _')
