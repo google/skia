@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9851e752_b21d6c4a",
+        "filename": "src/ports/SkTLS_win.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-17T20:21:01Z",
+      "side": 1,
+      "message": "Think we should port this file to SkOnce instead?\n\nThe only reason TSAN\u0027s not complaining the hell out of this is that it\u0027s Windows-only...",
+      "revId": "a4fa4764af3175841b9ac81f2f86b46182faed47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
