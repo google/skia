@@ -39,7 +39,7 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkLineClipper.h"
 #include "tools/Resources.h"
-#include "tools/gpu/YUVUtils.h"
+#include "tools/gpu/ImageUtils.h"
 
 #include <array>
 #include <memory>
