@@ -476,6 +476,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			// Upgrades result in a new image but not a new OS version.
 			d["image"] = "windows-server-2016-dc-v20190108"
 		}
+		if parts["model"] == "LenovoYogaC630" {
+			// This is currently a unique snowflake.
+			d["os"] = "Windows-10"
+		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
 	}
