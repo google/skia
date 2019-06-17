@@ -668,6 +668,12 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
     SkASSERT(GrBudgetedType::kBudgeted != rt->resourcePriv().budgetedType());
 
     GrColorType colorType = GrPixelConfigToColorType(rt->config());
+#ifdef SK_DEBUG
+    GrPixelConfig testConfig =
+            this->caps()->validateBackendRenderTarget(backendRT,
+                                                      GrColorTypeToSkColorType(colorType));
+    SkASSERT(testConfig != kUnknown_GrPixelConfig);
+#endif
     GrSwizzle texSwizzle = this->caps()->getTextureSwizzle(rt->backendFormat(), colorType);
     GrSwizzle outSwizzle = this->caps()->getOutputSwizzle(rt->backendFormat(), colorType);
 

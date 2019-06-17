@@ -64,6 +64,7 @@ public:
         // TODO: do we still need the dst proxy here?
         GrRenderTargetProxy* fProxy;
         GrAppliedClip* fAppliedClip;
+        GrSwizzle fOutputSwizzle;
         GrXferProcessor::DstProxy fDstProxy;
     };
 

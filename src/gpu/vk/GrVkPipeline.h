@@ -42,7 +42,8 @@ public:
     static void SetDynamicScissorRectState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*,
                                            GrSurfaceOrigin, SkIRect);
     static void SetDynamicViewportState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*);
-    static void SetDynamicBlendConstantState(GrVkGpu*, GrVkCommandBuffer*, GrPixelConfig,
+    static void SetDynamicBlendConstantState(GrVkGpu*, GrVkCommandBuffer*,
+                                             const GrSwizzle& outputSwizzle,
                                              const GrXferProcessor&);
 
 #ifdef SK_TRACE_VK_RESOURCES
