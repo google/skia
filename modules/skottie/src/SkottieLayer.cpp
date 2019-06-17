@@ -559,17 +559,24 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     using LayerBuilder = sk_sp<sksg::RenderNode> (AnimationBuilder::*)(const skjson::ObjectValue&,
                                                                        const LayerInfo&,
                                                                        AnimatorScope*) const;
+
+    // AE is annoyingly inconsistent in how effects interact with layer transforms: depending on
+    // the layer type, effects are applied before or after the content is transformed.
+    //
+    // Empirically, pre-rendered layers (for some loose meaning of "pre-rendered") are in the
+    // former category (effects are subject to transformation), while the remaining types are in
+    // the latter.
     enum : uint32_t {
-        kTransformEffects = 1, // The layer transform applies to its effects also.
+        kTransformEffects = 1, // The layer transform also applies to its effects.
     };
 
     static constexpr struct {
         LayerBuilder fBuilder;
         uint32_t     fFlags;
     } gLayerBuildInfo[] = {
-        { &AnimationBuilder::attachPrecompLayer,                 0 },  // 'ty': 0 -> precomp
+        { &AnimationBuilder::attachPrecompLayer, kTransformEffects },  // 'ty': 0 -> precomp
         { &AnimationBuilder::attachSolidLayer  , kTransformEffects },  // 'ty': 1 -> solid
-        { &AnimationBuilder::attachImageLayer  ,                 0 },  // 'ty': 2 -> image
+        { &AnimationBuilder::attachImageLayer  , kTransformEffects },  // 'ty': 2 -> image
         { &AnimationBuilder::attachNullLayer   ,                 0 },  // 'ty': 3 -> null
         { &AnimationBuilder::attachShapeLayer  ,                 0 },  // 'ty': 4 -> shape
         { &AnimationBuilder::attachTextLayer   ,                 0 },  // 'ty': 5 -> text
