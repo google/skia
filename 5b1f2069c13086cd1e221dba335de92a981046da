@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aba3dc96_71302ae5",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-17T16:57:49Z",
+      "side": 1,
+      "message": "Do we need asserts here re the range of v* (i.e., between 0..3) ?",
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b703867b_9bf471f4",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-17T16:57:49Z",
+      "side": 1,
+      "message": "device clip rect ?",
+      "range": {
+        "startLine": 32,
+        "startChar": 31,
+        "endLine": 32,
+        "endChar": 42
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d98c098_752ad876",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-17T16:57:49Z",
+      "side": 1,
+      "message": "Shouldn\u0027t we have an assert like:\n\nSkASSERT(SkScalarNearlyEqual(y[v0], y[v1]));\n\nhere?",
+      "range": {
+        "startLine": 59,
+        "startChar": 8,
+        "endLine": 59,
+        "endChar": 28
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c2c497d_3c19c151",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-17T16:57:49Z",
+      "side": 1,
+      "message": "not \"quad\" or \"devSpaceQuad\" ?",
+      "range": {
+        "startLine": 188,
+        "startChar": 87,
+        "endLine": 188,
+        "endChar": 93
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc3a4a8f_e436bd92",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-17T16:57:49Z",
+      "side": 1,
+      "message": "Do you just mean \"quad\" ?",
+      "range": {
+        "startLine": 25,
+        "startChar": 13,
+        "endLine": 25,
+        "endChar": 17
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1051267a_bfb830c3",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-17T16:57:49Z",
+      "side": 1,
+      "message": "cropAA ?",
+      "range": {
+        "startLine": 31,
+        "startChar": 23,
+        "endLine": 31,
+        "endChar": 29
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc500310_404ee29a",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-17T16:57:49Z",
+      "side": 1,
+      "message": "If provided, the local ... ?",
+      "range": {
+        "startLine": 31,
+        "startChar": 39,
+        "endLine": 31,
+        "endChar": 42
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82f5ff1b_ae751bc2",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-17T16:57:49Z",
+      "side": 1,
+      "message": "edgeAA ?",
+      "range": {
+        "startLine": 35,
+        "startChar": 84,
+        "endLine": 35,
+        "endChar": 93
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
