@@ -18,7 +18,8 @@
 
 GrPipeline::GrPipeline(const InitArgs& args,
                        GrProcessorSet&& processors,
-                       GrAppliedClip&& appliedClip) {
+                       GrAppliedClip&& appliedClip)
+        : fOutputSwizzle(args.fOutputSwizzle) {
     SkASSERT(processors.isFinalized());
 
     fFlags = (Flags)args.fInputFlags;
@@ -93,14 +94,16 @@ GrXferBarrierType GrPipeline::xferBarrierType(GrTexture* texture, const GrCaps& 
     return this->getXferProcessor().xferBarrierType(caps);
 }
 
-GrPipeline::GrPipeline(GrScissorTest scissorTest, SkBlendMode blendmode, InputFlags inputFlags,
+GrPipeline::GrPipeline(GrScissorTest scissorTest, SkBlendMode blendmode,
+                       const GrSwizzle& outputSwizzle, InputFlags inputFlags,
                        const GrUserStencilSettings* userStencil)
         : fWindowRectsState()
         , fUserStencilSettings(userStencil)
         , fFlags((Flags)inputFlags)
         , fXferProcessor(GrPorterDuffXPFactory::MakeNoCoverageXP(blendmode))
         , fFragmentProcessors()
-        , fNumColorProcessors(0) {
+        , fNumColorProcessors(0)
+        , fOutputSwizzle(outputSwizzle) {
     if (GrScissorTest::kEnabled == scissorTest) {
         fFlags |= Flags::kScissorEnabled;
     }

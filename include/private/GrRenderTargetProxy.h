@@ -125,11 +125,16 @@ private:
     // in the constructors, and always looks for the full 16 byte alignment, even if the fields in
     // that particular class don't require it. Changing the size of this object can move the start
     // address of other types, leading to this problem.
-
     int                fSampleCnt;
     GrSwizzle          fOutputSwizzle;
     bool               fNeedsStencil;
     WrapsVkSecondaryCB fWrapsVkSecondaryCB;
+    // This is to fix issue in large comment above. Without the padding we end 6 bytes into a 16
+    // byte range, so the GrTextureProxy ends up starting 8 byte aligned by not 16. We add the
+    // padding here to get us right up to the 16 byte alignment (technically any padding of 3-10
+    // bytes would work since it always goes up to 8 byte alignment, but we use 10 to more explicit
+    // about what we're doing).
+    char               fDummyPadding[10];
 
     // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
     // For deferred proxies that pointer is filled in when we need to instantiate the
