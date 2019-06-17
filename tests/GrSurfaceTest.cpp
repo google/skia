@@ -105,9 +105,12 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         kRGBA_half_Clamped_GrPixelConfig,
         kRGB_ETC1_GrPixelConfig,
 
-        // Experimental (for P016 and P010)
         kR_16_GrPixelConfig,
         kRG_1616_GrPixelConfig,
+
+        // Experimental (for Y416 and mutant P016/P010)
+        kRGBA_16161616_GrPixelConfig,
+        kRG_half_GrPixelConfig,
     };
     GR_STATIC_ASSERT(kGrPixelConfigCnt == SK_ARRAY_COUNT(configs));
 
@@ -206,9 +209,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                         memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
                         if (texCtx->readPixels(info, data.get(), 0, 0, 0)) {
                             uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
-                            for (int i = 0; i < kSize * kSize; ++i) {
-                                if (cmp != data.get()[i]) {
-                                    ERRORF(reporter, "Failed on config %d", desc.fConfig);
+                            for (int j = 0; j < kSize * kSize; ++j) {
+                                if (cmp != data.get()[j]) {
+                                    ERRORF(reporter, "Failed on instantiated-pass config %d loop %d pix %d rt %d",
+                                           desc.fConfig, i, j, rt);
                                     break;
                                 }
                             }
@@ -240,9 +244,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                         memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
                         if (surfCtx->readPixels(info, data.get(), 0, 0, 0)) {
                             uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
-                            for (int i = 0; i < kSize * kSize; ++i) {
-                                if (cmp != data.get()[i]) {
-                                    ERRORF(reporter, "Failed on config %d", desc.fConfig);
+                            for (int j = 0; j < kSize * kSize; ++j) {
+                                if (cmp != data.get()[j]) {
+                                    ERRORF(reporter, "Failed on deferred-pass config %d loop %d pix %d rt %d",
+                                           desc.fConfig, i, j, rt);
                                     break;
                                 }
                             }
