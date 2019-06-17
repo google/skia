@@ -182,11 +182,15 @@ static void info(const char* fmt) {
     }
 }
 
-SK_DECLARE_STATIC_MUTEX(gFailuresMutex);
+static SkMutex& failures_mutex() {
+    static SkMutex* mutex = new SkMutex{};
+    return *mutex;
+}
+
 static SkTArray<SkString> gFailures;
 
 static void fail(const SkString& err) {
-    SkAutoMutexAcquire lock(gFailuresMutex);
+    SkAutoMutexExclusive lock(failures_mutex());
     SkDebugf("\n\nFAILURE: %s\n\n", err.c_str());
     gFailures.push_back(err);
 }
