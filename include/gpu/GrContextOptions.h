@@ -195,6 +195,12 @@ struct SK_API GrContextOptions {
       */
      ShaderErrorHandler* fShaderErrorHandler = nullptr;
 
+    /**
+     * Specifies the number of samples Ganesh should use when performing internal draws with MSAA or
+     * mixed samples (hardware capabilities permitting).
+     */
+    int  fPreferredInternalSampleCount = 4;
+
 #if GR_TEST_UTILS
     /**
      * Private options that are only meant for testing within Skia's tools.

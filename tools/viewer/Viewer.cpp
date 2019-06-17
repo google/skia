@@ -93,6 +93,9 @@ static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BA
 
 static DEFINE_int(msaa, 1, "Number of subpixel samples. 0 for no HW antialiasing.");
 
+static DEFINE_int(internalSamples, 4,
+                  "Number of samples for internal draws that use MSAA or mixed samples.");
+
 static DEFINE_string(bisect, "", "Path to a .skp or .svg file to bisect.");
 
 static DEFINE_string2(file, f, "", "Open a single file for viewing.");
@@ -295,6 +298,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     displayParams.fGrContextOptions.fDisallowGLSLBinaryCaching = true;
     displayParams.fGrContextOptions.fShaderErrorHandler = &gShaderErrorHandler;
     displayParams.fGrContextOptions.fSuppressPrints = true;
+    displayParams.fGrContextOptions.fPreferredInternalSampleCount = FLAGS_internalSamples;
     fWindow->setRequestedDisplayParams(displayParams);
 
     // Configure timers
