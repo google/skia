@@ -26,7 +26,7 @@ static GrColorType mask_format_to_gr_color_type(GrMaskFormat format) {
         case kA8_GrMaskFormat:
             return GrColorType::kAlpha_8;
         case kA565_GrMaskFormat:
-            return GrColorType::kRGB_565;
+            return GrColorType::kBGR_565;
         case kARGB_GrMaskFormat:
             return GrColorType::kRGBA_8888;
         default:
