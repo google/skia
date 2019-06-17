@@ -22,6 +22,30 @@
       "revId": "b41893acebc9bf0e0e4275728246c12f98006c7f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce894096_04a30724",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 2572,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-17T15:52:51Z",
+      "side": 1,
+      "message": "Ah, good point.",
+      "parentUuid": "ff5a158a_1956afeb",
+      "range": {
+        "startLine": 2572,
+        "startChar": 13,
+        "endLine": 2572,
+        "endChar": 40
+      },
+      "revId": "b41893acebc9bf0e0e4275728246c12f98006c7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
