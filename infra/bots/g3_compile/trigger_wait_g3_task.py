@@ -151,6 +151,10 @@ def trigger_and_wait(options):
     if ret.get('status'):
       # The task is done, delete the file.
       subprocess.check_call(['gsutil', 'rm', gs_file])
+      if options.output_file:
+        # Write the task to the output_file.
+        with open(options.output_file, 'w') as output_file:
+          json.dump(ret, output_file)
 
       # Now either raise an Exception or return success based on the status.
       if ret['status'] == 'exception':
@@ -194,6 +198,9 @@ def main():
   option_parser.add_option(
       '', '--patchset', type=int, default=0,
       help='The Gerrit change patchset to use.')
+  option_parser.add_option(
+      '', '--output_file', type=str,
+      help='The file to write the task to.')
   options, _ = option_parser.parse_args()
   sys.exit(trigger_and_wait(options))
 
