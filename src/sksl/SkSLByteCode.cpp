@@ -9,6 +9,7 @@
 
 #include "include/core/SkPoint3.h"
 #include "include/private/SkVx.h"
+#include "src/core/SkUtils.h"   // sk_unaligned_load
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLByteCodeGenerator.h"
 #include "src/sksl/SkSLExternalValue.h"
@@ -24,16 +25,9 @@ using F32 = skvx::Vec<VecWidth, float>;
 using I32 = skvx::Vec<VecWidth, int32_t>;
 using U32 = skvx::Vec<VecWidth, uint32_t>;
 
-template <typename T>
-static T unaligned_load(const void* ptr) {
-    T val;
-    memcpy(&val, ptr, sizeof(val));
-    return val;
-}
-
 #define READ8() (*(ip++))
-#define READ16() (ip += 2, unaligned_load<uint16_t>(ip - 2))
-#define READ32() (ip += 4, unaligned_load<uint32_t>(ip - 4))
+#define READ16() (ip += 2, sk_unaligned_load<uint16_t>(ip - 2))
+#define READ32() (ip += 4, sk_unaligned_load<uint32_t>(ip - 4))
 
 #define VECTOR_DISASSEMBLE(op, text)                          \
     case ByteCodeInstruction::op: printf(text); break;        \
