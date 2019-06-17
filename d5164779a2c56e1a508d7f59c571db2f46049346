@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b755140_e4267eea",
+        "filename": "src/pathops/SkPathOpsDebug.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-17T19:06:47Z",
+      "side": 1,
+      "message": "I think we can also use the idiom\n\n   static SkMutex\u0026 mutex \u003d *(new SkMutex);\n\nright?  Probably nicer to never have to think about the pointer part of SkMutex* once it\u0027s created?",
+      "range": {
+        "startLine": 562,
+        "startChar": 4,
+        "endLine": 562,
+        "endChar": 42
+      },
+      "revId": "d5164779a2c56e1a508d7f59c571db2f46049346",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1834b846_af584074",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-17T19:06:47Z",
+      "side": 0,
+      "message": "Do we technically need to replace global mutexes in our tools?  We just need to avoid them in libskia, right?\n\nThat said, this one can scope into fail()?  Probably fine even as\n\n  static SkSpinlock mutex;\n  SkAutoWhatever lock(mutex);",
+      "revId": "23093135d17427ef59385761d2d729ada6d961cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
