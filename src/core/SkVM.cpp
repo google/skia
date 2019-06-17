@@ -415,16 +415,17 @@ namespace skvm {
             // 8 float values in a ymm register.
             static constexpr int K = 8;
 
-            static bool Supported(int regs) {
+            static bool Supported(int regs, int nargs) {
                 return true
-                    && SkCpu::Supports(SkCpu::HSW)
-                    && regs < 16;
+                    && SkCpu::Supports(SkCpu::HSW)   // TODO: SSE4.1 target?
+                    && regs  <= 15   // All 16 ymm registers, reserving one for us as tmp.
+                    && nargs <=  5;  // We can increase this if we push/pop GP registers.
             }
 
             JIT(const std::vector<Program::Instruction>& instructions, int regs, int loop,
                 size_t strides[], int nargs)
             {
-                SkASSERT(Supported(regs));
+                SkASSERT(Supported(regs, nargs));
 
             #if defined(SK_BUILD_FOR_WIN)
                 // TODO  Windows ABI?
@@ -434,7 +435,7 @@ namespace skvm {
                 Xbyak::Reg N = rdi,
                        arg[] = { rsi, rdx, rcx, r8, r9 };
 
-                // All 16 ymm registers are available as scratch.
+                // All 16 ymm registers are available as scratch, keeping 15 as a temporary for us.
                 Xbyak::Ymm r[] = {
                     ymm0, ymm1, ymm2 , ymm3 , ymm4 , ymm5 , ymm6 , ymm7 ,
                     ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14,
@@ -605,7 +606,7 @@ namespace skvm {
 
     void Program::eval(int n, void* args[], size_t strides[], int nargs) const {
     #if defined(SKVM_JIT)
-        if (!fJIT && JIT::Supported(fRegs)) {
+        if (!fJIT && JIT::Supported(fRegs, nargs)) {
             fJIT.reset(new JIT{fInstructions, fRegs, fLoop, strides, nargs});
 
         #if 1
