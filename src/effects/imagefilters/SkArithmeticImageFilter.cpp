@@ -155,7 +155,8 @@ static bool intersect(SkPixmap* dst, SkPixmap* src, int srcDx, int srcDy) {
                     dst->addr(sect.fLeft, sect.fTop),
                     dst->rowBytes());
     *src = SkPixmap(src->info().makeWH(sect.width(), sect.height()),
-                    src->addr(SkTMax(0, -srcDx), SkTMax(0, -srcDy)),
+                    src->addr(SkTMax(0, -srcDx),
+                              SkTMax(0, -srcDy)),
                     src->rowBytes());
     return true;
 }
@@ -412,8 +413,8 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
         auto proc = fEnforcePMColor ? arith_span<true> : arith_span<false>;
         SkPixmap tmpDst = dst;
         if (intersect(&tmpDst, &src, fgoffset.fLeft, fgoffset.fTop)) {
-            for (int y = 0; y < tmpDst.height(); ++y) {
-                proc(fK, tmpDst.writable_addr32(0, y), src.addr32(0, y), tmpDst.width());
+            for (int y = 0; y < src.height(); ++y) {
+                proc(fK, tmpDst.writable_addr32(0, y), src.addr32(0, y), src.width());
             }
         }
     }

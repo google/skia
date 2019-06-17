@@ -134,16 +134,15 @@ public:
 #if SK_SUPPORT_GPU
     /**
      *  Regardless of the underlying backing store, return the contents as a GrTextureProxy.
-     *  The active portion of the texture can be retrieved via 'subset'.
+     *  Unlike getROPixels(), the active portion of the texture must be retrieved via 'subset'.
      */
     sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*) const;
 #endif
 
     /**
-     *  Regardless of the underlying backing store, return the contents as an SkBitmap
-     *
-     *  The returned ImageInfo represents the backing memory. Use 'subset'
-     *  to get the active portion's dimensions.
+     *  Regardless of the underlying backing store, return the contents as an SkBitmap.
+     *  The returned bitmap represents the subset accessed by this image, thus (0,0) refers to the
+     *  top-left corner of 'subset'.
      */
     bool getROPixels(SkBitmap*) const;
 

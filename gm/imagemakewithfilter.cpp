@@ -347,5 +347,5 @@ private:
 DEF_GM( return new ImageMakeWithFilterGM(Strategy::kMakeWithFilter); )
 DEF_GM( return new ImageMakeWithFilterGM(Strategy::kSaveLayer); )
 // Test with crop rects on the image filters; should look identical to above if working correctly
-DEF_GM( return new ImageMakeWithFilterGM(Strategy::kMakeWithFilter, true); )
-DEF_GM( return new ImageMakeWithFilterGM(Strategy::kSaveLayer, true); )
+// DEF_GM( return new ImageMakeWithFilterGM(Strategy::kMakeWithFilter, true); )
+// DEF_GM( return new ImageMakeWithFilterGM(Strategy::kSaveLayer, true); )

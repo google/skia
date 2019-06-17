@@ -435,6 +435,7 @@ sk_sp<SkSurface> makeSurface(SkCanvas*             canvas,
                              const SkSurfaceProps* props) {
     auto surf = canvas->makeSurface(info, props);
     if (!surf) {
+        SkDebugf("Failed to make canvas surface\n");
         surf = SkSurface::MakeRaster(info, props);
     }
     return surf;
