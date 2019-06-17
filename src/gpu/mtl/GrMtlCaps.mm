@@ -411,7 +411,6 @@ void GrMtlCaps::initConfigTable() {
     info = &fConfigTable[kRGBA_half_Clamped_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
 
-    // Experimental (for P016 and P010)
     // R_16 uses R16Unorm
     info = &fConfigTable[kR_16_GrPixelConfig];
     if (this->isMac()) {
@@ -427,6 +426,20 @@ void GrMtlCaps::initConfigTable() {
     } else {
         info->fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kRenderable_Flag;
     }
+
+    // Experimental (for Y416 and mutant P016/P010)
+
+    // RGBA_16161616 uses RGBA16Unorm
+    info = &fConfigTable[kRGBA_16161616_GrPixelConfig];
+    if (this->isMac()) {
+        info->fFlags = ConfigInfo::kAllFlags;
+    } else {
+        info->fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kRenderable_Flag;
+    }
+
+    // RG_half uses RG16Float
+    info = &fConfigTable[kRG_half_GrPixelConfig];
+    info->fFlags = ConfigInfo::kAllFlags;
 }
 
 void GrMtlCaps::initStencilFormat(id<MTLDevice> physDev) {
@@ -562,12 +575,18 @@ static GrPixelConfig get_yuva_config(GrMTLPixelFormat grFormat) {
         case MTLPixelFormatRGB10A2Unorm:
             return kRGBA_1010102_GrPixelConfig;
             break;
-        // Experimental (for P016 and P010)
         case MTLPixelFormatR16Unorm:
             return kR_16_GrPixelConfig;
             break;
         case MTLPixelFormatRG16Unorm:
             return kRG_1616_GrPixelConfig;
+            break;
+        // Experimental (for Y416 and mutant P016/P010)
+        case MTLPixelFormatRGBA16Unorm:
+            return kRGBA_16161616_GrPixelConfig;
+            break;
+        case MTLPixelFormatRG16Float:
+            return kRG_half_GrPixelConfig;
             break;
         default:
             return kUnknown_GrPixelConfig;
@@ -643,11 +662,15 @@ static bool format_color_type_valid_pair(MTLPixelFormat format, GrColorType colo
 #else
             return MTLPixelFormatETC2_RGB8 == format;
 #endif
-        // Experimental (for P016 and P010)
         case GrColorType::kR_16:
             return MTLPixelFormatR16Unorm == format;
         case GrColorType::kRG_1616:
             return MTLPixelFormatRG16Unorm == format;
+        // Experimental (for Y416 and mutant P016/P010)
+        case GrColorType::kRGBA_16161616:
+            return MTLPixelFormatRGBA16Unorm == format;
+        case GrColorType::kRG_half:
+            return MTLPixelFormatRG16Float == format;
     }
     SK_ABORT("Unknown color type");
     return false;
