@@ -38,7 +38,8 @@ declare_args() {
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
   skia_use_x11 = is_linux
-  skia_use_xbyak = false
+  skia_use_xbyak =
+      is_skia_dev_build && target_cpu == "x64" && is_linux && is_clang
   skia_use_xps = true
 
   skia_android_serial = ""
