@@ -17,6 +17,7 @@
 #import <metal/metal.h>
 
 class GrMtlGpu;
+class GrMtlCommandBuffer;
 
 class GrMtlResourceProvider {
 public:
@@ -37,6 +38,7 @@ public:
     GrMtlSampler* findOrCreateCompatibleSampler(const GrSamplerState&, uint32_t maxMipLevel);
 
     id<MTLBuffer> getDynamicBuffer(size_t size, size_t* offset);
+    void addBufferCompletionHandler(GrMtlCommandBuffer* cmdBuffer);
 
     // Destroy any cached resources. To be called before releasing the MtlDevice.
     void destroyResources();
@@ -83,6 +85,8 @@ private:
 #endif
     };
 
+    id<MTLBuffer> allocDynamicBuffer(size_t size);
+
     GrMtlGpu* fGpu;
 
     // Cache of GrMtlPipelineStates
@@ -91,13 +95,18 @@ private:
     SkTDynamicHash<GrMtlSampler, GrMtlSampler::Key> fSamplers;
     SkTDynamicHash<GrMtlDepthStencil, GrMtlDepthStencil::Key> fDepthStencilStates;
 
-    // Buffer state
-    struct BufferState {
+    // Buffer state.
+    // This is ref-counted because we might delete the GrContext before the command buffer
+    // finishes. The completion handler will retain a reference to this so it won't get
+    // deleted along with the GrContext.
+    class BufferState : public SkRefCnt {
+    public:
         id<MTLBuffer> fAllocation;
-        size_t        fAllocationSize;
-        size_t        fNextOffset;
+        size_t        fSize;
+        size_t        fHead;     // where we start allocating
+        size_t        fTail;     // where we start deallocating
     };
-    BufferState fBufferState;
+    sk_sp<BufferState> fBufferState;
 };
 
 #endif
