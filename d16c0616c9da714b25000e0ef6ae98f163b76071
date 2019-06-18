@@ -272,6 +272,30 @@
     },
     {
       "key": {
+        "uuid": "66584ac6_8fefc9ff",
+        "filename": "infra/bots/recipes/test.expected/Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-18T16:54:18Z",
+      "side": 1,
+      "message": "I would just make a bug and reference it in the .py file",
+      "parentUuid": "14e25556_394dbdad",
+      "range": {
+        "startLine": 276,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 28
+      },
+      "revId": "d16c0616c9da714b25000e0ef6ae98f163b76071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b0692b9c_b54978e7",
         "filename": "tools/gpu/ImageUtils.h",
         "patchSetId": 5
