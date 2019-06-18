@@ -98,7 +98,7 @@ void fill_pixel_data(int width, int height, GrColor* data) {
 }
 
 bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
-                            const SkImageInfo& ii, GrMipMapped mipMapped, SkColor color,
+                            const SkPixmap& pixmap, GrMipMapped mipMapped,
                             GrRenderable renderable) {
     SkBitmap bm;
     bm.allocPixels(ii);
@@ -107,7 +107,15 @@ bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
     SkASSERT(GrMipMapped::kNo == mipMapped);
     // TODO: replace w/ the color-init version of createBackendTexture once Metal supports it.
     *backendTex = context->priv().createBackendTexture(&bm.pixmap(), 1, renderable);
+    return backendTex->isValid();
+}
 
+bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
+                            const SkImageInfo& ii, const SkColor4f& color, GrMipMapped mipMapped,
+                            GrRenderable renderable) {
+
+    *backendTex = context->priv().createBackendTexture(ii.width(), ii.height(), ii.colorType(),
+                                                       color, mipMapped, renderable);
     return backendTex->isValid();
 }
 

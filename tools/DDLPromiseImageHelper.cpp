@@ -16,6 +16,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuYUVA.h"
+#include "tests/TestUtils.h"
 
 DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext() {
     SkASSERT(fDoneCnt == fNumImages);
@@ -70,6 +71,7 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& 
     if (2 == channelCount) {
         const GrCaps* caps = context->priv().caps();
         GrGpu* gpu = context->priv().getGpu();
+        SkASSERT(gpu);
 
         SkASSERT(kRGBA_8888_SkColorType == pm.colorType());
         SkAutoTMalloc<char> pixels(2 * pm.width()*pm.height());
@@ -89,7 +91,7 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& 
                                         GrMipMapped::kNo, GrRenderable::kNo,
                                         pixels, 2 * pm.width(), nullptr);
     } else {
-        tex = context->priv().createBackendTexture(&pm, 1, GrRenderable::kNo);
+        create_backend_texture(context, &tex, pm, GrMipMapped::kNo, GrRenderable::kNo);
     }
     return tex;
 }
@@ -120,8 +122,10 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 
             const SkBitmap& bm = info.normalBitmap();
 
-            GrBackendTexture backendTex = context->priv().createBackendTexture(
-                                                        &bm.pixmap(), 1, GrRenderable::kNo);
+            GrBackendTexture backendTex;
+
+            create_backend_texture(context, &backendTex, bm.pixmap(), GrMipMapped::kNo,
+                                   GrRenderable::kNo);
 
             callbackContext->setBackendTexture(backendTex);
 

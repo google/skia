@@ -45,6 +45,7 @@
 #include "include/utils/SkTextUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
 
 #include <math.h>
@@ -1077,7 +1078,7 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& 
                                         GrMipMapped::kNo, GrRenderable::kNo,
                                         pixels, 0, nullptr);
     } else {
-        tex = context->priv().createBackendTexture(&bm.pixmap(), 1, GrRenderable::kNo);
+        create_backend_texture(context, &tex, bm.pixmap(), GrMipMapped::kNo, GrRenderable::kNo);
     }
 
     return tex;
