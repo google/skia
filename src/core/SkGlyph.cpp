@@ -80,16 +80,56 @@ SkGlyph::SkGlyph(const SkGlyphPrototype& p)
     {}
 
 size_t SkGlyph::formatAlignment() const {
-    auto format = static_cast<SkMask::Format>(fMaskFormat);
-    return format_alignment(format);
+    return format_alignment(this->maskFormat());
 }
 
 size_t SkGlyph::allocImage(SkArenaAlloc* alloc) {
-    auto size = this->computeImageSize();
-    auto format = static_cast<SkMask::Format>(fMaskFormat);
-    fImage = alloc->makeBytesAlignedTo(size, format_alignment(format));
+    SkASSERT(!this->isEmpty());
+    auto size = this->imageSize();
+    fImage = alloc->makeBytesAlignedTo(size, this->formatAlignment());
 
     return size;
+}
+
+bool SkGlyph::setImage(SkArenaAlloc* alloc, SkScalerContext* scalerContext) {
+    if (!this->imageIsInitialized()) {
+        // It used to be that getImage() could change the fMaskFormat. Extra checking to make
+        // sure there are no regressions.
+        SkDEBUGCODE(SkMask::Format oldFormat = (SkMask::Format)fMaskFormat);
+        this->allocImage(alloc);
+        scalerContext->getImage(*this);
+        SkASSERT(oldFormat == fMaskFormat);
+        return true;
+    }
+    return false;
+}
+
+bool SkGlyph::setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from) {
+    if (fImage == nullptr) {
+        fAdvanceX = from.fAdvanceX;
+        fAdvanceY = from.fAdvanceY;
+        fWidth = from.fWidth;
+        fHeight = from.fHeight;
+        fTop = from.fTop;
+        fLeft = from.fLeft;
+        fForceBW = from.fForceBW;
+        fMaskFormat = from.fMaskFormat;
+        if (!this->imageIsInitialized()) {
+            this->allocImage(alloc);
+            memcpy(fImage, from.image(), this->imageSize());
+            return true;
+        }
+    }
+    return false;
+}
+
+bool SkGlyph::setImage(SkArenaAlloc* alloc, const void* image) {
+    if (!this->imageIsInitialized()) {
+        size_t imageSize = this->allocImage(alloc);
+        memcpy(fImage, image, imageSize);
+        return true;
+    }
+    return false;
 }
 
 size_t SkGlyph::rowBytes() const {
@@ -100,7 +140,9 @@ size_t SkGlyph::rowBytesUsingFormat(SkMask::Format format) const {
     return format_rowbytes(fWidth, format);
 }
 
-size_t SkGlyph::computeImageSize() const {
+size_t SkGlyph::imageSize() const {
+    if (this->isEmpty() || this->imageTooLarge()) { return 0; }
+
     size_t size = this->rowBytes() * fHeight;
 
     if (fMaskFormat == SkMask::k3D_Format) {
@@ -108,25 +150,6 @@ size_t SkGlyph::computeImageSize() const {
     }
 
     return size;
-}
-
-size_t SkGlyph::copyImageData(const SkGlyph& from, SkArenaAlloc* alloc) {
-    fMaskFormat = from.fMaskFormat;
-    fWidth = from.fWidth;
-    fHeight = from.fHeight;
-    fLeft = from.fLeft;
-    fTop = from.fTop;
-    fForceBW = from.fForceBW;
-
-    if (from.fImage != nullptr) {
-        auto imageSize = this->allocImage(alloc);
-        SkASSERT(imageSize == from.computeImageSize());
-
-        memcpy(fImage, from.fImage, imageSize);
-        return imageSize;
-    }
-
-    return 0u;
 }
 
 void SkGlyph::installPath(SkArenaAlloc* alloc, const SkPath* path) {
