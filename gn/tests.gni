@@ -106,7 +106,6 @@ tests_sources = [
   "$_tests/GrOpListFlushTest.cpp",
   "$_tests/GrPipelineDynamicStateTest.cpp",
   "$_tests/GrPorterDuffTest.cpp",
-  "$_tests/GrQuadCropTest.cpp",
   "$_tests/GrQuadListTest.cpp",
   "$_tests/GrShapeTest.cpp",
   "$_tests/GrSurfaceTest.cpp",
