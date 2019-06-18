@@ -2558,14 +2558,25 @@ STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
     float gg[N];
     float bb[N];
     float aa[N];
+    float xx[N];
+    float yy[N];
+    size_t args_count;
 
-    sk_unaligned_store(rr, r);
-    sk_unaligned_store(gg, g);
-    sk_unaligned_store(bb, b);
-    sk_unaligned_store(aa, a);
+    if (c->shader_convention) {
+        // rr,gg,bb,aa, are uninitialized, as they are only output
+        sk_unaligned_store(xx, r);
+        sk_unaligned_store(yy, g);
+        args_count = 6;
+    } else {
+        sk_unaligned_store(rr, r);
+        sk_unaligned_store(gg, g);
+        sk_unaligned_store(bb, b);
+        sk_unaligned_store(aa, a);
+        args_count = 4;
+    }
 
-    float* args[] = { rr, gg, bb, aa };
-    c->byteCode->runStriped(c->fn, args, SK_ARRAY_COUNT(args), tail ? tail : N,
+    float* args[] = { rr, gg, bb, aa, xx, yy };
+    c->byteCode->runStriped(c->fn, args, args_count, tail ? tail : N,
                             (const float*)c->inputs, c->ninputs);
 
     r = sk_unaligned_load<F>(rr);
