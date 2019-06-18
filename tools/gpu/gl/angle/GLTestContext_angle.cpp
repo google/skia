@@ -15,9 +15,12 @@
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/gpu/gl/GrGLUtil.h"
 
+#include "include/core/SkTime.h"
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "include/gpu/gl/GrGLInterface.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/ports/SkOSLibrary.h"
+#include "third_party/externals/angle2/include/platform/Platform.h"
 
 #include <EGL/egl.h>
 
@@ -109,6 +112,8 @@ private:
     ANGLEBackend                fType;
     ANGLEContextVersion         fVersion;
 
+    angle::ResetDisplayPlatformFunc fResetPlatform = nullptr;
+
     PFNEGLCREATEIMAGEKHRPROC    fCreateImage = nullptr;
     PFNEGLDESTROYIMAGEKHRPROC   fDestroyImage = nullptr;
 
@@ -134,6 +139,38 @@ static IsWine is_wine() {
 }
 
 #endif
+
+static const unsigned char* ANGLE_getTraceCategoryEnabledFlag(angle::PlatformMethods* platform,
+                                                              const char* category_group) {
+    return SkEventTracer::GetInstance()->getCategoryGroupEnabled(category_group);
+}
+
+static angle::TraceEventHandle ANGLE_addTraceEvent(angle::PlatformMethods* platform,
+                                                   char phase,
+                                                   const unsigned char* category_group_enabled,
+                                                   const char* name,
+                                                   unsigned long long id,
+                                                   double timestamp,
+                                                   int num_args,
+                                                   const char** arg_names,
+                                                   const unsigned char* arg_types,
+                                                   const unsigned long long* arg_values,
+                                                   unsigned char flags) {
+    return SkEventTracer::GetInstance()->addTraceEvent(phase, category_group_enabled, name, id,
+                                                       num_args, arg_names, arg_types, arg_values,
+                                                       flags);
+}
+
+static void ANGLE_updateTraceEventDuration(angle::PlatformMethods* platform,
+                                           const unsigned char* category_group_enabled,
+                                           const char* name,
+                                           angle::TraceEventHandle handle) {
+    SkEventTracer::GetInstance()->updateTraceEventDuration(category_group_enabled, name, handle);
+}
+
+static double ANGLE_monotonicallyIncreasingTime(angle::PlatformMethods* platform) {
+    return SkTime::GetSecs();
+}
 
 ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
                                ANGLEGLContext* shareContext, void* display)
@@ -201,6 +238,24 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
     if (EGL_NO_DISPLAY == fDisplay) {
         SkDebugf("Could not create EGL display!");
         return;
+    }
+
+    // Add ANGLE platform hooks to connect to Skia's tracing implementation
+    angle::GetDisplayPlatformFunc getPlatform = reinterpret_cast<angle::GetDisplayPlatformFunc>(
+            eglGetProcAddress("ANGLEGetDisplayPlatform"));
+    if (getPlatform) {
+        fResetPlatform = reinterpret_cast<angle::ResetDisplayPlatformFunc>(
+                eglGetProcAddress("ANGLEResetDisplayPlatform"));
+        SkASSERT(fResetPlatform);
+
+        angle::PlatformMethods* platformMethods = nullptr;
+        if (getPlatform(fDisplay, angle::g_PlatformMethodNames, angle::g_NumPlatformMethods,
+                        nullptr, &platformMethods)) {
+            platformMethods->addTraceEvent               = ANGLE_addTraceEvent;
+            platformMethods->getTraceCategoryEnabledFlag = ANGLE_getTraceCategoryEnabledFlag;
+            platformMethods->updateTraceEventDuration    = ANGLE_updateTraceEventDuration;
+            platformMethods->monotonicallyIncreasingTime = ANGLE_monotonicallyIncreasingTime;
+        }
     }
 
     EGLint majorVersion;
@@ -369,6 +424,10 @@ void ANGLEGLContext::destroyGLContext() {
         if (EGL_NO_SURFACE != fSurface) {
             eglDestroySurface(fDisplay, fSurface);
             fSurface = EGL_NO_SURFACE;
+        }
+
+        if (fResetPlatform) {
+            fResetPlatform(fDisplay);
         }
 
         eglTerminate(fDisplay);
