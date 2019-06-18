@@ -22,6 +22,30 @@
       "revId": "60fb9a12e888f2572f560c802d5949f61689f8bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b3b984d_4d4b34ee",
+        "filename": "src/core/SkFont.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-18T21:48:19Z",
+      "side": 0,
+      "message": "Right. This is not updated yet. Only advances are this way. This is basically the old code with updated names. glyph() will become private eventually.",
+      "parentUuid": "abbd460c_231aada4",
+      "range": {
+        "startLine": 250,
+        "startChar": 8,
+        "endLine": 250,
+        "endChar": 13
+      },
+      "revId": "60fb9a12e888f2572f560c802d5949f61689f8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
