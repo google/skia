@@ -385,11 +385,13 @@ void GrMtlGpuRTCommandBuffer::sendIndexedMeshToGpu(GrPrimitiveType primitiveType
     }
 
     SkASSERT(restart == GrPrimitiveRestart::kNo);
+    size_t indexOffset = static_cast<const GrMtlBuffer*>(indexBuffer)->offset() +
+                         sizeof(uint16_t) * baseIndex;
     [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(primitiveType)
                                         indexCount:indexCount
                                          indexType:MTLIndexTypeUInt16
                                        indexBuffer:mtlIndexBuffer
-                                 indexBufferOffset:sizeof(uint16_t) * baseIndex];
+                                 indexBufferOffset:indexOffset];
     fGpu->stats()->incNumDraws();
 }
 
@@ -433,11 +435,13 @@ void GrMtlGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType prim
     }
 
     SkASSERT(restart == GrPrimitiveRestart::kNo);
+    size_t indexOffset = static_cast<const GrMtlBuffer*>(indexBuffer)->offset() +
+                         sizeof(uint16_t) * baseIndex;
     [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(primitiveType)
                                         indexCount:indexCount
                                          indexType:MTLIndexTypeUInt16
                                        indexBuffer:mtlIndexBuffer
-                                 indexBufferOffset:sizeof(uint16_t) * baseIndex
+                                 indexBufferOffset:indexOffset
                                      instanceCount:instanceCount
                                         baseVertex:baseVertex
                                       baseInstance:baseInstance];
