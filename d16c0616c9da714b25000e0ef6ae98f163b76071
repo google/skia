@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "65b329a6_dc24d8c8",
+        "filename": "gm/imagemakewithfilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:31:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64f1480a_9c5bd2c7",
+      "range": {
+        "startLine": 143,
+        "startChar": 7,
+        "endLine": 143,
+        "endChar": 10
+      },
+      "revId": "d16c0616c9da714b25000e0ef6ae98f163b76071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad229b5b_70462e9b",
         "filename": "gm/imagemakewithfilter.cpp",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "6c607a76_545185ff",
+        "filename": "gm/imagemakewithfilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:31:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad229b5b_70462e9b",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 16
+      },
+      "revId": "d16c0616c9da714b25000e0ef6ae98f163b76071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0652d3d9_4fcd0a4e",
         "filename": "gm/imagemakewithfilter.cpp",
         "patchSetId": 5
@@ -62,6 +110,24 @@
       "revId": "d16c0616c9da714b25000e0ef6ae98f163b76071",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86d3807e_6034669b",
+        "filename": "gm/imagemakewithfilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:31:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0652d3d9_4fcd0a4e",
+      "revId": "d16c0616c9da714b25000e0ef6ae98f163b76071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "1f51c217_77ed0e4b",
+        "filename": "gm/imagemakewithfilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:31:00Z",
+      "side": 1,
+      "message": "I had not realized that the makeTextureImage() used the resource cache to preserve the mapping from image unique id to texture, so I was concerned that if I always called makeTextureImage() in onDraw(), then it would always upload the texture each frame. But on closer look, that appears not to be the case, so I will switch these to just be sk_sp\u003cSkImage\u003e holding the original data, and then call makeTextureImage() in onDraw().\n\nThis also means I can remove the unnecessary AutoGPUImage type that I added to achieve the same end of not re-uploading image data.",
+      "parentUuid": "78eca61a_48cf50bd",
+      "range": {
+        "startLine": 301,
+        "startChar": 4,
+        "endLine": 301,
+        "endChar": 46
+      },
+      "revId": "d16c0616c9da714b25000e0ef6ae98f163b76071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a399159b_60d84211",
         "filename": "gm/imagemakewithfilter.cpp",
         "patchSetId": 5
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "74c7c2ab_231e4373",
+        "filename": "gm/imagemakewithfilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:31:00Z",
+      "side": 1,
+      "message": "I updated the language to be clearer, but didn\u0027t go with \"drawn with\" since in this case the crop rect is a property of the image filter and not part of the canvas state.",
+      "parentUuid": "a399159b_60d84211",
+      "range": {
+        "startLine": 308,
+        "startChar": 32,
+        "endLine": 308,
+        "endChar": 39
+      },
+      "revId": "d16c0616c9da714b25000e0ef6ae98f163b76071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6af98e09_4a9247aa",
         "filename": "infra/bots/recipes/test.expected/Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN.json",
         "patchSetId": 5
@@ -122,6 +236,30 @@
       "writtenOn": "2019-06-17T23:43:21Z",
       "side": 1,
       "message": "why are these blacklisted ?",
+      "range": {
+        "startLine": 276,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 28
+      },
+      "revId": "d16c0616c9da714b25000e0ef6ae98f163b76071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14e25556_394dbdad",
+        "filename": "infra/bots/recipes/test.expected/Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:31:00Z",
+      "side": 1,
+      "message": "They were failing to produce exact matches, including the reference GMs, but the expected and actual had no discernible differences to my eye. I can spend a little more time trying to determine what\u0027s going on, but had assumed it was something to do with preserving opaqueness when serializing image filters?",
+      "parentUuid": "6af98e09_4a9247aa",
       "range": {
         "startLine": 276,
         "startChar": 0,
@@ -154,6 +292,30 @@
       "revId": "d16c0616c9da714b25000e0ef6ae98f163b76071",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95ad424a_26686732",
+        "filename": "tools/gpu/ImageUtils.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:31:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b0692b9c_b54978e7",
+      "range": {
+        "startLine": 73,
+        "startChar": 13,
+        "endLine": 73,
+        "endChar": 32
+      },
+      "revId": "d16c0616c9da714b25000e0ef6ae98f163b76071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
