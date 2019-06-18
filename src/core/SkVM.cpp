@@ -28,7 +28,10 @@ namespace skvm {
         : fInstructions(std::move(instructions))
         , fRegs(regs)
         , fLoop(loop)
-    {}
+        , fJIT_K(0)
+    {
+        (void)fJIT_K;
+    }
 
     Program Builder::done() {
         // Basic liveness analysis (and free dead code elimination).
@@ -410,233 +413,299 @@ namespace skvm {
 
     // ~~~~ Program::eval() and co. ~~~~ //
 
-    #if defined(SKVM_JIT)
-        struct Program::JIT {
+#if defined(SKVM_JIT)
+    // Handy references for x86-64 instruction encoding:
+    // https://wiki.osdev.org/X86-64_Instruction_Encoding
+    // https://www-user.tu-chemnitz.de/~heha/viewchm.php/hs/x86.chm/x64.htm
 
-            // 8 float values in a ymm register.
-            static constexpr int K = 8;
+    // Order matters... GP64, XMM, YMM values match 4-bit register encoding for each.
+    enum class GP64 {
+        rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi,
+        r8 , r9,  r10, r11, r12, r13, r14, r15,
+    };
+    enum class XMM {
+        xmm0, xmm1, xmm2 , xmm3 , xmm4 , xmm5 , xmm6 , xmm7 ,
+        xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15,
+    };
+    enum class YMM {
+        ymm0, ymm1, ymm2 , ymm3 , ymm4 , ymm5 , ymm6 , ymm7 ,
+        ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15,
+    };
 
-            static bool Supported(int regs, int nargs) {
-                return true
-                    && SkCpu::Supports(SkCpu::HSW)   // TODO: SSE4.1 target?
-                    && regs  <= 15   // All 16 ymm registers, reserving one for us as tmp.
-                    && nargs <=  5;  // We can increase this if we push/pop GP registers.
-            }
+    // Encodes the arguments of an opcode.
+    struct ModRM {
+        uint8_t bits;
 
-            void*  code() const { return (void*)X.getCode(); }
-            size_t size() const { return        X.getSize(); }
+        enum Mod { Indirect, OneByteImm, FourByteImm, Direct };
 
-            void byte(uint8_t b) { X.db(b); }
+        ModRM(Mod mod, int reg, int rm) {
+            bits = (int)mod  << 6
+                 | (reg & 7) << 3
+                 | (rm  & 7) << 0;
+        }
+    };
 
-            template <typename... Rest>
-            void byte(uint8_t first, Rest... rest) {
-                this->byte(first);
-                this->byte(rest...);
-            }
+    // Scale-Index-Base encoding for memory addressing, base + (index * scale).
+    struct SIB {
+        uint8_t bits;
 
-            void vzeroupper() { this->byte(0xc5, 0xf8, 0x77); }
-            void ret() { this->byte(0xc3); }
-            void nop() { this->byte(0x90); }   // xchg eax,eax
+        enum Scale { One, Two, Four, Eight };
 
-            void align(int mod) {
-                while (this->size() % mod) {
-                    this->nop();
-                }
-            }
+        SIB(Scale scale, int index, int base) {
+            bits = (int)scale  << 6
+                 | (index & 7) << 3
+                 | (base  & 7) << 0;
+        }
+    };
 
+    // The REX prefix is used to extend most old 32-bit instructions to 64-bit.
+    struct REX {
+        uint8_t bits;
 
+        // If W is set, the operand size is 64-bit, otherwise the default, usually 32.
+        // R,X,B are the top bit for ModRM's reg and SIB's index and base respectively.
+        // These will be set if you use any of the second-row registers (r8, xmm8, etc).
 
-            JIT(const std::vector<Program::Instruction>& instructions, int regs, int loop,
-                size_t strides[], int nargs)
-            {
-                SkASSERT(Supported(regs, nargs));
+        REX(bool W, bool R, bool X, bool B) {
+            bits = 0b01000000   // Fixed 0100 for top four bits.
+                 | (W << 3)
+                 | (R << 2)
+                 | (X << 1)
+                 | (B << 0);
+        }
+    };
 
-            #if defined(SK_BUILD_FOR_WIN)
-                // TODO  Windows ABI?
-            #else
-                // These registers are used to pass the first 6 arguments,
-                // so if we stick to these we need not push, pop, spill, or move anything around.
-                Xbyak::Reg N = X.rdi,
-                       arg[] = { X.rsi, X.rdx, X.rcx, X.r8, X.r9 };
+    // The VEX prefix extends SSE operations to AVX.  Used generally, even with XMM.
+    struct VEX {
+        uint8_t bits[3];
+        // TODO
+    };
 
-                // All 16 ymm registers are available as scratch, keeping 15 as a temporary for us.
-                Xbyak::Ymm r[] = {
-                    X.ymm0, X.ymm1, X.ymm2 , X.ymm3 , X.ymm4 , X.ymm5 , X.ymm6 , X.ymm7,
-                    X.ymm8, X.ymm9, X.ymm10, X.ymm11, X.ymm12, X.ymm13, X.ymm14,
-                }, tmp = X.ymm15;
+    Assembler::Assembler() : X{new Xbyak::CodeGenerator} {}
+    Assembler::~Assembler() { delete X; }
 
-             #endif
+    void*  Assembler::code() const { return (void*)X->getCode(); }
+    size_t Assembler::size() const { return        X->getSize(); }
 
-                // Label / N-byte values we need to write after ret.
-                struct Data4  { Xbyak::Label label; int bits   ; };
-                struct Data32 { Xbyak::Label label; int bits[8]; };
-                std::vector<Data4 > data4;
-                std::vector<Data32> data32;
+    void Assembler::byte(uint8_t b) { X->db(b); }
 
-                // Map from our bytes() control y.imm to index in data32;
-                // no need to splat out duplicate bytes for the same control.
-                std::unordered_map<int, int> vpshufb_masks;
+    template <typename... Rest>
+    void Assembler::byte(uint8_t first, Rest... rest) {
+        this->byte(first);
+        this->byte(rest...);
+    }
 
-                for (int i = 0; i < (int)instructions.size(); i++) {
-                    if (i == loop) {
-                        X.L("loop");
-                    }
-                    const Instruction& inst = instructions[i];
-                    Op  op = inst.op;
+    void Assembler::nop() { this->byte(0x90); }
+    void Assembler::align(int mod) {
+        while (this->size() % mod) {
+            this->nop();
+        }
+    }
 
-                    ID   d = inst.d,
-                         x = inst.x;
-                    auto y = inst.y,
-                         z = inst.z;
-                    switch (op) {
-                        // Ops producing multiple AVX instructions should always
-                        // use tmp as the result of all but the final instruction
-                        // to avoid any possible dst/arg aliasing.  You don't want
-                        // to overwrite your arguments before you're done using them!
+    void Assembler::vzeroupper() { this->byte(0xc5, 0xf8, 0x77); }
+    void Assembler::ret() { this->byte(0xc3); }
 
-                        case Op::store8:
-                            if (SkCpu::Supports(SkCpu::SKX)) {
-                                // One stop shop!  Pack 8x I32 -> U8 and store to ptr.
-                                X.vpmovusdb(X.ptr[arg[y.imm]], r[x]);
-                            } else {
-                                X.vpackusdw(tmp, r[x], r[x]); // pack 32-bit -> 16-bit
-                                X.vpermq   (tmp, tmp, 0xd8);  // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
-                                X.vpackuswb(tmp, tmp, tmp);   // pack 16-bit -> 8-bit
-                                X.vmovq(X.ptr[arg[y.imm]],         // store low 8 bytes
-                                        Xbyak::Xmm{tmp.getIdx()}); // (arg must be an xmm)
-                            }
-                            break;
+    static bool can_jit(int regs, int nargs) {
+        return true
+            && SkCpu::Supports(SkCpu::HSW)   // TODO: SSE4.1 target?
+            && regs  <= 15   // All 16 ymm registers, reserving one for us as tmp.
+            && nargs <=  5;  // We can increase this if we push/pop GP registers.
+    }
 
-                        case Op::store32: X.vmovups(X.ptr[arg[y.imm]], r[x]); break;
+    // Returns stride of the JIT, currently always 8.
+    static int jit(Assembler& a,
+                   const std::vector<Program::Instruction>& instructions,
+                   int regs, int loop, size_t strides[], int nargs) {
+        SkASSERT(can_jit(regs,nargs));
 
-                        case Op::load8:  X.vpmovzxbd(r[d], X.ptr[arg[y.imm]]); break;
-                        case Op::load32: X.vmovups  (r[d], X.ptr[arg[y.imm]]); break;
+        Xbyak::CodeGenerator& X = *a.X;
 
-                        case Op::splat: data4.push_back(Data4{Xbyak::Label(), y.imm});
-                                        X.vbroadcastss(r[d], X.ptr[X.rip + data4.back().label]);
-                                        break;
+        static constexpr int K = 8;
 
-                        case Op::add_f32: X.vaddps(r[d], r[x], r[y.id]); break;
-                        case Op::sub_f32: X.vsubps(r[d], r[x], r[y.id]); break;
-                        case Op::mul_f32: X.vmulps(r[d], r[x], r[y.id]); break;
-                        case Op::div_f32: X.vdivps(r[d], r[x], r[y.id]); break;
-                        case Op::mad_f32:
-                            if (d == x   ) { X.vfmadd132ps(r[x   ], r[z.id], r[y.id]); } else
-                            if (d == y.id) { X.vfmadd213ps(r[y.id], r[x   ], r[z.id]); } else
-                            if (d == z.id) { X.vfmadd231ps(r[z.id], r[x   ], r[y.id]); } else
-                                           { X.vmulps(tmp, r[x], r[y.id]);
-                                             X.vaddps(r[d], tmp, r[z.id]); }
-                            break;
+    #if defined(SK_BUILD_FOR_WIN)
+        // TODO  Windows ABI?
+    #else
+        // These registers are used to pass the first 6 arguments,
+        // so if we stick to these we need not push, pop, spill, or move anything around.
+        Xbyak::Reg N = X.rdi,
+               arg[] = { X.rsi, X.rdx, X.rcx, X.r8, X.r9 };
 
-                        case Op::add_i32: X.vpaddd (r[d], r[x], r[y.id]); break;
-                        case Op::sub_i32: X.vpsubd (r[d], r[x], r[y.id]); break;
-                        case Op::mul_i32: X.vpmulld(r[d], r[x], r[y.id]); break;
-
-                        case Op::sub_i16x2: X.vpsubw (r[d], r[x], r[y.id]); break;
-                        case Op::mul_i16x2: X.vpmullw(r[d], r[x], r[y.id]); break;
-                        case Op::shr_i16x2: X.vpsrlw (r[d], r[x],   y.imm); break;
-
-                        case Op::bit_and: X.vandps(r[d], r[x], r[y.id]); break;
-                        case Op::bit_or : X.vorps (r[d], r[x], r[y.id]); break;
-                        case Op::bit_xor: X.vxorps(r[d], r[x], r[y.id]); break;
-
-                        case Op::shl: X.vpslld(r[d], r[x], y.imm); break;
-                        case Op::shr: X.vpsrld(r[d], r[x], y.imm); break;
-                        case Op::sra: X.vpsrad(r[d], r[x], y.imm); break;
-
-                        case Op::extract: if (y.imm) {
-                                              X.vpsrld(tmp, r[x], y.imm);
-                                              X.vandps(r[d], tmp, r[z.id]);
-                                          } else {
-                                              X.vandps(r[d], r[x], r[z.id]);
-                                          }
-                                          break;
-
-                        case Op::pack: X.vpslld(tmp, r[y.id], z.imm);
-                                       X.vorps (r[d], tmp, r[x]);
-                                       break;
-
-                        case Op::to_f32: X.vcvtdq2ps (r[d], r[x]); break;
-                        case Op::to_i32: X.vcvttps2dq(r[d], r[x]); break;
-
-                        case Op::bytes: {
-                            if (vpshufb_masks.end() == vpshufb_masks.find(y.imm)) {
-                                // Translate bytes()'s control nibbles to vpshufb's control bytes.
-                                auto nibble_to_vpshufb = [](unsigned n) -> uint8_t {
-                                    return n == 0 ? 0xff  // Fill with zero.
-                                                  : n-1;  // Select n'th 1-indexed byte.
-                                };
-                                uint8_t control[] = {
-                                    nibble_to_vpshufb( (y.imm >>  0) & 0xf ),
-                                    nibble_to_vpshufb( (y.imm >>  4) & 0xf ),
-                                    nibble_to_vpshufb( (y.imm >>  8) & 0xf ),
-                                    nibble_to_vpshufb( (y.imm >> 12) & 0xf ),
-                                };
-
-                                // Now, vpshufb is one of those weird AVX instructions
-                                // that does everything in 2 128-bit chunks, so we'll
-                                // only really need 4 distinct values to write in our pattern:
-                                int p[4];
-                                for (int i = 0; i < 4; i++) {
-                                    p[i] = (int)control[0] <<  0
-                                         | (int)control[1] <<  8
-                                         | (int)control[2] << 16
-                                         | (int)control[3] << 24;
-
-                                    // Update each byte that refers to a byte index by 4 to
-                                    // point into the next 32-bit lane, but leave any 0xff
-                                    // that fills with zero alone.
-                                    control[0] += control[0] == 0xff ? 0 : 4;
-                                    control[1] += control[1] == 0xff ? 0 : 4;
-                                    control[2] += control[2] == 0xff ? 0 : 4;
-                                    control[3] += control[3] == 0xff ? 0 : 4;
-                                }
-
-                                // Notice, same patterns for top 4 32-bit lanes as bottom.
-                                data32.push_back(Data32{Xbyak::Label(), {p[0], p[1], p[2], p[3],
-                                                                         p[0], p[1], p[2], p[3]}});
-                                vpshufb_masks[y.imm] = data32.size() - 1;
-                            }
-                            X.vpshufb(r[d], r[x],
-                                      X.ptr[X.rip + data32[vpshufb_masks[y.imm]].label]);
-                        } break;
-                    }
-                }
-
-                for (int i = 0; i < nargs; i++) {
-                    X.add(arg[i], K*(int)strides[i]);
-                }
-                X.sub(N, K);
-                X.jne("loop");
-
-                vzeroupper();
-                ret();
-
-                for (auto data : data4) {
-                    align(4);
-                    X.L(data.label);
-                    X.dd(data.bits);
-                }
-                for (auto data : data32) {
-                    align(32);
-                    X.L(data.label);
-                    for (int i = 0; i < 8; i++) {
-                        X.dd(data.bits[i]);
-                    }
-                }
-            }
-
-        private:
-            Xbyak::CodeGenerator X;
-        };
+        // All 16 ymm registers are available as scratch, keeping 15 as a temporary for us.
+        Xbyak::Ymm r[] = {
+            X.ymm0, X.ymm1, X.ymm2 , X.ymm3 , X.ymm4 , X.ymm5 , X.ymm6 , X.ymm7,
+            X.ymm8, X.ymm9, X.ymm10, X.ymm11, X.ymm12, X.ymm13, X.ymm14,
+        }, tmp = X.ymm15;
     #endif
 
+        // Label / N-byte values we need to write after ret.
+        struct Data4  { Xbyak::Label label; int bits   ; };
+        struct Data32 { Xbyak::Label label; int bits[8]; };
+        std::vector<Data4 > data4;
+        std::vector<Data32> data32;
+
+        // Map from our bytes() control y.imm to index in data32;
+        // no need to splat out duplicate bytes for the same control.
+        std::unordered_map<int, int> vpshufb_masks;
+
+        for (int i = 0; i < (int)instructions.size(); i++) {
+            if (i == loop) {
+                X.L("loop");
+            }
+            const Program::Instruction& inst = instructions[i];
+            Op  op = inst.op;
+
+            ID   d = inst.d,
+                 x = inst.x;
+            auto y = inst.y,
+                 z = inst.z;
+            switch (op) {
+                // Ops producing multiple AVX instructions should always
+                // use tmp as the result of all but the final instruction
+                // to avoid any possible dst/arg aliasing.  You don't want
+                // to overwrite your arguments before you're done using them!
+
+                case Op::store8:
+                    if (SkCpu::Supports(SkCpu::SKX)) {
+                        // One stop shop!  Pack 8x I32 -> U8 and store to ptr.
+                        X.vpmovusdb(X.ptr[arg[y.imm]], r[x]);
+                    } else {
+                        X.vpackusdw(tmp, r[x], r[x]); // pack 32-bit -> 16-bit
+                        X.vpermq   (tmp, tmp, 0xd8);  // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
+                        X.vpackuswb(tmp, tmp, tmp);   // pack 16-bit -> 8-bit
+                        X.vmovq(X.ptr[arg[y.imm]],         // store low 8 bytes
+                                Xbyak::Xmm{tmp.getIdx()}); // (arg must be an xmm)
+                    }
+                    break;
+
+                case Op::store32: X.vmovups(X.ptr[arg[y.imm]], r[x]); break;
+
+                case Op::load8:  X.vpmovzxbd(r[d], X.ptr[arg[y.imm]]); break;
+                case Op::load32: X.vmovups  (r[d], X.ptr[arg[y.imm]]); break;
+
+                case Op::splat: data4.push_back(Data4{Xbyak::Label(), y.imm});
+                                X.vbroadcastss(r[d], X.ptr[X.rip + data4.back().label]);
+                                break;
+
+                case Op::add_f32: X.vaddps(r[d], r[x], r[y.id]); break;
+                case Op::sub_f32: X.vsubps(r[d], r[x], r[y.id]); break;
+                case Op::mul_f32: X.vmulps(r[d], r[x], r[y.id]); break;
+                case Op::div_f32: X.vdivps(r[d], r[x], r[y.id]); break;
+                case Op::mad_f32:
+                    if (d == x   ) { X.vfmadd132ps(r[x   ], r[z.id], r[y.id]); } else
+                    if (d == y.id) { X.vfmadd213ps(r[y.id], r[x   ], r[z.id]); } else
+                    if (d == z.id) { X.vfmadd231ps(r[z.id], r[x   ], r[y.id]); } else
+                                   { X.vmulps(tmp, r[x], r[y.id]);
+                                     X.vaddps(r[d], tmp, r[z.id]); }
+                    break;
+
+                case Op::add_i32: X.vpaddd (r[d], r[x], r[y.id]); break;
+                case Op::sub_i32: X.vpsubd (r[d], r[x], r[y.id]); break;
+                case Op::mul_i32: X.vpmulld(r[d], r[x], r[y.id]); break;
+
+                case Op::sub_i16x2: X.vpsubw (r[d], r[x], r[y.id]); break;
+                case Op::mul_i16x2: X.vpmullw(r[d], r[x], r[y.id]); break;
+                case Op::shr_i16x2: X.vpsrlw (r[d], r[x],   y.imm); break;
+
+                case Op::bit_and: X.vandps(r[d], r[x], r[y.id]); break;
+                case Op::bit_or : X.vorps (r[d], r[x], r[y.id]); break;
+                case Op::bit_xor: X.vxorps(r[d], r[x], r[y.id]); break;
+
+                case Op::shl: X.vpslld(r[d], r[x], y.imm); break;
+                case Op::shr: X.vpsrld(r[d], r[x], y.imm); break;
+                case Op::sra: X.vpsrad(r[d], r[x], y.imm); break;
+
+                case Op::extract: if (y.imm) {
+                                      X.vpsrld(tmp, r[x], y.imm);
+                                      X.vandps(r[d], tmp, r[z.id]);
+                                  } else {
+                                      X.vandps(r[d], r[x], r[z.id]);
+                                  }
+                                  break;
+
+                case Op::pack: X.vpslld(tmp, r[y.id], z.imm);
+                               X.vorps (r[d], tmp, r[x]);
+                               break;
+
+                case Op::to_f32: X.vcvtdq2ps (r[d], r[x]); break;
+                case Op::to_i32: X.vcvttps2dq(r[d], r[x]); break;
+
+                case Op::bytes: {
+                    if (vpshufb_masks.end() == vpshufb_masks.find(y.imm)) {
+                        // Translate bytes()'s control nibbles to vpshufb's control bytes.
+                        auto nibble_to_vpshufb = [](unsigned n) -> uint8_t {
+                            return n == 0 ? 0xff  // Fill with zero.
+                                          : n-1;  // Select n'th 1-indexed byte.
+                        };
+                        uint8_t control[] = {
+                            nibble_to_vpshufb( (y.imm >>  0) & 0xf ),
+                            nibble_to_vpshufb( (y.imm >>  4) & 0xf ),
+                            nibble_to_vpshufb( (y.imm >>  8) & 0xf ),
+                            nibble_to_vpshufb( (y.imm >> 12) & 0xf ),
+                        };
+
+                        // Now, vpshufb is one of those weird AVX instructions
+                        // that does everything in 2 128-bit chunks, so we'll
+                        // only really need 4 distinct values to write in our pattern:
+                        int p[4];
+                        for (int i = 0; i < 4; i++) {
+                            p[i] = (int)control[0] <<  0
+                                 | (int)control[1] <<  8
+                                 | (int)control[2] << 16
+                                 | (int)control[3] << 24;
+
+                            // Update each byte that refers to a byte index by 4 to
+                            // point into the next 32-bit lane, but leave any 0xff
+                            // that fills with zero alone.
+                            control[0] += control[0] == 0xff ? 0 : 4;
+                            control[1] += control[1] == 0xff ? 0 : 4;
+                            control[2] += control[2] == 0xff ? 0 : 4;
+                            control[3] += control[3] == 0xff ? 0 : 4;
+                        }
+
+                        // Notice, same patterns for top 4 32-bit lanes as bottom.
+                        data32.push_back(Data32{Xbyak::Label(), {p[0], p[1], p[2], p[3],
+                                                                 p[0], p[1], p[2], p[3]}});
+                        vpshufb_masks[y.imm] = data32.size() - 1;
+                    }
+                    X.vpshufb(r[d], r[x],
+                              X.ptr[X.rip + data32[vpshufb_masks[y.imm]].label]);
+                } break;
+            }
+        }
+
+        for (int i = 0; i < nargs; i++) {
+            X.add(arg[i], K*(int)strides[i]);
+        }
+        X.sub(N, K);
+        X.jne("loop");
+
+        a.vzeroupper();
+        a.ret();
+
+        for (auto data : data4) {
+            a.align(4);
+            X.L(data.label);
+            X.dd(data.bits);
+        }
+        for (auto data : data32) {
+            a.align(32);
+            X.L(data.label);
+            for (int i = 0; i < 8; i++) {
+                X.dd(data.bits[i]);
+            }
+        }
+        return K;
+    }
+#else
+    Assembler::Assembler() {}
+    Assembler::~Assembler() {}
+#endif //defined(SKVM_JIT)
 
     void Program::eval(int n, void* args[], size_t strides[], int nargs) const {
     #if defined(SKVM_JIT)
-        if (!fJIT && JIT::Supported(fRegs, nargs)) {
-            fJIT.reset(new JIT{fInstructions, fRegs, fLoop, strides, nargs});
-
+        if (!fJIT && can_jit(fRegs, nargs)) {
+            fJIT.reset(new Assembler);
+            fJIT_K = jit(*fJIT, fInstructions, fRegs, fLoop, strides, nargs);
         #if 1
             // We're doing some really stateful things below,
             // so one thread at a time please...
@@ -721,7 +790,7 @@ namespace skvm {
         #endif
         }
 
-        const int jitN = (n / JIT::K) * JIT::K;
+        const int jitN = (n / fJIT_K) * fJIT_K;
         if (fJIT && jitN > 0) {
             bool ran = true;
 
