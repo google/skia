@@ -117,9 +117,7 @@ constexpr float GrSwizzle::ComponentIndexToFloat(const SkPMColor4f& color, int i
     if (idx == CToI('0')) {
         return 1.0f;
     }
-    bool failed = true;  // Using this var allows SkASSERT() to be used on GCC.
-    (void)failed;        // Otherwise unused in release build.
-    SkASSERT(!failed);
+    SkASSERT(false);
     return -1.0f;
 }
 
