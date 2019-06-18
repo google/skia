@@ -39,20 +39,23 @@ namespace skvm {
             ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15,
         };
 
-        void byte(const void*, int);
-        void byte(uint8_t);
-        template <typename... Rest> void byte(uint8_t, Rest...);
-
         void nop();
         void align(int mod);
 
         void vzeroupper();
         void ret();
 
+        void add(GP64, int imm);
         void sub(GP64, int imm);
 
     //private:
         std::unique_ptr<Xbyak::CodeGenerator> X;
+    private:
+        void byte(const void*, int);
+        void byte(uint8_t);
+        template <typename... Rest> void byte(uint8_t, Rest...);
+
+        void op(int opcode, int opcode_ext, GP64 dst, int imm);
     };
 
     enum class Op : uint8_t {

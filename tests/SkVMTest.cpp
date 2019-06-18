@@ -218,14 +218,28 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](Assembler& a) {
-        a.sub(Assembler::rax, 32);      // Always good to test rax.
-        a.sub(Assembler::rdi, 8);       // Last 0x48 REX
-        a.sub(Assembler::r8 , 4);       // First 0x4c REX
-        a.sub(Assembler::r8 , 1000000); // Requires 4 byte immediate.
+        a.add(Assembler::rax, 8);       // Always good to test rax.
+        a.sub(Assembler::rax, 32);
+
+        a.add(Assembler::rdi, 12);      // Last 0x48 REX
+        a.sub(Assembler::rdi, 8);
+
+        a.add(Assembler::r8 , 7);       // First 0x4c REX
+        a.sub(Assembler::r8 , 4);
+
+        a.add(Assembler::rsi, 128);     // Requires 4 byte immediate.
+        a.sub(Assembler::r8 , 1000000);
     },{
+        0x48, 0x83, 0b11'000'000, 0x08,
         0x48, 0x83, 0b11'101'000, 0x20,
+
+        0x48, 0x83, 0b11'000'111, 0x0c,
         0x48, 0x83, 0b11'101'111, 0x08,
+
+        0x4c, 0x83, 0b11'000'000, 0x07,
         0x4c, 0x83, 0b11'101'000, 0x04,
+
+        0x48, 0x81, 0b11'000'110, 0x80, 0x00, 0x00, 0x00,
         0x4c, 0x81, 0b11'101'000, 0x40, 0x42, 0x0f, 0x00,
     });
 }
