@@ -232,7 +232,7 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeWrappedTextureRender
 }
 
 size_t GrVkTextureRenderTarget::onGpuMemorySize() const {
-    int numColorSamples = this->numColorSamples();
+    int numColorSamples = this->numSamples();
     if (numColorSamples > 1) {
         // Add one to account for the resolve VkImage.
         ++numColorSamples;

@@ -27,10 +27,10 @@ void GrDrawRandomOp(SkRandom*, GrRenderTargetContext*, GrPaint&&);
 /** GrDrawOp subclasses should define test factory functions using this macro. */
 #define GR_DRAW_OP_TEST_DEFINE(Op)                                                              \
     std::unique_ptr<GrDrawOp> Op##__Test(GrPaint&& paint, SkRandom* random,                     \
-                                         GrRecordingContext* context, GrFSAAType fsaaType)
+                                         GrRecordingContext* context, int numSamples)
 #define GR_DRAW_OP_TEST_FRIEND(Op)                                                              \
     friend std::unique_ptr<GrDrawOp> Op##__Test(GrPaint&& paint, SkRandom* random,              \
-                                                GrRecordingContext* context, GrFSAAType fsaaType)
+                                                GrRecordingContext* context, int numSamples)
 
 /** Helper for op test factories to pick a random stencil state. */
 const GrUserStencilSettings* GrGetRandomStencil(SkRandom* random, GrContext_Base*);
