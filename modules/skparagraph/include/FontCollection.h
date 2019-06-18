@@ -36,9 +36,9 @@ public:
     bool fontFallbackEnabled() { return fEnableFontFallback; }
 
     void findAllFontsForStyledBlock(const TextStyle& style, SkSpan<const char> text);
-
     bool findFirst(const char* codepoint, SkFont* font, SkScalar* height);
     bool findNext(const char* codepoint, SkFont* font, SkScalar* height);
+    void resetFontResolution();
 
 private:
     std::vector<sk_sp<SkFontMgr>> getFontManagerOrder() const;

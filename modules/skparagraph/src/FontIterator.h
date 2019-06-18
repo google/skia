@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkPictureRecorder.h"
+#include "modules/skparagraph/src/FontResolver.h"
 #include "src/core/SkSpan.h"
 #include "src/utils/SkUTF.h"
 
@@ -43,7 +44,7 @@ private:
     const char* fCurrentChar;
     SkFont fFont;
     SkScalar fLineHeight;
-    sk_sp<FontCollection> fFontCollection;
+    FontResolver fFontResolver;
 };
 }  // namespace textlayout
 }  // namespace skia

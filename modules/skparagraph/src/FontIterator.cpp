@@ -20,20 +20,20 @@ FontIterator::FontIterator(SkSpan<const char> utf8,
         : fText(utf8)
         , fStyles(styles)
         , fCurrentChar(utf8.begin())
-        , fFontCollection(std::move(fonts)) {
+        , fFontResolver(std::move(fonts)) {
     findAllFontsForAllStyledBlocks();
 }
 
 void FontIterator::consume() {
     SkASSERT(fCurrentChar < fText.end());
-    auto found = fFontCollection->findFirst(fCurrentChar, &fFont, &fLineHeight);
+    auto found = fFontResolver.findFirst(fCurrentChar, &fFont, &fLineHeight);
     SkASSERT(found);
 
     // Move until we find the first character that cannot be resolved with the current font
     while (++fCurrentChar != fText.end()) {
         SkFont font;
         SkScalar height;
-        found = fFontCollection->findNext(fCurrentChar, &font, &height);
+        found = fFontResolver.findNext(fCurrentChar, &font, &height);
         if (found) {
             if (fFont == font && fLineHeight == height) {
                 continue;
@@ -56,12 +56,12 @@ void FontIterator::findAllFontsForAllStyledBlocks() {
         }
 
         if (!combined.text().empty()) {
-            fFontCollection->findAllFontsForStyledBlock(combined.style(), combined.text());
+            fFontResolver.findAllFontsForStyledBlock(combined.style(), combined.text());
         }
 
         combined = block;
     }
-    fFontCollection->findAllFontsForStyledBlock(combined.style(), combined.text());
+    fFontResolver.findAllFontsForStyledBlock(combined.style(), combined.text());
 }
 
 }  // namespace textlayout
