@@ -1206,6 +1206,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	} else if strings.Contains(parts["extra_config"], "SkottieWASM") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("node"))
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
+		usesGit(task, name)
 	} else if strings.Contains(parts["extra_config"], "Skottie") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
 	}
