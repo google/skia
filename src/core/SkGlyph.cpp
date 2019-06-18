@@ -106,9 +106,28 @@ bool SkGlyph::setImage(SkArenaAlloc* alloc, SkScalerContext* scalerContext) {
 
 bool SkGlyph::setImage(SkArenaAlloc* alloc, const void* image) {
     if (!this->setImageHasBeenCalled()) {
-        this->allocImage(alloc);
-        memcpy(fImage, image, this->imageSize());
+        size_t imageSize = this->allocImage(alloc);
+        memcpy(fImage, image, imageSize);
         return true;
+    }
+    return false;
+}
+
+bool SkGlyph::setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from) {
+    if (fImage == nullptr) {
+        fAdvanceX = from.fAdvanceX;
+        fAdvanceY = from.fAdvanceY;
+        fWidth = from.fWidth;
+        fHeight = from.fHeight;
+        fTop = from.fTop;
+        fLeft = from.fLeft;
+        fForceBW = from.fForceBW;
+        fMaskFormat = from.fMaskFormat;
+        if (!this->setImageHasBeenCalled()) {
+            this->allocImage(alloc);
+            memcpy(fImage, from.image(), this->imageSize());
+            return true;
+        }
     }
     return false;
 }
@@ -131,22 +150,6 @@ size_t SkGlyph::imageSize() const {
     }
 
     return size;
-}
-
-size_t SkGlyph::copyImageData(const SkGlyph& from, SkArenaAlloc* alloc) {
-    fMaskFormat = from.fMaskFormat;
-    fWidth = from.fWidth;
-    fHeight = from.fHeight;
-    fLeft = from.fLeft;
-    fTop = from.fTop;
-    fForceBW = from.fForceBW;
-
-    if (from.image() != nullptr) {
-        this->setImage(alloc, from.image());
-        return this->imageSize();
-    }
-
-    return 0u;
 }
 
 void SkGlyph::installPath(SkArenaAlloc* alloc, const SkPath* path) {
