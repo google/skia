@@ -36,7 +36,9 @@ def RunSteps(api):
   api.checkout.bot_update(checkout_root=checkout_root)
 
   # Install prerequisites.
-  env = {}
+  env = {'PATH': api.path['start_dir'].join('node', 'node', 'bin')}
+  # npm_path =  api.path['start_dir'].join(
+  #     'node', 'node', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js')
   with api.context(cwd=skottie_wasm_perf_dir, env=env):
     api.step('npm install', cmd=['npm', 'install'])
 
