@@ -247,11 +247,11 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
 
     SkScalar width = 0;
     if (bounds) {
-        const SkGlyph* g = &cache->getGlyphIDMetrics(glyphs[0]);
+        SkGlyph* g = cache->glyph(glyphs[0]);
         set_bounds(*g, bounds);
         width = g->advanceX();
         for (int i = 1; i < count; ++i) {
-            g = &cache->getGlyphIDMetrics(glyphs[i]);
+            g = cache->glyph(glyphs[i]);
             join_bounds_x(*g, bounds, width);
             width += g->advanceX();
         }
@@ -305,8 +305,8 @@ void SkFont::getWidthsBounds(const SkGlyphID glyphs[], int count, SkScalar width
         VisitGlyphs(*this, paint, glyphs, count, [widths, bounds]
                 (SkStrike* cache, const SkGlyphID glyphs[], int count, SkScalar scale) {
             for (int i = 0; i < count; ++i) {
-                const SkGlyph* g;
-                g = &cache->getGlyphIDMetrics(glyphs[i]);
+                SkGlyph* g;
+                g = cache->glyph(glyphs[i]);
                 bounds[i] = make_bounds(*g, scale);
                 if (widths) {
                     widths[i] = g->advanceX() * scale;
@@ -325,16 +325,16 @@ void SkFont::getWidthsBounds(const SkGlyphID glyphs[], int count, SkScalar width
 }
 
 void SkFont::getPos(const SkGlyphID glyphs[], int count, SkPoint pos[], SkPoint origin) const {
-
+    auto glyphIDs = SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(count)};
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this);
     auto cache = strikeSpec.findOrCreateExclusiveStrike();
-    SmallPointsArray advances{count};
-    cache->getAdvances(SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(count)}, advances.get());
+    SmallPointsArray advancesStorage{count};
+    auto advances = cache->getAdvances(glyphIDs, advancesStorage.get());
 
-    SkPoint loc = origin;
-    for (int i = 0; i < count; ++i) {
-        pos[i] = loc;
-        loc += advances[i] * strikeSpec.strikeToSourceRatio();
+    SkPoint sum = origin;
+    for (auto advance : advances) {
+        *pos++ = sum;
+        sum += advance * strikeSpec.strikeToSourceRatio();
     }
 }
 
