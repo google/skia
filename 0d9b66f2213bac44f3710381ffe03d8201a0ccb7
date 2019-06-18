@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfd00868_2cb7dc4d",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-18T20:43:36Z",
+      "side": 1,
+      "message": "I like the way this list keeps getting long.",
+      "range": {
+        "startLine": 419,
+        "startChar": 0,
+        "endLine": 422,
+        "endChar": 41
+      },
+      "revId": "0d9b66f2213bac44f3710381ffe03d8201a0ccb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7dbb1241_14e83b9e",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-18T20:43:36Z",
+      "side": 1,
+      "message": "Binary number formatting was added to the language just in time for this CL.",
+      "range": {
+        "startLine": 504,
+        "startChar": 21,
+        "endLine": 504,
+        "endChar": 32
+      },
+      "revId": "0d9b66f2213bac44f3710381ffe03d8201a0ccb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
