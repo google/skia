@@ -22,6 +22,30 @@
       "revId": "3dc850d83b375970bf44853665ee031063d1b0dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5eec5397_944b9e17",
+        "filename": "src/core/SkStrike.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-18T21:43:01Z",
+      "side": 1,
+      "message": "Yep. That is the right way.",
+      "parentUuid": "4bcdc9e3_e346f38f",
+      "range": {
+        "startLine": 193,
+        "startChar": 4,
+        "endLine": 193,
+        "endChar": 79
+      },
+      "revId": "3dc850d83b375970bf44853665ee031063d1b0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
