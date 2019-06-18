@@ -35,7 +35,7 @@ struct SkScalerContextEffects {
 
 struct SkGlyphPos {
     size_t index;
-    const SkGlyph* glyph;
+    SkGlyph* glyph;
     SkPoint position;
 };
 
