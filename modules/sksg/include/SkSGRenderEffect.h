@@ -12,6 +12,7 @@
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkMaskFilter.h"
 #include "include/effects/SkBlurImageFilter.h"
 
 #include <memory>
@@ -20,9 +21,63 @@
 // TODO: merge EffectNode.h with this header
 
 class SkImageFilter;
+class SkMaskFilter;
 class SkShader;
 
 namespace sksg {
+
+/**
+ * Mask filter base class.
+ */
+class MaskFilter : public Node {
+public:
+    ~MaskFilter() override;
+
+    static sk_sp<MaskFilter> Make(sk_sp<SkMaskFilter> mf) {
+        return sk_sp<MaskFilter>(new MaskFilter(std::move(mf)));
+    }
+
+    const sk_sp<SkMaskFilter>& getMaskFilter() const {
+        SkASSERT(!this->hasInval());
+        return fMaskFilter;
+    }
+
+    void setMaskFilter(sk_sp<SkMaskFilter>);
+
+protected:
+    explicit MaskFilter(sk_sp<SkMaskFilter> = nullptr);
+
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) final;
+
+    virtual sk_sp<SkMaskFilter> onRevalidateMask();
+
+private:
+    sk_sp<SkMaskFilter> fMaskFilter;
+
+    using INHERITED = Node;
+};
+
+/**
+ * Attaches a mask filter to the render DAG.
+ */
+class MaskFilterEffect final : public EffectNode {
+public:
+    ~MaskFilterEffect() override;
+
+    static sk_sp<MaskFilterEffect> Make(sk_sp<RenderNode>, sk_sp<MaskFilter>);
+
+protected:
+    void onRender(SkCanvas*, const RenderContext*) const override;
+
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+
+private:
+    MaskFilterEffect(sk_sp<RenderNode>, sk_sp<MaskFilter>);
+
+    sk_sp<MaskFilter> fMaskFilter;
+
+    using INHERITED = EffectNode;
+};
 
 /**
  * Shader base class.
