@@ -873,6 +873,7 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
         case kAlpha_half_as_Red_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
         case kRGBA_half_Clamped_GrPixelConfig:
+        case kR_16_GrPixelConfig:
             return 2;
         case kRGBA_8888_GrPixelConfig:
         case kRGB_888_GrPixelConfig:  // We're really talking about GrColorType::kRGB_888x here.
@@ -883,15 +884,16 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
         case kRGBA_1010102_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
+        case kRG_1616_GrPixelConfig:
             return 4;
         case kRGB_ETC1_GrPixelConfig:
         case kUnknown_GrPixelConfig:
             return 0;
 
-        // Experimental (for P016 and P010)
-        case kR_16_GrPixelConfig:
-            return 2;
-        case kRG_1616_GrPixelConfig:
+        // Experimental (for Y416 and mutant P016/P010)
+        case kRGBA_16161616_GrPixelConfig:
+            return 8;
+        case kRG_half_GrPixelConfig:
             return 4;
     }
     SK_ABORT("Invalid pixel config");
@@ -3988,13 +3990,19 @@ static bool gl_format_to_pixel_config(GrGLenum format, GrPixelConfig* config) {
         case GR_GL_R16F:
             *config = kAlpha_half_GrPixelConfig;
             return true;
-
-        // Experimental (for P016 and P010)
         case GR_GL_R16:
             *config = kR_16_GrPixelConfig;
             return true;
         case GR_GL_RG16:
             *config = kRG_1616_GrPixelConfig;
+            return true;
+
+        // Experimental (for Y416 and mutant P016/P010)
+        case GR_GL_RGBA16:
+            *config = kRGBA_16161616_GrPixelConfig;
+            return true;
+        case GR_GL_RG16F:
+            *config = kRG_half_GrPixelConfig;
             return true;
     }
 
