@@ -51,6 +51,9 @@ public:
     // Return a glyph or nullptr if it does not exits in the strike.
     SkGlyph* glyphOrNull(SkPackedGlyphID id) const;
 
+    SkSpan<SkGlyph*> prepareImages(
+            SkSpan<const SkGlyphID> glyphIDs, SkGlyph* results[]);
+
     const void* prepareImage(SkGlyph* glyph);
 
     // Lookup (or create if needed) the toGlyph using toID. If that glyph is not initialized with
@@ -105,14 +108,16 @@ public:
 
     SkVector rounding() const override;
 
+    SkIPoint subpixelMask() const override {
+        return SkIPoint::Make((!fIsSubpixel || fAxisAlignment == kY_SkAxisAlignment) ? 0 : ~0,
+                              (!fIsSubpixel || fAxisAlignment == kX_SkAxisAlignment) ? 0 : ~0);
+    }
+
     const SkDescriptor& getDescriptor() const override;
 
-    SkSpan<const SkGlyphPos> prepareForDrawing(const SkGlyphID glyphIDs[],
-                                               const SkPoint positions[],
-                                               size_t n,
-                                               int maxDimension,
-                                               PreparationDetail detail,
-                                               SkGlyphPos results[]) override;
+    SkSpan<const SkGlyphPos>
+    prepareForDrawing(const SkPackedGlyphID packedGlyphIDs[], const SkPoint positions[], size_t n,
+                      int maxDimension, PreparationDetail detail, SkGlyphPos results[]) override;
 
     void onAboutToExitScope() override;
 
@@ -162,9 +167,10 @@ private:
 
     SkGlyph* makeGlyph(SkPackedGlyphID);
 
-    // Metrics will hold a mutex while doing its work. This is one of the few places that will
-    // need a mutex.
-    SkSpan<const SkGlyph*> metrics(SkSpan<const SkGlyphID>glyphIDs, const SkGlyph* result[]);
+    // The caller will need to hold the mutex.
+    SkSpan<SkGlyph*> metrics(SkSpan<const SkGlyphID>glyphIDs, SkGlyph* result[]);
+    SkSpan<SkGlyphPos> metricsWithoutEmpty(
+            SkSpan<const SkGlyphID>glyphIDs, const SkPoint positions[], SkGlyphPos result[]);
 
     const SkAutoDescriptor                 fDesc;
     const std::unique_ptr<SkScalerContext> fScalerContext;

@@ -104,6 +104,24 @@ private:
                              const SkMatrix& viewMatrix,
                              SkGlyphRunPainterInterface* process);
 
+    static SkSpan<const SkPackedGlyphID> SubpixelPackedGlyphIDs(
+            SkStrikeInterface* strike,
+            const SkMatrix&,
+            const SkPoint&,
+            int n,
+            const SkGlyphID glyphIDs[],
+            const SkPoint positions[],
+            SkPoint mappedPositions[],
+            SkPackedGlyphID results[]);
+
+    static SkSpan<const SkPackedGlyphID> FullPixelGlyphIDs(
+            const SkPoint&,
+            int n,
+            const SkGlyphID glyphIDs[],
+            const SkPoint positions[],
+            SkPoint mappedPositions[],
+            SkPackedGlyphID results[]);
+
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;
     // The props for when the bitmap device can't draw LCD text.
@@ -115,6 +133,7 @@ private:
 
     int fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
+    SkAutoTMalloc<SkPackedGlyphID> fPackedGlyphIDs;
     SkAutoTMalloc<SkGlyphPos> fGlyphPos;
 
     std::vector<SkGlyphPos> fPaths;
