@@ -156,9 +156,10 @@ static angle::TraceEventHandle ANGLE_addTraceEvent(angle::PlatformMethods* platf
                                                    const unsigned char* arg_types,
                                                    const unsigned long long* arg_values,
                                                    unsigned char flags) {
-    return SkEventTracer::GetInstance()->addTraceEvent(phase, category_group_enabled, name, id,
-                                                       num_args, arg_names, arg_types, arg_values,
-                                                       flags);
+    static_assert(sizeof(unsigned long long) == sizeof(uint64_t), "Non-64-bit trace event args!");
+    return SkEventTracer::GetInstance()->addTraceEvent(
+            phase, category_group_enabled, name, id, num_args, arg_names, arg_types,
+            reinterpret_cast<const uint64_t*>(arg_values), flags);
 }
 
 static void ANGLE_updateTraceEventDuration(angle::PlatformMethods* platform,
