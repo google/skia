@@ -30,6 +30,7 @@ import (
 )
 
 const (
+	BUILD_TASK_DRIVERS_NAME    = "Housekeeper-PerCommit-BuildTaskDrivers"
 	BUNDLE_RECIPES_NAME        = "Housekeeper-PerCommit-BundleRecipes"
 	ISOLATE_GCLOUD_LINUX_NAME  = "Housekeeper-PerCommit-IsolateGCloudLinux"
 	ISOLATE_SKIMAGE_NAME       = "Housekeeper-PerCommit-IsolateSkImage"
@@ -711,6 +712,61 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 	return BUNDLE_RECIPES_NAME
 }
 
+// buildTaskDrivers generates the task to compile the task driver code to run on
+// all platforms.
+func buildTaskDrivers(b *specs.TasksCfgBuilder) string {
+	b.MustAddTask(BUILD_TASK_DRIVERS_NAME, &specs.TaskSpec{
+		Caches:       CACHES_GO,
+		CipdPackages: append(CIPD_PKGS_GIT, b.MustGetCipdPackageFromAsset("go")),
+		Command: []string{
+			"/bin/bash", "skia/infra/bots/build_task_drivers.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR,
+		},
+		Dimensions: linuxGceDimensions(MACHINE_TYPE_SMALL),
+		EnvPrefixes: map[string][]string{
+			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
+		},
+		Isolate: "task_drivers.isolate",
+	})
+	return BUILD_TASK_DRIVERS_NAME
+}
+
+func updateGoDeps(b *specs.TasksCfgBuilder, name string) string {
+	cipd := append([]*specs.CipdPackage{}, CIPD_PKGS_GIT...)
+	cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
+	cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
+
+	machineType := MACHINE_TYPE_MEDIUM
+	t := &specs.TaskSpec{
+		Caches:       CACHES_GO,
+		CipdPackages: cipd,
+		Command: []string{
+			"./update_go_deps",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", name,
+			"--workdir", ".",
+			"--gerrit_project", "skia",
+			"--gerrit_url", "https://skia-review.googlesource.com",
+			"--repo", specs.PLACEHOLDER_REPO,
+			"--reviewers", "borenet@google.com",
+			"--revision", specs.PLACEHOLDER_REVISION,
+			"--patch_issue", specs.PLACEHOLDER_ISSUE,
+			"--patch_set", specs.PLACEHOLDER_PATCHSET,
+			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+			"--alsologtostderr",
+		},
+		Dependencies: []string{BUILD_TASK_DRIVERS_NAME},
+		Dimensions:   linuxGceDimensions(machineType),
+		EnvPrefixes: map[string][]string{
+			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
+		},
+		Isolate:        "empty.isolate",
+		ServiceAccount: SERVICE_ACCOUNT_RECREATE_SKPS,
+	}
+	b.MustAddTask(name, t)
+	return name
+}
+
 type isolateAssetCfg struct {
 	cipdPkg string
 	path    string
@@ -1273,6 +1329,9 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if name == BUNDLE_RECIPES_NAME {
 		deps = append(deps, bundleRecipes(b))
 	}
+	if name == BUILD_TASK_DRIVERS_NAME {
+		deps = append(deps, buildTaskDrivers(b))
+	}
 
 	// Isolate CIPD assets.
 	if _, ok := ISOLATE_ASSET_MAPPING[name]; ok {
@@ -1287,6 +1346,12 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	// RecreateSKPs.
 	if strings.Contains(name, "RecreateSKPs") {
 		deps = append(deps, recreateSKPs(b, name))
+	}
+
+	// Update Go Dependencies.
+	if strings.Contains(name, "UpdateGoDeps") {
+		// Update Go deps bot.
+		deps = append(deps, updateGoDeps(b, name))
 	}
 
 	// Infra tests.
@@ -1324,8 +1389,10 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		name != "Housekeeper-PerCommit-BundleRecipes" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		name != "Housekeeper-PerCommit-CheckGeneratedFiles" &&
+		name != "Housekeeper-Nightly-UpdateGoDeps" &&
 		name != "Housekeeper-OnDemand-Presubmit" &&
 		name != "Housekeeper-PerCommit" &&
+		name != BUILD_TASK_DRIVERS_NAME &&
 		!strings.Contains(name, "Android_Framework") &&
 		!strings.Contains(name, "G3_Framework") &&
 		!strings.Contains(name, "RecreateSKPs") &&
