@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrRenderTargetProxy.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrCaps.h"

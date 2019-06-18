@@ -7,9 +7,9 @@
 
 #include "include/private/GrContext_Base.h"
 
-#include "include/private/GrSkSLFPFactoryCache.h"
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrSkSLFPFactoryCache.h"
 
 static int32_t next_id() {
     static std::atomic<int32_t> nextID{1};

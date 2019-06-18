@@ -8,7 +8,7 @@
 #ifndef GrRenderTargetProxyPriv_DEFINED
 #define GrRenderTargetProxyPriv_DEFINED
 
-#include "include/private/GrRenderTargetProxy.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 
 /**
  * This class hides the more specialized capabilities of GrRenderTargetProxy.

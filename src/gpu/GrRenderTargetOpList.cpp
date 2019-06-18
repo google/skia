@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrAuditTrail.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkExchange.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrGpuCommandBuffer.h"

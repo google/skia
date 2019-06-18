@@ -2,13 +2,13 @@
 #ifndef ParagraphImpl_DEFINED
 #define ParagraphImpl_DEFINED
 
-#include "modules/skparagraph/src/TextLine.h"
-#include "modules/skparagraph/src/Run.h"
 #include "include/core/SkPicture.h"
-#include "include/private//SkTHash.h"
+#include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skparagraph/src/Run.h"
+#include "modules/skparagraph/src/TextLine.h"
 
 class SkCanvas;
 

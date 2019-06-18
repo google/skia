@@ -9,6 +9,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrDrawOpTest.h"

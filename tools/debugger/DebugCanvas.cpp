@@ -16,7 +16,7 @@
 #include "tools/debugger/DrawCommand.h"
 
 #include "include/gpu/GrContext.h"
-#include "include/private/GrAuditTrail.h"
+#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 

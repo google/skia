@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrColor.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrColor.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrRenderTargetContext.h"

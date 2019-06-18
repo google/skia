@@ -8,8 +8,8 @@
 #ifndef GrFragmentProcessor_DEFINED
 #define GrFragmentProcessor_DEFINED
 
-#include "include/private/GrProxyRef.h"
 #include "src/gpu/GrProcessor.h"
+#include "src/gpu/GrProxyRef.h"
 #include "src/gpu/ops/GrOp.h"
 
 class GrCoordTransform;

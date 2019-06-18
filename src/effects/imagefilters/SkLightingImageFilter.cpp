@@ -18,13 +18,13 @@
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrTexture.h"
 #include "include/private/GrRecordingContext.h"
-#include "include/private/GrTextureProxy.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrTextureProxy.h"
 
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureDomain.h"

@@ -11,10 +11,10 @@
 
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTexture.h"
-#include "include/private/GrSurfaceProxy.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"

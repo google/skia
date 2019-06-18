@@ -9,7 +9,7 @@
 #include "include/gpu/GrRenderTarget.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
-#include "include/private/GrRenderTargetProxy.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/vk/GrVkCaps.h"

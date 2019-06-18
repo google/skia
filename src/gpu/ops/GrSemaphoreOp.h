@@ -11,7 +11,7 @@
 #include "src/gpu/ops/GrOp.h"
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/GrRenderTargetProxy.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSemaphore.h"
 
 class GrRecordingContext;

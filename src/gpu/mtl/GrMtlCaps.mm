@@ -10,9 +10,9 @@
 #include "include/core/SkRect.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrRenderTarget.h"
-#include "include/private/GrRenderTargetProxy.h"
-#include "include/private/GrSurfaceProxy.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
 #if !__has_feature(objc_arc)

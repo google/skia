@@ -8,7 +8,6 @@
 #include "src/gpu/ccpr/GrCCAtlas.h"
 
 #include "include/gpu/GrTexture.h"
-#include "include/private/GrTextureProxy.h"
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkMathPriv.h"
@@ -17,6 +16,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRectanizer_skyline.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/ccpr/GrCCPathCache.h"
 #include <atomic>
 

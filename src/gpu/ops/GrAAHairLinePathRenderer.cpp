@@ -12,6 +12,7 @@
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkStroke.h"
+#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrBuffer.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrClip.h"

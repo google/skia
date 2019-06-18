@@ -13,8 +13,8 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
-#include "include/private/GrColor.h"
 #include "src/core/SkTLazy.h"
+#include "src/gpu/GrColor.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 class GrTextureProxy;

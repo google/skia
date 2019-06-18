@@ -7,7 +7,7 @@
 #include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 
 #include "include/gpu/GrTexture.h"
-#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"

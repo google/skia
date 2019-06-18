@@ -8,11 +8,11 @@
 #include "src/gpu/GrSWMaskHelper.h"
 
 #include "include/private/GrRecordingContext.h"
-#include "include/private/GrTextureProxy.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/geometry/GrShape.h"
 
 /*

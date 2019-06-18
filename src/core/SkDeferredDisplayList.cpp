@@ -12,7 +12,7 @@
 class SkSurfaceCharacterization;
 
 #if SK_SUPPORT_GPU
-#include "include/private/GrOpList.h"
+#include "src/gpu/GrOpList.h"
 #include "src/gpu/ccpr/GrCCPerOpListPaths.h"
 #endif
 

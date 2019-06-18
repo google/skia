@@ -8,8 +8,8 @@
 #include "modules/skottie/src/effects/Effects.h"
 
 #include "modules/skottie/src/SkottieValue.h"
-#include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
+#include "modules/sksg/include/SkSGPaint.h"
 #include "src/utils/SkJSON.h"
 
 namespace skottie {

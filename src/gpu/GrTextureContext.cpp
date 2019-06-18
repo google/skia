@@ -7,11 +7,10 @@
 
 #include "src/gpu/GrTextureContext.h"
 
+#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrTextureOpList.h"
-
-#include "include/private/GrAuditTrail.h"
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)

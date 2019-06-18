@@ -21,7 +21,6 @@
 #include "include/gpu/GrTexture.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/GrRecordingContext.h"
-#include "include/private/GrTextureProxy.h"
 #include "src/core/SkExchange.h"
 #include "src/core/SkMessageBus.h"
 #include "src/gpu/GrAHardwareBufferUtils.h"
@@ -31,6 +30,7 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrResourceProviderPriv.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/gl/GrGLDefines.h"
 
 #include <EGL/egl.h>

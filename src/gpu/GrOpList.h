@@ -9,10 +9,10 @@
 #define GrOpList_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/GrProxyRef.h"
-#include "include/private/GrTextureProxy.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTDArray.h"
+#include "src/gpu/GrProxyRef.h"
+#include "src/gpu/GrTextureProxy.h"
 
 class GrAuditTrail;
 class GrCaps;

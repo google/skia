@@ -10,8 +10,8 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrGpuResource.h"
-#include "include/private/GrSurfaceProxy.h"
 #include "include/private/SkNoncopyable.h"
+#include "src/gpu/GrSurfaceProxy.h"
 
 class GrProxyPendingIO : SkNoncopyable {
 public:

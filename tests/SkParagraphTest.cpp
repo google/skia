@@ -1,11 +1,11 @@
 // Copyright 2019 Google LLC.
 #include <sstream>
-#include "Test.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/src/TypefaceFontProvider.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkShaperJSONWriter.h"
+#include "tests/Test.h"
 #include "tools/Resources.h"
 
 #define VeryLongCanvasWidth 1000000

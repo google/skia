@@ -9,8 +9,8 @@
 #define GrSurfaceContext_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/GrSurfaceProxy.h"
 #include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrSurfaceProxy.h"
 
 class GrAuditTrail;
 class GrDrawingManager;

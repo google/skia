@@ -8,12 +8,12 @@
 #ifndef SkXform_DEFINED
 #define SkXform_DEFINED
 
-#include "include/core/SkRefCnt.h"
-#include "include/core/SkMatrix.h"
 #include "include/core/SkClipOp.h"
-#include "include/core/SkRect.h"
-#include "include/core/SkRRect.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 
 #include "include/private/SkTDArray.h"
 

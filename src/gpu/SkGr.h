@@ -17,10 +17,10 @@
 #include "include/gpu/GrBlend.h"
 #include "include/gpu/GrSamplerState.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/GrColor.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrColor.h"
 
 class GrCaps;
 class GrColorSpaceInfo;

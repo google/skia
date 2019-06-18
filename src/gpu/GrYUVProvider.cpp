@@ -10,7 +10,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkYUVAIndex.h"
 #include "include/private/GrRecordingContext.h"
-#include "include/private/GrTextureProxy.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkResourceCache.h"
@@ -21,6 +20,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 
 sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVASizeInfo* size,

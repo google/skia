@@ -9,8 +9,8 @@
 #define GrTexureOpList_DEFINED
 
 #include "include/gpu/GrGpuResource.h"
-#include "include/private/GrOpList.h"
-#include "include/private/GrSurfaceProxy.h"
+#include "src/gpu/GrOpList.h"
+#include "src/gpu/GrSurfaceProxy.h"
 
 #include "include/private/SkTArray.h"
 

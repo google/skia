@@ -68,10 +68,10 @@ void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpd
 }
 
 #ifdef SK_DEBUG
-#include "include/private/GrSurfaceProxy.h"
-#include "include/private/GrTextureProxy.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/GrTextureProxy.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkImageEncoder.h"

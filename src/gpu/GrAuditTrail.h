@@ -12,9 +12,9 @@
 #include "include/core/SkString.h"
 #include "include/gpu/GrConfig.h"
 #include "include/gpu/GrGpuResource.h"
-#include "include/private/GrRenderTargetProxy.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 
 class GrOp;
 class SkJSONWriter;

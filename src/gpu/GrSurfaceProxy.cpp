@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrSurfaceProxy.h"
+#include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 
 #include "include/gpu/GrContext.h"
-#include "include/private/GrOpList.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrOpList.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceContext.h"

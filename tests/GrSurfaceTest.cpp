@@ -164,8 +164,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     }
 }
 
-#include "include/private/GrSurfaceProxy.h"
 #include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureContext.h"
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) {

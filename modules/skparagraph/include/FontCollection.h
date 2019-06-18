@@ -4,10 +4,10 @@
 
 #include <memory>
 #include <set>
-#include "modules/skparagraph/include/TextStyle.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTHash.h"
+#include "modules/skparagraph/include/TextStyle.h"
 
 namespace skia {
 namespace textlayout {

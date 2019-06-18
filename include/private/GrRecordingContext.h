@@ -9,14 +9,17 @@
 #define GrRecordingContext_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/GrAuditTrail.h"
 #include "include/private/GrImageContext.h"
 
+class GrAuditTrail;
+class GrBackendFormat;
 class GrDrawingManager;
 class GrOnFlushCallbackObject;
 class GrOpMemoryPool;
 class GrRecordingContextPriv;
 class GrStrikeCache;
+class GrSurfaceContext;
+class GrSurfaceProxy;
 class GrTextBlobCache;
 
 class SK_API GrRecordingContext : public GrImageContext {
@@ -101,7 +104,7 @@ protected:
                                             const SkSurfaceProps* surfaceProps = nullptr,
                                             SkBudgeted budgeted = SkBudgeted::kYes);
 
-    GrAuditTrail* auditTrail() { return &fAuditTrail; }
+    GrAuditTrail* auditTrail() { return fAuditTrail.get(); }
 
     GrRecordingContext* asRecordingContext() override { return this; }
 
@@ -113,7 +116,7 @@ private:
     std::unique_ptr<GrStrikeCache>    fStrikeCache;
     std::unique_ptr<GrTextBlobCache>  fTextBlobCache;
 
-    GrAuditTrail                      fAuditTrail;
+    std::unique_ptr<GrAuditTrail>     fAuditTrail;
 
     typedef GrImageContext INHERITED;
 };

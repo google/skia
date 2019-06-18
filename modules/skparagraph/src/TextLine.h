@@ -2,12 +2,12 @@
 #ifndef TextLine_DEFINED
 #define TextLine_DEFINED
 
-#include "modules/skparagraph/src/Run.h"
 #include "include/core/SkCanvas.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skparagraph/src/Run.h"
 #include "src/core/SkSpan.h"
 
 namespace skia {

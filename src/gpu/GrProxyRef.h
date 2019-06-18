@@ -8,9 +8,9 @@
 #ifndef GrProxyRef_DEFINED
 #define GrProxyRef_DEFINED
 
-#include "include/private/GrSurfaceProxy.h"
-#include "include/private/GrTextureProxy.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/GrTextureProxy.h"
 
 /**
  * Helper for owning a ref on a GrSurfaceProxy.

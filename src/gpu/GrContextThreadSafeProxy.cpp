@@ -10,9 +10,9 @@
 
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/gpu/GrContext.h"
-#include "include/private/GrSkSLFPFactoryCache.h"
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/image/SkSurface_Gpu.h"
 
 GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,

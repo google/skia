@@ -9,13 +9,13 @@
 #define GrOpFlushState_DEFINED
 
 #include <utility>
-#include "include/private/GrRenderTargetProxy.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkArenaAllocList.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrBufferAllocPool.h"
 #include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrDeinstantiateProxyTracker.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 
 class GrGpu;

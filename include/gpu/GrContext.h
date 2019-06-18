@@ -11,6 +11,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/private/GrRecordingContext.h"
 
@@ -18,7 +19,6 @@
 #include "include/core/SkUnPreMultiply.h"
 
 class GrAtlasManager;
-class GrBackendFormat;
 class GrBackendSemaphore;
 class GrCaps;
 class GrContextPriv;
@@ -357,7 +357,7 @@ public:
     // For the Vulkan backend the layout of the created VkImage will be:
     //      VK_IMAGE_LAYOUT_UNDEFINED.
     GrBackendTexture createBackendTexture(int width, int height,
-                                          GrBackendFormat,
+                                          const GrBackendFormat&,
                                           GrMipMapped,
                                           GrRenderable);
 
@@ -377,7 +377,7 @@ public:
     // For the Vulkan backend the layout of the created VkImage will be:
     //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
     GrBackendTexture createBackendTexture(int width, int height,
-                                          GrBackendFormat, const SkColor4f& color,
+                                          const GrBackendFormat&, const SkColor4f& color,
                                           GrMipMapped, GrRenderable);
 
     // If possible, create a backend texture initialized to a particular color. The client should
