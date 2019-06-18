@@ -496,10 +496,10 @@ namespace skvm {
     void Assembler::vzeroupper() { this->byte(0xc5, 0xf8, 0x77); }
     void Assembler::ret() { this->byte(0xc3); }
 
-    void Assembler::sub(GP64 dst, int imm) {
-        int opcode = 0b0000'0000;   // opcode 0 does all sorts of things... add, sub, xor, cmp
-        opcode    |= 0b0000'0001;   // low bit set for 64-bit operands
-        opcode    |= 0b1000'0000;   // top bit set for instructions with any immediate
+    // Common instruction building for 64-bit opcodes with an immediate argument.
+    void Assembler::op(int opcode, int opcode_ext, GP64 dst, int imm) {
+        opcode |= 0b0000'0001;   // low bit set for 64-bit operands
+        opcode |= 0b1000'0000;   // top bit set for instructions with any immediate
 
         int imm_bytes = 4;
         if (SkTFitsIn<int8_t>(imm)) {
@@ -507,13 +507,14 @@ namespace skvm {
             opcode |= 0b0000'0010;  // second bit set for 8-bit immediate
         }
 
-        int opcode_ext = 5;  // subtract
-
         this->byte(REX{1,dst >= r8,0,0}.bits);
         this->byte(opcode);
         this->byte(ModRM{ModRM::Direct/*don't understand yet*/, opcode_ext, dst}.bits);
         this->byte(&imm, imm_bytes);
     }
+
+    void Assembler::add(GP64 dst, int imm) { this->op(0,0, dst,imm); }
+    void Assembler::sub(GP64 dst, int imm) { this->op(0,5, dst,imm); }
 
     static bool can_jit(int regs, int nargs) {
         return true
@@ -526,6 +527,8 @@ namespace skvm {
     static int jit(Assembler& a,
                    const std::vector<Program::Instruction>& instructions,
                    int regs, int loop, size_t strides[], int nargs) {
+        using A = Assembler;
+
         SkASSERT(can_jit(regs,nargs));
 
         Xbyak::CodeGenerator& X = *a.X;
@@ -537,8 +540,13 @@ namespace skvm {
     #else
         // These registers are used to pass the first 6 arguments,
         // so if we stick to these we need not push, pop, spill, or move anything around.
-        Assembler::GP64 N = Assembler::rdi;
-        Xbyak::Reg arg[] = { X.rsi, X.rdx, X.rcx, X.r8, X.r9 };
+        A::GP64 N = A::rdi,
+            arg[] = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
+
+        auto xarg = [&](int ix) {
+            // arg[] is Assembler::GP64, but they should match Xbyak's Reg64 value-wise.
+            return Xbyak::Reg64{arg[ix]};
+        };
 
 
         // All 16 ymm registers are available as scratch, keeping 15 as a temporary for us.
@@ -578,20 +586,20 @@ namespace skvm {
                 case Op::store8:
                     if (SkCpu::Supports(SkCpu::SKX)) {
                         // One stop shop!  Pack 8x I32 -> U8 and store to ptr.
-                        X.vpmovusdb(X.ptr[arg[y.imm]], r[x]);
+                        X.vpmovusdb(X.ptr[xarg(y.imm)], r[x]);
                     } else {
                         X.vpackusdw(tmp, r[x], r[x]); // pack 32-bit -> 16-bit
                         X.vpermq   (tmp, tmp, 0xd8);  // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
                         X.vpackuswb(tmp, tmp, tmp);   // pack 16-bit -> 8-bit
-                        X.vmovq(X.ptr[arg[y.imm]],         // store low 8 bytes
+                        X.vmovq(X.ptr[xarg(y.imm)],         // store low 8 bytes
                                 Xbyak::Xmm{tmp.getIdx()}); // (arg must be an xmm)
                     }
                     break;
 
-                case Op::store32: X.vmovups(X.ptr[arg[y.imm]], r[x]); break;
+                case Op::store32: X.vmovups(X.ptr[xarg(y.imm)], r[x]); break;
 
-                case Op::load8:  X.vpmovzxbd(r[d], X.ptr[arg[y.imm]]); break;
-                case Op::load32: X.vmovups  (r[d], X.ptr[arg[y.imm]]); break;
+                case Op::load8:  X.vpmovzxbd(r[d], X.ptr[xarg(y.imm)]); break;
+                case Op::load32: X.vmovups  (r[d], X.ptr[xarg(y.imm)]); break;
 
                 case Op::splat: data4.push_back(Data4{Xbyak::Label(), y.imm});
                                 X.vbroadcastss(r[d], X.ptr[X.rip + data4.back().label]);
@@ -685,7 +693,7 @@ namespace skvm {
         }
 
         for (int i = 0; i < nargs; i++) {
-            X.add(arg[i], K*(int)strides[i]);
+            a.add(arg[i], K*(int)strides[i]);
         }
         a.sub(N, K);
         X.jne("loop");
