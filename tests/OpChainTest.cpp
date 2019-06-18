@@ -204,7 +204,6 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                 GrTokenTracker tracker;
                 GrOpFlushState flushState(context->priv().getGpu(),
                                           context->priv().resourceProvider(),
-                                          context->priv().getResourceCache(),
                                           &tracker);
                 GrRenderTargetOpList opList(sk_ref_sp(context->priv().opMemoryPool()),
                                             sk_ref_sp(proxy->asRenderTargetProxy()),

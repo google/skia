@@ -33,7 +33,7 @@ public:
         //
         // This assert also guarantees there won't be a lazy proxy callback with a dangling pointer
         // back into this class, since no proxy will exist after we destruct, if the assert passes.
-        SkASSERT(!fAtlasLazyProxy || fAtlasLazyProxy->isUnique_debugOnly());
+        SkASSERT(!fAtlasLazyProxy || fAtlasLazyProxy->unique());
     }
 
     bool isInitialized() const { return fAtlasLazyProxy != nullptr; }
