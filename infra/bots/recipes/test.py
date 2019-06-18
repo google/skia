@@ -481,7 +481,11 @@ def dm_flags(api, bot):
                        'fontmgr_match',
                        'fontmgr_iter',
                        'imagemasksubset',
-                       'wacky_yuv_formats_domain']
+                       'wacky_yuv_formats_domain',
+                       'imagemakewithfilter',
+                       'imagemakewithfilter_crop',
+                       'imagemakewithfilter_crop_ref',
+                       'imagemakewithfilter_ref']
 
   # skia:5589
   bad_serialize_gms.extend(['bitmapfilters',
