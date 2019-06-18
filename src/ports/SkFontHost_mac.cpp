@@ -2337,7 +2337,6 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
         rec->ignorePreBlend();
 #endif
     } else {
-#ifndef SK_IGNORE_MAC_BLENDING_MATCH_FIX
         SkColor color = rec->getLuminanceColor();
         if (smoothBehavior == SmoothBehavior::some) {
             // CoreGraphics smoothed text without subpixel coverage blitting goes from a gamma of
@@ -2355,7 +2354,7 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
                                   SkColorGetB(color) * 3/4);
         }
         rec->setLuminanceColor(color);
-#endif
+
         // CoreGraphics dialates smoothed text to provide contrast.
         rec->setContrast(0);
     }
