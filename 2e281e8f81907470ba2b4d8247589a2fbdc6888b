@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "21c855fa_d21b9b13",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-18T00:01:07Z",
+      "side": 1,
+      "message": "Oh hugely yes, we generally always mark functions defined in headers as static to avoid ODR issues in case they\u0027re included into translation units compiled with different instruction sets.\n\nI think https://bugs.chromium.org/p/chromium/issues/detail?id\u003d666707 is a pretty good related read.",
+      "parentUuid": "39492c4a_2a03b2d9",
+      "revId": "2e281e8f81907470ba2b4d8247589a2fbdc6888b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6923a5c2_e100506c",
         "filename": "src/core/SkUtils.h",
         "patchSetId": 2
