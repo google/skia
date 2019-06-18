@@ -35,7 +35,7 @@ struct SkScalerContextEffects {
 
 struct SkGlyphPos {
     size_t index;
-    const SkGlyph* glyph;
+    SkGlyph* glyph;
     SkPoint position;
 };
 
@@ -68,8 +68,6 @@ public:
                                                        int maxDimension,
                                                        PreparationDetail detail,
                                                        SkGlyphPos results[]) = 0;
-
-    virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
 
     // If glyph does not have an existing path, then add a path to glyph using a scaler context.
     virtual const SkPath* preparePath(SkGlyph* glyph) = 0;
