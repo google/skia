@@ -178,3 +178,42 @@ DEF_TEST(SkVM_LoopCounts, r) {
         }
     }
 }
+
+
+#if defined(SKVM_JIT)
+
+template <typename Fn>
+static void test_asm(skiatest::Reporter* r, Fn&& fn, std::initializer_list<uint8_t> expected) {
+    skvm::Assembler a;
+    fn(a);
+
+    REPORTER_ASSERT(r, a.size() == expected.size());
+
+    auto got = (const uint8_t*)a.code(),
+         want = expected.begin();
+    for (int i = 0; i < (int)std::min(a.size(), expected.size()); i++) {
+        REPORTER_ASSERT(r, got[i] == want[i]);
+    }
+}
+
+DEF_TEST(SkVM_Assembler, r) {
+    // Our exit strategy from AVX code.
+    test_asm(r, [&](skvm::Assembler& a) {
+        a.vzeroupper();
+        a.ret();
+    },{
+        0xc5, 0xf8, 0x77,
+        0xc3,
+    });
+
+    // Align should pad with nop().
+    test_asm(r, [&](skvm::Assembler& a) {
+        a.ret();
+        a.align(4);
+    },{
+        0xc3,
+        0x90, 0x90, 0x90,
+    });
+}
+
+#endif
