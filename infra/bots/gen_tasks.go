@@ -163,7 +163,7 @@ var (
 		&specs.CipdPackage{
 			Name:    "infra/python/cpython/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "version:2.7.14.chromium14",
+			Version: "version:2.7.15.chromium14",
 		},
 	}
 
