@@ -14,6 +14,7 @@
 
 class GrMtlGpu;
 class GrMtlPipelineState;
+class GrMtlGpuRTCommandBuffer;
 
 class GrMtlCommandBuffer {
 public:
@@ -24,7 +25,8 @@ public:
 
     id<MTLBlitCommandEncoder> getBlitCommandEncoder();
     id<MTLRenderCommandEncoder> getRenderCommandEncoder(MTLRenderPassDescriptor*,
-                                                        const GrMtlPipelineState*);
+                                                        const GrMtlPipelineState*,
+                                                        GrMtlGpuRTCommandBuffer* gpuCommandBuffer);
 
 private:
     GrMtlCommandBuffer(id<MTLCommandBuffer> cmdBuffer)

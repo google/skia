@@ -61,6 +61,8 @@ public:
 
     void insertEventMarker(const char* msg) override {}
 
+    void initRenderState(id<MTLRenderCommandEncoder>);
+
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {
         // TODO: this could be more efficient
         state->doUpload(upload);
@@ -134,7 +136,10 @@ private:
     size_t                      fCurrentVertexStride;
 
     static constexpr size_t kNumBindings = GrMtlUniformHandler::kLastUniformBinding + 3;
-    id<MTLBuffer> fBufferBindings[kNumBindings];
+    struct {
+        id<MTLBuffer> fBuffer;
+        size_t fOffset;
+    } fBufferBindings[kNumBindings];
 
     typedef GrGpuRTCommandBuffer INHERITED;
 };

@@ -7,6 +7,7 @@
 
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlGpuCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 
 #if !__has_feature(objc_arc)
@@ -16,10 +17,11 @@
 GrMtlCommandBuffer* GrMtlCommandBuffer::Create(id<MTLCommandQueue> queue) {
     id<MTLCommandBuffer> mtlCommandBuffer;
     mtlCommandBuffer = [queue commandBuffer];
-
     if (nil == mtlCommandBuffer) {
         return nullptr;
     }
+
+    mtlCommandBuffer.label = @"GrMtlCommandBuffer::Create";
 
     return new GrMtlCommandBuffer(mtlCommandBuffer);
 }
@@ -66,7 +68,8 @@ static bool compatible(const MTLRenderPassAttachmentDescriptor* first,
 }
 
 id<MTLRenderCommandEncoder> GrMtlCommandBuffer::getRenderCommandEncoder(
-        MTLRenderPassDescriptor* descriptor, const GrMtlPipelineState* pipelineState) {
+        MTLRenderPassDescriptor* descriptor, const GrMtlPipelineState* pipelineState,
+        GrMtlGpuRTCommandBuffer* gpuCommandBuffer) {
     if (nil != fPreviousRenderPassDescriptor) {
         if (compatible(fPreviousRenderPassDescriptor.colorAttachments[0],
                        descriptor.colorAttachments[0], pipelineState) &&
@@ -78,6 +81,7 @@ id<MTLRenderCommandEncoder> GrMtlCommandBuffer::getRenderCommandEncoder(
 
     this->endAllEncoding();
     fActiveRenderCommandEncoder = [fCmdBuffer renderCommandEncoderWithDescriptor:descriptor];
+    gpuCommandBuffer->initRenderState(fActiveRenderCommandEncoder);
     fPreviousRenderPassDescriptor = descriptor;
 
     return fActiveRenderCommandEncoder;
