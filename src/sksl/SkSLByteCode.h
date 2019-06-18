@@ -165,7 +165,11 @@ struct ByteCodeFunction {
     void disassemble() const;
 };
 
-struct ByteCode {
+struct SK_API ByteCode {
+    ByteCode() = default;
+    ByteCode(const ByteCode&) = delete;
+    ByteCode& operator=(const ByteCode&) = delete;
+
     int fGlobalCount = 0;
     // one entry per input slot, contains the global slot to which the input slot maps
     std::vector<uint8_t> fInputSlots;

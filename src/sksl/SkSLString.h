@@ -47,7 +47,7 @@ bool operator==(const char* s1, StringFragment s2);
 
 bool operator!=(const char* s1, StringFragment s2);
 
-class String : public std::string {
+class SK_API String : public std::string {
 public:
     String() = default;
     String(const String&) = default;

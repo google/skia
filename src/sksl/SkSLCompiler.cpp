@@ -1379,6 +1379,8 @@ std::unique_ptr<Program> Compiler::specialize(
     return result;
 }
 
+#if defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
+
 bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     if (!this->optimize(program)) {
         return false;
@@ -1496,6 +1498,8 @@ bool Compiler::toPipelineStage(const Program& program, String* out,
     }
     return result;
 }
+
+#endif
 
 std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
     if (!this->optimize(program)) {
