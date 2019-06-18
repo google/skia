@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f845c011_30380743",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-18T17:23:33Z",
+      "side": 1,
+      "message": "can it be 0 now?",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 31
+      },
+      "revId": "7805eae266d40e2f1d3ea770f38a0f8bc134f863",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45e2542a_00ec1b76",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-18T17:23:33Z",
+      "side": 1,
+      "message": "rm space here and below?",
+      "range": {
+        "startLine": 58,
+        "startChar": 33,
+        "endLine": 58,
+        "endChar": 34
+      },
+      "revId": "7805eae266d40e2f1d3ea770f38a0f8bc134f863",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
