@@ -1092,7 +1092,7 @@ static bool format_color_type_valid_pair(VkFormat vkFormat, GrColorType colorTyp
             return false;
         case GrColorType::kAlpha_8:
             return VK_FORMAT_R8_UNORM == vkFormat;
-        case GrColorType::kRGB_565:
+        case GrColorType::kBGR_565:
             return VK_FORMAT_R5G6B5_UNORM_PACK16 == vkFormat;
         case GrColorType::kABGR_4444:
             return VK_FORMAT_B4G4R4A4_UNORM_PACK16 == vkFormat ||

@@ -3330,7 +3330,7 @@ static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType)
             return false;
         case GrColorType::kAlpha_8:
             return GR_GL_ALPHA8 == format || GR_GL_R8 == format;
-        case GrColorType::kRGB_565:
+        case GrColorType::kBGR_565:
             return GR_GL_RGB565 == format;
         case GrColorType::kABGR_4444:
             return GR_GL_RGBA4 == format;

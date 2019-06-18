@@ -622,7 +622,7 @@ static bool format_color_type_valid_pair(MTLPixelFormat format, GrColorType colo
             return false;
         case GrColorType::kAlpha_8:
             return MTLPixelFormatA8Unorm == format || MTLPixelFormatR8Unorm == format;
-        case GrColorType::kRGB_565:
+        case GrColorType::kBGR_565:
 #ifdef SK_BUILD_FOR_MAC
             return false;
 #else
