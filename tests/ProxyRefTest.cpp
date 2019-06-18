@@ -18,14 +18,6 @@
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureProxy.h"
 
-int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
-    if (fTarget) {
-        return fTarget->fRefCnt;
-    }
-
-    return -1; // no backing GrSurface
-}
-
 static const int kWidthHeight = 128;
 
 static void check_refs(skiatest::Reporter* reporter,
@@ -77,14 +69,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
             if (proxy.get()) {
                 GrProxyPendingIO pendingIO(proxy.get());
 
-                int backingRefs = proxy->isWrapped_ForTesting() ? 2 : -1;
+                int backingRefs = proxy->isWrapped_ForTesting() ? 1 : -1;
 
                 check_refs(reporter, proxy.get(), 2, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
-                // In the deferred case, this checks that the refs transfered to the GrSurface
-                check_refs(reporter, proxy.get(), 2, 2);
+                check_refs(reporter, proxy.get(), 2, 1);
             }
             check_refs(reporter, proxy.get(), 1, 1);
         }
@@ -96,14 +87,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
                 proxy->ref();
                 proxy->ref();
 
-                int backingRefs = proxy->isWrapped_ForTesting() ? 3 : -1;
+                int backingRefs = proxy->isWrapped_ForTesting() ? 1 : -1;
 
                 check_refs(reporter, proxy.get(), 3, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
-                // In the deferred case, this checks that the refs transferred to the GrSurface
-                check_refs(reporter, proxy.get(), 3, 3);
+                check_refs(reporter, proxy.get(), 3, 1);
 
                 proxy->unref();
                 proxy->unref();
@@ -119,20 +109,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 GrProxyPendingIO pendingIO(proxy.get());
 
-                int backingRefs = proxy->isWrapped_ForTesting() ? 3 : -1;
+                int backingRefs = proxy->isWrapped_ForTesting() ? 1 : -1;
 
                 check_refs(reporter, proxy.get(), 3, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
-                // In the deferred case, this checks that the refs transfered to the GrSurface
-                check_refs(reporter, proxy.get(), 3, 3);
+                check_refs(reporter, proxy.get(), 3, 1);
 
                 proxy->unref();
-                check_refs(reporter, proxy.get(), 2, 2);
+                check_refs(reporter, proxy.get(), 2, 1);
 
                 GrProxyPendingIO secondPendingIO(proxy.get());
-                check_refs(reporter, proxy.get(), 3, 3);
+                check_refs(reporter, proxy.get(), 3, 1);
             }
             check_refs(reporter, proxy.get(), 1, 1);
         }
