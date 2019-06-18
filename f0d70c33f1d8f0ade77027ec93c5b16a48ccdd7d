@@ -22,6 +22,30 @@
       "revId": "f0d70c33f1d8f0ade77027ec93c5b16a48ccdd7d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51069433_f5365949",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-18T17:28:47Z",
+      "side": 1,
+      "message": "Nah, that\u0027s to keep them lined up mod 8.",
+      "parentUuid": "e01155fe_307346bb",
+      "range": {
+        "startLine": 464,
+        "startChar": 51,
+        "endLine": 464,
+        "endChar": 53
+      },
+      "revId": "f0d70c33f1d8f0ade77027ec93c5b16a48ccdd7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
