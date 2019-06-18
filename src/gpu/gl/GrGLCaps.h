@@ -60,12 +60,8 @@ public:
          * GL_MAX_SAMPLES value.
          */
         kES_EXT_MsToTexture_MSFBOType,
-        /**
-         * GL_NV_framebuffer_mixed_samples.
-         */
-        kMixedSamples_MSFBOType,
 
-        kLast_MSFBOType = kMixedSamples_MSFBOType
+        kLast_MSFBOType = kES_EXT_MsToTexture_MSFBOType
     };
 
     enum BlitFramebufferFlags {
@@ -223,8 +219,7 @@ public:
     bool usesMSAARenderBuffers() const {
         return kNone_MSFBOType != fMSFBOType &&
                kES_IMG_MsToTexture_MSFBOType != fMSFBOType &&
-               kES_EXT_MsToTexture_MSFBOType != fMSFBOType &&
-               kMixedSamples_MSFBOType != fMSFBOType;
+               kES_EXT_MsToTexture_MSFBOType != fMSFBOType;
     }
 
     /**

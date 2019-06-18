@@ -193,7 +193,7 @@ GrStencilAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(const GrR
                                                                        int height) {
     static constexpr int kBits = 8;
     fStats.incStencilAttachmentCreates();
-    return new GrMockStencilAttachment(this, width, height, kBits, rt->numColorSamples());
+    return new GrMockStencilAttachment(this, width, height, kBits, rt->numSamples());
 }
 
 GrBackendTexture GrMockGpu::createBackendTexture(int w, int h,

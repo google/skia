@@ -98,7 +98,7 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
                                        rtc->colorSpaceInfo().refColorSpace());
 
     characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, rtc->origin(),
-                          rtc->colorSpaceInfo().config(), rtc->fsaaType(), rtc->numStencilSamples(),
+                          rtc->colorSpaceInfo().config(), rtc->numSamples(),
                           SkSurfaceCharacterization::Textureable(false),
                           SkSurfaceCharacterization::MipMapped(false),
                           SkSurfaceCharacterization::UsesGLFBO0(false),
@@ -150,8 +150,7 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
            characterization.width() == rtc->width() &&
            characterization.height() == rtc->height() &&
            characterization.colorType() == rtcColorType &&
-           characterization.fsaaType() == rtc->fsaaType() &&
-           characterization.stencilCount() == rtc->numStencilSamples() &&
+           characterization.sampleCount() == rtc->numSamples() &&
            SkColorSpace::Equals(characterization.colorSpace(),
                                 rtc->colorSpaceInfo().colorSpace()) &&
            characterization.surfaceProps() == rtc->surfaceProps();

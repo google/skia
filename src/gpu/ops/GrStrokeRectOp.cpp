@@ -163,10 +163,11 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                      GrFSAAType fsaaType, GrClampType clampType) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
+            GrClampType clampType) override {
         // This Op uses uniform (not vertex) color, so doesn't need to track wide color.
-        return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType,
+        return fHelper.finalizeProcessors(caps, clip, hasMixedSampledCoverage, clampType,
                                           GrProcessorAnalysisCoverage::kNone, &fColor, nullptr);
     }
 
@@ -409,11 +410,12 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                      GrFSAAType fsaaType, GrClampType clampType) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
+            GrClampType clampType) override {
         return fHelper.finalizeProcessors(
-                caps, clip, fsaaType, clampType, GrProcessorAnalysisCoverage::kSingleChannel,
-                &fRects.back().fColor, &fWideColor);
+                caps, clip, hasMixedSampledCoverage, clampType,
+                GrProcessorAnalysisCoverage::kSingleChannel, &fRects.back().fColor, &fWideColor);
     }
 
 private:
@@ -799,7 +801,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAAStrokeRectOp) {
     strokePaint.setStrokeJoin(SkPaint::kMiter_Join);
     SkStrokeRec strokeRec(strokePaint);
     GrAAType aaType = GrAAType::kNone;
-    if (fsaaType == GrFSAAType::kUnifiedMSAA) {
+    if (numSamples > 1) {
         aaType = random->nextBool() ? GrAAType::kMSAA : GrAAType::kNone;
     }
     return NonAAStrokeRectOp::Make(context, std::move(paint), viewMatrix, rect, strokeRec, aaType);

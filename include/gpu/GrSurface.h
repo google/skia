@@ -86,12 +86,6 @@ public:
     bool readOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kReadOnly; }
 
 protected:
-    void setHasMixedSamples() {
-        SkASSERT(this->asRenderTarget());
-        fSurfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
-    }
-    bool hasMixedSamples() const { return fSurfaceFlags & GrInternalSurfaceFlags::kMixedSampled; }
-
     void setGLRTFBOIDIs0() {
         SkASSERT(this->asRenderTarget());
         fSurfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
