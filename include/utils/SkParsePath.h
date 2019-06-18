@@ -14,7 +14,7 @@
 
 class SkString;
 
-class SkParsePath {
+class SK_API SkParsePath {
 public:
     static bool FromSVGString(const char str[], SkPath*);
     static void ToSVGString(const SkPath&, SkString*);
