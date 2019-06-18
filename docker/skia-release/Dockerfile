@@ -39,7 +39,8 @@ extra_ldflags = [  \n\
   "-L/usr/local/lib",  \n\
   "-Wl,-rpath",  \n\
   "-Wl,/usr/local/lib"  \n\
-] ' > /tmp/skia/skia/out/Static/args.gn
+]\n\
+werror = true ' > /tmp/skia/skia/out/Static/args.gn
 
 RUN cd /tmp/skia/skia \
   && python tools/git-sync-deps \
