@@ -60,6 +60,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDetachStencilFromMSAABuffersBeforeReadPixels = false;
     fDontSetBaseOrMaxLevelForExternalTextures = false;
     fProgramBinarySupport = false;
+    fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
     fFBFetchRequiresEnablePerSample = false;
 
@@ -649,8 +650,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (GR_IS_GR_GL(standard)) {
         fProgramBinarySupport = (version >= GR_GL_VER(4, 1));
+        fProgramParameterSupport = (version >= GR_GL_VER(4, 1));
     } else if (GR_IS_GR_GL_ES(standard)) {
-        fProgramBinarySupport = (version >= GR_GL_VER(3, 0));
+        fProgramBinarySupport =
+                (version >= GR_GL_VER(3, 0)) || ctxInfo.hasExtension("GL_OES_get_program_binary");
+        fProgramParameterSupport = (version >= GR_GL_VER(3, 0));
     } // Explicitly not supported in WebGL 2.0
       // https://www.khronos.org/registry/webgl/specs/2.0/#5.4
     if (fProgramBinarySupport) {

@@ -403,6 +403,7 @@ public:
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
     bool programBinarySupport() const { return fProgramBinarySupport; }
+    bool programParameterSupport() const { return fProgramParameterSupport; }
 
     bool samplerObjectSupport() const { return fSamplerObjectSupport; }
 
@@ -496,6 +497,7 @@ private:
     bool fUseBufferDataNullHint                : 1;
     bool fClearTextureSupport : 1;
     bool fProgramBinarySupport : 1;
+    bool fProgramParameterSupport : 1;
     bool fSamplerObjectSupport : 1;
     bool fFBFetchRequiresEnablePerSample : 1;
 

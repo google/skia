@@ -417,6 +417,9 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     if (glVer >= GR_GL_VER(4,1)) {
         GET_PROC(GetProgramBinary);
         GET_PROC(ProgramBinary);
+    }
+
+    if (glVer >= GR_GL_VER(4,1)) {
         GET_PROC(ProgramParameteri);
     }
 
