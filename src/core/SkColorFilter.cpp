@@ -407,6 +407,7 @@ public:
             auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
             ctx->inputs = fInputs->data();
             ctx->ninputs = fInputs->size() / 4;
+            ctx->shader_convention = false;
 
             SkAutoMutexExclusive ama(fByteCodeMutex);
             if (!fByteCode) {
