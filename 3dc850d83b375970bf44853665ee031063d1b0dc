@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4bcdc9e3_e346f38f",
+        "filename": "src/core/SkStrike.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-18T21:18:27Z",
+      "side": 1,
+      "message": "Does it  make sense to make this const, and return const SkGlyph*s?  Seems dicey to need to hold a mutex when looking these up, but drop it having returned non-const pointers.",
+      "range": {
+        "startLine": 193,
+        "startChar": 4,
+        "endLine": 193,
+        "endChar": 79
+      },
+      "revId": "3dc850d83b375970bf44853665ee031063d1b0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
