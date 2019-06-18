@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e01155fe_307346bb",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-18T17:19:01Z",
+      "side": 1,
+      "message": "funny spaces",
+      "range": {
+        "startLine": 464,
+        "startChar": 51,
+        "endLine": 464,
+        "endChar": 53
+      },
+      "revId": "f0d70c33f1d8f0ade77027ec93c5b16a48ccdd7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
