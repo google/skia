@@ -941,6 +941,20 @@ protected:
 
 private:
     static void CTPathElement(void *info, const CGPathElement *element);
+    template<bool APPLY_PREBLEND>
+    static void RGBToA8(const CGRGBPixel* SK_RESTRICT cgPixels, size_t cgRowBytes,
+                        const SkGlyph& glyph, const uint8_t* table8);
+    template<bool APPLY_PREBLEND>
+    static uint16_t RGBToLcd16(CGRGBPixel rgb, const uint8_t* tableR,
+                               const uint8_t* tableG,
+                               const uint8_t* tableB);
+    template<bool APPLY_PREBLEND>
+    static void RGBToLcd16(const CGRGBPixel* SK_RESTRICT cgPixels,
+                           size_t cgRowBytes,
+                           const SkGlyph& glyph,
+                           const uint8_t* tableR,
+                           const uint8_t* tableG,
+                           const uint8_t* tableB);
 
     Offscreen fOffscreen;
 
@@ -1271,9 +1285,10 @@ static inline uint8_t rgb_to_a8(CGRGBPixel rgb, const uint8_t* table8) {
 #endif
     return lum;
 }
+
 template<bool APPLY_PREBLEND>
-static void rgb_to_a8(const CGRGBPixel* SK_RESTRICT cgPixels, size_t cgRowBytes,
-                      const SkGlyph& glyph, const uint8_t* table8) {
+void SkScalerContext_Mac::RGBToA8(const CGRGBPixel* SK_RESTRICT cgPixels, size_t cgRowBytes,
+                                  const SkGlyph& glyph, const uint8_t* table8) {
     const int width = glyph.fWidth;
     size_t dstRB = glyph.rowBytes();
     uint8_t* SK_RESTRICT dst = (uint8_t*)glyph.fImage;
@@ -1288,9 +1303,9 @@ static void rgb_to_a8(const CGRGBPixel* SK_RESTRICT cgPixels, size_t cgRowBytes,
 }
 
 template<bool APPLY_PREBLEND>
-static inline uint16_t rgb_to_lcd16(CGRGBPixel rgb, const uint8_t* tableR,
-                                                    const uint8_t* tableG,
-                                                    const uint8_t* tableB) {
+uint16_t SkScalerContext_Mac::RGBToLcd16(CGRGBPixel rgb, const uint8_t* tableR,
+                                         const uint8_t* tableG,
+                                         const uint8_t* tableB) {
     U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(0xFF - ((rgb >> 16) & 0xFF), tableR);
     U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(0xFF - ((rgb >>  8) & 0xFF), tableG);
     U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(0xFF - ((rgb >>  0) & 0xFF), tableB);
@@ -1301,16 +1316,21 @@ static inline uint16_t rgb_to_lcd16(CGRGBPixel rgb, const uint8_t* tableR,
 #endif
     return SkPack888ToRGB16(r, g, b);
 }
+
 template<bool APPLY_PREBLEND>
-static void rgb_to_lcd16(const CGRGBPixel* SK_RESTRICT cgPixels, size_t cgRowBytes, const SkGlyph& glyph,
-                         const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
+void SkScalerContext_Mac::RGBToLcd16(const CGRGBPixel* SK_RESTRICT cgPixels,
+                                     size_t cgRowBytes,
+                                     const SkGlyph& glyph,
+                                     const uint8_t* tableR,
+                                     const uint8_t* tableG,
+                                     const uint8_t* tableB) {
     const int width = glyph.fWidth;
     size_t dstRB = glyph.rowBytes();
     uint16_t* SK_RESTRICT dst = (uint16_t*)glyph.fImage;
 
     for (int y = 0; y < glyph.fHeight; y++) {
         for (int i = 0; i < width; i++) {
-            dst[i] = rgb_to_lcd16<APPLY_PREBLEND>(cgPixels[i], tableR, tableG, tableB);
+            dst[i] = RGBToLcd16<APPLY_PREBLEND>(cgPixels[i], tableR, tableG, tableB);
         }
         cgPixels = SkTAddOffset<const CGRGBPixel>(cgPixels, cgRowBytes);
         dst = SkTAddOffset<uint16_t>(dst, dstRB);
@@ -1370,18 +1390,18 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     switch (glyph.fMaskFormat) {
         case SkMask::kLCD16_Format: {
             if (fPreBlend.isApplicable()) {
-                rgb_to_lcd16<true>(cgPixels, cgRowBytes, glyph,
-                                   fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+                RGBToLcd16<true>(cgPixels, cgRowBytes, glyph,
+                                 fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             } else {
-                rgb_to_lcd16<false>(cgPixels, cgRowBytes, glyph,
-                                    fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+                RGBToLcd16<false>(cgPixels, cgRowBytes, glyph,
+                                  fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             }
         } break;
         case SkMask::kA8_Format: {
             if (fPreBlend.isApplicable()) {
-                rgb_to_a8<true>(cgPixels, cgRowBytes, glyph, fPreBlend.fG);
+                RGBToA8<true>(cgPixels, cgRowBytes, glyph, fPreBlend.fG);
             } else {
-                rgb_to_a8<false>(cgPixels, cgRowBytes, glyph, fPreBlend.fG);
+                RGBToA8<false>(cgPixels, cgRowBytes, glyph, fPreBlend.fG);
             }
         } break;
         case SkMask::kBW_Format: {
