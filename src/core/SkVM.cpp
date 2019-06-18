@@ -7,6 +7,7 @@
 
 #include "include/core/SkString.h"
 #include "include/private/SkSpinlock.h"
+#include "include/private/SkTFitsIn.h"
 #include "include/private/SkThreadID.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkCpu.h"
@@ -413,20 +414,8 @@ namespace skvm {
     // Handy references for x86-64 instruction encoding:
     // https://wiki.osdev.org/X86-64_Instruction_Encoding
     // https://www-user.tu-chemnitz.de/~heha/viewchm.php/hs/x86.chm/x64.htm
-
-    // Order matters... GP64, XMM, YMM values match 4-bit register encoding for each.
-    enum class GP64 {
-        rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi,
-        r8 , r9,  r10, r11, r12, r13, r14, r15,
-    };
-    enum class XMM {
-        xmm0, xmm1, xmm2 , xmm3 , xmm4 , xmm5 , xmm6 , xmm7 ,
-        xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15,
-    };
-    enum class YMM {
-        ymm0, ymm1, ymm2 , ymm3 , ymm4 , ymm5 , ymm6 , ymm7 ,
-        ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15,
-    };
+    // https://www-user.tu-chemnitz.de/~heha/viewchm.php/hs/x86.chm/x86.htm
+    // http://ref.x86asm.net/coder64.html
 
     // Encodes the arguments of an opcode.
     struct ModRM {
@@ -483,13 +472,19 @@ namespace skvm {
     void*  Assembler::code() const { return (void*)X->getCode(); }
     size_t Assembler::size() const { return        X->getSize(); }
 
-    void Assembler::byte(uint8_t b) { X->db(b); }
+
+    void Assembler::byte(const void* p, int n) {
+        X->db((const uint8_t*)p, (size_t)n);
+    }
+
+    void Assembler::byte(uint8_t b) { this->byte(&b, 1); }
 
     template <typename... Rest>
     void Assembler::byte(uint8_t first, Rest... rest) {
         this->byte(first);
         this->byte(rest...);
     }
+
 
     void Assembler::nop() { this->byte(0x90); }
     void Assembler::align(int mod) {
@@ -500,6 +495,25 @@ namespace skvm {
 
     void Assembler::vzeroupper() { this->byte(0xc5, 0xf8, 0x77); }
     void Assembler::ret() { this->byte(0xc3); }
+
+    void Assembler::sub(GP64 dst, int imm) {
+        int opcode = 0b0000'0000;   // opcode 0 does all sorts of things... add, sub, xor, cmp
+        opcode    |= 0b0000'0001;   // low bit set for 64-bit operands
+        opcode    |= 0b1000'0000;   // top bit set for instructions with any immediate
+
+        int imm_bytes = 4;
+        if (SkTFitsIn<int8_t>(imm)) {
+            imm_bytes = 1;
+            opcode |= 0b0000'0010;  // second bit set for 8-bit immediate
+        }
+
+        int opcode_ext = 5;  // subtract
+
+        this->byte(REX{1,dst >= GP64::r8,0,0}.bits);
+        this->byte(opcode);
+        this->byte(ModRM{ModRM::Direct/*don't understand yet*/, opcode_ext, (int)dst}.bits);
+        this->byte(&imm, imm_bytes);
+    }
 
     static bool can_jit(int regs, int nargs) {
         return true
@@ -523,8 +537,9 @@ namespace skvm {
     #else
         // These registers are used to pass the first 6 arguments,
         // so if we stick to these we need not push, pop, spill, or move anything around.
-        Xbyak::Reg N = X.rdi,
-               arg[] = { X.rsi, X.rdx, X.rcx, X.r8, X.r9 };
+        Assembler::GP64 N = Assembler::GP64::rdi;
+        Xbyak::Reg arg[] = { X.rsi, X.rdx, X.rcx, X.r8, X.r9 };
+
 
         // All 16 ymm registers are available as scratch, keeping 15 as a temporary for us.
         Xbyak::Ymm r[] = {
@@ -672,7 +687,7 @@ namespace skvm {
         for (int i = 0; i < nargs; i++) {
             X.add(arg[i], K*(int)strides[i]);
         }
-        X.sub(N, K);
+        a.sub(N, K);
         X.jne("loop");
 
         a.vzeroupper();

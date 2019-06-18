@@ -192,7 +192,8 @@ static void test_asm(skiatest::Reporter* r, Fn&& fn, std::initializer_list<uint8
     auto got = (const uint8_t*)a.code(),
          want = expected.begin();
     for (int i = 0; i < (int)std::min(a.size(), expected.size()); i++) {
-        REPORTER_ASSERT(r, got[i] == want[i]);
+        REPORTER_ASSERT(r, got[i] == want[i],
+                        "byte %d was %02x, want %02x", i, got[i], want[i]);
     }
 }
 
@@ -213,6 +214,18 @@ DEF_TEST(SkVM_Assembler, r) {
     },{
         0xc3,
         0x90, 0x90, 0x90,
+    });
+
+    test_asm(r, [&](skvm::Assembler& a) {
+        a.sub(skvm::Assembler::GP64::rax, 32);      // Always good to test rax.
+        a.sub(skvm::Assembler::GP64::rdi, 8);       // Last 0x48 REX
+        a.sub(skvm::Assembler::GP64::r8 , 4);       // First 0x4c REX
+        a.sub(skvm::Assembler::GP64::r8 , 1000000); // Requires 4 byte immediate.
+    },{
+        0x48, 0x83, 0b11'101'000, 0x20,
+        0x48, 0x83, 0b11'101'111, 0x08,
+        0x4c, 0x83, 0b11'101'000, 0x04,
+        0x4c, 0x81, 0b11'101'000, 0x40, 0x42, 0x0f, 0x00,
     });
 }
 
