@@ -71,10 +71,9 @@ static void cleanup_backend(GrContext* context, const GrBackendTexture& backendT
 // Basic test that two proxies with overlapping intervals and compatible descriptors are
 // assigned different GrSurfaces.
 static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider,
-                         GrResourceCache* resourceCache,
                          sk_sp<GrSurfaceProxy> p1, sk_sp<GrSurfaceProxy> p2,
                          bool expectedResult) {
-    GrDeinstantiateProxyTracker deinstantiateTracker(resourceCache);
+    GrDeinstantiateProxyTracker deinstantiateTracker;
     GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker SkDEBUGCODE(, 1));
 
     alloc.addInterval(p1.get(), 0, 4, GrResourceAllocator::ActualUse::kYes);
@@ -99,10 +98,9 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
 // Test various cases when two proxies do not have overlapping intervals.
 // This mainly acts as a test of the ResourceAllocator's free pool.
 static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider,
-                             GrResourceCache* resourceCache,
                              sk_sp<GrSurfaceProxy> p1, sk_sp<GrSurfaceProxy> p2,
                              bool expectedResult) {
-    GrDeinstantiateProxyTracker deinstantiateTracker(resourceCache);
+    GrDeinstantiateProxyTracker deinstantiateTracker;
     GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker SkDEBUGCODE(, 1));
 
     alloc.incOps();
@@ -133,7 +131,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     const GrCaps* caps = ctxInfo.grContext()->priv().caps();
     GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
     GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
-    GrResourceCache* resourceCache = ctxInfo.grContext()->priv().getResourceCache();
 
     struct TestCase {
         ProxyParams   fP1;
@@ -173,8 +170,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     for (auto test : gOverlappingTests) {
         sk_sp<GrSurfaceProxy> p1 = make_deferred(proxyProvider, caps, test.fP1);
         sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, caps, test.fP2);
-        overlap_test(reporter, resourceProvider, resourceCache,
-                     std::move(p1), std::move(p2), test.fExpectation);
+        overlap_test(reporter, resourceProvider, std::move(p1), std::move(p2), test.fExpectation);
     }
 
     int k2 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount(
@@ -219,8 +215,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
             continue; // creation can fail (i.e., for msaa4 on iOS)
         }
 
-        non_overlap_test(reporter, resourceProvider, resourceCache,
-                         std::move(p1), std::move(p2), test.fExpectation);
+        non_overlap_test(reporter, resourceProvider, std::move(p1), std::move(p2),
+                         test.fExpectation);
     }
 
     {
@@ -233,8 +229,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         sk_sp<GrSurfaceProxy> p1 = make_backend(ctxInfo.grContext(), t[0].fP1, &backEndTex);
         sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, caps, t[0].fP2);
 
-        non_overlap_test(reporter, resourceProvider, resourceCache,
-                         std::move(p1), std::move(p2), t[0].fExpectation);
+        non_overlap_test(reporter, resourceProvider, std::move(p1), std::move(p2),
+                         t[0].fExpectation);
 
         cleanup_backend(ctxInfo.grContext(), backEndTex);
     }
@@ -305,7 +301,6 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
-    GrResourceCache* resourceCache = ctxInfo.grContext()->priv().getResourceCache();
     ProxyParams texParams;
     texParams.fFit = SkBackingFit::kExact;
     texParams.fOrigin = kTopLeft_GrSurfaceOrigin;
@@ -324,7 +319,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
     auto p2 = make_lazy(proxyProvider, caps, rtParams, true);
     auto p3 = make_lazy(proxyProvider, caps, rtParams, false);
 
-    GrDeinstantiateProxyTracker deinstantiateTracker(resourceCache);
+    GrDeinstantiateProxyTracker deinstantiateTracker;
     {
         GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker SkDEBUGCODE(, 1));
         alloc.addInterval(p0.get(), 0, 1, GrResourceAllocator::ActualUse::kNo);
@@ -355,7 +350,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
     const GrCaps* caps = context->priv().caps();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
-    GrResourceCache* resourceCache = context->priv().getResourceCache();
 
     int origMaxNum;
     size_t origMaxBytes;
@@ -374,7 +368,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
         sk_sp<GrSurfaceProxy> p3 = make_deferred(proxyProvider, caps, params);
         sk_sp<GrSurfaceProxy> p4 = make_deferred(proxyProvider, caps, params);
 
-        GrDeinstantiateProxyTracker deinstantiateTracker(resourceCache);
+        GrDeinstantiateProxyTracker deinstantiateTracker;
         GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker SkDEBUGCODE(, 2));
 
         alloc.addInterval(p1.get(), 0, 0, GrResourceAllocator::ActualUse::kYes);

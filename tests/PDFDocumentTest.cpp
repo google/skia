@@ -244,6 +244,7 @@ DEF_TEST(SkPDF_multiple_pages, r) {
 // Test to make sure that jobs launched by PDF backend don't cause a segfault
 // after calling abort().
 DEF_TEST(SkPDF_abort_jobs, rep) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_abort_jobs, rep);
     SkBitmap b;
     b.allocN32Pixels(612, 792);
     b.eraseColor(0x4F9643A0);
