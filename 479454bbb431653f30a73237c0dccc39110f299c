@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5299b3fe_03c20e8c",
+        "filename": "third_party/harfbuzz/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-18T20:27:38Z",
+      "side": 1,
+      "message": "We weren\u0027t setting this so we didn\u0027t actually get atomic ops (except on Windows, where this define has no effect).",
+      "range": {
+        "startLine": 28,
+        "startChar": 7,
+        "endLine": 28,
+        "endChar": 35
+      },
+      "revId": "479454bbb431653f30a73237c0dccc39110f299c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
