@@ -133,7 +133,6 @@ SkSpan<SkPoint> SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint 
     return {advances, glyphIDs.size()};
 }
 
-
 const void* SkStrike::prepareImage(SkGlyph* glyph) {
     if (glyph->setImage(&fAlloc, fScalerContext.get())) {
         fMemoryUsed += glyph->imageSize();
