@@ -10,6 +10,7 @@
 
 #include "modules/particles/include/SkReflected.h"
 
+#include "include/core/SkString.h"
 #include "include/private/SkTArray.h"
 #include "src/utils/SkJSON.h"
 #include "src/utils/SkJSONWriter.h"

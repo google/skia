@@ -501,6 +501,7 @@ if (skia_compile_processors) {
       "src/sksl/SkSLMain.cpp",
     ]
     sources += skia_sksl_sources
+    sources += skia_sksl_gpu_sources
     include_dirs = [ "." ]
     deps = [
       ":run_sksllex",
@@ -578,7 +579,8 @@ optional("gpu") {
   public_configs = []
   public_deps = []
 
-  sources = skia_gpu_sources + skia_sksl_sources + skia_gpu_processor_outputs
+  sources =
+      skia_gpu_sources + skia_sksl_gpu_sources + skia_gpu_processor_outputs
   if (!skia_enable_ccpr) {
     sources -= skia_ccpr_sources
     sources += [ "src/gpu/ccpr/GrCoverageCountingPathRenderer_none.cpp" ]
@@ -633,11 +635,6 @@ optional("gpu") {
             [ "//third_party/vulkan_loader_and_validation_layers:vulkan" ]
       }
     }
-  }
-
-  if (skia_enable_spirv_validation) {
-    deps += [ "//third_party/spirv-tools" ]
-    public_defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
   }
 
   cflags_objcc = []
@@ -916,6 +913,7 @@ component("skia") {
   }
   sources += skia_effects_sources
   sources += skia_effects_imagefilter_sources
+  sources += skia_sksl_sources
   sources += [
     "src/android/SkAndroidFrameworkUtils.cpp",
     "src/android/SkAnimatedImage.cpp",
@@ -1046,6 +1044,11 @@ component("skia") {
   if (is_fuchsia) {
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
   }
+
+  if (skia_enable_spirv_validation) {
+    deps += [ "//third_party/spirv-tools" ]
+    defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
+  }
 }
 
 # DebugCanvas used in experimental/wasm-skp-debugger
@@ -1139,6 +1142,16 @@ group("modules") {
     "modules/particles",
     "modules/skottie",
     "modules/skshaper",
+  ]
+}
+
+executable("cpu_modules") {
+  sources = [
+    "tools/cpu_modules.cpp",
+  ]
+  deps = [
+    ":skia",
+    "modules/particles",
   ]
 }
 
