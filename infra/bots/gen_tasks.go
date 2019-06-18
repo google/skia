@@ -1028,7 +1028,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name string) string {
 // should add as a dependency.
 func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
 	task := kitchenTask(name, "android_compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
-	timeout(task, time.Hour)
+	timeout(task, 2*time.Hour)
 	b.MustAddTask(name, task)
 	return name
 }
