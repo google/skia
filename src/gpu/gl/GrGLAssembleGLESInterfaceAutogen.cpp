@@ -437,6 +437,12 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     if (glVer >= GR_GL_VER(3,0)) {
         GET_PROC(GetProgramBinary);
         GET_PROC(ProgramBinary);
+    } else if (extensions.has("GL_OES_get_program_binary")) {
+        GET_PROC_SUFFIX(GetProgramBinary, OES);
+        GET_PROC_SUFFIX(ProgramBinary, OES);
+    }
+
+    if (glVer >= GR_GL_VER(3,0)) {
         GET_PROC(ProgramParameteri);
     }
 

@@ -564,13 +564,26 @@
     ],
   },
 
+  // GetProgramBinary and ProgramBinary are available with an ES2 extension...
+  {
+    "GL":    [{"min_version": [4, 1], "ext": "<core>"}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_OES_get_program_binary"}],
+    "WebGL": null, // explicitly not supported in WebGL 2.0
+
+    "functions": [
+      "GetProgramBinary", "ProgramBinary",
+    ],
+  },
+
+  // ... but the related ProgramParameteri is only in ES3
   {
     "GL":    [{"min_version": [4, 1], "ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
     "WebGL": null, // explicitly not supported in WebGL 2.0
 
     "functions": [
-      "GetProgramBinary", "ProgramBinary", "ProgramParameteri",
+      "ProgramParameteri",
     ],
   },
 
