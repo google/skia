@@ -411,7 +411,8 @@ namespace skvm {
     // ~~~~ Program::eval() and co. ~~~~ //
 
     #if defined(SKVM_JIT)
-        struct Program::JIT : Xbyak::CodeGenerator {
+        struct Program::JIT {
+
             // 8 float values in a ymm register.
             static constexpr int K = 8;
 
@@ -421,6 +422,29 @@ namespace skvm {
                     && regs  <= 15   // All 16 ymm registers, reserving one for us as tmp.
                     && nargs <=  5;  // We can increase this if we push/pop GP registers.
             }
+
+            void*  code() const { return (void*)X.getCode(); }
+            size_t size() const { return        X.getSize(); }
+
+            void byte(uint8_t b) { X.db(b); }
+
+            template <typename... Rest>
+            void byte(uint8_t first, Rest... rest) {
+                this->byte(first);
+                this->byte(rest...);
+            }
+
+            void vzeroupper() { this->byte(0xc5, 0xf8, 0x77); }
+            void ret() { this->byte(0xc3); }
+            void nop() { this->byte(0x90); }   // xchg eax,eax
+
+            void align(int mod) {
+                while (this->size() % mod) {
+                    this->nop();
+                }
+            }
+
+
 
             JIT(const std::vector<Program::Instruction>& instructions, int regs, int loop,
                 size_t strides[], int nargs)
@@ -432,14 +456,14 @@ namespace skvm {
             #else
                 // These registers are used to pass the first 6 arguments,
                 // so if we stick to these we need not push, pop, spill, or move anything around.
-                Xbyak::Reg N = rdi,
-                       arg[] = { rsi, rdx, rcx, r8, r9 };
+                Xbyak::Reg N = X.rdi,
+                       arg[] = { X.rsi, X.rdx, X.rcx, X.r8, X.r9 };
 
                 // All 16 ymm registers are available as scratch, keeping 15 as a temporary for us.
                 Xbyak::Ymm r[] = {
-                    ymm0, ymm1, ymm2 , ymm3 , ymm4 , ymm5 , ymm6 , ymm7 ,
-                    ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14,
-                }, tmp = ymm15;
+                    X.ymm0, X.ymm1, X.ymm2 , X.ymm3 , X.ymm4 , X.ymm5 , X.ymm6 , X.ymm7,
+                    X.ymm8, X.ymm9, X.ymm10, X.ymm11, X.ymm12, X.ymm13, X.ymm14,
+                }, tmp = X.ymm15;
 
              #endif
 
@@ -455,7 +479,7 @@ namespace skvm {
 
                 for (int i = 0; i < (int)instructions.size(); i++) {
                     if (i == loop) {
-                        L("loop");
+                        X.L("loop");
                     }
                     const Instruction& inst = instructions[i];
                     Op  op = inst.op;
@@ -473,67 +497,67 @@ namespace skvm {
                         case Op::store8:
                             if (SkCpu::Supports(SkCpu::SKX)) {
                                 // One stop shop!  Pack 8x I32 -> U8 and store to ptr.
-                                vpmovusdb(ptr[arg[y.imm]], r[x]);
+                                X.vpmovusdb(X.ptr[arg[y.imm]], r[x]);
                             } else {
-                                vpackusdw(tmp, r[x], r[x]);      // pack 32-bit -> 16-bit
-                                vpermq   (tmp, tmp, 0xd8);       // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
-                                vpackuswb(tmp, tmp, tmp);        // pack 16-bit -> 8-bit
-                                vmovq(ptr[arg[y.imm]],           // store low 8 bytes
-                                      Xbyak::Xmm{tmp.getIdx()}); // (arg must be an xmm register)
+                                X.vpackusdw(tmp, r[x], r[x]); // pack 32-bit -> 16-bit
+                                X.vpermq   (tmp, tmp, 0xd8);  // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
+                                X.vpackuswb(tmp, tmp, tmp);   // pack 16-bit -> 8-bit
+                                X.vmovq(X.ptr[arg[y.imm]],         // store low 8 bytes
+                                        Xbyak::Xmm{tmp.getIdx()}); // (arg must be an xmm)
                             }
                             break;
 
-                        case Op::store32: vmovups(ptr[arg[y.imm]], r[x]); break;
+                        case Op::store32: X.vmovups(X.ptr[arg[y.imm]], r[x]); break;
 
-                        case Op::load8:  vpmovzxbd(r[d], ptr[arg[y.imm]]); break;
-                        case Op::load32: vmovups  (r[d], ptr[arg[y.imm]]); break;
+                        case Op::load8:  X.vpmovzxbd(r[d], X.ptr[arg[y.imm]]); break;
+                        case Op::load32: X.vmovups  (r[d], X.ptr[arg[y.imm]]); break;
 
                         case Op::splat: data4.push_back(Data4{Xbyak::Label(), y.imm});
-                                        vbroadcastss(r[d], ptr[rip + data4.back().label]);
+                                        X.vbroadcastss(r[d], X.ptr[X.rip + data4.back().label]);
                                         break;
 
-                        case Op::add_f32: vaddps(r[d], r[x], r[y.id]); break;
-                        case Op::sub_f32: vsubps(r[d], r[x], r[y.id]); break;
-                        case Op::mul_f32: vmulps(r[d], r[x], r[y.id]); break;
-                        case Op::div_f32: vdivps(r[d], r[x], r[y.id]); break;
+                        case Op::add_f32: X.vaddps(r[d], r[x], r[y.id]); break;
+                        case Op::sub_f32: X.vsubps(r[d], r[x], r[y.id]); break;
+                        case Op::mul_f32: X.vmulps(r[d], r[x], r[y.id]); break;
+                        case Op::div_f32: X.vdivps(r[d], r[x], r[y.id]); break;
                         case Op::mad_f32:
-                            if (d == x   ) { vfmadd132ps(r[x   ], r[z.id], r[y.id]); } else
-                            if (d == y.id) { vfmadd213ps(r[y.id], r[x   ], r[z.id]); } else
-                            if (d == z.id) { vfmadd231ps(r[z.id], r[x   ], r[y.id]); } else
-                                           { vmulps(tmp, r[x], r[y.id]);
-                                             vaddps(r[d], tmp, r[z.id]); }
+                            if (d == x   ) { X.vfmadd132ps(r[x   ], r[z.id], r[y.id]); } else
+                            if (d == y.id) { X.vfmadd213ps(r[y.id], r[x   ], r[z.id]); } else
+                            if (d == z.id) { X.vfmadd231ps(r[z.id], r[x   ], r[y.id]); } else
+                                           { X.vmulps(tmp, r[x], r[y.id]);
+                                             X.vaddps(r[d], tmp, r[z.id]); }
                             break;
 
-                        case Op::add_i32: vpaddd (r[d], r[x], r[y.id]); break;
-                        case Op::sub_i32: vpsubd (r[d], r[x], r[y.id]); break;
-                        case Op::mul_i32: vpmulld(r[d], r[x], r[y.id]); break;
+                        case Op::add_i32: X.vpaddd (r[d], r[x], r[y.id]); break;
+                        case Op::sub_i32: X.vpsubd (r[d], r[x], r[y.id]); break;
+                        case Op::mul_i32: X.vpmulld(r[d], r[x], r[y.id]); break;
 
-                        case Op::sub_i16x2: vpsubw (r[d], r[x], r[y.id]); break;
-                        case Op::mul_i16x2: vpmullw(r[d], r[x], r[y.id]); break;
-                        case Op::shr_i16x2: vpsrlw (r[d], r[x],   y.imm); break;
+                        case Op::sub_i16x2: X.vpsubw (r[d], r[x], r[y.id]); break;
+                        case Op::mul_i16x2: X.vpmullw(r[d], r[x], r[y.id]); break;
+                        case Op::shr_i16x2: X.vpsrlw (r[d], r[x],   y.imm); break;
 
-                        case Op::bit_and: vandps(r[d], r[x], r[y.id]); break;
-                        case Op::bit_or : vorps (r[d], r[x], r[y.id]); break;
-                        case Op::bit_xor: vxorps(r[d], r[x], r[y.id]); break;
+                        case Op::bit_and: X.vandps(r[d], r[x], r[y.id]); break;
+                        case Op::bit_or : X.vorps (r[d], r[x], r[y.id]); break;
+                        case Op::bit_xor: X.vxorps(r[d], r[x], r[y.id]); break;
 
-                        case Op::shl: vpslld(r[d], r[x], y.imm); break;
-                        case Op::shr: vpsrld(r[d], r[x], y.imm); break;
-                        case Op::sra: vpsrad(r[d], r[x], y.imm); break;
+                        case Op::shl: X.vpslld(r[d], r[x], y.imm); break;
+                        case Op::shr: X.vpsrld(r[d], r[x], y.imm); break;
+                        case Op::sra: X.vpsrad(r[d], r[x], y.imm); break;
 
                         case Op::extract: if (y.imm) {
-                                              vpsrld(tmp, r[x], y.imm);
-                                              vandps(r[d], tmp, r[z.id]);
+                                              X.vpsrld(tmp, r[x], y.imm);
+                                              X.vandps(r[d], tmp, r[z.id]);
                                           } else {
-                                              vandps(r[d], r[x], r[z.id]);
+                                              X.vandps(r[d], r[x], r[z.id]);
                                           }
                                           break;
 
-                        case Op::pack: vpslld(tmp, r[y.id], z.imm);
-                                       vorps (r[d], tmp, r[x]);
+                        case Op::pack: X.vpslld(tmp, r[y.id], z.imm);
+                                       X.vorps (r[d], tmp, r[x]);
                                        break;
 
-                        case Op::to_f32: vcvtdq2ps (r[d], r[x]); break;
-                        case Op::to_i32: vcvttps2dq(r[d], r[x]); break;
+                        case Op::to_f32: X.vcvtdq2ps (r[d], r[x]); break;
+                        case Op::to_i32: X.vcvttps2dq(r[d], r[x]); break;
 
                         case Op::bytes: {
                             if (vpshufb_masks.end() == vpshufb_masks.find(y.imm)) {
@@ -573,33 +597,37 @@ namespace skvm {
                                                                          p[0], p[1], p[2], p[3]}});
                                 vpshufb_masks[y.imm] = data32.size() - 1;
                             }
-                            vpshufb(r[d], r[x], ptr[rip + data32[vpshufb_masks[y.imm]].label]);
+                            X.vpshufb(r[d], r[x],
+                                      X.ptr[X.rip + data32[vpshufb_masks[y.imm]].label]);
                         } break;
                     }
                 }
 
                 for (int i = 0; i < nargs; i++) {
-                    add(arg[i], K*(int)strides[i]);
+                    X.add(arg[i], K*(int)strides[i]);
                 }
-                sub(N, K);
-                jne("loop");
+                X.sub(N, K);
+                X.jne("loop");
 
                 vzeroupper();
                 ret();
 
                 for (auto data : data4) {
                     align(4);
-                    L(data.label);
-                    dd(data.bits);
+                    X.L(data.label);
+                    X.dd(data.bits);
                 }
                 for (auto data : data32) {
                     align(32);
-                    L(data.label);
+                    X.L(data.label);
                     for (int i = 0; i < 8; i++) {
-                        dd(data.bits[i]);
+                        X.dd(data.bits[i]);
                     }
                 }
             }
+
+        private:
+            Xbyak::CodeGenerator X;
         };
     #endif
 
@@ -615,7 +643,7 @@ namespace skvm {
             static SkSpinlock dump_lock;
             SkAutoSpinlock lock(dump_lock);
 
-            uint32_t hash = SkOpts::hash(fJIT->getCode(), fJIT->getSize());
+            uint32_t hash = SkOpts::hash(fJIT->code(), fJIT->size());
 
             SkString name = SkStringPrintf("skvm-jit-%u", hash);
 
@@ -678,28 +706,30 @@ namespace skvm {
                 uint32_t pid, tid;
                 uint64_t vma/*???*/, code_addr, code_size, id;
             } load = {
-                0/*code load*/, (uint32_t)(sizeof(CodeLoad) + name.size() + 1 + fJIT->getSize()),
+                0/*code load*/, (uint32_t)(sizeof(CodeLoad) + name.size() + 1 + fJIT->size()),
                 timestamp_ns(),
 
                 (uint32_t)getpid(), (uint32_t)SkGetThreadID(),
-                (uint64_t)fJIT->getCode(), (uint64_t)fJIT->getCode(), fJIT->getSize(), hash,
+                (uint64_t)fJIT->code(), (uint64_t)fJIT->code(), fJIT->size(), hash,
             };
 
             // Write the header, the JIT'd function name, and the JIT'd code itself.
             fwrite(&load, sizeof(load), 1, jitdump);
             fwrite(name.c_str(), 1, name.size(), jitdump);
             fwrite("\0", 1, 1, jitdump);
-            fwrite(fJIT->getCode(), 1, fJIT->getSize(), jitdump);
+            fwrite(fJIT->code(), 1, fJIT->size(), jitdump);
         #endif
         }
 
         const int jitN = (n / JIT::K) * JIT::K;
         if (fJIT && jitN > 0) {
             bool ran = true;
+
+            void* fn = fJIT->code();
             switch (nargs) {
-                case 0: fJIT->getCode<void(*)(int              )>()(jitN                  ); break;
-                case 1: fJIT->getCode<void(*)(int, void*       )>()(jitN, args[0]         ); break;
-                case 2: fJIT->getCode<void(*)(int, void*, void*)>()(jitN, args[0], args[1]); break;
+                case 0: ((void(*)(int              ))fn)(jitN                  ); break;
+                case 1: ((void(*)(int, void*       ))fn)(jitN, args[0]         ); break;
+                case 2: ((void(*)(int, void*, void*))fn)(jitN, args[0], args[1]); break;
                 default: ran = false; break;
             }
             if (ran) {
