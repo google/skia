@@ -1,0 +1,9 @@
+{
+  'variables': {
+    'files': [
+      '../../go.mod',
+      '../../go.sum',
+      '../../../.gclient',
+    ],
+  },
+}
