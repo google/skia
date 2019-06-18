@@ -37,6 +37,9 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
         return;
     }
 
+    if (caps->supportedReadPixelsColorType(config, grCT) != grCT) {
+        return;
+    }
 
     GrBackendTexture backendTex;
 
@@ -56,12 +59,6 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
         memset(expectedPixels.writable_addr32(0, 0), 0, allocSize);
     }
     if (!backendTex.isValid()) {
-        return;
-    }
-    // skbug.com/9165
-    auto supportedRead =
-            caps->supportedReadPixelsColorType(config, backendTex.getBackendFormat(), grCT);
-    if (supportedRead.fColorType != grCT || supportedRead.fSwizzle != GrSwizzle("rgba")) {
         return;
     }
 
