@@ -13,7 +13,32 @@
 #include <unordered_map>
 #include <vector>
 
+namespace Xbyak { class CodeGenerator; }
+
 namespace skvm {
+
+    class Assembler {
+    public:
+        Assembler();
+        ~Assembler();
+
+        void*  code() const;
+        size_t size() const;
+
+        void nop();
+        void align(int mod);
+
+        void vzeroupper();
+        void ret();
+
+        void byte(uint8_t);
+
+        template <typename... Rest>
+        void byte(uint8_t, Rest...);
+
+    //private:
+        std::unique_ptr<Xbyak::CodeGenerator> X;
+    };
 
     enum class Op : uint8_t {
         store8, store32,
@@ -64,10 +89,10 @@ namespace skvm {
         std::vector<Instruction> fInstructions;
         int                      fRegs;
         int                      fLoop;
-
     #if defined(SKVM_JIT)
-        struct JIT;
-        mutable std::unique_ptr<JIT> fJIT;
+        // TODO: what a mess, clean up
+        mutable int                        fJITMask = 0;
+        mutable std::unique_ptr<Assembler> fJIT;
     #endif
     };
 
