@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5d22db07_576e2361",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 612,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "986e763f_168ba1d0",
+      "range": {
+        "startLine": 612,
+        "startChar": 78,
+        "endLine": 612,
+        "endChar": 85
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dbb62979_02ba2b61",
         "filename": "src/gpu/GrRenderTargetContext.h",
         "patchSetId": 14
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f7ed927c_524d535b",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbb62979_02ba2b61",
+      "range": {
+        "startLine": 561,
+        "startChar": 71,
+        "endLine": 561,
+        "endChar": 78
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aba3dc96_71302ae5",
         "filename": "src/gpu/geometry/GrQuadUtils.cpp",
         "patchSetId": 14
@@ -62,6 +110,24 @@
       "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c02a3e57_f79578a5",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:02:56Z",
+      "side": 1,
+      "message": "That is probably true, added here and in crop_rect_edge (since it also directly accesses array elements based on v*)",
+      "parentUuid": "aba3dc96_71302ae5",
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "4bb859a8_7c5f2c75",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:02:56Z",
+      "side": 1,
+      "message": "Yep",
+      "parentUuid": "b703867b_9bf471f4",
+      "range": {
+        "startLine": 32,
+        "startChar": 31,
+        "endLine": 32,
+        "endChar": 42
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d98c098_752ad876",
         "filename": "src/gpu/geometry/GrQuadUtils.cpp",
         "patchSetId": 14
@@ -108,6 +198,30 @@
       "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9ec4bb9_8222bd80",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d98c098_752ad876",
+      "range": {
+        "startLine": 59,
+        "startChar": 8,
+        "endLine": 59,
+        "endChar": 28
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "f4691f36_398bf09f",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:02:56Z",
+      "side": 1,
+      "message": "Updated so that its arg names align with the header.",
+      "parentUuid": "2c2c497d_3c19c151",
+      "range": {
+        "startLine": 188,
+        "startChar": 87,
+        "endLine": 188,
+        "endChar": 93
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc3a4a8f_e436bd92",
         "filename": "src/gpu/geometry/GrQuadUtils.h",
         "patchSetId": 14
@@ -154,6 +292,30 @@
       "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7edaffab_19a21e68",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:02:56Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "dc3a4a8f_e436bd92",
+      "range": {
+        "startLine": 25,
+        "startChar": 13,
+        "endLine": 25,
+        "endChar": 17
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -203,6 +365,54 @@
     },
     {
       "key": {
+        "uuid": "d900c96f_1cdfd2bd",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:02:56Z",
+      "side": 1,
+      "message": "Yep!",
+      "parentUuid": "dc500310_404ee29a",
+      "range": {
+        "startLine": 31,
+        "startChar": 39,
+        "endLine": 31,
+        "endChar": 42
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3604234c_07fbfc21",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1051267a_bfb830c3",
+      "range": {
+        "startLine": 31,
+        "startChar": 23,
+        "endLine": 31,
+        "endChar": 29
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82f5ff1b_ae751bc2",
         "filename": "src/gpu/geometry/GrQuadUtils.h",
         "patchSetId": 14
@@ -226,6 +436,30 @@
     },
     {
       "key": {
+        "uuid": "899df3d6_c0b11be3",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "82f5ff1b_ae751bc2",
+      "range": {
+        "startLine": 35,
+        "startChar": 84,
+        "endLine": 35,
+        "endChar": 93
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b8a24491_501c8d43",
         "filename": "tests/GrQuadCropTest.cpp",
         "patchSetId": 14
@@ -246,6 +480,30 @@
       "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8162f93d_9ee20c7f",
+        "filename": "tests/GrQuadCropTest.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-18T13:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8a24491_501c8d43",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "5b1f2069c13086cd1e221dba335de92a981046da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
