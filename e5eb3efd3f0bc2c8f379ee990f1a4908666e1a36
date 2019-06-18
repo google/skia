@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ae588e06_f48e596e",
+        "filename": "modules/skparagraph/include/FontCollection.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-18T17:43:02Z",
+      "side": 1,
+      "message": "No, it should not.",
+      "parentUuid": "3ab2c046_7bb6d199",
+      "range": {
+        "startLine": 5,
+        "startChar": 9,
+        "endLine": 5,
+        "endChar": 28
+      },
+      "revId": "e5eb3efd3f0bc2c8f379ee990f1a4908666e1a36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "84ab7107_e0fa10b1",
         "filename": "modules/skparagraph/src/FontResolver.cpp",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "e5eb3efd3f0bc2c8f379ee990f1a4908666e1a36",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b19c4d0_7c9f7643",
+        "filename": "modules/skparagraph/src/FontResolver.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-18T17:43:02Z",
+      "side": 1,
+      "message": "Do we have a tool that sorts all includes and gets rid of all the unused?\nCLion does not do it properly...",
+      "parentUuid": "84ab7107_e0fa10b1",
+      "range": {
+        "startLine": 2,
+        "startChar": 9,
+        "endLine": 2,
+        "endChar": 49
+      },
+      "revId": "e5eb3efd3f0bc2c8f379ee990f1a4908666e1a36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "6fa3757e_c12a411c",
+        "filename": "modules/skparagraph/src/FontResolver.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-18T17:43:02Z",
+      "side": 1,
+      "message": "Right. I keep fighting CLion for this...",
+      "parentUuid": "29d0ef0c_0af31791",
+      "range": {
+        "startLine": 5,
+        "startChar": 9,
+        "endLine": 5,
+        "endChar": 28
+      },
+      "revId": "e5eb3efd3f0bc2c8f379ee990f1a4908666e1a36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "effabc6f_6788f6f9",
         "filename": "modules/skparagraph/src/TypefaceFontProvider.cpp",
         "patchSetId": 6
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "c6b93348_bf8a31b0",
+        "filename": "modules/skparagraph/src/TypefaceFontProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-18T17:43:02Z",
+      "side": 1,
+      "message": "Will do.",
+      "parentUuid": "effabc6f_6788f6f9",
+      "range": {
+        "startLine": 2,
+        "startChar": 9,
+        "endLine": 2,
+        "endChar": 33
+      },
+      "revId": "e5eb3efd3f0bc2c8f379ee990f1a4908666e1a36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f3b3e57a_03fe9540",
         "filename": "samplecode/SampleParagraph.cpp",
         "patchSetId": 6
@@ -114,6 +210,30 @@
       "revId": "e5eb3efd3f0bc2c8f379ee990f1a4908666e1a36",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2db3dbb_a234ddc2",
+        "filename": "samplecode/SampleParagraph.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-18T17:43:02Z",
+      "side": 1,
+      "message": "I need it in flutter. Or if you mean the order of includes - I will fix it.",
+      "parentUuid": "f3b3e57a_03fe9540",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 61
+      },
+      "revId": "e5eb3efd3f0bc2c8f379ee990f1a4908666e1a36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
