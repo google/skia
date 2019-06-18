@@ -17,7 +17,7 @@ class FontCollection : public SkRefCnt {
 public:
     FontCollection();
 
-    ~FontCollection();
+    ~FontCollection() = default;
 
     size_t getFontManagersCount() const;
 
@@ -35,18 +35,8 @@ public:
     void disableFontFallback();
     bool fontFallbackEnabled() { return fEnableFontFallback; }
 
-    void findAllFontsForStyledBlock(const TextStyle& style, SkSpan<const char> text);
-
-    bool findFirst(const char* codepoint, SkFont* font, SkScalar* height);
-    bool findNext(const char* codepoint, SkFont* font, SkScalar* height);
-
 private:
     std::vector<sk_sp<SkFontMgr>> getFontManagerOrder() const;
-    std::pair<SkFont, SkScalar> makeFont(sk_sp<SkTypeface> typeface, SkScalar size,
-                                         SkScalar height);
-
-    size_t resolveAllCharactersByFont(std::pair<SkFont, SkScalar> font);
-    void addResolvedWhitespacesToMapping();
 
     struct FamilyKey {
         FamilyKey(const char family[], const char loc[], SkFontStyle style)
@@ -72,7 +62,6 @@ private:
         }
     };
 
-    SkUnichar firstUnresolved();
 
     bool fEnableFontFallback;
     SkTHashMap<FamilyKey, sk_sp<SkTypeface>, FamilyKey::Hasher> fTypefaces;
@@ -81,20 +70,7 @@ private:
     sk_sp<SkFontMgr> fDynamicFontManager;
     sk_sp<SkFontMgr> fTestFontManager;
     SkString fDefaultFamilyName;
-
-    SkTHashMap<const char*, std::pair<SkFont, SkScalar>> fFontMapping;
-    SkTHashSet<std::pair<SkFont, SkScalar>, Hash> fResolvedFonts;
     bool fHintingOn;
-    std::pair<SkFont, SkScalar> fFirstResolvedFont;
-
-    SkTArray<SkUnichar> fCodepoints;
-    SkTArray<const char*> fCharacters;
-    SkTArray<size_t> fUnresolvedIndexes;
-    SkTArray<SkUnichar> fUnresolvedCodepoints;
-    SkTHashMap<size_t, std::pair<SkFont, SkScalar>> fWhitespaces;
-    size_t fUnresolved;
-
-
 };
 }  // namespace textlayout
 }  // namespace skia
