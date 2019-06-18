@@ -58,7 +58,7 @@ static bool valid_premul_color_type(GrColorType ct) {
     switch (ct) {
         case GrColorType::kUnknown:          return false;
         case GrColorType::kAlpha_8:          return false;
-        case GrColorType::kRGB_565:          return false;
+        case GrColorType::kBGR_565:          return false;
         case GrColorType::kABGR_4444:        return true;
         case GrColorType::kRGBA_8888:        return true;
         case GrColorType::kRGB_888x:         return false;
