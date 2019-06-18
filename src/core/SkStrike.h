@@ -79,7 +79,7 @@ public:
     // If the path has never been set, then add a path to glyph.
     const SkPath* preparePath(SkGlyph* glyph, const SkPath* path);
 
-    void getAdvances(SkSpan<const SkGlyphID>, SkPoint[]);
+    SkSpan<SkPoint> getAdvances(SkSpan<const SkGlyphID>, SkPoint[]);
 
     /** Returns the number of glyphs for this strike.
     */
@@ -187,6 +187,10 @@ private:
     };
 
     SkGlyph* makeGlyph(SkPackedGlyphID);
+
+    // Metrics will hold a mutex while doing its work. This is one of the few places that will
+    // need a mutex.
+    SkSpan<const SkGlyph*> metrics(SkSpan<const SkGlyphID>glyphIDs, const SkGlyph* result[]);
 
     const SkAutoDescriptor                 fDesc;
     const std::unique_ptr<SkScalerContext> fScalerContext;

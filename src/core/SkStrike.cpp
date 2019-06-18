@@ -124,16 +124,31 @@ int SkStrike::countCachedGlyphs() const {
     return fGlyphMap.count();
 }
 
+SkSpan<const SkGlyph*> SkStrike::metrics(
+        SkSpan<const SkGlyphID>glyphIDs, const SkGlyph* results[]) {
+
+    size_t glyphCount = 0;
+    for (auto glyphID : glyphIDs) {
+        SkGlyph* glyphPtr = this->glyph(glyphID);
+        results[glyphCount++] = glyphPtr;
+    }
+
+    return {results, glyphCount};
+}
+
 bool SkStrike::isGlyphCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const {
     SkPackedGlyphID packedGlyphID{glyphID, x, y};
     return fGlyphMap.find(packedGlyphID) != nullptr;
 }
 
-void SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
-    for (auto glyphID : glyphIDs) {
-        auto glyph = this->glyph(glyphID);
-        *advances++ = SkPoint::Make(glyph->fAdvanceX, glyph->fAdvanceY);
+SkSpan<SkPoint> SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
+    auto cursor = advances;
+    SkAutoSTArray<50, const SkGlyph*> glyphStorage{SkTo<int>(glyphIDs.size())};
+    auto glyphs = this->metrics(glyphIDs, glyphStorage.get());
+    for (const SkGlyph* glyph : glyphs) {
+        *cursor++ = glyph->advanceVector();
     }
+    return {advances, glyphIDs.size()};
 }
 
 const void* SkStrike::findImage(const SkGlyph& glyph) {
