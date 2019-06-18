@@ -1,7 +1,7 @@
 // Copyright 2019 Google LLC.
-#include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "include/core/SkPaint.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkSpan.h"

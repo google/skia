@@ -5,9 +5,9 @@
 
 #if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && !defined(SK_BUILD_FOR_GOOGLE3)
 
+#include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
-#include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "tools/Resources.h"
 

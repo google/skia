@@ -8,13 +8,14 @@
 #include "include/private/GrRecordingContext.h"
 
 #include "include/gpu/GrContext.h"
-#include "include/private/GrSkSLFPFactoryCache.h"
+#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/GrTextureContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/text/GrTextBlobCache.h"
@@ -25,7 +26,8 @@
 GrRecordingContext::GrRecordingContext(GrBackendApi backend,
                                        const GrContextOptions& options,
                                        uint32_t contextID)
-        : INHERITED(backend, options, contextID) {
+        : INHERITED(backend, options, contextID)
+        , fAuditTrail(new GrAuditTrail()) {
 }
 
 GrRecordingContext::~GrRecordingContext() { }

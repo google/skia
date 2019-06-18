@@ -9,8 +9,6 @@
 
 #include "include/gpu/GrTexture.h"
 #include "include/gpu/mock/GrMockTypes.h"
-#include "include/private/GrSurfaceProxy.h"
-#include "include/private/GrTextureProxy.h"
 #include "src/core/SkExchange.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkRectPriv.h"
@@ -22,7 +20,9 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/mock/GrMockGpu.h"
 

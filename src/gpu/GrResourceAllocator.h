@@ -9,8 +9,8 @@
 #define GrResourceAllocator_DEFINED
 
 #include "include/gpu/GrSurface.h"
-#include "include/private/GrSurfaceProxy.h"
 #include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrSurfaceProxy.h"
 
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkTDynamicHash.h"
