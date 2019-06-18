@@ -80,7 +80,7 @@ struct Program {
             int fValue;
         };
 
-#if defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
+#ifdef SKSL_STANDALONE
         const StandaloneShaderCaps* fCaps = &standaloneCaps;
 #else
         const GrShaderCaps* fCaps = nullptr;

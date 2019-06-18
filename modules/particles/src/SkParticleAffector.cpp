@@ -15,9 +15,12 @@
 #include "modules/particles/include/SkCurve.h"
 #include "modules/particles/include/SkParticleData.h"
 #include "src/core/SkMakeUnique.h"
+
+#if SK_SUPPORT_GPU
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLExternalValue.h"
+#endif
 
 void SkParticleAffector::apply(const SkParticleUpdateParams& params,
                                SkParticleState ps[], int count) {
@@ -436,6 +439,7 @@ private:
     SkColorCurve fCurve;
 };
 
+#if SK_SUPPORT_GPU
 static const char* kDefaultCode =
     "// float rand; Every read returns a random float [0 .. 1)\n"
     "layout(ctype=float) in uniform float dt;\n"
@@ -523,6 +527,7 @@ private:
         fRandomValue = std::move(rand);
     }
 };
+#endif
 
 void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkParticleAffector);
@@ -536,7 +541,9 @@ void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkSizeAffector);
     REGISTER_REFLECTED(SkFrameAffector);
     REGISTER_REFLECTED(SkColorAffector);
+#if SK_SUPPORT_GPU
     REGISTER_REFLECTED(SkInterpreterAffector);
+#endif
 }
 
 sk_sp<SkParticleAffector> SkParticleAffector::MakeLinearVelocity(const SkCurve& angle,
