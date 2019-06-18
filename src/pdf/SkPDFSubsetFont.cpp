@@ -66,7 +66,6 @@ static sk_sp<SkData> subset_harfbuzz(sk_sp<SkData> fontData,
 
     hb_subset_input_set_retain_gids(input.get(), true);
     hb_subset_input_set_drop_hints(input.get(), true);
-    hb_subset_input_set_drop_layout(input.get(), true);
     HBFace subset(hb_subset(face.get(), input.get()));
     HBBlob result(hb_face_reference_blob(subset.get()));
     return to_data(std::move(result));
