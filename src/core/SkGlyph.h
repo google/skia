@@ -121,20 +121,18 @@ public:
     constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} {}
     explicit SkGlyph(const SkGlyphPrototype& p);
 
-
     SkVector advanceVector() const { return SkVector{fAdvanceX, fAdvanceY}; }
     SkScalar advanceX() const { return fAdvanceX; }
     SkScalar advanceY() const { return fAdvanceY; }
 
-    bool isJustAdvance() const { return MASK_FORMAT_JUST_ADVANCE == fMaskFormat; }
-    bool isFullMetrics() const { return MASK_FORMAT_JUST_ADVANCE != fMaskFormat; }
+    size_t rowBytesUsingFormat(SkMask::Format format) const;
     SkGlyphID getGlyphID() const { return fID.code(); }
     SkPackedGlyphID getPackedID() const { return fID; }
     SkFixed getSubXFixed() const { return fID.getSubXFixed(); }
     SkFixed getSubYFixed() const { return fID.getSubYFixed(); }
 
+
     size_t rowBytes() const;
-    size_t rowBytesUsingFormat(SkMask::Format format) const;
 
     // Call this to set all of the metrics fields to 0 (e.g. if the scaler
     // encounters an error measuring a glyph). Note: this does not alter the
@@ -151,6 +149,12 @@ public:
     // SkScalerContext or const void* argument to set the image.
     bool setImage(SkArenaAlloc* alloc, SkScalerContext* scalerContext);
     bool setImage(SkArenaAlloc* alloc, const void* image);
+
+    // Merge the from glyph into this glyph using alloc to allocate image data. Return true if
+    // image data was allocated. If the image for this glyph has not been initialized, then copy
+    // the width, height, top, left, format, and image into this glyph making a copy of the image
+    // using the alloc.
+    bool setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from);
 
     // Returns true if the image has been set.
     bool setImageHasBeenCalled() const {
@@ -205,9 +209,6 @@ public:
     }
     bool imageTooLarge() const { return fWidth >= kMaxGlyphWidth; }
 
-    // Returns the size allocated on the arena.
-    size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc);
-
     // Make sure that the intercept information is on the glyph and return it, or return it if it
     // already exists.
     // * bounds - either end of the gap for the character.
@@ -216,16 +217,6 @@ public:
     // * count - the number of gaps.
     void ensureIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
                           SkScalar* array, int* count, SkArenaAlloc* alloc);
-
-    void*     fImage    = nullptr;
-
-    // The width and height of the glyph mask.
-    uint16_t  fWidth  = 0,
-              fHeight = 0;
-
-    // The offset from the glyphs origin on the baseline to the top left of the glyph mask.
-    int16_t   fTop  = 0,
-              fLeft = 0;
 
 private:
     // There are two sides to an SkGlyph, the scaler side (things that create glyph data) have
@@ -249,8 +240,6 @@ private:
 
     static constexpr uint16_t kMaxGlyphWidth = 1u << 13u;
 
-    size_t allocImage(SkArenaAlloc* alloc);
-
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,
     // the fBounds contains the top and bottom of the underline. The fInterval pair contains the
@@ -268,8 +257,21 @@ private:
         bool       fHasPath{false};
     };
 
-    // path == nullptr indicates there is no path.
+    size_t allocImage(SkArenaAlloc* alloc);
+
+    // If path == nullptr, then indicate that there is no path.
     void installPath(SkArenaAlloc* alloc, const SkPath* path);
+
+    // The width and height of the glyph mask.
+    uint16_t  fWidth  = 0,
+              fHeight = 0;
+
+    // The offset from the glyphs origin on the baseline to the top left of the glyph mask.
+    int16_t   fTop  = 0,
+              fLeft = 0;
+
+    // fImage must remain null if the glyph is empty or if width > kMaxGlyphWidth.
+    void*     fImage    = nullptr;
 
     // Path data has tricky state. If the glyph isEmpty, then fPathData should always be nullptr,
     // else if fPathData is not null, then a path has been requested. The fPath field of fPathData
@@ -288,9 +290,7 @@ private:
     // Used by the DirectWrite scaler to track state.
     int8_t    fForceBW = 0;
 
-    // TODO(herb) remove friend statement after SkStrike cleanup.
-    friend class SkStrike;
-    SkPackedGlyphID fID;
+    const SkPackedGlyphID fID;
 };
 
 struct SkGlyphPrototype {
