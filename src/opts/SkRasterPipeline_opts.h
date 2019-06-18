@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "src/core/SkUtils.h"  // unaligned_{load,store}
+#include "src/sksl/SkSLByteCode.h"
 
 // Every function in this file should be marked static and inline using SI.
 #if defined(__clang__)
@@ -2552,6 +2553,27 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
     load4(c->read_from,0, &r,&g,&b,&a);
 }
 
+STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
+    float rr[N];
+    float gg[N];
+    float bb[N];
+    float aa[N];
+
+    sk_unaligned_store(rr, r);
+    sk_unaligned_store(gg, g);
+    sk_unaligned_store(bb, b);
+    sk_unaligned_store(aa, a);
+
+    float* args[] = { rr, gg, bb, aa };
+    c->byteCode->runStriped(c->fn, args, SK_ARRAY_COUNT(args), tail ? tail : N,
+                            (const float*)c->inputs, c->ninputs);
+
+    r = sk_unaligned_load<F>(rr);
+    g = sk_unaligned_load<F>(gg);
+    b = sk_unaligned_load<F>(bb);
+    a = sk_unaligned_load<F>(aa);
+}
+
 STAGE(gauss_a_to_rgba, Ctx::None) {
     // x = 1 - x;
     // exp(-x * x * 4) - 0.018f;
@@ -3830,6 +3852,7 @@ STAGE_PP(swizzle, void* ctx) {
 // If a pipeline uses these stages, it'll boot it out of lowp into highp.
 #define NOT_IMPLEMENTED(st) static void (*st)(void) = nullptr;
     NOT_IMPLEMENTED(callback)
+    NOT_IMPLEMENTED(interpreter)
     NOT_IMPLEMENTED(unbounded_set_rgb)
     NOT_IMPLEMENTED(unbounded_uniform_color)
     NOT_IMPLEMENTED(unpremul)
