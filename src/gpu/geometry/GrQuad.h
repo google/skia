@@ -117,15 +117,6 @@ public:
     // True if anti-aliasing affects this quad. Only valid when quadType == kAxisAligned
     bool aaHasEffectOnRect() const;
 
-    // The non-const pointers are provided to support modifying a GrQuad in-place, but care must be
-    // taken to keep its quad type aligned with the geometric nature of the new coordinates. This is
-    // no different than using the constructors that accept a quad type.
-
-    float* xs() { return fX; }
-    float* ys() { return fY; }
-    float* ws() { return fW; }
-
-    void setQuadType(Type newType) { fType = newType; }
 private:
     template<typename T>
     friend class GrQuadListBase; // for access to fX, fY, fW

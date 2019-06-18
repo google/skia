@@ -290,8 +290,9 @@ DrawResult SampleLocationsGM::onDraw(
         GrPaint coverPaint;
         coverPaint.setColor4f({1,0,0,1});
         coverPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrcOver));
-        rtc->priv().stencilRect(GrNoClip(), &kStencilCover, std::move(coverPaint), GrAA::kNo,
-                                SkMatrix::I(), SkRect::MakeWH(200, 200));
+        rtc->priv().drawFilledRect(
+                GrNoClip(), std::move(coverPaint), GrAA::kNo, SkMatrix::I(),
+                SkRect::MakeWH(200, 200), &kStencilCover);
 
         // Copy offscreen texture to canvas.
         rtc->drawTexture(
