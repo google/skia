@@ -154,7 +154,8 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
     for (int i = 0; i < numActiveProxies; ++i) {
         SkASSERT(proxies[i]);
         SkASSERT(proxies[i]->isize() == fAtlasSize);
-        fTextureSamplers[i].reset(proxies[i]->textureType(), proxies[i]->config(), params);
+        fTextureSamplers[i].reset(proxies[i]->textureType(), proxies[i]->config(), params,
+                                  proxies[i]->textureSwizzle());
     }
     this->setTextureSamplerCnt(numActiveProxies);
 }
@@ -173,7 +174,8 @@ void GrBitmapTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* proxies,
         SkASSERT(proxies[i]->isize() == fAtlasSize);
 
         if (!fTextureSamplers[i].isInitialized()) {
-            fTextureSamplers[i].reset(proxies[i]->textureType(), proxies[i]->config(), params);
+            fTextureSamplers[i].reset(proxies[i]->textureType(), proxies[i]->config(), params,
+                                      proxies[i]->textureSwizzle());
         }
     }
     this->setTextureSamplerCnt(numActiveProxies);
