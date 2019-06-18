@@ -15,7 +15,7 @@
 
 namespace SkSL {
 
-#if defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
+#ifdef SKSL_STANDALONE
 StandaloneShaderCaps standaloneCaps;
 #endif
 
