@@ -657,7 +657,7 @@ static bool format_color_type_valid_pair(MTLPixelFormat format, GrColorType colo
 static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorType,
                              bool forOutput) {
     SkASSERT(format.getMtlFormat());
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getVkFormat());
+    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(*format.getMtlFormat());
 
     SkASSERT(format_color_type_valid_pair(mtlFormat, colorType));
 

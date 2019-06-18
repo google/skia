@@ -88,13 +88,10 @@ protected:
     friend class GrTextureProxyPriv;
     friend class GrSurfaceProxyPriv;  // ability to change key sync state after lazy instantiation.
 
-    // Deferred version - when constructed with data the origin is always kTopLeft.
-    GrTextureProxy(const GrBackendFormat&, const GrSurfaceDesc& srcDesc, GrMipMapped, SkBackingFit,
-                   SkBudgeted, const void* srcData, size_t srcRowBytes, GrInternalSurfaceFlags);
-
     // Deferred version - no data.
     GrTextureProxy(const GrBackendFormat&, const GrSurfaceDesc& srcDesc, GrSurfaceOrigin,
-                   GrMipMapped, SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
+                   GrMipMapped, const GrSwizzle& textureSwizzle, SkBackingFit, SkBudgeted,
+                   GrInternalSurfaceFlags);
 
     // Lazy-callback version
     // There are two main use cases for lazily-instantiated proxies:
@@ -107,11 +104,11 @@ protected:
     // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
     // know the final size until flush time.
     GrTextureProxy(LazyInstantiateCallback&&, LazyInstantiationType, const GrBackendFormat&,
-                   const GrSurfaceDesc& desc, GrSurfaceOrigin, GrMipMapped, SkBackingFit,
-                   SkBudgeted, GrInternalSurfaceFlags);
+                   const GrSurfaceDesc& desc, GrSurfaceOrigin, GrMipMapped, const GrSwizzle&,
+                   SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
     // Wrapped version
-    GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
+    GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle&);
 
     ~GrTextureProxy() override;
 

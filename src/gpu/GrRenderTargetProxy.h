@@ -10,6 +10,7 @@
 
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/GrSwizzle.h"
 
 class GrResourceProvider;
 class GrRenderTargetProxyPriv;
@@ -54,6 +55,8 @@ public:
 
     int maxWindowRectangles(const GrCaps& caps) const;
 
+    const GrSwizzle& outputSwizzle() const { return fOutputSwizzle; }
+
     bool wrapsVkSecondaryCB() const { return fWrapsVkSecondaryCB == WrapsVkSecondaryCB::kYes; }
 
     // TODO: move this to a priv class!
@@ -69,7 +72,9 @@ protected:
 
     // Deferred version
     GrRenderTargetProxy(const GrCaps&, const GrBackendFormat&, const GrSurfaceDesc&,
-                        GrSurfaceOrigin, SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
+                        GrSurfaceOrigin, const GrSwizzle& textureSwizzle,
+                        const GrSwizzle& outputSwizzle, SkBackingFit, SkBudgeted,
+                        GrInternalSurfaceFlags);
 
     enum class WrapsVkSecondaryCB : bool { kNo = false, kYes = true };
 
@@ -85,11 +90,13 @@ protected:
     // know the final size until flush time.
     GrRenderTargetProxy(LazyInstantiateCallback&&, LazyInstantiationType lazyType,
                         const GrBackendFormat&, const GrSurfaceDesc&, GrSurfaceOrigin,
+                        const GrSwizzle& textureSwizzle, const GrSwizzle& outputSwizzle,
                         SkBackingFit, SkBudgeted, GrInternalSurfaceFlags,
                         WrapsVkSecondaryCB wrapsVkSecondaryCB);
 
     // Wrapped version
-    GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin,
+    GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle& textureSwizzle,
+                        const GrSwizzle& outputSwizzle,
                         WrapsVkSecondaryCB wrapsVkSecondaryCB = WrapsVkSecondaryCB::kNo);
 
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
@@ -120,8 +127,15 @@ private:
     // address of other types, leading to this problem.
 
     int                fSampleCnt;
+    GrSwizzle          fOutputSwizzle;
     bool               fNeedsStencil;
     WrapsVkSecondaryCB fWrapsVkSecondaryCB;
+    // This is to fix issue in large comment above. Without the padding we end 6 bytes into a 16
+    // byte range, so the GrTextureProxy ends up starting 8 byte aligned by not 16. We add the
+    // padding here to get us right up to the 16 byte alignment (technically any padding of 3-10
+    // bytes would work since it always goes up to 8 byte alignment, but we use 10 to more explicit
+    // about what we're doing).
+    char               fDummyPadding[10];
 
     // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
     // For deferred proxies that pointer is filled in when we need to instantiate the
