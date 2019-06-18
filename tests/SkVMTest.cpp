@@ -198,8 +198,9 @@ static void test_asm(skiatest::Reporter* r, Fn&& fn, std::initializer_list<uint8
 }
 
 DEF_TEST(SkVM_Assembler, r) {
+    using skvm::Assembler;
     // Our exit strategy from AVX code.
-    test_asm(r, [&](skvm::Assembler& a) {
+    test_asm(r, [&](Assembler& a) {
         a.vzeroupper();
         a.ret();
     },{
@@ -208,7 +209,7 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     // Align should pad with nop().
-    test_asm(r, [&](skvm::Assembler& a) {
+    test_asm(r, [&](Assembler& a) {
         a.ret();
         a.align(4);
     },{
@@ -216,11 +217,11 @@ DEF_TEST(SkVM_Assembler, r) {
         0x90, 0x90, 0x90,
     });
 
-    test_asm(r, [&](skvm::Assembler& a) {
-        a.sub(skvm::Assembler::GP64::rax, 32);      // Always good to test rax.
-        a.sub(skvm::Assembler::GP64::rdi, 8);       // Last 0x48 REX
-        a.sub(skvm::Assembler::GP64::r8 , 4);       // First 0x4c REX
-        a.sub(skvm::Assembler::GP64::r8 , 1000000); // Requires 4 byte immediate.
+    test_asm(r, [&](Assembler& a) {
+        a.sub(Assembler::rax, 32);      // Always good to test rax.
+        a.sub(Assembler::rdi, 8);       // Last 0x48 REX
+        a.sub(Assembler::r8 , 4);       // First 0x4c REX
+        a.sub(Assembler::r8 , 1000000); // Requires 4 byte immediate.
     },{
         0x48, 0x83, 0b11'101'000, 0x20,
         0x48, 0x83, 0b11'101'111, 0x08,

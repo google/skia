@@ -509,9 +509,9 @@ namespace skvm {
 
         int opcode_ext = 5;  // subtract
 
-        this->byte(REX{1,dst >= GP64::r8,0,0}.bits);
+        this->byte(REX{1,dst >= r8,0,0}.bits);
         this->byte(opcode);
-        this->byte(ModRM{ModRM::Direct/*don't understand yet*/, opcode_ext, (int)dst}.bits);
+        this->byte(ModRM{ModRM::Direct/*don't understand yet*/, opcode_ext, dst}.bits);
         this->byte(&imm, imm_bytes);
     }
 
@@ -537,7 +537,7 @@ namespace skvm {
     #else
         // These registers are used to pass the first 6 arguments,
         // so if we stick to these we need not push, pop, spill, or move anything around.
-        Assembler::GP64 N = Assembler::GP64::rdi;
+        Assembler::GP64 N = Assembler::rdi;
         Xbyak::Reg arg[] = { X.rsi, X.rdx, X.rcx, X.r8, X.r9 };
 
 
