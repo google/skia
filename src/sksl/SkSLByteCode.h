@@ -195,6 +195,9 @@ struct SK_API ByteCode {
      */
     void run(const ByteCodeFunction*, float* args, float* outReturn, int N,
              const float* uniforms, int uniformCount) const;
+
+    void runStriped(const ByteCodeFunction*, float* args[], int nargs, int N,
+                    const float* uniforms, int uniformCount) const;
 };
 
 }
