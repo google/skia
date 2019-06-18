@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lottie Filmstrip Capture</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=egde,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/lottie.js" type="text/javascript" charset="utf-8"></script>
+    <style type="text/css" media="screen">
+      body,
+      main,
+      .anim {
+        margin: 0;
+        padding: 0;
+      }
+
+      main {
+        display: flex;
+        width: 1000px;
+        height: 1000px;
+        flex-flow: row wrap;
+      }
+    </style>
+</head>
+<body>
+  <main>
+    <div class=anim></div>
+  </main>
+  <script type="text/javascript" charset="utf-8">
+    (function () {
+      const TILE_COUNT = 5; // Number of tiles in x or y direction.
+      const TARGET_SIZE = 1000; // Image size in pixels both x and y direction.
+      const PATH = '/lottie.json';
+
+      let renderer = 'svg';
+      let hash = window.location.hash;
+      if (hash) {
+        renderer = hash.slice(1);
+      }
+
+      // This global is used by puppeteer to determine if all tiles have finished drawing.
+      window._tileCount = 0;
+
+      // First load the animation for just a single tile
+      // so we can read out some values and calculate what
+      // the filmstrip should look like.
+      let anim = lottie.loadAnimation({
+        container: document.querySelector('.anim'),
+        renderer: renderer,
+        loop: false,
+        autoplay: true,
+        path: PATH,
+        rendererSettings: {
+          preserveAspectRatio:'xMidYMid meet'
+        },
+      });
+
+      anim.addEventListener('data_ready', (e) => {
+        // Once the first tile is loaded, calculate what
+        // the filmstrip should look like.
+        let animationData = anim.animationData;
+        let totalFrames = anim.totalFrames;
+        // t_rate mimics DMSrcSink.cpp::SkottieSrc::draw
+        let t_rate = 1.0 / (TILE_COUNT * TILE_COUNT - 1);
+
+        let main = document.querySelector('main');
+
+        // Clear out the first div now that our measurements are done.
+        main.firstElementChild.remove();
+
+        // Add in all the tiles.
+        for (let i = 0; i < TILE_COUNT*TILE_COUNT; i++) {
+          let div = document.createElement('div');
+          div.classList.add('anim');
+          div.style.width = (TARGET_SIZE / TILE_COUNT) + 'px';
+          div.style.height = (TARGET_SIZE / TILE_COUNT) + 'px';
+          main.appendChild(div);
+
+          // create a new animation for each tile. It is tempting to try having
+          // one animation and "clone" each frame, but that doesn't work
+          // because of how bodymovin cleans up the URLObjects that are the path
+          // data for the svgs.
+          // We can re-use the animationData to avoid having to hit the
+          // (local) network a bunch of times.
+          let anim = lottie.loadAnimation({
+            container: div,
+            renderer: renderer,
+            loop: false,
+            autoplay: false,
+            animationData: animationData,
+            rendererSettings: {
+              preserveAspectRatio:'xMidYMid meet'
+            },
+          });
+
+          let t = Math.max(Math.min(t_rate * i, 1.0), 0.0);
+          let seekToFrame = totalFrames * t;
+          if (seekToFrame >= totalFrames) {
+            // bodymovin player sometimes draws blank when requesting
+            // to draw the very last frame.  Subtracting a small value
+            // seems to fix this and make it draw the last frame.
+            seekToFrame -= .001;
+          }
+
+          // don't need to wait for data_ready because it's instantly ready.
+          console.log(`t = ${t}, go to frame ${seekToFrame}`);
+          anim.goToAndStop(seekToFrame, true);
+          window._tileCount += 1;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
