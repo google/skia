@@ -9,7 +9,6 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkImageSource.h"
-#include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
@@ -54,7 +53,7 @@ sk_sp<SkFlattenable> SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkRect cropRect;
 
     if (buffer.readBool()) {
-        picture = SkPicturePriv::MakeFromBuffer(buffer);
+        //picture = SkPicturePriv::MakeFromBuffer(buffer);
     }
     buffer.readRect(&cropRect);
 
@@ -73,7 +72,7 @@ void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
     bool hasPicture = (fPicture != nullptr);
     buffer.writeBool(hasPicture);
     if (hasPicture) {
-        SkPicturePriv::Flatten(fPicture, buffer);
+        //SkPicturePriv::Flatten(fPicture, buffer);
     }
     buffer.writeRect(fCropRect);
 }

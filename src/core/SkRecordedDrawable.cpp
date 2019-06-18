@@ -65,7 +65,7 @@ void SkRecordedDrawable::flatten(SkWriteBuffer& buffer) const {
 
     // Flatten the recorded commands and drawables.
     SkPictureData pictureData(pictureRecord, info);
-    pictureData.flatten(buffer);
+    //pictureData.flatten(buffer);
 }
 
 sk_sp<SkFlattenable> SkRecordedDrawable::CreateProc(SkReadBuffer& buffer) {
@@ -77,7 +77,7 @@ sk_sp<SkFlattenable> SkRecordedDrawable::CreateProc(SkReadBuffer& buffer) {
     SkPictInfo info;
     info.setVersion(buffer.getVersion());
     info.fCullRect = bounds;
-    std::unique_ptr<SkPictureData> pictureData(SkPictureData::CreateFromBuffer(buffer, info));
+    std::unique_ptr<SkPictureData> pictureData;//(SkPictureData::CreateFromBuffer(buffer, info));
     if (!pictureData) {
         return nullptr;
     }

@@ -84,7 +84,11 @@ public:
                                            const SkDeserialProcs&);
     static SkPictureData* CreateFromBuffer(SkReadBuffer&, const SkPictInfo&);
 
+<<<<<<< HEAD
     void serialize(SkWStream*, const SkSerialProcs&) const;
+=======
+    void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet*, bool textBlobsOnly=false) const;
+>>>>>>> multioptpicture
     void flatten(SkWriteBuffer&) const;
 
     const sk_sp<SkData>& opData() const { return fOpData; }
@@ -141,7 +145,7 @@ private:
     bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size,
                         const SkDeserialProcs&);
     void parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
-    void flattenToBuffer(SkWriteBuffer&) const;
+    void flattenToBuffer(SkWriteBuffer&, bool textBlobsOnly) const;
 
     SkTArray<SkPaint>  fPaints;
     SkTArray<SkPath>   fPaths;

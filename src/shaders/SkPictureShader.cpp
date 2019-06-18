@@ -12,7 +12,6 @@
 #include "include/core/SkImage.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkMatrixUtils.h"
-#include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkResourceCache.h"
 #include "src/shaders/SkBitmapProcShader.h"
@@ -170,7 +169,7 @@ sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
 
     bool didSerialize = buffer.readBool();
     if (didSerialize) {
-        picture = SkPicturePriv::MakeFromBuffer(buffer);
+        //picture = SkPicturePriv::MakeFromBuffer(buffer);
     }
     return SkPictureShader::Make(picture, tmx, tmy, &lm, &tile);
 }
@@ -182,7 +181,7 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeRect(fTile);
 
     buffer.writeBool(true);
-    SkPicturePriv::Flatten(fPicture, buffer);
+    //SkPicturePriv::Flatten(fPicture, buffer);
 }
 
 // Returns a cached image shader, which wraps a single picture tile at the given

@@ -23,7 +23,6 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkNormalSource.h"
 #include "src/core/SkOSFile.h"
-#include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkLightingShader.h"
@@ -552,27 +551,27 @@ DEF_TEST(Serialization, reporter) {
         TestBitmapSerialization(validBitmap, invalidBitmap, true, reporter);
     }
 
-    // Test simple SkPicture serialization
-    {
-        SkPictureRecorder recorder;
-        draw_something(recorder.beginRecording(SkIntToScalar(kBitmapSize),
-                                               SkIntToScalar(kBitmapSize),
-                                               nullptr, 0));
-        sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
+    // // Test simple SkPicture serialization
+    // {
+    //     SkPictureRecorder recorder;
+    //     draw_something(recorder.beginRecording(SkIntToScalar(kBitmapSize),
+    //                                            SkIntToScalar(kBitmapSize),
+    //                                            nullptr, 0));
+    //     sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
 
-        // Serialize picture
-        SkBinaryWriteBuffer writer;
-        SkPicturePriv::Flatten(pict, writer);
-        size_t size = writer.bytesWritten();
-        SkAutoTMalloc<unsigned char> data(size);
-        writer.writeToMemory(static_cast<void*>(data.get()));
+    //     // Serialize picture
+    //     SkBinaryWriteBuffer writer;
+    //     SkPicturePriv::Flatten(pict, writer);
+    //     size_t size = writer.bytesWritten();
+    //     SkAutoTMalloc<unsigned char> data(size);
+    //     writer.writeToMemory(static_cast<void*>(data.get()));
 
-        // Deserialize picture
-        SkReadBuffer reader(static_cast<void*>(data.get()), size);
-        sk_sp<SkPicture> readPict(SkPicturePriv::MakeFromBuffer(reader));
-        REPORTER_ASSERT(reporter, reader.isValid());
-        REPORTER_ASSERT(reporter, readPict.get());
-    }
+    //     // Deserialize picture
+    //     SkReadBuffer reader(static_cast<void*>(data.get()), size);
+    //     sk_sp<SkPicture> readPict(SkPicturePriv::MakeFromBuffer(reader));
+    //     REPORTER_ASSERT(reporter, reader.isValid());
+    //     REPORTER_ASSERT(reporter, readPict.get());
+    // }
 
     TestPictureTypefaceSerialization(reporter);
 
