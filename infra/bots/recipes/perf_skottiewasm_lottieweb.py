@@ -31,19 +31,26 @@ def RunSteps(api):
   api.vars.setup()
   api.flavor.setup()
   checkout_root = api.checkout.default_checkout_root
-  skottie_wasm_perf_dir = checkout_root.join('skia', 'tools',
-                                             'skottie-wasm-perf')
   api.checkout.bot_update(checkout_root=checkout_root)
+  buildername = api.properties['buildername']
+  node_path = api.path['start_dir'].join('node', 'node', 'bin', 'node')
+
+  if 'SkottieWASM' in buildername:
+    perf_app_dir = checkout_root.join('skia', 'tools', 'skottie-wasm-perf')
+    canvaskit_js_path = api.vars.build_dir.join('canvaskit.js')
+    canvaskit_wasm_path = api.vars.build_dir.join('canvaskit.wasm')
+    skottie_wasm_js_path = perf_app_dir.join('skottie-wasm-perf.js')
+    perf_app_cmd = [
+        node_path, skottie_wasm_js_path,
+        '--canvaskit_js', canvaskit_js_path,
+        '--canvaskit_wasm', canvaskit_wasm_path,
+    ]
 
   # Install prerequisites.
   env_prefixes = {'PATH': [api.path['start_dir'].join('node', 'node', 'bin')]}
-  with api.context(cwd=skottie_wasm_perf_dir, env_prefixes=env_prefixes):
+  with api.context(cwd=perf_app_dir, env_prefixes=env_prefixes):
     api.step('npm install', cmd=['npm', 'install'])
 
-  canvaskit_js_path = api.vars.build_dir.join('canvaskit.js')
-  canvaskit_wasm_path = api.vars.build_dir.join('canvaskit.wasm')
-  skottie_wasm_js_path = skottie_wasm_perf_dir.join('skottie-wasm-perf.js')
-  node_path = api.path['start_dir'].join('node', 'node', 'bin', 'node')
   perf_results = {}
   with api.tempfile.temp_dir('g3_try') as output_dir:
     # Run skottie_wasm.js on each lottie file and parse the trace files.
@@ -55,13 +62,11 @@ def RunSteps(api):
       if not lottie_filename.endswith('.json'):
         continue
       output_file = output_dir.join(lottie_filename)
-      with api.context(cwd=skottie_wasm_perf_dir):
-        api.step('Run skottie-wasm-perf.js', cmd=[
-            node_path, skottie_wasm_js_path,
+      with api.context(cwd=perf_app_dir):
+        # Add output and input arguments to the cmd.
+        api.step('Run perf cmd line app', cmd=perf_app_cmd + [
             '--input', lottie_file,
             '--output', output_file,
-            '--canvaskit_js', canvaskit_js_path,
-            '--canvaskit_wasm', canvaskit_wasm_path,
         ])
       output_json = api.file.read_json(
           'Read perf json', output_file,
