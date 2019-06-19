@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c21dd3cc_765c514d",
+        "filename": "tools/lottie-web-perf/lottie-web-perf.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-19T15:28:15Z",
+      "side": 1,
+      "message": "Is this ok?",
+      "revId": "48f8ef5210c991a4f47d68bf1a6d2283df4c2ad2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "095571cd_b953ec2f",
+        "filename": "tools/lottie-web-perf/lottie-web-perf.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-19T15:28:15Z",
+      "side": 1,
+      "message": "Used similar approach here as in tools/skottie-wasm-perf.html WDYT?",
+      "revId": "48f8ef5210c991a4f47d68bf1a6d2283df4c2ad2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
