@@ -16,6 +16,24 @@
       "revId": "15ac6ded71d293e89a21344cd8d6ff91407c51f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c64c0a99_8290248a",
+        "filename": "gm/imagemakewithfilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-19T17:50:52Z",
+      "side": 1,
+      "message": "It was the asserts below; we could switch to using the original raster images when the context is abandoned, but these tests were meant to leverage the GPU filter implementations, which only get triggered when the source images are texture backed, so an abandoned context makes the test kind of moot.",
+      "parentUuid": "f444f19a_9898b1e3",
+      "revId": "15ac6ded71d293e89a21344cd8d6ff91407c51f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
