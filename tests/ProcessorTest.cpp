@@ -148,7 +148,7 @@ static void check_refs(skiatest::Reporter* reporter,
                        int32_t expectedProxyRefs,
                        int32_t expectedBackingRefs) {
     int32_t actualProxyRefs = proxy->priv().getProxyRefCnt();
-    int32_t actualBackingRefs = proxy->getBackingRefCnt_TestOnly();
+    int32_t actualBackingRefs = proxy->testingOnly_getBackingRefCnt();
 
     SkASSERT(actualProxyRefs == expectedProxyRefs);
     SkASSERT(actualBackingRefs == expectedBackingRefs);

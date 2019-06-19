@@ -25,7 +25,7 @@ static void check_refs(skiatest::Reporter* reporter,
                        int32_t expectedProxyRefs,
                        int32_t expectedBackingRefs) {
     int32_t actualProxyRefs = proxy->priv().getProxyRefCnt();
-    int32_t actualBackingRefs = proxy->getBackingRefCnt_TestOnly();
+    int32_t actualBackingRefs = proxy->testingOnly_getBackingRefCnt();
 
     SkASSERT(actualProxyRefs == expectedProxyRefs);
     SkASSERT(actualBackingRefs == expectedBackingRefs);
@@ -69,7 +69,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
             if (proxy.get()) {
                 GrProxyPendingIO pendingIO(proxy.get());
 
-                int backingRefs = proxy->isWrapped_ForTesting() ? 1 : -1;
+                int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
                 check_refs(reporter, proxy.get(), 2, backingRefs);
 
@@ -87,7 +87,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
                 proxy->ref();
                 proxy->ref();
 
-                int backingRefs = proxy->isWrapped_ForTesting() ? 1 : -1;
+                int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
                 check_refs(reporter, proxy.get(), 3, backingRefs);
 
@@ -109,7 +109,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 GrProxyPendingIO pendingIO(proxy.get());
 
-                int backingRefs = proxy->isWrapped_ForTesting() ? 1 : -1;
+                int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
                 check_refs(reporter, proxy.get(), 3, backingRefs);
 
