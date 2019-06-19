@@ -31,19 +31,38 @@ def RunSteps(api):
   api.vars.setup()
   api.flavor.setup()
   checkout_root = api.checkout.default_checkout_root
-  skottie_wasm_perf_dir = checkout_root.join('skia', 'tools',
-                                             'skottie-wasm-perf')
   api.checkout.bot_update(checkout_root=checkout_root)
+  buildername = api.properties['buildername']
+  node_path = api.path['start_dir'].join('node', 'node', 'bin', 'node')
+
+  if 'SkottieWASM' in buildername:
+    source_type = 'skottie'
+    renderer = 'skottie-wasm'
+
+    perf_app_dir = checkout_root.join('skia', 'tools', 'skottie-wasm-perf')
+    canvaskit_js_path = api.vars.build_dir.join('canvaskit.js')
+    canvaskit_wasm_path = api.vars.build_dir.join('canvaskit.wasm')
+    skottie_wasm_js_path = perf_app_dir.join('skottie-wasm-perf.js')
+    perf_app_cmd = [
+        node_path, skottie_wasm_js_path,
+        '--canvaskit_js', canvaskit_js_path,
+        '--canvaskit_wasm', canvaskit_wasm_path,
+    ]
+  elif 'LottieWeb' in buildername:
+    source_type = 'lottie-web'
+    renderer = 'lottie-web'
+
+    perf_app_dir = checkout_root.join('skia', 'tools', 'lottie-web-perf')
+    lottie_web_js_path = perf_app_dir.join('lottie-web-perf.js')
+    perf_app_cmd = [node_path, lottie_web_js_path]
+  else:
+    raise Exception('Could not recognize the buildername %s' % buildername)
 
   # Install prerequisites.
   env_prefixes = {'PATH': [api.path['start_dir'].join('node', 'node', 'bin')]}
-  with api.context(cwd=skottie_wasm_perf_dir, env_prefixes=env_prefixes):
+  with api.context(cwd=perf_app_dir, env_prefixes=env_prefixes):
     api.step('npm install', cmd=['npm', 'install'])
 
-  canvaskit_js_path = api.vars.build_dir.join('canvaskit.js')
-  canvaskit_wasm_path = api.vars.build_dir.join('canvaskit.wasm')
-  skottie_wasm_js_path = skottie_wasm_perf_dir.join('skottie-wasm-perf.js')
-  node_path = api.path['start_dir'].join('node', 'node', 'bin', 'node')
   perf_results = {}
   with api.tempfile.temp_dir('g3_try') as output_dir:
     # Run skottie_wasm.js on each lottie file and parse the trace files.
@@ -55,13 +74,11 @@ def RunSteps(api):
       if not lottie_filename.endswith('.json'):
         continue
       output_file = output_dir.join(lottie_filename)
-      with api.context(cwd=skottie_wasm_perf_dir):
-        api.step('Run skottie-wasm-perf.js', cmd=[
-            node_path, skottie_wasm_js_path,
+      with api.context(cwd=perf_app_dir):
+        # Add output and input arguments to the cmd.
+        api.step('Run perf cmd line app', cmd=perf_app_cmd + [
             '--input', lottie_file,
             '--output', output_file,
-            '--canvaskit_js', canvaskit_js_path,
-            '--canvaskit_wasm', canvaskit_wasm_path,
         ])
       output_json = api.file.read_json(
           'Read perf json', output_file,
@@ -84,9 +101,9 @@ def RunSteps(api):
       'swarming_task_id': api.vars.swarming_task_id,
       'key': {
         'bench_type': 'tracing',
-        'source_type': 'skottie',
+        'source_type': source_type,
       },
-      'renderer': 'skottie-wasm',
+      'renderer': renderer,
       'results': perf_results,
   }
   if api.vars.is_trybot:
@@ -126,20 +143,19 @@ with open('%s', 'w') as outfile:
 
 
 def GenTests(api):
-  cpu_buildername = ('Perf-Debian9-EMCC-GCE-CPU-AVX2-wasm-Release-All-'
-                     'SkottieWASM')
+  skottie_cpu_buildername = ('Perf-Debian9-EMCC-GCE-CPU-AVX2-wasm-Release-All-'
+                             'SkottieWASM')
   yield (
       api.test('skottie_wasm_perf') +
-      api.properties(buildername=cpu_buildername,
+      api.properties(buildername=skottie_cpu_buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]')
   )
-
   yield (
       api.test('skottie_wasm_perf_trybot') +
-      api.properties(buildername=cpu_buildername,
+      api.properties(buildername=skottie_cpu_buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
@@ -151,4 +167,42 @@ def GenTests(api):
                      patch_issue=1234,
                      gerrit_project='skia',
                      gerrit_url='https://skia-review.googlesource.com/')
+  )
+
+  lottieweb_cpu_buildername = ('Perf-Debian9-none-GCE-CPU-AVX2-x86_64-Release-'
+                               'All-LottieWeb')
+  yield (
+      api.test('lottie_web_perf') +
+      api.properties(buildername=lottieweb_cpu_buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]')
+  )
+  yield (
+      api.test('lottie_web_perf_trybot') +
+      api.properties(buildername=lottieweb_cpu_buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     patch_ref='89/456789/12',
+                     patch_repo='https://skia.googlesource.com/skia.git',
+                     patch_storage='gerrit',
+                     patch_set=7,
+                     patch_issue=1234,
+                     gerrit_project='skia',
+                     gerrit_url='https://skia-review.googlesource.com/')
+  )
+
+  unrecognized_buildername = ('Perf-Debian9-none-GCE-CPU-AVX2-x86_64-Release-'
+                              'All-Unrecognized')
+  yield (
+      api.test('unrecognized_builder') +
+      api.properties(buildername=unrecognized_buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.expect_exception('Exception')
   )
