@@ -35,7 +35,7 @@ class TextWrapper {
     class TextStretch {
     public:
         TextStretch() : fStart(), fEnd(), fWidth(0) {}
-        explicit TextStretch(Cluster* s, Cluster* e)
+        TextStretch(Cluster* s, Cluster* e)
                 : fStart(s, 0), fEnd(e, e->endPos()), fMetrics(), fWidth(0) {
             for (auto c = s; c <= e; ++c) {
                 if (c->run() != nullptr) {
@@ -65,6 +65,9 @@ class TextWrapper {
         }
 
         void extend(Cluster* cluster) {
+            if (fStart.cluster() == nullptr) {
+                fStart = ClusterPos(cluster, cluster->startPos());
+            }
             fEnd = ClusterPos(cluster, cluster->endPos());
             fMetrics.add(cluster->run());
             fWidth += cluster->width();
