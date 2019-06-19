@@ -67,10 +67,11 @@ static GrProcessorSet::Analysis do_analysis(const GrXPFactory* xpf,
     GrPaint paint;
     paint.setXPFactory(xpf);
     GrProcessorSet procs(std::move(paint));
+    bool hasMixedSampledCoverage = false;
     SkPMColor4f overrideColor;
     GrProcessorSet::Analysis analysis = procs.finalize(
-            colorInput, coverageInput, nullptr, &GrUserStencilSettings::kUnused, GrFSAAType::kNone,
-            caps, GrClampType::kAuto, &overrideColor);
+            colorInput, coverageInput, nullptr, &GrUserStencilSettings::kUnused,
+            hasMixedSampledCoverage, caps, GrClampType::kAuto, &overrideColor);
     return analysis;
 }
 

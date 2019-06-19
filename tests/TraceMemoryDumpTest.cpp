@@ -151,7 +151,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLRenderTarget, rep
     iddesc.fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
     iddesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     iddesc.fMSColorRenderbufferID = 22;
-    iddesc.fIsMixedSampled = false;
 
     sk_sp<GrGLRenderTarget> rt = GrGLRenderTarget::MakeWrapped(gpu, sd, GR_GL_RGBA8, iddesc, 0);
 
@@ -173,7 +172,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarget, r
     iddesc.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
     iddesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     iddesc.fMSColorRenderbufferID = 22;
-    iddesc.fIsMixedSampled = false;
 
     sk_sp<GrGLRenderTarget> rt = GrGLRenderTarget::MakeWrapped(gpu, sd, GR_GL_RGBA8, iddesc, 0);
 

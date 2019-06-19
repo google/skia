@@ -115,10 +115,8 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
         }
 
         // We only use this method when rendering coverage clip masks.
-        SkASSERT(GrFSAAType::kNone == renderTargetContext->fsaaType());
-        auto aaTypeFlags = (element->isAA())
-                ? GrPathRenderer::AATypeFlags::kCoverage
-                : GrPathRenderer::AATypeFlags::kNone;
+        SkASSERT(renderTargetContext->numSamples() <= 1);
+        auto aaType = (element->isAA()) ? GrAAType::kCoverage : GrAAType::kNone;
 
         GrPathRendererChain::DrawType type =
                 needsStencil ? GrPathRendererChain::DrawType::kStencilAndColor
@@ -130,7 +128,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
         canDrawArgs.fClipConservativeBounds = &scissorRect;
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;
-        canDrawArgs.fAATypeFlags = aaTypeFlags;
+        canDrawArgs.fAAType = aaType;
         SkASSERT(!renderTargetContext->wrapsVkSecondaryCB());
         canDrawArgs.fTargetIsWrappedVkSecondaryCB = false;
         canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
@@ -215,11 +213,10 @@ bool GrClipStackClip::apply(GrRecordingContext* context, GrRenderTargetContext* 
 
     int maxWindowRectangles = renderTargetContext->priv().maxWindowRectangles();
     int maxAnalyticFPs = kMaxAnalyticFPs;
-    if (GrFSAAType::kNone != renderTargetContext->fsaaType()) {
-        // With mixed samples (non-msaa color buffer), any coverage info is lost from color once it
-        // hits the color buffer anyway, so we may as well use coverage AA if nothing else in the
-        // pipe is multisampled.
-        if (renderTargetContext->numColorSamples() > 1 || useHWAA || hasUserStencilSettings) {
+    if (renderTargetContext->numSamples() > 1) {
+        // Disable analytic clips when using MSAA. In MSAA mode we try to never allow conflation
+        // of coverage and opacity.
+        if (useHWAA || hasUserStencilSettings) {
             maxAnalyticFPs = 0;
         }
         // We disable MSAA when avoiding stencil.
@@ -273,8 +270,8 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
     SkASSERT(rtIBounds.contains(scissor)); // Mask shouldn't be larger than the RT.
 #endif
 
-    // If the stencil buffer is multisampled we can use it to do everything.
-    if ((GrFSAAType::kNone == renderTargetContext->fsaaType() && reducedClip.maskRequiresAA()) ||
+    // MIXED SAMPLES TODO: We may want to explore using the stencil buffer for AA clipping.
+    if ((renderTargetContext->numSamples() <= 1 && reducedClip.maskRequiresAA()) ||
         context->priv().caps()->avoidStencilBuffers() ||
         renderTargetContext->wrapsVkSecondaryCB()) {
         sk_sp<GrTextureProxy> result;

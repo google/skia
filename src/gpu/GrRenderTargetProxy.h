@@ -27,14 +27,6 @@ public:
     // Actually instantiate the backing rendertarget, if necessary.
     bool instantiate(GrResourceProvider*) override;
 
-    GrFSAAType fsaaType() const {
-        if (fSampleCnt <= 1) {
-            SkASSERT(!this->hasMixedSamples());
-            return GrFSAAType::kNone;
-        }
-        return this->hasMixedSamples() ? GrFSAAType::kMixedSamples : GrFSAAType::kUnifiedMSAA;
-    }
-
     /*
      * When instantiated does this proxy require a stencil buffer?
      */
@@ -42,16 +34,9 @@ public:
     bool needsStencil() const { return fNeedsStencil; }
 
     /**
-     * Returns the number of samples/pixel in the stencil buffer (One if non-MSAA).
+     * Returns the number of samples/pixel in the color buffer (One if non-MSAA).
      */
-    int numStencilSamples() const { return fSampleCnt; }
-
-    /**
-     * Returns the number of samples/pixel in the color buffer (One if non-MSAA or mixed sampled).
-     */
-    int numColorSamples() const {
-        return GrFSAAType::kMixedSamples == this->fsaaType() ? 1 : fSampleCnt;
-    }
+    int numSamples() const { return fSampleCnt; }
 
     int maxWindowRectangles(const GrCaps& caps) const;
 
@@ -102,11 +87,6 @@ protected:
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
 private:
-    void setHasMixedSamples() {
-        fSurfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
-    }
-    bool hasMixedSamples() const { return fSurfaceFlags & GrInternalSurfaceFlags::kMixedSampled; }
-
     void setGLRTFBOIDIs0() {
         fSurfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
     }
