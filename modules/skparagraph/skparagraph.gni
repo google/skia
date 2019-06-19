@@ -12,7 +12,8 @@ skparagraph_public = [
   "$_include/Paragraph.h",
   "$_include/ParagraphBuilder.h",
   "$_include/DartTypes.h",
-  "$_src/TypefaceFontProvider.h",
+  "$_include/TestFontCollection.h",
+  "$_include/TypefaceFontProvider.h",
 ]
 
 skparagraph_sources = [
@@ -30,6 +31,7 @@ skparagraph_sources = [
   "$_src/ParagraphStyle.cpp",
   "$_src/Run.h",
   "$_src/Run.cpp",
+  "$_src/TestFontCollection.cpp",
   "$_src/TextShadow.cpp",
   "$_src/TextStyle.cpp",
   "$_src/TextWrapper.h",
