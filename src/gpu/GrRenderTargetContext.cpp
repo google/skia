@@ -44,6 +44,7 @@
 #include "src/gpu/effects/GrTextureDomain.h"
 #include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
+#include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/ops/GrClearOp.h"
@@ -450,67 +451,27 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMCol
 void GrRenderTargetContext::drawPaint(const GrClip& clip,
                                       GrPaint&& paint,
                                       const SkMatrix& viewMatrix) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawPaint", fContext);
-
-    // set rect to be big enough to fill the space, but not super-huge, so we
-    // don't overflow fixed-point implementations
-
+    // Start with the render target, since that is the maximum content we could possibly fill.
+    // drawFilledQuad() will automatically restrict it to clip bounds for us if possible.
     SkRect r = fRenderTargetProxy->getBoundsRect();
-
-    // Check if we can optimize a clipped drawPaint(). We only do the transformation when there are
-    // no fragment processors because they may depend on having correct local coords and this path
-    // draws in device space without a local matrix. It currently handles converting clipRRect()
-    // to drawRRect() and solid colors to screen-filling drawRects() (which are then converted into
-    // clears if possible in drawRect).
     if (!paint.numTotalFragmentProcessors()) {
-        SkRRect rrect;
-        GrAA aa = GrAA::kNo;
-        if (clip.isRRect(r, &rrect, &aa)) {
-            if (rrect.isRect()) {
-                // Use drawFilledRect() with no clip and the reduced rectangle
-                this->drawFilledRect(GrNoClip(), std::move(paint), aa, SkMatrix::I(), rrect.rect());
-            } else {
-                // Use drawRRect() with no clip
-                this->drawRRect(GrNoClip(), std::move(paint), aa, SkMatrix::I(), rrect,
-                                GrStyle::SimpleFill());
-            }
-        } else {
-            // Use drawFilledRect() with no view matrix to draw a fullscreen quad, but preserve
-            // the clip. Since the paint has no FPs we can drop the view matrix without worrying
-            // about local coordinates. If the clip is simple, drawFilledRect() will turn this into
-            // a clear or a scissored clear.
-            this->drawFilledRect(clip, std::move(paint), aa, SkMatrix::I(), r);
+        // The paint is trivial so we won't need to use local coordinates, so skip calculating the
+        // inverse view matrix.
+        this->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), r, r);
+    } else {
+        // Use the inverse view matrix to arrive at appropriate local coordinates for the paint.
+        SkMatrix localMatrix;
+        if (!viewMatrix.invert(&localMatrix)) {
+            return;
         }
-        return;
+        this->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), r,
+                                      localMatrix);
     }
-
-    // Since the paint is not trivial, there's no way at this point drawRect() could have converted
-    // this drawPaint() into an optimized clear. drawRect() would then use GrFillRectOp without
-    // a local matrix, so we can simplify things and use the local matrix variant to draw a screen
-    // filling rect with the inverse view matrix for local coords, which works for all matrix
-    // conditions.
-    SkMatrix localMatrix;
-    if (!viewMatrix.invert(&localMatrix)) {
-        return;
-    }
-
-    AutoCheckFlush acf(this->drawingManager());
-    std::unique_ptr<GrDrawOp> op = GrFillRectOp::Make(
-            fContext, std::move(paint), GrAAType::kNone, GrQuadAAFlags::kNone,
-            GrQuad(r), GrQuad::MakeFromRect(r, localMatrix));
-    this->addDrawOp(clip, std::move(op));
-}
-
-static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& point) {
-    return point.fX >= rect.fLeft && point.fX <= rect.fRight &&
-           point.fY >= rect.fTop && point.fY <= rect.fBottom;
 }
 
 // Attempts to crop a rect and optional local rect to the clip boundaries.
 // Returns false if the draw can be skipped entirely.
+// FIXME to be removed once drawTexture et al are updated to use attemptQuadOptimization instead
 static bool crop_filled_rect(int width, int height, const GrClip& clip,
                              const SkMatrix& viewMatrix, SkRect* rect,
                              SkRect* localRect = nullptr) {
@@ -560,173 +521,186 @@ static bool crop_filled_rect(int width, int height, const GrClip& clip,
     return rect->intersect(clipBounds);
 }
 
-GrQuadAAFlags set_edge_flag(GrQuadAAFlags currentFlags, GrQuadAAFlags edge, GrAA edgeState) {
-    if (edgeState == GrAA::kNo) {
-        // Turn off 'edge' in currentFlags
-        return currentFlags & (~edge);
-    } else {
-        // Turn on 'edge' in currentFlags
-        return currentFlags | edge;
+enum class GrRenderTargetContext::QuadOptimization {
+    // The rect to draw doesn't intersect clip or render target, so no draw op should be added
+    kDiscarded,
+    // The rect to draw was converted to some other op and appended to the oplist, so no additional
+    // op is necessary. Currently this can convert it to a clear op or a rrect op. Only valid if
+    // a constColor is provided.
+    kSubmitted,
+    // The clip was folded into the device quad, with updated edge flags and local coords, and
+    // caller is responsible for adding an appropriate op.
+    kClipApplied,
+    // No change to clip, but quad updated to better fit clip/render target, and caller is
+    // responsible for adding an appropriate op.
+    kCropped
+};
+
+GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimization(
+        const GrClip& clip, const SkPMColor4f* constColor, bool allowAAChange,
+        GrAA* aa, GrQuadAAFlags* edgeFlags, GrQuad* deviceQuad, GrQuad* localQuad) {
+    // Optimization requirements:
+    // 1. kDiscard applies when clip bounds and quad bounds do not intersect
+    // 2. kClear applies when constColor and final geom is pixel aligned rect;
+    //       pixel aligned rect requires rect clip and (rect quad or quad covers clip)
+    // 3. kRRect applies when constColor and rrect clip and quad covers clip
+    // 4. kExplicitClip applies when rect clip and (rect quad or quad covers clip)
+    // 5. kCropped applies when rect quad (currently)
+    // 6. kNone always applies
+    GrQuadAAFlags newFlags = *edgeFlags;
+
+    // Must use worst case bounds so that stencil buffer updates on approximately sized
+    // render targets don't get corrupted.
+    const SkRect rtRect = SkRect::MakeWH(fRenderTargetProxy->worstCaseWidth(),
+                                         fRenderTargetProxy->worstCaseHeight());
+    SkRect drawBounds = deviceQuad->bounds();
+    if (constColor) {
+        // Don't bother updating local coordinates when the paint will ignore them anyways
+        localQuad = nullptr;
     }
-}
 
-bool GrRenderTargetContext::drawFilledRectAsClear(const GrClip& clip, GrPaint&& paint, GrAA aa,
-                                                  const SkMatrix& viewMatrix, const SkRect& rect) {
-    // Rules for a filled rect to become a clear [+scissor]:
-    // 1. The paint is a constant blend color with no other FPs
-    // 2. The view matrix maps rectangles to rectangles, or the transformed quad fully covers
-    //    the render target (or clear region in #3).
-    // 3. The clip is an intersection of rectangles, so the clear region will be the
-    //    intersection of the clip and the provided rect.
-    // 4. The clear region aligns with pixel bounds
-    // 5. There are no user stencil settings (and since the clip was IOR, the clip won't need
-    //    to use the stencil either).
-    // If all conditions pass, the filled rect can either be a fullscreen clear (if it's big
-    // enough), or the rectangle geometry will be used as the scissor clip on the clear.
-    // If everything passes but rule #4, this submits a simplified fill rect op instead so that the
-    // rounding differences between clip and draws don't fight each other.
-    // NOTE: we route draws into clear() regardless of performColorClearsAsDraws() since the
-    // clear call is allowed to reset the oplist even when it also happens to use a GrFillRectOp.
-
-    SkPMColor4f clearColor;
-    if (paint.numCoverageFragmentProcessors() > 0 || !paint.isConstantBlendedColor(&clearColor)) {
-        return false;
+    // If the quad is entirely off screen, it doesn't matter what the clip does
+    if (!rtRect.intersects(drawBounds)) {
+        return QuadOptimization::kDiscarded;
     }
 
-    const SkRect rtRect = fRenderTargetProxy->getBoundsRect();
-    // Will be the intersection of render target, clip, and quad
-    SkRect combinedRect = rtRect;
-
-    SkRRect clipRRect;
-    GrAA clipAA;
+    // Check if clip can be represented as a rounded rect (initialize as if clip fully contained
+    // the render target).
+    SkRRect clipRRect = SkRRect::MakeRect(rtRect);
+    GrAA clipAA = allowAAChange ? GrAA::kNo : *aa;
+    bool axisAlignedClip = true;
     if (!clip.quickContains(rtRect)) {
-        // If the clip is an rrect with no rounding, then it can replace the full RT bounds as the
-        // limiting region, although we will have to worry about AA. If the clip is anything
-        // more complicated, just punt to the regular fill rect op.
-        if (!clip.isRRect(rtRect, &clipRRect, &clipAA) || !clipRRect.isRect()) {
-            return false;
+        if (!clip.isRRect(rtRect, &clipRRect, &clipAA)) {
+            axisAlignedClip = false;
         }
-
-        combinedRect = clipRRect.rect();
-    } else {
-        // The clip is outside the render target, so the clip can be ignored
-        clipAA = GrAA::kNo;
     }
 
-    GrQuadAAFlags edgeFlags; // To account for clip and draw mixing AA modes
-    if (viewMatrix.rectStaysRect()) {
-        // Skip the extra overhead of inverting the view matrix to see if rtRect is contained in the
-        // drawn rectangle, and instead just intersect rtRect with the transformed rect. It will be
-        // the new clear region.
-        SkRect drawRect = viewMatrix.mapRect(rect);
-        if (!combinedRect.intersect(drawRect)) {
-            // No intersection means nothing should be drawn, so return true but don't add an op
-            return true;
+    // If the clip rrect is valid (i.e. axis-aligned), we can potentially combine it with the
+    // draw geometry so that no clip is needed when drawing.
+    if (axisAlignedClip && (allowAAChange || clipAA == *aa)) {
+        // Tighten clip bounds (if clipRRect.isRect() is true, clipBounds now holds the intersection
+        // of the render target and the clip rect)
+        SkRect clipBounds = rtRect;
+        if (!clipBounds.intersect(clipRRect.rect()) || !clipBounds.intersects(drawBounds)) {
+            return QuadOptimization::kDiscarded;
         }
 
-        // In this case, edge flags start based on draw's AA and then switch per-edge to the clip's
-        // AA setting if that edge was inset.
-        edgeFlags = aa == GrAA::kNo ? GrQuadAAFlags::kNone : GrQuadAAFlags::kAll;
-        if (combinedRect.fLeft > drawRect.fLeft) {
-            edgeFlags = set_edge_flag(edgeFlags, GrQuadAAFlags::kLeft, clipAA);
+        if (clipRRect.isRect()) {
+            // No rounded corners, so the kClear and kExplicitClip optimizations are possible
+            if (GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad)) {
+                if (constColor && deviceQuad->quadType() == GrQuad::Type::kAxisAligned) {
+                    // Clear optimization is possible
+                    drawBounds = deviceQuad->bounds();
+                    if (drawBounds.contains(rtRect)) {
+                        // Fullscreen clear
+                        this->clear(nullptr, *constColor, CanClearFullscreen::kYes);
+                        return QuadOptimization::kSubmitted;
+                    } else if (GrClip::IsPixelAligned(drawBounds) &&
+                               drawBounds.width() > 256 && drawBounds.height() > 256) {
+                        // Scissor + clear (round shouldn't do anything since we are pixel aligned)
+                        SkIRect scissorRect;
+                        drawBounds.round(&scissorRect);
+                        this->clear(&scissorRect, *constColor, CanClearFullscreen::kNo);
+                        return QuadOptimization::kSubmitted;
+                    }
+                }
+
+                // Update overall AA setting.
+                *edgeFlags = newFlags;
+                if (*aa == GrAA::kNo && clipAA == GrAA::kYes &&
+                    newFlags != GrQuadAAFlags::kNone) {
+                    // The clip was anti-aliased and now the draw needs to be upgraded to AA to
+                    // properly reflect the smooth edge of the clip.
+                    *aa = GrAA::kYes;
+                }
+                // We intentionally do not downgrade AA here because we don't know if we need to
+                // preserve MSAA (see GrQuadAAFlags docs). But later in the pipeline, the ops can
+                // use GrResolveAATypeForQuad() to turn off coverage AA when all flags are off.
+
+                // deviceQuad is exactly the intersection of original quad and clip, so it can be
+                // drawn with no clip (submitted by caller)
+                return QuadOptimization::kClipApplied;
+            } else {
+                // The quads have been updated to better fit the clip bounds, but can't get rid of
+                // the clip entirely
+                return QuadOptimization::kCropped;
+            }
+        } else if (constColor) {
+            // Rounded corners and constant filled color (limit ourselves to solid colors because
+            // there is no way to use custom local coordinates with drawRRect).
+            if (GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad) &&
+                deviceQuad->quadType() == GrQuad::Type::kAxisAligned &&
+                deviceQuad->bounds().contains(clipBounds)) {
+                // Since the cropped quad became a rectangle which covered the bounds of the rrect,
+                // we can draw the rrect directly and ignore the edge flags
+                GrPaint paint;
+                clear_to_grpaint(*constColor, &paint);
+                this->drawRRect(GrFixedClip::Disabled(), std::move(paint), clipAA, SkMatrix::I(),
+                                clipRRect, GrStyle::SimpleFill());
+                return QuadOptimization::kSubmitted;
+            } else {
+                // The quad has been updated to better fit clip bounds, but can't remove the clip
+                return QuadOptimization::kCropped;
+            }
         }
-        if (combinedRect.fTop > drawRect.fTop) {
-            edgeFlags = set_edge_flag(edgeFlags, GrQuadAAFlags::kTop, clipAA);
-        }
-        if (combinedRect.fRight < drawRect.fRight) {
-            edgeFlags = set_edge_flag(edgeFlags, GrQuadAAFlags::kRight, clipAA);
-        }
-        if (combinedRect.fBottom < drawRect.fBottom) {
-            edgeFlags = set_edge_flag(edgeFlags, GrQuadAAFlags::kBottom, clipAA);
-        }
-    } else {
-        // If the transformed rectangle does not contain the combined rt and clip, the draw is too
-        // complex to be implemented as a clear
-        SkMatrix invM;
-        if (!viewMatrix.invert(&invM)) {
-            return false;
-        }
-        // The clip region in the rect's local space, so the test becomes the local rect containing
-        // the quad's points. If clip is non-AA, test rounded out region to avoid the scenario where
-        // the draw contains the unrounded non-aa clip, but does not contain the rounded version. Be
-        // conservative since we don't know how the GPU would round.
-        SkRect conservative;
-        if (clipAA == GrAA::kNo) {
-            conservative = SkRect::Make(combinedRect.roundOut());
-        } else {
-            conservative = combinedRect;
-        }
-        GrQuad quad = GrQuad::MakeFromRect(conservative, invM);
-        if (!rect_contains_inclusive(rect, quad.point(0)) ||
-            !rect_contains_inclusive(rect, quad.point(1)) ||
-            !rect_contains_inclusive(rect, quad.point(2)) ||
-            !rect_contains_inclusive(rect, quad.point(3))) {
-            // No containment, so combinedRect can't be filled by a solid color
-            return false;
-        }
-        // combinedRect can be filled by a solid color but doesn't need to be modified since it's
-        // inside the quad to be drawn, which also means the edge AA flags respect the clip AA
-        edgeFlags = clipAA == GrAA::kNo ? GrQuadAAFlags::kNone : GrQuadAAFlags::kAll;
     }
 
-    // Almost every condition is met; now it requires that the combined rect align with pixel
-    // boundaries in order for it to become a scissor-clear. Ignore the AA status in this case
-    // since non-AA with partial-pixel coordinates can be rounded differently on the GPU,
-    // leading to unexpected differences between a scissor test and a rasterized quad.
-    // Also skip very small rectangles since the scissor+clear doesn't by us much then.
-    if (combinedRect.contains(rtRect)) {
-        // Full screen clear
-        this->clear(nullptr, clearColor, CanClearFullscreen::kYes);
-        return true;
-    } else if (GrClip::IsPixelAligned(combinedRect) &&
-               combinedRect.width() > 256 && combinedRect.height() > 256) {
-        // Scissor + clear (round shouldn't do anything since we are pixel aligned)
-        SkIRect scissorRect;
-        combinedRect.round(&scissorRect);
-        this->clear(&scissorRect, clearColor, CanClearFullscreen::kNo);
-        return true;
+    // Crop the quad to the conservative bounds of the clip.
+    SkIRect clipDevBounds;
+    clip.getConservativeBounds(rtRect.width(), rtRect.height(), &clipDevBounds);
+    SkRect clipBounds = SkRect::Make(clipDevBounds);
+
+    // One final check for discarding, since we may have gone here directly due to a complex clip
+    if (!clipBounds.intersects(drawBounds)) {
+        return QuadOptimization::kDiscarded;
     }
 
-    // If we got here, we can't use a scissor + clear, but combinedRect represents the correct
-    // geometry combination of quad + clip so we can perform a simplified fill rect op. We do this
-    // mostly to avoid mismatches in rounding logic on the CPU vs. the GPU, which frequently appears
-    // when drawing and clipping something to the same non-AA rect that never-the-less has
-    // non-integer coordinates.
-    aa = edgeFlags == GrQuadAAFlags::kNone ? GrAA::kNo : GrAA::kYes;
-    GrAAType aaType = this->chooseAAType(aa);
-    this->addDrawOp(GrFixedClip::Disabled(),
-                    GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeFlags,
-                                       GrQuad(combinedRect), GrQuad(combinedRect)));
-    return true;
+    // Even if this were to return true, the crop rect does not exactly match the clip, so can not
+    // report explicit-clip. Since these edges aren't visible, don't update the final edge flags.
+    GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad);
+
+    return QuadOptimization::kCropped;
 }
 
-void GrRenderTargetContext::drawFilledRect(const GrClip& clip,
+void GrRenderTargetContext::drawFilledQuad(const GrClip& clip,
                                            GrPaint&& paint,
                                            GrAA aa,
-                                           const SkMatrix& viewMatrix,
-                                           const SkRect& rect,
+                                           GrQuadAAFlags edgeFlags,
+                                           const GrQuad& deviceQuad,
+                                           const GrQuad& localQuad,
                                            const GrUserStencilSettings* ss) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawFilledQuad", fContext);
 
-    if (!ss) {
-        if (this->drawFilledRectAsClear(clip, std::move(paint), aa, viewMatrix, rect)) {
-            return;
-        }
-        // Fall through to fill rect op
-        assert_alive(paint);
+    AutoCheckFlush acf(this->drawingManager());
+
+    SkPMColor4f* constColor = nullptr;
+    SkPMColor4f paintColor;
+    if (!ss && !paint.numCoverageFragmentProcessors() &&
+        paint.isConstantBlendedColor(&paintColor)) {
+        // Only consider clears/rrects when it's easy to guarantee 100% fill with single color
+        constColor = &paintColor;
     }
 
-    SkRect croppedRect = rect;
-    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &croppedRect)) {
-        // The rectangle would not be drawn, so no need to add a draw op to the list
-        return;
+    GrQuad croppedDeviceQuad = deviceQuad;
+    GrQuad croppedLocalQuad = localQuad;
+    // Only allow AA settings to change if there are no stencil settings. If they were allowed to
+    // change at this stage, it would bypass higher-level decisions about stencil MSAA.
+    QuadOptimization opt = this->attemptQuadOptimization(clip, constColor, /* allowAAChange */ !ss,
+                                                         &aa, &edgeFlags, &croppedDeviceQuad,
+                                                         &croppedLocalQuad);
+    if (opt >= QuadOptimization::kClipApplied) {
+        // These optimizations require caller to add an op themselves
+        const GrClip& finalClip = opt == QuadOptimization::kClipApplied ? GrFixedClip::Disabled()
+                                                                        : clip;
+        GrAAType aaType = ss ? (aa == GrAA::kYes ? GrAAType::kMSAA : GrAAType::kNone)
+                             : this->chooseAAType(aa);
+        this->addDrawOp(finalClip, GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeFlags,
+                                                      croppedDeviceQuad, croppedLocalQuad, ss));
     }
-
-    GrAAType aaType = this->chooseAAType(aa);
-    GrQuadAAFlags edgeFlags = aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
-    this->addDrawOp(clip,
-                    GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeFlags,
-                                       GrQuad::MakeFromRect(croppedRect, viewMatrix),
-                                       GrQuad(croppedRect), ss));
+    // All other optimization levels were completely handled inside attempt(), so no extra op needed
 }
 
 void GrRenderTargetContext::drawRect(const GrClip& clip,
@@ -750,7 +724,8 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
 
     const SkStrokeRec& stroke = style->strokeRec();
     if (stroke.getStyle() == SkStrokeRec::kFill_Style) {
-        this->drawFilledRect(clip, std::move(paint), aa, viewMatrix, rect);
+        // Fills the rect, using rect as its own local coordinates
+        this->fillRectToRect(clip, std::move(paint), aa, viewMatrix, rect, rect);
         return;
     } else if (stroke.getStyle() == SkStrokeRec::kStroke_Style ||
                stroke.getStyle() == SkStrokeRec::kHairline_Style) {
@@ -890,98 +865,6 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
     }
     op->setClippedBounds(bounds);
     fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
-}
-
-void GrRenderTargetContextPriv::stencilRect(const GrClip& clip,
-                                            const GrUserStencilSettings* ss,
-                                            GrPaint&& paint,
-                                            GrAA doStencilMSAA,
-                                            const SkMatrix& viewMatrix,
-                                            const SkRect& rect,
-                                            const SkMatrix* localMatrix) {
-    ASSERT_SINGLE_OWNER_PRIV
-    RETURN_IF_ABANDONED_PRIV
-    SkDEBUGCODE(fRenderTargetContext->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContextPriv", "stencilRect",
-                                   fRenderTargetContext->fContext);
-
-    AutoCheckFlush acf(fRenderTargetContext->drawingManager());
-
-    auto aaType = (GrAA::kYes == doStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
-
-    GrQuad localQuad = localMatrix ? GrQuad::MakeFromRect(rect, *localMatrix)
-                                   : GrQuad(rect);
-    std::unique_ptr<GrDrawOp> op = GrFillRectOp::Make(
-            fRenderTargetContext->fContext, std::move(paint), aaType, GrQuadAAFlags::kNone,
-            GrQuad::MakeFromRect(rect, viewMatrix), localQuad, ss);
-    fRenderTargetContext->addDrawOp(clip, std::move(op));
-}
-
-void GrRenderTargetContext::fillRectWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa,
-                                               GrQuadAAFlags edgeAA, const SkMatrix& viewMatrix,
-                                               const SkRect& rect, const SkRect* localRect) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "fillRectWithEdgeAA", fContext);
-
-    GrAAType aaType = this->chooseAAType(aa);
-    std::unique_ptr<GrDrawOp> op;
-
-    if (localRect) {
-        // If local coordinates are provided, skip the optimization check to go through
-        // drawFilledRect, and also calculate clipped local coordinates
-        SkRect croppedRect = rect;
-        SkRect croppedLocalRect = *localRect;
-        if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &croppedRect,
-                              &croppedLocalRect)) {
-            return;
-        }
-        op = GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeAA,
-                                GrQuad::MakeFromRect(croppedRect, viewMatrix),
-                                GrQuad(croppedLocalRect));
-    } else {
-        // If aaType turns into MSAA, make sure to keep quads with no AA edges as MSAA. Sending
-        // those to drawFilledRect() would have it turn off MSAA in that case, which breaks seaming
-        // with any partial AA edges that kept MSAA.
-        if (aaType != GrAAType::kMSAA &&
-            (edgeAA == GrQuadAAFlags::kNone || edgeAA == GrQuadAAFlags::kAll)) {
-            // This is equivalent to a regular filled rect draw, so route through there to take
-            // advantage of draw->clear optimizations
-            this->drawFilledRect(clip, std::move(paint), GrAA(edgeAA == GrQuadAAFlags::kAll),
-                                 viewMatrix, rect);
-            return;
-        }
-
-        SkRect croppedRect = rect;
-        if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &croppedRect)) {
-            return;
-        }
-        op = GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeAA,
-                                GrQuad::MakeFromRect(croppedRect, viewMatrix),
-                                GrQuad(croppedRect));
-    }
-
-    AutoCheckFlush acf(this->drawingManager());
-    this->addDrawOp(clip, std::move(op));
-}
-
-void GrRenderTargetContext::fillQuadWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa,
-                                               GrQuadAAFlags edgeAA, const SkMatrix& viewMatrix,
-                                               const SkPoint quad[4], const SkPoint localQuad[4]) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "fillQuadWithEdgeAA", fContext);
-
-    GrAAType aaType = this->chooseAAType(aa);
-
-    AutoCheckFlush acf(this->drawingManager());
-    const SkPoint* localPoints = localQuad ? localQuad : quad;
-    this->addDrawOp(clip,
-                    GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeAA,
-                                       GrQuad::MakeFromSkQuad(quad, viewMatrix),
-                                       GrQuad::MakeFromSkQuad(localPoints, SkMatrix::I())));
 }
 
 // Creates a paint for GrFillRectOp that matches behavior of GrTextureOp
@@ -1145,32 +1028,6 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
                                        std::move(texXform));
         this->addDrawOp(clip, std::move(op));
     }
-}
-
-void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
-                                                    GrPaint&& paint,
-                                                    GrAA aa,
-                                                    const SkMatrix& viewMatrix,
-                                                    const SkRect& rectToDraw,
-                                                    const SkMatrix& localMatrix) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "fillRectWithLocalMatrix", fContext);
-
-    SkRect croppedRect = rectToDraw;
-    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &croppedRect)) {
-        return;
-    }
-
-    AutoCheckFlush acf(this->drawingManager());
-
-    GrAAType aaType = this->chooseAAType(aa);
-    GrQuadAAFlags edgeFlags = aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
-    this->addDrawOp(clip,
-                    GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeFlags,
-                                       GrQuad::MakeFromRect(croppedRect, viewMatrix),
-                                       GrQuad::MakeFromRect(croppedRect, localMatrix)));
 }
 
 void GrRenderTargetContext::drawVertices(const GrClip& clip,
@@ -1918,8 +1775,8 @@ sk_sp<GrRenderTargetContext> GrRenderTargetContext::rescale(const SkImageInfo& i
             GrPaint paint;
             paint.addColorFragmentProcessor(std::move(fp));
             paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-            currRTC->drawFilledRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                    dstRect);
+            currRTC->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                                    dstRect, dstRect);
         } else {
             auto filter = rescaleQuality == kNone_SkFilterQuality ? GrSamplerState::Filter::kNearest
                                                                   : GrSamplerState::Filter::kBilerp;
@@ -2274,6 +2131,9 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
 
     auto texMatrix = SkMatrix::MakeTrans(x, y);
 
+    SkRect dstRectY = SkRect::MakeWH(dstW, dstH);
+    SkRect dstRectUV = SkRect::MakeWH(dstW / 2, dstH / 2);
+
     // This matrix generates (r,g,b,a) = (0, 0, 0, y)
     float yM[20];
     std::fill_n(yM, 15, 0.f);
@@ -2283,8 +2143,8 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
     auto yFP = GrColorMatrixFragmentProcessor::Make(yM, false, true, false);
     yPaint.addColorFragmentProcessor(std::move(yFP));
     yPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    yRTC->drawFilledRect(GrNoClip(), std::move(yPaint), GrAA::kNo, SkMatrix::I(),
-                         SkRect::MakeWH(dstW, dstH));
+    yRTC->fillRectToRect(GrNoClip(), std::move(yPaint), GrAA::kNo, SkMatrix::I(),
+                         dstRectY, dstRectY);
     auto yTransfer = yRTC->transferPixels(GrColorType::kAlpha_8,
                                           SkIRect::MakeWH(yRTC->width(), yRTC->height()));
     if (!yTransfer.fTransferBuffer) {
@@ -2302,8 +2162,8 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
     auto uFP = GrColorMatrixFragmentProcessor::Make(uM, false, true, false);
     uPaint.addColorFragmentProcessor(std::move(uFP));
     uPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    uRTC->drawFilledRect(GrNoClip(), std::move(uPaint), GrAA::kNo, SkMatrix::I(),
-                         SkRect::MakeWH(dstW / 2, dstH / 2));
+    uRTC->fillRectToRect(GrNoClip(), std::move(uPaint), GrAA::kNo, SkMatrix::I(),
+                         dstRectUV, dstRectUV);
     auto uTransfer = uRTC->transferPixels(GrColorType::kAlpha_8,
                                           SkIRect::MakeWH(uRTC->width(), uRTC->height()));
     if (!uTransfer.fTransferBuffer) {
@@ -2320,8 +2180,8 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
     auto vFP = GrColorMatrixFragmentProcessor::Make(vM, false, true, false);
     vPaint.addColorFragmentProcessor(std::move(vFP));
     vPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    vRTC->drawFilledRect(GrNoClip(), std::move(vPaint), GrAA::kNo, SkMatrix::I(),
-                         SkRect::MakeWH(dstW / 2, dstH / 2));
+    vRTC->fillRectToRect(GrNoClip(), std::move(vPaint), GrAA::kNo, SkMatrix::I(),
+                         dstRectUV, dstRectUV);
     auto vTransfer = vRTC->transferPixels(GrColorType::kAlpha_8,
                                           SkIRect::MakeWH(vRTC->width(), vRTC->height()));
     if (!vTransfer.fTransferBuffer) {
