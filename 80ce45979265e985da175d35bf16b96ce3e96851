@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "126dd24d_a8be93bc",
+        "filename": "bench/VertexColorSpaceBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-19T18:58:25Z",
+      "side": 1,
+      "message": "WDYT about using an enum classs instead of a bool here?",
+      "range": {
+        "startLine": 155,
+        "startChar": 43,
+        "endLine": 155,
+        "endChar": 66
+      },
+      "revId": "80ce45979265e985da175d35bf16b96ce3e96851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
