@@ -28,6 +28,10 @@ public:
                                                         const GrMtlPipelineState*,
                                                         GrMtlGpuRTCommandBuffer* gpuCommandBuffer);
 
+    void addCompletedHandler(MTLCommandBufferHandler block) {
+        [fCmdBuffer addCompletedHandler:block];
+    }
+
 private:
     GrMtlCommandBuffer(id<MTLCommandBuffer> cmdBuffer)
         : fCmdBuffer(cmdBuffer)
