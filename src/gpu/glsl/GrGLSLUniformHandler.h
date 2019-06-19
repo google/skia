@@ -75,7 +75,7 @@ protected:
     GrGLSLProgramBuilder* fProgramBuilder;
 
 private:
-    virtual const GrShaderVar& samplerVariable(SamplerHandle) const = 0;
+    virtual const char * samplerVariable(SamplerHandle) const = 0;
     // Only called if GrShaderCaps(:textureSwizzleAppliedInShader() == true.
     virtual GrSwizzle samplerSwizzle(SamplerHandle) const = 0;
 
