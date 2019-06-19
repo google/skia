@@ -1,4 +1,5 @@
 // Copyright 2019 Google LLC.
+#include <src/utils/SkShaperJSONWriter.h>
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorPriv.h"
@@ -15,6 +16,7 @@
 #include "include/utils/SkRandom.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
+#include "modules/skparagraph/include/TestFontCollection.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "samplecode/Sample.h"
@@ -31,29 +33,6 @@ sk_sp<SkShader> setgrad(const SkRect& r, SkColor c0, SkColor c1) {
     SkPoint pts[] = {{r.fLeft, r.fTop}, {r.fRight, r.fTop}};
     return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 }
-
-class TestFontCollection : public FontCollection {
-public:
-    TestFontCollection() : fResourceDir(GetResourcePath("fonts").c_str()) {
-        auto fontProvider = sk_make_sp<TypefaceFontProvider>();
-
-        SkOSFile::Iter iter(fResourceDir.c_str());
-        SkString path;
-        while (iter.next(&path)) {
-            SkString file_path;
-            file_path.printf("%s/%s", fResourceDir.c_str(), path.c_str());
-            fontProvider->registerTypeface(SkTypeface::MakeFromFile(file_path.c_str()));
-        }
-
-        this->setTestFontManager(std::move(fontProvider));
-        this->disableFontFallback();
-    }
-
-    ~TestFontCollection() = default;
-
-private:
-    std::string fResourceDir;
-};
 }  // namespace
 
 class ParagraphView1 : public Sample {
@@ -1318,21 +1297,21 @@ protected:
                 "    // Perform some action\n"
                 "  },\n"
                 ");";
-
         ParagraphStyle paragraph_style;
         paragraph_style.turnHintingOff();
         ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<FontCollection>());
 
         TextStyle text_style;
-        text_style.setFontFamilies({SkString("monospace")});
+        text_style.setFontFamilies({});
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontSize(10);
+        text_style.setFontSize(20);
         builder.pushStyle(text_style);
         builder.addText(text);
         builder.pop();
 
         auto paragraph = builder.Build();
-        paragraph->layout(1000);
+        paragraph->layout(500);
+
         auto result =
                 paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
         SkPaint paint;
