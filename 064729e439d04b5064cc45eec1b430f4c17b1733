@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c659e93_38790a3e",
+        "filename": "src/gpu/gl/GrGLAssembleGLInterfaceAutogen.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-06-19T13:00:32Z",
+      "side": 1,
+      "message": "seems like one of these conditional statements should have changed.",
+      "revId": "064729e439d04b5064cc45eec1b430f4c17b1733",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
