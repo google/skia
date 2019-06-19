@@ -120,6 +120,9 @@ public:
             const SkPaint&, const SkFont&, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos);
     void drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin, SkBaseDevice*);
 
+    const SkGlyphRunList& textBlobToGlyphRunListWithoutRSX(
+            const SkPaint& paint, const SkTextBlob& blob, SkPoint origin);
+
     const SkGlyphRunList& useGlyphRunList();
 
     bool empty() const { return fGlyphRunListStorage.size() == 0; }
