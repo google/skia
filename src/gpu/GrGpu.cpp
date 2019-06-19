@@ -399,7 +399,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
 
 int GrGpu::findOrAssignSamplePatternKey(GrRenderTarget* renderTarget) {
     SkASSERT(this->caps()->sampleLocationsSupport());
-    SkASSERT(renderTarget->numStencilSamples() > 1);
+    SkASSERT(renderTarget->numSamples() > 1);
 
     SkSTArray<16, SkPoint> sampleLocations;
     this->querySampleLocations(renderTarget, &sampleLocations);

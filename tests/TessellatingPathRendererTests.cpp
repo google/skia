@@ -698,13 +698,11 @@ static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrC
     return as_SB(shader)->asFragmentProcessor(args);
 }
 
-using AATypeFlags = GrPathRenderer::AATypeFlags;
-
 static void test_path(GrContext* ctx,
                       GrRenderTargetContext* renderTargetContext,
                       const SkPath& path,
                       const SkMatrix& matrix = SkMatrix::I(),
-                      AATypeFlags aaTypeFlags = AATypeFlags::kNone,
+                      GrAAType aaType = GrAAType::kNone,
                       std::unique_ptr<GrFragmentProcessor> fp = nullptr) {
     GrTessellatingPathRenderer tess;
     tess.setMaxVerbCount(100);
@@ -728,7 +726,7 @@ static void test_path(GrContext* ctx,
                                       &clipConservativeBounds,
                                       &matrix,
                                       &shape,
-                                      aaTypeFlags,
+                                      aaType,
                                       false};
     tess.drawPath(args);
 }
@@ -767,34 +765,34 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_16());
     SkMatrix nonInvertibleMatrix = SkMatrix::MakeScale(0, 0);
     std::unique_ptr<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx));
-    test_path(ctx, rtc.get(), create_path_17(), nonInvertibleMatrix, AATypeFlags::kCoverage,
+    test_path(ctx, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage,
               std::move(fp));
     test_path(ctx, rtc.get(), create_path_18());
     test_path(ctx, rtc.get(), create_path_19());
-    test_path(ctx, rtc.get(), create_path_20(), SkMatrix(), AATypeFlags::kCoverage);
-    test_path(ctx, rtc.get(), create_path_21(), SkMatrix(), AATypeFlags::kCoverage);
+    test_path(ctx, rtc.get(), create_path_20(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_21(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_23());
     test_path(ctx, rtc.get(), create_path_24());
-    test_path(ctx, rtc.get(), create_path_25(), SkMatrix(), AATypeFlags::kCoverage);
-    test_path(ctx, rtc.get(), create_path_26(), SkMatrix(), AATypeFlags::kCoverage);
-    test_path(ctx, rtc.get(), create_path_27(), SkMatrix(), AATypeFlags::kCoverage);
-    test_path(ctx, rtc.get(), create_path_28(), SkMatrix(), AATypeFlags::kCoverage);
+    test_path(ctx, rtc.get(), create_path_25(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_26(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_27(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_28(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_29());
     test_path(ctx, rtc.get(), create_path_30());
-    test_path(ctx, rtc.get(), create_path_31(), SkMatrix(), AATypeFlags::kCoverage);
+    test_path(ctx, rtc.get(), create_path_31(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_32());
     test_path(ctx, rtc.get(), create_path_33());
     test_path(ctx, rtc.get(), create_path_34());
     test_path(ctx, rtc.get(), create_path_35());
     test_path(ctx, rtc.get(), create_path_36());
     test_path(ctx, rtc.get(), create_path_37());
-    test_path(ctx, rtc.get(), create_path_38(), SkMatrix(), AATypeFlags::kCoverage);
+    test_path(ctx, rtc.get(), create_path_38(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_39());
     test_path(ctx, rtc.get(), create_path_40());
-    test_path(ctx, rtc.get(), create_path_41(), SkMatrix(), AATypeFlags::kCoverage);
+    test_path(ctx, rtc.get(), create_path_41(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_42());
-    test_path(ctx, rtc.get(), create_path_43(), SkMatrix(), AATypeFlags::kCoverage);
-    test_path(ctx, rtc.get(), create_path_44(), SkMatrix(), AATypeFlags::kCoverage);
-    test_path(ctx, rtc.get(), create_path_45(), SkMatrix(), AATypeFlags::kCoverage);
-    test_path(ctx, rtc.get(), create_path_46(), SkMatrix(), AATypeFlags::kCoverage);
+    test_path(ctx, rtc.get(), create_path_43(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_44(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_45(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_46(), SkMatrix(), GrAAType::kCoverage);
 }

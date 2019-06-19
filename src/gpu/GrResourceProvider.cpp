@@ -389,7 +389,7 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
         }
 #endif
         GrStencilAttachment::ComputeSharedStencilAttachmentKey(width, height,
-                                                               rt->numStencilSamples(), &sbKey);
+                                                               rt->numSamples(), &sbKey);
         auto stencil = this->findByUniqueKey<GrStencilAttachment>(sbKey);
         if (!stencil) {
             // Need to try and create a new stencil
