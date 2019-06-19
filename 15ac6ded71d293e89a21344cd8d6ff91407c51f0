@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f444f19a_9898b1e3",
+        "filename": "gm/imagemakewithfilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-19T17:37:55Z",
+      "side": 1,
+      "message": "Curious why we\u0027re crashing. If makeTextureImage() is crashing that\u0027s an actual bug we should fix. If it\u0027s the asserts below maybe we can just modify that the asserts to check whether the context is abandoned?",
+      "revId": "15ac6ded71d293e89a21344cd8d6ff91407c51f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
