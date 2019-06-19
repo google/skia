@@ -26,7 +26,7 @@ public:
         fragBuilder->codeAppendf(
                 "half2 coord = half2(%s.x, 0.5);\n%s = texture(%s, float2(coord)).%s;\n",
                 args.fInputColor, args.fOutputColor,
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
+                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
     }
 

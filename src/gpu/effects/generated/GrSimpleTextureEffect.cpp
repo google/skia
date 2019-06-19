@@ -28,7 +28,7 @@ public:
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
                 "%s = %s * texture(%s, %s).%s;\n", args.fOutputColor, args.fInputColor,
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
+                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
     }
