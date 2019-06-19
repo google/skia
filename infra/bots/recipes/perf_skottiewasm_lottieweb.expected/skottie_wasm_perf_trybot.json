@@ -130,19 +130,19 @@
   },
   {
     "cmd": [
-      "[START_DIR]/node/node/bin/node",
-      "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf/skottie-wasm-perf.js",
       "--input",
       "[START_DIR]/lottie-samples/lottie1.json",
       "--output",
       "[CLEANUP]/g3_try_tmp_1/lottie1.json",
+      "[START_DIR]/node/node/bin/node",
+      "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf/skottie-wasm-perf.js",
       "--canvaskit_js",
       "[START_DIR]/build/canvaskit.js",
       "--canvaskit_wasm",
       "[START_DIR]/build/canvaskit.wasm"
     ],
     "cwd": "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf",
-    "name": "Run skottie-wasm-perf.js"
+    "name": "Run perf cmd line app"
   },
   {
     "cmd": [
@@ -160,19 +160,19 @@
   },
   {
     "cmd": [
-      "[START_DIR]/node/node/bin/node",
-      "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf/skottie-wasm-perf.js",
       "--input",
       "[START_DIR]/lottie-samples/lottie2.json",
       "--output",
       "[CLEANUP]/g3_try_tmp_1/lottie2.json",
+      "[START_DIR]/node/node/bin/node",
+      "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf/skottie-wasm-perf.js",
       "--canvaskit_js",
       "[START_DIR]/build/canvaskit.js",
       "--canvaskit_wasm",
       "[START_DIR]/build/canvaskit.wasm"
     ],
     "cwd": "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf",
-    "name": "Run skottie-wasm-perf.js (2)"
+    "name": "Run perf cmd line app (2)"
   },
   {
     "cmd": [
@@ -190,19 +190,19 @@
   },
   {
     "cmd": [
-      "[START_DIR]/node/node/bin/node",
-      "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf/skottie-wasm-perf.js",
       "--input",
       "[START_DIR]/lottie-samples/lottie3.json",
       "--output",
       "[CLEANUP]/g3_try_tmp_1/lottie3.json",
+      "[START_DIR]/node/node/bin/node",
+      "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf/skottie-wasm-perf.js",
       "--canvaskit_js",
       "[START_DIR]/build/canvaskit.js",
       "--canvaskit_wasm",
       "[START_DIR]/build/canvaskit.wasm"
     ],
     "cwd": "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf",
-    "name": "Run skottie-wasm-perf.js (3)"
+    "name": "Run perf cmd line app (3)"
   },
   {
     "cmd": [
