@@ -22,6 +22,30 @@
       "revId": "80ce45979265e985da175d35bf16b96ce3e96851",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81978cb0_597beb26",
+        "filename": "bench/VertexColorSpaceBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-06-19T19:19:34Z",
+      "side": 1,
+      "message": "I could go either way. I decided against it because:\n\n1) This method only has one call site, and we use enum classes make the call sites more readable at the expense of them being more cumbersome to use in the methods.\n\n2) It seemed weird to convert the enum back to a bool when we call GrXferProcessor::MakeXferProcessor, but I didn\u0027t want to modify all of this to use an enum\n\n.. But like I said, I\u0027m fine to switch to an enum if you feel strongly about it.",
+      "parentUuid": "126dd24d_a8be93bc",
+      "range": {
+        "startLine": 155,
+        "startChar": 43,
+        "endLine": 155,
+        "endChar": 66
+      },
+      "revId": "80ce45979265e985da175d35bf16b96ce3e96851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
