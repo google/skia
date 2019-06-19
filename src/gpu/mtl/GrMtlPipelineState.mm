@@ -114,9 +114,10 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
 }
 
 void GrMtlPipelineState::setDrawState(id<MTLRenderCommandEncoder> renderCmdEncoder,
-                                      GrPixelConfig config, const GrXferProcessor& xferProcessor) {
+                                      const GrSwizzle& outputSwizzle,
+                                      const GrXferProcessor& xferProcessor) {
     this->bind(renderCmdEncoder);
-    this->setBlendConstants(renderCmdEncoder, config, xferProcessor);
+    this->setBlendConstants(renderCmdEncoder, outputSwizzle, xferProcessor);
     this->setDepthStencilState(renderCmdEncoder);
 }
 
@@ -167,7 +168,7 @@ static bool blend_coeff_refs_constant(GrBlendCoeff coeff) {
 }
 
 void GrMtlPipelineState::setBlendConstants(id<MTLRenderCommandEncoder> renderCmdEncoder,
-                                           GrPixelConfig config,
+                                           const GrSwizzle& swizzle,
                                            const GrXferProcessor& xferProcessor) {
     if (!renderCmdEncoder) {
         return;
@@ -179,7 +180,6 @@ void GrMtlPipelineState::setBlendConstants(id<MTLRenderCommandEncoder> renderCmd
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
     if (blend_coeff_refs_constant(srcCoeff) || blend_coeff_refs_constant(dstCoeff)) {
         // Swizzle the blend to match what the shader will output.
-        const GrSwizzle& swizzle = fGpu->caps()->shaderCaps()->configOutputSwizzle(config);
         SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
 
         [renderCmdEncoder setBlendColorRed: blendConst.fR

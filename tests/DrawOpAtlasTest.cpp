@@ -219,6 +219,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
         op.get(),
         rtc->asRenderTargetProxy(),
         nullptr,
+        rtc->asRenderTargetProxy()->outputSwizzle(),
         GrXferProcessor::DstProxy(nullptr, SkIPoint::Make(0, 0))
     };
 
