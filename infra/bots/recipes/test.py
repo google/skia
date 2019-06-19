@@ -212,6 +212,15 @@ def dm_flags(api, bot):
     # Vulkan bot *only* runs the vk config.
     if 'Vulkan' in bot:
       configs = ['vk']
+<<<<<<< HEAD   (d3548f [infra] Update Skolo Win OS version)
+=======
+      if 'Android' in bot or 'iOS' in bot:
+        configs.append('vkmsaa4')
+      else:
+        # skbug.com/9023
+        if 'IntelHD405' not in bot:
+          configs.append('vkmsaa8')
+>>>>>>> CHANGE (1811d1 Update GPU driver for Intel Skylake and later)
 
     if 'Metal' in bot:
       configs = ['mtl']
@@ -667,6 +676,7 @@ def dm_flags(api, bot):
     # skbug.com/8047
     match.append('~FloatingPointTextureTest$')
 
+<<<<<<< HEAD   (d3548f [infra] Update Skolo Win OS version)
   if 'Vulkan' in bot and 'Win10' in bot and 'IntelIris655' in bot:
     # skia:8961
     blacklist(['vk', 'gm', '_', 'savelayer_clipmask'])
@@ -718,6 +728,8 @@ def dm_flags(api, bot):
       blacklist(['vk', 'gm', '_', 'textblobmixedsizes'])
       blacklist(['vk', 'gm', '_', 'textblobmixedsizes_df'])
 
+=======
+>>>>>>> CHANGE (1811d1 Update GPU driver for Intel Skylake and later)
   if 'MoltenVK' in bot:
     # skbug.com/7959
     blacklist(['_', 'gm', '_', 'vertices_scaled_shader'])
@@ -1050,7 +1062,6 @@ TEST_BUILDERS = [
    '-ReleaseAndAbandonGpuContext'),
   'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI',
   'Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All-ANGLE',
-  'Test-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Debug-All-Vulkan',
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
