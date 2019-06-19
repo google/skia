@@ -87,11 +87,13 @@ namespace textlayout {
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              ParagraphStyle style,
-                             std::vector<Block>
-                                     blocks,
-                             sk_sp<FontCollection>
-                                     fonts)
-        : Paragraph(std::move(style), std::move(fonts)), fPicture(nullptr) {
+                             std::vector<Block> blocks,
+                             sk_sp<FontCollection> fonts)
+        : Paragraph(std::move(style)
+        , std::move(fonts))
+        , fDirtyLayout(true)
+        , fOldWidth(0)
+        , fPicture(nullptr) {
     icu::UnicodeString unicode((UChar*)utf16text.data(), SkToS32(utf16text.size()));
     std::string str;
     unicode.toUTF8String(str);
@@ -110,28 +112,48 @@ ParagraphImpl::~ParagraphImpl() = default;
 
 void ParagraphImpl::layout(SkScalar width) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-    this->resetContext();
 
-    this->resolveStrut();
-
-    if (!this->shapeTextIntoEndlessLine()) {
-        // Apply the last style to the empty text
-        FontIterator font(SkSpan<const char>(" "),
-                          SkSpan<TextBlock>(&fTextStyles.back(), 1),
-                          fFontCollection);
-        // Get the font metrics
-        font.consume();
-        LineMetrics lineMetrics(font.currentFont());
-        // Set the important values that are not zero
-        fHeight = lineMetrics.height();
-        fAlphabeticBaseline = lineMetrics.alphabeticBaseline();
-        fIdeographicBaseline = lineMetrics.ideographicBaseline();
-        return;
+    if (fDirtyLayout) {
+        this->fRuns.reset();
+        this->fClusters.reset();
+        this->fLines.reset();
+        this->fPicture = nullptr;
+    } else if (fOldWidth != width) {
+        this->fLines.reset();
     }
 
-    this->buildClusterTable();
+    if (fRuns.empty()) {
+        fClusters.reset();
+        if (!this->shapeTextIntoEndlessLine()) {
+            // Apply the last style to the empty text
+            FontIterator font(SkSpan<const char>(" "),
+                              SkSpan<TextBlock>(&fTextStyles.back(), 1),
+                              fFontCollection);
+            // Get the font metrics
+            font.consume();
+            LineMetrics lineMetrics(font.currentFont());
+            // Set the important values that are not zero
+            fHeight = lineMetrics.height();
+            fAlphabeticBaseline = lineMetrics.alphabeticBaseline();
+            fIdeographicBaseline = lineMetrics.ideographicBaseline();
+            return;
+        }
+    }
 
-    this->breakShapedTextIntoLines(width);
+    if (fClusters.empty()) {
+        this->buildClusterTable();
+        this->fLines.reset();
+    }
+
+    if (fLines.empty()) {
+        this->fPicture = nullptr;
+        this->resetContext();
+        this->resolveStrut();
+        this->breakShapedTextIntoLines(width);
+    }
+
+    this->fOldWidth = width;
+    this->fDirtyLayout = false;
 }
 
 void ParagraphImpl::resolveStrut() {
@@ -184,11 +206,6 @@ void ParagraphImpl::resetContext() {
     fMaxIntrinsicWidth = 0;
     fMinIntrinsicWidth = 0;
     fMaxLineWidth = 0;
-
-    fPicture = nullptr;
-    fRuns.reset();
-    fClusters.reset();
-    fLines.reset();
 }
 
 // Clusters in the order of the input text
@@ -349,8 +366,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
             this,
             maxWidth,
             [&](SkSpan<const char> text,
-                SkSpan<const char>
-                        textWithSpaces,
+                SkSpan<const char> textWithSpaces,
                 Cluster* start,
                 Cluster* end,
                 size_t startPos,

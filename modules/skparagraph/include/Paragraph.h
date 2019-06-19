@@ -62,6 +62,8 @@ public:
 
     virtual size_t lineNumber() = 0;
 
+    virtual void markDirty() = 0;
+
 protected:
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;

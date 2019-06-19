@@ -3,6 +3,7 @@
 # Things are easiest for everyone if these source paths are absolute.
 _src = get_path_info("src", "abspath")
 _include = get_path_info("include", "abspath")
+_utils = get_path_info("utils", "abspath")
 
 skparagraph_public = [
   "$_include/ParagraphStyle.h",
@@ -12,7 +13,7 @@ skparagraph_public = [
   "$_include/Paragraph.h",
   "$_include/ParagraphBuilder.h",
   "$_include/DartTypes.h",
-  "$_src/TypefaceFontProvider.h",
+  "$_include/TypefaceFontProvider.h",
 ]
 
 skparagraph_sources = [
@@ -35,4 +36,9 @@ skparagraph_sources = [
   "$_src/TextWrapper.h",
   "$_src/TextWrapper.cpp",
   "$_src/TypefaceFontProvider.cpp",
+]
+
+skparagraph_utils = [
+  "$_utils/TestFontCollection.h",
+  "$_utils/TestFontCollection.cpp",
 ]
