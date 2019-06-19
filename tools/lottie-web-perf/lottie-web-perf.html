@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lottie-Web Perf</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=egde,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/res/lottie.js" type="text/javascript" charset="utf-8"></script>
+    <style type="text/css" media="screen">
+      body,
+      main,
+      .anim {
+        margin: 0;
+        padding: 0;
+      }
+
+      main {
+        display: flex;
+        width: 1000px;
+        height: 1000px;
+        flex-flow: row wrap;
+      }
+    </style>
+</head>
+<body>
+  <main>
+    <div class=anim></div>
+  </main>
+  <script type="text/javascript" charset="utf-8">
+    (function () {
+      const PATH = '/res/lottie.json';
+      const RENDERER = 'svg';
+      const FRAMES = 25;
+
+      // First load the animation with autoplay false. We will control which
+      // frame to seek to and then will measure performance.
+      let anim = lottie.loadAnimation({
+        container: document.querySelector('.anim'),
+        renderer: RENDERER,
+        loop: false,
+        autoplay: false,
+        path: PATH,
+        rendererSettings: {
+          preserveAspectRatio:'xMidYMid meet'
+        },
+      });
+
+      console.log("start")
+      const t_rate = 1.0 / (FRAMES - 1);
+      let time = 0;
+      let max = -1;
+      let min = 1000000000;
+      let seek = 0;
+      let frame = 0;
+      const drawFrame = () => {
+        if (frame >= FRAMES) {
+          console.log("On average, took "+ (time/FRAMES) +" us" );
+          // These are global variables to talk with puppeteer.
+          window._avgFrameTimeUs = time/FRAMES;
+          window._minFrameTimeUs = min;
+          window._maxFrameTimeUs = max;
+          window._lottieWebDone = true;
+          return;
+        }
+
+        let start = window.performance.now();
+        anim.goToAndStop(seek, true /* isFrame */);
+        const t = (window.performance.now() - start) * 1000;
+
+        time += t;
+        console.log("Frame " + frame + " took " + t + " us");
+        console.log("Used seek " + seek);
+        if (t < min) {
+          min = t;
+        }
+        if (t > max) {
+          max = t;
+        }
+        seek += t_rate;
+        frame++;
+        window.requestAnimationFrame(drawFrame);
+      };
+      window.requestAnimationFrame(drawFrame);
+    })();
+  </script>
+</body>
+</html>
