@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ee6c25ee_de8ed6a7",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-06-19T20:28:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1abe8bd1_83a72c26",
+      "revId": "05a2d74ce19a06ffd72bede3620e7ea6aa3fc9c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "34f49cf8_2ee8befa",
         "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2019-06-19T19:34:35Z",
       "side": 1,
       "message": "Is this suggesting that the completion handler could trigger on another thread while we\u0027re in this function? Should we be guarding fTail with a mutex in that case?",
+      "revId": "05a2d74ce19a06ffd72bede3620e7ea6aa3fc9c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "391e754c_dbb0ebbb",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-06-19T20:28:45Z",
+      "side": 1,
+      "message": "It\u0027s a single producer/single consumer model -- getAllocation only changes the head and the completion handler only changes the tail. Perhaps I\u0027m wrong, but I don\u0027t think we need a mutex in this case.",
+      "parentUuid": "34f49cf8_2ee8befa",
       "revId": "05a2d74ce19a06ffd72bede3620e7ea6aa3fc9c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
