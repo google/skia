@@ -44,6 +44,14 @@ steps:
     timeout: 600s
 
   - name: 'gcr.io/skia-public/infra:prod'
+    dir: '/home/skia/golib/src/go.skia.org/infra/debugger-assets'
+    env:
+      - 'ROOT=/workspace/__debugger_assets_staging'
+      - 'SKIP_BUILD=1'
+    args: ['make', 'release_ci']
+    timeout: 600s
+
+  - name: 'gcr.io/skia-public/infra:prod'
     dir: '/home/skia/golib/src/go.skia.org/infra/api'
     env:
       - 'ROOT=/workspace/__api_staging'
@@ -109,6 +117,10 @@ steps:
     timeout: 600s
 
   - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/debugger-assets:$COMMIT_SHA', '/workspace/__debugger_assets_staging']
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/jsfiddle:$COMMIT_SHA', '/workspace/__jsfiddle_staging']
     timeout: 600s
 
@@ -120,6 +132,7 @@ images:
   - 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/particles:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/debugger:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/debugger-assets:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/jsfiddle:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/api:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/skia-release:prod'
