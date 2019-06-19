@@ -271,6 +271,7 @@
   "Perf-Debian9-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit",
   "Perf-Debian9-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM",
   "Perf-Debian9-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit",
+  "Perf-Debian9-EMCC-NUC7i5BNK-GPU-IntelIris640-wasm-Release-All-SkottieWASM",
   "Perf-Debian9-GCC-GCE-CPU-AVX2-x86-Debug-All",
   "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All",
   "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All",

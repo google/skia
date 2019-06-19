@@ -36,8 +36,8 @@ def RunSteps(api):
   api.checkout.bot_update(checkout_root=checkout_root)
 
   # Install prerequisites.
-  env = {}
-  with api.context(cwd=skottie_wasm_perf_dir, env=env):
+  env_prefixes = {'PATH': [api.path['start_dir'].join('node', 'node', 'bin')]}
+  with api.context(cwd=skottie_wasm_perf_dir, env_prefixes=env_prefixes):
     api.step('npm install', cmd=['npm', 'install'])
 
   canvaskit_js_path = api.vars.build_dir.join('canvaskit.js')
@@ -55,7 +55,7 @@ def RunSteps(api):
       if not lottie_filename.endswith('.json'):
         continue
       output_file = output_dir.join(lottie_filename)
-      with api.context(cwd=skottie_wasm_perf_dir, env=env):
+      with api.context(cwd=skottie_wasm_perf_dir):
         api.step('Run skottie-wasm-perf.js', cmd=[
             node_path, skottie_wasm_js_path,
             '--input', lottie_file,
