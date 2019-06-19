@@ -101,6 +101,11 @@
       "install"
     ],
     "cwd": "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf",
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/node/node/bin"
+      ]
+    },
     "name": "npm install"
   },
   {
