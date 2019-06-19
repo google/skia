@@ -19,17 +19,17 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLExternalValue.h"
 
-void SkParticleAffector::apply(const SkParticleUpdateParams& params,
-                               SkParticleState ps[], int count) {
+void SkParticleAffector::apply(const SkParticleUpdateParams& params, SkParticles& particles,
+                               int start, int count) {
     if (fEnabled) {
-        this->onApply(params, ps, count);
+        this->onApply(params, particles, start, count);
     }
 }
 
 void SkParticleAffector::visitFields(SkFieldVisitor* v) {
     v->visit("Enabled", fEnabled);
 }
-
+#if 0
 class SkLinearVelocityAffector : public SkParticleAffector {
 public:
     SkLinearVelocityAffector(const SkCurve& angle = 0.0f,
@@ -435,6 +435,7 @@ public:
 private:
     SkColorCurve fCurve;
 };
+#endif
 
 static const char* kDefaultCode =
     "// float rand; Every read returns a random float [0 .. 1)\n"
@@ -459,7 +460,9 @@ public:
 
     void setRandom(SkRandom* random) { fRandom = random; }
     bool canRead() const override { return true; }
-    void read(void* target) override { *(float*)target = fRandom->nextF(); }
+    void read(int index, void* target) override {
+        *(float*)target = fRandom[index].nextF();
+    }
 
 private:
     SkRandom* fRandom;
@@ -474,11 +477,15 @@ public:
 
     REFLECTED(SkInterpreterAffector, SkParticleAffector)
 
-    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
-        for (int i = 0; i < count; ++i) {
-            fRandomValue->setRandom(&ps[i].fRandom);
-            fByteCode->run(fMain, &ps[i].fAge, nullptr, 1, &params.fDeltaTime, 2);
+    void onApply(const SkParticleUpdateParams& params, SkParticles& particles,
+                 int start, int count) override {
+        float* args[SkParticles::kNumChannels];
+        for (int i = 0; i < SkParticles::kNumChannels; ++i) {
+            args[i] = particles.fData[i].get() + start;
         }
+
+        fRandomValue->setRandom(particles.fRandom.get() + start);
+        fByteCode->runStriped(fMain, args, SkParticles::kNumChannels, count, &params.fDeltaTime, 2);
     }
 
     void visitFields(SkFieldVisitor* v) override {
@@ -526,19 +533,19 @@ private:
 
 void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkParticleAffector);
-    REGISTER_REFLECTED(SkLinearVelocityAffector);
-    REGISTER_REFLECTED(SkAngularVelocityAffector);
-    REGISTER_REFLECTED(SkPointForceAffector);
-    REGISTER_REFLECTED(SkOrientationAffector);
-    REGISTER_REFLECTED(SkPositionInCircleAffector);
-    REGISTER_REFLECTED(SkPositionOnPathAffector);
-    REGISTER_REFLECTED(SkPositionOnTextAffector);
-    REGISTER_REFLECTED(SkSizeAffector);
-    REGISTER_REFLECTED(SkFrameAffector);
-    REGISTER_REFLECTED(SkColorAffector);
+//    REGISTER_REFLECTED(SkLinearVelocityAffector);
+//    REGISTER_REFLECTED(SkAngularVelocityAffector);
+//    REGISTER_REFLECTED(SkPointForceAffector);
+//    REGISTER_REFLECTED(SkOrientationAffector);
+//    REGISTER_REFLECTED(SkPositionInCircleAffector);
+//    REGISTER_REFLECTED(SkPositionOnPathAffector);
+//    REGISTER_REFLECTED(SkPositionOnTextAffector);
+//    REGISTER_REFLECTED(SkSizeAffector);
+//    REGISTER_REFLECTED(SkFrameAffector);
+//    REGISTER_REFLECTED(SkColorAffector);
     REGISTER_REFLECTED(SkInterpreterAffector);
 }
-
+#if 0
 sk_sp<SkParticleAffector> SkParticleAffector::MakeLinearVelocity(const SkCurve& angle,
                                                                  const SkCurve& strength,
                                                                  bool force,
@@ -572,3 +579,4 @@ sk_sp<SkParticleAffector> SkParticleAffector::MakeFrame(const SkCurve& curve) {
 sk_sp<SkParticleAffector> SkParticleAffector::MakeColor(const SkColorCurve& curve) {
     return sk_sp<SkParticleAffector>(new SkColorAffector(curve));
 }
+#endif

@@ -13,6 +13,7 @@
 #include "include/core/SkRSXform.h"
 #include "include/utils/SkRandom.h"
 #include "modules/particles/include/SkReflected.h"
+#include "src/core/SkAutoMalloc.h"
 
 /*
  *  Various structs used to communicate particle information among emitters, affectors, etc.
@@ -74,6 +75,31 @@ struct SkParticleState {
                 return SkVector{ 0, -1 };
         }
     }
+};
+
+struct SkParticles {
+    enum Channels {
+        kAge,
+        kInvLifetime,
+        kPositionX,
+        kPositionY,
+        kHeadingX,
+        kHeadingY,
+        kScale,
+        kVelocityX,
+        kVelocityY,
+        kVelocityAngular,
+        kColorR,
+        kColorG,
+        kColorB,
+        kColorA,
+        kSpriteFrame,
+
+        kNumChannels,
+    };
+
+    SkAutoTMalloc<float>    fData[kNumChannels];
+    SkAutoTMalloc<SkRandom> fRandom;
 };
 
 struct SkParticleUpdateParams {

@@ -346,7 +346,7 @@ static T vec_mod(T a, T b) {
 }
 
 void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack,
-              float* outReturn, I32 initMask, VValue globals[]) {
+              float* outReturn, I32 initMask, VValue globals[], int baseIndex) {
     VValue* sp = stack + f->fParameterCount + f->fLocalCount - 1;
 
     auto POP =  [&]           { SkASSERT(sp     >= stack); return *(sp--); };
@@ -700,7 +700,7 @@ void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack
                 I32 m = mask();
                 for (int i = 0; i < VecWidth; ++i) {
                     if (m[i]) {
-                        byteCode->fExternalValues[src]->read(tmp);
+                        byteCode->fExternalValues[src]->read(baseIndex + i, tmp);
                         for (int j = 0; j < count; ++j) {
                             sp[j + 1].fSigned[i] = tmp[j];
                         }
@@ -996,6 +996,8 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
         globals[slot].fFloat = *uniforms++;
     }
 
+    int baseIndex = 0;
+
     while (N) {
         Interpreter::VValue* stack = smallStack;
 
@@ -1015,7 +1017,7 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
         }
 
         auto mask = w > gLanes;
-        innerRun(this, f, stack, outReturn, mask, globals);
+        innerRun(this, f, stack, outReturn, mask, globals, baseIndex);
 
         // Transpose out parameters back
         {
@@ -1038,6 +1040,7 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
 
         args += f->fParameterCount * w;
         outReturn += f->fReturnCount * w;
+        baseIndex += w;
     }
 }
 
@@ -1062,6 +1065,8 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
         globals[slot].fFloat = *uniforms++;
     }
 
+    int baseIndex = 0;
+
     while (N) {
         int w = std::min(N, Interpreter::VecWidth);
 
@@ -1071,7 +1076,7 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
         }
 
         auto mask = w > gLanes;
-        innerRun(this, f, stack, nullptr, mask, globals);
+        innerRun(this, f, stack, nullptr, mask, globals, baseIndex);
 
         // Copy out parameters back
         int slot = 0;
@@ -1089,6 +1094,7 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
             args[i] += w;
         }
         N -= w;
+        baseIndex += w;
     }
 }
 

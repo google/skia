@@ -73,10 +73,13 @@ void SkParticleEffect::update(double now) {
 
     // Advance age for existing particles, and remove any that have reached their end of life
     for (int i = 0; i < fCount; ++i) {
-        fParticles[i].fAge += fParticles[i].fInvLifetime * deltaTime;
-        if (fParticles[i].fAge > 1.0f) {
+        fParticles.fData[SkParticles::kAge][i] +=
+                fParticles.fData[SkParticles::kInvLifetime][i] * deltaTime;
+        if (fParticles.fData[SkParticles::kAge][i] > 1.0f) {
             // NOTE: This is fast, but doesn't preserve drawing order. Could be a problem...
-            fParticles[i]     = fParticles[fCount - 1];
+            for (int j = 0; j < SkParticles::kNumChannels; ++j) {
+                fParticles.fData[j][i] = fParticles.fData[j][fCount - 1];
+            }
             fStableRandoms[i] = fStableRandoms[fCount - 1];
             --i;
             --fCount;
@@ -94,37 +97,45 @@ void SkParticleEffect::update(double now) {
         for (int i = 0; i < numToSpawn; ++i) {
             // Mutate our SkRandom so each particle definitely gets a different generator
             fRandom.nextU();
-            fParticles[fCount].fAge = 0.0f;
-            fParticles[fCount].fPose.fPosition = { 0.0f, 0.0f };
-            fParticles[fCount].fPose.fHeading = { 0.0f, -1.0f };
-            fParticles[fCount].fPose.fScale = 1.0f;
-            fParticles[fCount].fVelocity.fLinear = { 0.0f, 0.0f };
-            fParticles[fCount].fVelocity.fAngular = 0.0f;
-            fParticles[fCount].fColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-            fParticles[fCount].fFrame = 0.0f;
-            fParticles[fCount].fRandom = fRandom;
+            fParticles.fData[SkParticles::kAge            ][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kPositionX      ][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kPositionY      ][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kHeadingX       ][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kHeadingY       ][fCount] = -1.0f;
+            fParticles.fData[SkParticles::kScale          ][fCount] = 1.0f;
+            fParticles.fData[SkParticles::kVelocityX      ][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kVelocityY      ][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kVelocityAngular][fCount] = 0.0f;
+            fParticles.fData[SkParticles::kColorR         ][fCount] = 1.0f;
+            fParticles.fData[SkParticles::kColorG         ][fCount] = 1.0f;
+            fParticles.fData[SkParticles::kColorB         ][fCount] = 1.0f;
+            fParticles.fData[SkParticles::kColorA         ][fCount] = 1.0f;
+            fParticles.fData[SkParticles::kSpriteFrame    ][fCount] = 0.0f;
+            fParticles.fRandom[fCount] = fRandom;
             fCount++;
         }
 
         // Apply spawn affectors
         for (auto affector : fParams->fSpawnAffectors) {
             if (affector) {
-                affector->apply(updateParams, fParticles + spawnBase, numToSpawn);
+                affector->apply(updateParams, fParticles, spawnBase, numToSpawn);
             }
         }
 
         // Now stash copies of the random generators and compute particle lifetimes
         // (so the curve can refer to spawn-computed source values)
         for (int i = spawnBase; i < fCount; ++i) {
-            fParticles[i].fInvLifetime =
-                sk_ieee_float_divide(1.0f, fParams->fLifetime.eval(updateParams, fParticles[i]));
-            fStableRandoms[i] = fParticles[i].fRandom;
+//            fParticles.fData[SkParticles::kInvLifetime][i] =
+//                sk_ieee_float_divide(1.0f, fParams->fLifetime.eval(updateParams, fParticles[i]));
+            fParticles.fData[SkParticles::kInvLifetime][i] =
+                    sk_ieee_float_divide(1.0f, fRandom.nextRangeF(2.0f, 4.0f));
+            fStableRandoms[i] = fParticles.fRandom[i];
         }
     }
 
     // Restore all stable random generators so update affectors get consistent behavior each frame
     for (int i = 0; i < fCount; ++i) {
-        fParticles[i].fRandom = fStableRandoms[i];
+        fParticles.fRandom[i] = fStableRandoms[i];
     }
 
     // During update, values that refer to kAge_Source get the *particle* age
@@ -133,19 +144,23 @@ void SkParticleEffect::update(double now) {
     // Apply update rules
     for (auto affector : fParams->fUpdateAffectors) {
         if (affector) {
-            affector->apply(updateParams, fParticles, fCount);
+            affector->apply(updateParams, fParticles, 0, fCount);
         }
     }
 
     // Do fixed-function update work (integration of position and orientation)
     for (int i = 0; i < fCount; ++i) {
-        fParticles[i].fPose.fPosition += fParticles[i].fVelocity.fLinear * deltaTime;
+        fParticles.fData[SkParticles::kPositionX][i] +=
+                fParticles.fData[SkParticles::kVelocityX][i] * deltaTime;
+        fParticles.fData[SkParticles::kPositionY][i] +=
+                fParticles.fData[SkParticles::kVelocityY][i] * deltaTime;
 
-        SkScalar s = SkScalarSin(fParticles[i].fVelocity.fAngular * deltaTime),
-                 c = SkScalarCos(fParticles[i].fVelocity.fAngular * deltaTime);
-        SkVector oldHeading = fParticles[i].fPose.fHeading;
-        fParticles[i].fPose.fHeading = { oldHeading.fX * c - oldHeading.fY * s,
-                                         oldHeading.fX * s + oldHeading.fY * c };
+        SkScalar s = SkScalarSin(fParticles.fData[SkParticles::kVelocityAngular][i] * deltaTime),
+                 c = SkScalarCos(fParticles.fData[SkParticles::kVelocityAngular][i] * deltaTime);
+        float oldHeadingX = fParticles.fData[SkParticles::kHeadingX][i],
+              oldHeadingY = fParticles.fData[SkParticles::kHeadingY][i];
+        fParticles.fData[SkParticles::kHeadingX][i] = oldHeadingX * c - oldHeadingY * s;
+        fParticles.fData[SkParticles::kHeadingY][i] = oldHeadingX * s + oldHeadingY * c;
     }
 
     // Mark effect as dead if we've reached the end (and are not looping)
@@ -158,12 +173,15 @@ void SkParticleEffect::draw(SkCanvas* canvas) {
     if (this->isAlive() && fParams->fDrawable) {
         SkPaint paint;
         paint.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
-        fParams->fDrawable->draw(canvas, fParticles.get(), fCount, &paint);
+        fParams->fDrawable->draw(canvas, fParticles, fCount, &paint);
     }
 }
 
 void SkParticleEffect::setCapacity(int capacity) {
-    fParticles.realloc(capacity);
+    for (int i = 0; i < SkParticles::kNumChannels; ++i) {
+        fParticles.fData[i].realloc(capacity);
+    }
+    fParticles.fRandom.realloc(capacity);
     fStableRandoms.realloc(capacity);
 
     fCapacity = capacity;

@@ -64,7 +64,7 @@ public:
      * that target is a valid pointer to a region of sufficient size to hold the data contained
      * in this external value.
      */
-    virtual void read(void* target) {
+    virtual void read(int index, void* target) {
         SkASSERT(false);
     }
 

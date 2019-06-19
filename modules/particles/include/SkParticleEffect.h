@@ -64,8 +64,9 @@ private:
     double fLastTime;
     float  fSpawnRemainder;
 
-    SkAutoTMalloc<SkParticleState> fParticles;
-    SkAutoTMalloc<SkRandom>        fStableRandoms;
+//    SkAutoTMalloc<SkParticleState> fParticles;
+    SkParticles             fParticles;
+    SkAutoTMalloc<SkRandom> fStableRandoms;
 
     // Cached
     int fCapacity;
