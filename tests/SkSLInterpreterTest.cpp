@@ -398,6 +398,15 @@ DEF_TEST(SkSLInterpreterWhile, r) {
          "if (color.r > 5) break; } }", 0, 0, 0, 0, 5.5, 0, 0, 0);
     test(r, "void main(inout half4 color) { while (color.r < 10) { color.r += 0.5; "
             "if (color.r < 5) continue; break; } }", 0, 0, 0, 0, 5, 0, 0, 0);
+    test(r,
+         "void main(inout half4 color) {"
+         "    while (true) {"
+         "        if (color.r > 4) { break; }"
+         "        while (true) { color.a = 1; break; }"
+         "        break;"
+         "    }"
+         "}",
+         6, 5, 4, 3, 6, 5, 4, 3);
 }
 
 DEF_TEST(SkSLInterpreterDo, r) {

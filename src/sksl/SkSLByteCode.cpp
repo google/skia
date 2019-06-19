@@ -937,8 +937,9 @@ void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack
             }
 
             case ByteCodeInstruction::kLoopBegin:
-                *(++contPtr) =  0;
-                *(++loopPtr) = ~0;
+                contPtr[1] = 0;
+                loopPtr[1] = loopPtr[0];
+                ++contPtr; ++loopPtr;
                 break;
             case ByteCodeInstruction::kLoopNext:
                 *loopPtr |= *contPtr;
