@@ -404,7 +404,13 @@ public:
             };
             rec.fPipeline->append(SkRasterPipeline::callback, ctx);
         } else {
-            auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
+            struct InterpreterCtx : public SkRasterPipeline_CallbackCtx {
+                SkSL::ByteCode* byteCode;
+                SkSL::ByteCodeFunction* main;
+                const void* inputs;
+                int ninputs;
+            };
+            auto ctx = rec.fAlloc->make<InterpreterCtx>();
             ctx->inputs = fInputs->data();
             ctx->ninputs = fInputs->size() / 4;
 
@@ -421,8 +427,13 @@ public:
                 fByteCode = c.toByteCode(*prog);
             }
             ctx->byteCode = fByteCode.get();
-            ctx->fn = ctx->byteCode->fFunctions[0].get();
-            rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
+            ctx->main = ctx->byteCode->fFunctions[0].get();
+            ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
+                auto ctx = (InterpreterCtx*)arg;
+                ctx->byteCode->run(ctx->main, ctx->rgba, nullptr, active_pixels,
+                                   (float*)ctx->inputs, ctx->ninputs);
+            };
+            rec.fPipeline->append(SkRasterPipeline::callback, ctx);
         }
         return true;
     }

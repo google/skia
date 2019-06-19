@@ -33,7 +33,7 @@
  */
 
 #define SK_RASTER_PIPELINE_STAGES(M)                               \
-    M(callback) M(interpreter)                                     \
+    M(callback)                                                    \
     M(move_src_dst) M(move_dst_src)                                \
     M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_gamut)                \
     M(unpremul) M(premul) M(premul_dst)                            \
@@ -148,19 +148,6 @@ struct SkRasterPipeline_CallbackCtx {
     // When fn() returns, the pipeline will read back those active pixels from read_from.
     float rgba[4*SkRasterPipeline_kMaxStride];
     float* read_from = rgba;
-};
-
-namespace SkSL {
-struct ByteCode;
-struct ByteCodeFunction;
-}
-
-struct SkRasterPipeline_InterpreterCtx {
-    SkSL::ByteCode*         byteCode;
-    SkSL::ByteCodeFunction* fn;
-
-    const void* inputs;
-    int         ninputs;
 };
 
 struct SkRasterPipeline_GradientCtx {

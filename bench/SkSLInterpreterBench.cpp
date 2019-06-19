@@ -12,11 +12,10 @@
 // Benchmarks the interpreter with a function that has a color-filter style signature
 class SkSLInterpreterCFBench : public Benchmark {
 public:
-    SkSLInterpreterCFBench(SkSL::String name, int pixels, bool striped, const char* src)
-        : fName(SkStringPrintf("sksl_interp_cf_%d_%d_%s", pixels, striped ? 1 : 0, name.c_str()))
+    SkSLInterpreterCFBench(SkSL::String name, int pixels, const char* src)
+        : fName(SkStringPrintf("sksl_interp_cf_%d_%s", pixels, name.c_str()))
         , fSrc(src)
-        , fCount(pixels)
-        , fStriped(striped) {}
+        , fCount(pixels) {}
 
 protected:
     const char* onGetName() override {
@@ -45,18 +44,7 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
-            if (fStriped) {
-                float* args[] = {
-                    fPixels.data() + 0 * fCount,
-                    fPixels.data() + 1 * fCount,
-                    fPixels.data() + 2 * fCount,
-                    fPixels.data() + 3 * fCount,
-                };
-
-                fByteCode->runStriped(fMain, args, 4, fCount, nullptr, 0);
-            } else {
-                fByteCode->run(fMain, fPixels.data(), nullptr, fCount, nullptr, 0);
-            }
+            fByteCode->run(fMain, fPixels.data(), nullptr, fCount, nullptr, 0);
         }
     }
 
@@ -67,7 +55,6 @@ private:
     const SkSL::ByteCodeFunction* fMain;
 
     int fCount;
-    bool fStriped;
     std::vector<float> fPixels;
 
     typedef Benchmark INHERITED;
@@ -75,16 +62,16 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const char* kLumaToAlphaSrc = R"(
+DEF_BENCH(return new SkSLInterpreterCFBench("lumaToAlpha", 256, R"(
     void main(inout float4 color) {
         color.a = color.r*0.3 + color.g*0.6 + color.b*0.1;
         color.r = 0;
         color.g = 0;
         color.b = 0;
     }
-)";
+)"));
 
-const char* kHighContrastFilterSrc = R"(
+DEF_BENCH(return new SkSLInterpreterCFBench("hcf", 256, R"(
     half ucontrast_Stage2;
     half hue2rgb_Stage2(half p, half q, half t) {
         if (t < 0)  t += 1;
@@ -142,13 +129,7 @@ const char* kHighContrastFilterSrc = R"(
         color.rgb = sqrt(color.rgb);
         color.rgb *= color.a;
     }
-)";
-
-DEF_BENCH(return new SkSLInterpreterCFBench("lumaToAlpha", 256, false, kLumaToAlphaSrc));
-DEF_BENCH(return new SkSLInterpreterCFBench("lumaToAlpha", 256, true, kLumaToAlphaSrc));
-
-DEF_BENCH(return new SkSLInterpreterCFBench("hcf", 256, false, kHighContrastFilterSrc));
-DEF_BENCH(return new SkSLInterpreterCFBench("hcf", 256, true, kHighContrastFilterSrc));
+)"));
 
 class SkSLInterpreterSortBench : public Benchmark {
 public:
