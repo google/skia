@@ -74,7 +74,7 @@ void GrTextureOpList::dump(bool printDependencies) const {
 #endif
 
 void GrTextureOpList::onPrepare(GrOpFlushState* flushState) {
-    SkASSERT(fTarget.get()->peekTexture());
+    SkASSERT(fTarget->peekTexture());
     SkASSERT(this->isClosed());
 
     // Loop over the ops that haven't yet generated their geometry
@@ -99,11 +99,11 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
         return false;
     }
 
-    SkASSERT(fTarget.get()->peekTexture());
+    SkASSERT(fTarget->peekTexture());
 
     GrGpuTextureCommandBuffer* commandBuffer(
-                         flushState->gpu()->getCommandBuffer(fTarget.get()->peekTexture(),
-                                                             fTarget.get()->origin()));
+                         flushState->gpu()->getCommandBuffer(fTarget->peekTexture(),
+                                                             fTarget->origin()));
     flushState->setCommandBuffer(commandBuffer);
 
     for (int i = 0; i < fRecordedOps.count(); ++i) {
@@ -231,11 +231,11 @@ void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
 }
 
 void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op) {
-    SkASSERT(fTarget.get());
+    SkASSERT(fTarget);
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
 
-    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), fTarget.get()->uniqueID());
+    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), fTarget->uniqueID());
     GrOP_INFO("Re-Recording (%s, opID: %u)\n"
         "\tBounds LRTB (%f, %f, %f, %f)\n",
         op->name(),

@@ -76,8 +76,8 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
         return false;
     }
 
-    SkASSERT(!fTarget->asRenderTarget());
-    SkASSERT(fTarget->asTexture());
+    SkASSERT(!this->peekRenderTarget());
+    SkASSERT(this->peekTexture());
     return true;
 }
 
@@ -102,7 +102,7 @@ void GrTextureProxyPriv::setDeferredUploader(std::unique_ptr<GrDeferredProxyUplo
 
 void GrTextureProxyPriv::scheduleUpload(GrOpFlushState* flushState) {
     // The texture proxy's contents may already have been uploaded or instantiation may have failed
-    if (fTextureProxy->fDeferredUploader && fTextureProxy->fTarget) {
+    if (fTextureProxy->fDeferredUploader && fTextureProxy->isInstantiated()) {
         fTextureProxy->fDeferredUploader->scheduleUpload(flushState, fTextureProxy);
     }
 }

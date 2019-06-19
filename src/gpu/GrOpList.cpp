@@ -32,26 +32,26 @@ GrOpList::GrOpList(sk_sp<GrOpMemoryPool> opMemoryPool,
         , fUniqueID(CreateUniqueID())
         , fFlags(0) {
     SkASSERT(fOpMemoryPool);
-    fTarget.setProxy(std::move(surfaceProxy));
-    fTarget.get()->setLastOpList(this);
+    fTarget = std::move(surfaceProxy);
+    fTarget->setLastOpList(this);
 }
 
 GrOpList::~GrOpList() {
-    if (fTarget.get() && this == fTarget.get()->getLastOpList()) {
+    if (fTarget && this == fTarget->getLastOpList()) {
         // Ensure the target proxy doesn't keep hold of a dangling back pointer.
-        fTarget.get()->setLastOpList(nullptr);
+        fTarget->setLastOpList(nullptr);
     }
 }
 
 // TODO: this can go away when explicit allocation has stuck
 bool GrOpList::instantiate(GrResourceProvider* resourceProvider) {
-    SkASSERT(fTarget.get()->isInstantiated());
+    SkASSERT(fTarget->isInstantiated());
     return true;
 }
 
 void GrOpList::endFlush() {
-    if (fTarget.get() && this == fTarget.get()->getLastOpList()) {
-        fTarget.get()->setLastOpList(nullptr);
+    if (fTarget && this == fTarget->getLastOpList()) {
+        fTarget->setLastOpList(nullptr);
     }
 
     fTarget.reset();
@@ -148,7 +148,7 @@ void GrOpList::validate() const {
 }
 #endif
 
-bool GrOpList::isInstantiated() const { return fTarget.get()->isInstantiated(); }
+bool GrOpList::isInstantiated() const { return fTarget->isInstantiated(); }
 
 void GrOpList::closeThoseWhoDependOnMe(const GrCaps& caps) {
     for (int i = 0; i < fDependents.count(); ++i) {
@@ -163,20 +163,19 @@ bool GrOpList::isFullyInstantiated() const {
         return false;
     }
 
-    GrSurfaceProxy* proxy = fTarget.get();
-    bool needsStencil = proxy->asRenderTargetProxy()
-                                        ? proxy->asRenderTargetProxy()->needsStencil()
+    bool needsStencil = fTarget->asRenderTargetProxy()
+                                        ? fTarget->asRenderTargetProxy()->needsStencil()
                                         : false;
 
     if (needsStencil) {
-        GrRenderTarget* rt = proxy->peekRenderTarget();
+        GrRenderTarget* rt = fTarget->peekRenderTarget();
 
         if (!rt->renderTargetPriv().getStencilAttachment()) {
             return false;
         }
     }
 
-    GrSurface* surface = proxy->peekSurface();
+    GrSurface* surface = fTarget->peekSurface();
     if (surface->wasDestroyed()) {
         return false;
     }
@@ -192,9 +191,9 @@ static const char* op_to_name(GrLoadOp op) {
 void GrOpList::dump(bool printDependencies) const {
     SkDebugf("--------------------------------------------------------------\n");
     SkDebugf("opListID: %d - proxyID: %d - surfaceID: %d\n", fUniqueID,
-             fTarget.get() ? fTarget.get()->uniqueID().asUInt() : -1,
-             fTarget.get() && fTarget.get()->peekSurface()
-                     ? fTarget.get()->peekSurface()->uniqueID().asUInt()
+             fTarget ? fTarget->uniqueID().asUInt() : -1,
+             fTarget && fTarget->peekSurface()
+                     ? fTarget->peekSurface()->uniqueID().asUInt()
                      : -1);
     SkDebugf("ColorLoadOp: %s %x StencilLoadOp: %s\n",
              op_to_name(fColorLoadOp),

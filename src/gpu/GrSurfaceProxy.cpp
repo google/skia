@@ -51,16 +51,6 @@ static bool is_valid_non_lazy(const GrSurfaceDesc& desc) {
 }
 #endif
 
-#if GR_TEST_UTILS
-int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
-    if (fTarget) {
-        return fTarget->fRefCnt;
-    }
-
-    return -1; // no backing GrSurface
-}
-#endif
-
 // Lazy-callback version
 GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
                                const GrBackendFormat& format, const GrSurfaceDesc& desc,
@@ -98,7 +88,7 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantia
 // Wrapped version
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
                                const GrSwizzle& textureSwizzle, SkBackingFit fit)
-        : INHERITED(std::move(surface))
+        : fTarget(std::move(surface))
         , fSurfaceFlags(fTarget->surfacePriv().flags())
         , fFormat(fTarget->backendFormat())
         , fConfig(fTarget->config())
@@ -405,6 +395,20 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context, GrSurfac
     return Copy(context, src, mipMapped, SkIRect::MakeWH(src->width(), src->height()), fit,
                 budgeted);
 }
+
+#if GR_TEST_UTILS
+int32_t GrSurfaceProxy::testingOnly_getBackingRefCnt() const {
+    if (fTarget) {
+        return fTarget->testingOnly_getRefCnt();
+    }
+
+    return -1; // no backing GrSurface
+}
+
+GrInternalSurfaceFlags GrSurfaceProxy::testingOnly_getFlags() const {
+    return fSurfaceFlags;
+}
+#endif
 
 void GrSurfaceProxyPriv::exactify() {
     SkASSERT(GrSurfaceProxy::LazyState::kFully != fProxy->lazyInstantiationState());

@@ -491,7 +491,9 @@ public:
 
     GrTextTarget* textTarget() { return fTextTarget.get(); }
 
-    bool isWrapped_ForTesting() const;
+#if GR_TEST_UTILS
+    bool testingOnly_IsInstantiated() const { return fRenderTargetProxy->isInstantiated(); }
+#endif
 
 protected:
     GrRenderTargetContext(GrRecordingContext*, sk_sp<GrRenderTargetProxy>,

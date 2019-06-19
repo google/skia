@@ -498,15 +498,13 @@ void GrResourceAllocator::dumpIntervals() {
     unsigned int min = std::numeric_limits<unsigned int>::max();
     unsigned int max = 0;
     for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
-        SkDebugf("{ %3d,%3d }: [%2d, %2d] - proxyRefs:%d surfaceRefs:%d R:%d W:%d\n",
+        SkDebugf("{ %3d,%3d }: [%2d, %2d] - proxyRefs:%d surfaceRefs:%d\n",
                  cur->proxy()->uniqueID().asUInt(),
                  cur->proxy()->isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt() : -1,
                  cur->start(),
                  cur->end(),
                  cur->proxy()->priv().getProxyRefCnt(),
-                 cur->proxy()->getBackingRefCnt_TestOnly(),
-                 cur->proxy()->getPendingReadCnt_TestOnly(),
-                 cur->proxy()->getPendingWriteCnt_TestOnly());
+                 cur->proxy()->testingOnly_getBackingRefCnt());
         min = SkTMin(min, cur->start());
         max = SkTMax(max, cur->end());
     }

@@ -79,8 +79,9 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
                                GrMipMapped::kNo, nullptr)) {
         return false;
     }
-    SkASSERT(fTarget->asRenderTarget());
-    SkASSERT(!fTarget->asTexture());
+
+    SkASSERT(this->peekRenderTarget());
+    SkASSERT(!this->peekTexture());
     return true;
 }
 
@@ -110,11 +111,12 @@ size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
 }
 
 bool GrRenderTargetProxy::refsWrappedObjects() const {
-    if (!fTarget) {
+    if (!this->isInstantiated()) {
         return false;
     }
 
-    return fTarget->resourcePriv().refsWrappedObjects();
+    GrSurface* surface = this->peekSurface();
+    return surface->resourcePriv().refsWrappedObjects();
 }
 
 #ifdef SK_DEBUG
