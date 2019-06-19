@@ -206,6 +206,9 @@ def dm_flags(api, bot):
       if 'NUC5i7RYH' in bot:
         # skbug.com/7376
         blacklist('_ test _ ProcessorCloneTest')
+      if 'NUC6i5SYK' in bot or 'NUC8i5BEK' in bot:
+        # i5 NUCs are *very* slow compiling shaders in ANGLE
+        args.extend(['--programBinaryCache', 'true'])
 
     if 'AndroidOne' in bot or ('Nexus' in bot and 'Nexus5x' not in bot) or 'GalaxyS6' in bot:
       # skbug.com/9019
@@ -1083,6 +1086,7 @@ TEST_BUILDERS = [
   'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI',
   'Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Debug-All-Vulkan',
+  'Test-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Debug-All-ANGLE',
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
