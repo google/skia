@@ -22,7 +22,6 @@
 #include "modules/sksg/include/SkSGImage.h"
 #include "modules/sksg/include/SkSGMaskEffect.h"
 #include "modules/sksg/include/SkSGMerge.h"
-#include "modules/sksg/include/SkSGOpacityEffect.h"
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGPath.h"
 #include "modules/sksg/include/SkSGRect.h"
@@ -653,47 +652,44 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     // Optional blend mode.
     layer = this->attachBlendMode(*jlayer, std::move(layer));
 
+    if (!layer) {
+        return nullptr;
+    }
+
     class LayerController final : public sksg::GroupAnimator {
     public:
         LayerController(sksg::AnimatorList&& layer_animators,
-                        sk_sp<sksg::OpacityEffect> controlNode,
+                        sk_sp<sksg::RenderNode> layer,
                         float in, float out)
             : INHERITED(std::move(layer_animators))
-            , fControlNode(std::move(controlNode))
+            , fLayerNode(std::move(layer))
             , fIn(in)
             , fOut(out) {}
 
         void onTick(float t) override {
             const auto active = (t >= fIn && t < fOut);
 
-            // Keep the layer fully transparent except for its [in..out] lifespan.
-            // (note: opacity == 0 disables rendering, while opacity == 1 is a noop)
-            fControlNode->setOpacity(active ? 1 : 0);
+            fLayerNode->setVisible(active);
 
             // Dispatch ticks only while active.
             if (active) this->INHERITED::onTick(t);
         }
 
     private:
-        const sk_sp<sksg::OpacityEffect> fControlNode;
-        const float                      fIn,
-                                         fOut;
+        const sk_sp<sksg::RenderNode> fLayerNode;
+        const float                   fIn,
+                                      fOut;
 
         using INHERITED = sksg::GroupAnimator;
     };
 
-    auto controller_node = sksg::OpacityEffect::Make(std::move(layer));
-    if (!controller_node) {
-        return nullptr;
-    }
-
     layerCtx->fScope->push_back(
-        skstd::make_unique<LayerController>(std::move(layer_animators), controller_node,
+        skstd::make_unique<LayerController>(std::move(layer_animators), layer,
                                             layer_info.fInPoint, layer_info.fOutPoint));
 
     if (ParseDefault<bool>((*jlayer)["td"], false)) {
         // This layer is a matte.  We apply it as a mask to the next layer.
-        layerCtx->fCurrentMatte = std::move(controller_node);
+        layerCtx->fCurrentMatte = std::move(layer);
         return nullptr;
     }
 
@@ -706,14 +702,14 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
         const auto matteType = ParseDefault<size_t>((*jlayer)["tt"], 1) - 1;
 
         if (matteType < SK_ARRAY_COUNT(gMaskModes)) {
-            return sksg::MaskEffect::Make(std::move(controller_node),
+            return sksg::MaskEffect::Make(std::move(layer),
                                           std::move(layerCtx->fCurrentMatte),
                                           gMaskModes[matteType]);
         }
         layerCtx->fCurrentMatte.reset();
     }
 
-    return std::move(controller_node);
+    return layer;
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(const skjson::ObjectValue& jcomp,
