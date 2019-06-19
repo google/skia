@@ -99,8 +99,8 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
         SkASSERT(key == this->getUniqueKey());
     }
 
-    SkASSERT(fTarget->asRenderTarget());
-    SkASSERT(fTarget->asTexture());
+    SkASSERT(this->peekRenderTarget());
+    SkASSERT(this->peekTexture());
 
     return true;
 }

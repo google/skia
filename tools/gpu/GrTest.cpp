@@ -36,12 +36,8 @@
 
 #include <algorithm>
 
-bool GrSurfaceProxy::isWrapped_ForTesting() const {
-    return SkToBool(fTarget);
-}
-
 bool GrRenderTargetContext::isWrapped_ForTesting() const {
-    return fRenderTargetProxy->isWrapped_ForTesting();
+    return fRenderTargetProxy->isInstantiated();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,12 +91,6 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(
 }
 
 #undef ASSERT_SINGLE_OWNER
-
-///////////////////////////////////////////////////////////////////////////////
-
-GrInternalSurfaceFlags GrSurfaceProxy::testingOnly_getFlags() const {
-    return fSurfaceFlags;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 

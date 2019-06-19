@@ -57,13 +57,16 @@ public:
      */
     const GrUniqueKey& getUniqueKey() const {
 #ifdef SK_DEBUG
-        if (fTarget && fUniqueKey.isValid() && fSyncTargetKey) {
-            SkASSERT(fTarget->getUniqueKey().isValid());
+        if (this->isInstantiated() && fUniqueKey.isValid() && fSyncTargetKey) {
+            GrSurface* surface = this->peekSurface();
+            SkASSERT(surface);
+
+            SkASSERT(surface->getUniqueKey().isValid());
             // It is possible for a non-keyed proxy to have a uniquely keyed resource assigned to
             // it. This just means that a future user of the resource will be filling it with unique
             // data. However, if the proxy has a unique key its attached resource should also
             // have that key.
-            SkASSERT(fUniqueKey == fTarget->getUniqueKey());
+            SkASSERT(fUniqueKey == surface->getUniqueKey());
         }
 #endif
 

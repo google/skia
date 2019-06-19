@@ -28,18 +28,19 @@ class GrSurfaceProxyPriv;
 class GrTextureOpList;
 class GrTextureProxy;
 
-// This class replicates the functionality GrIORef<GrSurface> but tracks the
-// utilitization for later resource allocation (for the deferred case) and
-// forwards on the utilization in the wrapped case
 class GrIORefProxy : public SkNoncopyable {
 public:
+    GrIORefProxy() : fRefCnt(1) {}
+
+    virtual ~GrIORefProxy() {}
+
     void ref() const {
-        SkASSERT(fRefCnt >= 1);
+        SkASSERT(fRefCnt > 0);
         ++fRefCnt;
     }
 
     void unref() const {
-        SkASSERT(fRefCnt >= 1);
+        SkASSERT(fRefCnt > 0);
         --fRefCnt;
         if (0 == fRefCnt) {
             delete this;
@@ -51,21 +52,8 @@ public:
         return 1 == fRefCnt;
     }
 
-#if GR_TEST_UTILS
-    int32_t getBackingRefCnt_TestOnly() const;
-#endif
-
 protected:
-    GrIORefProxy() : fRefCnt(1) {}
-    GrIORefProxy(sk_sp<GrSurface> surface) : fTarget(std::move(surface)), fRefCnt(1) {}
-
-    virtual ~GrIORefProxy() {}
-
     int32_t internalGetProxyRefCnt() const { return fRefCnt; }
-
-    // For deferred proxies this will be null until the proxy is instantiated.
-    // For wrapped proxies it will point to the wrapped resource.
-    sk_sp<GrSurface> fTarget;
 
 private:
     mutable int32_t fRefCnt;
@@ -320,22 +308,16 @@ public:
     static sk_sp<GrTextureProxy> Copy(GrRecordingContext*, GrSurfaceProxy* src, GrMipMapped,
                                       SkBackingFit, SkBudgeted);
 
-    bool isWrapped_ForTesting() const;
+#if GR_TEST_UTILS
+    int32_t getBackingRefCnt_TestOnly() const;
+    GrInternalSurfaceFlags testingOnly_getFlags() const;
+#endif
 
     SkDEBUGCODE(void validate(GrContext_Base*) const;)
 
     // Provides access to functions that aren't part of the public API.
     inline GrSurfaceProxyPriv priv();
     inline const GrSurfaceProxyPriv priv() const;
-
-    /**
-     * Provides privileged access to select callers to be able to add a ref to a GrSurfaceProxy
-     * with zero refs.
-     */
-    class FirstRefAccess;
-    inline FirstRefAccess firstRefAccess();
-
-    GrInternalSurfaceFlags testingOnly_getFlags() const;
 
 protected:
     // Deferred version
@@ -396,6 +378,10 @@ protected:
     // call sites to provide the required information ahead of time. At instantiation time
     // we verify that the assumed properties match the actual properties.
     GrInternalSurfaceFlags fSurfaceFlags;
+
+    // For deferred proxies this will be null until the proxy is instantiated.
+    // For wrapped proxies it will point to the wrapped resource.
+    sk_sp<GrSurface>       fTarget;
 
 private:
     // For wrapped resources, 'fFormat', 'fConfig', 'fWidth', 'fHeight', and 'fOrigin; will always
