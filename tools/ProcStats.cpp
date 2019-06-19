@@ -9,15 +9,16 @@
 #include "tools/ProcStats.h"
 
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS) || defined(SK_BUILD_FOR_ANDROID)
-    #include <sys/resource.h>
+    // #include <sys/resource.h>
     int sk_tools::getMaxResidentSetSizeMB() {
-        struct rusage ru;
-        getrusage(RUSAGE_SELF, &ru);
-    #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-        return static_cast<int>(ru.ru_maxrss / 1024 / 1024);  // Darwin reports bytes.
-    #else
-        return static_cast<int>(ru.ru_maxrss / 1024);  // Linux reports kilobytes.
-    #endif
+        // struct rusage ru;
+        // getrusage(RUSAGE_SELF, &ru);
+    // #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+    //     return static_cast<int>(ru.ru_maxrss / 1024 / 1024);  // Darwin reports bytes.
+    // #else
+    //     return static_cast<int>(ru.ru_maxrss / 1024);  // Linux reports kilobytes.
+    // #endif
+        return 32;
     }
 #elif defined(SK_BUILD_FOR_WIN)
     #include <windows.h>

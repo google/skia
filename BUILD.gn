@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("//build/test/test_package.gni")
+
 import("gn/flutter_defines.gni")
 import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
@@ -144,7 +146,7 @@ config("skia_private") {
       "SK_GAMMA_CONTRAST=0.0",
     ]
   }
-  if (is_skia_dev_build) {
+  if (is_skia_dev_build || is_fuchsia) {
     defines += [
       "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
       "GR_TEST_UTILS=1",
@@ -1237,7 +1239,8 @@ if (skia_enable_tools) {
     sources = [
       "tools/public_headers_warnings_check.cpp",
     ]
-    configs -= [ "//gn:warnings_except_public_headers" ]
+
+    #    configs -= [ "//gn:warnings_except_public_headers" ]
     configs += [ ":our_vulkan_headers" ]
     deps = [
       ":skia",
@@ -1705,10 +1708,10 @@ if (skia_enable_tools) {
       sources += metal_tests_sources
     }
     if (!skia_enable_fontmgr_android) {
-      sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
+      #      sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
     }
     if (!(skia_use_freetype && skia_use_fontconfig)) {
-      sources -= [ "//tests/FontMgrFontConfigTest.cpp" ]
+      #      sources -= [ "//tests/FontMgrFontConfigTest.cpp" ]
     }
     deps = [
       ":experimental_svg_model",
@@ -1721,7 +1724,8 @@ if (skia_enable_tools) {
       "modules/sksg:tests",
       "modules/skshaper",
       "//third_party/libpng",
-      "//third_party/libwebp",
+
+      #      "//third_party/libwebp",
       "//third_party/zlib",
     ]
     public_deps = [
@@ -2081,7 +2085,8 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":skia",
         ":tool_utils",
-        "//third_party/libmicrohttpd",
+
+        #        "//third_party/libmicrohttpd",
       ]
     }
   }
@@ -2418,7 +2423,8 @@ if (skia_enable_tools) {
       "modules/skottie:utils",
       "modules/sksg",
       "modules/sksg:samples",
-      "//third_party/imgui",
+
+      #      "//third_party/imgui",
     ]
     if (skia_use_experimental_xform) {
       deps += [ ":experimental_xform" ]
@@ -2564,4 +2570,45 @@ if (skia_enable_tools) {
       "modules/skshaper",
     ]
   }
+}
+
+executable("skia_dm") {
+  testonly = true
+  sources = [
+    "dm/DM.cpp",
+    "dm/DMGpuTestProcs.cpp",
+    "dm/DMJsonWriter.cpp",
+    "dm/DMSrcSink.cpp",
+  ]
+  deps = [
+    ":common_flags_aa",
+    ":common_flags_config",
+    ":common_flags_gpu",
+    ":common_flags_images",
+    ":experimental_svg_model",
+    ":flags",
+    ":gm",
+    ":gpu_tool_utils",
+    ":hash_and_encode",
+    ":skia",
+    ":tests",
+    ":tool_utils",
+    ":trace",
+    "modules/skottie",
+    "modules/skottie:utils",
+    "modules/sksg",
+  ]
+}
+
+test_package("skia_dm_tests") {
+  deps = [
+    ":skia",
+    ":skia_dm",
+  ]
+
+  tests = [
+    {
+      name = "skia_dm"
+    },
+  ]
 }

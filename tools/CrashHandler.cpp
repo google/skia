@@ -54,30 +54,30 @@
         // both 32 and 64 bit on bots.  Doesn't matter much: catchsegv is best anyway.
         #include <cxxabi.h>
         #include <dlfcn.h>
-        #include <execinfo.h>
+        // #include <execinfo.h>
         #include <string.h>
 
         static void handler(int sig) {
-            void* stack[64];
-            const int count = backtrace(stack, SK_ARRAY_COUNT(stack));
-            char** symbols = backtrace_symbols(stack, count);
+            // void* stack[64];
+            // const int count = backtrace(stack, SK_ARRAY_COUNT(stack));
+            // char** symbols = backtrace_symbols(stack, count);
 
-            SkDebugf("\nSignal %d [%s]:\n", sig, strsignal(sig));
-            for (int i = 0; i < count; i++) {
-                Dl_info info;
-                if (dladdr(stack[i], &info) && info.dli_sname) {
-                    char demangled[256];
-                    size_t len = SK_ARRAY_COUNT(demangled);
-                    int ok;
+            // SkDebugf("\nSignal %d [%s]:\n", sig, strsignal(sig));
+            // for (int i = 0; i < count; i++) {
+            //     Dl_info info;
+            //     if (dladdr(stack[i], &info) && info.dli_sname) {
+            //         char demangled[256];
+            //         size_t len = SK_ARRAY_COUNT(demangled);
+            //         int ok;
 
-                    abi::__cxa_demangle(info.dli_sname, demangled, &len, &ok);
-                    if (ok == 0) {
-                        SkDebugf("    %s\n", demangled);
-                        continue;
-                    }
-                }
-                SkDebugf("    %s\n", symbols[i]);
-            }
+            //         abi::__cxa_demangle(info.dli_sname, demangled, &len, &ok);
+            //         if (ok == 0) {
+            //             SkDebugf("    %s\n", demangled);
+            //             continue;
+            //         }
+            //     }
+            //     SkDebugf("    %s\n", symbols[i]);
+            // }
 
             // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
             _Exit(sig);

@@ -20,7 +20,7 @@
 #   endif
 #elif defined(SK_BUILD_FOR_UNIX)
 #   if !defined(VK_USE_PLATFORM_XCB_KHR)
-#      define VK_USE_PLATFORM_XCB_KHR
+// #      define VK_USE_PLATFORM_XCB_KHR
 #   endif
 #elif defined(SK_BUILD_FOR_MAC)
 #   if !defined(VK_USE_PLATFORM_MACOS_MVK)
