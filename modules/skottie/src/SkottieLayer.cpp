@@ -306,12 +306,13 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachAssetRef(
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachSolidLayer(const skjson::ObjectValue& jlayer,
-                                                           LayerInfo*, AnimatorScope*) const {
-    const auto size = SkSize::Make(ParseDefault<float>(jlayer["sw"], 0.0f),
-                                   ParseDefault<float>(jlayer["sh"], 0.0f));
+                                                           LayerInfo* layer_info,
+                                                           AnimatorScope*) const {
+    layer_info->fSize = SkSize::Make(ParseDefault<float>(jlayer["sw"], 0.0f),
+                                     ParseDefault<float>(jlayer["sh"], 0.0f));
     const skjson::StringValue* hex_str = jlayer["sc"];
     uint32_t c;
-    if (size.isEmpty() ||
+    if (layer_info->fSize.isEmpty() ||
         !hex_str ||
         *hex_str->begin() != '#' ||
         !SkParse::FindHex(hex_str->begin() + 1, &c)) {
@@ -324,7 +325,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachSolidLayer(const skjson::ObjectV
     auto solid_paint = sksg::Color::Make(color);
     solid_paint->setAntiAlias(true);
 
-    return sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeSize(size)),
+    return sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeSize(layer_info->fSize)),
                             std::move(solid_paint));
 }
 

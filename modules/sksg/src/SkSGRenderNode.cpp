@@ -47,10 +47,34 @@ static SkAlpha ScaleAlpha(SkAlpha alpha, float opacity) {
    return SkToU8(sk_float_round2int(alpha * opacity));
 }
 
+static SkMatrix ComputeDiffInverse(const SkMatrix& base, const SkMatrix& ctm) {
+    // Mask filters / shaders are declared to operate under a specific transform, but due to the
+    // deferral mechanism, other transformations might have been pushed to the state.
+    // We want to undo these transforms:
+    //
+    //   baseCTM x T = ctm
+    //
+    //   =>  T = Inv(baseCTM) x ctm
+    //
+    //   =>  Inv(T) = Inv(Inv(baseCTM) x ctm)
+    //
+    //   =>  Inv(T) = Inv(ctm) x baseCTM
+
+    SkMatrix m;
+    if (base != ctm && ctm.invert(&m)) {
+        m.preConcat(base);
+    } else {
+        m = SkMatrix::I();
+    }
+
+    return m;
+}
+
 bool RenderNode::RenderContext::requiresIsolation() const {
     // Note: fShader is never applied on isolation layers.
     return ScaleAlpha(SK_AlphaOPAQUE, fOpacity) != SK_AlphaOPAQUE
         || fColorFilter
+        || fMaskFilter
         || fBlendMode != SkBlendMode::kSrcOver;
 }
 
@@ -58,28 +82,10 @@ void RenderNode::RenderContext::modulatePaint(const SkMatrix& ctm, SkPaint* pain
     paint->setAlpha(ScaleAlpha(paint->getAlpha(), fOpacity));
     paint->setColorFilter(SkColorFilters::Compose(fColorFilter, paint->refColorFilter()));
     if (fShader) {
-        if (fShaderCTM != ctm) {
-            // The shader is declared to operate under a specific transform, but due to the
-            // deferral mechanism, other transformations might have been pushed to the state.
-            // We want to undo these transforms:
-            //
-            //   shaderCTM x T = ctm
-            //
-            //   =>  T = Inv(shaderCTM) x ctm
-            //
-            //   =>  Inv(T) = Inv(Inv(shaderCTM) x ctm)
-            //
-            //   =>  Inv(T) = Inv(ctm) x shaderCTM
-
-            SkMatrix inv_ctm;
-            if (ctm.invert(&inv_ctm)) {
-                paint->setShader(
-                            fShader->makeWithLocalMatrix(SkMatrix::Concat(inv_ctm, fShaderCTM)));
-            }
-        } else {
-            // No intervening transforms.
-            paint->setShader(fShader);
-        }
+        paint->setShader(fShader->makeWithLocalMatrix(ComputeDiffInverse(fShaderCTM, ctm)));
+    }
+    if (fMaskFilter) {
+        paint->setMaskFilter(fMaskFilter->makeWithMatrix(ComputeDiffInverse(fMaskCTM, ctm)));
     }
     paint->setBlendMode(fBlendMode);
 }
@@ -114,6 +120,29 @@ RenderNode::ScopedRenderContext::modulateShader(sk_sp<SkShader> sh, const SkMatr
     if (!fCtx.fShader) {
         fCtx.fShader = std::move(sh);
         fCtx.fShaderCTM = shader_ctm;
+    }
+
+    return std::move(*this);
+}
+
+RenderNode::ScopedRenderContext&&
+RenderNode::ScopedRenderContext::modulateMaskFilter(sk_sp<SkMaskFilter> mf, const SkMatrix& ctm) {
+    if (fCtx.fMaskFilter) {
+        // As we compose mask filters, use the relative transform T for the inner mask:
+        //
+        //   maskCTM x T = ctm
+        //
+        //   => T = Inv(maskCTM) x ctm
+        //
+        SkMatrix invMaskCTM;
+        if (fCtx.fMaskCTM.invert(&invMaskCTM)) {
+            const auto relative_transform = SkMatrix::Concat(invMaskCTM, ctm);
+            fCtx.fMaskFilter = SkMaskFilter::MakeCompose(std::move(fCtx.fMaskFilter),
+                                                         mf->makeWithMatrix(relative_transform));
+        }
+    } else {
+        fCtx.fMaskFilter = std::move(mf);
+        fCtx.fMaskCTM    = ctm;
     }
 
     return std::move(*this);

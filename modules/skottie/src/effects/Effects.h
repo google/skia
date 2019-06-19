@@ -34,6 +34,8 @@ private:
                                                      sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachLevelsEffect      (const skjson::ArrayValue&,
                                                      sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachLinearWipeEffect  (const skjson::ArrayValue&,
+                                                     sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachMotionTileEffect  (const skjson::ArrayValue&,
                                                      sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachTintEffect        (const skjson::ArrayValue&,
