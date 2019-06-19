@@ -126,15 +126,17 @@ GrFillRRectOp::GrFillRRectOp(
     // We will write the color and local rect attribs during finalize().
 }
 
-GrProcessorSet::Analysis GrFillRRectOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                                 GrFSAAType fsaaType, GrClampType clampType) {
+GrProcessorSet::Analysis GrFillRRectOp::finalize(
+        const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
+        GrClampType clampType) {
     SkASSERT(1 == fInstanceCount);
 
     SkPMColor4f overrideColor;
     const GrProcessorSet::Analysis& analysis = fProcessors.finalize(
 
             fOriginalColor, GrProcessorAnalysisCoverage::kSingleChannel, clip,
-            &GrUserStencilSettings::kUnused, fsaaType, caps, clampType, &overrideColor);
+            &GrUserStencilSettings::kUnused, hasMixedSampledCoverage, caps, clampType,
+            &overrideColor);
 
     // Finish writing the instance attribs.
     SkPMColor4f finalColor = analysis.inputColorIsOverridden() ? overrideColor : fOriginalColor;

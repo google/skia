@@ -121,8 +121,9 @@ public:
     }
 #endif
 
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                      GrFSAAType fsaaType, GrClampType clampType) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
+            GrClampType clampType) override {
         // Initialize aggregate color analysis with the first quad's color (which always exists)
         SkASSERT(this->quadCount() > 0);
         GrProcessorAnalysisColor quadColors(fDeviceQuads.metadata(0).fColor);
@@ -143,7 +144,7 @@ public:
                 GrProcessorAnalysisCoverage::kSingleChannel :
                 GrProcessorAnalysisCoverage::kNone;
         auto result = fHelper.finalizeProcessors(
-                caps, clip, fsaaType, clampType, coverage, &quadColors);
+                caps, clip, hasMixedSampledCoverage, clampType, coverage, &quadColors);
         // If there is a constant color after analysis, that means all of the quads should be set
         // to the same color (even if they started out with different colors).
         SkPMColor4f colorOverride;
@@ -414,7 +415,7 @@ GR_DRAW_OP_TEST_DEFINE(FillRectOp) {
 
     GrAAType aaType = GrAAType::kNone;
     if (random->nextBool()) {
-        aaType = (fsaaType == GrFSAAType::kUnifiedMSAA) ? GrAAType::kMSAA : GrAAType::kCoverage;
+        aaType = (numSamples > 1) ? GrAAType::kMSAA : GrAAType::kCoverage;
     }
     const GrUserStencilSettings* stencil = random->nextBool() ? nullptr
                                                               : GrGetRandomStencil(random, context);
