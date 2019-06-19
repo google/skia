@@ -548,11 +548,11 @@ private:
     // The non-const pointers should be the original draw request on input, and will be updated as
     // appropriate depending on the returned optimization level.
     //
-    // If 'allowAAChange' is true, 'aa' and 'edgeFlags' may be updated to incorporate the AA of the
-    // clip. When it is false, only optimizations that will not change the AA state will be applied.
+    // 'stencilSettings' are provided merely for decision making purposes; When non-null,
+    // optimization strategies that submit special ops are avoided.
     QuadOptimization attemptQuadOptimization(const GrClip& clip,
                                              const SkPMColor4f* constColor,
-                                             bool allowAAChange,
+                                             const GrUserStencilSettings* stencilSettings,
                                              GrAA* aa,
                                              GrQuadAAFlags* edgeFlags,
                                              GrQuad* deviceQuad,
