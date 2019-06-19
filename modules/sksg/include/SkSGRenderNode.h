@@ -35,6 +35,11 @@ public:
     // Normally, hit-testing stops at leaf Draw nodes.
     const RenderNode* nodeAt(const SkPoint& point) const;
 
+    // Controls the visibility of the render node.  Invisible nodes are not rendered,
+    // but they still participate in revalidation.
+    bool isVisible() const;
+    void setVisible(bool);
+
 protected:
     explicit RenderNode(uint32_t inval_traits = 0);
 

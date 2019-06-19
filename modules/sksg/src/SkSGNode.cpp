@@ -44,7 +44,8 @@ Node::Node(uint32_t invalTraits)
     : fInvalObserver(nullptr)
     , fBounds(SkRectPriv::MakeLargeS32())
     , fInvalTraits(invalTraits)
-    , fFlags(kInvalidated_Flag) {}
+    , fFlags(kInvalidated_Flag)
+    , fNodeFlags(0) {}
 
 Node::~Node() {
     if (fFlags & kObserverArray_Flag) {

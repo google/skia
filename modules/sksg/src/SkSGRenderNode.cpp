@@ -13,11 +13,28 @@
 
 namespace sksg {
 
+namespace {
+
+enum Flags : uint8_t {
+    kInvisible_Flag = 1 << 0,
+};
+
+} // namespace
+
 RenderNode::RenderNode(uint32_t inval_traits) : INHERITED(inval_traits) {}
+
+bool RenderNode::isVisible() const {
+    return !(fNodeFlags & kInvisible_Flag);
+}
+
+void RenderNode::setVisible(bool v) {
+    fNodeFlags = v ? (fNodeFlags & ~kInvisible_Flag)
+                   : (fNodeFlags | kInvisible_Flag);
+}
 
 void RenderNode::render(SkCanvas* canvas, const RenderContext* ctx) const {
     SkASSERT(!this->hasInval());
-    if (!this->bounds().isEmpty()) {
+    if (this->isVisible() && !this->bounds().isEmpty()) {
         this->onRender(canvas, ctx);
     }
 }
