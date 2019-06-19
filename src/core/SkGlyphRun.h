@@ -21,6 +21,7 @@
 class SkBaseDevice;
 class SkGlyph;
 class SkTextBlob;
+class SkTextBlobRunIterator;
 
 class SkGlyphRun {
 public:
@@ -120,12 +121,12 @@ public:
             const SkPaint&, const SkFont&, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos);
     void drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin, SkBaseDevice*);
 
+    void textBlobToGlyphRunListIgnoringRSXForm(
+            const SkPaint& paint, const SkTextBlob& blob, SkPoint origin);
+
     const SkGlyphRunList& useGlyphRunList();
 
     bool empty() const { return fGlyphRunListStorage.size() == 0; }
-
-    static void DispatchBlob(SkGlyphRunBuilder* builder, const SkPaint& paint,
-                             const SkTextBlob& blob, SkPoint origin, SkBaseDevice* device);
 
 private:
     void initialize(size_t totalRunSize);
@@ -156,6 +157,10 @@ private:
             const SkPoint* pos,
             SkSpan<const char> text = SkSpan<const char>{},
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
+    void simplifyTextBlobIgnoringRSXForm(
+            const SkPaint& paint,
+            const SkTextBlobRunIterator& it,
+            SkPoint* positions);
 
     size_t fMaxTotalRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
