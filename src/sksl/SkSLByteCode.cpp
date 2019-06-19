@@ -1042,6 +1042,57 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
     }
 }
 
+void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, int N,
+                          const float* uniforms, int uniformCount) const {
+#ifdef TRACE
+    disassemble(f);
+#endif
+    Interpreter::VValue stack[128];
+
+    // Needs to be the first N non-negative integers, at least as large as VecWidth
+    static const Interpreter::I32 gLanes = {
+        0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
+    };
+
+    SkASSERT(f->fReturnCount == 0);
+    SkASSERT(nargs == f->fParameterCount);
+    SkASSERT(uniformCount == (int)fInputSlots.size());
+    Interpreter::VValue globals[32];
+    SkASSERT((int)SK_ARRAY_COUNT(globals) >= fGlobalCount);
+    for (uint8_t slot : fInputSlots) {
+        globals[slot].fFloat = *uniforms++;
+    }
+
+    while (N) {
+        int w = std::min(N, Interpreter::VecWidth);
+
+        // Copy args into stack
+        for (int i = 0; i < nargs; ++i) {
+            memcpy(stack + i, args[i], w * sizeof(float));
+        }
+
+        auto mask = w > gLanes;
+        innerRun(this, f, stack, nullptr, mask, globals);
+
+        // Copy out parameters back
+        int slot = 0;
+        for (const auto& p : f->fParameters) {
+            if (p.fIsOutParameter) {
+                for (int i = slot; i < slot + p.fSlotCount; ++i) {
+                    memcpy(args[i], stack + i, w * sizeof(float));
+                }
+            }
+            slot += p.fSlotCount;
+        }
+
+        // Step each argument pointer ahead
+        for (int i = 0; i < nargs; ++i) {
+            args[i] += w;
+        }
+        N -= w;
+    }
+}
+
 } // namespace SkSL
 
 #endif
