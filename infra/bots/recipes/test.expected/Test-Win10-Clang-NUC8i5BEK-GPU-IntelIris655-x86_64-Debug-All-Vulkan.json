@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (9b7e06 [infra] Update Skolo Win OS version)
 [
   {
     "cmd": [
@@ -612,3 +613,5 @@
     "name": "$result"
   }
 ]
+=======
+>>>>>>> CHANGE (1811d1 Update GPU driver for Intel Skylake and later)
