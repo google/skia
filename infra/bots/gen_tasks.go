@@ -1238,7 +1238,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	} else if strings.Contains(name, "SkottieTracing") {
 		recipe = "perf_skottietrace"
 	} else if strings.Contains(name, "SkottieWASM") {
-		recipe = "perf_skottie_wasm"
+		recipe = "perf_skottiewasm_lottieweb"
 	}
 	task := kitchenTask(name, recipe, isolate, "", swarmDimensions(parts), nil, OUTPUT_PERF)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
