@@ -52,6 +52,7 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
 
     static constexpr char kGradientEffectMN[] = "ADBE Ramp",
                             kLevelsEffectMN[] = "ADBE Easy Levels2",
+                        kLinearWipeEffectMN[] = "ADBE Linear Wipe",
                         kMotionTileEffectMN[] = "ADBE Tile",
                          kTransformEffectMN[] = "ADBE Geometry2";
 
@@ -61,6 +62,9 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
         }
         if (!strcmp(mn->begin(), kLevelsEffectMN)) {
             return &EffectBuilder::attachLevelsEffect;
+        }
+        if (!strcmp(mn->begin(), kLinearWipeEffectMN)) {
+            return &EffectBuilder::attachLinearWipeEffect;
         }
         if (!strcmp(mn->begin(), kMotionTileEffectMN)) {
             return &EffectBuilder::attachMotionTileEffect;

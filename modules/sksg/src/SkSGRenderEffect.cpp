@@ -8,11 +8,74 @@
 #include "modules/sksg/include/SkSGRenderEffect.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkMaskFilter.h"
 #include "include/core/SkShader.h"
 #include "include/effects/SkDropShadowImageFilter.h"
 #include "src/core/SkMakeUnique.h"
+#include "src/core/SkMaskFilterBase.h"
 
 namespace sksg {
+
+MaskFilter::MaskFilter(sk_sp<SkMaskFilter> mf)
+    : INHERITED(kBubbleDamage_Trait)
+    , fMaskFilter(std::move(mf)) {}
+
+MaskFilter::~MaskFilter() = default;
+
+void MaskFilter::setMaskFilter(sk_sp<SkMaskFilter> mf) {
+    if (mf != fMaskFilter) {
+        fMaskFilter = std::move(mf);
+        this->invalidate();
+    }
+}
+
+SkRect MaskFilter::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+    SkASSERT(this->hasInval());
+
+    fMaskFilter = this->onRevalidateMask();
+    return SkRect::MakeEmpty();
+}
+
+sk_sp<SkMaskFilter> MaskFilter::onRevalidateMask() {
+    return fMaskFilter;
+}
+
+sk_sp<MaskFilterEffect> MaskFilterEffect::Make(sk_sp<RenderNode> child, sk_sp<MaskFilter> mf) {
+    return child ? sk_sp<MaskFilterEffect>(new MaskFilterEffect(std::move(child), std::move(mf)))
+                 : nullptr;
+}
+
+MaskFilterEffect::MaskFilterEffect(sk_sp<RenderNode> child, sk_sp<MaskFilter> mf)
+    // masks may override descendent damage
+    : INHERITED(std::move(child), kOverrideDamage_Trait)
+    , fMaskFilter(std::move(mf)) {
+    this->observeInval(fMaskFilter);
+}
+
+MaskFilterEffect::~MaskFilterEffect() {
+    this->unobserveInval(fMaskFilter);
+}
+
+SkRect MaskFilterEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+    auto bounds = this->INHERITED::onRevalidate(ic, ctm);
+
+    if (fMaskFilter) {
+        fMaskFilter->revalidate(ic, ctm);
+        if (const auto* mfb = as_MFB(fMaskFilter->getMaskFilter())) {
+            mfb->computeFastBounds(bounds, &bounds);
+        }
+    }
+
+    return bounds;
+}
+
+void MaskFilterEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+    const auto local_ctx = ScopedRenderContext(canvas, ctx)
+            .modulateMaskFilter(fMaskFilter ? fMaskFilter->getMaskFilter() : nullptr,
+                                canvas->getTotalMatrix());
+
+    this->INHERITED::onRender(canvas, local_ctx);
+}
 
 sk_sp<ShaderEffect> ShaderEffect::Make(sk_sp<RenderNode> child, sk_sp<Shader> shader) {
     return child ? sk_sp<ShaderEffect>(new ShaderEffect(std::move(child), std::move(shader)))
