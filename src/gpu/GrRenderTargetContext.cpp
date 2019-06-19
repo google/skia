@@ -537,8 +537,9 @@ enum class GrRenderTargetContext::QuadOptimization {
 };
 
 GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimization(
-        const GrClip& clip, const SkPMColor4f* constColor, bool allowAAChange,
-        GrAA* aa, GrQuadAAFlags* edgeFlags, GrQuad* deviceQuad, GrQuad* localQuad) {
+        const GrClip& clip, const SkPMColor4f* constColor,
+        const GrUserStencilSettings* stencilSettings, GrAA* aa, GrQuadAAFlags* edgeFlags,
+        GrQuad* deviceQuad, GrQuad* localQuad) {
     // Optimization requirements:
     // 1. kDiscard applies when clip bounds and quad bounds do not intersect
     // 2. kClear applies when constColor and final geom is pixel aligned rect;
@@ -549,10 +550,18 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     // 6. kNone always applies
     GrQuadAAFlags newFlags = *edgeFlags;
 
-    // Must use worst case bounds so that stencil buffer updates on approximately sized
-    // render targets don't get corrupted.
-    const SkRect rtRect = SkRect::MakeWH(fRenderTargetProxy->worstCaseWidth(),
-                                         fRenderTargetProxy->worstCaseHeight());
+    SkRect rtRect;
+    if (stencilSettings) {
+        // Must use worst case bounds so that stencil buffer updates on approximately sized render
+        // targets don't get corrupted.
+        rtRect = SkRect::MakeWH(fRenderTargetProxy->worstCaseWidth(),
+                                fRenderTargetProxy->worstCaseHeight());
+    } else {
+        // Use the logical size of the render target, which allows for "fullscreen" clears even if
+        // the render target has an approximate backing fit
+        rtRect = SkRect::MakeWH(this->width(), this->height());
+    }
+
     SkRect drawBounds = deviceQuad->bounds();
     if (constColor) {
         // Don't bother updating local coordinates when the paint will ignore them anyways
@@ -567,7 +576,10 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     // Check if clip can be represented as a rounded rect (initialize as if clip fully contained
     // the render target).
     SkRRect clipRRect = SkRRect::MakeRect(rtRect);
-    GrAA clipAA = allowAAChange ? GrAA::kNo : *aa;
+    // We initialize clipAA to *aa when there are stencil settings so that we don't artificially
+    // encounter mixed-aa edges (not allowed for stencil), but we want to start as non-AA for
+    // regular draws so that if we fully cover the render target, that can stop being anti-aliased.
+    GrAA clipAA = stencilSettings ? *aa : GrAA::kNo;
     bool axisAlignedClip = true;
     if (!clip.quickContains(rtRect)) {
         if (!clip.isRRect(rtRect, &clipRRect, &clipAA)) {
@@ -577,7 +589,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
 
     // If the clip rrect is valid (i.e. axis-aligned), we can potentially combine it with the
     // draw geometry so that no clip is needed when drawing.
-    if (axisAlignedClip && (allowAAChange || clipAA == *aa)) {
+    if (axisAlignedClip && (!stencilSettings || clipAA == *aa)) {
         // Tighten clip bounds (if clipRRect.isRect() is true, clipBounds now holds the intersection
         // of the render target and the clip rect)
         SkRect clipBounds = rtRect;
@@ -686,11 +698,8 @@ void GrRenderTargetContext::drawFilledQuad(const GrClip& clip,
 
     GrQuad croppedDeviceQuad = deviceQuad;
     GrQuad croppedLocalQuad = localQuad;
-    // Only allow AA settings to change if there are no stencil settings. If they were allowed to
-    // change at this stage, it would bypass higher-level decisions about stencil MSAA.
-    QuadOptimization opt = this->attemptQuadOptimization(clip, constColor, /* allowAAChange */ !ss,
-                                                         &aa, &edgeFlags, &croppedDeviceQuad,
-                                                         &croppedLocalQuad);
+    QuadOptimization opt = this->attemptQuadOptimization(clip, constColor, ss, &aa, &edgeFlags,
+                                                         &croppedDeviceQuad, &croppedLocalQuad);
     if (opt >= QuadOptimization::kClipApplied) {
         // These optimizations require caller to add an op themselves
         const GrClip& finalClip = opt == QuadOptimization::kClipApplied ? GrFixedClip::Disabled()
