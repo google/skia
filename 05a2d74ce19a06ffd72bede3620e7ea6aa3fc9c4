@@ -87,6 +87,24 @@
       "revId": "05a2d74ce19a06ffd72bede3620e7ea6aa3fc9c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae9a0d11_51a4df67",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-06-19T21:09:48Z",
+      "side": 1,
+      "message": "Looking into it a little more, I don\u0027t think ARM is necessarily atomic -- I\u0027ll talk to herb@ and see what he recommends here.",
+      "parentUuid": "1bea9c92_08c3cbff",
+      "revId": "05a2d74ce19a06ffd72bede3620e7ea6aa3fc9c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
