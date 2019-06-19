@@ -87,11 +87,13 @@ namespace textlayout {
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              ParagraphStyle style,
-                             std::vector<Block>
-                                     blocks,
-                             sk_sp<FontCollection>
-                                     fonts)
-        : Paragraph(std::move(style), std::move(fonts)), fPicture(nullptr) {
+                             std::vector<Block> blocks,
+                             sk_sp<FontCollection> fonts)
+        : Paragraph(std::move(style)
+        , std::move(fonts))
+        , fDirtyLayout(true)
+        , fOldWidth(0)
+        , fPicture(nullptr) {
     icu::UnicodeString unicode((UChar*)utf16text.data(), SkToS32(utf16text.size()));
     std::string str;
     unicode.toUTF8String(str);
@@ -110,6 +112,11 @@ ParagraphImpl::~ParagraphImpl() = default;
 
 void ParagraphImpl::layout(SkScalar width) {
     TRACE_EVENT0("skia", TRACE_FUNC);
+
+    if (fOldWidth == width && !fDirtyLayout) {
+        return;
+    }
+
     this->resetContext();
 
     this->resolveStrut();
@@ -132,6 +139,9 @@ void ParagraphImpl::layout(SkScalar width) {
     this->buildClusterTable();
 
     this->breakShapedTextIntoLines(width);
+
+    this->fOldWidth = width;
+    this->fDirtyLayout = false;
 }
 
 void ParagraphImpl::resolveStrut() {
