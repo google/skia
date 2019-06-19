@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (970364 Correctly call SkFontMgr_DirectWrite constructor.)
 [
   {
     "cmd": [
@@ -256,3 +257,5 @@
     "name": "$result"
   }
 ]
+=======
+>>>>>>> CHANGE (1811d1 Update GPU driver for Intel Skylake and later)
