@@ -9,8 +9,10 @@
 #define GrQuadUtils_DEFINED
 
 enum class GrQuadAAFlags;
+enum class GrAA : bool;
 enum class GrAAType : unsigned;
 class GrQuad;
+struct SkRect;
 
 namespace GrQuadUtils {
 
@@ -18,6 +20,23 @@ namespace GrQuadUtils {
     // Both outAAType and outEdgeFlags will be updated.
     void ResolveAAType(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags,
                        const GrQuad& quad, GrAAType* outAAtype, GrQuadAAFlags* outEdgeFlags);
+
+    /**
+     * Crops quad to the provided device-space axis-aligned rectangle. If the intersection of this
+     * quad (projected) and cropRect results in a quadrilateral, this returns true. If not, this
+     * quad may be updated to be a smaller quad of the same type such that its intersection with
+     * cropRect is visually the same.
+     *
+     * The provided edge flags are updated to reflect edges clipped by cropRect (toggling on or off
+     * based on cropAA policy). If provided, the local coordinates will be updated to reflect the
+     * updated device coordinates of this quad.
+     *
+     * 'local' may be null, in which case the new local coordinates will not be calculated. This is
+     * useful when it's known a paint does not require local coordinates. However, neither
+     * 'edgeFlags' nore 'quad' can be null.
+     */
+    bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, GrQuad* quad,
+                    GrQuad* local=nullptr);
 
 }; // namespace GrQuadUtils
 

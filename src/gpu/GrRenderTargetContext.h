@@ -18,6 +18,7 @@
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/text/GrTextTarget.h"
 
 class GrBackendSemaphore;
@@ -116,9 +117,9 @@ public:
                         const SkMatrix& viewMatrix,
                         const SkRect& rectToDraw,
                         const SkRect& localRect) {
-        this->fillRectWithEdgeAA(clip, std::move(paint), aa,
-                                 aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
-                                 viewMatrix, rectToDraw, &localRect);
+        this->drawFilledQuad(clip, std::move(paint), aa,
+                             aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
+                             GrQuad::MakeFromRect(rectToDraw, viewMatrix), GrQuad(localRect));
     }
 
     /**
@@ -126,10 +127,15 @@ public:
      */
     void fillRectWithLocalMatrix(const GrClip& clip,
                                  GrPaint&& paint,
-                                 GrAA,
+                                 GrAA aa,
                                  const SkMatrix& viewMatrix,
                                  const SkRect& rect,
-                                 const SkMatrix& localMatrix);
+                                 const SkMatrix& localMatrix) {
+        this->drawFilledQuad(clip, std::move(paint), aa,
+                             aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
+                             GrQuad::MakeFromRect(rect, viewMatrix),
+                             GrQuad::MakeFromRect(rect, localMatrix));
+    }
 
     /**
      * Creates an op that draws a fill rect with per-edge control over anti-aliasing.
@@ -139,7 +145,11 @@ public:
      */
     void fillRectWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
                             const SkMatrix& viewMatrix, const SkRect& rect,
-                            const SkRect* optionalLocalRect = nullptr);
+                            const SkRect* optionalLocalRect = nullptr) {
+        const SkRect& localRect = optionalLocalRect ? *optionalLocalRect : rect;
+        this->drawFilledQuad(clip, std::move(paint), aa, edgeAA,
+                             GrQuad::MakeFromRect(rect, viewMatrix), GrQuad(localRect));
+    }
 
     /**
      * Similar to fillRectWithEdgeAA but draws an arbitrary 2D convex quadrilateral transformed
@@ -155,7 +165,12 @@ public:
      */
     void fillQuadWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
                             const SkMatrix& viewMatrix, const SkPoint quad[4],
-                            const SkPoint optionalLocalQuad[4]);
+                            const SkPoint optionalLocalQuad[4]) {
+        const SkPoint* localQuad = optionalLocalQuad ? optionalLocalQuad : quad;
+        this->drawFilledQuad(clip, std::move(paint), aa, edgeAA,
+                             GrQuad::MakeFromSkQuad(quad, viewMatrix),
+                             GrQuad::MakeFromSkQuad(localQuad, SkMatrix::I()));
+    }
 
     /** Used with drawQuadSet */
     struct QuadSetEntry {
@@ -487,6 +502,7 @@ protected:
 
 private:
     class TextTarget;
+    enum class QuadOptimization;
 
     GrAAType chooseAAType(GrAA);
 
@@ -525,19 +541,34 @@ private:
                           const SkRRect& origOuter,
                           const SkRRect& origInner);
 
-    void drawFilledRect(const GrClip& clip,
-                        GrPaint&& paint,
-                        GrAA,
-                        const SkMatrix& viewMatrix,
-                        const SkRect& rect,
-                        const GrUserStencilSettings* ss = nullptr);
+    // If the drawn quad's paint is a const blended color, provide it as a non-null pointer to
+    // 'constColor', which enables the draw-as-clear optimization. Otherwise it is assumed the paint
+    // requires some form of shading that invalidates using a clear op.
+    //
+    // The non-const pointers should be the original draw request on input, and will be updated as
+    // appropriate depending on the returned optimization level.
+    //
+    // If 'allowAAChange' is true, 'aa' and 'edgeFlags' may be updated to incorporate the AA of the
+    // clip. When it is false, only optimizations that will not change the AA state will be applied.
+    QuadOptimization attemptQuadOptimization(const GrClip& clip,
+                                             const SkPMColor4f* constColor,
+                                             bool allowAAChange,
+                                             GrAA* aa,
+                                             GrQuadAAFlags* edgeFlags,
+                                             GrQuad* deviceQuad,
+                                             GrQuad* localQuad);
 
-    // Only consumes the GrPaint if successful.
-    bool drawFilledRectAsClear(const GrClip& clip,
-                               GrPaint&& paint,
-                               GrAA aa,
-                               const SkMatrix& viewMatrix,
-                               const SkRect& rect);
+    // If stencil settings, 'ss', are non-null, AA controls MSAA or no AA. If they are null, then AA
+    // can choose between coverage, MSAA as per chooseAAType(). This will always attempt to apply
+    // quad optimizations, so all quad/rect public APIs should rely on this function for consistent
+    // clipping behavior.
+    void drawFilledQuad(const GrClip& clip,
+                        GrPaint&& paint,
+                        GrAA aa,
+                        GrQuadAAFlags edgeFlags,
+                        const GrQuad& deviceQuad,
+                        const GrQuad& localQuad,
+                        const GrUserStencilSettings* ss = nullptr);
 
     void drawShapeUsingPathRenderer(const GrClip&, GrPaint&&, GrAA, const SkMatrix&,
                                     const GrShape&);
