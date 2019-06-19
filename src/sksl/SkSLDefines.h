@@ -41,7 +41,4 @@
 #define NORETURN __attribute__((__noreturn__))
 #endif
 
-using SKSL_INT = int32_t;
-using SKSL_FLOAT = float;
-
 #endif

@@ -23,6 +23,9 @@
 #endif // SK_SUPPORT_GPU
 #endif // SKSL_STANDALONE
 
+using SKSL_INT = int32_t;
+using SKSL_FLOAT = float;
+
 class GrShaderCaps;
 
 namespace SkSL {
