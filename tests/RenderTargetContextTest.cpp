@@ -11,7 +11,6 @@
 
 // MDB TODO: the early instantiation of the renderTargetContext's backing GrRenderTargetProxy
 // mixes this test up. Re-enable once backing GPU resources are distributed by MDB at flush time.
-#if 0
 
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -32,7 +31,7 @@ static void check_is_wrapped_status(skiatest::Reporter* reporter,
     GrTextureProxy* tProxy = rtCtx->asTextureProxy();
     REPORTER_ASSERT(reporter, tProxy);
 
-    REPORTER_ASSERT(reporter, tProxy->isWrapped_ForTesting() == wrappedExpectation);
+    REPORTER_ASSERT(reporter, tProxy->isInstantiated() == wrappedExpectation);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
@@ -73,4 +72,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
     // GrRenderTargetContext calls do not force the instantiation of a deferred
     // GrRenderTargetContext
 }
-#endif
