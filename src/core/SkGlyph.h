@@ -128,7 +128,6 @@ public:
     SkScalar advanceX() const { return fAdvanceX; }
     SkScalar advanceY() const { return fAdvanceY; }
 
-    bool isEmpty() const { return fWidth == 0 || fHeight == 0; }
     bool isJustAdvance() const { return MASK_FORMAT_JUST_ADVANCE == fMaskFormat; }
     bool isFullMetrics() const { return MASK_FORMAT_JUST_ADVANCE != fMaskFormat; }
     SkGlyphID getGlyphID() const { return fID.code(); }
@@ -181,11 +180,18 @@ public:
     bool isColor() const { return fMaskFormat == SkMask::kARGB32_Format; }
     SkMask::Format maskFormat() const { return static_cast<SkMask::Format>(fMaskFormat); }
 
-    int maxDimension() const {
-        // width and height are only defined if a metrics call was made.
-        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
-
-        return std::max(fWidth, fHeight);
+    // Bounds
+    int maxDimension() const { return std::max(fWidth, fHeight); }
+    SkIRect iRect() const { return SkIRect::MakeXYWH(fLeft, fTop, fWidth, fHeight); }
+    SkRect rect()   const { return SkRect::MakeXYWH(fLeft, fTop, fWidth, fHeight);  }
+    int left()   const { return fLeft;   }
+    int top()    const { return fTop;    }
+    int width()  const { return fWidth;  }
+    int height() const { return fHeight; }
+    bool isEmpty() const {
+        // fHeight == 0 -> fWidth == 0;
+        SkASSERT(fHeight != 0 || fWidth == 0);
+        return fWidth == 0;
     }
 
     // Returns the size allocated on the arena.
