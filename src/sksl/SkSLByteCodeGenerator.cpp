@@ -27,18 +27,20 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
       } {}
 
 
-int ByteCodeGenerator::SlotCount(const Type& type) {
-    if (type.kind() == Type::kStruct_Kind) {
+int ByteCodeGenerator::slotCount(const Type& type) const {
+    if (type == *fContext.fVoid_Type) {
+        return 0;
+    } else if (type.kind() == Type::kStruct_Kind) {
         int slots = 0;
         for (const auto& f : type.fields()) {
-            slots += SlotCount(*f.fType);
+            slots += this->slotCount(*f.fType);
         }
         SkASSERT(slots <= 255);
         return slots;
     } else if (type.kind() == Type::kArray_Kind) {
         int columns = type.columns();
         SkASSERT(columns >= 0);
-        int slots = columns * SlotCount(type.componentType());
+        int slots = columns * this->slotCount(type.componentType());
         SkASSERT(slots <= 255);
         return slots;
     } else {
@@ -66,11 +68,11 @@ bool ByteCodeGenerator::generateCode() {
                         continue;
                     }
                     if (declVar->fModifiers.fFlags & Modifiers::kIn_Flag) {
-                        for (int i = SlotCount(declVar->fType); i > 0; --i) {
+                        for (int i = this->slotCount(declVar->fType); i > 0; --i) {
                             fOutput->fInputSlots.push_back(fOutput->fGlobalCount++);
                         }
                     } else {
-                        fOutput->fGlobalCount += SlotCount(declVar->fType);
+                        fOutput->fGlobalCount += this->slotCount(declVar->fType);
                     }
                 }
                 break;
@@ -89,7 +91,7 @@ bool ByteCodeGenerator::generateCode() {
 
 std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fFunction = &f;
-    std::unique_ptr<ByteCodeFunction> result(new ByteCodeFunction(&f.fDeclaration));
+    std::unique_ptr<ByteCodeFunction> result(new ByteCodeFunction(this, &f.fDeclaration));
     fParameterCount = result->fParameterCount;
     fCode = &result->fCode;
     this->writeStatement(*f.fBody);
@@ -98,7 +100,7 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
     result->fLocalCount = fLocals.size();
     const Type& returnType = f.fDeclaration.fReturnType;
     if (returnType != *fContext.fVoid_Type) {
-        result->fReturnCount = SlotCount(returnType);
+        result->fReturnCount = this->slotCount(returnType);
     }
     fLocals.clear();
     fFunction = nullptr;
@@ -166,7 +168,7 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
             }
             int result = fParameterCount + fLocals.size();
             fLocals.push_back(&var);
-            for (int i = 0; i < SlotCount(var.fType) - 1; ++i) {
+            for (int i = 0; i < this->slotCount(var.fType) - 1; ++i) {
                 fLocals.push_back(nullptr);
             }
             SkASSERT(result <= 255);
@@ -179,7 +181,7 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
                     SkASSERT(offset <= 255);
                     return offset;
                 }
-                offset += SlotCount(p->fType);
+                offset += this->slotCount(p->fType);
             }
             SkASSERT(false);
             return 0;
@@ -198,7 +200,7 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
                             SkASSERT(offset <= 255);
                             return offset;
                         }
-                        offset += SlotCount(declVar->fType);
+                        offset += this->slotCount(declVar->fType);
                     }
                 }
             }
@@ -219,7 +221,7 @@ int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* st
             int baseAddr = this->getLocation(*f.fBase, storage);
             int offset = 0;
             for (int i = 0; i < f.fFieldIndex; ++i) {
-                offset += SlotCount(*f.fBase->fType.fields()[i].fType);
+                offset += this->slotCount(*f.fBase->fType.fields()[i].fType);
             }
             if (baseAddr < 0) {
                 this->write(ByteCodeInstruction::kPushImmediate);
@@ -232,7 +234,7 @@ int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* st
         }
         case Expression::kIndex_Kind: {
             const IndexExpression& i = (const IndexExpression&)expr;
-            int stride = SlotCount(i.fType);
+            int stride = this->slotCount(i.fType);
             int offset = -1;
             if (i.fIndex->isConstant()) {
                 offset = i.fIndex->getConstantInt() * stride;
@@ -353,14 +355,14 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
         this->writeExpression(*b.fLeft);
         op = b.fOperator;
         if (!lVecOrMtx && rVecOrMtx) {
-            for (int i = SlotCount(rType); i > 1; --i) {
+            for (int i = this->slotCount(rType); i > 1; --i) {
                 this->write(ByteCodeInstruction::kDup);
             }
         }
     }
     this->writeExpression(*b.fRight);
     if (lVecOrMtx && !rVecOrMtx) {
-        for (int i = SlotCount(lType); i > 1; --i) {
+        for (int i = this->slotCount(lType); i > 1; --i) {
             this->write(ByteCodeInstruction::kDup);
         }
     }
@@ -377,12 +379,12 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
             std::swap(rCols, rRows);
         }
         SkASSERT(lCols == rRows);
-        SkASSERT(SlotCount(b.fType) == lRows * rCols);
+        SkASSERT(this->slotCount(b.fType) == lRows * rCols);
         this->write8(lCols);
         this->write8(lRows);
         this->write8(rCols);
     } else {
-        int count = std::max(SlotCount(lType), SlotCount(rType));
+        int count = std::max(this->slotCount(lType), this->slotCount(rType));
         switch (op) {
             case Token::Kind::EQEQ:
                 this->writeTypedInstruction(lType, ByteCodeInstruction::kCompareIEQ,
@@ -501,8 +503,8 @@ void ByteCodeGenerator::writeConstructor(const Constructor& c) {
         const Type& outType = c.fType;
         TypeCategory inCategory = type_category(inType);
         TypeCategory outCategory = type_category(outType);
-        int inCount = SlotCount(inType);
-        int outCount = SlotCount(outType);
+        int inCount = this->slotCount(inType);
+        int outCount = this->slotCount(outType);
         if (inCategory != outCategory) {
             SkASSERT(inCount == outCount);
             if (inCategory == TypeCategory::kFloat) {
@@ -546,12 +548,12 @@ void ByteCodeGenerator::writeExternalFunctionCall(const ExternalFunctionCall& f)
     int argumentCount = 0;
     for (const auto& arg : f.fArguments) {
         this->writeExpression(*arg);
-        argumentCount += SlotCount(arg->fType);
+        argumentCount += this->slotCount(arg->fType);
     }
     this->write(ByteCodeInstruction::kCallExternal);
     SkASSERT(argumentCount <= 255);
     this->write8(argumentCount);
-    this->write8(SlotCount(f.fType));
+    this->write8(this->slotCount(f.fType));
     int index = fOutput->fExternalValues.size();
     fOutput->fExternalValues.push_back(f.fFunction);
     SkASSERT(index <= 255);
@@ -560,7 +562,7 @@ void ByteCodeGenerator::writeExternalFunctionCall(const ExternalFunctionCall& f)
 
 void ByteCodeGenerator::writeExternalValue(const ExternalValueReference& e) {
     this->write(vector_instruction(ByteCodeInstruction::kReadExternal,
-                                   SlotCount(e.fValue->type())));
+                                   this->slotCount(e.fValue->type())));
     int index = fOutput->fExternalValues.size();
     fOutput->fExternalValues.push_back(e.fValue);
     SkASSERT(index <= 255);
@@ -571,7 +573,7 @@ void ByteCodeGenerator::writeVariableExpression(const Expression& expr) {
     Variable::Storage storage;
     int location = this->getLocation(expr, &storage);
     bool isGlobal = storage == Variable::kGlobal_Storage;
-    int count = SlotCount(expr.fType);
+    int count = this->slotCount(expr.fType);
     if (location < 0 || count > 4) {
         if (location >= 0) {
             this->write(ByteCodeInstruction::kPushImmediate);
@@ -608,10 +610,11 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     if (found->second.fIsSpecial) {
         SkASSERT(found->second.fValue.fSpecial == SpecialIntrinsic::kDot);
         SkASSERT(c.fArguments.size() == 2);
-        SkASSERT(SlotCount(c.fArguments[0]->fType) == SlotCount(c.fArguments[1]->fType));
+        SkASSERT(this->slotCount(c.fArguments[0]->fType) ==
+                 this->slotCount(c.fArguments[1]->fType));
         this->write((ByteCodeInstruction) ((int) ByteCodeInstruction::kMultiplyF +
-                    SlotCount(c.fArguments[0]->fType) - 1));
-        for (int i = SlotCount(c.fArguments[0]->fType); i > 1; --i) {
+                    this->slotCount(c.fArguments[0]->fType) - 1));
+        for (int i = this->slotCount(c.fArguments[0]->fType); i > 1; --i) {
             this->write(ByteCodeInstruction::kAddF);
         }
     } else {
@@ -623,7 +626,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             case ByteCodeInstruction::kTan:
                 SkASSERT(c.fArguments.size() > 0);
                 this->write((ByteCodeInstruction) ((int) found->second.fValue.fInstruction +
-                            SlotCount(c.fArguments[0]->fType) - 1));
+                            this->slotCount(c.fArguments[0]->fType) - 1));
                 break;
             case ByteCodeInstruction::kCross:
                 this->write(found->second.fValue.fInstruction);
@@ -660,7 +663,7 @@ bool ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p, bool di
     switch (p.fOperator) {
         case Token::Kind::PLUSPLUS: // fall through
         case Token::Kind::MINUSMINUS: {
-            SkASSERT(SlotCount(p.fOperand->fType) == 1);
+            SkASSERT(this->slotCount(p.fOperand->fType) == 1);
             std::unique_ptr<LValue> lvalue = this->getLValue(*p.fOperand);
             lvalue->load();
             this->write(ByteCodeInstruction::kPushImmediate);
@@ -688,7 +691,7 @@ bool ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p, bool di
                                         ByteCodeInstruction::kNegateI,
                                         ByteCodeInstruction::kNegateI,
                                         ByteCodeInstruction::kNegateF,
-                                        SlotCount(p.fOperand->fType));
+                                        this->slotCount(p.fOperand->fType));
             break;
         }
         default:
@@ -701,7 +704,7 @@ bool ByteCodeGenerator::writePostfixExpression(const PostfixExpression& p, bool 
     switch (p.fOperator) {
         case Token::Kind::PLUSPLUS: // fall through
         case Token::Kind::MINUSMINUS: {
-            SkASSERT(SlotCount(p.fOperand->fType) == 1);
+            SkASSERT(this->slotCount(p.fOperand->fType) == 1);
             std::unique_ptr<LValue> lvalue = this->getLValue(*p.fOperand);
             lvalue->load();
             if (!discard) {
@@ -770,7 +773,7 @@ void ByteCodeGenerator::writeTernaryExpression(const TernaryExpression& t) {
     this->write(ByteCodeInstruction::kMaskNegate);
     this->writeExpression(*t.fIfFalse);
     this->write(ByteCodeInstruction::kMaskBlend);
-    this->write8(SlotCount(t.fType));
+    this->write8(this->slotCount(t.fType));
 }
 
 void ByteCodeGenerator::writeExpression(const Expression& e, bool discard) {
@@ -824,11 +827,11 @@ void ByteCodeGenerator::writeExpression(const Expression& e, bool discard) {
             SkASSERT(false);
     }
     if (discard) {
-        int count = SlotCount(e.fType);
+        int count = this->slotCount(e.fType);
         if (count > 4) {
             this->write(ByteCodeInstruction::kPopN);
             this->write8(count);
-        } else {
+        } else if (count != 0) {
             this->write(vector_instruction(ByteCodeInstruction::kPop, count));
         }
         discard = false;
@@ -839,7 +842,7 @@ class ByteCodeExternalValueLValue : public ByteCodeGenerator::LValue {
 public:
     ByteCodeExternalValueLValue(ByteCodeGenerator* generator, ExternalValue& value, int index)
         : INHERITED(*generator)
-        , fCount(ByteCodeGenerator::SlotCount(value.type()))
+        , fCount(generator->slotCount(value.type()))
         , fIndex(index) {}
 
     void load() override {
@@ -912,7 +915,7 @@ public:
     }
 
     void store(bool discard) override {
-        int count = ByteCodeGenerator::SlotCount(fExpression.fType);
+        int count = fGenerator.slotCount(fExpression.fType);
         if (!discard) {
             if (count > 4) {
                 fGenerator.write(ByteCodeInstruction::kDupN);
@@ -1065,7 +1068,7 @@ void ByteCodeGenerator::writeIfStatement(const IfStatement& i) {
 void ByteCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     this->writeExpression(*r.fExpression);
     this->write(ByteCodeInstruction::kReturn);
-    this->write8(SlotCount(r.fExpression->fType));
+    this->write8(this->slotCount(r.fExpression->fType));
 }
 
 void ByteCodeGenerator::writeSwitchStatement(const SwitchStatement& r) {
@@ -1081,7 +1084,7 @@ void ByteCodeGenerator::writeVarDeclarations(const VarDeclarations& v) {
         int location = getLocation(*decl.fVar);
         if (decl.fValue) {
             this->writeExpression(*decl.fValue);
-            int count = SlotCount(decl.fValue->fType);
+            int count = this->slotCount(decl.fValue->fType);
             if (count > 4) {
                 this->write(ByteCodeInstruction::kPushImmediate);
                 this->write32(location);
@@ -1155,11 +1158,12 @@ void ByteCodeGenerator::writeStatement(const Statement& s) {
     }
 }
 
-ByteCodeFunction::ByteCodeFunction(const FunctionDeclaration* declaration)
+ByteCodeFunction::ByteCodeFunction(const ByteCodeGenerator* maker,
+                                   const FunctionDeclaration* declaration)
         : fName(declaration->fName) {
     fParameterCount = 0;
     for (const auto& p : declaration->fParameters) {
-        int slots = ByteCodeGenerator::SlotCount(p->fType);
+        int slots = maker->slotCount(p->fType);
         fParameters.push_back({ slots, (bool)(p->fModifiers.fFlags & Modifiers::kOut_Flag) });
         fParameterCount += slots;
     }

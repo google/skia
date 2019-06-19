@@ -661,6 +661,13 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
     REPORTER_ASSERT(r, fibOut == 13);
 }
 
+DEF_TEST(SkSLInterpreterOutParams, r) {
+    test(r,
+         "void oneAlpha(inout half4 color) { color.a = 1; }"
+         "void main(inout half4 color) { oneAlpha(color); }",
+         0, 0, 0, 0, 0, 0, 0, 1);
+}
+
 DEF_TEST(SkSLInterpreterMathFunctions, r) {
     float value, expected;
 
