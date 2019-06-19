@@ -38,8 +38,8 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    SamplerHandle addSampler(const GrTexture*, const GrSamplerState&, const char* name,
-                             const GrShaderCaps*) override;
+    SamplerHandle addSampler(const GrTexture*, const GrSamplerState&, const GrSwizzle&,
+                             const char* name, const GrShaderCaps*) override;
 
     const char* samplerVariable(SamplerHandle handle) const override {
         return fSamplers[handle.toIndex()].fVariable.c_str();

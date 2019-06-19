@@ -258,6 +258,7 @@ GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray
 
 GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(const GrTexture* texture,
                                                                     const GrSamplerState&,
+                                                                    const GrSwizzle& swizzle,
                                                                     const char* name,
                                                                     const GrShaderCaps* caps) {
     SkASSERT(name && strlen(name));
@@ -265,7 +266,6 @@ GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(const GrText
     char prefix = 'u';
     fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
 
-    GrSwizzle swizzle = caps->configTextureSwizzle(texture->config());
     GrTextureType type = texture->texturePriv().textureType();
 
     UniformInfo& info = fSamplers.push_back();

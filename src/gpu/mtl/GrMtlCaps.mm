@@ -259,23 +259,6 @@ int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig conf
 void GrMtlCaps::initShaderCaps() {
     GrShaderCaps* shaderCaps = fShaderCaps.get();
 
-    // fConfigOutputSwizzle will default to RGBA so we only need to set it for alpha only config.
-    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
-        GrPixelConfig config = static_cast<GrPixelConfig>(i);
-        if (GrPixelConfigIsAlphaOnly(config)) {
-            shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RRRR();
-            shaderCaps->fConfigOutputSwizzle[i] = GrSwizzle::AAAA();
-        } else {
-            if (kGray_8_GrPixelConfig == config) {
-                shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RRRA();
-            } else if (kRGB_888X_GrPixelConfig == config || kRGB_888_GrPixelConfig == config ) {
-                shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RGB1();
-            } else {
-                shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RGBA();
-            }
-        }
-    }
-
     // Setting this true with the assumption that this cap will eventually mean we support varying
     // precisions and not just via modifiers.
     shaderCaps->fUsesPrecisionModifiers = true;

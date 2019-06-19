@@ -412,6 +412,7 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     initArgs.fCaps = &flushState->caps();
     initArgs.fResourceProvider = flushState->resourceProvider();
     initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;
+    initArgs.fOutputSwizzle = flushState->drawOpArgs().fOutputSwizzle;
     auto clip = flushState->detachAppliedClip();
     GrPipeline::FixedDynamicState fixedDynamicState(clip.scissorState().rect());
     GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
@@ -426,7 +427,8 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
         SkASSERT(atlas->isInstantiated());
 
         GrCCPathProcessor pathProc(
-                atlas->peekTexture(), atlas->origin(), fViewMatrixIfUsingLocalCoords);
+                atlas->peekTexture(), atlas->textureSwizzle(), atlas->origin(),
+                fViewMatrixIfUsingLocalCoords);
         GrTextureProxy* atlasProxy = range.fAtlasProxy;
         fixedDynamicState.fPrimitiveProcessorTextures = &atlasProxy;
         pathProc.drawPaths(flushState, pipeline, &fixedDynamicState, *resources, baseInstance,

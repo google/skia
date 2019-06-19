@@ -468,7 +468,8 @@ void GrCCFiller::drawFills(GrOpFlushState* flushState, GrCCCoverageProcessor* pr
     GrResourceProvider* rp = flushState->resourceProvider();
     const PrimitiveTallies& batchTotalCounts = fBatches[batchID].fTotalPrimitiveCounts;
 
-    GrPipeline pipeline(GrScissorTest::kEnabled, SkBlendMode::kPlus);
+    GrPipeline pipeline(GrScissorTest::kEnabled, SkBlendMode::kPlus,
+                        flushState->drawOpArgs().fOutputSwizzle);
 
     if (batchTotalCounts.fTriangles) {
         proc->reset(PrimitiveType::kTriangles, rp);

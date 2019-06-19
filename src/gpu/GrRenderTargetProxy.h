@@ -125,7 +125,6 @@ private:
     // in the constructors, and always looks for the full 16 byte alignment, even if the fields in
     // that particular class don't require it. Changing the size of this object can move the start
     // address of other types, leading to this problem.
-
     int                fSampleCnt;
     GrSwizzle          fOutputSwizzle;
     bool               fNeedsStencil;

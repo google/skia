@@ -79,11 +79,12 @@ sk_sp<const GrGpuBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourcePro
     }
 }
 
-GrCCPathProcessor::GrCCPathProcessor(const GrTexture* atlasTexture, GrSurfaceOrigin atlasOrigin,
+GrCCPathProcessor::GrCCPathProcessor(const GrTexture* atlasTexture, const GrSwizzle& swizzle,
+                                     GrSurfaceOrigin atlasOrigin,
                                      const SkMatrix& viewMatrixIfUsingLocalCoords)
         : INHERITED(kGrCCPathProcessor_ClassID)
         , fAtlasAccess(atlasTexture->texturePriv().textureType(), atlasTexture->config(),
-                       GrSamplerState::Filter::kNearest, GrSamplerState::WrapMode::kClamp)
+                       GrSamplerState::Filter::kNearest, GrSamplerState::WrapMode::kClamp, swizzle)
         , fAtlasSize(SkISize::Make(atlasTexture->width(), atlasTexture->height()))
         , fAtlasOrigin(atlasOrigin) {
     // TODO: Can we just assert that atlas has GrCCAtlas::kTextureOrigin and remove fAtlasOrigin?

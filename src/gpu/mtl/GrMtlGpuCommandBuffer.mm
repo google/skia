@@ -157,7 +157,7 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     SkASSERT(fActiveRenderCmdEncoder);
 
     [fActiveRenderCmdEncoder setRenderPipelineState:pipelineState->mtlPipelineState()];
-    pipelineState->setDrawState(fActiveRenderCmdEncoder, fRenderTarget->config(),
+    pipelineState->setDrawState(fActiveRenderCmdEncoder, pipeline.outputSwizzle(),
                                 pipeline.getXferProcessor());
 
     bool dynamicScissor =
@@ -187,7 +187,7 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
             }
 
             [fActiveRenderCmdEncoder setRenderPipelineState:pipelineState->mtlPipelineState()];
-            pipelineState->setDrawState(fActiveRenderCmdEncoder, fRenderTarget->config(),
+            pipelineState->setDrawState(fActiveRenderCmdEncoder, pipeline.outputSwizzle(),
                                         pipeline.getXferProcessor());
         }
 

@@ -109,6 +109,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor,
         SkASSERT(sampler.config() == texture->config());
         texSamplers[i] = this->emitSampler(texture,
                                            sampler.samplerState(),
+                                           sampler.swizzle(),
                                            name.c_str());
     }
 
@@ -191,6 +192,7 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
             const auto& sampler = subFP->textureSampler(i);
             texSamplers.emplace_back(this->emitSampler(sampler.peekTexture(),
                                                        sampler.samplerState(),
+                                                       sampler.swizzle(),
                                                        name.c_str()));
         }
     }
@@ -245,9 +247,10 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
 
     if (GrTexture* dstTexture = fPipeline.peekDstTexture()) {
         // GrProcessor::TextureSampler sampler(dstTexture);
-        SkString name("DstTextureSampler");
+        SkASSERT(fPipeline.dstTextureProxy());
+        const GrSwizzle& swizzle = fPipeline.dstTextureProxy()->textureSwizzle();
         dstTextureSamplerHandle =
-                this->emitSampler(dstTexture, GrSamplerState(), "DstTextureSampler");
+                this->emitSampler(dstTexture, GrSamplerState(), swizzle, "DstTextureSampler");
         dstTextureOrigin = fPipeline.dstTextureProxy()->origin();
         SkASSERT(dstTexture->texturePriv().textureType() != GrTextureType::kExternal);
     }
@@ -284,9 +287,10 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
 
 GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(const GrTexture* texture,
                                                                       const GrSamplerState& state,
+                                                                      const GrSwizzle& swizzle,
                                                                       const char* name) {
     ++fNumFragmentSamplers;
-    return this->uniformHandler()->addSampler(texture, state, name, this->shaderCaps());
+    return this->uniformHandler()->addSampler(texture, state, swizzle, name, this->shaderCaps());
 }
 
 bool GrGLSLProgramBuilder::checkSamplerCounts() {

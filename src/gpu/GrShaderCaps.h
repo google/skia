@@ -222,21 +222,7 @@ public:
 
     int maxFragmentSamplers() const { return fMaxFragmentSamplers; }
 
-    /**
-     * Given a texture's config, this determines what swizzle must be appended to accesses to the
-     * texture in generated shader code. Swizzling may be implemented in texture parameters or a
-     * sampler rather than in the shader. In this case the returned swizzle will always be "rgba".
-     */
-    const GrSwizzle& configTextureSwizzle(GrPixelConfig config) const {
-        return fConfigTextureSwizzle[config];
-    }
-
     bool textureSwizzleAppliedInShader() const { return fTextureSwizzleAppliedInShader; }
-
-    /** Swizzle that should occur on the fragment shader outputs for a given config. */
-    const GrSwizzle& configOutputSwizzle(GrPixelConfig config) const {
-        return fConfigOutputSwizzle[config];
-    }
 
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
@@ -308,9 +294,6 @@ private:
     int fMaxFragmentSamplers;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
-
-    GrSwizzle fConfigTextureSwizzle[kGrPixelConfigCnt];
-    GrSwizzle fConfigOutputSwizzle[kGrPixelConfigCnt];
 
     friend class GrCaps;  // For initialization.
     friend class GrGLCaps;

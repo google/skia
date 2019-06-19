@@ -160,7 +160,8 @@ private:
         if (!vertexBuffer) {
             return;
         }
-        GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kPlus);
+        GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kPlus,
+                            flushState->drawOpArgs().fOutputSwizzle);
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(vertexBuffer));

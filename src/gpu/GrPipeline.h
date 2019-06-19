@@ -61,6 +61,7 @@ public:
         const GrCaps* fCaps = nullptr;
         GrResourceProvider* fResourceProvider = nullptr;
         GrXferProcessor::DstProxy fDstProxy;
+        GrSwizzle fOutputSwizzle;
     };
 
     /**
@@ -96,7 +97,8 @@ public:
      * must be "Porter Duff" (<= kLastCoeffMode). If using GrScissorTest::kEnabled, the caller must
      * specify a scissor rectangle through the DynamicState struct.
      **/
-    GrPipeline(GrScissorTest, SkBlendMode, InputFlags = InputFlags::kNone,
+    GrPipeline(GrScissorTest, SkBlendMode, const GrSwizzle& outputSwizzle,
+               InputFlags = InputFlags::kNone,
                const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
 
     GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip&&);
@@ -189,6 +191,8 @@ public:
     // Used by Vulkan and Metal to cache their respective pipeline objects
     uint32_t getBlendInfoKey() const;
 
+    const GrSwizzle& outputSwizzle() const { return fOutputSwizzle; }
+
 private:
     void markAsBad() { fFlags |= Flags::kIsBad; }
 
@@ -218,6 +222,8 @@ private:
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
     int fNumColorProcessors;
+
+    GrSwizzle fOutputSwizzle;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrPipeline::InputFlags);

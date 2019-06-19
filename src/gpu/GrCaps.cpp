@@ -316,7 +316,19 @@ size_t GrCaps::transferFromOffsetAlignment(GrColorType bufferColorType) const {
 
 bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                             const SkIRect& srcRect, const SkIPoint& dstPoint) const {
-    return dst->readOnly() ? false : this->onCanCopySurface(dst, src, srcRect, dstPoint);
+    if (dst->readOnly()) {
+        return false;
+    }
+    // Currently we only ever do copies where the configs are the same. This check really should be
+    // checking if the backend formats, color types, and swizzle are compatible. Our copy always
+    // copies exact byte to byte from src to dst so when need to check the if we do this, the dst
+    // has the expected values stored in the right places taking the swizzle into account. For now
+    // we can be more restrictive and just make sure the configs are the same and if we generalize
+    // copies and swizzles more in the future this can be updated.
+    if (dst->config() != src->config()) {
+        return false;
+    }
+    return this->onCanCopySurface(dst, src, srcRect, dstPoint);
 }
 
 bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrMipMapped mipped) const {

@@ -548,6 +548,7 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
 
     SkASSERT(src->backendFormat().textureType() != GrTextureType::kExternal);
     SkASSERT(src->origin() == this->asSurfaceProxy()->origin());
+    SkASSERT(src->config() == this->asSurfaceProxy()->config());
 
     GrSurfaceProxy* dst = this->asSurfaceProxy();
 

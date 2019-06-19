@@ -689,7 +689,8 @@ void GrCCStroker::drawStrokes(GrOpFlushState* flushState, GrCCCoverageProcessor*
     startIndices[(int)GrScissorTest::kEnabled] = (!startScissorSubBatch)
             ? &fZeroTallies : fScissorSubBatches[startScissorSubBatch - 1].fEndInstances;
 
-    GrPipeline pipeline(GrScissorTest::kEnabled, SkBlendMode::kPlus);
+    GrPipeline pipeline(GrScissorTest::kEnabled, SkBlendMode::kPlus,
+                        flushState->drawOpArgs().fOutputSwizzle);
 
     // Draw linear strokes.
     this->appendStrokeMeshesToBuffers(0, batch, startIndices, startScissorSubBatch, drawBounds);

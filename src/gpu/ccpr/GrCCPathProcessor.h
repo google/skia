@@ -53,7 +53,7 @@ public:
     static sk_sp<const GrGpuBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
     static sk_sp<const GrGpuBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
 
-    GrCCPathProcessor(const GrTexture* atlasTexture, GrSurfaceOrigin atlasOrigin,
+    GrCCPathProcessor(const GrTexture* atlasTexture, const GrSwizzle&, GrSurfaceOrigin atlasOrigin,
                       const SkMatrix& viewMatrixIfUsingLocalCoords = SkMatrix::I());
 
     const char* name() const override { return "GrCCPathProcessor"; }

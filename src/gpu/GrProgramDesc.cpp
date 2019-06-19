@@ -39,14 +39,14 @@ static inline uint16_t texture_type_key(GrTextureType type) {
     return SkToU16(value);
 }
 
-static uint32_t sampler_key(GrTextureType textureType, GrPixelConfig config,
-                            const GrShaderCaps& caps) {
+static uint32_t sampler_key(GrTextureType textureType, const GrSwizzle& swizzle,
+                            GrPixelConfig config, const GrShaderCaps& caps) {
     int samplerTypeKey = texture_type_key(textureType);
 
-    GR_STATIC_ASSERT(2 == sizeof(caps.configTextureSwizzle(config).asKey()));
+    GR_STATIC_ASSERT(2 == sizeof(swizzle.asKey()));
     uint16_t swizzleKey = 0;
     if (caps.textureSwizzleAppliedInShader()) {
-        swizzleKey = caps.configTextureSwizzle(config).asKey();
+        swizzleKey = swizzle.asKey();
     }
     return SkToU32(samplerTypeKey |
                    swizzleKey << kSamplerOrImageTypeKeyBits |
@@ -63,7 +63,8 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProcessor
     for (int i = 0; i < numTextureSamplers; ++i) {
         const GrFragmentProcessor::TextureSampler& sampler = fp.textureSampler(i);
         const GrTexture* tex = sampler.peekTexture();
-        k32[i] = sampler_key(tex->texturePriv().textureType(), tex->config(), caps);
+        k32[i] = sampler_key(tex->texturePriv().textureType(), sampler.swizzle(), tex->config(),
+                             caps);
         uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
                 sampler.samplerState(), sampler.proxy()->backendFormat());
         if (extraSamplerKey) {
@@ -86,7 +87,7 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcesso
     uint32_t* k32 = b->add32n(numTextureSamplers);
     for (int i = 0; i < numTextureSamplers; ++i) {
         const GrPrimitiveProcessor::TextureSampler& sampler = pp.textureSampler(i);
-        k32[i] = sampler_key(sampler.textureType(), sampler.config(), caps);
+        k32[i] = sampler_key(sampler.textureType(), sampler.swizzle(), sampler.config(), caps);
         uint32_t extraSamplerKey = sampler.extraSamplerKey();
         if (extraSamplerKey) {
             SkASSERT(sampler.textureType() == GrTextureType::kExternal);
@@ -245,7 +246,7 @@ bool GrProgramDesc::Build(
 
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
-    header->fOutputSwizzle = shaderCaps.configOutputSwizzle(renderTarget->config()).asKey();
+    header->fOutputSwizzle = pipeline.outputSwizzle().asKey();
     header->fColorFragmentProcessorCnt = pipeline.numColorFragmentProcessors();
     header->fCoverageFragmentProcessorCnt = pipeline.numCoverageFragmentProcessors();
     // Fail if the client requested more processors than the key can fit.

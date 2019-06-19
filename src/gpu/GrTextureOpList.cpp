@@ -85,6 +85,7 @@ void GrTextureOpList::onPrepare(GrOpFlushState* flushState) {
                 fRecordedOps[i].get(),
                 nullptr,
                 nullptr,
+                GrSwizzle(),
                 GrXferProcessor::DstProxy()
             };
             flushState->setOpArgs(&opArgs);
@@ -115,6 +116,7 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
             fRecordedOps[i].get(),
             nullptr,
             nullptr,
+            GrSwizzle(),
             GrXferProcessor::DstProxy()
         };
         flushState->setOpArgs(&opArgs);

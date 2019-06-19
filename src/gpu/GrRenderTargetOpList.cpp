@@ -418,6 +418,7 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
                 chain.head(),
                 fTarget->asRenderTargetProxy(),
                 chain.appliedClip(),
+                fTarget.get()->asRenderTargetProxy()->outputSwizzle(),
                 chain.dstProxy()
             };
             flushState->setOpArgs(&opArgs);
@@ -503,6 +504,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
             chain.head(),
             fTarget->asRenderTargetProxy(),
             chain.appliedClip(),
+            fTarget.get()->asRenderTargetProxy()->outputSwizzle(),
             chain.dstProxy()
         };
 

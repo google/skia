@@ -746,6 +746,7 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
     initArgs.fCaps = &flushState->caps();
     initArgs.fResourceProvider = flushState->resourceProvider();
     initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;
+    initArgs.fOutputSwizzle = flushState->drawOpArgs().fOutputSwizzle;
     auto clip = flushState->detachAppliedClip();
     GrPipeline::FixedDynamicState fixedDynamicState(clip.scissorState().rect());
     GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));

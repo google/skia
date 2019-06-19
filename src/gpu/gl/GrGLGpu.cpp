@@ -2052,9 +2052,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
     this->flushProgram(std::move(program));
 
     // Swizzle the blend to match what the shader will output.
-    const GrSwizzle& swizzle = this->caps()->shaderCaps()->configOutputSwizzle(
-        renderTarget->config());
-    this->flushBlend(blendInfo, swizzle);
+    this->flushBlend(blendInfo, pipeline.outputSwizzle());
 
     fHWProgram->updateUniformsAndTextureBindings(renderTarget, origin,
                                                  primProc, pipeline, primProcProxiesToBind);
@@ -2981,7 +2979,8 @@ static void get_gl_swizzle_values(const GrSwizzle& swizzle, GrGLenum glValues[4]
     }
 }
 
-void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture* texture) {
+void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwizzle& swizzle,
+                          GrGLTexture* texture) {
     SkASSERT(texture);
 
 #ifdef SK_DEBUG
@@ -3088,7 +3087,6 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture*
     const GrGLTextureParameters::NonsamplerState& oldNonsamplerState =
             texture->parameters()->nonsamplerState();
     if (!this->caps()->shaderCaps()->textureSwizzleAppliedInShader()) {
-        const auto& swizzle = this->caps()->shaderCaps()->configTextureSwizzle(texture->config());
         newNonsamplerState.fSwizzleKey = swizzle.asKey();
         if (setAll || swizzle.asKey() != oldNonsamplerState.fSwizzleKey) {
             GrGLenum glValues[4];
@@ -3351,12 +3349,6 @@ void GrGLGpu::deleteFramebuffer(GrGLuint fboid) {
 
 bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                             const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) {
-    // None of our copy methods can handle a swizzle.
-    if (this->caps()->shaderCaps()->configOutputSwizzle(src->config()) !=
-        this->caps()->shaderCaps()->configOutputSwizzle(dst->config())) {
-        return false;
-    }
-
     // Don't prefer copying as a draw if the dst doesn't already have a FBO object.
     // This implicitly handles this->glCaps().useDrawInsteadOfAllRenderTargetWrites().
     bool preferCopy = SkToBool(dst->asRenderTarget());
@@ -3667,7 +3659,8 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& s
     }
     int w = srcRect.width();
     int h = srcRect.height();
-    this->bindTexture(0, GrSamplerState::ClampNearest(), srcTex);
+    // We don't swizzle at all in our copies.
+    this->bindTexture(0, GrSamplerState::ClampNearest(), GrSwizzle::RGBA(), srcTex);
     this->bindSurfaceFBOForPixelOps(dst, GR_GL_FRAMEBUFFER, kDst_TempFBOTarget);
     this->flushViewport(dst->width(), dst->height());
     fHWBoundRenderTargetUniqueID.makeInvalid();
@@ -3813,7 +3806,8 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     // Bind the texture, to get things configured for filtering.
     // We'll be changing our base level further below:
     this->setTextureUnit(0);
-    this->bindTexture(0, GrSamplerState::ClampBilerp(), glTex);
+    // The mipmap program does not do any swizzling.
+    this->bindTexture(0, GrSamplerState::ClampBilerp(), GrSwizzle::RGBA(), glTex);
 
     // Vertex data:
     if (!fMipmapProgramArrayBuffer) {

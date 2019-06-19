@@ -62,6 +62,7 @@ private:
 
     SamplerHandle addSampler(const GrTexture*,
                              const GrSamplerState&,
+                             const GrSwizzle&,
                              const char* name,
                              const GrShaderCaps*) override;
 
