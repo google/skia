@@ -59,6 +59,9 @@ if (!options.output) {
 if (!options.port) {
   options.port = 8081;
 }
+if (!options.lottie_player) {
+  options.lottie_player = 'node_modules/lottie-web/build/player/lottie.min.js';
+}
 
 if (options.help) {
   console.log(commandLineUsage(usage));
