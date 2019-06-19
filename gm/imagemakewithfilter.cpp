@@ -35,6 +35,8 @@
 #include "include/effects/SkOffsetImageFilter.h"
 #include "include/effects/SkXfermodeImageFilter.h"
 
+#include "include/gpu/GrContext.h"
+
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -250,6 +252,9 @@ protected:
         // code paths (otherwise they may choose to do CPU filtering then upload)
         sk_sp<SkImage> mainImage, auxImage;
         if (canvas->getGrContext()) {
+            if (canvas->getGrContext()->abandoned()) {
+                return;
+            }
             mainImage = fMainImage->makeTextureImage(canvas->getGrContext(), nullptr);
             auxImage = fAuxImage->makeTextureImage(canvas->getGrContext(), nullptr);
         } else {
