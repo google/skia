@@ -11,7 +11,6 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/GrProcessor.h"
-#include "src/gpu/GrProxyRef.h"
 #include "src/gpu/GrShaderVar.h"
 
 class GrCoordTransform;

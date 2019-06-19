@@ -11,7 +11,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTDArray.h"
-#include "src/gpu/GrProxyRef.h"
 #include "src/gpu/GrTextureProxy.h"
 
 class GrAuditTrail;
@@ -99,7 +98,7 @@ protected:
     // In the DDL case, these back pointers keep the DDL's GrOpMemoryPool alive as long as its
     // constituent opLists survive.
     sk_sp<GrOpMemoryPool> fOpMemoryPool;
-    GrSurfaceProxyRef     fTarget;
+    sk_sp<GrSurfaceProxy> fTarget;
     GrAuditTrail*         fAuditTrail;
 
     GrLoadOp              fColorLoadOp    = GrLoadOp::kLoad;
