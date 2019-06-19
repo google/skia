@@ -8,7 +8,7 @@
 #ifndef SKSL_STRING
 #define SKSL_STRING
 
-#include "src/sksl/SkSLDefines.h"
+#include "src/sksl/SkSLUtil.h"
 #include <cstring>
 #include <stdarg.h>
 #include <string>

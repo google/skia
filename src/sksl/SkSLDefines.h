@@ -7,9 +7,6 @@
 
 #ifndef SKSL_DEFINES
 #define SKSL_DEFINES
-
-#include <cstdint>
-
 #ifdef SKSL_STANDALONE
 #if defined(_WIN32) || defined(__SYMBIAN32__)
 #define SKSL_BUILD_FOR_WIN
@@ -24,7 +21,6 @@
 #define SkASSERT(x) do { if (!(x)) abort(); } while (false)
 #define SkAssertResult(x) do { if (!(x)) abort(); } while (false)
 #define SkDEBUGCODE(...) __VA_ARGS__
-#define SK_API
 #else
 #include "include/core/SkTypes.h"
 #endif
@@ -44,8 +40,5 @@
 #else
 #define NORETURN __attribute__((__noreturn__))
 #endif
-
-using SKSL_INT = int32_t;
-using SKSL_FLOAT = float;
 
 #endif
