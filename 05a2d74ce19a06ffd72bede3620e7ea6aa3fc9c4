@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1abe8bd1_83a72c26",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-19T19:34:35Z",
+      "side": 1,
+      "message": "Add an SkASSERT that size is power-of-two, given the implementation of getAllocation?",
+      "revId": "05a2d74ce19a06ffd72bede3620e7ea6aa3fc9c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34f49cf8_2ee8befa",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-19T19:34:35Z",
+      "side": 1,
+      "message": "Is this suggesting that the completion handler could trigger on another thread while we\u0027re in this function? Should we be guarding fTail with a mutex in that case?",
+      "revId": "05a2d74ce19a06ffd72bede3620e7ea6aa3fc9c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
