@@ -402,7 +402,7 @@ void GrRenderTargetOpList::visitProxies_debugOnly(const GrOp::VisitProxyFunc& fu
 #endif
 
 void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
-    SkASSERT(fTarget.get()->peekRenderTarget());
+    SkASSERT(fTarget->peekRenderTarget());
     SkASSERT(this->isClosed());
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -416,7 +416,7 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
 #endif
             GrOpFlushState::OpArgs opArgs = {
                 chain.head(),
-                fTarget.get()->asRenderTargetProxy(),
+                fTarget->asRenderTargetProxy(),
                 chain.appliedClip(),
                 chain.dstProxy()
             };
@@ -468,7 +468,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
         return false;
     }
 
-    SkASSERT(fTarget.get()->peekRenderTarget());
+    SkASSERT(fTarget->peekRenderTarget());
     TRACE_EVENT0("skia", TRACE_FUNC);
 
     // TODO: at the very least, we want the stencil store op to always be discard (at this
@@ -481,9 +481,9 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
              !flushState->gpu()->caps()->performStencilClearsAsDraws());
     GrGpuRTCommandBuffer* commandBuffer = create_command_buffer(
                                                     flushState->gpu(),
-                                                    fTarget.get()->peekRenderTarget(),
-                                                    fTarget.get()->origin(),
-                                                    fTarget.get()->getBoundsRect(),
+                                                    fTarget->peekRenderTarget(),
+                                                    fTarget->origin(),
+                                                    fTarget->getBoundsRect(),
                                                     fColorLoadOp,
                                                     fLoadClearColor,
                                                     fStencilLoadOp);
@@ -501,7 +501,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
 
         GrOpFlushState::OpArgs opArgs {
             chain.head(),
-            fTarget.get()->asRenderTargetProxy(),
+            fTarget->asRenderTargetProxy(),
             chain.appliedClip(),
             chain.dstProxy()
         };
@@ -558,14 +558,14 @@ bool GrRenderTargetOpList::resetForFullscreenClear() {
     // modifying the stencil buffer we will need a more elaborate tracking system (skbug.com/7002).
     // Additionally, if we previously recorded a wait op, we cannot delete the wait op. Until we
     // track the wait ops separately from normal ops, we have to avoid clearing out any ops.
-    if (this->isEmpty() || (!fTarget.get()->asRenderTargetProxy()->needsStencil() && !fHasWaitOp)) {
+    if (this->isEmpty() || (!fTarget->asRenderTargetProxy()->needsStencil() && !fHasWaitOp)) {
         this->deleteOps();
         fDeferredProxies.reset();
 
         // If the opList is using a render target which wraps a vulkan command buffer, we can't do a
         // clear load since we cannot change the render pass that we are using. Thus we fall back to
         // making a clear op in this case.
-        return !fTarget.get()->asRenderTargetProxy()->wrapsVkSecondaryCB();
+        return !fTarget->asRenderTargetProxy()->wrapsVkSecondaryCB();
     }
 
     // Could not empty the list, so an op must be added to handle the clear
@@ -669,7 +669,7 @@ void GrRenderTargetOpList::recordOp(
         const DstProxy* dstProxy, const GrCaps& caps) {
     SkDEBUGCODE(op->validate();)
     SkASSERT(processorAnalysis.requiresDstTexture() == (dstProxy && dstProxy->proxy()));
-    SkASSERT(fTarget.get());
+    SkASSERT(fTarget);
 
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
@@ -682,7 +682,7 @@ void GrRenderTargetOpList::recordOp(
     // 1) check every op
     // 2) intersect with something
     // 3) find a 'blocker'
-    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), fTarget.get()->uniqueID());
+    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), fTarget->uniqueID());
     GrOP_INFO("opList: %d Recording (%s, opID: %u)\n"
               "\tBounds [L: %.2f, T: %.2f R: %.2f B: %.2f]\n",
                this->uniqueID(),
