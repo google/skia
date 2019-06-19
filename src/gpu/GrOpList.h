@@ -99,7 +99,7 @@ protected:
     // In the DDL case, these back pointers keep the DDL's GrOpMemoryPool alive as long as its
     // constituent opLists survive.
     sk_sp<GrOpMemoryPool> fOpMemoryPool;
-    GrSurfaceProxyRef     fTarget;
+    sk_sp<GrSurfaceProxy> fTarget;
     GrAuditTrail*         fAuditTrail;
 
     GrLoadOp              fColorLoadOp    = GrLoadOp::kLoad;

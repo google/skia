@@ -412,7 +412,7 @@ public:
      * in pending execution state.
      */
     explicit TextureSampler(const TextureSampler& that)
-            : fProxyRef(sk_ref_sp(that.fProxyRef.get()))
+            : fProxy(that.fProxy)
             , fSamplerState(that.fSamplerState) {}
 
     TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerState&);
@@ -438,27 +438,27 @@ public:
     // 'instantiate' should only ever be called at flush time.
     // TODO: this can go away once explicit allocation has stuck
     bool instantiate(GrResourceProvider* resourceProvider) const {
-        return fProxyRef.get()->isInstantiated();
+        return fProxy->isInstantiated();
     }
 
     // 'peekTexture' should only ever be called after a successful 'instantiate' call
     GrTexture* peekTexture() const {
-        SkASSERT(fProxyRef.get()->peekTexture());
-        return fProxyRef.get()->peekTexture();
+        SkASSERT(fProxy->isInstantiated());
+        return fProxy->peekTexture();
     }
 
-    GrTextureProxy* proxy() const { return fProxyRef.get(); }
+    GrTextureProxy* proxy() const { return fProxy.get(); }
     const GrSamplerState& samplerState() const { return fSamplerState; }
 
-    bool isInitialized() const { return SkToBool(fProxyRef.get()); }
+    bool isInitialized() const { return SkToBool(fProxy.get()); }
     /**
      * For internal use by GrFragmentProcessor.
      */
-    const GrTextureProxyRef* proxyRef() const { return &fProxyRef; }
+    const sk_sp<GrTextureProxy> proxyRef1() const { return fProxy; }
 
 private:
-    GrTextureProxyRef fProxyRef;
-    GrSamplerState fSamplerState;
+    sk_sp<GrTextureProxy> fProxy;
+    GrSamplerState        fSamplerState;
 };
 
 //////////////////////////////////////////////////////////////////////////////

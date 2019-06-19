@@ -86,6 +86,12 @@ public:
 #endif
     }
 
+#if GR_TEST_UTILS
+    int32_t testingOnly_getRefCnt() const { return fRefCnt; }
+    int32_t testingOnly_getPendingReads() const { return fPendingReads; }
+    int32_t testingOnly_getPendingWrites() const { return fPendingWrites; }
+#endif
+
 protected:
     GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) { }
 
@@ -147,7 +153,6 @@ private:
     mutable int32_t fPendingReads;
     mutable int32_t fPendingWrites;
 
-    friend class GrIORefProxy;    // needs to forward on wrapped IO calls
     friend class GrResourceCache; // to check IO ref counts.
 
     template <typename, GrIOType> friend class GrPendingIOResource;

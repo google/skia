@@ -36,17 +36,6 @@
 
 #include <algorithm>
 
-bool GrSurfaceProxy::isWrapped_ForTesting() const {
-    return SkToBool(fTarget);
-}
-
-bool GrRenderTargetContext::isWrapped_ForTesting() const {
-    return fRenderTargetProxy->isWrapped_ForTesting();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newTimestamp; }
@@ -95,12 +84,6 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(
 }
 
 #undef ASSERT_SINGLE_OWNER
-
-///////////////////////////////////////////////////////////////////////////////
-
-GrInternalSurfaceFlags GrSurfaceProxy::testingOnly_getFlags() const {
-    return fSurfaceFlags;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 
