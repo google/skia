@@ -71,15 +71,16 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
 
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip*,
-                                      GrFSAAType fsaaType, GrClampType clampType) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps& caps, const GrAppliedClip*, bool hasMixedSampledCoverage,
+            GrClampType clampType) override {
         // Set the color to unknown because the subclass may change the color later.
         GrProcessorAnalysisColor gpColor;
         gpColor.setToUnknown();
         // We ignore the clip so pass this rather than the GrAppliedClip param.
         static GrAppliedClip kNoClip;
-        return fHelper.finalizeProcessors(
-                caps, &kNoClip, fsaaType, clampType, GrProcessorAnalysisCoverage::kNone, &gpColor);
+        return fHelper.finalizeProcessors(caps, &kNoClip, hasMixedSampledCoverage, clampType,
+                                          GrProcessorAnalysisCoverage::kNone, &gpColor);
     }
 
 protected:

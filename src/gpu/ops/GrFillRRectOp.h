@@ -26,8 +26,8 @@ public:
                 ? FixedFunctionFlags::kUsesHWAA
                 : FixedFunctionFlags::kNone;
     }
-    GrProcessorSet::Analysis finalize(
-            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType) override;
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
+                                      bool hasMixedSampledCoverage, GrClampType) override;
     CombineResult onCombineIfPossible(GrOp*, const GrCaps&) override;
     void visitProxies(const VisitProxyFunc& fn) const override {
         fProcessors.visitProxies(fn);

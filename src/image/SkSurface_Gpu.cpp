@@ -79,7 +79,7 @@ GrBackendRenderTarget SkSurface_Gpu::onGetBackendRenderTarget(BackendHandleAcces
 SkCanvas* SkSurface_Gpu::onNewCanvas() { return new SkCanvas(fDevice); }
 
 sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
-    int sampleCount = fDevice->accessRenderTargetContext()->numColorSamples();
+    int sampleCount = fDevice->accessRenderTargetContext()->numSamples();
     GrSurfaceOrigin origin = fDevice->accessRenderTargetContext()->origin();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
@@ -210,7 +210,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
                                        rtc->colorSpaceInfo().refColorSpace());
 
     characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, rtc->origin(),
-                          rtc->colorSpaceInfo().config(), rtc->fsaaType(), rtc->numStencilSamples(),
+                          rtc->colorSpaceInfo().config(), rtc->numSamples(),
                           SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
                           SkSurfaceCharacterization::MipMapped(mipmapped),
                           SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
@@ -308,8 +308,7 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& characterizati
            characterization.width() == rtc->width() &&
            characterization.height() == rtc->height() &&
            characterization.colorType() == rtcColorType &&
-           characterization.fsaaType() == rtc->fsaaType() &&
-           characterization.stencilCount() == rtc->numStencilSamples() &&
+           characterization.sampleCount() == rtc->numSamples() &&
            SkColorSpace::Equals(characterization.colorSpace(),
                                 rtc->colorSpaceInfo().colorSpace()) &&
            characterization.surfaceProps() == rtc->surfaceProps();
@@ -367,7 +366,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
     desc.fWidth = c.width();
     desc.fHeight = c.height();
     desc.fConfig = c.config();
-    desc.fSampleCnt = c.stencilCount();
+    desc.fSampleCnt = c.sampleCount();
 
     const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(c.colorType());
@@ -559,7 +558,7 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
         return false;
     }
     SkASSERT(oldTexture->asRenderTarget());
-    int sampleCnt = oldTexture->asRenderTarget()->numStencilSamples();
+    int sampleCnt = oldTexture->asRenderTarget()->numSamples();
     GrBackendTexture texCopy = backendTexture;
     auto colorSpace = sk_ref_sp(oldRTC->colorSpaceInfo().colorSpace());
     if (!validate_backend_texture(context, texCopy, &texCopy.fConfig, sampleCnt,
