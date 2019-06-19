@@ -34,6 +34,24 @@
       "revId": "15ac6ded71d293e89a21344cd8d6ff91407c51f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "23d206f7_4c231e72",
+        "filename": "gm/imagemakewithfilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-19T18:13:08Z",
+      "side": 1,
+      "message": "Thinking about this a bit more, I realized I don\u0027t really care what we do here. This change lgtm.",
+      "parentUuid": "c64c0a99_8290248a",
+      "revId": "15ac6ded71d293e89a21344cd8d6ff91407c51f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
