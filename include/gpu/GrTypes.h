@@ -225,6 +225,14 @@ enum class GrRenderable : bool {
     kYes = true
 };
 
+/*
+ * Used to say whether texture is backed by protected memory.
+ */
+enum class GrProtected : bool {
+    kNo = false,
+    kYes = true
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
