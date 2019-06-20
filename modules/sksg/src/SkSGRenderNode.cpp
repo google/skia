@@ -164,6 +164,7 @@ RenderNode::ScopedRenderContext::setIsolation(const SkRect& bounds, const SkMatr
 
         // Reset only the props applied via isolation layers.
         fCtx.fColorFilter = nullptr;
+        fCtx.fMaskFilter  = nullptr;
         fCtx.fOpacity     = 1;
         fCtx.fBlendMode   = SkBlendMode::kSrcOver;
     }
