@@ -28,6 +28,8 @@ public:
         // flag is only valid for buffers which are host visible (i.e. must have a usage other than
         // BufferUsage::kGpuOnly).
         kPersistentlyMapped  = 0x4,
+        // Allocation can only be accessed by the device using a protected context.
+        kProtected  = 0x8,
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AllocationPropertyFlags);
