@@ -96,7 +96,7 @@ public:
     void writeTypedInstruction(const Type& type, ByteCodeInstruction s, ByteCodeInstruction u,
                                ByteCodeInstruction f, int count);
 
-    static int SlotCount(const Type& type);
+    int slotCount(const Type& type) const;
 
 private:
     // reserves 16 bits in the output code, to be filled in later with an address once we determine
