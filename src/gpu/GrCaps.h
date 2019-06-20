@@ -239,6 +239,8 @@ public:
      */
     size_t transferFromOffsetAlignment(GrColorType bufferColorType) const;
 
+    virtual GrSurfaceOrigin renderTargetOrigin() const { return kBottomLeft_GrSurfaceOrigin; }
+
     bool suppressPrints() const { return fSuppressPrints; }
 
     size_t bufferMapThreshold() const {
