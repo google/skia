@@ -22,6 +22,30 @@
       "revId": "5915e5a36b94d85608588f5be87db75b218d5bf2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e93e8b1_82336103",
+        "filename": "tests/VkProtectedContextTest.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-06-20T15:59:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "174dfbe9_ca7ed274",
+      "range": {
+        "startLine": 315,
+        "startChar": 4,
+        "endLine": 315,
+        "endChar": 50
+      },
+      "revId": "5915e5a36b94d85608588f5be87db75b218d5bf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
