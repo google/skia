@@ -94,6 +94,24 @@
     },
     {
       "key": {
+        "uuid": "01b465ec_d403dac5",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-20T18:54:58Z",
+      "side": 1,
+      "message": "I think I\u0027d prefer that (either adding a kVoid_Kind, or at least just punting on that and treating kOther_Kind as such for now, to avoid the risk of breaking other code by altering the TypeKind of \"void\"). Looks like there are a bunch of other kOther types (null, void, along with various samplers?). Still should be at least as safe/correct as what we have now, right?",
+      "parentUuid": "b7987310_9906aa6e",
+      "revId": "03dcd7693604598d353f7b6a9024e276c3cf005d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "12dafa90_9e9120ed",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 1
