@@ -464,7 +464,7 @@ namespace skvm {
                    int map,   // SSE opcode map selector: 0x0f, 0x380f, 0x3a0f.
                    int   x,   // 4-bit second operand register, our x, called vvvv in docs.
                    bool  L,   // Set for 256-bit ymm operations, off for 128-bit xmm.
-                   int  pp) { // SSE mandatory prefix: 0x66, 0xf3, 0xf2 (, 0x00?).
+                   int  pp) { // SSE mandatory prefix: 0x66, 0xf3, 0xf2, else none.
 
         // Pack x86 opcode map selector to 5-bit VEX encoding.
         map = [map]{
@@ -556,20 +556,23 @@ namespace skvm {
 
         this->byte(rex(1,dst>>3,0,0));
         this->byte(opcode);
-        this->byte(_233(0b11, opcode_ext, dst&7));  // Not sure if this is ModRM or what 0b11 means.
+        this->byte(mod_rm(Mod::Direct, opcode_ext, dst&7));
         this->byte(&imm, imm_bytes);
     }
 
     void Assembler::add(GP64 dst, int imm) { this->op(0,0b000, dst,imm); }
     void Assembler::sub(GP64 dst, int imm) { this->op(0,0b101, dst,imm); }
 
-    // dst = x op y, all ymm.  Maybe only for int ops?  We'll see.
     void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y, bool W/*=false*/) {
         VEX v = vex(W, dst>>3, 0, y>>3,
                     map, x, 1/*ymm, not xmm*/, prefix);
         this->byte(v.bytes, v.len);
         this->byte(opcode);
         this->byte(mod_rm(Mod::Direct, dst&7, y&7));
+    }
+    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, bool W/*=false*/) {
+        // Two arguments ops seem to pass them in dst and y, forcing x to 0 so VEX.vvvv == 1111.
+        this->op(prefix,map,opcode, dst,(Ymm)0,x,W);
     }
 
     void Assembler::vpaddd (Ymm dst, Ymm x, Ymm y) { this->op(0x66,  0x0f,0xfe, dst,x,y); }
@@ -609,12 +612,16 @@ namespace skvm {
 
     void Assembler::vpsrlw(Ymm dst, Ymm x, int imm) { this->op(0x66,0x0f,0x71,2, dst,x,imm); }
 
+
     void Assembler::vpermq(Ymm dst, Ymm x, int imm) {
         // A bit unusual among the instructions we use, this is 64-bit operation, so we set W.
         bool W = true;
-        this->op(0x66,0x3a0f,0x00, dst,(Ymm)0,x,W);
+        this->op(0x66,0x3a0f,0x00, dst,x,W);
         this->byte(imm);
     }
+
+    void Assembler::vcvtdq2ps (Ymm dst, Ymm x) { this->op(0,   0x0f,0x5b, dst,x); }
+    void Assembler::vcvttps2dq(Ymm dst, Ymm x) { this->op(0xf3,0x0f,0x5b, dst,x); }
 
     static bool can_jit(int regs, int nargs) {
         return true
@@ -744,8 +751,8 @@ namespace skvm {
                                a.vpor  (ar(d), ar(tmp), ar(x));
                                break;
 
-                case Op::to_f32: X.vcvtdq2ps (r(d), r(x)); break;
-                case Op::to_i32: X.vcvttps2dq(r(d), r(x)); break;
+                case Op::to_f32: a.vcvtdq2ps (ar(d), ar(x)); break;
+                case Op::to_i32: a.vcvttps2dq(ar(d), ar(x)); break;
 
                 case Op::bytes: {
                     if (vpshufb_masks.end() == vpshufb_masks.find(y.imm)) {
