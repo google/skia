@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "13f06099_533eeaf4",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 41
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-06-20T18:38:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d2b5018_85cd53ca",
+      "range": {
+        "startLine": 223,
+        "startChar": 56,
+        "endLine": 224,
+        "endChar": 49
+      },
+      "revId": "c79b03a477c31a96abbbfb4122ccf8373902db4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "786afca3_85308289",
         "filename": "src/gpu/GrBackendSurface.cpp",
         "patchSetId": 41
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "41a0d180_901acde2",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 41
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-06-20T18:38:21Z",
+      "side": 1,
+      "message": "git clang-format artifact :(",
+      "parentUuid": "786afca3_85308289",
+      "range": {
+        "startLine": 538,
+        "startChar": 67,
+        "endLine": 539,
+        "endChar": 58
+      },
+      "revId": "c79b03a477c31a96abbbfb4122ccf8373902db4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "acee67f8_a1e5fd71",
         "filename": "src/gpu/vk/GrVkCaps.h",
         "patchSetId": 41
@@ -59,6 +107,30 @@
       "writtenOn": "2019-06-20T18:21:57Z",
       "side": 1,
       "message": "We are already storing this on the GrVkGpu. Why do we need this here as well?",
+      "range": {
+        "startLine": 233,
+        "startChar": 4,
+        "endLine": 233,
+        "endChar": 48
+      },
+      "revId": "c79b03a477c31a96abbbfb4122ccf8373902db4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d54ee964_8528127f",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 41
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-06-20T18:38:21Z",
+      "side": 1,
+      "message": "The use is in GrVkCaps::init that is called from GrVkCaps::GrVkCaps. I can skip having a class member and pass it to init as well if that is preferred.",
+      "parentUuid": "acee67f8_a1e5fd71",
       "range": {
         "startLine": 233,
         "startChar": 4,
