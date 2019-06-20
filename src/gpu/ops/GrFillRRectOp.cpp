@@ -744,7 +744,6 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
         initArgs.fInputFlags = GrPipeline::InputFlags::kHWAntialias;
     }
     initArgs.fCaps = &flushState->caps();
-    initArgs.fResourceProvider = flushState->resourceProvider();
     initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;
     initArgs.fOutputSwizzle = flushState->drawOpArgs().fOutputSwizzle;
     auto clip = flushState->detachAppliedClip();

@@ -42,7 +42,6 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
     pipelineArgs.fInputFlags = pipelineFlags;
     pipelineArgs.fDstProxy = this->dstProxy();
     pipelineArgs.fCaps = &this->caps();
-    pipelineArgs.fResourceProvider = this->resourceProvider();
     pipelineArgs.fUserStencil = stencilSettings;
     pipelineArgs.fOutputSwizzle = this->drawOpArgs().fOutputSwizzle;
     GrPipeline pipeline(pipelineArgs, std::move(processorSet), this->detachAppliedClip());

@@ -59,7 +59,6 @@ public:
         InputFlags fInputFlags = InputFlags::kNone;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrCaps* fCaps = nullptr;
-        GrResourceProvider* fResourceProvider = nullptr;
         GrXferProcessor::DstProxy fDstProxy;
         GrSwizzle fOutputSwizzle;
     };
@@ -184,7 +183,7 @@ public:
     bool isStencilEnabled() const {
         return SkToBool(fFlags & Flags::kStencilEnabled);
     }
-    bool isBad() const { return SkToBool(fFlags & Flags::kIsBad); }
+    SkDEBUGCODE(bool isBad() const { return SkToBool(fFlags & Flags::kIsBad); })
 
     GrXferBarrierType xferBarrierType(GrTexture*, const GrCaps&) const;
 
@@ -194,7 +193,8 @@ public:
     const GrSwizzle& outputSwizzle() const { return fOutputSwizzle; }
 
 private:
-    void markAsBad() { fFlags |= Flags::kIsBad; }
+
+    SkDEBUGCODE(void markAsBad() { fFlags |= Flags::kIsBad; })
 
     static constexpr uint8_t kLastInputFlag = (uint8_t)InputFlags::kSnapVerticesToPixelCenters;
 
@@ -203,7 +203,9 @@ private:
         kHasStencilClip = (kLastInputFlag << 1),
         kStencilEnabled = (kLastInputFlag << 2),
         kScissorEnabled = (kLastInputFlag << 3),
+#ifdef SK_DEBUG
         kIsBad = (kLastInputFlag << 4),
+#endif
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);

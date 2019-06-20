@@ -154,6 +154,8 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
                     GrSurfaceProxy::LazyInstantiationType::kDeinstantiate) {
                     fDeinstantiateTracker->addProxy(proxy);
                 }
+            } else {
+                fLazyInstantiationError = true;
             }
         }
     }
@@ -378,7 +380,8 @@ void GrResourceAllocator::forceIntermediateFlush(int* stopIndex) {
 
 bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* outError) {
     SkASSERT(outError);
-    *outError = AssignError::kNoError;
+    *outError = fLazyInstantiationError ? AssignError::kFailedProxyInstantiation
+                                        : AssignError::kNoError;
 
     SkASSERT(fNumOpLists == fEndOfOpListOpIndices.count());
 
