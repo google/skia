@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "57b883e3_283c9467",
+        "filename": "tests/VkHardwareBufferTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1323,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-06-20T02:07:11Z",
+      "side": 1,
+      "message": "I added most of the test outlined. I dont know how to do 4-5 as we cannot create nonprotected image in protected context. Let me know if there is more you want me to test.\n\nI tried deploying unit tests(dm target) on fuchsia device but after fighting a bit I gave up trying to parse through all assumptions: https://skia-review.googlesource.com/c/skia/+/222316. I will send these to bots for now and tomorrow try each test in my example app. I want to land this CL soon as local runs with test apps show that it is working as expected, and it is becoming a hassle to keep the changes up to date.",
+      "parentUuid": "d86d6472_83bc20bc",
+      "range": {
+        "startLine": 1321,
+        "startChar": 0,
+        "endLine": 1323,
+        "endChar": 24
+      },
+      "revId": "d7659bf5761a0d76d69987dcbf50123f10d0acf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b30f9116_4badfb1d",
         "filename": "tests/VkHardwareBufferTest.cpp",
         "patchSetId": 8
