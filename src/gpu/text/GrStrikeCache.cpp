@@ -83,8 +83,8 @@ static void expand_bits(INT_TYPE* dst,
 static bool get_packed_glyph_image(SkStrike* cache, const SkGlyph& glyph, int width,
                                    int height, int dstRB, GrMaskFormat expectedMaskFormat,
                                    void* dst, const SkMasks& masks) {
-    SkASSERT(glyph.fWidth == width);
-    SkASSERT(glyph.fHeight == height);
+    SkASSERT(glyph.width() == width);
+    SkASSERT(glyph.height() == height);
     const void* src = cache->findImage(glyph);
     if (nullptr == src) {
         return false;
@@ -215,13 +215,13 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
     }
     SkAutoSMalloc<1024> storage(size);
 
-    const SkGlyph& skGlyph = skStrikeCache->getGlyphIDMetrics(glyph->fPackedID);
+    SkGlyph* skGlyph = skStrikeCache->glyph(glyph->fPackedID);
     void* dataPtr = storage.get();
     if (addPad) {
         sk_bzero(dataPtr, size);
         dataPtr = (char*)(dataPtr) + rowBytes + bytesPerPixel;
     }
-    if (!get_packed_glyph_image(skStrikeCache, skGlyph, glyph->width(), glyph->height(),
+    if (!get_packed_glyph_image(skStrikeCache, *skGlyph, glyph->width(), glyph->height(),
                                 rowBytes, expectedMaskFormat,
                                 dataPtr, glyphCache->getMasks())) {
         return GrDrawOpAtlas::ErrorCode::kError;
