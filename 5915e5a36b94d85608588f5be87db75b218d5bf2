@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "174dfbe9_ca7ed274",
+        "filename": "tests/VkProtectedContextTest.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T15:17:24Z",
+      "side": 1,
+      "message": "ohhh just noticed in all this calls we should be calling SkSurface::flush(...) after all the canvas calls to actually send the work to the GPU. Also to make sure it is safe to delete the BackendTexture we should pass kSyncCPU_FlushFlag in the FlushInfo struct of flush.",
+      "range": {
+        "startLine": 315,
+        "startChar": 4,
+        "endLine": 315,
+        "endChar": 50
+      },
+      "revId": "5915e5a36b94d85608588f5be87db75b218d5bf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
