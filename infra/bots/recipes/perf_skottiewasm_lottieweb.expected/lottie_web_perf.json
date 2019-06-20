@@ -95,19 +95,6 @@
   },
   {
     "cmd": [
-      "npm",
-      "install"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf",
-    "env_prefixes": {
-      "PATH": [
-        "[START_DIR]/node/node/bin"
-      ]
-    },
-    "name": "npm install"
-  },
-  {
-    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -128,19 +115,28 @@
   },
   {
     "cmd": [
+      "npm",
+      "install"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia/tools/lottie-web-perf",
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/node/node/bin"
+      ]
+    },
+    "name": "npm install"
+  },
+  {
+    "cmd": [
       "[START_DIR]/node/node/bin/node",
-      "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf/skottie-wasm-perf.js",
+      "[START_DIR]/cache/work/skia/tools/lottie-web-perf/lottie-web-perf.js",
       "--input",
       "[START_DIR]/lottie-samples/lottie1.json",
       "--output",
-      "[CLEANUP]/g3_try_tmp_1/lottie1.json",
-      "--canvaskit_js",
-      "[START_DIR]/build/canvaskit.js",
-      "--canvaskit_wasm",
-      "[START_DIR]/build/canvaskit.wasm"
+      "[CLEANUP]/g3_try_tmp_1/lottie1.json"
     ],
-    "cwd": "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf",
-    "name": "Run skottie-wasm-perf.js"
+    "cwd": "[START_DIR]/cache/work/skia/tools/lottie-web-perf",
+    "name": "Run perf cmd line app"
   },
   {
     "cmd": [
@@ -159,18 +155,14 @@
   {
     "cmd": [
       "[START_DIR]/node/node/bin/node",
-      "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf/skottie-wasm-perf.js",
+      "[START_DIR]/cache/work/skia/tools/lottie-web-perf/lottie-web-perf.js",
       "--input",
       "[START_DIR]/lottie-samples/lottie2.json",
       "--output",
-      "[CLEANUP]/g3_try_tmp_1/lottie2.json",
-      "--canvaskit_js",
-      "[START_DIR]/build/canvaskit.js",
-      "--canvaskit_wasm",
-      "[START_DIR]/build/canvaskit.wasm"
+      "[CLEANUP]/g3_try_tmp_1/lottie2.json"
     ],
-    "cwd": "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf",
-    "name": "Run skottie-wasm-perf.js (2)"
+    "cwd": "[START_DIR]/cache/work/skia/tools/lottie-web-perf",
+    "name": "Run perf cmd line app (2)"
   },
   {
     "cmd": [
@@ -189,18 +181,14 @@
   {
     "cmd": [
       "[START_DIR]/node/node/bin/node",
-      "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf/skottie-wasm-perf.js",
+      "[START_DIR]/cache/work/skia/tools/lottie-web-perf/lottie-web-perf.js",
       "--input",
       "[START_DIR]/lottie-samples/lottie3.json",
       "--output",
-      "[CLEANUP]/g3_try_tmp_1/lottie3.json",
-      "--canvaskit_js",
-      "[START_DIR]/build/canvaskit.js",
-      "--canvaskit_wasm",
-      "[START_DIR]/build/canvaskit.wasm"
+      "[CLEANUP]/g3_try_tmp_1/lottie3.json"
     ],
-    "cwd": "[START_DIR]/cache/work/skia/tools/skottie-wasm-perf",
-    "name": "Run skottie-wasm-perf.js (3)"
+    "cwd": "[START_DIR]/cache/work/skia/tools/lottie-web-perf",
+    "name": "Run perf cmd line app (3)"
   },
   {
     "cmd": [
@@ -274,7 +262,7 @@
     "cmd": [
       "python",
       "-u",
-      "import json\nwith open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:\n  json.dump(obj={'gitHash': 'abc123', 'results': {'lottie3.json': {'gl': {'frame_avg_us': 185.8, 'frame_min_us': 85.0, 'frame_max_us': 860.0}}, 'lottie1.json': {'gl': {'frame_avg_us': 185.8, 'frame_min_us': 85.0, 'frame_max_us': 860.0}}, 'lottie2.json': {'gl': {'frame_avg_us': 185.8, 'frame_min_us': 85.0, 'frame_max_us': 860.0}}}, 'swarming_task_id': '', 'renderer': 'skottie-wasm', 'key': {'extra_config': 'SkottieWASM', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'AVX2', 'arch': 'wasm', 'source_type': 'skottie', 'cpu_or_gpu': 'CPU', 'model': 'GCE', 'configuration': 'Release', 'os': 'Debian9', 'compiler': 'EMCC'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)\n"
+      "import json\nwith open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:\n  json.dump(obj={'gitHash': 'abc123', 'results': {'lottie3.json': {'gl': {'frame_avg_us': 185.8, 'frame_min_us': 85.0, 'frame_max_us': 860.0}}, 'lottie1.json': {'gl': {'frame_avg_us': 185.8, 'frame_min_us': 85.0, 'frame_max_us': 860.0}}, 'lottie2.json': {'gl': {'frame_avg_us': 185.8, 'frame_min_us': 85.0, 'frame_max_us': 860.0}}}, 'swarming_task_id': '', 'renderer': 'lottie-web', 'key': {'extra_config': 'LottieWeb', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'AVX2', 'arch': 'x86_64', 'source_type': 'lottie-web', 'cpu_or_gpu': 'CPU', 'model': 'GCE', 'configuration': 'Release', 'os': 'Debian9', 'compiler': 'none'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)\n"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -284,7 +272,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import json@@@",
       "@@@STEP_LOG_LINE@python.inline@with open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  json.dump(obj={'gitHash': 'abc123', 'results': {'lottie3.json': {'gl': {'frame_avg_us': 185.8, 'frame_min_us': 85.0, 'frame_max_us': 860.0}}, 'lottie1.json': {'gl': {'frame_avg_us': 185.8, 'frame_min_us': 85.0, 'frame_max_us': 860.0}}, 'lottie2.json': {'gl': {'frame_avg_us': 185.8, 'frame_min_us': 85.0, 'frame_max_us': 860.0}}}, 'swarming_task_id': '', 'renderer': 'skottie-wasm', 'key': {'extra_config': 'SkottieWASM', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'AVX2', 'arch': 'wasm', 'source_type': 'skottie', 'cpu_or_gpu': 'CPU', 'model': 'GCE', 'configuration': 'Release', 'os': 'Debian9', 'compiler': 'EMCC'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  json.dump(obj={'gitHash': 'abc123', 'results': {'lottie3.json': {'gl': {'frame_avg_us': 185.8, 'frame_min_us': 85.0, 'frame_max_us': 860.0}}, 'lottie1.json': {'gl': {'frame_avg_us': 185.8, 'frame_min_us': 85.0, 'frame_max_us': 860.0}}, 'lottie2.json': {'gl': {'frame_avg_us': 185.8, 'frame_min_us': 85.0, 'frame_max_us': 860.0}}}, 'swarming_task_id': '', 'renderer': 'lottie-web', 'key': {'extra_config': 'LottieWeb', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'AVX2', 'arch': 'x86_64', 'source_type': 'lottie-web', 'cpu_or_gpu': 'CPU', 'model': 'GCE', 'configuration': 'Release', 'os': 'Debian9', 'compiler': 'none'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
