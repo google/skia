@@ -307,7 +307,8 @@ public:
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
     bool surfaceSupportsReadPixels(const GrSurface*) const override;
-    GrColorType supportedReadPixelsColorType(GrPixelConfig, GrColorType) const override;
+    SupportedRead supportedReadPixelsColorType(GrPixelConfig, const GrBackendFormat&,
+                                               GrColorType) const override;
 
     /// Does ReadPixels support reading readConfig pixels from a FBO that is surfaceConfig?
     bool readPixelsSupported(GrPixelConfig surfaceConfig,
@@ -569,6 +570,11 @@ private:
 
         // Index fStencilFormats.
         int fStencilFormatIndex;
+
+        // If data from a surface of this config is read back to a GrColorType with all four
+        // color channels this indicates how each channel should be interpreted. May contain
+        // 0s and 1s.
+        GrSwizzle fRGBAReadSwizzle = GrSwizzle("rgba");
 
         SkTDArray<int> fColorSampleCounts;
 
