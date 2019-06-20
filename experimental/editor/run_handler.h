@@ -31,7 +31,8 @@ public:
     }
 
     sk_sp<SkTextBlob> makeBlob();
-    SkPoint endPoint() { return fOffset; }
+    SkPoint endPoint() const { return fOffset; }
+    float yOffset() const { return fOffset.y() - (fMaxRunDescent + fMaxRunLeading - fMaxRunAscent); }
 
     void beginLine() override;
     void runInfo(const RunInfo&) override;
