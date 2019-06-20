@@ -41,13 +41,6 @@ struct GrGlyph {
         }
     }
 
-    static GrIRect16 BoundsFromSkGlyph(const SkGlyph& glyph) {
-        return GrIRect16::MakeXYWH(glyph.fLeft,
-                                   glyph.fTop,
-                                   glyph.fWidth,
-                                   glyph.fHeight);
-    }
-
     static MaskStyle MaskStyleFromSkGlyph(const SkGlyph& skGlyph) {
         return skGlyph.maskFormat() == SkMask::kSDF_Format
            ? GrGlyph::MaskStyle::kDistance_MaskStyle
@@ -58,7 +51,7 @@ struct GrGlyph {
         : fPackedID{skGlyph.getPackedID()}
         , fMaskFormat{FormatFromSkGlyph(skGlyph)}
         , fMaskStyle{MaskStyleFromSkGlyph(skGlyph)}
-        , fBounds{BoundsFromSkGlyph(skGlyph)} {}
+        , fBounds{GrIRect16::Make(skGlyph.iRect())} {}
 
 
     SkRect destRect(SkPoint origin) {
