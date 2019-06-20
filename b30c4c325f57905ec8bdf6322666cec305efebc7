@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61adda58_79798e09",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T13:52:26Z",
+      "side": 1,
+      "message": "tab 4 spaces",
+      "range": {
+        "startLine": 549,
+        "startChar": 5,
+        "endLine": 552,
+        "endChar": 7
+      },
+      "revId": "b30c4c325f57905ec8bdf6322666cec305efebc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "550cb170_f98268b6",
+        "filename": "src/gpu/vk/GrVkCommandPool.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T13:52:26Z",
+      "side": 1,
+      "message": "nit: 4 spaces here",
+      "range": {
+        "startLine": 19,
+        "startChar": 2,
+        "endLine": 19,
+        "endChar": 4
+      },
+      "revId": "b30c4c325f57905ec8bdf6322666cec305efebc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ae99686_b4b1a4b0",
+        "filename": "src/gpu/vk/GrVkMemory.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T13:52:26Z",
+      "side": 1,
+      "message": "nit: over 100 chars",
+      "range": {
+        "startLine": 103,
+        "startChar": 7,
+        "endLine": 103,
+        "endChar": 106
+      },
+      "revId": "b30c4c325f57905ec8bdf6322666cec305efebc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10d1c09a_2c51a015",
+        "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T13:52:26Z",
+      "side": 1,
+      "message": "nit: this-\u003e",
+      "range": {
+        "startLine": 381,
+        "startChar": 33,
+        "endLine": 381,
+        "endChar": 46
+      },
+      "revId": "b30c4c325f57905ec8bdf6322666cec305efebc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f665f23_44422ccf",
+        "filename": "src/gpu/vk/GrVkTexture.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T13:52:26Z",
+      "side": 1,
+      "message": "nit: this-\u003eisProtected()",
+      "range": {
+        "startLine": 160,
+        "startChar": 58,
+        "endLine": 160,
+        "endChar": 72
+      },
+      "revId": "b30c4c325f57905ec8bdf6322666cec305efebc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "521b60e3_18392f58",
+        "filename": "tests/VkProtectedContextTest.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T13:52:26Z",
+      "side": 1,
+      "message": "lets add a version of this one that sets the paints blend mode to ColorDodge to test our dst copy code for advanced blends.",
+      "range": {
+        "startLine": 279,
+        "startChar": 0,
+        "endLine": 298,
+        "endChar": 1
+      },
+      "revId": "b30c4c325f57905ec8bdf6322666cec305efebc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47831f7a_d12210d1",
+        "filename": "tests/VkProtectedContextTest.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T13:52:26Z",
+      "side": 1,
+      "message": "we want to do a saveLayer here, then draw into that layer, then call restore so that they layer is drawn into the original main layer.",
+      "range": {
+        "startLine": 357,
+        "startChar": 3,
+        "endLine": 358,
+        "endChar": 40
+      },
+      "revId": "b30c4c325f57905ec8bdf6322666cec305efebc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
