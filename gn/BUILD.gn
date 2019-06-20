@@ -474,14 +474,14 @@ config("optimize") {
       "/OPT:REF",
     ]
   } else {
-    cflags = [
-      "-O3",
-      "-fdata-sections",
-      "-ffunction-sections",
-    ]
+    cflags = [ "-O3" ]
     if (is_mac || is_ios) {
       ldflags = [ "-dead_strip" ]
     } else {
+      cflags += [
+        "-fdata-sections",
+        "-ffunction-sections",
+      ]
       ldflags = [ "-Wl,--gc-sections" ]
     }
     if (target_cpu == "wasm") {
