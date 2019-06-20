@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "605c9443_3cbf2627",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-20T19:03:57Z",
+      "side": 1,
+      "message": "Should probably SK_ABORT in this case? Or maybe just stick an SkASSERT up at the top to state the precondition? Ah... but I see that you cannot currently do that due to the unimplemented bit of the intercept code. What happens it you just let it happen? It should just work when the glyphs are way off the baseline they don\u0027t intersect and that gets cached and whatnot, but it isn\u0027t going to change.",
+      "revId": "0e3b33d8fd56a5814fd7209c84650dc3ea200cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07c6b12b_bfc8884c",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-20T19:03:57Z",
+      "side": 1,
+      "message": "WithoutRSX? Seems more consistent and slightly easier to understand?",
+      "range": {
+        "startLine": 160,
+        "startChar": 25,
+        "endLine": 160,
+        "endChar": 38
+      },
+      "revId": "0e3b33d8fd56a5814fd7209c84650dc3ea200cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
