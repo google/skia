@@ -16,6 +16,24 @@
       "revId": "4398bf40f0b420c67569c686ce3ab30655ef5230",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5182b184_c6060ae1",
+        "filename": "gm/imagemakewithfilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-20T19:54:34Z",
+      "side": 1,
+      "message": "That is indeed the state of it. Adding.",
+      "parentUuid": "de4ebb2e_50c31992",
+      "revId": "4398bf40f0b420c67569c686ce3ab30655ef5230",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
