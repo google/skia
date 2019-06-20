@@ -2101,7 +2101,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         //    GL 3.0 requires support for R16 & RG16
         //    GL_ARB_texture_rg adds R16 & RG16 support for OpenGL 1.1 and above
         // For ES:
-        //    GL_EXT_texture_norm16 adds support but it requires ES 3.1
+        //    GL_EXT_texture_norm16 adds support for both texturing and rendering
         //    There is also the GL_NV_image_formats extension - for further investigation
         bool r16AndRG1616Supported = false;
         if (GR_IS_GR_GL(standard)) {
@@ -2109,22 +2109,26 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                 r16AndRG1616Supported = true;
             }
         } else if (GR_IS_GR_GL_ES(standard)) {
-            if (version >= GR_GL_VER(3, 1) && ctxInfo.hasExtension("GL_EXT_texture_norm16")) {
+            if (ctxInfo.hasExtension("GL_EXT_texture_norm16")) {
                 r16AndRG1616Supported = true;
             }
         } // No WebGL support
 
         // For desktop:
-        //    GL 3.0 requires support for RGBA16
+        //    GL 3.0 requires both texture and render support for RGBA16
         // For ES:
-        //    GL_EXT_texture_norm16 adds support but it requires ES 3.1
+        //    GL_EXT_texture_norm16 adds support for both texturing and rendering
+        //    There is also the GL_NV_image_formats extension - for further investigation
+        //
+        // This is basically the same as R16F and RG16F except the GL_ARB_texture_rg extension
+        // doesn't add this format
         bool rgba16161616Supported = false;
         if (GR_IS_GR_GL(standard)) {
             if (version >= GR_GL_VER(3, 0)) {
                 rgba16161616Supported = true;
             }
         } else if (GR_IS_GR_GL_ES(standard)) {
-            if (version >= GR_GL_VER(3, 1) && ctxInfo.hasExtension("GL_EXT_texture_norm16")) {
+            if (ctxInfo.hasExtension("GL_EXT_texture_norm16")) {
                 rgba16161616Supported = true;
             }
         } // No WebGL support
@@ -2172,6 +2176,29 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
     // Experimental (for Y416 and mutant P016/P010)
     {
+        bool rg16fTexturesSupported = false;
+        bool rg16fRenderingSupported = false;
+        // For desktop:
+        //  3.0 requires both texture and render support
+        //  GL_ARB_texture_rg adds both texture and render support
+        // For ES:
+        //  3.2 requires RG16F as both renderable and texturable
+        //  3.0 only requires RG16F as texture-only
+        //  GL_EXT_color_buffer_float adds texture and render support
+        if (GR_IS_GR_GL(standard)) {
+            if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_texture_rg")) {
+                rg16fTexturesSupported = true;
+                rg16fRenderingSupported = true;
+            }
+        } else if (GR_IS_GR_GL_ES(standard)) {
+            if (version >= GR_GL_VER(3, 2) || ctxInfo.hasExtension("GL_EXT_color_buffer_float")) {
+                rg16fTexturesSupported = true;
+                rg16fRenderingSupported = true;
+            } else if (version >= GR_GL_VER(3, 0)) {
+                rg16fTexturesSupported = true;      // texture only
+            }
+        }
+
         ConfigInfo& rgHalf = fConfigTable[kRG_half_GrPixelConfig];
 
         rgHalf.fFormats.fBaseInternalFormat = GR_GL_RG;
@@ -2183,12 +2210,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             rgHalf.fFormats.fExternalType = GR_GL_HALF_FLOAT_OES;
         }
         rgHalf.fFormatType = kFloat_FormatType;
-        if (hasFP16Textures) {
-            rgHalf.fFlags = rgIsTexturable ? ConfigInfo::kTextureable_Flag : 0;
-
-            if (HalfFPRenderTargetSupport::kAll == halfFPRenderTargetSupport) {
-                rgHalf.fFlags |= fpRenderFlags;
-            }
+        if (rg16fTexturesSupported) {
+            rgHalf.fFlags |= ConfigInfo::kTextureable_Flag;
+        }
+        if (rg16fRenderingSupported) {
+            rgHalf.fFlags |= fpRenderFlags;
         }
     }
 
