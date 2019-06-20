@@ -100,10 +100,11 @@ static bool format_has_builtin_alpha(YUVFormat yuvFormat) {
 }
 
 static bool format_cant_be_represented_with_pixmaps(YUVFormat yuvFormat) {
-    return kP016_YUVFormat == yuvFormat ||
-           kP010_YUVFormat == yuvFormat ||
-           kY416_YUVFormat == yuvFormat ||
-           kY410_YUVFormat == yuvFormat;
+    return kP016_YUVFormat == yuvFormat ||      // bc missing SkColorType::kRG_1616 and kR_16
+           kP010_YUVFormat == yuvFormat ||      // bc missing SkColorType::kRG_1616 and kR_16
+           kY416_YUVFormat == yuvFormat ||      // bc missing SkColorType::kRGBA_16161616
+           kNV12_YUVFormat == yuvFormat ||      // bc missing SkColorType::kRG_88
+           kNV21_YUVFormat == yuvFormat;        // bc missing SkColorType::kRG_88
 }
 
 // Helper to setup the SkYUVAIndex array correctly
