@@ -57,6 +57,11 @@ namespace skvm {
                   vfmadd132ps, vfmadd213ps, vfmadd231ps,
                   vpackusdw, vpackuswb;
 
+        using DstEqXopImm = void(Ymm dst, Ymm x, int imm);
+        DstEqXopImm vpslld, vpsrld, vpsrad,
+                    vpsrlw,
+                    vpermq;
+
     //private:
         std::unique_ptr<Xbyak::CodeGenerator> X;
     private:
@@ -65,7 +70,8 @@ namespace skvm {
         template <typename... Rest> void byte(uint8_t, Rest...);
 
         void op(int opcode, int opcode_ext, GP64 dst, int imm);
-        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y);
+        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y, bool W=false);
+        void op(int prefix, int map, int opcode, int opcode_ext, Ymm dst, Ymm x, int imm);
     };
 
     enum class Op : uint8_t {

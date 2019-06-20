@@ -564,8 +564,8 @@ namespace skvm {
     void Assembler::sub(GP64 dst, int imm) { this->op(0,0b101, dst,imm); }
 
     // dst = x op y, all ymm.  Maybe only for int ops?  We'll see.
-    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y) {
-        VEX v = vex(0/*unsure what this means here*/, dst>>3, 0, y>>3,
+    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y, bool W/*=false*/) {
+        VEX v = vex(W, dst>>3, 0, y>>3,
                     map, x, 1/*ymm, not xmm*/, prefix);
         this->byte(v.bytes, v.len);
         this->byte(opcode);
@@ -594,6 +594,27 @@ namespace skvm {
 
     void Assembler::vpackusdw(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x2b, dst,x,y); }
     void Assembler::vpackuswb(Ymm dst, Ymm x, Ymm y) { this->op(0x66,  0x0f,0x67, dst,x,y); }
+
+    // dst = x op /opcode_ext imm
+    void Assembler::op(int prefix, int map, int opcode, int opcode_ext, Ymm dst, Ymm x, int imm) {
+        // This is a little weird, but if we pass the opcode_ext as if it were the dst register,
+        // the dst register as if x, and the x register as if y, all the bits end up where we want.
+        this->op(prefix, map, opcode, (Ymm)opcode_ext,dst,x);
+        this->byte(imm);
+    }
+
+    void Assembler::vpslld(Ymm dst, Ymm x, int imm) { this->op(0x66,0x0f,0x72,6, dst,x,imm); }
+    void Assembler::vpsrld(Ymm dst, Ymm x, int imm) { this->op(0x66,0x0f,0x72,2, dst,x,imm); }
+    void Assembler::vpsrad(Ymm dst, Ymm x, int imm) { this->op(0x66,0x0f,0x72,4, dst,x,imm); }
+
+    void Assembler::vpsrlw(Ymm dst, Ymm x, int imm) { this->op(0x66,0x0f,0x71,2, dst,x,imm); }
+
+    void Assembler::vpermq(Ymm dst, Ymm x, int imm) {
+        // A bit unusual among the instructions we use, this is 64-bit operation, so we set W.
+        bool W = true;
+        this->op(0x66,0x3a0f,0x00, dst,(Ymm)0,x,W);
+        this->byte(imm);
+    }
 
     static bool can_jit(int regs, int nargs) {
         return true
@@ -667,7 +688,7 @@ namespace skvm {
                         X.vpmovusdb(X.ptr[xarg(y.imm)], r(x));
                     } else {
                         a.vpackusdw(ar(tmp), ar(x), ar(x)); // pack 32-bit -> 16-bit
-                        X.vpermq   (r(tmp), r(tmp), 0xd8);  // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
+                        a.vpermq   (ar(tmp), ar(tmp), 0xd8);  // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
                         a.vpackuswb(ar(tmp), ar(tmp), ar(tmp));   // pack 16-bit -> 8-bit
                         X.vmovq(X.ptr[xarg(y.imm)],         // store low 8 bytes
                                 Xbyak::Xmm{tmp}); // (arg must be an xmm)
@@ -701,25 +722,25 @@ namespace skvm {
 
                 case Op::sub_i16x2: a.vpsubw (ar(d), ar(x), ar(y.id)); break;
                 case Op::mul_i16x2: a.vpmullw(ar(d), ar(x), ar(y.id)); break;
-                case Op::shr_i16x2: X.vpsrlw ( r(d),  r(x),    y.imm); break;
+                case Op::shr_i16x2: a.vpsrlw (ar(d), ar(x),    y.imm); break;
 
                 case Op::bit_and: a.vpand(ar(d), ar(x), ar(y.id)); break;
                 case Op::bit_or : a.vpor (ar(d), ar(x), ar(y.id)); break;
                 case Op::bit_xor: a.vpxor(ar(d), ar(x), ar(y.id)); break;
 
-                case Op::shl: X.vpslld(r(d), r(x), y.imm); break;
-                case Op::shr: X.vpsrld(r(d), r(x), y.imm); break;
-                case Op::sra: X.vpsrad(r(d), r(x), y.imm); break;
+                case Op::shl: a.vpslld(ar(d), ar(x), y.imm); break;
+                case Op::shr: a.vpsrld(ar(d), ar(x), y.imm); break;
+                case Op::sra: a.vpsrad(ar(d), ar(x), y.imm); break;
 
                 case Op::extract: if (y.imm) {
-                                      X.vpsrld(r(tmp), r(x), y.imm);
+                                      a.vpsrld(ar(tmp), ar(x), y.imm);
                                       a.vpand (ar(d), ar(tmp), ar(z.id));
                                   } else {
                                       a.vpand (ar(d), ar(x), ar(z.id));
                                   }
                                   break;
 
-                case Op::pack: X.vpslld(r(tmp), r(y.id), z.imm);
+                case Op::pack: a.vpslld(ar(tmp), ar(y.id), z.imm);
                                a.vpor  (ar(d), ar(tmp), ar(x));
                                break;
 
