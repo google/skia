@@ -244,8 +244,10 @@ void GrMtlResourceProvider::BufferSuballocator::addCompletionHandler(
     this->ref();
     __block size_t newTail = fHead;
     cmdBuffer->addCompletedHandler(^(id <MTLCommandBuffer>commandBuffer) {
-        SkAutoSpinlock lock(this->fMutex);
-        this->fTail = newTail;
+        {
+            SkAutoSpinlock lock(this->fMutex);
+            this->fTail = newTail;
+        }
         this->unref();
     });
 }
