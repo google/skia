@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7617eb9_bcf5ebdb",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T15:30:03Z",
+      "side": 1,
+      "message": "I guess we should update this call as well to use GrProtected",
+      "range": {
+        "startLine": 173,
+        "startChar": 44,
+        "endLine": 173,
+        "endChar": 68
+      },
+      "revId": "40eadd4e09cbc3cd9a7c42962ff0c3a2ae970b8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
