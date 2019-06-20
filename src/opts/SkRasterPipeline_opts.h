@@ -2646,6 +2646,7 @@ STAGE(swizzle, void* ctx) {
             case 'g': *o[i] = ig;   break;
             case 'b': *o[i] = ib;   break;
             case 'a': *o[i] = ia;   break;
+            case '0': *o[i] = F(0); break;
             case '1': *o[i] = F(1); break;
             default:                break;
         }
@@ -3451,7 +3452,7 @@ SI void store_88_(uint16_t* ptr, size_t tail, U16 r, U16 g) {
 
 STAGE_PP(load_rg88, const SkRasterPipeline_MemoryCtx* ctx) {
     b = 0;
-    a = 1;
+    a = 255;
     load_88_(ptr_at_xy<const uint16_t>(ctx, dx,dy), tail, &r,&g);
 }
 STAGE_PP(store_rg88, const SkRasterPipeline_MemoryCtx* ctx) {
@@ -3842,6 +3843,7 @@ STAGE_PP(swizzle, void* ctx) {
             case 'g': *o[i] = ig;       break;
             case 'b': *o[i] = ib;       break;
             case 'a': *o[i] = ia;       break;
+            case '0': *o[i] = U16(0);   break;
             case '1': *o[i] = U16(255); break;
             default:                    break;
         }

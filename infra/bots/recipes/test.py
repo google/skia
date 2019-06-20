@@ -764,6 +764,7 @@ def dm_flags(api, bot):
     blacklist(['vk', 'gm', '_', 'tilemodes'])
     blacklist(['vk', 'gm', '_', 'varied_text_clipped_lcd'])
     blacklist(['vk', 'gm', '_', 'varied_text_ignorable_clip_lcd'])
+    blacklist(['vk', 'gm', '_', 'macaa_colors'])
     if 'Debug' in bot:
       blacklist(['vk', 'gm', '_', 'mixedtextblobs'])
       blacklist(['vk', 'gm', '_', 'textblobmixedsizes'])
