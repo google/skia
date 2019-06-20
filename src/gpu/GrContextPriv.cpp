@@ -78,10 +78,11 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
                                         GrMipMapped mipMapped,
                                         GrSurfaceOrigin origin,
                                         const SkSurfaceProps* surfaceProps,
-                                        SkBudgeted budgeted) {
+                                        SkBudgeted budgeted,
+                                        bool isProtected) {
     return fContext->makeDeferredRenderTargetContext(format, fit, width, height, config,
                                                      std::move(colorSpace), sampleCnt, mipMapped,
-                                                     origin, surfaceProps, budgeted);
+                                                     origin, surfaceProps, budgeted, isProtected);
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithFallback(
@@ -423,5 +424,5 @@ GrBackendTexture GrContextPriv::createBackendTexture(const SkPixmap srcData[], i
     return gpu->createBackendTexture(baseWidth, baseHeight, backendFormat,
                                      GrMipMapped::kNo, // TODO: use real mipmap setting here
                                      renderable, srcData[0].addr(), srcData[0].rowBytes(),
-                                     nullptr);
+                                     nullptr, GrProtected::kNo);
 }
