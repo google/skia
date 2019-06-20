@@ -22,6 +22,30 @@
       "revId": "40eadd4e09cbc3cd9a7c42962ff0c3a2ae970b8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3e109cc_34512ac1",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-06-20T17:58:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7617eb9_bcf5ebdb",
+      "range": {
+        "startLine": 173,
+        "startChar": 44,
+        "endLine": 173,
+        "endChar": 68
+      },
+      "revId": "40eadd4e09cbc3cd9a7c42962ff0c3a2ae970b8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
