@@ -45,6 +45,12 @@ DEF_TEST(SkVM, r) {
 
     // Write the I32 Srcovers also.
     {
+        skvm::Program program = SrcoverBuilder_I32_Naive{}.done();
+        buf.writeText("I32 (Naive) 8888 over 8888\n");
+        program.dump(&buf);
+        buf.writeText("\n");
+    }
+    {
         skvm::Program program = SrcoverBuilder_I32{}.done();
         buf.writeText("I32 8888 over 8888\n");
         program.dump(&buf);
@@ -105,6 +111,7 @@ DEF_TEST(SkVM, r) {
     };
 
     test_8888(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::RGBA_8888}.done());
+    test_8888(SrcoverBuilder_I32_Naive{}.done());
     test_8888(SrcoverBuilder_I32{}.done());
     test_8888(SrcoverBuilder_I32_SWAR{}.done());
 
