@@ -16,23 +16,29 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 
+#include "include/effects/SkAlphaThresholdFilter.h"
 #include "include/effects/SkArithmeticImageFilter.h"
 #include "include/effects/SkBlurImageFilter.h"
 #include "include/effects/SkColorFilterImageFilter.h"
 #include "include/effects/SkDisplacementMapEffect.h"
 #include "include/effects/SkDropShadowImageFilter.h"
 #include "include/effects/SkImageSource.h"
+#include "include/effects/SkLightingImageFilter.h"
 #include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/effects/SkMergeImageFilter.h"
 #include "include/effects/SkMorphologyImageFilter.h"
 #include "include/effects/SkOffsetImageFilter.h"
+#include "include/effects/SkTileImageFilter.h"
 #include "include/effects/SkXfermodeImageFilter.h"
 
 #include "include/gpu/GrContext.h"
@@ -74,7 +80,7 @@ SkImageFilter::CropRect make_crop(const SkIRect* cropRect) {
     }
 }
 
-sk_sp<SkImageFilter> color_filter_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+static sk_sp<SkImageFilter> color_filter_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
     // The color filter uses kSrcIn so that it respects the transparency introduced by clamping;
     // using kSrc would just turn the entire out rect to green regardless.
     auto cf = SkColorFilters::Blend(SK_ColorGREEN, SkBlendMode::kSrcIn);
@@ -82,12 +88,12 @@ sk_sp<SkImageFilter> color_filter_factory(sk_sp<SkImage> auxImage, const SkIRect
     return SkColorFilterImageFilter::Make(std::move(cf), nullptr, &crop);
 }
 
-sk_sp<SkImageFilter> blur_filter_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+static sk_sp<SkImageFilter> blur_filter_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
     auto crop = make_crop(cropRect);
     return SkBlurImageFilter::Make(2.0f, 2.0f, nullptr, &crop);
 }
 
-sk_sp<SkImageFilter> drop_shadow_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+static sk_sp<SkImageFilter> drop_shadow_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
     auto crop = make_crop(cropRect);
     return SkDropShadowImageFilter::Make(
             10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE,
@@ -95,22 +101,22 @@ sk_sp<SkImageFilter> drop_shadow_factory(sk_sp<SkImage> auxImage, const SkIRect*
             nullptr, &crop);
 }
 
-sk_sp<SkImageFilter> offset_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+static sk_sp<SkImageFilter> offset_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
     auto crop = make_crop(cropRect);
     return SkOffsetImageFilter::Make(10.f, 5.f, nullptr, &crop);
 }
 
-sk_sp<SkImageFilter> dilate_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+static sk_sp<SkImageFilter> dilate_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
     auto crop = make_crop(cropRect);
     return SkDilateImageFilter::Make(10.f, 5.f, nullptr, &crop);
 }
 
-sk_sp<SkImageFilter> erode_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+static sk_sp<SkImageFilter> erode_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
     auto crop = make_crop(cropRect);
     return SkErodeImageFilter::Make(10.f, 5.f, nullptr, &crop);
 }
 
-sk_sp<SkImageFilter> displacement_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+static sk_sp<SkImageFilter> displacement_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
     auto crop = make_crop(cropRect);
 
     sk_sp<SkImageFilter> displacement = SkImageSource::Make(std::move(auxImage));
@@ -120,7 +126,7 @@ sk_sp<SkImageFilter> displacement_factory(sk_sp<SkImage> auxImage, const SkIRect
             40.f, std::move(displacement), nullptr, &crop);
 }
 
-sk_sp<SkImageFilter> arithmetic_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+static sk_sp<SkImageFilter> arithmetic_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
     auto crop = make_crop(cropRect);
 
     sk_sp<SkImageFilter> background = SkImageSource::Make(std::move(auxImage));
@@ -128,7 +134,7 @@ sk_sp<SkImageFilter> arithmetic_factory(sk_sp<SkImage> auxImage, const SkIRect* 
                                          nullptr, &crop);
 }
 
-sk_sp<SkImageFilter> xfermode_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+static sk_sp<SkImageFilter> xfermode_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
     auto crop = make_crop(cropRect);
 
     sk_sp<SkImageFilter> background = SkImageSource::Make(std::move(auxImage));
@@ -136,7 +142,7 @@ sk_sp<SkImageFilter> xfermode_factory(sk_sp<SkImage> auxImage, const SkIRect* cr
             SkBlendMode::kModulate, std::move(background), nullptr, &crop);
 }
 
-sk_sp<SkImageFilter> convolution_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+static sk_sp<SkImageFilter> convolution_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
     auto crop = make_crop(cropRect);
 
     SkISize kernelSize = SkISize::Make(3, 3);
@@ -150,12 +156,64 @@ sk_sp<SkImageFilter> convolution_factory(sk_sp<SkImage> auxImage, const SkIRect*
             SkMatrixConvolutionImageFilter::kClamp_TileMode, false, nullptr, &crop);
 }
 
-sk_sp<SkImageFilter> matrix_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+static sk_sp<SkImageFilter> matrix_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
     SkMatrix matrix = SkMatrix::I();
     matrix.setRotate(45.f, 50.f, 50.f);
 
     // This doesn't support a cropRect
     return SkImageFilter::MakeMatrixFilter(matrix, kLow_SkFilterQuality, nullptr);
+}
+
+static sk_sp<SkImageFilter> alpha_threshold_factory(sk_sp<SkImage> auxImage,
+                                                    const SkIRect* cropRect) {
+    auto crop = make_crop(cropRect);
+
+    // Centered cross with higher opacity
+    SkRegion region(SkIRect::MakeLTRB(30, 45, 70, 55));
+    region.op(SkIRect::MakeLTRB(45, 30, 55, 70), SkRegion::kUnion_Op);
+
+    return SkAlphaThresholdFilter::Make(region, 1.f, .2f, nullptr, &crop);
+}
+
+static sk_sp<SkImageFilter> lighting_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+    auto crop = make_crop(cropRect);
+
+    // Must convert the RGB values of the source to alpha, since that is what the lighting filters
+    // use to estimate their normals. This color matrix changes the color to white and the alpha
+    // to be equal to the approx. luminance of the original color.
+    static const float kMatrix[20] = {
+        0.f, 0.f, 0.f, 0.f, 1.f,
+        0.f, 0.f, 0.f, 0.f, 1.f,
+        0.f, 0.f, 0.f, 0.f, 1.f,
+        0.2126f, 0.7152f, 0.0722f, 0.f, 0.f
+    };
+    sk_sp<SkImageFilter> srcToAlpha = SkColorFilterImageFilter::Make(
+            SkColorFilters::Matrix(kMatrix), nullptr);
+
+    // Combine both specular and diffuse into a single DAG since they use separate internal filter
+    // implementations.
+    SkScalar sinAzimuth = SkScalarSin(SkDegreesToRadians(225.f)),
+             cosAzimuth = SkScalarCos(SkDegreesToRadians(225.f));
+
+    SkPoint3 spotTarget = SkPoint3::Make(SkIntToScalar(40), SkIntToScalar(40), 0);
+    SkPoint3 diffLocation = SkPoint3::Make(spotTarget.fX + 50 * cosAzimuth,
+                                           spotTarget.fY + 50 * sinAzimuth,
+                                           SkIntToScalar(10));
+    SkPoint3 specLocation = SkPoint3::Make(spotTarget.fX - 50 * sinAzimuth,
+                                           spotTarget.fY + 50 * cosAzimuth,
+                                           SkIntToScalar(10));
+    sk_sp<SkImageFilter> diffuse = SkLightingImageFilter::MakePointLitDiffuse(
+            diffLocation, SK_ColorWHITE, /* scale */ 1.f, /* kd */ 2.f, srcToAlpha, &crop);
+    sk_sp<SkImageFilter> specular = SkLightingImageFilter::MakePointLitSpecular(
+            specLocation, SK_ColorRED, /* scale */ 1.f, /* ks */ 1.f, /* shine */ 8.f,
+            srcToAlpha, &crop);
+    return SkMergeImageFilter::Make(std::move(diffuse), std::move(specular), &crop);
+}
+
+static sk_sp<SkImageFilter> tile_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+    // Tile the subset over a large region
+    return SkTileImageFilter::Make(SkRect::MakeLTRB(25, 25, 75, 75), SkRect::MakeWH(100, 100),
+                                   nullptr);
 }
 
 namespace {
@@ -193,7 +251,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(1560, 860); }
+    SkISize onISize() override { return SkISize::Make(1980, 860); }
 
     void onOnceBeforeDraw() override {
         SkImageInfo info = SkImageInfo::MakeN32(100, 100, kUnpremul_SkAlphaType);
@@ -222,7 +280,10 @@ protected:
             arithmetic_factory,
             xfermode_factory,
             convolution_factory,
-            matrix_factory
+            matrix_factory,
+            alpha_threshold_factory,
+            lighting_factory,
+            tile_factory
         };
         const char* filterNames[] = {
             "Color",
@@ -235,7 +296,10 @@ protected:
             "Arithmetic",
             "Xfer Mode",
             "Convolution",
-            "Matrix Xform"
+            "Matrix Xform",
+            "Alpha Threshold",
+            "Lighting",
+            "Tile"
         };
         static_assert(SK_ARRAY_COUNT(filters) == SK_ARRAY_COUNT(filterNames), "filter name length");
 
@@ -287,7 +351,7 @@ protected:
                 // Draw the original image faintly so that it aids in checking alignment of the
                 // filtered result.
                 SkPaint alpha;
-                alpha.setAlphaf(0.7f);
+                alpha.setAlphaf(0.3f);
                 canvas->drawImage(mainImage, 0, 0, &alpha);
 
                 this->drawImageWithFilter(canvas, mainImage, auxImage, filters[i], clipBound,
