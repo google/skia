@@ -27,6 +27,7 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
         kFill_Effect         = 21,
         kTritone_Effect      = 23,
         kDropShadow_Effect   = 25,
+        kRadialWipe_Effect   = 26,
         kGaussianBlur_Effect = 29,
     };
 
@@ -41,6 +42,8 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
         return &EffectBuilder::attachTritoneEffect;
     case kDropShadow_Effect:
         return &EffectBuilder::attachDropShadowEffect;
+    case kRadialWipe_Effect:
+        return &EffectBuilder::attachRadialWipeEffect;
     case kGaussianBlur_Effect:
         return &EffectBuilder::attachGaussianBlurEffect;
     default:
