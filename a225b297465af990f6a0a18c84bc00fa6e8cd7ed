@@ -16,6 +16,24 @@
       "revId": "a225b297465af990f6a0a18c84bc00fa6e8cd7ed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd7fda91_41bed1a8",
+        "filename": "modules/skparagraph/include/TestFontCollection.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-06-20T19:42:53Z",
+      "side": 1,
+      "message": "Moved the code in utils folder",
+      "parentUuid": "eacd82e7_f590914f",
+      "revId": "a225b297465af990f6a0a18c84bc00fa6e8cd7ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
