@@ -39,6 +39,32 @@ class GrResourceProvider;
  *
  * Note: the op indices (used in the usage intervals) come from the order of the ops in
  * their opLists after the opList DAG has been linearized.
+ *
+ *************************************************************************************************
+ * How does instantiation failure handling work when explicitly allocating?
+ *
+ * In the gather usage intervals pass all the GrSurfaceProxies used in the flush should be
+ * gathered (i.e., in GrOpList::gatherProxyIntervals).
+ *
+ * The allocator will churn through this list but could fail anywhere.
+ *
+ * Allocation failure handling occurs at two levels:
+ *
+ * 1) If the GrSurface backing an opList fails to allocate then the entire opList is dropped.
+ *
+ * 2) If an individual GrSurfaceProxy fails to allocate then any ops that use it are dropped
+ * (via GrOpList::purgeOpsWithUninstantiatedProxies)
+ *
+ * The pass to determine which ops to drop is a bit laborious so we only check the opLists and
+ * individual ops when something goes wrong in allocation (i.e., when the return code from
+ * GrResourceAllocator::assign is bad)
+ *
+ * All together this means we should never attempt to draw an op which is missing some
+ * required GrSurface.
+ *
+ * One wrinkle in this plan is that promise images are fulfilled during the gather interval pass.
+ * If any of the promise images fail at this stage then the allocator is set into an error
+ * state and all allocations are then scanned for failures during the main allocation pass.
  */
 class GrResourceAllocator {
 public:
@@ -252,6 +278,7 @@ private:
     char                         fStorage[kInitialArenaSize];
     SkArenaAlloc                 fIntervalAllocator{fStorage, kInitialArenaSize, kInitialArenaSize};
     Interval*                    fFreeIntervalList = nullptr;
+    bool                         fLazyInstantiationError = false;
 };
 
 #endif // GrResourceAllocator_DEFINED
