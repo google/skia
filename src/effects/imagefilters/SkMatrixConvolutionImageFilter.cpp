@@ -353,6 +353,8 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         offset->fY = dstBounds.top();
         dstBounds.offset(-inputOffset);
         srcBounds.offset(-inputOffset);
+        // Map srcBounds from input's logical image domain to that of the proxy
+        srcBounds.offset(input->subset().x(), input->subset().y());
 
         auto fp = GrMatrixConvolutionEffect::Make(std::move(inputProxy),
                                                   srcBounds,
@@ -372,7 +374,6 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
 #endif
 
     SkBitmap inputBM;
-
     if (!input->getROPixels(&inputBM)) {
         return nullptr;
     }
