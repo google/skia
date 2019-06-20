@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3849ccb4_7368bd1b",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-20T19:41:25Z",
+      "side": 1,
+      "message": "// comment ?",
+      "revId": "2692150f4e3966f812b9a6d038e2238a53791746",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
