@@ -49,18 +49,21 @@ namespace skvm {
         void sub(GP64, int imm);
 
         // All dst = x op y.
-        using DstEqXopY = void(Ymm dst, Ymm x, Ymm y);
-        DstEqXopY vpaddd, vpsubd, vpmulld,
+        using DstEqXOpY = void(Ymm dst, Ymm x, Ymm y);
+        DstEqXOpY vpaddd, vpsubd, vpmulld,
                   vpsubw, vpmullw,
                   vpand, vpor, vpxor,
                   vaddps, vsubps, vmulps, vdivps,
                   vfmadd132ps, vfmadd213ps, vfmadd231ps,
                   vpackusdw, vpackuswb;
 
-        using DstEqXopImm = void(Ymm dst, Ymm x, int imm);
-        DstEqXopImm vpslld, vpsrld, vpsrad,
+        using DstEqXOpImm = void(Ymm dst, Ymm x, int imm);
+        DstEqXOpImm vpslld, vpsrld, vpsrad,
                     vpsrlw,
                     vpermq;
+
+        using DstEqOpX = void(Ymm dst, Ymm x);
+        DstEqOpX vcvtdq2ps, vcvttps2dq;
 
     //private:
         std::unique_ptr<Xbyak::CodeGenerator> X;
@@ -70,7 +73,10 @@ namespace skvm {
         template <typename... Rest> void byte(uint8_t, Rest...);
 
         void op(int opcode, int opcode_ext, GP64 dst, int imm);
+
+        void op(int prefix, int map, int opcode, Ymm dst, Ymm x,        bool W=false);
         void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y, bool W=false);
+
         void op(int prefix, int map, int opcode, int opcode_ext, Ymm dst, Ymm x, int imm);
     };
 
