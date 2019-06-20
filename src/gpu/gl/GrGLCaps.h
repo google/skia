@@ -596,6 +596,15 @@ private:
 
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
 
+    struct FormatInfo {
+        uint32_t fFlags = 0;
+    };
+
+    static const size_t kNumGLFormats = 21;
+    FormatInfo fFormatTable[kNumGLFormats];
+
+    const FormatInfo& getFormatInfo(GrGLenum format) const;
+
     typedef GrCaps INHERITED;
 };
 

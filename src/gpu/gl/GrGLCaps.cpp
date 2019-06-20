@@ -1353,6 +1353,46 @@ bool GrGLCaps::getExternalFormat(GrPixelConfig surfaceConfig, GrPixelConfig memo
     return true;
 }
 
+// These are all the valid sized formats that we support in Skia. They are roughly ordered from most
+// frequently used to least to improve look up times in arrays.
+static constexpr GrGLenum kGLFormats[] = {
+    GR_GL_RGBA8,
+    GR_GL_R8,
+    GR_GL_ALPHA8,
+    GR_GL_LUMINANCE8,
+    GR_GL_BGRA8,
+    GR_GL_RGB565,
+    GR_GL_RGBA16F,
+    GR_GL_R16F,
+    GR_GL_RGB8,
+    GR_GL_RG8,
+    GR_GL_RGB10_A2,
+    GR_GL_RGBA4,
+    GR_GL_RGBA32F,
+    GR_GL_RG32F,
+    GR_GL_SRGB8_ALPHA8,
+    GR_GL_COMPRESSED_RGB8_ETC2,
+    GR_GL_COMPRESSED_ETC1_RGB8,
+    GR_GL_R16,
+    GR_GL_RG16,
+    // Experimental (for Y416 and mutant P016/P010)
+    GR_GL_RGBA16,
+    GR_GL_RG16F,
+};
+
+const GrGLCaps::FormatInfo& GrGLCaps::getFormatInfo(GrGLenum format) const {
+    static_assert(SK_ARRAY_COUNT(kGLFormats) == GrGLCaps::kNumGLFormats,
+                  "Size of GLFormats array must match static value in header");
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kGLFormats); ++i) {
+        if (kGLFormats[i] == format) {
+            return fFormatTable[i];
+        }
+    }
+    SK_ABORT("Invalid GL format");
+    static const FormatInfo kInvalidFormat;
+    return kInvalidFormat;
+}
+
 void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                                const GrGLContextInfo& ctxInfo, const GrGLInterface* gli,
                                GrShaderCaps* shaderCaps) {

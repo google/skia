@@ -624,7 +624,6 @@ static bool format_is_srgb(VkFormat format) {
             return true;
         case VK_FORMAT_R8G8B8A8_UNORM:
         case VK_FORMAT_B8G8R8A8_UNORM:
-        case VK_FORMAT_R8G8B8A8_SINT:
         case VK_FORMAT_R8G8B8_UNORM:
         case VK_FORMAT_R8G8_UNORM:
         case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
@@ -658,7 +657,6 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_R5G6B5_UNORM_PACK16,
     VK_FORMAT_R16G16B16A16_SFLOAT,
     VK_FORMAT_R16_SFLOAT,
-    VK_FORMAT_R8G8B8A8_SINT,
     VK_FORMAT_R8G8B8_UNORM,
     VK_FORMAT_R8G8_UNORM,
     VK_FORMAT_A2B10G10R10_UNORM_PACK32,
@@ -685,8 +683,8 @@ const GrVkCaps::FormatInfo& GrVkCaps::getFormatInfo(VkFormat format) const {
         }
     }
     SK_ABORT("Invalid VkFormat");
-    static const FormatInfo kInvalidConfig;
-    return kInvalidConfig;
+    static const FormatInfo kInvalidFormat;
+    return kInvalidFormat;
 }
 
 void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice physDev,
