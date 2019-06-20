@@ -412,8 +412,8 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
         auto proc = fEnforcePMColor ? arith_span<true> : arith_span<false>;
         SkPixmap tmpDst = dst;
         if (intersect(&tmpDst, &src, fgoffset.fLeft, fgoffset.fTop)) {
-            for (int y = 0; y < tmpDst.height(); ++y) {
-                proc(fK, tmpDst.writable_addr32(0, y), src.addr32(0, y), tmpDst.width());
+            for (int y = 0; y < src.height(); ++y) {
+                proc(fK, tmpDst.writable_addr32(0, y), src.addr32(0, y), src.width());
             }
         }
     }
