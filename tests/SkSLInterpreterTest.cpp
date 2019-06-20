@@ -675,6 +675,13 @@ DEF_TEST(SkSLInterpreterMathFunctions, r) {
     test(r, "float main(float x) { return sqrt(x); }", &value, 1, &expected);
 }
 
+DEF_TEST(SkSLInterpreterVoidFunction, r) {
+    test(r,
+         "half x; void foo() { x = 1.0; }"
+         "void main(inout half4 color) { foo(); color.r = x; }",
+         0, 0, 0, 0, 1, 0, 0, 0);
+}
+
 DEF_TEST(SkSLInterpreterMix, r) {
     float value, expected;
 
