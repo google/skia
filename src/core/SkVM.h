@@ -75,13 +75,16 @@ namespace skvm {
 
     using ID = int;  // Could go 16-bit?
 
+    struct ProgramInstruction {   // d = op(x, y.id/y.imm, z.id/z.imm)
+        Op op;
+        ID d,x;
+        union { ID id; int imm; } y,z;
+    };
+
     class Program {
     public:
-        struct Instruction {   // d = op(x, y.id/y.imm, z.id/z.imm)
-            Op op;
-            ID d,x;
-            union { ID id; int imm; } y,z;
-        };
+        // Moved outside Program so it can be forward-declared.
+        using Instruction = ProgramInstruction;
 
         Program(std::vector<Instruction>, int regs, int loop);
         Program() : Program({}, 0, 0) {}
