@@ -15,6 +15,7 @@
 
 namespace SkSL {
 
+class  ByteCodeGenerator;
 class  ExternalValue;
 struct FunctionDeclaration;
 
@@ -141,7 +142,7 @@ enum class ByteCodeInstruction : uint16_t {
 #undef VECTOR
 
 struct ByteCodeFunction {
-    ByteCodeFunction(const FunctionDeclaration* declaration);
+    ByteCodeFunction(const ByteCodeGenerator* maker, const FunctionDeclaration* declaration);
 
     struct Parameter {
         int fSlotCount;

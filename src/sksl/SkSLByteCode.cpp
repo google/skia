@@ -76,6 +76,7 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kConvertStoF, "convertstof")
         VECTOR_DISASSEMBLE(kConvertUtoF, "convertutof")
         VECTOR_DISASSEMBLE(kCos, "cos")
+        case ByteCodeInstruction::kCross: printf("cross"); break;
         VECTOR_MATRIX_DISASSEMBLE(kDivideF, "dividef")
         VECTOR_DISASSEMBLE(kDivideS, "divideS")
         VECTOR_DISASSEMBLE(kDivideU, "divideu")
@@ -1058,7 +1059,7 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
                           const float* uniforms, int uniformCount,
                           float* outArgs[], int outCount) const {
 #ifdef TRACE
-    disassemble(f);
+    f->disassemble();
 #endif
     Interpreter::VValue stack[128];
 
