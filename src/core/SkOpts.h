@@ -10,10 +10,11 @@
 
 #include "include/core/SkTypes.h"
 #include "src/core/SkRasterPipeline.h"
-#include "src/core/SkVM.h"
 #include "src/core/SkXfermodePriv.h"
 
 struct SkBitmapProcState;
+
+namespace skvm { struct ProgramInstruction; }
 
 namespace SkOpts {
     // Call to replace pointers to portable functions with pointers to CPU-specific functions.
@@ -75,7 +76,7 @@ namespace SkOpts {
     extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, void**);
 #undef M
 
-    extern void (*eval)(const skvm::Program::Instruction[], int ninsts, int nregs, int loop,
+    extern void (*eval)(const skvm::ProgramInstruction[], int ninsts, int nregs, int loop,
                         int n, void* args[], size_t strides[], int nargs);
 
 }
