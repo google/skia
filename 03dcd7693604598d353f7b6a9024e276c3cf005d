@@ -36,6 +36,29 @@
     },
     {
       "key": {
+        "uuid": "adca81d1_7d2775a5",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-20T18:21:36Z",
+      "side": 1,
+      "message": "This part feels awkward, huh?  It\u0027s just for doing slotCount() lookups?  Maybe a note like\n\n  // maker is not retained and does not need to outlive ByteCodeFunction\u0027s constructor.\n\n?",
+      "range": {
+        "startLine": 145,
+        "startChar": 21,
+        "endLine": 145,
+        "endChar": 51
+      },
+      "revId": "03dcd7693604598d353f7b6a9024e276c3cf005d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a82031f3_2094decb",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 1
@@ -47,6 +70,24 @@
       "writtenOn": "2019-06-20T17:49:41Z",
       "side": 1,
       "message": "This is one half of the interesting part of this CL...",
+      "revId": "03dcd7693604598d353f7b6a9024e276c3cf005d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7987310_9906aa6e",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-20T18:21:36Z",
+      "side": 1,
+      "message": "This may be a broader question, but how come there\u0027s no Type::kVoid_Kind to check against while keeping this static?  void\u0027s a singleton type without a unique kind, I guess?\n\nIs it crazy to check against Type::kOther_Kind here?  Or treat void as a zero-element array?",
+      "parentUuid": "a82031f3_2094decb",
       "revId": "03dcd7693604598d353f7b6a9024e276c3cf005d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
