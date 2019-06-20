@@ -252,6 +252,7 @@ private:
     char                         fStorage[kInitialArenaSize];
     SkArenaAlloc                 fIntervalAllocator{fStorage, kInitialArenaSize, kInitialArenaSize};
     Interval*                    fFreeIntervalList = nullptr;
+    bool                         fLazyInstantiationError = false;
 };
 
 #endif // GrResourceAllocator_DEFINED

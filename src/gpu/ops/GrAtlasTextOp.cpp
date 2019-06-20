@@ -328,7 +328,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     void* vertices = target->makeVertexSpace(vertexStride, glyphCount * kVerticesPerGlyph,
                                              &flushInfo.fVertexBuffer, &flushInfo.fVertexOffset);
-    flushInfo.fIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+    flushInfo.fIndexBuffer = resourceProvider->refQuadIndexBuffer();
     if (!vertices || !flushInfo.fVertexBuffer) {
         SkDebugf("Could not allocate vertices\n");
         return;
