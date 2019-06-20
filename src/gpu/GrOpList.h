@@ -32,8 +32,6 @@ public:
     GrOpList(sk_sp<GrOpMemoryPool>, sk_sp<GrSurfaceProxy>, GrAuditTrail*);
     ~GrOpList() override;
 
-    // These four methods are invoked at flush time
-    bool instantiate(GrResourceProvider* resourceProvider);
     // Instantiates any "threaded" texture proxies that are being prepared elsewhere
     void instantiateDeferredProxies(GrResourceProvider* resourceProvider);
     void prepare(GrOpFlushState* flushState);

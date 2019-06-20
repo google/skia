@@ -52,23 +52,27 @@ GrPipeline::GrPipeline(const InitArgs& args,
                              processors.numCoverageFragmentProcessors() +
                              appliedClip.numClipCoverageFragmentProcessors();
     fFragmentProcessors.reset(numTotalProcessors);
-    int currFPIdx = 0;
-    for (int i = 0; i < processors.numColorFragmentProcessors(); ++i, ++currFPIdx) {
-        fFragmentProcessors[currFPIdx] = processors.detachColorFragmentProcessor(i);
-        if (!fFragmentProcessors[currFPIdx]->instantiate(args.fResourceProvider)) {
-            this->markAsBad();
+
+    {
+        // TODO: can we remove the markAsBad part of this code?
+        int currFPIdx = 0;
+        for (int i = 0; i < processors.numColorFragmentProcessors(); ++i, ++currFPIdx) {
+            fFragmentProcessors[currFPIdx] = processors.detachColorFragmentProcessor(i);
+            if (!fFragmentProcessors[currFPIdx]->isInstantiated()) {
+                this->markAsBad();
+            }
         }
-    }
-    for (int i = 0; i < processors.numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
-        fFragmentProcessors[currFPIdx] = processors.detachCoverageFragmentProcessor(i);
-        if (!fFragmentProcessors[currFPIdx]->instantiate(args.fResourceProvider)) {
-            this->markAsBad();
+        for (int i = 0; i < processors.numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
+            fFragmentProcessors[currFPIdx] = processors.detachCoverageFragmentProcessor(i);
+            if (!fFragmentProcessors[currFPIdx]->isInstantiated()) {
+                this->markAsBad();
+            }
         }
-    }
-    for (int i = 0; i < appliedClip.numClipCoverageFragmentProcessors(); ++i, ++currFPIdx) {
-        fFragmentProcessors[currFPIdx] = appliedClip.detachClipCoverageFragmentProcessor(i);
-        if (!fFragmentProcessors[currFPIdx]->instantiate(args.fResourceProvider)) {
-            this->markAsBad();
+        for (int i = 0; i < appliedClip.numClipCoverageFragmentProcessors(); ++i, ++currFPIdx) {
+            fFragmentProcessors[currFPIdx] = appliedClip.detachClipCoverageFragmentProcessor(i);
+            if (!fFragmentProcessors[currFPIdx]->isInstantiated()) {
+                this->markAsBad();
+            }
         }
     }
 }

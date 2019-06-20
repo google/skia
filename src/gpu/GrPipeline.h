@@ -59,7 +59,6 @@ public:
         InputFlags fInputFlags = InputFlags::kNone;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrCaps* fCaps = nullptr;
-        GrResourceProvider* fResourceProvider = nullptr;
         GrXferProcessor::DstProxy fDstProxy;
         GrSwizzle fOutputSwizzle;
     };
@@ -184,7 +183,7 @@ public:
     bool isStencilEnabled() const {
         return SkToBool(fFlags & Flags::kStencilEnabled);
     }
-    bool isBad() const { return SkToBool(fFlags & Flags::kIsBad); }
+    bool isBad1() const { return SkToBool(fFlags & Flags::kIsBad); }
 
     GrXferBarrierType xferBarrierType(GrTexture*, const GrCaps&) const;
 

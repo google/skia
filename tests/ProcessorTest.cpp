@@ -482,7 +482,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 #endif
         for (int j = 0; j < timesToInvokeFactory; ++j) {
             fp = FPFactory::MakeIdx(i, &testData);
-            if (!fp->instantiate(resourceProvider)) {
+            if (!fp->isInstantiated()) {
+                SkASSERT(0); // what?
                 continue;
             }
 
@@ -703,7 +704,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                 continue;
             }
             const char* name = fp->name();
-            if (!fp->instantiate(resourceProvider) || !clone->instantiate(resourceProvider)) {
+            if (!fp->isInstantiated() || !clone->isInstantiated()) {
+                SkASSERT(0); // what?
                 continue;
             }
             REPORTER_ASSERT(reporter, !strcmp(fp->name(), clone->name()));

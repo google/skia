@@ -43,12 +43,6 @@ GrOpList::~GrOpList() {
     }
 }
 
-// TODO: this can go away when explicit allocation has stuck
-bool GrOpList::instantiate(GrResourceProvider* resourceProvider) {
-    SkASSERT(fTarget->isInstantiated());
-    return true;
-}
-
 void GrOpList::endFlush() {
     if (fTarget && this == fTarget->getLastOpList()) {
         fTarget->setLastOpList(nullptr);
