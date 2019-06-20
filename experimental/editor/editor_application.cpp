@@ -15,6 +15,7 @@
 
 #include <memory>
 
+#ifdef SK_DEBUG
 static const char* key_name(sk_app::Window::Key k) {
     switch (k) {
         #define M(X) case sk_app::Window::Key::k ## X: return #X
@@ -48,6 +49,7 @@ static void debug_on_char(SkUnichar c, uint32_t modifiers) {
 static void debug_on_key(sk_app::Window::Key key, sk_app::Window::InputState, uint32_t modifiers) {
     SkDebugf("key: %s%s\n", key_name(key), modifiers_desc(modifiers).c_str());
 }
+#endif  // SK_DEBUG
 
 static editor::Editor::Movement convert(sk_app::Window::Key key) {
     switch (key) {
@@ -139,7 +141,9 @@ struct EditorLayer : public sk_app::Window::Layer {
         if (sk_app::Window::kDown_InputState == state) {
             y += fPos;
             editor::Editor::TextPosition pos = fEditor.getPosition(SkIPoint{x, y});
+#ifdef SK_DEBUG
             SkDebugf("select:  line:%d column:%d \n", pos.fParagraphIndex, pos.fTextByteIndex);
+#endif
             if (pos != editor::Editor::TextPosition()) {
                 fTextPos = pos;
                 this->inval();
@@ -152,14 +156,25 @@ struct EditorLayer : public sk_app::Window::Layer {
         if (0 == (modifiers & (sk_app::Window::kControl_ModifierKey |
                                sk_app::Window::kOption_ModifierKey |
                                sk_app::Window::kCommand_ModifierKey))) {
-            if ((unsigned) c < 0x7F && (unsigned)c >= 0x20) {
+            if (((unsigned)c < 0x7F && (unsigned)c >= 0x20) || c == '\n') {
                 char ch = (char)c;
                 fEditor.insert(fTextPos, &ch, 1);
+#ifdef SK_DEBUG
                 SkDebugf("insert: %X'%c'\n", (unsigned)c, ch);
+#endif
                 return this->moveCursor(editor::Editor::Movement::kRight);
             }
         }
+        if (modifiers == sk_app::Window::kControl_ModifierKey && c == 'p') {
+            for (size_t i = 0; i < fEditor.lineCount(); ++i) {
+                auto str = fEditor.line(i);
+                SkDebugf("[%u]: '%.*s'\n", (unsigned)i, str.fLen, str.fPtr);
+            }
+            return true;
+        }
+        #ifdef SK_DEBUG
         debug_on_char(c, modifiers);
+        #endif  // SK_DEBUG
         return false;
     }
     bool moveCursor(editor::Editor::Movement m, bool shift = false) {
@@ -210,6 +225,8 @@ struct EditorLayer : public sk_app::Window::Layer {
                     }
                     this->inval();
                     return true;
+                case sk_app::Window::Key::kOK:
+                    return this->onChar('\n', modifiers);
                 default:
                     break;
             }

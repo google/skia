@@ -29,10 +29,20 @@ StringSlice& StringSlice::operator=(StringSlice&& that) {
     return *this;
 }
 
+StringSlice& StringSlice::operator=(const StringSlice& that) {
+    if (this != &that) {
+        fLength = 0;
+        if (that.size() > 0) {
+            this->insert(0, that.begin(), that.size());
+        }
+    }
+    return *this;
+}
+
 void StringSlice::insert(std::size_t offset, const char* text, std::size_t length) {
     if (length) {
         offset = std::min(fLength, offset);
-        this->reserve(fLength + length); // TODO: reserve extra???
+        this->reserve(fLength + length);
         char* s = fPtr.get();
         assert(s);
         if (offset != fLength) {
@@ -60,15 +70,16 @@ void StringSlice::remove(std::size_t offset, std::size_t length) {
         fLength -= length;
     }
 }
-
-void StringSlice::reserve(std::size_t length) {
-    if (length && length > fCapacity) {
-        fPtr.reset((char*)std::realloc(fPtr.release(), length));
-        fCapacity = length;
-    }
+#include <cstdio>
+void StringSlice::realloc(std::size_t size) {
+    // round up to multiple of (1 << kBits) bytes
+    static constexpr unsigned kBits = 4;
+    fCapacity = size ? ((size - 1) & ~(((std::size_t)1 << kBits) - 1)) + (1 << kBits) : 0;
+    fCapacity = size ? (((size - 1) >> kBits) + 1) << kBits : 0;
+    printf("--> %u %u %u\n", (unsigned)size, (unsigned)fCapacity, (1u << kBits));
+    assert(fCapacity % (1u << kBits) == 0);
+    assert(fCapacity >= size);
+    fPtr.reset((char*)std::realloc(fPtr.release(), fCapacity));
+    assert(fCapacity >= fLength);
 }
 
-void StringSlice::shrink() {
-    fPtr.reset((char*)std::realloc(fPtr.release(), fLength));
-    fCapacity = fLength;
-}

@@ -23,11 +23,17 @@ namespace editor {
 
 class Editor {
 public:
+    // used to load a new file.
     void setText(const char* text, size_t len);
+    // total height in canvas display units.
     int getHeight() const { return fHeight; }
+    // spacing around the text, in canvas display units.
     int getMargin() const { return fMargin; }
 
+    // set display width in canvas display units
     void setWidth(int w); // may force re-shape
+
+    // get/set current font (used for shaping and displaying text)
     const SkFont& font() const { return fFont; }
     void setFont(SkFont font);
 
@@ -37,7 +43,8 @@ public:
         size_t fLen = 0;
     };
     size_t lineCount() const { return fLines.size(); }
-    Str line(size_t index) const { return fLines[index].text(); }
+    Str line(size_t index) const { return index < fLines.size() ? fLines[index].text() : Str(); }
+    // get size of line in canvas display units.
     int lineHeight(size_t index) const { return fLines[index].fHeight; }
 
     struct TextPosition {
@@ -55,8 +62,11 @@ public:
     };
     TextPosition move(Editor::Movement move, Editor::TextPosition pos);
     TextPosition getPosition(SkIPoint);
+    // insert into current text.
     TextPosition insert(TextPosition, const char* utf8Text, size_t byteLen);
+    // remove text between two positions
     TextPosition remove(TextPosition, TextPosition);
+
     StringSlice copy(TextPosition, TextPosition);
 
     struct PaintOpts {
@@ -77,9 +87,10 @@ private:
         SkIPoint fOrigin = {0, 0};
         int fHeight = 0;
         sk_sp<const SkTextBlob> fBlob;
-        bool fSelected = false;  // Will allow selection of subset of text later.
+        bool fShaped = false;
         // Also will track presence of cursor.
 
+        TextLine() {}
         TextLine(const char* str, size_t len) : fText(str, len) {}
         Str text() const { return Str{fText.begin(), fText.size()}; }
     };
