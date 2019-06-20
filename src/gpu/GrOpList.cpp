@@ -43,12 +43,6 @@ GrOpList::~GrOpList() {
     }
 }
 
-// TODO: this can go away when explicit allocation has stuck
-bool GrOpList::instantiate(GrResourceProvider* resourceProvider) {
-    SkASSERT(fTarget->isInstantiated());
-    return true;
-}
-
 void GrOpList::endFlush() {
     if (fTarget && this == fTarget->getLastOpList()) {
         fTarget->setLastOpList(nullptr);
@@ -59,11 +53,17 @@ void GrOpList::endFlush() {
     fAuditTrail = nullptr;
 }
 
-void GrOpList::instantiateDeferredProxies(GrResourceProvider* resourceProvider) {
+#ifdef SK_DEBUG
+bool GrOpList::deferredProxiesAreInstantiated() const {
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
-        SkASSERT(fDeferredProxies[i]->isInstantiated());
+        if (!fDeferredProxies[i]->isInstantiated()) {
+            return false;
+        }
     }
+
+    return true;
 }
+#endif
 
 void GrOpList::prepare(GrOpFlushState* flushState) {
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
@@ -148,8 +148,6 @@ void GrOpList::validate() const {
 }
 #endif
 
-bool GrOpList::isInstantiated() const { return fTarget->isInstantiated(); }
-
 void GrOpList::closeThoseWhoDependOnMe(const GrCaps& caps) {
     for (int i = 0; i < fDependents.count(); ++i) {
         if (!fDependents[i]->isClosed()) {
@@ -158,8 +156,8 @@ void GrOpList::closeThoseWhoDependOnMe(const GrCaps& caps) {
     }
 }
 
-bool GrOpList::isFullyInstantiated() const {
-    if (!this->isInstantiated()) {
+bool GrOpList::isInstantiated() const {
+    if (!fTarget->isInstantiated()) {
         return false;
     }
 

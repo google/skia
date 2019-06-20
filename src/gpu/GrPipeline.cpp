@@ -52,24 +52,31 @@ GrPipeline::GrPipeline(const InitArgs& args,
                              processors.numCoverageFragmentProcessors() +
                              appliedClip.numClipCoverageFragmentProcessors();
     fFragmentProcessors.reset(numTotalProcessors);
+
     int currFPIdx = 0;
     for (int i = 0; i < processors.numColorFragmentProcessors(); ++i, ++currFPIdx) {
         fFragmentProcessors[currFPIdx] = processors.detachColorFragmentProcessor(i);
-        if (!fFragmentProcessors[currFPIdx]->instantiate(args.fResourceProvider)) {
+#ifdef SK_DEBUG
+        if (!fFragmentProcessors[currFPIdx]->isInstantiated()) {
             this->markAsBad();
         }
+#endif
     }
     for (int i = 0; i < processors.numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
         fFragmentProcessors[currFPIdx] = processors.detachCoverageFragmentProcessor(i);
-        if (!fFragmentProcessors[currFPIdx]->instantiate(args.fResourceProvider)) {
+#ifdef SK_DEBUG
+        if (!fFragmentProcessors[currFPIdx]->isInstantiated()) {
             this->markAsBad();
         }
+#endif
     }
     for (int i = 0; i < appliedClip.numClipCoverageFragmentProcessors(); ++i, ++currFPIdx) {
         fFragmentProcessors[currFPIdx] = appliedClip.detachClipCoverageFragmentProcessor(i);
-        if (!fFragmentProcessors[currFPIdx]->instantiate(args.fResourceProvider)) {
+#ifdef SK_DEBUG
+        if (!fFragmentProcessors[currFPIdx]->isInstantiated()) {
             this->markAsBad();
         }
+#endif
     }
 }
 

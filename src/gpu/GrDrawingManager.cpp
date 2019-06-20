@@ -321,8 +321,8 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
         while (alloc.assign(&startIndex, &stopIndex, &error)) {
             if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
                 for (int i = startIndex; i < stopIndex; ++i) {
-                    if (fDAG.opList(i) && !fDAG.opList(i)->isFullyInstantiated()) {
-                        // If the backing surface wasn't allocated drop the entire opList.
+                    if (fDAG.opList(i) && !fDAG.opList(i)->isInstantiated()) {
+                        // If the backing surface wasn't allocated, drop the entire opList.
                         fDAG.removeOpList(i);
                     }
                     if (fDAG.opList(i)) {
@@ -395,12 +395,6 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
     }
 #endif
 
-    auto direct = fContext->priv().asDirectContext();
-    if (!direct) {
-        return false;
-    }
-
-    auto resourceProvider = direct->priv().resourceProvider();
     bool anyOpListsExecuted = false;
 
     for (int i = startIndex; i < stopIndex; ++i) {
@@ -409,16 +403,9 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
         }
 
         GrOpList* opList = fDAG.opList(i);
+        SkASSERT(opList->isInstantiated());
+        SkASSERT(opList->deferredProxiesAreInstantiated());
 
-        if (!opList->isFullyInstantiated()) {
-            // If the backing surface wasn't allocated drop the draw of the entire opList.
-            fDAG.removeOpList(i);
-            continue;
-        }
-
-        // TODO: handle this instantiation via lazy surface proxies?
-        // Instantiate all deferred proxies (being built on worker threads) so we can upload them
-        opList->instantiateDeferredProxies(resourceProvider);
         opList->prepare(flushState);
     }
 
