@@ -884,6 +884,7 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* co
     sk_sp<GrRenderTargetContext> renderTargetContext(
               SkGpuBlurUtils::GaussianBlur(context,
                                            srcProxy,
+                                           SkIPoint::Make(0, 0),
                                            nullptr,
                                            clipRect,
                                            SkIRect::EmptyIRect(),
