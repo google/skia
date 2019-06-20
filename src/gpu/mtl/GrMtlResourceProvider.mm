@@ -19,9 +19,9 @@
 #endif
 
 GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
-    : fGpu(gpu)
-    , fBufferState({nil, 0, 0}) {
+    : fGpu(gpu) {
     fPipelineStateCache.reset(new PipelineStateCache(gpu));
+    fBufferSuballocator.reset(new BufferSuballocator(gpu->device(), 512*1024));
 }
 
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
@@ -161,50 +161,121 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
     return (*entry)->fPipelineState.get();
 }
 
-id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offset) {
-    static size_t kSharedDynamicBufferSize = 16*1024;
+////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // The idea here is that we create a ring buffer which is used for all dynamic allocations
-    // below a certain size. When a dynamic GrMtlBuffer is mapped, it grabs a portion of this
-    // buffer and uses it. On a subsequent map it will grab a different portion of the buffer.
-    // This prevents the buffer from overwriting itself before it's submitted to the command
-    // stream.
-
-    // Create a new buffer if we need to.
-    // If the requested size is larger than the shared buffer size, then we'll
-    // just make the allocation and the owning GrMtlBuffer will manage it (this
-    // only happens with buffers created by GrBufferAllocPool).
-    //
-    // TODO: By sending addCompletedHandler: to MTLCommandBuffer we can track when buffers
-    // are no longer in use and recycle them rather than creating a new one each time.
-    if (fBufferState.fAllocationSize - fBufferState.fNextOffset < size) {
-        size_t allocSize = (size >= kSharedDynamicBufferSize) ? size : kSharedDynamicBufferSize;
-        id<MTLBuffer> buffer;
-        buffer = [fGpu->device() newBufferWithLength: allocSize
+static id<MTLBuffer> alloc_dynamic_buffer(id<MTLDevice> device, size_t size) {
+    return [device newBufferWithLength: size
 #ifdef SK_BUILD_FOR_MAC
-                                             options: MTLResourceStorageModeManaged];
+                               options: MTLResourceStorageModeManaged];
 #else
-                                             options: MTLResourceStorageModeShared];
+                               options: MTLResourceStorageModeShared];
 #endif
-        if (nil == buffer) {
-            return nil;
-        }
 
-        if (size >= kSharedDynamicBufferSize) {
-            *offset = 0;
-            return buffer;
-        }
+}
 
-        fBufferState.fAllocation = buffer;
-        fBufferState.fNextOffset = 0;
-        fBufferState.fAllocationSize = kSharedDynamicBufferSize;
+// The idea here is that we create a ring buffer which is used for all dynamic allocations
+// below a certain size. When a dynamic GrMtlBuffer is mapped, it grabs a portion of this
+// buffer and uses it. On a subsequent map it will grab a different portion of the buffer.
+// This prevents the buffer from overwriting itself before it's submitted to the command
+// stream.
+
+GrMtlResourceProvider::BufferSuballocator::BufferSuballocator(id<MTLDevice> device, size_t size)
+        : fBuffer(alloc_dynamic_buffer(device, size))
+        , fTotalSize(size)
+        , fHead(0)
+        , fTail(0) {
+    // We increment fHead and fTail without bound and let overflow handle any wrapping.
+    // Because of this, size needs to be a power of two.
+    SkASSERT(SkIsPow2(size));
+}
+
+id<MTLBuffer> GrMtlResourceProvider::BufferSuballocator::getAllocation(size_t size,
+                                                                       size_t* offset) {
+    // capture current state locally (because fTail could be overwritten by the completion handler)
+    size_t head, tail;
+    {
+        SkAutoSpinlock lock(fMutex);
+        head = fHead;
+        tail = fTail;
     }
 
-    // Grab the next available block
-    *offset = fBufferState.fNextOffset;
-    fBufferState.fNextOffset += size;
-    // Uniform buffer offsets need to be aligned to the nearest 256-byte boundary.
-    fBufferState.fNextOffset = GrSizeAlignUp(fBufferState.fNextOffset, 256);
+    // The head and tail indices increment without bound, wrapping with overflow,
+    // so we need to mod them down to the actual bounds of the allocation to determine
+    // which blocks are available.
+    size_t modHead = head & (fTotalSize - 1);
+    size_t modTail = tail & (fTotalSize - 1);
 
-    return fBufferState.fAllocation;
+    bool full = (head != tail && modHead == modTail);
+
+
+    // We don't want large allocations to eat up this buffer, so we allocate them separately.
+    if (full || size > fTotalSize/2) {
+        return nil;
+    }
+
+    // case 1: free space lies at the beginning and/or the end of the buffer
+    if (modHead >= modTail) {
+        // check for room at the end
+        if (fTotalSize - modHead < size) {
+            // no room at the end, check the beginning
+            if (modTail < size) {
+                // no room at the beginning
+                return nil;
+            }
+            // we are going to allocate from the beginning, adjust head to '0' position
+            head += fTotalSize - modHead;
+            modHead = 0;
+        }
+    // case 2: free space lies in the middle of the buffer, check for room there
+    } else if (modTail - modHead < size) {
+        // no room in the middle
+        return nil;
+    }
+
+    *offset = modHead;
+    // We're not sure what the usage of the next allocation will be --
+    // to be safe we'll use 16 byte alignment.
+    fHead = GrSizeAlignUp(head + size, 16);
+    return fBuffer;
+}
+
+void GrMtlResourceProvider::BufferSuballocator::addCompletionHandler(
+        GrMtlCommandBuffer* cmdBuffer) {
+    this->ref();
+    __block size_t newTail = fHead;
+    cmdBuffer->addCompletedHandler(^(id <MTLCommandBuffer>commandBuffer) {
+        SkAutoSpinlock lock(this->fMutex);
+        this->fTail = newTail;
+        this->unref();
+    });
+}
+
+id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offset) {
+    static size_t kMaxDynamicBufferAllocationSize = 8*1024*1024;
+
+    id<MTLBuffer> buffer = fBufferSuballocator->getAllocation(size, offset);
+    if (buffer) {
+        return buffer;
+    }
+
+    // Try to grow allocation (old allocation will age out).
+    // We grow up to a maximum size, and only grow if the requested allocation will
+    // fit into half of the new buffer (to prevent very large transient buffers forcing
+    // growth when they'll never fit anyway).
+    if (fBufferSuballocator->size() < kMaxDynamicBufferAllocationSize &&
+        size <= fBufferSuballocator->size()) {
+        fBufferSuballocator.reset(new BufferSuballocator(fGpu->device(),
+                                                         2*fBufferSuballocator->size()));
+        id<MTLBuffer> buffer = fBufferSuballocator->getAllocation(size, offset);
+        if (buffer) {
+            return buffer;
+        }
+    }
+
+    *offset = 0;
+    return alloc_dynamic_buffer(fGpu->device(), size);
+}
+
+void GrMtlResourceProvider::addBufferCompletionHandler(GrMtlCommandBuffer* cmdBuffer) {
+    fBufferSuballocator->addCompletionHandler(cmdBuffer);
 }

@@ -8,6 +8,7 @@
 #ifndef GrMtlResourceProvider_DEFINED
 #define GrMtlResourceProvider_DEFINED
 
+#include "include/private/SkSpinlock.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/mtl/GrMtlDepthStencil.h"
@@ -17,6 +18,7 @@
 #import <metal/metal.h>
 
 class GrMtlGpu;
+class GrMtlCommandBuffer;
 
 class GrMtlResourceProvider {
 public:
@@ -37,6 +39,7 @@ public:
     GrMtlSampler* findOrCreateCompatibleSampler(const GrSamplerState&, uint32_t maxMipLevel);
 
     id<MTLBuffer> getDynamicBuffer(size_t size, size_t* offset);
+    void addBufferCompletionHandler(GrMtlCommandBuffer* cmdBuffer);
 
     // Destroy any cached resources. To be called before releasing the MtlDevice.
     void destroyResources();
@@ -83,6 +86,27 @@ private:
 #endif
     };
 
+    // Buffer allocator
+    class BufferSuballocator : public SkRefCnt {
+    public:
+        BufferSuballocator(id<MTLDevice> device, size_t size);
+        ~BufferSuballocator() {
+            fBuffer = nil;
+            fTotalSize = 0;
+        }
+
+        id<MTLBuffer> getAllocation(size_t size, size_t* offset);
+        void addCompletionHandler(GrMtlCommandBuffer* cmdBuffer);
+        size_t size() { return fTotalSize; }
+
+    private:
+        id<MTLBuffer> fBuffer;
+        size_t        fTotalSize;
+        size_t        fHead;     // where we start allocating
+        size_t        fTail;     // where we start deallocating
+        SkSpinlock    fMutex;
+    };
+
     GrMtlGpu* fGpu;
 
     // Cache of GrMtlPipelineStates
@@ -91,13 +115,10 @@ private:
     SkTDynamicHash<GrMtlSampler, GrMtlSampler::Key> fSamplers;
     SkTDynamicHash<GrMtlDepthStencil, GrMtlDepthStencil::Key> fDepthStencilStates;
 
-    // Buffer state
-    struct BufferState {
-        id<MTLBuffer> fAllocation;
-        size_t        fAllocationSize;
-        size_t        fNextOffset;
-    };
-    BufferState fBufferState;
+    // This is ref-counted because we might delete the GrContext before the command buffer
+    // finishes. The completion handler will retain a reference to this so it won't get
+    // deleted along with the GrContext.
+    sk_sp<BufferSuballocator> fBufferSuballocator;
 };
 
 #endif
