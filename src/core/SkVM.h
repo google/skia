@@ -25,16 +25,16 @@ namespace skvm {
         void*  code() const;
         size_t size() const;
 
-        // Order matters... GP64, XMM, YMM values match 4-bit register encoding for each.
+        // Order matters... GP64, Xmm, Ymm values match 4-bit register encoding for each.
         enum GP64 {
             rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi,
             r8 , r9,  r10, r11, r12, r13, r14, r15,
         };
-        enum XMM {
+        enum Xmm {
             xmm0, xmm1, xmm2 , xmm3 , xmm4 , xmm5 , xmm6 , xmm7 ,
             xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15,
         };
-        enum YMM {
+        enum Ymm {
             ymm0, ymm1, ymm2 , ymm3 , ymm4 , ymm5 , ymm6 , ymm7 ,
             ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15,
         };
@@ -48,6 +48,11 @@ namespace skvm {
         void add(GP64, int imm);
         void sub(GP64, int imm);
 
+        // All dst = x op y.
+        void vpaddd (Ymm dst, Ymm x, Ymm y);
+        void vpsubd (Ymm dst, Ymm x, Ymm y);
+        void vpmulld(Ymm dst, Ymm x, Ymm y);
+
     //private:
         std::unique_ptr<Xbyak::CodeGenerator> X;
     private:
@@ -56,6 +61,7 @@ namespace skvm {
         template <typename... Rest> void byte(uint8_t, Rest...);
 
         void op(int opcode, int opcode_ext, GP64 dst, int imm);
+        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y);
     };
 
     enum class Op : uint8_t {

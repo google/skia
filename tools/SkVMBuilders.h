@@ -18,6 +18,10 @@ struct SrcoverBuilder_F32 : public skvm::Builder {
                        Fmt dstFmt = Fmt::RGBA_8888);
 };
 
+struct SrcoverBuilder_I32_Naive : public skvm::Builder {
+    SrcoverBuilder_I32_Naive();  // 8888 over 8888
+};
+
 struct SrcoverBuilder_I32 : public skvm::Builder {
     SrcoverBuilder_I32();  // 8888 over 8888
 };

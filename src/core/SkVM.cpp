@@ -417,54 +417,102 @@ namespace skvm {
     // https://www-user.tu-chemnitz.de/~heha/viewchm.php/hs/x86.chm/x86.htm
     // http://ref.x86asm.net/coder64.html
 
-    // Encodes the arguments of an opcode.
-    struct ModRM {
-        uint8_t bits;
+    // Used for ModRM / immediate instruction encoding.
+    static uint8_t _233(int a, int b, int c) {
+        return (a & 3) << 6
+             | (b & 7) << 3
+             | (c & 7) << 0;
+    }
 
-        enum Mod { Indirect, OneByteImm, FourByteImm, Direct };
+    // ModRM byte encodes the arguments of an opcode.
+    enum class Mod { Indirect, OneByteImm, FourByteImm, Direct };
+    static uint8_t mod_rm(Mod mod, int reg, int rm) {
+        return _233((int)mod, reg, rm);
+    }
 
-        ModRM(Mod mod, int reg, int rm) {
-            bits = (int)mod  << 6
-                 | (reg & 7) << 3
-                 | (rm  & 7) << 0;
-        }
-    };
-
-    // Scale-Index-Base encoding for memory addressing, base + (index * scale).
-    struct SIB {
-        uint8_t bits;
-
-        enum Scale { One, Two, Four, Eight };
-
-        SIB(Scale scale, int index, int base) {
-            bits = (int)scale  << 6
-                 | (index & 7) << 3
-                 | (base  & 7) << 0;
-        }
-    };
+#if 0
+    // SIB byte encodes a memory address, base + (index * scale).
+    enum class Scale { One, Two, Four, Eight };
+    static uint8_t sib(Scale scale, int index, int base) {
+        return _233((int)scale, index, base);
+    }
+#endif
 
     // The REX prefix is used to extend most old 32-bit instructions to 64-bit.
-    struct REX {
-        uint8_t bits;
+    static uint8_t rex(bool W,   // If set, operation is 64-bit, otherwise default, usually 32-bit.
+                       bool R,   // Extra top bit to select ModRM reg, registers 8-15.
+                       bool X,   // Extra top bit for SIB index register.
+                       bool B) { // Extra top bit for SIB base or ModRM rm register.
+        return 0b01000000   // Fixed 0100 for top four bits.
+             | (W << 3)
+             | (R << 2)
+             | (X << 1)
+             | (B << 0);
+    }
 
-        // If W is set, the operand size is 64-bit, otherwise the default, usually 32.
-        // R,X,B are the top bit for ModRM's reg and SIB's index and base respectively.
-        // These will be set if you use any of the second-row registers (r8, xmm8, etc).
-
-        REX(bool W, bool R, bool X, bool B) {
-            bits = 0b01000000   // Fixed 0100 for top four bits.
-                 | (W << 3)
-                 | (R << 2)
-                 | (X << 1)
-                 | (B << 0);
-        }
-    };
 
     // The VEX prefix extends SSE operations to AVX.  Used generally, even with XMM.
     struct VEX {
-        uint8_t bits[3];
-        // TODO
+        int     len;
+        uint8_t bytes[3];
     };
+
+    static VEX vex(bool WE,   // Like REX W for int operations, or opcode extension for float?
+                   bool  R,   // Same as REX R.  Pass high bit of dst register, dst>>3.
+                   bool  X,   // Same as REX X.
+                   bool  B,   // Same as REX B.  Pass high bit of y register, y>>3.
+                   int map,   // SSE opcode map selector: 0x0f, 0x380f, 0x3a0f.
+                   int   x,   // 4-bit second operand register, our x, called vvvv in docs.
+                   bool  L,   // Set for 256-bit ymm operations, off for 128-bit xmm.
+                   int  pp) { // SSE mandatory prefix: 0x66, 0xf3, 0xf2 (, 0x00?).
+
+        // Pack x86 opcode map selector to 5-bit VEX encoding.
+        map = [map]{
+            switch (map) {
+                case   0x0f: return 0b00001;
+                case 0x380f: return 0b00010;
+                case 0x3a0f: return 0b00011;
+                // Several more cases only used by XOP / TBM.
+            }
+            SkASSERT(false);
+            return 0b00000;
+        }();
+
+        // Pack  mandatory SSE opcode prefix byte to 2-bit VEX encoding.
+        pp = [pp]{
+            switch (pp) {
+                case 0x66: return 0b01;
+                case 0xf3: return 0b10;
+                case 0xf2: return 0b11;
+            }
+            // TODO: Not sure if this is reachable or not.
+            return 0b00;
+        }();
+
+        VEX vex = {0, {0,0,0}};
+        if (X == 0 && B == 0 && WE == 0 && map == 0b00001) {
+            // With these conditions met, we can optionally compress VEX to 2-byte.
+            vex.len = 2;
+            vex.bytes[0] = 0xc5;
+            vex.bytes[1] = (pp  &  3) << 0
+                         | (L   &  1) << 2
+                         | (~x  & 15) << 3
+                         | (~R  &  1) << 7;
+        } else {
+            // We could use this 3-byte VEX prefix all the time if we like.
+            vex.len = 3;
+            vex.bytes[0] = 0xc4;
+            vex.bytes[1] = (map & 31) << 0
+                         | (~B  &  1) << 5
+                         | (~X  &  1) << 6
+                         | (~R  &  1) << 7;
+            vex.bytes[2] = (pp  &  3) << 0
+                         | (L   &  1) << 2
+                         | (~x  & 15) << 3
+                         | (WE  &  1) << 7;
+        }
+        return vex;
+    }
 
     Assembler::Assembler() : X{new Xbyak::CodeGenerator} {}
     Assembler::~Assembler() = default;
@@ -504,17 +552,30 @@ namespace skvm {
         int imm_bytes = 4;
         if (SkTFitsIn<int8_t>(imm)) {
             imm_bytes = 1;
-            opcode |= 0b0000'0010;  // second bit set for 8-bit immediate
+            opcode |= 0b0000'0010;  // second bit set for 8-bit immediate, else 32-bit.
         }
 
-        this->byte(REX{1,dst >= r8,0,0}.bits);
+        this->byte(rex(1,dst>>3,0,0));
         this->byte(opcode);
-        this->byte(ModRM{ModRM::Direct/*don't understand yet*/, opcode_ext, dst}.bits);
+        this->byte(_233(0b11, opcode_ext, dst&7));  // Not sure if this is ModRM or what 0b11 means.
         this->byte(&imm, imm_bytes);
     }
 
-    void Assembler::add(GP64 dst, int imm) { this->op(0,0, dst,imm); }
-    void Assembler::sub(GP64 dst, int imm) { this->op(0,5, dst,imm); }
+    void Assembler::add(GP64 dst, int imm) { this->op(0,0b000, dst,imm); }
+    void Assembler::sub(GP64 dst, int imm) { this->op(0,0b101, dst,imm); }
+
+    // dst = x op y, all ymm.  Maybe only for int ops?  We'll see.
+    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y) {
+        VEX v = vex(0/*unsure what this means here*/, dst>>3, 0, y>>3,
+                    map, x, 1/*ymm, not xmm*/, prefix);
+        this->byte(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(Mod::Direct, dst&7, y&7));
+    }
+
+    void Assembler::vpaddd (Ymm dst, Ymm x, Ymm y) { this->op(0x66,  0x0f,0xfe, dst,x,y); }
+    void Assembler::vpsubd (Ymm dst, Ymm x, Ymm y) { this->op(0x66,  0x0f,0xfa, dst,x,y); }
+    void Assembler::vpmulld(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x40, dst,x,y); }
 
     static bool can_jit(int regs, int nargs) {
         return true
@@ -543,17 +604,17 @@ namespace skvm {
         A::GP64 N = A::rdi,
             arg[] = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
 
+        // Temporary shims for mapping back and forth between Assembler and Xbyak types.
+        // All register values should match, so these are essentially no-ops.
         auto xarg = [&](int ix) {
-            // arg[] is Assembler::GP64, but they should match Xbyak's Reg64 value-wise.
             return Xbyak::Reg64{arg[ix]};
         };
 
-
         // All 16 ymm registers are available as scratch, keeping 15 as a temporary for us.
-        Xbyak::Ymm r[] = {
-            X.ymm0, X.ymm1, X.ymm2 , X.ymm3 , X.ymm4 , X.ymm5 , X.ymm6 , X.ymm7,
-            X.ymm8, X.ymm9, X.ymm10, X.ymm11, X.ymm12, X.ymm13, X.ymm14,
-        }, tmp = X.ymm15;
+        auto ar = [](int ix) { SkASSERT(ix < 15); return (A::Ymm)ix; };
+        auto  r = [](int ix) { SkASSERT(ix < 15); return Xbyak::Ymm(ix); };
+
+        Xbyak::Ymm tmp = X.ymm15;
     #endif
 
         // Label / N-byte values we need to write after ret.
@@ -586,9 +647,9 @@ namespace skvm {
                 case Op::store8:
                     if (SkCpu::Supports(SkCpu::SKX)) {
                         // One stop shop!  Pack 8x I32 -> U8 and store to ptr.
-                        X.vpmovusdb(X.ptr[xarg(y.imm)], r[x]);
+                        X.vpmovusdb(X.ptr[xarg(y.imm)], r(x));
                     } else {
-                        X.vpackusdw(tmp, r[x], r[x]); // pack 32-bit -> 16-bit
+                        X.vpackusdw(tmp, r(x), r(x)); // pack 32-bit -> 16-bit
                         X.vpermq   (tmp, tmp, 0xd8);  // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
                         X.vpackuswb(tmp, tmp, tmp);   // pack 16-bit -> 8-bit
                         X.vmovq(X.ptr[xarg(y.imm)],         // store low 8 bytes
@@ -596,57 +657,57 @@ namespace skvm {
                     }
                     break;
 
-                case Op::store32: X.vmovups(X.ptr[xarg(y.imm)], r[x]); break;
+                case Op::store32: X.vmovups(X.ptr[xarg(y.imm)], r(x)); break;
 
-                case Op::load8:  X.vpmovzxbd(r[d], X.ptr[xarg(y.imm)]); break;
-                case Op::load32: X.vmovups  (r[d], X.ptr[xarg(y.imm)]); break;
+                case Op::load8:  X.vpmovzxbd(r(d), X.ptr[xarg(y.imm)]); break;
+                case Op::load32: X.vmovups  (r(d), X.ptr[xarg(y.imm)]); break;
 
                 case Op::splat: data4.push_back(Data4{Xbyak::Label(), y.imm});
-                                X.vbroadcastss(r[d], X.ptr[X.rip + data4.back().label]);
+                                X.vbroadcastss(r(d), X.ptr[X.rip + data4.back().label]);
                                 break;
 
-                case Op::add_f32: X.vaddps(r[d], r[x], r[y.id]); break;
-                case Op::sub_f32: X.vsubps(r[d], r[x], r[y.id]); break;
-                case Op::mul_f32: X.vmulps(r[d], r[x], r[y.id]); break;
-                case Op::div_f32: X.vdivps(r[d], r[x], r[y.id]); break;
+                case Op::add_f32: X.vaddps(r(d), r(x), r(y.id)); break;
+                case Op::sub_f32: X.vsubps(r(d), r(x), r(y.id)); break;
+                case Op::mul_f32: X.vmulps(r(d), r(x), r(y.id)); break;
+                case Op::div_f32: X.vdivps(r(d), r(x), r(y.id)); break;
                 case Op::mad_f32:
-                    if (d == x   ) { X.vfmadd132ps(r[x   ], r[z.id], r[y.id]); } else
-                    if (d == y.id) { X.vfmadd213ps(r[y.id], r[x   ], r[z.id]); } else
-                    if (d == z.id) { X.vfmadd231ps(r[z.id], r[x   ], r[y.id]); } else
-                                   { X.vmulps(tmp, r[x], r[y.id]);
-                                     X.vaddps(r[d], tmp, r[z.id]); }
+                    if (d == x   ) { X.vfmadd132ps(r(x   ), r(z.id), r(y.id)); } else
+                    if (d == y.id) { X.vfmadd213ps(r(y.id), r(x   ), r(z.id)); } else
+                    if (d == z.id) { X.vfmadd231ps(r(z.id), r(x   ), r(y.id)); } else
+                                   { X.vmulps(tmp, r(x), r(y.id));
+                                     X.vaddps(r(d), tmp, r(z.id)); }
                     break;
 
-                case Op::add_i32: X.vpaddd (r[d], r[x], r[y.id]); break;
-                case Op::sub_i32: X.vpsubd (r[d], r[x], r[y.id]); break;
-                case Op::mul_i32: X.vpmulld(r[d], r[x], r[y.id]); break;
+                case Op::add_i32: a.vpaddd (ar(d), ar(x), ar(y.id)); break;
+                case Op::sub_i32: a.vpsubd (ar(d), ar(x), ar(y.id)); break;
+                case Op::mul_i32: a.vpmulld(ar(d), ar(x), ar(y.id)); break;
 
-                case Op::sub_i16x2: X.vpsubw (r[d], r[x], r[y.id]); break;
-                case Op::mul_i16x2: X.vpmullw(r[d], r[x], r[y.id]); break;
-                case Op::shr_i16x2: X.vpsrlw (r[d], r[x],   y.imm); break;
+                case Op::sub_i16x2: X.vpsubw (r(d), r(x), r(y.id)); break;
+                case Op::mul_i16x2: X.vpmullw(r(d), r(x), r(y.id)); break;
+                case Op::shr_i16x2: X.vpsrlw (r(d), r(x),   y.imm); break;
 
-                case Op::bit_and: X.vandps(r[d], r[x], r[y.id]); break;
-                case Op::bit_or : X.vorps (r[d], r[x], r[y.id]); break;
-                case Op::bit_xor: X.vxorps(r[d], r[x], r[y.id]); break;
+                case Op::bit_and: X.vandps(r(d), r(x), r(y.id)); break;
+                case Op::bit_or : X.vorps (r(d), r(x), r(y.id)); break;
+                case Op::bit_xor: X.vxorps(r(d), r(x), r(y.id)); break;
 
-                case Op::shl: X.vpslld(r[d], r[x], y.imm); break;
-                case Op::shr: X.vpsrld(r[d], r[x], y.imm); break;
-                case Op::sra: X.vpsrad(r[d], r[x], y.imm); break;
+                case Op::shl: X.vpslld(r(d), r(x), y.imm); break;
+                case Op::shr: X.vpsrld(r(d), r(x), y.imm); break;
+                case Op::sra: X.vpsrad(r(d), r(x), y.imm); break;
 
                 case Op::extract: if (y.imm) {
-                                      X.vpsrld(tmp, r[x], y.imm);
-                                      X.vandps(r[d], tmp, r[z.id]);
+                                      X.vpsrld(tmp, r(x), y.imm);
+                                      X.vandps(r(d), tmp, r(z.id));
                                   } else {
-                                      X.vandps(r[d], r[x], r[z.id]);
+                                      X.vandps(r(d), r(x), r(z.id));
                                   }
                                   break;
 
-                case Op::pack: X.vpslld(tmp, r[y.id], z.imm);
-                               X.vorps (r[d], tmp, r[x]);
+                case Op::pack: X.vpslld(tmp, r(y.id), z.imm);
+                               X.vorps (r(d), tmp, r(x));
                                break;
 
-                case Op::to_f32: X.vcvtdq2ps (r[d], r[x]); break;
-                case Op::to_i32: X.vcvttps2dq(r[d], r[x]); break;
+                case Op::to_f32: X.vcvtdq2ps (r(d), r(x)); break;
+                case Op::to_i32: X.vcvttps2dq(r(d), r(x)); break;
 
                 case Op::bytes: {
                     if (vpshufb_masks.end() == vpshufb_masks.find(y.imm)) {
@@ -686,7 +747,7 @@ namespace skvm {
                                                                  p[0], p[1], p[2], p[3]}});
                         vpshufb_masks[y.imm] = data32.size() - 1;
                     }
-                    X.vpshufb(r[d], r[x],
+                    X.vpshufb(r(d), r(x),
                               X.ptr[X.rip + data32[vpshufb_masks[y.imm]].label]);
                 } break;
             }
