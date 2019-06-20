@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eacd82e7_f590914f",
+        "filename": "modules/skparagraph/include/TestFontCollection.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-20T18:55:40Z",
+      "side": 1,
+      "message": "So it seems we want this shared and semi public, but it isn\u0027t really part of the module, but more like example client code. It would probably be best to at least make this a separate \u0027component\u0027 in the build file, and not add this to the .gni file for SkParagraph to make it clear this is separable example code.",
+      "revId": "a225b297465af990f6a0a18c84bc00fa6e8cd7ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
