@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8a2a3c39_7c567221",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-20T20:21:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5db3263_f5a41761",
+      "range": {
+        "startLine": 213,
+        "startChar": 46,
+        "endLine": 213,
+        "endChar": 56
+      },
+      "revId": "0e3b33d8fd56a5814fd7209c84650dc3ea200cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3dbbbe12_ecb0525b",
         "filename": "src/core/SkGlyphRun.cpp",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "38c14dd9_f5883030",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-20T20:21:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3dbbbe12_ecb0525b",
+      "range": {
+        "startLine": 236,
+        "startChar": 40,
+        "endLine": 236,
+        "endChar": 53
+      },
+      "revId": "0e3b33d8fd56a5814fd7209c84650dc3ea200cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "605c9443_3cbf2627",
         "filename": "src/core/SkGlyphRun.cpp",
         "patchSetId": 7
@@ -62,6 +110,24 @@
       "revId": "0e3b33d8fd56a5814fd7209c84650dc3ea200cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d32022f0_8e83432f",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-20T20:21:19Z",
+      "side": 1,
+      "message": "This is reproducing the existing code which just ignores the RSXForm",
+      "parentUuid": "605c9443_3cbf2627",
+      "revId": "0e3b33d8fd56a5814fd7209c84650dc3ea200cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -85,6 +151,30 @@
       "revId": "0e3b33d8fd56a5814fd7209c84650dc3ea200cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3df66187_b1563cef",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-20T20:21:19Z",
+      "side": 1,
+      "message": "Changed to Ignoring",
+      "parentUuid": "07c6b12b_bfc8884c",
+      "range": {
+        "startLine": 160,
+        "startChar": 25,
+        "endLine": 160,
+        "endChar": 38
+      },
+      "revId": "0e3b33d8fd56a5814fd7209c84650dc3ea200cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
