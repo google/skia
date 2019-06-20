@@ -2554,19 +2554,36 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
 }
 
 STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
-    float rr[N];
-    float gg[N];
-    float bb[N];
-    float aa[N];
+    // Logically we should just size these arrays by N, the width of our registers,
+    // but the interpreter has its own idea of 'width' in kVecWidth, so we make sure
+    // that we allocate enough space for it to memcpy its results back into our arrays.
+    //
+    // If N < kVecWidth, then we are doing more work than necessary in the interpreter.
+    // This is a known issue, and will be addressed at some point.
+    constexpr int COUNT = SkTMax<int>(N, SkSL::ByteCode::kVecWidth);
 
-    sk_unaligned_store(rr, r);
-    sk_unaligned_store(gg, g);
-    sk_unaligned_store(bb, b);
-    sk_unaligned_store(aa, a);
+    float rr[COUNT];
+    float gg[COUNT];
+    float bb[COUNT];
+    float aa[COUNT];
+    size_t in_count, out_count;
 
     float* args[] = { rr, gg, bb, aa };
-    c->byteCode->runStriped(c->fn, args, SK_ARRAY_COUNT(args), tail ? tail : N,
-                            (const float*)c->inputs, c->ninputs);
+
+    sk_unaligned_store(rr, r);  // x if we're a shader
+    sk_unaligned_store(gg, g);  // y if we're a shader
+    if (c->shader_convention) {
+        in_count = 2;   // x, y
+        out_count = 4;  // r, g, b, a
+    } else {
+        in_count = 4;   // r, g, b, a (in/out)
+        sk_unaligned_store(bb, b);
+        sk_unaligned_store(aa, a);
+        out_count = 0;
+    }
+
+    c->byteCode->runStriped(c->fn, args, in_count, tail ? tail : N,
+                            (const float*)c->inputs, c->ninputs, args, out_count);
 
     r = sk_unaligned_load<F>(rr);
     g = sk_unaligned_load<F>(gg);
