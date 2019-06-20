@@ -28,7 +28,9 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
 
 
 int ByteCodeGenerator::SlotCount(const Type& type) {
-    if (type.kind() == Type::kStruct_Kind) {
+    if (type.kind() == Type::kOther_Kind) {
+        return 0;
+    } else if (type.kind() == Type::kStruct_Kind) {
         int slots = 0;
         for (const auto& f : type.fields()) {
             slots += SlotCount(*f.fType);
@@ -828,7 +830,7 @@ void ByteCodeGenerator::writeExpression(const Expression& e, bool discard) {
         if (count > 4) {
             this->write(ByteCodeInstruction::kPopN);
             this->write8(count);
-        } else {
+        } else if (count != 0) {
             this->write(vector_instruction(ByteCodeInstruction::kPop, count));
         }
         discard = false;
