@@ -497,7 +497,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"GalaxyS7_G930FD": {"herolte", "R16NW_G930FXXS2ERH6"}, // This is Oreo.
 				"GalaxyS9":        {"starlte", "R16NW_G960FXXU2BRJ8"}, // This is Oreo.
 				"MotoG4":          {"athene", "NPJS25.93-14.7-8"},
-				"NVIDIA_Shield":   {"foster", "OPR6.170623.010_2604118_1256.7693"},
+				"NVIDIA_Shield":   {"foster", "OPR6.170623.010_3507953_1441.7411"},
 				"Nexus5":          {"hammerhead", "M4B30Z_3437181"},
 				"Nexus5x":         {"bullhead", "OPR6.170623.023"},
 				"Nexus7":          {"grouper", "LMY47V_1836172"}, // 2012 Nexus 7
