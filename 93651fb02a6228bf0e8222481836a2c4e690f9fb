@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6650674_94e38002",
+        "filename": "tests/VkProtectedContextTest.cpp",
+        "patchSetId": 39
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T16:34:43Z",
+      "side": 1,
+      "message": "you don\u0027t need the cavans-\u003eflush() here with the surface flush.",
+      "range": {
+        "startLine": 274,
+        "startChar": 4,
+        "endLine": 274,
+        "endChar": 20
+      },
+      "revId": "93651fb02a6228bf0e8222481836a2c4e690f9fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
