@@ -274,6 +274,8 @@
   "Perf-Debian9-EMCC-NUC7i5BNK-GPU-IntelIris640-wasm-Release-All-SkottieWASM",
   "Perf-Debian9-GCC-GCE-CPU-AVX2-x86-Debug-All",
   "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All",
+  "Perf-Debian9-none-GCE-CPU-AVX2-x86_64-Release-All-LottieWeb",
+  "Perf-Debian9-none-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-LottieWeb",
   "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All",
   "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All",
   "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer",
