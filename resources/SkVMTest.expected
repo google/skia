@@ -565,6 +565,39 @@ r13 = pack r12 r13 8
 r13 = pack r11 r13 16
 store32 arg(1) r13
 
+I32 (Naive) 8888 over 8888
+11 registers, 29 instructions:
+r0 = splat FF (3.5733111e-43)
+r1 = splat 100 (3.5873241e-43)
+loop:
+r2 = load32 arg(0)
+r3 = extract r2 0 r0
+r4 = extract r2 8 r0
+r5 = extract r2 16 r0
+r2 = extract r2 24 r0
+r6 = load32 arg(1)
+r7 = extract r6 0 r0
+r8 = extract r6 8 r0
+r9 = extract r6 16 r0
+r6 = extract r6 24 r0
+r10 = sub_i32 r1 r2
+r7 = mul_i32 r7 r10
+r7 = shr r7 8
+r7 = add_i32 r3 r7
+r8 = mul_i32 r8 r10
+r8 = shr r8 8
+r8 = add_i32 r4 r8
+r9 = mul_i32 r9 r10
+r9 = shr r9 8
+r9 = add_i32 r5 r9
+r10 = mul_i32 r6 r10
+r10 = shr r10 8
+r10 = add_i32 r2 r10
+r8 = pack r7 r8 8
+r10 = pack r9 r10 8
+r10 = pack r8 r10 16
+store32 arg(1) r10
+
 I32 8888 over 8888
 11 registers, 29 instructions:
 r0 = splat FF (3.5733111e-43)
