@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "573dc592_05ffdb6f",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-20T17:49:41Z",
+      "side": 1,
+      "message": "This was just missing, noticed while running all interpreter tests with TRACE defined.",
+      "revId": "03dcd7693604598d353f7b6a9024e276c3cf005d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcf4ce23_6d07eb14",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1062,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-20T17:49:41Z",
+      "side": 1,
+      "message": "Soft merge conflict that never surfaced until I defined TRACE.",
+      "revId": "03dcd7693604598d353f7b6a9024e276c3cf005d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a82031f3_2094decb",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-20T17:49:41Z",
+      "side": 1,
+      "message": "This is one half of the interesting part of this CL...",
+      "revId": "03dcd7693604598d353f7b6a9024e276c3cf005d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12dafa90_9e9120ed",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-20T17:49:41Z",
+      "side": 1,
+      "message": "... this is the other half. Everything else is just noise (SlotCount needs to be a member so we can access the context to determine if a type is \"void\", so all uses of it have to changed).",
+      "revId": "03dcd7693604598d353f7b6a9024e276c3cf005d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
