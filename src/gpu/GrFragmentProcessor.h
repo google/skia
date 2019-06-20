@@ -122,7 +122,9 @@ public:
 
     const GrFragmentProcessor& childProcessor(int index) const { return *fChildProcessors[index]; }
 
-    bool instantiate(GrResourceProvider*) const;
+#ifdef SK_DEBUG
+    bool isInstantiated() const;
+#endif
 
     /** Do any of the coordtransforms for this processor require local coords? */
     bool usesLocalCoords() const { return SkToBool(fFlags & kUsesLocalCoords_Flag); }
@@ -434,11 +436,9 @@ public:
 
     bool operator!=(const TextureSampler& other) const { return !(*this == other); }
 
-    // 'instantiate' should only ever be called at flush time.
-    // TODO: this can go away once explicit allocation has stuck
-    bool instantiate(GrResourceProvider* resourceProvider) const {
-        return fProxy->isInstantiated();
-    }
+#ifdef SK_DEBUG
+    bool isInstantiated() const { return fProxy->isInstantiated(); }
+#endif
 
     // 'peekTexture' should only ever be called after a successful 'instantiate' call
     GrTexture* peekTexture() const {
