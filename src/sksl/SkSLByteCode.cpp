@@ -19,7 +19,7 @@
 namespace SkSL {
 namespace Interpreter {
 
-constexpr int VecWidth = 16;
+constexpr int VecWidth = ByteCode::kVecWidth;
 
 using F32 = skvx::Vec<VecWidth, float>;
 using I32 = skvx::Vec<VecWidth, int32_t>;
@@ -346,7 +346,7 @@ static T vec_mod(T a, T b) {
 }
 
 void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack,
-              float* outReturn, I32 initMask, VValue globals[]) {
+              float* outReturn[], I32 initMask, VValue globals[], bool stripedOutput) {
     VValue* sp = stack + f->fParameterCount + f->fLocalCount - 1;
 
     auto POP =  [&]           { SkASSERT(sp     >= stack); return *(sp--); };
@@ -721,14 +721,22 @@ void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack
                         // TODO: This can be smarter, knowing that mask is left-justified
                         I32 m = mask();
                         VValue* src = sp - count + 1;
-                        for (int i = 0; i < count; ++i) {
-                            for (int j = 0; j < VecWidth; ++j) {
-                                if (m[j]) {
-                                    outReturn[count * j] = src->fFloat[j];
-                                }
+                        if (stripedOutput) {
+                            for (int i = 0; i < count; ++i) {
+                                memcpy(outReturn[i], &src->fFloat, VecWidth * sizeof(float));
+                                src += 1;
                             }
-                            ++outReturn;
-                            ++src;
+                        } else {
+                            float* outPtr = outReturn[0];
+                            for (int i = 0; i < count; ++i) {
+                                for (int j = 0; j < VecWidth; ++j) {
+                                    if (m[j]) {
+                                        outPtr[count * j] = src->fFloat[j];
+                                    }
+                                }
+                                ++outPtr;
+                                ++src;
+                            }
                         }
                     }
                     return;
@@ -1015,8 +1023,10 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
             }
         }
 
+        bool stripedOutput = false;
+        float** outArray = outReturn ? &outReturn : nullptr;
         auto mask = w > gLanes;
-        innerRun(this, f, stack, outReturn, mask, globals);
+        innerRun(this, f, stack, outArray, mask, globals, stripedOutput);
 
         // Transpose out parameters back
         {
@@ -1038,12 +1048,15 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
         }
 
         args += f->fParameterCount * w;
-        outReturn += f->fReturnCount * w;
+        if (outReturn) {
+            outReturn += f->fReturnCount * w;
+        }
     }
 }
 
 void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, int N,
-                          const float* uniforms, int uniformCount) const {
+                          const float* uniforms, int uniformCount,
+                          float* outArgs[], int outCount) const {
 #ifdef TRACE
     disassemble(f);
 #endif
@@ -1054,8 +1067,13 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
         0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
     };
 
-    SkASSERT(f->fReturnCount == 0);
+    // innerRun just takes outArgs, so clear it if the count is zero
+    if (outCount == 0) {
+        outArgs = nullptr;
+    }
+
     SkASSERT(nargs == f->fParameterCount);
+    SkASSERT(outCount == f->fReturnCount);
     SkASSERT(uniformCount == (int)fInputSlots.size());
     Interpreter::VValue globals[32];
     SkASSERT((int)SK_ARRAY_COUNT(globals) >= fGlobalCount);
@@ -1071,8 +1089,9 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
             memcpy(stack + i, args[i], w * sizeof(float));
         }
 
+        bool stripedOutput = true;
         auto mask = w > gLanes;
-        innerRun(this, f, stack, nullptr, mask, globals);
+        innerRun(this, f, stack, outArgs, mask, globals, stripedOutput);
 
         // Copy out parameters back
         int slot = 0;

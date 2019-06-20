@@ -161,6 +161,7 @@ struct SkRasterPipeline_InterpreterCtx {
 
     const void* inputs;
     int         ninputs;
+    bool        shader_convention;  // if false, we're a colorfilter
 };
 
 struct SkRasterPipeline_GradientCtx {

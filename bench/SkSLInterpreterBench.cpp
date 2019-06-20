@@ -53,7 +53,7 @@ protected:
                     fPixels.data() + 3 * fCount,
                 };
 
-                fByteCode->runStriped(fMain, args, 4, fCount, nullptr, 0);
+                fByteCode->runStriped(fMain, args, 4, fCount, nullptr, 0, nullptr, 0);
             } else {
                 fByteCode->run(fMain, fPixels.data(), nullptr, fCount, nullptr, 0);
             }
