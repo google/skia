@@ -662,6 +662,10 @@ namespace skvm {
         const int tmp = 15;
     #endif
 
+        // 32-byte first
+        // 4-byte next
+        // code last
+
         // Label / N-byte values we need to write after ret.
         struct Data4  { Xbyak::Label label; int bits   ; };
         struct Data32 { Xbyak::Label label; int bits[8]; };
