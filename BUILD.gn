@@ -1057,6 +1057,7 @@ if (target_cpu == "wasm") {
     public_configs = [ ":skia_public" ]
 
     sources = [
+      "tools/SkSharingProc.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/DebugCanvas.cpp",
       "tools/debugger/DrawCommand.cpp",
@@ -1597,6 +1598,7 @@ if (skia_enable_tools) {
       "tools/LsanSuppressions.cpp",
       "tools/ProcStats.cpp",
       "tools/Resources.cpp",
+      "tools/SkSharingProc.cpp",
       "tools/ToolUtils.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/DebugCanvas.cpp",
