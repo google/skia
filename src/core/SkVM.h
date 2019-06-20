@@ -49,9 +49,13 @@ namespace skvm {
         void sub(GP64, int imm);
 
         // All dst = x op y.
-        void vpaddd (Ymm dst, Ymm x, Ymm y);
-        void vpsubd (Ymm dst, Ymm x, Ymm y);
-        void vpmulld(Ymm dst, Ymm x, Ymm y);
+        using DstEqXopY = void(Ymm dst, Ymm x, Ymm y);
+        DstEqXopY vpaddd, vpsubd, vpmulld,
+                  vpsubw, vpmullw,
+                  vpand, vpor, vpxor,
+                  vaddps, vsubps, vmulps, vdivps,
+                  vfmadd132ps, vfmadd213ps, vfmadd231ps,
+                  vpackusdw, vpackuswb;
 
     //private:
         std::unique_ptr<Xbyak::CodeGenerator> X;
