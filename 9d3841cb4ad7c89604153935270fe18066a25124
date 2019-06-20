@@ -16,6 +16,24 @@
       "revId": "9d3841cb4ad7c89604153935270fe18066a25124",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eee7aa56_d4b20071",
+        "filename": "infra/bots/recipes/perf_skottiewasm_lottieweb.expected/unrecognized_builder.json",
+        "patchSetId": 15
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-20T16:17:37Z",
+      "side": 1,
+      "message": "Yea, this might be a completely useless test. I have followed this pattern in other places as well: https://skia.googlesource.com/skia/+/master/infra/bots/recipes/android_compile.expected/android_compile_unrecognized_target.json\n\nMainly done to provide coverage to this line: https://skia-review.googlesource.com/c/skia/+/222157/15/infra/bots/recipes/perf_skottiewasm_lottieweb.py#74",
+      "parentUuid": "5595a41c_fa8ea92c",
+      "revId": "9d3841cb4ad7c89604153935270fe18066a25124",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
