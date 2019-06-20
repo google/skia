@@ -90,6 +90,8 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kRemainderF),
     VECTOR(kRemainderS),
     VECTOR(kRemainderU),
+    // Followed by a byte indicating the number of slots to reserve on the stack (for later return)
+    kReserve,
     // Followed by a byte indicating the number of slots being returned
     kReturn,
     // Followed by two bytes indicating columns and rows of matrix (2, 3, or 4 each).

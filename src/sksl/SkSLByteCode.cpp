@@ -146,6 +146,7 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kRemainderF, "remainderf")
         VECTOR_DISASSEMBLE(kRemainderS, "remainders")
         VECTOR_DISASSEMBLE(kRemainderU, "remainderu")
+        case ByteCodeInstruction::kReserve: printf("reserve %d", READ8()); break;
         case ByteCodeInstruction::kReturn: printf("return %d", READ8()); break;
         case ByteCodeInstruction::kScalarToMatrix: {
             int cols = READ8();
@@ -334,6 +335,7 @@ struct StackFrame {
     const uint8_t* fCode;
     const uint8_t* fIP;
     VValue* fStack;
+    int fParameterCount;
 };
 
 static F32 mix(F32 start, F32 end, F32 t) {
@@ -404,19 +406,16 @@ void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack
                 break;
 
             case ByteCodeInstruction::kCall: {
-                // Precursor code has pushed all parameters to the stack. Update our bottom of
-                // stack to point at the first parameter, and our sp to point past those parameters
-                // (plus space for locals).
+                // Precursor code reserved space for the return value, and pushed all parameters to
+                // the stack. Update our bottom of stack to point at the first parameter, and our
+                // sp to point past those parameters (plus space for locals).
                 int target = READ8();
                 const ByteCodeFunction* fun = byteCode->fFunctions[target].get();
                 if (skvx::any(mask())) {
-                    frames.push_back({ code, ip, stack });
+                    frames.push_back({ code, ip, stack, fun->fParameterCount });
                     ip = code = fun->fCode.data();
                     stack = sp - fun->fParameterCount + 1;
                     sp = stack + fun->fParameterCount + fun->fLocalCount - 1;
-                } else {
-                    sp -= fun->fParameterCount;
-                    sp += fun->fReturnCount;
                 }
                 break;
             }
@@ -715,6 +714,10 @@ void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack
             VECTOR_BINARY_FN(kRemainderS, fSigned, vec_mod<I32>)
             VECTOR_BINARY_FN(kRemainderU, fUnsigned, vec_mod<U32>)
 
+            case ByteCodeInstruction::kReserve:
+                sp += READ8();
+                break;
+
             case ByteCodeInstruction::kReturn: {
                 int count = READ8();
                 if (frames.empty()) {
@@ -742,14 +745,17 @@ void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack
                     }
                     return;
                 } else {
-                    // When we were called, 'stack' was positioned at the old top-of-stack (where
-                    // our parameters were placed). So copy our return values to that same spot.
-                    memmove(stack, sp - count + 1, count * sizeof(VValue));
+                    // When we were called, the caller reserved stack space for their copy of our
+                    // return value, then 'stack' was positioned after that, where our parameters
+                    // were placed. Copy our return values to their reserved area.
+                    memcpy(stack - count, sp - count + 1, count * sizeof(VValue));
 
-                    // Now move the stack pointer to the end of the just-pushed return values,
-                    // and restore everything else.
+                    // Now move the stack pointer to the end of the passed-in parameters. This odd
+                    // calling convention requires the caller to pop the arguments after calling,
+                    // but allows them to store any out-parameters back during that unwinding.
+                    // After that sequence finishes, the return value will be the top of the stack.
                     const StackFrame& frame(frames.back());
-                    sp = stack + count - 1;
+                    sp = stack + frame.fParameterCount - 1;
                     stack = frame.fStack;
                     code = frame.fCode;
                     ip = frame.fIP;
