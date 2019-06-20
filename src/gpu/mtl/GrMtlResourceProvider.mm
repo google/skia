@@ -194,7 +194,6 @@ id<MTLBuffer> GrMtlResourceProvider::BufferSuballocator::getAllocation(size_t si
     // capture current state locally (because fTail could be overwritten by the completion handler)
     size_t head, tail;
     {
-        SkAutoSpinlock lock(fMutex);
         head = fHead;
         tail = fTail;
     }
@@ -244,7 +243,6 @@ void GrMtlResourceProvider::BufferSuballocator::addCompletionHandler(
     this->ref();
     __block size_t newTail = fHead;
     cmdBuffer->addCompletedHandler(^(id <MTLCommandBuffer>commandBuffer) {
-        SkAutoSpinlock lock(this->fMutex);
         this->fTail = newTail;
         this->unref();
     });
