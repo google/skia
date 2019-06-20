@@ -12,9 +12,11 @@ class StringSlice {
 public:
     StringSlice() = default;
     StringSlice(const char* s, std::size_t l) { this->insert(0, s, l); }
-    ~StringSlice() = default;
     StringSlice(StringSlice&&);
+    StringSlice(const StringSlice& that) : StringSlice(that.begin(), that.size()) {}
+    ~StringSlice() = default;
     StringSlice& operator=(StringSlice&&);
+    StringSlice& operator=(const StringSlice&);
 
     // access:
     // Does not have a c_str method; is *not* NUL-terminated.
@@ -25,17 +27,17 @@ public:
     // mutation:
     void insert(std::size_t offset, const char* text, std::size_t length);
     void remove(std::size_t offset, std::size_t length);
-    void reserve(std::size_t);
-    void shrink();
+
+    // modify capacity only:
+    void reserve(std::size_t size) { if (size > fCapacity) { this->realloc(size); } }
+    void shrink() { this->realloc(fLength); }
 
 private:
     struct FreeWrapper { void operator()(void*); };
     std::unique_ptr<char, FreeWrapper> fPtr;
     std::size_t fLength = 0;
     std::size_t fCapacity = 0;
-
-    StringSlice(const StringSlice&) = delete;
-    StringSlice& operator=(const StringSlice&) = delete;
+    void realloc(std::size_t);
 };
 }  // namespace editor;
 #endif  // stringslice_DEFINED
