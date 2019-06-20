@@ -49,7 +49,7 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
     SkASSERT(!pipeline.isScissorEnabled() || fixedDynamicState ||
              (dynamicStateArrays && dynamicStateArrays->fScissorRects));
 
-    if (pipeline.isBad()) {
+    if (pipeline.isBad1()) {
         return false;
     }
 #ifdef SK_DEBUG

@@ -75,21 +75,23 @@ void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     SkDEBUGCODE(transform->setInProcessor();)
 }
 
-bool GrFragmentProcessor::instantiate(GrResourceProvider* resourceProvider) const {
+#ifdef SK_DEBUG
+bool GrFragmentProcessor::isInstantiated() const {
     for (int i = 0; i < fTextureSamplerCnt; ++i) {
-        if (!this->textureSampler(i).instantiate(resourceProvider)) {
+        if (!this->textureSampler(i).isInstantiated()) {
             return false;
         }
     }
 
     for (int i = 0; i < this->numChildProcessors(); ++i) {
-        if (!this->childProcessor(i).instantiate(resourceProvider)) {
+        if (!this->childProcessor(i).isInstantiated()) {
             return false;
         }
     }
 
     return true;
 }
+#endif
 
 int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child) {
     if (child->usesLocalCoords()) {
