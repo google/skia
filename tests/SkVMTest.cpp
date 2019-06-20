@@ -45,6 +45,12 @@ DEF_TEST(SkVM, r) {
 
     // Write the I32 Srcovers also.
     {
+        skvm::Program program = SrcoverBuilder_I32_Naive{}.done();
+        buf.writeText("I32 (Naive) 8888 over 8888\n");
+        program.dump(&buf);
+        buf.writeText("\n");
+    }
+    {
         skvm::Program program = SrcoverBuilder_I32{}.done();
         buf.writeText("I32 8888 over 8888\n");
         program.dump(&buf);
@@ -105,6 +111,7 @@ DEF_TEST(SkVM, r) {
     };
 
     test_8888(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::RGBA_8888}.done());
+    test_8888(SrcoverBuilder_I32_Naive{}.done());
     test_8888(SrcoverBuilder_I32{}.done());
     test_8888(SrcoverBuilder_I32_SWAR{}.done());
 
@@ -198,9 +205,18 @@ static void test_asm(skiatest::Reporter* r, Fn&& fn, std::initializer_list<uint8
 }
 
 DEF_TEST(SkVM_Assembler, r) {
-    using skvm::Assembler;
+    // Easiest way to generate test cases is
+    //
+    //   echo '...some asm...' | llvm-mc -show-encoding -x86-asm-syntax=intel
+    //
+    // The -x86-asm-syntax=intel bit is optional, controlling the
+    // input syntax only; the output will always be AT&T  op x,y,dst style.
+    // Our APIs read more like Intel op dst,x,y as op(dst,x,y), so I find
+    // that a bit easier to use here, despite maybe favoring AT&T overall.
+
+    using A = skvm::Assembler;
     // Our exit strategy from AVX code.
-    test_asm(r, [&](Assembler& a) {
+    test_asm(r, [&](A& a) {
         a.vzeroupper();
         a.ret();
     },{
@@ -209,7 +225,7 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     // Align should pad with nop().
-    test_asm(r, [&](Assembler& a) {
+    test_asm(r, [&](A& a) {
         a.ret();
         a.align(4);
     },{
@@ -217,18 +233,18 @@ DEF_TEST(SkVM_Assembler, r) {
         0x90, 0x90, 0x90,
     });
 
-    test_asm(r, [&](Assembler& a) {
-        a.add(Assembler::rax, 8);       // Always good to test rax.
-        a.sub(Assembler::rax, 32);
+    test_asm(r, [&](A& a) {
+        a.add(A::rax, 8);       // Always good to test rax.
+        a.sub(A::rax, 32);
 
-        a.add(Assembler::rdi, 12);      // Last 0x48 REX
-        a.sub(Assembler::rdi, 8);
+        a.add(A::rdi, 12);      // Last 0x48 REX
+        a.sub(A::rdi, 8);
 
-        a.add(Assembler::r8 , 7);       // First 0x4c REX
-        a.sub(Assembler::r8 , 4);
+        a.add(A::r8 , 7);       // First 0x4c REX
+        a.sub(A::r8 , 4);
 
-        a.add(Assembler::rsi, 128);     // Requires 4 byte immediate.
-        a.sub(Assembler::r8 , 1000000);
+        a.add(A::rsi, 128);     // Requires 4 byte immediate.
+        a.sub(A::r8 , 1000000);
     },{
         0x48, 0x83, 0b11'000'000, 0x08,
         0x48, 0x83, 0b11'101'000, 0x20,
@@ -241,6 +257,24 @@ DEF_TEST(SkVM_Assembler, r) {
 
         0x48, 0x81, 0b11'000'110, 0x80, 0x00, 0x00, 0x00,
         0x4c, 0x81, 0b11'101'000, 0x40, 0x42, 0x0f, 0x00,
+    });
+
+
+    test_asm(r, [&](A& a) {
+        a.vpaddd (A::ymm0, A::ymm1, A::ymm2);  // Low registers and 0x0f map     -> 2-byte VEX.
+        a.vpaddd (A::ymm8, A::ymm1, A::ymm2);  // A high dst register is ok      -> 2-byte VEX.
+        a.vpaddd (A::ymm0, A::ymm8, A::ymm2);  // A high first argument register -> 2-byte VEX.
+        a.vpaddd (A::ymm0, A::ymm1, A::ymm8);  // A high second argument         -> 3-byte VEX.
+        a.vpmulld(A::ymm0, A::ymm1, A::ymm2);  // Using non-0x0f map instruction -> 3-byte VEX.
+        a.vpsubd (A::ymm0, A::ymm1, A::ymm2);  // Test vpsubd to ensure argument order is right.
+    },{
+        /*    VEX     */ /*op*/ /*modRM*/
+        0xc5,       0xf5, 0xfe, 0xc2,
+        0xc5,       0x75, 0xfe, 0xc2,
+        0xc5,       0xbd, 0xfe, 0xc2,
+        0xc4, 0xc1, 0x75, 0xfe, 0xc0,
+        0xc4, 0xe2, 0x75, 0x40, 0xc2,
+        0xc5,       0xf5, 0xfa, 0xc2,
     });
 }
 

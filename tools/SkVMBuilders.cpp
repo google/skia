@@ -90,6 +90,43 @@ SrcoverBuilder_F32::SrcoverBuilder_F32(Fmt srcFmt, Fmt dstFmt) {
     }
 }
 
+SrcoverBuilder_I32_Naive::SrcoverBuilder_I32_Naive() {
+    skvm::Arg src = arg(0),
+              dst = arg(1);
+
+    auto load = [&](skvm::Arg ptr,
+                    skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) {
+        skvm::I32 rgba = load32(ptr);
+        *r = extract(rgba,  0, splat(0xff));
+        *g = extract(rgba,  8, splat(0xff));
+        *b = extract(rgba, 16, splat(0xff));
+        *a = extract(rgba, 24, splat(0xff));
+    };
+
+    skvm::I32 r,g,b,a;
+    load(src, &r,&g,&b,&a);
+
+    skvm::I32 dr,dg,db,da;
+    load(dst, &dr,&dg,&db,&da);
+
+    // (xy + x)/256 is a good approximation of (xy + 127)/255
+    //
+    //   == (d*(255-a) + d)/256
+    //   == (d*(255-a+1)  )/256
+    //   == (d*(256-a  )  )/256
+
+    skvm::I32 invA = sub(splat(256), a);
+    r = add(r, shr(mul(dr, invA), 8));
+    g = add(g, shr(mul(dg, invA), 8));
+    b = add(b, shr(mul(db, invA), 8));
+    a = add(a, shr(mul(da, invA), 8));
+
+    r = pack(r, g, 8);
+    b = pack(b, a, 8);
+    r = pack(r, b, 16);
+    store32(dst, r);
+}
+
 SrcoverBuilder_I32::SrcoverBuilder_I32() {
     skvm::Arg src = arg(0),
               dst = arg(1);
