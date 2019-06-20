@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "263e7f20_27744682",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-20T21:01:33Z",
+      "side": 1,
+      "message": "Ok, am I being crazy or is this easier to follow as (gLanes \u003c N) ?",
+      "range": {
+        "startLine": 370,
+        "startChar": 35,
+        "endLine": 370,
+        "endChar": 46
+      },
+      "revId": "153d3dbd8b66fd7408699dfc3351869c9c263dfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b03a3663_8a0962bc",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-20T21:01:33Z",
+      "side": 1,
+      "message": "Are we hurt speedwise here for this non-constant memcpy call?",
+      "range": {
+        "startLine": 732,
+        "startChar": 67,
+        "endLine": 732,
+        "endChar": 84
+      },
+      "revId": "153d3dbd8b66fd7408699dfc3351869c9c263dfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
