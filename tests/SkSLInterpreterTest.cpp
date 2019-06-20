@@ -661,6 +661,23 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
     REPORTER_ASSERT(r, fibOut == 13);
 }
 
+DEF_TEST(SkSLInterpreterOutParams, r) {
+    test(r,
+         "void oneAlpha(inout half4 color) { color.a = 1; }"
+         "void main(inout half4 color) { oneAlpha(color); }",
+         0, 0, 0, 0, 0, 0, 0, 1);
+    test(r,
+         "half2 tricky(half x, half y, inout half2 color, half z) {"
+         "    color.xy = color.yx;"
+         "    return half2(x + y, z);"
+         "}"
+         "void main(inout half4 color) {"
+         "    half2 t = tricky(1, 2, color.rb, 5);"
+         "    color.ga = t;"
+         "}",
+         1, 2, 3, 4, 3, 3, 1, 5);
+}
+
 DEF_TEST(SkSLInterpreterMathFunctions, r) {
     float value, expected;
 
