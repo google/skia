@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87edf291_2b5b0901",
+        "filename": "samplecode/SampleParagraph.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-20T20:03:25Z",
+      "side": 1,
+      "message": "don\u0027t need?",
+      "range": {
+        "startLine": 2,
+        "startChar": 9,
+        "endLine": 2,
+        "endChar": 41
+      },
+      "revId": "2c6892477f72972cb1dddf826628edca50ded761",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
