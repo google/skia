@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d2b5018_85cd53ca",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 41
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T18:21:57Z",
+      "side": 1,
+      "message": "nit: this got moved to another line",
+      "range": {
+        "startLine": 223,
+        "startChar": 56,
+        "endLine": 224,
+        "endChar": 49
+      },
+      "revId": "c79b03a477c31a96abbbfb4122ccf8373902db4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "786afca3_85308289",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 41
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T18:21:57Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 538,
+        "startChar": 67,
+        "endLine": 539,
+        "endChar": 58
+      },
+      "revId": "c79b03a477c31a96abbbfb4122ccf8373902db4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acee67f8_a1e5fd71",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 41
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T18:21:57Z",
+      "side": 1,
+      "message": "We are already storing this on the GrVkGpu. Why do we need this here as well?",
+      "range": {
+        "startLine": 233,
+        "startChar": 4,
+        "endLine": 233,
+        "endChar": 48
+      },
+      "revId": "c79b03a477c31a96abbbfb4122ccf8373902db4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
