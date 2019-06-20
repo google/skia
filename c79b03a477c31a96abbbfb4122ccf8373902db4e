@@ -140,6 +140,30 @@
       "revId": "c79b03a477c31a96abbbfb4122ccf8373902db4e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b7115c9_7ec93373",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 41
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-20T18:44:44Z",
+      "side": 1,
+      "message": "Yeah if that\u0027s the only use I would just pass it in and not store it.",
+      "parentUuid": "d54ee964_8528127f",
+      "range": {
+        "startLine": 233,
+        "startChar": 4,
+        "endLine": 233,
+        "endChar": 48
+      },
+      "revId": "c79b03a477c31a96abbbfb4122ccf8373902db4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
