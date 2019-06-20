@@ -49,7 +49,7 @@ sk_colorspace_t* sk_colorspace_new_rgb_with_gamma_named(sk_gamma_named_t gamma, 
     return ToColorSpace(SkColorSpace::MakeRGB((SkGammaNamed)gamma, AsMatrix44(*toXYZD50)).release());
 }
 
-sk_colorspace_t* sk_colorspace_new_rgb_with_gamma_named(sk_gamma_named_t gamma, sk_colorspace_gamut_t gamut) {
+sk_colorspace_t* sk_colorspace_new_rgb_with_gamma_named_and_gamut(sk_gamma_named_t gamma, sk_colorspace_gamut_t gamut) {
     return ToColorSpace(SkColorSpace::MakeRGB((SkGammaNamed)gamma, (SkColorSpace::Gamut)gamut).release());
 }
 
