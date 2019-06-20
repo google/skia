@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27ed478f_e1207637",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-20T21:19:57Z",
+      "side": 1,
+      "message": "Think it makes sense to have a line like\n\n   SkGlyph\u0026 glpyh \u003d *glyphPtr;\n\nor\n\n  const SkGlyph\u0026 glyph \u003d *glyphPtr;\n\nup here somewhere to avoid all the *glyph and glyph-\u003e below?",
+      "revId": "b22ba500e0c510e7a22cd53e6057eb18c483bc09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1e30ef8_0b9ddb3b",
+        "filename": "src/gpu/text/GrStrikeCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-20T21:19:57Z",
+      "side": 1,
+      "message": "If we\u0027re not null-checking or anything, maybe just inline this,\n\n   grGlyph \u003d fAlloc.make\u003cGrGlyph\u003e(*skStrike-\u003eglyph(packed));\n\n?",
+      "range": {
+        "startLine": 52,
+        "startChar": 12,
+        "endLine": 53,
+        "endChar": 53
+      },
+      "revId": "b22ba500e0c510e7a22cd53e6057eb18c483bc09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
