@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5595a41c_fa8ea92c",
+        "filename": "infra/bots/recipes/perf_skottiewasm_lottieweb.expected/unrecognized_builder.json",
+        "patchSetId": 15
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-06-20T16:09:04Z",
+      "side": 1,
+      "message": "\"The recipe has crashed at point \u0027Uncaught exception\u0027!\",",
+      "revId": "9d3841cb4ad7c89604153935270fe18066a25124",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
