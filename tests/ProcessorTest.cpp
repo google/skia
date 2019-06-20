@@ -482,9 +482,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 #endif
         for (int j = 0; j < timesToInvokeFactory; ++j) {
             fp = FPFactory::MakeIdx(i, &testData);
-            if (!fp->instantiate(resourceProvider)) {
-                continue;
-            }
 
             if (!fp->hasConstantOutputForConstantInput() && !fp->preservesOpaqueInput() &&
                 !fp->compatibleWithCoverageAsAlpha()) {
@@ -703,9 +700,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                 continue;
             }
             const char* name = fp->name();
-            if (!fp->instantiate(resourceProvider) || !clone->instantiate(resourceProvider)) {
-                continue;
-            }
             REPORTER_ASSERT(reporter, !strcmp(fp->name(), clone->name()));
             REPORTER_ASSERT(reporter, fp->compatibleWithCoverageAsAlpha() ==
                                       clone->compatibleWithCoverageAsAlpha());
