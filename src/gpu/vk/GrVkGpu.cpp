@@ -141,8 +141,13 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         }
     }
 
-    return sk_sp<GrGpu>(new GrVkGpu(context, options, backendContext, interface, instanceVersion,
-                                    physDevVersion));
+     sk_sp<GrVkGpu> vkGpu(new GrVkGpu(context, options, backendContext, interface,
+                                       instanceVersion, physDevVersion));
+     if (backendContext.fProtectedContext == GrProtected::kYes &&
+         !vkGpu->vkCaps().supportsProtectedMemory()) {
+         return nullptr;
+     }
+     return std::move(vkGpu);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -159,7 +164,8 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         , fQueue(backendContext.fQueue)
         , fQueueIndex(backendContext.fGraphicsQueueIndex)
         , fResourceProvider(this)
-        , fDisconnected(false) {
+        , fDisconnected(false)
+        , fProtectedContext(backendContext.fProtectedContext) {
     SkASSERT(!backendContext.fOwnsInstanceAndDevice);
 
     if (!fMemoryAllocator) {
@@ -174,14 +180,14 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
                                    *backendContext.fDeviceFeatures2, instanceVersion,
                                    physicalDeviceVersion,
-                                   *backendContext.fVkExtensions));
+                                   *backendContext.fVkExtensions, fProtectedContext));
     } else if (backendContext.fDeviceFeatures) {
         VkPhysicalDeviceFeatures2 features2;
         features2.pNext = nullptr;
         features2.features = *backendContext.fDeviceFeatures;
         fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
                                    features2, instanceVersion, physicalDeviceVersion,
-                                   *backendContext.fVkExtensions));
+                                   *backendContext.fVkExtensions, fProtectedContext));
     } else {
         VkPhysicalDeviceFeatures2 features;
         memset(&features, 0, sizeof(VkPhysicalDeviceFeatures2));
@@ -205,7 +211,8 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
                             backendContext.fPhysicalDevice, 0, nullptr, 1, &swapChainExtName);
         }
         fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                                   features, instanceVersion, physicalDeviceVersion, extensions));
+                                   features, instanceVersion, physicalDeviceVersion, extensions,
+                                   fProtectedContext));
     }
     fCaps.reset(SkRef(fVkCaps.get()));
 
@@ -517,6 +524,9 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
                                    size_t offset) {
     SkASSERT(surface);
     SkASSERT(transferBuffer);
+    if (fProtectedContext == GrProtected::kYes) {
+        return false;
+    }
 
     GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer);
 
@@ -1042,7 +1052,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
     imageDesc.fSamples = 1;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     imageDesc.fUsageFlags = usageFlags;
-    imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    imageDesc.fIsProtected = desc.fIsProtected;
 
     GrMipMapsStatus mipMapsStatus = GrMipMapsStatus::kNotAllocated;
     if (mipLevels > 1) {
@@ -1184,12 +1194,17 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         return nullptr;
     }
 
+    if (backendTex.isProtected() && (fProtectedContext == GrProtected::kNo)) {
+        return nullptr;
+    }
+
     GrSurfaceDesc surfDesc;
     surfDesc.fFlags = kNone_GrSurfaceFlags;
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
     surfDesc.fSampleCnt = 1;
+    surfDesc.fIsProtected = backendTex.isProtected() ? GrProtected::kYes : GrProtected::kNo;
 
     sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
     SkASSERT(layout);
@@ -1213,6 +1228,10 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
     if (!check_rt_image_info(this->vkCaps(), imageInfo)) {
+        return nullptr;
+    }
+
+    if (backendTex.isProtected() && (fProtectedContext == GrProtected::kNo)) {
         return nullptr;
     }
 
@@ -1251,11 +1270,15 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
+    if (backendRT.isProtected() && (fProtectedContext == GrProtected::kNo)) {
+        return nullptr;
+    }
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = backendRT.width();
     desc.fHeight = backendRT.height();
+    desc.fIsProtected = backendRT.isProtected() ? GrProtected::kYes : GrProtected::kNo;
     desc.fConfig = backendRT.config();
     desc.fSampleCnt = 1;
 
@@ -1284,6 +1307,10 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
         return nullptr;
     }
     if (!check_rt_image_info(this->vkCaps(), imageInfo)) {
+        return nullptr;
+    }
+
+    if (tex.isProtected() && (fProtectedContext == GrProtected::kNo)) {
         return nullptr;
     }
 
@@ -1530,12 +1557,18 @@ static void set_image_layout(const GrVkInterface* vkInterface, VkCommandBuffer c
 bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool texturable,
                                        bool renderable, GrMipMapped mipMapped, const void* srcData,
                                        size_t srcRowBytes, const SkColor4f* color,
-                                       GrVkImageInfo* info) {
+                                       GrVkImageInfo* info, GrProtected isProtected) {
     SkASSERT(texturable || renderable);
     if (!texturable) {
         SkASSERT(GrMipMapped::kNo == mipMapped);
         SkASSERT(!srcData);
     }
+
+    if (fProtectedContext != isProtected) {
+        SkDebugf("Can only create protected image in protected context\n");
+        return false;
+    }
+
     VkFormat vkFormat;
     if (!GrPixelConfigToVkFormat(config, &vkFormat)) {
         return false;
@@ -1580,6 +1613,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    imageDesc.fIsProtected = fProtectedContext;
 
     if (!GrVkImage::InitImageInfo(this, imageDesc, info)) {
         return false;
@@ -1633,7 +1667,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     VkBufferCreateInfo bufInfo;
     memset(&bufInfo, 0, sizeof(VkBufferCreateInfo));
     bufInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufInfo.flags = 0;
+    bufInfo.flags = fProtectedContext == GrProtected::kYes ? VK_BUFFER_CREATE_PROTECTED_BIT : 0;
     bufInfo.size = combinedBufferSize;
     bufInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     bufInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -1725,10 +1759,18 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     err = VK_CALL(CreateFence(fDevice, &fenceInfo, nullptr, &fence));
     SkASSERT(!err);
 
+    VkProtectedSubmitInfo protectedSubmitInfo;
+    if (fProtectedContext == GrProtected::kYes) {
+        memset(&protectedSubmitInfo, 0, sizeof(VkProtectedSubmitInfo));
+        protectedSubmitInfo.sType = VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO;
+        protectedSubmitInfo.pNext = nullptr;
+        protectedSubmitInfo.protectedSubmit = VK_TRUE;
+    }
+
     VkSubmitInfo submitInfo;
     memset(&submitInfo, 0, sizeof(VkSubmitInfo));
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.pNext = nullptr;
+    submitInfo.pNext = fProtectedContext == GrProtected::kYes ? &protectedSubmitInfo : nullptr;
     submitInfo.waitSemaphoreCount = 0;
     submitInfo.pWaitSemaphores = nullptr;
     submitInfo.pWaitDstStageMask = 0;
@@ -1847,8 +1889,13 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
                                                GrMipMapped mipMapped,
                                                GrRenderable renderable,
                                                const void* srcData, size_t rowBytes,
-                                               const SkColor4f* color) {
+                                               const SkColor4f* color, GrProtected isProtected) {
     this->handleDirtyContext();
+
+    if (fProtectedContext != isProtected) {
+        SkDebugf("Can only create protected image in protected context\n");
+        return GrBackendTexture();
+    }
 
     if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
         return GrBackendTexture();
@@ -1870,7 +1917,7 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
 
     GrVkImageInfo info;
     if (!this->createTestingOnlyVkImage(config, w, h, true, GrRenderable::kYes == renderable,
-                                        mipMapped, srcData, rowBytes, color, &info)) {
+                                        mipMapped, srcData, rowBytes, color, &info, isProtected)) {
         return {};
     }
     GrBackendTexture beTex = GrBackendTexture(w, h, info);
@@ -1928,7 +1975,7 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
 
     GrVkImageInfo info;
     if (!this->createTestingOnlyVkImage(config, w, h, false, true, GrMipMapped::kNo, nullptr, 0,
-                                        &SkColors::kTransparent, &info)) {
+                                        &SkColors::kTransparent, &info, GrProtected::kNo)) {
         return {};
     }
     GrBackendRenderTarget beRT = GrBackendRenderTarget(w, h, 1, 0, info);
@@ -2084,8 +2131,11 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* 
     bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
     SkASSERT(this->vkCaps().canCopyImage(dst->config(), dstSampleCnt, dstHasYcbcr,
                                          src->config(), srcSampleCnt, srcHasYcbcr));
-
 #endif
+    if (src->isProtected() && !dst->isProtected()) {
+        SkDebugf("Can't copy from protected memory to non-protected");
+        return;
+    }
 
     // These flags are for flushing/invalidating caches and for the dst image it doesn't matter if
     // the cache is flushed since it is only being written to.
@@ -2136,6 +2186,11 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, GrVkImage* dstIm
                                           srcImage->isLinearTiled(), srcHasYcbcr));
 
 #endif
+    if (src->isProtected() && !dst->isProtected()) {
+        SkDebugf("Can't copy from protected memory to non-protected");
+        return;
+    }
+
     dstImage->setImageLayout(this,
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                              VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -2174,6 +2229,10 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, GrVkImage* dstIm
 
 void GrVkGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                    const SkIPoint& dstPoint) {
+    if (src->isProtected() && !dst->isProtected()) {
+        SkDebugf("Can't copy from protected memory to non-protected");
+        return;
+    }
     GrVkRenderTarget* srcRT = static_cast<GrVkRenderTarget*>(src->asRenderTarget());
     this->resolveImage(dst, srcRT, srcRect, dstPoint);
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
@@ -2192,6 +2251,10 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         SkASSERT(!dstRT->wrapsSecondaryCommandBuffer());
     }
 #endif
+    if (src->isProtected() && !dst->isProtected()) {
+        SkDebugf("Can't copy from protected memory to non-protected");
+        return false;
+    }
 
     GrPixelConfig dstConfig = dst->config();
     GrPixelConfig srcConfig = src->config();
@@ -2248,6 +2311,10 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
 
 bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
                            GrColorType dstColorType, void* buffer, size_t rowBytes) {
+    if (surface->isProtected()) {
+        return false;
+    }
+
     if (GrPixelConfigToColorType(surface->config()) != dstColorType) {
         return false;
     }
