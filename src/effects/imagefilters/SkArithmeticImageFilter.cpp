@@ -294,12 +294,15 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
 
     sk_sp<GrTextureProxy> backgroundProxy, foregroundProxy;
 
+    GrProtected isProtected = GrProtected::kNo;
     if (background) {
         backgroundProxy = background->asTextureProxyRef(context);
+        isProtected = backgroundProxy->isProtected() ? GrProtected::kYes : GrProtected::kNo;
     }
 
     if (foreground) {
         foregroundProxy = foreground->asTextureProxyRef(context);
+        isProtected = foregroundProxy->isProtected() ? GrProtected::kYes : GrProtected::kNo;
     }
 
     GrPaint paint;
@@ -366,7 +369,8 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         context->priv().makeDeferredRenderTargetContext(
             format, SkBackingFit::kApprox, bounds.width(), bounds.height(),
             SkColorType2GrPixelConfig(colorType),
-            sk_ref_sp(outputProperties.colorSpace())));
+            sk_ref_sp(outputProperties.colorSpace()), 1, GrMipMapped::kNo,
+            kBottomLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes, isProtected));
     if (!renderTargetContext) {
         return nullptr;
     }

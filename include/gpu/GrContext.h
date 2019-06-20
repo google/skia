@@ -359,7 +359,8 @@ public:
     GrBackendTexture createBackendTexture(int width, int height,
                                           const GrBackendFormat&,
                                           GrMipMapped,
-                                          GrRenderable);
+                                          GrRenderable,
+                                          GrProtected);
 
     // If possible, create an uninitialized backend texture. The client should ensure that the
     // returned backend texture is valid.
@@ -370,7 +371,8 @@ public:
     GrBackendTexture createBackendTexture(int width, int height,
                                           SkColorType,
                                           GrMipMapped,
-                                          GrRenderable);
+                                          GrRenderable,
+                                          GrProtected);
 
     // If possible, create a backend texture initialized to a particular color. The client should
     // ensure that the returned backend texture is valid.

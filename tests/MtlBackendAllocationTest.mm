@@ -125,7 +125,8 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                                                     GrMipMapped mipMapped,
                                                     GrRenderable renderable) {
                         return context->createBackendTexture(32, 32, format,
-                                                             mipMapped, renderable);
+                                                             mipMapped, renderable,
+                                                             GrProtected::kNo);
                     };
 
                     test_wrapping(context, reporter, uninitCreateMtd,
