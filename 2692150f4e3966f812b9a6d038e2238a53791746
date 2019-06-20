@@ -16,6 +16,24 @@
       "revId": "2692150f4e3966f812b9a6d038e2238a53791746",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "073806e8_3f7cb2e1",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-06-20T19:43:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3849ccb4_7368bd1b",
+      "revId": "2692150f4e3966f812b9a6d038e2238a53791746",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
