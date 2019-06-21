@@ -2,94 +2,95 @@
 #ifndef ParagraphCache_DEFINED
 #define ParagraphCache_DEFINED
 
+#include <src/core/SkSpan.h>
+#include <src/core/SkTDynamicHash.h>
+#include "src/core/SkLRUCache.h"
+#include "include/core/SkFont.h"
+#include "include/private/SkTHash.h"
+#include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/src/FontResolver.h"
+#include "include/core/SkPicture.h"
+
+// TODO: we can cache shaped results or line broken results or formatted results or recorded picture...
+// TODO: let's start from the first: the shaped results
 namespace skia {
 namespace textlayout {
 
-// Just the flutter input for now
+struct Measurement {
+    SkScalar fAlphabeticBaseline;
+    SkScalar fIdeographicBaseline;
+    SkScalar fHeight;
+    SkScalar fWidth;
+    SkScalar fMaxIntrinsicWidth;
+    SkScalar fMinIntrinsicWidth;
+};
+
+enum InternalState {
+  kUnknown = 0,
+  kShaped = 1,
+  kClusterized = 2,
+  kMarked = 3,
+  kLineBroken = 4,
+  kFormatted = 5,
+  kDrawn = 6
+};
+
+class ParagraphImpl;
 class ParagraphCacheKey {
 public:
-    ParagraphCacheKey(SkParagraphStyle paraStyle,
-                      SkTHashMap<const char*, std::pair<SkFont, SkScalar>> mapping,
-                      SkSpan<const char> utf8)
-            : fHash(0) {
-        fHash = mix(fHash, paraStyle.computeHash());
-        fHash = mix(fHash, computeHash(mapping));
-        fHash = mix(fHash, computeHash(utf8));
-    }
+    ParagraphCacheKey(ParagraphImpl* paragraph);
 
-    uint32_t hash() const { return fHash; }
-
-private:
-    uint32 computeHash(SkTHashMap<const char*, std::pair<SkFont, SkScalar>> mapping) {
-        uint32 hash = 0;
-        mapping.forEach([&hash](const char* ch, std::pair<SkFont, SkScalar> font) {
-            hash = mix(hash, t.computeHash());
-        });
-        for (auto& t : array) {
-            hash = mix(hash, ch);
-            hash = mix(hash, SkGoodHash(font.first));
-            hash = mix(hash, SkGoodHash(font.second));
-        }
-        return hash;
-    }
-
-    uint32 computeHash(SkSpan<const char> text) {}
-
-    uint32 computeHash(SkSpan<const char> text) {
-        uint32 hash = mix(0, text.size());
-        for (uint32 i = 0; i < text.size(); i += 2) {
-            uint32 data = text[i] | text[i + 1] << 16;
-            hash = mix(hash, data);
-        }
-        if (text.size() & 1) {
-            uint32 data = text.back();
-            hash = mix(hash, data);
-        }
-        return hash;
-    }
-
-    uint32 mix(uint32 hash, uint32 data) {
-        hash += data;
-        hash += (hash << 10);
-        hash ^= (hash >> 6);
-        return hash;
-    }
-
-    uint32 fHash;
+    SkString fText;
+    SkTArray<FontDescr> fFontSwitches;
+    // TODO: Do not check for more than we have to (which is text styles with letter spacing and word spacing)
+    SkTArray<Block, true> fTextStyles;
+    ParagraphStyle fParagraphStyle;
 };
 
 class ParagraphCacheValue {
-public:
-    ParagraphCacheValue(std::shared<SkParagraph> paragraph,
-                        SkTHashMap<const char*,
-                        std::pair<SkFont, SkScalar>> mapping)
-        : fKey(ParagraphCacheKey(paragraph.getParagraphStyle(), mapping, paragraph.getText()))
-        , fFontCollection(collection)
-        , fParagraphStyle(paraStyle)
-        , fTextStyles(textStyles)
-        , fUtf8(utf8) {}
+public:;
+    ParagraphCacheValue(ParagraphImpl* paragraph);
 
-    static const ParagraphCacheKey& GetKey(const ParagraphCacheValue& value) { return fKey; }
-    static uint32_t Hash(const ParagraphCacheKey& key) { return fKey.hash(); }
-
-private:
+    // Input == key
     ParagraphCacheKey fKey;
 
-    std::shared<SkParagraph> fParagraph;
-    std::pair<SkFont, SkScalar>>fMapping;
+    // Shaped results:
+    InternalState fInternalState;
+    SkTArray<Run> fRuns;
+    SkTArray<Cluster, true> fClusters;
+    SkTArray<TextLine, true> fLines;
+    Measurement fMeasurement;
+    sk_sp<SkPicture> fPicture;
 };
 
-class ParagraphCache : public SkTDynamicHash<ParagraphCacheValue, ParagraphCacheKey> {
+bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b);
+
+struct LookupTrait {
+    static const ParagraphCacheKey& GetKey(const ParagraphCacheValue& paragraph);
+    static uint32_t Hash(const ParagraphCacheKey& key);
+    static uint32_t mix(uint32_t hash, uint32_t data);
+};
+
+// TODO: can we cache the key by the text?... So we do not need to do font resolution again
+class ParagraphCache : public SkTDynamicHash<ParagraphCacheValue, ParagraphCacheKey, LookupTrait> {
 public:
-    Hash() : INHERITED() {}
 
-    // Promote protected methods to public for this test.
-    int capacity() const { return this->INHERITED::capacity(); }
-    int countCollisions(const int& key) const { return this->INHERITED::countCollisions(key); }
+    ParagraphCache() : fChecker([](ParagraphImpl* impl, const char*, bool){ }){ }
+    bool findParagraph(ParagraphImpl* paragraph);
+    void addParagraph(ParagraphImpl* paragraph);
+    void updateParagraph(ParagraphImpl* paragraph);
 
-private:
-    typedef SkTDynamicHash<ParagraphCacheValue, ParagraphCacheKey> INHERITED;
+    // For testing
+
+    void setChecker(std::function<void(ParagraphImpl* impl, const char*, bool)> checker) { fChecker = checker; }
+    void printCache(const char* title);
+    void printKeyValue(const char* title, ParagraphImpl* paragraph, bool found);
+
+ private:
+     mutable SkMutex fParagraphMutex;
+     std::function<void(ParagraphImpl* impl, const char*, bool)> fChecker;
 };
+
 }  // namespace textlayout
 }  // namespace skia
 

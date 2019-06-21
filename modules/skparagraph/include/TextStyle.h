@@ -36,7 +36,6 @@ enum TextDecorationStyle { kSolid, kDouble, kDotted, kDashed, kWavy };
 
 enum StyleType {
     kAllAttributes,
-    kText,
     kFont,
     kForeground,
     kBackground,
@@ -44,6 +43,20 @@ enum StyleType {
     kDecorations,
     kLetterSpacing,
     kWordSpacing
+};
+
+struct Decoration {
+    TextDecoration fType;
+    SkColor fColor;
+    TextDecorationStyle fStyle;
+    SkScalar fThicknessMultiplier;
+
+    bool operator==(const Decoration& other) const {
+        return this->fType == other.fType &&
+               this->fColor == other.fColor &&
+               this->fStyle == other.fStyle &&
+               this->fThicknessMultiplier == other.fThicknessMultiplier;
+    }
 };
 
 class TextStyle {
@@ -76,16 +89,17 @@ public:
     void clearBackgroundColor() { fHasBackground = false; }
 
     // Decorations
-    TextDecoration getDecoration() const { return fDecoration; }
-    SkColor getDecorationColor() const { return fDecorationColor; }
-    TextDecorationStyle getDecorationStyle() const { return fDecorationStyle; }
+    Decoration getDecoration() const { return fDecoration; }
+    TextDecoration getDecorationType() const { return fDecoration.fType; }
+    SkColor getDecorationColor() const { return fDecoration.fColor; }
+    TextDecorationStyle getDecorationStyle() const { return fDecoration.fStyle; }
     SkScalar getDecorationThicknessMultiplier() const {
-        return fDecorationThicknessMultiplier;
+        return fDecoration.fThicknessMultiplier;
     }
-    void setDecoration(TextDecoration decoration) { fDecoration = decoration; }
-    void setDecorationStyle(TextDecorationStyle style) { fDecorationStyle = style; }
-    void setDecorationColor(SkColor color) { fDecorationColor = color; }
-    void setDecorationThicknessMultiplier(SkScalar m) { fDecorationThicknessMultiplier = m; }
+    void setDecoration(TextDecoration decoration) { fDecoration.fType = decoration; }
+    void setDecorationStyle(TextDecorationStyle style) { fDecoration.fStyle = style; }
+    void setDecorationColor(SkColor color) { fDecoration.fColor = color; }
+    void setDecorationThicknessMultiplier(SkScalar m) { fDecoration.fThicknessMultiplier = m; }
 
     // Weight/Width/Slant
     SkFontStyle getFontStyle() const { return fFontStyle; }
@@ -135,16 +149,12 @@ public:
     }
 
 private:
-    TextDecoration fDecoration;
-    SkColor fDecorationColor;
-    TextDecorationStyle fDecorationStyle;
-    SkScalar fDecorationThicknessMultiplier;
+    Decoration fDecoration;
 
     SkFontStyle fFontStyle;
 
     std::vector<SkString> fFontFamilies;
     SkScalar fFontSize;
-
     SkScalar fHeight;
     SkString fLocale;
     SkScalar fLetterSpacing;
@@ -162,6 +172,27 @@ private:
 
     sk_sp<SkTypeface> fTypeface;
 };
+
+typedef size_t TextIndex;
+typedef SkRange<size_t> TextRange;
+const SkRange<size_t> EMPTY_TEXT = EMPTY_RANGE;
+
+
+struct Block {
+    Block() : fRange(EMPTY_RANGE), fStyle() { }
+    Block(size_t start, size_t end, const TextStyle& style)
+        : fRange(start, end), fStyle(style) {}
+    Block(TextRange textRange, const TextStyle& style)
+        : fRange(textRange), fStyle(style) {}
+
+    void add(TextRange tail) {
+        SkASSERT(fRange.end == tail.start);
+        fRange = TextRange(fRange.start, fRange.start + fRange.width() + tail.width());
+    }
+    TextRange fRange;
+    TextStyle fStyle;
+};
+
 }  // namespace textlayout
 }  // namespace skia
 
