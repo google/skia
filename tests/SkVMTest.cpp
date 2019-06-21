@@ -187,8 +187,6 @@ DEF_TEST(SkVM_LoopCounts, r) {
 }
 
 
-#if defined(SKVM_JIT)
-
 template <typename Fn>
 static void test_asm(skiatest::Reporter* r, Fn&& fn, std::initializer_list<uint8_t> expected) {
     skvm::Assembler a;
@@ -365,5 +363,3 @@ DEF_TEST(SkVM_Assembler, r) {
         0xc5,     0x79,   0xd6,  0b00'111'010,
     });
 }
-
-#endif
