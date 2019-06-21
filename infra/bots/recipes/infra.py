@@ -25,15 +25,24 @@ def RunSteps(api):
   repo_name = api.properties['repository'].split('/')[-1]
   if repo_name.endswith('.git'):
     repo_name = repo_name[:-len('.git')]
+  repo_root = checkout_root.join(repo_name)
+  infra_tests = repo_root.join('infra', 'bots', 'infra_tests.py')
+  python = 'python'
+  if 'Win' in api.properties['buildername']:
+    python = 'python.exe'
+    api.step('where git', cmd=['where', 'git'])
   with api.context(cwd=checkout_root.join(repo_name),
                    env=api.infra.go_env):
-    api.step('infra_tests', cmd=['make', '-C', 'infra/bots', 'test'])
+    api.step('asset_utils_test', cmd=[
+        python, '-u', repo_root.join(
+            'infra', 'bots', 'assets', 'asset_utils_test.py')])
+    api.step('infra_tests', cmd=[python, '-u', infra_tests])
 
 
 def GenTests(api):
   yield (
       api.test('infra_tests') +
-      api.properties(buildername='Housekeeper-PerCommit-InfraTests',
+      api.properties(buildername='Housekeeper-PerCommit-InfraTests_Win',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
