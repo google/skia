@@ -85,6 +85,8 @@ private:
 namespace skia {
 namespace textlayout {
 
+ParagraphCache ParagraphImpl::fParagraphCache;
+
 ParagraphImpl::ParagraphImpl(const SkString& text,
                              ParagraphStyle style,
                              std::vector<Block> blocks,
@@ -92,7 +94,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         : Paragraph(std::move(style), std::move(fonts))
         , fText(text)
         , fTextSpan(fText.c_str(), fText.size())
-        , fDirtyLayout(true)
+        , fState(kUnknown)
         , fOldWidth(0)
         , fPicture(nullptr) {
     fTextStyles.reserve(blocks.size());
@@ -109,7 +111,7 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              sk_sp<FontCollection> fonts)
         : Paragraph(std::move(style)
         , std::move(fonts))
-        , fDirtyLayout(true)
+        , fState(kUnknown)
         , fOldWidth(0)
         , fPicture(nullptr) {
     icu::UnicodeString unicode((UChar*)utf16text.data(), SkToS32(utf16text.size()));
@@ -131,16 +133,17 @@ ParagraphImpl::~ParagraphImpl() = default;
 void ParagraphImpl::layout(SkScalar width) {
     TRACE_EVENT0("skia", TRACE_FUNC);
 
-    if (fDirtyLayout) {
+    if (fState < kShaped) {
+        // Layout marked as dirty for performance/testing reasons
         this->fRuns.reset();
         this->fClusters.reset();
-        this->fLines.reset();
-        this->fPicture = nullptr;
-    } else if (fOldWidth != width) {
-        this->fLines.reset();
+    } else if (fState >= kLineBroken && fOldWidth != width) {
+        // We can use the results from SkShaper but have to break lines again
+        fState = kShaped;
     }
 
-    if (fRuns.empty()) {
+    //fParagraphCache.printCache("before shaping");
+    if (fState < kShaped) {
         fClusters.reset();
 
         if (!this->shapeTextIntoEndlessLine()) {
@@ -153,61 +156,43 @@ void ParagraphImpl::layout(SkScalar width) {
             fHeight = lineMetrics.height();
             fAlphabeticBaseline = lineMetrics.alphabeticBaseline();
             fIdeographicBaseline = lineMetrics.ideographicBaseline();
-            return;
+            fState = kShaped;
+        } else {
+            // Could be kShaped or kClusterized if we were lucky and and found it in the cache
         }
-    }
 
-    if (fClusters.empty()) {
-        this->buildClusterTable();
-        this->fLines.reset();
-    }
+        if (fState < kClusterized) {
+            this->buildClusterTable();
+            fState = kClusterized;
+            // Add the paragraph to the cache
+            fParagraphCache.addParagraph(this);
+        }
 
-    if (fLines.empty()) {
-        this->fPicture = nullptr;
+    }
+    //fParagraphCache.printCache("after shaping");
+
+    if (fState < kLineBroken) {
         this->resetContext();
         this->resolveStrut();
+        this->fLines.reset();
         this->breakShapedTextIntoLines(width);
+        fState = kLineBroken;
     }
 
     this->fOldWidth = width;
-    this->fDirtyLayout = false;
-}
-
-void ParagraphImpl::resolveStrut() {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    auto strutStyle = this->paragraphStyle().getStrutStyle();
-    if (!strutStyle.getStrutEnabled()) {
-        return;
-    }
-
-    sk_sp<SkTypeface> typeface;
-    for (auto& fontFamily : strutStyle.getFontFamilies()) {
-        typeface = fFontCollection->matchTypeface(fontFamily.c_str(), strutStyle.getFontStyle());
-        if (typeface.get() != nullptr) {
-            break;
-        }
-    }
-    if (typeface.get() == nullptr) {
-        typeface = SkTypeface::MakeDefault();
-    }
-
-    SkFont font(typeface, strutStyle.getFontSize());
-    SkFontMetrics metrics;
-    font.getMetrics(&metrics);
-
-    fStrutMetrics = LineMetrics(metrics.fAscent * strutStyle.getHeight(),
-                                metrics.fDescent * strutStyle.getHeight(),
-                                strutStyle.getLeading() < 0
-                                        ? metrics.fLeading
-                                        : strutStyle.getLeading() * strutStyle.getFontSize());
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-    if (nullptr == fPicture) {
+    if (fState < kFormatted) {
         // Build the picture lazily not until we actually have to paint (or never)
         this->formatLines(fWidth);
+        fState = kFormatted;
+    }
+    if (fState < kRecorded) {
+        this->fPicture = nullptr;
         this->paintLinesIntoPicture();
+        fState = kRecorded;
     }
 
     SkMatrix matrix = SkMatrix::MakeTrans(x, y);
@@ -228,6 +213,7 @@ void ParagraphImpl::resetContext() {
 // Clusters in the order of the input text
 void ParagraphImpl::buildClusterTable() {
     TRACE_EVENT0("skia", TRACE_FUNC);
+
     // Find all possible (soft) line breaks
     TextBreaker breaker;
     if (!breaker.initialize(fTextSpan, UBRK_LINE)) {
@@ -283,8 +269,7 @@ void ParagraphImpl::buildClusterTable() {
             if (currentStyle->style().getWordSpacing() != 0 &&
                 fParagraphStyle.getTextAlign() != TextAlign::kJustify) {
                 if (cluster.isWhitespaces() && cluster.isSoftBreak()) {
-                    shift +=
-                            run.addSpacesAtTheEnd(currentStyle->style().getWordSpacing(), &cluster);
+                    shift += run.addSpacesAtTheEnd(currentStyle->style().getWordSpacing(), &cluster);
                 }
             }
             if (currentStyle->style().getLetterSpacing() != 0) {
@@ -360,6 +345,12 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     // This is a pretty big step - resolving all characters against all given fonts
     fFontResolver.findAllFontsForAllStyledBlocks(fTextSpan, styles(), fFontCollection);
 
+    // Check the font-resolved text against the cache
+    if (fParagraphCache.findParagraph(this)) {
+        fState = kClusterized;
+        return true;
+    }
+
     LangIterator lang(fTextSpan, styles(), paragraphStyle().getTextStyle());
     FontIterator font(fTextSpan, &fFontResolver);
     ShapeHandler handler(*this, &font);
@@ -375,6 +366,8 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
     shaper->shape(fTextSpan.begin(), fTextSpan.size(), font, *bidi, *script, lang,
                   std::numeric_limits<SkScalar>::max(), &handler);
+
+    fState = kShaped;
     return true;
 }
 
@@ -430,6 +423,35 @@ void ParagraphImpl::paintLinesIntoPicture() {
     }
 
     fPicture = recorder.finishRecordingAsPicture();
+}
+
+void ParagraphImpl::resolveStrut() {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    auto strutStyle = this->paragraphStyle().getStrutStyle();
+    if (!strutStyle.getStrutEnabled()) {
+        return;
+    }
+
+    sk_sp<SkTypeface> typeface;
+    for (auto& fontFamily : strutStyle.getFontFamilies()) {
+        typeface = fFontCollection->matchTypeface(fontFamily.c_str(), strutStyle.getFontStyle());
+        if (typeface.get() != nullptr) {
+            break;
+        }
+    }
+    if (typeface.get() == nullptr) {
+        typeface = SkTypeface::MakeDefault();
+    }
+
+    SkFont font(typeface, strutStyle.getFontSize());
+    SkFontMetrics metrics;
+    font.getMetrics(&metrics);
+
+    fStrutMetrics = LineMetrics(metrics.fAscent * strutStyle.getHeight(),
+                                metrics.fDescent * strutStyle.getHeight(),
+                                strutStyle.getLeading() < 0
+                                        ? metrics.fLeading
+                                        : strutStyle.getLeading() * strutStyle.getFontSize());
 }
 
 SkSpan<const TextBlock> ParagraphImpl::findAllBlocks(SkSpan<const char> text) {

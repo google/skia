@@ -207,7 +207,7 @@ void FontResolver::addResolvedWhitespacesToMapping() {
     fUnresolved -= resolvedWhitespaces;
 }
 
-FontResolver::FontDescr FontResolver::makeFont(sk_sp<SkTypeface> typeface,
+FontDescr FontResolver::makeFont(sk_sp<SkTypeface> typeface,
                                                SkScalar size,
                                                SkScalar height) {
     SkFont font(typeface, size);
@@ -258,6 +258,9 @@ void FontResolver::findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
         combined = block;
     }
     this->findAllFontsForStyledBlock(combined.style(), combined.text());
+    SkFont font;
+    SkScalar height;
+    SkASSERT(this->findFirst(fText.begin(), &font, &height));
 }
 }  // namespace textlayout
 }  // namespace skia
