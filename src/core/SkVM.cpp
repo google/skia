@@ -14,8 +14,7 @@
 #include "src/core/SkVM.h"
 #include <string.h>
 #if defined(SKVM_JIT)
-    #define XBYAK_NO_OP_NAMES
-    #include "xbyak/xbyak.h"
+    #include <sys/mman.h>
 #endif
 
 namespace skvm {
@@ -26,22 +25,18 @@ namespace skvm {
         fInstructions = std::move(other.fInstructions);
         fRegs = other.fRegs;
         fLoop = other.fLoop;
-    #if defined(SKVM_JIT)
         // Don't bother trying to move other.fJIT*.  We can just regenerate it.
-    #endif
     }
 
     Program& Program::operator=(Program&& other) {
         fInstructions = std::move(other.fInstructions);
         fRegs = other.fRegs;
         fLoop = other.fLoop;
-    #if defined(SKVM_JIT)
         // Don't bother trying to move other.fJIT*.  We can just regenerate it,
         // but we do need to invalidate anything we have cached ourselves.
         fJITLock.acquire();
         fJIT = JIT();
         fJITLock.release();
-    #endif
         return *this;
     }
 
@@ -430,7 +425,6 @@ namespace skvm {
 
     // ~~~~ Program::eval() and co. ~~~~ //
 
-#if defined(SKVM_JIT)
     // Handy references for x86-64 instruction encoding:
     // https://wiki.osdev.org/X86-64_Instruction_Encoding
     // https://www-user.tu-chemnitz.de/~heha/viewchm.php/hs/x86.chm/x64.htm
@@ -513,18 +507,18 @@ namespace skvm {
             // With these conditions met, we can optionally compress VEX to 2-byte.
             vex.len = 2;
             vex.bytes[0] = 0xc5;
-            vex.bytes[1] = (pp    &  3) << 0
-                         | (L     &  1) << 2
-                         | (~vvvv & 15) << 3
-                         | (~R    &  1) << 7;
+            vex.bytes[1] = (pp      &  3) << 0
+                         | (L       &  1) << 2
+                         | (~vvvv   & 15) << 3
+                         | (~(int)R &  1) << 7;
         } else {
             // We could use this 3-byte VEX prefix all the time if we like.
             vex.len = 3;
             vex.bytes[0] = 0xc4;
-            vex.bytes[1] = (map   & 31) << 0
-                         | (~B    &  1) << 5
-                         | (~X    &  1) << 6
-                         | (~R    &  1) << 7;
+            vex.bytes[1] = (map     & 31) << 0
+                         | (~(int)B &  1) << 5
+                         | (~(int)X &  1) << 6
+                         | (~(int)R &  1) << 7;
             vex.bytes[2] = (pp    &  3) << 0
                          | (L     &  1) << 2
                          | (~vvvv & 15) << 3
@@ -533,14 +527,15 @@ namespace skvm {
         return vex;
     }
 
-    Assembler::Assembler() : X{new Xbyak::CodeGenerator} {}
+    Assembler::Assembler() = default;
     Assembler::~Assembler() = default;
 
-    const uint8_t* Assembler::data() const { return X->getCode(); }
-    size_t         Assembler::size() const { return X->getSize(); }
+    const uint8_t* Assembler::data() const { return fCode.data(); }
+    size_t         Assembler::size() const { return fCode.size(); }
 
     void Assembler::byte(const void* p, int n) {
-        X->db((const uint8_t*)p, (size_t)n);
+        auto b = (const uint8_t*)p;
+        fCode.insert(fCode.end(), b, b+n);
     }
 
     void Assembler::byte(uint8_t b) { this->byte(&b, 1); }
@@ -700,7 +695,7 @@ namespace skvm {
         this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
     }
 
-
+#if defined(SKVM_JIT)
     static bool can_jit(int regs, int nargs) {
         return true
             && SkCpu::Supports(SkCpu::HSW)   // TODO: SSE4.1 target?
@@ -716,8 +711,6 @@ namespace skvm {
 
         SkASSERT(can_jit(regs,nargs));
 
-        Xbyak::CodeGenerator& X = *a.X;
-
         static constexpr int K = 8;
 
     #if defined(SK_BUILD_FOR_WIN)
@@ -728,15 +721,8 @@ namespace skvm {
         A::GP64 N = A::rdi,
             arg[] = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
 
-        // Temporary shims for mapping back and forth between Assembler and Xbyak types.
-        // All register values should match, so these are essentially no-ops.
-        auto xarg = [&](int ix) {
-            return Xbyak::Reg64{arg[ix]};
-        };
-
         // All 16 ymm registers are available as scratch, keeping 15 as a temporary for us.
-        auto ar = [](int ix) { SkASSERT(ix < 16); return (A::Ymm)ix; };
-        auto  r = [](int ix) { SkASSERT(ix < 16); return Xbyak::Ymm(ix); };
+        auto r = [](int ix) { SkASSERT(ix < 16); return (A::Ymm)ix; };
         const int tmp = 15;
     #endif
 
@@ -835,68 +821,64 @@ namespace skvm {
                 // to overwrite your arguments before you're done using them!
 
                 case Op::store8:
-                    if (SkCpu::Supports(SkCpu::SKX)) {
-                        // One stop shop!  Pack 8x I32 -> U8 and store to ptr.
-                        X.vpmovusdb(X.ptr[xarg(y.imm)], r(x));
-                    } else {
-                        a.vpackusdw(ar(tmp), ar(x), ar(x));      // pack 32-bit -> 16-bit
-                        a.vpermq   (ar(tmp), ar(tmp), 0xd8);     // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
-                        a.vpackuswb(ar(tmp), ar(tmp), ar(tmp));  // pack 16-bit -> 8-bit
-                        a.vmovq    (arg[y.imm], (A::Xmm)tmp);    // store low 8 bytes
-                    }
+                    // TODO: if SkCpu::Supports(SkCpu::SKX) { a.vpmovusdb(arg[y.imm], ar(x)) }
+                    a.vpackusdw(r(tmp), r(x), r(x));      // pack 32-bit -> 16-bit
+                    a.vpermq   (r(tmp), r(tmp), 0xd8);     // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
+                    a.vpackuswb(r(tmp), r(tmp), r(tmp));  // pack 16-bit -> 8-bit
+                    a.vmovq    (arg[y.imm], (A::Xmm)tmp);    // store low 8 bytes
                     break;
 
-                case Op::store32: a.vmovups(arg[y.imm], ar(x)); break;
+                case Op::store32: a.vmovups(arg[y.imm], r(x)); break;
 
-                case Op::load8:  a.vpmovzxbd(ar(d), arg[y.imm]); break;
-                case Op::load32: a.vmovups  (ar(d), arg[y.imm]); break;
+                case Op::load8:  a.vpmovzxbd(r(d), arg[y.imm]); break;
+                case Op::load32: a.vmovups  (r(d), arg[y.imm]); break;
 
-                case Op::splat: a.vbroadcastss(ar(d), splats[y.imm]); break;
+                case Op::splat: a.vbroadcastss(r(d), splats[y.imm]); break;
 
-                case Op::add_f32: a.vaddps(ar(d), ar(x), ar(y.id)); break;
-                case Op::sub_f32: a.vsubps(ar(d), ar(x), ar(y.id)); break;
-                case Op::mul_f32: a.vmulps(ar(d), ar(x), ar(y.id)); break;
-                case Op::div_f32: a.vdivps(ar(d), ar(x), ar(y.id)); break;
+                case Op::add_f32: a.vaddps(r(d), r(x), r(y.id)); break;
+                case Op::sub_f32: a.vsubps(r(d), r(x), r(y.id)); break;
+                case Op::mul_f32: a.vmulps(r(d), r(x), r(y.id)); break;
+                case Op::div_f32: a.vdivps(r(d), r(x), r(y.id)); break;
                 case Op::mad_f32:
-                    if (d == x   ) { a.vfmadd132ps(ar(x   ), ar(z.id), ar(y.id)); } else
-                    if (d == y.id) { a.vfmadd213ps(ar(y.id), ar(x   ), ar(z.id)); } else
-                    if (d == z.id) { a.vfmadd231ps(ar(z.id), ar(x   ), ar(y.id)); } else
-                                   { a.vmulps(ar(tmp), ar(x), ar(y.id));
-                                     a.vaddps(ar(d), ar(tmp), ar(z.id)); }
+                    if (d == x   ) { a.vfmadd132ps(r(x   ), r(z.id), r(y.id)); } else
+                    if (d == y.id) { a.vfmadd213ps(r(y.id), r(x   ), r(z.id)); } else
+                    if (d == z.id) { a.vfmadd231ps(r(z.id), r(x   ), r(y.id)); } else
+                                   { a.vmulps(r(tmp), r(x), r(y.id));
+                                     a.vaddps(r(d), r(tmp), r(z.id)); }
                     break;
 
-                case Op::add_i32: a.vpaddd (ar(d), ar(x), ar(y.id)); break;
-                case Op::sub_i32: a.vpsubd (ar(d), ar(x), ar(y.id)); break;
-                case Op::mul_i32: a.vpmulld(ar(d), ar(x), ar(y.id)); break;
+                case Op::add_i32: a.vpaddd (r(d), r(x), r(y.id)); break;
+                case Op::sub_i32: a.vpsubd (r(d), r(x), r(y.id)); break;
+                case Op::mul_i32: a.vpmulld(r(d), r(x), r(y.id)); break;
 
-                case Op::sub_i16x2: a.vpsubw (ar(d), ar(x), ar(y.id)); break;
-                case Op::mul_i16x2: a.vpmullw(ar(d), ar(x), ar(y.id)); break;
-                case Op::shr_i16x2: a.vpsrlw (ar(d), ar(x),    y.imm); break;
+                case Op::sub_i16x2: a.vpsubw (r(d), r(x), r(y.id)); break;
+                case Op::mul_i16x2: a.vpmullw(r(d), r(x), r(y.id)); break;
+                case Op::shr_i16x2: a.vpsrlw (r(d), r(x),    y.imm); break;
 
-                case Op::bit_and: a.vpand(ar(d), ar(x), ar(y.id)); break;
-                case Op::bit_or : a.vpor (ar(d), ar(x), ar(y.id)); break;
-                case Op::bit_xor: a.vpxor(ar(d), ar(x), ar(y.id)); break;
+                case Op::bit_and: a.vpand(r(d), r(x), r(y.id)); break;
+                case Op::bit_or : a.vpor (r(d), r(x), r(y.id)); break;
+                case Op::bit_xor: a.vpxor(r(d), r(x), r(y.id)); break;
 
-                case Op::shl: a.vpslld(ar(d), ar(x), y.imm); break;
-                case Op::shr: a.vpsrld(ar(d), ar(x), y.imm); break;
-                case Op::sra: a.vpsrad(ar(d), ar(x), y.imm); break;
+                case Op::shl: a.vpslld(r(d), r(x), y.imm); break;
+                case Op::shr: a.vpsrld(r(d), r(x), y.imm); break;
+                case Op::sra: a.vpsrad(r(d), r(x), y.imm); break;
 
                 case Op::extract: if (y.imm) {
-                                      a.vpsrld(ar(tmp), ar(x), y.imm);
-                                      a.vpand (ar(d), ar(tmp), ar(z.id));
+                                      a.vpsrld(r(tmp), r(x), y.imm);
+                                      a.vpand (r(d), r(tmp), r(z.id));
                                   } else {
-                                      a.vpand (ar(d), ar(x), ar(z.id));
+                                      a.vpand (r(d), r(x), r(z.id));
                                   }
                                   break;
 
-                case Op::pack: a.vpslld(ar(tmp), ar(y.id), z.imm);
-                               a.vpor  (ar(d), ar(tmp), ar(x));
+                case Op::pack: a.vpslld(r(tmp), r(y.id), z.imm);
+                               a.vpor  (r(d), r(tmp), r(x));
                                break;
 
-                case Op::to_f32: a.vcvtdq2ps (ar(d), ar(x)); break;
-                case Op::to_i32: a.vcvttps2dq(ar(d), ar(x)); break;
+                case Op::to_f32: a.vcvtdq2ps (r(d), r(x)); break;
+                case Op::to_i32: a.vcvttps2dq(r(d), r(x)); break;
 
-                case Op::bytes: a.vpshufb(ar(d), ar(x), vpshufb_masks[y.imm]); break;
+                case Op::bytes: a.vpshufb(r(d), r(x), vpshufb_masks[y.imm]); break;
             }
         }
 
@@ -918,13 +900,15 @@ namespace skvm {
             munmap(buf,size);
         }
     }
-#endif //defined(SKVM_JIT)
+#else
+    Program::JIT::~JIT() { SkASSERT(buf == nullptr); }
+#endif // defined(SKVM_JIT)
 
     void Program::eval(int n, void* args[], size_t strides[], int nargs) const {
-    #if defined(SKVM_JIT)
         void (*entry)() = nullptr;
         int    mask     = 0;
 
+    #if defined(SKVM_JIT)
         // If we can't grab this lock, another thread is probably assembling the program.
         // We can just fall through to the interpreter.
         if (fJITLock.tryAcquire()) {
@@ -1037,6 +1021,7 @@ namespace skvm {
             }
             fJITLock.release();   // pairs with tryAcquire() in the if().
         }
+    #endif  // defined(SKVM_JIT)
 
         if (const int jitN = n & mask) {
             SkASSERT(entry);
@@ -1060,7 +1045,6 @@ namespace skvm {
                 SkASSERT(arg == args + nargs);
             }
         }
-    #endif
         if (n) {
             SkOpts::eval(fInstructions.data(), (int)fInstructions.size(), fRegs, fLoop,
                          n, args, strides, nargs);
