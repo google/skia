@@ -84,12 +84,16 @@ public:
     sk_sp<SkColorSpace> refColorSpace() const { return fImageInfo.refColorSpace(); }
     const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }
 
+    // Is the provided backend texture compatible with this surface characterization?
+    bool isCompatible(const GrBackendTexture&) const;
+
 private:
     friend class SkSurface_Gpu; // for 'set' & 'config'
     friend class GrVkSecondaryCBDrawContext; // for 'set' & 'config'
     friend class GrContextThreadSafeProxy; // for private ctor
     friend class SkDeferredDisplayListRecorder; // for 'config'
     friend class SkSurface; // for 'config'
+    friend class GrContext; // for 'config'
 
     GrPixelConfig config() const { return fConfig; }
 

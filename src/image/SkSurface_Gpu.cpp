@@ -344,7 +344,7 @@ bool SkSurface_Gpu::Valid(const GrCaps* caps, GrPixelConfig config, SkColorSpace
     }
 }
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
+sk_sp<SkSurface> SkSurface::MakeRenderTarget1(GrRecordingContext* context,
                                              const SkSurfaceCharacterization& c,
                                              SkBudgeted budgeted) {
     if (!context || !c.isValid()) {
