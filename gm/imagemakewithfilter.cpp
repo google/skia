@@ -421,6 +421,10 @@ private:
 
     typedef GM INHERITED;
 };
+// The different strategies should all look the same, with the exception of filters that affect
+// transparent black (i.e. the lighting filter). In the save layer case, the filter affects the
+// transparent pixels outside of the drawn subset, whereas the makeWithFilter is restricted. This
+// works as intended.
 DEF_GM( return new ImageMakeWithFilterGM(Strategy::kMakeWithFilter); )
 DEF_GM( return new ImageMakeWithFilterGM(Strategy::kSaveLayer); )
 // Test with crop rects on the image filters; should look identical to above if working correctly

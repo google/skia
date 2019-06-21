@@ -78,6 +78,7 @@ uniform half blurRadius;
             sk_sp<GrRenderTargetContext> rtc2(
                       SkGpuBlurUtils::GaussianBlur(context,
                                                    std::move(srcProxy),
+                                                   SkIPoint::Make(0, 0),
                                                    nullptr,
                                                    SkIRect::MakeWH(size.fWidth, size.fHeight),
                                                    SkIRect::EmptyIRect(),

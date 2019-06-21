@@ -65,7 +65,7 @@ public:
     sk_sp<SkSpecialImage> makeTextureImage(GrRecordingContext*);
 
     /**
-     *  Draw this SpecialImage into the canvas.
+     *  Draw this SpecialImage into the canvas, automatically taking into account the image's subset
      */
     void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const;
 
@@ -107,7 +107,8 @@ public:
 
     /**
      * Extract a subset of this special image and return it as a special image.
-     * It may or may not point to the same backing memory.
+     * It may or may not point to the same backing memory. The input 'subset' is relative to the
+     * special image's content rect.
      */
     sk_sp<SkSpecialImage> makeSubset(const SkIRect& subset) const;
 
@@ -117,7 +118,7 @@ public:
      * Note: when no 'subset' parameter is specified the the entire SkSpecialImage will be
      * returned - including whatever extra padding may have resulted from a loose fit!
      * When the 'subset' parameter is specified the returned image will be tight even if that
-     * entails a copy!
+     * entails a copy! The 'subset' is relative to this special image's content rect.
      */
     sk_sp<SkImage> asImage(const SkIRect* subset = nullptr) const;
 
@@ -133,17 +134,18 @@ public:
 
 #if SK_SUPPORT_GPU
     /**
-     *  Regardless of the underlying backing store, return the contents as a GrTextureProxy.
-     *  The active portion of the texture can be retrieved via 'subset'.
+     * Regardless of how the underlying backing data is stored, returns the contents as a
+     * GrTextureProxy. The returned proxy represents the entire backing image, so texture
+     * coordinates must be mapped from the content rect (e.g. relative to 'subset()') to the proxy's
+     * space (offset by subset().topLeft()).
      */
     sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*) const;
 #endif
 
     /**
-     *  Regardless of the underlying backing store, return the contents as an SkBitmap
-     *
-     *  The returned ImageInfo represents the backing memory. Use 'subset'
-     *  to get the active portion's dimensions.
+     *  Regardless of the underlying backing store, return the contents as an SkBitmap.
+     *  The returned bitmap represents the subset accessed by this image, thus (0,0) refers to the
+     *  top-left corner of 'subset'.
      */
     bool getROPixels(SkBitmap*) const;
 

@@ -152,8 +152,16 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* con
     return renderTargetContext;
 }
 
+// NOTE: Both convolve_gaussian or decimate accept a proxyOffset. This is separate from the
+// srcBounds and srcOffset, which are relative to the content rect of the image, whereas proxyOffset
+// maps from the content rect to the proxy's coordinate space. Due to how the destination bounds are
+// calculated, it is more convenient to have the proxy offset kept separate from the logical bounds
+// (which do impact destination decisions). Both functions incorporate the proxy offset into the
+// geometry they submit or before calling convolve_gaussian_1d.
+
 static sk_sp<GrRenderTargetContext> convolve_gaussian(GrRecordingContext* context,
                                                       sk_sp<GrTextureProxy> proxy,
+                                                      const SkIPoint& proxyOffset,
                                                       const SkIRect& srcRect,
                                                       const SkIPoint& srcOffset,
                                                       Direction direction,
@@ -189,20 +197,22 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrRecordingContext* contex
 
     int bounds[2] = { 0, 0 };
     SkIRect dstRect = SkIRect::MakeWH(srcRect.width(), srcRect.height());
+    SkIPoint netOffset = srcOffset - proxyOffset;
     if (GrTextureDomain::kIgnore_Mode == mode) {
         *contentRect = dstRect;
-        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, dstRect, srcOffset,
+        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, dstRect, netOffset,
                              std::move(proxy), direction, radius, sigma,
                              GrTextureDomain::kIgnore_Mode, bounds);
         return dstRenderTargetContext;
     }
-
+    // These destination rects need to be adjusted by srcOffset, but should *not* be adjusted by
+    // the proxyOffset, which is why keeping them separate is convenient.
     SkIRect midRect = *contentRect, leftRect, rightRect;
     midRect.offset(srcOffset);
     SkIRect topRect, bottomRect;
     if (Direction::kX == direction) {
-        bounds[0] = contentRect->left();
-        bounds[1] = contentRect->right();
+        bounds[0] = contentRect->left() + proxyOffset.x();
+        bounds[1] = contentRect->right() + proxyOffset.x();
         topRect = SkIRect::MakeLTRB(0, 0, dstRect.right(), midRect.top());
         bottomRect = SkIRect::MakeLTRB(0, midRect.bottom(), dstRect.right(), dstRect.bottom());
         midRect.inset(radius, 0);
@@ -217,8 +227,8 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrRecordingContext* contex
         contentRect->fRight = dstRect.fRight;
         contentRect->fBottom = midRect.fBottom;
     } else {
-        bounds[0] = contentRect->top();
-        bounds[1] = contentRect->bottom();
+        bounds[0] = contentRect->top() + proxyOffset.y();
+        bounds[1] = contentRect->bottom() + proxyOffset.y();
         topRect = SkIRect::MakeLTRB(0, 0, midRect.left(), dstRect.bottom());
         bottomRect = SkIRect::MakeLTRB(midRect.right(), 0, dstRect.right(), dstRect.bottom());
         midRect.inset(0, radius);
@@ -245,15 +255,15 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrRecordingContext* contex
 
     if (midRect.isEmpty()) {
         // Blur radius covers srcBounds; use bounds over entire draw
-        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, dstRect, srcOffset,
+        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, dstRect, netOffset,
                              std::move(proxy), direction, radius, sigma, mode, bounds);
     } else {
         // Draw right and left margins with bounds; middle without.
-        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, leftRect, srcOffset,
+        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, leftRect, netOffset,
                              proxy, direction, radius, sigma, mode, bounds);
-        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, rightRect, srcOffset,
+        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, rightRect, netOffset,
                              proxy, direction, radius, sigma, mode, bounds);
-        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, midRect, srcOffset,
+        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, midRect, netOffset,
                              std::move(proxy), direction, radius, sigma,
                              GrTextureDomain::kIgnore_Mode, bounds);
     }
@@ -263,6 +273,7 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrRecordingContext* contex
 
 static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
                                       sk_sp<GrTextureProxy> src,
+                                      const SkIPoint& proxyOffset,
                                       SkIPoint* srcOffset,
                                       SkIRect* contentRect,
                                       int scaleFactorX, int scaleFactorY,
@@ -328,6 +339,7 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
             if (domain.fBottom < domain.fTop) {
                 domain.fTop = domain.fBottom = SkScalarAve(domain.fTop, domain.fBottom);
             }
+            domain.offset(proxyOffset.x(), proxyOffset.y());
             auto fp = GrTextureDomainEffect::Make(std::move(src),
                                                   SkMatrix::I(),
                                                   domain,
@@ -344,10 +356,10 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
         }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        GrFixedClip clip(dstRect);
-        dstRenderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo,
+        dstRenderTargetContext->fillRectToRect(GrFixedClip::Disabled(), std::move(paint), GrAA::kNo,
                                                SkMatrix::I(), SkRect::Make(dstRect),
-                                               SkRect::Make(srcRect));
+                                               SkRect::Make(srcRect.makeOffset(proxyOffset.x(),
+                                                                               proxyOffset.y())));
 
         src = dstRenderTargetContext->asTextureProxyRef();
         if (!src) {
@@ -381,7 +393,9 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
     return dstRenderTargetContext->asTextureProxyRef();
 }
 
-// Expand the contents of 'srcRenderTargetContext' to fit in 'dstII'.
+// Expand the contents of 'srcRenderTargetContext' to fit in 'dstII'. At this point, we are
+// expanding an intermediate image, so there's no need to account for a proxy offset from the
+// original input.
 static sk_sp<GrRenderTargetContext> reexpand(GrRecordingContext* context,
                                              sk_sp<GrRenderTargetContext> srcRenderTargetContext,
                                              const SkIRect& localSrcBounds,
@@ -460,6 +474,7 @@ namespace SkGpuBlurUtils {
 
 sk_sp<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
                                           sk_sp<GrTextureProxy> srcProxy,
+                                          const SkIPoint& proxyOffset,
                                           sk_sp<SkColorSpace> colorSpace,
                                           const SkIRect& dstBounds,
                                           const SkIRect& srcBounds,
@@ -487,6 +502,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
     SkASSERT(sigmaX || sigmaY);
 
     SkIPoint srcOffset = SkIPoint::Make(-dstBounds.x(), -dstBounds.y());
+    SkIRect localSrcBounds = srcBounds;
+    SkIPoint localProxyOffset = proxyOffset;
 
     // For really small blurs (certainly no wider than 5x5 on desktop gpus) it is faster to just
     // launch a single non separable kernel vs two launches
@@ -494,10 +511,11 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
             (2 * radiusX + 1) * (2 * radiusY + 1) <= MAX_KERNEL_SIZE) {
         // We shouldn't be scaling because this is a small size blur
         SkASSERT((1 == scaleFactorX) && (1 == scaleFactorY));
-
-        return convolve_gaussian_2d(context, std::move(srcProxy), srcBounds, srcOffset,
-                                    radiusX, radiusY, sigmaX, sigmaY,
-                                    mode, finalDestII, fit);
+        // Apply the proxy offset to src bounds and offset directly
+        srcOffset -= proxyOffset;
+        localSrcBounds.offset(proxyOffset);
+        return convolve_gaussian_2d(context, std::move(srcProxy), localSrcBounds, srcOffset,
+                                    radiusX, radiusY, sigmaX, sigmaY, mode, finalDestII, fit);
     }
 
     // Only the last rendered renderTargetContext needs to match the supplied 'fit'
@@ -508,12 +526,11 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
         xFit = SkBackingFit::kApprox;         // the y-pass will be last
     }
 
-    SkIRect localSrcBounds = srcBounds;
-
     if (scaleFactorX > 1 || scaleFactorY > 1) {
-        srcProxy = decimate(context, std::move(srcProxy), &srcOffset, &localSrcBounds,
-                            scaleFactorX, scaleFactorY, sigmaX > 0.0f, sigmaY > 0.0f,
-                            radiusX, radiusY, mode, finalDestII);
+        srcProxy = decimate(context, std::move(srcProxy), localProxyOffset, &srcOffset,
+                            &localSrcBounds, scaleFactorX, scaleFactorY, sigmaX > 0.0f,
+                            sigmaY > 0.0f, radiusX, radiusY, mode, finalDestII);
+        localProxyOffset.set(0, 0);
         if (!srcProxy) {
             return nullptr;
         }
@@ -524,9 +541,9 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
     SkIRect srcRect = finalDestII.bounds();
     scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
     if (sigmaX > 0.0f) {
-        dstRenderTargetContext = convolve_gaussian(context, std::move(srcProxy), srcRect, srcOffset,
-                                                   Direction::kX, radiusX, sigmaX, &localSrcBounds,
-                                                   mode, finalDestII, xFit);
+        dstRenderTargetContext = convolve_gaussian(
+                context, std::move(srcProxy), localProxyOffset, srcRect, srcOffset, Direction::kX,
+                radiusX, sigmaX, &localSrcBounds, mode, finalDestII, xFit);
         if (!dstRenderTargetContext) {
             return nullptr;
         }
@@ -546,12 +563,13 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
 
         srcRect.offsetTo(0, 0);
         srcOffset.set(0, 0);
+        localProxyOffset.set(0, 0);
     }
 
     if (sigmaY > 0.0f) {
-        dstRenderTargetContext = convolve_gaussian(context, std::move(srcProxy), srcRect, srcOffset,
-                                                   Direction::kY, radiusY, sigmaY, &localSrcBounds,
-                                                   mode, finalDestII, yFit);
+        dstRenderTargetContext = convolve_gaussian(
+                context, std::move(srcProxy), localProxyOffset, srcRect, srcOffset, Direction::kY,
+                radiusY, sigmaY, &localSrcBounds, mode, finalDestII, yFit);
         if (!dstRenderTargetContext) {
             return nullptr;
         }
@@ -563,10 +581,12 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
 
         srcRect.offsetTo(0, 0);
         srcOffset.set(0, 0);
+        localProxyOffset.set(0, 0);
     }
 
     SkASSERT(dstRenderTargetContext);
     SkASSERT(srcProxy.get() == dstRenderTargetContext->asTextureProxy());
+    SkASSERT(localProxyOffset.x() == 0 && localProxyOffset.y() == 0);
 
     if (scaleFactorX > 1 || scaleFactorY > 1) {
         dstRenderTargetContext = reexpand(context, std::move(dstRenderTargetContext),

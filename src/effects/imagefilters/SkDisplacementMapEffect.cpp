@@ -156,11 +156,11 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(
             SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector, SkVector scale,
-            sk_sp<GrTextureProxy> displacement, const SkMatrix& offsetMatrix,
-            sk_sp<GrTextureProxy> color, const SkISize& colorDimensions) {
+            sk_sp<GrTextureProxy> displacement, const SkIRect& displSubset,
+            const SkMatrix& offsetMatrix, sk_sp<GrTextureProxy> color, const SkIRect& colorSubset) {
         return std::unique_ptr<GrFragmentProcessor>(new GrDisplacementMapEffect(
-                xChannelSelector, yChannelSelector, scale, std::move(displacement), offsetMatrix,
-                std::move(color), colorDimensions));
+                xChannelSelector, yChannelSelector, scale, std::move(displacement), displSubset,
+                offsetMatrix, std::move(color), colorSubset));
     }
 
     ~GrDisplacementMapEffect() override;
@@ -189,9 +189,9 @@ private:
 
     GrDisplacementMapEffect(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
-                            const SkVector& scale,
-                            sk_sp<GrTextureProxy> displacement, const SkMatrix& offsetMatrix,
-                            sk_sp<GrTextureProxy> color, const SkISize& colorDimensions);
+                            const SkVector& scale, sk_sp<GrTextureProxy> displacement,
+                            const SkIRect& displSubset, const SkMatrix& offsetMatrix,
+                            sk_sp<GrTextureProxy> color, const SkIRect& colorSubset);
 
     const TextureSampler& onTextureSampler(int i) const override {
         return IthTextureSampler(i, fDisplacementSampler, fColorSampler);
@@ -288,9 +288,10 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
                                               fYChannelSelector,
                                               scale,
                                               std::move(displProxy),
+                                              displ->subset(),
                                               offsetMatrix,
                                               std::move(colorProxy),
-                                              SkISize::Make(color->width(), color->height()));
+                                              color->subset());
         fp = GrColorSpaceXformEffect::Make(std::move(fp), color->getColorSpace(),
                                            color->alphaType(), colorSpace);
 
@@ -418,16 +419,20 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
         SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
         const SkVector& scale,
         sk_sp<GrTextureProxy> displacement,
+        const SkIRect& displSubset,
         const SkMatrix& offsetMatrix,
         sk_sp<GrTextureProxy> color,
-        const SkISize& colorDimensions)
+        const SkIRect& colorSubset)
         : INHERITED(kGrDisplacementMapEffect_ClassID,
                     GrFragmentProcessor::kNone_OptimizationFlags)
-        , fDisplacementTransform(offsetMatrix, displacement.get())
+        , fDisplacementTransform(
+                SkMatrix::Concat(SkMatrix::MakeTrans(displSubset.x(), displSubset.y()),
+                                 offsetMatrix),
+                displacement.get())
         , fDisplacementSampler(displacement)
-        , fColorTransform(color.get())
+        , fColorTransform(SkMatrix::MakeTrans(colorSubset.x(), colorSubset.y()), color.get())
         , fDomain(color.get(),
-                  GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(colorDimensions),
+                  GrTextureDomain::MakeTexelDomain(colorSubset,
                                                    GrTextureDomain::kDecal_Mode),
                   GrTextureDomain::kDecal_Mode, GrTextureDomain::kDecal_Mode)
         , fColorSampler(color)
@@ -491,9 +496,12 @@ std::unique_ptr<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProce
     SkISize colorDimensions;
     colorDimensions.fWidth = d->fRandom->nextRangeU(0, colorProxy->width());
     colorDimensions.fHeight = d->fRandom->nextRangeU(0, colorProxy->height());
+    SkIRect dispRect = SkIRect::MakeWH(dispProxy->width(), dispProxy->height());
     return GrDisplacementMapEffect::Make(xChannelSelector, yChannelSelector, scale,
-                                         std::move(dispProxy), SkMatrix::I(),
-                                         std::move(colorProxy), colorDimensions);
+                                         std::move(dispProxy),
+                                         dispRect,
+                                         SkMatrix::I(),
+                                         std::move(colorProxy), SkIRect::MakeSize(colorDimensions));
 }
 
 #endif

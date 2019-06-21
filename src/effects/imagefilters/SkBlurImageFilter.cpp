@@ -599,7 +599,6 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         // Ensure the input is in the destination's gamut. This saves us from having to do the
         // xform during the filter itself.
         input = ImageToColorSpace(input.get(), ctx.outputProperties());
-
         result = this->gpuFilter(source, sigma, input, inputBounds, dstBounds, inputOffset,
                                  ctx.outputProperties(), &resultOffset);
     } else
@@ -637,6 +636,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
     sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(
                             context,
                             std::move(inputTexture),
+                            input->subset().topLeft(),
                             outProps.colorSpace() ? sk_ref_sp(input->getColorSpace()) : nullptr,
                             dstBounds,
                             inputBounds,
