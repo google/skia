@@ -29,7 +29,7 @@ public:
 
     sk_sp<SkTypeface> matchTypeface(const char familyName[], SkFontStyle fontStyle);
     sk_sp<SkTypeface> matchDefaultTypeface(SkFontStyle fontStyle);
-    sk_sp<SkTypeface> defaultFallback(SkUnichar unicode, SkFontStyle fontStyle);
+    sk_sp<SkTypeface> defaultFallback(SkUnichar unicode, SkFontStyle fontStyle, SkString locale);
 
     void disableFontFallback();
     bool fontFallbackEnabled() { return fEnableFontFallback; }

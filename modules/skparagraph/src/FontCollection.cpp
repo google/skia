@@ -117,10 +117,13 @@ sk_sp<SkTypeface> FontCollection::matchDefaultTypeface(SkFontStyle fontStyle) {
     return nullptr;
 }
 
-sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode, SkFontStyle fontStyle) {
+sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode, SkFontStyle fontStyle, SkString locale) {
 
     for (const auto& manager : this->getFontManagerOrder()) {
         std::vector<const char*> bcp47;
+        if (!locale.isEmpty()) {
+            bcp47.push_back(locale.c_str());
+        }
         sk_sp<SkTypeface> typeface(manager->matchFamilyStyleCharacter(
                 0, fontStyle, bcp47.data(), bcp47.size(), unicode));
         if (typeface != nullptr) {
