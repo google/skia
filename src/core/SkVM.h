@@ -71,6 +71,11 @@ namespace skvm {
         using DstEqOpX = void(Ymm dst, Ymm x);
         DstEqOpX vcvtdq2ps, vcvttps2dq;
 
+        struct Label { size_t offset; };
+        Label here();
+
+        void vbroadcastss(Ymm dst, Label);
+
     //private:
         std::unique_ptr<Xbyak::CodeGenerator> X;
     private:
