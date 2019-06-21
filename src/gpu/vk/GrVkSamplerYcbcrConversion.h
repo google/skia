@@ -55,7 +55,7 @@ public:
 #endif
 
 private:
-    GrVkSamplerYcbcrConversion(VkSamplerYcbcrConversion ycbcrConversion, Key key)
+    GrVkSamplerYcbcrConversion(VkSamplerYcbcrConversion ycbcrConversion,  Key key)
             : INHERITED()
             , fYcbcrConversion(ycbcrConversion)
             , fKey(key) {}

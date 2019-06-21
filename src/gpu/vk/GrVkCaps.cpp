@@ -355,10 +355,34 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
           this->supportsMemoryRequirements2() &&
           this->supportsPhysicalDeviceProperties2()))) {
         fSupportsYcbcrConversion = true;
+
+        VkPhysicalDeviceImageFormatInfo2 imageFormatInfo;
+        imageFormatInfo.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2;
+        imageFormatInfo.pNext = nullptr;
+        imageFormatInfo.format = VK_FORMAT_UNDEFINED;
+        imageFormatInfo.type = VK_IMAGE_TYPE_2D;
+        imageFormatInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+        imageFormatInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+        imageFormatInfo.flags = 0;
+
+        VkSamplerYcbcrConversionImageFormatProperties ycbcrProps;
+        ycbcrProps.sType =
+                VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES;
+        ycbcrProps.pNext = nullptr;
+
+        VkImageFormatProperties2 imageFormatProps;
+        imageFormatProps.sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2;
+        imageFormatProps.pNext = &ycbcrProps;
+
+        GR_VK_CALL_ERRCHECK(vkInterface,
+                            GetPhysicalDeviceImageFormatProperties2(physDev,
+                                                                    &imageFormatInfo,
+                                                                    &imageFormatProps));
+
+        fYcbcrCombinedImageSamplerDescriptorCount = ycbcrProps.combinedImageSamplerDescriptorCount;
     }
-    // We always push back the default GrVkYcbcrConversionInfo so that the case of no conversion
-    // will return a key of 0.
-    fYcbcrInfos.push_back(GrVkYcbcrConversionInfo());
+
+
 
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
