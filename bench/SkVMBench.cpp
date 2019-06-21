@@ -51,7 +51,7 @@ private:
         // Trigger one run now so we can do a quick correctness check.
         this->draw(1,nullptr);
         for (int i = 0; i < fPixels; i++) {
-            SkASSERT(fDst[i] == 0xff5e6f80);
+            SkASSERTF(fDst[i] == 0xff5e6f80, "Want 0xff5e6f80, got %08x", fDst[i]);
         }
     }
 

@@ -10,6 +10,7 @@
 
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkSpinlock.h"
 #include <unordered_map>
 #include <vector>
 
@@ -139,10 +140,16 @@ namespace skvm {
         int                      fRegs;
         int                      fLoop;
     #if defined(SKVM_JIT)
-        // TODO: what a mess, clean up
-        mutable int                        fJITMask = 0;  // Mask of N the JIT can handle.
-        mutable size_t                     fJITCode = 0;  // Code entry point, offset from data().
-        mutable std::unique_ptr<Assembler> fJIT;
+        struct JIT {
+            ~JIT();
+
+            void*  buf      = nullptr;  // Raw mmap'd buffer.
+            size_t size     = 0;        // Size of buf in bytes.
+            void (*entry)() = nullptr;  // Entry point, offset into buf.
+            int    mask     = 0;        // Mask of N the JIT'd code can handle.
+        };
+        mutable SkSpinlock fJITLock;
+        mutable JIT        fJIT;
     #endif
     };
 
