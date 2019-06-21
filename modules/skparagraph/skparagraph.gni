@@ -18,12 +18,9 @@ skparagraph_public = [
 
 skparagraph_sources = [
   "$_src/FontCollection.cpp",
-  "$_src/FontIterator.h",
-  "$_src/FontIterator.cpp",
   "$_src/FontResolver.h",
   "$_src/FontResolver.cpp",
-  "$_src/TextLine.h",
-  "$_src/TextLine.cpp",
+  "$_src/Iterator.h",
   "$_src/ParagraphBuilderImpl.h",
   "$_src/ParagraphBuilderImpl.cpp",
   "$_src/ParagraphImpl.h",
@@ -31,6 +28,8 @@ skparagraph_sources = [
   "$_src/ParagraphStyle.cpp",
   "$_src/Run.h",
   "$_src/Run.cpp",
+  "$_src/TextLine.h",
+  "$_src/TextLine.cpp",
   "$_src/TextShadow.cpp",
   "$_src/TextStyle.cpp",
   "$_src/TextWrapper.h",

@@ -2,6 +2,7 @@
 #ifndef ParagraphImpl_DEFINED
 #define ParagraphImpl_DEFINED
 
+#include "FontResolver.h"
 #include "include/core/SkPicture.h"
 #include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/Paragraph.h"
@@ -28,20 +29,7 @@ public:
     ParagraphImpl(const SkString& text,
                   ParagraphStyle style,
                   std::vector<Block> blocks,
-                  sk_sp<FontCollection> fonts)
-            : Paragraph(std::move(style), std::move(fonts))
-            , fText(text)
-            , fTextSpan(fText.c_str(), fText.size())
-            , fDirtyLayout(true)
-            , fOldWidth(0)
-            , fPicture(nullptr) {
-        fTextStyles.reserve(blocks.size());
-        for (auto& block : blocks) {
-            fTextStyles.emplace_back(
-                    SkSpan<const char>(fTextSpan.begin() + block.fStart, block.fEnd - block.fStart),
-                    block.fStyle);
-        }
-    }
+                  sk_sp<FontCollection> fonts);
 
     ParagraphImpl(const std::u16string& utf16text,
                     ParagraphStyle style,
@@ -107,6 +95,7 @@ private:
     SkTArray<Cluster, true> fClusters;
     SkTArray<TextLine> fLines;
     LineMetrics fStrutMetrics;
+    FontResolver fFontResolver;
 
     bool fDirtyLayout;
     SkScalar fOldWidth;

@@ -1220,7 +1220,6 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-/*
         const char* text =
                 "// Create a raised button.\n"
                 "RaisedButton(\n"
@@ -1254,7 +1253,7 @@ protected:
         TextStyle text_style;
         text_style.setFontFamilies({});
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontSize(20);
+        text_style.setFontSize(50);
         builder.pushStyle(text_style);
         builder.addText(text);
         builder.pop();
@@ -1268,31 +1267,7 @@ protected:
         paint.setColor(SK_ColorLTGRAY);
         canvas->drawRect(result[0].rect, paint);
         paragraph->paint(canvas, 0, 0);
-        */
-        std::vector<uint16_t> text;
-        for (uint16_t i = 0; i < 64; ++i) {
-            text.push_back(i % 5 == 0 ? ' ' : i);
-        }
-        std::u16string u16_text(text.data(), text.data() + text.size());
-        TextStyle default_style;
-        default_style.setFontFamilies({SkString("Roboto")});
-        ParagraphStyle paragraph_style;
-        paragraph_style.setTextStyle(default_style);
-        TextStyle text_style;
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setColor(SK_ColorBLACK);
-        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
-        SkASSERT(fontCollection->fontsFound() != 0);
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-        builder.pushStyle(text_style);
-        builder.addText(u16_text);
-        builder.pop();
-        auto paragraph = builder.Build();
-        size_t count = 10;
-        while (--count > 0) {
-            paragraph->layout(300);
-            paragraph->paint(canvas, 0, 0);
-        }
+
     }
 
 private:
