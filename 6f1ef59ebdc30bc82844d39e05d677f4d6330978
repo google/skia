@@ -1,0 +1,198 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e6cd19e_0d88892d",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-21T12:25:48Z",
+      "side": 1,
+      "message": "Let\u0027s talk notation irl",
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9bc87b2_a67a6ac1",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-21T12:25:48Z",
+      "side": 1,
+      "message": "\\n",
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf457a25_d2331c45",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-21T12:25:48Z",
+      "side": 1,
+      "message": "from ?",
+      "range": {
+        "startLine": 27,
+        "startChar": 40,
+        "endLine": 27,
+        "endChar": 42
+      },
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1910f41a_70e38523",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-21T12:25:48Z",
+      "side": 1,
+      "message": "// Maybe an explanation here about why \u0027proxyOffset\u0027 can\u0027t just be folded into \u0027srcBounds\u0027 ?",
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab11152e_25679e2a",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-21T12:25:48Z",
+      "side": 1,
+      "message": "Do you mean:\n\n// This subset is not relative to the current content rect of this special image - it is\n// a subset relative GrSurface coordinate frame.\n\n?",
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ecd229d_a64eabbc",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-21T12:25:48Z",
+      "side": 1,
+      "message": "Same here ?",
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b09cab9d_a11e6164",
+        "filename": "src/core/SkSpecialImage.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-21T12:25:48Z",
+      "side": 1,
+      "message": "special image\u0027s content rect ?",
+      "range": {
+        "startLine": 111,
+        "startChar": 7,
+        "endLine": 111,
+        "endChar": 21
+      },
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5852b8c5_4e5cbad3",
+        "filename": "src/core/SkSpecialImage.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-21T12:25:48Z",
+      "side": 1,
+      "message": "same ?",
+      "range": {
+        "startLine": 121,
+        "startChar": 56,
+        "endLine": 121,
+        "endChar": 70
+      },
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa13df0d_997d2478",
+        "filename": "src/core/SkSpecialImage.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-21T12:25:48Z",
+      "side": 1,
+      "message": "* This means that this method is expensive and should be avoided if possible ?",
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d0c754f_11cd460b",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-21T12:25:48Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 308,
+        "startChar": 23,
+        "endLine": 308,
+        "endChar": 27
+      },
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
