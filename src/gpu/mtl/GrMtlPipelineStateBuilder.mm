@@ -350,8 +350,9 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
                                                    desc);
     SkASSERT(!this->primitiveProcessor().willUseGeoShader());
 
-    SkASSERT(vertexLibrary);
-    SkASSERT(fragmentLibrary);
+    if (!vertexLibrary || !fragmentLibrary) {
+        return nullptr;
+    }
 
     id<MTLFunction> vertexFunction = [vertexLibrary newFunctionWithName: @"vertexMain"];
     id<MTLFunction> fragmentFunction = [fragmentLibrary newFunctionWithName: @"fragmentMain"];

@@ -178,15 +178,30 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 #endif
 
     MTLCompileOptions* defaultOptions = [[MTLCompileOptions alloc] init];
-    NSError* error = nil;
-    id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource: mtlCode
-                                                                 options: defaultOptions
-                                                                   error: &error];
-    if (error) {
-        SkDebugf("Error compiling MSL shader: %s\n",
-                 [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
+    dispatch_semaphore_t compilerSemaphore = dispatch_semaphore_create(0);
+
+    // TODO: do we need __block or not for these variables?
+    dispatch_semaphore_t semaphore = compilerSemaphore;
+    __block id<MTLLibrary> compiledLibrary;
+    [gpu->device() newLibraryWithSource: mtlCode
+                                options: defaultOptions
+                      completionHandler:
+        ^(id<MTLLibrary> library, NSError* error) {
+            if (error) {
+                  SkDebugf("Error compiling MSL shader: %s\n",
+                      [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
+            }
+            compiledLibrary = library;
+            dispatch_semaphore_signal(semaphore);
+        }
+    ];
+
+    // Wait 30 ms for the compiler
+    if (dispatch_semaphore_wait(compilerSemaphore, dispatch_time(DISPATCH_TIME_NOW, 30000))) {
+        SkDebugf("Timeout compiling MSL shader\n");
         return nil;
     }
+
     return compiledLibrary;
 }
 
