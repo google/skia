@@ -59,7 +59,7 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
     if (!options.fDisableDriverCorrectnessWorkarounds &&
         kAdreno3xx_GrGLRenderer == args.fRenderer) {
         char androidAPIVersion[PROP_VALUE_MAX];
-        int strLength = __system_property_get("ro.build.version.release", androidAPIVersion);
+        int strLength = __system_property_get("ro.build.version.sdk", androidAPIVersion);
         if (strLength == 0 || atoi(androidAPIVersion) < 26) {
             args.fGLSLGeneration = k110_GrGLSLGeneration;
         }
