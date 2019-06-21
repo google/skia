@@ -62,6 +62,7 @@ public:
     const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties() const {
         return fPhysDevMemProps;
     }
+    bool protectedContext() const { return fProtectedContext == GrProtected::kYes; }
 
     GrVkResourceProvider& resourceProvider() { return fResourceProvider; }
 
@@ -82,7 +83,8 @@ public:
     GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
                                           GrMipMapped, GrRenderable,
                                           const void* pixels, size_t rowBytes,
-                                          const SkColor4f* color) override;
+                                          const SkColor4f* color,
+                                          GrProtected isProtected) override;
     void deleteBackendTexture(const GrBackendTexture&) override;
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
@@ -261,7 +263,8 @@ private:
 
     bool createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool texturable,
                                   bool renderable, GrMipMapped mipMapped, const void* srcData,
-                                  size_t srcRowBytes, const SkColor4f* color, GrVkImageInfo* info);
+                                  size_t srcRowBytes, const SkColor4f* color, GrVkImageInfo* info,
+                                  GrProtected isProtected);
 
     sk_sp<const GrVkInterface>                            fInterface;
     sk_sp<GrVkMemoryAllocator>                            fMemoryAllocator;
@@ -296,6 +299,8 @@ private:
     // We need a bool to track whether or not we've already disconnected all the gpu resources from
     // vulkan context.
     bool                                                  fDisconnected;
+
+    GrProtected                                           fProtectedContext;
 
     std::unique_ptr<GrVkGpuRTCommandBuffer>               fCachedRTCommandBuffer;
     std::unique_ptr<GrVkGpuTextureCommandBuffer>          fCachedTexCommandBuffer;
