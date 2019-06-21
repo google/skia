@@ -39,9 +39,7 @@ extra_ldflags = [  \n\
   "-L/usr/local/lib",  \n\
   "-Wl,-rpath",  \n\
   "-Wl,/usr/local/lib"  \n\
-]\n\
-# TODO: use of xbyak is temporary; remove this when it's no longer needed.\n\
-skia_use_xbyak = false ' > /tmp/skia/skia/out/Static/args.gn
+]
 
 RUN cd /tmp/skia/skia \
   && python tools/git-sync-deps \

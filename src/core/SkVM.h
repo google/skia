@@ -14,8 +14,6 @@
 #include <unordered_map>
 #include <vector>
 
-namespace Xbyak { class CodeGenerator; }
-
 namespace skvm {
 
     class Assembler {
@@ -85,8 +83,6 @@ namespace skvm {
         void vmovups(GP64 dst, Ymm src);
         void vmovq  (GP64 dst, Xmm src);
 
-    //private:
-        std::unique_ptr<Xbyak::CodeGenerator> X;
     private:
         // dst = op(dst, imm)
         void op(int opcode, int opcode_ext, GP64 dst, int imm);
@@ -110,6 +106,8 @@ namespace skvm {
 
         // *ptr = ymm or ymm = *ptr, depending on opcode.
         void load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr);
+
+        std::vector<uint8_t> fCode;
     };
 
     enum class Op : uint8_t {
@@ -159,12 +157,6 @@ namespace skvm {
         }
 
     private:
-        void eval(int n, void* args[], size_t strides[], int nargs) const;
-
-        std::vector<Instruction> fInstructions;
-        int                      fRegs;
-        int                      fLoop;
-    #if defined(SKVM_JIT)
         struct JIT {
             ~JIT();
 
@@ -173,9 +165,14 @@ namespace skvm {
             void (*entry)() = nullptr;  // Entry point, offset into buf.
             int    mask     = 0;        // Mask of N the JIT'd code can handle.
         };
-        mutable SkSpinlock fJITLock;
-        mutable JIT        fJIT;
-    #endif
+
+        void eval(int n, void* args[], size_t strides[], int nargs) const;
+
+        std::vector<Instruction> fInstructions;
+        int                      fRegs;
+        int                      fLoop;
+        mutable SkSpinlock       fJITLock;
+        mutable JIT              fJIT;
     };
 
     struct Arg { int ix; };
