@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76b94672_1357b22f",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 9825
+      },
+      "writtenOn": "2019-06-21T19:45:36Z",
+      "side": 1,
+      "message": "i think i have a doubt here.\n\nSpec says that the imageFormatInfo should have the parameters that would be consumed by vkCreateImage (https://www.khronos.org/registry/vulkan/specs/1.1-extensions/man/html/vkGetPhysicalDeviceImageFormatProperties2.html).\n\nin case of android video, this format comes from ahb format props (https://cs.chromium.org/chromium/src/gpu/vulkan/android/vulkan_implementation_android.cc?rcl\u003d43bbbcd5353ce27859acd4b1c6932abeb41f65b8\u0026l\u003d308).\n\nso will undefined format works here ?.\nI thought we want to query combinedImageSamplerDescriptorCount for a specific format.\n\nMaybe i am missing something.",
+      "range": {
+        "startLine": 362,
+        "startChar": 8,
+        "endLine": 362,
+        "endChar": 53
+      },
+      "revId": "abb0442c09368838efd1eaccc5d3800fc2b9e7b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
