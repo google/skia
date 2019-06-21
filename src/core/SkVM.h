@@ -75,21 +75,30 @@ namespace skvm {
         Label here();
 
         void vbroadcastss(Ymm dst, Label);
+        void vpshufb(Ymm dst, Ymm x, Label);
 
     //private:
         std::unique_ptr<Xbyak::CodeGenerator> X;
     private:
-        // dst = dst op imm
+        // dst = op(dst, imm)
         void op(int opcode, int opcode_ext, GP64 dst, int imm);
 
-        // dst = op x
-        void op(int prefix, int map, int opcode, Ymm dst, Ymm x,        bool W=false);
 
-        // dst = x op y
+        // dst = op(x,y) or op(x)
         void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y, bool W=false);
+        void op(int prefix, int map, int opcode, Ymm dst, Ymm x,        bool W=false) {
+            // Two arguments ops seem to pass them in dst and y, forcing x to 0 so VEX.vvvv == 1111.
+            this->op(prefix, map, opcode, dst,(Ymm)0,x, W);
+        }
 
-        // dst = x op imm
+        // dst = op(x,imm)
         void op(int prefix, int map, int opcode, int opcode_ext, Ymm dst, Ymm x, int imm);
+
+        // dst = op(x,label) or op(label)
+        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label l);
+        void op(int prefix, int map, int opcode, Ymm dst,        Label l) {
+            this->op(prefix, map, opcode, dst, (Ymm)0, l);
+        }
     };
 
     enum class Op : uint8_t {
