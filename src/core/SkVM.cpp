@@ -687,8 +687,9 @@ namespace skvm {
         this->byte(mod_rm(Mod::Indirect, ymm&7, ptr&7));
     }
 
-    void Assembler::vmovups(Ymm dst, GP64 src) { this->load_store(0,0x0f,0x10, dst,src); }
-    void Assembler::vmovups(GP64 dst, Ymm src) { this->load_store(0,0x0f,0x11, src,dst); }
+    void Assembler::vmovups  (Ymm dst, GP64 src) { this->load_store(0   ,  0x0f,0x10, dst,src); }
+    void Assembler::vpmovzxbd(Ymm dst, GP64 src) { this->load_store(0x66,0x380f,0x31, dst,src); }
+    void Assembler::vmovups  (GP64 dst, Ymm src) { this->load_store(0   ,  0x0f,0x11, src,dst); }
 
     static bool can_jit(int regs, int nargs) {
         return true
@@ -838,7 +839,7 @@ namespace skvm {
 
                 case Op::store32: a.vmovups(arg[y.imm], ar(x)); break;
 
-                case Op::load8:  X.vpmovzxbd( r(d), X.ptr[xarg(y.imm)]); break;
+                case Op::load8:  a.vpmovzxbd(ar(d), arg[y.imm]); break;
                 case Op::load32: a.vmovups  (ar(d), arg[y.imm]); break;
 
                 case Op::splat: a.vbroadcastss(ar(d), splats[y.imm]); break;
