@@ -121,7 +121,7 @@ public:
         }
     }
 
-    SkSurfaceCharacterization createCharacterization(GrContext* context) const {
+    SkSurfaceCharacterization createCharacterization1(GrContext* context) const {
         int maxResourceCount;
         size_t maxResourceBytes;
         context->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
@@ -144,8 +144,8 @@ public:
     }
 
     // Create a DDL whose characterization captures the current settings
-    std::unique_ptr<SkDeferredDisplayList> createDDL(GrContext* context) const {
-        SkSurfaceCharacterization c = this->createCharacterization(context);
+    std::unique_ptr<SkDeferredDisplayList> createDDL1(GrContext* context) const {
+        SkSurfaceCharacterization c = this->createCharacterization1(context);
         SkAssertResult(c.isValid());
 
         SkDeferredDisplayListRecorder r(c);
@@ -159,7 +159,7 @@ public:
     }
 
     // Create the surface with the current set of parameters
-    sk_sp<SkSurface> make(GrContext* context, GrBackendTexture* backend) const {
+    sk_sp<SkSurface> make1(GrContext* context, GrBackendTexture* backend) const {
         GrGpu* gpu = context->priv().getGpu();
 
         GrMipMapped mipmapped = !fIsTextureable
@@ -238,7 +238,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
         SurfaceParameters params1(context->backend());
         params1.modify(i);
 
-        SkSurfaceCharacterization char1 = params1.createCharacterization(context);
+        SkSurfaceCharacterization char1 = params1.createCharacterization1(context);
         if (!char1.isValid()) {
             continue;  // can happen on some platforms (ChromeOS)
         }
@@ -247,7 +247,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
             SurfaceParameters params2(context->backend());
             params2.modify(j);
 
-            SkSurfaceCharacterization char2 = params2.createCharacterization(context);
+            SkSurfaceCharacterization char2 = params2.createCharacterization1(context);
             if (!char2.isValid()) {
                 continue;  // can happen on some platforms (ChromeOS)
             }
@@ -264,7 +264,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
     {
         SurfaceParameters params(context->backend());
 
-        SkSurfaceCharacterization valid = params.createCharacterization(context);
+        SkSurfaceCharacterization valid = params.createCharacterization1(context);
         SkASSERT(valid.isValid());
 
         SkSurfaceCharacterization inval1, inval2;
@@ -294,12 +294,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctx
     {
         SurfaceParameters params(context->backend());
 
-        ddl = params.createDDL(context);
+        ddl = params.createDDL1(context);
         SkAssertResult(ddl);
 
         // The DDL should draw into an SkSurface created with the same parameters
         GrBackendTexture backend;
-        sk_sp<SkSurface> s = params.make(context, &backend);
+        sk_sp<SkSurface> s = params.make1(context, &backend);
         if (!s) {
             return;
         }
@@ -318,7 +318,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctx
         params.modify(i);
 
         GrBackendTexture backend;
-        sk_sp<SkSurface> s = params.make(context, &backend);
+        sk_sp<SkSurface> s = params.make1(context, &backend);
         if (!s) {
             continue;
         }
@@ -371,7 +371,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctx
         const SurfaceParameters params(context->backend());
         GrBackendTexture backend;
 
-        sk_sp<SkSurface> s = params.make(context, &backend);
+        sk_sp<SkSurface> s = params.make1(context, &backend);
 
         int maxResourceCount;
         size_t maxResourceBytes;
@@ -409,7 +409,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctx
         SurfaceParameters params(context->backend());
         params.setTextureable(false);
 
-        sk_sp<SkSurface> s = params.make(context, &backend);
+        sk_sp<SkSurface> s = params.make1(context, &backend);
         if (s) {
             REPORTER_ASSERT(reporter, !s->draw(ddl.get())); // bc the DDL was made w/ textureability
 
@@ -434,7 +434,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctx
         SurfaceParameters params(context->backend());
         GrBackendTexture backend;
 
-        sk_sp<SkSurface> s = params.make(context, &backend);
+        sk_sp<SkSurface> s = params.make1(context, &backend);
         if (!s) {
             return;
         }
@@ -484,7 +484,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest, reporter, ctxInfo) 
             SurfaceParameters params(context->backend());
             params.setTextureable(false);
 
-            ddl = params.createDDL(context);
+            ddl = params.createDDL1(context);
             SkAssertResult(ddl);
         }
 
@@ -493,7 +493,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest, reporter, ctxInfo) 
         params.setTextureable(textureability);
 
         GrBackendTexture backend;
-        sk_sp<SkSurface> s = params.make(context, &backend);
+        sk_sp<SkSurface> s = params.make1(context, &backend);
         if (!s) {
             continue;
         }
@@ -509,8 +509,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest, reporter, ctxInfo) 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// This tests the SkSurface::MakeRenderTarget variant that takes an SkSurfaceCharacterization.
-// In particular, the SkSurface and the SkSurfaceCharacterization should always be compatible.
+// This tests the SkSurface::MakeRenderTarget variants that take an SkSurfaceCharacterization.
+// In particular, the SkSurface, backendTexture and SkSurfaceCharacterization
+// should always be compatible.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMakeRenderTargetTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
@@ -518,45 +519,61 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMakeRenderTargetTest, reporter, ctxInfo) {
         SurfaceParameters params(context->backend());
         params.modify(i);
 
-        SkSurfaceCharacterization c = params.createCharacterization(context);
-        GrBackendTexture backend;
+        {
+            SkSurfaceCharacterization c = params.createCharacterization1(context);
+            GrBackendTexture backend;
 
-        if (!c.isValid()) {
-            sk_sp<SkSurface> tmp = params.make(context, &backend);
+            if (!c.isValid()) {
+                sk_sp<SkSurface> tmp = params.make1(context, &backend);
 
-            // If we couldn't characterize the surface we shouldn't be able to create it either
-            REPORTER_ASSERT(reporter, !tmp);
-            if (tmp) {
-                tmp = nullptr;
-                params.cleanUpBackEnd(context, backend);
+                // If we couldn't characterize the surface we shouldn't be able to create it either
+                REPORTER_ASSERT(reporter, !tmp);
+                if (tmp) {
+                    tmp = nullptr;
+                    params.cleanUpBackEnd(context, backend);
+                }
+                continue;
             }
-            continue;
         }
 
         if (!context->priv().caps()->mipMapSupport()) {
             params.setShouldCreateMipMaps(false);
         }
-        sk_sp<SkSurface> s = params.make(context, &backend);
-        if (!s) {
-            REPORTER_ASSERT(reporter, !c.isValid());
-            continue;
+
+        const SkSurfaceCharacterization c = params.createCharacterization1(context);
+        GrBackendTexture backend;
+
+        {
+            sk_sp<SkSurface> s = params.make1(context, &backend);
+            if (!s) {
+                REPORTER_ASSERT(reporter, !c.isValid());
+                continue;
+            }
+
+            REPORTER_ASSERT(reporter, c.isValid());
+            REPORTER_ASSERT(reporter, c.isCompatible(backend));
+
+            if (SurfaceParameters::kFBO0Count == i) {
+                // MakeRenderTarget doesn't support FBO0
+                params.cleanUpBackEnd(context, backend);
+                continue;
+            }
         }
 
-        REPORTER_ASSERT(reporter, c.isValid());
-
-        if (SurfaceParameters::kFBO0Count == i) {
-            // MakeRenderTarget doesn't support FBO0
-            params.cleanUpBackEnd(context, backend);
-            continue;
+        // Make an SkSurface from scratch
+        {
+            sk_sp<SkSurface> s = SkSurface::MakeRenderTarget1(context, c, SkBudgeted::kYes);
+            REPORTER_ASSERT(reporter, s);
+            REPORTER_ASSERT(reporter, s->isCompatible(c));
         }
 
-        s = SkSurface::MakeRenderTarget(context, c, SkBudgeted::kYes);
-        REPORTER_ASSERT(reporter, s);
+        // Make an SkSurface that wraps the existing backend texture
+        {
+            sk_sp<SkSurface> s = SkSurface::MakeFromBackendTexture1(context, c, backend);
+            REPORTER_ASSERT(reporter, s);
+            REPORTER_ASSERT(reporter, s->isCompatible(c));
+        }
 
-        SkSurface_Gpu* g = static_cast<SkSurface_Gpu*>(s.get());
-        REPORTER_ASSERT(reporter, g->isCompatible(c));
-
-        s = nullptr;
         params.cleanUpBackEnd(context, backend);
     }
 }
@@ -588,7 +605,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     SurfaceParameters params(context->backend());
     GrBackendTexture backend;
 
-    sk_sp<SkSurface> s = params.make(context, &backend);
+    sk_sp<SkSurface> s = params.make1(context, &backend);
     if (!s) {
         context->deleteBackendTexture(backendTex);
         return;
@@ -914,11 +931,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest, reporter, ctxInfo) {
         params.setColorType(colorType);
         params.setColorSpace(nullptr);
 
-        SkSurfaceCharacterization c = params.createCharacterization(context);
+        SkSurfaceCharacterization c = params.createCharacterization1(context);
         GrBackendTexture backend;
 
         if (!c.isValid()) {
-            sk_sp<SkSurface> tmp = params.make(context, &backend);
+            sk_sp<SkSurface> tmp = params.make1(context, &backend);
 
             // If we couldn't characterize the surface we shouldn't be able to create it either
             REPORTER_ASSERT(reporter, !tmp);
@@ -932,7 +949,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest, reporter, ctxInfo) {
         if (!context->priv().caps()->mipMapSupport()) {
             params.setShouldCreateMipMaps(false);
         }
-        sk_sp<SkSurface> s = params.make(context, &backend);
+        sk_sp<SkSurface> s = params.make1(context, &backend);
         REPORTER_ASSERT(reporter, s);
         if (!s) {
             s = nullptr;
@@ -946,7 +963,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest, reporter, ctxInfo) {
         s = nullptr;
         params.cleanUpBackEnd(context, backend);
 
-        s = SkSurface::MakeRenderTarget(context, c, SkBudgeted::kYes);
+        s = SkSurface::MakeRenderTarget1(context, c, SkBudgeted::kYes);
         REPORTER_ASSERT(reporter, s);
         if (!s) {
             continue;

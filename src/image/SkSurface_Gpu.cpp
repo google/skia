@@ -256,7 +256,7 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPai
     }
 }
 
-bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& characterization) const {
+bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characterization) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
@@ -344,7 +344,7 @@ bool SkSurface_Gpu::Valid(const GrCaps* caps, GrPixelConfig config, SkColorSpace
     }
 }
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
+sk_sp<SkSurface> SkSurface::MakeRenderTarget1(GrRecordingContext* context,
                                              const SkSurfaceCharacterization& c,
                                              SkBudgeted budgeted) {
     if (!context || !c.isValid()) {
@@ -402,6 +402,13 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
     return s;
 }
 
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture1(GrContext* context,
+                                                   const SkSurfaceCharacterization& characterization,
+                                                   const GrBackendTexture& backendTexture,
+                                                   TextureReleaseProc textureReleaseProc,
+                                                   ReleaseContext releaseContext) {
+    return nullptr;
+}
 
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
                                              const SkImageInfo& info, int sampleCount,
