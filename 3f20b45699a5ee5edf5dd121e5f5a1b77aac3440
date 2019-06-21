@@ -22,6 +22,30 @@
       "revId": "3f20b45699a5ee5edf5dd121e5f5a1b77aac3440",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88fad572_318a2445",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 8972
+      },
+      "writtenOn": "2019-06-21T18:41:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a353e5bf_c8d57f4e",
+      "range": {
+        "startLine": 659,
+        "startChar": 8,
+        "endLine": 660,
+        "endChar": 21
+      },
+      "revId": "3f20b45699a5ee5edf5dd121e5f5a1b77aac3440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
