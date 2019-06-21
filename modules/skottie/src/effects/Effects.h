@@ -38,6 +38,8 @@ private:
                                                      sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachMotionTileEffect  (const skjson::ArrayValue&,
                                                      sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachRadialWipeEffect  (const skjson::ArrayValue&,
+                                                     sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachTintEffect        (const skjson::ArrayValue&,
                                                      sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachTransformEffect   (const skjson::ArrayValue&,
