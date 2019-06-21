@@ -81,6 +81,12 @@ public:
         return SkSpan<const uint32_t>(fClusterIndexes.begin(), fClusterIndexes.size());
     }
 
+    static Run correctRun(Run* from, size_t textDelta) {
+        Run run = *from;
+        run.fText = SkSpan<const char>(run.fText.begin() + textDelta, run.fText.size());
+        return run;
+    }
+
 private:
     friend class ParagraphImpl;
     friend class TextLine;
@@ -156,7 +162,6 @@ public:
     }
 
     void setBreakType(BreakType type) { fBreakType = type; }
-    void setIsWhiteSpaces(bool ws) { fWhiteSpaces = ws; }
     bool isWhitespaces() const { return fWhiteSpaces; }
     bool canBreakLineAfter() const {
         return fBreakType == SoftLineBreak || fBreakType == HardLineBreak;
@@ -187,6 +192,15 @@ public:
 
     bool startsIn(SkSpan<const char> text) const {
         return fText.begin() >= text.begin() && fText.begin() < text.end();
+    }
+
+    static Cluster correctCluster(Cluster* from, size_t runDelta, size_t textDelta) {
+        Cluster cluster = *from;
+        if (cluster.fRun != nullptr) {
+            cluster.fRun += runDelta;
+        }
+        cluster.fText = SkSpan<const char>(cluster.fText.begin() + textDelta, cluster.fText.size());
+        return cluster;
     }
 
 private:

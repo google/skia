@@ -15,18 +15,19 @@
 namespace skia {
 namespace textlayout {
 
+struct FontDescr {
+    FontDescr() {}
+    FontDescr(SkFont font, SkScalar height)
+            : fFont(font), fHeight(height) {}
+    bool operator==(const FontDescr& a) const {
+        return this->fFont == a.fFont && this->fHeight == a.fHeight;
+    }
+    SkFont fFont;
+    SkScalar fHeight;
+};
+
 class FontResolver {
 public:
-    struct FontDescr {
-        FontDescr() {}
-        FontDescr(SkFont font, SkScalar height)
-                : fFont(font), fHeight(height) {}
-        bool operator==(const FontDescr& a) const {
-            return this->fFont == a.fFont && this->fHeight == a.fHeight;
-        }
-        SkFont fFont;
-        SkScalar fHeight;
-    };
 
     FontResolver() = default;
     ~FontResolver() = default;
@@ -36,6 +37,8 @@ public:
                                         sk_sp<FontCollection> fontCollection);
     bool findFirst(const char* codepoint, SkFont* font, SkScalar* height);
     bool findNext(const char* codepoint, SkFont* font, SkScalar* height);
+
+    SkTHashMap<const char*, FontDescr>& mapping() { return fFontMapping; }
 
 private:
     void findAllFontsForStyledBlock(const TextStyle& style, SkSpan<const char> text);

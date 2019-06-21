@@ -517,6 +517,7 @@ SkRect TextLine::measureTextInsideOneRun(
     Cluster* end;
     std::tie(found, start, end) = run->findLimitingClusters(text);
     if (!found) {
+        std::tie(found, start, end) = run->findLimitingClusters(text);
         SkASSERT(text.empty());
         return SkRect::MakeEmpty();
     }
