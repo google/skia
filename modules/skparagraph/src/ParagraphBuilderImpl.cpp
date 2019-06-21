@@ -11,13 +11,13 @@ namespace skia {
 namespace textlayout {
 
 std::unique_ptr<ParagraphBuilder> ParagraphBuilder::make(
-        ParagraphStyle style, sk_sp<FontCollection> fontCollection) {
+        const ParagraphStyle& style, sk_sp<FontCollection> fontCollection) {
     return skstd::make_unique<ParagraphBuilderImpl>(style, fontCollection);
 }
 
 ParagraphBuilderImpl::ParagraphBuilderImpl(
-        ParagraphStyle style, sk_sp<FontCollection> fontCollection)
-        : ParagraphBuilder(style, fontCollection), fFontCollection(std::move(fontCollection)) {
+        const ParagraphStyle& style, sk_sp<FontCollection> fontCollection)
+        : ParagraphBuilder(style, fontCollection), fUtf8(), fFontCollection(std::move(fontCollection)) {
     this->setParagraphStyle(style);
 }
 
@@ -33,7 +33,7 @@ void ParagraphBuilderImpl::pushStyle(const TextStyle& style) {
     this->endRunIfNeeded();
 
     fTextStyles.push(style);
-    if (!fStyledBlocks.empty() && fStyledBlocks.back().fEnd == fUtf8.size() &&
+    if (!fStyledBlocks.empty() && fStyledBlocks.back().fRange.end == fUtf8.size() &&
         fStyledBlocks.back().fStyle == style) {
         // Just continue with the same style
     } else {
@@ -87,10 +87,10 @@ void ParagraphBuilderImpl::endRunIfNeeded() {
     }
 
     auto& last = fStyledBlocks.back();
-    if (last.fStart == fUtf8.size()) {
+    if (last.fRange.start == fUtf8.size()) {
         fStyledBlocks.pop_back();
     } else {
-        last.fEnd = fUtf8.size();
+        last.fRange.end = fUtf8.size();
     }
 }
 

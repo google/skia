@@ -12,6 +12,8 @@
 #include "tools/Resources.h"
 
 #include <cfloat>
+#include "modules/skparagraph/utils/TestFontCollection.h"
+#include "include/core/SkPictureRecorder.h"
 
 using namespace skia::textlayout;
 namespace {
@@ -32,23 +34,28 @@ struct ParagraphBench : public Benchmark {
 
         const char* text = (const char*)fData->data();
 
-        sk_sp<FontCollection> fontCollection = sk_make_sp<FontCollection>();
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         ParagraphStyle paragraph_style;
         paragraph_style.turnHintingOff();
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         builder.addText(text);
         auto paragraph = builder.Build();
 
+        SkPictureRecorder rec;
+        SkCanvas* canvas = rec.beginRecording({0,0, 2000,3000});
         while (loops-- > 0) {
             paragraph->layout(fWidth);
             auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-            impl->formatLines(fWidth);
+            paragraph->paint(canvas, 0, 0);
+            paragraph->markDirty();
+            impl->resetCache();
         }
     }
 };
 }  // namespace
 
-#define PARAGRAPH_BENCH(X) DEF_BENCH(return new ParagraphBench(500, "text/" #X ".txt", "paragraph_" #X);)
+#define PARAGRAPH_BENCH(X) DEF_BENCH(return new ParagraphBench(50000, "text/" #X ".txt", "paragraph_" #X);)
 //PARAGRAPH_BENCH(arabic)
 //PARAGRAPH_BENCH(emoji)
 PARAGRAPH_BENCH(english)
