@@ -17,7 +17,7 @@ std::unique_ptr<ParagraphBuilder> ParagraphBuilder::make(
 
 ParagraphBuilderImpl::ParagraphBuilderImpl(
         ParagraphStyle style, sk_sp<FontCollection> fontCollection)
-        : ParagraphBuilder(style, fontCollection), fFontCollection(std::move(fontCollection)) {
+        : ParagraphBuilder(style, fontCollection), fUtf8(), fFontCollection(std::move(fontCollection)) {
     this->setParagraphStyle(style);
 }
 

@@ -207,7 +207,7 @@ protected:
         return style;
     }
 
-    void drawText(SkCanvas* canvas, SkScalar w, SkScalar h, std::vector<std::string>& text,
+    void drawText(SkCanvas* canvas, SkScalar w, SkScalar h, std::vector<const char*>& text,
                   SkColor fg = SK_ColorDKGRAY, SkColor bg = SK_ColorWHITE,
                   const char* ff = "sans-serif", SkScalar fs = 24,
                   size_t lineLimit = 30,
@@ -256,7 +256,7 @@ protected:
 
         for (auto& part : text) {
             builder.pushStyle(style);
-            builder.addText(part.c_str());
+            builder.addText(part);
             builder.pop();
         }
 
@@ -304,7 +304,7 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        std::vector<std::string> cupertino = {
+        std::vector<const char*> cupertino = {
                 "google_logogoogle_gsuper_g_logo 1 "
                 "google_logogoogle_gsuper_g_logo 12 "
                 "google_logogoogle_gsuper_g_logo 123 "
@@ -330,26 +330,26 @@ protected:
                 "google_logogoogle_gsuper_g_logo "
                 "google_logogoogle_gsuper_g_logo "
                 "google_logogoogle_gsuper_g_logo"};
-        std::vector<std::string> text = {
+        std::vector<const char*> text = {
                 "My neighbor came over to say,\n"
                 "Although not in a neighborly way,\n\n"
                 "That he'd knock me around,\n\n\n"
                 "If I didn't stop the sound,\n\n\n\n"
                 "Of the classical music I play."};
 
-        std::vector<std::string> long_word = {
+        std::vector<const char*> long_word = {
                 "A_very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_"
                 "very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_"
                 "very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_"
                 "very_very_very_very_very_very_very_long_text"};
 
-        std::vector<std::string> very_long = {
+        std::vector<const char*> very_long = {
                 "A very very very very very very very very very very very very very very very very "
                 "very very very very very very very very very very very very very very very very "
                 "very very very very very very very very very very very very very very very very "
                 "very very very very very very very long text"};
 
-        std::vector<std::string> very_word = {
+        std::vector<const char*> very_word = {
                 "A very_very_very_very_very_very_very_very_very_very "
                 "very_very_very_very_very_very_very_very_very_very very very very very very very "
                 "very very very very very very very very very very very very very very very very "
@@ -1220,79 +1220,44 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-/*
-        const char* text =
-                "// Create a raised button.\n"
-                "RaisedButton(\n"
-                "  child: const Text('BUTTON TITLE'),\n"
-                "  onPressed: () {\n"
-                "    // Perform some action\n"
-                "  },\n"
-                ");\n"
-                "\n"
-                "// Create a disabled button.\n"
-                "// Buttons are disabled when onPressed isn't\n"
-                "// specified or is null.\n"
-                "const RaisedButton(\n"
-                "  child: Text('BUTTON TITLE'),\n"
-                "  onPressed: null,\n"
-                ");\n"
-                "\n"
-                "// Create a button with an icon and a\n"
-                "// title.\n"
-                "RaisedButton.icon(\n"
-                "  icon: const Icon(Icons.add, size: 18.0),\n"
-                "  label: const Text('BUTTON TITLE'),\n"
-                "  onPressed: () {\n"
-                "    // Perform some action\n"
-                "  },\n"
-                ");";
-        ParagraphStyle paragraph_style;
-        paragraph_style.turnHintingOff();
-        ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<FontCollection>());
+        const char* text = "The same text many times";
 
-        TextStyle text_style;
-        text_style.setFontFamilies({});
-        text_style.setColor(SK_ColorBLACK);
-        text_style.setFontSize(20);
-        builder.pushStyle(text_style);
-        builder.addText(text);
-        builder.pop();
+        size_t foundParagraphs = 0;
+        size_t notFoundParagraphs = 0;
+        size_t addedParagraphs = 0;
+        ParagraphImpl::setChecker([&](const char* method, bool result) {
+            if (std::strcmp(method, "findParagraph") == 0) {
+                if (result) {
+                    ++foundParagraphs;
+                } else {
+                    ++notFoundParagraphs;
+                    ParagraphImpl::printCache("notFoundParagraph");
+                }
 
-        auto paragraph = builder.Build();
-        paragraph->layout(500);
+            } else if (std::strcmp(method, "addParagraph") == 0) {
+                ++addedParagraphs;
+                ParagraphImpl::printCache("addedParagraph");
+            } else {
+                SkASSERT(false);
+            }
+        });
+        for (size_t i = 0; i < 100; i++) {
+            ParagraphStyle paragraph_style;
+            ParagraphBuilderImpl builder(paragraph_style, sk_make_sp<FontCollection>());
+            TextStyle text_style;
+            text_style.setColor(SK_ColorBLACK);
+            text_style.setFontSize(10 + 2 * (i % 10));
+            builder.pushStyle(text_style);
+            builder.addText(text);
+            builder.pop();
 
-        auto result =
-                paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
-        SkPaint paint;
-        paint.setColor(SK_ColorLTGRAY);
-        canvas->drawRect(result[0].rect, paint);
-        paragraph->paint(canvas, 0, 0);
-        */
-        std::vector<uint16_t> text;
-        for (uint16_t i = 0; i < 64; ++i) {
-            text.push_back(i % 5 == 0 ? ' ' : i);
+            auto paragraph = builder.Build();
+            paragraph->layout(500);
+            paragraph->paint(canvas, 0, 100 * (i % 10));
         }
-        std::u16string u16_text(text.data(), text.data() + text.size());
-        TextStyle default_style;
-        default_style.setFontFamilies({SkString("Roboto")});
-        ParagraphStyle paragraph_style;
-        paragraph_style.setTextStyle(default_style);
-        TextStyle text_style;
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setColor(SK_ColorBLACK);
-        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
-        SkASSERT(fontCollection->fontsFound() != 0);
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-        builder.pushStyle(text_style);
-        builder.addText(u16_text);
-        builder.pop();
-        auto paragraph = builder.Build();
-        size_t count = 10;
-        while (--count > 0) {
-            paragraph->layout(300);
-            paragraph->paint(canvas, 0, 0);
-        }
+        SkDebugf("Added: %d\n", addedParagraphs);
+        SkDebugf("Found: %d\n", foundParagraphs);
+        SkDebugf("Not  : %d\n", notFoundParagraphs);
     }
 
 private:

@@ -2,11 +2,14 @@
 #ifndef ParagraphImpl_DEFINED
 #define ParagraphImpl_DEFINED
 
+#include <include/private/SkMutex.h>
+#include "FontResolver.h"
 #include "include/core/SkPicture.h"
 #include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skparagraph/src/ParagraphCache.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
 
@@ -25,23 +28,20 @@ template <typename T> bool operator<=(const SkSpan<T>& a, const SkSpan<T>& b) {
 
 class ParagraphImpl final : public Paragraph {
 public:
+
+    enum InternalState {
+      kUnknown = 0,
+      kShaped = 1,
+      kClusterized = 2,
+      kLineBroken = 3,
+      kFormatted = 4,
+      kRecorded = 5
+    };
+
     ParagraphImpl(const SkString& text,
                   ParagraphStyle style,
                   std::vector<Block> blocks,
-                  sk_sp<FontCollection> fonts)
-            : Paragraph(std::move(style), std::move(fonts))
-            , fText(text)
-            , fTextSpan(fText.c_str(), fText.size())
-            , fDirtyLayout(true)
-            , fOldWidth(0)
-            , fPicture(nullptr) {
-        fTextStyles.reserve(blocks.size());
-        for (auto& block : blocks) {
-            fTextStyles.emplace_back(
-                    SkSpan<const char>(fTextSpan.begin() + block.fStart, block.fEnd - block.fStart),
-                    block.fStyle);
-        }
-    }
+                  sk_sp<FontCollection> fonts);
 
     ParagraphImpl(const std::u16string& utf16text,
                     ParagraphStyle style,
@@ -68,7 +68,9 @@ public:
                       size_t start, size_t end, LineMetrics sizes);
 
     SkSpan<const char> text() const { return fTextSpan; }
+    InternalState state() const { return fState; }
     SkSpan<Run> runs() { return SkSpan<Run>(fRuns.data(), fRuns.size()); }
+    SkTHashMap<const char*, FontDescr>& mapping() { return fFontResolver.mapping(); }
     SkSpan<TextBlock> styles() {
         return SkSpan<TextBlock>(fTextStyles.data(), fTextStyles.size());
     }
@@ -83,10 +85,20 @@ public:
     }
     LineMetrics strutMetrics() const { return fStrutMetrics; }
 
-    void markDirty() override { fDirtyLayout = true; }
+    void markDirty() override { fState = kUnknown; }
+    static void setChecker(std::function<void(const char*, bool)> checker) {
+        fParagraphCache.setChecker(checker);
+    }
+
+    static void printCache(const char* title) {
+        fParagraphCache.printCache(title);
+    }
 
 private:
     friend class ParagraphBuilder;
+    friend class ParagraphCacheKey;
+    friend class ParagraphCacheValue;
+    friend class ParagraphCache;
 
     void resetContext();
     void resolveStrut();
@@ -103,16 +115,20 @@ private:
     SkSpan<const char> fTextSpan;
 
     // Internal structures
+    InternalState fState;
     SkTArray<Run> fRuns;
     SkTArray<Cluster, true> fClusters;
     SkTArray<TextLine> fLines;
     LineMetrics fStrutMetrics;
+    FontResolver fFontResolver;
 
-    bool fDirtyLayout;
     SkScalar fOldWidth;
 
     // Painting
     sk_sp<SkPicture> fPicture;
+
+    // Cache
+    static ParagraphCache fParagraphCache;
 };
 }  // namespace textlayout
 }  // namespace skia
