@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d864b45f_453dcbaf",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-21T13:51:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "263e7f20_27744682",
+      "range": {
+        "startLine": 370,
+        "startChar": 35,
+        "endLine": 370,
+        "endChar": 46
+      },
+      "revId": "153d3dbd8b66fd7408699dfc3351869c9c263dfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b03a3663_8a0962bc",
         "filename": "src/sksl/SkSLByteCode.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-06-20T21:01:33Z",
       "side": 1,
       "message": "Are we hurt speedwise here for this non-constant memcpy call?",
+      "range": {
+        "startLine": 732,
+        "startChar": 67,
+        "endLine": 732,
+        "endChar": 84
+      },
+      "revId": "153d3dbd8b66fd7408699dfc3351869c9c263dfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f55aeeac_b7f2ba0a",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-21T13:51:08Z",
+      "side": 1,
+      "message": "Probably. I think there are a few directions to go here:\n1) Leave the contract that client needs to have enough space. I don\u0027t really like that.\n2) Special case N \u003c VecWidth here. That doesn\u0027t help the raster pipeline case, though...\n3) Handle this in the outer run() function, with a temp buffer for the tail. That only helps when we\u0027re running on N \u003e\u003e\u003e VecWidth, where most iterations get the win at no cost, but for the current use case, we just move the variable memcpy out.",
+      "parentUuid": "b03a3663_8a0962bc",
       "range": {
         "startLine": 732,
         "startChar": 67,
