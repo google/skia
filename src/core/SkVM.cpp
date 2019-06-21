@@ -661,6 +661,23 @@ namespace skvm {
 
     void Assembler::vpshufb(Ymm dst, Ymm x, Label l) { this->op(0x66,0x380f,0x00, dst,x,l); }
 
+    void Assembler::jne(Label l) {
+        // jne can be either 2 bytes (short) or 6 bytes (near):
+        //    75     one-byte-disp
+        //    0F 85 four-byte-disp
+        // As usual, all displacements relative to the end of this instruction.
+        int shrt = l.offset - (here().offset + 2),
+            near = l.offset - (here().offset + 6);
+
+        if (SkTFitsIn<int8_t>(shrt)) {
+            this->byte(0x75);
+            this->byte(&shrt, 1);
+        } else {
+            this->byte(0x0f, 0x85);
+            this->byte(&near, 4);
+        }
+    }
+
     static bool can_jit(int regs, int nargs) {
         return true
             && SkCpu::Supports(SkCpu::HSW)   // TODO: SSE4.1 target?
@@ -776,10 +793,10 @@ namespace skvm {
         // Executable code starts here.
         *code = a.size();
 
-        Xbyak::Label loop_label;
+        A::Label loop_label;
         for (int i = 0; i < (int)instructions.size(); i++) {
             if (i == loop) {
-                X.L(loop_label);
+                loop_label = a.here();
             }
             const Program::Instruction& inst = instructions[i];
             Op  op = inst.op;
@@ -865,7 +882,7 @@ namespace skvm {
             a.add(arg[i], K*(int)strides[i]);
         }
         a.sub(N, K);
-        X.jne(loop_label);
+        a.jne(loop_label);
 
         a.vzeroupper();
         a.ret();
