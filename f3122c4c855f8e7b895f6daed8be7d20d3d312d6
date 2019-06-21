@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fff7d7f2_1db5cc22",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-21T18:55:53Z",
+      "side": 1,
+      "message": "Reading this now, It\u0027s not entirely clear to me what auto is.   Is it uint8_t*?  const uint8_t*?",
+      "range": {
+        "startLine": 777,
+        "startChar": 12,
+        "endLine": 777,
+        "endChar": 17
+      },
+      "revId": "f3122c4c855f8e7b895f6daed8be7d20d3d312d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75c5e8db_b659ab80",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 783,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-21T18:55:53Z",
+      "side": 1,
+      "message": "Why the cast?  Is it secretly a const cast or something?",
+      "range": {
+        "startLine": 783,
+        "startChar": 40,
+        "endLine": 783,
+        "endChar": 48
+      },
+      "revId": "f3122c4c855f8e7b895f6daed8be7d20d3d312d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

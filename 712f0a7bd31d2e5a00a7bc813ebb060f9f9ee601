@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75d63db2_430fae6c",
+        "filename": "src/core/SkStrike.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-21T18:55:53Z",
+      "side": 0,
+      "message": "wtf.  why was this ever volatile?",
+      "range": {
+        "startLine": 98,
+        "startChar": 31,
+        "endLine": 98,
+        "endChar": 39
+      },
+      "revId": "712f0a7bd31d2e5a00a7bc813ebb060f9f9ee601",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
