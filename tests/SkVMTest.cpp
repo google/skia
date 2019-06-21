@@ -353,12 +353,16 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vmovups(A::rsi, A::ymm5);
 
         a.vpmovzxbd(A::ymm4, A::rsi);
+
+        a.vmovq(A::rdx, A::xmm15);
     },{
         /*    VEX    */  /*Op*/  /*  ModRM  */
         0xc5,     0xfc,   0x10,  0b00'101'110,
         0xc5,     0xfc,   0x11,  0b00'101'110,
 
         0xc4,0xe2,0x7d,   0x31,  0b00'100'110,
+
+        0xc5,     0x79,   0xd6,  0b00'111'010,
     });
 }
 

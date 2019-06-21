@@ -81,7 +81,9 @@ namespace skvm {
 
         void vmovups  (Ymm dst, GP64 src);
         void vpmovzxbd(Ymm dst, GP64 src);
-        void vmovups  (GP64 dst, Ymm src);
+
+        void vmovups(GP64 dst, Ymm src);
+        void vmovq  (GP64 dst, Xmm src);
 
     //private:
         std::unique_ptr<Xbyak::CodeGenerator> X;
