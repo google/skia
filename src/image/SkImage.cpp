@@ -283,22 +283,40 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
     sk_sp<SkImageFilterCache> cache(
         SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize));
     SkImageFilter::OutputProperties outputProperties(fInfo.colorType(), fInfo.colorSpace());
-    SkImageFilter::Context context(SkMatrix::I(), clipBounds, cache.get(), outputProperties);
+
+    // The filters operate in the local space of the src image, where (0,0) corresponds to the
+    // subset's top left corner. But the clip bounds and any crop rects on the filters are in the
+    // original coordinate system, so configure the CTM to correct crop rects and explicitly adjust
+    // the clip bounds (since it is assumed to already be in image space).
+    SkImageFilter::Context context(SkMatrix::MakeTrans(-subset.x(), -subset.y()),
+                                   clipBounds.makeOffset(-subset.x(), -subset.y()),
+                                   cache.get(), outputProperties);
 
     sk_sp<SkSpecialImage> result = filter->filterImage(srcSpecialImage.get(), context, offset);
     if (!result) {
         return nullptr;
     }
 
-    *outSubset = SkIRect::MakeWH(result->width(), result->height());
-    if (!outSubset->intersect(clipBounds.makeOffset(-offset->x(), -offset->y()))) {
+    // The output image and offset are relative to the subset rectangle, so the offset needs to
+    // be shifted to put it in the correct spot with respect to the original coordinate system
+    offset->fX += subset.x();
+    offset->fY += subset.y();
+
+    // Final clip against the exact clipBounds (the clip provided in the context gets adjusted
+    // to account for pixel-moving filters so doesn't always exactly match when finished). The
+    // clipBounds are translated into the clippedDstRect coordinate space, including the
+    // result->subset() ensures that the result's image pixel origin does not affect results.
+    SkIRect dstRect = result->subset();
+    SkIRect clippedDstRect = dstRect;
+    if (!clippedDstRect.intersect(clipBounds.makeOffset(result->subset().x() - offset->x(),
+                                                        result->subset().y() - offset->y()))) {
         return nullptr;
     }
-    offset->fX += outSubset->x();
-    offset->fY += outSubset->y();
 
-    // Note that here we're returning the special image's entire backing store, loose padding
-    // and all!
+    // Adjust the geometric offset if the top-left corner moved as well
+    offset->fX += (clippedDstRect.x() - dstRect.x());
+    offset->fY += (clippedDstRect.y() - dstRect.y());
+    *outSubset = clippedDstRect;
     return result->asImage();
 }
 
