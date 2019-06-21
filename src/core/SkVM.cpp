@@ -984,8 +984,8 @@ namespace skvm {
             fJITLock.release();   // pairs with tryAcquire() in the if().
         }
 
-        const int jitN = n & mask;
-        if (entry && jitN > 0) {
+        if (const int jitN = n & mask) {
+            SkASSERT(entry);
             bool ran = true;
 
             switch (nargs) {
