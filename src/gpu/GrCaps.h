@@ -198,13 +198,24 @@ public:
      */
     bool surfaceSupportsWritePixels(const GrSurface*) const;
 
+
+    /**
+     * Indicates whether surface supports readPixels or the alternatives.
+     */
+    enum ReadFlags {
+        kSupported_ReadFlag     = 0x0,
+        kRequiresCopy_ReadFlag  = 0x1,
+        kProtected_ReadFlag     = 0x2,
+    };
+
     /**
      * Backends may have restrictions on what types of surfaces support GrGpu::readPixels().
-     * If this returns false then the caller should implement a fallback where a temporary texture
-     * is created, the surface is drawn or copied into the temporary, and pixels are read from the
-     * temporary.
+     * If this returns kRequiresCopy_ReadFlag then the caller should implement a fallback where a
+     * temporary texture is created, the surface is drawn or copied into the temporary, and
+     * pixels are read from the temporary. If this returns kProtected_ReadFlag, then the caller
+     * should not attempt reading it.
      */
-    virtual bool surfaceSupportsReadPixels(const GrSurface*) const = 0;
+    virtual ReadFlags surfaceSupportsReadPixels(const GrSurface*) const = 0;
 
     /**
      * Given a dst pixel config and a src color type what color type must the caller coax the
