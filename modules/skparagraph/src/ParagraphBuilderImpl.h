@@ -57,7 +57,7 @@ private:
 
     SkString fUtf8;
     std::stack<TextStyle> fTextStyles;
-    std::vector<Block> fStyledBlocks;
+    SkTArray<Block, true> fStyledBlocks;
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
 };
