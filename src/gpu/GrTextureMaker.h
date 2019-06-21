@@ -8,6 +8,7 @@
 #ifndef GrTextureMaker_DEFINED
 #define GrTextureMaker_DEFINED
 
+#include <include/private/GrTypesPriv.h>
 #include "src/gpu/GrTextureProducer.h"
 
 /**
@@ -26,9 +27,9 @@ public:
             const GrSamplerState::Filter* filterOrNullForBicubic) override;
 
 protected:
-    GrTextureMaker(GrRecordingContext* context, int width, int height, bool isAlphaOnly,
+    GrTextureMaker(GrRecordingContext* context, int width, int height, GrColorType colorType, bool isAlphaOnly,
                    bool domainNeedsLocal)
-        : INHERITED(context, width, height, isAlphaOnly, domainNeedsLocal) {}
+        : INHERITED(context, width, height, colorType, isAlphaOnly, domainNeedsLocal) {}
 
     /**
      *  Return the maker's "original" texture. It is the responsibility of the maker to handle any

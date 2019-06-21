@@ -180,7 +180,7 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrRecordingContext* context,
     sk_sp<GrRenderTargetContext> rtContext(
         context->priv().makeDeferredRenderTargetContextWithFallback(
             format, SkBackingFit::kApprox, maskRect.width(), maskRect.height(),
-            kAlpha_8_GrPixelConfig, nullptr, sampleCnt, GrMipMapped::kNo,
+            kAlpha_8_GrPixelConfig, GrColorType::kAlpha_8, nullptr, sampleCnt, GrMipMapped::kNo,
             kTopLeft_GrSurfaceOrigin));
     if (!rtContext) {
         return nullptr;

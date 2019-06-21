@@ -17,6 +17,7 @@
 
 sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
                                                         sk_sp<GrSurfaceProxy> proxy,
+                                                        GrColorType colorType,
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {
     // Since this is at flush time and these won't be allocated for us by the GrResourceAllocator
@@ -28,6 +29,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
         fDrawingMgr->makeRenderTargetContext(std::move(proxy),
+                                             colorType,
                                              std::move(colorSpace),
                                              props, false));
 

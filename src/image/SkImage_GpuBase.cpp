@@ -88,7 +88,7 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
     }
 
     sk_sp<GrSurfaceContext> sContext = direct->priv().makeWrappedSurfaceContext(
-            this->asTextureProxyRef(direct), this->refColorSpace());
+            this->asTextureProxyRef(direct), SkColorTypeToGrColorType(this->colorType()), this->refColorSpace());
     if (!sContext) {
         return false;
     }
@@ -174,7 +174,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
     }
 
     sk_sp<GrSurfaceContext> sContext = direct->priv().makeWrappedSurfaceContext(
-        this->asTextureProxyRef(direct), this->refColorSpace());
+        this->asTextureProxyRef(direct), SkColorTypeToGrColorType(this->colorType()), this->refColorSpace());
     if (!sContext) {
         return false;
     }
@@ -206,7 +206,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrRecordingContext* con
         return nullptr;
     }
 
-    GrTextureAdjuster adjuster(fContext.get(), this->asTextureProxyRef(context), this->alphaType(),
+    GrTextureAdjuster adjuster(fContext.get(), this->asTextureProxyRef(context), SkColorTypeToGrColorType(this->colorType()), this->alphaType(),
                                this->uniqueID(), this->colorSpace());
     return adjuster.refTextureProxyForParams(params, scaleAdjust);
 }

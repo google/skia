@@ -376,6 +376,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
             context->priv().makeDeferredSurfaceContext(format, desc, c.origin(),
                                                        GrMipMapped(c.isMipMapped()),
                                                        SkBackingFit::kExact, budgeted,
+                                                       SkColorTypeToGrColorType(c.colorType()),
                                                        c.refColorSpace(),
                                                        &c.surfaceProps()));
     if (!sc || !sc->asRenderTargetContext()) {
@@ -510,6 +511,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
         texCopy,
         origin,
         sampleCnt,
+        SkColorTypeToGrColorType(colorType),
         std::move(colorSpace),
         props,
         textureReleaseProc,
@@ -570,6 +572,7 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
             context->priv().makeBackendTextureRenderTargetContext(texCopy,
                                                                   origin,
                                                                   sampleCnt,
+                                                                  oldRTC->colorSpaceInfo().colorType(),
                                                                   std::move(colorSpace),
                                                                   &this->props(),
                                                                   releaseProc,
@@ -633,7 +636,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
 
     sk_sp<GrRenderTargetContext> rtc(
             context->priv().makeBackendRenderTargetRenderTargetContext(
-                    rtCopy, origin, std::move(colorSpace), props, relProc, releaseContext));
+                    rtCopy, origin, SkColorTypeToGrColorType(colorType),
+                    std::move(colorSpace), props, relProc, releaseContext));
     if (!rtc) {
         return nullptr;
     }
@@ -675,6 +679,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
             texCopy,
             origin,
             sampleCnt,
+            SkColorTypeToGrColorType(colorType),
             std::move(colorSpace),
             props));
     if (!rtc) {

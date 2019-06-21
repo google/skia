@@ -113,11 +113,12 @@ public:
 protected:
     friend class GrTextureProducer_TestAccess;
 
-    GrTextureProducer(GrRecordingContext* context, int width, int height, bool isAlphaOnly,
-                      bool domainNeedsDecal)
+    GrTextureProducer(GrRecordingContext* context, int width, int height, GrColorType colorType,
+            bool isAlphaOnly, bool domainNeedsDecal)
         : fContext(context)
         , fWidth(width)
         , fHeight(height)
+        , fColorType(colorType)
         , fIsAlphaOnly(isAlphaOnly)
         , fDomainNeedsDecal(domainNeedsDecal) {}
 
@@ -160,6 +161,7 @@ protected:
 
     // This can draw to accomplish the copy, thus the recording context is needed
     static sk_sp<GrTextureProxy> CopyOnGpu(GrRecordingContext*, sk_sp<GrTextureProxy> inputProxy,
+                                           GrColorType,
                                            const CopyParams& copyParams,
                                            bool dstWillRequireMipMaps);
 
@@ -178,6 +180,7 @@ protected:
             const GrSamplerState::Filter* filterOrNullForBicubic);
 
     GrRecordingContext* context() const { return fContext; }
+    GrColorType colorType() const { return fColorType; }
 
 private:
     virtual sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
@@ -185,9 +188,10 @@ private:
                                                              SkScalar scaleAdjust[2]) = 0;
 
     GrRecordingContext* fContext;
-    const int           fWidth;
-    const int           fHeight;
-    const bool          fIsAlphaOnly;
+    const int          fWidth;
+    const int          fHeight;
+    const GrColorType   fColorType;
+    const bool         fIsAlphaOnly;
     // If true, any domain effect uses kDecal instead of kClamp, and sampler filter uses
     // kClampToBorder instead of kClamp.
     const bool  fDomainNeedsDecal;

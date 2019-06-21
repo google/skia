@@ -94,7 +94,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
     sk_sp<GrRenderTargetContext> renderTargetContext(
         context->priv().makeDeferredRenderTargetContextWithFallback(
             format, SkBackingFit::kExact, this->width(), this->height(),
-            SkColorType2GrPixelConfig(targetCT), nullptr));
+            SkColorType2GrPixelConfig(targetCT), SkColorTypeToGrColorType(targetCT), nullptr));
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -248,6 +248,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
     sk_sp<GrRenderTargetContext> renderTargetContext(
             ctx->priv().makeDeferredRenderTargetContext(
                     format, SkBackingFit::kExact, width, height, kRGBA_8888_GrPixelConfig,
+                    GrColorType::kRGBA_8888,
                     std::move(imageColorSpace), 1, GrMipMapped::kNo, imageOrigin));
     if (!renderTargetContext) {
         return nullptr;
@@ -279,6 +280,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
     sk_sp<GrRenderTargetContext> renderTargetContext(
             ctx->priv().makeBackendTextureRenderTargetContext(backendTextureCopy,
                                                               imageOrigin, 1,
+                                                              GrColorType::kRGBA_8888,
                                                               std::move(imageColorSpace)));
 
     if (!renderTargetContext) {
@@ -379,7 +381,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
         if (GrMipMapped::kNo == mipMapped || proxy->mipMapped() == mipMapped) {
             return sk_ref_sp(const_cast<SkImage*>(this));
         }
-        GrTextureAdjuster adjuster(context, std::move(proxy), this->alphaType(),
+        GrTextureAdjuster adjuster(context, std::move(proxy), SkColorTypeToGrColorType(this->colorType()), this->alphaType(),
                                    this->uniqueID(), this->colorSpace());
         return create_image_from_producer(context, &adjuster, this->alphaType(),
                                           this->uniqueID(), mipMapped);

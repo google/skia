@@ -410,8 +410,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
                          dstClip, aa, aaFlags, constraint, std::move(proxy), alphaType, colorSpace);
             return;
         }
-
-        GrTextureAdjuster adjuster(fContext.get(), std::move(proxy), alphaType, pinnedUniqueID,
+        auto colorType = SkColorTypeToGrColorType(image->colorType());
+        GrTextureAdjuster adjuster(fContext.get(), std::move(proxy), colorType, alphaType, pinnedUniqueID,
                                    colorSpace, useDecal);
         draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
                               paint, &adjuster, src, dst, dstClip, srcToDst, aa, aaFlags,

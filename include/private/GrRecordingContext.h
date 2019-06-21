@@ -57,6 +57,7 @@ protected:
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
+                                                      GrColorType,
                                                       sk_sp<SkColorSpace> = nullptr,
                                                       const SkSurfaceProps* = nullptr);
 
@@ -66,6 +67,7 @@ protected:
                                                        GrMipMapped,
                                                        SkBackingFit,
                                                        SkBudgeted,
+                                                       GrColorType,
                                                        sk_sp<SkColorSpace> colorSpace = nullptr,
                                                        const SkSurfaceProps* = nullptr);
 
@@ -79,6 +81,7 @@ protected:
                                             SkBackingFit fit,
                                             int width, int height,
                                             GrPixelConfig config,
+                                            GrColorType colorType,
                                             sk_sp<SkColorSpace> colorSpace,
                                             int sampleCnt = 1,
                                             GrMipMapped = GrMipMapped::kNo,
@@ -97,6 +100,7 @@ protected:
                                             SkBackingFit fit,
                                             int width, int height,
                                             GrPixelConfig config,
+                                            GrColorType colorType,
                                             sk_sp<SkColorSpace> colorSpace,
                                             int sampleCnt = 1,
                                             GrMipMapped = GrMipMapped::kNo,

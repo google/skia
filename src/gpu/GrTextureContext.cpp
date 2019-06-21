@@ -18,8 +18,9 @@
 
 GrTextureContext::GrTextureContext(GrRecordingContext* context,
                                    sk_sp<GrTextureProxy> textureProxy,
+                                   GrColorType colorType,
                                    sk_sp<SkColorSpace> colorSpace)
-        : GrSurfaceContext(context, textureProxy->config(), std::move(colorSpace))
+        : GrSurfaceContext(context, colorType, textureProxy->config(), std::move(colorSpace))
         , fTextureProxy(std::move(textureProxy))
         , fOpList(sk_ref_sp(fTextureProxy->getLastTextureOpList())) {
     SkDEBUGCODE(this->validate();)

@@ -8,6 +8,7 @@
 #ifndef GrYUVProvider_DEFINED
 #define GrYUVProvider_DEFINED
 
+#include <include/private/GrTypesPriv.h>
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkYUVAIndex.h"
 #include "include/core/SkYUVASizeInfo.h"
@@ -44,6 +45,7 @@ public:
     sk_sp<GrTextureProxy> refAsTextureProxy(GrRecordingContext*,
                                             const GrBackendFormat&,
                                             const GrSurfaceDesc&,
+                                            GrColorType colorType,
                                             SkColorSpace* srcColorSpace,
                                             SkColorSpace* dstColorSpace);
 

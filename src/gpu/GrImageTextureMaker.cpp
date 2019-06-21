@@ -14,7 +14,7 @@
 
 GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
                                          SkImage::CachingHint chint, bool useDecal)
-        : INHERITED(context, client->width(), client->height(), client->isAlphaOnly(), useDecal)
+        : INHERITED(context, client->width(), client->height(), SkColorTypeToGrColorType(client->imageInfo().colorType()), client->isAlphaOnly(), useDecal)
         , fImage(static_cast<const SkImage_Lazy*>(client))
         , fCachingHint(chint) {
     SkASSERT(client->isLazyGenerated());
@@ -47,7 +47,7 @@ SkColorSpace* GrImageTextureMaker::colorSpace() const {
 
 GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkImage* client,
                                                  bool useDecal)
-    : INHERITED(context, client->width(), client->height(), client->isAlphaOnly(), useDecal)
+    : INHERITED(context, client->width(), client->height(), SkColorTypeToGrColorType(client->imageInfo().colorType()), client->isAlphaOnly(), useDecal)
     , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
     SkASSERT(as_IB(client)->isYUVA());
     GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),

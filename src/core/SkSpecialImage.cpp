@@ -431,7 +431,7 @@ public:
             return false;
         }
         sk_sp<GrSurfaceContext> sContext = fContext->priv().makeWrappedSurfaceContext(
-                fTextureProxy, fColorSpace);
+                fTextureProxy, SkColorTypeToGrColorType(info.colorType()), fColorSpace);
         if (!sContext) {
             return false;
         }

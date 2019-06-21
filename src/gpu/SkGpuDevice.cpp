@@ -169,7 +169,8 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
     return context->priv().makeDeferredRenderTargetContext(
                                     format, SkBackingFit::kExact,
                                     origInfo.width(), origInfo.height(),
-                                    config, origInfo.refColorSpace(), sampleCount,
+                                    config, SkColorTypeToGrColorType(origInfo.colorType()),
+                                    origInfo.refColorSpace(), sampleCount,
                                     mipMapped, origin, surfaceProps, budgeted);
 }
 
@@ -1372,7 +1373,7 @@ void SkGpuDevice::drawImageNine(const SkImage* image,
     auto iter = skstd::make_unique<SkLatticeIter>(image->width(), image->height(), center, dst);
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
                                                                           &pinnedUniqueID)) {
-        GrTextureAdjuster adjuster(this->context(), std::move(proxy), image->alphaType(),
+        GrTextureAdjuster adjuster(this->context(), std::move(proxy), SkColorTypeToGrColorType(image->colorType()), image->alphaType(),
                                    pinnedUniqueID, image->colorSpace());
         this->drawProducerLattice(&adjuster, std::move(iter), dst, paint);
     } else {
@@ -1432,7 +1433,7 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
     auto iter = skstd::make_unique<SkLatticeIter>(lattice, dst);
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
                                                                           &pinnedUniqueID)) {
-        GrTextureAdjuster adjuster(this->context(), std::move(proxy), image->alphaType(),
+        GrTextureAdjuster adjuster(this->context(), std::move(proxy), SkColorTypeToGrColorType(image->colorType()), image->alphaType(),
                                    pinnedUniqueID, image->colorSpace());
         this->drawProducerLattice(&adjuster, std::move(iter), dst, paint);
     } else {
@@ -1693,6 +1694,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
 
     sk_sp<GrRenderTargetContext> rtc(fContext->priv().makeDeferredRenderTargetContext(
             format, fit, cinfo.fInfo.width(), cinfo.fInfo.height(), config,
+            fRenderTargetContext->colorSpaceInfo().colorType(),
             fRenderTargetContext->colorSpaceInfo().refColorSpace(),
             fRenderTargetContext->numStencilSamples(), GrMipMapped::kNo,
             kBottomLeft_GrSurfaceOrigin, &props));

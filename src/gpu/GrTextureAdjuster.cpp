@@ -14,11 +14,12 @@
 #include "src/gpu/SkGr.h"
 
 GrTextureAdjuster::GrTextureAdjuster(GrRecordingContext* context, sk_sp<GrTextureProxy> original,
+                                     GrColorType colorType,
                                      SkAlphaType alphaType,
                                      uint32_t uniqueID,
                                      SkColorSpace* cs,
                                      bool useDecal)
-    : INHERITED(context, original->width(), original->height(),
+    : INHERITED(context, original->width(), original->height(), colorType,
                 GrPixelConfigIsAlphaOnly(original->config()), useDecal)
     , fOriginal(std::move(original))
     , fAlphaType(alphaType)
@@ -53,7 +54,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
 
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
 
-    sk_sp<GrTextureProxy> copy = CopyOnGpu(this->context(), std::move(proxy),
+    sk_sp<GrTextureProxy> copy = CopyOnGpu(this->context(), std::move(proxy), this->colorType(),
                                            copyParams, willBeMipped);
     if (copy) {
         if (key.isValid()) {

@@ -50,9 +50,10 @@ void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBO
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(
                                                     sk_sp<GrSurfaceProxy> proxy,
+                                                    GrColorType colorType,
                                                     sk_sp<SkColorSpace> colorSpace,
                                                     const SkSurfaceProps* props) {
-    return fContext->makeWrappedSurfaceContext(std::move(proxy), std::move(colorSpace), props);
+    return fContext->makeWrappedSurfaceContext(std::move(proxy), colorType, std::move(colorSpace), props);
 }
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(
@@ -62,10 +63,12 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(
                                                     GrMipMapped mipMapped,
                                                     SkBackingFit fit,
                                                     SkBudgeted isDstBudgeted,
+                                                    GrColorType colorType,
                                                     sk_sp<SkColorSpace> colorSpace,
                                                     const SkSurfaceProps* props) {
     return fContext->makeDeferredSurfaceContext(format, dstDesc, origin, mipMapped, fit,
-                                                isDstBudgeted, std::move(colorSpace), props);
+                                                isDstBudgeted, colorType, std::move(colorSpace),
+                                                props);
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
@@ -73,13 +76,14 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
                                         SkBackingFit fit,
                                         int width, int height,
                                         GrPixelConfig config,
+                                        GrColorType colorType,
                                         sk_sp<SkColorSpace> colorSpace,
                                         int sampleCnt,
                                         GrMipMapped mipMapped,
                                         GrSurfaceOrigin origin,
                                         const SkSurfaceProps* surfaceProps,
                                         SkBudgeted budgeted) {
-    return fContext->makeDeferredRenderTargetContext(format, fit, width, height, config,
+    return fContext->makeDeferredRenderTargetContext(format, fit, width, height, config, colorType,
                                                      std::move(colorSpace), sampleCnt, mipMapped,
                                                      origin, surfaceProps, budgeted);
 }
@@ -89,6 +93,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithF
                                         SkBackingFit fit,
                                         int width, int height,
                                         GrPixelConfig config,
+                                        GrColorType colorType,
                                         sk_sp<SkColorSpace> colorSpace,
                                         int sampleCnt,
                                         GrMipMapped mipMapped,
@@ -96,13 +101,14 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithF
                                         const SkSurfaceProps* surfaceProps,
                                         SkBudgeted budgeted) {
     return fContext->makeDeferredRenderTargetContextWithFallback(format, fit, width, height, config,
-                                                                 std::move(colorSpace), sampleCnt,
-                                                                 mipMapped, origin, surfaceProps,
-                                                                 budgeted);
+                                                                 colorType, std::move(colorSpace),
+                                                                 sampleCnt, mipMapped, origin,
+                                                                 surfaceProps, budgeted);
 }
 
 sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackendTexture& tex,
                                                                  GrSurfaceOrigin origin,
+                                                                 GrColorType colorType,
                                                                  sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER
 
@@ -112,13 +118,14 @@ sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackend
         return nullptr;
     }
 
-    return this->drawingManager()->makeTextureContext(std::move(proxy), std::move(colorSpace));
+    return this->drawingManager()->makeTextureContext(std::move(proxy), colorType, std::move(colorSpace));
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContext(
                                                                    const GrBackendTexture& tex,
                                                                    GrSurfaceOrigin origin,
                                                                    int sampleCnt,
+                                                                   GrColorType colorType,
                                                                    sk_sp<SkColorSpace> colorSpace,
                                                                    const SkSurfaceProps* props,
                                                                    ReleaseProc releaseProc,
@@ -133,13 +140,14 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
         return nullptr;
     }
 
-    return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
+    return this->drawingManager()->makeRenderTargetContext(std::move(proxy), colorType,
                                                            std::move(colorSpace), props);
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetContext(
                                                 const GrBackendRenderTarget& backendRT,
                                                 GrSurfaceOrigin origin,
+                                                GrColorType colorType,
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* surfaceProps,
                                                 ReleaseProc releaseProc,
@@ -153,6 +161,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
     }
 
     return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
+                                                           colorType,
                                                            std::move(colorSpace),
                                                            surfaceProps);
 }
@@ -161,6 +170,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
                                                      const GrBackendTexture& tex,
                                                      GrSurfaceOrigin origin,
                                                      int sampleCnt,
+                                                     GrColorType colorType,
                                                      sk_sp<SkColorSpace> colorSpace,
                                                      const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER
@@ -172,6 +182,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
     }
 
     return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
+                                                           colorType,
                                                            std::move(colorSpace),
                                                            props);
 }
@@ -186,6 +197,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeVulkanSecondaryCBRenderTargetCon
     }
 
     return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
+                                                           SkColorTypeToGrColorType(imageInfo.colorType()),
                                                            imageInfo.refColorSpace(),
                                                            props);
 }

@@ -497,7 +497,7 @@ public:
 
 protected:
     GrRenderTargetContext(GrRecordingContext*, sk_sp<GrRenderTargetProxy>,
-                          sk_sp<SkColorSpace>, const SkSurfaceProps*,
+                          GrColorType, sk_sp<SkColorSpace>, const SkSurfaceProps*,
                           bool managedOpList = true);
 
     SkDEBUGCODE(void validate() const override;)

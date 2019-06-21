@@ -742,6 +742,7 @@ void GrDrawingManager::flushIfNecessary() {
 
 sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
                                                             sk_sp<GrSurfaceProxy> sProxy,
+                                                            GrColorType colorType,
                                                             sk_sp<SkColorSpace> colorSpace,
                                                             const SkSurfaceProps* surfaceProps,
                                                             bool managedOpList) {
@@ -760,12 +761,14 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
 
     return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext,
                                                                   std::move(renderTargetProxy),
+                                                                  colorType,
                                                                   std::move(colorSpace),
                                                                   surfaceProps,
                                                                   managedOpList));
 }
 
 sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProxy> sProxy,
+                                                             GrColorType colorType,
                                                              sk_sp<SkColorSpace> colorSpace) {
     if (this->wasAbandoned() || !sProxy->asTextureProxy()) {
         return nullptr;
@@ -785,5 +788,6 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
 
     return sk_sp<GrTextureContext>(new GrTextureContext(fContext,
                                                         std::move(textureProxy),
+                                                        colorType,
                                                         std::move(colorSpace)));
 }
