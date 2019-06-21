@@ -22,6 +22,7 @@ skia_effects_public = [
   "$_include/effects/SkLumaColorFilter.h",
   "$_include/effects/SkOverdrawColorFilter.h",
   "$_include/effects/SkPerlinNoiseShader.h",
+  "$_include/effects/SkShaderMaskFilter.h",
   "$_include/effects/SkTableColorFilter.h",
   "$_include/effects/SkTableMaskFilter.h",
 ]
