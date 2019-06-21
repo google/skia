@@ -5,13 +5,13 @@ import("../../gn/skia.gni")
 declare_args() {
   skia_enable_skparagraph = !(is_win && is_component_build)
   paragraph_tests_enabled = true
-  paragraph_bench_enabled = false
+  paragraph_bench_enabled = true
 }
 
 if (skia_enable_skparagraph) {
 
   config("public_config") {
-    include_dirs = [ "include" ]
+    include_dirs = [ "include", "utils" ]
   }
 
   component("skparagraph") {
