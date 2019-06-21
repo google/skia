@@ -211,53 +211,9 @@ def nanobench_flags(api, bot):
     match.append('~top25desk_ebay.skp_1.1_mpd')
   if 'MacBook10.1' in bot and 'CommandBuffer' in bot:
     match.append('~^desk_micrographygirlsvg.skp_1.1$')
-  if 'IntelIris655' in bot and 'Win10' in bot and 'Vulkan' in bot:
-    # skia:8587
-    match.append('~^GM_varied_text_clipped_lcd$')
-    match.append('~^GM_varied_text_ignorable_clip_lcd$')
-    match.append('~^fontscaler_lcd$')
-    match.append('~^rotated_rects_aa_changing_transparent_src$')
-    match.append('~^rotated_rects_aa_same_transparent_src$')
-    match.append('~^srcmode_rects_1_aa$')
-    match.append('~^desk_skbug6850overlay2.skp_1$')
-    match.append('~^desk_skbug6850overlay2.skp_1.1$')
-    match.append('~^desk_skbug6850overlay2.skp_1.1_mpd$')
-    match.append('~^desk_skbug6850overlay2.skp_1_mpd$')
-    # skia:8659
-    match.append('~^blendmode_mask_DstATop$')
-    match.append('~^blendmode_mask_Src$')
-    match.append('~^blendmode_mask_SrcIn$')
-    match.append('~^blendmode_mask_SrcOut$')
-    match.append('~^desk_carsvg.skp_1$')
-    match.append('~^desk_carsvg.skp_1.1$')
-    match.append('~^desk_carsvg.skp_1.1_mpd$')
-    match.append('~^desk_carsvg.skp_1_mpd$')
-    match.append('~^desk_googlespreadsheet.skp_1$')
-    match.append('~^desk_googlespreadsheet.skp_1.1$')
-    match.append('~^desk_googlespreadsheet.skp_1.1_mpd$')
-    match.append('~^desk_googlespreadsheet.skp_1_mpd$')
-    if 'Release' in bot:
-      match.append('~^rotated_rects_aa_alternating_transparent_and_opaque_src$')
-      match.append('~^shadermask_LCD_FF$')
-      match.append('~^text_16_LCD_88$')
-      match.append('~^text_16_LCD_BK$')
-      match.append('~^text_16_LCD_FF$')
-      match.append('~^text_16_LCD_WT$')
   if ('ASAN' in bot or 'UBSAN' in bot) and 'CPU' in bot:
     # floor2int_undef benches undefined behavior, so ASAN correctly complains.
     match.append('~^floor2int_undef$')
-  if (('Iris655' in bot or 'Iris540' in bot) and 'Release' in bot and
-      'Win10' in bot and 'Vulkan' not in bot and 'ANGLE' not in bot):
-    # skia:8706
-    match.append('~^top25desk_techcrunch.skp_1_mpd$')
-    match.append('~^top25desk_techcrunch.skp_1$')
-    match.append('~^top25desk_techcrunch.skp_1.1_mpd$')
-    match.append('~^top25desk_techcrunch.skp_1.1$')
-    # skia:skia:8706
-    match.append('~^mobi_wsj.skp_1_mpd$')
-    match.append('~^mobi_wsj.skp_1$')
-    match.append('~^mobi_wsj.skp_1.1_mpd$')
-    match.append('~^mobi_wsj.skp_1.1$')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -423,8 +379,6 @@ TEST_BUILDERS = [
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
     'Valgrind_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
-  'Perf-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All-Vulkan',
-  'Perf-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All',
   'Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
 ]
 
