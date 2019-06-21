@@ -537,6 +537,21 @@ enum class GrRenderTargetContext::QuadOptimization {
     kCropped
 };
 
+static bool make_vertex_finite(float* value) {
+    if (SkScalarIsNaN(*value)) {
+        return false;
+    }
+
+    if (!SkScalarIsFinite(*value)) {
+        // +/- infinity at this point. Don't use exactly SK_ScalarMax so that we have some precision
+        // left when calculating crops.
+        static constexpr float kNearInfinity = SK_ScalarMax / 4.f;
+        *value = *value < 0.f ? -kNearInfinity : kNearInfinity;
+    }
+
+    return true;
+}
+
 GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimization(
         const GrClip& clip, const SkPMColor4f* constColor,
         const GrUserStencilSettings* stencilSettings, GrAA* aa, GrQuadAAFlags* edgeFlags,
@@ -567,6 +582,25 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     if (constColor) {
         // Don't bother updating local coordinates when the paint will ignore them anyways
         localQuad = nullptr;
+        // If the device quad is not finite, coerce into a finite quad. This is acceptable since it
+        // will be cropped to the finite 'clip' or render target and there is no local space mapping
+        if (!deviceQuad->isFinite()) {
+            for (int i = 0; i < 4; ++i) {
+                if (!make_vertex_finite(deviceQuad->xs() + i) ||
+                    !make_vertex_finite(deviceQuad->ys() + i) ||
+                    !make_vertex_finite(deviceQuad->ws() + i)) {
+                    // Discard if we see a nan
+                    return QuadOptimization::kDiscarded;
+                }
+            }
+            SkASSERT(deviceQuad->isFinite());
+        }
+    } else {
+        // CropToRect requires the quads to be finite. If they are not finite and we have local
+        // coordinates, the mapping from local space to device space is poorly defined so drop it
+        if (!deviceQuad->isFinite()) {
+            return QuadOptimization::kDiscarded;
+        }
     }
 
     // If the quad is entirely off screen, it doesn't matter what the clip does

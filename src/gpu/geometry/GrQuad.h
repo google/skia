@@ -100,6 +100,18 @@ public:
         return {min(x), min(y), max(x), max(y)};
     }
 
+    bool isFinite() const {
+        // If any coordinate is infinity or NaN, then multiplying it with 0 will make accum NaN
+        float accum = 0;
+        for (int i = 0; i < 4; ++i) {
+            accum *= fX[i];
+            accum *= fY[i];
+            accum *= fW[i];
+        }
+        SkASSERT(0 == accum || SkScalarIsNaN(accum));
+        return !SkScalarIsNaN(accum);
+    }
+
     float x(int i) const { return fX[i]; }
     float y(int i) const { return fY[i]; }
     float w(int i) const { return fW[i]; }
