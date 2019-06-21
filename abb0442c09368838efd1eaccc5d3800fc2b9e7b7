@@ -22,6 +22,30 @@
       "revId": "abb0442c09368838efd1eaccc5d3800fc2b9e7b7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e920d11_98bec1c9",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 9825
+      },
+      "writtenOn": "2019-06-21T19:47:39Z",
+      "side": 1,
+      "message": "ah nevermind.\nThis is undefined for AHBs since it has an external format.",
+      "parentUuid": "76b94672_1357b22f",
+      "range": {
+        "startLine": 362,
+        "startChar": 8,
+        "endLine": 362,
+        "endChar": 53
+      },
+      "revId": "abb0442c09368838efd1eaccc5d3800fc2b9e7b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
