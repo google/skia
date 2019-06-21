@@ -1,21 +1,23 @@
 // Copyright 2019 Google LLC.
+#include "modules/skparagraph/include/TextStyle.h"
+#include <TextStyle.h>
 #include "include/core/SkColor.h"
 #include "include/core/SkFontStyle.h"
-#include "modules/skparagraph/include/TextStyle.h"
 
 namespace skia {
 namespace textlayout {
 
 TextStyle::TextStyle() : fFontStyle() {
+    fFontFamilies.reserve(1);
     fFontFamilies.emplace_back(DEFAULT_FONT_FAMILY);
     fColor = SK_ColorWHITE;
-    fDecoration = TextDecoration::kNoDecoration;
+    fDecoration.fType = TextDecoration::kNoDecoration;
     // Does not make sense to draw a transparent object, so we use it as a default
     // value to indicate no decoration color was set.
-    fDecorationColor = SK_ColorTRANSPARENT;
-    fDecorationStyle = TextDecorationStyle::kSolid;
+    fDecoration.fColor = SK_ColorTRANSPARENT;
+    fDecoration.fStyle = TextDecorationStyle::kSolid;
     // Thickness is applied as a multiplier to the default thickness of the font.
-    fDecorationThicknessMultiplier = 1.0;
+    fDecoration.fThicknessMultiplier = 1.0;
     fFontSize = 14.0;
     fLetterSpacing = 0.0;
     fWordSpacing = 0.0;
@@ -30,16 +32,7 @@ bool TextStyle::equals(const TextStyle& other) const {
     if (fColor != other.fColor) {
         return false;
     }
-    if (fDecoration != other.fDecoration) {
-        return false;
-    }
-    if (fDecorationColor != other.fDecorationColor) {
-        return false;
-    }
-    if (fDecorationStyle != other.fDecorationStyle) {
-        return false;
-    }
-    if (fDecorationThicknessMultiplier != other.fDecorationThicknessMultiplier) {
+    if (!(fDecoration == other.fDecoration)) {
         return false;
     }
     if (!(fFontStyle == other.fFontStyle)) {
@@ -107,9 +100,7 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
             return true;
 
         case kDecorations:
-            return fDecoration == other.fDecoration && fDecorationColor == other.fDecorationColor &&
-                   fDecorationStyle == other.fDecorationStyle &&
-                   fDecorationThicknessMultiplier == other.fDecorationThicknessMultiplier;
+            return this->fDecoration == other.fDecoration;
 
         case kLetterSpacing:
             return fLetterSpacing == other.fLetterSpacing;
@@ -121,6 +112,7 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
             return this->equals(other);
 
         case kFont:
+            // TODO: should not we take typefaces in account?
             return fFontStyle == other.fFontStyle && fFontFamilies == other.fFontFamilies &&
                    fFontSize == other.fFontSize && fHeight == other.fHeight;
 

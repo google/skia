@@ -15,30 +15,33 @@
 namespace skia {
 namespace textlayout {
 
+struct FontDescr {
+    FontDescr() {}
+    FontDescr(SkFont font, SkScalar height)
+            : fFont(font), fHeight(height), fStart(EMPTY_INDEX) {}
+    bool operator==(const FontDescr& a) const {
+        return this->fFont == a.fFont && this->fHeight == a.fHeight;
+    }
+    SkFont fFont;
+    SkScalar fHeight;
+    TextIndex fStart;
+};
+
 class FontResolver {
 public:
-    struct FontDescr {
-        FontDescr() {}
-        FontDescr(SkFont font, SkScalar height)
-                : fFont(font), fHeight(height) {}
-        bool operator==(const FontDescr& a) const {
-            return this->fFont == a.fFont && this->fHeight == a.fHeight;
-        }
-        SkFont fFont;
-        SkScalar fHeight;
-    };
 
     FontResolver() = default;
     ~FontResolver() = default;
 
     void findAllFontsForAllStyledBlocks(SkSpan<const char> utf8,
-                                        SkSpan<TextBlock> styles,
+                                        SkSpan<Block> styles,
                                         sk_sp<FontCollection> fontCollection);
-    bool findFirst(const char* codepoint, SkFont* font, SkScalar* height);
     bool findNext(const char* codepoint, SkFont* font, SkScalar* height);
 
+    SkTArray<FontDescr>& switches() { return fFontSwitches; }
+
 private:
-    void findAllFontsForStyledBlock(const TextStyle& style, SkSpan<const char> text);
+    void findAllFontsForStyledBlock(const TextStyle& style, TextRange textRange);
     FontDescr makeFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar height);
     size_t resolveAllCharactersByFont(const FontDescr& fontDescr);
     void addResolvedWhitespacesToMapping();
@@ -55,12 +58,15 @@ private:
 
     sk_sp<FontCollection> fFontCollection;
     SkSpan<const char> fText;
-    SkSpan<TextBlock> fStyles;
+    TextRange fTextRange;
+    SkSpan<Block> fStyles;
 
-    SkTHashMap<const char*, FontDescr> fFontMapping;
+    SkTArray<FontDescr> fFontSwitches;
+    FontDescr* fFontIterator;
     SkTHashSet<FontDescr, Hash> fResolvedFonts;
     FontDescr fFirstResolvedFont;
 
+    SkTHashMap<TextIndex, FontDescr> fFontMapping;
     SkTArray<SkUnichar> fCodepoints;
     SkTArray<const char*> fCharacters;
     SkTArray<size_t> fUnresolvedIndexes;

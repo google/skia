@@ -2,6 +2,8 @@
 #ifndef Run_DEFINED
 #define Run_DEFINED
 
+#include "modules/skparagraph/include/DartTypes.h"
+#include "modules/skparagraph/include/TextStyle.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTextBlob.h"
@@ -12,16 +14,40 @@
 namespace skia {
 namespace textlayout {
 
+class ParagraphImpl;
 class Cluster;
+class Run;
+
+typedef size_t RunIndex;
+const size_t EMPTY_RUN = EMPTY_INDEX;
+
+typedef size_t ClusterIndex;
+typedef SkRange<size_t> ClusterRange;
+const size_t EMPTY_CLUSTER = EMPTY_INDEX;
+const SkRange<size_t> EMPTY_CLUSTERS = EMPTY_RANGE;
+
+typedef size_t BlockIndex;
+typedef SkRange<size_t> BlockRange;
+const size_t EMPTY_BLOCK = EMPTY_INDEX;
+const SkRange<size_t> EMPTY_BLOCKS = EMPTY_RANGE;
+
+struct RunShifts {
+    RunShifts() { }
+    RunShifts(size_t count) { fShifts.push_back_n(count, 0.0); }
+    SkSTArray<128, SkScalar, true> fShifts;
+};
+
 class Run {
 public:
     Run() = default;
-    Run(SkSpan<const char> text,
-          const SkShaper::RunHandler::RunInfo& info,
-          SkScalar lineHeight,
-          size_t index,
-          SkScalar shiftX);
+    Run(ParagraphImpl* master,
+        const SkShaper::RunHandler::RunInfo& info,
+        SkScalar lineHeight,
+        size_t index,
+        SkScalar shiftX);
     ~Run() {}
+
+    void setMaster(ParagraphImpl* master) { fMaster = master; }
 
     SkShaper::RunHandler::Buffer newRunBuffer();
 
@@ -43,12 +69,13 @@ public:
     bool leftToRight() const { return fBidiLevel % 2 == 0; }
     size_t index() const { return fIndex; }
     SkScalar lineHeight() const { return fHeightMultiplier; }
-    SkSpan<const char> text() const { return fText; }
     size_t clusterIndex(size_t pos) const { return fClusterIndexes[pos]; }
-    SkScalar positionX(size_t pos) const { return fPositions[pos].fX + fOffsets[pos]; }
-    SkScalar offset(size_t index) const { return fOffsets[index]; }
-    SkSpan<Cluster> clusters() const { return fClusters; }
-    void setClusters(SkSpan<Cluster> clusters) { fClusters = clusters; }
+    SkScalar positionX(size_t pos) const;
+
+    TextRange textRange() { return fTextRange; }
+    ClusterRange clusterRange() { return fClusterRange; }
+
+    void setClusterRange(size_t from, size_t to) { fClusterRange = ClusterRange(from, to); }
     SkRect clip() const {
         return SkRect::MakeXYWH(fOffset.fX, fOffset.fY, fAdvance.fX, fAdvance.fY);
     }
@@ -70,7 +97,7 @@ public:
                                               SkScalar height)>;
     void iterateThroughClustersInTextOrder(const ClusterVisitor& visitor);
 
-    std::tuple<bool, Cluster*, Cluster*> findLimitingClusters(SkSpan<const char> text);
+    std::tuple<bool, ClusterIndex, ClusterIndex> findLimitingClusters(TextRange);
     SkSpan<const SkGlyphID> glyphs() {
         return SkSpan<const SkGlyphID>(fGlyphs.begin(), fGlyphs.size());
     }
@@ -85,6 +112,11 @@ private:
     friend class ParagraphImpl;
     friend class TextLine;
     friend class LineMetrics;
+    friend class ParagraphCache;
+
+    ParagraphImpl* fMaster;
+    TextRange fTextRange;
+    ClusterRange fClusterRange;
 
     SkFont fFont;
     SkFontMetrics fFontMetrics;
@@ -92,8 +124,6 @@ private:
     size_t fIndex;
     uint8_t fBidiLevel;
     SkVector fAdvance;
-    SkSpan<const char> fText;
-    SkSpan<Cluster> fClusters;
     SkVector fOffset;
     SkShaper::RunHandler::Range fUtf8Range;
     SkSTArray<128, SkGlyphID, false> fGlyphs;
@@ -116,8 +146,9 @@ public:
     };
 
     Cluster()
-            : fText(nullptr, 0)
-            , fRun(nullptr)
+            : fMaster(nullptr)
+            , fRunIndex(EMPTY_RUN)
+            , fTextRange(EMPTY_TEXT)
             , fStart(0)
             , fEnd()
             , fWidth()
@@ -126,27 +157,21 @@ public:
             , fWhiteSpaces(false)
             , fBreakType(None) {}
 
-    Cluster(Run* run,
-              size_t start,
-              size_t end,
-              SkSpan<const char>
-                      text,
-              SkScalar width,
-              SkScalar height)
-            : fText(text)
-            , fRun(run)
-            , fStart(start)
-            , fEnd(end)
-            , fWidth(width)
-            , fSpacing(0)
-            , fHeight(height)
-            , fWhiteSpaces(false)
-            , fBreakType(None) {}
+    Cluster(ParagraphImpl* master,
+            RunIndex runIndex,
+            size_t start,
+            size_t end,
+            SkSpan<const char> text,
+            SkScalar width,
+            SkScalar height);
+
+    Cluster(TextRange textRange) : fTextRange(textRange) { }
 
     ~Cluster() = default;
 
-    SkScalar sizeToChar(const char* ch) const;
-    SkScalar sizeFromChar(const char* ch) const;
+    void setMaster(ParagraphImpl* master) { fMaster = master; }
+    SkScalar sizeToChar(TextIndex ch) const;
+    SkScalar sizeFromChar(TextIndex ch) const;
 
     size_t roundPos(SkScalar s) const;
 
@@ -156,43 +181,48 @@ public:
     }
 
     void setBreakType(BreakType type) { fBreakType = type; }
-    void setIsWhiteSpaces(bool ws) { fWhiteSpaces = ws; }
     bool isWhitespaces() const { return fWhiteSpaces; }
     bool canBreakLineAfter() const {
         return fBreakType == SoftLineBreak || fBreakType == HardLineBreak;
     }
     bool isHardBreak() const { return fBreakType == HardLineBreak; }
     bool isSoftBreak() const { return fBreakType == SoftLineBreak; }
-    Run* run() const { return fRun; }
     size_t startPos() const { return fStart; }
     size_t endPos() const { return fEnd; }
     SkScalar width() const { return fWidth; }
     SkScalar trimmedWidth() const { return fWidth - fSpacing; }
     SkScalar lastSpacing() const { return fSpacing; }
     SkScalar height() const { return fHeight; }
-    SkSpan<const char> text() const { return fText; }
     size_t size() const { return fEnd - fStart; }
+
+    TextRange textRange() const { return fTextRange; }
+
+    RunIndex runIndex() const { return fRunIndex; }
+    Run* run() const;
+    SkFont font() const;
 
     SkScalar trimmedWidth(size_t pos) const;
 
-    void shift(SkScalar offset) const { this->run()->shift(this, offset); }
+    void shift(SkScalar offset) const;
 
     void setIsWhiteSpaces();
 
-    bool contains(const char* ch) const { return ch >= fText.begin() && ch < fText.end(); }
+    bool contains(TextIndex ch) const { return ch >= fTextRange.start && ch < fTextRange.end; }
 
-    bool belongs(SkSpan<const char> text) const {
-        return fText.begin() >= text.begin() && fText.end() <= text.end();
+    bool belongs(TextRange text) const {
+        return fTextRange.start >= text.start && fTextRange.end <= text.end;
     }
 
-    bool startsIn(SkSpan<const char> text) const {
-        return fText.begin() >= text.begin() && fText.begin() < text.end();
+    bool startsIn(TextRange text) const {
+        return fTextRange.start >= text.start && fTextRange.start < text.end;
     }
 
 private:
-    SkSpan<const char> fText;
 
-    Run* fRun;
+    ParagraphImpl* fMaster;
+    RunIndex fRunIndex;
+    TextRange fTextRange;
+
     size_t fStart;
     size_t fEnd;
     SkScalar fWidth;
