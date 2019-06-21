@@ -11,14 +11,6 @@ class SkCanvas;
 namespace skia {
 namespace textlayout {
 
-struct Block {
-    Block(size_t start, size_t end, const TextStyle& style)
-            : fStart(start), fEnd(end), fStyle(style) {}
-    size_t fStart;
-    size_t fEnd;
-    TextStyle fStyle;
-};
-
 class Paragraph {
 
 public:
@@ -75,7 +67,6 @@ protected:
     SkScalar fWidth;
     SkScalar fMaxIntrinsicWidth;
     SkScalar fMinIntrinsicWidth;
-    SkScalar fMaxLineWidth;
 };
 }  // namespace textlayout
 }  // namespace skia
