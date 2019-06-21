@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f8b0b2c9_64b6df76",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-21T19:07:32Z",
+      "side": 1,
+      "message": "The type is const volatile void*. :-/",
+      "parentUuid": "fff7d7f2_1db5cc22",
+      "range": {
+        "startLine": 777,
+        "startChar": 12,
+        "endLine": 777,
+        "endChar": 17
+      },
+      "revId": "f3122c4c855f8e7b895f6daed8be7d20d3d312d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "75c5e8db_b659ab80",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "f3122c4c855f8e7b895f6daed8be7d20d3d312d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "510239f6_4944c8ae",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 783,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-21T19:07:32Z",
+      "side": 1,
+      "message": "To remove the volatile.",
+      "parentUuid": "75c5e8db_b659ab80",
+      "range": {
+        "startLine": 783,
+        "startChar": 40,
+        "endLine": 783,
+        "endChar": 48
+      },
+      "revId": "f3122c4c855f8e7b895f6daed8be7d20d3d312d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
