@@ -589,10 +589,6 @@ namespace skvm {
         this->byte(opcode);
         this->byte(mod_rm(Mod::Direct, dst&7, y&7));
     }
-    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, bool W/*=false*/) {
-        // Two arguments ops seem to pass them in dst and y, forcing x to 0 so VEX.vvvv == 1111.
-        this->op(prefix,map,opcode, dst,(Ymm)0,x,W);
-    }
 
     void Assembler::vpaddd (Ymm dst, Ymm x, Ymm y) { this->op(0x66,  0x0f,0xfe, dst,x,y); }
     void Assembler::vpsubd (Ymm dst, Ymm x, Ymm y) { this->op(0x66,  0x0f,0xfa, dst,x,y); }
@@ -646,20 +642,24 @@ namespace skvm {
         return { this->size() };
     }
 
-    void Assembler::vbroadcastss(Ymm dst, Label l) {
+    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label l) {
         // IP-relative addressing uses Mod::Indirect with the R/M encoded as-if rbp or r13.
-        int rip = rbp;
+        const int rip = rbp;
 
         VEX v = vex(0, dst>>3, 0, rip>>3,
-                    0x380f, 0, /*ymm?*/1, 0x66);
+                    map, x, /*ymm?*/1, prefix);
         this->byte(v.bytes, v.len);
-        this->byte(0x18);
+        this->byte(opcode);
         this->byte(mod_rm(Mod::Indirect, dst&7, rip&7));
 
-        // IP relative loads are relative to IP _after_ this instruction.
+        // IP relative addresses are relative to IP _after_ this instruction.
         int imm = l.offset - (here().offset + 4);
         this->byte(&imm, 4);
     }
+
+    void Assembler::vbroadcastss(Ymm dst, Label l) { this->op(0x66,0x380f,0x18, dst,l); }
+
+    void Assembler::vpshufb(Ymm dst, Ymm x, Label l) { this->op(0x66,0x380f,0x00, dst,x,l); }
 
     static bool can_jit(int regs, int nargs) {
         return true
@@ -709,7 +709,7 @@ namespace skvm {
         // the instructions that use them... no relocations.
 
         // Map from our bytes() control y.imm to 32-byte mask for vpshufb.
-        std::unordered_map<int, Xbyak::Label> vpshufb_masks;
+        std::unordered_map<int, A::Label> vpshufb_masks;
         for (const Program::Instruction& inst : instructions) {
             if (inst.op == Op::bytes && vpshufb_masks.end() == vpshufb_masks.find(inst.y.imm)) {
                 // Translate bytes()'s control nibbles to vpshufb's control bytes.
@@ -745,7 +745,7 @@ namespace skvm {
 
                 // Notice, same pattern for top 4 32-bit lanes as bottom 4 lanes.
                 SkASSERT(a.size() % 32 == 0);
-                Xbyak::Label label = X.L();
+                A::Label label = a.here();
                 a.byte(p, sizeof(p));
                 a.byte(p, sizeof(p));
                 vpshufb_masks[inst.y.imm] = label;
@@ -857,10 +857,7 @@ namespace skvm {
                 case Op::to_f32: a.vcvtdq2ps (ar(d), ar(x)); break;
                 case Op::to_i32: a.vcvttps2dq(ar(d), ar(x)); break;
 
-                case Op::bytes: {
-                    X.vpshufb(r(d), r(x),
-                              X.ptr[X.rip + vpshufb_masks[y.imm]]);
-                } break;
+                case Op::bytes: a.vpshufb(ar(d), ar(x), vpshufb_masks[y.imm]); break;
             }
         }
 
