@@ -95,10 +95,15 @@
   },
   {
     "cmd": [
-      "make",
-      "-C",
-      "infra/bots",
-      "test"
+      "where",
+      "git"
+    ],
+    "name": "where git"
+  },
+  {
+    "cmd": [
+      "python.exe",
+      "[START_DIR]/cache/work/skia/infra/bots/infra_tests.py"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
