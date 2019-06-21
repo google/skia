@@ -31,7 +31,6 @@ deps = {
   "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@a7edc1cd1d8ffd2ad8ab6d9bb02179636b7c25ba",
   #"third_party/externals/v8"              : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
   "third_party/externals/wuffs"           : "https://skia.googlesource.com/external/github.com/google/wuffs.git@f58ffbc927899b9534a273d3057094ce6ac1ed61",
-  "third_party/externals/xbyak"           : "https://skia.googlesource.com/third_party/xbyak.git@v5.80",
   "third_party/externals/zlib"            : "https://chromium.googlesource.com/chromium/src/third_party/zlib@47af7c547f8551bd25424e56354a2ae1e9062859",
 
   "../src": {

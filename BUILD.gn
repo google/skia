@@ -38,8 +38,6 @@ declare_args() {
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
   skia_use_x11 = is_linux
-  skia_use_xbyak =
-      is_skia_dev_build && target_cpu == "x64" && is_linux && is_clang
   skia_use_xps = true
 
   skia_android_serial = ""
@@ -49,6 +47,7 @@ declare_args() {
   skia_enable_pdf = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_skpicture = true
+  skia_enable_skvm_jit = is_skia_dev_build && target_cpu == "x64" && is_linux
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_qt_path = getenv("QT_PATH")
   skia_compile_processors = false
@@ -818,12 +817,8 @@ optional("xml") {
 }
 
 optional("skvm_jit") {
-  enabled = skia_use_xbyak
+  enabled = skia_enable_skvm_jit
   public_defines = [ "SKVM_JIT" ]
-
-  public_deps = [
-    "//third_party/xbyak",
-  ]
 }
 
 if (skia_enable_gpu && skia_generate_workarounds) {
