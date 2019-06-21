@@ -70,6 +70,7 @@ struct TextBox {
     TextBox(SkRect r, TextDirection d) : rect(r), direction(d) {}
 };
 
+const size_t EMPTY_INDEX = std::numeric_limits<size_t>::max();
 template <typename T> struct SkRange {
     SkRange() : start(), end() {}
     SkRange(T s, T e) : start(s), end(e) {}
@@ -80,13 +81,24 @@ template <typename T> struct SkRange {
         return start == other.start && end == other.end;
     }
 
-    T width() { return end - start; }
+    T width() const { return end - start; }
 
     void Shift(T delta) {
         start += delta;
         end += delta;
     }
+
+    bool contains(SkRange<size_t> other) const {
+        return start <= other.start && end >= other.end;
+    }
+
+    bool empty() const {
+        return start == EMPTY_INDEX && end == EMPTY_INDEX;
+    }
 };
+
+const SkRange<size_t> EMPTY_RANGE = SkRange<size_t>(EMPTY_INDEX, EMPTY_INDEX);
+
 
 enum class TextBaseline {
     kAlphabetic,

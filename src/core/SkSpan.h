@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#include "include/private/SkTo.h"
+
 template <typename T>
 class SkSpan {
 public:

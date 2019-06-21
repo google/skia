@@ -1,4 +1,5 @@
 // Copyright 2019 Google LLC.
+#include <tools/ToolUtils.h>
 #include <sstream>
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
@@ -15,8 +16,8 @@
 using namespace skia::textlayout;
 namespace {
 
-bool equal(SkSpan<const char> a, const char* b) {
-    return std::strncmp(b, a.data(), a.size()) == 0;
+bool equal(const char* base, TextRange a, const char* b) {
+    return std::strncmp(b, base + a.start, a.width()) == 0;
 }
 class TestFontCollection : public FontCollection {
 public:
@@ -88,15 +89,12 @@ DEF_TEST(SkParagraph_SimpleParagraph, reporter) {
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);  // paragraph style does not count
-    REPORTER_ASSERT(reporter, impl->styles()[0].style().equals(text_style));
-
-    // Some of the formatting lazily done on paint
-    impl->formatLines(TestCanvasWidth - 100);
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
 
     size_t index = 0;
     for (auto& line : impl->lines()) {
         line.scanStyles(StyleType::kDecorations,
-                        [&index, reporter](SkSpan<const char> text, TextStyle style, SkScalar) {
+                        [&index, reporter](TextRange text, TextStyle style, SkScalar) {
                             REPORTER_ASSERT(reporter, index == 0);
                             REPORTER_ASSERT(reporter, style.getColor() == SK_ColorBLACK);
                             ++index;
@@ -127,15 +125,12 @@ DEF_TEST(SkParagraph_SimpleRedParagraph, reporter) {
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);  // paragraph style does not count
-    REPORTER_ASSERT(reporter, impl->styles()[0].style().equals(text_style));
-
-    // Some of the formatting lazily done on paint
-    impl->formatLines(TestCanvasWidth - 100);
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
 
     size_t index = 0;
     for (auto& line : impl->lines()) {
         line.scanStyles(StyleType::kDecorations,
-                        [&index, reporter](SkSpan<const char> text, TextStyle style, SkScalar) {
+                        [&index, reporter](TextRange text, TextStyle style, SkScalar) {
                             REPORTER_ASSERT(reporter, index == 0);
                             REPORTER_ASSERT(reporter, style.getColor() == SK_ColorRED);
                             ++index;
@@ -212,28 +207,25 @@ DEF_TEST(SkParagraph_RainbowParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->styles().size() == 4);
     REPORTER_ASSERT(reporter, impl->lines().size() == 1);
 
-    // Some of the formatting lazily done on paint
-    impl->formatLines(VeryLongCanvasWidth);
-
     size_t index = 0;
     impl->lines()[0].scanStyles(StyleType::kAllAttributes,
-                                [&](SkSpan<const char> text, TextStyle style, SkScalar) {
+                                [&](TextRange text, TextStyle style, SkScalar) {
                                     switch (index) {
                                         case 0:
                                             REPORTER_ASSERT(reporter, style.equals(text_style1));
-                                            REPORTER_ASSERT(reporter, equal(text, text1));
+                                            REPORTER_ASSERT(reporter, equal(impl->text().begin(), text, text1));
                                             break;
                                         case 1:
                                             REPORTER_ASSERT(reporter, style.equals(text_style2));
-                                            REPORTER_ASSERT(reporter, equal(text, text2));
+                                            REPORTER_ASSERT(reporter, equal(impl->text().begin(), text, text2));
                                             break;
                                         case 2:
                                             REPORTER_ASSERT(reporter, style.equals(text_style3));
-                                            REPORTER_ASSERT(reporter, equal(text, text3));
+                                            REPORTER_ASSERT(reporter, equal(impl->text().begin(), text, text3));
                                             break;
                                         case 3:
                                             REPORTER_ASSERT(reporter, style.equals(text_style4));
-                                            REPORTER_ASSERT(reporter, equal(text, text45));
+                                            REPORTER_ASSERT(reporter, equal(impl->text().begin(), text, text45));
                                             break;
                                         default:
                                             REPORTER_ASSERT(reporter, false);
@@ -267,13 +259,11 @@ DEF_TEST(SkParagraph_DefaultStyleParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
     REPORTER_ASSERT(reporter, impl->lines().size() == 1);
 
-    impl->formatLines(VeryLongCanvasWidth);
-
     size_t index = 0;
     impl->lines()[0].scanStyles(
-            StyleType::kAllAttributes, [&](SkSpan<const char> text1, TextStyle style, SkScalar) {
+            StyleType::kAllAttributes, [&](TextRange text1, TextStyle style, SkScalar) {
                 REPORTER_ASSERT(reporter, style.equals(paragraph_style.getTextStyle()));
-                REPORTER_ASSERT(reporter, equal(text1, text));
+                REPORTER_ASSERT(reporter, equal(impl->text().begin(), text1, text));
                 ++index;
                 return true;
             });
@@ -309,13 +299,11 @@ DEF_TEST(SkParagraph_BoldParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
     REPORTER_ASSERT(reporter, impl->lines().size() == 1);
 
-    impl->formatLines(VeryLongCanvasWidth);
-
     size_t index = 0;
     impl->lines()[0].scanStyles(StyleType::kAllAttributes,
-                                [&](SkSpan<const char> text1, TextStyle style, SkScalar) {
+                                [&](TextRange text1, TextStyle style, SkScalar) {
                                     REPORTER_ASSERT(reporter, style.equals(text_style));
-                                    REPORTER_ASSERT(reporter, equal(text1, text));
+                                    REPORTER_ASSERT(reporter, equal(impl->text().begin(), text1, text));
                                     ++index;
                                     return true;
                                 });
@@ -367,13 +355,11 @@ DEF_TEST(SkParagraph_LeftAlignParagraph, reporter) {
     paragraph->layout(TestCanvasWidth - 100);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    // Some of the formatting lazily done on paint
-    impl->formatLines(TestCanvasWidth - 100);
 
     REPORTER_ASSERT(reporter, impl->text().size() == std::string{text}.length());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].style().equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
     REPORTER_ASSERT(reporter, impl->lines().size() == paragraph_style.getMaxLines());
 
     // Apparently, Minikin records start from the base line (24)
@@ -451,12 +437,10 @@ DEF_TEST(SkParagraph_RightAlignParagraph, reporter) {
     paragraph->layout(TestCanvasWidth - 100);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    // Some of the formatting lazily done on paint
-    impl->formatLines(TestCanvasWidth - 100);
 
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].style().equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
     // Minikin has two records for each due to 'ghost' trailing whitespace run, SkParagraph - 1
     REPORTER_ASSERT(reporter, impl->lines().size() == paragraph_style.getMaxLines());
 
@@ -538,13 +522,11 @@ DEF_TEST(SkParagraph_CenterAlignParagraph, reporter) {
     paragraph->layout(TestCanvasWidth - 100);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    // Some of the formatting lazily done on paint
-    impl->formatLines(TestCanvasWidth - 100);
 
     REPORTER_ASSERT(reporter, impl->text().size() == std::string{text}.length());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].style().equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
     // Minikin has two records for each due to 'ghost' trailing whitespace run, SkParagraph - 1
     REPORTER_ASSERT(reporter, impl->lines().size() == paragraph_style.getMaxLines());
 
@@ -624,12 +606,11 @@ DEF_TEST(SkParagraph_JustifyAlignParagraph, reporter) {
     paragraph->layout(TestCanvasWidth - 100);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    impl->formatLines(TestCanvasWidth - 100);
 
     REPORTER_ASSERT(reporter, impl->text().size() == std::string{text}.length());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].style().equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
 
     double expected_y = 0;
     double epsilon = 0.01f;
@@ -692,7 +673,6 @@ DEF_TEST(SkParagraph_JustifyRTL, reporter) {
     paragraph->layout(TestCanvasWidth - 100);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    impl->formatLines(TestCanvasWidth - 100);
 
     auto calculate = [](const TextLine& line) -> SkScalar {
         return TestCanvasWidth - 100 - (line.offset().fX + line.width());
@@ -767,17 +747,16 @@ DEF_TEST(SkParagraph_DecorationsParagraph, reporter) {
     paragraph->layout(TestCanvasWidth - 100);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    impl->formatLines(TestCanvasWidth - 100);
 
     size_t index = 0;
     for (auto& line : impl->lines()) {
         line.scanStyles(
             StyleType::kDecorations,
-            [&index, reporter](SkSpan<const char> text, TextStyle style, SkScalar) {
+            [&index, reporter](TextRange, TextStyle style, SkScalar) {
                 auto decoration = (TextDecoration)(TextDecoration::kUnderline |
                                                    TextDecoration::kOverline |
                                                    TextDecoration::kLineThrough);
-                REPORTER_ASSERT(reporter, style.getDecoration() == decoration);
+                REPORTER_ASSERT(reporter, style.getDecorationType() == decoration);
                 switch (index) {
                     case 0:
                         REPORTER_ASSERT(reporter, style.getDecorationStyle() ==
@@ -850,8 +829,6 @@ DEF_TEST(SkParagraph_ItalicsParagraph, reporter) {
     paragraph->layout(TestCanvasWidth);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    // Some of the formatting lazily done on paint
-    impl->formatLines(TestCanvasWidth - 100);
 
     REPORTER_ASSERT(reporter, impl->runs().size() == 3);
     REPORTER_ASSERT(reporter, impl->styles().size() == 3);
@@ -860,7 +837,7 @@ DEF_TEST(SkParagraph_ItalicsParagraph, reporter) {
     size_t index = 0;
     line.scanStyles(
         StyleType::kForeground,
-        [&index, reporter](SkSpan<const char> text, TextStyle style, SkScalar) {
+        [&index, reporter](TextRange textRange, TextStyle style, SkScalar) {
             switch (index) {
                 case 0:
                     REPORTER_ASSERT(
@@ -921,12 +898,11 @@ DEF_TEST(SkParagraph_ChineseParagraph, reporter) {
     paragraph->layout(TestCanvasWidth - 100);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    impl->formatLines(TestCanvasWidth - 100);
 
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->lines().size() == 7);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].style().equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
 }
 
 DEF_TEST(SkParagraph_ArabicParagraph, reporter) {
@@ -962,12 +938,11 @@ DEF_TEST(SkParagraph_ArabicParagraph, reporter) {
     paragraph->layout(TestCanvasWidth - 100);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    impl->formatLines(TestCanvasWidth - 100);
 
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->lines().size() == 2);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].style().equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
 }
 
 DEF_TEST(SkParagraph_GetGlyphPositionAtCoordinateParagraph, reporter) {
@@ -1479,8 +1454,6 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeCombiningCharacter, reporter) {
     paragraph->layout(TestCanvasWidth - 100);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    impl->formatLines(TestCanvasWidth - 100);
-
     REPORTER_ASSERT(reporter, impl->lines().size() == 1);
 
     RectHeightStyle heightStyle = RectHeightStyle::kTight;
@@ -1556,10 +1529,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterParagraph, reporter) {
     auto paragraph = builder.Build();
     paragraph->layout(550);
 
-    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     // Some of the formatting lazily done on paint
-    impl->formatLines(550);
-
     RectHeightStyle heightStyle = RectHeightStyle::kMax;
     RectWidthStyle widthStyle = RectWidthStyle::kTight;
     SkScalar epsilon = 0.01f;
@@ -1649,9 +1619,6 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterParagraphNewlineCentered, reporter) {
     paragraph->layout(550);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    // Some of the formatting lazily done on paint
-    impl->formatLines(550);
-
     REPORTER_ASSERT(reporter, impl->lines().size() == 2);
 
     RectHeightStyle heightStyle = RectHeightStyle::kMax;
@@ -1713,8 +1680,6 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterMultiLineParagraph, reporter) {
     paragraph->layout(550);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    // Some of the formatting lazily done on paint
-    impl->formatLines(550);
 
     REPORTER_ASSERT(reporter, impl->lines().size() == 2);
 
@@ -1897,14 +1862,14 @@ DEF_TEST(SkParagraph_SpacingParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->lines().size() == 1);
     size_t index = 0;
     impl->lines().begin()->scanStyles(StyleType::kLetterSpacing,
-                                      [&index](SkSpan<const char> text, TextStyle style, SkScalar) {
+                                      [&index](TextRange text, TextStyle style, SkScalar) {
                                           ++index;
                                           return true;
                                       });
     REPORTER_ASSERT(reporter, index == 4);
     index = 0;
     impl->lines().begin()->scanStyles(StyleType::kWordSpacing,
-                                      [&index](SkSpan<const char> text, TextStyle style, SkScalar) {
+                                      [&index](TextRange text, TextStyle style, SkScalar) {
                                           ++index;
                                           return true;
                                       });
@@ -1942,7 +1907,7 @@ DEF_TEST(SkParagraph_LongWordParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->text().size() == std::string{text}.length());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
-    REPORTER_ASSERT(reporter, impl->styles()[0].style().equals(text_style));
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
     REPORTER_ASSERT(reporter, impl->lines().size() == 4);
 
     REPORTER_ASSERT(reporter, impl->lines()[0].width() > TestCanvasWidth / 2 - 20);
@@ -1972,8 +1937,6 @@ DEF_TEST(SkParagraph_KernScaleParagraph, reporter) {
     paragraph->layout(TestCanvasWidth / scale);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    // Some of the formatting lazily done on paint
-    impl->formatLines(TestCanvasWidth);
 
     // First and second lines must have the same width, the third one must be bigger
     SkScalar epsilon = 0.01f;
@@ -2033,7 +1996,7 @@ DEF_TEST(SkParagraph_NewlineParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->lines()[5].width(), 586.64f, epsilon));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->lines()[6].width(), 137.16f, epsilon));
 
-    REPORTER_ASSERT(reporter, impl->lines()[0].shift() == 0);
+    REPORTER_ASSERT(reporter, impl->lineShift(0) == 0);
 }
 
 DEF_TEST(SkParagraph_EmojiParagraph, reporter) {
@@ -2070,8 +2033,6 @@ DEF_TEST(SkParagraph_EmojiParagraph, reporter) {
     paragraph->layout(TestCanvasWidth);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    // Some of the formatting lazily done on paint
-    impl->formatLines(TestCanvasWidth);
 
     REPORTER_ASSERT(reporter, impl->lines().size() == 8);
     for (auto& line : impl->lines()) {
@@ -2150,8 +2111,6 @@ DEF_TEST(SkParagraph_Ellipsize, reporter) {
     paragraph->layout(TestCanvasWidth);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    // Some of the formatting lazily done on paint
-    impl->formatLines(TestCanvasWidth);
 
     // Check that the ellipsizer limited the text to one line and did not wrap to a second line.
     REPORTER_ASSERT(reporter, impl->lines().size() == 1);
@@ -2162,7 +2121,7 @@ DEF_TEST(SkParagraph_Ellipsize, reporter) {
     line.scanRuns([&index, &line, reporter](Run* run, int32_t, size_t, SkRect, SkScalar, bool) {
         ++index;
         if (index == 2) {
-            REPORTER_ASSERT(reporter, run->text() == line.ellipsis()->text());
+            REPORTER_ASSERT(reporter, run->textRange() == line.ellipsis()->textRange());
         }
         return true;
     });
@@ -2216,15 +2175,15 @@ DEF_TEST(SkParagraph_UnderlineShiftParagraph, reporter) {
         size_t index = 0;
         line.scanStyles(
                 StyleType::kDecorations,
-                [&index, reporter](SkSpan<const char> text, TextStyle style, SkScalar) {
+                [&index, reporter](TextRange text, TextStyle style, SkScalar) {
                     switch (index) {
                         case 0:
                             REPORTER_ASSERT(reporter,
-                                            style.getDecoration() == TextDecoration::kNoDecoration);
+                                            style.getDecorationType() == TextDecoration::kNoDecoration);
                             break;
                         case 1:
                             REPORTER_ASSERT(reporter,
-                                            style.getDecoration() == TextDecoration::kUnderline);
+                                            style.getDecorationType() == TextDecoration::kUnderline);
                             break;
                         default:
                             REPORTER_ASSERT(reporter, false);
@@ -2239,9 +2198,9 @@ DEF_TEST(SkParagraph_UnderlineShiftParagraph, reporter) {
         auto& line = impl1->lines()[0];
         size_t index = 0;
         line.scanStyles(StyleType::kDecorations,
-                        [&index, reporter](SkSpan<const char> text, TextStyle style, SkScalar) {
+                        [&index, reporter](TextRange text, TextStyle style, SkScalar) {
                             if (index == 0) {
-                                REPORTER_ASSERT(reporter, style.getDecoration() ==
+                                REPORTER_ASSERT(reporter, style.getDecorationType() ==
                                                                   TextDecoration::kNoDecoration);
                             } else {
                                 REPORTER_ASSERT(reporter, false);
@@ -2304,7 +2263,7 @@ DEF_TEST(SkParagraph_SimpleShadow, reporter) {
     for (auto& line : impl->lines()) {
         line.scanStyles(
                 StyleType::kShadow,
-                [&index, text_style, reporter](SkSpan<const char> text, TextStyle style, SkScalar) {
+                [&index, text_style, reporter](TextRange text, TextStyle style, SkScalar) {
                     REPORTER_ASSERT(reporter, index == 0 && style.equals(text_style));
                     ++index;
                     return true;
@@ -2352,7 +2311,7 @@ DEF_TEST(SkParagraph_ComplexShadow, reporter) {
     for (auto& line : impl->lines()) {
         line.scanStyles(
                 StyleType::kShadow,
-                [&index, text_style, reporter](SkSpan<const char> text, TextStyle style, SkScalar) {
+                [&index, text_style, reporter](TextRange text, TextStyle style, SkScalar) {
                     ++index;
                     switch (index) {
                         case 1:
@@ -2901,8 +2860,8 @@ DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
 
     SkDEBUGCODE(auto impl = static_cast<ParagraphImpl*>(paragraph.get());)
     SkASSERT(impl->runs().size() == 3);
-    SkASSERT(impl->runs()[0].text().end() == impl->runs()[1].text().begin());
-    SkASSERT(impl->runs()[1].text().end() == impl->runs()[2].text().begin());
+    SkASSERT(impl->runs()[0].textRange().end == impl->runs()[1].textRange().start);
+    SkASSERT(impl->runs()[1].textRange().end == impl->runs()[2].textRange().start);
 }
 
 // 4 to 1
@@ -2949,10 +2908,6 @@ DEF_TEST(SkParagraph_JSON2, reporter) {
     if (!fontCollection->fontsFound()) return;
     const char* text = "p〠q";
 
-    //icu::UnicodeString unicode(text, std::strlen(text));
-    //std::string str;
-    //unicode.toUTF8String(str);
-
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
@@ -2975,7 +2930,7 @@ DEF_TEST(SkParagraph_JSON2, reporter) {
     auto cluster = 0;
     for (auto& run : impl->runs()) {
         SkShaperJSONWriter::VisualizeClusters(
-                run.text().data(), 0, run.text().size(), run.glyphs(), run.clusterIndexes(),
+                impl->text().begin() + run.textRange().start, 0, run.textRange().width(), run.glyphs(), run.clusterIndexes(),
                 [&](int codePointCount, SkSpan<const char> utf1to1,
                     SkSpan<const SkGlyphID> glyph1to1) {
                     if (cluster == 0) {

@@ -81,7 +81,8 @@ public:
     }
 
 private:
-    SkTArray<sk_sp<TypefaceFontStyleSet>> fRegisteredFamilies;
+    SkTHashMap<SkString, sk_sp<TypefaceFontStyleSet>> fRegisteredFamilies;
+    SkTArray<SkString> fFamilyNames;
 };
 }  // namespace textlayout
 }  // namespace skia
