@@ -46,6 +46,30 @@
       "revId": "abb0442c09368838efd1eaccc5d3800fc2b9e7b7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8d81b4a_5d70f0e1",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-21T19:54:58Z",
+      "side": 1,
+      "message": "Currently in Skia the only way to get a ycbcrconversion is you are using a VkImage with an external format that is non-zero. When this is the case you create the VkImage with VkImageCreateInfo::format \u003d VK_FORMAT_UNDEFINED. The spec says for VkPhysicalDeviceImageFormatInfo2 the format should be set the same as will be used in the VkImageCreateInfo struct so thats what I did.\n\nAs far as I can tell, there is no option to append to the VkPhysicalDeviceImageFormatInfo2 a struct that includes the external format. You can append a struct to say that the external image will be from an android hardware buffer, but reading the spec this seems to be used only if you are trying to specifically query the external format properties. I don\u0027t see anything to suggest that you should add the VkPhysicalDeviceExternalImageFormatInfo struct even for cases where you are not getting the VkExternalImageFormatProperties.\n\nDo you see something in the spec to suggest how to handle this?",
+      "parentUuid": "76b94672_1357b22f",
+      "range": {
+        "startLine": 362,
+        "startChar": 8,
+        "endLine": 362,
+        "endChar": 53
+      },
+      "revId": "abb0442c09368838efd1eaccc5d3800fc2b9e7b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
