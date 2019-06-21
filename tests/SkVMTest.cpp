@@ -196,7 +196,7 @@ static void test_asm(skiatest::Reporter* r, Fn&& fn, std::initializer_list<uint8
 
     REPORTER_ASSERT(r, a.size() == expected.size());
 
-    auto got = (const uint8_t*)a.code(),
+    auto got = (const uint8_t*)a.data(),
          want = expected.begin();
     for (int i = 0; i < (int)std::min(a.size(), expected.size()); i++) {
         REPORTER_ASSERT(r, got[i] == want[i],
