@@ -318,7 +318,10 @@ class Asset(object):
       dst = os.path.join(asset._dir, script)
       print 'Creating %s' % dst
       shutil.copy(src, dst)
+      print subprocess.check_output([utils.GIT, 'version'])
+      print 'executing %s add %s' % (utils.GIT, dst)
       subprocess.check_call([utils.GIT, 'add', dst])
+      print 'done copying %s' % script
 
     for script in ('download.py', 'upload.py', 'common.py'):
       copy_script(script)
