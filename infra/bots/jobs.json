@@ -261,6 +261,7 @@
   "Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All",
   "Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan",
   "Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All",
+  "Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-SkottieTracing",
   "Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Vulkan",
   "Perf-Debian9-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug-All",
   "Perf-Debian9-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release-All",

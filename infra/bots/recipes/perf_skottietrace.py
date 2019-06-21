@@ -268,13 +268,32 @@ def GenTests(api):
       'frame_min_us': 141.17,
       'frame_max_us': 218.25
   }
-  buildername = ('Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-'
-                  'All-Android_SkottieTracing')
+  android_buildername = ('Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-'
+                         'Release-All-Android_SkottieTracing')
+  gpu_buildername = ('Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-'
+                     'Release-All-SkottieTracing')
   cpu_buildername = ('Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-'
                      'SkottieTracing')
   yield (
-      api.test(buildername) +
-      api.properties(buildername=buildername,
+      api.test(android_buildername) +
+      api.properties(buildername=android_buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     task_id='abc123',
+                     trace_test_data=trace_output,
+                     dm_json_test_data=dm_json_test_data,
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data('parse lottie(test)\'!2.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie1.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie 3!.json trace',
+                    api.json.output(parse_trace_json))
+  )
+  yield (
+      api.test(gpu_buildername) +
+      api.properties(buildername=gpu_buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      task_id='abc123',
@@ -308,7 +327,7 @@ def GenTests(api):
   )
   yield (
       api.test('skottietracing_parse_trace_error') +
-      api.properties(buildername=buildername,
+      api.properties(buildername=android_buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      task_id='abc123',
@@ -321,7 +340,7 @@ def GenTests(api):
   )
   yield (
       api.test('skottietracing_trybot') +
-      api.properties(buildername=buildername,
+      api.properties(buildername=android_buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      task_id='abc123',
