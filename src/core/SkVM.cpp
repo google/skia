@@ -678,6 +678,18 @@ namespace skvm {
         }
     }
 
+    void Assembler::load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr) {
+        VEX v = vex(0, ymm>>3, 0, ptr>>3,
+                    map, 0, /*ymm?*/1, prefix);
+
+        this->byte(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(Mod::Indirect, ymm&7, ptr&7));
+    }
+
+    void Assembler::vmovups(Ymm dst, GP64 src) { this->load_store(0,0x0f,0x10, dst,src); }
+    void Assembler::vmovups(GP64 dst, Ymm src) { this->load_store(0,0x0f,0x11, src,dst); }
+
     static bool can_jit(int regs, int nargs) {
         return true
             && SkCpu::Supports(SkCpu::HSW)   // TODO: SSE4.1 target?
@@ -824,10 +836,10 @@ namespace skvm {
                     }
                     break;
 
-                case Op::store32: X.vmovups(X.ptr[xarg(y.imm)], r(x)); break;
+                case Op::store32: a.vmovups(arg[y.imm], ar(x)); break;
 
-                case Op::load8:  X.vpmovzxbd(r(d), X.ptr[xarg(y.imm)]); break;
-                case Op::load32: X.vmovups  (r(d), X.ptr[xarg(y.imm)]); break;
+                case Op::load8:  X.vpmovzxbd( r(d), X.ptr[xarg(y.imm)]); break;
+                case Op::load32: a.vmovups  (ar(d), arg[y.imm]); break;
 
                 case Op::splat: a.vbroadcastss(ar(d), splats[y.imm]); break;
 

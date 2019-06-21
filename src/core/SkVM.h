@@ -79,6 +79,9 @@ namespace skvm {
         void vbroadcastss(Ymm dst, Label);
         void vpshufb(Ymm dst, Ymm x, Label);
 
+        void vmovups(Ymm dst, GP64 src);
+        void vmovups(GP64 dst, Ymm src);
+
     //private:
         std::unique_ptr<Xbyak::CodeGenerator> X;
     private:
@@ -101,6 +104,9 @@ namespace skvm {
         void op(int prefix, int map, int opcode, Ymm dst,        Label l) {
             this->op(prefix, map, opcode, dst, (Ymm)0, l);
         }
+
+        // *ptr = ymm or ymm = *ptr, depending on opcode.
+        void load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr);
     };
 
     enum class Op : uint8_t {

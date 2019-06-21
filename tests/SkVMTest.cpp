@@ -347,6 +347,15 @@ DEF_TEST(SkVM_Assembler, r) {
         0x75, 0x80,                        // short jump -128 bytes
         0x0f, 0x85, 0x7a,0xff,0xff,0xff,   // near jump back -134 bytes
     });
+
+    test_asm(r, [&](A& a) {
+        a.vmovups(A::ymm5, A::rsi);
+        a.vmovups(A::rsi, A::ymm5);
+    },{
+        /* VEX */  /*Op*/ /*ModRM*/
+        0xc5,0xfc, 0x10,  0b00'101'110,
+        0xc5,0xfc, 0x11,  0b00'101'110,
+    });
 }
 
 #endif
