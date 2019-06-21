@@ -7,7 +7,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkPictureRecorder.h"
-#include "modules/skparagraph/src/FontIterator.h"
+#include "modules/skparagraph/src/Iterators.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextWrapper.h"
 #include "src/core/SkSpan.h"
@@ -85,6 +85,39 @@ private:
 namespace skia {
 namespace textlayout {
 
+ParagraphImpl::ParagraphImpl(const SkString& text,
+                             ParagraphStyle style,
+                             std::vector<Block> blocks,
+                             sk_sp<FontCollection> fonts)
+        : Paragraph(std::move(style), std::move(fonts))
+<<<<<<< HEAD
+        , fText(text)
+        , fTextSpan(fText.c_str(), fText.size())
+        , fDirtyLayout(true)
+        , fOldWidth(0)
+        , fPicture(nullptr) {
+fTextStyles.reserve(blocks.size());
+for (auto& block : blocks) {
+    fTextStyles.emplace_back(
+            SkSpan<const char>(fTextSpan.begin() + block.fStart, block.fEnd - block.fStart),
+            block.fStyle);
+}
+=======
+          , fText(text)
+          , fTextSpan(fText.c_str(), fText.size())
+          , fDirtyLayout(true)
+          , fOldWidth(0)
+          , fPicture(nullptr) {
+    fTextStyles.reserve(blocks.size());
+    for (auto& block : blocks) {
+        fTextStyles.emplace_back(
+                SkSpan<const char>(fTextSpan.begin() + block.fStart, block.fEnd - block.fStart),
+                block.fStyle);
+    }
+>>>>>>> f07a5500a0... Adding locale
+
+}
+
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              ParagraphStyle style,
                              std::vector<Block> blocks,
@@ -124,11 +157,10 @@ void ParagraphImpl::layout(SkScalar width) {
 
     if (fRuns.empty()) {
         fClusters.reset();
+
         if (!this->shapeTextIntoEndlessLine()) {
             // Apply the last style to the empty text
-            FontIterator font(SkMakeSpan(" "),
-                              SkSpan<TextBlock>(&fTextStyles.back(), 1),
-                              fFontCollection);
+            FontIterator font(SkMakeSpan(" "), &fFontResolver);
             // Get the font metrics
             font.consume();
             LineMetrics lineMetrics(font.currentFont());
@@ -311,7 +343,7 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
             TRACE_EVENT0("skia", TRACE_FUNC);
             auto& run = fParagraph->fRuns.emplace_back(fParagraph->text(),
                                                        info,
-                                                       fFontIterator->lineHeight(),
+                                                       fFontIterator->currentLineHeight(),
                                                        fParagraph->fRuns.count(),
                                                        fAdvance.fX);
             return run.newRunBuffer();
@@ -340,8 +372,11 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
         return false;
     }
 
-    SkSpan<TextBlock> styles(fTextStyles.begin(), fTextStyles.size());
-    FontIterator font(fTextSpan, styles, fFontCollection);
+    // This is a pretty big step - resolving all characters against all given fonts
+    fFontResolver.findAllFontsForAllStyledBlocks(fTextSpan, styles(), fFontCollection);
+
+    LangIterator lang(fTextSpan, styles(), paragraphStyle().getTextStyle());
+    FontIterator font(fTextSpan, &fFontResolver);
     ShapeHandler handler(*this, &font);
     std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder();
     SkASSERT_RELEASE(shaper != nullptr);
@@ -352,9 +387,8 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
         return false;
     }
     auto script = SkShaper::MakeHbIcuScriptRunIterator(fTextSpan.begin(), fTextSpan.size());
-    auto lang = SkShaper::MakeStdLanguageRunIterator(fTextSpan.begin(), fTextSpan.size());
 
-    shaper->shape(fTextSpan.begin(), fTextSpan.size(), font, *bidi, *script, *lang,
+    shaper->shape(fTextSpan.begin(), fTextSpan.size(), font, *bidi, *script, lang,
                   std::numeric_limits<SkScalar>::max(), &handler);
     return true;
 }

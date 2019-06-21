@@ -23,6 +23,7 @@ TextStyle::TextStyle() : fFontStyle() {
     fHasBackground = false;
     fHasForeground = false;
     fTextBaseline = TextBaseline::kAlphabetic;
+    fLocale = "";
 }
 
 bool TextStyle::equals(const TextStyle& other) const {
