@@ -348,8 +348,13 @@ static T vec_mod(T a, T b) {
     return a - skvx::trunc(a / b) * b;
 }
 
-void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack,
-              float* outReturn[], I32 initMask, VValue globals[], bool stripedOutput) {
+static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack,
+                     float* outReturn[], VValue globals[], bool stripedOutput, int N) {
+    // Needs to be the first N non-negative integers, at least as large as VecWidth
+    static const Interpreter::I32 gLanes = {
+        0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
+    };
+
     VValue* sp = stack + f->fParameterCount + f->fLocalCount - 1;
 
     auto POP =  [&]           { SkASSERT(sp     >= stack); return *(sp--); };
@@ -363,7 +368,7 @@ void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack
     I32 maskStack[16];  // Combined masks (eg maskStack[0] & maskStack[1] & ...)
     I32 contStack[16];  // Continue flags for loops
     I32 loopStack[16];  // Loop execution masks
-    condStack[0] = maskStack[0] = initMask;
+    condStack[0] = maskStack[0] = (gLanes < N);
     contStack[0] = I32( 0);
     loopStack[0] = I32(~0);
     I32* condPtr = condStack;
@@ -722,21 +727,17 @@ void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack
                 int count = READ8();
                 if (frames.empty()) {
                     if (outReturn) {
-                        // TODO: This can be smarter, knowing that mask is left-justified
-                        I32 m = mask();
                         VValue* src = sp - count + 1;
                         if (stripedOutput) {
                             for (int i = 0; i < count; ++i) {
-                                memcpy(outReturn[i], &src->fFloat, VecWidth * sizeof(float));
-                                src += 1;
+                                memcpy(outReturn[i], &src->fFloat, N * sizeof(float));
+                                ++src;
                             }
                         } else {
                             float* outPtr = outReturn[0];
                             for (int i = 0; i < count; ++i) {
-                                for (int j = 0; j < VecWidth; ++j) {
-                                    if (m[j]) {
-                                        outPtr[count * j] = src->fFloat[j];
-                                    }
+                                for (int j = 0; j < N; ++j) {
+                                    outPtr[count * j] = src->fFloat[j];
                                 }
                                 ++outPtr;
                                 ++src;
@@ -998,12 +999,7 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
 #ifdef TRACE
     f->disassemble();
 #endif
-    Interpreter::VValue smallStack[128];
-
-    // Needs to be the first N non-negative integers, at least as large as VecWidth
-    static const Interpreter::I32 gLanes = {
-        0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
-    };
+    Interpreter::VValue stack[128];
 
     SkASSERT(uniformCount == (int)fInputSlots.size());
     Interpreter::VValue globals[32];
@@ -1013,10 +1009,7 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
     }
 
     while (N) {
-        Interpreter::VValue* stack = smallStack;
-
         int w = std::min(N, Interpreter::VecWidth);
-        N -= w;
 
         // Transpose args into stack
         {
@@ -1032,8 +1025,7 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
 
         bool stripedOutput = false;
         float** outArray = outReturn ? &outReturn : nullptr;
-        auto mask = w > gLanes;
-        innerRun(this, f, stack, outArray, mask, globals, stripedOutput);
+        innerRun(this, f, stack, outArray, globals, stripedOutput, w);
 
         // Transpose out parameters back
         {
@@ -1058,6 +1050,7 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
         if (outReturn) {
             outReturn += f->fReturnCount * w;
         }
+        N -= w;
     }
 }
 
@@ -1068,11 +1061,6 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
     f->disassemble();
 #endif
     Interpreter::VValue stack[128];
-
-    // Needs to be the first N non-negative integers, at least as large as VecWidth
-    static const Interpreter::I32 gLanes = {
-        0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
-    };
 
     // innerRun just takes outArgs, so clear it if the count is zero
     if (outCount == 0) {
@@ -1097,8 +1085,7 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
         }
 
         bool stripedOutput = true;
-        auto mask = w > gLanes;
-        innerRun(this, f, stack, outArgs, mask, globals, stripedOutput);
+        innerRun(this, f, stack, outArgs, globals, stripedOutput, w);
 
         // Copy out parameters back
         int slot = 0;
