@@ -134,6 +134,10 @@ public:
     // Returns true if it supports ycbcr conversion for samplers
     bool supportsYcbcrConversion() const { return fSupportsYcbcrConversion; }
 
+    uint32_t ycbcrCombinedImageSamplerDescriptorCount() const {
+        return fYcbcrCombinedImageSamplerDescriptorCount;
+    }
+
     /**
      * Helpers used by canCopySurface. In all cases if the SampleCnt parameter is zero that means
      * the surface is not a render target, otherwise it is the number of samples in the render
@@ -188,8 +192,6 @@ private:
     void initFormatTable(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&);
     void initStencilFormat(const GrVkInterface* iface, VkPhysicalDevice physDev);
 
-    uint8_t getYcbcrKeyFromYcbcrInfo(const GrVkYcbcrConversionInfo& info);
-
     void applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties&);
 
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
@@ -225,7 +227,7 @@ private:
 
     StencilFormat fPreferredStencilFormat;
 
-    SkSTArray<1, GrVkYcbcrConversionInfo> fYcbcrInfos;
+    uint32_t fYcbcrCombinedImageSamplerDescriptorCount = 1;
 
     bool fMustDoCopiesFromOrigin = false;
     bool fMustSleepOnTearDown = false;

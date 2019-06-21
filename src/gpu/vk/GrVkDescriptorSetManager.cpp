@@ -205,6 +205,7 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
         uint32_t numBindings = visibilities.count();
         std::unique_ptr<VkDescriptorSetLayoutBinding[]> dsSamplerBindings(
                 new VkDescriptorSetLayoutBinding[numBindings]);
+        fDescCountPerSet = 0;
         for (uint32_t i = 0; i < numBindings; ++i) {
             uint32_t visibility = visibilities[i];
             dsSamplerBindings[i].binding = i;
@@ -214,8 +215,10 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
             if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type) {
                 if (immutableSamplers[i]) {
                     dsSamplerBindings[i].pImmutableSamplers = immutableSamplers[i]->samplerPtr();
+                    fDescCountPerSet += gpu->vkCaps().ycbcrCombinedImageSamplerDescriptorCount();
                 } else {
                     dsSamplerBindings[i].pImmutableSamplers = nullptr;
+                    fDescCountPerSet++;
                 }
             }
         }
@@ -240,7 +243,6 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
                                                       &dsSamplerLayoutCreateInfo,
                                                       nullptr,
                                                       &fDescLayout));
-        fDescCountPerSet = visibilities.count();
     } else {
         SkASSERT(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER == type);
         GR_STATIC_ASSERT(2 == kUniformDescPerSet);
