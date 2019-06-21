@@ -103,7 +103,11 @@
       "[START_DIR]/tmp/LOTTIE_VERSION"
     ],
     "infra_step": true,
-    "name": "write LOTTIE_VERSION"
+    "name": "write LOTTIE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@LOTTIE_VERSION@42@@@",
+      "@@@STEP_LOG_END@LOTTIE_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -349,7 +353,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "write dm.sh"
+    "name": "write dm.sh",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@dm.sh@set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/2.json --match \"^lottie 3!.json$\" --config gles --nocpu; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_END@dm.sh@@@"
+    ]
   },
   {
     "cmd": [
