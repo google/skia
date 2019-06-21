@@ -79,8 +79,9 @@ namespace skvm {
         void vbroadcastss(Ymm dst, Label);
         void vpshufb(Ymm dst, Ymm x, Label);
 
-        void vmovups(Ymm dst, GP64 src);
-        void vmovups(GP64 dst, Ymm src);
+        void vmovups  (Ymm dst, GP64 src);
+        void vpmovzxbd(Ymm dst, GP64 src);
+        void vmovups  (GP64 dst, Ymm src);
 
     //private:
         std::unique_ptr<Xbyak::CodeGenerator> X;
