@@ -198,6 +198,8 @@ void ResolveAAType(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags, c
 
 bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, GrQuad* quad,
                 GrQuad* local) {
+    SkASSERT(quad->isFinite());
+
     if (quad->quadType() == GrQuad::Type::kAxisAligned) {
         // crop_rect keeps the rectangles as rectangles, so there's no need to modify types
         if (local) {
