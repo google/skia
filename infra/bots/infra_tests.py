@@ -16,6 +16,7 @@ import sys
 
 INFRA_BOTS_DIR = os.path.dirname(os.path.realpath(__file__))
 SKIA_DIR = os.path.abspath(os.path.join(INFRA_BOTS_DIR, os.pardir, os.pardir))
+GO = 'go.exe' if 'win' in sys.platform else 'go'
 
 
 def test(cmd, cwd):
@@ -44,7 +45,7 @@ def recipe_test(train):
 
 
 def gen_tasks_test(train):
-  cmd = ['go', 'run', 'gen_tasks.go']
+  cmd = [go, 'run', 'gen_tasks.go']
   if not train:
     cmd.append('--test')
   try:
