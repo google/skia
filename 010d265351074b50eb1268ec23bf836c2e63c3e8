@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "821662e4_37a48e9b",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-21T14:52:12Z",
+      "side": 1,
+      "message": "I know it\u0027s not possible for baseAddr or offset to be 0 here, but I think it\u0027d have helped me follow this a little easier if these were \u003e\u003d 0 checks, so that you always can think \"\u003e\u003d0 means literal, \u003c0 means stack slot\".",
+      "range": {
+        "startLine": 272,
+        "startChar": 25,
+        "endLine": 272,
+        "endChar": 26
+      },
+      "revId": "010d265351074b50eb1268ec23bf836c2e63c3e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
