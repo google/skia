@@ -22,6 +22,30 @@
       "revId": "010d265351074b50eb1268ec23bf836c2e63c3e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9ecec6e_ca9f8e6d",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-06-21T15:06:43Z",
+      "side": 1,
+      "message": "Agreed. The confusing nature of this code is what led me to comment it this time, but given that I use \u003e\u003d 0 for that above, it\u0027s probably better to be consistent here.",
+      "parentUuid": "821662e4_37a48e9b",
+      "range": {
+        "startLine": 272,
+        "startChar": 25,
+        "endLine": 272,
+        "endChar": 26
+      },
+      "revId": "010d265351074b50eb1268ec23bf836c2e63c3e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
