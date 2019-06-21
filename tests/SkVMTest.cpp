@@ -290,6 +290,25 @@ DEF_TEST(SkVM_Assembler, r) {
     },{
         0xc4,0xe3,0xfd, 0x00,0xca, 0x05,
     });
+
+    test_asm(r, [&](A& a) {
+        A::Label l = a.here();
+        a.byte(1);
+        a.byte(2);
+        a.byte(3);
+        a.byte(4);
+        a.vbroadcastss(A::ymm0 , l);
+        a.vbroadcastss(A::ymm1 , l);
+        a.vbroadcastss(A::ymm8 , l);
+        a.vbroadcastss(A::ymm15, l);
+    },{
+        0x01, 0x02, 0x03, 0x4,
+        /*     VEX    */  /*op*/ /*   ModRM    */  /*     offset     */
+        0xc4, 0xe2, 0x7d,  0x18,   0b00'000'101,   0xf3,0xff,0xff,0xff,   // 0xfffffff3 == -13
+        0xc4, 0xe2, 0x7d,  0x18,   0b00'001'101,   0xea,0xff,0xff,0xff,   // 0xffffffea == -22
+        0xc4, 0x62, 0x7d,  0x18,   0b00'000'101,   0xe1,0xff,0xff,0xff,   // 0xffffffe1 == -31
+        0xc4, 0x62, 0x7d,  0x18,   0b00'111'101,   0xd8,0xff,0xff,0xff,   // 0xffffffd8 == -40
+    });
 }
 
 #endif

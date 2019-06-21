@@ -477,14 +477,14 @@ namespace skvm {
         uint8_t bytes[3];
     };
 
-    static VEX vex(bool WE,   // Like REX W for int operations, or opcode extension for float?
-                   bool  R,   // Same as REX R.  Pass high bit of dst register, dst>>3.
-                   bool  X,   // Same as REX X.
-                   bool  B,   // Same as REX B.  Pass high bit of y register, y>>3.
-                   int map,   // SSE opcode map selector: 0x0f, 0x380f, 0x3a0f.
-                   int   x,   // 4-bit second operand register, our x, called vvvv in docs.
-                   bool  L,   // Set for 256-bit ymm operations, off for 128-bit xmm.
-                   int  pp) { // SSE mandatory prefix: 0x66, 0xf3, 0xf2, else none.
+    static VEX vex(bool  WE,   // Like REX W for int operations, or opcode extension for float?
+                   bool   R,   // Same as REX R.  Pass high bit of dst register, dst>>3.
+                   bool   X,   // Same as REX X.
+                   bool   B,   // Same as REX B.  Pass y>>3 for 3-arg ops, x>>3 for 2-arg.
+                   int  map,   // SSE opcode map selector: 0x0f, 0x380f, 0x3a0f.
+                   int vvvv,   // 4-bit second operand register.  Pass our x for 3-arg ops.
+                   bool   L,   // Set for 256-bit ymm operations, off for 128-bit xmm.
+                   int   pp) { // SSE mandatory prefix: 0x66, 0xf3, 0xf2, else none.
 
         // Pack x86 opcode map selector to 5-bit VEX encoding.
         map = [map]{
@@ -513,22 +513,22 @@ namespace skvm {
             // With these conditions met, we can optionally compress VEX to 2-byte.
             vex.len = 2;
             vex.bytes[0] = 0xc5;
-            vex.bytes[1] = (pp  &  3) << 0
-                         | (L   &  1) << 2
-                         | (~x  & 15) << 3
-                         | (~R  &  1) << 7;
+            vex.bytes[1] = (pp    &  3) << 0
+                         | (L     &  1) << 2
+                         | (~vvvv & 15) << 3
+                         | (~R    &  1) << 7;
         } else {
             // We could use this 3-byte VEX prefix all the time if we like.
             vex.len = 3;
             vex.bytes[0] = 0xc4;
-            vex.bytes[1] = (map & 31) << 0
-                         | (~B  &  1) << 5
-                         | (~X  &  1) << 6
-                         | (~R  &  1) << 7;
-            vex.bytes[2] = (pp  &  3) << 0
-                         | (L   &  1) << 2
-                         | (~x  & 15) << 3
-                         | (WE  &  1) << 7;
+            vex.bytes[1] = (map   & 31) << 0
+                         | (~B    &  1) << 5
+                         | (~X    &  1) << 6
+                         | (~R    &  1) << 7;
+            vex.bytes[2] = (pp    &  3) << 0
+                         | (L     &  1) << 2
+                         | (~vvvv & 15) << 3
+                         | (WE    &  1) << 7;
         }
         return vex;
     }
@@ -642,6 +642,25 @@ namespace skvm {
     void Assembler::vcvtdq2ps (Ymm dst, Ymm x) { this->op(0,   0x0f,0x5b, dst,x); }
     void Assembler::vcvttps2dq(Ymm dst, Ymm x) { this->op(0xf3,0x0f,0x5b, dst,x); }
 
+    Assembler::Label Assembler::here() {
+        return { this->size() };
+    }
+
+    void Assembler::vbroadcastss(Ymm dst, Label l) {
+        // IP-relative addressing uses Mod::Indirect with the R/M encoded as-if rbp or r13.
+        int rip = rbp;
+
+        VEX v = vex(0, dst>>3, 0, rip>>3,
+                    0x380f, 0, /*ymm?*/1, 0x66);
+        this->byte(v.bytes, v.len);
+        this->byte(0x18);
+        this->byte(mod_rm(Mod::Indirect, dst&7, rip&7));
+
+        // IP relative loads are relative to IP _after_ this instruction.
+        int imm = l.offset - (here().offset + 4);
+        this->byte(&imm, 4);
+    }
+
     static bool can_jit(int regs, int nargs) {
         return true
             && SkCpu::Supports(SkCpu::HSW)   // TODO: SSE4.1 target?
@@ -736,7 +755,7 @@ namespace skvm {
 
         // Map from splat bit pattern to 4-byte aligned data location holding that pattern.
         // (If we were really brave we could just point at the copy we already have in Program...)
-        std::unordered_map<int, Xbyak::Label> splats;
+        std::unordered_map<int, A::Label> splats;
         for (const Program::Instruction& inst : instructions) {
             if (inst.op == Op::splat) {
                 // Splats are deduplicated at an earlier layer, so we shouldn't find any duplicates.
@@ -748,7 +767,7 @@ namespace skvm {
                 SkASSERT(splats.end() == splats.find(inst.y.imm));
 
                 SkASSERT(a.size() % 4 == 0);
-                Xbyak::Label label = X.L();
+                A::Label label = a.here();
                 a.byte(&inst.y.imm, 4);
                 splats[inst.y.imm] = label;
             }
@@ -793,8 +812,7 @@ namespace skvm {
                 case Op::load8:  X.vpmovzxbd(r(d), X.ptr[xarg(y.imm)]); break;
                 case Op::load32: X.vmovups  (r(d), X.ptr[xarg(y.imm)]); break;
 
-                case Op::splat: X.vbroadcastss(r(d), X.ptr[X.rip + splats[y.imm]]);
-                                break;
+                case Op::splat: a.vbroadcastss(ar(d), splats[y.imm]); break;
 
                 case Op::add_f32: a.vaddps(ar(d), ar(x), ar(y.id)); break;
                 case Op::sub_f32: a.vsubps(ar(d), ar(x), ar(y.id)); break;
