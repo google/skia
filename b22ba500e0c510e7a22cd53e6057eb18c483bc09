@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "70a77f33_e9cffc20",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-21T15:15:25Z",
+      "side": 1,
+      "message": "I will switch to SkGlyph* when I replace findImage with image().",
+      "parentUuid": "27ed478f_e1207637",
+      "revId": "b22ba500e0c510e7a22cd53e6057eb18c483bc09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d1e30ef8_0b9ddb3b",
         "filename": "src/gpu/text/GrStrikeCache.h",
         "patchSetId": 3
@@ -39,6 +57,30 @@
       "revId": "b22ba500e0c510e7a22cd53e6057eb18c483bc09",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e642a321_fb8c6261",
+        "filename": "src/gpu/text/GrStrikeCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-21T15:15:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1e30ef8_0b9ddb3b",
+      "range": {
+        "startLine": 52,
+        "startChar": 12,
+        "endLine": 53,
+        "endChar": 53
+      },
+      "revId": "b22ba500e0c510e7a22cd53e6057eb18c483bc09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
