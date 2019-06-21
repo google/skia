@@ -80,7 +80,8 @@ struct MultiPictureDocument final : public SkDocument {
         SkCanvas* c = fPictureRecorder.beginRecording(SkRect::MakeSize(bigsize));
         for (const sk_sp<SkPicture>& page : fPages) {
             c->drawPicture(page);
-            c->drawAnnotation(SkRect::MakeEmpty(), kEndPage, nullptr);
+            // Annotations must include some data.
+            c->drawAnnotation(SkRect::MakeEmpty(), kEndPage, SkData::MakeWithCString("X"));
         }
         sk_sp<SkPicture> p = fPictureRecorder.finishRecordingAsPicture();
         p->serialize(wStream, &fProcs);
@@ -195,7 +196,8 @@ bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
     // PagerCanvas::onDrawAnnotation().
     picture->playback(&canvas);
     if (canvas.fIndex != dstArrayCount) {
-        SkDEBUGF("Malformed SkMultiPictureDocument\n");
+        SkDEBUGF("Malformed SkMultiPictureDocument: canvas.fIndex=%d dstArrayCount=%d\n",
+            canvas.fIndex, dstArrayCount);
     }
     return true;
 }
