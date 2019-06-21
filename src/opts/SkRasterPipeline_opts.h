@@ -2554,18 +2554,12 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
 }
 
 STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
-    // Logically we should just size these arrays by N, the width of our registers,
-    // but the interpreter has its own idea of 'width' in kVecWidth, so we make sure
-    // that we allocate enough space for it to memcpy its results back into our arrays.
-    //
-    // If N < kVecWidth, then we are doing more work than necessary in the interpreter.
-    // This is a known issue, and will be addressed at some point.
-    constexpr int COUNT = SkTMax<int>(N, SkSL::ByteCode::kVecWidth);
-
-    float rr[COUNT];
-    float gg[COUNT];
-    float bb[COUNT];
-    float aa[COUNT];
+    // If N is less than the interpreter's VecWidth, then we are doing more work than necessary in
+    // the interpreter. This is a known issue, and will be addressed at some point.
+    float rr[N];
+    float gg[N];
+    float bb[N];
+    float aa[N];
     size_t in_count, out_count;
 
     float* args[] = { rr, gg, bb, aa };
