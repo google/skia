@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3eb63a07_563d2c89",
+        "filename": "infra/bots/recipes/perf_skottietrace.expected/Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-SkottieTracing.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-21T14:42:24Z",
+      "side": 1,
+      "message": "This is using the same DM config as the Android bot. It also uses this when constructing the Perf JSON.",
+      "revId": "d2bc637a0cd6e9dda30625f00acc58fe8b7c2295",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
