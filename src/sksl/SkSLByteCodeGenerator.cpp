@@ -213,7 +213,6 @@ int ByteCodeGenerator::getLocation(const Variable& var) {
     }
 }
 
-// TODO: Elide Add 0 and Mul 1 sequences
 int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* storage) {
     switch (expr.fKind) {
         case Expression::kFieldAccess_Kind: {
@@ -224,9 +223,11 @@ int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* st
                 offset += SlotCount(*f.fBase->fType.fields()[i].fType);
             }
             if (baseAddr < 0) {
-                this->write(ByteCodeInstruction::kPushImmediate);
-                this->write32(offset);
-                this->write(ByteCodeInstruction::kAddI);
+                if (offset != 0) {
+                    this->write(ByteCodeInstruction::kPushImmediate);
+                    this->write32(offset);
+                    this->write(ByteCodeInstruction::kAddI);
+                }
                 return -1;
             } else {
                 return baseAddr + offset;
@@ -239,15 +240,35 @@ int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* st
             if (i.fIndex->isConstant()) {
                 offset = i.fIndex->getConstantInt() * stride;
             } else {
+                if (i.fIndex->hasSideEffects()) {
+                    // Having a side-effect in an indexer is technically safe for an rvalue,
+                    // but with lvalues we have to evaluate the indexer twice, so make it an error.
+                    fErrors.error(i.fIndex->fOffset,
+                            "Index expressions with side-effects not supported in byte code.");
+                    return 0;
+                }
                 this->writeExpression(*i.fIndex);
-                this->write(ByteCodeInstruction::kPushImmediate);
-                this->write32(stride);
-                this->write(ByteCodeInstruction::kMultiplyI);
+                if (stride != 1) {
+                    this->write(ByteCodeInstruction::kPushImmediate);
+                    this->write32(stride);
+                    this->write(ByteCodeInstruction::kMultiplyI);
+                }
             }
             int baseAddr = this->getLocation(*i.fBase, storage);
+
+            // Are both components known statically?
             if (baseAddr >= 0 && offset >= 0) {
                 return baseAddr + offset;
             }
+
+            // At least one component is dynamic (and on the stack).
+
+            // If the other component is zero, we're done
+            if (baseAddr == 0 || offset == 0) {
+                return -1;
+            }
+
+            // Push the non-dynamic component (if any) to the stack, then add the two
             if (baseAddr >= 0) {
                 this->write(ByteCodeInstruction::kPushImmediate);
                 this->write32(baseAddr);
@@ -265,9 +286,11 @@ int ByteCodeGenerator::getLocation(const Expression& expr, Variable::Storage* st
             int baseAddr = this->getLocation(*s.fBase, storage);
             int offset = s.fComponents[0];
             if (baseAddr < 0) {
-                this->write(ByteCodeInstruction::kPushImmediate);
-                this->write32(offset);
-                this->write(ByteCodeInstruction::kAddI);
+                if (offset != 0) {
+                    this->write(ByteCodeInstruction::kPushImmediate);
+                    this->write32(offset);
+                    this->write(ByteCodeInstruction::kAddI);
+                }
                 return -1;
             } else {
                 return baseAddr + offset;
