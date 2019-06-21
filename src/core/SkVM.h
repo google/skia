@@ -74,6 +74,8 @@ namespace skvm {
         struct Label { size_t offset; };
         Label here();
 
+        void jne(Label);
+
         void vbroadcastss(Ymm dst, Label);
         void vpshufb(Ymm dst, Ymm x, Label);
 
