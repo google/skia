@@ -667,54 +667,6 @@ def dm_flags(api, bot):
     # skbug.com/8047
     match.append('~FloatingPointTextureTest$')
 
-  if 'Vulkan' in bot and 'Win10' in bot and 'IntelIris655' in bot:
-    # skia:8659
-    blacklist(['vk', 'gm', '_', 'aarectmodes'])
-    blacklist(['vk', 'gm', '_', 'aaxfermodes'])
-    blacklist(['vk', 'gm', '_', 'crbug_892988'])
-    blacklist(['vk', 'gm', '_', 'dftext'])
-    blacklist(['vk', 'gm', '_', 'dftext_blob_persp'])
-    blacklist(['vk', 'gm', '_', 'dont_clip_to_layer'])
-    blacklist(['vk', 'gm', '_', 'drawregionmodes'])
-    blacklist(['vk', 'gm', '_', 'filterfastbounds'])
-    blacklist(['vk', 'gm', '_', 'fontmgr_iter'])
-    blacklist(['vk', 'gm', '_', 'fontmgr_match'])
-    blacklist(['vk', 'gm', '_', 'fontscalerdistortable'])
-    blacklist(['vk', 'gm', '_', 'gammagradienttext'])
-    blacklist(['vk', 'gm', '_', 'gammatext'])
-    blacklist(['vk', 'gm', '_', 'gradtext'])
-    blacklist(['vk', 'gm', '_', 'hairmodes'])
-    blacklist(['vk', 'gm', '_', 'imagefilters_xfermodes'])
-    blacklist(['vk', 'gm', '_', 'imagefiltersclipped'])
-    blacklist(['vk', 'gm', '_', 'imagefiltersscaled'])
-    blacklist(['vk', 'gm', '_', 'imagefiltersstroked'])
-    blacklist(['vk', 'gm', '_', 'imagefilterstransformed'])
-    blacklist(['vk', 'gm', '_', 'imageresizetiled'])
-    blacklist(['vk', 'gm', '_', 'lcdblendmodes'])
-    blacklist(['vk', 'gm', '_', 'lcdoverlap'])
-    blacklist(['vk', 'gm', '_', 'lcdtext'])
-    blacklist(['vk', 'gm', '_', 'lcdtextsize'])
-    blacklist(['vk', 'gm', '_', 'matriximagefilter'])
-    blacklist(['vk', 'gm', '_', 'resizeimagefilter'])
-    blacklist(['vk', 'gm', '_', 'rotate_imagefilter'])
-    blacklist(['vk', 'gm', '_', 'savelayer_lcdtext'])
-    blacklist(['vk', 'gm', '_', 'shadermaskfilter_image'])
-    blacklist(['vk', 'gm', '_', 'srcmode'])
-    blacklist(['vk', 'gm', '_', 'surfaceprops'])
-    blacklist(['vk', 'gm', '_', 'textblobgeometrychange'])
-    blacklist(['vk', 'gm', '_', 'textbloblooper'])
-    blacklist(['vk', 'gm', '_', 'textblobrandomfont'])
-    blacklist(['vk', 'gm', '_', 'textfilter_color'])
-    blacklist(['vk', 'gm', '_', 'textfilter_image'])
-    blacklist(['vk', 'gm', '_', 'tilemodes'])
-    blacklist(['vk', 'gm', '_', 'varied_text_clipped_lcd'])
-    blacklist(['vk', 'gm', '_', 'varied_text_ignorable_clip_lcd'])
-    if 'Debug' in bot:
-      blacklist(['vk', 'gm', '_', 'fontscaler'])
-      blacklist(['vk', 'gm', '_', 'mixedtextblobs'])
-      blacklist(['vk', 'gm', '_', 'textblobmixedsizes'])
-      blacklist(['vk', 'gm', '_', 'textblobmixedsizes_df'])
-
   if 'MoltenVK' in bot:
     # skbug.com/7959
     blacklist(['_', 'gm', '_', 'vertices_scaled_shader'])
@@ -1051,7 +1003,6 @@ TEST_BUILDERS = [
    '-ReleaseAndAbandonGpuContext'),
   'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI',
   'Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All-ANGLE',
-  'Test-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Debug-All-Vulkan',
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
