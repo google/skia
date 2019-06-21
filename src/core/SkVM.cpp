@@ -681,7 +681,6 @@ namespace skvm {
     void Assembler::load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr) {
         VEX v = vex(0, ymm>>3, 0, ptr>>3,
                     map, 0, /*ymm?*/1, prefix);
-
         this->byte(v.bytes, v.len);
         this->byte(opcode);
         this->byte(mod_rm(Mod::Indirect, ymm&7, ptr&7));
@@ -690,6 +689,17 @@ namespace skvm {
     void Assembler::vmovups  (Ymm dst, GP64 src) { this->load_store(0   ,  0x0f,0x10, dst,src); }
     void Assembler::vpmovzxbd(Ymm dst, GP64 src) { this->load_store(0x66,0x380f,0x31, dst,src); }
     void Assembler::vmovups  (GP64 dst, Ymm src) { this->load_store(0   ,  0x0f,0x11, src,dst); }
+    void Assembler::vmovq    (GP64 dst, Xmm src) {
+        int prefix = 0x66,
+            map    = 0x0f,
+            opcode = 0xd6;
+        VEX v = vex(0, src>>3, 0, dst>>3,
+                    map, 0, /*ymm?*/0, prefix);
+        this->byte(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
+    }
+
 
     static bool can_jit(int regs, int nargs) {
         return true
@@ -829,11 +839,10 @@ namespace skvm {
                         // One stop shop!  Pack 8x I32 -> U8 and store to ptr.
                         X.vpmovusdb(X.ptr[xarg(y.imm)], r(x));
                     } else {
-                        a.vpackusdw(ar(tmp), ar(x), ar(x)); // pack 32-bit -> 16-bit
-                        a.vpermq   (ar(tmp), ar(tmp), 0xd8);  // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
-                        a.vpackuswb(ar(tmp), ar(tmp), ar(tmp));   // pack 16-bit -> 8-bit
-                        X.vmovq(X.ptr[xarg(y.imm)],         // store low 8 bytes
-                                Xbyak::Xmm{tmp}); // (arg must be an xmm)
+                        a.vpackusdw(ar(tmp), ar(x), ar(x));      // pack 32-bit -> 16-bit
+                        a.vpermq   (ar(tmp), ar(tmp), 0xd8);     // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
+                        a.vpackuswb(ar(tmp), ar(tmp), ar(tmp));  // pack 16-bit -> 8-bit
+                        a.vmovq    (arg[y.imm], (A::Xmm)tmp);    // store low 8 bytes
                     }
                     break;
 
