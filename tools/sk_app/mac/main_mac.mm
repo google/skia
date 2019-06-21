@@ -74,10 +74,10 @@ int main(int argc, char * argv[]) {
     AppDelegate* appDelegate = [[AppDelegate alloc] init];
     [NSApp setDelegate:appDelegate];
 
+    Application* app = Application::Create(argc, argv, nullptr);
+
     // This will run until the application finishes launching, then lets us take over
     [NSApp run];
-
-    Application* app = Application::Create(argc, argv, nullptr);
 
     // Now we process the events
     while (![appDelegate done]) {
