@@ -516,9 +516,8 @@ namespace skvm {
     Assembler::Assembler() : X{new Xbyak::CodeGenerator} {}
     Assembler::~Assembler() = default;
 
-    void*  Assembler::code() const { return (void*)X->getCode(); }
-    size_t Assembler::size() const { return        X->getSize(); }
-
+    const uint8_t* Assembler::data() const { return X->getCode(); }
+    size_t         Assembler::size() const { return X->getSize(); }
 
     void Assembler::byte(const void* p, int n) {
         X->db((const uint8_t*)p, (size_t)n);
@@ -631,7 +630,7 @@ namespace skvm {
     }
 
     // Returns stride of the JIT, currently always 8.
-    static int jit(Assembler& a,
+    static int jit(Assembler& a, size_t* code,
                    const std::vector<Program::Instruction>& instructions,
                    int regs, int loop, size_t strides[], int nargs) {
         using A = Assembler;
@@ -662,19 +661,86 @@ namespace skvm {
         const int tmp = 15;
     #endif
 
-        // Label / N-byte values we need to write after ret.
-        struct Data4  { Xbyak::Label label; int bits   ; };
-        struct Data32 { Xbyak::Label label; int bits[8]; };
-        std::vector<Data4 > data4;
-        std::vector<Data32> data32;
+        // We'll lay out our function as:
+        //   - 32-byte aligned data (from Op::bytes)
+        //   -  4-byte aligned data (from Op::splat)
+        //   -    byte aligned code
+        // This makes the code as compact as possible, requiring no alignment padding.
+        // It also makes working with labels easy, as they'll all be resolved before
+        // the instructions that use them... no relocations.
 
-        // Map from our bytes() control y.imm to index in data32;
-        // no need to splat out duplicate bytes for the same control.
-        std::unordered_map<int, int> vpshufb_masks;
+        // Map from our bytes() control y.imm to 32-byte mask for vpshufb.
+        std::unordered_map<int, Xbyak::Label> vpshufb_masks;
+        for (const Program::Instruction& inst : instructions) {
+            if (inst.op == Op::bytes && vpshufb_masks.end() == vpshufb_masks.find(inst.y.imm)) {
+                // Translate bytes()'s control nibbles to vpshufb's control bytes.
+                auto nibble_to_vpshufb = [](unsigned n) -> uint8_t {
+                    return n == 0 ? 0xff  // Fill with zero.
+                                  : n-1;  // Select n'th 1-indexed byte.
+                };
+                uint8_t control[] = {
+                    nibble_to_vpshufb( (inst.y.imm >>  0) & 0xf ),
+                    nibble_to_vpshufb( (inst.y.imm >>  4) & 0xf ),
+                    nibble_to_vpshufb( (inst.y.imm >>  8) & 0xf ),
+                    nibble_to_vpshufb( (inst.y.imm >> 12) & 0xf ),
+                };
 
+                // Now, vpshufb is one of those weird AVX instructions
+                // that does everything in 2 128-bit chunks, so we'll
+                // only really need 4 distinct values to write in our pattern:
+                int p[4];
+                for (int i = 0; i < 4; i++) {
+                    p[i] = (int)control[0] <<  0
+                        | (int)control[1] <<  8
+                        | (int)control[2] << 16
+                        | (int)control[3] << 24;
+
+                    // Update each byte that refers to a byte index by 4 to
+                    // point into the next 32-bit lane, but leave any 0xff
+                    // that fills with zero alone.
+                    control[0] += control[0] == 0xff ? 0 : 4;
+                    control[1] += control[1] == 0xff ? 0 : 4;
+                    control[2] += control[2] == 0xff ? 0 : 4;
+                    control[3] += control[3] == 0xff ? 0 : 4;
+                }
+
+                // Notice, same pattern for top 4 32-bit lanes as bottom 4 lanes.
+                SkASSERT(a.size() % 32 == 0);
+                Xbyak::Label label = X.L();
+                a.byte(p, sizeof(p));
+                a.byte(p, sizeof(p));
+                vpshufb_masks[inst.y.imm] = label;
+            }
+
+        }
+
+        // Map from splat bit pattern to 4-byte aligned data location holding that pattern.
+        // (If we were really brave we could just point at the copy we already have in Program...)
+        std::unordered_map<int, Xbyak::Label> splats;
+        for (const Program::Instruction& inst : instructions) {
+            if (inst.op == Op::splat) {
+                // Splats are deduplicated at an earlier layer, so we shouldn't find any duplicates.
+                // (It really wouldn't be that big a deal if we did, but they'd be assigned distinct
+                // registers redundantly, so that's something we'd like to know about.)
+                //
+                // TODO: in an AVX-512 world, it makes less sense to assign splats to registers at
+                // all.  Perhaps we should move the deduping / register coloring for splats here?
+                SkASSERT(splats.end() == splats.find(inst.y.imm));
+
+                SkASSERT(a.size() % 4 == 0);
+                Xbyak::Label label = X.L();
+                a.byte(&inst.y.imm, 4);
+                splats[inst.y.imm] = label;
+            }
+        }
+
+        // Executable code starts here.
+        *code = a.size();
+
+        Xbyak::Label loop_label;
         for (int i = 0; i < (int)instructions.size(); i++) {
             if (i == loop) {
-                X.L("loop");
+                X.L(loop_label);
             }
             const Program::Instruction& inst = instructions[i];
             Op  op = inst.op;
@@ -707,8 +773,7 @@ namespace skvm {
                 case Op::load8:  X.vpmovzxbd(r(d), X.ptr[xarg(y.imm)]); break;
                 case Op::load32: X.vmovups  (r(d), X.ptr[xarg(y.imm)]); break;
 
-                case Op::splat: data4.push_back(Data4{Xbyak::Label(), y.imm});
-                                X.vbroadcastss(r(d), X.ptr[X.rip + data4.back().label]);
+                case Op::splat: X.vbroadcastss(r(d), X.ptr[X.rip + splats[y.imm]]);
                                 break;
 
                 case Op::add_f32: a.vaddps(ar(d), ar(x), ar(y.id)); break;
@@ -755,45 +820,8 @@ namespace skvm {
                 case Op::to_i32: a.vcvttps2dq(ar(d), ar(x)); break;
 
                 case Op::bytes: {
-                    if (vpshufb_masks.end() == vpshufb_masks.find(y.imm)) {
-                        // Translate bytes()'s control nibbles to vpshufb's control bytes.
-                        auto nibble_to_vpshufb = [](unsigned n) -> uint8_t {
-                            return n == 0 ? 0xff  // Fill with zero.
-                                          : n-1;  // Select n'th 1-indexed byte.
-                        };
-                        uint8_t control[] = {
-                            nibble_to_vpshufb( (y.imm >>  0) & 0xf ),
-                            nibble_to_vpshufb( (y.imm >>  4) & 0xf ),
-                            nibble_to_vpshufb( (y.imm >>  8) & 0xf ),
-                            nibble_to_vpshufb( (y.imm >> 12) & 0xf ),
-                        };
-
-                        // Now, vpshufb is one of those weird AVX instructions
-                        // that does everything in 2 128-bit chunks, so we'll
-                        // only really need 4 distinct values to write in our pattern:
-                        int p[4];
-                        for (int i = 0; i < 4; i++) {
-                            p[i] = (int)control[0] <<  0
-                                 | (int)control[1] <<  8
-                                 | (int)control[2] << 16
-                                 | (int)control[3] << 24;
-
-                            // Update each byte that refers to a byte index by 4 to
-                            // point into the next 32-bit lane, but leave any 0xff
-                            // that fills with zero alone.
-                            control[0] += control[0] == 0xff ? 0 : 4;
-                            control[1] += control[1] == 0xff ? 0 : 4;
-                            control[2] += control[2] == 0xff ? 0 : 4;
-                            control[3] += control[3] == 0xff ? 0 : 4;
-                        }
-
-                        // Notice, same patterns for top 4 32-bit lanes as bottom.
-                        data32.push_back(Data32{Xbyak::Label(), {p[0], p[1], p[2], p[3],
-                                                                 p[0], p[1], p[2], p[3]}});
-                        vpshufb_masks[y.imm] = data32.size() - 1;
-                    }
                     X.vpshufb(r(d), r(x),
-                              X.ptr[X.rip + data32[vpshufb_masks[y.imm]].label]);
+                              X.ptr[X.rip + vpshufb_masks[y.imm]]);
                 } break;
             }
         }
@@ -802,23 +830,10 @@ namespace skvm {
             a.add(arg[i], K*(int)strides[i]);
         }
         a.sub(N, K);
-        X.jne("loop");
+        X.jne(loop_label);
 
         a.vzeroupper();
         a.ret();
-
-        for (auto data : data4) {
-            a.align(4);
-            X.L(data.label);
-            X.dd(data.bits);
-        }
-        for (auto data : data32) {
-            a.align(32);
-            X.L(data.label);
-            for (int i = 0; i < 8; i++) {
-                X.dd(data.bits[i]);
-            }
-        }
 
         // Return mask to apply to N for elements the JIT can handle.
         return ~(K-1);
@@ -829,14 +844,14 @@ namespace skvm {
     #if defined(SKVM_JIT)
         if (!fJIT && can_jit(fRegs, nargs)) {
             fJIT.reset(new Assembler);
-            fJITMask = jit(*fJIT, fInstructions, fRegs, fLoop, strides, nargs);
+            fJITMask = jit(*fJIT, &fJITCode, fInstructions, fRegs, fLoop, strides, nargs);
         #if 1
             // We're doing some really stateful things below,
             // so one thread at a time please...
             static SkSpinlock dump_lock;
             SkAutoSpinlock lock(dump_lock);
 
-            uint32_t hash = SkOpts::hash(fJIT->code(), fJIT->size());
+            uint32_t hash = SkOpts::hash(fJIT->data(), fJIT->size());
 
             SkString name = SkStringPrintf("skvm-jit-%u", hash);
 
@@ -903,14 +918,14 @@ namespace skvm {
                 timestamp_ns(),
 
                 (uint32_t)getpid(), (uint32_t)SkGetThreadID(),
-                (uint64_t)fJIT->code(), (uint64_t)fJIT->code(), fJIT->size(), hash,
+                (uint64_t)fJIT->data(), (uint64_t)fJIT->data(), fJIT->size(), hash,
             };
 
             // Write the header, the JIT'd function name, and the JIT'd code itself.
             fwrite(&load, sizeof(load), 1, jitdump);
             fwrite(name.c_str(), 1, name.size(), jitdump);
             fwrite("\0", 1, 1, jitdump);
-            fwrite(fJIT->code(), 1, fJIT->size(), jitdump);
+            fwrite(fJIT->data(), 1, fJIT->size(), jitdump);
         #endif
         }
 
@@ -918,7 +933,7 @@ namespace skvm {
         if (fJIT && jitN > 0) {
             bool ran = true;
 
-            void* fn = fJIT->code();
+            const uint8_t* fn = fJIT->data() + fJITCode;
             switch (nargs) {
                 case 0: ((void(*)(int              ))fn)(jitN                  ); break;
                 case 1: ((void(*)(int, void*       ))fn)(jitN, args[0]         ); break;
