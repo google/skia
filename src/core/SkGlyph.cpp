@@ -80,16 +80,37 @@ SkGlyph::SkGlyph(const SkGlyphPrototype& p)
     {}
 
 size_t SkGlyph::formatAlignment() const {
-    auto format = static_cast<SkMask::Format>(fMaskFormat);
-    return format_alignment(format);
+    return format_alignment(this->maskFormat());
 }
 
 size_t SkGlyph::allocImage(SkArenaAlloc* alloc) {
-    auto size = this->computeImageSize();
-    auto format = static_cast<SkMask::Format>(fMaskFormat);
-    fImage = alloc->makeBytesAlignedTo(size, format_alignment(format));
+    SkASSERT(!this->isEmpty());
+    auto size = this->imageSize();
+    fImage = alloc->makeBytesAlignedTo(size, this->formatAlignment());
 
     return size;
+}
+
+bool SkGlyph::setImage(SkArenaAlloc* alloc, SkScalerContext* scalerContext) {
+    if (!this->setImageHasBeenCalled()) {
+        // It used to be that getImage() could change the fMaskFormat. Extra checking to make
+        // sure there are no regressions.
+        SkDEBUGCODE(SkMask::Format oldFormat = this->maskFormat());
+        this->allocImage(alloc);
+        scalerContext->getImage(*this);
+        SkASSERT(oldFormat == this->maskFormat());
+        return true;
+    }
+    return false;
+}
+
+bool SkGlyph::setImage(SkArenaAlloc* alloc, const void* image) {
+    if (!this->setImageHasBeenCalled()) {
+        this->allocImage(alloc);
+        memcpy(fImage, image, this->imageSize());
+        return true;
+    }
+    return false;
 }
 
 size_t SkGlyph::rowBytes() const {
@@ -100,7 +121,9 @@ size_t SkGlyph::rowBytesUsingFormat(SkMask::Format format) const {
     return format_rowbytes(fWidth, format);
 }
 
-size_t SkGlyph::computeImageSize() const {
+size_t SkGlyph::imageSize() const {
+    if (this->isEmpty() || this->imageTooLarge()) { return 0; }
+
     size_t size = this->rowBytes() * fHeight;
 
     if (fMaskFormat == SkMask::k3D_Format) {
@@ -118,12 +141,9 @@ size_t SkGlyph::copyImageData(const SkGlyph& from, SkArenaAlloc* alloc) {
     fTop = from.fTop;
     fForceBW = from.fForceBW;
 
-    if (from.fImage != nullptr) {
-        auto imageSize = this->allocImage(alloc);
-        SkASSERT(imageSize == from.computeImageSize());
-
-        memcpy(fImage, from.fImage, imageSize);
-        return imageSize;
+    if (from.image() != nullptr) {
+        this->setImage(alloc, from.image());
+        return this->imageSize();
     }
 
     return 0u;

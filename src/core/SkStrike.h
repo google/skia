@@ -95,7 +95,7 @@ public:
 
     /** Initializes the image associated with the glyph with |data|.
      */
-    void initializeImage(const volatile void* data, size_t size, SkGlyph*);
+    void initializeImage(const void* data, size_t size, SkGlyph*);
 
     /** If the advance axis intersects the glyph's path, append the positions scaled and offset
         to the array (if non-null), and set the count to the updated array length.
