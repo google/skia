@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cdb9ce8a_9809dd39",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 51
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-21T18:34:22Z",
+      "side": 1,
+      "message": "Vendor",
+      "range": {
+        "startLine": 448,
+        "startChar": 53,
+        "endLine": 448,
+        "endChar": 54
+      },
+      "revId": "dcbec66014a2a63df6bf3f1a6849f2b1e9003879",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6765b74_cd5f9184",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 51
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-21T18:34:22Z",
+      "side": 1,
+      "message": "4 space tabs :)",
+      "range": {
+        "startLine": 448,
+        "startChar": 1,
+        "endLine": 454,
+        "endChar": 5
+      },
+      "revId": "dcbec66014a2a63df6bf3f1a6849f2b1e9003879",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "823bd0b1_04d4341c",
+        "filename": "tests/VkProtectedContextTest.cpp",
+        "patchSetId": 51
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-21T18:34:22Z",
+      "side": 1,
+      "message": "this assert needs to be removed now.",
+      "range": {
+        "startLine": 117,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 48
+      },
+      "revId": "dcbec66014a2a63df6bf3f1a6849f2b1e9003879",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57240c3c_308202b9",
+        "filename": "tests/VkProtectedContextTest.cpp",
+        "patchSetId": 51
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-21T18:34:22Z",
+      "side": 1,
+      "message": "remove all these prints since we don\u0027t want to spew the logs with these prints just cause the device doesn\u0027t supported protected. Generally we all have long lived prints if it is code that is expected to always work and if we see a print we actually want to take action on it.",
+      "range": {
+        "startLine": 176,
+        "startChar": 7,
+        "endLine": 176,
+        "endChar": 57
+      },
+      "revId": "dcbec66014a2a63df6bf3f1a6849f2b1e9003879",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

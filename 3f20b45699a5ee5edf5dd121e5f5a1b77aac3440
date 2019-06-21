@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a353e5bf_c8d57f4e",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-21T18:34:22Z",
+      "side": 1,
+      "message": "these need to get tabbed in",
+      "range": {
+        "startLine": 659,
+        "startChar": 8,
+        "endLine": 660,
+        "endChar": 21
+      },
+      "revId": "3f20b45699a5ee5edf5dd121e5f5a1b77aac3440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
