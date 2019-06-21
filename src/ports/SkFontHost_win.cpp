@@ -1095,7 +1095,7 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         LogFontTypeface::EnsureAccessible(this->getTypeface());
         bits = fOffscreen.draw(glyph, isBW, &srcRB);
         if (nullptr == bits) {
-            sk_bzero(glyph.fImage, glyph.computeImageSize());
+            sk_bzero(glyph.fImage, glyph.imageSize());
             return;
         }
     }

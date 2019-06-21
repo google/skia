@@ -478,7 +478,7 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
         SkASSERT(SkMask::IsValidFormat(glyph.fMaskFormat));
 
         writeGlyph(&glyph, serializer);
-        auto imageSize = glyph.computeImageSize();
+        auto imageSize = glyph.imageSize();
         if (imageSize == 0u) continue;
 
         glyph.fImage = serializer->allocate(imageSize, glyph.formatAlignment());
@@ -771,16 +771,16 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
                 allocatedGlyph->fPathData = glyphPath;
             }
 
-            auto imageSize = glyph->computeImageSize();
+            auto imageSize = glyph->imageSize();
             if (imageSize == 0u) continue;
 
-            auto* image = deserializer.read(imageSize, glyph->formatAlignment());
+            const volatile void* image = deserializer.read(imageSize, glyph->formatAlignment());
             if (!image) READ_FAILURE
 
             // Don't overwrite the image if we already have one. We could have used a fallback if
             // the glyph was missing earlier.
             if (allocatedGlyph->fImage == nullptr) {
-                strike->initializeImage(image, imageSize, allocatedGlyph);
+                strike->initializeImage((void *)image, imageSize, allocatedGlyph);
             }
         }
 

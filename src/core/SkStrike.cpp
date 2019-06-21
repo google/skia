@@ -151,37 +151,18 @@ SkSpan<SkPoint> SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint 
     return {advances, glyphIDs.size()};
 }
 
-const void* SkStrike::findImage(const SkGlyph& glyph) {
-    if (glyph.fWidth > 0 && glyph.fWidth < kMaxGlyphWidth) {
-        if (nullptr == glyph.fImage) {
-            SkDEBUGCODE(SkMask::Format oldFormat = (SkMask::Format)glyph.fMaskFormat);
-            size_t  size = const_cast<SkGlyph&>(glyph).allocImage(&fAlloc);
-            // check that alloc() actually succeeded
-            if (glyph.fImage) {
-                fScalerContext->getImage(glyph);
-                // TODO: the scaler may have changed the maskformat during
-                // getImage (e.g. from AA or LCD to BW) which means we may have
-                // overallocated the buffer. Check if the new computedImageSize
-                // is smaller, and if so, strink the alloc size in fImageAlloc.
-                fMemoryUsed += size;
-            }
-            SkASSERT(oldFormat == glyph.fMaskFormat);
-        }
+const void* SkStrike::findImage(const SkGlyph& glyphRef) {
+    SkGlyph* glyph = const_cast<SkGlyph*>(&glyphRef);
+    if (glyph->setImage(&fAlloc, fScalerContext.get())) {
+        fMemoryUsed += glyph->imageSize();
     }
-    return glyph.fImage;
+    return glyph->image();
 }
 
-void SkStrike::initializeImage(const volatile void* data, size_t size, SkGlyph* glyph) {
-    SkASSERT(!glyph->fImage);
-
-    if (glyph->fWidth > 0 && glyph->fWidth < kMaxGlyphWidth) {
-        size_t allocSize = glyph->allocImage(&fAlloc);
-        // check that alloc() actually succeeded
-        if (glyph->fImage) {
-            SkASSERT(size == allocSize);
-            memcpy(glyph->fImage, const_cast<const void*>(data), allocSize);
-            fMemoryUsed += size;
-        }
+void SkStrike::initializeImage(const void* data, size_t size, SkGlyph* glyph) {
+    SkASSERT(size == glyph->imageSize());
+    if (glyph->setImage(&fAlloc, data)) {
+        fMemoryUsed += glyph->imageSize();
     }
 }
 
@@ -290,7 +271,7 @@ void SkStrike::forceValidate() const {
     fGlyphMap.foreach ([&memoryUsed](const SkGlyph* glyphPtr) {
         memoryUsed += sizeof(SkGlyph);
         if (glyphPtr->fImage) {
-            memoryUsed += glyphPtr->computeImageSize();
+            memoryUsed += glyphPtr->imageSize();
         }
         if (glyphPtr->setPathHasBeenCalled() && glyphPtr->path() != nullptr) {
             memoryUsed += glyphPtr->path()->approximateBytesUsed();

@@ -23,8 +23,6 @@ class SkScalerContext;
 #define MASK_FORMAT_UNKNOWN         (0xFF)
 #define MASK_FORMAT_JUST_ADVANCE    MASK_FORMAT_UNKNOWN
 
-#define kMaxGlyphWidth (1<<13)
-
 /** SkGlyphID + subpixel-pos */
 struct SkPackedGlyphID {
     static constexpr uint32_t kImpossibleID = ~0u;
@@ -135,10 +133,7 @@ public:
     SkFixed getSubXFixed() const { return fID.getSubXFixed(); }
     SkFixed getSubYFixed() const { return fID.getSubYFixed(); }
 
-    size_t formatAlignment() const;
-    size_t allocImage(SkArenaAlloc* alloc);
     size_t rowBytes() const;
-    size_t computeImageSize() const;
     size_t rowBytesUsingFormat(SkMask::Format format) const;
 
     // Call this to set all of the metrics fields to 0 (e.g. if the scaler
@@ -146,15 +141,29 @@ public:
     // fImage, fPath, fID, fMaskFormat fields.
     void zeroMetrics();
 
-    bool hasImage() const {
-        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
-        return fImage != nullptr;
-    }
-
     SkMask mask() const;
 
     SkMask mask(SkPoint position) const;
 
+    // Image
+    // If we haven't already tried to associate an image with this glyph
+    // (i.e. setImageHasBeenCalled() returns false), then use the
+    // SkScalerContext or const void* argument to set the image.
+    bool setImage(SkArenaAlloc* alloc, SkScalerContext* scalerContext);
+    bool setImage(SkArenaAlloc* alloc, const void* image);
+
+    // Returns true if the image has been set.
+    bool setImageHasBeenCalled() const {
+        return fImage != nullptr || this->isEmpty() || this->imageTooLarge();
+    }
+
+    // Return a pointer to the path if the image exists, otherwise return nullptr.
+    const void* image() const { SkASSERT(this->setImageHasBeenCalled()); return fImage; }
+
+    // Return the size of the image.
+    size_t imageSize() const;
+
+    // Path
     // If we haven't already tried to associate a path to this glyph
     // (i.e. setPathHasBeenCalled() returns false), then use the
     // SkScalerContext or SkPath argument to try to do so.  N.B. this
@@ -179,6 +188,7 @@ public:
     // Format
     bool isColor() const { return fMaskFormat == SkMask::kARGB32_Format; }
     SkMask::Format maskFormat() const { return static_cast<SkMask::Format>(fMaskFormat); }
+    size_t formatAlignment() const;
 
     // Bounds
     int maxDimension() const { return std::max(fWidth, fHeight); }
@@ -193,6 +203,7 @@ public:
         SkASSERT(fHeight != 0 || fWidth == 0);
         return fWidth == 0;
     }
+    bool imageTooLarge() const { return fWidth >= kMaxGlyphWidth; }
 
     // Returns the size allocated on the arena.
     size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc);
@@ -235,6 +246,10 @@ private:
     friend class SkTestSVGScalerContext;
     friend class TestSVGTypeface;
     friend class TestTypeface;
+
+    static constexpr uint16_t kMaxGlyphWidth = 1u << 13u;
+
+    size_t allocImage(SkArenaAlloc* alloc);
 
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,
@@ -294,7 +309,7 @@ struct SkGlyphPrototype {
 
     SkMask::Format  maskFormat = SkMask::kBW_Format;
 
-    bool            forceBW = 0;
+    bool            forceBW = false;
 };
 
 #endif

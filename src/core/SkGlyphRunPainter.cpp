@@ -218,7 +218,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                 SkPoint position = glyphPos.position;
                 // The glyph could have dimensions (!isEmpty()), but still may have no bits if
                 // the width is too wide. So check that there really is an image.
-                if (check_glyph_position(position) && !glyph.isEmpty() && glyph.hasImage()) {
+                if (check_glyph_position(position) && glyph.image() != nullptr) {
                     masks.push_back(glyph.mask(position));
                 }
             }

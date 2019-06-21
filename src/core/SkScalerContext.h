@@ -360,11 +360,11 @@ protected:
 
     /** Generates the contents of glyph.fImage.
      *  When called, glyph.fImage will be pointing to a pre-allocated,
-     *  uninitialized region of memory of size glyph.computeImageSize().
+     *  uninitialized region of memory of size glyph.imageSize().
      *  This method may change glyph.fMaskFormat if the new image size is
      *  less than or equal to the old image size.
      *
-     *  Because glyph.computeImageSize() will determine the size of fImage,
+     *  Because glyph.imageSize() will determine the size of fImage,
      *  generateMetrics will be called before generateImage.
      */
     virtual void generateImage(const SkGlyph& glyph) = 0;
