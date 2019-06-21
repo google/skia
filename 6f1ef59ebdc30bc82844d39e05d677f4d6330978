@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "68f9e97c_e3a457f5",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-21T20:06:16Z",
+      "side": 1,
+      "message": "Updated to be more in line with the eventual goals, as discussed.",
+      "parentUuid": "2e6cd19e_0d88892d",
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9bc87b2_a67a6ac1",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 10
@@ -33,6 +51,24 @@
       "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d07dcc66_6e43cf02",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-21T20:06:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9bc87b2_a67a6ac1",
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "9221fac9_900ff86e",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-21T20:06:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf457a25_d2331c45",
+      "range": {
+        "startLine": 27,
+        "startChar": 40,
+        "endLine": 27,
+        "endChar": 42
+      },
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1910f41a_70e38523",
         "filename": "src/core/SkGpuBlurUtils.h",
         "patchSetId": 10
@@ -73,6 +133,24 @@
       "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "759cf299_a8400ab5",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-21T20:06:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1910f41a_70e38523",
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "78d787a8_74412d70",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-21T20:06:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab11152e_25679e2a",
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ecd229d_a64eabbc",
         "filename": "src/core/SkSpecialImage.cpp",
         "patchSetId": 10
@@ -107,6 +203,24 @@
       "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ade7faf4_4361dcef",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-21T20:06:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ecd229d_a64eabbc",
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -133,6 +247,30 @@
     },
     {
       "key": {
+        "uuid": "f2a63bfd_d1fd5e31",
+        "filename": "src/core/SkSpecialImage.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-21T20:06:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b09cab9d_a11e6164",
+      "range": {
+        "startLine": 111,
+        "startChar": 7,
+        "endLine": 111,
+        "endChar": 21
+      },
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5852b8c5_4e5cbad3",
         "filename": "src/core/SkSpecialImage.h",
         "patchSetId": 10
@@ -156,6 +294,30 @@
     },
     {
       "key": {
+        "uuid": "6a995fcb_42fd17ca",
+        "filename": "src/core/SkSpecialImage.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-21T20:06:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5852b8c5_4e5cbad3",
+      "range": {
+        "startLine": 121,
+        "startChar": 56,
+        "endLine": 121,
+        "endChar": 70
+      },
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa13df0d_997d2478",
         "filename": "src/core/SkSpecialImage.h",
         "patchSetId": 10
@@ -170,6 +332,24 @@
       "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbbde059_33f96c3a",
+        "filename": "src/core/SkSpecialImage.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-21T20:06:16Z",
+      "side": 1,
+      "message": "Clarified that it\u0027s only the texture coordinates that need to be adjusted, and that the proxy represents the entire backing store.",
+      "parentUuid": "fa13df0d_997d2478",
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -193,6 +373,30 @@
       "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9127025_ea82ecf5",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-21T20:06:16Z",
+      "side": 1,
+      "message": "Should have just been subset(), cleaned up.",
+      "parentUuid": "4d0c754f_11cd460b",
+      "range": {
+        "startLine": 308,
+        "startChar": 23,
+        "endLine": 308,
+        "endChar": 27
+      },
+      "revId": "6f1ef59ebdc30bc82844d39e05d677f4d6330978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
