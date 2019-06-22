@@ -86,11 +86,12 @@ namespace SK_OPTS_NS {
             for (int i = start; i < ninsts; i++) {
                 skvm::Program::Instruction inst = insts[i];
 
-                // d = op(x, y.id/z.imm, z.id/z.imm)
-                ID   d = inst.d,
-                     x = inst.x;
-                auto y = inst.y,
-                     z = inst.z;
+                // d = op(x,y,z/imm)
+                ID    d = inst.d,
+                      x = inst.x,
+                      y = inst.y,
+                      z = inst.z;
+                int imm = inst.imm;
 
                 // Ops that interact with memory need to know whether we're stride=1 or stride=K,
                 // but all non-memory ops can run the same code no matter the stride.
@@ -98,55 +99,55 @@ namespace SK_OPTS_NS {
 
                 #define STRIDE_1(op) case 2*(int)op
                 #define STRIDE_K(op) case 2*(int)op + 1
-                    STRIDE_1(Op::store8 ): memcpy(arg(y.imm), &r(x).i32, 1); break;
-                    STRIDE_1(Op::store32): memcpy(arg(y.imm), &r(x).i32, 4); break;
+                    STRIDE_1(Op::store8 ): memcpy(arg(imm), &r(x).i32, 1); break;
+                    STRIDE_1(Op::store32): memcpy(arg(imm), &r(x).i32, 4); break;
 
-                    STRIDE_K(Op::store8 ): skvx::cast<uint8_t>(r(x).i32).store(arg(y.imm)); break;
-                    STRIDE_K(Op::store32):                    (r(x).i32).store(arg(y.imm)); break;
+                    STRIDE_K(Op::store8 ): skvx::cast<uint8_t>(r(x).i32).store(arg(imm)); break;
+                    STRIDE_K(Op::store32):                    (r(x).i32).store(arg(imm)); break;
 
-                    STRIDE_1(Op::load8 ): r(d).i32 = 0; memcpy(&r(d).i32, arg(y.imm), 1); break;
-                    STRIDE_1(Op::load32): r(d).i32 = 0; memcpy(&r(d).i32, arg(y.imm), 4); break;
+                    STRIDE_1(Op::load8 ): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 1); break;
+                    STRIDE_1(Op::load32): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 4); break;
 
-                    STRIDE_K(Op::load8 ): r(d).i32 = skvx::cast<int>(U8 ::Load(arg(y.imm))); break;
-                    STRIDE_K(Op::load32): r(d).i32 =                 I32::Load(arg(y.imm)) ; break;
+                    STRIDE_K(Op::load8 ): r(d).i32 = skvx::cast<int>(U8 ::Load(arg(imm))); break;
+                    STRIDE_K(Op::load32): r(d).i32 =                 I32::Load(arg(imm)) ; break;
                 #undef STRIDE_1
                 #undef STRIDE_K
 
                     // Ops that don't interact with memory should never care about the stride.
                 #define CASE(op) case 2*(int)op: /*fallthrough*/ case 2*(int)op+1
-                    CASE(Op::splat): r(d).i32 = y.imm; break;
+                    CASE(Op::splat): r(d).i32 = imm; break;
 
-                    CASE(Op::add_f32): r(d).f32 = r(x).f32 + r(y.id).f32; break;
-                    CASE(Op::sub_f32): r(d).f32 = r(x).f32 - r(y.id).f32; break;
-                    CASE(Op::mul_f32): r(d).f32 = r(x).f32 * r(y.id).f32; break;
-                    CASE(Op::div_f32): r(d).f32 = r(x).f32 / r(y.id).f32; break;
+                    CASE(Op::add_f32): r(d).f32 = r(x).f32 + r(y).f32; break;
+                    CASE(Op::sub_f32): r(d).f32 = r(x).f32 - r(y).f32; break;
+                    CASE(Op::mul_f32): r(d).f32 = r(x).f32 * r(y).f32; break;
+                    CASE(Op::div_f32): r(d).f32 = r(x).f32 / r(y).f32; break;
 
-                    CASE(Op::mad_f32): r(d).f32 = r(x).f32 * r(y.id).f32 + r(z.id).f32; break;
+                    CASE(Op::mad_f32): r(d).f32 = r(x).f32 * r(y).f32 + r(z).f32; break;
 
-                    CASE(Op::add_i32): r(d).i32 = r(x).i32 + r(y.id).i32; break;
-                    CASE(Op::sub_i32): r(d).i32 = r(x).i32 - r(y.id).i32; break;
-                    CASE(Op::mul_i32): r(d).i32 = r(x).i32 * r(y.id).i32; break;
+                    CASE(Op::add_i32): r(d).i32 = r(x).i32 + r(y).i32; break;
+                    CASE(Op::sub_i32): r(d).i32 = r(x).i32 - r(y).i32; break;
+                    CASE(Op::mul_i32): r(d).i32 = r(x).i32 * r(y).i32; break;
 
                     CASE(Op::sub_i16x2):
-                        r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<I16x2>(r(x   ).i32) -
-                                                      skvx::bit_pun<I16x2>(r(y.id).i32) ); break;
+                        r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<I16x2>(r(x).i32) -
+                                                      skvx::bit_pun<I16x2>(r(y).i32) ); break;
                     CASE(Op::mul_i16x2):
-                        r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<I16x2>(r(x   ).i32) *
-                                                      skvx::bit_pun<I16x2>(r(y.id).i32) ); break;
+                        r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<I16x2>(r(x).i32) *
+                                                      skvx::bit_pun<I16x2>(r(y).i32) ); break;
                     CASE(Op::shr_i16x2):
-                        r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<U16x2>(r(x).i32) >> y.imm);
+                        r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<U16x2>(r(x).i32) >> imm);
                         break;
 
-                    CASE(Op::bit_and): r(d).i32 = r(x).i32 & r(y.id).i32; break;
-                    CASE(Op::bit_or ): r(d).i32 = r(x).i32 | r(y.id).i32; break;
-                    CASE(Op::bit_xor): r(d).i32 = r(x).i32 ^ r(y.id).i32; break;
+                    CASE(Op::bit_and): r(d).i32 = r(x).i32 & r(y).i32; break;
+                    CASE(Op::bit_or ): r(d).i32 = r(x).i32 | r(y).i32; break;
+                    CASE(Op::bit_xor): r(d).i32 = r(x).i32 ^ r(y).i32; break;
 
-                    CASE(Op::shl): r(d).i32 = r(x).i32 << y.imm; break;
-                    CASE(Op::sra): r(d).i32 = r(x).i32 >> y.imm; break;
-                    CASE(Op::shr): r(d).u32 = r(x).u32 >> y.imm; break;
+                    CASE(Op::shl): r(d).i32 = r(x).i32 << imm; break;
+                    CASE(Op::sra): r(d).i32 = r(x).i32 >> imm; break;
+                    CASE(Op::shr): r(d).u32 = r(x).u32 >> imm; break;
 
-                    CASE(Op::extract): r(d).u32 = (r(x).u32 >> y.imm) & r(z.id).u32; break;
-                    CASE(Op::pack):    r(d).u32 = r(x).u32 | (r(y.id).u32 << z.imm); break;
+                    CASE(Op::extract): r(d).u32 = (r(x).u32 >> imm) & r(y).u32; break;
+                    CASE(Op::pack):    r(d).u32 = r(x).u32 | (r(y).u32 << imm); break;
 
                     CASE(Op::bytes): {
                         const U32 table[] = {
@@ -156,10 +157,10 @@ namespace SK_OPTS_NS {
                             (r(x).u32 >> 16) & 0xff,
                             (r(x).u32 >> 24) & 0xff,
                         };
-                        r(d).u32 = table[(y.imm >>  0) & 0xf] <<  0
-                                 | table[(y.imm >>  4) & 0xf] <<  8
-                                 | table[(y.imm >>  8) & 0xf] << 16
-                                 | table[(y.imm >> 12) & 0xf] << 24;
+                        r(d).u32 = table[(imm >>  0) & 0xf] <<  0
+                                 | table[(imm >>  4) & 0xf] <<  8
+                                 | table[(imm >>  8) & 0xf] << 16
+                                 | table[(imm >> 12) & 0xf] << 24;
                     } break;
 
                     CASE(Op::to_f32): r(d).f32 = skvx::cast<float>(r(x).i32); break;
