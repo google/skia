@@ -316,6 +316,9 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
                                                        void*                   dst,
                                                        size_t                  rowBytes,
                                                        const SkCodec::Options& options) {
+    if (!dst) {
+        return SkCodec::kInvalidParameters;
+    }
     if (options.fSubset) {
         return SkCodec::kUnimplemented;
     }
@@ -481,7 +484,33 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
 }
 
 int SkWuffsCodec::onGetFrameCount() {
-    if (!fFramesComplete) {
+    // It is valid, in terms of the SkCodec API, to call SkCodec::getFrameCount
+    // while in an incremental decode (after onStartIncrementalDecode returns
+    // and before onIncrementalDecode returns kSuccess).
+    //
+    // We should not advance the SkWuffsCodec' stream while doing so, even
+    // though other SkCodec implementations can return increasing values from
+    // onGetFrameCount when given more data. If we tried to do so, the
+    // subsequent resume of the incremental decode would continue reading from
+    // a different position in the I/O stream, leading to an incorrect error.
+    //
+    // Other SkCodec implementations can move the stream forward during
+    // onGetFrameCount because they assume that the stream is rewindable /
+    // seekable. For example, an alternative GIF implementation may choose to
+    // store, for each frame walked past when merely counting the number of
+    // frames, the I/O position of each of the frame's GIF data blocks. (A GIF
+    // frame's compressed data can have multiple data blocks, each at most 255
+    // bytes in length). Obviously, this can require O(numberOfFrames) extra
+    // memory to store these I/O positions.
+    //
+    // Wuffs and SkWuffsCodec tries to minimize relying on the rewindable /
+    // seekable assumption. For example, by design, Wuffs per se certainly aims
+    // for O(1) memory use (after any pixel buffers are allocated) instead of
+    // O(numberOfFrames), and its I/O type, wuffs_base__io_buffer, is not
+    // necessarily rewindable or seekable.
+    bool incrementalDecodeIsInProgress = fIncrDecDst != nullptr;
+
+    if (!fFramesComplete && !incrementalDecodeIsInProgress) {
         this->readFrames();
         this->updateNumFullyReceivedFrames();
     }
