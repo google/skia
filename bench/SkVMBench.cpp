@@ -126,3 +126,21 @@ DEF_BENCH(return (new SkVMBench{  64, I32_SWAR});)
 DEF_BENCH(return (new SkVMBench{ 256, I32_SWAR});)
 DEF_BENCH(return (new SkVMBench{1024, I32_SWAR});)
 DEF_BENCH(return (new SkVMBench{4096, I32_SWAR});)
+
+class SkVM_Overhead : public Benchmark {
+public:
+    SkVM_Overhead() {}
+
+private:
+    const char* onGetName() override { return "SkVM_Overhead"; }
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+
+    void onDraw(int loops, SkCanvas*) override {
+        while (loops --> 0) {
+            float dummy;
+            skvm::Program program = SrcoverBuilder_F32{}.done();
+            program.eval(0, &dummy, &dummy);
+        }
+    }
+};
+DEF_BENCH(return new SkVM_Overhead;)
