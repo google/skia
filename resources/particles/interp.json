@@ -28,14 +28,14 @@
       {
          "Type": "SkInterpreterAffector",
          "Enabled": true,
-         "Code": "// float rand;\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nvoid main(in    float age,\n          in    float invLifetime,\n          inout float2 pos,\n          inout float2 dir,\n          inout float  scale,\n          inout float2 vel,\n          inout float  spin,\n          inout float4 color) {\n  vel.x = 50 + (30 * rand);\n  vel.y = (rand * 20) - 10;\n}\n"
+         "Code": "// float rand;\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nvoid main(in    float age,\n          in    float invLifetime,\n          inout float2 pos,\n          inout float2 dir,\n          inout float  scale,\n          inout float2 vel,\n          inout float  spin,\n          inout float4 color,\n          inout float  frame) {\n  vel.x = 50 + (30 * rand);\n  vel.y = (rand * 20) - 10;\n}\n"
       }
    ],
    "Update": [
       {
          "Type": "SkInterpreterAffector",
          "Enabled": true,
-         "Code": "// float rand;\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nvoid main(in    float age,\n          in    float invLifetime,\n          inout float2 pos,\n          inout float2 dir,\n          inout float  scale,\n          inout float2 vel,\n          inout float  spin,\n          inout float4 color) {\n  color.r = age;\n  color.g = 1 - age;\n\n  float s1 = 0.5 + (1.5 * age);\n  float s2 = 1.0 + (-0.75 * age);\n  scale = s1 + (s2 - s1) * rand;\n\n  vel.y += 20.0 * dt;\n}\n"
+         "Code": "// float rand;\nlayout(ctype=float) in uniform float dt;\nlayout(ctype=float) in uniform float effectAge;\n\nvoid main(in    float age,\n          in    float invLifetime,\n          inout float2 pos,\n          inout float2 dir,\n          inout float  scale,\n          inout float2 vel,\n          inout float  spin,\n          inout float4 color,\n          inout float  frame) {\n  color.r = age;\n  color.g = 1 - age;\n\n  float s1 = 0.5 + (1.5 * age);\n  float s2 = 1.0 + (-0.75 * age);\n  scale = s1 + (s2 - s1) * rand;\n\n  vel.y += 20.0 * dt;\n}\n"
       }
    ]
 }
