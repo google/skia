@@ -101,9 +101,8 @@ static void test_partial(skiatest::Reporter* r, const char* name, const sk_sp<Sk
 
     while (true) {
         // This imitates how Chromium calls getFrameCount before resuming a decode.
-        // Without this line, the test passes. With it, it fails when skia_use_wuffs
-        // is true.
         partialCodec->getFrameCount();
+
         const SkCodec::Result result = partialCodec->incrementalDecode();
 
         if (result == SkCodec::kSuccess) {
