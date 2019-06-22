@@ -81,7 +81,8 @@ namespace skvm {
         }
 
         // We'll need to map each live value to a register.
-        std::unordered_map<ID, ID> val_to_reg;
+        // TODO: this could be another field on Instruction / fProgram to avoid this side alloc?
+        std::vector<ID> val_to_reg(fProgram.size());
 
         // Count the registers we've used so far.
         ID next_reg = 0;
@@ -101,7 +102,7 @@ namespace skvm {
         // values have finite liftimes, so we track pre-owned registers that have become available
         // and a schedule of which registers become available as we reach a given instruction.
         std::vector<ID>                         avail;
-        std::unordered_map<ID, std::vector<ID>> deaths;
+        std::vector<std::vector<ID>>            deaths(fProgram.size());
 
         for (ID val = 0; val < (ID)fProgram.size(); val++) {
             Instruction& inst = fProgram[val];
@@ -144,6 +145,7 @@ namespace skvm {
         // The loop begins at the loop'th Instruction.
         int loop = 0;
         std::vector<Program::Instruction> program;
+        program.reserve(fProgram.size());
 
         auto push_instruction = [&](ID id, const Builder::Instruction& inst) {
             Program::Instruction pinst{
@@ -187,14 +189,14 @@ namespace skvm {
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
-        auto lookup = fIndex.find(inst);
-        if (lookup != fIndex.end()) {
-            return lookup->second;
+
+        if (ID* lookup = fIndex.find(inst)) {
+            return *lookup;
         }
 
         ID id = static_cast<ID>(fProgram.size());
         fProgram.push_back(inst);
-        fIndex[inst] = id;
+        fIndex.set(inst, id);
         return id;
     }
 
@@ -938,7 +940,7 @@ namespace skvm {
                 fJIT.entry = entry;
                 fJIT.mask  = mask;
 
-            #if 1   // Debug dumps for profiler.
+            #if 1 && defined(SK_BUILD_FOR_UNIX)   // Debug dumps for perf.
                 // We're doing some really stateful things below so one thread at a time please...
                 static SkSpinlock dump_lock;
                 SkAutoSpinlock lock(dump_lock);
