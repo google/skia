@@ -56,7 +56,7 @@ namespace SK_OPTS_NS {
         }
 
 
-        auto r = [&](ID id) -> Slot& {
+        auto r = [&](Reg id) -> Slot& {
             SkASSERT(0 <= id && id < nregs);
             return regs[id];
         };
@@ -87,7 +87,7 @@ namespace SK_OPTS_NS {
                 skvm::Program::Instruction inst = insts[i];
 
                 // d = op(x,y,z/imm)
-                ID    d = inst.d,
+                Reg   d = inst.d,
                       x = inst.x,
                       y = inst.y,
                       z = inst.z;

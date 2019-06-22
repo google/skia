@@ -125,12 +125,12 @@ namespace skvm {
         to_f32, to_i32,
     };
 
-    using ID = int;  // Could go 16-bit?
+    using Reg = int;
 
     struct ProgramInstruction {   // d = op(x, y, z/imm)
-        Op op;
-        ID d,x,y;
-        union { ID z; int imm; };
+        Op  op;
+        Reg d,x,y;
+        union { Reg z; int imm; };
     };
 
     class Program {
@@ -175,9 +175,11 @@ namespace skvm {
         mutable JIT              fJIT;
     };
 
+    using Val = int;
+
     struct Arg { int ix; };
-    struct I32 { ID id; };
-    struct F32 { ID id; };
+    struct I32 { Val id; };
+    struct F32 { Val id; };
 
     class Builder {
     public:
@@ -249,14 +251,14 @@ namespace skvm {
         void dump(SkWStream*) const;
 
     private:
-        // We reserve the last ID as a sentinel meaning none, n/a, null, nil, etc.
-        static const ID NA = ~0;
+        // We reserve the last Val ID as a sentinel meaning none, n/a, null, nil, etc.
+        static const Val NA = ~0;
 
         struct Instruction {
             Op   op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
             bool hoist;      // Can this instruction be hoisted outside our implicit loop?
-            ID   life;       // ID of last instruction using this instruction's result.
-            ID   x,y,z;      // Enough arguments for mad().
+            Val  life;       // ID of last instruction using this instruction's result.
+            Val  x,y,z;      // Enough arguments for mad().
             int  imm;        // Immediate bit pattern, shift count, argument index, etc.
 
             bool operator==(const Instruction& o) const {
@@ -286,11 +288,11 @@ namespace skvm {
             }
         };
 
-        ID push(Op, ID x, ID y=NA, ID z=NA, int imm=0);
-        bool isZero(ID) const;
+        Val push(Op, Val x, Val y=NA, Val z=NA, int imm=0);
+        bool isZero(Val) const;
 
-        SkTHashMap<Instruction, ID, InstructionHash>         fIndex;
-        std::vector<Instruction>                             fProgram;
+        SkTHashMap<Instruction, Val, InstructionHash> fIndex;
+        std::vector<Instruction>                      fProgram;
     };
 
     // TODO: comparison operations, if_then_else
