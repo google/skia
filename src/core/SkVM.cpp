@@ -152,11 +152,10 @@ namespace skvm {
                 inst.op,
                 lookup_register(id),
                 lookup_register(inst.x),
-               {lookup_register(inst.y)},
+                lookup_register(inst.y),
                {lookup_register(inst.z)},
             };
-            if (inst.y == NA) { pinst.y.imm = inst.immy; }
-            if (inst.z == NA) { pinst.z.imm = inst.immz; }
+            if (inst.z == NA) { pinst.imm = inst.imm; }
             program.push_back(pinst);
         };
 
@@ -184,8 +183,8 @@ namespace skvm {
     // Most instructions produce a value and return it by ID,
     // the value-producing instruction's own index in the program vector.
 
-    ID Builder::push(Op op, ID x, ID y, ID z, int immy, int immz) {
-        Instruction inst{op, /*hoist=*/true, /*life=*/NA, x, y, z, immy, immz};
+    ID Builder::push(Op op, ID x, ID y, ID z, int imm) {
+        Instruction inst{op, /*hoist=*/true, /*life=*/NA, x, y, z, imm};
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
@@ -201,8 +200,8 @@ namespace skvm {
     }
 
     bool Builder::isZero(ID id) const {
-        return fProgram[id].op   == Op::splat
-            && fProgram[id].immy == 0;
+        return fProgram[id].op  == Op::splat
+            && fProgram[id].imm == 0;
     }
 
     Arg Builder::arg(int ix) { return {ix}; }
@@ -248,12 +247,12 @@ namespace skvm {
     I32 Builder::shr(I32 x, int bits) { return {this->push(Op::shr, x.id,NA,NA, bits)}; }
     I32 Builder::sra(I32 x, int bits) { return {this->push(Op::sra, x.id,NA,NA, bits)}; }
 
-    I32 Builder::extract(I32 x, int bits, I32 z) {
-        return {this->push(Op::extract, x.id,NA,z.id, bits,0)};
+    I32 Builder::extract(I32 x, int bits, I32 y) {
+        return {this->push(Op::extract, x.id,y.id,NA, bits)};
     }
 
     I32 Builder::pack(I32 x, I32 y, int bits) {
-        return {this->push(Op::pack, x.id,y.id,NA, 0,bits)};
+        return {this->push(Op::pack, x.id,y.id,NA, bits)};
     }
 
     I32 Builder::bytes(I32 x, int control) {
@@ -319,18 +318,17 @@ namespace skvm {
             ID   x = inst.x,
                  y = inst.y,
                  z = inst.z;
-            int immy = inst.immy,
-                immz = inst.immz;
+            int imm = inst.imm;
             write(o, inst.life == NA ? "☠ " :
                      inst.hoist      ? "⤴ " : "  ");
             switch (op) {
-                case Op::store8:  write(o, "store8" , Arg{immy}, V{x}); break;
-                case Op::store32: write(o, "store32", Arg{immy}, V{x}); break;
+                case Op::store8:  write(o, "store8" , Arg{imm}, V{x}); break;
+                case Op::store32: write(o, "store32", Arg{imm}, V{x}); break;
 
-                case Op::load8:  write(o, V{id}, "= load8" , Arg{immy}); break;
-                case Op::load32: write(o, V{id}, "= load32", Arg{immy}); break;
+                case Op::load8:  write(o, V{id}, "= load8" , Arg{imm}); break;
+                case Op::load32: write(o, V{id}, "= load32", Arg{imm}); break;
 
-                case Op::splat:  write(o, V{id}, "= splat", Splat{immy}); break;
+                case Op::splat:  write(o, V{id}, "= splat", Splat{imm}); break;
 
                 case Op::add_f32: write(o, V{id}, "= add_f32", V{x}, V{y}      ); break;
                 case Op::sub_f32: write(o, V{id}, "= sub_f32", V{x}, V{y}      ); break;
@@ -344,20 +342,20 @@ namespace skvm {
 
                 case Op::sub_i16x2: write(o, V{id}, "= sub_i16x2", V{x}, V{y}); break;
                 case Op::mul_i16x2: write(o, V{id}, "= mul_i16x2", V{x}, V{y}); break;
-                case Op::shr_i16x2: write(o, V{id}, "= shr_i16x2", V{x}, Shift{immy}); break;
+                case Op::shr_i16x2: write(o, V{id}, "= shr_i16x2", V{x}, Shift{imm}); break;
 
                 case Op::bit_and: write(o, V{id}, "= bit_and", V{x}, V{y}); break;
                 case Op::bit_or : write(o, V{id}, "= bit_or" , V{x}, V{y}); break;
                 case Op::bit_xor: write(o, V{id}, "= bit_xor", V{x}, V{y}); break;
 
-                case Op::shl: write(o, V{id}, "= shl", V{x}, Shift{immy}); break;
-                case Op::shr: write(o, V{id}, "= shr", V{x}, Shift{immy}); break;
-                case Op::sra: write(o, V{id}, "= sra", V{x}, Shift{immy}); break;
+                case Op::shl: write(o, V{id}, "= shl", V{x}, Shift{imm}); break;
+                case Op::shr: write(o, V{id}, "= shr", V{x}, Shift{imm}); break;
+                case Op::sra: write(o, V{id}, "= sra", V{x}, Shift{imm}); break;
 
-                case Op::extract: write(o, V{id}, "= extract", V{x}, Shift{immy}, V{z}); break;
-                case Op::pack:    write(o, V{id}, "= pack",    V{x}, V{y}, Shift{immz}); break;
+                case Op::extract: write(o, V{id}, "= extract", V{x}, Shift{imm}, V{y}); break;
+                case Op::pack:    write(o, V{id}, "= pack",    V{x}, V{y}, Shift{imm}); break;
 
-                case Op::bytes:   write(o, V{id}, "= bytes", V{x}, Hex{immy}); break;
+                case Op::bytes:   write(o, V{id}, "= bytes", V{x}, Hex{imm}); break;
 
                 case Op::to_f32: write(o, V{id}, "= to_f32", V{x}); break;
                 case Op::to_i32: write(o, V{id}, "= to_i32", V{x}); break;
@@ -378,45 +376,46 @@ namespace skvm {
             }
             const Instruction& inst = fInstructions[i];
             Op  op = inst.op;
-            ID   d = inst.d,
-                 x = inst.x;
-            auto y = inst.y,
-                 z = inst.z;
+            ID    d = inst.d,
+                  x = inst.x,
+                  y = inst.y,
+                  z = inst.z;
+            int imm = inst.imm;
             switch (op) {
-                case Op::store8:  write(o, "store8" , Arg{y.imm}, R{x}); break;
-                case Op::store32: write(o, "store32", Arg{y.imm}, R{x}); break;
+                case Op::store8:  write(o, "store8" , Arg{imm}, R{x}); break;
+                case Op::store32: write(o, "store32", Arg{imm}, R{x}); break;
 
-                case Op::load8:  write(o, R{d}, "= load8" , Arg{y.imm}); break;
-                case Op::load32: write(o, R{d}, "= load32", Arg{y.imm}); break;
+                case Op::load8:  write(o, R{d}, "= load8" , Arg{imm}); break;
+                case Op::load32: write(o, R{d}, "= load32", Arg{imm}); break;
 
-                case Op::splat:  write(o, R{d}, "= splat", Splat{y.imm}); break;
+                case Op::splat:  write(o, R{d}, "= splat", Splat{imm}); break;
 
-                case Op::add_f32: write(o, R{d}, "= add_f32", R{x}, R{y.id}           ); break;
-                case Op::sub_f32: write(o, R{d}, "= sub_f32", R{x}, R{y.id}           ); break;
-                case Op::mul_f32: write(o, R{d}, "= mul_f32", R{x}, R{y.id}           ); break;
-                case Op::div_f32: write(o, R{d}, "= div_f32", R{x}, R{y.id}           ); break;
-                case Op::mad_f32: write(o, R{d}, "= mad_f32", R{x}, R{y.id}, R{z.id}); break;
+                case Op::add_f32: write(o, R{d}, "= add_f32", R{x}, R{y}      ); break;
+                case Op::sub_f32: write(o, R{d}, "= sub_f32", R{x}, R{y}      ); break;
+                case Op::mul_f32: write(o, R{d}, "= mul_f32", R{x}, R{y}      ); break;
+                case Op::div_f32: write(o, R{d}, "= div_f32", R{x}, R{y}      ); break;
+                case Op::mad_f32: write(o, R{d}, "= mad_f32", R{x}, R{y}, R{z}); break;
 
-                case Op::add_i32: write(o, R{d}, "= add_i32", R{x}, R{y.id}); break;
-                case Op::sub_i32: write(o, R{d}, "= sub_i32", R{x}, R{y.id}); break;
-                case Op::mul_i32: write(o, R{d}, "= mul_i32", R{x}, R{y.id}); break;
+                case Op::add_i32: write(o, R{d}, "= add_i32", R{x}, R{y}); break;
+                case Op::sub_i32: write(o, R{d}, "= sub_i32", R{x}, R{y}); break;
+                case Op::mul_i32: write(o, R{d}, "= mul_i32", R{x}, R{y}); break;
 
-                case Op::sub_i16x2: write(o, R{d}, "= sub_i16x2", R{x}, R{y.id}); break;
-                case Op::mul_i16x2: write(o, R{d}, "= mul_i16x2", R{x}, R{y.id}); break;
-                case Op::shr_i16x2: write(o, R{d}, "= shr_i16x2", R{x}, Shift{y.imm}); break;
+                case Op::sub_i16x2: write(o, R{d}, "= sub_i16x2", R{x}, R{y}); break;
+                case Op::mul_i16x2: write(o, R{d}, "= mul_i16x2", R{x}, R{y}); break;
+                case Op::shr_i16x2: write(o, R{d}, "= shr_i16x2", R{x}, Shift{imm}); break;
 
-                case Op::bit_and: write(o, R{d}, "= bit_and", R{x}, R{y.id}); break;
-                case Op::bit_or : write(o, R{d}, "= bit_or" , R{x}, R{y.id}); break;
-                case Op::bit_xor: write(o, R{d}, "= bit_xor", R{x}, R{y.id}); break;
+                case Op::bit_and: write(o, R{d}, "= bit_and", R{x}, R{y}); break;
+                case Op::bit_or : write(o, R{d}, "= bit_or" , R{x}, R{y}); break;
+                case Op::bit_xor: write(o, R{d}, "= bit_xor", R{x}, R{y}); break;
 
-                case Op::shl: write(o, R{d}, "= shl", R{x}, Shift{y.imm}); break;
-                case Op::shr: write(o, R{d}, "= shr", R{x}, Shift{y.imm}); break;
-                case Op::sra: write(o, R{d}, "= sra", R{x}, Shift{y.imm}); break;
+                case Op::shl: write(o, R{d}, "= shl", R{x}, Shift{imm}); break;
+                case Op::shr: write(o, R{d}, "= shr", R{x}, Shift{imm}); break;
+                case Op::sra: write(o, R{d}, "= sra", R{x}, Shift{imm}); break;
 
-                case Op::extract: write(o, R{d}, "= extract", R{x}, Shift{y.imm}, R{z.id}); break;
-                case Op::pack:    write(o, R{d}, "= pack",    R{x}, R{y.id}, Shift{z.imm}); break;
+                case Op::extract: write(o, R{d}, "= extract", R{x}, Shift{imm}, R{y}); break;
+                case Op::pack:    write(o, R{d}, "= pack",    R{x}, R{y}, Shift{imm}); break;
 
-                case Op::bytes: write(o, R{d}, "= bytes", R{x}, Hex{y.imm}); break;
+                case Op::bytes: write(o, R{d}, "= bytes", R{x}, Hex{imm}); break;
 
                 case Op::to_f32: write(o, R{d}, "= to_f32", R{x}); break;
                 case Op::to_i32: write(o, R{d}, "= to_i32", R{x}); break;
@@ -736,20 +735,20 @@ namespace skvm {
         // It also makes working with labels easy, as they'll all be resolved before
         // the instructions that use them... no relocations.
 
-        // Map from our bytes() control y.imm to 32-byte mask for vpshufb.
+        // Map from our bytes() control imm to 32-byte mask for vpshufb.
         SkTHashMap<int, A::Label> vpshufb_masks;
         for (const Program::Instruction& inst : instructions) {
-            if (inst.op == Op::bytes && vpshufb_masks.find(inst.y.imm) == nullptr) {
+            if (inst.op == Op::bytes && vpshufb_masks.find(inst.imm) == nullptr) {
                 // Translate bytes()'s control nibbles to vpshufb's control bytes.
                 auto nibble_to_vpshufb = [](unsigned n) -> uint8_t {
                     return n == 0 ? 0xff  // Fill with zero.
                                   : n-1;  // Select n'th 1-indexed byte.
                 };
                 uint8_t control[] = {
-                    nibble_to_vpshufb( (inst.y.imm >>  0) & 0xf ),
-                    nibble_to_vpshufb( (inst.y.imm >>  4) & 0xf ),
-                    nibble_to_vpshufb( (inst.y.imm >>  8) & 0xf ),
-                    nibble_to_vpshufb( (inst.y.imm >> 12) & 0xf ),
+                    nibble_to_vpshufb( (inst.imm >>  0) & 0xf ),
+                    nibble_to_vpshufb( (inst.imm >>  4) & 0xf ),
+                    nibble_to_vpshufb( (inst.imm >>  8) & 0xf ),
+                    nibble_to_vpshufb( (inst.imm >> 12) & 0xf ),
                 };
 
                 // Now, vpshufb is one of those weird AVX instructions
@@ -776,7 +775,7 @@ namespace skvm {
                 A::Label label = a.here();
                 a.byte(p, sizeof(p));
                 a.byte(p, sizeof(p));
-                vpshufb_masks.set(inst.y.imm, label);
+                vpshufb_masks.set(inst.imm, label);
             }
 
         }
@@ -792,12 +791,12 @@ namespace skvm {
                 //
                 // TODO: in an AVX-512 world, it makes less sense to assign splats to registers at
                 // all.  Perhaps we should move the deduping / register coloring for splats here?
-                SkASSERT(splats.find(inst.y.imm) == nullptr);
+                SkASSERT(splats.find(inst.imm) == nullptr);
 
                 SkASSERT(a.size() % 4 == 0);
                 A::Label label = a.here();
-                a.byte(&inst.y.imm, 4);
-                splats.set(inst.y.imm, label);
+                a.byte(&inst.imm, 4);
+                splats.set(inst.imm, label);
             }
         }
 
@@ -812,10 +811,11 @@ namespace skvm {
             const Program::Instruction& inst = instructions[i];
             Op  op = inst.op;
 
-            ID   d = inst.d,
-                 x = inst.x;
-            auto y = inst.y,
-                 z = inst.z;
+            ID    d = inst.d,
+                  x = inst.x,
+                  y = inst.y,
+                  z = inst.z;
+            int imm = inst.imm;
             switch (op) {
                 // Ops producing multiple AVX instructions should always
                 // use tmp as the result of all but the final instruction
@@ -823,64 +823,64 @@ namespace skvm {
                 // to overwrite your arguments before you're done using them!
 
                 case Op::store8:
-                    // TODO: if SkCpu::Supports(SkCpu::SKX) { a.vpmovusdb(arg[y.imm], ar(x)) }
+                    // TODO: if SkCpu::Supports(SkCpu::SKX) { a.vpmovusdb(arg[imm], ar(x)) }
                     a.vpackusdw(r(tmp), r(x), r(x));      // pack 32-bit -> 16-bit
                     a.vpermq   (r(tmp), r(tmp), 0xd8);     // u64 tmp[0,1,2,3] = tmp[0,2,1,3]
                     a.vpackuswb(r(tmp), r(tmp), r(tmp));  // pack 16-bit -> 8-bit
-                    a.vmovq    (arg[y.imm], (A::Xmm)tmp);    // store low 8 bytes
+                    a.vmovq    (arg[imm], (A::Xmm)tmp);    // store low 8 bytes
                     break;
 
-                case Op::store32: a.vmovups(arg[y.imm], r(x)); break;
+                case Op::store32: a.vmovups(arg[imm], r(x)); break;
 
-                case Op::load8:  a.vpmovzxbd(r(d), arg[y.imm]); break;
-                case Op::load32: a.vmovups  (r(d), arg[y.imm]); break;
+                case Op::load8:  a.vpmovzxbd(r(d), arg[imm]); break;
+                case Op::load32: a.vmovups  (r(d), arg[imm]); break;
 
-                case Op::splat: a.vbroadcastss(r(d), *splats.find(y.imm)); break;
+                case Op::splat: a.vbroadcastss(r(d), *splats.find(imm)); break;
 
-                case Op::add_f32: a.vaddps(r(d), r(x), r(y.id)); break;
-                case Op::sub_f32: a.vsubps(r(d), r(x), r(y.id)); break;
-                case Op::mul_f32: a.vmulps(r(d), r(x), r(y.id)); break;
-                case Op::div_f32: a.vdivps(r(d), r(x), r(y.id)); break;
+                case Op::add_f32: a.vaddps(r(d), r(x), r(y)); break;
+                case Op::sub_f32: a.vsubps(r(d), r(x), r(y)); break;
+                case Op::mul_f32: a.vmulps(r(d), r(x), r(y)); break;
+                case Op::div_f32: a.vdivps(r(d), r(x), r(y)); break;
                 case Op::mad_f32:
-                    if (d == x   ) { a.vfmadd132ps(r(x   ), r(z.id), r(y.id)); } else
-                    if (d == y.id) { a.vfmadd213ps(r(y.id), r(x   ), r(z.id)); } else
-                    if (d == z.id) { a.vfmadd231ps(r(z.id), r(x   ), r(y.id)); } else
-                                   { a.vmulps(r(tmp), r(x), r(y.id));
-                                     a.vaddps(r(d), r(tmp), r(z.id)); }
+                    if (d == x) { a.vfmadd132ps(r(x), r(z), r(y)); } else
+                    if (d == y) { a.vfmadd213ps(r(y), r(x), r(z)); } else
+                    if (d == z) { a.vfmadd231ps(r(z), r(x), r(y)); } else
+                                { a.vmulps(r(tmp), r(x), r(y));
+                                  a.vaddps(r(d), r(tmp), r(z)); }
                     break;
 
-                case Op::add_i32: a.vpaddd (r(d), r(x), r(y.id)); break;
-                case Op::sub_i32: a.vpsubd (r(d), r(x), r(y.id)); break;
-                case Op::mul_i32: a.vpmulld(r(d), r(x), r(y.id)); break;
+                case Op::add_i32: a.vpaddd (r(d), r(x), r(y)); break;
+                case Op::sub_i32: a.vpsubd (r(d), r(x), r(y)); break;
+                case Op::mul_i32: a.vpmulld(r(d), r(x), r(y)); break;
 
-                case Op::sub_i16x2: a.vpsubw (r(d), r(x), r(y.id)); break;
-                case Op::mul_i16x2: a.vpmullw(r(d), r(x), r(y.id)); break;
-                case Op::shr_i16x2: a.vpsrlw (r(d), r(x),    y.imm); break;
+                case Op::sub_i16x2: a.vpsubw (r(d), r(x), r(y)); break;
+                case Op::mul_i16x2: a.vpmullw(r(d), r(x), r(y)); break;
+                case Op::shr_i16x2: a.vpsrlw (r(d), r(x),  imm); break;
 
-                case Op::bit_and: a.vpand(r(d), r(x), r(y.id)); break;
-                case Op::bit_or : a.vpor (r(d), r(x), r(y.id)); break;
-                case Op::bit_xor: a.vpxor(r(d), r(x), r(y.id)); break;
+                case Op::bit_and: a.vpand(r(d), r(x), r(y)); break;
+                case Op::bit_or : a.vpor (r(d), r(x), r(y)); break;
+                case Op::bit_xor: a.vpxor(r(d), r(x), r(y)); break;
 
-                case Op::shl: a.vpslld(r(d), r(x), y.imm); break;
-                case Op::shr: a.vpsrld(r(d), r(x), y.imm); break;
-                case Op::sra: a.vpsrad(r(d), r(x), y.imm); break;
+                case Op::shl: a.vpslld(r(d), r(x), imm); break;
+                case Op::shr: a.vpsrld(r(d), r(x), imm); break;
+                case Op::sra: a.vpsrad(r(d), r(x), imm); break;
 
-                case Op::extract: if (y.imm) {
-                                      a.vpsrld(r(tmp), r(x), y.imm);
-                                      a.vpand (r(d), r(tmp), r(z.id));
+                case Op::extract: if (imm) {
+                                      a.vpsrld(r(tmp), r(x), imm);
+                                      a.vpand (r(d), r(tmp), r(y));
                                   } else {
-                                      a.vpand (r(d), r(x), r(z.id));
+                                      a.vpand (r(d), r(x), r(y));
                                   }
                                   break;
 
-                case Op::pack: a.vpslld(r(tmp), r(y.id), z.imm);
+                case Op::pack: a.vpslld(r(tmp), r(y), imm);
                                a.vpor  (r(d), r(tmp), r(x));
                                break;
 
                 case Op::to_f32: a.vcvtdq2ps (r(d), r(x)); break;
                 case Op::to_i32: a.vcvttps2dq(r(d), r(x)); break;
 
-                case Op::bytes: a.vpshufb(r(d), r(x), *vpshufb_masks.find(y.imm)); break;
+                case Op::bytes: a.vpshufb(r(d), r(x), *vpshufb_masks.find(imm)); break;
             }
         }
 
