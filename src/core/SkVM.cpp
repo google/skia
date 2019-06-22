@@ -47,7 +47,7 @@ namespace skvm {
 
     Program Builder::done() {
         // Basic liveness analysis (and free dead code elimination).
-        for (ID id = fProgram.size(); id --> 0; ) {
+        for (Val id = fProgram.size(); id --> 0; ) {
             Instruction& inst = fProgram[id];
 
             // All side-effect-only instructions (stores) are live.
@@ -64,7 +64,7 @@ namespace skvm {
         }
 
         // Look to see if there are any instructions that can be hoisted outside the program's loop.
-        for (ID id = 0; id < (ID)fProgram.size(); id++) {
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
             Instruction& inst = fProgram[id];
 
             // Loads and stores cannot be hoisted out of the loop.
@@ -82,13 +82,13 @@ namespace skvm {
 
         // We'll need to map each live value to a register.
         // TODO: this could be another field on Instruction / fProgram to avoid this side alloc?
-        std::vector<ID> val_to_reg(fProgram.size());
+        std::vector<Reg> val_to_reg(fProgram.size());
 
         // Count the registers we've used so far.
-        ID next_reg = 0;
+        Reg next_reg = 0;
 
         // Our first pass of register assignment assigns hoisted values to eternal registers.
-        for (ID val = 0; val < (ID)fProgram.size(); val++) {
+        for (Val val = 0; val < (Val)fProgram.size(); val++) {
             Instruction& inst = fProgram[val];
             if (inst.life == NA || !inst.hoist) {
                 continue;
@@ -101,10 +101,10 @@ namespace skvm {
         // Now we'll assign registers to values that can't be hoisted out of the loop.  These
         // values have finite liftimes, so we track pre-owned registers that have become available
         // and a schedule of which registers become available as we reach a given instruction.
-        std::vector<ID>                         avail;
-        std::vector<std::vector<ID>>            deaths(fProgram.size());
+        std::vector<Reg>              avail;
+        std::vector<std::vector<Reg>> deaths(fProgram.size());
 
-        for (ID val = 0; val < (ID)fProgram.size(); val++) {
+        for (Val val = 0; val < (Val)fProgram.size(); val++) {
             Instruction& inst = fProgram[val];
             if (inst.life == NA || inst.hoist) {
                 continue;
@@ -112,12 +112,12 @@ namespace skvm {
 
             // All the values that are no longer needed after this instruction
             // can make their registers available to this and future values.
-            const std::vector<ID>& dying = deaths[val];
+            const std::vector<Reg>& dying = deaths[val];
             avail.insert(avail.end(),
                          dying.begin(), dying.end());
 
             // Allocate a register if we have to, but prefer to reuse one that's available.
-            ID reg;
+            Reg reg;
             if (avail.empty()) {
                 reg = next_reg++;
             } else {
@@ -134,8 +134,8 @@ namespace skvm {
 
         // Add a dummy mapping for the N/A sentinel value to "register N/A",
         // so that the lookups don't have to know which arguments are used by which Ops.
-        auto lookup_register = [&](ID val) {
-            return val == NA ? NA
+        auto lookup_register = [&](Val val) {
+            return val == NA ? (Reg)0
                              : val_to_reg[val];
         };
 
@@ -147,7 +147,7 @@ namespace skvm {
         std::vector<Program::Instruction> program;
         program.reserve(fProgram.size());
 
-        auto push_instruction = [&](ID id, const Builder::Instruction& inst) {
+        auto push_instruction = [&](Val id, const Builder::Instruction& inst) {
             Program::Instruction pinst{
                 inst.op,
                 lookup_register(id),
@@ -159,7 +159,7 @@ namespace skvm {
             program.push_back(pinst);
         };
 
-        for (ID id = 0; id < (ID)fProgram.size(); id++) {
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
             Instruction& inst = fProgram[id];
             if (inst.life == NA || !inst.hoist) {
                 continue;
@@ -168,7 +168,7 @@ namespace skvm {
             push_instruction(id, inst);
             loop++;
         }
-        for (ID id = 0; id < (ID)fProgram.size(); id++) {
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
             Instruction& inst = fProgram[id];
             if (inst.life == NA || inst.hoist) {
                 continue;
@@ -183,23 +183,23 @@ namespace skvm {
     // Most instructions produce a value and return it by ID,
     // the value-producing instruction's own index in the program vector.
 
-    ID Builder::push(Op op, ID x, ID y, ID z, int imm) {
+    Val Builder::push(Op op, Val x, Val y, Val z, int imm) {
         Instruction inst{op, /*hoist=*/true, /*life=*/NA, x, y, z, imm};
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
 
-        if (ID* lookup = fIndex.find(inst)) {
+        if (Val* lookup = fIndex.find(inst)) {
             return *lookup;
         }
 
-        ID id = static_cast<ID>(fProgram.size());
+        Val id = static_cast<Val>(fProgram.size());
         fProgram.push_back(inst);
         fIndex.set(inst, id);
         return id;
     }
 
-    bool Builder::isZero(ID id) const {
+    bool Builder::isZero(Val id) const {
         return fProgram[id].op  == Op::splat
             && fProgram[id].imm == 0;
     }
@@ -264,8 +264,8 @@ namespace skvm {
 
     // ~~~~ Program::dump() and co. ~~~~ //
 
-    struct V { ID id; };
-    struct R { ID id; };
+    struct V { Val id; };
+    struct R { Reg id; };
     struct Shift { int bits; };
     struct Splat { int bits; };
     struct Hex   { int bits; };
@@ -312,10 +312,10 @@ namespace skvm {
     void Builder::dump(SkWStream* o) const {
         o->writeDecAsText(fProgram.size());
         o->writeText(" values:\n");
-        for (ID id = 0; id < (ID)fProgram.size(); id++) {
-            const Instruction& inst = fProgram[id];
+        for (Val val = 0; val < (Val)fProgram.size(); val++) {
+            const Instruction& inst = fProgram[val];
             Op  op = inst.op;
-            ID   x = inst.x,
+            Val  x = inst.x,
                  y = inst.y,
                  z = inst.z;
             int imm = inst.imm;
@@ -325,40 +325,40 @@ namespace skvm {
                 case Op::store8:  write(o, "store8" , Arg{imm}, V{x}); break;
                 case Op::store32: write(o, "store32", Arg{imm}, V{x}); break;
 
-                case Op::load8:  write(o, V{id}, "= load8" , Arg{imm}); break;
-                case Op::load32: write(o, V{id}, "= load32", Arg{imm}); break;
+                case Op::load8:  write(o, V{val}, "= load8" , Arg{imm}); break;
+                case Op::load32: write(o, V{val}, "= load32", Arg{imm}); break;
 
-                case Op::splat:  write(o, V{id}, "= splat", Splat{imm}); break;
+                case Op::splat:  write(o, V{val}, "= splat", Splat{imm}); break;
 
-                case Op::add_f32: write(o, V{id}, "= add_f32", V{x}, V{y}      ); break;
-                case Op::sub_f32: write(o, V{id}, "= sub_f32", V{x}, V{y}      ); break;
-                case Op::mul_f32: write(o, V{id}, "= mul_f32", V{x}, V{y}      ); break;
-                case Op::div_f32: write(o, V{id}, "= div_f32", V{x}, V{y}      ); break;
-                case Op::mad_f32: write(o, V{id}, "= mad_f32", V{x}, V{y}, V{z}); break;
+                case Op::add_f32: write(o, V{val}, "= add_f32", V{x}, V{y}      ); break;
+                case Op::sub_f32: write(o, V{val}, "= sub_f32", V{x}, V{y}      ); break;
+                case Op::mul_f32: write(o, V{val}, "= mul_f32", V{x}, V{y}      ); break;
+                case Op::div_f32: write(o, V{val}, "= div_f32", V{x}, V{y}      ); break;
+                case Op::mad_f32: write(o, V{val}, "= mad_f32", V{x}, V{y}, V{z}); break;
 
-                case Op::add_i32: write(o, V{id}, "= add_i32", V{x}, V{y}); break;
-                case Op::sub_i32: write(o, V{id}, "= sub_i32", V{x}, V{y}); break;
-                case Op::mul_i32: write(o, V{id}, "= mul_i32", V{x}, V{y}); break;
+                case Op::add_i32: write(o, V{val}, "= add_i32", V{x}, V{y}); break;
+                case Op::sub_i32: write(o, V{val}, "= sub_i32", V{x}, V{y}); break;
+                case Op::mul_i32: write(o, V{val}, "= mul_i32", V{x}, V{y}); break;
 
-                case Op::sub_i16x2: write(o, V{id}, "= sub_i16x2", V{x}, V{y}); break;
-                case Op::mul_i16x2: write(o, V{id}, "= mul_i16x2", V{x}, V{y}); break;
-                case Op::shr_i16x2: write(o, V{id}, "= shr_i16x2", V{x}, Shift{imm}); break;
+                case Op::sub_i16x2: write(o, V{val}, "= sub_i16x2", V{x}, V{y}); break;
+                case Op::mul_i16x2: write(o, V{val}, "= mul_i16x2", V{x}, V{y}); break;
+                case Op::shr_i16x2: write(o, V{val}, "= shr_i16x2", V{x}, Shift{imm}); break;
 
-                case Op::bit_and: write(o, V{id}, "= bit_and", V{x}, V{y}); break;
-                case Op::bit_or : write(o, V{id}, "= bit_or" , V{x}, V{y}); break;
-                case Op::bit_xor: write(o, V{id}, "= bit_xor", V{x}, V{y}); break;
+                case Op::bit_and: write(o, V{val}, "= bit_and", V{x}, V{y}); break;
+                case Op::bit_or : write(o, V{val}, "= bit_or" , V{x}, V{y}); break;
+                case Op::bit_xor: write(o, V{val}, "= bit_xor", V{x}, V{y}); break;
 
-                case Op::shl: write(o, V{id}, "= shl", V{x}, Shift{imm}); break;
-                case Op::shr: write(o, V{id}, "= shr", V{x}, Shift{imm}); break;
-                case Op::sra: write(o, V{id}, "= sra", V{x}, Shift{imm}); break;
+                case Op::shl: write(o, V{val}, "= shl", V{x}, Shift{imm}); break;
+                case Op::shr: write(o, V{val}, "= shr", V{x}, Shift{imm}); break;
+                case Op::sra: write(o, V{val}, "= sra", V{x}, Shift{imm}); break;
 
-                case Op::extract: write(o, V{id}, "= extract", V{x}, Shift{imm}, V{y}); break;
-                case Op::pack:    write(o, V{id}, "= pack",    V{x}, V{y}, Shift{imm}); break;
+                case Op::extract: write(o, V{val}, "= extract", V{x}, Shift{imm}, V{y}); break;
+                case Op::pack:    write(o, V{val}, "= pack",    V{x}, V{y}, Shift{imm}); break;
 
-                case Op::bytes:   write(o, V{id}, "= bytes", V{x}, Hex{imm}); break;
+                case Op::bytes:   write(o, V{val}, "= bytes", V{x}, Hex{imm}); break;
 
-                case Op::to_f32: write(o, V{id}, "= to_f32", V{x}); break;
-                case Op::to_i32: write(o, V{id}, "= to_i32", V{x}); break;
+                case Op::to_f32: write(o, V{val}, "= to_f32", V{x}); break;
+                case Op::to_i32: write(o, V{val}, "= to_i32", V{x}); break;
             }
 
             write(o, "\n");
@@ -375,8 +375,8 @@ namespace skvm {
                 write(o, "loop:\n");
             }
             const Instruction& inst = fInstructions[i];
-            Op  op = inst.op;
-            ID    d = inst.d,
+            Op   op = inst.op;
+            Reg   d = inst.d,
                   x = inst.x,
                   y = inst.y,
                   z = inst.z;
@@ -723,7 +723,7 @@ namespace skvm {
             arg[] = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
 
         // All 16 ymm registers are available as scratch, keeping 15 as a temporary for us.
-        auto r = [](int ix) { SkASSERT(ix < 16); return (A::Ymm)ix; };
+        auto r = [](Reg ix) { SkASSERT(ix < 16); return (A::Ymm)ix; };
         const int tmp = 15;
     #endif
 
@@ -811,7 +811,7 @@ namespace skvm {
             const Program::Instruction& inst = instructions[i];
             Op  op = inst.op;
 
-            ID    d = inst.d,
+            Reg   d = inst.d,
                   x = inst.x,
                   y = inst.y,
                   z = inst.z;
