@@ -10,8 +10,8 @@
 
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkTHash.h"
 #include "include/private/SkSpinlock.h"
-#include <unordered_map>
 #include <vector>
 
 namespace skvm {
@@ -291,7 +291,7 @@ namespace skvm {
         ID push(Op, ID x, ID y=NA, ID z=NA, int immy=0, int immz=0);
         bool isZero(ID) const;
 
-        std::unordered_map<Instruction, ID, InstructionHash> fIndex;
+        SkTHashMap<Instruction, ID, InstructionHash>         fIndex;
         std::vector<Instruction>                             fProgram;
     };
 
