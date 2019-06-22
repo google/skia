@@ -127,10 +127,10 @@ namespace skvm {
 
     using ID = int;  // Could go 16-bit?
 
-    struct ProgramInstruction {   // d = op(x, y.id/y.imm, z.id/z.imm)
+    struct ProgramInstruction {   // d = op(x, y, z/imm)
         Op op;
-        ID d,x;
-        union { ID id; int imm; } y,z;
+        ID d,x,y;
+        union { ID z; int imm; };
     };
 
     class Program {
@@ -257,7 +257,7 @@ namespace skvm {
             bool hoist;      // Can this instruction be hoisted outside our implicit loop?
             ID   life;       // ID of last instruction using this instruction's result.
             ID   x,y,z;      // Enough arguments for mad().
-            int  immy,immz;  // Immediate bit patterns, shift counts, argument indexes.
+            int  imm;        // Immediate bit pattern, shift count, argument index, etc.
 
             bool operator==(const Instruction& o) const {
                 return op    == o.op
@@ -266,8 +266,7 @@ namespace skvm {
                     && x     == o.x
                     && y     == o.y
                     && z     == o.z
-                    && immy  == o.immy
-                    && immz  == o.immz;
+                    && imm   == o.imm;
             }
         };
 
@@ -283,12 +282,11 @@ namespace skvm {
                      ^ Hash(inst.x)
                      ^ Hash(inst.y)
                      ^ Hash(inst.z)
-                     ^ Hash(inst.immy)
-                     ^ Hash(inst.immz);
+                     ^ Hash(inst.imm);
             }
         };
 
-        ID push(Op, ID x, ID y=NA, ID z=NA, int immy=0, int immz=0);
+        ID push(Op, ID x, ID y=NA, ID z=NA, int imm=0);
         bool isZero(ID) const;
 
         SkTHashMap<Instruction, ID, InstructionHash>         fIndex;
