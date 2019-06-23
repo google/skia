@@ -78,6 +78,11 @@ namespace skvm {
                 if (inst.y != NA) { inst.hoist &= fProgram[inst.y].hoist; }
                 if (inst.z != NA) { inst.hoist &= fProgram[inst.z].hoist; }
             }
+
+            // Extend the lifetime of live hoisted instructions to the full program.
+            if (inst.hoist && inst.life != NA) {
+                inst.life = (Val)fProgram.size();
+            }
         }
 
         // We'll need to map each live value to a register.
@@ -98,11 +103,9 @@ namespace skvm {
             val_to_reg[val] = next_reg++;
         }
 
-        // Now we'll assign registers to values that can't be hoisted out of the loop.  These
-        // values have finite liftimes, so we track pre-owned registers that have become available
-        // and a schedule of which registers become available as we reach a given instruction.
-        std::vector<Reg>              avail;
-        std::vector<std::vector<Reg>> deaths(fProgram.size());
+        // We'll assign values to registers.
+        // When a value is no longer needed, its register becomes available for reuse.
+        std::vector<Reg> avail;
 
         for (Val val = 0; val < (Val)fProgram.size(); val++) {
             Instruction& inst = fProgram[val];
@@ -110,26 +113,24 @@ namespace skvm {
                 continue;
             }
 
-            // All the values that are no longer needed after this instruction
-            // can make their registers available to this and future values.
-            const std::vector<Reg>& dying = deaths[val];
-            avail.insert(avail.end(),
-                         dying.begin(), dying.end());
+            // The registers holding this instruction's inputs may be available once it's run.
+            auto maybe_mark_register_available = [&](Val input) {
+                if (input != NA && fProgram[input].life == val) {
+                    avail.push_back(val_to_reg[input]);
+                }
+            };
+            // Take care not to mark any register available twice, e.g. add(foo,foo).
+            if (true                                ) { maybe_mark_register_available(inst.x); }
+            if (inst.y != inst.x                    ) { maybe_mark_register_available(inst.y); }
+            if (inst.z != inst.x && inst.z != inst.y) { maybe_mark_register_available(inst.z); }
 
             // Allocate a register if we have to, but prefer to reuse one that's available.
-            Reg reg;
             if (avail.empty()) {
-                reg = next_reg++;
+                val_to_reg[val] = next_reg++;
             } else {
-                reg = avail.back();
+                val_to_reg[val] = avail.back();
                 avail.pop_back();
             }
-
-            // Schedule this value's own death.  When we reach the instruction at inst.life,
-            // this value is no longer needed and its register becomes available for reuse.
-            deaths[inst.life].push_back(reg);
-
-            val_to_reg[val] = reg;
         }
 
         // Add a dummy mapping for the N/A sentinel value to "register N/A",
