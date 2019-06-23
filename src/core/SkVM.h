@@ -258,6 +258,7 @@ namespace skvm {
             Op   op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
             bool hoist;      // Can this instruction be hoisted outside our implicit loop?
             Val  life;       // ID of last instruction using this instruction's result.
+            Reg  reg;        // Register this instruction's value will live in.
             Val  x,y,z;      // Enough arguments for mad().
             int  imm;        // Immediate bit pattern, shift count, argument index, etc.
 
@@ -265,6 +266,7 @@ namespace skvm {
                 return op    == o.op
                     && hoist == o.hoist
                     && life  == o.life
+                    && reg   == o.reg
                     && x     == o.x
                     && y     == o.y
                     && z     == o.z
@@ -281,6 +283,7 @@ namespace skvm {
                 return Hash((uint8_t)inst.op)
                      ^ Hash(inst.hoist)
                      ^ Hash(inst.life)
+                     ^ Hash(inst.reg)
                      ^ Hash(inst.x)
                      ^ Hash(inst.y)
                      ^ Hash(inst.z)

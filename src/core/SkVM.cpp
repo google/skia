@@ -87,25 +87,22 @@ namespace skvm {
         }
 
         // We'll need to map each live value to a register.
-        std::vector<Reg> val_to_reg(fProgram.size());  // TODO: field on Instruction?
         Reg next_reg = 0;
 
         // Our first pass of register assignment assigns hoisted values to eternal registers.
-        for (Val val = 0; val < (Val)fProgram.size(); val++) {
-            const Instruction& inst = fProgram[val];
+        for (Instruction& inst : fProgram) {
             if (inst.life == NA || !inst.hoist) {
                 continue;
             }
-
             // Hoisted values are needed forever, so they each get their own register.
-            val_to_reg[val] = next_reg++;
+            inst.reg = next_reg++;
         }
 
         // Now assign non-hoisted values to registers.
         // When these values are no longer needed we can recycle their registers.
         std::vector<Reg> avail;
         for (Val val = 0; val < (Val)fProgram.size(); val++) {
-            const Instruction& inst = fProgram[val];
+            Instruction& inst = fProgram[val];
             if (inst.life == NA || inst.hoist) {
                 continue;
             }
@@ -115,7 +112,7 @@ namespace skvm {
                 // If this is a real input and it's lifetime ends with this
                 // instruction, we can recycle the register it's occupying.
                 if (input != NA && fProgram[input].life == val) {
-                    avail.push_back(val_to_reg[input]);
+                    avail.push_back(fProgram[input].reg);
                 }
             };
 
@@ -126,9 +123,9 @@ namespace skvm {
 
             // Allocate a register if we have to, but prefer to reuse one that's available.
             if (avail.empty()) {
-                val_to_reg[val] = next_reg++;
+                inst.reg = next_reg++;
             } else {
-                val_to_reg[val] = avail.back();
+                inst.reg = avail.back();
                 avail.pop_back();
             }
         }
@@ -137,7 +134,7 @@ namespace skvm {
         // so that the lookups don't have to know which arguments are used by which Ops.
         auto lookup_register = [&](Val val) {
             return val == NA ? (Reg)0
-                             : val_to_reg[val];
+                             : fProgram[val].reg;
         };
 
         // Finally translate Builder::Instructions to Program::Instructions by mapping values to
@@ -185,7 +182,7 @@ namespace skvm {
     // the value-producing instruction's own index in the program vector.
 
     Val Builder::push(Op op, Val x, Val y, Val z, int imm) {
-        Instruction inst{op, /*hoist=*/true, /*life=*/NA, x, y, z, imm};
+        Instruction inst{op, /*hoist=*/true, /*life=*/NA, /*reg=*/0, x, y, z, imm};
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
