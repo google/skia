@@ -183,7 +183,7 @@ namespace skvm {
 
     class Builder {
     public:
-        Program done();
+        Program done() const;
 
         Arg arg(int);
 
@@ -247,7 +247,6 @@ namespace skvm {
         F32 to_f32(I32 x);
         I32 to_i32(F32 x);
 
-        // Call after done() to make sure all analysis has been performed.
         void dump(SkWStream*) const;
 
     private:
@@ -255,22 +254,16 @@ namespace skvm {
         static const Val NA = ~0;
 
         struct Instruction {
-            Op   op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
-            bool hoist;      // Can this instruction be hoisted outside our implicit loop?
-            Val  life;       // ID of last instruction using this instruction's result.
-            Reg  reg;        // Register this instruction's value will live in.
-            Val  x,y,z;      // Enough arguments for mad().
-            int  imm;        // Immediate bit pattern, shift count, argument index, etc.
+            Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
+            Val x,y,z;      // Enough arguments for mad().
+            int imm;        // Immediate bit pattern, shift count, argument index, etc.
 
             bool operator==(const Instruction& o) const {
-                return op    == o.op
-                    && hoist == o.hoist
-                    && life  == o.life
-                    && reg   == o.reg
-                    && x     == o.x
-                    && y     == o.y
-                    && z     == o.z
-                    && imm   == o.imm;
+                return op  == o.op
+                    && x   == o.x
+                    && y   == o.y
+                    && z   == o.z
+                    && imm == o.imm;
             }
         };
 
@@ -281,9 +274,6 @@ namespace skvm {
             }
             size_t operator()(const Instruction& inst) const {
                 return Hash((uint8_t)inst.op)
-                     ^ Hash(inst.hoist)
-                     ^ Hash(inst.life)
-                     ^ Hash(inst.reg)
                      ^ Hash(inst.x)
                      ^ Hash(inst.y)
                      ^ Hash(inst.z)
