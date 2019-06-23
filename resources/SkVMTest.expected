@@ -31,10 +31,10 @@ r5 = load8 arg(1)
 r5 = to_f32 r5
 r5 = mul_f32 r0 r5
 r6 = sub_f32 r1 r4
-r6 = mad_f32 r5 r6 r4
-r6 = mad_f32 r6 r2 r3
-r6 = to_i32 r6
-store8 arg(1) r6
+r4 = mad_f32 r5 r6 r4
+r4 = mad_f32 r4 r2 r3
+r4 = to_i32 r4
+store8 arg(1) r4
 
 A8 over G8
 23 values:
@@ -155,19 +155,19 @@ r10 = sub_f32 r2 r5
 r7 = mul_f32 r7 r10
 r8 = mul_f32 r8 r10
 r9 = mul_f32 r9 r10
-r10 = mad_f32 r6 r10 r5
+r5 = mad_f32 r6 r10 r5
 r7 = mad_f32 r7 r3 r4
 r7 = to_i32 r7
 r8 = mad_f32 r8 r3 r4
 r8 = to_i32 r8
 r9 = mad_f32 r9 r3 r4
 r9 = to_i32 r9
-r10 = mad_f32 r10 r3 r4
-r10 = to_i32 r10
+r5 = mad_f32 r5 r3 r4
+r5 = to_i32 r5
 r8 = pack r7 r8 8
-r10 = pack r9 r10 8
-r10 = pack r8 r10 16
-store32 arg(1) r10
+r5 = pack r9 r5 8
+r5 = pack r8 r5 16
+store32 arg(1) r5
 
 G8 over A8
 17 values:
@@ -245,13 +245,13 @@ r8 = mul_f32 r0 r8
 r9 = load8 arg(1)
 r9 = to_f32 r9
 r9 = mul_f32 r0 r9
-r9 = mad_f32 r9 r2 r8
-r8 = mul_f32 r9 r5
-r8 = mad_f32 r9 r4 r8
-r8 = mad_f32 r9 r3 r8
-r8 = mad_f32 r8 r6 r7
-r8 = to_i32 r8
-store8 arg(1) r8
+r8 = mad_f32 r9 r2 r8
+r9 = mul_f32 r8 r5
+r9 = mad_f32 r8 r4 r9
+r9 = mad_f32 r8 r3 r9
+r9 = mad_f32 r9 r6 r7
+r9 = to_i32 r9
+store8 arg(1) r9
 
 G8 over RGBA_8888
 38 values:
@@ -320,18 +320,18 @@ r7 = to_f32 r7
 r7 = mul_f32 r0 r7
 r8 = mad_f32 r8 r3 r6
 r9 = mad_f32 r9 r3 r6
-r10 = mad_f32 r10 r3 r6
+r6 = mad_f32 r10 r3 r6
 r7 = mad_f32 r7 r3 r1
 r8 = mad_f32 r8 r4 r5
 r8 = to_i32 r8
 r9 = mad_f32 r9 r4 r5
 r9 = to_i32 r9
-r10 = mad_f32 r10 r4 r5
-r10 = to_i32 r10
+r6 = mad_f32 r6 r4 r5
+r6 = to_i32 r6
 r7 = mad_f32 r7 r4 r5
 r7 = to_i32 r7
 r9 = pack r8 r9 8
-r7 = pack r10 r7 8
+r7 = pack r6 r7 8
 r7 = pack r9 r7 16
 store32 arg(1) r7
 
@@ -383,10 +383,10 @@ r6 = load8 arg(1)
 r6 = to_f32 r6
 r6 = mul_f32 r1 r6
 r7 = sub_f32 r2 r5
-r7 = mad_f32 r6 r7 r5
-r7 = mad_f32 r7 r3 r4
-r7 = to_i32 r7
-store8 arg(1) r7
+r5 = mad_f32 r6 r7 r5
+r5 = mad_f32 r5 r3 r4
+r5 = to_i32 r5
+store8 arg(1) r5
 
 RGBA_8888 over G8
 35 values:
@@ -455,13 +455,13 @@ r12 = mul_f32 r1 r12
 r8 = sub_f32 r2 r8
 r9 = mad_f32 r12 r8 r9
 r10 = mad_f32 r12 r8 r10
-r8 = mad_f32 r12 r8 r11
-r8 = mul_f32 r8 r5
-r8 = mad_f32 r10 r4 r8
-r8 = mad_f32 r9 r3 r8
-r8 = mad_f32 r8 r6 r7
-r8 = to_i32 r8
-store8 arg(1) r8
+r11 = mad_f32 r12 r8 r11
+r11 = mul_f32 r11 r5
+r11 = mad_f32 r10 r4 r11
+r11 = mad_f32 r9 r3 r11
+r11 = mad_f32 r11 r6 r7
+r11 = to_i32 r11
+store8 arg(1) r11
 
 RGBA_8888 over RGBA_8888
 48 values:
@@ -548,22 +548,22 @@ r9 = extract r9 24 r0
 r9 = to_f32 r9
 r9 = mul_f32 r1 r9
 r13 = sub_f32 r2 r5
-r10 = mad_f32 r10 r13 r6
-r11 = mad_f32 r11 r13 r7
-r12 = mad_f32 r12 r13 r8
-r13 = mad_f32 r9 r13 r5
-r10 = mad_f32 r10 r3 r4
-r10 = to_i32 r10
-r11 = mad_f32 r11 r3 r4
-r11 = to_i32 r11
-r12 = mad_f32 r12 r3 r4
-r12 = to_i32 r12
-r13 = mad_f32 r13 r3 r4
-r13 = to_i32 r13
-r11 = pack r10 r11 8
-r13 = pack r12 r13 8
-r13 = pack r11 r13 16
-store32 arg(1) r13
+r6 = mad_f32 r10 r13 r6
+r7 = mad_f32 r11 r13 r7
+r8 = mad_f32 r12 r13 r8
+r5 = mad_f32 r9 r13 r5
+r6 = mad_f32 r6 r3 r4
+r6 = to_i32 r6
+r7 = mad_f32 r7 r3 r4
+r7 = to_i32 r7
+r8 = mad_f32 r8 r3 r4
+r8 = to_i32 r8
+r5 = mad_f32 r5 r3 r4
+r5 = to_i32 r5
+r7 = pack r6 r7 8
+r5 = pack r8 r5 8
+r5 = pack r7 r5 16
+store32 arg(1) r5
 
 I32 (Naive) 8888 over 8888
 11 registers, 29 instructions:
@@ -645,9 +645,9 @@ r6 = bit_and r5 r1
 r5 = shr_i16x2 r5 8
 r6 = mul_i16x2 r6 r4
 r6 = shr_i16x2 r6 8
-r5 = mul_i16x2 r5 r4
-r5 = bit_and r5 r2
-r5 = bit_or r6 r5
-r5 = add_i32 r3 r5
-store32 arg(1) r5
+r4 = mul_i16x2 r5 r4
+r4 = bit_and r4 r2
+r4 = bit_or r6 r4
+r4 = add_i32 r3 r4
+store32 arg(1) r4
 
