@@ -189,14 +189,14 @@ namespace skvm {
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
-
-        if (ID* lookup = fIndex.find(inst)) {
-            return *lookup;
+        auto lookup = fIndex.find(inst);
+        if (lookup != fIndex.end()) {
+            return lookup->second;
         }
 
         ID id = static_cast<ID>(fProgram.size());
         fProgram.push_back(inst);
-        fIndex.set(inst, id);
+        fIndex[inst] = id;
         return id;
     }
 
