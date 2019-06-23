@@ -45,21 +45,24 @@ namespace skvm {
         , fRegs(regs)
         , fLoop(loop) {}
 
+
     Program Builder::done() {
+        std::vector<Analysis> analysis(fProgram.size());
+
         // Basic liveness analysis (and free dead code elimination).
         for (Val id = fProgram.size(); id --> 0; ) {
             Instruction& inst = fProgram[id];
 
             // All side-effect-only instructions (stores) are live.
             if (inst.op <= Op::store32) {
-                inst.life = id;
+                analysis[id].life = id;
             }
             // The arguments of a live instruction must live until that instruction.
-            if (inst.life != NA) {
+            if (analysis[id].life != NA) {
                 // Notice how we're walking backward, storing the latest instruction in life.
-                if (inst.x != NA && fProgram[inst.x].life == NA) { fProgram[inst.x].life = id; }
-                if (inst.y != NA && fProgram[inst.y].life == NA) { fProgram[inst.y].life = id; }
-                if (inst.z != NA && fProgram[inst.z].life == NA) { fProgram[inst.z].life = id; }
+                if (inst.x != NA && analysis[inst.x].life == NA) { analysis[inst.x].life = id; }
+                if (inst.y != NA && analysis[inst.y].life == NA) { analysis[inst.y].life = id; }
+                if (inst.z != NA && analysis[inst.z].life == NA) { analysis[inst.z].life = id; }
             }
         }
 
@@ -69,20 +72,20 @@ namespace skvm {
 
             // Loads and stores cannot be hoisted out of the loop.
             if (inst.op <= Op::load32) {
-                inst.hoist = false;
+                analysis[id].hoist = false;
             }
 
             // If any of an instruction's arguments can't be hoisted, it can't be hoisted itself.
-            if (inst.hoist) {
-                if (inst.x != NA) { inst.hoist &= fProgram[inst.x].hoist; }
-                if (inst.y != NA) { inst.hoist &= fProgram[inst.y].hoist; }
-                if (inst.z != NA) { inst.hoist &= fProgram[inst.z].hoist; }
+            if (analysis[id].hoist) {
+                if (inst.x != NA) { analysis[id].hoist &= analysis[inst.x].hoist; }
+                if (inst.y != NA) { analysis[id].hoist &= analysis[inst.y].hoist; }
+                if (inst.z != NA) { analysis[id].hoist &= analysis[inst.z].hoist; }
             }
 
             // Mark the lifetime of live hoisted instructions as the full program,
             // mostly to avoid recycling their registers, and also helps debugging sanity.
-            if (inst.hoist && inst.life != NA) {
-                inst.life = (Val)fProgram.size();
+            if (analysis[id].hoist && analysis[id].life != NA) {
+                analysis[id].life = (Val)fProgram.size();
             }
         }
 
@@ -90,20 +93,20 @@ namespace skvm {
         Reg next_reg = 0;
 
         // Our first pass of register assignment assigns hoisted values to eternal registers.
-        for (Instruction& inst : fProgram) {
-            if (inst.life == NA || !inst.hoist) {
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
+            if (analysis[id].life == NA || !analysis[id].hoist) {
                 continue;
             }
             // Hoisted values are needed forever, so they each get their own register.
-            inst.reg = next_reg++;
+            analysis[id].reg = next_reg++;
         }
 
         // Now assign non-hoisted values to registers.
         // When these values are no longer needed we can recycle their registers.
         std::vector<Reg> avail;
-        for (Val val = 0; val < (Val)fProgram.size(); val++) {
-            Instruction& inst = fProgram[val];
-            if (inst.life == NA || inst.hoist) {
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
+            const Instruction& inst = fProgram[id];
+            if (analysis[id].life == NA || analysis[id].hoist) {
                 continue;
             }
 
@@ -111,8 +114,8 @@ namespace skvm {
             auto maybe_recycle_register = [&](Val input) {
                 // If this is a real input and it's lifetime ends with this
                 // instruction, we can recycle the register it's occupying.
-                if (input != NA && fProgram[input].life == val) {
-                    avail.push_back(fProgram[input].reg);
+                if (input != NA && analysis[input].life == id) {
+                    avail.push_back(analysis[input].reg);
                 }
             };
 
@@ -123,18 +126,18 @@ namespace skvm {
 
             // Allocate a register if we have to, but prefer to reuse one that's available.
             if (avail.empty()) {
-                inst.reg = next_reg++;
+                analysis[id].reg = next_reg++;
             } else {
-                inst.reg = avail.back();
+                analysis[id].reg = avail.back();
                 avail.pop_back();
             }
         }
 
         // Add a dummy mapping for the N/A sentinel value to any arbitrary register
         // so that the lookups don't have to know which arguments are used by which Ops.
-        auto lookup_register = [&](Val val) {
-            return val == NA ? (Reg)0
-                             : fProgram[val].reg;
+        auto lookup_register = [&](Val id) {
+            return id == NA ? (Reg)0
+                            : analysis[id].reg;
         };
 
         // Finally translate Builder::Instructions to Program::Instructions by mapping values to
@@ -159,7 +162,7 @@ namespace skvm {
 
         for (Val id = 0; id < (Val)fProgram.size(); id++) {
             const Instruction& inst = fProgram[id];
-            if (inst.life == NA || !inst.hoist) {
+            if (analysis[id].life == NA || !analysis[id].hoist) {
                 continue;
             }
 
@@ -168,7 +171,7 @@ namespace skvm {
         }
         for (Val id = 0; id < (Val)fProgram.size(); id++) {
             const Instruction& inst = fProgram[id];
-            if (inst.life == NA || inst.hoist) {
+            if (analysis[id].life == NA || analysis[id].hoist) {
                 continue;
             }
 
@@ -182,15 +185,13 @@ namespace skvm {
     // the value-producing instruction's own index in the program vector.
 
     Val Builder::push(Op op, Val x, Val y, Val z, int imm) {
-        Instruction inst{op, /*hoist=*/true, /*life=*/NA, /*reg=*/0, x, y, z, imm};
+        Instruction inst{op, x, y, z, imm};
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
-
-        if (Val* lookup = fIndex.find(inst)) {
-            return *lookup;
+        if (Val* val = fIndex.find(inst)) {
+            return *val;
         }
-
         Val id = static_cast<Val>(fProgram.size());
         fProgram.push_back(inst);
         fIndex.set(inst, id);
@@ -317,8 +318,6 @@ namespace skvm {
                  y = inst.y,
                  z = inst.z;
             int imm = inst.imm;
-            write(o, inst.life == NA ? "☠ " :
-                     inst.hoist      ? "⤴ " : "  ");
             switch (op) {
                 case Op::store8:  write(o, "store8" , Arg{imm}, V{x}); break;
                 case Op::store32: write(o, "store32", Arg{imm}, V{x}); break;
@@ -526,7 +525,7 @@ namespace skvm {
         return vex;
     }
 
-    Assembler::Assembler() = default;
+    Assembler::Assembler() { fCode.reserve(1024); }
     Assembler::~Assembler() = default;
 
     const uint8_t* Assembler::data() const { return fCode.data(); }
