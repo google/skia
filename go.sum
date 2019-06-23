@@ -415,6 +415,8 @@ go.skia.org/infra v0.0.0-20190620193438-1cbf661561ea h1:oU6jc3zNb22HYCKxgpBxAn4G
 go.skia.org/infra v0.0.0-20190620193438-1cbf661561ea/go.mod h1:48UU455tVRQZw5kdtUBO6Sg+QOJMM5r2/dUjKtYDu+Q=
 go.skia.org/infra v0.0.0-20190622000949-fc7c3c28df4b h1:66fhh/IqJL4fI23VLXztAT/vevfcPAQQXieP0oyOBNQ=
 go.skia.org/infra v0.0.0-20190622000949-fc7c3c28df4b/go.mod h1:MNjLSpd4gxed0N1bXIRXBpO/sosUHwaoncfe9a8dPy8=
+go.skia.org/infra v0.0.0-20190622192140-25adaa458842 h1:kQvdY6uFbi1b8sFByNDHKwTlW4/DsW0Gw3CNztC3Ja0=
+go.skia.org/infra v0.0.0-20190622192140-25adaa458842/go.mod h1:QE/1xH4sJZUfe1EYTVCP6LjHV8AMYKU9yzJti8l//fM=
 go.skia.org/skia v0.0.0-20190503181046-70aab823547a h1:+9xKwnzXTkTu+2ZVhffRu0A60Jx/gOETiNlKkzqbnRY=
 go.skia.org/skia v0.0.0-20190503181046-70aab823547a/go.mod h1:oVrxmr1FXbVQ7PeGtZ28Kg5wPvB+bNsnw1n2j5rtfTY=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
@@ -621,6 +623,7 @@ honnef.co/go/tools v0.0.0-20190106161140-3f1c8253044a/go.mod h1:rf3lG4BRIbNafJWh
 honnef.co/go/tools v0.0.0-20190418001031-e561f6794a2a/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190614002413-cb51c254f01b/go.mod h1:JlmFZigtG9vBVR3QGIQ9g/Usz4BzH+Xm6Z8iHQWRYUw=
+honnef.co/go/tools v0.0.0-20190622161425-0d05180ad8c0/go.mod h1:a3bituU0lyd329TUQxRnasdCoJDkEUEAqEt0JzvZhAg=
 k8s.io/api v0.0.0-20190425012535-181e1f9c52c1/go.mod h1:AhUc3Ph6fhRc0SCpt0Hwv0E+Q8QiEAASkXKwfmT2JwU=
 k8s.io/api v0.0.0-20190430012547-97d6bb8ea5f4/go.mod h1:a8In9/nr3+MCLEah7ICqKQl+2hN7XkJx64ugf8c+hws=
 k8s.io/api v0.0.0-20190515023547-db5a9d1c40eb/go.mod h1:fbdFiGtx7GQ3+vkBAYto3QsSImiYIJdpH3YfaclST/U=
