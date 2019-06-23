@@ -78,18 +78,21 @@ namespace skvm {
                 if (inst.y != NA) { inst.hoist &= fProgram[inst.y].hoist; }
                 if (inst.z != NA) { inst.hoist &= fProgram[inst.z].hoist; }
             }
+
+            // Mark the lifetime of live hoisted instructions as the full program,
+            // mostly to avoid recycling their registers, and also helps debugging sanity.
+            if (inst.hoist && inst.life != NA) {
+                inst.life = (Val)fProgram.size();
+            }
         }
 
         // We'll need to map each live value to a register.
-        // TODO: this could be another field on Instruction / fProgram to avoid this side alloc?
-        std::vector<Reg> val_to_reg(fProgram.size());
-
-        // Count the registers we've used so far.
+        std::vector<Reg> val_to_reg(fProgram.size());  // TODO: field on Instruction?
         Reg next_reg = 0;
 
         // Our first pass of register assignment assigns hoisted values to eternal registers.
         for (Val val = 0; val < (Val)fProgram.size(); val++) {
-            Instruction& inst = fProgram[val];
+            const Instruction& inst = fProgram[val];
             if (inst.life == NA || !inst.hoist) {
                 continue;
             }
@@ -98,41 +101,39 @@ namespace skvm {
             val_to_reg[val] = next_reg++;
         }
 
-        // Now we'll assign registers to values that can't be hoisted out of the loop.  These
-        // values have finite liftimes, so we track pre-owned registers that have become available
-        // and a schedule of which registers become available as we reach a given instruction.
-        std::vector<Reg>              avail;
-        std::vector<std::vector<Reg>> deaths(fProgram.size());
-
+        // Now assign non-hoisted values to registers.
+        // When these values are no longer needed we can recycle their registers.
+        std::vector<Reg> avail;
         for (Val val = 0; val < (Val)fProgram.size(); val++) {
-            Instruction& inst = fProgram[val];
+            const Instruction& inst = fProgram[val];
             if (inst.life == NA || inst.hoist) {
                 continue;
             }
 
-            // All the values that are no longer needed after this instruction
-            // can make their registers available to this and future values.
-            const std::vector<Reg>& dying = deaths[val];
-            avail.insert(avail.end(),
-                         dying.begin(), dying.end());
+            // If an Instruction's input is no longer live, we can recycle the register it occupies.
+            auto maybe_recycle_register = [&](Val input) {
+                // If this is a real input and it's lifetime ends with this
+                // instruction, we can recycle the register it's occupying.
+                if (input != NA && fProgram[input].life == val) {
+                    avail.push_back(val_to_reg[input]);
+                }
+            };
+
+            // Take care not to mark any register available twice, e.g. add(foo,foo).
+            if (true                                ) { maybe_recycle_register(inst.x); }
+            if (inst.y != inst.x                    ) { maybe_recycle_register(inst.y); }
+            if (inst.z != inst.x && inst.z != inst.y) { maybe_recycle_register(inst.z); }
 
             // Allocate a register if we have to, but prefer to reuse one that's available.
-            Reg reg;
             if (avail.empty()) {
-                reg = next_reg++;
+                val_to_reg[val] = next_reg++;
             } else {
-                reg = avail.back();
+                val_to_reg[val] = avail.back();
                 avail.pop_back();
             }
-
-            // Schedule this value's own death.  When we reach the instruction at inst.life,
-            // this value is no longer needed and its register becomes available for reuse.
-            deaths[inst.life].push_back(reg);
-
-            val_to_reg[val] = reg;
         }
 
-        // Add a dummy mapping for the N/A sentinel value to "register N/A",
+        // Add a dummy mapping for the N/A sentinel value to any arbitrary register
         // so that the lookups don't have to know which arguments are used by which Ops.
         auto lookup_register = [&](Val val) {
             return val == NA ? (Reg)0
@@ -160,7 +161,7 @@ namespace skvm {
         };
 
         for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            Instruction& inst = fProgram[id];
+            const Instruction& inst = fProgram[id];
             if (inst.life == NA || !inst.hoist) {
                 continue;
             }
@@ -169,7 +170,7 @@ namespace skvm {
             loop++;
         }
         for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            Instruction& inst = fProgram[id];
+            const Instruction& inst = fProgram[id];
             if (inst.life == NA || inst.hoist) {
                 continue;
             }
