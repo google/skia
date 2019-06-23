@@ -45,44 +45,53 @@ namespace skvm {
         , fRegs(regs)
         , fLoop(loop) {}
 
-    Program Builder::done() {
+
+    Program Builder::done() const {
+        // Track per-instruction code hoisting, lifetime, and register assignment.
+        struct Analysis {
+            bool hoist = true;
+            Val  life  = NA;
+            Reg  reg   = 0;
+        };
+        std::vector<Analysis> analysis(fProgram.size());
+
         // Basic liveness analysis (and free dead code elimination).
         for (Val id = fProgram.size(); id --> 0; ) {
-            Instruction& inst = fProgram[id];
+            const Instruction& inst = fProgram[id];
 
             // All side-effect-only instructions (stores) are live.
             if (inst.op <= Op::store32) {
-                inst.life = id;
+                analysis[id].life = id;
             }
             // The arguments of a live instruction must live until that instruction.
-            if (inst.life != NA) {
+            if (analysis[id].life != NA) {
                 // Notice how we're walking backward, storing the latest instruction in life.
-                if (inst.x != NA && fProgram[inst.x].life == NA) { fProgram[inst.x].life = id; }
-                if (inst.y != NA && fProgram[inst.y].life == NA) { fProgram[inst.y].life = id; }
-                if (inst.z != NA && fProgram[inst.z].life == NA) { fProgram[inst.z].life = id; }
+                if (inst.x != NA && analysis[inst.x].life == NA) { analysis[inst.x].life = id; }
+                if (inst.y != NA && analysis[inst.y].life == NA) { analysis[inst.y].life = id; }
+                if (inst.z != NA && analysis[inst.z].life == NA) { analysis[inst.z].life = id; }
             }
         }
 
         // Look to see if there are any instructions that can be hoisted outside the program's loop.
         for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            Instruction& inst = fProgram[id];
+            const Instruction& inst = fProgram[id];
 
             // Loads and stores cannot be hoisted out of the loop.
             if (inst.op <= Op::load32) {
-                inst.hoist = false;
+                analysis[id].hoist = false;
             }
 
             // If any of an instruction's arguments can't be hoisted, it can't be hoisted itself.
-            if (inst.hoist) {
-                if (inst.x != NA) { inst.hoist &= fProgram[inst.x].hoist; }
-                if (inst.y != NA) { inst.hoist &= fProgram[inst.y].hoist; }
-                if (inst.z != NA) { inst.hoist &= fProgram[inst.z].hoist; }
+            if (analysis[id].hoist) {
+                if (inst.x != NA) { analysis[id].hoist &= analysis[inst.x].hoist; }
+                if (inst.y != NA) { analysis[id].hoist &= analysis[inst.y].hoist; }
+                if (inst.z != NA) { analysis[id].hoist &= analysis[inst.z].hoist; }
             }
 
             // Mark the lifetime of live hoisted instructions as the full program,
             // mostly to avoid recycling their registers, and also helps debugging sanity.
-            if (inst.hoist && inst.life != NA) {
-                inst.life = (Val)fProgram.size();
+            if (analysis[id].hoist && analysis[id].life != NA) {
+                analysis[id].life = (Val)fProgram.size();
             }
         }
 
@@ -90,20 +99,20 @@ namespace skvm {
         Reg next_reg = 0;
 
         // Our first pass of register assignment assigns hoisted values to eternal registers.
-        for (Instruction& inst : fProgram) {
-            if (inst.life == NA || !inst.hoist) {
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
+            if (analysis[id].life == NA || !analysis[id].hoist) {
                 continue;
             }
             // Hoisted values are needed forever, so they each get their own register.
-            inst.reg = next_reg++;
+            analysis[id].reg = next_reg++;
         }
 
         // Now assign non-hoisted values to registers.
         // When these values are no longer needed we can recycle their registers.
         std::vector<Reg> avail;
-        for (Val val = 0; val < (Val)fProgram.size(); val++) {
-            Instruction& inst = fProgram[val];
-            if (inst.life == NA || inst.hoist) {
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
+            const Instruction& inst = fProgram[id];
+            if (analysis[id].life == NA || analysis[id].hoist) {
                 continue;
             }
 
@@ -111,8 +120,8 @@ namespace skvm {
             auto maybe_recycle_register = [&](Val input) {
                 // If this is a real input and it's lifetime ends with this
                 // instruction, we can recycle the register it's occupying.
-                if (input != NA && fProgram[input].life == val) {
-                    avail.push_back(fProgram[input].reg);
+                if (input != NA && analysis[input].life == id) {
+                    avail.push_back(analysis[input].reg);
                 }
             };
 
@@ -123,18 +132,18 @@ namespace skvm {
 
             // Allocate a register if we have to, but prefer to reuse one that's available.
             if (avail.empty()) {
-                inst.reg = next_reg++;
+                analysis[id].reg = next_reg++;
             } else {
-                inst.reg = avail.back();
+                analysis[id].reg = avail.back();
                 avail.pop_back();
             }
         }
 
         // Add a dummy mapping for the N/A sentinel value to any arbitrary register
         // so that the lookups don't have to know which arguments are used by which Ops.
-        auto lookup_register = [&](Val val) {
-            return val == NA ? (Reg)0
-                             : fProgram[val].reg;
+        auto lookup_register = [&](Val id) {
+            return id == NA ? (Reg)0
+                            : analysis[id].reg;
         };
 
         // Finally translate Builder::Instructions to Program::Instructions by mapping values to
@@ -159,7 +168,7 @@ namespace skvm {
 
         for (Val id = 0; id < (Val)fProgram.size(); id++) {
             const Instruction& inst = fProgram[id];
-            if (inst.life == NA || !inst.hoist) {
+            if (analysis[id].life == NA || !analysis[id].hoist) {
                 continue;
             }
 
@@ -168,7 +177,7 @@ namespace skvm {
         }
         for (Val id = 0; id < (Val)fProgram.size(); id++) {
             const Instruction& inst = fProgram[id];
-            if (inst.life == NA || inst.hoist) {
+            if (analysis[id].life == NA || analysis[id].hoist) {
                 continue;
             }
 
@@ -182,15 +191,13 @@ namespace skvm {
     // the value-producing instruction's own index in the program vector.
 
     Val Builder::push(Op op, Val x, Val y, Val z, int imm) {
-        Instruction inst{op, /*hoist=*/true, /*life=*/NA, /*reg=*/0, x, y, z, imm};
+        Instruction inst{op, x, y, z, imm};
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
-
-        if (Val* lookup = fIndex.find(inst)) {
-            return *lookup;
+        if (Val* id = fIndex.find(inst)) {
+            return *id;
         }
-
         Val id = static_cast<Val>(fProgram.size());
         fProgram.push_back(inst);
         fIndex.set(inst, id);
@@ -310,53 +317,51 @@ namespace skvm {
     void Builder::dump(SkWStream* o) const {
         o->writeDecAsText(fProgram.size());
         o->writeText(" values:\n");
-        for (Val val = 0; val < (Val)fProgram.size(); val++) {
-            const Instruction& inst = fProgram[val];
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
+            const Instruction& inst = fProgram[id];
             Op  op = inst.op;
             Val  x = inst.x,
                  y = inst.y,
                  z = inst.z;
             int imm = inst.imm;
-            write(o, inst.life == NA ? "☠ " :
-                     inst.hoist      ? "⤴ " : "  ");
             switch (op) {
                 case Op::store8:  write(o, "store8" , Arg{imm}, V{x}); break;
                 case Op::store32: write(o, "store32", Arg{imm}, V{x}); break;
 
-                case Op::load8:  write(o, V{val}, "= load8" , Arg{imm}); break;
-                case Op::load32: write(o, V{val}, "= load32", Arg{imm}); break;
+                case Op::load8:  write(o, V{id}, "= load8" , Arg{imm}); break;
+                case Op::load32: write(o, V{id}, "= load32", Arg{imm}); break;
 
-                case Op::splat:  write(o, V{val}, "= splat", Splat{imm}); break;
+                case Op::splat:  write(o, V{id}, "= splat", Splat{imm}); break;
 
-                case Op::add_f32: write(o, V{val}, "= add_f32", V{x}, V{y}      ); break;
-                case Op::sub_f32: write(o, V{val}, "= sub_f32", V{x}, V{y}      ); break;
-                case Op::mul_f32: write(o, V{val}, "= mul_f32", V{x}, V{y}      ); break;
-                case Op::div_f32: write(o, V{val}, "= div_f32", V{x}, V{y}      ); break;
-                case Op::mad_f32: write(o, V{val}, "= mad_f32", V{x}, V{y}, V{z}); break;
+                case Op::add_f32: write(o, V{id}, "= add_f32", V{x}, V{y}      ); break;
+                case Op::sub_f32: write(o, V{id}, "= sub_f32", V{x}, V{y}      ); break;
+                case Op::mul_f32: write(o, V{id}, "= mul_f32", V{x}, V{y}      ); break;
+                case Op::div_f32: write(o, V{id}, "= div_f32", V{x}, V{y}      ); break;
+                case Op::mad_f32: write(o, V{id}, "= mad_f32", V{x}, V{y}, V{z}); break;
 
-                case Op::add_i32: write(o, V{val}, "= add_i32", V{x}, V{y}); break;
-                case Op::sub_i32: write(o, V{val}, "= sub_i32", V{x}, V{y}); break;
-                case Op::mul_i32: write(o, V{val}, "= mul_i32", V{x}, V{y}); break;
+                case Op::add_i32: write(o, V{id}, "= add_i32", V{x}, V{y}); break;
+                case Op::sub_i32: write(o, V{id}, "= sub_i32", V{x}, V{y}); break;
+                case Op::mul_i32: write(o, V{id}, "= mul_i32", V{x}, V{y}); break;
 
-                case Op::sub_i16x2: write(o, V{val}, "= sub_i16x2", V{x}, V{y}); break;
-                case Op::mul_i16x2: write(o, V{val}, "= mul_i16x2", V{x}, V{y}); break;
-                case Op::shr_i16x2: write(o, V{val}, "= shr_i16x2", V{x}, Shift{imm}); break;
+                case Op::sub_i16x2: write(o, V{id}, "= sub_i16x2", V{x}, V{y}); break;
+                case Op::mul_i16x2: write(o, V{id}, "= mul_i16x2", V{x}, V{y}); break;
+                case Op::shr_i16x2: write(o, V{id}, "= shr_i16x2", V{x}, Shift{imm}); break;
 
-                case Op::bit_and: write(o, V{val}, "= bit_and", V{x}, V{y}); break;
-                case Op::bit_or : write(o, V{val}, "= bit_or" , V{x}, V{y}); break;
-                case Op::bit_xor: write(o, V{val}, "= bit_xor", V{x}, V{y}); break;
+                case Op::bit_and: write(o, V{id}, "= bit_and", V{x}, V{y}); break;
+                case Op::bit_or : write(o, V{id}, "= bit_or" , V{x}, V{y}); break;
+                case Op::bit_xor: write(o, V{id}, "= bit_xor", V{x}, V{y}); break;
 
-                case Op::shl: write(o, V{val}, "= shl", V{x}, Shift{imm}); break;
-                case Op::shr: write(o, V{val}, "= shr", V{x}, Shift{imm}); break;
-                case Op::sra: write(o, V{val}, "= sra", V{x}, Shift{imm}); break;
+                case Op::shl: write(o, V{id}, "= shl", V{x}, Shift{imm}); break;
+                case Op::shr: write(o, V{id}, "= shr", V{x}, Shift{imm}); break;
+                case Op::sra: write(o, V{id}, "= sra", V{x}, Shift{imm}); break;
 
-                case Op::extract: write(o, V{val}, "= extract", V{x}, Shift{imm}, V{y}); break;
-                case Op::pack:    write(o, V{val}, "= pack",    V{x}, V{y}, Shift{imm}); break;
+                case Op::extract: write(o, V{id}, "= extract", V{x}, Shift{imm}, V{y}); break;
+                case Op::pack:    write(o, V{id}, "= pack",    V{x}, V{y}, Shift{imm}); break;
 
-                case Op::bytes:   write(o, V{val}, "= bytes", V{x}, Hex{imm}); break;
+                case Op::bytes:   write(o, V{id}, "= bytes", V{x}, Hex{imm}); break;
 
-                case Op::to_f32: write(o, V{val}, "= to_f32", V{x}); break;
-                case Op::to_i32: write(o, V{val}, "= to_i32", V{x}); break;
+                case Op::to_f32: write(o, V{id}, "= to_f32", V{x}); break;
+                case Op::to_i32: write(o, V{id}, "= to_i32", V{x}); break;
             }
 
             write(o, "\n");
