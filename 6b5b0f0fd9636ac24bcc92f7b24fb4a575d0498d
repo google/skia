@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "208e5557_378225cd",
+        "filename": "modules/particles/src/SkParticleAffector.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-24T20:30:10Z",
+      "side": 1,
+      "message": "a.k.a *target?",
+      "range": {
+        "startLine": 462,
+        "startChar": 61,
+        "endLine": 462,
+        "endChar": 76
+      },
+      "revId": "6b5b0f0fd9636ac24bcc92f7b24fb4a575d0498d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
