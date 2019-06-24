@@ -16,9 +16,10 @@
 #include "src/gpu/GrSurfaceProxy.h"
 
 sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
-                                                        sk_sp<GrSurfaceProxy> proxy,
-                                                        sk_sp<SkColorSpace> colorSpace,
-                                                        const SkSurfaceProps* props) {
+        sk_sp<GrSurfaceProxy> proxy,
+        GrColorType colorType,
+        sk_sp<SkColorSpace> colorSpace,
+        const SkSurfaceProps* props) {
     // Since this is at flush time and these won't be allocated for us by the GrResourceAllocator
     // we have to manually ensure it is allocated here. The proxy had best have been created
     // with the kNoPendingIO flag!
@@ -26,10 +27,8 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-        fDrawingMgr->makeRenderTargetContext(std::move(proxy),
-                                             std::move(colorSpace),
-                                             props, false));
+    sk_sp<GrRenderTargetContext> renderTargetContext(fDrawingMgr->makeRenderTargetContext(
+            std::move(proxy), colorType, std::move(colorSpace), props, false));
 
     if (!renderTargetContext) {
         return nullptr;

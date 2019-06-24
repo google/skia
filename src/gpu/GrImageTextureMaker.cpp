@@ -14,7 +14,9 @@
 #include "src/image/SkImage_Lazy.h"
 
 static GrColorSpaceInfo make_info(const SkImage*& image) {
-    return GrColorSpaceInfo(image->alphaType(), image->refColorSpace(),
+    return GrColorSpaceInfo(SkColorTypeToGrColorType(image->colorType()),
+                            image->alphaType(),
+                            image->refColorSpace(),
                             SkImageInfo2GrPixelConfig(image->imageInfo()));
 }
 
