@@ -177,6 +177,7 @@
       "--svgs",
       "[START_DIR]/svg",
       "--lotties",
+      "[START_DIR]/skia/resources/skottie",
       "[START_DIR]/lottie-samples",
       "--key",
       "arch",
