@@ -241,12 +241,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         }
     }
 
-    if (SkToBool(descFlags & kRenderTarget_GrSurfaceFlag)) {
-        if (this->caps()->usesMixedSamples() && sampleCnt > 1) {
-            surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
-        }
-    }
-
     GrSurfaceDesc desc;
     desc.fWidth = srcImage->width();
     desc.fHeight = srcImage->height();
@@ -751,14 +745,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
 
     SkASSERT(validate_backend_format_and_config(this->caps(), format, desc.fConfig));
 
-#ifdef SK_DEBUG
-    if (SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags)) {
-        if (SkToBool(surfaceFlags & GrInternalSurfaceFlags::kMixedSampled)) {
-            SkASSERT(this->caps()->usesMixedSamples() && desc.fSampleCnt > 1);
-        }
-    }
-#endif
-
     GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
     GrSwizzle texSwizzle = this->caps()->getTextureSwizzle(format, colorType);
     GrSwizzle outSwizzle = this->caps()->getOutputSwizzle(format, colorType);
@@ -787,12 +773,6 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
 
     SkASSERT(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags));
     SkASSERT(validate_backend_format_and_config(this->caps(), format, desc.fConfig));
-
-#ifdef SK_DEBUG
-    if (SkToBool(surfaceFlags & GrInternalSurfaceFlags::kMixedSampled)) {
-        SkASSERT(this->caps()->usesMixedSamples() && desc.fSampleCnt > 1);
-    }
-#endif
 
     using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
     // For non-ddl draws always make lazy proxy's single use.
@@ -829,9 +809,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
     if (Renderable::kYes == renderable) {
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        if (sampleCnt > 1 && caps.usesMixedSamples()) {
-            surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
-        }
     }
     desc.fWidth = -1;
     desc.fHeight = -1;

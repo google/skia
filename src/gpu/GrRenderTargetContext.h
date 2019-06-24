@@ -455,12 +455,10 @@ public:
 
     void insertEventMarker(const SkString&);
 
-    GrFSAAType fsaaType() const { return fRenderTargetProxy->fsaaType(); }
     const GrCaps* caps() const;
     int width() const { return fRenderTargetProxy->width(); }
     int height() const { return fRenderTargetProxy->height(); }
-    int numColorSamples() const { return fRenderTargetProxy->numColorSamples(); }
-    int numStencilSamples() const { return fRenderTargetProxy->numStencilSamples(); }
+    int numSamples() const { return fRenderTargetProxy->numSamples(); }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     GrSurfaceOrigin origin() const { return fRenderTargetProxy->origin(); }
     bool wrapsVkSecondaryCB() const { return fRenderTargetProxy->wrapsVkSecondaryCB(); }

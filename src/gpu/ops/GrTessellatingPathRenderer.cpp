@@ -150,21 +150,25 @@ GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (!args.fShape->style().isSimpleFill() || args.fShape->knownToBeConvex()) {
         return CanDrawPath::kNo;
     }
-    if (AATypeFlags::kNone == args.fAATypeFlags || (AATypeFlags::kMSAA & args.fAATypeFlags)) {
-        // Prefer MSAA, if any antialiasing. In the non-analytic-AA case, We skip paths that don't
-        // have a key since the real advantage of this path renderer comes from caching the
-        // tessellated geometry.
-        if (!args.fShape->hasUnstyledKey()) {
-            return CanDrawPath::kNo;
-        }
-    } else if (AATypeFlags::kCoverage & args.fAATypeFlags) {
-        // Use analytic AA if we don't have MSAA. In this case, we do not cache, so we accept paths
-        // without keys.
-        SkPath path;
-        args.fShape->asPath(&path);
-        if (path.countVerbs() > fMaxVerbCount) {
-            return CanDrawPath::kNo;
-        }
+    switch (args.fAAType) {
+        case GrAAType::kNone:
+        case GrAAType::kMSAA:
+            // Prefer MSAA, if any antialiasing. In the non-analytic-AA case, We skip paths that
+            // don't have a key since the real advantage of this path renderer comes from caching
+            // the tessellated geometry.
+            if (!args.fShape->hasUnstyledKey()) {
+                return CanDrawPath::kNo;
+            }
+            break;
+        case GrAAType::kCoverage:
+            // Use analytic AA if we don't have MSAA. In this case, we do not cache, so we accept
+            // paths without keys.
+            SkPath path;
+            args.fShape->asPath(&path);
+            if (path.countVerbs() > fMaxVerbCount) {
+                return CanDrawPath::kNo;
+            }
+            break;
     }
     return CanDrawPath::kYes;
 }
@@ -232,14 +236,15 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                      GrFSAAType fsaaType, GrClampType clampType) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
+            GrClampType clampType) override {
         GrProcessorAnalysisCoverage coverage = fAntiAlias
                                                        ? GrProcessorAnalysisCoverage::kSingleChannel
                                                        : GrProcessorAnalysisCoverage::kNone;
         // This Op uses uniform (not vertex) color, so doesn't need to track wide color.
         return fHelper.finalizeProcessors(
-                caps, clip, fsaaType, clampType, coverage, &fColor, nullptr);
+                caps, clip, hasMixedSampledCoverage, clampType, coverage, &fColor, nullptr);
     }
 
 private:
@@ -397,15 +402,9 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
                                       args.fRenderTargetContext->height(),
                                       &clipBoundsI);
-    GrAAType aaType = GrAAType::kNone;
-    if (AATypeFlags::kMSAA & args.fAATypeFlags) {
-        aaType = GrAAType::kMSAA;
-    } else if (AATypeFlags::kCoverage & args.fAATypeFlags) {
-        aaType = GrAAType::kCoverage;
-    }
     std::unique_ptr<GrDrawOp> op = TessellatingPathOp::Make(
             args.fContext, std::move(args.fPaint), *args.fShape, *args.fViewMatrix, clipBoundsI,
-            aaType, args.fUserStencilSettings);
+            args.fAAType, args.fUserStencilSettings);
     args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
     return true;
 }
@@ -424,7 +423,7 @@ GR_DRAW_OP_TEST_DEFINE(TesselatingPathOp) {
     GrAAType aaType;
     do {
         aaType = kAATypes[random->nextULessThan(SK_ARRAY_COUNT(kAATypes))];
-    } while(GrAAType::kMSAA == aaType && GrFSAAType::kUnifiedMSAA != fsaaType);
+    } while(GrAAType::kMSAA == aaType && numSamples <= 1);
     GrStyle style;
     do {
         GrTest::TestStyle(random, &style);
