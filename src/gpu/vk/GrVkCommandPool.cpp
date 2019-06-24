@@ -63,6 +63,7 @@ void GrVkCommandPool::reset(GrVkGpu* gpu) {
 }
 
 void GrVkCommandPool::releaseResources(GrVkGpu* gpu) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(!fOpen);
     fPrimaryCommandBuffer->releaseResources(gpu);
     for (GrVkSecondaryCommandBuffer* buffer : fAvailableSecondaryBuffers) {
