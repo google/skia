@@ -106,8 +106,8 @@ async function driveBrowser() {
       waitUntil: 'networkidle0'
     });
     console.log('- Waiting 20s for run to be done.');
-    await page.waitForFunction('window._lottieWebDone === true', {
-      timeout: 20000,
+    await page.waitForFunction('window._lottieWebDonde === true', {
+      timeout: 2000000,
     });
   } catch(e) {
     console.log('Timed out while loading or drawing. Either the JSON file was ' +
