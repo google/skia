@@ -231,6 +231,23 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fHalfFloatVertexAttributeSupport = true;
 }
 
+bool GrMtlCaps::isFormatTexturable(SkColorType ct, const GrBackendFormat& format) const {
+    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
+    if (kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+
+    return this->isConfigTexturable(config);
+}
+
+int GrMtlCaps::maxRenderTargetSampleCount(SkColorType ct, const GrBackendFormat& format) const {
+    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
+    if (kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+
+    return this->maxRenderTargetSampleCount(config);
+}
 
 int GrMtlCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
     if (fConfigTable[config].fFlags & ConfigInfo::kMSAA_Flag) {
@@ -239,6 +256,16 @@ int GrMtlCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
         return 1;
     }
     return 0;
+}
+
+int GrMtlCaps::getRenderTargetSampleCount(int requestedCount,
+                                          SkColorType ct, const GrBackendFormat& format) const {
+    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
+    if (kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+
+    return this->getRenderTargetSampleCount(requestedCount, config);
 }
 
 int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
@@ -707,4 +734,3 @@ GrSwizzle GrMtlCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorTyp
 GrSwizzle GrMtlCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     return get_swizzle(format, colorType, true);
 }
-

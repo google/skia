@@ -157,13 +157,16 @@ public:
         return this->maxWindowRectangles() > 0 && this->onIsWindowRectanglesSupportedForRT(rt);
     }
 
+    virtual bool isFormatTexturable(SkColorType, const GrBackendFormat&) const = 0;
     virtual bool isConfigTexturable(GrPixelConfig) const = 0;
 
     // Returns whether a texture of the given config can be copied to a texture of the same config.
+    virtual bool isFormatCopyable(SkColorType, const GrBackendFormat&) const = 0;
     virtual bool isConfigCopyable(GrPixelConfig) const = 0;
 
     // Returns the maximum supported sample count for a config. 0 means the config is not renderable
     // 1 means the config is renderable but doesn't support MSAA.
+    virtual int maxRenderTargetSampleCount(SkColorType, const GrBackendFormat&) const = 0;
     virtual int maxRenderTargetSampleCount(GrPixelConfig) const = 0;
 
     // Returns the number of samples to use when performing internal draws to the given config with
@@ -185,6 +188,8 @@ public:
     // color buffer of the given config or 0 if no such sample count is supported. If the requested
     // sample count is 1 then 1 will be returned if non-MSAA rendering is supported, otherwise 0.
     // For historical reasons requestedCount==0 is handled identically to requestedCount==1.
+    virtual int getRenderTargetSampleCount(int requestedCount,
+                                           SkColorType, const GrBackendFormat&) const = 0;
     virtual int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const = 0;
     // TODO: Remove. Legacy name used by Chrome.
     int getSampleCount(int requestedCount, GrPixelConfig config) const {

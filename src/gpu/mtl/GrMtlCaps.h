@@ -26,20 +26,25 @@ public:
     GrMtlCaps(const GrContextOptions& contextOptions, id<MTLDevice> device,
               MTLFeatureSet featureSet);
 
+    bool isFormatTexturable(SkColorType, const GrBackendFormat&) const override;
+
     bool isConfigTexturable(GrPixelConfig config) const override {
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kTextureable_Flag);
     }
 
+    int getRenderTargetSampleCount(int requestedCount,
+                                   SkColorType, const GrBackendFormat&) const override;
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const override;
+
+    int maxRenderTargetSampleCount(SkColorType, const GrBackendFormat&) const override;
     int maxRenderTargetSampleCount(GrPixelConfig) const override;
 
     ReadFlags surfaceSupportsReadPixels(const GrSurface*) const override {
         return kSupported_ReadFlag;
     }
 
-    bool isConfigCopyable(GrPixelConfig config) const override {
-        return true;
-    }
+    bool isFormatCopyable(SkColorType, const GrBackendFormat&) const override { return true; }
+    bool isConfigCopyable(GrPixelConfig) const override { return true; }
 
     /**
      * Returns both a supported and most prefered stencil format to use in draws.

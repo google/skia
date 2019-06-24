@@ -804,6 +804,14 @@ void GrVkCaps::FormatInfo::init(const GrVkInterface* interface,
     }
 }
 
+bool GrVkCaps::isFormatTexturable(SkColorType, const GrBackendFormat& format) const {
+    if (!format.getVkFormat()) {
+        return false;
+    }
+
+    return this->isFormatTexturable(*format.getVkFormat());
+}
+
 bool GrVkCaps::isFormatTexturable(VkFormat format) const {
     if (!GrVkFormatIsSupported(format)) {
         return false;
@@ -823,6 +831,15 @@ bool GrVkCaps::isConfigTexturable(GrPixelConfig config) const {
 
 bool GrVkCaps::isFormatRenderable(VkFormat format) const {
     return this->maxRenderTargetSampleCount(format) > 0;
+}
+
+int GrVkCaps::getRenderTargetSampleCount(int requestedCount,
+                                         SkColorType, const GrBackendFormat& format) const {
+    if (!format.getVkFormat()) {
+        return 0;
+    }
+
+    return this->getRenderTargetSampleCount(requestedCount, *format.getVkFormat());
 }
 
 int GrVkCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
@@ -862,6 +879,14 @@ int GrVkCaps::getRenderTargetSampleCount(int requestedCount, VkFormat format) co
         }
     }
     return 0;
+}
+
+int GrVkCaps::maxRenderTargetSampleCount(SkColorType, const GrBackendFormat& format) const {
+    if (!format.getVkFormat()) {
+        return 0;
+    }
+
+    return this->maxRenderTargetSampleCount(*format.getVkFormat());
 }
 
 int GrVkCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
