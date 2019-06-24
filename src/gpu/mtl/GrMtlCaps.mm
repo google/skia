@@ -679,7 +679,7 @@ static bool format_color_type_valid_pair(MTLPixelFormat format, GrColorType colo
         // Experimental (for Y416 and mutant P016/P010)
         case GrColorType::kRGBA_16161616:
             return MTLPixelFormatRGBA16Unorm == format;
-        case GrColorType::kRG_half:
+        case GrColorType::kRG_F16:
             return MTLPixelFormatRG16Float == format;
     }
     SK_ABORT("Unknown color type");

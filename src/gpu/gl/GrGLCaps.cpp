@@ -3385,7 +3385,7 @@ static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType)
         // Experimental (for Y416 and mutant P016/P010)
         case GrColorType::kRGBA_16161616:
             return GR_GL_RGBA16 == format;
-        case GrColorType::kRG_half:
+        case GrColorType::kRG_F16:
             return GR_GL_RG16F == format;
 
     }
