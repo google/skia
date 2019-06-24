@@ -482,6 +482,7 @@ void GrVkResourceProvider::abandonResources() {
 }
 
 void GrVkResourceProvider::backgroundReset(GrVkCommandPool* pool) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(pool->unique());
     pool->releaseResources(fGpu);
     SkTaskGroup* taskGroup = fGpu->getContext()->priv().getTaskGroup();
@@ -495,6 +496,7 @@ void GrVkResourceProvider::backgroundReset(GrVkCommandPool* pool) {
 }
 
 void GrVkResourceProvider::reset(GrVkCommandPool* pool) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(pool->unique());
     pool->reset(fGpu);
     std::unique_lock<std::recursive_mutex> providerLock(fBackgroundMutex);

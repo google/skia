@@ -341,6 +341,7 @@ GrGpuTextureCommandBuffer* GrVkGpu::getCommandBuffer(GrTexture* texture, GrSurfa
 
 void GrVkGpu::submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc,
                                   GrGpuFinishedContext finishedContext) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(fCurrentCmdBuffer);
     SkASSERT(!fCachedRTCommandBuffer || !fCachedRTCommandBuffer->isActive());
     SkASSERT(!fCachedTexCommandBuffer || !fCachedTexCommandBuffer->isActive());
