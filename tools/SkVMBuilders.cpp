@@ -190,7 +190,7 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
 
     rb = shr_16x2(mul_16x2(rb, invAx2), 8);  // Put the high 8 bits back in the low lane.
     ga =          mul_16x2(ga, invAx2);      // Keep the high 8 bits up high...
-    ga = bit_and(ga, splat(0xff00ff00));     // ...and mask off the low bits.
+    ga = bit_clear(ga, splat(0x00ff00ff));     // ...and mask off the low bits.
 
     store32(dst, add(s, bit_or(rb, ga)));
 }

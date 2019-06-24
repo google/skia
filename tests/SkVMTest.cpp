@@ -362,4 +362,10 @@ DEF_TEST(SkVM_Assembler, r) {
 
         0xc5,     0x79,   0xd6,  0b00'111'010,
     });
+
+    test_asm(r, [&](A& a) {
+        a.vpandn(A::ymm3, A::ymm12, A::ymm2);
+    },{
+        0xc5, 0x9d, 0xdf, 0xda,
+    });
 }
