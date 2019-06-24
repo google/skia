@@ -13,19 +13,18 @@ class GrSurfaceProxy;
 typedef uint32_t GrColor;
 
 // Ensure that reading back from 'srcContext' as RGBA 8888 matches 'expectedPixelValues
-void test_read_pixels(skiatest::Reporter*,
-                      GrSurfaceContext* srcContext, uint32_t expectedPixelValues[],
-                      const char* testName);
+void test_read_pixels(skiatest::Reporter*, GrSurfaceContext* srcContext,
+                      uint32_t expectedPixelValues[], const char* testName);
 
 // See if trying to write RGBA 8888 pixels to 'dstContext' matches matches the
 // expectation ('expectedToWork')
-void test_write_pixels(skiatest::Reporter*,
-                       GrSurfaceContext* srcContext, bool expectedToWork, const char* testName);
+void test_write_pixels(skiatest::Reporter*, GrSurfaceContext* srcContext, bool expectedToWork,
+                       const char* testName);
 
-// Ensure that the pixels can be copied from 'proxy' to an RGBA 8888 destination (both
-// texture-backed and rendertarget-backed).
-void test_copy_from_surface(skiatest::Reporter*, GrContext*,
-                            GrSurfaceProxy* proxy, uint32_t expectedPixelValues[],
+// Ensure that the pixels can be copied from 'proxy' viewed as colorType, to an RGBA 8888
+// destination (both texture-backed and rendertarget-backed).
+void test_copy_from_surface(skiatest::Reporter*, GrContext*, GrSurfaceProxy* proxy,
+                            GrColorType colorType, uint32_t expectedPixelValues[],
                             const char* testName);
 
 // Fills data with a red-green gradient

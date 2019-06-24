@@ -31,7 +31,7 @@ public:
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
     // this Adjuster is alive.
-    GrTextureAdjuster(GrRecordingContext*, sk_sp<GrTextureProxy>, SkAlphaType,
+    GrTextureAdjuster(GrRecordingContext*, sk_sp<GrTextureProxy>, GrColorType, SkAlphaType,
                       uint32_t uniqueID, SkColorSpace*, bool useDecal = false);
 
 protected:

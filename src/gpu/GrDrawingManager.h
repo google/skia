@@ -42,10 +42,13 @@ public:
     void freeGpuResources();
 
     sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
+                                                         GrColorType,
                                                          sk_sp<SkColorSpace>,
                                                          const SkSurfaceProps*,
                                                          bool managedOpList = true);
-    sk_sp<GrTextureContext> makeTextureContext(sk_sp<GrSurfaceProxy>, sk_sp<SkColorSpace>);
+    sk_sp<GrTextureContext> makeTextureContext(sk_sp<GrSurfaceProxy>,
+                                               GrColorType,
+                                               sk_sp<SkColorSpace>);
 
     // A managed opList is controlled by the drawing manager (i.e., sorted & flushed with the
     // others). An unmanaged one is created and used by the onFlushCallback.

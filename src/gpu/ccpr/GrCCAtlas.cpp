@@ -199,9 +199,10 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
         SkASSERT(backingTexture->height() == fHeight);
         fBackingTexture = std::move(backingTexture);
     }
-
+    auto colorType = (CoverageType::kFP16_CoverageCount == fCoverageType) ? GrColorType::kAlpha_F16
+                                                                          : GrColorType::kAlpha_8;
     sk_sp<GrRenderTargetContext> rtc =
-            onFlushRP->makeRenderTargetContext(fTextureProxy, nullptr, nullptr);
+            onFlushRP->makeRenderTargetContext(fTextureProxy, colorType, nullptr, nullptr);
     if (!rtc) {
         SkDebugf("WARNING: failed to allocate a %ix%i atlas. Some paths will not be drawn.\n",
                  fWidth, fHeight);
