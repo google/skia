@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ed36209_6f6d4fd5",
+        "filename": "infra/bots/recipes/infra.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-06-24T18:50:24Z",
+      "side": 1,
+      "message": "nit: Replace with _",
+      "parentUuid": "3b8eb1d4_2828b170",
+      "revId": "563ad40e82854445b210efdcd31160c4a37e5557",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61effb09_949aad9c",
+        "filename": "infra/bots/recipes/infra.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-06-24T18:50:24Z",
+      "side": 1,
+      "message": "I think you meant to do \"last_exc \u003d e\" above?",
+      "parentUuid": "640f0275_afde3c70",
+      "revId": "563ad40e82854445b210efdcd31160c4a37e5557",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

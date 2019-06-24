@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "b5d26c0b_ff237a79",
+        "filename": "infra/bots/assets/go_win/create.py",
+        "patchSetId": 35
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-06-24T18:50:24Z",
+      "side": 1,
+      "message": "Sorry for mentioning it -- I don\u0027t think it matters. You modified this file, so you can update the year.",
+      "parentUuid": "4588904a_5fef1c67",
+      "revId": "ddacaeb62e8a90d86ce714d519632b81bc6bb27e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "853d73cb_ef0aaf89",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 35
