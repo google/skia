@@ -42,30 +42,12 @@ public:
     /** Return true if glyph is cached. */
     bool isGlyphCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const;
 
-    /**  Return a glyph that has no information if it is not already filled out. */
-    SkGlyph* getRawGlyphByID(SkPackedGlyphID);
-
-    /** Returns a glyph with all fields valid except fImage and fPath, which may be null. If they
-        are null, call findImage or findPath for those. If they are not null, then they are valid.
-
-        This call is potentially slower than the matching ...Advance call. If you only need the
-        fAdvance/fDevKern fields, call those instead.
-    */
-    const SkGlyph& getGlyphIDMetrics(SkGlyphID);
-
-    /** These are variants that take the device position of the glyph. Call these only if you are
-        drawing in subpixel mode. Passing 0, 0 is effectively the same as calling the variants
-        w/o the extra params, though a tiny bit slower.
-    */
-    const SkGlyph& getGlyphIDMetrics(SkGlyphID, SkFixed x, SkFixed y);
-
-    const SkGlyph& getGlyphIDMetrics(SkPackedGlyphID id);
-
     // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
     // advances.
     SkGlyph* glyph(SkPackedGlyphID packedID);
     SkGlyph* glyph(SkGlyphID glyphID);
-    SkGlyph* glyphFromPrototype(const SkGlyphPrototype& p);
+    SkGlyph* glyphFromPrototype(const SkGlyphPrototype& p, void* image = nullptr);
+    SkGlyph* glyph(SkGlyphID, SkPoint);
 
     // Return a glyph or nullptr if it does not exits in the strike.
     SkGlyph* glyphOrNull(SkPackedGlyphID id) const;
