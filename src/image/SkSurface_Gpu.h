@@ -49,8 +49,8 @@ public:
     GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo& info) override;
     bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) override;
     bool onCharacterize(SkSurfaceCharacterization*) const override;
+    bool onIsCompatible(const SkSurfaceCharacterization&) const override;
     void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) override;
-    bool isCompatible(const SkSurfaceCharacterization&) const;
     bool onDraw(const SkDeferredDisplayList*) override;
 
     SkGpuDevice* getDevice() { return fDevice.get(); }

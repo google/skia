@@ -106,14 +106,21 @@ public:
     GrGLCaps(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
              const GrGLInterface* glInterface);
 
-    bool isConfigTexturable(GrPixelConfig config) const override {
+    bool isFormatTexturable(SkColorType, const GrBackendFormat&) const override;
+
+    bool isConfigTexturable1(GrPixelConfig config) const override {
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kTextureable_Flag);
     }
 
-    int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
-    int maxRenderTargetSampleCount(GrPixelConfig config) const override;
+    int getRenderTargetSampleCount(int requestedCount,
+                                   SkColorType, const GrBackendFormat&) const override;
+    int getRenderTargetSampleCount1(int requestedCount, GrPixelConfig config) const override;
 
-    bool isConfigCopyable(GrPixelConfig config) const override {
+    int maxRenderTargetSampleCount(SkColorType, const GrBackendFormat&) const override;
+    int maxRenderTargetSampleCount1(GrPixelConfig config) const override;
+
+    bool isFormatCopyable(SkColorType, const GrBackendFormat&) const override;
+    bool isConfigCopyable1(GrPixelConfig config) const override {
         // In GL we have three ways to be able to copy. CopyTexImage, blit, and draw. CopyTexImage
         // requires the src to be an FBO attachment, blit requires both src and dst to be FBO
         // attachments, and draw requires the dst to be an FBO attachment. Thus to copy from and to

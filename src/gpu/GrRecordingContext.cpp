@@ -275,7 +275,7 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
                                                                  SkBudgeted budgeted) {
     GrBackendFormat localFormat = format;
     SkASSERT(sampleCnt > 0);
-    if (0 == this->caps()->getRenderTargetSampleCount(sampleCnt, config)) {
+    if (0 == this->caps()->getRenderTargetSampleCount1(sampleCnt, config)) {
         config = GrPixelConfigFallback(config);
         // TODO: First we should be checking the getRenderTargetSampleCount from the GrBackendFormat
         // and not GrPixelConfig. Besides that, we should implement the fallback in the caps, but

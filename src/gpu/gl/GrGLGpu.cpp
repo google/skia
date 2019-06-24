@@ -742,7 +742,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
-    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config());
+    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount1(sampleCnt, backendTex.config());
     if (surfDesc.fSampleCnt < 1) {
         return nullptr;
     }
@@ -782,7 +782,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     desc.fHeight = backendRT.height();
     desc.fConfig = backendRT.config();
     desc.fSampleCnt =
-            this->caps()->getRenderTargetSampleCount(backendRT.sampleCnt(), backendRT.config());
+            this->caps()->getRenderTargetSampleCount1(backendRT.sampleCnt(), backendRT.config());
 
     return GrGLRenderTarget::MakeWrapped(this, desc, info.fFormat, idDesc, backendRT.stencilBits());
 }
@@ -807,7 +807,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     surfDesc.fWidth = tex.width();
     surfDesc.fHeight = tex.height();
     surfDesc.fConfig = tex.config();
-    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config());
+    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount1(sampleCnt, tex.config());
 
     GrGLRenderTarget::IDDesc rtIDDesc;
     if (!this->createRenderTargetObjects(surfDesc, info, &rtIDDesc)) {
@@ -904,7 +904,7 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
                                  size_t offset, size_t rowBytes) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
     GrPixelConfig texConfig = glTex->config();
-    SkASSERT(this->caps()->isConfigTexturable(texConfig));
+    SkASSERT(this->caps()->isConfigTexturable1(texConfig));
 
     // Can't transfer compressed data
     SkASSERT(!GrPixelConfigIsCompressed(glTex->config()));
@@ -1222,7 +1222,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     // If we're uploading compressed data then we should be using uploadCompressedTexData
     SkASSERT(!GrPixelConfigIsCompressed(dataConfig));
 
-    SkASSERT(this->caps()->isConfigTexturable(texConfig));
+    SkASSERT(this->caps()->isConfigTexturable1(texConfig));
     SkDEBUGCODE(
         SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
         SkIRect bounds = SkIRect::MakeWH(texWidth, texHeight);
@@ -1406,7 +1406,7 @@ bool GrGLGpu::uploadCompressedTexData(GrPixelConfig texConfig, int texWidth, int
                                       GrGLenum target,
                                       const GrMipLevel texels[], int mipLevelCount,
                                       GrMipMapsStatus* mipMapsStatus) {
-    SkASSERT(this->caps()->isConfigTexturable(texConfig));
+    SkASSERT(this->caps()->isConfigTexturable1(texConfig));
 
     const GrGLInterface* interface = this->glInterface();
     const GrGLCaps& caps = this->glCaps();
@@ -4019,7 +4019,7 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();  // invalid
     }
 
-    if (!this->caps()->isConfigTexturable(config)) {
+    if (!this->caps()->isConfigTexturable1(config)) {
         return GrBackendTexture();  // invalid
     }
 

@@ -714,13 +714,13 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         // First check that we'll be able to do the copy to the to the R8G8B8 image in the end via a
         // blit or draw.
         if (!this->vkCaps().formatCanBeDstofBlit(VK_FORMAT_R8G8B8_UNORM, tex->isLinearTiled()) &&
-            !this->vkCaps().maxRenderTargetSampleCount(kRGB_888_GrPixelConfig)) {
+            !this->vkCaps().maxRenderTargetSampleCount(VK_FORMAT_R8G8B8_UNORM)) {
             return false;
         }
         mipLevelCount = 1;
     }
 
-    SkASSERT(this->caps()->isConfigTexturable(tex->config()));
+    SkASSERT(this->vkCaps().isFormatTexturable(tex->imageFormat()));
     int bpp = GrColorTypeBytesPerPixel(dataColorType);
 
     // texels is const.
@@ -907,7 +907,7 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int w
         return false;
     }
 
-    SkASSERT(this->caps()->isConfigTexturable(tex->config()));
+    SkASSERT(this->vkCaps().isFormatTexturable(tex->imageFormat()));
 
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
     individualMipOffsets.push_back(0);
@@ -1221,7 +1221,7 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
-    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config());
+    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount1(sampleCnt, backendTex.config());
 
     sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
     SkASSERT(layout);
@@ -1292,7 +1292,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
     desc.fConfig = tex.config();
-    desc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config());
+    desc.fSampleCnt = this->caps()->getRenderTargetSampleCount1(sampleCnt, tex.config());
     if (!desc.fSampleCnt) {
         return nullptr;
     }
@@ -1314,6 +1314,12 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
     if (!backendFormat.isValid()) {
         return nullptr;
     }
+    int sampleCnt = this->caps()->getRenderTargetSampleCount(1, imageInfo.colorType(),
+                                                             backendFormat);
+    if (!sampleCnt) {
+        return nullptr;
+    }
+
     GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendFormat,
                                                                     imageInfo.colorType());
     if (config == kUnknown_GrPixelConfig) {
@@ -1325,10 +1331,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
     desc.fWidth = imageInfo.width();
     desc.fHeight = imageInfo.height();
     desc.fConfig = config;
-    desc.fSampleCnt = this->caps()->getRenderTargetSampleCount(1, config);
-    if (!desc.fSampleCnt) {
-        return nullptr;
-    }
+    desc.fSampleCnt = sampleCnt;
 
     return GrVkRenderTarget::MakeSecondaryCBRenderTarget(this, desc, vkInfo);
 }
@@ -1848,9 +1851,10 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
                                                GrRenderable renderable,
                                                const void* srcData, size_t rowBytes,
                                                const SkColor4f* color) {
+    const GrVkCaps& caps = this->vkCaps();
     this->handleDirtyContext();
 
-    if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
+    if (w > caps.maxTextureSize() || h > caps.maxTextureSize()) {
         return GrBackendTexture();
     }
 
@@ -1859,12 +1863,12 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();
     }
 
-    GrPixelConfig config;
-
-    if (!vk_format_to_pixel_config(*vkFormat, &config)) {
+    if (!caps.isFormatTexturable(*vkFormat)) {
         return GrBackendTexture();
     }
-    if (!this->caps()->isConfigTexturable(config)) {
+
+    GrPixelConfig config;
+    if (!vk_format_to_pixel_config(*vkFormat, &config)) {
         return GrBackendTexture();
     }
 

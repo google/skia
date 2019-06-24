@@ -209,7 +209,7 @@ GrBackendTexture GrMockGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();  // invalid
     }
 
-    if (!this->caps()->isConfigTexturable(*pixelConfig)) {
+    if (!this->caps()->isConfigTexturable1(*pixelConfig)) {
         return GrBackendTexture();  // invalid
     }
 

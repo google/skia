@@ -173,9 +173,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         overlap_test(reporter, resourceProvider, std::move(p1), std::move(p2), test.fExpectation);
     }
 
-    int k2 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount(
+    int k2 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount1(
                                                                     2, kRGBA_8888_GrPixelConfig);
-    int k4 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount(
+    int k4 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount1(
                                                                     4, kRGBA_8888_GrPixelConfig);
 
     //--------------------------------------------------------------------------------------------

@@ -94,7 +94,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 } else {
                                     GrPixelConfig config =
                                             SkColorType2GrPixelConfig(kBGRA_8888_SkColorType);
-                                    if (!context->priv().caps()->isConfigTexturable(config)) {
+                                    if (!context->priv().caps()->isConfigTexturable1(config)) {
                                         continue;
                                     }
                                     if (!src || !dst) {

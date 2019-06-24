@@ -35,15 +35,41 @@ public:
 
         this->applyOptionsOverrides(contextOptions);
     }
-    bool isConfigTexturable(GrPixelConfig config) const override {
+
+    bool isFormatTexturable(SkColorType, const GrBackendFormat& format) const override {
+        if (!format.getMockFormat()) {
+            return false;
+        }
+
+        return this->isConfigTexturable1(*format.getMockFormat());
+    }
+
+    bool isConfigTexturable1(GrPixelConfig config) const override {
         return fOptions.fConfigOptions[config].fTexturable;
     }
 
-    bool isConfigCopyable(GrPixelConfig config) const override {
+    bool isFormatCopyable(SkColorType, const GrBackendFormat& format) const override {
+        if (!format.getMockFormat()) {
+            return false;
+        }
+
+        return this->isConfigCopyable1(*format.getMockFormat());
+    }
+
+    bool isConfigCopyable1(GrPixelConfig config) const override {
         return false;
     }
 
-    int getRenderTargetSampleCount(int requestCount, GrPixelConfig config) const override {
+    int getRenderTargetSampleCount(int requestCount,
+                                   SkColorType, const GrBackendFormat& format) const override {
+        if (!format.getMockFormat()) {
+            return 0;
+        }
+
+        return this->getRenderTargetSampleCount1(requestCount, *format.getMockFormat());
+    }
+
+    int getRenderTargetSampleCount1(int requestCount, GrPixelConfig config) const override {
         requestCount = SkTMax(requestCount, 1);
         switch (fOptions.fConfigOptions[config].fRenderability) {
             case GrMockOptions::ConfigOptions::Renderability::kNo:
@@ -56,7 +82,15 @@ public:
         return 0;
     }
 
-    int maxRenderTargetSampleCount(GrPixelConfig config) const override {
+    int maxRenderTargetSampleCount(SkColorType, const GrBackendFormat& format) const override {
+        if (!format.getMockFormat()) {
+            return 0;
+        }
+
+        return this->maxRenderTargetSampleCount1(*format.getMockFormat());
+    }
+
+    int maxRenderTargetSampleCount1(GrPixelConfig config) const override {
         switch (fOptions.fConfigOptions[config].fRenderability) {
             case GrMockOptions::ConfigOptions::Renderability::kNo:
                 return 0;

@@ -112,7 +112,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
             continue;
         }
 
-        if (!context->priv().caps()->isConfigTexturable(desc.fConfig) ||
+        if (!context->priv().caps()->isConfigTexturable1(desc.fConfig) ||
             (renderTarget && !context->priv().caps()->isConfigRenderable(desc.fConfig))) {
             continue;
         }
@@ -246,7 +246,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
             continue;
         }
 
-        if (!context->priv().caps()->isConfigTexturable(desc.fConfig) ||
+        if (!context->priv().caps()->isConfigTexturable1(desc.fConfig) ||
             (renderTarget && !context->priv().caps()->isConfigRenderable(desc.fConfig))) {
             continue;
         }

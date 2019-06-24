@@ -277,7 +277,7 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
     // Check to make sure that if we say the texture willBeMipped that the returned texture has mip
     // maps, unless the config is not copyable.
     SkASSERT(!result || !willBeMipped || result->mipMapped() == GrMipMapped::kYes ||
-             !this->context()->priv().caps()->isConfigCopyable(result->config()));
+             !this->context()->priv().caps()->isConfigCopyable1(result->config()));
 
     // Check that the "no scaling expected" case always returns a proxy of the same size as the
     // producer.
@@ -301,7 +301,7 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxy(GrMipMapped willNeedMip
     // Check to make sure that if we say the texture willBeMipped that the returned texture has mip
     // maps, unless the config is not copyable.
     SkASSERT(!result || !willBeMipped || result->mipMapped() == GrMipMapped::kYes ||
-             !this->context()->priv().caps()->isConfigCopyable(result->config()));
+             !this->context()->priv().caps()->isConfigCopyable1(result->config()));
 
     // Check that no scaling occured and we returned a proxy of the same size as the producer.
     SkASSERT(!result || (result->width() == this->width() && result->height() == this->height()));

@@ -46,7 +46,7 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMCo
     // TODO: Use 1010102 for opaque gradients, at least if destination is 1010102?
     SkColorType colorType = kRGBA_8888_SkColorType;
     if (kLow_GrSLPrecision != GrSLSamplerPrecision(args.fDstColorSpaceInfo->config()) &&
-        args.fContext->priv().caps()->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
+        args.fContext->priv().caps()->isConfigTexturable1(kRGBA_half_GrPixelConfig)) {
         colorType = kRGBA_F16_SkColorType;
     }
     SkAlphaType alphaType = premul ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;

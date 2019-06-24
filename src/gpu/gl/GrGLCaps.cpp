@@ -3108,7 +3108,27 @@ bool GrGLCaps::onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget& b
     return fbInfo.fFBOID != 0;
 }
 
-int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
+bool GrGLCaps::isFormatTexturable(SkColorType ct, const GrBackendFormat& format) const {
+
+    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
+    if (config == kUnknown_GrPixelConfig) {
+        return false;
+    }
+
+    return this->isConfigTexturable1(config);
+}
+
+int GrGLCaps::getRenderTargetSampleCount(int requestedCount, SkColorType ct,
+                                         const GrBackendFormat& format) const {
+    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
+    if (kUnknown_GrPixelConfig == config) {
+        return 0;
+    }
+
+    return this->getRenderTargetSampleCount1(requestedCount, config);
+}
+
+int GrGLCaps::getRenderTargetSampleCount1(int requestedCount, GrPixelConfig config) const {
     requestedCount = SkTMax(1, requestedCount);
     int count = fConfigTable[config].fColorSampleCounts.count();
     if (!count) {
@@ -3131,7 +3151,16 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig confi
     return 0;
 }
 
-int GrGLCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
+int GrGLCaps::maxRenderTargetSampleCount(SkColorType ct, const GrBackendFormat& format) const {
+    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
+    if (kUnknown_GrPixelConfig == config) {
+        return 0;
+    }
+
+    return this->maxRenderTargetSampleCount1(config);
+}
+
+int GrGLCaps::maxRenderTargetSampleCount1(GrPixelConfig config) const {
     const auto& table = fConfigTable[config].fColorSampleCounts;
     if (!table.count()) {
         return 0;
@@ -3141,6 +3170,15 @@ int GrGLCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
         count = SkTMin(count, 4);
     }
     return count;
+}
+
+bool GrGLCaps::isFormatCopyable(SkColorType ct, const GrBackendFormat& format) const {
+    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
+    if (kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+
+    return this->isConfigCopyable1(config);
 }
 
 GrPixelConfig validate_sized_format(GrGLenum format, SkColorType ct, GrGLStandard standard) {

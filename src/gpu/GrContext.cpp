@@ -232,12 +232,12 @@ int GrContext::maxRenderTargetSize() const { return this->caps()->maxRenderTarge
 
 bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
     GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-    return this->caps()->isConfigTexturable(config);
+    return this->caps()->isConfigTexturable1(config);
 }
 
 int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
     GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-    return this->caps()->maxRenderTargetSampleCount(config);
+    return this->caps()->maxRenderTargetSampleCount1(config);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -356,6 +356,32 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     }
 
     return this->createBackendTexture(width, height, format, mipMapped, renderable);
+}
+
+GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization& c) {
+    if (!this->asDirectContext() || !c.isValid()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    if (c.usesGLFBO0()) {
+        // If we are making the surface we will never use FBO0.
+        return GrBackendTexture();
+    }
+
+    if (!SkSurface_Gpu::Valid(this->caps(), c.config(), c.colorSpace())) {
+        return GrBackendTexture();
+    }
+
+    const GrBackendFormat format =
+            this->caps()->getBackendFormatFromColorType(c.colorType());
+
+    return this->createBackendTexture(c.width(), c.height(), format,
+                                      GrMipMapped(c.isMipMapped()),
+                                      GrRenderable::kYes);  // it's for a 'surface' after all
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,

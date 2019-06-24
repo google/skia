@@ -32,18 +32,22 @@ public:
              uint32_t instanceVersion, uint32_t physicalDeviceVersion,
              const GrVkExtensions& extensions);
 
+    bool isFormatTexturable(SkColorType, const GrBackendFormat&) const override;
     bool isFormatTexturable(VkFormat) const;
-    bool isConfigTexturable(GrPixelConfig config) const override;
+    bool isConfigTexturable1(GrPixelConfig config) const override;
 
-    bool isConfigCopyable(GrPixelConfig config) const override {
-        return true;
-    }
+    bool isFormatCopyable(SkColorType, const GrBackendFormat&) const override { return true; }
+    bool isConfigCopyable1(GrPixelConfig config) const override { return true; }
 
     bool isFormatRenderable(VkFormat) const;
 
-    int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
+    int getRenderTargetSampleCount(int requestedCount,
+                                   SkColorType, const GrBackendFormat&) const override;
+    int getRenderTargetSampleCount1(int requestedCount, GrPixelConfig config) const override;
     int getRenderTargetSampleCount(int requestedCount, VkFormat) const;
-    int maxRenderTargetSampleCount(GrPixelConfig config) const override;
+
+    int maxRenderTargetSampleCount(SkColorType, const GrBackendFormat&) const override;
+    int maxRenderTargetSampleCount1(GrPixelConfig config) const override;
     int maxRenderTargetSampleCount(VkFormat format) const;
 
     bool surfaceSupportsReadPixels(const GrSurface*) const override;

@@ -309,7 +309,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
     for (auto combo : combinations) {
         SkColorType colorType = combo.fColorType;
 
-        if (!caps->isConfigTexturable(combo.fConfig)) {
+        if (!caps->isConfigTexturable1(combo.fConfig)) {
             continue;
         }
 
@@ -483,7 +483,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
             // We current disallow uninitialized ETC1 textures in the GL backend
             continue;
         }
-        if (!glCaps->isConfigTexturable(combo.fConfig)) {
+        if (!glCaps->isFormatTexturable(combo.fColorType, format)) {
             continue;
         }
 

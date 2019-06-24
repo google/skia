@@ -23,9 +23,9 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
     if (caps.driverBlacklistCCPR() || !caps.allowCoverageCounting() ||
         !shaderCaps.integerSupport() || !caps.instanceAttribSupport() ||
         !shaderCaps.floatIs32Bits() || GrCaps::kNone_MapFlags == caps.mapBufferFlags() ||
-        !caps.isConfigTexturable(kAlpha_half_GrPixelConfig) ||
+        !caps.isConfigTexturable1(kAlpha_half_GrPixelConfig) ||
         !caps.isConfigRenderable(kAlpha_half_GrPixelConfig) ||
-        !caps.isConfigTexturable(kAlpha_8_GrPixelConfig) ||
+        !caps.isConfigTexturable1(kAlpha_8_GrPixelConfig) ||
         !caps.isConfigRenderable(kAlpha_8_GrPixelConfig) ||
         !caps.halfFloatVertexAttributeSupport()) {
         return false;

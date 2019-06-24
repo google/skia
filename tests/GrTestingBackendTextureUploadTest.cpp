@@ -28,7 +28,7 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
     const GrCaps* caps = context->priv().caps();
 
     GrPixelConfig config = SkColorType2GrPixelConfig(ct);
-    if (!caps->isConfigTexturable(config)) {
+    if (!caps->isConfigTexturable1(config)) {
         return;
     }
 

@@ -110,7 +110,7 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
 
     bool isRT = desc.fFlags & kRenderTarget_GrSurfaceFlag;
     if (isRT) {
-        desc.fSampleCnt = this->caps()->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig);
+        desc.fSampleCnt = this->caps()->getRenderTargetSampleCount1(desc.fSampleCnt, desc.fConfig);
     }
     // Attempt to catch un- or wrongly initialized sample counts.
     SkASSERT(desc.fSampleCnt > 0 && desc.fSampleCnt <= 64);
@@ -149,7 +149,7 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
     SkASSERT(ioType != kWrite_GrIOType);
     this->handleDirtyContext();
     SkASSERT(this->caps());
-    if (!this->caps()->isConfigTexturable(backendTex.config())) {
+    if (!this->caps()->isConfigTexturable1(backendTex.config())) {
         return nullptr;
     }
     if (backendTex.width() > this->caps()->maxTextureSize() ||
@@ -166,8 +166,8 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
     if (sampleCnt < 1) {
         return nullptr;
     }
-    if (!this->caps()->isConfigTexturable(backendTex.config()) ||
-        !this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config())) {
+    if (!this->caps()->isConfigTexturable1(backendTex.config()) ||
+        !this->caps()->getRenderTargetSampleCount1(sampleCnt, backendTex.config())) {
         return nullptr;
     }
 
@@ -182,7 +182,7 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
 }
 
 sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
-    if (0 == this->caps()->getRenderTargetSampleCount(backendRT.sampleCnt(), backendRT.config())) {
+    if (0 == this->caps()->getRenderTargetSampleCount1(backendRT.sampleCnt(), backendRT.config())) {
         return nullptr;
     }
     this->handleDirtyContext();
@@ -191,7 +191,7 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget
 
 sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
                                                               int sampleCnt) {
-    if (0 == this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config())) {
+    if (0 == this->caps()->getRenderTargetSampleCount1(sampleCnt, tex.config())) {
         return nullptr;
     }
     int maxSize = this->caps()->maxTextureSize();

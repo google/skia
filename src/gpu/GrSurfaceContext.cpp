@@ -343,7 +343,7 @@ bool GrSurfaceContext::writePixelsImpl(GrContext* direct, int left, int top, int
             SkToBool(this->asRenderTargetContext()) &&
             (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
              dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
-            direct->priv().caps()->isConfigTexturable(kRGBA_8888_GrPixelConfig) &&
+            direct->priv().caps()->isConfigTexturable1(kRGBA_8888_GrPixelConfig) &&
             direct->priv().validPMUPMConversionExists();
 
     if (!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) {

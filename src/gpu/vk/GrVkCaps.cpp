@@ -777,6 +777,14 @@ void GrVkCaps::FormatInfo::init(const GrVkInterface* interface,
     }
 }
 
+bool GrVkCaps::isFormatTexturable(SkColorType, const GrBackendFormat& format) const {
+    if (!format.getVkFormat()) {
+        return false;
+    }
+
+    return this->isFormatTexturable(*format.getVkFormat());
+}
+
 bool GrVkCaps::isFormatTexturable(VkFormat format) const {
     if (!GrVkFormatIsSupported(format)) {
         return false;
@@ -786,7 +794,7 @@ bool GrVkCaps::isFormatTexturable(VkFormat format) const {
     return SkToBool(FormatInfo::kTextureable_Flag & info.fOptimalFlags);
 }
 
-bool GrVkCaps::isConfigTexturable(GrPixelConfig config) const {
+bool GrVkCaps::isConfigTexturable1(GrPixelConfig config) const {
     VkFormat format;
     if (!GrPixelConfigToVkFormat(config, &format)) {
         return false;
@@ -798,7 +806,16 @@ bool GrVkCaps::isFormatRenderable(VkFormat format) const {
     return this->maxRenderTargetSampleCount(format) > 0;
 }
 
-int GrVkCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
+int GrVkCaps::getRenderTargetSampleCount(int requestedCount,
+                                         SkColorType, const GrBackendFormat& format) const {
+    if (!format.getVkFormat()) {
+        return 0;
+    }
+
+    return this->getRenderTargetSampleCount(requestedCount, *format.getVkFormat());
+}
+
+int GrVkCaps::getRenderTargetSampleCount1(int requestedCount, GrPixelConfig config) const {
     // Currently we don't allow RGB_888X to be renderable because we don't have a way to handle
     // blends that reference dst alpha when the values in the dst alpha channel are uninitialized.
     if (config == kRGB_888X_GrPixelConfig) {
@@ -837,7 +854,15 @@ int GrVkCaps::getRenderTargetSampleCount(int requestedCount, VkFormat format) co
     return 0;
 }
 
-int GrVkCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
+int GrVkCaps::maxRenderTargetSampleCount(SkColorType, const GrBackendFormat& format) const {
+    if (!format.getVkFormat()) {
+        return 0;
+    }
+
+    return this->maxRenderTargetSampleCount(*format.getVkFormat());
+}
+
+int GrVkCaps::maxRenderTargetSampleCount1(GrPixelConfig config) const {
     // Currently we don't allow RGB_888X to be renderable because we don't have a way to handle
     // blends that reference dst alpha when the values in the dst alpha channel are uninitialized.
     if (config == kRGB_888X_GrPixelConfig) {

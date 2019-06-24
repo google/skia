@@ -40,6 +40,7 @@ class GrTextureProxy;
 struct GrVkBackendContext;
 
 class SkImage;
+class SkSurfaceCharacterization;
 class SkSurfaceProps;
 class SkTaskGroup;
 class SkTraceMemoryDump;
@@ -389,6 +390,10 @@ public:
     GrBackendTexture createBackendTexture(int width, int height,
                                           SkColorType, const SkColor4f& color,
                                           GrMipMapped, GrRenderable);
+
+    //
+    //
+    GrBackendTexture createBackendTexture(const SkSurfaceCharacterization& characterization);
 
     void deleteBackendTexture(GrBackendTexture);
 

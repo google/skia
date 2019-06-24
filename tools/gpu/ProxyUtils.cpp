@@ -57,7 +57,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, GrRenderable 
 
     } else {
         GrPixelConfig config = GrColorTypeToPixelConfig(colorType, srgbEncoded);
-        if (!context->priv().caps()->isConfigTexturable(config)) {
+        if (!context->priv().caps()->isConfigTexturable1(config)) {
             return nullptr;
         }
 

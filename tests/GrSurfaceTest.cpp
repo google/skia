@@ -130,7 +130,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
 
             sk_sp<GrSurface> tex = resourceProvider->createTexture(
                 desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
-            bool ict = caps->isConfigTexturable(desc.fConfig);
+            bool ict = caps->isConfigTexturable1(desc.fConfig);
             REPORTER_ASSERT(reporter, SkToBool(tex) == ict,
                             "config:%d, tex:%d, isConfigTexturable:%d", config, SkToBool(tex), ict);
 
@@ -145,7 +145,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             sk_sp<GrTextureProxy> proxy =
                     proxyProvider->createMipMapProxy(format, desc, origin, SkBudgeted::kNo);
             REPORTER_ASSERT(reporter, SkToBool(proxy.get()) ==
-                            (caps->isConfigTexturable(desc.fConfig) &&
+                            (caps->isConfigTexturable1(desc.fConfig) &&
                              caps->mipMapSupport()));
 
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -159,7 +159,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             desc.fSampleCnt = 2;
             tex = resourceProvider->createTexture(desc, SkBudgeted::kNo,
                                                   GrResourceProvider::Flags::kNoPendingIO);
-            isRenderable = SkToBool(caps->getRenderTargetSampleCount(2, config));
+            isRenderable = SkToBool(caps->getRenderTargetSampleCount1(2, config));
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                             "config:%d, tex:%d, isRenderable:%d", config, SkToBool(tex),
                             isRenderable);
@@ -183,7 +183,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
 
     for (int c = 0; c <= kLast_GrPixelConfig; ++c) {
         desc.fConfig = static_cast<GrPixelConfig>(c);
-        if (!caps->isConfigTexturable(desc.fConfig)) {
+        if (!caps->isConfigTexturable1(desc.fConfig)) {
             continue;
         }
         desc.fFlags = kPerformInitialClear_GrSurfaceFlag;

@@ -246,7 +246,7 @@ static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, En
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     if (!context->priv().caps()->isConfigRenderable(kSRGBA_8888_GrPixelConfig) &&
-        !context->priv().caps()->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
+        !context->priv().caps()->isConfigTexturable1(kSRGBA_8888_GrPixelConfig)) {
         return;
     }
     // We allow more error on GPUs with lower precision shader variables.
