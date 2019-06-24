@@ -38,8 +38,6 @@ TAG_PROJECT_SKIA = 'project:skia'
 TAG_VERSION_PREFIX = 'version:'
 TAG_VERSION_TMPL = '%s%%s' % TAG_VERSION_PREFIX
 
-WHICH = 'where' if sys.platform.startswith('win') else 'which'
-
 VERSION_FILENAME = 'VERSION'
 ZIP_BLACKLIST = ['.git', '.svn', '*.pyc', '.DS_STORE']
 
@@ -159,10 +157,11 @@ class GSStore(object):
     if gsutil:
       gsutil = os.path.abspath(gsutil)
     else:
-      gsutil = subprocess.check_output([WHICH, 'gsutil']).rstrip()
+      gsutil = subprocess.check_output([utils.WHICH, 'gsutil']).rstrip()
     self._gsutil = [gsutil]
     if gsutil.endswith('.py'):
-      self._gsutil = ['python', gsutil]
+      self._gsutil = [utils.PYTHON, gsutil]
+    print 'got gsutil: %s' % gsutil
     self._gs_bucket = bucket
 
   def copy(self, src, dst):
@@ -318,7 +317,13 @@ class Asset(object):
       dst = os.path.join(asset._dir, script)
       print 'Creating %s' % dst
       shutil.copy(src, dst)
+      print 'PATH=%s' % os.environ['PATH']
+      print subprocess.check_output([utils.WHICH, 'git'])
+      print subprocess.check_output([utils.WHICH, utils.GIT])
+      print subprocess.check_output([utils.GIT, 'version'])
+      print 'executing %s add %s' % (utils.GIT, dst)
       subprocess.check_call([utils.GIT, 'add', dst])
+      print 'done copying %s' % script
 
     for script in ('download.py', 'upload.py', 'common.py'):
       copy_script(script)
