@@ -190,9 +190,6 @@ void ResolveAAType(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags, c
         case GrAAType::kMSAA:
             *outEdgeFlags = GrQuadAAFlags::kAll;
             break;
-        case GrAAType::kMixedSamples:
-            SK_ABORT("Should not use mixed sample AA with edge AA flags");
-            break;
     }
 }
 

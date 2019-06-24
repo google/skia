@@ -427,7 +427,7 @@ bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
     desc->fShaderKeyLength = SkToU32(keyLength);
 
     b.add32(renderTarget->config());
-    b.add32(renderTarget->numColorSamples());
+    b.add32(renderTarget->numSamples());
     bool hasStencilAttachment = SkToBool(renderTarget->renderTargetPriv().getStencilAttachment());
     b.add32(hasStencilAttachment ? gpu->mtlCaps().preferredStencilFormat().fInternalFormat
                                  : MTLPixelFormatInvalid);

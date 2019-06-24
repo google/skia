@@ -75,7 +75,7 @@ public:
 
     // override of GrRenderTarget
     ResolveType getResolveType() const override {
-        if (this->numColorSamples() > 1) {
+        if (this->numSamples() > 1) {
             return kCanResolve_ResolveType;
         }
         return kAutoResolves_ResolveType;
@@ -119,7 +119,7 @@ protected:
 
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override {
-        int numColorSamples = this->numColorSamples();
+        int numColorSamples = this->numSamples();
         if (numColorSamples > 1) {
             // Add one to account for the resolved VkImage.
             numColorSamples += 1;

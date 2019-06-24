@@ -402,7 +402,7 @@ static void draw_shape_with_mask_filter(GrRecordingContext* context,
                                                         maskRect,
                                                         viewMatrix,
                                                         *shape,
-                                                        renderTargetContext->numColorSamples()));
+                                                        renderTargetContext->numSamples()));
             if (maskProxy) {
                 filteredMask = maskFilter->filterMaskGPU(context,
                                                          std::move(maskProxy),

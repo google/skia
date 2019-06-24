@@ -28,7 +28,7 @@ public:
     ResolveType getResolveType() const override {
         return kCantResolve_ResolveType;
 #if 0 // TODO figure this once we support msaa
-        if (this->numColorSamples() > 1) {
+        if (this->numSamples() > 1) {
             return kCanResolve_ResolveType;
         }
         return kAutoResolves_ResolveType;
@@ -57,7 +57,7 @@ protected:
 
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override {
-        int numColorSamples = this->numColorSamples();
+        int numColorSamples = this->numSamples();
         // TODO: When used as render targets certain formats may actually have a larger size than
         // the base format size. Check to make sure we are reporting the correct value here.
         // The plus 1 is to account for the resolve texture or if not using msaa the RT itself

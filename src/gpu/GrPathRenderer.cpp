@@ -48,14 +48,11 @@ bool GrPathRenderer::drawPath(const DrawPathArgs& args) {
     canArgs.fClipConservativeBounds = args.fClipConservativeBounds;
     canArgs.fViewMatrix = args.fViewMatrix;
     canArgs.fShape = args.fShape;
-    canArgs.fAATypeFlags = args.fAATypeFlags;
+    canArgs.fAAType = args.fAAType;
     canArgs.fTargetIsWrappedVkSecondaryCB = args.fRenderTargetContext->wrapsVkSecondaryCB();
     canArgs.validate();
 
     canArgs.fHasUserStencilSettings = !args.fUserStencilSettings->isUnused();
-    if (AATypeFlags::kMixedSampledStencilThenCover & canArgs.fAATypeFlags) {
-        SkASSERT(GrFSAAType::kMixedSamples == args.fRenderTargetContext->fsaaType());
-    }
     SkASSERT(CanDrawPath::kNo != this->canDrawPath(canArgs));
     if (!args.fUserStencilSettings->isUnused()) {
         SkPath path;
@@ -116,9 +113,7 @@ void GrPathRenderer::onStencilPath(const StencilPathArgs& args) {
                           args.fClipConservativeBounds,
                           args.fViewMatrix,
                           args.fShape,
-                          (GrAA::kYes == args.fDoStencilMSAA)
-                                  ? AATypeFlags::kMSAA
-                                  : AATypeFlags::kNone,
+                          (GrAA::kYes == args.fDoStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone,
                           false};
     this->drawPath(drawArgs);
 }
