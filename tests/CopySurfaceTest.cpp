@@ -77,11 +77,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                         for (auto dstPoint : kDstPoints) {
                             for (auto ii: kImageInfos) {
                                 auto src = sk_gpu_test::MakeTextureProxyFromData(
-                                        context, sRenderable, kW, kH, ii.colorType(), sOrigin,
-                                        srcPixels.get(), kRowBytes);
+                                        context, sRenderable, kW, kH, ii.colorType(),
+                                        ii.alphaType(), sOrigin, srcPixels.get(), kRowBytes);
                                 auto dst = sk_gpu_test::MakeTextureProxyFromData(
-                                        context, dRenderable, kW, kH, ii.colorType(), dOrigin,
-                                        dstPixels.get(), kRowBytes);
+                                        context, dRenderable, kW, kH, ii.colorType(),
+                                        ii.alphaType(), dOrigin, dstPixels.get(), kRowBytes);
 
                                 // Should always work if the color type is RGBA, but may not work
                                 // for BGRA
@@ -105,7 +105,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 }
 
                                 sk_sp<GrSurfaceContext> dstContext =
-                                        context->priv().makeWrappedSurfaceContext(std::move(dst));
+                                        context->priv().makeWrappedSurfaceContext(
+                                                std::move(dst), kPremul_SkAlphaType);
 
                                 bool result = false;
                                 if (sOrigin == dOrigin) {
