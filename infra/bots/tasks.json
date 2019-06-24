@@ -3552,7 +3552,7 @@
       },
       "io_timeout_ns": 10800000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Build-Debian9-Clang-arm-Debug-Android": {

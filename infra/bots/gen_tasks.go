@@ -874,8 +874,8 @@ func timeout(task *specs.TaskSpec, timeout time.Duration) {
 
 // attempts returns the desired MaxAttempts for this task.
 func attempts(name string) int {
-	if strings.Contains(name, "Android_Framework") {
-		// The reason for this has been lost to time.
+	if strings.Contains(name, "Android_Framework") || strings.Contains(name, "G3_Framework") {
+		// Both bots can be long running. No need to retry them.
 		return 1
 	}
 	if !(strings.HasPrefix(name, "Build-") || strings.HasPrefix(name, "Upload-")) {
