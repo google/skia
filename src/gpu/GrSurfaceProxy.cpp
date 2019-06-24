@@ -362,11 +362,11 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
     if (!srcRect.intersect(SkIRect::MakeWH(src->width(), src->height()))) {
         return nullptr;
     }
-
+    auto colorType = GrPixelConfigToColorType(src->config());
     if (src->backendFormat().textureType() != GrTextureType::kExternal) {
         sk_sp<GrSurfaceContext> dstContext(context->priv().makeDeferredSurfaceContext(
                 src->backendFormat().makeTexture2D(), dstDesc, src->origin(), mipMapped, fit,
-                budgeted, kUnknown_SkAlphaType));
+                budgeted, colorType, kUnknown_SkAlphaType));
         if (!dstContext) {
             return nullptr;
         }
@@ -381,8 +381,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
         }
 
         sk_sp<GrRenderTargetContext> dstContext = context->priv().makeDeferredRenderTargetContext(
-                format, fit, dstDesc.fWidth, dstDesc.fHeight, dstDesc.fConfig, nullptr, 1,
-                mipMapped, src->origin(), nullptr, budgeted);
+                format, fit, dstDesc.fWidth, dstDesc.fHeight, dstDesc.fConfig, colorType, nullptr,
+                1, mipMapped, src->origin(), nullptr, budgeted);
 
         if (dstContext && dstContext->blitTexture(src->asTextureProxy(), srcRect, dstPoint)) {
             return dstContext->asTextureProxyRef();

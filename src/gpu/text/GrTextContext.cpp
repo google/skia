@@ -239,7 +239,8 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
 
     // Setup dummy SkPaint / GrPaint / GrRenderTargetContext
     sk_sp<GrRenderTargetContext> rtc(context->priv().makeDeferredRenderTargetContext(
-        format, SkBackingFit::kApprox, 1024, 1024, kRGBA_8888_GrPixelConfig, nullptr));
+            format, SkBackingFit::kApprox, 1024, 1024, kRGBA_8888_GrPixelConfig,
+            GrColorType::kRGBA_8888, nullptr));
 
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
 

@@ -88,7 +88,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
 
     sk_sp<GrRenderTargetContext> rtc(context->priv().makeDeferredRenderTargetContext(
             format, SkBackingFit::kExact, kImageWidth, kImageHeight, kRGBA_8888_GrPixelConfig,
-            nullptr));
+            GrColorType::kRGBA_8888, nullptr));
     if (!rtc) {
         ERRORF(reporter, "could not create render target context.");
         return;

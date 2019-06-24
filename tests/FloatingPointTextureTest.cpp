@@ -54,8 +54,8 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context, T min, T max, T
             continue;
         }
 
-        sk_sp<GrSurfaceContext> sContext =
-                context->priv().makeWrappedSurfaceContext(std::move(fpProxy), kPremul_SkAlphaType);
+        sk_sp<GrSurfaceContext> sContext = context->priv().makeWrappedSurfaceContext(
+                std::move(fpProxy), colorType, kPremul_SkAlphaType);
         REPORTER_ASSERT(reporter, sContext);
 
         bool result = sContext->readPixels(context, 0, 0, DEV_W, DEV_H, colorType, nullptr,
