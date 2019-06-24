@@ -130,10 +130,9 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
 
     auto origin = bottomLeftOrigin ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
 
-    auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, GrRenderable::kNo,
-                                                       kImageSize, kImageSize,
-                                                       bm.colorType(), origin, bm.getPixels(),
-                                                       bm.rowBytes());
+    auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, GrRenderable::kNo, kImageSize,
+                                                       kImageSize, bm.colorType(), bm.alphaType(),
+                                                       origin, bm.getPixels(), bm.rowBytes());
     if (!proxy) {
         return nullptr;
     }

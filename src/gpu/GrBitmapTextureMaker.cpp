@@ -17,12 +17,15 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 
-static bool bmp_is_alpha_only(const SkBitmap& bm) { return kAlpha_8_SkColorType == bm.colorType(); }
+static GrColorSpaceInfo make_info(const SkBitmap& bm) {
+    return GrColorSpaceInfo(bm.alphaType(), bm.refColorSpace(),
+                            SkImageInfo2GrPixelConfig(bm.info()));
+}
 
 GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,
                                            bool useDecal)
-    : INHERITED(context, bitmap.width(), bitmap.height(), bmp_is_alpha_only(bitmap), useDecal)
-    , fBitmap(bitmap) {
+        : INHERITED(context, bitmap.width(), bitmap.height(), make_info(bitmap), useDecal)
+        , fBitmap(bitmap) {
     if (!bitmap.isVolatile()) {
         SkIPoint origin = bitmap.pixelRefOrigin();
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
@@ -105,12 +108,4 @@ void GrBitmapTextureMaker::makeCopyKey(const CopyParams& copyParams, GrUniqueKey
 
 void GrBitmapTextureMaker::didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) {
     GrInstallBitmapUniqueKeyInvalidator(copyKey, contextUniqueID, fBitmap.pixelRef());
-}
-
-SkAlphaType GrBitmapTextureMaker::alphaType() const {
-    return fBitmap.alphaType();
-}
-
-SkColorSpace* GrBitmapTextureMaker::colorSpace() const {
-    return fBitmap.colorSpace();
 }

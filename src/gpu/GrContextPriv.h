@@ -74,6 +74,7 @@ public:
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
+                                                      SkAlphaType alphaType,
                                                       sk_sp<SkColorSpace> = nullptr,
                                                       const SkSurfaceProps* = nullptr);
 
@@ -83,6 +84,7 @@ public:
                                                        GrMipMapped,
                                                        SkBackingFit,
                                                        SkBudgeted,
+                                                       SkAlphaType,
                                                        sk_sp<SkColorSpace> colorSpace = nullptr,
                                                        const SkSurfaceProps* = nullptr);
 
@@ -130,6 +132,7 @@ public:
 
     sk_sp<GrTextureContext> makeBackendTextureContext(const GrBackendTexture& tex,
                                                       GrSurfaceOrigin origin,
+                                                      SkAlphaType alphaType,
                                                       sk_sp<SkColorSpace> colorSpace);
 
     // These match the definitions in SkSurface & GrSurface.h, for whence they came

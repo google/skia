@@ -375,6 +375,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
             context->priv().makeDeferredSurfaceContext(format, desc, c.origin(),
                                                        GrMipMapped(c.isMipMapped()),
                                                        SkBackingFit::kExact, budgeted,
+                                                       kPremul_SkAlphaType,
                                                        c.refColorSpace(),
                                                        &c.surfaceProps()));
     if (!sc || !sc->asRenderTargetContext()) {

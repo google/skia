@@ -106,8 +106,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         }
         auto srcInfo = SkImageInfo::Make(desc.fWidth, desc.fHeight, colorType,
                                          kUnknown_SkAlphaType);
-        sk_sp<GrSurfaceContext> sContext = context->priv().makeWrappedSurfaceContext(
-                std::move(proxy));
+        sk_sp<GrSurfaceContext> sContext =
+                context->priv().makeWrappedSurfaceContext(std::move(proxy), kUnknown_SkAlphaType);
         if (!sContext) {
             return nullptr;
         }

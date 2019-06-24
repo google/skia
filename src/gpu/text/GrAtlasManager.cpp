@@ -94,7 +94,8 @@ static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* 
         return false;
     }
 
-    sk_sp<GrSurfaceContext> sContext(context->priv().makeWrappedSurfaceContext(sk_ref_sp(sProxy)));
+    sk_sp<GrSurfaceContext> sContext(
+            context->priv().makeWrappedSurfaceContext(sk_ref_sp(sProxy), kUnknown_SkAlphaType));
     if (!sContext || !sContext->asTextureProxy()) {
         return false;
     }
