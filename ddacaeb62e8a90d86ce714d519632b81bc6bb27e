@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ed021e8_ee751051",
+        "filename": "infra/bots/assets/go_win/create.py",
+        "patchSetId": 35
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-06-24T15:07:24Z",
+      "side": 1,
+      "message": "2019",
+      "revId": "ddacaeb62e8a90d86ce714d519632b81bc6bb27e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "853d73cb_ef0aaf89",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 35
+      },
+      "lineNbr": 1064,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-06-24T15:07:24Z",
+      "side": 1,
+      "message": "Any way to do retries internal to the task? If we retry at this level, the initial attempts will appear on Status.",
+      "range": {
+        "startLine": 1063,
+        "startChar": 0,
+        "endLine": 1064,
+        "endChar": 13
+      },
+      "revId": "ddacaeb62e8a90d86ce714d519632b81bc6bb27e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "251ef79a_48777e2f",
+        "filename": "infra/bots/recipes/infra.py",
+        "patchSetId": 35
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-06-24T15:07:24Z",
+      "side": 1,
+      "message": "nit: This shouldn\u0027t be necessary; python should add the .exe automatically.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 25
+      },
+      "revId": "ddacaeb62e8a90d86ce714d519632b81bc6bb27e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5642856_ba6b9377",
+        "filename": "infra/bots/recipes/infra.py",
+        "patchSetId": 35
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-06-24T15:07:24Z",
+      "side": 1,
+      "message": "nit: This needs some comments.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 16
+      },
+      "revId": "ddacaeb62e8a90d86ce714d519632b81bc6bb27e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6571db1d_b83d8b0c",
+        "filename": "infra/bots/utils.py",
+        "patchSetId": 35
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-06-24T15:07:24Z",
+      "side": 1,
+      "message": "nit: .exe shouldn\u0027t be necessary in Python.",
+      "revId": "ddacaeb62e8a90d86ce714d519632b81bc6bb27e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
