@@ -235,7 +235,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     }
 
     if (SkToBool(descFlags & kRenderTarget_GrSurfaceFlag)) {
-        sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, config);
+        sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, ct, format);
         if (!sampleCnt) {
             return nullptr;
         }
@@ -328,9 +328,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     }
 
     SkColorType colorType = bitmap.info().colorType();
+    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(colorType);
+    if (!format.isValid()) {
+        return nullptr;
+    }
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
 
-    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
+    if (!this->caps()->isFormatTexturable(colorType, format)) {
         SkBitmap copy8888;
         if (!copy8888.tryAllocPixels(bitmap.info().makeColorType(kRGBA_8888_SkColorType)) ||
             !bitmap.readPixels(copy8888.pixmap())) {
@@ -342,7 +346,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
         colorType = kRGBA_8888_SkColorType;
     }
 
-    const GrBackendFormat format = this->caps()->getBackendFormatFromColorType(colorType);
+    format = this->caps()->getBackendFormatFromColorType(colorType);
     if (!format.isValid()) {
         return nullptr;
     }
@@ -435,13 +439,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
     if (!this->caps()->validateSurfaceDesc(desc, mipMapped)) {
         return nullptr;
     }
+    GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
     GrSurfaceDesc copyDesc = desc;
     if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
         copyDesc.fSampleCnt =
                 this->caps()->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig);
     }
 
-    GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
     GrSwizzle texSwizzle = this->caps()->getTextureSwizzle(format, colorType);
 
     if (copyDesc.fFlags & kRenderTarget_GrSurfaceFlag) {
