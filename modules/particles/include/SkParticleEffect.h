@@ -9,34 +9,72 @@
 #define SkParticleEffect_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
-#include "modules/particles/include/SkCurve.h"
-#include "src/core/SkAutoMalloc.h"
+#include "modules/particles/include/SkParticleData.h"
+#include "modules/particles/include/SkReflected.h"
+
+#include <memory>
 
 class SkCanvas;
-class SkFieldVisitor;
-class SkParticleAffector;
 class SkParticleDrawable;
-struct SkParticleState;
+class SkParticleExternalValue;
+
+namespace SkSL {
+    struct ByteCode;
+    class Compiler;
+}
+
+class SkParticleBinding : public SkReflected {
+public:
+    SkParticleBinding(const char* name = "name") : fName(name) {}
+
+    REFLECTED_ABSTRACT(SkParticleBinding, SkReflected)
+
+    void visitFields(SkFieldVisitor* v) override;
+    virtual std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler&) = 0;
+
+    static void RegisterBindingTypes();
+
+protected:
+    SkString fName;
+};
 
 class SkParticleEffectParams : public SkRefCnt {
 public:
-    int       fMaxCount = 128;
-    float     fEffectDuration = 1.0f;
-    float     fRate = 8.0f;
-    SkCurve   fLifetime = 1.0f;
+    SkParticleEffectParams();
+
+    int       fMaxCount;
+    float     fEffectDuration;
+    float     fRate;
 
     // Drawable (image, sprite sheet, etc.)
     sk_sp<SkParticleDrawable> fDrawable;
 
-    // Rules that configure particles at spawn time
-    SkTArray<sk_sp<SkParticleAffector>> fSpawnAffectors;
+    // Code to configure particles at spawn time
+    SkString fSpawnCode;
 
-    // Rules that update existing particles over their lifetime
-    SkTArray<sk_sp<SkParticleAffector>> fUpdateAffectors;
+    // Code to update existing particles over their lifetime
+    SkString fUpdateCode;
+
+    SkTArray<sk_sp<SkParticleBinding>> fBindings;
 
     void visitFields(SkFieldVisitor* v);
+
+private:
+    friend class SkParticleEffect;
+
+    // Cached
+    struct Program {
+        std::unique_ptr<SkSL::ByteCode> fByteCode;
+        SkTArray<std::unique_ptr<SkParticleExternalValue>> fExternalValues;
+    };
+    Program fSpawnProgram;
+    Program fUpdateProgram;
+
+    void rebuild();
 };
 
 class SkParticleEffect : public SkRefCnt {
@@ -64,8 +102,8 @@ private:
     double fLastTime;
     float  fSpawnRemainder;
 
-    SkAutoTMalloc<SkParticleState> fParticles;
-    SkAutoTMalloc<SkRandom>        fStableRandoms;
+    SkParticles             fParticles;
+    SkAutoTMalloc<SkRandom> fStableRandoms;
 
     // Cached
     int fCapacity;
