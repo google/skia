@@ -758,38 +758,25 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         if (!deserializer.read<uint64_t>(&glyphImagesCount)) READ_FAILURE
         for (size_t j = 0; j < glyphImagesCount; j++) {
             SkTLazy<SkGlyph> glyph;
-            if (!SkStrikeClient::ReadGlyph(glyph, &deserializer)) READ_FAILURE
+            if (!ReadGlyph(glyph, &deserializer)) READ_FAILURE
 
-            SkGlyph* allocatedGlyph = strike->uninitializedGlyph(glyph->getPackedID());
-
-            // Update the glyph unless it's already got an image (from fallback),
-            // preserving any path that might be present.
-            if (allocatedGlyph->fImage == nullptr) {
-                auto* glyphPath = allocatedGlyph->fPathData;
-                *allocatedGlyph = *glyph;
-                allocatedGlyph->fPathData = glyphPath;
+            if (!glyph->isEmpty()) {
+                const volatile void* image =
+                        deserializer.read(glyph->imageSize(), glyph->formatAlignment());
+                if (!image) READ_FAILURE
+                glyph->fImage = (void*)image;
             }
 
-            auto imageSize = glyph->imageSize();
-            if (imageSize == 0u) continue;
-
-            const volatile void* image = deserializer.read(imageSize, glyph->formatAlignment());
-            if (!image) READ_FAILURE
-
-            // Don't overwrite the image if we already have one. We could have used a fallback if
-            // the glyph was missing earlier.
-            if (allocatedGlyph->fImage == nullptr) {
-                strike->initializeImage((void *)image, imageSize, allocatedGlyph);
-            }
+            strike->mergeGlyphAndImage(glyph->getPackedID(), *glyph);
         }
 
         uint64_t glyphPathsCount = 0u;
         if (!deserializer.read<uint64_t>(&glyphPathsCount)) READ_FAILURE
         for (size_t j = 0; j < glyphPathsCount; j++) {
             SkTLazy<SkGlyph> glyph;
-            if (!SkStrikeClient::ReadGlyph(glyph, &deserializer)) READ_FAILURE
+            if (!ReadGlyph(glyph, &deserializer)) READ_FAILURE
 
-            SkGlyph* allocatedGlyph = strike->uninitializedGlyph(glyph->getPackedID());
+            SkGlyph* allocatedGlyph = strike->mergeGlyphAndImage(glyph->getPackedID(), *glyph);
 
             SkPath* pathPtr = nullptr;
             SkPath path;
