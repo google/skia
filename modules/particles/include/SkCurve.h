@@ -9,7 +9,6 @@
 #define SkCurve_DEFINED
 
 #include "include/core/SkColor.h"
-#include "include/core/SkScalar.h"
 #include "include/private/SkTArray.h"
 #include "modules/particles/include/SkParticleData.h"
 
@@ -50,17 +49,17 @@ enum SkCurveSegmentType {
 };
 
 struct SkCurveSegment {
-    SkScalar eval(SkScalar x, SkScalar t, bool negate) const;
+    float eval(float x, float t, bool negate) const;
     void visitFields(SkFieldVisitor* v);
 
-    void setConstant(SkScalar c) {
+    void setConstant(float c) {
         fType   = kConstant_SegmentType;
         fRanged = false;
         fMin[0] = c;
     }
 
-    SkScalar fMin[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    SkScalar fMax[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    float fMin[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    float fMax[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     int  fType          = kConstant_SegmentType;
     bool fRanged        = false;
@@ -68,18 +67,18 @@ struct SkCurveSegment {
 };
 
 struct SkCurve {
-    SkCurve(SkScalar c = 0.0f) {
+    SkCurve(float c = 0.0f) {
         fSegments.push_back().setConstant(c);
     }
 
-    SkScalar eval(const SkParticleUpdateParams& params, SkParticleState& ps) const;
+    float eval(const SkParticleUpdateParams& params, SkParticleState& ps) const;
     void visitFields(SkFieldVisitor* v);
 
     // Parameters that determine our x-value during evaluation
     SkParticleValue                fInput;
 
     // It should always be true that (fXValues.count() + 1) == fSegments.count()
-    SkTArray<SkScalar, true>       fXValues;
+    SkTArray<float, true>          fXValues;
     SkTArray<SkCurveSegment, true> fSegments;
 };
 
@@ -97,7 +96,7 @@ struct SkColorCurveSegment {
         }
     }
 
-    SkColor4f eval(SkScalar x, SkScalar t) const;
+    SkColor4f eval(float x, float t) const;
     void visitFields(SkFieldVisitor* v);
 
     void setConstant(SkColor4f c) {
@@ -122,7 +121,7 @@ struct SkColorCurve {
     void visitFields(SkFieldVisitor* v);
 
     SkParticleValue                     fInput;
-    SkTArray<SkScalar, true>            fXValues;
+    SkTArray<float, true>               fXValues;
     SkTArray<SkColorCurveSegment, true> fSegments;
 };
 
