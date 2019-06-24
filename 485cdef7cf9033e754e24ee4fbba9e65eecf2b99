@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "073ffcb6_a07f0ad8",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-24T20:27:38Z",
+      "side": 1,
+      "message": "Expand this out to const volatile void*?",
+      "range": {
+        "startLine": 764,
+        "startChar": 16,
+        "endLine": 764,
+        "endChar": 20
+      },
+      "revId": "485cdef7cf9033e754e24ee4fbba9e65eecf2b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
