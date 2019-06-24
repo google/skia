@@ -18,9 +18,8 @@ import uuid
 
 
 GCLIENT = 'gclient.bat' if sys.platform == 'win32' else 'gclient'
-GIT = 'git.bat' if sys.platform == 'win32' else 'git'
 WHICH = 'where' if sys.platform == 'win32' else 'which'
-
+GIT = subprocess.check_output([WHICH, 'git']).splitlines()[0]
 
 class print_timings(object):
   def __init__(self):
