@@ -919,7 +919,11 @@ def test_steps(api):
 
     args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
     if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
-      args.extend(['--lotties', api.flavor.device_dirs.lotties_dir])
+      args.extend([
+        '--lotties',
+        api.flavor.device_path_join(
+            api.flavor.device_dirs.resource_dir, 'skottie'),
+        api.flavor.device_dirs.lotties_dir])
 
   args.append('--key')
   keys = key_params(api)
