@@ -81,6 +81,10 @@ bool GrVkAMDMemoryAllocator::allocateMemoryForImage(VkImage image, AllocationPro
         info.preferredFlags |= VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
     }
 
+    if (AllocationPropertyFlags::kProtected & flags) {
+        info.requiredFlags |= VK_MEMORY_PROPERTY_PROTECTED_BIT;
+    }
+
     VmaAllocation allocation;
     VkResult result = vmaAllocateMemoryForImage(fAllocator, image, &info, &allocation, nullptr);
     if (VK_SUCCESS != result) {

@@ -49,7 +49,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
     GrBackendTexture backendTex = context->createBackendTexture(
-            1, 1, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo);
+            1, 1, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     GrGLTextureInfo info;

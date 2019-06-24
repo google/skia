@@ -156,6 +156,7 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(
                                   VK_IMAGE_USAGE_TRANSFER_DST_BIT |
                                   VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
         msImageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+        msImageDesc.fIsProtected = desc.fIsProtected;
 
         if (!GrVkImage::InitImageInfo(gpu, msImageDesc, &msInfo)) {
             return nullptr;
@@ -377,7 +378,8 @@ void GrVkRenderTarget::onAbandon() {
 GrBackendRenderTarget GrVkRenderTarget::getBackendRenderTarget() const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
     return GrBackendRenderTarget(this->width(), this->height(), this->numSamples(),
-                                 fInfo, this->grVkImageLayout());
+                                 this->isProtected() ? GrProtected::kYes : GrProtected::kNo, fInfo,
+                                 this->grVkImageLayout());
 }
 
 const GrVkResource* GrVkRenderTarget::stencilImageResource() const {

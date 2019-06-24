@@ -180,8 +180,14 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    const GrVkImageInfo& vkInfo)
+        : GrBackendTexture(width, height, GrProtected::kNo, vkInfo) {}
+
+GrBackendTexture::GrBackendTexture(int width,
+                                   int height,
+                                   GrProtected isProtected,
+                                   const GrVkImageInfo& vkInfo)
 #ifdef SK_VULKAN
-        : GrBackendTexture(width, height, vkInfo,
+        : GrBackendTexture(width, height, isProtected, vkInfo,
                            sk_sp<GrVkImageLayout>(new GrVkImageLayout(vkInfo.fImageLayout))) {}
 #else
         : fIsValid(false) {}
@@ -212,16 +218,17 @@ sk_sp<GrGLTextureParameters> GrBackendTexture::getGLTextureParams() const {
 #ifdef SK_VULKAN
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
+                                   GrProtected isProtected,
                                    const GrVkImageInfo& vkInfo,
                                    sk_sp<GrVkImageLayout> layout)
         : fIsValid(true)
+        , fIsProtected(isProtected)
         , fWidth(width)
         , fHeight(height)
         , fConfig(kUnknown_GrPixelConfig)
         , fMipMapped(GrMipMapped(vkInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kVulkan)
-        , fVkInfo(vkInfo, layout.release()) {
-}
+        , fVkInfo(vkInfo, layout.release()) {}
 #endif
 
 #ifdef SK_METAL
@@ -290,6 +297,7 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
         fIsValid = false;
     }
     fWidth = that.fWidth;
+    fIsProtected = that.fIsProtected;
     fHeight = that.fHeight;
     fConfig = that.fConfig;
     fMipMapped = that.fMipMapped;
@@ -494,7 +502,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int sampleCnt,
                                              int stencilBits,
                                              const GrVkImageInfo& vkInfo)
-        : GrBackendRenderTarget(width, height, sampleCnt, vkInfo) {
+        : GrBackendRenderTarget(width, height, sampleCnt, GrProtected::kNo, vkInfo) {
     // This is a deprecated constructor that takes a bogus stencil bits.
     SkASSERT(0 == stencilBits);
 }
@@ -504,7 +512,18 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int sampleCnt,
                                              const GrVkImageInfo& vkInfo)
 #ifdef SK_VULKAN
-        : GrBackendRenderTarget(width, height, sampleCnt, vkInfo,
+        : GrBackendRenderTarget(width, height, sampleCnt, false, vkInfo) {}
+#else
+        : fIsValid(false) {}
+#endif
+
+GrBackendRenderTarget::GrBackendRenderTarget(int width,
+                                             int height,
+                                             int sampleCnt,
+                                             GrProtected isProtected,
+                                             const GrVkImageInfo& vkInfo)
+#ifdef SK_VULKAN
+        : GrBackendRenderTarget(width, height, sampleCnt, isProtected, vkInfo,
                                 sk_sp<GrVkImageLayout>(new GrVkImageLayout(vkInfo.fImageLayout))) {}
 #else
         : fIsValid(false) {}
@@ -514,9 +533,11 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
+                                             GrProtected isProtected,
                                              const GrVkImageInfo& vkInfo,
                                              sk_sp<GrVkImageLayout> layout)
         : fIsValid(true)
+        , fIsProtected(isProtected)
         , fWidth(width)
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
@@ -596,6 +617,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     }
     fWidth = that.fWidth;
     fHeight = that.fHeight;
+    fIsProtected = that.fIsProtected;
     fSampleCnt = that.fSampleCnt;
     fStencilBits = that.fStencilBits;
     fConfig = that.fConfig;

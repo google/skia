@@ -68,6 +68,9 @@ struct SK_API GrVkBackendContext {
     // This is deprecated and should be set to false. The client is responsible for managing the
     // lifetime of the VkInstance and VkDevice objects.
     bool                             fOwnsInstanceAndDevice = false;
+    // Indicates that we are working with protected content and all CommandPool and Queue operations
+    // should be done in a protected context.
+    GrProtected                      fProtectedContext = GrProtected::kNo;
 };
 
 #endif

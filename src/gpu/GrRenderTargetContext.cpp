@@ -2701,6 +2701,8 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
         desc.fConfig = rtProxy->config();
     }
 
+    desc.fIsProtected = rtProxy->isProtected() ? GrProtected::kYes : GrProtected::kNo;
+
     if (!disallowSubrect) {
         copyRect = clippedRect;
     }

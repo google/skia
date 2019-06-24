@@ -12,17 +12,24 @@
 #include "src/gpu/vk/GrVkGpu.h"
 
 GrVkCommandPool* GrVkCommandPool::Create(const GrVkGpu* gpu) {
-    const VkCommandPoolCreateInfo cmdPoolInfo = {
-        VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,      // sType
-        nullptr,                                         // pNext
-        VK_COMMAND_POOL_CREATE_TRANSIENT_BIT |
-        VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // CmdPoolCreateFlags
-        gpu->queueIndex(),                              // queueFamilyIndex
-    };
-    VkCommandPool pool;
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateCommandPool(gpu->device(), &cmdPoolInfo,
-                                                               nullptr, &pool));
-    return new GrVkCommandPool(gpu, pool);
+  VkCommandPoolCreateFlags cmdPoolCreateFlags =
+      VK_COMMAND_POOL_CREATE_TRANSIENT_BIT |
+      VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+  if (gpu->protectedContext()) {
+      cmdPoolCreateFlags |= VK_COMMAND_POOL_CREATE_PROTECTED_BIT;
+  }
+
+  const VkCommandPoolCreateInfo cmdPoolInfo = {
+      VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,  // sType
+      nullptr,                                     // pNext
+      cmdPoolCreateFlags,                          // CmdPoolCreateFlags
+      gpu->queueIndex(),                           // queueFamilyIndex
+  };
+  VkCommandPool pool;
+  GR_VK_CALL_ERRCHECK(
+      gpu->vkInterface(),
+      CreateCommandPool(gpu->device(), &cmdPoolInfo, nullptr, &pool));
+  return new GrVkCommandPool(gpu, pool);
 }
 
 GrVkCommandPool::GrVkCommandPool(const GrVkGpu* gpu, VkCommandPool commandPool)

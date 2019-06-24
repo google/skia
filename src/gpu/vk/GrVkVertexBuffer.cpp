@@ -18,7 +18,7 @@ GrVkVertexBuffer::GrVkVertexBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
 
 sk_sp<GrVkVertexBuffer> GrVkVertexBuffer::Make(GrVkGpu* gpu, size_t size, bool dynamic) {
     GrVkBuffer::Desc desc;
-    desc.fDynamic = dynamic;
+    desc.fDynamic = gpu->protectedContext() ? true : dynamic;
     desc.fType = GrVkBuffer::kVertex_Type;
     desc.fSizeInBytes = size;
 

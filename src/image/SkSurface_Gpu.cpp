@@ -706,6 +706,7 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
 
     // We currently don't support protected content
     if (isProtectedContent) {
+        SkDebugf("We currently don't support protected content on android\n");
         return nullptr;
     }
 

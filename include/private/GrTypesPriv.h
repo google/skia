@@ -171,12 +171,14 @@ struct GrSurfaceDesc {
             : fFlags(kNone_GrSurfaceFlags)
             , fWidth(0)
             , fHeight(0)
+            , fIsProtected(GrProtected::kNo)
             , fConfig(kUnknown_GrPixelConfig)
             , fSampleCnt(1) {}
 
     GrSurfaceDescFlags     fFlags;  //!< bitfield of TextureFlags
     int                    fWidth;  //!< Width of the texture
     int                    fHeight; //!< Height of the texture
+    GrProtected            fIsProtected;       //!< Surface is protected
 
     /**
      * Format of source data of the texture. Not guaranteed to be the same as

@@ -69,19 +69,13 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
-                                        const GrBackendFormat& format,
-                                        SkBackingFit fit,
-                                        int width, int height,
-                                        GrPixelConfig config,
-                                        sk_sp<SkColorSpace> colorSpace,
-                                        int sampleCnt,
-                                        GrMipMapped mipMapped,
-                                        GrSurfaceOrigin origin,
-                                        const SkSurfaceProps* surfaceProps,
-                                        SkBudgeted budgeted) {
+        const GrBackendFormat& format, SkBackingFit fit, int width, int height,
+        GrPixelConfig config, sk_sp<SkColorSpace> colorSpace, int sampleCnt, GrMipMapped mipMapped,
+        GrSurfaceOrigin origin, const SkSurfaceProps* surfaceProps, SkBudgeted budgeted,
+        GrProtected isProtected) {
     return fContext->makeDeferredRenderTargetContext(format, fit, width, height, config,
                                                      std::move(colorSpace), sampleCnt, mipMapped,
-                                                     origin, surfaceProps, budgeted);
+                                                     origin, surfaceProps, budgeted, isProtected);
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithFallback(
@@ -423,5 +417,5 @@ GrBackendTexture GrContextPriv::createBackendTexture(const SkPixmap srcData[], i
     return gpu->createBackendTexture(baseWidth, baseHeight, backendFormat,
                                      GrMipMapped::kNo, // TODO: use real mipmap setting here
                                      renderable, srcData[0].addr(), srcData[0].rowBytes(),
-                                     nullptr);
+                                     nullptr, GrProtected::kNo);
 }

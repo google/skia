@@ -121,17 +121,19 @@ public:
         VkImageTiling       fImageTiling;
         VkImageUsageFlags   fUsageFlags;
         VkFlags             fMemProps;
+        GrProtected         fIsProtected;
 
         ImageDesc()
-            : fImageType(VK_IMAGE_TYPE_2D)
-            , fFormat(VK_FORMAT_UNDEFINED)
-            , fWidth(0)
-            , fHeight(0)
-            , fLevels(1)
-            , fSamples(1)
-            , fImageTiling(VK_IMAGE_TILING_OPTIMAL)
-            , fUsageFlags(0)
-            , fMemProps(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {}
+                : fImageType(VK_IMAGE_TYPE_2D)
+                , fFormat(VK_FORMAT_UNDEFINED)
+                , fWidth(0)
+                , fHeight(0)
+                , fLevels(1)
+                , fSamples(1)
+                , fImageTiling(VK_IMAGE_TILING_OPTIMAL)
+                , fUsageFlags(0)
+                , fMemProps(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+                , fIsProtected(GrProtected::kNo) {}
     };
 
     static bool InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImageInfo*);

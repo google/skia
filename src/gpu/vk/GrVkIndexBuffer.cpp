@@ -18,7 +18,7 @@ GrVkIndexBuffer::GrVkIndexBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
 
 sk_sp<GrVkIndexBuffer> GrVkIndexBuffer::Make(GrVkGpu* gpu, size_t size, bool dynamic) {
     GrVkBuffer::Desc desc;
-    desc.fDynamic = dynamic;
+    desc.fDynamic = gpu->protectedContext() ? true : dynamic;
     desc.fType = GrVkBuffer::kIndex_Type;
     desc.fSizeInBytes = size;
 
