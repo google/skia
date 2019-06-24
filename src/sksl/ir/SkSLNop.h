@@ -17,8 +17,8 @@ namespace SkSL {
  * A no-op statement that does nothing.
  */
 struct Nop : public Statement {
-    Nop()
-    : INHERITED(-1, kNop_Kind) {}
+    Nop(IRGenerator* irGenerator)
+    : INHERITED(irGenerator, -1, kNop_Kind) {}
 
     virtual bool isEmpty() const override {
         return true;
@@ -28,8 +28,8 @@ struct Nop : public Statement {
         return String(";");
     }
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new Nop());
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new Nop(fIRGenerator));
     }
 
     typedef Statement INHERITED;

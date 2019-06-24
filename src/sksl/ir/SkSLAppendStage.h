@@ -23,7 +23,7 @@ struct AppendStage : public Expression {
     , fStage(stage)
     , fArguments(std::move(arguments)) {}
 
-    std::unique_ptr<Expression> clone() const override {
+    IRNode::ID clone() const override {
         std::vector<std::unique_ptr<Expression>> cloned;
         for (const auto& arg : fArguments) {
             cloned.push_back(arg->clone());

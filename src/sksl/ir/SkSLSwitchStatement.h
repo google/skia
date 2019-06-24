@@ -17,22 +17,18 @@ namespace SkSL {
  * A 'switch' statement.
  */
 struct SwitchStatement : public Statement {
-    SwitchStatement(int offset, bool isStatic, std::unique_ptr<Expression> value,
-                    std::vector<std::unique_ptr<SwitchCase>> cases,
+    SwitchStatement(IRGenerator* irGenerator, int offset, bool isStatic,
+                    IRNode::ID value, std::vector<IRNode::ID> cases,
                     const std::shared_ptr<SymbolTable> symbols)
-    : INHERITED(offset, kSwitch_Kind)
+    : INHERITED(irGenerator, offset, kSwitch_Kind)
     , fIsStatic(isStatic)
-    , fValue(std::move(value))
+    , fValue(value)
     , fSymbols(std::move(symbols))
     , fCases(std::move(cases)) {}
 
-    std::unique_ptr<Statement> clone() const override {
-        std::vector<std::unique_ptr<SwitchCase>> cloned;
-        for (const auto& s : fCases) {
-            cloned.push_back(std::unique_ptr<SwitchCase>((SwitchCase*) s->clone().release()));
-        }
-        return std::unique_ptr<Statement>(new SwitchStatement(fOffset, fIsStatic, fValue->clone(),
-                                                              std::move(cloned), fSymbols));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new SwitchStatement(fIRGenerator, fOffset, fIsStatic,
+                                                            fValue, fCases, fSymbols));
     }
 
     String description() const override {
@@ -40,20 +36,20 @@ struct SwitchStatement : public Statement {
         if (fIsStatic) {
             result += "@";
         }
-        result += String::printf("switch (%s) {\n", fValue->description().c_str());
+        result += String::printf("switch (%s) {\n", fValue.node().description().c_str());
         for (const auto& c : fCases) {
-            result += c->description();
+            result += c.node().description();
         }
         result += "}";
         return result;
     }
 
     bool fIsStatic;
-    std::unique_ptr<Expression> fValue;
+    IRNode::ID fValue;
     // it's important to keep fCases defined after (and thus destroyed before) fSymbols, because
     // destroying statements can modify reference counts in symbols
     const std::shared_ptr<SymbolTable> fSymbols;
-    std::vector<std::unique_ptr<SwitchCase>> fCases;
+    std::vector<IRNode::ID> fCases;
 
     typedef Statement INHERITED;
 };

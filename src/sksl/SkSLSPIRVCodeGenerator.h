@@ -101,7 +101,7 @@ public:
         virtual void store(SpvId value, OutputStream& out) = 0;
     };
 
-    SPIRVCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
+    SPIRVCodeGenerator(IRGenerator* irGenerator, const Program* program, ErrorReporter* errors,
                        OutputStream* out)
     : INHERITED(program, errors, out)
     , fContext(*context)
@@ -112,7 +112,7 @@ public:
     , fBoolFalse(0)
     , fSetupFragPosition(false)
     , fCurrentBlock(0)
-    , fSynthetics(nullptr, errors) {
+    , fSynthetics(nullptr, irGenerator) {
         this->setupIntrinsics();
     }
 

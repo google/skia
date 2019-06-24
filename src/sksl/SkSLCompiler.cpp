@@ -75,8 +75,8 @@ Compiler::Compiler(Flags flags)
     auto symbols = std::shared_ptr<SymbolTable>(new SymbolTable(types, this));
     fIRGenerator = new IRGenerator(fContext.get(), symbols, *this);
     fTypes = types;
-    #define ADD_TYPE(t) types->addWithoutOwnership(fContext->f ## t ## _Type->fName, \
-                                                   fContext->f ## t ## _Type.get())
+    #define ADD_TYPE(t) types->addWithoutOwnership(fContext->f ## t ## _Type.typeNode().fName, \
+                                                   fContext->f ## t ## _Type)
     ADD_TYPE(Void);
     ADD_TYPE(Float);
     ADD_TYPE(Float2);
@@ -213,12 +213,12 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(SkRasterPipeline);
 
     StringFragment skCapsName("sk_Caps");
-    Variable* skCaps = new Variable(-1, Modifiers(), skCapsName,
+    Variable* skCaps = new Variable(fIRGenerator, -1, Modifiers(), skCapsName,
                                     *fContext->fSkCaps_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skCapsName, std::unique_ptr<Symbol>(skCaps));
 
     StringFragment skArgsName("sk_Args");
-    Variable* skArgs = new Variable(-1, Modifiers(), skArgsName,
+    Variable* skArgs = new Variable(fIRGenerator, -1, Modifiers(), skArgsName,
                                     *fContext->fSkArgs_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
 
@@ -932,13 +932,15 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
 // nested loops and switches, since any breaks inside of them will merely break the loop / switch)
 static bool contains_conditional_break(Statement& s, bool inConditional) {
     switch (s.fKind) {
-        case Statement::kBlock_Kind:
-            for (const auto& sub : ((Block&) s).fStatements) {
-                if (contains_conditional_break(*sub, inConditional)) {
+        case Statement::kBlock_Kind: {
+            Block& b = (Block&) s;
+            for (const auto& sub : b.fStatements) {
+                if (contains_conditional_break(b.getNode(sub), inConditional)) {
                     return true;
                 }
             }
             return false;
+        }
         case Statement::kBreak_Kind:
             return inConditional;
         case Statement::kIf_Kind: {
@@ -1080,7 +1082,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         continue;
                     }
                     SkASSERT(c->fValue->fKind == s.fValue->fKind);
-                    found = c->fValue->compareConstant(*fContext, *s.fValue);
+                    found = c->fValue->compareConstant(*s.fValue);
                     if (found) {
                         std::unique_ptr<Statement> newBlock = block_for_case(&s, c.get());
                         if (newBlock) {

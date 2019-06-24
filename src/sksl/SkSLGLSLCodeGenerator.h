@@ -179,7 +179,7 @@ protected:
 
     void writeStatement(const Statement& s);
 
-    void writeStatements(const std::vector<std::unique_ptr<Statement>>& statements);
+    void writeStatements(const std::vector<IRNode::ID>& statements);
 
     void writeBlock(const Block& b);
 

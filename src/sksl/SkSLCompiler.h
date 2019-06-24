@@ -153,39 +153,39 @@ private:
                             std::shared_ptr<SymbolTable> base,
                             std::vector<std::unique_ptr<ProgramElement>>* outElements,
                             std::shared_ptr<SymbolTable>* outSymbolTable);
-
-    void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
-                       DefinitionMap* definitions);
-
-    void addDefinitions(const BasicBlock::Node& node, DefinitionMap* definitions);
-
-    void scanCFG(CFG* cfg, BlockId block, std::set<BlockId>* workList);
-
-    void computeDataFlow(CFG* cfg);
-
-    /**
-     * Simplifies the expression pointed to by iter (in both the IR and CFG structures), if
-     * possible.
-     */
-    void simplifyExpression(DefinitionMap& definitions,
-                            BasicBlock& b,
-                            std::vector<BasicBlock::Node>::iterator* iter,
-                            std::unordered_set<const Variable*>* undefinedVariables,
-                            bool* outUpdated,
-                            bool* outNeedsRescan);
-
-    /**
-     * Simplifies the statement pointed to by iter (in both the IR and CFG structures), if
-     * possible.
-     */
-    void simplifyStatement(DefinitionMap& definitions,
-                           BasicBlock& b,
-                           std::vector<BasicBlock::Node>::iterator* iter,
-                           std::unordered_set<const Variable*>* undefinedVariables,
-                           bool* outUpdated,
-                           bool* outNeedsRescan);
-
-    void scanCFG(FunctionDefinition& f);
+//
+//    void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
+//                       DefinitionMap* definitions);
+//
+//    void addDefinitions(const BasicBlock::Node& node, DefinitionMap* definitions);
+//
+//    void scanCFG(CFG* cfg, BlockId block, std::set<BlockId>* workList);
+//
+//    void computeDataFlow(CFG* cfg);
+//
+//    /**
+//     * Simplifies the expression pointed to by iter (in both the IR and CFG structures), if
+//     * possible.
+//     */
+//    void simplifyExpression(DefinitionMap& definitions,
+//                            BasicBlock& b,
+//                            std::vector<BasicBlock::Node>::iterator* iter,
+//                            std::unordered_set<const Variable*>* undefinedVariables,
+//                            bool* outUpdated,
+//                            bool* outNeedsRescan);
+//
+//    /**
+//     * Simplifies the statement pointed to by iter (in both the IR and CFG structures), if
+//     * possible.
+//     */
+//    void simplifyStatement(DefinitionMap& definitions,
+//                           BasicBlock& b,
+//                           std::vector<BasicBlock::Node>::iterator* iter,
+//                           std::unordered_set<const Variable*>* undefinedVariables,
+//                           bool* outUpdated,
+//                           bool* outNeedsRescan);
+//
+//    void scanCFG(FunctionDefinition& f);
 
     Position position(int offset);
 

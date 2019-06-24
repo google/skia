@@ -8,16 +8,15 @@
 #ifndef SKSL_PROGRAM
 #define SKSL_PROGRAM
 
-#include <vector>
 #include <memory>
+#include <unordered_map>
+#include <vector>
 
-#include "src/sksl/ir/SkSLBoolLiteral.h"
-#include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLFloatLiteral.h"
-#include "src/sksl/ir/SkSLIntLiteral.h"
-#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
+
+struct Expression;
+class SymbolTable;
 
 // name of the render target width uniform
 #define SKSL_RTWIDTH_NAME "u_skRTWidth"
@@ -51,25 +50,7 @@ struct Program {
             : fKind(kFloat_Kind)
             , fValue(f) {}
 
-            std::unique_ptr<Expression> literal(const Context& context, int offset) const {
-                switch (fKind) {
-                    case Program::Settings::Value::kBool_Kind:
-                        return std::unique_ptr<Expression>(new BoolLiteral(context,
-                                                                           offset,
-                                                                           fValue));
-                    case Program::Settings::Value::kInt_Kind:
-                        return std::unique_ptr<Expression>(new IntLiteral(context,
-                                                                          offset,
-                                                                          fValue));
-                    case Program::Settings::Value::kFloat_Kind:
-                        return std::unique_ptr<Expression>(new FloatLiteral(context,
-                                                                          offset,
-                                                                          fValue));
-                    default:
-                        SkASSERT(false);
-                        return nullptr;
-                }
-            }
+            IRNode::ID literal(const Context& context, int offset) const;
 
             enum {
                 kBool_Kind,
@@ -124,11 +105,11 @@ struct Program {
 
     class iterator {
     public:
-        ProgramElement& operator*() {
+        IRNode::ID operator*() {
             if (fIter1 != fEnd1) {
-                return **fIter1;
+                return *fIter1;
             }
-            return **fIter2;
+            return *fIter2;
         }
 
         iterator& operator++() {
@@ -149,7 +130,7 @@ struct Program {
         }
 
     private:
-        using inner = std::vector<std::unique_ptr<ProgramElement>>::iterator;
+        using inner = std::vector<IRNode::ID>::iterator;
 
         iterator(inner begin1, inner end1, inner begin2, inner end2)
         : fIter1(begin1)
@@ -167,11 +148,11 @@ struct Program {
 
     class const_iterator {
     public:
-        const ProgramElement& operator*() {
+        const IRNode::ID operator*() {
             if (fIter1 != fEnd1) {
-                return **fIter1;
+                return *fIter1;
             }
-            return **fIter2;
+            return *fIter2;
         }
 
         const_iterator& operator++() {
@@ -192,7 +173,7 @@ struct Program {
         }
 
     private:
-        using inner = std::vector<std::unique_ptr<ProgramElement>>::const_iterator;
+        using inner = std::vector<IRNode::ID>::const_iterator;
 
         const_iterator(inner begin1, inner end1, inner begin2, inner end2)
         : fIter1(begin1)
@@ -221,8 +202,8 @@ struct Program {
             std::unique_ptr<String> source,
             Settings settings,
             std::shared_ptr<Context> context,
-            std::vector<std::unique_ptr<ProgramElement>>* inheritedElements,
-            std::vector<std::unique_ptr<ProgramElement>> elements,
+            std::vector<IRNode::ID>* inheritedElements,
+            std::vector<IRNode::ID> elements,
             std::shared_ptr<SymbolTable> symbols,
             Inputs inputs)
     : fKind(kind)
@@ -266,6 +247,13 @@ struct Program {
         return const_iterator(fElements.end(), fElements.end(), fElements.end(), fElements.end());
     }
 
+    const IRNode& getNode(IRNode::ID id) const {
+        if (id.fNode) {
+            return *id.fNode;
+        }
+        return fNodes[id.fValue];
+    }
+
     Kind fKind;
     std::unique_ptr<String> fSource;
     Settings fSettings;
@@ -277,8 +265,10 @@ struct Program {
     bool fIsOptimized = false;
 
 private:
-    std::vector<std::unique_ptr<ProgramElement>>* fInheritedElements;
-    std::vector<std::unique_ptr<ProgramElement>> fElements;
+    std::vector<IRNode::ID>* fInheritedElements;
+    std::vector<IRNode::ID> fElements;
+    std::vector<IRNode> fNodes;
+    IRNode::ID fRoot;
 
     friend class Compiler;
 };

@@ -22,6 +22,7 @@
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLExternalFunctionCall.h"
 #include "src/sksl/ir/SkSLExternalValueReference.h"
 #include "src/sksl/ir/SkSLField.h"
@@ -37,15 +38,18 @@
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLLayout.h"
+#include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLNullLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLSection.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/ir/SkSLTypeReference.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
@@ -58,8 +62,8 @@ namespace SkSL {
 class AutoSymbolTable {
 public:
     AutoSymbolTable(IRGenerator* ir)
-    : fIR(ir)
-    , fPrevious(fIR->fSymbolTable) {
+        : fIR(ir)
+        , fPrevious(fIR->fSymbolTable) {
         fIR->pushSymbolTable();
     }
 
@@ -75,7 +79,7 @@ public:
 class AutoLoopLevel {
 public:
     AutoLoopLevel(IRGenerator* ir)
-    : fIR(ir) {
+        : fIR(ir) {
         fIR->fLoopLevel++;
     }
 
@@ -89,7 +93,7 @@ public:
 class AutoSwitchLevel {
 public:
     AutoSwitchLevel(IRGenerator* ir)
-    : fIR(ir) {
+        : fIR(ir) {
         fIR->fSwitchLevel++;
     }
 
@@ -100,19 +104,15 @@ public:
     IRGenerator* fIR;
 };
 
-IRGenerator::IRGenerator(const Context* context, std::shared_ptr<SymbolTable> symbolTable,
-                         ErrorReporter& errorReporter)
-: fContext(*context)
-, fCurrentFunction(nullptr)
-, fRootSymbolTable(symbolTable)
-, fSymbolTable(symbolTable)
-, fLoopLevel(0)
-, fSwitchLevel(0)
-, fTmpCount(0)
-, fErrors(errorReporter) {}
+IRGenerator::IRGenerator(ErrorReporter& errorReporter)
+    : fErrors(errorReporter)
+    , fCurrentFunction(nullptr)
+    , fLoopLevel(0)
+    , fSwitchLevel(0)
+    , fTmpCount(0) {}
 
 void IRGenerator::pushSymbolTable() {
-    fSymbolTable.reset(new SymbolTable(std::move(fSymbolTable), &fErrors));
+    fSymbolTable.reset(new SymbolTable(std::move(fSymbolTable), this));
 }
 
 void IRGenerator::popSymbolTable() {
@@ -141,7 +141,7 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
 }
 
 void IRGenerator::start(const Program::Settings* settings,
-                        std::vector<std::unique_ptr<ProgramElement>>* inherited) {
+                        std::vector<IRNode::ID>* inherited) {
     if (fStarted) {
         this->popSymbolTable();
     }
@@ -160,20 +160,25 @@ void IRGenerator::start(const Program::Settings* settings,
     fRTAdjust = nullptr;
     fRTAdjustInterfaceBlock = nullptr;
     if (inherited) {
-        for (const auto& e : *inherited) {
-            if (e->fKind == ProgramElement::kInterfaceBlock_Kind) {
-                InterfaceBlock& intf = (InterfaceBlock&) *e;
-                if (intf.fVariable.fName == Compiler::PERVERTEX_NAME) {
+        for (IRNode::ID e : *inherited) {
+            if (((ProgramElement&) e.node()).fKind == ProgramElement::kInterfaceBlock_Kind) {
+                InterfaceBlock& intf = (InterfaceBlock&) e.node();
+                if (((Variable&) intf.fVariable.node()).fName == Compiler::PERVERTEX_NAME) {
                     SkASSERT(!fSkPerVertex);
-                    fSkPerVertex = &intf.fVariable;
+                    fSkPerVertex = intf.fVariable;
                 }
             }
         }
     }
 }
 
-std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragment name) {
-    return std::unique_ptr<Extension>(new Extension(offset, name));
+IRNode::ID IRGenerator::createNode(IRNode* node) {
+    fNodes->emplace_back(node);
+    return IRNode::ID(node);
+}
+
+IRNode::ID IRGenerator::convertExtension(int offset, StringFragment name) {
+    return this->createNode(new Extension(offset, name));
 }
 
 void IRGenerator::finish() {
@@ -181,7 +186,7 @@ void IRGenerator::finish() {
     fSettings = nullptr;
 }
 
-std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statement) {
+IRNode::ID IRGenerator::convertStatement(const ASTNode& statement) {
     switch (statement.fKind) {
         case ASTNode::Kind::kBlock:
             return this->convertBlock(statement);
@@ -207,19 +212,20 @@ std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statemen
             return this->convertDiscard(statement);
         default:
             // it's an expression
-            std::unique_ptr<Statement> result = this->convertExpressionStatement(statement);
+            IRNode::ID result = this->convertExpressionStatement(statement);
             if (fRTAdjust && Program::kGeometry_Kind == fKind) {
-                SkASSERT(result->fKind == Statement::kExpression_Kind);
-                Expression& expr = *((ExpressionStatement&) *result).fExpression;
+                SkASSERT(result.statementNode().fKind == Statement::kExpression_Kind);
+                Expression& expr =
+                                ((ExpressionStatement&) result.node()).fExpression.expressionNode();
                 if (expr.fKind == Expression::kFunctionCall_Kind) {
                     FunctionCall& fc = (FunctionCall&) expr;
-                    if (fc.fFunction.fBuiltin && fc.fFunction.fName == "EmitVertex") {
-                        std::vector<std::unique_ptr<Statement>> statements;
+                    FunctionDeclaration& f = (FunctionDeclaration&) fc.fFunction.node();
+                    if (f.fBuiltin && f.fName == "EmitVertex") {
+                        std::vector<IRNode::ID> statements;
                         statements.push_back(getNormalizeSkPositionCode());
-                        statements.push_back(std::move(result));
-                        return std::unique_ptr<Block>(new Block(statement.fOffset,
-                                                                std::move(statements),
-                                                                fSymbolTable));
+                        statements.push_back(result);
+                        return this->createNode(new Block(this, statement.fOffset,
+                                                          std::move(statements), fSymbolTable));
                     }
                 }
             }
@@ -227,43 +233,41 @@ std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statemen
     }
 }
 
-std::unique_ptr<Block> IRGenerator::convertBlock(const ASTNode& block) {
+IRNode::ID IRGenerator::convertBlock(const ASTNode& block) {
     SkASSERT(block.fKind == ASTNode::Kind::kBlock);
     AutoSymbolTable table(this);
-    std::vector<std::unique_ptr<Statement>> statements;
+    std::vector<IRNode::ID> statements;
     for (const auto& child : block) {
-        std::unique_ptr<Statement> statement = this->convertStatement(child);
+        IRNode::ID statement = this->convertStatement(child);
         if (!statement) {
             return nullptr;
         }
-        statements.push_back(std::move(statement));
+        statements.push_back(statement);
     }
-    return std::unique_ptr<Block>(new Block(block.fOffset, std::move(statements), fSymbolTable));
+    return this->createNode(new Block(this, block.fOffset, std::move(statements), fSymbolTable));
 }
 
-std::unique_ptr<Statement> IRGenerator::convertVarDeclarationStatement(const ASTNode& s) {
+IRNode::ID IRGenerator::convertVarDeclarationStatement(const ASTNode& s) {
     SkASSERT(s.fKind == ASTNode::Kind::kVarDeclarations);
     auto decl = this->convertVarDeclarations(s, Variable::kLocal_Storage);
     if (!decl) {
         return nullptr;
     }
-    return std::unique_ptr<Statement>(new VarDeclarationsStatement(std::move(decl)));
+    return this->createNode(new VarDeclarationsStatement(this, decl));
 }
 
-std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNode& decls,
-                                                                     Variable::Storage storage) {
+IRNode::ID IRGenerator::convertVarDeclarations(const ASTNode& decls, Variable::Storage storage) {
     SkASSERT(decls.fKind == ASTNode::Kind::kVarDeclarations);
     auto iter = decls.begin();
     const Modifiers& modifiers = iter++->getModifiers();
     const ASTNode& rawType = *(iter++);
-    std::vector<std::unique_ptr<VarDeclaration>> variables;
-    const Type* baseType = this->convertType(rawType);
+    std::vector<IRNode::ID> variables;
+    IRNode::ID baseType = this->convertType(rawType);
     if (!baseType) {
         return nullptr;
     }
-    if (fKind != Program::kFragmentProcessor_Kind &&
-        (modifiers.fFlags & Modifiers::kIn_Flag) &&
-        baseType->kind() == Type::Kind::kMatrix_Kind) {
+    if (fKind != Program::kFragmentProcessor_Kind && (modifiers.fFlags & Modifiers::kIn_Flag) &&
+        baseType.typeNode().kind() == Type::Kind::kMatrix_Kind) {
         fErrors.error(decls.fOffset, "'in' variables may not have matrix type");
     }
     if (modifiers.fLayout.fWhen.fLength && fKind != Program::kFragmentProcessor_Kind &&
@@ -287,85 +291,78 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
                           "out location=0, index=0 is reserved for sk_FragColor");
         }
         const ASTNode::VarData& varData = varDecl.getVarData();
-        const Type* type = baseType;
-        std::vector<std::unique_ptr<Expression>> sizes;
+        StringFragment name = varData.fName;
+        IRNode::ID type = baseType;
+        std::vector<IRNode::ID> sizes;
         auto iter = varDecl.begin();
         for (size_t i = 0; i < varData.fSizeCount; ++i, ++iter) {
             const ASTNode& rawSize = *iter;
             if (rawSize) {
-                auto size = this->coerce(this->convertExpression(rawSize), *fContext.fInt_Type);
-                if (!size) {
+                auto sizeID = this->coerce(this->convertExpression(rawSize), fContext.fInt_Type);
+                if (!sizeID) {
                     return nullptr;
                 }
-                String name(type->fName);
+                String name(type.typeNode().fName);
                 int64_t count;
-                if (size->fKind == Expression::kIntLiteral_Kind) {
-                    count = ((IntLiteral&) *size).fValue;
+                Expression& size = sizeID.expressionNode();
+                if (size.fKind == Expression::kIntLiteral_Kind) {
+                    count = ((IntLiteral&) size).fValue;
                     if (count <= 0) {
-                        fErrors.error(size->fOffset, "array size must be positive");
+                        fErrors.error(size.fOffset, "array size must be positive");
                     }
                     name += "[" + to_string(count) + "]";
                 } else {
                     count = -1;
                     name += "[]";
                 }
-                type = (Type*) fSymbolTable->takeOwnership(
-                                                 std::unique_ptr<Symbol>(new Type(name,
-                                                                                  Type::kArray_Kind,
-                                                                                  *type,
-                                                                                  (int) count)));
-                sizes.push_back(std::move(size));
+                type = this->createNode(new Type(name, Type::kArray_Kind, type, (int) count));
+                sizes.push_back(sizeID);
             } else {
-                type = (Type*) fSymbolTable->takeOwnership(
-                                               std::unique_ptr<Symbol>(new Type(type->name() + "[]",
-                                                                                Type::kArray_Kind,
-                                                                                *type,
-                                                                                -1)));
+                type = this->createNode(new Type(type.typeNode().name() + "[]", Type::kArray_Kind,
+                                                 type, -1));
                 sizes.push_back(nullptr);
             }
         }
-        auto var = std::unique_ptr<Variable>(new Variable(varDecl.fOffset, modifiers,
-                                                          varData.fName, *type, storage));
-        if (var->fName == Compiler::RTADJUST_NAME) {
+        IRNode::ID var = this->createNode(new Variable(this, varDecl.fOffset, modifiers,
+                                                       name, type, storage, IRNode::ID()));
+        if (name == Compiler::RTADJUST_NAME) {
             SkASSERT(!fRTAdjust);
-            SkASSERT(var->fType == *fContext.fFloat4_Type);
-            fRTAdjust = var.get();
+            SkASSERT(type == fContext.fFloat4_Type);
+            fRTAdjust = var;
         }
-        std::unique_ptr<Expression> value;
+        IRNode::ID value;
         if (iter != varDecl.end()) {
             value = this->convertExpression(*iter);
             if (!value) {
                 return nullptr;
             }
-            value = this->coerce(std::move(value), *type);
+            value = this->coerce(value, type);
             if (!value) {
                 return nullptr;
             }
-            var->fWriteCount = 1;
-            var->fInitialValue = value.get();
+            ((Variable&) var.node()).fWriteCount = 1;
+            ((Variable&) var.node()).fInitialValue = value;
         }
-        if (storage == Variable::kGlobal_Storage && var->fName == "sk_FragColor" &&
-            (*fSymbolTable)[var->fName]) {
+        if (storage == Variable::kGlobal_Storage && name == "sk_FragColor" &&
+            (*fSymbolTable)[name]) {
             // already defined, ignore
-        } else if (storage == Variable::kGlobal_Storage && (*fSymbolTable)[var->fName] &&
-                   (*fSymbolTable)[var->fName]->fKind == Symbol::kVariable_Kind &&
-                   ((Variable*) (*fSymbolTable)[var->fName])->fModifiers.fLayout.fBuiltin >= 0) {
+        } else if (storage == Variable::kGlobal_Storage && (*fSymbolTable)[name] &&
+                   ((Symbol&) (*fSymbolTable)[name].node()).fSymbolKind == Symbol::kVariable_Kind &&
+                   ((Variable&) (*fSymbolTable)[name].node()).fModifiers.fLayout.fBuiltin >= 0) {
             // already defined, just update the modifiers
-            Variable* old = (Variable*) (*fSymbolTable)[var->fName];
-            old->fModifiers = var->fModifiers;
+            Variable& old = (Variable&) (*fSymbolTable)[name].node();
+            old.fModifiers = ((Variable&) var.node()).fModifiers;
         } else {
-            variables.emplace_back(new VarDeclaration(var.get(), std::move(sizes),
+            variables.emplace_back(new VarDeclaration(this, var, std::move(sizes),
                                                       std::move(value)));
-            StringFragment name = var->fName;
-            fSymbolTable->add(name, std::move(var));
+            fSymbolTable->add(name, var);
         }
     }
-    return std::unique_ptr<VarDeclarations>(new VarDeclarations(decls.fOffset,
-                                                                baseType,
-                                                                std::move(variables)));
+    return this->createNode(new VarDeclarations(this, decls.fOffset, baseType,
+                                                std::move(variables)));
 }
 
-std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(const ASTNode& m) {
+IRNode::ID IRGenerator::convertModifiersDeclaration(const ASTNode& m) {
     SkASSERT(m.fKind == ASTNode::Kind::kModifiers);
     Modifiers modifiers = m.getModifiers();
     if (modifiers.fLayout.fInvocations != -1) {
@@ -376,10 +373,10 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
         fInvocations = modifiers.fLayout.fInvocations;
         if (fSettings->fCaps && !fSettings->fCaps->gsInvocationsSupport()) {
             modifiers.fLayout.fInvocations = -1;
-            Variable* invocationId = (Variable*) (*fSymbolTable)["sk_InvocationID"];
-            SkASSERT(invocationId);
-            invocationId->fModifiers.fFlags = 0;
-            invocationId->fModifiers.fLayout.fBuiltin = -1;
+            SkASSERT((*fSymbolTable)["sk_InvocationID"]);
+            Variable& invocationId = (Variable&) (*fSymbolTable)["sk_InvocationID"].node();
+            invocationId.fModifiers.fFlags = 0;
+            invocationId.fModifiers.fLayout.fBuiltin = -1;
             if (modifiers.fLayout.description() == "") {
                 return nullptr;
             }
@@ -389,50 +386,47 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
         !fSettings->fCaps->gsInvocationsSupport()) {
         modifiers.fLayout.fMaxVertices *= fInvocations;
     }
-    return std::unique_ptr<ModifiersDeclaration>(new ModifiersDeclaration(modifiers));
+    return this->createNode(new ModifiersDeclaration(modifiers));
 }
 
-std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
+IRNode::ID IRGenerator::convertIf(const ASTNode& n) {
     SkASSERT(n.fKind == ASTNode::Kind::kIf);
     auto iter = n.begin();
-    std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*(iter++)),
-                                                    *fContext.fBool_Type);
+    IRNode::ID test = this->coerce(this->convertExpression(*(iter++)), fContext.fBool_Type);
     if (!test) {
         return nullptr;
     }
-    std::unique_ptr<Statement> ifTrue = this->convertStatement(*(iter++));
+    IRNode::ID ifTrue = this->convertStatement(*(iter++));
     if (!ifTrue) {
         return nullptr;
     }
-    std::unique_ptr<Statement> ifFalse;
+    IRNode::ID ifFalse;
     if (iter != n.end()) {
         ifFalse = this->convertStatement(*(iter++));
         if (!ifFalse) {
             return nullptr;
         }
     }
-    if (test->fKind == Expression::kBoolLiteral_Kind) {
+    if (test.expressionNode().fKind == Expression::kBoolLiteral_Kind) {
         // static boolean value, fold down to a single branch
-        if (((BoolLiteral&) *test).fValue) {
+        if (((BoolLiteral&) test.node()).fValue) {
             return ifTrue;
         } else if (ifFalse) {
             return ifFalse;
         } else {
             // False & no else clause. Not an error, so don't return null!
-            std::vector<std::unique_ptr<Statement>> empty;
-            return std::unique_ptr<Statement>(new Block(n.fOffset, std::move(empty),
-                                                        fSymbolTable));
+            return this->createNode(new Block(this, n.fOffset, std::vector<IRNode::ID>(),
+                                              fSymbolTable));
         }
     }
-    return std::unique_ptr<Statement>(new IfStatement(n.fOffset, n.getBool(), std::move(test),
-                                                      std::move(ifTrue), std::move(ifFalse)));
+    return this->createNode(new IfStatement(this, n.fOffset, n.getBool(), test, ifTrue, ifFalse));
 }
 
-std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
+IRNode::ID IRGenerator::convertFor(const ASTNode& f) {
     SkASSERT(f.fKind == ASTNode::Kind::kFor);
     AutoLoopLevel level(this);
     AutoSymbolTable table(this);
-    std::unique_ptr<Statement> initializer;
+    IRNode::ID initializer;
     auto iter = f.begin();
     if (*iter) {
         initializer = this->convertStatement(*iter);
@@ -441,312 +435,298 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
         }
     }
     ++iter;
-    std::unique_ptr<Expression> test;
+    IRNode::ID test;
     if (*iter) {
-        test = this->coerce(this->convertExpression(*iter), *fContext.fBool_Type);
+        test = this->coerce(this->convertExpression(*iter), fContext.fBool_Type);
         if (!test) {
             return nullptr;
         }
     }
     ++iter;
-    std::unique_ptr<Expression> next;
+    IRNode::ID next;
     if (*iter) {
         next = this->convertExpression(*iter);
         if (!next) {
             return nullptr;
         }
-        this->checkValid(*next);
+        this->checkValid(next.expressionNode());
     }
     ++iter;
-    std::unique_ptr<Statement> statement = this->convertStatement(*iter);
+    IRNode::ID statement = this->convertStatement(*iter);
     if (!statement) {
         return nullptr;
     }
-    return std::unique_ptr<Statement>(new ForStatement(f.fOffset, std::move(initializer),
-                                                       std::move(test), std::move(next),
-                                                       std::move(statement), fSymbolTable));
+    return this->createNode(new ForStatement(this, f.fOffset, initializer, test, next, statement,
+                                             fSymbolTable));
 }
 
-std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
+IRNode::ID IRGenerator::convertWhile(const ASTNode& w) {
     SkASSERT(w.fKind == ASTNode::Kind::kWhile);
     AutoLoopLevel level(this);
     auto iter = w.begin();
-    std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*(iter++)),
-                                                    *fContext.fBool_Type);
+    IRNode::ID test = this->coerce(this->convertExpression(*(iter++)), fContext.fBool_Type);
     if (!test) {
         return nullptr;
     }
-    std::unique_ptr<Statement> statement = this->convertStatement(*(iter++));
+    IRNode::ID statement = this->convertStatement(*(iter++));
     if (!statement) {
         return nullptr;
     }
-    return std::unique_ptr<Statement>(new WhileStatement(w.fOffset, std::move(test),
-                                                         std::move(statement)));
+    return this->createNode(new WhileStatement(this, w.fOffset, test, statement));
 }
 
-std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
+IRNode::ID IRGenerator::convertDo(const ASTNode& d) {
     SkASSERT(d.fKind == ASTNode::Kind::kDo);
     AutoLoopLevel level(this);
     auto iter = d.begin();
-    std::unique_ptr<Statement> statement = this->convertStatement(*(iter++));
+    IRNode::ID statement = this->convertStatement(*(iter++));
     if (!statement) {
         return nullptr;
     }
-    std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*(iter++)),
-                                                    *fContext.fBool_Type);
+    IRNode::ID test = this->coerce(this->convertExpression(*(iter++)), fContext.fBool_Type);
     if (!test) {
         return nullptr;
     }
-    return std::unique_ptr<Statement>(new DoStatement(d.fOffset, std::move(statement),
-                                                      std::move(test)));
+    return this->createNode(new DoStatement(this, d.fOffset, statement, test));
 }
 
-std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
+IRNode::ID IRGenerator::convertSwitch(const ASTNode& s) {
     SkASSERT(s.fKind == ASTNode::Kind::kSwitch);
     AutoSwitchLevel level(this);
     auto iter = s.begin();
-    std::unique_ptr<Expression> value = this->convertExpression(*(iter++));
-    if (!value) {
+    IRNode::ID valueID = this->convertExpression(*(iter++));
+    if (!valueID) {
         return nullptr;
     }
-    if (value->fType != *fContext.fUInt_Type && value->fType.kind() != Type::kEnum_Kind) {
-        value = this->coerce(std::move(value), *fContext.fInt_Type);
-        if (!value) {
+    if (valueID.expressionNode().fType != fContext.fUInt_Type &&
+        valueID.expressionNode().fType.typeNode().kind() != Type::kEnum_Kind) {
+        valueID = this->coerce(valueID, fContext.fInt_Type);
+        if (!valueID) {
             return nullptr;
         }
     }
     AutoSymbolTable table(this);
     std::unordered_set<int> caseValues;
-    std::vector<std::unique_ptr<SwitchCase>> cases;
+    std::vector<IRNode::ID> cases;
     for (; iter != s.end(); ++iter) {
         const ASTNode& c = *iter;
         SkASSERT(c.fKind == ASTNode::Kind::kSwitchCase);
-        std::unique_ptr<Expression> caseValue;
+        IRNode::ID caseValue;
         auto childIter = c.begin();
         if (*childIter) {
             caseValue = this->convertExpression(*childIter);
             if (!caseValue) {
                 return nullptr;
             }
-            caseValue = this->coerce(std::move(caseValue), value->fType);
+            caseValue = this->coerce(caseValue, valueID.expressionNode().fType);
             if (!caseValue) {
                 return nullptr;
             }
-            if (!caseValue->isConstant()) {
-                fErrors.error(caseValue->fOffset, "case value must be a constant");
+            if (!caseValue.node().isConstant()) {
+                fErrors.error(caseValue.node().fOffset, "case value must be a constant");
                 return nullptr;
             }
             int64_t v;
-            this->getConstantInt(*caseValue, &v);
+            this->getConstantInt(caseValue.expressionNode(), &v);
             if (caseValues.find(v) != caseValues.end()) {
-                fErrors.error(caseValue->fOffset, "duplicate case value");
+                fErrors.error(caseValue.node().fOffset, "duplicate case value");
             }
             caseValues.insert(v);
         }
         ++childIter;
-        std::vector<std::unique_ptr<Statement>> statements;
+        std::vector<IRNode::ID> statements;
         for (; childIter != c.end(); ++childIter) {
-            std::unique_ptr<Statement> converted = this->convertStatement(*childIter);
+            IRNode::ID converted = this->convertStatement(*childIter);
             if (!converted) {
                 return nullptr;
             }
-            statements.push_back(std::move(converted));
+            statements.push_back(converted);
         }
-        cases.emplace_back(new SwitchCase(c.fOffset, std::move(caseValue),
-                                          std::move(statements)));
+        cases.emplace_back(new SwitchCase(this, c.fOffset, caseValue, std::move(statements)));
     }
-    return std::unique_ptr<Statement>(new SwitchStatement(s.fOffset, s.getBool(),
-                                                          std::move(value), std::move(cases),
-                                                          fSymbolTable));
+    return this->createNode(new SwitchStatement(this, s.fOffset, s.getBool(), valueID,
+                                                std::move(cases), fSymbolTable));
 }
 
-std::unique_ptr<Statement> IRGenerator::convertExpressionStatement(const ASTNode& s) {
-    std::unique_ptr<Expression> e = this->convertExpression(s);
+IRNode::ID IRGenerator::convertExpressionStatement(const ASTNode& s) {
+    IRNode::ID e = this->convertExpression(s);
     if (!e) {
         return nullptr;
     }
-    this->checkValid(*e);
-    return std::unique_ptr<Statement>(new ExpressionStatement(std::move(e)));
+    this->checkValid(e.expressionNode());
+    return this->createNode(new ExpressionStatement(this, e));
 }
 
-std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
+IRNode::ID IRGenerator::convertReturn(const ASTNode& r) {
     SkASSERT(r.fKind == ASTNode::Kind::kReturn);
     SkASSERT(fCurrentFunction);
     // early returns from a vertex main function will bypass the sk_Position normalization, so
     // SkASSERT that we aren't doing that. It is of course possible to fix this by adding a
     // normalization before each return, but it will probably never actually be necessary.
-    SkASSERT(Program::kVertex_Kind != fKind || !fRTAdjust || "main" != fCurrentFunction->fName);
+    SkASSERT(Program::kVertex_Kind != fKind || !fRTAdjust ||
+             ((FunctionDeclaration&) fCurrentFunction.node()).fName != "main");
+    IRNode::ID returnType = ((FunctionDeclaration&) fCurrentFunction.node()).fReturnType;
     if (r.begin() != r.end()) {
-        std::unique_ptr<Expression> result = this->convertExpression(*r.begin());
+        IRNode::ID result = this->convertExpression(*r.begin());
         if (!result) {
             return nullptr;
         }
-        if (fCurrentFunction->fReturnType == *fContext.fVoid_Type) {
-            fErrors.error(result->fOffset, "may not return a value from a void function");
+        if (returnType == fContext.fVoid_Type) {
+            fErrors.error(result.node().fOffset, "may not return a value from a void function");
         } else {
-            result = this->coerce(std::move(result), fCurrentFunction->fReturnType);
+            result = this->coerce(result, returnType);
             if (!result) {
                 return nullptr;
             }
         }
-        return std::unique_ptr<Statement>(new ReturnStatement(std::move(result)));
+        return this->createNode(new ReturnStatement(this, result));
     } else {
-        if (fCurrentFunction->fReturnType != *fContext.fVoid_Type) {
+        if (returnType != fContext.fVoid_Type) {
             fErrors.error(r.fOffset, "expected function to return '" +
-                                     fCurrentFunction->fReturnType.description() + "'");
+                                     returnType.node().description() + "'");
         }
-        return std::unique_ptr<Statement>(new ReturnStatement(r.fOffset));
+        return this->createNode(new ReturnStatement(this, r.fOffset));
     }
 }
 
-std::unique_ptr<Statement> IRGenerator::convertBreak(const ASTNode& b) {
+IRNode::ID IRGenerator::convertBreak(const ASTNode& b) {
     SkASSERT(b.fKind == ASTNode::Kind::kBreak);
     if (fLoopLevel > 0 || fSwitchLevel > 0) {
-        return std::unique_ptr<Statement>(new BreakStatement(b.fOffset));
+        return this->createNode(new BreakStatement(this, b.fOffset));
     } else {
         fErrors.error(b.fOffset, "break statement must be inside a loop or switch");
         return nullptr;
     }
 }
 
-std::unique_ptr<Statement> IRGenerator::convertContinue(const ASTNode& c) {
+IRNode::ID IRGenerator::convertContinue(const ASTNode& c) {
     SkASSERT(c.fKind == ASTNode::Kind::kContinue);
     if (fLoopLevel > 0) {
-        return std::unique_ptr<Statement>(new ContinueStatement(c.fOffset));
+        return this->createNode(new ContinueStatement(this, c.fOffset));
     } else {
         fErrors.error(c.fOffset, "continue statement must be inside a loop");
         return nullptr;
     }
 }
 
-std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTNode& d) {
+IRNode::ID IRGenerator::convertDiscard(const ASTNode& d) {
     SkASSERT(d.fKind == ASTNode::Kind::kDiscard);
-    return std::unique_ptr<Statement>(new DiscardStatement(d.fOffset));
+    return this->createNode(new DiscardStatement(this, d.fOffset));
 }
 
-std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<Block> main) {
+IRNode::ID IRGenerator::applyInvocationIDWorkaround(IRNode::ID main) {
     Layout invokeLayout;
     Modifiers invokeModifiers(invokeLayout, Modifiers::kHasSideEffects_Flag);
-    FunctionDeclaration* invokeDecl = new FunctionDeclaration(-1,
-                                                              invokeModifiers,
-                                                              "_invoke",
-                                                              std::vector<const Variable*>(),
-                                                              *fContext.fVoid_Type);
-    fProgramElements->push_back(std::unique_ptr<ProgramElement>(
-                                         new FunctionDefinition(-1, *invokeDecl, std::move(main))));
-    fSymbolTable->add(invokeDecl->fName, std::unique_ptr<FunctionDeclaration>(invokeDecl));
+    const char* name = "_invoke";
+    IRNode::ID invokeDecl = this->createNode(new FunctionDeclaration(this,
+                                                                     -1,
+                                                                     invokeModifiers,
+                                                                     name,
+                                                                     std::vector<IRNode::ID>(),
+                                                                     fContext.fVoid_Type));
+    fProgramElements->push_back(this->createNode(new FunctionDefinition(this, -1, invokeDecl,
+                                                                        std::move(main))));
+    fSymbolTable->add(name, invokeDecl);
 
     std::vector<std::unique_ptr<VarDeclaration>> variables;
-    Variable* loopIdx = (Variable*) (*fSymbolTable)["sk_InvocationID"];
+    IRNode::ID loopIdx = (*fSymbolTable)["sk_InvocationID"];
     SkASSERT(loopIdx);
-    std::unique_ptr<Expression> test(new BinaryExpression(-1,
-                    std::unique_ptr<Expression>(new VariableReference(-1, *loopIdx)),
-                    Token::LT,
-                    std::unique_ptr<IntLiteral>(new IntLiteral(fContext, -1, fInvocations)),
-                    *fContext.fBool_Type));
-    std::unique_ptr<Expression> next(new PostfixExpression(
-                std::unique_ptr<Expression>(
-                                      new VariableReference(-1,
-                                                            *loopIdx,
-                                                            VariableReference::kReadWrite_RefKind)),
-                Token::PLUSPLUS));
+    IRNode::ID test = this->createNode(new BinaryExpression(this, -1,
+                                         this->createNode(new VariableReference(this, -1, loopIdx)),
+                                         Token::LT,
+                                         this->createNode(new IntLiteral(this, -1, fInvocations)),
+                                         fContext.fBool_Type));
+    IRNode::ID next = this->createNode(new PostfixExpression(this,
+                                        this->createNode(new VariableReference(this, -1, loopIdx,
+                                                                               kReadWrite_RefKind)),
+                                        Token::PLUSPLUS));
     ASTNode endPrimitiveID(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier, "EndPrimitive");
-    std::unique_ptr<Expression> endPrimitive = this->convertExpression(endPrimitiveID);
+    IRNode::ID endPrimitive = this->convertExpression(endPrimitiveID);
     SkASSERT(endPrimitive);
 
-    std::vector<std::unique_ptr<Statement>> loopBody;
-    std::vector<std::unique_ptr<Expression>> invokeArgs;
-    loopBody.push_back(std::unique_ptr<Statement>(new ExpressionStatement(
-                                          this->call(-1,
-                                                     *invokeDecl,
-                                                     std::vector<std::unique_ptr<Expression>>()))));
-    loopBody.push_back(std::unique_ptr<Statement>(new ExpressionStatement(
-                                          this->call(-1,
-                                                     std::move(endPrimitive),
-                                                     std::vector<std::unique_ptr<Expression>>()))));
-    std::unique_ptr<Expression> assignment(new BinaryExpression(-1,
-                    std::unique_ptr<Expression>(new VariableReference(-1, *loopIdx)),
+    std::vector<IRNode::ID> loopBody;
+    std::vector<IRNode::ID> invokeArgs;
+    loopBody.push_back(this->createNode(new ExpressionStatement(this,
+                                                   this->callFunction(-1,
+                                                                      invokeDecl,
+                                                                      std::vector<IRNode::ID>()))));
+    loopBody.push_back(this->createNode(new ExpressionStatement(this,
+                                                   this->callFunction(-1,
+                                                                      std::move(endPrimitive),
+                                                                      std::vector<IRNode::ID>()))));
+    IRNode::ID assignment(new BinaryExpression(this, -1,
+                    this->createNode(new VariableReference(this, -1, loopIdx)),
                     Token::EQ,
-                    std::unique_ptr<IntLiteral>(new IntLiteral(fContext, -1, 0)),
-                    *fContext.fInt_Type));
-    std::unique_ptr<Statement> initializer(new ExpressionStatement(std::move(assignment)));
-    std::unique_ptr<Statement> loop = std::unique_ptr<Statement>(
-                new ForStatement(-1,
-                                 std::move(initializer),
-                                 std::move(test),
-                                 std::move(next),
-                                 std::unique_ptr<Block>(new Block(-1, std::move(loopBody))),
-                                 fSymbolTable));
-    std::vector<std::unique_ptr<Statement>> children;
-    children.push_back(std::move(loop));
-    return std::unique_ptr<Block>(new Block(-1, std::move(children)));
+                    this->createNode(new IntLiteral(this, -1, 0)),
+                    fContext.fInt_Type));
+    IRNode::ID initializer(new ExpressionStatement(this, assignment));
+    IRNode::ID loop = this->createNode(new ForStatement(this,
+                                                        -1,
+                                                        initializer,
+                                                        test,
+                                                        next,
+                                                        this->createNode(new Block(this, -1,
+                                                                                   loopBody)),
+                                                        fSymbolTable));
+    return this->createNode(new Block(this, -1, { loop }));
 }
 
-std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
+IRNode::ID IRGenerator::getNormalizeSkPositionCode() {
     // sk_Position = float4(sk_Position.xy * rtAdjust.xz + sk_Position.ww * rtAdjust.yw,
     //                      0,
     //                      sk_Position.w);
     SkASSERT(fSkPerVertex && fRTAdjust);
-    #define REF(var) std::unique_ptr<Expression>(\
-                                  new VariableReference(-1, *var, VariableReference::kRead_RefKind))
-    #define FIELD(var, idx) std::unique_ptr<Expression>(\
-                    new FieldAccess(REF(var), idx, FieldAccess::kAnonymousInterfaceBlock_OwnerKind))
-    #define POS std::unique_ptr<Expression>(new FieldAccess(REF(fSkPerVertex), 0, \
+    #define REF(var) this->createNode(new VariableReference(this, -1, var, kRead_RefKind))
+    #define FIELD(var, idx) this->createNode( \
+              new FieldAccess(this, REF(var), idx, FieldAccess::kAnonymousInterfaceBlock_OwnerKind))
+    #define POS this->createNode(new FieldAccess(this, REF(fSkPerVertex), 0, \
                                                    FieldAccess::kAnonymousInterfaceBlock_OwnerKind))
     #define ADJUST (fRTAdjustInterfaceBlock ? \
                     FIELD(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex) : \
                     REF(fRTAdjust))
-    #define SWIZZLE(expr, ...) std::unique_ptr<Expression>(new Swizzle(fContext, expr, \
-                                                                       { __VA_ARGS__ }))
-    #define OP(left, op, right) std::unique_ptr<Expression>( \
-                                   new BinaryExpression(-1, left, op, right, \
-                                                        *fContext.fFloat2_Type))
-    std::vector<std::unique_ptr<Expression>> children;
+    #define SWIZZLE(expr, ...) this->createNode(new Swizzle(this, expr, { __VA_ARGS__ }))
+    #define OP(left, op, right) this->createNode( \
+                                   new BinaryExpression(this, -1, left, op, right, \
+                                                        fContext.fFloat2_Type))
+    std::vector<IRNode::ID> children;
     children.push_back(OP(OP(SWIZZLE(POS, 0, 1), Token::STAR, SWIZZLE(ADJUST, 0, 2)),
                           Token::PLUS,
                           OP(SWIZZLE(POS, 3, 3), Token::STAR, SWIZZLE(ADJUST, 1, 3))));
-    children.push_back(std::unique_ptr<Expression>(new FloatLiteral(fContext, -1, 0.0)));
+    children.push_back(this->createNode(new FloatLiteral(this, -1, 0.0)));
     children.push_back(SWIZZLE(POS, 3));
-    std::unique_ptr<Expression> result = OP(POS, Token::EQ,
-                                 std::unique_ptr<Expression>(new Constructor(-1,
-                                                                             *fContext.fFloat4_Type,
-                                                                             std::move(children))));
-    return std::unique_ptr<Statement>(new ExpressionStatement(std::move(result)));
+    IRNode::ID result = OP(POS, Token::EQ, this->createNode(new Constructor(this,
+                                                                            -1,
+                                                                            fContext.fFloat4_Type,
+                                                                            std::move(children))));
+    return this->createNode(new ExpressionStatement(this, std::move(result)));
 }
 
 void IRGenerator::convertFunction(const ASTNode& f) {
     auto iter = f.begin();
-    const Type* returnType = this->convertType(*(iter++));
+    IRNode::ID returnType = this->convertType(*(iter++));
     if (!returnType) {
         return;
     }
     const ASTNode::FunctionData& fd = f.getFunctionData();
-    std::vector<const Variable*> parameters;
+    std::vector<IRNode::ID> parameters;
     for (size_t i = 0; i < fd.fParameterCount; ++i) {
         const ASTNode& param = *(iter++);
         SkASSERT(param.fKind == ASTNode::Kind::kParameter);
         ASTNode::ParameterData pd = param.getParameterData();
         auto paramIter = param.begin();
-        const Type* type = this->convertType(*(paramIter++));
+        IRNode::ID type = this->convertType(*(paramIter++));
         if (!type) {
             return;
         }
         for (int j = (int) pd.fSizeCount; j >= 1; j--) {
             int size = (param.begin() + j)->getInt();
-            String name = type->name() + "[" + to_string(size) + "]";
-            type = (Type*) fSymbolTable->takeOwnership(
-                                                 std::unique_ptr<Symbol>(new Type(std::move(name),
-                                                                                  Type::kArray_Kind,
-                                                                                  *type,
-                                                                                  size)));
+            String name = type.typeNode().name() + "[" + to_string(size) + "]";
+            type = this->createNode(new Type(std::move(name), Type::kArray_Kind, type, size));
         }
         StringFragment name = pd.fName;
-        Variable* var = (Variable*) fSymbolTable->takeOwnership(
-                               std::unique_ptr<Symbol>(new Variable(param.fOffset,
-                                                                    pd.fModifiers,
-                                                                    name,
-                                                                    *type,
-                                                                    Variable::kParameter_Storage)));
+        IRNode::ID var = this->createNode(new Variable(this, param.fOffset, pd.fModifiers, name,
+                                                       type, Variable::kParameter_Storage,
+                                                       IRNode::ID()));
         parameters.push_back(var);
     }
 
@@ -756,18 +736,18 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 bool valid;
                 switch (parameters.size()) {
                     case 3:
-                        valid = parameters[0]->fType == *fContext.fInt_Type &&
-                                parameters[0]->fModifiers.fFlags == 0 &&
-                                parameters[1]->fType == *fContext.fInt_Type &&
-                                parameters[1]->fModifiers.fFlags == 0 &&
-                                parameters[2]->fType == *fContext.fHalf4_Type &&
-                                parameters[2]->fModifiers.fFlags == (Modifiers::kIn_Flag |
-                                                                     Modifiers::kOut_Flag);
+                        valid = ((Variable&) parameters[0].node()).fType == fContext.fInt_Type &&
+                                ((Variable&) parameters[0].node()).fModifiers.fFlags == 0 &&
+                                ((Variable&) parameters[1].node()).fType == fContext.fInt_Type &&
+                                ((Variable&) parameters[1].node()).fModifiers.fFlags == 0 &&
+                                ((Variable&) parameters[2].node()).fType == fContext.fHalf4_Type &&
+                                ((Variable&) parameters[2].node()).fModifiers.fFlags ==
+                                (Modifiers::kIn_Flag | Modifiers::kOut_Flag);
                         break;
                     case 1:
-                        valid = parameters[0]->fType == *fContext.fHalf4_Type &&
-                                parameters[0]->fModifiers.fFlags == (Modifiers::kIn_Flag |
-                                                                     Modifiers::kOut_Flag);
+                        valid = ((Variable&) parameters[0].node()).fType == fContext.fHalf4_Type &&
+                                ((Variable&) parameters[0].node()).fModifiers.fFlags ==
+                                (Modifiers::kIn_Flag | Modifiers::kOut_Flag);
                         break;
                     default:
                         valid = false;
@@ -789,43 +769,46 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     }
 
     // find existing declaration
-    const FunctionDeclaration* decl = nullptr;
+    IRNode::ID decl = nullptr;
     auto entry = (*fSymbolTable)[fd.fName];
     if (entry) {
-        std::vector<const FunctionDeclaration*> functions;
-        switch (entry->fKind) {
+        std::vector<IRNode::ID> functions;
+        switch (((Symbol&) entry.node()).fSymbolKind) {
             case Symbol::kUnresolvedFunction_Kind:
-                functions = ((UnresolvedFunction*) entry)->fFunctions;
+                functions = ((UnresolvedFunction&) entry.node()).fFunctions;
                 break;
             case Symbol::kFunctionDeclaration_Kind:
-                functions.push_back((FunctionDeclaration*) entry);
+                functions.push_back(entry);
                 break;
             default:
                 fErrors.error(f.fOffset, "symbol '" + fd.fName + "' was already defined");
                 return;
         }
-        for (const auto& other : functions) {
-            SkASSERT(other->fName == fd.fName);
-            if (parameters.size() == other->fParameters.size()) {
+        for (IRNode::ID otherID : functions) {
+            FunctionDeclaration& other = (FunctionDeclaration&) otherID.node();
+            SkASSERT(other.fName == fd.fName);
+            if (parameters.size() == other.fParameters.size()) {
                 bool match = true;
                 for (size_t i = 0; i < parameters.size(); i++) {
-                    if (parameters[i]->fType != other->fParameters[i]->fType) {
+                    if (((Variable&) parameters[i].node()).fType !=
+                        ((Variable&) other.fParameters[i].node()).fType) {
                         match = false;
                         break;
                     }
                 }
                 if (match) {
-                    if (*returnType != other->fReturnType) {
-                        FunctionDeclaration newDecl(f.fOffset, fd.fModifiers, fd.fName, parameters,
-                                                    *returnType);
+                    if (returnType != other.fReturnType) {
+                        FunctionDeclaration newDecl(this, f.fOffset, fd.fModifiers, fd.fName,
+                                                    parameters, returnType);
                         fErrors.error(f.fOffset, "functions '" + newDecl.description() +
-                                                 "' and '" + other->description() +
+                                                 "' and '" + other.description() +
                                                  "' differ only in return type");
                         return;
                     }
-                    decl = other;
+                    decl = otherID;
                     for (size_t i = 0; i < parameters.size(); i++) {
-                        if (parameters[i]->fModifiers != other->fParameters[i]->fModifiers) {
+                        if (((Variable&) parameters[i].node()).fModifiers !=
+                            ((Variable&) other.fParameters[i].node()).fModifiers) {
                             fErrors.error(f.fOffset, "modifiers on parameter " +
                                                      to_string((uint64_t) i + 1) +
                                                      " differ between declaration and "
@@ -833,9 +816,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                             return;
                         }
                     }
-                    if (other->fDefined) {
-                        fErrors.error(f.fOffset, "duplicate definition of " +
-                                                 other->description());
+                    if (other.fDefined) {
+                        fErrors.error(f.fOffset, "duplicate definition of " + other.description());
                     }
                     break;
                 }
@@ -844,41 +826,46 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     }
     if (!decl) {
         // couldn't find an existing declaration
-        auto newDecl = std::unique_ptr<FunctionDeclaration>(new FunctionDeclaration(f.fOffset,
-                                                                                    fd.fModifiers,
-                                                                                    fd.fName,
-                                                                                    parameters,
-                                                                                    *returnType));
-        decl = newDecl.get();
-        fSymbolTable->add(decl->fName, std::move(newDecl));
+        IRNode::ID newDecl = this->createNode(new FunctionDeclaration(this,
+                                                                      f.fOffset,
+                                                                      fd.fModifiers,
+                                                                      fd.fName,
+                                                                      parameters,
+                                                                      returnType));
+        decl = newDecl;
+        fSymbolTable->add(fd.fName, newDecl);
     }
     if (iter != f.end()) {
         // compile body
         SkASSERT(!fCurrentFunction);
         fCurrentFunction = decl;
-        decl->fDefined = true;
+        ((FunctionDeclaration&) decl.node()).fDefined = true;
         std::shared_ptr<SymbolTable> old = fSymbolTable;
         AutoSymbolTable table(this);
         if (fd.fName == "main" && fKind == Program::kPipelineStage_Kind) {
             if (parameters.size() == 3) {
-                parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_X_BUILTIN;
-                parameters[1]->fModifiers.fLayout.fBuiltin = SK_MAIN_Y_BUILTIN;
-                parameters[2]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
+                ((Variable&) parameters[0].node()).fModifiers.fLayout.fBuiltin = SK_MAIN_X_BUILTIN;
+                ((Variable&) parameters[1].node()).fModifiers.fLayout.fBuiltin = SK_MAIN_Y_BUILTIN;
+                ((Variable&) parameters[2].node()).fModifiers.fLayout.fBuiltin =
+                                                                                SK_OUTCOLOR_BUILTIN;
             } else {
                 SkASSERT(parameters.size() == 1);
-                parameters[0]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
+                ((Variable&) parameters[0].node()).fModifiers.fLayout.fBuiltin =
+                                                                                SK_OUTCOLOR_BUILTIN;
             }
         }
         for (size_t i = 0; i < parameters.size(); i++) {
-            fSymbolTable->addWithoutOwnership(parameters[i]->fName, decl->fParameters[i]);
+            fSymbolTable->add(((Variable&) parameters[i].node()).fName,
+                              ((FunctionDeclaration&) decl.node()).fParameters[i]);
         }
         bool needInvocationIDWorkaround = fInvocations != -1 && fd.fName == "main" &&
                                           fSettings->fCaps &&
                                           !fSettings->fCaps->gsInvocationsSupport();
         SkASSERT(!fExtraVars.size());
-        std::unique_ptr<Block> body = this->convertBlock(*iter);
-        for (auto& v : fExtraVars) {
-            body->fStatements.insert(body->fStatements.begin(), std::move(v));
+        IRNode::ID body = this->convertBlock(*iter);
+        for (IRNode::ID v : fExtraVars) {
+            Block& block = (Block&) body.node();
+            block.fStatements.insert(block.fStatements.begin(), v);
         }
         fExtraVars.clear();
         fCurrentFunction = nullptr;
@@ -889,16 +876,17 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             body = this->applyInvocationIDWorkaround(std::move(body));
         }
         // conservatively assume all user-defined functions have side effects
-        ((Modifiers&) decl->fModifiers).fFlags |= Modifiers::kHasSideEffects_Flag;
+        ((FunctionDeclaration&) decl.node()).fModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
         if (Program::kVertex_Kind == fKind && fd.fName == "main" && fRTAdjust) {
-            body->fStatements.insert(body->fStatements.end(), this->getNormalizeSkPositionCode());
+            Block& block = (Block&) body.node();
+            block.fStatements.insert(block.fStatements.end(), this->getNormalizeSkPositionCode());
         }
-        fProgramElements->push_back(std::unique_ptr<FunctionDefinition>(
-                                        new FunctionDefinition(f.fOffset, *decl, std::move(body))));
+        fProgramElements->push_back(this->createNode(new FunctionDefinition(this, f.fOffset, decl,
+                                                                            body)));
     }
 }
 
-std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode& intf) {
+IRNode::ID IRGenerator::convertInterfaceBlock(const ASTNode& intf) {
     SkASSERT(intf.fKind == ASTNode::Kind::kInterfaceBlock);
     ASTNode::InterfaceBlockData id = intf.getInterfaceBlockData();
     std::shared_ptr<SymbolTable> old = fSymbolTable;
@@ -909,106 +897,98 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     bool foundRTAdjust = false;
     auto iter = intf.begin();
     for (size_t i = 0; i < id.fDeclarationCount; ++i) {
-        std::unique_ptr<VarDeclarations> decl = this->convertVarDeclarations(
-                                                                 *(iter++),
-                                                                 Variable::kInterfaceBlock_Storage);
+        IRNode::ID decl = this->convertVarDeclarations(*(iter++),
+                                                       Variable::kInterfaceBlock_Storage);
         if (!decl) {
             return nullptr;
         }
-        for (const auto& stmt : decl->fVars) {
-            VarDeclaration& vd = (VarDeclaration&) *stmt;
+        for (IRNode::ID stmt : ((VarDeclarations&) decl.node()).fVars) {
+            VarDeclaration& vd = (VarDeclaration&) stmt.node();
             if (haveRuntimeArray) {
-                fErrors.error(decl->fOffset,
+                fErrors.error(decl.node().fOffset,
                               "only the last entry in an interface block may be a runtime-sized "
                               "array");
             }
+            Variable& var = (Variable&) vd.fVar.node();
             if (vd.fVar == fRTAdjust) {
                 foundRTAdjust = true;
-                SkASSERT(vd.fVar->fType == *fContext.fFloat4_Type);
+                SkASSERT(var.fType == fContext.fFloat4_Type);
                 fRTAdjustFieldIndex = fields.size();
             }
-            fields.push_back(Type::Field(vd.fVar->fModifiers, vd.fVar->fName,
-                                         &vd.fVar->fType));
+            fields.push_back(Type::Field(var.fModifiers, var.fName, var.fType));
             if (vd.fValue) {
-                fErrors.error(decl->fOffset,
+                fErrors.error(decl.node().fOffset,
                               "initializers are not permitted on interface block fields");
             }
-            if (vd.fVar->fModifiers.fFlags & (Modifiers::kIn_Flag |
-                                              Modifiers::kOut_Flag |
-                                              Modifiers::kUniform_Flag |
-                                              Modifiers::kBuffer_Flag |
-                                              Modifiers::kConst_Flag)) {
-                fErrors.error(decl->fOffset,
+            if (var.fModifiers.fFlags & (Modifiers::kIn_Flag |
+                                         Modifiers::kOut_Flag |
+                                         Modifiers::kUniform_Flag |
+                                         Modifiers::kBuffer_Flag |
+                                         Modifiers::kConst_Flag)) {
+                fErrors.error(decl.node().fOffset,
                               "interface block fields may not have storage qualifiers");
             }
-            if (vd.fVar->fType.kind() == Type::kArray_Kind &&
-                vd.fVar->fType.columns() == -1) {
+            const Type& varType = var.fType.typeNode();
+            if (varType.kind() == Type::kArray_Kind && varType.columns() == -1) {
                 haveRuntimeArray = true;
             }
         }
     }
     this->popSymbolTable();
-    Type* type = (Type*) old->takeOwnership(std::unique_ptr<Symbol>(new Type(intf.fOffset,
-                                                                             id.fTypeName,
-                                                                             fields)));
-    std::vector<std::unique_ptr<Expression>> sizes;
+    IRNode::ID type = this->createNode(new Type(intf.fOffset, id.fTypeName, fields));
+    std::vector<IRNode::ID> sizes;
     for (size_t i = 0; i < id.fSizeCount; ++i) {
         const ASTNode& size = *(iter++);
         if (size) {
-            std::unique_ptr<Expression> converted = this->convertExpression(size);
+            IRNode::ID converted = this->convertExpression(size);
             if (!converted) {
                 return nullptr;
             }
-            String name = type->fName;
+            String name = type.typeNode().fName;
             int64_t count;
-            if (converted->fKind == Expression::kIntLiteral_Kind) {
-                count = ((IntLiteral&) *converted).fValue;
+            if (converted.expressionNode().fKind == Expression::kIntLiteral_Kind) {
+                count = ((IntLiteral&) converted.node()).fValue;
                 if (count <= 0) {
-                    fErrors.error(converted->fOffset, "array size must be positive");
+                    fErrors.error(converted.node().fOffset, "array size must be positive");
                 }
                 name += "[" + to_string(count) + "]";
             } else {
                 count = -1;
                 name += "[]";
             }
-            type = (Type*) symbols->takeOwnership(std::unique_ptr<Symbol>(
-                                                                         new Type(name,
-                                                                                  Type::kArray_Kind,
-                                                                                  *type,
-                                                                                  (int) count)));
-            sizes.push_back(std::move(converted));
+            type = this->createNode(new Type(name, Type::kArray_Kind, type, (int) count));
+            sizes.push_back(converted);
         } else {
-            type = (Type*) symbols->takeOwnership(std::unique_ptr<Symbol>(
-                                                                       new Type(type->name() + "[]",
-                                                                                Type::kArray_Kind,
-                                                                                *type,
-                                                                                -1)));
+            type = this->createNode(new Type(type.typeNode().name() + "[]", Type::kArray_Kind, type,
+                                             -1));
             sizes.push_back(nullptr);
         }
     }
-    Variable* var = (Variable*) old->takeOwnership(std::unique_ptr<Symbol>(
-                      new Variable(intf.fOffset,
-                                   id.fModifiers,
-                                   id.fInstanceName.fLength ? id.fInstanceName : id.fTypeName,
-                                   *type,
-                                   Variable::kGlobal_Storage)));
+    IRNode::ID var = this->createNode(new Variable(
+                                         this,
+                                         intf.fOffset,
+                                         id.fModifiers,
+                                         id.fInstanceName.fLength ? id.fInstanceName : id.fTypeName,
+                                         type,
+                                         Variable::kGlobal_Storage,
+                                         IRNode::ID()));
     if (foundRTAdjust) {
         fRTAdjustInterfaceBlock = var;
     }
     if (id.fInstanceName.fLength) {
-        old->addWithoutOwnership(id.fInstanceName, var);
+        old->add(id.fInstanceName, var);
     } else {
         for (size_t i = 0; i < fields.size(); i++) {
-            old->add(fields[i].fName, std::unique_ptr<Field>(new Field(intf.fOffset, *var,
-                                                                       (int) i)));
+            old->add(fields[i].fName, this->createNode(new Field(intf.fOffset, var, (int) i)));
         }
     }
-    return std::unique_ptr<InterfaceBlock>(new InterfaceBlock(intf.fOffset,
-                                                              var,
-                                                              id.fTypeName,
-                                                              id.fInstanceName,
-                                                              std::move(sizes),
-                                                              symbols));
+    return this->createNode(new InterfaceBlock(this,
+                                               intf.fOffset,
+                                               var,
+                                               id.fTypeName,
+                                               id.fInstanceName,
+                                               std::move(sizes),
+                                               symbols));
 }
 
 void IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
@@ -1017,10 +997,10 @@ void IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
             *out = ((const IntLiteral&) value).fValue;
             break;
         case Expression::kVariableReference_Kind: {
-            const Variable& var = ((VariableReference&) value).fVariable;
+            Variable& var = (Variable&) ((VariableReference&) value).fVariable.node();
             if ((var.fModifiers.fFlags & Modifiers::kConst_Flag) &&
                 var.fInitialValue) {
-                this->getConstantInt(*var.fInitialValue, out);
+                this->getConstantInt(var.fInitialValue.expressionNode(), out);
             }
             break;
         }
@@ -1031,102 +1011,92 @@ void IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
 
 void IRGenerator::convertEnum(const ASTNode& e) {
     SkASSERT(e.fKind == ASTNode::Kind::kEnum);
-    std::vector<Variable*> variables;
+    std::vector<IRNode::ID> variables;
     int64_t currentValue = 0;
     Layout layout;
     ASTNode enumType(e.fNodes, e.fOffset, ASTNode::Kind::kType,
                      ASTNode::TypeData(e.getString(), false, false));
-    const Type* type = this->convertType(enumType);
+    IRNode::ID type = this->convertType(enumType);
     Modifiers modifiers(layout, Modifiers::kConst_Flag);
-    std::shared_ptr<SymbolTable> symbols(new SymbolTable(fSymbolTable, &fErrors));
+    std::shared_ptr<SymbolTable> symbols(new SymbolTable(fSymbolTable, this));
     fSymbolTable = symbols;
     for (auto iter = e.begin(); iter != e.end(); ++iter) {
         const ASTNode& child = *iter;
         SkASSERT(child.fKind == ASTNode::Kind::kEnumCase);
-        std::unique_ptr<Expression> value;
+        IRNode::ID value;
         if (child.begin() != child.end()) {
             value = this->convertExpression(*child.begin());
             if (!value) {
                 fSymbolTable = symbols->fParent;
                 return;
             }
-            this->getConstantInt(*value, &currentValue);
+            this->getConstantInt(value.expressionNode(), &currentValue);
         }
-        value = std::unique_ptr<Expression>(new IntLiteral(fContext, e.fOffset, currentValue));
+        value = this->createNode(new IntLiteral(this, e.fOffset, currentValue));
         ++currentValue;
-        auto var = std::unique_ptr<Variable>(new Variable(e.fOffset, modifiers, child.getString(),
-                                                          *type, Variable::kGlobal_Storage,
-                                                          value.get()));
-        variables.push_back(var.get());
-        symbols->add(child.getString(), std::move(var));
-        symbols->takeOwnership(std::move(value));
+        IRNode::ID var = this->createNode(new Variable(this, e.fOffset, modifiers,
+                                                       child.getString(), type,
+                                                       Variable::kGlobal_Storage, value));
+        variables.push_back(var);
+        symbols->add(child.getString(), var);
     }
-    fProgramElements->push_back(std::unique_ptr<ProgramElement>(new Enum(e.fOffset, e.getString(),
-                                                                         symbols)));
+    fProgramElements->push_back(this->createNode(new Enum(e.fOffset, e.getString(), symbols)));
     fSymbolTable = symbols->fParent;
 }
 
-const Type* IRGenerator::convertType(const ASTNode& type) {
+IRNode::ID IRGenerator::convertType(const ASTNode& type) {
     ASTNode::TypeData td = type.getTypeData();
-    const Symbol* result = (*fSymbolTable)[td.fName];
-    if (result && result->fKind == Symbol::kType_Kind) {
+    IRNode::ID result = (*fSymbolTable)[td.fName];
+    if (result && ((Symbol&) result.node()).fSymbolKind == Symbol::kType_Kind) {
         if (td.fIsNullable) {
-            if (((Type&) *result) == *fContext.fFragmentProcessor_Type) {
+            if (result == fContext.fFragmentProcessor_Type) {
                 if (type.begin() != type.end()) {
                     fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in "
                                                 "an array");
                 }
-                result = fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
-                                                               new Type(String(result->fName) + "?",
-                                                                        Type::kNullable_Kind,
-                                                                        (const Type&) *result)));
+                result = this->createNode(new Type(String(result.typeNode().fName) + "?",
+                                                   Type::kNullable_Kind,
+                                                   result));
             } else {
                 fErrors.error(type.fOffset, "type '" + td.fName + "' may not be nullable");
             }
         }
         for (const auto& size : type) {
-            String name(result->fName);
+            String name(result.typeNode().fName);
             name += "[";
             if (size) {
                 name += to_string(size.getInt());
             }
             name += "]";
-            result = (Type*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
-                                                                     new Type(name,
-                                                                              Type::kArray_Kind,
-                                                                              (const Type&) *result,
-                                                                              size ? size.getInt()
-                                                                                   : 0)));
+            result = this->createNode(new Type(name, Type::kArray_Kind, result,
+                                               size ? size.getInt() : 0));
         }
-        return (const Type*) result;
+        return result;
     }
     fErrors.error(type.fOffset, "unknown type '" + td.fName + "'");
     return nullptr;
 }
 
-std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTNode& expr) {
+IRNode::ID IRGenerator::convertExpression(const ASTNode& expr) {
     switch (expr.fKind) {
         case ASTNode::Kind::kBinary:
             return this->convertBinaryExpression(expr);
         case ASTNode::Kind::kBool:
-            return std::unique_ptr<Expression>(new BoolLiteral(fContext, expr.fOffset,
-                                                               expr.getBool()));
+            return this->createNode(new BoolLiteral(this, expr.fOffset, expr.getBool()));
         case ASTNode::Kind::kCall:
             return this->convertCallExpression(expr);
         case ASTNode::Kind::kField:
             return this->convertFieldExpression(expr);
         case ASTNode::Kind::kFloat:
-            return std::unique_ptr<Expression>(new FloatLiteral(fContext, expr.fOffset,
-                                                                expr.getFloat()));
+            return this->createNode(new FloatLiteral(this, expr.fOffset, expr.getFloat()));
         case ASTNode::Kind::kIdentifier:
             return this->convertIdentifier(expr);
         case ASTNode::Kind::kIndex:
             return this->convertIndexExpression(expr);
         case ASTNode::Kind::kInt:
-            return std::unique_ptr<Expression>(new IntLiteral(fContext, expr.fOffset,
-                                                              expr.getInt()));
+            return this->createNode(new IntLiteral(this, expr.fOffset, expr.getInt()));
         case ASTNode::Kind::kNull:
-            return std::unique_ptr<Expression>(new NullLiteral(fContext, expr.fOffset));
+            return this->createNode(new NullLiteral(this, expr.fOffset));
         case ASTNode::Kind::kPostfix:
             return this->convertPostfixExpression(expr);
         case ASTNode::Kind::kPrefix:
@@ -1138,31 +1108,25 @@ std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTNode& expr) 
     }
 }
 
-std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identifier) {
+IRNode::ID IRGenerator::convertIdentifier(const ASTNode& identifier) {
     SkASSERT(identifier.fKind == ASTNode::Kind::kIdentifier);
-    const Symbol* result = (*fSymbolTable)[identifier.getString()];
+    IRNode::ID result = (*fSymbolTable)[identifier.getString()];
     if (!result) {
         fErrors.error(identifier.fOffset, "unknown identifier '" + identifier.getString() + "'");
         return nullptr;
     }
-    switch (result->fKind) {
+    switch (((Symbol&) result.node()).fSymbolKind) {
         case Symbol::kFunctionDeclaration_Kind: {
-            std::vector<const FunctionDeclaration*> f = {
-                (const FunctionDeclaration*) result
-            };
-            return std::unique_ptr<FunctionReference>(new FunctionReference(fContext,
-                                                                            identifier.fOffset,
-                                                                            f));
+            std::vector<IRNode::ID> f = { result };
+            return this->createNode(new FunctionReference(this, identifier.fOffset, f));
         }
         case Symbol::kUnresolvedFunction_Kind: {
-            const UnresolvedFunction* f = (const UnresolvedFunction*) result;
-            return std::unique_ptr<FunctionReference>(new FunctionReference(fContext,
-                                                                            identifier.fOffset,
-                                                                            f->fFunctions));
+            const UnresolvedFunction& f = (const UnresolvedFunction&) result.node();
+            return this->createNode(new FunctionReference(this, identifier.fOffset, f.fFunctions));
         }
         case Symbol::kVariable_Kind: {
-            const Variable* var = (const Variable*) result;
-            switch (var->fModifiers.fLayout.fBuiltin) {
+            const Variable& var = (const Variable&) result.node();
+            switch (var.fModifiers.fLayout.fBuiltin) {
                 case SK_WIDTH_BUILTIN:
                     fInputs.fRTWidth = true;
                     break;
@@ -1171,7 +1135,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
                     break;
 #ifndef SKSL_STANDALONE
                 case SK_FRAGCOORD_BUILTIN:
-                    if (var->fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
+                    if (var.fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
                         fInputs.fFlipY = true;
                         if (fSettings->fFlipY &&
                             (!fSettings->fCaps ||
@@ -1182,86 +1146,79 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
 #endif
             }
             // default to kRead_RefKind; this will be corrected later if the variable is written to
-            return std::unique_ptr<VariableReference>(new VariableReference(
-                                                                 identifier.fOffset,
-                                                                 *var,
-                                                                 VariableReference::kRead_RefKind));
+            return this->createNode(new VariableReference(this, identifier.fOffset, result,
+                                                          kRead_RefKind));
         }
         case Symbol::kField_Kind: {
-            const Field* field = (const Field*) result;
-            VariableReference* base = new VariableReference(identifier.fOffset, field->fOwner,
-                                                            VariableReference::kRead_RefKind);
-            return std::unique_ptr<Expression>(new FieldAccess(
-                                                  std::unique_ptr<Expression>(base),
-                                                  field->fFieldIndex,
+            const Field& field = (const Field&) result.node();
+            VariableReference* base = new VariableReference(this, identifier.fOffset, field.fOwner,
+                                                            kRead_RefKind);
+            return this->createNode(new FieldAccess(
+                                                  this,
+                                                  base,
+                                                  field.fFieldIndex,
                                                   FieldAccess::kAnonymousInterfaceBlock_OwnerKind));
         }
         case Symbol::kType_Kind: {
-            const Type* t = (const Type*) result;
-            return std::unique_ptr<TypeReference>(new TypeReference(fContext, identifier.fOffset,
-                                                                    *t));
+            return this->createNode(new TypeReference(this, identifier.fOffset, result));
         }
         case Symbol::kExternal_Kind: {
-            ExternalValue* r = (ExternalValue*) result;
-            return std::unique_ptr<ExternalValueReference>(
-                                                 new ExternalValueReference(identifier.fOffset, r));
+//            return this->createNode(new ExternalValueReference(this, identifier.fOffset, result));
+            abort(); // NYI
         }
         default:
-            ABORT("unsupported symbol type %d\n", result->fKind);
+            ABORT("unsupported symbol type %d\n", ((Symbol&) result.node()).fSymbolKind);
     }
 }
 
-std::unique_ptr<Section> IRGenerator::convertSection(const ASTNode& s) {
+IRNode::ID IRGenerator::convertSection(const ASTNode& s) {
     ASTNode::SectionData section = s.getSectionData();
-    return std::unique_ptr<Section>(new Section(s.fOffset, section.fName, section.fArgument,
-                                                section.fText));
+    return this->createNode(new Section(this, s.fOffset, section.fName, section.fArgument,
+                                        section.fText));
 }
 
-
-std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr,
-                                                const Type& type) {
-    if (!expr) {
+IRNode::ID IRGenerator::coerce(IRNode::ID exprID, IRNode::ID type) {
+    if (!exprID) {
         return nullptr;
     }
-    if (expr->fType == type) {
-        return expr;
+    Expression& expr = exprID.expressionNode();
+    if (expr.fType == type) {
+        return exprID;
     }
-    this->checkValid(*expr);
-    if (expr->fType == *fContext.fInvalid_Type) {
+    this->checkValid(expr);
+    if (expr.fType == fContext.fInvalid_Type) {
         return nullptr;
     }
-    if (expr->coercionCost(type) == INT_MAX) {
-        fErrors.error(expr->fOffset, "expected '" + type.description() + "', but found '" +
-                                        expr->fType.description() + "'");
+    if (expr.coercionCost(type.typeNode()) == INT_MAX) {
+        fErrors.error(expr.fOffset, "expected '" + type.node().description() + "', but found '" +
+                                        expr.fType.node().description() + "'");
         return nullptr;
     }
-    if (type.kind() == Type::kScalar_Kind) {
-        std::vector<std::unique_ptr<Expression>> args;
-        args.push_back(std::move(expr));
-        std::unique_ptr<Expression> ctor;
-        if (type == *fContext.fFloatLiteral_Type) {
+    if (type.typeNode().kind() == Type::kScalar_Kind) {
+        std::vector<IRNode::ID> args;
+        args.push_back(exprID);
+        IRNode::ID ctor;
+        if (type == fContext.fFloatLiteral_Type) {
             ctor = this->convertIdentifier(ASTNode(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier,
                                                    "float"));
-        } else if (type == *fContext.fIntLiteral_Type) {
+        } else if (type == fContext.fIntLiteral_Type) {
             ctor = this->convertIdentifier(ASTNode(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier,
                                                    "int"));
         } else {
             ctor = this->convertIdentifier(ASTNode(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier,
-                                                   type.fName));
+                                                   type.typeNode().fName));
         }
         if (!ctor) {
-            printf("error, null identifier: %s\n", String(type.fName).c_str());
+            printf("error, null identifier: %s\n", String(type.typeNode().fName).c_str());
         }
         SkASSERT(ctor);
-        return this->call(-1, std::move(ctor), std::move(args));
+        return this->callExpression(-1, ctor, std::move(args));
     }
-    if (expr->fKind == Expression::kNullLiteral_Kind) {
-        SkASSERT(type.kind() == Type::kNullable_Kind);
-        return std::unique_ptr<Expression>(new NullLiteral(expr->fOffset, type));
+    if (expr.fKind == Expression::kNullLiteral_Kind) {
+        SkASSERT(type.typeNode().kind() == Type::kNullable_Kind);
+        return this->createNode(new NullLiteral(this, expr.fOffset, type));
     }
-    std::vector<std::unique_ptr<Expression>> args;
-    args.push_back(std::move(expr));
-    return std::unique_ptr<Expression>(new Constructor(-1, type, std::move(args)));
+    return this->createNode(new Constructor(this, -1, type, { exprID }));
 }
 
 static bool is_matrix_multiply(const Type& left, const Type& right) {
@@ -1277,31 +1234,33 @@ static bool is_matrix_multiply(const Type& left, const Type& right) {
  */
 static bool determine_binary_type(const Context& context,
                                   Token::Kind op,
-                                  const Type& left,
-                                  const Type& right,
-                                  const Type** outLeftType,
-                                  const Type** outRightType,
-                                  const Type** outResultType,
+                                  IRNode::ID leftID,
+                                  IRNode::ID rightID,
+                                  IRNode::ID* outLeftType,
+                                  IRNode::ID* outRightType,
+                                  IRNode::ID* outResultType,
                                   bool tryFlipped) {
+    Type& left = leftID.typeNode();
+    Type& right = rightID.typeNode();
     bool isLogical;
     bool validMatrixOrVectorOp;
     switch (op) {
         case Token::EQ:
-            *outLeftType = &left;
-            *outRightType = &left;
-            *outResultType = &left;
+            *outLeftType = leftID;
+            *outRightType = leftID;
+            *outResultType = leftID;
             return right.canCoerceTo(left);
         case Token::EQEQ: // fall through
         case Token::NEQ:
             if (right.canCoerceTo(left)) {
-                *outLeftType = &left;
-                *outRightType = &left;
-                *outResultType = context.fBool_Type.get();
+                *outLeftType = leftID;
+                *outRightType = leftID;
+                *outResultType = context.fBool_Type;
                 return true;
             } if (left.canCoerceTo(right)) {
-                *outLeftType = &right;
-                *outRightType = &right;
-                *outResultType = context.fBool_Type.get();
+                *outLeftType = rightID;
+                *outRightType = rightID;
+                *outResultType = context.fBool_Type;
                 return true;
             }
             return false;
@@ -1318,16 +1277,16 @@ static bool determine_binary_type(const Context& context,
         case Token::LOGICALOREQ: // fall through
         case Token::LOGICALANDEQ: // fall through
         case Token::LOGICALXOREQ:
-            *outLeftType = context.fBool_Type.get();
-            *outRightType = context.fBool_Type.get();
-            *outResultType = context.fBool_Type.get();
-            return left.canCoerceTo(*context.fBool_Type) &&
-                   right.canCoerceTo(*context.fBool_Type);
+            *outLeftType = context.fBool_Type;
+            *outRightType = context.fBool_Type;
+            *outResultType = context.fBool_Type;
+            return left.canCoerceTo(context.fBool_Type.typeNode()) &&
+                   right.canCoerceTo(context.fBool_Type.typeNode());
         case Token::STAREQ:
             if (left.kind() == Type::kScalar_Kind) {
-                *outLeftType = &left;
-                *outRightType = &left;
-                *outResultType = &left;
+                *outLeftType = leftID;
+                *outRightType = leftID;
+                *outResultType = leftID;
                 return right.canCoerceTo(left);
             }
             // fall through
@@ -1337,10 +1296,10 @@ static bool determine_binary_type(const Context& context,
                 if (determine_binary_type(context, Token::STAR, left.componentType(),
                                           right.componentType(), outLeftType, outRightType,
                                           outResultType, false)) {
-                    *outLeftType = &(*outResultType)->toCompound(context, left.columns(),
-                                                                 left.rows());
-                    *outRightType = &(*outResultType)->toCompound(context, right.columns(),
-                                                                  right.rows());
+                    *outLeftType = outResultType->typeNode().toCompound(left.columns(),
+                                                                        left.rows());
+                    *outRightType = outResultType->typeNode().toCompound(right.columns(),
+                                                                         right.rows());
                     int leftColumns = left.columns();
                     int leftRows = left.rows();
                     int rightColumns;
@@ -1356,12 +1315,12 @@ static bool determine_binary_type(const Context& context,
                         rightRows = right.rows();
                     }
                     if (rightColumns > 1) {
-                        *outResultType = &(*outResultType)->toCompound(context, rightColumns,
-                                                                       leftRows);
+                        *outResultType = outResultType->typeNode().toCompound(rightColumns,
+                                                                              leftRows);
                     } else {
                         // result was a column vector, transpose it back to a row
-                        *outResultType = &(*outResultType)->toCompound(context, leftRows,
-                                                                       rightColumns);
+                        *outResultType = outResultType->typeNode().toCompound(leftRows,
+                                                                              rightColumns);
                     }
                     return leftColumns == rightRows;
                 } else {
@@ -1378,9 +1337,9 @@ static bool determine_binary_type(const Context& context,
         case Token::SHLEQ:
         case Token::SHREQ:
             if (left.kind() == Type::kScalar_Kind) {
-                *outLeftType = &left;
-                *outRightType = &left;
-                *outResultType = &left;
+                *outLeftType = leftID;
+                *outRightType = leftID;
+                *outResultType = leftID;
                 return right.canCoerceTo(left);
             }
             // fall through
@@ -1391,9 +1350,9 @@ static bool determine_binary_type(const Context& context,
             validMatrixOrVectorOp = true;
             break;
         case Token::COMMA:
-            *outLeftType = &left;
-            *outRightType = &right;
-            *outResultType = &right;
+            *outLeftType = leftID;
+            *outRightType = rightID;
+            *outResultType = rightID;
             return true;
         default:
             isLogical = false;
@@ -1403,85 +1362,85 @@ static bool determine_binary_type(const Context& context,
     if (left.kind() == Type::kScalar_Kind && right.kind() == Type::kScalar_Kind &&
             right.canCoerceTo(left)) {
         if (left.priority() > right.priority()) {
-            *outLeftType = &left;
-            *outRightType = &left;
+            *outLeftType = leftID;
+            *outRightType = leftID;
         } else {
-            *outLeftType = &right;
-            *outRightType = &right;
+            *outLeftType = rightID;
+            *outRightType = rightID;
         }
         if (isLogical) {
-            *outResultType = context.fBool_Type.get();
+            *outResultType = context.fBool_Type;
         } else {
-            *outResultType = &left;
+            *outResultType = leftID;
         }
         return true;
     }
     if (right.canCoerceTo(left) && isVectorOrMatrix && validMatrixOrVectorOp) {
-        *outLeftType = &left;
-        *outRightType = &left;
+        *outLeftType = leftID;
+        *outRightType = leftID;
         if (isLogical) {
-            *outResultType = context.fBool_Type.get();
+            *outResultType = context.fBool_Type;
         } else {
-            *outResultType = &left;
+            *outResultType = leftID;
         }
         return true;
     }
     if ((left.kind() == Type::kVector_Kind || left.kind() == Type::kMatrix_Kind) &&
         (right.kind() == Type::kScalar_Kind)) {
-        if (determine_binary_type(context, op, left.componentType(), right, outLeftType,
+        if (determine_binary_type(context, op, left.componentType(), rightID, outLeftType,
                                   outRightType, outResultType, false)) {
-            *outLeftType = &(*outLeftType)->toCompound(context, left.columns(), left.rows());
+            *outLeftType = outLeftType->typeNode().toCompound(left.columns(), left.rows());
             if (!isLogical) {
-                *outResultType = &(*outResultType)->toCompound(context, left.columns(),
-                                                               left.rows());
+                *outResultType = outResultType->typeNode().toCompound(left.columns(), left.rows());
             }
             return true;
         }
         return false;
     }
     if (tryFlipped) {
-        return determine_binary_type(context, op, right, left, outRightType, outLeftType,
+        return determine_binary_type(context, op, rightID, leftID, outRightType, outLeftType,
                                      outResultType, false);
     }
     return false;
 }
 
-static std::unique_ptr<Expression> short_circuit_boolean(const Context& context,
-                                                         const Expression& left,
-                                                         Token::Kind op,
-                                                         const Expression& right) {
+IRNode::ID IRGenerator::shortCircuitBoolean(IRNode::ID leftID, Token::Kind op, IRNode::ID rightID) {
+    Expression& left = leftID.expressionNode();
+    Expression& right = rightID.expressionNode();
     SkASSERT(left.fKind == Expression::kBoolLiteral_Kind);
     bool leftVal = ((BoolLiteral&) left).fValue;
     if (op == Token::LOGICALAND) {
         // (true && expr) -> (expr) and (false && expr) -> (false)
         return leftVal ? right.clone()
-                       : std::unique_ptr<Expression>(new BoolLiteral(context, left.fOffset, false));
+                       : this->createNode(new BoolLiteral(this, left.fOffset, false));
     } else if (op == Token::LOGICALOR) {
-        // (true || expr) -> (true) and (false || expr) -> (expr)
-        return leftVal ? std::unique_ptr<Expression>(new BoolLiteral(context, left.fOffset, true))
+    // (true || expr) -> (true) and (false || expr) -> (expr)
+        return leftVal ? this->createNode(new BoolLiteral(this, left.fOffset, true))
                        : right.clone();
     } else {
         // Can't short circuit XOR
-        return nullptr;
+        return IRNode::ID();
     }
 }
 
-std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
-                                                      Token::Kind op,
-                                                      const Expression& right) const {
+IRNode::ID IRGenerator::constantFold(IRNode::ID leftID,
+                                     Token::Kind op,
+                                     IRNode::ID rightID) {
+    Expression& left = leftID.expressionNode();
+    Expression& right = rightID.expressionNode();
     // If the left side is a constant boolean literal, the right side does not need to be constant
     // for short circuit optimizations to allow the constant to be folded.
     if (left.fKind == Expression::kBoolLiteral_Kind && !right.isConstant()) {
-        return short_circuit_boolean(fContext, left, op, right);
+        return this->shortCircuitBoolean(leftID, op, rightID);
     } else if (right.fKind == Expression::kBoolLiteral_Kind && !left.isConstant()) {
         // There aren't side effects in SKSL within expressions, so (left OP right) is equivalent to
         // (right OP left) for short-circuit optimizations
-        return short_circuit_boolean(fContext, right, op, left);
+        return this->shortCircuitBoolean(rightID, op, leftID);
     }
 
     // Other than the short-circuit cases above, constant folding requires both sides to be constant
     if (!left.isConstant() || !right.isConstant()) {
-        return nullptr;
+        return IRNode::ID();
     }
     // Note that we expressly do not worry about precision and overflow here -- we use the maximum
     // precision to calculate the results and hope the result makes sense. The plan is to move the
@@ -1496,12 +1455,12 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             case Token::LOGICALAND: result = leftVal && rightVal; break;
             case Token::LOGICALOR:  result = leftVal || rightVal; break;
             case Token::LOGICALXOR: result = leftVal ^  rightVal; break;
-            default: return nullptr;
+            default: return IRNode::ID();
         }
-        return std::unique_ptr<Expression>(new BoolLiteral(fContext, left.fOffset, result));
+        return this->createNode(new BoolLiteral(this, left.fOffset, result));
     }
-    #define RESULT(t, op) std::unique_ptr<Expression>(new t ## Literal(fContext, left.fOffset, \
-                                                                       leftVal op rightVal))
+    #define RESULT(t, op) this->createNode(new t ## Literal(this, left.fOffset, \
+                                                            leftVal op rightVal))
     if (left.fKind == Expression::kIntLiteral_Kind && right.fKind == Expression::kIntLiteral_Kind) {
         int64_t leftVal  = ((IntLiteral&) left).fValue;
         int64_t rightVal = ((IntLiteral&) right).fValue;
@@ -1514,13 +1473,13 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                     return RESULT(Int, /);
                 }
                 fErrors.error(right.fOffset, "division by zero");
-                return nullptr;
+                return IRNode::ID();
             case Token::PERCENT:
                 if (rightVal) {
                     return RESULT(Int, %);
                 }
                 fErrors.error(right.fOffset, "division by zero");
-                return nullptr;
+                return IRNode::ID();
             case Token::BITWISEAND: return RESULT(Int,  &);
             case Token::BITWISEOR:  return RESULT(Int,  |);
             case Token::BITWISEXOR: return RESULT(Int,  ^);
@@ -1535,16 +1494,16 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                     return RESULT(Int,  <<);
                 }
                 fErrors.error(right.fOffset, "shift value out of range");
-                return nullptr;
+                return IRNode::ID();
             case Token::SHR:
                 if (rightVal >= 0 && rightVal <= 31) {
                     return RESULT(Int,  >>);
                 }
                 fErrors.error(right.fOffset, "shift value out of range");
-                return nullptr;
+                return IRNode::ID();
 
             default:
-                return nullptr;
+                return IRNode::ID();
         }
     }
     if (left.fKind == Expression::kFloatLiteral_Kind &&
@@ -1560,7 +1519,7 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                     return RESULT(Float, /);
                 }
                 fErrors.error(right.fOffset, "division by zero");
-                return nullptr;
+                return IRNode::ID();
             case Token::EQEQ:       return RESULT(Bool, ==);
             case Token::NEQ:        return RESULT(Bool, !=);
             case Token::GT:         return RESULT(Bool, >);
@@ -1570,166 +1529,165 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             default:                return nullptr;
         }
     }
-    if (left.fType.kind() == Type::kVector_Kind && left.fType.componentType().isFloat() &&
+    if (left.fType.typeNode().kind() == Type::kVector_Kind &&
+        left.fType.typeNode().componentType().typeNode().isFloat() &&
         left.fType == right.fType) {
-        std::vector<std::unique_ptr<Expression>> args;
-        #define RETURN_VEC_COMPONENTWISE_RESULT(op)                              \
-            for (int i = 0; i < left.fType.columns(); i++) {                     \
-                float value = left.getFVecComponent(i) op                        \
-                              right.getFVecComponent(i);                         \
-                args.emplace_back(new FloatLiteral(fContext, -1, value));        \
-            }                                                                    \
-            return std::unique_ptr<Expression>(new Constructor(-1, left.fType,   \
-                                                               std::move(args)))
+        std::vector<IRNode::ID> args;
+        #define RETURN_VEC_COMPONENTWISE_RESULT(op)                                         \
+            for (int i = 0; i < left.fType.typeNode().columns(); i++) {                     \
+                float value = left.getFVecComponent(i) op                                   \
+                              right.getFVecComponent(i);                                    \
+                args.emplace_back(new FloatLiteral(this, -1, value));                       \
+            }                                                                               \
+            return this->createNode(new Constructor(this, -1, left.fType, std::move(args)))
         switch (op) {
             case Token::EQEQ:
-                return std::unique_ptr<Expression>(new BoolLiteral(fContext, -1,
-                                                            left.compareConstant(fContext, right)));
+                return this->createNode(new BoolLiteral(this, -1, left.compareConstant(right)));
             case Token::NEQ:
-                return std::unique_ptr<Expression>(new BoolLiteral(fContext, -1,
-                                                           !left.compareConstant(fContext, right)));
+                return this->createNode(new BoolLiteral(this, -1, !left.compareConstant(right)));
             case Token::PLUS:  RETURN_VEC_COMPONENTWISE_RESULT(+);
             case Token::MINUS: RETURN_VEC_COMPONENTWISE_RESULT(-);
             case Token::STAR:  RETURN_VEC_COMPONENTWISE_RESULT(*);
             case Token::SLASH:
-                for (int i = 0; i < left.fType.columns(); i++) {
+                for (int i = 0; i < left.fType.typeNode().columns(); i++) {
                     SKSL_FLOAT rvalue = right.getFVecComponent(i);
                     if (rvalue == 0.0) {
                         fErrors.error(right.fOffset, "division by zero");
                         return nullptr;
                     }
                     float value = left.getFVecComponent(i) / rvalue;
-                    args.emplace_back(new FloatLiteral(fContext, -1, value));
+                    args.emplace_back(new FloatLiteral(this, -1, value));
                 }
-                return std::unique_ptr<Expression>(new Constructor(-1, left.fType,
-                                                                   std::move(args)));
-            default:           return nullptr;
+                return this->createNode(new Constructor(this, -1, left.fType, std::move(args)));
+            default: return IRNode::ID();
         }
     }
-    if (left.fType.kind() == Type::kMatrix_Kind &&
-        right.fType.kind() == Type::kMatrix_Kind &&
+    if (left.fType.typeNode().kind() == Type::kMatrix_Kind &&
+        right.fType.typeNode().kind() == Type::kMatrix_Kind &&
         left.fKind == right.fKind) {
         switch (op) {
             case Token::EQEQ:
-                return std::unique_ptr<Expression>(new BoolLiteral(fContext, -1,
-                                                            left.compareConstant(fContext, right)));
+                return this->createNode(new BoolLiteral(this, -1, left.compareConstant(right)));
             case Token::NEQ:
-                return std::unique_ptr<Expression>(new BoolLiteral(fContext, -1,
-                                                           !left.compareConstant(fContext, right)));
+                return this->createNode(new BoolLiteral(this, -1, !left.compareConstant(right)));
             default:
-                return nullptr;
+                return IRNode::ID();
         }
     }
     #undef RESULT
-    return nullptr;
+    return IRNode::ID();
 }
 
-std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& expression) {
+IRNode::ID IRGenerator::convertBinaryExpression(const ASTNode& expression) {
     SkASSERT(expression.fKind == ASTNode::Kind::kBinary);
     auto iter = expression.begin();
-    std::unique_ptr<Expression> left = this->convertExpression(*(iter++));
-    if (!left) {
-        return nullptr;
+    IRNode::ID leftID = this->convertExpression(*(iter++));
+    if (!leftID) {
+        return IRNode::ID();
     }
-    std::unique_ptr<Expression> right = this->convertExpression(*(iter++));
-    if (!right) {
-        return nullptr;
+    IRNode::ID rightID = this->convertExpression(*(iter++));
+    if (!rightID) {
+        return IRNode::ID();
     }
-    const Type* leftType;
-    const Type* rightType;
-    const Type* resultType;
-    const Type* rawLeftType;
-    if (left->fKind == Expression::kIntLiteral_Kind && right->fType.isInteger()) {
-        rawLeftType = &right->fType;
+    Expression& left = leftID.expressionNode();
+    Expression& right = rightID.expressionNode();
+    IRNode::ID leftType;
+    IRNode::ID rightType;
+    IRNode::ID resultType;
+    IRNode::ID rawLeftType;
+    if (left.fKind == Expression::kIntLiteral_Kind && right.fType.typeNode().isInteger()) {
+        rawLeftType = right.fType;
     } else {
-        rawLeftType = &left->fType;
+        rawLeftType = left.fType;
     }
-    const Type* rawRightType;
-    if (right->fKind == Expression::kIntLiteral_Kind && left->fType.isInteger()) {
-        rawRightType = &left->fType;
+    IRNode::ID rawRightType;
+    if (right.fKind == Expression::kIntLiteral_Kind && left.fType.typeNode().isInteger()) {
+        rawRightType = left.fType;
     } else {
-        rawRightType = &right->fType;
+        rawRightType = right.fType;
     }
     Token::Kind op = expression.getToken().fKind;
-    if (!determine_binary_type(fContext, op, *rawLeftType, *rawRightType, &leftType, &rightType,
+    if (!determine_binary_type(fContext, op, rawLeftType, rawRightType, &leftType, &rightType,
                                &resultType, !Compiler::IsAssignment(op))) {
         fErrors.error(expression.fOffset, String("type mismatch: '") +
                                           Compiler::OperatorName(expression.getToken().fKind) +
-                                          "' cannot operate on '" + left->fType.description() +
-                                          "', '" + right->fType.description() + "'");
-        return nullptr;
+                                          "' cannot operate on '" +
+                                          left.fType.node().description() +
+                                          "', '" + right.fType.node().description() + "'");
+        return IRNode::ID();
     }
     if (Compiler::IsAssignment(op)) {
-        this->setRefKind(*left, op != Token::EQ ? VariableReference::kReadWrite_RefKind :
-                                                  VariableReference::kWrite_RefKind);
+        this->setRefKind(left, op != Token::EQ ? kReadWrite_RefKind : kWrite_RefKind);
     }
-    left = this->coerce(std::move(left), *leftType);
-    right = this->coerce(std::move(right), *rightType);
-    if (!left || !right) {
-        return nullptr;
+    leftID = this->coerce(leftID, leftType);
+    rightID = this->coerce(rightID, rightType);
+    if (!leftID || !rightID) {
+        return IRNode::ID();
     }
-    std::unique_ptr<Expression> result = this->constantFold(*left.get(), op, *right.get());
+    IRNode::ID result = this->constantFold(leftID, op, rightID);
     if (!result) {
-        result = std::unique_ptr<Expression>(new BinaryExpression(expression.fOffset,
-                                                                  std::move(left),
-                                                                  op,
-                                                                  std::move(right),
-                                                                  *resultType));
+        result = this->createNode(new BinaryExpression(this,
+                                                       expression.fOffset,
+                                                       leftID,
+                                                       op,
+                                                       rightID,
+                                                       resultType));
     }
     return result;
 }
 
-std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode& node) {
+IRNode::ID IRGenerator::convertTernaryExpression(const ASTNode& node) {
     SkASSERT(node.fKind == ASTNode::Kind::kTernary);
     auto iter = node.begin();
-    std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*(iter++)),
-                                                    *fContext.fBool_Type);
+    IRNode::ID test = this->coerce(this->convertExpression(*(iter++)), fContext.fBool_Type);
     if (!test) {
-        return nullptr;
+        return IRNode::ID();
     }
-    std::unique_ptr<Expression> ifTrue = this->convertExpression(*(iter++));
+    IRNode::ID ifTrue = this->convertExpression(*(iter++));
     if (!ifTrue) {
-        return nullptr;
+        return IRNode::ID();
     }
-    std::unique_ptr<Expression> ifFalse = this->convertExpression(*(iter++));
+    IRNode::ID ifFalse = this->convertExpression(*(iter++));
     if (!ifFalse) {
-        return nullptr;
+        return IRNode::ID();
     }
-    const Type* trueType;
-    const Type* falseType;
-    const Type* resultType;
-    if (!determine_binary_type(fContext, Token::EQEQ, ifTrue->fType, ifFalse->fType, &trueType,
-                               &falseType, &resultType, true) || trueType != falseType) {
+    IRNode::ID trueType;
+    IRNode::ID falseType;
+    IRNode::ID resultType;
+    if (!determine_binary_type(fContext, Token::EQEQ, ifTrue.expressionNode().fType,
+                               ifFalse.expressionNode().fType, &trueType, &falseType, &resultType,
+                               true) || trueType != falseType) {
         fErrors.error(node.fOffset, "ternary operator result mismatch: '" +
-                                    ifTrue->fType.description() + "', '" +
-                                    ifFalse->fType.description() + "'");
-        return nullptr;
+                                    ifTrue.expressionNode().fType.node().description() + "', '" +
+                                    ifFalse.expressionNode().fType.node().description() + "'");
+        return IRNode::ID();
     }
-    ifTrue = this->coerce(std::move(ifTrue), *trueType);
+    ifTrue = this->coerce(ifTrue, trueType);
     if (!ifTrue) {
-        return nullptr;
+        return IRNode::ID();
     }
-    ifFalse = this->coerce(std::move(ifFalse), *falseType);
+    ifFalse = this->coerce(ifFalse, falseType);
     if (!ifFalse) {
-        return nullptr;
+        return IRNode::ID();
     }
-    if (test->fKind == Expression::kBoolLiteral_Kind) {
+    if (test.expressionNode().fKind == Expression::kBoolLiteral_Kind) {
         // static boolean test, just return one of the branches
-        if (((BoolLiteral&) *test).fValue) {
+        if (((BoolLiteral&) test.node()).fValue) {
             return ifTrue;
         } else {
             return ifFalse;
         }
     }
-    return std::unique_ptr<Expression>(new TernaryExpression(node.fOffset,
-                                                             std::move(test),
-                                                             std::move(ifTrue),
-                                                             std::move(ifFalse)));
+    return this->createNode(new TernaryExpression(this,
+                                                  node.fOffset,
+                                                  std::move(test),
+                                                  std::move(ifTrue),
+                                                  std::move(ifFalse)));
 }
 
-std::unique_ptr<Expression> IRGenerator::call(int offset,
-                                              const FunctionDeclaration& function,
-                                              std::vector<std::unique_ptr<Expression>> arguments) {
+IRNode::ID IRGenerator::callFunction(int offset, IRNode::ID functionID,
+                                     std::vector<IRNode::ID> arguments) {
+    FunctionDeclaration& function = (FunctionDeclaration&) functionID.node();
     if (function.fParameters.size() != arguments.size()) {
         String msg = "call to '" + function.fName + "' expected " +
                                  to_string((uint64_t) function.fParameters.size()) +
@@ -1739,36 +1697,36 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         }
         msg += ", but found " + to_string((uint64_t) arguments.size());
         fErrors.error(offset, msg);
-        return nullptr;
+        return IRNode::ID();
     }
-    std::vector<const Type*> types;
-    const Type* returnType;
+    std::vector<IRNode::ID> types;
+    IRNode::ID returnType;
     if (!function.determineFinalTypes(arguments, &types, &returnType)) {
         String msg = "no match for " + function.fName + "(";
         String separator;
         for (size_t i = 0; i < arguments.size(); i++) {
             msg += separator;
             separator = ", ";
-            msg += arguments[i]->fType.description();
+            msg += arguments[i].expressionNode().fType.node().description();
         }
         msg += ")";
         fErrors.error(offset, msg);
-        return nullptr;
+        return IRNode::ID();
     }
     for (size_t i = 0; i < arguments.size(); i++) {
-        arguments[i] = this->coerce(std::move(arguments[i]), *types[i]);
+        arguments[i] = this->coerce(arguments[i], types[i]);
         if (!arguments[i]) {
-            return nullptr;
+            return IRNode::ID();
         }
-        if (arguments[i] && (function.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag)) {
-            this->setRefKind(*arguments[i],
-                             function.fParameters[i]->fModifiers.fFlags & Modifiers::kIn_Flag ?
-                             VariableReference::kReadWrite_RefKind :
-                             VariableReference::kPointer_RefKind);
+        Variable& param = (Variable&) function.fParameters[i];
+        if (arguments[i] && (param.fModifiers.fFlags & Modifiers::kOut_Flag)) {
+            this->setRefKind(arguments[i].expressionNode(),
+                             param.fModifiers.fFlags & Modifiers::kIn_Flag ? kReadWrite_RefKind
+                                                                           : kPointer_RefKind);
         }
     }
-    return std::unique_ptr<FunctionCall>(new FunctionCall(offset, *returnType, function,
-                                                          std::move(arguments)));
+    return this->createNode(new FunctionCall(this, offset, returnType, functionID,
+                                             std::move(arguments)));
 }
 
 /**
@@ -1777,18 +1735,18 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
  * valid.
  */
 int IRGenerator::callCost(const FunctionDeclaration& function,
-             const std::vector<std::unique_ptr<Expression>>& arguments) {
+                          const std::vector<IRNode::ID>& arguments) {
     if (function.fParameters.size() != arguments.size()) {
         return INT_MAX;
     }
     int total = 0;
-    std::vector<const Type*> types;
-    const Type* ignored;
+    std::vector<IRNode::ID> types;
+    IRNode::ID ignored;
     if (!function.determineFinalTypes(arguments, &types, &ignored)) {
         return INT_MAX;
     }
     for (size_t i = 0; i < arguments.size(); i++) {
-        int cost = arguments[i]->coercionCost(*types[i]);
+        int cost = arguments[i].expressionNode().coercionCost(types[i].typeNode());
         if (cost != INT_MAX) {
             total += cost;
         } else {
@@ -1798,117 +1756,119 @@ int IRGenerator::callCost(const FunctionDeclaration& function,
     return total;
 }
 
-std::unique_ptr<Expression> IRGenerator::call(int offset,
-                                              std::unique_ptr<Expression> functionValue,
-                                              std::vector<std::unique_ptr<Expression>> arguments) {
-    switch (functionValue->fKind) {
+IRNode::ID IRGenerator::callExpression(int offset, IRNode::ID functionValue,
+                                       std::vector<IRNode::ID> arguments) {
+    switch (functionValue.expressionNode().fKind) {
         case Expression::kTypeReference_Kind:
             return this->convertConstructor(offset,
-                                            ((TypeReference&) *functionValue).fValue,
+                                            ((TypeReference&) functionValue.node()).fValue,
                                             std::move(arguments));
         case Expression::kExternalValue_Kind: {
-            ExternalValue* v = ((ExternalValueReference&) *functionValue).fValue;
-            if (!v->canCall()) {
+/*            IRNode::ID v = ((ExternalValueReference&) functionValue.node()).fValue;
+            if (!((ExternalValue&) v.node()).canCall()) {
                 fErrors.error(offset, "this external value is not a function");
-                return nullptr;
+                return IRNode::ID();
             }
-            int count = v->callParameterCount();
+            int count = ((ExternalValue&) v.node()).callParameterCount();
             if (count != (int) arguments.size()) {
                 fErrors.error(offset, "external function expected " + to_string(count) +
                                       " arguments, but found " + to_string((int) arguments.size()));
-                return nullptr;
+                return IRNode::ID();
             }
             static constexpr int PARAMETER_MAX = 16;
             SkASSERT(count < PARAMETER_MAX);
-            const Type* types[PARAMETER_MAX];
-            v->getCallParameterTypes(types);
+            IRNode::ID types[PARAMETER_MAX];
+            ((ExternalValue&) v.node()).getCallParameterTypes(types);
             for (int i = 0; i < count; ++i) {
-                arguments[i] = this->coerce(std::move(arguments[i]), *types[i]);
+                arguments[i] = this->coerce(arguments[i], types[i]);
                 if (!arguments[i]) {
-                    return nullptr;
+                    return IRNode::ID();
                 }
             }
-            return std::unique_ptr<Expression>(new ExternalFunctionCall(offset, v->callReturnType(),
-                                                                        v, std::move(arguments)));
+            return IRNode::ID(new ExternalFunctionCall(this,
+                                                       offset,
+                                                       ((ExternalValue&) v.node()).callReturnType(),
+                                                       v,
+                                                       std::move(arguments)));*/
+            abort(); // NYI
         }
         case Expression::kFunctionReference_Kind: {
-            FunctionReference* ref = (FunctionReference*) functionValue.get();
+            FunctionReference& ref = (FunctionReference&) functionValue.node();
             int bestCost = INT_MAX;
-            const FunctionDeclaration* best = nullptr;
-            if (ref->fFunctions.size() > 1) {
-                for (const auto& f : ref->fFunctions) {
-                    int cost = this->callCost(*f, arguments);
+            IRNode::ID best = nullptr;
+            if (ref.fFunctions.size() > 1) {
+                for (IRNode::ID f : ref.fFunctions) {
+                    int cost = this->callCost((FunctionDeclaration&) f.node(), arguments);
                     if (cost < bestCost) {
                         bestCost = cost;
                         best = f;
                     }
                 }
                 if (best) {
-                    return this->call(offset, *best, std::move(arguments));
+                    return this->callFunction(offset, best, std::move(arguments));
                 }
-                String msg = "no match for " + ref->fFunctions[0]->fName + "(";
+                String msg = "no match for " +
+                             ((FunctionDeclaration&) ref.fFunctions[0].fNode).fName + "(";
                 String separator;
                 for (size_t i = 0; i < arguments.size(); i++) {
                     msg += separator;
                     separator = ", ";
-                    msg += arguments[i]->fType.description();
+                    msg += arguments[i].expressionNode().fType.node().description();
                 }
                 msg += ")";
                 fErrors.error(offset, msg);
-                return nullptr;
+                return IRNode::ID();
             }
-            return this->call(offset, *ref->fFunctions[0], std::move(arguments));
+            return this->callFunction(offset, ref.fFunctions[0], std::move(arguments));
         }
         default:
-            fErrors.error(offset, "'" + functionValue->description() + "' is not a function");
-            return nullptr;
+            fErrors.error(offset, "'" + functionValue.node().description() + "' is not a function");
+            return IRNode::ID();
     }
 }
 
-std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
-                                                    int offset,
-                                                    const Type& type,
-                                                    std::vector<std::unique_ptr<Expression>> args) {
+IRNode::ID IRGenerator::convertNumberConstructor(int offset, IRNode::ID typeID,
+                                                 std::vector<IRNode::ID> args) {
+    const Type& type = typeID.typeNode();
     SkASSERT(type.isNumber());
     if (args.size() != 1) {
         fErrors.error(offset, "invalid arguments to '" + type.description() +
                               "' constructor, (expected exactly 1 argument, but found " +
                               to_string((uint64_t) args.size()) + ")");
-        return nullptr;
+        return IRNode::ID();
     }
-    if (type == args[0]->fType) {
-        return std::move(args[0]);
+    if (type == args[0].expressionNode().fType) {
+        return args[0];
     }
-    if (type.isFloat() && args.size() == 1 && args[0]->fKind == Expression::kFloatLiteral_Kind) {
-        double value = ((FloatLiteral&) *args[0]).fValue;
-        return std::unique_ptr<Expression>(new FloatLiteral(offset, value, &type));
+    if (type.isFloat() && args.size() == 1 &&
+        args[0].expressionNode().fKind == Expression::kFloatLiteral_Kind) {
+        double value = ((FloatLiteral&) args[0].node()).fValue;
+        return this->createNode(new FloatLiteral(this, offset, value, typeID));
     }
-    if (type.isFloat() && args.size() == 1 && args[0]->fKind == Expression::kIntLiteral_Kind) {
-        int64_t value = ((IntLiteral&) *args[0]).fValue;
-        return std::unique_ptr<Expression>(new FloatLiteral(offset, (double) value, &type));
+    if (type.isFloat() && args.size() == 1 &&
+        args[0].expressionNode().fKind == Expression::kIntLiteral_Kind) {
+        int64_t value = ((IntLiteral&) args[0].node()).fValue;
+        return this->createNode(new FloatLiteral(this, offset, (double) value, typeID));
     }
-    if (args[0]->fKind == Expression::kIntLiteral_Kind && (type == *fContext.fInt_Type ||
-        type == *fContext.fUInt_Type)) {
-        return std::unique_ptr<Expression>(new IntLiteral(offset,
-                                                          ((IntLiteral&) *args[0]).fValue,
-                                                          &type));
+    if (args[0].expressionNode().fKind == Expression::kIntLiteral_Kind &&
+        (type == fContext.fInt_Type || type == fContext.fUInt_Type)) {
+        return this->createNode(new IntLiteral(this, offset, ((IntLiteral&) args[0].node()).fValue,
+                                               typeID));
     }
-    if (args[0]->fType == *fContext.fBool_Type) {
-        std::unique_ptr<IntLiteral> zero(new IntLiteral(fContext, offset, 0));
-        std::unique_ptr<IntLiteral> one(new IntLiteral(fContext, offset, 1));
-        return std::unique_ptr<Expression>(
-                                     new TernaryExpression(offset, std::move(args[0]),
-                                                           this->coerce(std::move(one), type),
-                                                           this->coerce(std::move(zero),
-                                                                        type)));
+    if (args[0].expressionNode().fType == fContext.fBool_Type) {
+        IRNode::ID zero(new IntLiteral(this, offset, 0));
+        IRNode::ID one(new IntLiteral(this, offset, 1));
+        return this->createNode(new TernaryExpression(this, offset, args[0],
+                                                      this->coerce(one, typeID),
+                                                      this->coerce(zero, typeID)));
     }
-    if (!args[0]->fType.isNumber()) {
+    if (!args[0].expressionNode().fType.typeNode().isNumber()) {
         fErrors.error(offset, "invalid argument to '" + type.description() +
                               "' constructor (expected a number or bool, but found '" +
-                              args[0]->fType.description() + "')");
-        return nullptr;
+                              args[0].expressionNode().fType.node().description() + "')");
+        return IRNode::ID();
     }
-    return std::unique_ptr<Expression>(new Constructor(offset, type, std::move(args)));
+    return this->createNode(new Constructor(this, offset, typeID, std::move(args)));
 }
 
 int component_count(const Type& type) {
@@ -1922,223 +1882,232 @@ int component_count(const Type& type) {
     }
 }
 
-std::unique_ptr<Expression> IRGenerator::convertCompoundConstructor(
-                                                    int offset,
-                                                    const Type& type,
-                                                    std::vector<std::unique_ptr<Expression>> args) {
-    SkASSERT(type.kind() == Type::kVector_Kind || type.kind() == Type::kMatrix_Kind);
-    if (type.kind() == Type::kMatrix_Kind && args.size() == 1 &&
-        args[0]->fType.kind() == Type::kMatrix_Kind) {
+IRNode::ID IRGenerator::convertCompoundConstructor(int offset, IRNode::ID type,
+                                                   std::vector<IRNode::ID> args) {
+    SkASSERT(type.typeNode().kind() == Type::kVector_Kind ||
+             type.typeNode().kind() == Type::kMatrix_Kind);
+    if (type.typeNode().kind() == Type::kMatrix_Kind && args.size() == 1 &&
+        args[0].expressionNode().fType.typeNode().kind() == Type::kMatrix_Kind) {
         // matrix from matrix is always legal
-        return std::unique_ptr<Expression>(new Constructor(offset, type, std::move(args)));
+        return this->createNode(new Constructor(this, offset, type, std::move(args)));
     }
     int actual = 0;
-    int expected = type.rows() * type.columns();
-    if (args.size() != 1 || expected != component_count(args[0]->fType) ||
-        type.componentType().isNumber() != args[0]->fType.componentType().isNumber()) {
+    int expected = type.typeNode().rows() * type.typeNode().columns();
+    if (args.size() != 1 ||
+        expected != component_count(args[0].expressionNode().fType.typeNode()) ||
+        type.typeNode().componentType().typeNode().isNumber() !=
+        args[0].expressionNode().fType.typeNode().componentType().typeNode().isNumber()) {
         for (size_t i = 0; i < args.size(); i++) {
-            if (args[i]->fType.kind() == Type::kVector_Kind) {
-                if (type.componentType().isNumber() !=
-                    args[i]->fType.componentType().isNumber()) {
-                    fErrors.error(offset, "'" + args[i]->fType.description() + "' is not a valid "
-                                          "parameter to '" + type.description() +
+            if (args[i].expressionNode().fType.typeNode().kind() == Type::kVector_Kind) {
+                if (type.typeNode().componentType().typeNode().isNumber() !=
+                    args[i].expressionNode().fType.typeNode().componentType().typeNode().isNumber()) {
+                    fErrors.error(offset, "'" +
+                                          args[i].expressionNode().fType.node().description() +
+                                          "' is not a valid parameter to '" +
+                                          type.node().description() +
                                           "' constructor");
-                    return nullptr;
+                    return IRNode::ID();
                 }
-                actual += args[i]->fType.columns();
-            } else if (args[i]->fType.kind() == Type::kScalar_Kind) {
+                actual += args[i].expressionNode().fType.typeNode().columns();
+            } else if (args[i].expressionNode().fType.typeNode().kind() == Type::kScalar_Kind) {
                 actual += 1;
-                if (type.kind() != Type::kScalar_Kind) {
-                    args[i] = this->coerce(std::move(args[i]), type.componentType());
+                if (type.typeNode().kind() != Type::kScalar_Kind) {
+                    args[i] = this->coerce(args[i], type.typeNode().componentType());
                     if (!args[i]) {
-                        return nullptr;
+                        return IRNode::ID();
                     }
                 }
             } else {
-                fErrors.error(offset, "'" + args[i]->fType.description() + "' is not a valid "
-                                      "parameter to '" + type.description() + "' constructor");
-                return nullptr;
+                fErrors.error(offset, "'" + args[i].expressionNode().fType.node().description() +
+                                      "' is not a valid parameter to '" +
+                                      type.node().description() + "' constructor");
+                return IRNode::ID();
             }
         }
         if (actual != 1 && actual != expected) {
-            fErrors.error(offset, "invalid arguments to '" + type.description() +
+            fErrors.error(offset, "invalid arguments to '" + type.node().description() +
                                   "' constructor (expected " + to_string(expected) +
                                   " scalars, but found " + to_string(actual) + ")");
-            return nullptr;
+            return IRNode::ID();
         }
     }
-    return std::unique_ptr<Expression>(new Constructor(offset, type, std::move(args)));
+    return this->createNode(new Constructor(this, offset, type, std::move(args)));
 }
 
-std::unique_ptr<Expression> IRGenerator::convertConstructor(
-                                                    int offset,
-                                                    const Type& type,
-                                                    std::vector<std::unique_ptr<Expression>> args) {
+IRNode::ID IRGenerator::convertConstructor(int offset, IRNode::ID type,
+                                           std::vector<IRNode::ID> args) {
     // FIXME: add support for structs
-    Type::Kind kind = type.kind();
-    if (args.size() == 1 && args[0]->fType == type) {
+    Type::Kind kind = type.typeNode().kind();
+    if (args.size() == 1 && args[0].expressionNode().fType == type) {
         // argument is already the right type, just return it
-        return std::move(args[0]);
+        return args[0];
     }
-    if (type.isNumber()) {
+    if (type.typeNode().isNumber()) {
         return this->convertNumberConstructor(offset, type, std::move(args));
     } else if (kind == Type::kArray_Kind) {
-        const Type& base = type.componentType();
+        IRNode::ID base = type.typeNode().componentType();
         for (size_t i = 0; i < args.size(); i++) {
-            args[i] = this->coerce(std::move(args[i]), base);
+            args[i] = this->coerce(args[i], base);
             if (!args[i]) {
-                return nullptr;
+                return IRNode::ID();
             }
         }
-        return std::unique_ptr<Expression>(new Constructor(offset, type, std::move(args)));
+        return this->createNode(new Constructor(this, offset, type, std::move(args)));
     } else if (kind == Type::kVector_Kind || kind == Type::kMatrix_Kind) {
         return this->convertCompoundConstructor(offset, type, std::move(args));
     } else {
-        fErrors.error(offset, "cannot construct '" + type.description() + "'");
-        return nullptr;
+        fErrors.error(offset, "cannot construct '" + type.node().description() + "'");
+        return IRNode::ID();
     }
 }
 
-std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& expression) {
+IRNode::ID IRGenerator::convertPrefixExpression(const ASTNode& expression) {
     SkASSERT(expression.fKind == ASTNode::Kind::kPrefix);
-    std::unique_ptr<Expression> base = this->convertExpression(*expression.begin());
-    if (!base) {
-        return nullptr;
+    IRNode::ID baseID = this->convertExpression(*expression.begin());
+    if (!baseID) {
+        return IRNode::ID();
     }
+    Expression& base = baseID.expressionNode();
     switch (expression.getToken().fKind) {
         case Token::PLUS:
-            if (!base->fType.isNumber() && base->fType.kind() != Type::kVector_Kind &&
-                base->fType != *fContext.fFloatLiteral_Type) {
+            if (!base.fType.typeNode().isNumber() &&
+                base.fType.typeNode().kind() != Type::kVector_Kind &&
+                base.fType != fContext.fFloatLiteral_Type) {
                 fErrors.error(expression.fOffset,
-                              "'+' cannot operate on '" + base->fType.description() + "'");
-                return nullptr;
+                              "'+' cannot operate on '" + base.fType.node().description() + "'");
+                return IRNode::ID();
             }
-            return base;
+            return baseID;
         case Token::MINUS:
-            if (base->fKind == Expression::kIntLiteral_Kind) {
-                return std::unique_ptr<Expression>(new IntLiteral(fContext, base->fOffset,
-                                                                  -((IntLiteral&) *base).fValue));
+            if (base.fKind == Expression::kIntLiteral_Kind) {
+                return this->createNode(new IntLiteral(this, base.fOffset,
+                                                       -((IntLiteral&) base).fValue));
             }
-            if (base->fKind == Expression::kFloatLiteral_Kind) {
-                double value = -((FloatLiteral&) *base).fValue;
-                return std::unique_ptr<Expression>(new FloatLiteral(fContext, base->fOffset,
-                                                                    value));
+            if (base.fKind == Expression::kFloatLiteral_Kind) {
+                double value = -((FloatLiteral&) base).fValue;
+                return this->createNode(new FloatLiteral(this, base.fOffset, value));
             }
-            if (!base->fType.isNumber() && base->fType.kind() != Type::kVector_Kind) {
+            if (!base.fType.typeNode().isNumber() &&
+                base.fType.typeNode().kind() != Type::kVector_Kind) {
                 fErrors.error(expression.fOffset,
-                              "'-' cannot operate on '" + base->fType.description() + "'");
-                return nullptr;
+                              "'-' cannot operate on '" + base.fType.node().description() + "'");
+                return IRNode::ID();
             }
-            return std::unique_ptr<Expression>(new PrefixExpression(Token::MINUS, std::move(base)));
+            return this->createNode(new PrefixExpression(this, Token::MINUS, baseID));
         case Token::PLUSPLUS:
-            if (!base->fType.isNumber()) {
+            if (!base.fType.typeNode().isNumber()) {
                 fErrors.error(expression.fOffset,
                               String("'") + Compiler::OperatorName(expression.getToken().fKind) +
-                              "' cannot operate on '" + base->fType.description() + "'");
-                return nullptr;
+                              "' cannot operate on '" + base.fType.node().description() + "'");
+                return IRNode::ID();
             }
-            this->setRefKind(*base, VariableReference::kReadWrite_RefKind);
+            this->setRefKind(base, kReadWrite_RefKind);
             break;
         case Token::MINUSMINUS:
-            if (!base->fType.isNumber()) {
+            if (!base.fType.typeNode().isNumber()) {
                 fErrors.error(expression.fOffset,
                               String("'") + Compiler::OperatorName(expression.getToken().fKind) +
-                              "' cannot operate on '" + base->fType.description() + "'");
-                return nullptr;
+                              "' cannot operate on '" + base.fType.node().description() + "'");
+                return IRNode::ID();
             }
-            this->setRefKind(*base, VariableReference::kReadWrite_RefKind);
+            this->setRefKind(base, kReadWrite_RefKind);
             break;
         case Token::LOGICALNOT:
-            if (base->fType != *fContext.fBool_Type) {
+            if (base.fType != fContext.fBool_Type) {
                 fErrors.error(expression.fOffset,
                               String("'") + Compiler::OperatorName(expression.getToken().fKind) +
-                              "' cannot operate on '" + base->fType.description() + "'");
-                return nullptr;
+                              "' cannot operate on '" + base.fType.node().description() + "'");
+                return IRNode::ID();
             }
-            if (base->fKind == Expression::kBoolLiteral_Kind) {
-                return std::unique_ptr<Expression>(new BoolLiteral(fContext, base->fOffset,
-                                                                   !((BoolLiteral&) *base).fValue));
+            if (base.fKind == Expression::kBoolLiteral_Kind) {
+                return this->createNode(new BoolLiteral(this, base.fOffset,
+                                                        !((BoolLiteral&) base).fValue));
             }
             break;
         case Token::BITWISENOT:
-            if (base->fType != *fContext.fInt_Type) {
+            if (base.fType != fContext.fInt_Type) {
                 fErrors.error(expression.fOffset,
                               String("'") + Compiler::OperatorName(expression.getToken().fKind) +
-                              "' cannot operate on '" + base->fType.description() + "'");
-                return nullptr;
+                              "' cannot operate on '" + base.fType.node().description() + "'");
+                return IRNode::ID();
             }
             break;
         default:
             ABORT("unsupported prefix operator\n");
     }
-    return std::unique_ptr<Expression>(new PrefixExpression(expression.getToken().fKind,
-                                                            std::move(base)));
+    return this->createNode(new PrefixExpression(this, expression.getToken().fKind, baseID));
 }
 
-std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression> base,
-                                                      const ASTNode& index) {
-    if (base->fKind == Expression::kTypeReference_Kind) {
-        if (index.fKind == ASTNode::Kind::kInt) {
-            const Type& oldType = ((TypeReference&) *base).fValue;
-            SKSL_INT size = index.getInt();
-            Type* newType = (Type*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
-                                              new Type(oldType.name() + "[" + to_string(size) + "]",
-                                                       Type::kArray_Kind, oldType, size)));
-            return std::unique_ptr<Expression>(new TypeReference(fContext, base->fOffset,
-                                                                 *newType));
+IRNode::ID IRGenerator::convertIndex(IRNode::ID baseID, const ASTNode& index) {
+    {
+        Expression& base = baseID.expressionNode();
+        if (base.fKind == Expression::kTypeReference_Kind) {
+            if (index.fKind == ASTNode::Kind::kInt) {
+                IRNode::ID oldType = ((TypeReference&) base).fValue;
+                SKSL_INT size = index.getInt();
+                IRNode::ID newType = this->createNode(new Type(oldType.typeNode().name() + "[" +
+                                                               to_string(size) + "]",
+                                                               Type::kArray_Kind, oldType, size));
+                return this->createNode(new TypeReference(this, base.fOffset, newType));
 
-        } else {
-            fErrors.error(base->fOffset, "array size must be a constant");
-            return nullptr;
+            } else {
+                fErrors.error(base.fOffset, "array size must be a constant");
+                return nullptr;
+            }
+        }
+        switch (base.fType.typeNode().kind()) {
+            case Type::kArray_Kind:
+            case Type::kMatrix_Kind:
+            case Type::kVector_Kind:
+                break;
+            default:
+                fErrors.error(base.fOffset, "expected array, but found '" +
+                                            base.fType.node().description() + "'");
+                return nullptr;
         }
     }
-    if (base->fType.kind() != Type::kArray_Kind && base->fType.kind() != Type::kMatrix_Kind &&
-            base->fType.kind() != Type::kVector_Kind) {
-        fErrors.error(base->fOffset, "expected array, but found '" + base->fType.description() +
-                                     "'");
-        return nullptr;
-    }
-    std::unique_ptr<Expression> converted = this->convertExpression(index);
+    IRNode::ID converted = this->convertExpression(index);
     if (!converted) {
         return nullptr;
     }
-    if (converted->fType != *fContext.fUInt_Type) {
-        converted = this->coerce(std::move(converted), *fContext.fInt_Type);
+    if (converted.expressionNode().fType != fContext.fUInt_Type) {
+        converted = this->coerce(converted, fContext.fInt_Type);
         if (!converted) {
             return nullptr;
         }
     }
-    return std::unique_ptr<Expression>(new IndexExpression(fContext, std::move(base),
-                                                           std::move(converted)));
+    return this->createNode(new IndexExpression(this, baseID, converted));
 }
 
-std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression> base,
-                                                      StringFragment field) {
-    if (base->fKind == Expression::kExternalValue_Kind) {
-        ExternalValue& ev = *((ExternalValueReference&) *base).fValue;
+IRNode::ID IRGenerator::convertField(IRNode::ID baseID, StringFragment field) {
+    Expression& base = baseID.expressionNode();
+    if (base.fKind == Expression::kExternalValue_Kind) {
+/*        ExternalValue& ev = *((ExternalValueReference&) *base).fValue;
         ExternalValue* result = ev.getChild(String(field).c_str());
         if (!result) {
             fErrors.error(base->fOffset, "external value does not have a child named '" + field +
                                          "'");
             return nullptr;
         }
-        return std::unique_ptr<Expression>(new ExternalValueReference(base->fOffset, result));
+        return this->createNode(new ExternalValueReference(base->fOffset, result));*/
+        abort(); // NYI
     }
-    auto fields = base->fType.fields();
+    auto fields = base.fType.typeNode().fields();
     for (size_t i = 0; i < fields.size(); i++) {
         if (fields[i].fName == field) {
-            return std::unique_ptr<Expression>(new FieldAccess(std::move(base), (int) i));
+            return this->createNode(new FieldAccess(this, baseID, (int) i));
         }
     }
-    fErrors.error(base->fOffset, "type '" + base->fType.description() + "' does not have a "
-                                 "field named '" + field + "");
+    fErrors.error(base.fOffset, "type '" + base.fType.node().description() + "' does not have a "
+                                "field named '" + field + "");
     return nullptr;
 }
 
-std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expression> base,
-                                                        StringFragment fields) {
-    if (base->fType.kind() != Type::kVector_Kind) {
-        fErrors.error(base->fOffset, "cannot swizzle type '" + base->fType.description() + "'");
+IRNode::ID IRGenerator::convertSwizzle(IRNode::ID baseID, StringFragment fields) {
+    Expression& base = baseID.expressionNode();
+    if (base.fType.typeNode().kind() != Type::kVector_Kind) {
+        fErrors.error(base.fOffset, "cannot swizzle type '" + base.fType.node().description() +
+                                    "'");
         return nullptr;
     }
     std::vector<int> swizzleComponents;
@@ -2146,14 +2115,14 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
         switch (fields[i]) {
             case '0':
                 if (i != fields.fLength - 1) {
-                    fErrors.error(base->fOffset,
+                    fErrors.error(base.fOffset,
                                   "only the last swizzle component can be a constant");
                 }
                 swizzleComponents.push_back(SKSL_SWIZZLE_0);
                 break;
             case '1':
                 if (i != fields.fLength - 1) {
-                    fErrors.error(base->fOffset,
+                    fErrors.error(base.fOffset,
                                   "only the last swizzle component can be a constant");
                 }
                 swizzleComponents.push_back(SKSL_SWIZZLE_1);
@@ -2166,7 +2135,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
             case 'y': // fall through
             case 'g': // fall through
             case 't':
-                if (base->fType.columns() >= 2) {
+                if (base.fType.typeNode().columns() >= 2) {
                     swizzleComponents.push_back(1);
                     break;
                 }
@@ -2174,7 +2143,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
             case 'z': // fall through
             case 'b': // fall through
             case 'p':
-                if (base->fType.columns() >= 3) {
+                if (base.fType.typeNode().columns() >= 3) {
                     swizzleComponents.push_back(2);
                     break;
                 }
@@ -2182,68 +2151,67 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
             case 'w': // fall through
             case 'a': // fall through
             case 'q':
-                if (base->fType.columns() >= 4) {
+                if (base.fType.typeNode().columns() >= 4) {
                     swizzleComponents.push_back(3);
                     break;
                 }
                 // fall through
             default:
-                fErrors.error(base->fOffset, String::printf("invalid swizzle component '%c'",
+                fErrors.error(base.fOffset, String::printf("invalid swizzle component '%c'",
                                                             fields[i]));
                 return nullptr;
         }
     }
     SkASSERT(swizzleComponents.size() > 0);
     if (swizzleComponents.size() > 4) {
-        fErrors.error(base->fOffset, "too many components in swizzle mask '" + fields + "'");
+        fErrors.error(base.fOffset, "too many components in swizzle mask '" + fields + "'");
         return nullptr;
     }
-    return std::unique_ptr<Expression>(new Swizzle(fContext, std::move(base), swizzleComponents));
+    return this->createNode(new Swizzle(this, baseID, swizzleComponents));
 }
 
-std::unique_ptr<Expression> IRGenerator::getCap(int offset, String name) {
+IRNode::ID IRGenerator::getCap(int offset, String name) {
     auto found = fCapsMap.find(name);
     if (found == fCapsMap.end()) {
         fErrors.error(offset, "unknown capability flag '" + name + "'");
         return nullptr;
     }
     String fullName = "sk_Caps." + name;
-    return std::unique_ptr<Expression>(new Setting(offset, fullName,
-                                                   found->second.literal(fContext, offset)));
+    return this->createNode(new Setting(this, offset, fullName,
+                                        found->second.literal(fContext, offset)));
 }
 
-std::unique_ptr<Expression> IRGenerator::getArg(int offset, String name) const {
+IRNode::ID IRGenerator::getArg(int offset, String name) {
     auto found = fSettings->fArgs.find(name);
     if (found == fSettings->fArgs.end()) {
         return nullptr;
     }
     String fullName = "sk_Args." + name;
-    return std::unique_ptr<Expression>(new Setting(offset,
-                                                   fullName,
-                                                   found->second.literal(fContext, offset)));
+    return this->createNode(new Setting(this, offset, fullName,
+                                        found->second.literal(fContext, offset)));
 }
 
-std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type& type,
-                                                          StringFragment field) {
-    std::unique_ptr<Expression> result;
-    for (const auto& e : *fProgramElements) {
-        if (e->fKind == ProgramElement::kEnum_Kind && type.name() == ((Enum&) *e).fTypeName) {
+IRNode::ID IRGenerator::convertTypeField(int offset, IRNode::ID type, StringFragment field) {
+    IRNode::ID result;
+    for (IRNode::ID eID : *fProgramElements) {
+        ProgramElement& e = (ProgramElement&) eID.node();
+        if (e.fKind == ProgramElement::kEnum_Kind &&
+            type.typeNode().name() == ((Enum&) e).fTypeName) {
             std::shared_ptr<SymbolTable> old = fSymbolTable;
-            fSymbolTable = ((Enum&) *e).fSymbols;
+            fSymbolTable = ((Enum&) e).fSymbols;
             result = convertIdentifier(ASTNode(&fFile->fNodes, offset, ASTNode::Kind::kIdentifier,
                                                field));
             fSymbolTable = old;
         }
     }
     if (!result) {
-        fErrors.error(offset, "type '" + type.fName + "' does not have a field named '" + field +
-                              "'");
+        fErrors.error(offset, "type '" + type.typeNode().fName + "' does not have a field named '" +
+                              field + "'");
     }
     return result;
 }
 
-std::unique_ptr<Expression> IRGenerator::convertAppend(int offset,
-                                                       const std::vector<ASTNode>& args) {
+IRNode::ID IRGenerator::convertAppend(int offset, const std::vector<ASTNode>& args) {
 #ifndef SKSL_STANDALONE
     if (args.size() < 2) {
         fErrors.error(offset, "'append' requires at least two arguments");
@@ -2253,7 +2221,7 @@ std::unique_ptr<Expression> IRGenerator::convertAppend(int offset,
     if (!pipeline) {
         return nullptr;
     }
-    if (pipeline->fType != *fContext.fSkRasterPipeline_Type) {
+    if (pipeline->fType != fContext.fSkRasterPipeline_Type) {
         fErrors.error(offset, "first argument of 'append' must have type 'SkRasterPipeline'");
         return nullptr;
     }
@@ -2263,10 +2231,10 @@ std::unique_ptr<Expression> IRGenerator::convertAppend(int offset,
     }
     StringFragment name = args[1].getString();
     SkRasterPipeline::StockStage stage = SkRasterPipeline::premul;
-    std::vector<std::unique_ptr<Expression>> stageArgs;
+    std::vector<IRNode::ID> stageArgs;
     stageArgs.push_back(std::move(pipeline));
     for (size_t i = 2; i < args.size(); ++i) {
-        std::unique_ptr<Expression> arg = this->convertExpression(args[i]);
+        IRNode::ID arg = this->convertExpression(args[i]);
         if (!arg) {
             return nullptr;
         }
@@ -2319,101 +2287,95 @@ std::unique_ptr<Expression> IRGenerator::convertAppend(int offset,
                               to_string((int) args.size() - 1));
         return nullptr;
     }
-    return std::unique_ptr<Expression>(new AppendStage(fContext, offset, stage,
-                                                       std::move(stageArgs)));
+    return this->createNode(new AppendStage(fContext, offset, stage, std::move(stageArgs)));
 #else
     SkASSERT(false);
     return nullptr;
 #endif
 }
 
-std::unique_ptr<Expression> IRGenerator::convertIndexExpression(const ASTNode& index) {
+IRNode::ID IRGenerator::convertIndexExpression(const ASTNode& index) {
     SkASSERT(index.fKind == ASTNode::Kind::kIndex);
     auto iter = index.begin();
-    std::unique_ptr<Expression> base = this->convertExpression(*(iter++));
+    IRNode::ID base = this->convertExpression(*(iter++));
     if (!base) {
         return nullptr;
     }
     if (iter != index.end()) {
         return this->convertIndex(std::move(base), *(iter++));
-    } else if (base->fKind == Expression::kTypeReference_Kind) {
-        const Type& oldType = ((TypeReference&) *base).fValue;
-        Type* newType = (Type*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
-                                                                     new Type(oldType.name() + "[]",
-                                                                              Type::kArray_Kind,
-                                                                              oldType,
-                                                                              -1)));
-        return std::unique_ptr<Expression>(new TypeReference(fContext, base->fOffset,
-                                                             *newType));
+    } else if (base.expressionNode().fKind == Expression::kTypeReference_Kind) {
+        IRNode::ID oldType = ((TypeReference&) base.node()).fValue;
+        IRNode::ID newType = this->createNode(new Type(oldType.typeNode().name() + "[]",
+                                                       Type::kArray_Kind, oldType,  -1));
+        return this->createNode(new TypeReference(this, base.node().fOffset, newType));
     }
     fErrors.error(index.fOffset, "'[]' must follow a type name");
     return nullptr;
 }
 
-std::unique_ptr<Expression> IRGenerator::convertCallExpression(const ASTNode& callNode) {
+IRNode::ID IRGenerator::convertCallExpression(const ASTNode& callNode) {
     SkASSERT(callNode.fKind == ASTNode::Kind::kCall);
     auto iter = callNode.begin();
-    std::unique_ptr<Expression> base = this->convertExpression(*(iter++));
+    IRNode::ID base = this->convertExpression(*(iter++));
     if (!base) {
         return nullptr;
     }
-    std::vector<std::unique_ptr<Expression>> arguments;
+    std::vector<IRNode::ID> arguments;
     for (; iter != callNode.end(); ++iter) {
-        std::unique_ptr<Expression> converted = this->convertExpression(*iter);
+        IRNode::ID converted = this->convertExpression(*iter);
         if (!converted) {
             return nullptr;
         }
-        arguments.push_back(std::move(converted));
+        arguments.push_back(converted);
     }
-    return this->call(callNode.fOffset, std::move(base), std::move(arguments));
+    return this->callExpression(callNode.fOffset, base, std::move(arguments));
 }
 
-std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& fieldNode) {
-    std::unique_ptr<Expression> base = this->convertExpression(*fieldNode.begin());
+IRNode::ID IRGenerator::convertFieldExpression(const ASTNode& fieldNode) {
+    IRNode::ID base = this->convertExpression(*fieldNode.begin());
     if (!base) {
         return nullptr;
     }
     StringFragment field = fieldNode.getString();
-    if (base->fType == *fContext.fSkCaps_Type) {
+    if (base.expressionNode().fType == fContext.fSkCaps_Type) {
         return this->getCap(fieldNode.fOffset, field);
     }
-    if (base->fType == *fContext.fSkArgs_Type) {
+    if (base.expressionNode().fType == fContext.fSkArgs_Type) {
         return this->getArg(fieldNode.fOffset, field);
     }
-    if (base->fKind == Expression::kTypeReference_Kind) {
-        return this->convertTypeField(base->fOffset, ((TypeReference&) *base).fValue,
+    if (base.expressionNode().fKind == Expression::kTypeReference_Kind) {
+        return this->convertTypeField(base.node().fOffset, ((TypeReference&) base.node()).fValue,
                                       field);
     }
-    if (base->fKind == Expression::kExternalValue_Kind) {
-        return this->convertField(std::move(base), field);
+    if (base.expressionNode().fKind == Expression::kExternalValue_Kind) {
+        return this->convertField(base, field);
     }
-    switch (base->fType.kind()) {
+    switch (base.expressionNode().fType.typeNode().kind()) {
         case Type::kVector_Kind:
-            return this->convertSwizzle(std::move(base), field);
+            return this->convertSwizzle(base, field);
         case Type::kOther_Kind:
         case Type::kStruct_Kind:
-            return this->convertField(std::move(base), field);
+            return this->convertField(base, field);
         default:
-            fErrors.error(base->fOffset, "cannot swizzle value of type '" +
-                                         base->fType.description() + "'");
+            fErrors.error(base.node().fOffset, "cannot swizzle value of type '" +
+                                               type.node().description() + "'");
             return nullptr;
     }
 }
 
-std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(const ASTNode& expression) {
-    std::unique_ptr<Expression> base = this->convertExpression(*expression.begin());
+IRNode::ID IRGenerator::convertPostfixExpression(const ASTNode& expression) {
+    IRNode::ID base = this->convertExpression(*expression.begin());
     if (!base) {
         return nullptr;
     }
-    if (!base->fType.isNumber()) {
+    if (!base.fType.typeNode().isNumber()) {
         fErrors.error(expression.fOffset,
                       "'" + String(Compiler::OperatorName(expression.getToken().fKind)) +
-                      "' cannot operate on '" + base->fType.description() + "'");
+                      "' cannot operate on '" + base.fType.node().description() + "'");
         return nullptr;
     }
-    this->setRefKind(*base, VariableReference::kReadWrite_RefKind);
-    return std::unique_ptr<Expression>(new PostfixExpression(std::move(base),
-                                                             expression.getToken().fKind));
+    this->setRefKind(base, VariableReference::kReadWrite_RefKind);
+    return this->createNode(new PostfixExpression(this, base, expression.getToken().fKind));
 }
 
 void IRGenerator::checkValid(const Expression& expr) {
@@ -2425,7 +2387,7 @@ void IRGenerator::checkValid(const Expression& expr) {
             fErrors.error(expr.fOffset, "expected '(' to begin constructor invocation");
             break;
         default:
-            if (expr.fType == *fContext.fInvalid_Type) {
+            if (expr.fType == fContext.fInvalid_Type) {
                 fErrors.error(expr.fOffset, "invalid expression");
             }
     }
@@ -2500,7 +2462,7 @@ void IRGenerator::convertProgram(Program::Kind kind,
                                  std::vector<std::unique_ptr<ProgramElement>>* out) {
     fKind = kind;
     fProgramElements = out;
-    Parser parser(text, length, types, fErrors);
+    Parser parser(text, length, types, this);
     fFile = parser.file();
     if (fErrors.errorCount()) {
         return;
