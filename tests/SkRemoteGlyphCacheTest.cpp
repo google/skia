@@ -824,6 +824,7 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
 
     SkFont font;
     font.setTypeface(clientTf);
+    font.setSubpixel(true);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorRED);
@@ -846,8 +847,7 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
 
         auto fallbackCache = strikeCache.findOrCreateStrikeExclusive(*desc, effects, *clientTf);
         SkGlyphPrototype proto = {lostGlyphID, 0.f, 0.f, 2, 1, 0, 0, SkMask::kA8_Format, false};
-        SkGlyph* glyph = fallbackCache->glyphFromPrototype(proto);
-        fallbackCache->initializeImage(glyphImage, glyph->imageSize(), glyph);
+        fallbackCache->glyphFromPrototype(proto, (void*)glyphImage);
     }
 
     // Make sure we can find the fall back cache.
@@ -883,26 +883,28 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
 
     // Look for the lost glyph.
     {
-        const auto& lostGlyph = testCache->getGlyphIDMetrics(
-                lostGlyphID.code(), lostGlyphID.getSubXFixed(), lostGlyphID.getSubYFixed());
-        testCache->findImage(lostGlyph);
+        SkPoint pt{SkFixedToScalar(lostGlyphID.getSubXFixed()),
+                   SkFixedToScalar(lostGlyphID.getSubYFixed())};
+        SkGlyph* lostGlyph = testCache->glyph(lostGlyphID.code(), pt);
+        testCache->findImage(*lostGlyph);
 
-        REPORTER_ASSERT(reporter, lostGlyph.fHeight == 1);
-        REPORTER_ASSERT(reporter, lostGlyph.fWidth == 2);
-        REPORTER_ASSERT(reporter, lostGlyph.maskFormat() == SkMask::kA8_Format);
-        REPORTER_ASSERT(reporter, memcmp(lostGlyph.fImage, glyphImage, sizeof(glyphImage)) == 0);
+        REPORTER_ASSERT(reporter, lostGlyph->height() == 1);
+        REPORTER_ASSERT(reporter, lostGlyph->width() == 2);
+        REPORTER_ASSERT(reporter, lostGlyph->maskFormat() == SkMask::kA8_Format);
+        REPORTER_ASSERT(reporter, memcmp(lostGlyph->image(), glyphImage, sizeof(glyphImage)) == 0);
     }
 
     // Look for the lost glyph with a different sub-pix position.
     {
-        const auto& lostGlyph =
-                testCache->getGlyphIDMetrics(lostGlyphID.code(), SK_FixedQuarter, SK_FixedQuarter);
-        testCache->findImage(lostGlyph);
+        SkPoint pt{SkFixedToScalar(SK_FixedQuarter),
+                   SkFixedToScalar(SK_FixedQuarter)};
+        SkGlyph* lostGlyph = testCache->glyph(lostGlyphID.code(), pt);
+        testCache->findImage(*lostGlyph);
 
-        REPORTER_ASSERT(reporter, lostGlyph.fHeight == 1);
-        REPORTER_ASSERT(reporter, lostGlyph.fWidth == 2);
-        REPORTER_ASSERT(reporter, lostGlyph.maskFormat() == SkMask::kA8_Format);
-        REPORTER_ASSERT(reporter, memcmp(lostGlyph.fImage, glyphImage, sizeof(glyphImage)) == 0);
+        REPORTER_ASSERT(reporter, lostGlyph->height() == 1);
+        REPORTER_ASSERT(reporter, lostGlyph->width() == 2);
+        REPORTER_ASSERT(reporter, lostGlyph->maskFormat() == SkMask::kA8_Format);
+        REPORTER_ASSERT(reporter, memcmp(lostGlyph->image(), glyphImage, sizeof(glyphImage)) == 0);
     }
 
     for (uint32_t i = 0; i <= SkStrikeClient::CacheMissType::kLast; ++i) {
@@ -974,8 +976,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         auto fallbackCache = strikeCache.findOrCreateStrikeExclusive(*desc, effects, *clientTf);
         fakeMask = (realMask == SkMask::kA8_Format) ? SkMask::kBW_Format : SkMask::kA8_Format;
         SkGlyphPrototype proto = {lostGlyphID, 0.f, 0.f, 2, 1, 0, 0, fakeMask, false};
-        SkGlyph* glyph = fallbackCache->glyphFromPrototype(proto);
-        fallbackCache->initializeImage(glyphImage, glyph->imageSize(), glyph);
+        fallbackCache->glyphFromPrototype(proto, (void *)glyphImage);
     }
 
     // Send over the real glyph and make sure the client cache stays intact.
@@ -1010,10 +1011,12 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
 
         auto fallbackCache = strikeCache.findStrikeExclusive(*desc);
         REPORTER_ASSERT(reporter, fallbackCache.get() != nullptr);
-        auto glyph = fallbackCache->getRawGlyphByID(lostGlyphID);
-        REPORTER_ASSERT(reporter, glyph->maskFormat() == fakeMask);
-        REPORTER_ASSERT(reporter,
-                        memcmp(glyph->fImage, glyphImage, glyph->imageSize()) == 0);
+        auto glyph = fallbackCache->glyphOrNull(lostGlyphID);
+        REPORTER_ASSERT(reporter, glyph && glyph->maskFormat() == fakeMask);
+        if (glyph) {
+            REPORTER_ASSERT(reporter,
+                            memcmp(glyph->image(), glyphImage, glyph->imageSize()) == 0);
+        }
     }
 
     strikeCache.validateGlyphCacheDataSize();

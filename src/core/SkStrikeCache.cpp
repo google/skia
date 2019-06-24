@@ -306,14 +306,9 @@ bool SkStrikeCache::desperationSearchForImage(const SkDescriptor& desc, SkGlyph*
     SkAutoSpinlock ac(fLock);
 
     SkGlyphID glyphID = glyph->getGlyphID();
-    SkFixed targetSubX = glyph->getSubXFixed(),
-            targetSubY = glyph->getSubYFixed();
-
     for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
         if (loose_compare(node->fStrike.getDescriptor(), desc)) {
-            auto targetGlyphID = SkPackedGlyphID(glyphID, targetSubX, targetSubY);
-            if (node->fStrike.isGlyphCached(glyphID, targetSubX, targetSubY)) {
-                SkGlyph* fallback = node->fStrike.getRawGlyphByID(targetGlyphID);
+            if (SkGlyph *fallback = node->fStrike.glyphOrNull(glyph->getPackedID())) {
                 // This desperate-match node may disappear as soon as we drop fLock, so we
                 // need to copy the glyph from node into this strike, including a
                 // deep copy of the mask.

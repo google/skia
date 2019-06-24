@@ -65,37 +65,29 @@ SkGlyph* SkStrike::glyph(SkGlyphID glyphID) {
     return this->glyph(SkPackedGlyphID{glyphID});
 }
 
-SkGlyph* SkStrike::glyphFromPrototype(const SkGlyphPrototype& p) {
+SkGlyph* SkStrike::glyph(SkGlyphID glyphID, SkPoint position) {
+    const SkFixed maskX = (!fIsSubpixel || fAxisAlignment == kY_SkAxisAlignment) ? 0 : ~0;
+    const SkFixed maskY = (!fIsSubpixel || fAxisAlignment == kX_SkAxisAlignment) ? 0 : ~0;
+    SkFixed subX = SkScalarToFixed(position.x()) & maskX,
+            subY = SkScalarToFixed(position.y()) & maskY;
+    return this->glyph(SkPackedGlyphID{glyphID, subX, subY});
+}
+
+SkGlyph* SkStrike::glyphFromPrototype(const SkGlyphPrototype& p, void* image) {
     SkGlyph* glyph = fGlyphMap.findOrNull(p.id);
     if (glyph == nullptr) {
         fMemoryUsed += sizeof(SkGlyph);
         glyph = fAlloc.make<SkGlyph>(p);
         fGlyphMap.set(glyph);
     }
+    if (glyph->setImage(&fAlloc, image)) {
+        fMemoryUsed += glyph->imageSize();
+    }
     return glyph;
 }
 
 SkGlyph* SkStrike::glyphOrNull(SkPackedGlyphID id) const {
     return fGlyphMap.findOrNull(id);
-}
-
-SkGlyph* SkStrike::getRawGlyphByID(SkPackedGlyphID id) {
-    return this->uninitializedGlyph(id);
-}
-
-const SkGlyph& SkStrike::getGlyphIDMetrics(SkGlyphID glyphID) {
-    VALIDATE();
-    return *this->glyph(glyphID);
-}
-
-const SkGlyph& SkStrike::getGlyphIDMetrics(SkPackedGlyphID id) {
-    VALIDATE();
-    return *this->glyph(id);
-}
-
-const SkGlyph& SkStrike::getGlyphIDMetrics(SkGlyphID glyphID, SkFixed x, SkFixed y) {
-    SkPackedGlyphID packedGlyphID(glyphID, x, y);
-    return *this->glyph(packedGlyphID);
 }
 
 const SkPath* SkStrike::preparePath(SkGlyph* glyph) {
@@ -195,13 +187,7 @@ SkVector SkStrike::rounding() const {
 }
 
 const SkGlyph& SkStrike::getGlyphMetrics(SkGlyphID glyphID, SkPoint position) {
-    if (!fIsSubpixel) {
-        return this->getGlyphIDMetrics(glyphID);
-    } else {
-        SkIPoint lookupPosition = SkStrikeCommon::SubpixelLookup(fAxisAlignment, position);
-
-        return this->getGlyphIDMetrics(glyphID, lookupPosition.x(), lookupPosition.y());
-    }
+    return *this->glyph(glyphID, position);
 }
 
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
