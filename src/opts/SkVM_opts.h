@@ -138,9 +138,10 @@ namespace SK_OPTS_NS {
                         r(d).i32 = skvx::bit_pun<I32>(skvx::bit_pun<U16x2>(r(x).i32) >> imm);
                         break;
 
-                    CASE(Op::bit_and): r(d).i32 = r(x).i32 & r(y).i32; break;
-                    CASE(Op::bit_or ): r(d).i32 = r(x).i32 | r(y).i32; break;
-                    CASE(Op::bit_xor): r(d).i32 = r(x).i32 ^ r(y).i32; break;
+                    CASE(Op::bit_and):   r(d).i32 = r(x).i32 &  r(y).i32; break;
+                    CASE(Op::bit_or ):   r(d).i32 = r(x).i32 |  r(y).i32; break;
+                    CASE(Op::bit_xor):   r(d).i32 = r(x).i32 ^  r(y).i32; break;
+                    CASE(Op::bit_clear): r(d).i32 = r(x).i32 & ~r(y).i32; break;
 
                     CASE(Op::shl): r(d).i32 = r(x).i32 << imm; break;
                     CASE(Op::sra): r(d).i32 = r(x).i32 >> imm; break;

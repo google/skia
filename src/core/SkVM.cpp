@@ -244,9 +244,10 @@ namespace skvm {
     I32 Builder::mul_16x2(I32 x, I32 y) { return {this->push(Op::mul_i16x2, x.id, y.id)}; }
     I32 Builder::shr_16x2(I32 x, int bits) { return {this->push(Op::shr_i16x2, x.id,NA,NA, bits)}; }
 
-    I32 Builder::bit_and(I32 x, I32 y) { return {this->push(Op::bit_and, x.id, y.id)}; }
-    I32 Builder::bit_or (I32 x, I32 y) { return {this->push(Op::bit_or , x.id, y.id)}; }
-    I32 Builder::bit_xor(I32 x, I32 y) { return {this->push(Op::bit_xor, x.id, y.id)}; }
+    I32 Builder::bit_and  (I32 x, I32 y) { return {this->push(Op::bit_and  , x.id, y.id)}; }
+    I32 Builder::bit_or   (I32 x, I32 y) { return {this->push(Op::bit_or   , x.id, y.id)}; }
+    I32 Builder::bit_xor  (I32 x, I32 y) { return {this->push(Op::bit_xor  , x.id, y.id)}; }
+    I32 Builder::bit_clear(I32 x, I32 y) { return {this->push(Op::bit_clear, x.id, y.id)}; }
 
     I32 Builder::shl(I32 x, int bits) { return {this->push(Op::shl, x.id,NA,NA, bits)}; }
     I32 Builder::shr(I32 x, int bits) { return {this->push(Op::shr, x.id,NA,NA, bits)}; }
@@ -347,9 +348,10 @@ namespace skvm {
                 case Op::mul_i16x2: write(o, V{id}, "= mul_i16x2", V{x}, V{y}); break;
                 case Op::shr_i16x2: write(o, V{id}, "= shr_i16x2", V{x}, Shift{imm}); break;
 
-                case Op::bit_and: write(o, V{id}, "= bit_and", V{x}, V{y}); break;
-                case Op::bit_or : write(o, V{id}, "= bit_or" , V{x}, V{y}); break;
-                case Op::bit_xor: write(o, V{id}, "= bit_xor", V{x}, V{y}); break;
+                case Op::bit_and  : write(o, V{id}, "= bit_and"  , V{x}, V{y}); break;
+                case Op::bit_or   : write(o, V{id}, "= bit_or"   , V{x}, V{y}); break;
+                case Op::bit_xor  : write(o, V{id}, "= bit_xor"  , V{x}, V{y}); break;
+                case Op::bit_clear: write(o, V{id}, "= bit_clear", V{x}, V{y}); break;
 
                 case Op::shl: write(o, V{id}, "= shl", V{x}, Shift{imm}); break;
                 case Op::shr: write(o, V{id}, "= shr", V{x}, Shift{imm}); break;
@@ -407,9 +409,10 @@ namespace skvm {
                 case Op::mul_i16x2: write(o, R{d}, "= mul_i16x2", R{x}, R{y}); break;
                 case Op::shr_i16x2: write(o, R{d}, "= shr_i16x2", R{x}, Shift{imm}); break;
 
-                case Op::bit_and: write(o, R{d}, "= bit_and", R{x}, R{y}); break;
-                case Op::bit_or : write(o, R{d}, "= bit_or" , R{x}, R{y}); break;
-                case Op::bit_xor: write(o, R{d}, "= bit_xor", R{x}, R{y}); break;
+                case Op::bit_and  : write(o, R{d}, "= bit_and"  , R{x}, R{y}); break;
+                case Op::bit_or   : write(o, R{d}, "= bit_or"   , R{x}, R{y}); break;
+                case Op::bit_xor  : write(o, R{d}, "= bit_xor"  , R{x}, R{y}); break;
+                case Op::bit_clear: write(o, R{d}, "= bit_clear", R{x}, R{y}); break;
 
                 case Op::shl: write(o, R{d}, "= shl", R{x}, Shift{imm}); break;
                 case Op::shr: write(o, R{d}, "= shr", R{x}, Shift{imm}); break;
@@ -596,9 +599,10 @@ namespace skvm {
     void Assembler::vpsubw (Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xf9, dst,x,y); }
     void Assembler::vpmullw(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xd5, dst,x,y); }
 
-    void Assembler::vpand(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xdb, dst,x,y); }
-    void Assembler::vpor (Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xeb, dst,x,y); }
-    void Assembler::vpxor(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xef, dst,x,y); }
+    void Assembler::vpand (Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xdb, dst,x,y); }
+    void Assembler::vpor  (Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xeb, dst,x,y); }
+    void Assembler::vpxor (Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xef, dst,x,y); }
+    void Assembler::vpandn(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xdf, dst,x,y); }
 
     void Assembler::vaddps(Ymm dst, Ymm x, Ymm y) { this->op(0,0x0f,0x58, dst,x,y); }
     void Assembler::vsubps(Ymm dst, Ymm x, Ymm y) { this->op(0,0x0f,0x5c, dst,x,y); }
@@ -860,9 +864,10 @@ namespace skvm {
                 case Op::mul_i16x2: a.vpmullw(r(d), r(x), r(y)); break;
                 case Op::shr_i16x2: a.vpsrlw (r(d), r(x),  imm); break;
 
-                case Op::bit_and: a.vpand(r(d), r(x), r(y)); break;
-                case Op::bit_or : a.vpor (r(d), r(x), r(y)); break;
-                case Op::bit_xor: a.vpxor(r(d), r(x), r(y)); break;
+                case Op::bit_and  : a.vpand (r(d), r(x), r(y)); break;
+                case Op::bit_or   : a.vpor  (r(d), r(x), r(y)); break;
+                case Op::bit_xor  : a.vpxor (r(d), r(x), r(y)); break;
+                case Op::bit_clear: a.vpandn(r(d), r(y), r(x)); break;  // N.B. passing y then x.
 
                 case Op::shl: a.vpslld(r(d), r(x), imm); break;
                 case Op::shr: a.vpsrld(r(d), r(x), imm); break;
