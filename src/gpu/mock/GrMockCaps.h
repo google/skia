@@ -35,12 +35,38 @@ public:
 
         this->applyOptionsOverrides(contextOptions);
     }
+
+    bool isFormatTexturable(SkColorType, const GrBackendFormat& format) const override {
+        if (!format.getMockFormat()) {
+            return false;
+        }
+
+        return this->isConfigTexturable(*format.getMockFormat());
+    }
+
     bool isConfigTexturable(GrPixelConfig config) const override {
         return fOptions.fConfigOptions[config].fTexturable;
     }
 
+    bool isFormatCopyable(SkColorType, const GrBackendFormat& format) const override {
+        if (!format.getMockFormat()) {
+            return false;
+        }
+
+        return this->isConfigCopyable(*format.getMockFormat());
+    }
+
     bool isConfigCopyable(GrPixelConfig config) const override {
         return false;
+    }
+
+    int getRenderTargetSampleCount(int requestCount,
+                                   SkColorType, const GrBackendFormat& format) const override {
+        if (!format.getMockFormat()) {
+            return 0;
+        }
+
+        return this->getRenderTargetSampleCount(requestCount, *format.getMockFormat());
     }
 
     int getRenderTargetSampleCount(int requestCount, GrPixelConfig config) const override {
@@ -54,6 +80,14 @@ public:
                 return requestCount > kMaxSampleCnt ? 0 : GrNextPow2(requestCount);
         }
         return 0;
+    }
+
+    int maxRenderTargetSampleCount(SkColorType, const GrBackendFormat& format) const override {
+        if (!format.getMockFormat()) {
+            return 0;
+        }
+
+        return this->maxRenderTargetSampleCount(*format.getMockFormat());
     }
 
     int maxRenderTargetSampleCount(GrPixelConfig config) const override {
