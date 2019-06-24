@@ -189,12 +189,13 @@ DEF_TEST(SkVM_LoopCounts, r) {
 
 template <typename Fn>
 static void test_asm(skiatest::Reporter* r, Fn&& fn, std::initializer_list<uint8_t> expected) {
-    skvm::Assembler a;
+    uint8_t buf[4096];
+    skvm::Assembler a{buf};
     fn(a);
 
     REPORTER_ASSERT(r, a.size() == expected.size());
 
-    auto got = (const uint8_t*)a.data(),
+    auto got = (const uint8_t*)buf,
          want = expected.begin();
     for (int i = 0; i < (int)std::min(a.size(), expected.size()); i++) {
         REPORTER_ASSERT(r, got[i] == want[i],
