@@ -42,10 +42,12 @@ public:
     void freeGpuResources();
 
     sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
+                                                         GrColorType,
                                                          sk_sp<SkColorSpace>,
                                                          const SkSurfaceProps*,
                                                          bool managedOpList = true);
     sk_sp<GrTextureContext> makeTextureContext(sk_sp<GrSurfaceProxy>,
+                                               GrColorType,
                                                SkAlphaType,
                                                sk_sp<SkColorSpace>);
 

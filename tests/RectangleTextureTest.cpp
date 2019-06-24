@@ -24,14 +24,13 @@
 
 // skbug.com/5932
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* context,
-                                   sk_sp<GrTextureProxy> rectProxy, uint32_t expectedPixelValues[]) {
+                                   sk_sp<GrTextureProxy> rectProxy, GrColorType colorType,
+                                   uint32_t expectedPixelValues[]) {
     GrBackendFormat format = rectProxy->backendFormat().makeTexture2D();
     SkASSERT(format.isValid());
     sk_sp<GrRenderTargetContext> rtContext(context->priv().makeDeferredRenderTargetContext(
-                                                     format,
-                                                     SkBackingFit::kExact, rectProxy->width(),
-                                                     rectProxy->height(), rectProxy->config(),
-                                                     nullptr));
+            format, SkBackingFit::kExact, rectProxy->width(), rectProxy->height(),
+            rectProxy->config(), colorType, nullptr));
     for (auto filter : {GrSamplerState::Filter::kNearest,
                         GrSamplerState::Filter::kBilerp,
                         GrSamplerState::Filter::kMipMap}) {
@@ -182,14 +181,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         SkASSERT(rectProxy->hasRestrictedSampling());
         SkASSERT(rectProxy->peekTexture()->texturePriv().hasRestrictedSampling());
 
-        test_basic_draw_as_src(reporter, context, rectProxy, refPixels);
+        test_basic_draw_as_src(reporter, context, rectProxy, GrColorType::kRGBA_8888, refPixels);
 
         // Test copy to both a texture and RT
-        test_copy_from_surface(reporter, context, rectProxy.get(), refPixels,
-                               "RectangleTexture-copy-from");
+        test_copy_from_surface(reporter, context, rectProxy.get(), GrColorType::kRGBA_8888,
+                               refPixels, "RectangleTexture-copy-from");
 
         sk_sp<GrSurfaceContext> rectContext = context->priv().makeWrappedSurfaceContext(
-                std::move(rectProxy), kPremul_SkAlphaType);
+                std::move(rectProxy), GrColorType::kRGBA_8888, kPremul_SkAlphaType);
         SkASSERT(rectContext);
 
         test_read_pixels(reporter, rectContext.get(), refPixels, "RectangleTexture-read");

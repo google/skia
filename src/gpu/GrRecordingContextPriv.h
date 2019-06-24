@@ -58,6 +58,7 @@ public:
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
+                                                      GrColorType,
                                                       SkAlphaType,
                                                       sk_sp<SkColorSpace> = nullptr,
                                                       const SkSurfaceProps* = nullptr);
@@ -68,6 +69,7 @@ public:
                                                        GrMipMapped,
                                                        SkBackingFit,
                                                        SkBudgeted,
+                                                       GrColorType,
                                                        SkAlphaType,
                                                        sk_sp<SkColorSpace> colorSpace = nullptr,
                                                        const SkSurfaceProps* = nullptr);
@@ -78,10 +80,18 @@ public:
      * renderTargetContexts created via this entry point.
      */
     sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
-            const GrBackendFormat& format, SkBackingFit fit, int width, int height,
-            GrPixelConfig config, sk_sp<SkColorSpace> colorSpace, int sampleCnt = 1,
-            GrMipMapped = GrMipMapped::kNo, GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-            const SkSurfaceProps* surfaceProps = nullptr, SkBudgeted = SkBudgeted::kYes,
+            const GrBackendFormat& format,
+            SkBackingFit fit,
+            int width,
+            int height,
+            GrPixelConfig config,
+            GrColorType,
+            sk_sp<SkColorSpace> colorSpace,
+            int sampleCnt = 1,
+            GrMipMapped = GrMipMapped::kNo,
+            GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
+            const SkSurfaceProps* surfaceProps = nullptr,
+            SkBudgeted = SkBudgeted::kYes,
             GrProtected isProtected = GrProtected::kNo);
 
     /*
@@ -91,10 +101,18 @@ public:
      * SRGB-ness will be preserved.
      */
     sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
-            const GrBackendFormat& format, SkBackingFit fit, int width, int height,
-            GrPixelConfig config, sk_sp<SkColorSpace> colorSpace, int sampleCnt = 1,
-            GrMipMapped = GrMipMapped::kNo, GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-            const SkSurfaceProps* surfaceProps = nullptr, SkBudgeted budgeted = SkBudgeted::kYes,
+            const GrBackendFormat& format,
+            SkBackingFit fit,
+            int width,
+            int height,
+            GrPixelConfig config,
+            GrColorType,
+            sk_sp<SkColorSpace> colorSpace,
+            int sampleCnt = 1,
+            GrMipMapped = GrMipMapped::kNo,
+            GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
+            const SkSurfaceProps* surfaceProps = nullptr,
+            SkBudgeted budgeted = SkBudgeted::kYes,
             GrProtected isProtected = GrProtected::kNo);
 
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }

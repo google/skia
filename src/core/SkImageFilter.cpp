@@ -243,8 +243,7 @@ bool SkImageFilter::canComputeFastBounds() const {
 
 #if SK_SUPPORT_GPU
 sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrRecordingContext* context,
-                                                std::unique_ptr<GrFragmentProcessor>
-                                                        fp,
+                                                std::unique_ptr<GrFragmentProcessor> fp,
                                                 const SkIRect& bounds,
                                                 const OutputProperties& outputProperties,
                                                 GrProtected isProtected) {
@@ -254,15 +253,25 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrRecordingContext* context,
 
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
     GrPixelConfig config = SkColorType2GrPixelConfig(outputProperties.colorType());
+    GrColorType colorType = SkColorTypeToGrColorType(outputProperties.colorType());
     GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(
                     outputProperties.colorType());
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        context->priv().makeDeferredRenderTargetContext(
-                                format, SkBackingFit::kApprox, bounds.width(), bounds.height(),
-                                config, std::move(colorSpace), 1, GrMipMapped::kNo,
-                                kBottomLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes,
-                                isProtected));
+            context->priv().makeDeferredRenderTargetContext(
+                    format,
+                    SkBackingFit::kApprox,
+                    bounds.width(),
+                    bounds.height(),
+                    config,
+                    colorType,
+                    std::move(colorSpace),
+                    1,
+                    GrMipMapped::kNo,
+                    kBottomLeft_GrSurfaceOrigin,
+                    nullptr,
+                    SkBudgeted::kYes,
+                    isProtected));
     if (!renderTargetContext) {
         return nullptr;
     }

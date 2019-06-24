@@ -194,11 +194,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
-    auto rtc =  context->priv().makeDeferredRenderTargetContext(format,
-                                                                SkBackingFit::kApprox,
-                                                                32, 32,
-                                                                kRGBA_8888_GrPixelConfig,
-                                                                nullptr);
+    auto rtc = context->priv().makeDeferredRenderTargetContext(format, SkBackingFit::kApprox, 32,
+                                                               32, kRGBA_8888_GrPixelConfig,
+                                                               GrColorType::kRGBA_8888, nullptr);
 
     SkPaint paint;
     paint.setColor(SK_ColorRED);
