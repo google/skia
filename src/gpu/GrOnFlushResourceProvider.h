@@ -67,6 +67,7 @@ public:
     explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
 
     sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
+                                                         GrColorType,
                                                          sk_sp<SkColorSpace>,
                                                          const SkSurfaceProps*);
 

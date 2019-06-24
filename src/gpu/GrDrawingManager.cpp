@@ -741,10 +741,11 @@ void GrDrawingManager::flushIfNecessary() {
 }
 
 sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
-                                                            sk_sp<GrSurfaceProxy> sProxy,
-                                                            sk_sp<SkColorSpace> colorSpace,
-                                                            const SkSurfaceProps* surfaceProps,
-                                                            bool managedOpList) {
+        sk_sp<GrSurfaceProxy> sProxy,
+        GrColorType colorType,
+        sk_sp<SkColorSpace> colorSpace,
+        const SkSurfaceProps* surfaceProps,
+        bool managedOpList) {
     if (this->wasAbandoned() || !sProxy->asRenderTargetProxy()) {
         return nullptr;
     }
@@ -760,12 +761,14 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
 
     return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext,
                                                                   std::move(renderTargetProxy),
+                                                                  colorType,
                                                                   std::move(colorSpace),
                                                                   surfaceProps,
                                                                   managedOpList));
 }
 
 sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProxy> sProxy,
+                                                             GrColorType colorType,
                                                              SkAlphaType alphaType,
                                                              sk_sp<SkColorSpace> colorSpace) {
     if (this->wasAbandoned() || !sProxy->asTextureProxy()) {
@@ -785,7 +788,8 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
     sk_sp<GrTextureProxy> textureProxy(sk_ref_sp(sProxy->asTextureProxy()));
 
     return sk_sp<GrTextureContext>(new GrTextureContext(fContext,
-                                                        alphaType,
                                                         std::move(textureProxy),
+                                                        colorType,
+                                                        alphaType,
                                                         std::move(colorSpace)));
 }

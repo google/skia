@@ -22,6 +22,7 @@
 
 sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
                                                    sk_sp<GrTextureProxy> inputProxy,
+                                                   GrColorType colorType,
                                                    const CopyParams& copyParams,
                                                    bool dstWillRequireMipMaps) {
     SkASSERT(context);
@@ -55,9 +56,9 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
     }
 
     sk_sp<GrRenderTargetContext> copyRTC =
-        context->priv().makeDeferredRenderTargetContextWithFallback(
-            format, SkBackingFit::kExact, dstRect.width(), dstRect.height(),
-            config, nullptr, 1, mipMapped, inputProxy->origin());
+            context->priv().makeDeferredRenderTargetContextWithFallback(
+                    format, SkBackingFit::kExact, dstRect.width(), dstRect.height(), config,
+                    colorType, nullptr, 1, mipMapped, inputProxy->origin());
     if (!copyRTC) {
         return nullptr;
     }

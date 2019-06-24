@@ -17,10 +17,15 @@
 #define RETURN_FALSE_IF_ABANDONED  if (this->drawingManager()->wasAbandoned()) { return false; }
 
 GrTextureContext::GrTextureContext(GrRecordingContext* context,
-                                   SkAlphaType alphaType,
                                    sk_sp<GrTextureProxy> textureProxy,
+                                   GrColorType colorType,
+                                   SkAlphaType alphaType,
                                    sk_sp<SkColorSpace> colorSpace)
-        : GrSurfaceContext(context, alphaType, std::move(colorSpace), textureProxy->config())
+        : GrSurfaceContext(context,
+                           colorType,
+                           alphaType,
+                           std::move(colorSpace),
+                           textureProxy->config())
         , fTextureProxy(std::move(textureProxy))
         , fOpList(sk_ref_sp(fTextureProxy->getLastTextureOpList())) {
     SkDEBUGCODE(this->validate();)

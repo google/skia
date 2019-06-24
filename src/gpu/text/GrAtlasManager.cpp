@@ -82,7 +82,8 @@ void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpd
   * Write the contents of the surface proxy to a PNG. Returns true if successful.
   * @param filename      Full path to desired file
   */
-static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* filename) {
+static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, GrColorType colorType,
+                        const char* filename) {
     if (!sProxy) {
         return false;
     }
@@ -94,8 +95,8 @@ static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* 
         return false;
     }
 
-    sk_sp<GrSurfaceContext> sContext(
-            context->priv().makeWrappedSurfaceContext(sk_ref_sp(sProxy), kUnknown_SkAlphaType));
+    sk_sp<GrSurfaceContext> sContext(context->priv().makeWrappedSurfaceContext(
+            sk_ref_sp(sProxy), colorType, kUnknown_SkAlphaType));
     if (!sContext || !sContext->asTextureProxy()) {
         return false;
     }
@@ -138,8 +139,8 @@ void GrAtlasManager::dump(GrContext* context) const {
 #else
                 filename.printf("fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
 #endif
-
-                save_pixels(context, proxies[pageIdx].get(), filename.c_str());
+                auto ct = mask_format_to_gr_color_type(AtlasIndexToMaskFormat(i));
+                save_pixels(context, proxies[pageIdx].get(), ct, filename.c_str());
             }
         }
     }

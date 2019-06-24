@@ -77,7 +77,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
         }
     }
 
-    auto sContext = context->priv().makeWrappedSurfaceContext(proxy, alphaType, nullptr);
+    auto sContext = context->priv().makeWrappedSurfaceContext(proxy, colorType, alphaType, nullptr);
     if (!sContext) {
         return nullptr;
     }

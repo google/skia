@@ -104,6 +104,7 @@ public:
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
+    GrColorType colorType() const { return fColorSpaceInfo.colorType(); }
     SkAlphaType alphaType() const { return fColorSpaceInfo.alphaType(); }
     SkColorSpace* colorSpace() const { return fColorSpaceInfo.colorSpace(); }
     bool isAlphaOnly() const { return GrPixelConfigIsAlphaOnly(fColorSpaceInfo.config()); }
@@ -160,7 +161,9 @@ protected:
     };
 
     // This can draw to accomplish the copy, thus the recording context is needed
-    static sk_sp<GrTextureProxy> CopyOnGpu(GrRecordingContext*, sk_sp<GrTextureProxy> inputProxy,
+    static sk_sp<GrTextureProxy> CopyOnGpu(GrRecordingContext*,
+                                           sk_sp<GrTextureProxy> inputProxy,
+                                           GrColorType,
                                            const CopyParams& copyParams,
                                            bool dstWillRequireMipMaps);
 

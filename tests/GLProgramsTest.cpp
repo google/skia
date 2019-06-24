@@ -157,15 +157,16 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
     sampleCnt = SkTMax(1, sampleCnt);
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        context->priv().makeDeferredRenderTargetContext(format,
-                                                        SkBackingFit::kExact,
-                                                        kRenderTargetWidth,
-                                                        kRenderTargetHeight,
-                                                        kRGBA_8888_GrPixelConfig,
-                                                        nullptr,
-                                                        sampleCnt,
-                                                        GrMipMapped::kNo,
-                                                        origin));
+            context->priv().makeDeferredRenderTargetContext(format,
+                                                            SkBackingFit::kExact,
+                                                            kRenderTargetWidth,
+                                                            kRenderTargetHeight,
+                                                            kRGBA_8888_GrPixelConfig,
+                                                            GrColorType::kRGBA_8888,
+                                                            nullptr,
+                                                            sampleCnt,
+                                                            GrMipMapped::kNo,
+                                                            origin));
     return renderTargetContext;
 }
 
@@ -326,12 +327,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
             context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     // Validate that GrFPs work correctly without an input.
     sk_sp<GrRenderTargetContext> renderTargetContext(
-                 context->priv().makeDeferredRenderTargetContext(format,
-                                                                 SkBackingFit::kExact,
-                                                                 kRenderTargetWidth,
-                                                                 kRenderTargetHeight,
-                                                                 kRGBA_8888_GrPixelConfig,
-                                                                 nullptr));
+            context->priv().makeDeferredRenderTargetContext(format,
+                                                            SkBackingFit::kExact,
+                                                            kRenderTargetWidth,
+                                                            kRenderTargetHeight,
+                                                            kRGBA_8888_GrPixelConfig,
+                                                            GrColorType::kRGBA_8888,
+                                                            nullptr));
     if (!renderTargetContext) {
         SkDebugf("Could not allocate a renderTargetContext");
         return false;

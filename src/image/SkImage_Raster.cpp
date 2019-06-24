@@ -174,8 +174,9 @@ sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrRecordingContext* cont
     uint32_t uniqueID;
     sk_sp<GrTextureProxy> tex = this->refPinnedTextureProxy(context, &uniqueID);
     if (tex) {
-        GrTextureAdjuster adjuster(context, fPinnedProxy, fBitmap.alphaType(), fPinnedUniqueID,
-                                   fBitmap.colorSpace());
+        GrTextureAdjuster adjuster(context, fPinnedProxy,
+                                   SkColorTypeToGrColorType(fBitmap.colorType()),
+                                   fBitmap.alphaType(), fPinnedUniqueID, fBitmap.colorSpace());
         return adjuster.refTextureProxyForParams(params, scaleAdjust);
     }
 

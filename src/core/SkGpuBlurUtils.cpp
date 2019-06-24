@@ -118,6 +118,7 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* con
                                                          SkBackingFit dstFit) {
 
     GrPixelConfig config = get_blur_config(proxy.get());
+    GrColorType colorType = GrPixelConfigToColorType(config);
 
     GrBackendFormat format = proxy->backendFormat().makeTexture2D();
     if (!format.isValid()) {
@@ -126,8 +127,18 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* con
 
     sk_sp<GrRenderTargetContext> renderTargetContext;
     renderTargetContext = context->priv().makeDeferredRenderTargetContext(
-            format, dstFit, dstII.width(), dstII.height(), config, dstII.refColorSpace(), 1,
-            GrMipMapped::kNo, proxy->origin(), nullptr, SkBudgeted::kYes,
+            format,
+            dstFit,
+            dstII.width(),
+            dstII.height(),
+            config,
+            colorType,
+            dstII.refColorSpace(),
+            1,
+            GrMipMapped::kNo,
+            proxy->origin(),
+            nullptr,
+            SkBudgeted::kYes,
             proxy->isProtected() ? GrProtected::kYes : GrProtected::kNo);
     if (!renderTargetContext) {
         return nullptr;
@@ -172,6 +183,7 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrRecordingContext* contex
     SkASSERT(srcRect.width() <= dstII.width() && srcRect.height() <= dstII.height());
 
     GrPixelConfig config = get_blur_config(proxy.get());
+    GrColorType colorType = GrPixelConfigToColorType(config);
 
     GrBackendFormat format = proxy->backendFormat().makeTexture2D();
     if (!format.isValid()) {
@@ -180,8 +192,18 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrRecordingContext* contex
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext;
     dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
-            format, fit, srcRect.width(), srcRect.height(), config, dstII.refColorSpace(), 1,
-            GrMipMapped::kNo, proxy->origin(), nullptr, SkBudgeted::kYes,
+            format,
+            fit,
+            srcRect.width(),
+            srcRect.height(),
+            config,
+            colorType,
+            dstII.refColorSpace(),
+            1,
+            GrMipMapped::kNo,
+            proxy->origin(),
+            nullptr,
+            SkBudgeted::kYes,
             proxy->isProtected() ? GrProtected::kYes : GrProtected::kNo);
     if (!dstRenderTargetContext) {
         return nullptr;
@@ -279,6 +301,7 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
     SkASSERT(scaleFactorX > 1 || scaleFactorY > 1);
 
     GrPixelConfig config = get_blur_config(src.get());
+    GrColorType colorType = GrPixelConfigToColorType(config);
 
     SkIRect srcRect;
     if (GrTextureDomain::kIgnore_Mode == mode) {
@@ -305,9 +328,19 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
 
         // We know this will not be the final draw so we are free to make it an approx match.
         dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
-                format, SkBackingFit::kApprox, dstRect.fRight, dstRect.fBottom, config,
-                dstII.refColorSpace(), 1, GrMipMapped::kNo, src->origin(), nullptr,
-                SkBudgeted::kYes, src->isProtected() ? GrProtected::kYes : GrProtected::kNo);
+                format,
+                SkBackingFit::kApprox,
+                dstRect.fRight,
+                dstRect.fBottom,
+                config,
+                colorType,
+                dstII.refColorSpace(),
+                1,
+                GrMipMapped::kNo,
+                src->origin(),
+                nullptr,
+                SkBudgeted::kYes,
+                src->isProtected() ? GrProtected::kYes : GrProtected::kNo);
         if (!dstRenderTargetContext) {
             return nullptr;
         }
@@ -412,18 +445,16 @@ static sk_sp<GrRenderTargetContext> reexpand(GrRecordingContext* context,
     srcRenderTargetContext = nullptr; // no longer needed
 
     GrPixelConfig config = get_blur_config(srcProxy.get());
-
+    GrColorType colorType = GrPixelConfigToColorType(config);
     GrBackendFormat format = srcProxy->backendFormat().makeTexture2D();
     if (!format.isValid()) {
         return nullptr;
     }
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext =
-        context->priv().makeDeferredRenderTargetContext(format,
-                                                               fit, dstII.width(), dstII.height(),
-                                                               config, dstII.refColorSpace(),
-                                                               1, GrMipMapped::kNo,
-                                                               srcProxy->origin());
+            context->priv().makeDeferredRenderTargetContext(
+                    format, fit, dstII.width(), dstII.height(), config, colorType,
+                    dstII.refColorSpace(), 1, GrMipMapped::kNo, srcProxy->origin());
     if (!dstRenderTargetContext) {
         return nullptr;
     }

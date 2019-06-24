@@ -62,7 +62,8 @@ sk_sp<GrRenderTargetContext> newRTC(GrContext* context, int w, int h) {
     const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     return context->priv().makeDeferredRenderTargetContext(format, SkBackingFit::kExact, w, h,
-                                                           kRGBA_8888_GrPixelConfig, nullptr);
+                                                           kRGBA_8888_GrPixelConfig,
+                                                           GrColorType::kRGBA_8888, nullptr);
 }
 
 static void clear_op_test(skiatest::Reporter* reporter, GrContext* context) {

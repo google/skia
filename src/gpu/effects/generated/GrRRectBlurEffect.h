@@ -60,7 +60,7 @@ public:
             sk_sp<GrRenderTargetContext> rtc(
                     context->priv().makeDeferredRenderTargetContextWithFallback(
                             format, SkBackingFit::kExact, size.fWidth, size.fHeight,
-                            kAlpha_8_GrPixelConfig, nullptr));
+                            kAlpha_8_GrPixelConfig, GrColorType::kAlpha_8, nullptr));
             if (!rtc) {
                 return nullptr;
             }

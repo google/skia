@@ -8,9 +8,12 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/gpu/GrColorSpaceInfo.h"
 
-GrColorSpaceInfo::GrColorSpaceInfo(SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace,
+GrColorSpaceInfo::GrColorSpaceInfo(GrColorType colorType,
+                                   SkAlphaType alphaType,
+                                   sk_sp<SkColorSpace> colorSpace,
                                    GrPixelConfig config)
         : fColorSpace(std::move(colorSpace))
+        , fColorType(colorType)
         , fAlphaType(alphaType)
         , fConfig(config)
         , fInitializedColorSpaceXformFromSRGB(false) {}
