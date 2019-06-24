@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48a6dd2c_8c91e7d5",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-24T18:10:53Z",
+      "side": 1,
+      "message": "Might help readability here to parenthesize?\n\nMaybe also just something like\n\n// Keep fractional fixed-point bits if we care about subpixel positioning in that direction.\n\n?",
+      "revId": "2804c0e3fca504d59ce8744f770b6c68c6d57697",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce9598be_aabde4f4",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-24T18:10:53Z",
+      "side": 1,
+      "message": "Do you think we should consider renaming this convention?  It tells us that it is packed, but not with what other data, or why.  Could just be even\n\n   glyph-\u003egetSubpixelID()\n\n?",
+      "range": {
+        "startLine": 311,
+        "startChar": 69,
+        "endLine": 311,
+        "endChar": 80
+      },
+      "revId": "2804c0e3fca504d59ce8744f770b6c68c6d57697",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
