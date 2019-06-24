@@ -35,8 +35,6 @@ public:
                       uint32_t uniqueID, SkColorSpace*, bool useDecal = false);
 
 protected:
-    SkAlphaType alphaType() const override { return fAlphaType; }
-    SkColorSpace* colorSpace() const override { return fColorSpace; }
     void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override;
 
@@ -51,9 +49,7 @@ private:
     sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams& copyParams, bool willBeMipped);
 
     sk_sp<GrTextureProxy> fOriginal;
-    SkAlphaType           fAlphaType;
-    SkColorSpace*         fColorSpace;
-    uint32_t              fUniqueID;
+    uint32_t fUniqueID;
 
     typedef GrTextureProducer INHERITED;
 };

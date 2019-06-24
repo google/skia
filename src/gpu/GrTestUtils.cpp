@@ -337,11 +337,11 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
 }
 
 TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d)
-    : fViewMatrixStorage(TestMatrix(d->fRandom))
-    , fColorSpaceInfoStorage(skstd::make_unique<GrColorSpaceInfo>(TestColorSpace(d->fRandom),
-                                                                  kRGBA_8888_GrPixelConfig))
-    , fArgs(d->context(), &fViewMatrixStorage, kNone_SkFilterQuality, fColorSpaceInfoStorage.get())
-{}
+        : fViewMatrixStorage(TestMatrix(d->fRandom))
+        , fColorSpaceInfoStorage(skstd::make_unique<GrColorSpaceInfo>(
+                  kPremul_SkAlphaType, TestColorSpace(d->fRandom), kRGBA_8888_GrPixelConfig))
+        , fArgs(d->context(), &fViewMatrixStorage, kNone_SkFilterQuality,
+                fColorSpaceInfoStorage.get()) {}
 
 TestAsFPArgs::~TestAsFPArgs() {}
 

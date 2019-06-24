@@ -15,9 +15,12 @@
 
 namespace sk_gpu_test {
 
-sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, GrRenderable renderable,
-                                               int width, int height,
-                                               GrColorType colorType, GrSRGBEncoded srgbEncoded,
+sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
+                                               GrRenderable renderable,
+                                               int width,
+                                               int height,
+                                               GrColorType colorType, SkAlphaType alphaType,
+                                               GrSRGBEncoded srgbEncoded,
                                                GrSurfaceOrigin origin,
                                                const void* data, size_t rowBytes) {
     if (context->priv().abandoned()) {
@@ -74,7 +77,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, GrRenderable 
         }
     }
 
-    auto sContext = context->priv().makeWrappedSurfaceContext(proxy, nullptr);
+    auto sContext = context->priv().makeWrappedSurfaceContext(proxy, alphaType, nullptr);
     if (!sContext) {
         return nullptr;
     }
