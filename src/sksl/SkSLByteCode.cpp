@@ -349,7 +349,8 @@ static T vec_mod(T a, T b) {
 }
 
 static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack,
-                     float* outReturn[], VValue globals[], bool stripedOutput, int N) {
+                     float* outReturn[], VValue globals[], bool stripedOutput, int N,
+                     int baseIndex) {
     // Needs to be the first N non-negative integers, at least as large as VecWidth
     static const Interpreter::I32 gLanes = {
         0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
@@ -432,8 +433,8 @@ static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 ExternalValue* v = byteCode->fExternalValues[target];
                 sp -= argumentCount - 1;
 
-                int32_t tmpArgs[4];
-                int32_t tmpReturn[4];
+                float tmpArgs[4];
+                float tmpReturn[4];
                 SkASSERT(argumentCount <= (int)SK_ARRAY_COUNT(tmpArgs));
                 SkASSERT(returnCount <= (int)SK_ARRAY_COUNT(tmpReturn));
 
@@ -441,11 +442,11 @@ static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 for (int i = 0; i < VecWidth; ++i) {
                     if (m[i]) {
                         for (int j = 0; j < argumentCount; ++j) {
-                            tmpArgs[j] = sp[j].fSigned[i];
+                            tmpArgs[j] = sp[j].fFloat[i];
                         }
-                        v->call(tmpArgs, tmpReturn);
+                        v->call(baseIndex + i, tmpArgs, tmpReturn);
                         for (int j = 0; j < returnCount; ++j) {
-                            sp[j].fSigned[i] = tmpReturn[j];
+                            sp[j].fFloat[i] = tmpReturn[j];
                         }
                     }
                 }
@@ -698,16 +699,15 @@ static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             case ByteCodeInstruction::kReadExternal2:
             case ByteCodeInstruction::kReadExternal3:
             case ByteCodeInstruction::kReadExternal4: {
-                // TODO: Support striped external values, or passing lane index? This model is odd.
                 int count = (int)inst - (int)ByteCodeInstruction::kReadExternal + 1;
                 int src = READ8();
-                int32_t tmp[4];
+                float tmp[4];
                 I32 m = mask();
                 for (int i = 0; i < VecWidth; ++i) {
                     if (m[i]) {
-                        byteCode->fExternalValues[src]->read(tmp);
+                        byteCode->fExternalValues[src]->read(baseIndex + i, tmp);
                         for (int j = 0; j < count; ++j) {
-                            sp[j + 1].fSigned[i] = tmp[j];
+                            sp[j + 1].fFloat[i] = tmp[j];
                         }
                     }
                 }
@@ -909,15 +909,15 @@ static void innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             case ByteCodeInstruction::kWriteExternal4: {
                 int count = (int)inst - (int)ByteCodeInstruction::kWriteExternal + 1;
                 int target = READ8();
-                int32_t tmp[4];
+                float tmp[4];
                 I32 m = mask();
                 sp -= count;
                 for (int i = 0; i < VecWidth; ++i) {
                     if (m[i]) {
                         for (int j = 0; j < count; ++j) {
-                            tmp[j] = sp[j + 1].fSigned[i];
+                            tmp[j] = sp[j + 1].fFloat[i];
                         }
-                        byteCode->fExternalValues[target]->write(tmp);
+                        byteCode->fExternalValues[target]->write(baseIndex + i, tmp);
                     }
                 }
                 break;
@@ -1008,6 +1008,8 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
         globals[slot].fFloat = *uniforms++;
     }
 
+    int baseIndex = 0;
+
     while (N) {
         int w = std::min(N, Interpreter::VecWidth);
 
@@ -1025,7 +1027,7 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
 
         bool stripedOutput = false;
         float** outArray = outReturn ? &outReturn : nullptr;
-        innerRun(this, f, stack, outArray, globals, stripedOutput, w);
+        innerRun(this, f, stack, outArray, globals, stripedOutput, w, baseIndex);
 
         // Transpose out parameters back
         {
@@ -1051,6 +1053,7 @@ void ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
             outReturn += f->fReturnCount * w;
         }
         N -= w;
+        baseIndex += w;
     }
 }
 
@@ -1076,6 +1079,8 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
         globals[slot].fFloat = *uniforms++;
     }
 
+    int baseIndex = 0;
+
     while (N) {
         int w = std::min(N, Interpreter::VecWidth);
 
@@ -1085,7 +1090,7 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
         }
 
         bool stripedOutput = true;
-        innerRun(this, f, stack, outArgs, globals, stripedOutput, w);
+        innerRun(this, f, stack, outArgs, globals, stripedOutput, w, baseIndex);
 
         // Copy out parameters back
         int slot = 0;
@@ -1103,6 +1108,7 @@ void ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
             args[i] += w;
         }
         N -= w;
+        baseIndex += w;
     }
 }
 
