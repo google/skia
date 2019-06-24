@@ -145,6 +145,24 @@ static DEFINE_string(properties, "",
                      "Space-separated key/value pairs to add to JSON identifying this run.");
 
 
+#if defined(__MSVC_RUNTIME_CHECKS)
+#include <rtcapi.h>
+int RuntimeCheckErrorFunc(int errorType, const char* filename, int linenumber,
+                          const char* moduleName, const char* fmt, ...) {
+    // Get the RTC error number from the var-arg list
+    va_list args;
+    va_start(args, fmt);
+    _RTC_ErrorNumber errnum = va_arg(args, _RTC_ErrorNumber);
+    va_end(args);
+
+    SkDebugf("%s\nLine #%d\nFile: %s\nModule: %s\n",
+             _RTC_GetErrDesc(errnum), linenumber,
+             filename ? filename : "Unknown",
+             moduleName ? moduleName : "Unknwon");
+    return 1;
+}
+#endif
+
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
@@ -1380,6 +1398,9 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 int main(int argc, char** argv) {
+#if defined(__MSVC_RUNTIME_CHECKS)
+    _RTC_SetErrorFunc(RuntimeCheckErrorFunc);
+#endif
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
     android::ProcessState::self()->startThreadPool();
 #endif
