@@ -17,9 +17,6 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
-#if SK_SUPPORT_GPU
-#include "include/gpu/GrTypes.h"
-#endif
 
 class GrFragmentProcessor;
 class SkColorFilter;
@@ -170,11 +167,9 @@ public:
 
 #if SK_SUPPORT_GPU
     static sk_sp<SkSpecialImage> DrawWithFP(GrRecordingContext* context,
-                                            std::unique_ptr<GrFragmentProcessor>
-                                                    fp,
+                                            std::unique_ptr<GrFragmentProcessor> fp,
                                             const SkIRect& bounds,
-                                            const OutputProperties& outputProperties,
-                                            GrProtected isProtected = GrProtected::kNo);
+                                            const OutputProperties& outputProperties);
 #endif
 
     /**

@@ -3065,15 +3065,15 @@ bool GrGLCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
     return true;
 }
 
-GrCaps::ReadFlags GrGLCaps::surfaceSupportsReadPixels(const GrSurface* surface) const {
+bool GrGLCaps::surfaceSupportsReadPixels(const GrSurface* surface) const {
     if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {
         // We don't support reading pixels directly from EXTERNAL textures as it would require
         // binding the texture to a FBO.
         if (tex->target() == GR_GL_TEXTURE_EXTERNAL) {
-            return kRequiresCopy_ReadFlag;
+            return false;
         }
     }
-    return kSupported_ReadFlag;
+    return true;
 }
 
 GrCaps::SupportedRead GrGLCaps::supportedReadPixelsColorType(GrPixelConfig srcPixelConfig,

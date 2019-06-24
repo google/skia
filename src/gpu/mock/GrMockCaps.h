@@ -68,9 +68,7 @@ public:
         return 0;
     }
 
-    ReadFlags surfaceSupportsReadPixels(const GrSurface*) const override {
-        return kSupported_ReadFlag;
-    }
+    bool surfaceSupportsReadPixels(const GrSurface*) const override { return true; }
 
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override {

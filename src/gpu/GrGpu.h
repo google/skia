@@ -388,8 +388,7 @@ public:
     virtual GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
                                                   GrMipMapped, GrRenderable,
                                                   const void* pixels, size_t rowBytes,
-                                                  const SkColor4f* color,
-                                                  GrProtected isProtected) = 0;
+                                                  const SkColor4f* color) = 0;
 
     /**
      * Frees a texture created by createBackendTexture(). If ownership of the backend

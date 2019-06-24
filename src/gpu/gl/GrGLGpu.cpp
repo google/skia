@@ -4005,8 +4005,7 @@ GrBackendTexture GrGLGpu::createBackendTexture(int w, int h,
                                                GrMipMapped mipMapped,
                                                GrRenderable renderable,
                                                const void* srcPixels, size_t rowBytes,
-                                               const SkColor4f* color,
-                                               GrProtected isProtected) {
+                                               const SkColor4f* color) {
     this->handleDirtyContext();
 
     const GrGLenum* glFormat = format.getGLFormat();

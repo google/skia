@@ -178,12 +178,8 @@ bool GrSurfaceContext::readPixelsImpl(GrContext* direct, int left, int top, int 
             caps->isConfigRenderable(kRGBA_8888_GrPixelConfig) &&
             direct->priv().validPMUPMConversionExists();
 
-    auto readFlag = caps->surfaceSupportsReadPixels(srcSurface);
-    if (readFlag == GrCaps::kProtected_ReadFlag) {
-        return false;
-    }
-
-    if (readFlag == GrCaps::kRequiresCopy_ReadFlag || canvas2DFastPath) {
+    if (!caps->surfaceSupportsReadPixels(srcSurface) ||
+        canvas2DFastPath) {
         GrBackendFormat format;
         GrPixelConfig config;
         if (canvas2DFastPath) {

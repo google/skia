@@ -320,8 +320,7 @@ void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  const GrBackendFormat& backendFormat,
                                                  GrMipMapped mipMapped,
-                                                 GrRenderable renderable,
-                                                 GrProtected isProtected) {
+                                                 GrRenderable renderable) {
     if (!this->asDirectContext()) {
         return GrBackendTexture();
     }
@@ -336,14 +335,13 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
 
     return fGpu->createBackendTexture(width, height, backendFormat,
                                       mipMapped, renderable,
-                                      nullptr, 0, nullptr, isProtected);
+                                      nullptr, 0, nullptr);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  SkColorType colorType,
                                                  GrMipMapped mipMapped,
-                                                 GrRenderable renderable,
-                                                 GrProtected isProtected) {
+                                                 GrRenderable renderable) {
     if (!this->asDirectContext()) {
         return GrBackendTexture();
     }
@@ -357,7 +355,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    return this->createBackendTexture(width, height, format, mipMapped, renderable, isProtected);
+    return this->createBackendTexture(width, height, format, mipMapped, renderable);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -379,7 +377,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
 
     return fGpu->createBackendTexture(width, height, backendFormat,
                                       mipMapped, renderable,
-                                      nullptr, 0, &color, GrProtected::kNo);
+                                      nullptr, 0, &color);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,

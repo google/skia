@@ -76,11 +76,16 @@ public:
      * renderTargetContexts created via this entry point.
      */
     sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
-            const GrBackendFormat& format, SkBackingFit fit, int width, int height,
-            GrPixelConfig config, sk_sp<SkColorSpace> colorSpace, int sampleCnt = 1,
-            GrMipMapped = GrMipMapped::kNo, GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-            const SkSurfaceProps* surfaceProps = nullptr, SkBudgeted = SkBudgeted::kYes,
-            GrProtected isProtected = GrProtected::kNo);
+                                            const GrBackendFormat& format,
+                                            SkBackingFit fit,
+                                            int width, int height,
+                                            GrPixelConfig config,
+                                            sk_sp<SkColorSpace> colorSpace,
+                                            int sampleCnt = 1,
+                                            GrMipMapped = GrMipMapped::kNo,
+                                            GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
+                                            const SkSurfaceProps* surfaceProps = nullptr,
+                                            SkBudgeted = SkBudgeted::kYes);
 
     /*
      * This method will attempt to create a renderTargetContext that has, at least, the number of
@@ -89,11 +94,16 @@ public:
      * SRGB-ness will be preserved.
      */
     sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
-            const GrBackendFormat& format, SkBackingFit fit, int width, int height,
-            GrPixelConfig config, sk_sp<SkColorSpace> colorSpace, int sampleCnt = 1,
-            GrMipMapped = GrMipMapped::kNo, GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-            const SkSurfaceProps* surfaceProps = nullptr, SkBudgeted budgeted = SkBudgeted::kYes,
-            GrProtected isProtected = GrProtected::kNo);
+                                            const GrBackendFormat& format,
+                                            SkBackingFit fit,
+                                            int width, int height,
+                                            GrPixelConfig config,
+                                            sk_sp<SkColorSpace> colorSpace,
+                                            int sampleCnt = 1,
+                                            GrMipMapped = GrMipMapped::kNo,
+                                            GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
+                                            const SkSurfaceProps* surfaceProps = nullptr,
+                                            SkBudgeted budgeted = SkBudgeted::kYes);
 
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
 

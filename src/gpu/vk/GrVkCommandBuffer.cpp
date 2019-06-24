@@ -541,20 +541,11 @@ static void submit_to_queue(const GrVkInterface* interface,
                             uint32_t commandBufferCount,
                             const VkCommandBuffer* commandBuffers,
                             uint32_t signalCount,
-                            const VkSemaphore* signalSemaphores,
-                            GrProtected protectedContext) {
-    VkProtectedSubmitInfo protectedSubmitInfo;
-    if (protectedContext == GrProtected::kYes) {
-        memset(&protectedSubmitInfo, 0, sizeof(VkProtectedSubmitInfo));
-        protectedSubmitInfo.sType = VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO;
-        protectedSubmitInfo.pNext = nullptr;
-        protectedSubmitInfo.protectedSubmit = VK_TRUE;
-    }
-
+                            const VkSemaphore* signalSemaphores) {
     VkSubmitInfo submitInfo;
     memset(&submitInfo, 0, sizeof(VkSubmitInfo));
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.pNext = protectedContext == GrProtected::kYes ? &protectedSubmitInfo : nullptr;
+    submitInfo.pNext = nullptr;
     submitInfo.waitSemaphoreCount = waitCount;
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
@@ -591,9 +582,8 @@ void GrVkPrimaryCommandBuffer::submitToQueue(
     if (0 == signalCount && 0 == waitCount) {
         // This command buffer has no dependent semaphores so we can simply just submit it to the
         // queue with no worries.
-        submit_to_queue(gpu->vkInterface(), queue, fSubmitFence, 0, nullptr, nullptr, 1,
-                        &fCmdBuffer, 0, nullptr,
-                        gpu->protectedContext() ? GrProtected::kYes : GrProtected::kNo);
+        submit_to_queue(gpu->vkInterface(), queue, fSubmitFence, 0, nullptr, nullptr,
+                        1, &fCmdBuffer, 0, nullptr);
     } else {
         SkTArray<VkSemaphore> vkSignalSems(signalCount);
         for (int i = 0; i < signalCount; ++i) {
@@ -612,10 +602,11 @@ void GrVkPrimaryCommandBuffer::submitToQueue(
                 vkWaitStages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
             }
         }
-        submit_to_queue(gpu->vkInterface(), queue, fSubmitFence, vkWaitSems.count(),
-                        vkWaitSems.begin(), vkWaitStages.begin(), 1, &fCmdBuffer,
-                        vkSignalSems.count(), vkSignalSems.begin(),
-                        gpu->protectedContext() ? GrProtected::kYes : GrProtected::kNo);
+        submit_to_queue(gpu->vkInterface(), queue, fSubmitFence,
+                        vkWaitSems.count(), vkWaitSems.begin(), vkWaitStages.begin(),
+                        1, &fCmdBuffer,
+                        vkSignalSems.count(), vkSignalSems.begin());
+
         for (int i = 0; i < signalCount; ++i) {
             signalSemaphores[i]->markAsSignaled();
         }

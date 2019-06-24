@@ -781,7 +781,7 @@ GrBackendTexture GrMtlGpu::createBackendTexture(int w, int h,
                                                 GrMipMapped mipMapped,
                                                 GrRenderable renderable,
                                                 const void* pixels, size_t rowBytes,
-                                                const SkColor4f* color, GrProtected isProtected) {
+                                                const SkColor4f* color) {
     if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
         return GrBackendTexture();
     }

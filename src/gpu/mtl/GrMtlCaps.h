@@ -33,9 +33,7 @@ public:
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const override;
     int maxRenderTargetSampleCount(GrPixelConfig) const override;
 
-    ReadFlags surfaceSupportsReadPixels(const GrSurface*) const override {
-        return kSupported_ReadFlag;
-    }
+    bool surfaceSupportsReadPixels(const GrSurface*) const override { return true; }
 
     bool isConfigCopyable(GrPixelConfig config) const override {
         return true;

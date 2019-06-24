@@ -101,8 +101,6 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
         sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
         SkASSERT(inputProxy);
 
-        const auto isProtected = inputProxy->isProtected();
-
         offset->fX = bounds.left();
         offset->fY = bounds.top();
         bounds.offset(-inputOffset);
@@ -120,8 +118,7 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds, ctx.outputProperties(),
-                          isProtected ? GrProtected::kYes : GrProtected::kNo);
+        return DrawWithFP(context, std::move(fp), bounds, ctx.outputProperties());
     }
 #endif
 

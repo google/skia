@@ -349,8 +349,6 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
         SkASSERT(inputProxy);
 
-        const auto isProtected = inputProxy->isProtected();
-
         offset->fX = dstBounds.left();
         offset->fY = dstBounds.top();
         dstBounds.offset(-inputOffset);
@@ -371,8 +369,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), dstBounds, ctx.outputProperties(),
-                          isProtected ? GrProtected::kYes : GrProtected::kNo);
+        return DrawWithFP(context, std::move(fp), dstBounds, ctx.outputProperties());
     }
 #endif
 

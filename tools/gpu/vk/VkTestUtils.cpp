@@ -324,11 +324,11 @@ static bool init_device_extensions_and_layers(GrVkGetProc getProc, uint32_t spec
     do {                                                                           \
         if (grVk##name == nullptr) {                                               \
             SkDebugf("Function ptr for vk%s could not be acquired\n", #name);      \
-            return false;                                                                \
+            return;                                                                \
         }                                                                          \
     } while (0)
 
-static bool destroy_instance(GrVkGetProc getProc, VkInstance inst,
+static void destroy_instance(GrVkGetProc getProc, VkInstance inst,
                              VkDebugReportCallbackEXT* debugCallback,
                              bool hasDebugExtension) {
     if (hasDebugExtension && *debugCallback != VK_NULL_HANDLE) {
@@ -338,31 +338,17 @@ static bool destroy_instance(GrVkGetProc getProc, VkInstance inst,
     }
     ACQUIRE_VK_PROC_LOCAL(DestroyInstance, inst, VK_NULL_HANDLE);
     grVkDestroyInstance(inst, nullptr);
-    return true;
 }
 
-static bool setup_features(GrVkGetProc getProc, VkInstance inst, VkPhysicalDevice physDev,
-                           uint32_t physDeviceVersion, GrVkExtensions* extensions,
-                           VkPhysicalDeviceFeatures2* features, bool isProtected) {
+static void setup_extension_features(GrVkGetProc getProc, VkInstance inst, VkPhysicalDevice physDev,
+                                     uint32_t physDeviceVersion, GrVkExtensions* extensions,
+                                     VkPhysicalDeviceFeatures2* features) {
     SkASSERT(physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
              extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1));
 
     // Setup all extension feature structs we may want to use.
-    void** tailPNext = &features->pNext;
 
-    // If |isProtected| is given, attach that first
-    VkPhysicalDeviceProtectedMemoryFeatures* protectedMemoryFeatures = nullptr;
-    if (isProtected) {
-        SkASSERT(physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0));
-        protectedMemoryFeatures =
-          (VkPhysicalDeviceProtectedMemoryFeatures*)sk_malloc_throw(
-              sizeof(VkPhysicalDeviceProtectedMemoryFeatures));
-        protectedMemoryFeatures->sType =
-          VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES;
-        protectedMemoryFeatures->pNext = nullptr;
-        *tailPNext = protectedMemoryFeatures;
-        tailPNext = &protectedMemoryFeatures->pNext;
-    }
+    void** tailPNext = &features->pNext;
 
     VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT* blend = nullptr;
     if (extensions->hasExtension(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME, 2)) {
@@ -395,13 +381,6 @@ static bool setup_features(GrVkGetProc getProc, VkInstance inst, VkPhysicalDevic
         grVkGetPhysicalDeviceFeatures2KHR(physDev, features);
     }
 
-    if (isProtected) {
-        if (!protectedMemoryFeatures->protectedMemory) {
-            SkDebugf("Protected memory is not supported on this platform\n");
-            return false;
-        }
-    }
-    return true;
     // If we want to disable any extension features do so here.
 }
 
@@ -411,8 +390,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
                             VkPhysicalDeviceFeatures2* features,
                             VkDebugReportCallbackEXT* debugCallback,
                             uint32_t* presentQueueIndexPtr,
-                            CanPresentFn canPresent,
-                            bool isProtected) {
+                            CanPresentFn canPresent) {
     VkResult err;
 
     ACQUIRE_VK_PROC_NOCHECK(EnumerateInstanceVersion, VK_NULL_HANDLE, VK_NULL_HANDLE);
@@ -422,16 +400,11 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     } else {
         err = grVkEnumerateInstanceVersion(&instanceVersion);
         if (err) {
-            SkDebugf("failed to enumerate instance version. Err: %d\n", err);
+            SkDebugf("failed ot enumerate instance version. Err: %d\n", err);
             return false;
         }
     }
     SkASSERT(instanceVersion >= VK_MAKE_VERSION(1, 0, 0));
-    if (isProtected && instanceVersion < VK_MAKE_VERSION(1, 1, 0)) {
-        SkDebugf("protected requires vk instance version 1.1\n");
-        return false;
-    }
-
     uint32_t apiVersion = VK_MAKE_VERSION(1, 0, 0);
     if (instanceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         // If the instance version is 1.0 we must have the apiVersion also be 1.0. However, if the
@@ -559,12 +532,6 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     grVkGetPhysicalDeviceProperties(physDev, &physDeviceProperties);
     int physDeviceVersion = SkTMin(physDeviceProperties.apiVersion, apiVersion);
 
-    if (isProtected && physDeviceVersion < VK_MAKE_VERSION(1, 1, 0)) {
-        SkDebugf("protected requires vk physical device version 1.1\n");
-        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
-        return false;
-    }
-
     // query to get the initial queue props size
     uint32_t queueCount;
     grVkGetPhysicalDeviceQueueFamilyProperties(physDev, &queueCount, nullptr);
@@ -654,12 +621,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     void* pointerToFeatures = nullptr;
     if (physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1)) {
-        if (!setup_features(getProc, inst, physDev, physDeviceVersion, extensions, features,
-                          isProtected)) {
-            destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
-            return false;
-        }
-
+        setup_extension_features(getProc, inst, physDev, physDeviceVersion, extensions, features);
         // If we set the pNext of the VkDeviceCreateInfo to our VkPhysicalDeviceFeatures2 struct,
         // the device creation will use that instead of the ppEnabledFeatures.
         pointerToFeatures = features;
@@ -671,7 +633,6 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     // and we can't depend on it on all platforms
     deviceFeatures->robustBufferAccess = VK_FALSE;
 
-    VkDeviceQueueCreateFlags flags = isProtected ? VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT : 0;
     float queuePriorities[1] = { 0.0 };
     // Here we assume no need for swapchain queue
     // If one is needed, the client will need its own setup code
@@ -679,11 +640,10 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         {
             VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
             nullptr,                                    // pNext
-            flags,                                      // VkDeviceQueueCreateFlags
+            0,                                          // VkDeviceQueueCreateFlags
             graphicsQueueIndex,                         // queueFamilyIndex
             1,                                          // queueCount
             queuePriorities,                            // pQueuePriorities
-
         },
         {
             VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
@@ -723,20 +683,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     }
 
     VkQueue queue;
-    if (isProtected) {
-        ACQUIRE_VK_PROC(GetDeviceQueue2, inst, device);
-        SkASSERT(grVkGetDeviceQueue2 != nullptr);
-        VkDeviceQueueInfo2 queue_info2 = {
-            VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2,          // sType
-            nullptr,                                        // pNext
-            VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT,           // flags
-            graphicsQueueIndex,                             // queueFamilyIndex
-            0                                               // queueIndex
-        };
-        grVkGetDeviceQueue2(device, &queue_info2, &queue);
-    } else {
-        grVkGetDeviceQueue(device, graphicsQueueIndex, 0, &queue);
-    }
+    grVkGetDeviceQueue(device, graphicsQueueIndex, 0, &queue);
 
     ctx->fInstance = inst;
     ctx->fPhysicalDevice = physDev;
@@ -748,7 +695,6 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     ctx->fDeviceFeatures2 = features;
     ctx->fGetProc = getProc;
     ctx->fOwnsInstanceAndDevice = false;
-    ctx->fProtectedContext = isProtected ? GrProtected::kYes : GrProtected::kNo;
 
     return true;
 }

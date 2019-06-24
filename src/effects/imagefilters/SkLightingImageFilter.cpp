@@ -468,11 +468,10 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
             context->priv().caps()->getBackendFormatFromColorType(colorType);
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->priv().makeDeferredRenderTargetContext(
-                    format, SkBackingFit::kApprox, offsetBounds.width(), offsetBounds.height(),
-                    SkColorType2GrPixelConfig(colorType), sk_ref_sp(outputProperties.colorSpace()),
-                    1, GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes,
-                    inputProxy->isProtected() ? GrProtected::kYes : GrProtected::kNo));
+        context->priv().makeDeferredRenderTargetContext(
+                                format, SkBackingFit::kApprox, offsetBounds.width(),
+                                offsetBounds.height(), SkColorType2GrPixelConfig(colorType),
+                                sk_ref_sp(outputProperties.colorSpace())));
     if (!renderTargetContext) {
         return nullptr;
     }

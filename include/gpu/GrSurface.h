@@ -85,9 +85,6 @@ public:
      */
     bool readOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kReadOnly; }
 
-    // Returns true if we are working with protected content.
-    bool isProtected() const { return fIsProtected == GrProtected::kYes; }
-
 protected:
     void setGLRTFBOIDIs0() {
         SkASSERT(this->asRenderTarget());
@@ -115,8 +112,7 @@ protected:
             , fConfig(desc.fConfig)
             , fWidth(desc.fWidth)
             , fHeight(desc.fHeight)
-            , fSurfaceFlags(GrInternalSurfaceFlags::kNone)
-            , fIsProtected(desc.fIsProtected) {
+            , fSurfaceFlags(GrInternalSurfaceFlags::kNone) {
     }
 
     ~GrSurface() override {
@@ -144,7 +140,6 @@ private:
     int                        fWidth;
     int                        fHeight;
     GrInternalSurfaceFlags     fSurfaceFlags;
-    GrProtected                fIsProtected;
     sk_sp<GrRefCntedCallback>  fReleaseHelper;
 
     typedef GrGpuResource INHERITED;

@@ -285,8 +285,7 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
                                                            info.height(),
                                                            info.colorType(),
                                                            GrMipMapped::kNo,
-                                                           GrRenderable::kYes,
-                                                           GrProtected::kNo);
+                                                           GrRenderable::kYes);
             surface = SkSurface::MakeFromBackendTexture(context,
                                                         backendTexture,
                                                         kTopLeft_GrSurfaceOrigin,

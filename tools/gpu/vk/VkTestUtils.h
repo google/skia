@@ -32,8 +32,7 @@ namespace sk_gpu_test {
                                 VkPhysicalDeviceFeatures2*,
                                 VkDebugReportCallbackEXT* debugCallback,
                                 uint32_t* presentQueueIndexPtr = nullptr,
-                                CanPresentFn canPresent = CanPresentFn(),
-                                bool isProtected = false);
+                                CanPresentFn canPresent = CanPresentFn());
 
     void FreeVulkanFeaturesStructs(const VkPhysicalDeviceFeatures2*);
 }
