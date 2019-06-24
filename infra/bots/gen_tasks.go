@@ -14,7 +14,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -684,12 +683,17 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 // relpath returns the relative path to the given file from the config file.
 func relpath(f string) string {
 	_, filename, _, _ := runtime.Caller(0)
-	dir := path.Dir(filename)
-	rel := dir
+	dir := filepath.Dir(filename)
+	base := dir
 	if *cfgFile != "" {
-		rel = path.Dir(*cfgFile)
+		base = filepath.Dir(*cfgFile)
 	}
-	rv, err := filepath.Rel(rel, path.Join(dir, f))
+	base, err := filepath.Abs(base)
+	if err != nil {
+		sklog.Fatal(err)
+	}
+	target := filepath.Join(dir, f)
+	rv, err := filepath.Rel(base, target)
 	if err != nil {
 		sklog.Fatal(err)
 	}
@@ -854,9 +858,14 @@ func usesGit(t *specs.TaskSpec, name string) {
 
 // usesGo adds attributes to tasks which use go. Recipes should use
 // "with api.context(env=api.infra.go_env)".
-func usesGo(b *specs.TasksCfgBuilder, t *specs.TaskSpec) {
+func usesGo(b *specs.TasksCfgBuilder, t *specs.TaskSpec, name string) {
 	t.Caches = append(t.Caches, CACHES_GO...)
-	t.CipdPackages = append(t.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
+	pkg := b.MustGetCipdPackageFromAsset("go")
+	if strings.Contains(name, "Win") {
+		pkg = b.MustGetCipdPackageFromAsset("go_win")
+		pkg.Path = "go"
+	}
+	t.CipdPackages = append(t.CipdPackages, pkg)
 }
 
 // usesDocker adds attributes to tasks which use docker.
@@ -1000,7 +1009,7 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	}
 	task := kitchenTask(name, "recreate_skps", "swarm_recipe.isolate", SERVICE_ACCOUNT_RECREATE_SKPS, dims, nil, OUTPUT_NONE)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
-	usesGo(b, task)
+	usesGo(b, task, name)
 	timeout(task, 4*time.Hour)
 	b.MustAddTask(name, task)
 	return name
@@ -1011,7 +1020,7 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
 	task := kitchenTask(name, "check_generated_files", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_LARGE), nil, OUTPUT_NONE)
 	task.Caches = append(task.Caches, CACHES_WORKDIR...)
-	usesGo(b, task)
+	usesGo(b, task, name)
 	b.MustAddTask(name, task)
 	return name
 }
@@ -1048,9 +1057,21 @@ func g3FrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
 // infra generates an infra_tests task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func infra(b *specs.TasksCfgBuilder, name string) string {
-	task := kitchenTask(name, "infra", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
+	dims := linuxGceDimensions(MACHINE_TYPE_SMALL)
+	if strings.Contains(name, "Win") {
+		dims = []string{
+			// Specify CPU to avoid running builds on bots with a more unique CPU.
+			"cpu:x86-64-Haswell_GCE",
+			"gpu:none",
+			fmt.Sprintf("machine_type:%s", MACHINE_TYPE_MEDIUM), // We don't have any small Windows instances.
+			fmt.Sprintf("os:%s", DEFAULT_OS_WIN),
+			fmt.Sprintf("pool:%s", CONFIG.Pool),
+		}
+	}
+	task := kitchenTask(name, "infra", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, dims, nil, OUTPUT_NONE)
+	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GSUTIL...)
 	usesGit(task, name)
-	usesGo(b, task)
+	usesGo(b, task, name)
 	b.MustAddTask(name, task)
 	return name
 }
@@ -1361,7 +1382,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 
 	// Infra tests.
-	if name == "Housekeeper-PerCommit-InfraTests" {
+	if strings.Contains(name, "Housekeeper-PerCommit-InfraTests") {
 		deps = append(deps, infra(b, name))
 	}
 
@@ -1393,7 +1414,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	// These bots do not need a compile task.
 	if parts["role"] != "Build" &&
 		name != "Housekeeper-PerCommit-BundleRecipes" &&
-		name != "Housekeeper-PerCommit-InfraTests" &&
+		!strings.Contains(name, "Housekeeper-PerCommit-InfraTests") &&
 		name != "Housekeeper-PerCommit-CheckGeneratedFiles" &&
 		name != "Housekeeper-Nightly-UpdateGoDeps" &&
 		name != "Housekeeper-OnDemand-Presubmit" &&
@@ -1523,17 +1544,17 @@ func loadJson(flag *string, defaultFlag string, val interface{}) {
 func main() {
 	b := specs.MustNewTasksCfgBuilder()
 	b.SetAssetsDir(*assetsDir)
-	infraBots := path.Join(b.CheckoutRoot(), "infra", "bots")
+	infraBots := filepath.Join(b.CheckoutRoot(), "infra", "bots")
 
 	// Load the jobs from a JSON file.
-	loadJson(jobsFile, path.Join(infraBots, "jobs.json"), &JOBS)
+	loadJson(jobsFile, filepath.Join(infraBots, "jobs.json"), &JOBS)
 
 	// Load general config information from a JSON file.
-	loadJson(cfgFile, path.Join(infraBots, "cfg.json"), &CONFIG)
+	loadJson(cfgFile, filepath.Join(infraBots, "cfg.json"), &CONFIG)
 
 	// Create the JobNameSchema.
 	if *builderNameSchemaFile == "" {
-		*builderNameSchemaFile = path.Join(b.CheckoutRoot(), "infra", "bots", "recipe_modules", "builder_name_schema", "builder_name_schema.json")
+		*builderNameSchemaFile = filepath.Join(b.CheckoutRoot(), "infra", "bots", "recipe_modules", "builder_name_schema", "builder_name_schema.json")
 	}
 	schema, err := NewJobNameSchema(*builderNameSchemaFile)
 	if err != nil {
