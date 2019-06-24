@@ -32,17 +32,21 @@ public:
              uint32_t instanceVersion, uint32_t physicalDeviceVersion,
              const GrVkExtensions& extensions, GrProtected isProtected = GrProtected::kNo);
 
+    bool isFormatTexturable(SkColorType, const GrBackendFormat&) const override;
     bool isFormatTexturable(VkFormat) const;
     bool isConfigTexturable(GrPixelConfig config) const override;
 
-    bool isConfigCopyable(GrPixelConfig config) const override {
-        return true;
-    }
+    bool isFormatCopyable(SkColorType, const GrBackendFormat&) const override { return true; }
+    bool isConfigCopyable(GrPixelConfig config) const override { return true; }
 
     bool isFormatRenderable(VkFormat) const;
 
+    int getRenderTargetSampleCount(int requestedCount,
+                                   SkColorType, const GrBackendFormat&) const override;
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
     int getRenderTargetSampleCount(int requestedCount, VkFormat) const;
+
+    int maxRenderTargetSampleCount(SkColorType, const GrBackendFormat&) const override;
     int maxRenderTargetSampleCount(GrPixelConfig config) const override;
     int maxRenderTargetSampleCount(VkFormat format) const;
 
