@@ -126,11 +126,9 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* con
 
     sk_sp<GrRenderTargetContext> renderTargetContext;
     renderTargetContext = context->priv().makeDeferredRenderTargetContext(
-                                                         format,
-                                                         dstFit, dstII.width(), dstII.height(),
-                                                         config, dstII.refColorSpace(),
-                                                         1, GrMipMapped::kNo,
-                                                         proxy->origin());
+            format, dstFit, dstII.width(), dstII.height(), config, dstII.refColorSpace(), 1,
+            GrMipMapped::kNo, proxy->origin(), nullptr, SkBudgeted::kYes,
+            proxy->isProtected() ? GrProtected::kYes : GrProtected::kNo);
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -182,13 +180,9 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrRecordingContext* contex
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext;
     dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
-                                                                format,
-                                                                fit, srcRect.width(),
-                                                                srcRect.height(),
-                                                                config,
-                                                                dstII.refColorSpace(),
-                                                                1, GrMipMapped::kNo,
-                                                                proxy->origin());
+            format, fit, srcRect.width(), srcRect.height(), config, dstII.refColorSpace(), 1,
+            GrMipMapped::kNo, proxy->origin(), nullptr, SkBudgeted::kYes,
+            proxy->isProtected() ? GrProtected::kYes : GrProtected::kNo);
     if (!dstRenderTargetContext) {
         return nullptr;
     }
@@ -311,13 +305,9 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
 
         // We know this will not be the final draw so we are free to make it an approx match.
         dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
-                                                    format,
-                                                    SkBackingFit::kApprox,
-                                                    dstRect.fRight,
-                                                    dstRect.fBottom,
-                                                    config, dstII.refColorSpace(),
-                                                    1, GrMipMapped::kNo,
-                                                    src->origin());
+                format, SkBackingFit::kApprox, dstRect.fRight, dstRect.fBottom, config,
+                dstII.refColorSpace(), 1, GrMipMapped::kNo, src->origin(), nullptr,
+                SkBudgeted::kYes, src->isProtected() ? GrProtected::kYes : GrProtected::kNo);
         if (!dstRenderTargetContext) {
             return nullptr;
         }
