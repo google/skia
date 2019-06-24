@@ -30,7 +30,10 @@ public:
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kTextureable_Flag);
     }
 
+    int getRenderTargetSampleCount(int requestedCount, const GrBackendFormat&) const override;
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const override;
+
+    int maxRenderTargetSampleCount(const GrBackendFormat&) const override;
     int maxRenderTargetSampleCount(GrPixelConfig) const override;
 
     ReadFlags surfaceSupportsReadPixels(const GrSurface*) const override {
