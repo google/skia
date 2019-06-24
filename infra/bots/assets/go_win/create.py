@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2016 Google Inc.
+# Copyright 2019 Google Inc.
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -10,19 +10,23 @@
 
 
 import argparse
+import common  # pylint: disable=unused-import
+import os
 import subprocess
+import utils
 
 
-# Remember to also update the go_win asset when this is updated.
-GO_URL = "https://dl.google.com/go/go1.12.4.linux-amd64.tar.gz"
+# Remember to also update the go asset when this is updated.
+GO_URL = "https://dl.google.com/go/go1.12.4.windows-amd64.zip"
 
 
 def create_asset(target_dir):
   """Create the asset."""
-  p1 = subprocess.Popen(["curl", GO_URL], stdout=subprocess.PIPE)
-  p2 = subprocess.Popen(["tar", "-C", target_dir, "-xzf" "-"], stdin=p1.stdout)
-  p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
-  _,_ = p2.communicate()
+  with utils.tmp_dir():
+    cwd = os.getcwd()
+    zipfile = os.path.join(cwd, 'go.zip')
+    subprocess.check_call(["wget", '-O', zipfile, GO_URL])
+    subprocess.check_call(["unzip", zipfile, "-d", target_dir])
 
 
 def main():
