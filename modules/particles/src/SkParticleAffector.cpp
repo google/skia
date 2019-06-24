@@ -459,7 +459,7 @@ public:
 
     void setRandom(SkRandom* random) { fRandom = random; }
     bool canRead() const override { return true; }
-    void read(void* target) override { *(float*)target = fRandom->nextF(); }
+    void read(int /*unusedIndex*/, float* target) override { *target = fRandom->nextF(); }
 
 private:
     SkRandom* fRandom;
