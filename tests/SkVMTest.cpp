@@ -369,4 +369,26 @@ DEF_TEST(SkVM_Assembler, r) {
     },{
         0xc5, 0x9d, 0xdf, 0xda,
     });
+
+    // echo "fmul v4.4s, v3.4s, v1.4s" | llvm-mc -show-encoding -arch arm64
+
+    test_asm(r, [&](A& a) {
+        a.fadd4s(A::v4, A::v3, A::v1);
+        a.fsub4s(A::v4, A::v3, A::v1);
+        a.fmul4s(A::v4, A::v3, A::v1);
+        a.fdiv4s(A::v4, A::v3, A::v1);
+
+        a.add4s(A::v4, A::v3, A::v1);
+        a.sub4s(A::v4, A::v3, A::v1);
+        a.mul4s(A::v4, A::v3, A::v1);
+    },{
+        0x64,0xd4,0x21,0x4e,
+        0x64,0xd4,0xa1,0x4e,
+        0x64,0xdc,0x21,0x6e,
+        0x64,0xfc,0x21,0x6e,
+
+        0x64,0x84,0xa1,0x4e,
+        0x64,0x84,0xa1,0x6e,
+        0x64,0x9c,0xa1,0x4e,
+    });
 }
