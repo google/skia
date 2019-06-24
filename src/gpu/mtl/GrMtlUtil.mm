@@ -178,6 +178,16 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 #endif
 
     MTLCompileOptions* defaultOptions = [[MTLCompileOptions alloc] init];
+#ifdef SK_BUILD_FOR_MAC
+    bool timedout;
+    id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
+                                                               defaultOptions, &timedout);
+    if (timedout) {
+        // try again
+        compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
+                                                    defaultOptions, &timedout);
+    }
+#else
     NSError* error = nil;
     id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource: mtlCode
                                                                  options: defaultOptions
@@ -187,7 +197,67 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
                  [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
         return nil;
     }
+#endif
     return compiledLibrary;
+}
+
+id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode,
+                                         MTLCompileOptions* options, bool* timedout) {
+    dispatch_semaphore_t compilerSemaphore = dispatch_semaphore_create(0);
+
+    __block dispatch_semaphore_t semaphore = compilerSemaphore;
+    __block id<MTLLibrary> compiledLibrary;
+    [device newLibraryWithSource: mslCode
+                         options: options
+               completionHandler:
+        ^(id<MTLLibrary> library, NSError* error) {
+            if (error) {
+                SkDebugf("Error compiling MSL shader: %s\n",
+                    [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
+            }
+            compiledLibrary = library;
+            dispatch_semaphore_signal(semaphore);
+        }
+    ];
+
+    // Wait 100 ms for the compiler
+    if (dispatch_semaphore_wait(compilerSemaphore, dispatch_time(DISPATCH_TIME_NOW, 100000))) {
+        SkDebugf("Timeout compiling MSL shader\n");
+        *timedout = true;
+        return nil;
+    }
+
+    *timedout = false;
+    return compiledLibrary;
+}
+
+id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
+        id<MTLDevice> device, MTLRenderPipelineDescriptor* pipelineDescriptor, bool* timedout) {
+    dispatch_semaphore_t pipelineSemaphore = dispatch_semaphore_create(0);
+
+    __block dispatch_semaphore_t semaphore = pipelineSemaphore;
+    __block id<MTLRenderPipelineState> pipelineState;
+    [device newRenderPipelineStateWithDescriptor: pipelineDescriptor
+                               completionHandler:
+        ^(id<MTLRenderPipelineState> state, NSError* error) {
+            if (error) {
+                SkDebugf("Error creating pipeline: %s\n",
+                    [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
+            }
+            pipelineState = state;
+            dispatch_semaphore_signal(semaphore);
+        }
+     ];
+
+    // Wait 500 ms for pipeline creation
+    if (dispatch_semaphore_wait(pipelineSemaphore, dispatch_time(DISPATCH_TIME_NOW, 500000))) {
+        SkDebugf("Timeout creating pipeline.\n");
+        *timedout = true;
+        return nil;
+    }
+
+    *timedout = false;
+    return pipelineState;
 }
 
 id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface, bool doResolve) {
