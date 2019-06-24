@@ -44,14 +44,6 @@ SkGlyph* SkStrike::makeGlyph(SkPackedGlyphID packedGlyphID) {
     return glyph;
 }
 
-SkGlyph* SkStrike::uninitializedGlyph(SkPackedGlyphID id) {
-    SkGlyph* glyph = fGlyphMap.findOrNull(id);
-    if (glyph == nullptr) {
-        glyph = this->makeGlyph(id);
-    }
-    return glyph;
-}
-
 SkGlyph* SkStrike::glyph(SkPackedGlyphID packedGlyphID) {
     SkGlyph* glyph = fGlyphMap.findOrNull(packedGlyphID);
     if (glyph == nullptr) {
@@ -128,11 +120,6 @@ SkSpan<const SkGlyph*> SkStrike::metrics(
     return {results, glyphCount};
 }
 
-bool SkStrike::isGlyphCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const {
-    SkPackedGlyphID packedGlyphID{glyphID, x, y};
-    return fGlyphMap.find(packedGlyphID) != nullptr;
-}
-
 SkSpan<SkPoint> SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
     auto cursor = advances;
     SkAutoSTArray<50, const SkGlyph*> glyphStorage{SkTo<int>(glyphIDs.size())};
@@ -151,13 +138,16 @@ const void* SkStrike::findImage(const SkGlyph& glyphRef) {
     return glyph->image();
 }
 
-void SkStrike::initializeImage(const void* data, size_t size, SkGlyph* glyph) {
-    SkASSERT(size == glyph->imageSize());
-    if (glyph->setImage(&fAlloc, data)) {
+SkGlyph* SkStrike::mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& from) {
+    SkGlyph* glyph = fGlyphMap.findOrNull(toID);
+    if (glyph == nullptr) {
+        glyph = this->makeGlyph(toID);
+    }
+    if (glyph->setMetricsAndImage(&fAlloc, from)) {
         fMemoryUsed += glyph->imageSize();
     }
+    return glyph;
 }
-
 
 bool SkStrike::belongsToCache(const SkGlyph* glyph) const {
     return glyph && fGlyphMap.findOrNull(glyph->getPackedID()) == glyph;
@@ -176,10 +166,6 @@ const SkGlyph* SkStrike::getCachedGlyphAnySubPix(SkGlyphID glyphID,
     }
 
     return nullptr;
-}
-
-void SkStrike::initializeGlyphFromFallback(SkGlyph* glyph, const SkGlyph& fallback) {
-    fMemoryUsed += glyph->copyImageData(fallback, &fAlloc);
 }
 
 SkVector SkStrike::rounding() const {

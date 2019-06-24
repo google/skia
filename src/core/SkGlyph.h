@@ -152,6 +152,12 @@ public:
     bool setImage(SkArenaAlloc* alloc, SkScalerContext* scalerContext);
     bool setImage(SkArenaAlloc* alloc, const void* image);
 
+    // Merge the from glyph into this glyph using alloc to allocate image data. Return true if
+    // image data was allocated. If the image for this glyph has not been initialized, then copy
+    // the width, height, top, left, format, and image into this glyph making a copy of the image
+    // using the alloc.
+    bool setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from);
+
     // Returns true if the image has been set.
     bool setImageHasBeenCalled() const {
         return fImage != nullptr || this->isEmpty() || this->imageTooLarge();
@@ -204,9 +210,6 @@ public:
         return fWidth == 0;
     }
     bool imageTooLarge() const { return fWidth >= kMaxGlyphWidth; }
-
-    // Returns the size allocated on the arena.
-    size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc);
 
     // Make sure that the intercept information is on the glyph and return it, or return it if it
     // already exists.
