@@ -129,18 +129,35 @@ DEF_BENCH(return (new SkVMBench{4096, I32_SWAR});)
 
 class SkVM_Overhead : public Benchmark {
 public:
-    SkVM_Overhead() {}
+    explicit SkVM_Overhead(bool rp) : fRP(rp) {}
 
 private:
-    const char* onGetName() override { return "SkVM_Overhead"; }
+    const char* onGetName() override { return fRP ? "SkVM_Overhead_RP" : "SkVM_Overhead_VM"; }
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
 
     void onDraw(int loops, SkCanvas*) override {
-        while (loops --> 0) {
-            float dummy;
-            skvm::Program program = SrcoverBuilder_F32{}.done();
-            program.eval(0, &dummy, &dummy);
+        float dummy;
+        if (fRP) {
+            while (loops --> 0) {
+                SkRasterPipeline_<256> rp;
+                SkRasterPipeline_MemoryCtx src = { &dummy, 0},
+                                           dst = { &dummy, 0};
+                rp.append_load    (SkColorType::kRGBA_F32_SkColorType, &src);
+                rp.append_load_dst(SkColorType::kRGBA_F32_SkColorType, &dst);
+                rp.append         (SkRasterPipeline::srcover);
+                rp.append_store   (SkColorType::kRGBA_F32_SkColorType, &dst);
+
+                (void)rp.compile();
+            }
+        } else {
+            while (loops --> 0) {
+                skvm::Program program = SrcoverBuilder_F32{}.done();
+                program.eval(0, &dummy, &dummy);
+            }
         }
     }
+
+    bool fRP;
 };
-DEF_BENCH(return new SkVM_Overhead;)
+DEF_BENCH(return new SkVM_Overhead{ true};)
+DEF_BENCH(return new SkVM_Overhead{false};)
