@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19938b93_f1c3ba0f",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-24T15:25:14Z",
+      "side": 1,
+      "message": "Capture the current analysis like you do for inst?\n\nanalysis \u003d allAnalysis[id];",
+      "range": {
+        "startLine": 77,
+        "startChar": 12,
+        "endLine": 77,
+        "endChar": 51
+      },
+      "revId": "8a344f2800de6404de5d035b9b16ed7ea755f73d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
