@@ -2687,6 +2687,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.driverVersion() < GR_GL_DRIVER_VER(10, 30, 12)) {
         fPerformColorClearsAsDraws = true;
     }
+    // crbug.com/969609 - NVIDIA on Mac sometimes segfaults during glClear in chrome. It seems
+    // mostly concentrated in 10.13/14, GT 650Ms, driver 12+. But there are instances of older
+    // drivers and GTX 775s, so we'll start with a broader workaround.
+    if (kNVIDIA_GrGLVendor == ctxInfo.vendor()) {
+        fPerformColorClearsAsDraws = true;
+    }
 #endif
 
     // See crbug.com/755871. This could probably be narrowed to just partial clears as the driver
