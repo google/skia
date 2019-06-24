@@ -18,11 +18,8 @@ namespace skvm {
 
     class Assembler {
     public:
-        Assembler();
-        ~Assembler();
+        explicit Assembler(void* buf);
 
-        // This program is size() total bytes long starting at data().
-        const uint8_t* data() const;
         size_t size() const;
 
         // Order matters... GP64, Xmm, Ymm values match 4-bit register encoding for each.
@@ -107,7 +104,8 @@ namespace skvm {
         // *ptr = ymm or ymm = *ptr, depending on opcode.
         void load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr);
 
-        std::vector<uint8_t> fCode;
+        uint8_t* fCode;
+        size_t   fSize;
     };
 
     enum class Op : uint8_t {
