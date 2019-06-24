@@ -704,6 +704,29 @@ namespace skvm {
         this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
     }
 
+    void Assembler::word(uint32_t w) {
+        this->byte(&w, 4);
+    }
+
+    // https://static.docs.arm.com/ddi0596/a/DDI_0596_ARM_a64_instruction_set_architecture.pdf
+
+    void Assembler::op(uint32_t hi, V m, uint32_t lo, V n, V d) {
+        this->word( (hi & 2047) << 21
+                  | (m  &   31) << 16
+                  | (lo &   63) << 10
+                  | (n  &   31) <<  5
+                  | (d  &   31) <<  0 );
+    }
+
+    void Assembler::add4s(V d, V n, V m) { this->op(0b0'1'0'01110'10'1, m, 0b10000'1, n, d); }
+    void Assembler::sub4s(V d, V n, V m) { this->op(0b0'1'1'01110'10'1, m, 0b10000'1, n, d); }
+    void Assembler::mul4s(V d, V n, V m) { this->op(0b0'1'0'01110'10'1, m, 0b10011'1, n, d); }
+
+    void Assembler::fadd4s(V d, V n, V m) { this->op(0b0'1'0'01110'0'0'1, m, 0b11010'1, n, d); }
+    void Assembler::fsub4s(V d, V n, V m) { this->op(0b0'1'0'01110'1'0'1, m, 0b11010'1, n, d); }
+    void Assembler::fmul4s(V d, V n, V m) { this->op(0b0'1'1'01110'0'0'1, m, 0b11011'1, n, d); }
+    void Assembler::fdiv4s(V d, V n, V m) { this->op(0b0'1'1'01110'0'0'1, m, 0b11111'1, n, d); }
+
 #if defined(SKVM_JIT)
     static bool can_jit(int regs, int nargs) {
         return true

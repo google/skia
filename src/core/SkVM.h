@@ -25,7 +25,7 @@ namespace skvm {
         // Order matters... GP64, Xmm, Ymm values match 4-bit register encoding for each.
         enum GP64 {
             rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi,
-            r8 , r9,  r10, r11, r12, r13, r14, r15,
+            r8 , r9 , r10, r11, r12, r13, r14, r15,
         };
         enum Xmm {
             xmm0, xmm1, xmm2 , xmm3 , xmm4 , xmm5 , xmm6 , xmm7 ,
@@ -36,9 +36,27 @@ namespace skvm {
             ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15,
         };
 
+        // X and V values match 5-bit encoding for each (nothing tricky).
+        enum X {
+            x0 , x1 , x2 , x3 , x4 , x5 , x6 , x7 ,
+            x8 , x9 , x10, x11, x12, x13, x14, x15,
+            x16, x17, x18, x19, x20, x21, x22, x23,
+            x24, x25, x26, x27, x28, x29, x30, x31,
+        };
+        enum V {
+            v0 , v1 , v2 , v3 , v4 , v5 , v6 , v7 ,
+            v8 , v9 , v10, v11, v12, v13, v14, v15,
+            v16, v17, v18, v19, v20, v21, v22, v23,
+            v24, v25, v26, v27, v28, v29, v30, v31,
+        };
+
         void byte(const void*, int);
         void byte(uint8_t);
         template <typename... Rest> void byte(uint8_t, Rest...);
+
+        void word(uint32_t);
+
+        // x86-64
 
         void nop();
         void align(int mod);
@@ -80,6 +98,13 @@ namespace skvm {
         void vmovups(GP64 dst, Ymm src);
         void vmovq  (GP64 dst, Xmm src);
 
+        // aarch64
+
+        // d = op(n,m)
+        using DOpNM = void(V d, V n, V m);
+        DOpNM  add4s,  sub4s,  mul4s,
+              fadd4s, fsub4s, fmul4s, fdiv4s;
+
     private:
         // dst = op(dst, imm)
         void op(int opcode, int opcode_ext, GP64 dst, int imm);
@@ -103,6 +128,11 @@ namespace skvm {
 
         // *ptr = ymm or ymm = *ptr, depending on opcode.
         void load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr);
+
+        // General layout top to bottom is:
+        //    [11 bits hi] [5 bits m] [6 bits lo] [5 bits n] [5 bits d]
+        // where the opcode is split between hi and lo.
+        void op(uint32_t hi, V m, uint32_t lo, V n, V d);
 
         uint8_t* fCode;
         size_t   fSize;
