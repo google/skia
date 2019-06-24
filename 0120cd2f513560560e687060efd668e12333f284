@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a546fb7_d438cd45",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-24T15:13:50Z",
+      "side": 1,
+      "message": "If the values die for this instruction, reuse the registers for those values.",
+      "range": {
+        "startLine": 113,
+        "startChar": 12,
+        "endLine": 113,
+        "endChar": 97
+      },
+      "revId": "0120cd2f513560560e687060efd668e12333f284",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
