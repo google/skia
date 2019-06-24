@@ -57,7 +57,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMaxPreferredRenderTargetSize = 1;
     fMaxTextureSize = 1;
     fMaxWindowRectangles = 0;
-    fPreferredInternalSampleCount = 0;
+    fInternalMultisampleCount = 0;
 
     fSuppressPrints = options.fSuppressPrints;
 #if GR_TEST_UTILS
@@ -118,7 +118,7 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         fMaxWindowRectangles = GrWindowRectangles::kMaxWindows;
     }
 
-    fPreferredInternalSampleCount = options.fPreferredInternalSampleCount;
+    fInternalMultisampleCount = options.fInternalMultisampleCount;
 
     fAvoidStencilBuffers = options.fAvoidStencilBuffers;
 
@@ -241,7 +241,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max Preferred Render Target Size", fMaxPreferredRenderTargetSize);
     writer->appendS32("Max Window Rectangles", fMaxWindowRectangles);
     writer->appendS32("Preferred Sample Count for Internal MSAA and Mixed Samples",
-                      fPreferredInternalSampleCount);
+                      fInternalMultisampleCount);
 
     static const char* kBlendEquationSupportNames[] = {
         "Basic",

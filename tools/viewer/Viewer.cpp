@@ -298,7 +298,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     displayParams.fGrContextOptions.fDisallowGLSLBinaryCaching = true;
     displayParams.fGrContextOptions.fShaderErrorHandler = &gShaderErrorHandler;
     displayParams.fGrContextOptions.fSuppressPrints = true;
-    displayParams.fGrContextOptions.fPreferredInternalSampleCount = FLAGS_internalSamples;
+    displayParams.fGrContextOptions.fInternalMultisampleCount = FLAGS_internalSamples;
     fWindow->setRequestedDisplayParams(displayParams);
 
     // Configure timers
