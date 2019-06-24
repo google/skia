@@ -1143,7 +1143,7 @@ static bool format_color_type_valid_pair(VkFormat vkFormat, GrColorType colorTyp
         // Experimental (for Y416 and mutant P016/P010)
         case GrColorType::kRGBA_16161616:
             return VK_FORMAT_R16G16B16A16_UNORM == vkFormat;
-        case GrColorType::kRG_half:
+        case GrColorType::kRG_F16:
             return VK_FORMAT_R16G16_SFLOAT == vkFormat;
     }
     SK_ABORT("Unknown color type");

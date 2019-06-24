@@ -395,7 +395,7 @@ static GrSwizzle get_load_and_get_swizzle(GrColorType ct, SkRasterPipeline::Stoc
         case GrColorType::kRG_1616:          *load = SkRasterPipeline::load_rg1616;   break;
         case GrColorType::kRGBA_16161616:    *load = SkRasterPipeline::load_16161616; break;
 
-        case GrColorType::kRG_half:          *load = SkRasterPipeline::load_rgf16;
+        case GrColorType::kRG_F16:           *load = SkRasterPipeline::load_rgf16;
                                              *isNormalized = false;
                                              break;
         case GrColorType::kRGBA_F16:         *load = SkRasterPipeline::load_f16;
@@ -442,7 +442,7 @@ static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::Sto
         case GrColorType::kRG_1616:          *store = SkRasterPipeline::store_rg1616;   break;
         case GrColorType::kRGBA_16161616:    *store = SkRasterPipeline::store_16161616; break;
 
-        case GrColorType::kRG_half:          *store = SkRasterPipeline::store_rgf16;
+        case GrColorType::kRG_F16:           *store = SkRasterPipeline::store_rgf16;
                                              *isNormalized = false;
                                              break;
         case GrColorType::kAlpha_F16:        *store = SkRasterPipeline::store_af16;

@@ -76,7 +76,7 @@ static bool valid_premul_color_type(GrColorType ct) {
         case GrColorType::kRG_1616:          return false;
         // Experimental (for Y416 and mutant P016/P010)
         case GrColorType::kRGBA_16161616:    return false;
-        case GrColorType::kRG_half:          return false;
+        case GrColorType::kRG_F16:           return false;
     }
     SK_ABORT("Invalid GrColorType");
     return false;
