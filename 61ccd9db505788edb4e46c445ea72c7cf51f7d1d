@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a03f7ff_5b41eb04",
+        "filename": "tools/skottie-wasm-perf/skottie-wasm-perf.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-24T18:54:57Z",
+      "side": 1,
+      "message": "Could not for a long time figure out why skottie-wasm was drawing differently, sometimes it was scaled sometimes it was not. Finally found this in infra/skottie/modules/skottie-player-sk/skottie-player-sk.js",
+      "revId": "61ccd9db505788edb4e46c445ea72c7cf51f7d1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
