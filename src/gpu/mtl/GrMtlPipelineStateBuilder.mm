@@ -350,8 +350,9 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
                                                    desc);
     SkASSERT(!this->primitiveProcessor().willUseGeoShader());
 
-    SkASSERT(vertexLibrary);
-    SkASSERT(fragmentLibrary);
+    if (!vertexLibrary || !fragmentLibrary) {
+        return nullptr;
+    }
 
     id<MTLFunction> vertexFunction = [vertexLibrary newFunctionWithName: @"vertexMain"];
     id<MTLFunction> fragmentFunction = [fragmentLibrary newFunctionWithName: @"fragmentMain"];
@@ -380,15 +381,30 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     SkASSERT(pipelineDescriptor.vertexDescriptor);
     SkASSERT(pipelineDescriptor.colorAttachments[0]);
 
+#ifdef SK_BUILD_FOR_MAC
+    bool timedout;
+    id<MTLRenderPipelineState> pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(
+                                                     fGpu->device(), pipelineDescriptor, &timedout);
+    if (timedout) {
+        // try a second time
+        pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(
+                                fGpu->device(), pipelineDescriptor, &timedout);
+    }
+    if (!pipelineState) {
+        return nullptr;
+    }
+#else
     NSError* error = nil;
     id<MTLRenderPipelineState> pipelineState =
-            [fGpu->device() newRenderPipelineStateWithDescriptor: pipelineDescriptor
-                                                           error: &error];
+    [fGpu->device() newRenderPipelineStateWithDescriptor: pipelineDescriptor
+                                                   error: &error];
     if (error) {
         SkDebugf("Error creating pipeline: %s\n",
                  [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
         return nullptr;
     }
+#endif
+
     uint32_t geomBufferSize = buffer_size(fUniformHandler.fCurrentGeometryUBOOffset,
                                           fUniformHandler.fCurrentGeometryUBOMaxAlignment);
     uint32_t fragBufferSize = buffer_size(fUniformHandler.fCurrentFragmentUBOOffset,
