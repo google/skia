@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39d60ddc_67a8298b",
+        "filename": "src/gpu/GrImageTextureMaker.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-24T17:00:17Z",
+      "side": 1,
+      "message": "if you want this ordering you\u0027ll want to make a space between these includes or else the next time the fix includes script is run it will reorder this block",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 40
+      },
+      "revId": "e94c31eb39240606b9921523b98e767c198ce68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
