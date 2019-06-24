@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fb23f6c0_5d8bec0e",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-24T18:56:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48a6dd2c_8c91e7d5",
+      "revId": "2804c0e3fca504d59ce8744f770b6c68c6d57697",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce9598be_aabde4f4",
         "filename": "src/core/SkStrikeCache.cpp",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "2804c0e3fca504d59ce8744f770b6c68c6d57697",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eae5d0f6_014eba4a",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-24T18:56:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ce9598be_aabde4f4",
+      "range": {
+        "startLine": 311,
+        "startChar": 69,
+        "endLine": 311,
+        "endChar": 80
+      },
+      "revId": "2804c0e3fca504d59ce8744f770b6c68c6d57697",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
