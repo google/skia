@@ -360,6 +360,32 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     return this->createBackendTexture(width, height, format, mipMapped, renderable, isProtected);
 }
 
+GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization& c) {
+    if (!this->asDirectContext() || !c.isValid()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    if (c.usesGLFBO0()) {
+        // If we are making the surface we will never use FBO0.
+        return GrBackendTexture();
+    }
+
+    if (!SkSurface_Gpu::Valid(this->caps(), c.config(), c.colorSpace())) {
+        return GrBackendTexture();
+    }
+
+    const GrBackendFormat format =
+            this->caps()->getBackendFormatFromColorType(c.colorType());
+
+    return this->createBackendTexture(c.width(), c.height(), format,
+                                      GrMipMapped(c.isMipMapped()),
+                                      GrRenderable::kYes);  // it's for a 'surface' after all
+}
+
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  const GrBackendFormat& backendFormat,
                                                  const SkColor4f& color,
