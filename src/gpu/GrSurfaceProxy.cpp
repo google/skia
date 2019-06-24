@@ -366,7 +366,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
     if (src->backendFormat().textureType() != GrTextureType::kExternal) {
         sk_sp<GrSurfaceContext> dstContext(context->priv().makeDeferredSurfaceContext(
                 src->backendFormat().makeTexture2D(), dstDesc, src->origin(), mipMapped, fit,
-                budgeted));
+                budgeted, kUnknown_SkAlphaType));
         if (!dstContext) {
             return nullptr;
         }

@@ -74,6 +74,7 @@ public:
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
+                                                      SkAlphaType,
                                                       sk_sp<SkColorSpace> = nullptr,
                                                       const SkSurfaceProps* = nullptr);
 
@@ -83,6 +84,7 @@ public:
                                                        GrMipMapped,
                                                        SkBackingFit,
                                                        SkBudgeted,
+                                                       SkAlphaType,
                                                        sk_sp<SkColorSpace> colorSpace = nullptr,
                                                        const SkSurfaceProps* = nullptr);
 
@@ -123,9 +125,10 @@ public:
      */
     static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
 
-    sk_sp<GrTextureContext> makeBackendTextureContext(const GrBackendTexture& tex,
-                                                      GrSurfaceOrigin origin,
-                                                      sk_sp<SkColorSpace> colorSpace);
+    sk_sp<GrTextureContext> makeBackendTextureContext(const GrBackendTexture&,
+                                                      GrSurfaceOrigin,
+                                                      SkAlphaType,
+                                                      sk_sp<SkColorSpace>);
 
     // These match the definitions in SkSurface & GrSurface.h, for whence they came
     typedef void* ReleaseContext;

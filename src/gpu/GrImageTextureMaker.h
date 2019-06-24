@@ -31,9 +31,6 @@ protected:
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override {}
 
-    SkAlphaType alphaType() const override;
-    SkColorSpace* colorSpace() const override;
-
 private:
     const SkImage_Lazy*     fImage;
     GrUniqueKey             fOriginalKey;
@@ -66,9 +63,6 @@ protected:
         FilterConstraint filterConstraint,
         bool coordsLimitedToConstraintRect,
         const GrSamplerState::Filter* filterOrNullForBicubic) override;
-
-    SkAlphaType alphaType() const override;
-    SkColorSpace* colorSpace() const override;
 
 private:
     const SkImage_GpuYUVA*  fImage;

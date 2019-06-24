@@ -39,7 +39,7 @@ public:
     sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() override;
 
 protected:
-    GrTextureContext(GrRecordingContext*, sk_sp<GrTextureProxy>, sk_sp<SkColorSpace>);
+    GrTextureContext(GrRecordingContext*, SkAlphaType, sk_sp<GrTextureProxy>, sk_sp<SkColorSpace>);
 
     SkDEBUGCODE(void validate() const override;)
 

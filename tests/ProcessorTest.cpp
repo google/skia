@@ -346,7 +346,9 @@ bool log_surface_context(sk_sp<GrSurfaceContext> src, SkString* dst) {
 }
 
 bool log_surface_proxy(GrContext* context, sk_sp<GrSurfaceProxy> src, SkString* dst) {
-    sk_sp<GrSurfaceContext> sContext(context->priv().makeWrappedSurfaceContext(src));
+    // All the proxies are created from premul sources.
+    sk_sp<GrSurfaceContext> sContext(
+            context->priv().makeWrappedSurfaceContext(src, kPremul_SkAlphaType));
     return log_surface_context(sContext, dst);
 }
 

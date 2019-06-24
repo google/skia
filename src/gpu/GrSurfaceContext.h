@@ -128,7 +128,7 @@ public:
 protected:
     friend class GrSurfaceContextPriv;
 
-    GrSurfaceContext(GrRecordingContext*, GrPixelConfig, sk_sp<SkColorSpace>);
+    GrSurfaceContext(GrRecordingContext*, SkAlphaType, sk_sp<SkColorSpace>, GrPixelConfig);
 
     GrDrawingManager* drawingManager();
     const GrDrawingManager* drawingManager() const;

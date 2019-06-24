@@ -73,7 +73,8 @@ void SkAtlasTextTarget::concat(const SkMatrix& matrix) { this->accessCTM()->preC
 
 //////////////////////////////////////////////////////////////////////////////
 
-static const GrColorSpaceInfo kColorSpaceInfo(nullptr, kRGBA_8888_GrPixelConfig);
+static const GrColorSpaceInfo kColorSpaceInfo(kPremul_SkAlphaType, nullptr,
+                                              kRGBA_8888_GrPixelConfig);
 static const SkSurfaceProps kProps(
         SkSurfaceProps::kUseDistanceFieldFonts_Flag, kUnknown_SkPixelGeometry);
 

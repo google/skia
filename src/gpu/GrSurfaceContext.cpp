@@ -32,11 +32,10 @@
 // stack. When this occurs with a closed GrOpList, a new one will be allocated
 // when the renderTargetContext attempts to use it (via getOpList).
 GrSurfaceContext::GrSurfaceContext(GrRecordingContext* context,
-                                   GrPixelConfig config,
-                                   sk_sp<SkColorSpace> colorSpace)
-        : fContext(context)
-        , fColorSpaceInfo(std::move(colorSpace), config) {
-}
+                                   SkAlphaType alphaType,
+                                   sk_sp<SkColorSpace> colorSpace,
+                                   GrPixelConfig config)
+        : fContext(context), fColorSpaceInfo(alphaType, std::move(colorSpace), config) {}
 
 GrAuditTrail* GrSurfaceContext::auditTrail() {
     return fContext->priv().auditTrail();
@@ -152,8 +151,9 @@ bool GrSurfaceContext::readPixelsImpl(GrContext* direct, int left, int top, int 
         return false;
     }
 
-    // TODO: Make GrSurfaceContext know its alpha type and pass dst buffer's alpha type.
+    // TODO: Pass dst buffer's alpha type.
     bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
+    SkASSERT(!unpremul || this->colorSpaceInfo().alphaType() != kUnpremul_SkAlphaType);
 
     if (!valid_pixel_conversion(dstColorType, srcProxy->config(), unpremul)) {
         return false;
@@ -330,8 +330,9 @@ bool GrSurfaceContext::writePixelsImpl(GrContext* direct, int left, int top, int
         return false;
     }
 
-    // TODO: Make GrSurfaceContext know its alpha type and pass src buffer's alpha type.
+    // TODO: Pass src buffer's alpha type.
     bool premul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
+    SkASSERT(!premul || this->colorSpaceInfo().alphaType() != kUnpremul_SkAlphaType);
 
     bool needColorConversion =
             SkColorSpaceXformSteps::Required(srcColorSpace, this->colorSpaceInfo().colorSpace());
@@ -357,15 +358,18 @@ bool GrSurfaceContext::writePixelsImpl(GrContext* direct, int left, int top, int
         desc.fSampleCnt = 1;
 
         GrBackendFormat format;
+        SkAlphaType alphaType;
         if (canvas2DFastPath) {
             desc.fConfig = kRGBA_8888_GrPixelConfig;
             format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            alphaType = kUnpremul_SkAlphaType;
         } else {
             desc.fConfig =  dstProxy->config();
             format = dstProxy->backendFormat().makeTexture2D();
             if (!format.isValid()) {
                 return false;
             }
+            alphaType = this->colorSpaceInfo().alphaType();
         }
 
         // It is more efficient for us to write pixels into a top left origin so we prefer that.
@@ -382,7 +386,7 @@ bool GrSurfaceContext::writePixelsImpl(GrContext* direct, int left, int top, int
             return false;
         }
         auto tempCtx = direct->priv().drawingManager()->makeTextureContext(
-                tempProxy, this->colorSpaceInfo().refColorSpace());
+                tempProxy, alphaType, this->colorSpaceInfo().refColorSpace());
         if (!tempCtx) {
             return false;
         }

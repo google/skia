@@ -26,9 +26,6 @@ protected:
     void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override;
 
-    SkAlphaType alphaType() const override;
-    SkColorSpace* colorSpace() const override;
-
 private:
     const SkBitmap  fBitmap;
     GrUniqueKey     fOriginalKey;
