@@ -534,15 +534,16 @@ namespace skvm {
         return vex;
     }
 
-    Assembler::Assembler() = default;
-    Assembler::~Assembler() = default;
+    Assembler::Assembler(void* buf) : fCode((uint8_t*)buf), fSize(0) {}
 
-    const uint8_t* Assembler::data() const { return fCode.data(); }
-    size_t         Assembler::size() const { return fCode.size(); }
+    size_t Assembler::size() const { return fSize; }
 
     void Assembler::byte(const void* p, int n) {
-        auto b = (const uint8_t*)p;
-        fCode.insert(fCode.end(), b, b+n);
+        if (fCode) {
+            memcpy(fCode, p, n);
+            fCode += n;
+        }
+        fSize += n;
     }
 
     void Assembler::byte(uint8_t b) { this->byte(&b, 1); }
@@ -927,18 +928,21 @@ namespace skvm {
                 entry = fJIT.entry;
                 mask  = fJIT.mask;
             } else if (can_jit(fRegs, nargs)) {
-                Assembler a;
+                // First assemble without any buffer to see how much memory we need to mmap.
                 size_t code;
-                mask = jit(a,&code, fInstructions, fRegs, fLoop, strides, nargs);
+                Assembler a{nullptr};
+                mask = jit(a, &code, fInstructions, fRegs, fLoop, strides, nargs);
 
                 // mprotect() can only change at a page level granularity, so round a.size() up.
                 size_t page = sysconf(_SC_PAGESIZE),                           // Probably 4096.
                        size = ((a.size() + page - 1) / page) * page;
 
-                // JIT safety hygiene is: mmap() r/w, copy over code, mprotect() to r/x.
                 void* buf =
                     mmap(nullptr, size, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
-                memcpy(buf, a.data(), a.size());
+
+                a = Assembler{buf};
+                mask = jit(a,&code, fInstructions, fRegs, fLoop, strides, nargs);
+
                 mprotect(buf,size, PROT_READ|PROT_EXEC);
 
                 entry = (decltype(entry))( (const uint8_t*)buf + code );
