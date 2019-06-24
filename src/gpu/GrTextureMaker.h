@@ -8,6 +8,7 @@
 #ifndef GrTextureMaker_DEFINED
 #define GrTextureMaker_DEFINED
 
+#include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrTextureProducer.h"
 
 /**

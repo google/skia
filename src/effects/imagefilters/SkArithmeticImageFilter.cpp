@@ -366,11 +366,20 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
             context->priv().caps()->getBackendFormatFromColorType(colorType);
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        context->priv().makeDeferredRenderTargetContext(
-            format, SkBackingFit::kApprox, bounds.width(), bounds.height(),
-            SkColorType2GrPixelConfig(colorType),
-            sk_ref_sp(outputProperties.colorSpace()), 1, GrMipMapped::kNo,
-            kBottomLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes, isProtected));
+            context->priv().makeDeferredRenderTargetContext(
+                    format,
+                    SkBackingFit::kApprox,
+                    bounds.width(),
+                    bounds.height(),
+                    SkColorType2GrPixelConfig(colorType),
+                    SkColorTypeToGrColorType(colorType),
+                    sk_ref_sp(outputProperties.colorSpace()),
+                    1,
+                    GrMipMapped::kNo,
+                    kBottomLeft_GrSurfaceOrigin,
+                    nullptr,
+                    SkBudgeted::kYes,
+                    isProtected));
     if (!renderTargetContext) {
         return nullptr;
     }
