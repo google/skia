@@ -34,6 +34,7 @@ LOTTIE_WEB_BLACKLIST = [
   'vr_animation.json',
   # Times out.
   'obama_caricature.json',
+  'lottiefiles.com - Nudge.json',
 ]
 
 
