@@ -32,10 +32,11 @@
 // stack. When this occurs with a closed GrOpList, a new one will be allocated
 // when the renderTargetContext attempts to use it (via getOpList).
 GrSurfaceContext::GrSurfaceContext(GrRecordingContext* context,
+                                   GrColorType colorType,
                                    SkAlphaType alphaType,
                                    sk_sp<SkColorSpace> colorSpace,
                                    GrPixelConfig config)
-        : fContext(context), fColorSpaceInfo(alphaType, std::move(colorSpace), config) {}
+        : fContext(context), fColorSpaceInfo(colorType, alphaType, std::move(colorSpace), config) {}
 
 GrAuditTrail* GrSurfaceContext::auditTrail() {
     return fContext->priv().auditTrail();
@@ -182,20 +183,23 @@ bool GrSurfaceContext::readPixelsImpl(GrContext* direct, int left, int top, int 
         canvas2DFastPath) {
         GrBackendFormat format;
         GrPixelConfig config;
+        GrColorType colorType;
         if (canvas2DFastPath) {
             config = kRGBA_8888_GrPixelConfig;
             format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            colorType = GrColorType::kRGBA_8888;
         } else {
             config = srcProxy->config();
             format = srcProxy->backendFormat().makeTexture2D();
             if (!format.isValid()) {
                 return false;
             }
+            colorType = this->colorSpaceInfo().colorType();
         }
         sk_sp<SkColorSpace> cs = canvas2DFastPath ? nullptr : this->colorSpaceInfo().refColorSpace();
 
         sk_sp<GrRenderTargetContext> tempCtx = direct->priv().makeDeferredRenderTargetContext(
-                format, SkBackingFit::kApprox, width, height, config, std::move(cs), 1,
+                format, SkBackingFit::kApprox, width, height, config, colorType, std::move(cs), 1,
                 GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes);
         if (!tempCtx) {
             return false;
@@ -352,15 +356,18 @@ bool GrSurfaceContext::writePixelsImpl(GrContext* direct, int left, int top, int
         desc.fWidth = width;
         desc.fHeight = height;
         desc.fSampleCnt = 1;
+        GrColorType colorType;
 
         GrBackendFormat format;
         SkAlphaType alphaType;
         if (canvas2DFastPath) {
             desc.fConfig = kRGBA_8888_GrPixelConfig;
+            colorType = GrColorType::kRGBA_8888;
             format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
             alphaType = kUnpremul_SkAlphaType;
         } else {
             desc.fConfig =  dstProxy->config();
+            colorType = this->colorSpaceInfo().colorType();
             format = dstProxy->backendFormat().makeTexture2D();
             if (!format.isValid()) {
                 return false;
@@ -382,7 +389,7 @@ bool GrSurfaceContext::writePixelsImpl(GrContext* direct, int left, int top, int
             return false;
         }
         auto tempCtx = direct->priv().drawingManager()->makeTextureContext(
-                tempProxy, alphaType, this->colorSpaceInfo().refColorSpace());
+                tempProxy, colorType, alphaType, this->colorSpaceInfo().refColorSpace());
         if (!tempCtx) {
             return false;
         }
