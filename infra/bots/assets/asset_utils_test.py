@@ -178,13 +178,14 @@ class AssetTest(unittest.TestCase):
     asset_utils._prompt = self.old_prompt
 
     gs_path = 'gs://%s/assets/%s' % (GS_BUCKET, self.asset_name)
+    gsutil = asset_utils.GSStore()._gsutil
     attempt_delete = True
     try:
-      subprocess.check_call(['gsutil', 'ls', gs_path])
+      subprocess.check_call(gsutil + ['ls', gs_path])
     except subprocess.CalledProcessError:
       attempt_delete = False
     if attempt_delete:
-      subprocess.check_call(['gsutil', 'rm', '-rf', gs_path])
+      subprocess.check_call(gsutil + ['rm', '-rf', gs_path])
 
   def test_add_remove(self):
     # Ensure that we can't create an asset twice.
