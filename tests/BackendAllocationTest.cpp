@@ -484,7 +484,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
             // We current disallow uninitialized ETC1 textures in the GL backend
             continue;
         }
-        if (!glCaps->isConfigTexturable(combo.fConfig)) {
+        if (!glCaps->isFormatTexturable(combo.fColorType, format)) {
             continue;
         }
 

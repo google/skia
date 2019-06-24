@@ -121,11 +121,15 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
 DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angle_es3, reporter,
                          ctxInfo, nullptr) {
     GrContext* context = ctxInfo.grContext();
-    if (context->priv().caps()->avoidStencilBuffers()) {
+    const GrCaps* caps = context->priv().caps();
+
+    if (caps->avoidStencilBuffers()) {
         return;
     }
 
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
+
+    GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     sk_sp<GrRenderTarget> smallRT0 = create_RT_with_SB(resourceProvider, 4, 1, SkBudgeted::kYes);
     REPORTER_ASSERT(reporter, smallRT0);
@@ -155,7 +159,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     }
 
     int smallSampleCount =
-            context->priv().caps()->getRenderTargetSampleCount(2, kRGBA_8888_GrPixelConfig);
+            context->priv().caps()->getRenderTargetSampleCount(2, kRGBA_8888_SkColorType, format);
     if (smallSampleCount > 1) {
         // An RT with a different sample count should not share.
         sk_sp<GrRenderTarget> smallMSAART0 = create_RT_with_SB(resourceProvider, 4,
@@ -177,7 +181,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
         // But one with a larger sample count should not. (Also check that the two requests didn't
         // rounded up to the same actual sample count or else they could share.).
         int bigSampleCount = context->priv().caps()->getRenderTargetSampleCount(
-                5, kRGBA_8888_GrPixelConfig);
+                5, kRGBA_8888_SkColorType, format);
         if (bigSampleCount > 0 && bigSampleCount != smallSampleCount) {
             sk_sp<GrRenderTarget> smallMSAART2 = create_RT_with_SB(resourceProvider, 4,
                                                                    bigSampleCount,
