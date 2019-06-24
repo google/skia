@@ -360,7 +360,7 @@ public:
                                           const GrBackendFormat&,
                                           GrMipMapped,
                                           GrRenderable,
-                                          GrProtected);
+                                          GrProtected isProtected = GrProtected::kNo);
 
     // If possible, create an uninitialized backend texture. The client should ensure that the
     // returned backend texture is valid.
@@ -372,7 +372,7 @@ public:
                                           SkColorType,
                                           GrMipMapped,
                                           GrRenderable,
-                                          GrProtected);
+                                          GrProtected isProtected = GrProtected::kNo);
 
     // If possible, create a backend texture initialized to a particular color. The client should
     // ensure that the returned backend texture is valid.
