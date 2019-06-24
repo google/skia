@@ -22,6 +22,30 @@
       "revId": "e94c31eb39240606b9921523b98e767c198ce68b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "068d5db1_54e5414d",
+        "filename": "src/gpu/GrImageTextureMaker.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-24T17:20:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39d60ddc_67a8298b",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 40
+      },
+      "revId": "e94c31eb39240606b9921523b98e767c198ce68b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
