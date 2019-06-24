@@ -7,25 +7,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="res/canvaskit.js" type="text/javascript" charset="utf-8"></script>
     <style type="text/css" media="screen">
-      body,
-      main,
-      #anim {
-        width: 300px;
-        height: 300px;
-      }
-
-      main {
-        display: flex;
-        width: 1000px;
-        height: 1000px;
-        flex-flow: row wrap;
+      body {
+        margin: 0;
+        padding: 0;
       }
     </style>
 </head>
 <body>
   <main>
-    <!-- This height and width was arbitrarily chosen -->
-    <canvas id=anim width=300 height=300></canvas>
+    <canvas id=anim width=1000 height=1000 style="height: 1000px; width: 1000px;"></canvas>
   </main>
   <script type="text/javascript" charset="utf-8">
     (function() {
@@ -52,10 +42,7 @@
   // Without flushing, nothing will show up on the screen, although
   // everything else has been executed.
   const shouldFlush = false;
-
   const frames = 25;
-  const width = 300;
-  const height = 300;
 
   function Bench(CK, json) {
     if (!CK || !json) {
@@ -81,7 +68,7 @@
     window._gpu = CK.gpu && !c.classList.contains('ck-replaced');
 
     console.log("start")
-    const t_rate = 1.0 / (frames- 1);
+    const t_rate = 1.0 / (frames-1);
     let time = 0;
     let max = -1;
     let min = 1000000000;
@@ -97,9 +84,15 @@
         window._skottieDone = true;
         return;
       }
+
       let start = window.performance.now();
       animation.seek(seek);
-      animation.render(canvas);
+      animation.render(canvas, {
+                       fLeft: 0,
+                       fTop: 0,
+                       fRight: 1000,
+                       fBottom: 1000
+                       });
       if (shouldFlush) {
         surface.flush();
       }
@@ -107,6 +100,7 @@
 
       time += t;
       console.log("Frame " + frame + " took " + t + " us");
+      console.log("Used seek: " + seek);
       if (t < min) {
         min = t;
       }
