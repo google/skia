@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "modules/particles/include/SkParticleAffector.h"
 #include "modules/particles/include/SkParticleDrawable.h"
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkParticleSerialization.h"
@@ -16,7 +15,6 @@
 int main(int argc, char** argv) {
     // Register types for serialization
     REGISTER_REFLECTED(SkReflected);
-    SkParticleAffector::RegisterAffectorTypes();
     SkParticleDrawable::RegisterDrawableTypes();
     return 0;
 }
