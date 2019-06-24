@@ -56,7 +56,7 @@ namespace skvm {
         using DstEqXOpY = void(Ymm dst, Ymm x, Ymm y);
         DstEqXOpY vpaddd, vpsubd, vpmulld,
                   vpsubw, vpmullw,
-                  vpand, vpor, vpxor,
+                  vpand, vpor, vpxor, vpandn,
                   vaddps, vsubps, vmulps, vdivps,
                   vfmadd132ps, vfmadd213ps, vfmadd231ps,
                   vpackusdw, vpackuswb;
@@ -117,7 +117,7 @@ namespace skvm {
         add_f32, sub_f32, mul_f32, div_f32, mad_f32,
         add_i32, sub_i32, mul_i32,
         sub_i16x2, mul_i16x2, shr_i16x2,
-        bit_and, bit_or, bit_xor,
+        bit_and, bit_or, bit_xor, bit_clear,
         shl, shr, sra,
         extract,
         pack,
@@ -211,9 +211,10 @@ namespace skvm {
         I32 mul_16x2(I32 x, I32 y);
         I32 shr_16x2(I32 x, int bits);
 
-        I32 bit_and(I32 x, I32 y);
-        I32 bit_or (I32 x, I32 y);
-        I32 bit_xor(I32 x, I32 y);
+        I32 bit_and  (I32 x, I32 y);
+        I32 bit_or   (I32 x, I32 y);
+        I32 bit_xor  (I32 x, I32 y);
+        I32 bit_clear(I32 x, I32 y);   // x & ~y
 
         I32 shl(I32 x, int bits);
         I32 shr(I32 x, int bits);
