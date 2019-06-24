@@ -113,6 +113,21 @@ bool SkGlyph::setImage(SkArenaAlloc* alloc, const void* image) {
     return false;
 }
 
+bool SkGlyph::setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from) {
+    if (fImage == nullptr) {
+        fAdvanceX = from.fAdvanceX;
+        fAdvanceY = from.fAdvanceY;
+        fWidth = from.fWidth;
+        fHeight = from.fHeight;
+        fTop = from.fTop;
+        fLeft = from.fLeft;
+        fForceBW = from.fForceBW;
+        fMaskFormat = from.fMaskFormat;
+        return this->setImage(alloc, from.image());
+    }
+    return false;
+}
+
 size_t SkGlyph::rowBytes() const {
     return format_rowbytes(fWidth, (SkMask::Format)fMaskFormat);
 }

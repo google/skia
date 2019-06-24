@@ -312,13 +312,13 @@ bool SkStrikeCache::desperationSearchForImage(const SkDescriptor& desc, SkGlyph*
                 // This desperate-match node may disappear as soon as we drop fLock, so we
                 // need to copy the glyph from node into this strike, including a
                 // deep copy of the mask.
-                targetCache->initializeGlyphFromFallback(glyph, *fallback);
+                targetCache->mergeGlyphAndImage(glyph->getPackedID(), *fallback);
                 return true;
             }
 
             // Look for any sub-pixel pos for this glyph, in case there is a pos mismatch.
             if (const auto* fallback = node->fStrike.getCachedGlyphAnySubPix(glyphID)) {
-                targetCache->initializeGlyphFromFallback(glyph, *fallback);
+                targetCache->mergeGlyphAndImage(glyph->getPackedID(), *fallback);
                 return true;
             }
         }
