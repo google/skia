@@ -22,6 +22,30 @@
       "revId": "f2ae40325f11bd1aab3164e6524504ebeaf786d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc4902b8_9cf7aeb9",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 926,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-06-24T16:02:59Z",
+      "side": 1,
+      "message": "Yes, in local testing it seems to consume all paths as lottie sources.  I\u0027ll double-check once it lands that the new tests are showing up.",
+      "parentUuid": "79681748_4d562922",
+      "range": {
+        "startLine": 926,
+        "startChar": 8,
+        "endLine": 926,
+        "endChar": 42
+      },
+      "revId": "f2ae40325f11bd1aab3164e6524504ebeaf786d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
