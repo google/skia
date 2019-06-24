@@ -170,9 +170,9 @@ public:
     virtual int maxRenderTargetSampleCount(GrPixelConfig) const = 0;
 
     // Returns the number of samples to use when performing internal draws to the given config with
-    // MSAA or mixed samples. See maxRenderTargetSampleCount() for meanings of 0 or 1 return values.
-    int preferredInternalSampleCount(GrPixelConfig config) const {
-        return SkTMin(fPreferredInternalSampleCount, this->maxRenderTargetSampleCount(config));
+    // MSAA or mixed samples. If 0, Ganesh should not attempt to use internal multisampling.
+    int internalMultisampleCount(GrPixelConfig config) const {
+        return SkTMin(fInternalMultisampleCount, this->maxRenderTargetSampleCount(config));
     }
 
     bool isConfigRenderable(GrPixelConfig config) const {
@@ -455,7 +455,7 @@ protected:
     int fMaxTextureSize;
     int fMaxTileSize;
     int fMaxWindowRectangles;
-    int fPreferredInternalSampleCount;
+    int fInternalMultisampleCount;
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;
 

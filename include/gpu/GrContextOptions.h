@@ -198,8 +198,10 @@ struct SK_API GrContextOptions {
     /**
      * Specifies the number of samples Ganesh should use when performing internal draws with MSAA or
      * mixed samples (hardware capabilities permitting).
+     *
+     * If 0, Ganesh will disable internal code paths that use multisampling.
      */
-    int  fPreferredInternalSampleCount = 4;
+    int  fInternalMultisampleCount = 4;
 
 #if GR_TEST_UTILS
     /**
