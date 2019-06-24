@@ -13,17 +13,19 @@
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/SkGr.h"
 
-GrTextureAdjuster::GrTextureAdjuster(GrRecordingContext* context, sk_sp<GrTextureProxy> original,
+GrTextureAdjuster::GrTextureAdjuster(GrRecordingContext* context,
+                                     sk_sp<GrTextureProxy> original,
+                                     GrColorType colorType,
                                      SkAlphaType alphaType,
                                      uint32_t uniqueID,
                                      SkColorSpace* cs,
                                      bool useDecal)
-    : INHERITED(context, original->width(), original->height(),
-                GrPixelConfigIsAlphaOnly(original->config()), useDecal)
-    , fOriginal(std::move(original))
-    , fAlphaType(alphaType)
-    , fColorSpace(cs)
-    , fUniqueID(uniqueID) {}
+        : INHERITED(context, original->width(), original->height(), colorType,
+                    GrPixelConfigIsAlphaOnly(original->config()), useDecal)
+        , fOriginal(std::move(original))
+        , fAlphaType(alphaType)
+        , fColorSpace(cs)
+        , fUniqueID(uniqueID) {}
 
 void GrTextureAdjuster::makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) {
     // Destination color space is irrelevant - we already have a texture so we're just sub-setting
@@ -53,7 +55,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
 
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
 
-    sk_sp<GrTextureProxy> copy = CopyOnGpu(this->context(), std::move(proxy),
+    sk_sp<GrTextureProxy> copy = CopyOnGpu(this->context(), std::move(proxy), this->colorType(),
                                            copyParams, willBeMipped);
     if (copy) {
         if (key.isValid()) {

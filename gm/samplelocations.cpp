@@ -278,9 +278,9 @@ DrawResult SampleLocationsGM::onDraw(
     );
 
     if (auto offscreenRTC = ctx->priv().makeDeferredRenderTargetContext(
-            rtc->asSurfaceProxy()->backendFormat(), SkBackingFit::kExact, 200, 200,
-            rtc->asSurfaceProxy()->config(), nullptr, rtc->numStencilSamples(), GrMipMapped::kNo,
-            fOrigin)) {
+                rtc->asSurfaceProxy()->backendFormat(), SkBackingFit::kExact, 200, 200,
+                rtc->asSurfaceProxy()->config(), rtc->colorSpaceInfo().colorType(), nullptr,
+                rtc->numStencilSamples(), GrMipMapped::kNo, fOrigin)) {
         offscreenRTC->clear(nullptr, {0,1,0,1}, GrRenderTargetContext::CanClearFullscreen::kYes);
 
         // Stencil.

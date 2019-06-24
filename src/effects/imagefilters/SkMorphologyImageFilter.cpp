@@ -486,9 +486,9 @@ static sk_sp<SkSpecialImage> apply_morphology(
     SkASSERT(radius.width() > 0 || radius.height() > 0);
 
     if (radius.fWidth > 0) {
-        sk_sp<GrRenderTargetContext> dstRTContext(
-            context->priv().makeDeferredRenderTargetContext(
-                format, SkBackingFit::kApprox, rect.width(), rect.height(), config, colorSpace));
+        sk_sp<GrRenderTargetContext> dstRTContext(context->priv().makeDeferredRenderTargetContext(
+                format, SkBackingFit::kApprox, rect.width(), rect.height(), config,
+                SkColorTypeToGrColorType(colorType), colorSpace));
         if (!dstRTContext) {
             return nullptr;
         }
@@ -505,9 +505,9 @@ static sk_sp<SkSpecialImage> apply_morphology(
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        sk_sp<GrRenderTargetContext> dstRTContext(
-            context->priv().makeDeferredRenderTargetContext(
-                format, SkBackingFit::kApprox, rect.width(), rect.height(), config, colorSpace));
+        sk_sp<GrRenderTargetContext> dstRTContext(context->priv().makeDeferredRenderTargetContext(
+                format, SkBackingFit::kApprox, rect.width(), rect.height(), config,
+                SkColorTypeToGrColorType(colorType), colorSpace));
         if (!dstRTContext) {
             return nullptr;
         }

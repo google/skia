@@ -306,9 +306,9 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
                 context->priv().caps()->getBackendFormatFromColorType(colorType);
 
         sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->priv().makeDeferredRenderTargetContext(
-                    format, SkBackingFit::kApprox, bounds.width(), bounds.height(), config,
-                    sk_ref_sp(colorSpace)));
+                context->priv().makeDeferredRenderTargetContext(
+                        format, SkBackingFit::kApprox, bounds.width(), bounds.height(), config,
+                        SkColorTypeToGrColorType(colorType), sk_ref_sp(colorSpace)));
         if (!renderTargetContext) {
             return nullptr;
         }

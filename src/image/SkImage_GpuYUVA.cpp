@@ -147,7 +147,8 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef(GrRecordingContext* con
     sk_sp<GrRenderTargetContext> renderTargetContext(
             context->priv().makeDeferredRenderTargetContext(
                     format, SkBackingFit::kExact, this->width(), this->height(),
-                    kRGBA_8888_GrPixelConfig, this->refColorSpace(), 1, GrMipMapped::kNo, fOrigin));
+                    kRGBA_8888_GrPixelConfig, GrColorType::kRGBA_8888, this->refColorSpace(), 1,
+                    GrMipMapped::kNo, fOrigin));
     if (!renderTargetContext) {
         return nullptr;
     }
