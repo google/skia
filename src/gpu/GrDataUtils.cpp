@@ -8,6 +8,7 @@
 #include "src/gpu/GrDataUtils.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkTLazy.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/core/SkUtils.h"
 #include "src/gpu/GrColor.h"
 
@@ -358,6 +359,7 @@ void GrFillInData(GrCompression compression, GrPixelConfig config,
                   int baseWidth, int baseHeight,
                   const SkTArray<size_t>& individualMipOffsets, char* dstPixels,
                   const SkColor4f& colorf) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     int mipLevels = individualMipOffsets.count();
 
@@ -484,6 +486,8 @@ static inline void append_clamp_gamut(SkRasterPipeline* pipeline) {
 
 bool GrConvertPixels(const GrPixelInfo& dstInfo, void* dst, const GrPixelInfo& srcInfo,
                      const void* src, GrSwizzle swizzle) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
     if (dstInfo.fWidth != srcInfo.fWidth || srcInfo.fHeight != dstInfo.fHeight) {
         return false;
     }

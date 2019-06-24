@@ -322,6 +322,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  GrMipMapped mipMapped,
                                                  GrRenderable renderable,
                                                  GrProtected isProtected) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (!this->asDirectContext()) {
         return GrBackendTexture();
     }
@@ -365,6 +366,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  const SkColor4f& color,
                                                  GrMipMapped mipMapped,
                                                  GrRenderable renderable) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (!this->asDirectContext()) {
         return GrBackendTexture();
     }
@@ -404,6 +406,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
 }
 
 void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (this->abandoned() || !backendTex.isValid()) {
         return;
     }
