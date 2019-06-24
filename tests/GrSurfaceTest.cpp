@@ -203,7 +203,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                         if (!proxy) {
                             continue;
                         }
-                        auto texCtx = context->priv().makeWrappedSurfaceContext(std::move(proxy));
+                        auto texCtx = context->priv().makeWrappedSurfaceContext(
+                                std::move(proxy), kPremul_SkAlphaType);
                         SkImageInfo info = SkImageInfo::Make(
                                 kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
                         memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
@@ -234,7 +235,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                     // Try creating the texture as a deferred proxy.
                     for (int i = 0; i < 2; ++i) {
                         auto surfCtx = context->priv().makeDeferredSurfaceContext(
-                                format, desc, origin, GrMipMapped::kNo, fit, SkBudgeted::kYes);
+                                format, desc, origin, GrMipMapped::kNo, fit, SkBudgeted::kYes,
+                                kPremul_SkAlphaType);
                         if (!surfCtx) {
                             continue;
                         }
@@ -304,7 +306,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         auto proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
                                                        kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, ioType);
-        auto surfContext = context->priv().makeWrappedSurfaceContext(proxy);
+        auto surfContext = context->priv().makeWrappedSurfaceContext(proxy, kPremul_SkAlphaType);
 
         // Read pixels should work with a read-only texture.
         SkAutoPixmapStorage read;

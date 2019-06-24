@@ -5,16 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrImageTextureMaker.h"
+
+#include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 #include "src/image/SkImage_GpuYUVA.h"
 #include "src/image/SkImage_Lazy.h"
 
+static GrColorSpaceInfo make_info(const SkImage*& image) {
+    return GrColorSpaceInfo(image->alphaType(), image->refColorSpace(),
+                            SkImageInfo2GrPixelConfig(image->imageInfo()));
+}
+
 GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
                                          SkImage::CachingHint chint, bool useDecal)
-        : INHERITED(context, client->width(), client->height(), client->isAlphaOnly(), useDecal)
+        : INHERITED(context, client->width(), client->height(), make_info(client), useDecal)
         , fImage(static_cast<const SkImage_Lazy*>(client))
         , fCachingHint(chint) {
     SkASSERT(client->isLazyGenerated());
@@ -36,19 +42,13 @@ void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* pa
     }
 }
 
-SkAlphaType GrImageTextureMaker::alphaType() const {
-    return fImage->alphaType();
-}
-SkColorSpace* GrImageTextureMaker::colorSpace() const {
-    return fImage->colorSpace();
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkImage* client,
                                                  bool useDecal)
-    : INHERITED(context, client->width(), client->height(), client->isAlphaOnly(), useDecal)
-    , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
+        : INHERITED(context, client->width(), client->height(), make_info(client), useDecal)
+        , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
     SkASSERT(as_IB(client)->isYUVA());
     GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),
                          SkIRect::MakeWH(this->width(), this->height()));
@@ -75,13 +75,6 @@ void GrYUVAImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey
         GrUniqueKey::Builder builder(&cacheKey, fOriginalKey, kDomain, 0, "Image");
         MakeCopyKeyFromOrigKey(cacheKey, stretch, paramsCopyKey);
     }
-}
-
-SkAlphaType GrYUVAImageTextureMaker::alphaType() const {
-    return fImage->alphaType();
-}
-SkColorSpace* GrYUVAImageTextureMaker::colorSpace() const {
-    return fImage->colorSpace();
 }
 
 std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProcessor(

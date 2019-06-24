@@ -146,7 +146,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
                                              sk_sp<SkColorSpace> colorSpace,
                                              const SkSurfaceProps* surfaceProps,
                                              bool managedOpList)
-        : GrSurfaceContext(context, rtp->config(), std::move(colorSpace))
+        : GrSurfaceContext(context, kPremul_SkAlphaType, std::move(colorSpace), rtp->config())
         , fRenderTargetProxy(std::move(rtp))
         , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))

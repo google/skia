@@ -173,10 +173,11 @@ bool SkDeferredDisplayListRecorder::init() {
             SkBudgeted::kYes,
             fCharacterization.vulkanSecondaryCBCompatible());
 
-    sk_sp<GrSurfaceContext> c = fContext->priv().makeWrappedSurfaceContext(
-                                                                 std::move(proxy),
-                                                                 fCharacterization.refColorSpace(),
-                                                                 &fCharacterization.surfaceProps());
+    sk_sp<GrSurfaceContext> c =
+            fContext->priv().makeWrappedSurfaceContext(std::move(proxy),
+                                                       kPremul_SkAlphaType,
+                                                       fCharacterization.refColorSpace(),
+                                                       &fCharacterization.surfaceProps());
     fSurface = SkSurface_Gpu::MakeWrappedRenderTarget(fContext.get(),
                                                       sk_ref_sp(c->asRenderTargetContext()));
     return SkToBool(fSurface.get());

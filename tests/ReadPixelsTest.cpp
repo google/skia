@@ -541,10 +541,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
     for (auto origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             sk_sp<GrTextureProxy> proxy = sk_gpu_test::MakeTextureProxyFromData(
-                    context, renderable, DEV_W, DEV_H, bmp.colorType(), origin, bmp.getPixels(),
-                    bmp.rowBytes());
+                    context, renderable, DEV_W, DEV_H, bmp.colorType(), bmp.alphaType(), origin,
+                    bmp.getPixels(), bmp.rowBytes());
             sk_sp<GrSurfaceContext> sContext = context->priv().makeWrappedSurfaceContext(
-                                                                                std::move(proxy));
+                    std::move(proxy), kPremul_SkAlphaType);
             auto info = SkImageInfo::Make(DEV_W, DEV_H, kN32_SkColorType, kPremul_SkAlphaType);
             test_readpixels_texture(reporter, std::move(sContext), info);
         }

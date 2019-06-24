@@ -77,8 +77,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
         }
-        sk_sp<GrSurfaceContext> sContext(context->priv().makeWrappedSurfaceContext(
-                                                                  std::move(proxy)));
+        sk_sp<GrSurfaceContext> sContext(
+                context->priv().makeWrappedSurfaceContext(std::move(proxy), kPremul_SkAlphaType));
 
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
 
@@ -157,12 +157,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
     static constexpr struct {
         GrColorType fColorType;
+        SkAlphaType fAlphaType;
         GrSRGBEncoded fSRGBEncoded;
     } kInfos[] = {
-            {GrColorType::kRGBA_8888,    GrSRGBEncoded::kNo},
-            {GrColorType::kBGRA_8888,    GrSRGBEncoded::kNo},
-            {GrColorType::kRGBA_8888,    GrSRGBEncoded::kYes},
-            {GrColorType::kRGBA_1010102, GrSRGBEncoded::kNo},
+            {GrColorType::kRGBA_8888,    kPremul_SkAlphaType, GrSRGBEncoded::kNo},
+            {GrColorType::kBGRA_8888,    kPremul_SkAlphaType, GrSRGBEncoded::kNo},
+            {GrColorType::kRGBA_8888,    kPremul_SkAlphaType, GrSRGBEncoded::kYes},
+            {GrColorType::kRGBA_1010102, kPremul_SkAlphaType, GrSRGBEncoded::kNo},
     };
 
     for (int y = 0; y < Y_SIZE; ++y) {
@@ -189,15 +190,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
             auto origin = GrRenderable::kYes == renderable ? kBottomLeft_GrSurfaceOrigin
                                                            : kTopLeft_GrSurfaceOrigin;
-            auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, renderable, X_SIZE, Y_SIZE,
-                                                               info.fColorType, info.fSRGBEncoded,
-                                                               origin, rgbaData, 0);
+            auto proxy = sk_gpu_test::MakeTextureProxyFromData(
+                    context, renderable, X_SIZE, Y_SIZE, info.fColorType, info.fAlphaType,
+                    info.fSRGBEncoded, origin, rgbaData, 0);
             if (!proxy) {
                 continue;
             }
 
             sk_sp<GrSurfaceContext> sContext = context->priv().makeWrappedSurfaceContext(
-                    std::move(proxy));
+                    std::move(proxy), kPremul_SkAlphaType);
 
             for (auto rowBytes : kRowBytes) {
                 size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;

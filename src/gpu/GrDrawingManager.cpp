@@ -766,6 +766,7 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
 }
 
 sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProxy> sProxy,
+                                                             SkAlphaType alphaType,
                                                              sk_sp<SkColorSpace> colorSpace) {
     if (this->wasAbandoned() || !sProxy->asTextureProxy()) {
         return nullptr;
@@ -784,6 +785,7 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
     sk_sp<GrTextureProxy> textureProxy(sk_ref_sp(sProxy->asTextureProxy()));
 
     return sk_sp<GrTextureContext>(new GrTextureContext(fContext,
+                                                        alphaType,
                                                         std::move(textureProxy),
                                                         std::move(colorSpace)));
 }
