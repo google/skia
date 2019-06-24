@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79681748_4d562922",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 926,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-06-24T14:55:56Z",
+      "side": 1,
+      "message": "Does --lotties greedily include all paths up until the next --flag?  If not, we\u0027ll need to merge these dirs somehow.",
+      "range": {
+        "startLine": 926,
+        "startChar": 8,
+        "endLine": 926,
+        "endChar": 42
+      },
+      "revId": "f2ae40325f11bd1aab3164e6524504ebeaf786d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
