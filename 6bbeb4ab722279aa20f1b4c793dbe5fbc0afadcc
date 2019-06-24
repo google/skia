@@ -22,6 +22,30 @@
       "revId": "6bbeb4ab722279aa20f1b4c793dbe5fbc0afadcc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25b53fa0_478aac6e",
+        "filename": "docker/skia-release/Dockerfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-06-24T15:19:19Z",
+      "side": 1,
+      "message": "No idea how.  If this sort of thing is important it needs a bot and a trybot.",
+      "parentUuid": "f599477d_f477ad43",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 1
+      },
+      "revId": "6bbeb4ab722279aa20f1b4c793dbe5fbc0afadcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
