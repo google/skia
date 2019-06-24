@@ -108,9 +108,9 @@ sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrRecordingC
     GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
     sk_sp<GrRenderTargetContext> rtContext(
-        context->priv().makeDeferredRenderTargetContextWithFallback(
-            format, SkBackingFit::kApprox, bounds.width(), bounds.height(), kAlpha_8_GrPixelConfig,
-            nullptr));
+            context->priv().makeDeferredRenderTargetContextWithFallback(
+                    format, SkBackingFit::kApprox, bounds.width(), bounds.height(),
+                    kAlpha_8_GrPixelConfig, GrColorType::kAlpha_8, nullptr));
     if (!rtContext) {
         return nullptr;
     }

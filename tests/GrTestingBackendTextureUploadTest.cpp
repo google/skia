@@ -77,7 +77,7 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
     }
     REPORTER_ASSERT(reporter, wrappedProxy);
 
-    auto surfaceContext = context->priv().makeWrappedSurfaceContext(std::move(wrappedProxy),
+    auto surfaceContext = context->priv().makeWrappedSurfaceContext(std::move(wrappedProxy), grCT,
                                                                     kPremul_SkAlphaType);
     REPORTER_ASSERT(reporter, surfaceContext);
 

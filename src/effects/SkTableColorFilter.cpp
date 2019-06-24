@@ -399,8 +399,8 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTes
     ));
     sk_sp<SkColorSpace> colorSpace = GrTest::TestColorSpace(d->fRandom);
     auto fp = filter->asFragmentProcessor(
-            d->context(), GrColorSpaceInfo(kUnknown_SkAlphaType, std::move(colorSpace),
-                                           kRGBA_8888_GrPixelConfig));
+            d->context(), GrColorSpaceInfo(GrColorType::kRGBA_8888, kUnknown_SkAlphaType,
+                                           std::move(colorSpace), kRGBA_8888_GrPixelConfig));
     SkASSERT(fp);
     return fp;
 }

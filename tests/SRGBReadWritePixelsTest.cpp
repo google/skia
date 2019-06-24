@@ -209,7 +209,8 @@ static sk_sp<GrSurfaceContext> make_surface_context(Encoding contextEncoding, Gr
 
     auto surfaceContext = context->priv().makeDeferredSurfaceContext(
             format, desc, kBottomLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
-            SkBudgeted::kNo, kPremul_SkAlphaType, encoding_as_color_space(contextEncoding));
+            SkBudgeted::kNo, colorType, kPremul_SkAlphaType,
+            encoding_as_color_space(contextEncoding));
     if (!surfaceContext) {
         ERRORF(reporter, "Could not create %s surface context.", encoding_as_str(contextEncoding));
     }

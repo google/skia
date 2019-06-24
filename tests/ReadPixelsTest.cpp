@@ -544,7 +544,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
                     context, renderable, DEV_W, DEV_H, bmp.colorType(), bmp.alphaType(), origin,
                     bmp.getPixels(), bmp.rowBytes());
             sk_sp<GrSurfaceContext> sContext = context->priv().makeWrappedSurfaceContext(
-                    std::move(proxy), kPremul_SkAlphaType);
+                    std::move(proxy), SkColorTypeToGrColorType(bmp.colorType()),
+                    kPremul_SkAlphaType);
             auto info = SkImageInfo::Make(DEV_W, DEV_H, kN32_SkColorType, kPremul_SkAlphaType);
             test_readpixels_texture(reporter, std::move(sContext), info);
         }

@@ -359,8 +359,7 @@ public:
         // The backing GrSurface should have only 1 though bc there is only one proxy
         SkASSERT(1 == fAtlasProxy->testingOnly_getBackingRefCnt());
         sk_sp<GrRenderTargetContext> rtc = resourceProvider->makeRenderTargetContext(
-                                                                           fAtlasProxy,
-                                                                           nullptr, nullptr);
+                fAtlasProxy, GrColorType::kRGBA_8888, nullptr, nullptr);
 
         // clear the atlas
         rtc->clear(nullptr, SK_PMColor4fTRANSPARENT,
@@ -437,13 +436,14 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
     const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
-    sk_sp<GrRenderTargetContext> rtc(context->priv().makeDeferredRenderTargetContext(
-                                                                      format,
-                                                                      SkBackingFit::kApprox,
-                                                                      3*kDrawnTileSize,
-                                                                      kDrawnTileSize,
-                                                                      kRGBA_8888_GrPixelConfig,
-                                                                      nullptr));
+    sk_sp<GrRenderTargetContext> rtc(
+            context->priv().makeDeferredRenderTargetContext(format,
+                                                            SkBackingFit::kApprox,
+                                                            3*kDrawnTileSize,
+                                                            kDrawnTileSize,
+                                                            kRGBA_8888_GrPixelConfig,
+                                                            GrColorType::kRGBA_8888,
+                                                            nullptr));
 
     rtc->clear(nullptr, { 1, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
 
@@ -559,13 +559,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
-    sk_sp<GrRenderTargetContext> rtc(context->priv().makeDeferredRenderTargetContext(
-                                                                      format,
-                                                                      SkBackingFit::kApprox,
-                                                                      kFinalWidth,
-                                                                      kFinalHeight,
-                                                                      kRGBA_8888_GrPixelConfig,
-                                                                      nullptr));
+    sk_sp<GrRenderTargetContext> rtc(
+            context->priv().makeDeferredRenderTargetContext(format,
+                                                            SkBackingFit::kApprox,
+                                                            kFinalWidth,
+                                                            kFinalHeight,
+                                                            kRGBA_8888_GrPixelConfig,
+                                                            GrColorType::kRGBA_8888,
+                                                            nullptr));
 
     rtc->clear(nullptr, SK_PMColor4fWHITE, GrRenderTargetContext::CanClearFullscreen::kYes);
 
