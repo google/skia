@@ -3108,6 +3108,25 @@ bool GrGLCaps::onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget& b
     return fbInfo.fFBOID != 0;
 }
 
+bool GrGLCaps::isFormatTexturable(SkColorType ct, const GrBackendFormat& format) const {
+    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
+    if (kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+
+    return this->isConfigTexturable(config);
+}
+
+int GrGLCaps::getRenderTargetSampleCount(int requestedCount, SkColorType ct,
+                                         const GrBackendFormat& format) const {
+    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
+    if (kUnknown_GrPixelConfig == config) {
+        return 0;
+    }
+
+    return this->getRenderTargetSampleCount(requestedCount, config);
+}
+
 int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
     requestedCount = SkTMax(1, requestedCount);
     int count = fConfigTable[config].fColorSampleCounts.count();
@@ -3131,6 +3150,15 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig confi
     return 0;
 }
 
+int GrGLCaps::maxRenderTargetSampleCount(SkColorType ct, const GrBackendFormat& format) const {
+    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
+    if (kUnknown_GrPixelConfig == config) {
+        return 0;
+    }
+
+    return this->maxRenderTargetSampleCount(config);
+}
+
 int GrGLCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
     const auto& table = fConfigTable[config].fColorSampleCounts;
     if (!table.count()) {
@@ -3141,6 +3169,15 @@ int GrGLCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
         count = SkTMin(count, 4);
     }
     return count;
+}
+
+bool GrGLCaps::isFormatCopyable(SkColorType ct, const GrBackendFormat& format) const {
+    GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
+    if (kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+
+    return this->isConfigCopyable(config);
 }
 
 GrPixelConfig validate_sized_format(GrGLenum format, SkColorType ct, GrGLStandard standard) {
