@@ -265,7 +265,7 @@ void GrVkRenderTarget::getAttachmentsDescriptor(
     VkFormat colorFormat;
     GrPixelConfigToVkFormat(this->config(), &colorFormat);
     desc->fColor.fFormat = colorFormat;
-    desc->fColor.fSamples = this->numColorSamples();
+    desc->fColor.fSamples = this->numSamples();
     *attachmentFlags = GrVkRenderPass::kColor_AttachmentFlag;
     uint32_t attachmentCount = 1;
 
@@ -376,7 +376,7 @@ void GrVkRenderTarget::onAbandon() {
 
 GrBackendRenderTarget GrVkRenderTarget::getBackendRenderTarget() const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
-    return GrBackendRenderTarget(this->width(), this->height(), this->numColorSamples(),
+    return GrBackendRenderTarget(this->width(), this->height(), this->numSamples(),
                                  fInfo, this->grVkImageLayout());
 }
 

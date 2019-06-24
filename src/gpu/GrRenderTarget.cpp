@@ -26,7 +26,6 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc,
         , fSamplePatternKey(GrSamplePatternDictionary::kInvalidSamplePatternKey)
         , fStencilAttachment(stencil) {
     SkASSERT(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    SkASSERT(!this->hasMixedSamples() || fSampleCnt > 1);
     fResolveRect = SkRectPriv::MakeILargestInverted();
 }
 

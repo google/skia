@@ -90,7 +90,7 @@ public:
     bool completeStencilAttachment() override { return true; }
 
     size_t onGpuMemorySize() const override {
-        int numColorSamples = this->numColorSamples();
+        int numColorSamples = this->numSamples();
         if (numColorSamples > 1) {
             // Add one to account for the resolve buffer.
             ++numColorSamples;
@@ -104,7 +104,7 @@ public:
         if (GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment()) {
             numStencilBits = stencil->bits();
         }
-        return {this->width(), this->height(), this->numColorSamples(), numStencilBits, fInfo};
+        return {this->width(), this->height(), this->numSamples(), numStencilBits, fInfo};
     }
 
     GrBackendFormat backendFormat() const override {
@@ -170,7 +170,7 @@ private:
     }
 
     size_t onGpuMemorySize() const override {
-        int numColorSamples = this->numColorSamples();
+        int numColorSamples = this->numSamples();
         if (numColorSamples > 1) {
             // Add one to account for the resolve buffer.
             ++numColorSamples;
@@ -182,7 +182,7 @@ private:
 
     void computeScratchKey(GrScratchKey* key) const override {
         GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
-                                         true, this->numStencilSamples(),
+                                         true, this->numSamples(),
                                          this->texturePriv().mipMapped(), key);
     }
 };

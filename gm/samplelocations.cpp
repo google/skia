@@ -210,8 +210,8 @@ private:
     FixedFunctionFlags fixedFunctionFlags() const override {
         return FixedFunctionFlags::kUsesHWAA | FixedFunctionFlags::kUsesStencil;
     }
-    GrProcessorSet::Analysis finalize(
-            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType) override {
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
+                                      bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
     void onPrepare(GrOpFlushState*) override {}
@@ -254,7 +254,8 @@ SkString SampleLocationsGM::onShortName() {
 
 DrawResult SampleLocationsGM::onDraw(
         GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas, SkString* errorMsg) {
-    if (rtc->numStencilSamples() <= 1) {
+    if (rtc->numSamples() <= 1) {
+        // MIXED SAMPLES TODO: && !ctx->caps()->mixedSamplesSupport()
         *errorMsg = "MSAA only.";
         return DrawResult::kSkip;
     }
@@ -279,9 +280,11 @@ DrawResult SampleLocationsGM::onDraw(
 
     if (auto offscreenRTC = ctx->priv().makeDeferredRenderTargetContext(
             rtc->asSurfaceProxy()->backendFormat(), SkBackingFit::kExact, 200, 200,
-            rtc->asSurfaceProxy()->config(), nullptr, rtc->numStencilSamples(), GrMipMapped::kNo,
+            rtc->asSurfaceProxy()->config(), nullptr, rtc->numSamples(), GrMipMapped::kNo,
             fOrigin)) {
         offscreenRTC->clear(nullptr, {0,1,0,1}, GrRenderTargetContext::CanClearFullscreen::kYes);
+
+        // MIXED SAMPLES TODO: Mixed sampled stencil buffer.
 
         // Stencil.
         offscreenRTC->priv().testingOnly_addDrawOp(

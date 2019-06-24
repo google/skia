@@ -71,7 +71,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf,
 }
 
 size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
-    int colorSamplesPerPixel = this->numColorSamples();
+    int colorSamplesPerPixel = this->numSamples();
     if (colorSamplesPerPixel > 1) {
         // Add one to account for the resolve buffer.
         ++colorSamplesPerPixel;
@@ -91,7 +91,7 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
 
     const GrUniqueKey& key = this->getUniqueKey();
 
-    if (!this->instantiateImpl(resourceProvider, this->numStencilSamples(), this->needsStencil(),
+    if (!this->instantiateImpl(resourceProvider, this->numSamples(), this->needsStencil(),
                                kDescFlags, this->mipMapped(), key.isValid() ? &key : nullptr)) {
         return false;
     }
@@ -109,7 +109,7 @@ sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
                                                     GrResourceProvider* resourceProvider) const {
     static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
 
-    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, this->numStencilSamples(),
+    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, this->numSamples(),
                                                        this->needsStencil(), kDescFlags,
                                                        this->mipMapped());
     if (!surface) {
@@ -130,7 +130,7 @@ void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
 
     // Anything checked here should also be checking the GrRenderTargetProxy version
     SkASSERT(surface->asRenderTarget());
-    SkASSERT(surface->asRenderTarget()->numStencilSamples() == this->numStencilSamples());
+    SkASSERT(surface->asRenderTarget()->numSamples() == this->numSamples());
 
     SkASSERT(surface->asTexture()->texturePriv().textureType() == this->textureType());
 

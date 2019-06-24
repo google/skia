@@ -81,7 +81,7 @@ void GrTexture::computeScratchKey(GrScratchKey* key) const {
         const GrRenderTarget* rt = this->asRenderTarget();
         int sampleCount = 1;
         if (rt) {
-            sampleCount = rt->numStencilSamples();
+            sampleCount = rt->numSamples();
         }
         GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
                                          SkToBool(rt), sampleCount,

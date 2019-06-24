@@ -418,8 +418,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // Setup blit framebuffer
     if (GR_IS_GR_GL(standard)) {
-        if (fUsesMixedSamples ||
-            version >= GR_GL_VER(3,0) ||
+        if (version >= GR_GL_VER(3,0) ||
             ctxInfo.hasExtension("GL_ARB_framebuffer_object") ||
             ctxInfo.hasExtension("GL_EXT_framebuffer_blit")) {
             fBlitFramebufferFlags = 0;
@@ -1013,25 +1012,15 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
 void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
                                const GrGLInterface* gli) {
     // We need dual source blending and the ability to disable multisample in order to support mixed
-    // samples in every corner case. We only use mixed samples if the stencil-and-cover path
-    // renderer is available and enabled; no other path renderers support this feature.
-    if (fMultisampleDisableSupport &&
-        this->shaderCaps()->dualSourceBlendingSupport() &&
-        this->shaderCaps()->pathRenderingSupport()
-#if GR_TEST_UTILS
-        && (contextOptions.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover)
-#endif
-        ) {
-        fUsesMixedSamples = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
-                            ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
+    // samples in every corner case.
+    if (fMultisampleDisableSupport && this->shaderCaps()->dualSourceBlendingSupport()) {
+        fMixedSamplesSupport = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
+                               ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
     }
 
     if (GR_IS_GR_GL(ctxInfo.standard())) {
-        if (fUsesMixedSamples) {
-            fMSFBOType = kMixedSamples_MSFBOType;
-        } else if (ctxInfo.version() >= GR_GL_VER(3,0) ||
-                   ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
-
+        if (ctxInfo.version() >= GR_GL_VER(3,0) ||
+            ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
             fMSFBOType = kStandard_MSFBOType;
             if (!fIsCoreProfile && ctxInfo.renderer() != kOSMesa_GrGLRenderer) {
                 // Core profile removes ALPHA8 support.
@@ -1052,11 +1041,8 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
             fAlpha8IsRenderable = true;
         }
         // We prefer multisampled-render-to-texture extensions over ES3 MSAA because we've observed
-        // ES3 driver bugs on at least one device with a tiled GPU (N10). However, if we're using
-        // mixed samples we can't use multisampled-render-to-texture.
-        if (fUsesMixedSamples) {
-            fMSFBOType = kMixedSamples_MSFBOType;
-        } else if (ctxInfo.hasExtension("GL_EXT_multisampled_render_to_texture")) {
+        // ES3 driver bugs on at least one device with a tiled GPU (N10).
+        if (ctxInfo.hasExtension("GL_EXT_multisampled_render_to_texture")) {
             fMSFBOType = kES_EXT_MsToTexture_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_IMG_multisampled_render_to_texture")) {
             fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
@@ -1194,14 +1180,12 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
         "Apple",
         "IMG MS To Texture",
         "EXT MS To Texture",
-        "MixedSamples",
     };
     GR_STATIC_ASSERT(0 == kNone_MSFBOType);
     GR_STATIC_ASSERT(1 == kStandard_MSFBOType);
     GR_STATIC_ASSERT(2 == kES_Apple_MSFBOType);
     GR_STATIC_ASSERT(3 == kES_IMG_MsToTexture_MSFBOType);
     GR_STATIC_ASSERT(4 == kES_EXT_MsToTexture_MSFBOType);
-    GR_STATIC_ASSERT(5 == kMixedSamples_MSFBOType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kMSFBOExtStr) == kLast_MSFBOType + 1);
 
     static const char* kInvalidateFBTypeStr[] = {
@@ -1675,7 +1659,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                 supportsBGRATexStorage = true;
             }
             if (ctxInfo.hasExtension("GL_CHROMIUM_renderbuffer_format_BGRA8888") &&
-                (this->usesMSAARenderBuffers() || this->fMSFBOType == kMixedSamples_MSFBOType)) {
+                this->usesMSAARenderBuffers()) {
                 fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |=
                     ConfigInfo::kRenderableWithMSAA_Flag;
             }
@@ -2516,7 +2500,7 @@ static bool has_msaa_render_buffer(const GrSurfaceProxy* surf, const GrGLCaps& g
     // 1) It's multisampled
     // 2) We're using an extension with separate MSAA renderbuffers
     // 3) It's not FBO 0, which is special and always auto-resolves
-    return rt->numColorSamples() > 1 &&
+    return rt->numSamples() > 1 &&
            glCaps.usesMSAARenderBuffers() &&
            !rt->rtPriv().glRTFBOIDIs0();
 }
@@ -2529,10 +2513,10 @@ bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
     int dstSampleCnt = 0;
     int srcSampleCnt = 0;
     if (const GrRenderTargetProxy* rtProxy = dst->asRenderTargetProxy()) {
-        dstSampleCnt = rtProxy->numColorSamples();
+        dstSampleCnt = rtProxy->numSamples();
     }
     if (const GrRenderTargetProxy* rtProxy = src->asRenderTargetProxy()) {
-        srcSampleCnt = rtProxy->numColorSamples();
+        srcSampleCnt = rtProxy->numSamples();
     }
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
     SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
@@ -2594,13 +2578,13 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
     bool rectsMustMatchForBlitFramebuffer = false;
     bool disallowSubrectForBlitFramebuffer = false;
-    if (src->numColorSamples() > 1 &&
+    if (src->numSamples() > 1 &&
         (this->blitFramebufferSupportFlags() & kResolveMustBeFull_BlitFrambufferFlag)) {
         rectsMustMatchForBlitFramebuffer = true;
         disallowSubrectForBlitFramebuffer = true;
         // Mirroring causes rects to mismatch later, don't allow it.
-    } else if (src->numColorSamples() > 1 && (this->blitFramebufferSupportFlags() &
-                                              kRectsMustMatchForMSAASrc_BlitFramebufferFlag)) {
+    } else if (src->numSamples() > 1 && (this->blitFramebufferSupportFlags() &
+                                         kRectsMustMatchForMSAASrc_BlitFramebufferFlag)) {
         rectsMustMatchForBlitFramebuffer = true;
     }
 
@@ -2618,7 +2602,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     }
 
     {
-        bool srcIsMSAARenderbuffer = GrFSAAType::kUnifiedMSAA == src->fsaaType() &&
+        bool srcIsMSAARenderbuffer = src->numSamples() > 1 &&
                                      this->usesMSAARenderBuffers();
         if (srcIsMSAARenderbuffer) {
             // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO
@@ -2991,7 +2975,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (fMultisampleDisableSupport &&
         this->shaderCaps()->dualSourceBlendingSupport() &&
         this->shaderCaps()->pathRenderingSupport() &&
-        fUsesMixedSamples &&
+        fMixedSamplesSupport &&
 #if GR_TEST_UTILS
         (contextOptions.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) &&
 #endif
@@ -3073,7 +3057,7 @@ bool GrGLCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
         if (fUseDrawInsteadOfAllRenderTargetWrites) {
             return false;
         }
-        if (rt->numColorSamples() > 1 && this->usesMSAARenderBuffers()) {
+        if (rt->numSamples() > 1 && this->usesMSAARenderBuffers()) {
             return false;
         }
         return SkToBool(surface->asTexture());

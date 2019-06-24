@@ -147,7 +147,7 @@ int GrCCCachedAtlas::testingOnly_peekOnFlushRefCnt() const { return fOnFlushRefC
 
 #define DRAW_OP_TEST_EXTERN(Op) \
     extern std::unique_ptr<GrDrawOp> Op##__Test(GrPaint&&, SkRandom*, \
-                                                GrRecordingContext*, GrFSAAType)
+                                                GrRecordingContext*, int numSamples)
 #define DRAW_OP_TEST_ENTRY(Op) Op##__Test
 
 DRAW_OP_TEST_EXTERN(AAConvexPathOp);
@@ -175,7 +175,7 @@ DRAW_OP_TEST_EXTERN(TextureOp);
 void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext, GrPaint&& paint) {
     auto context = renderTargetContext->surfPriv().getContext();
     using MakeDrawOpFn = std::unique_ptr<GrDrawOp>(GrPaint&&, SkRandom*,
-                                                   GrRecordingContext*, GrFSAAType);
+                                                   GrRecordingContext*, int numSamples);
     static constexpr MakeDrawOpFn* gFactories[] = {
             DRAW_OP_TEST_ENTRY(AAConvexPathOp),
             DRAW_OP_TEST_ENTRY(AAFlatteningConvexPathOp),
@@ -203,7 +203,7 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
     static constexpr size_t kTotal = SK_ARRAY_COUNT(gFactories);
     uint32_t index = random->nextULessThan(static_cast<uint32_t>(kTotal));
     auto op = gFactories[index](
-            std::move(paint), random, context, renderTargetContext->fsaaType());
+            std::move(paint), random, context, renderTargetContext->numSamples());
     SkASSERT(op);
     renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
 }

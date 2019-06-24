@@ -63,7 +63,7 @@ bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     // For CopyImage we can make a simple texture, for ResolveImage we require the dst to be a
     // render target as well.
     desc->fConfig = src->config();
-    if (src->numColorSamples() > 1 || src->asTextureProxy()) {
+    if (src->numSamples() > 1 || src->asTextureProxy()) {
         desc->fFlags = kRenderTarget_GrSurfaceFlag;
     } else {
         // Just going to use CopyImage here
@@ -213,7 +213,7 @@ bool GrVkCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
         if (rtProxy->wrapsVkSecondaryCB()) {
             return false;
         }
-        dstSampleCnt = rtProxy->numColorSamples();
+        dstSampleCnt = rtProxy->numSamples();
     }
     if (const GrRenderTargetProxy* rtProxy = src->asRenderTargetProxy()) {
         // Copying to or from render targets that wrap a secondary command buffer is not allowed
@@ -222,7 +222,7 @@ bool GrVkCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
         if (rtProxy->wrapsVkSecondaryCB()) {
             return false;
         }
-        srcSampleCnt = rtProxy->numColorSamples();
+        srcSampleCnt = rtProxy->numSamples();
     }
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
     SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
@@ -873,7 +873,7 @@ bool GrVkCaps::surfaceSupportsReadPixels(const GrSurface* surface) const {
 
 bool GrVkCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
     if (auto rt = surface->asRenderTarget()) {
-        return rt->numColorSamples() <= 1 && SkToBool(surface->asTexture());
+        return rt->numSamples() <= 1 && SkToBool(surface->asTexture());
     }
     // We can't write to a texture that has a ycbcr sampler.
     if (auto tex = static_cast<const GrVkTexture*>(surface->asTexture())) {

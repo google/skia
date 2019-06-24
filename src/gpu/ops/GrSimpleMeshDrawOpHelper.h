@@ -70,11 +70,12 @@ public:
      *                      color from its geometry processor instead.
      */
     GrProcessorSet::Analysis finalizeProcessors(
-            const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType,
+            const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
             GrClampType clampType, GrProcessorAnalysisCoverage geometryCoverage,
             GrProcessorAnalysisColor* geometryColor) {
-        return this->finalizeProcessors(caps, clip, &GrUserStencilSettings::kUnused, fsaaType,
-                                        clampType, geometryCoverage, geometryColor);
+        return this->finalizeProcessors(
+                caps, clip, &GrUserStencilSettings::kUnused, hasMixedSampledCoverage, clampType,
+                geometryCoverage, geometryColor);
     }
 
     /**
@@ -83,7 +84,7 @@ public:
      * changed the op must override its geometry processor color output with the new color.
      */
     GrProcessorSet::Analysis finalizeProcessors(
-            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType,
+            const GrCaps&, const GrAppliedClip*, bool hasMixedSampledCoverage, GrClampType,
             GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor,
             bool* wideColor);
 
@@ -128,8 +129,8 @@ protected:
     GrPipeline::InputFlags pipelineFlags() const { return fPipelineFlags; }
 
     GrProcessorSet::Analysis finalizeProcessors(
-            const GrCaps& caps, const GrAppliedClip*, const GrUserStencilSettings*, GrFSAAType,
-            GrClampType, GrProcessorAnalysisCoverage geometryCoverage,
+            const GrCaps& caps, const GrAppliedClip*, const GrUserStencilSettings*,
+            bool hasMixedSampledCoverage, GrClampType, GrProcessorAnalysisCoverage geometryCoverage,
             GrProcessorAnalysisColor* geometryColor);
 
     GrProcessorSet* fProcessors;
@@ -167,17 +168,18 @@ public:
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags() const;
 
     GrProcessorSet::Analysis finalizeProcessors(
-            const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType,
+            const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
             GrClampType clampType, GrProcessorAnalysisCoverage geometryCoverage,
             GrProcessorAnalysisColor* geometryColor) {
         return this->INHERITED::finalizeProcessors(
-                caps, clip, fStencilSettings, fsaaType, clampType, geometryCoverage, geometryColor);
+                caps, clip, fStencilSettings, hasMixedSampledCoverage, clampType, geometryCoverage,
+                geometryColor);
     }
 
     GrProcessorSet::Analysis finalizeProcessors(
-            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType,
-            GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor,
-            bool* wideColor);
+            const GrCaps&, const GrAppliedClip*, bool hasMixedSampledCoverage, GrClampType,
+            GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor, bool*
+            wideColor);
 
     using GrSimpleMeshDrawOpHelper::aaType;
     using GrSimpleMeshDrawOpHelper::setAAType;

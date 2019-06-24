@@ -586,7 +586,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     if (resetBits & kMSAAEnable_GrGLBackendState) {
         fMSAAEnabled = kUnknown_TriState;
 
-        if (this->caps()->usesMixedSamples()) {
+        if (this->caps()->mixedSamplesSupport()) {
             // The skia blend modes all use premultiplied alpha and therefore expect RGBA coverage
             // modulation. This state has no effect when not rendering to a mixed sampled target.
             GL_CALL(CoverageModulation(GR_GL_RGBA));
@@ -775,7 +775,6 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     idDesc.fMSColorRenderbufferID = 0;
     idDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     idDesc.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
-    idDesc.fIsMixedSampled = false;
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -1439,7 +1438,6 @@ static bool renderbuffer_storage_msaa(const GrGLContext& ctx,
     SkASSERT(GrGLCaps::kNone_MSFBOType != ctx.caps()->msFBOType());
     switch (ctx.caps()->msFBOType()) {
         case GrGLCaps::kStandard_MSFBOType:
-        case GrGLCaps::kMixedSamples_MSFBOType:
             GL_ALLOC_CALL(ctx.interface(),
                             RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
                                                             sampleCount,
@@ -1475,9 +1473,6 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
     idDesc->fRTFBOID = 0;
     idDesc->fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
     idDesc->fTexFBOID = 0;
-    SkASSERT((GrGLCaps::kMixedSamples_MSFBOType == this->glCaps().msFBOType()) ==
-             this->caps()->usesMixedSamples());
-    idDesc->fIsMixedSampled = desc.fSampleCnt > 1 && this->caps()->usesMixedSamples();
 
     GrGLenum status;
 
@@ -1862,7 +1857,7 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
     SkASSERT(width >= rt->width());
     SkASSERT(height >= rt->height());
 
-    int samples = rt->numStencilSamples();
+    int samples = rt->numSamples();
     GrGLStencilAttachment::IDDesc sbDesc;
 
     int sIdx = this->getCompatibleStencilIndex(rt->config());
@@ -2422,7 +2417,7 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
     if (this->glCaps().detachStencilFromMSAABuffersBeforeReadPixels() &&
         renderTarget &&
         renderTarget->renderTargetPriv().getStencilAttachment() &&
-        renderTarget->numColorSamples() > 1) {
+        renderTarget->numSamples() > 1) {
         // Fix Adreno devices that won't read from MSAA framebuffers with stencil attached
         reattachStencil = true;
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT,
@@ -2884,7 +2879,7 @@ void GrGLGpu::disableStencil() {
 void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
     // rt is only optional if useHWAA is false.
     SkASSERT(rt || !useHWAA);
-    SkASSERT(!useHWAA || rt->isStencilBufferMultisampled());
+    SkASSERT(!useHWAA || rt->numSamples() > 1);
 
     if (this->caps()->multisampleDisableSupport()) {
         if (useHWAA) {
@@ -3195,10 +3190,10 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
     int dstSampleCnt = 0;
     int srcSampleCnt = 0;
     if (const GrRenderTarget* rt = dst->asRenderTarget()) {
-        dstSampleCnt = rt->numColorSamples();
+        dstSampleCnt = rt->numSamples();
     }
     if (const GrRenderTarget* rt = src->asRenderTarget()) {
-        srcSampleCnt = rt->numColorSamples();
+        srcSampleCnt = rt->numSamples();
     }
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTarget()));
     SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTarget()));
@@ -3229,7 +3224,7 @@ static bool rt_has_msaa_render_buffer(const GrGLRenderTarget* rt, const GrGLCaps
     // 1) It's multisampled
     // 2) We're using an extension with separate MSAA renderbuffers
     // 3) It's not FBO 0, which is special and always auto-resolves
-    return rt->numColorSamples() > 1 && glCaps.usesMSAARenderBuffers() && rt->renderFBOID() != 0;
+    return rt->numSamples() > 1 && glCaps.usesMSAARenderBuffers() && rt->renderFBOID() != 0;
 }
 
 static inline bool can_copy_texsubimage(const GrSurface* dst, const GrSurface* src,
@@ -3898,7 +3893,7 @@ void GrGLGpu::querySampleLocations(
 
     int effectiveSampleCnt;
     GR_GL_GetIntegerv(this->glInterface(), GR_GL_SAMPLES, &effectiveSampleCnt);
-    SkASSERT(effectiveSampleCnt >= renderTarget->numStencilSamples());
+    SkASSERT(effectiveSampleCnt >= renderTarget->numSamples());
 
     sampleLocations->reset(effectiveSampleCnt);
     for (int i = 0; i < effectiveSampleCnt; ++i) {

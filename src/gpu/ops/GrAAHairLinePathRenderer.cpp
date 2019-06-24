@@ -714,7 +714,7 @@ static void add_line(const SkPoint p[2],
 
 GrPathRenderer::CanDrawPath
 GrAAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    if (!(AATypeFlags::kCoverage & args.fAATypeFlags)) {
+    if (GrAAType::kCoverage != args.fAAType) {
         return CanDrawPath::kNo;
     }
 
@@ -839,10 +839,11 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                      GrFSAAType fsaaType, GrClampType clampType) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
+            GrClampType clampType) override {
         // This Op uses uniform (not vertex) color, so doesn't need to track wide color.
-        return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType,
+        return fHelper.finalizeProcessors(caps, clip, hasMixedSampledCoverage, clampType,
                                           GrProcessorAnalysisCoverage::kSingleChannel, &fColor,
                                           nullptr);
     }
@@ -1073,7 +1074,7 @@ void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
 bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrAAHairlinePathRenderer::onDrawPath");
-    SkASSERT(GrFSAAType::kUnifiedMSAA != args.fRenderTargetContext->fsaaType());
+    SkASSERT(args.fRenderTargetContext->numSamples() <= 1);
 
     SkIRect devClipBounds;
     args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),

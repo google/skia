@@ -40,8 +40,7 @@ public:
             : fCacheMaxResourceBytes(0)
             , fOrigin(kBottomLeft_GrSurfaceOrigin)
             , fConfig(kUnknown_GrPixelConfig)
-            , fFSAAType(GrFSAAType::kNone)
-            , fStencilCnt(0)
+            , fSampleCnt(0)
             , fIsTextureable(Textureable::kYes)
             , fIsMipMapped(MipMapped::kYes)
             , fUsesGLFBO0(UsesGLFBO0::kNo)
@@ -72,8 +71,7 @@ public:
     int width() const { return fImageInfo.width(); }
     int height() const { return fImageInfo.height(); }
     SkColorType colorType() const { return fImageInfo.colorType(); }
-    GrFSAAType fsaaType() const { return fFSAAType; }
-    int stencilCount() const { return fStencilCnt; }
+    int sampleCount() const { return fSampleCnt; }
     bool isTextureable() const { return Textureable::kYes == fIsTextureable; }
     bool isMipMapped() const { return MipMapped::kYes == fIsMipMapped; }
     bool usesGLFBO0() const { return UsesGLFBO0::kYes == fUsesGLFBO0; }
@@ -98,7 +96,7 @@ private:
                               const SkImageInfo& ii,
                               GrSurfaceOrigin origin,
                               GrPixelConfig config,
-                              GrFSAAType FSAAType, int stencilCnt,
+                              int sampleCnt,
                               Textureable isTextureable, MipMapped isMipMapped,
                               UsesGLFBO0 usesGLFBO0,
                               VulkanSecondaryCBCompatible vulkanSecondaryCBCompatible,
@@ -108,8 +106,7 @@ private:
             , fImageInfo(ii)
             , fOrigin(origin)
             , fConfig(config)
-            , fFSAAType(FSAAType)
-            , fStencilCnt(stencilCnt)
+            , fSampleCnt(sampleCnt)
             , fIsTextureable(isTextureable)
             , fIsMipMapped(isMipMapped)
             , fUsesGLFBO0(usesGLFBO0)
@@ -122,8 +119,7 @@ private:
              const SkImageInfo& ii,
              GrSurfaceOrigin origin,
              GrPixelConfig config,
-             GrFSAAType fsaaType,
-             int stencilCnt,
+             int sampleCnt,
              Textureable isTextureable,
              MipMapped isMipMapped,
              UsesGLFBO0 usesGLFBO0,
@@ -143,8 +139,7 @@ private:
         fImageInfo = ii;
         fOrigin = origin;
         fConfig = config;
-        fFSAAType = fsaaType;
-        fStencilCnt = stencilCnt;
+        fSampleCnt = sampleCnt;
         fIsTextureable = isTextureable;
         fIsMipMapped = isMipMapped;
         fUsesGLFBO0 = usesGLFBO0;
@@ -158,8 +153,7 @@ private:
     SkImageInfo                     fImageInfo;
     GrSurfaceOrigin                 fOrigin;
     GrPixelConfig                   fConfig;
-    GrFSAAType                      fFSAAType;
-    int                             fStencilCnt;
+    int                             fSampleCnt;
     Textureable                     fIsTextureable;
     MipMapped                       fIsMipMapped;
     UsesGLFBO0                      fUsesGLFBO0;

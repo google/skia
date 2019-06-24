@@ -68,7 +68,7 @@ private:
         // TODO: When used as render targets certain formats may actually have a larger size than
         // the base format size. Check to make sure we are reporting the correct value here.
         // The plus 1 is to account for the resolve texture or if not using msaa the RT itself
-        int numColorSamples = this->numColorSamples();
+        int numColorSamples = this->numSamples();
         if (numColorSamples > 1) {
             ++numColorSamples;
         }

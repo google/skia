@@ -24,8 +24,7 @@ bool SkSurfaceCharacterization::operator==(const SkSurfaceCharacterization& othe
            fOrigin == other.fOrigin &&
            fImageInfo == other.fImageInfo &&
            fConfig == other.fConfig &&
-           fFSAAType == other.fFSAAType &&
-           fStencilCnt == other.fStencilCnt &&
+           fSampleCnt == other.fSampleCnt &&
            fIsTextureable == other.fIsTextureable &&
            fIsMipMapped == other.fIsMipMapped &&
            fUsesGLFBO0 == other.fUsesGLFBO0 &&
@@ -45,8 +44,8 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createResized(int width, in
     }
 
     return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
-                                     fImageInfo.makeWH(width, height), fOrigin, fConfig, fFSAAType,
-                                     fStencilCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
+                                     fImageInfo.makeWH(width, height), fOrigin, fConfig,
+                                     fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
                                      fVulkanSecondaryCBCompatible, fSurfaceProps);
 }
 

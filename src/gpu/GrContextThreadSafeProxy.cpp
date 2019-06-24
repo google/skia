@@ -61,12 +61,6 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    GrFSAAType FSAAType = GrFSAAType::kNone;
-    if (sampleCnt > 1) {
-        FSAAType = this->caps()->usesMixedSamples() ? GrFSAAType::kMixedSamples
-                                                    : GrFSAAType::kUnifiedMSAA;
-    }
-
     if (willUseGLFBO0 && isTextureable) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
@@ -78,7 +72,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
 
     return SkSurfaceCharacterization(sk_ref_sp<GrContextThreadSafeProxy>(this),
                                      cacheMaxResourceBytes, ii,
-                                     origin, config, FSAAType, sampleCnt,
+                                     origin, config, sampleCnt,
                                      SkSurfaceCharacterization::Textureable(isTextureable),
                                      SkSurfaceCharacterization::MipMapped(isMipMapped),
                                      SkSurfaceCharacterization::UsesGLFBO0(willUseGLFBO0),

@@ -40,10 +40,6 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, GrGL
 }
 
 inline void GrGLRenderTarget::setFlags(const GrGLCaps& glCaps, const IDDesc& idDesc) {
-    if (idDesc.fIsMixedSampled) {
-        SkASSERT(glCaps.usesMixedSamples() && idDesc.fRTFBOID); // FBO 0 can't be mixed sampled.
-        this->setHasMixedSamples();
-    }
     if (!idDesc.fRTFBOID) {
         this->setGLRTFBOIDIs0();
     }
@@ -89,8 +85,8 @@ GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
         numStencilBits = stencil->bits();
     }
 
-    return GrBackendRenderTarget(this->width(), this->height(), this->numColorSamples(),
-                                 numStencilBits, fbi);
+    return GrBackendRenderTarget(
+            this->width(), this->height(), this->numSamples(), numStencilBits, fbi);
 }
 
 GrBackendFormat GrGLRenderTarget::backendFormat() const {
@@ -238,7 +234,7 @@ int GrGLRenderTarget::msaaSamples() const {
     if (fTexFBOID == kUnresolvableFBOID || fTexFBOID != fRTFBOID) {
         // If the render target's FBO is external (fTexFBOID == kUnresolvableFBOID), or if we own
         // the render target's FBO (fTexFBOID == fRTFBOID) then we use the provided sample count.
-        return this->numStencilSamples();
+        return this->numSamples();
     }
 
     // When fTexFBOID == fRTFBOID, we either are not using MSAA, or MSAA is auto resolving, so use

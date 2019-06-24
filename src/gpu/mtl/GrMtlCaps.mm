@@ -143,10 +143,10 @@ bool GrMtlCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy
     int dstSampleCnt = 0;
     int srcSampleCnt = 0;
     if (const GrRenderTargetProxy* rtProxy = dst->asRenderTargetProxy()) {
-        dstSampleCnt = rtProxy->numColorSamples();
+        dstSampleCnt = rtProxy->numSamples();
     }
     if (const GrRenderTargetProxy* rtProxy = src->asRenderTargetProxy()) {
-        srcSampleCnt = rtProxy->numColorSamples();
+        srcSampleCnt = rtProxy->numSamples();
     }
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
     SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
@@ -223,7 +223,7 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
         fInstanceAttribSupport = true;
     }
 
-    fUsesMixedSamples = false;
+    fMixedSamplesSupport = false;
     fGpuTracingSupport = false;
 
     fFenceSyncSupport = true;   // always available in Metal
@@ -431,7 +431,7 @@ void GrMtlCaps::initStencilFormat(id<MTLDevice> physDev) {
 
 bool GrMtlCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
     if (auto rt = surface->asRenderTarget()) {
-        return rt->numColorSamples() <= 1 && SkToBool(surface->asTexture());
+        return rt->numSamples() <= 1 && SkToBool(surface->asTexture());
     }
     return true;
 }

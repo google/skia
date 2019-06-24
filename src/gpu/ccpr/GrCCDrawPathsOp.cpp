@@ -146,18 +146,19 @@ GrCCDrawPathsOp::SingleDraw::SingleDraw(const SkMatrix& m, const GrShape& shape,
 #endif
 }
 
-GrProcessorSet::Analysis GrCCDrawPathsOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                                   GrFSAAType fsaaType, GrClampType clampType) {
+GrProcessorSet::Analysis GrCCDrawPathsOp::finalize(
+        const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
+        GrClampType clampType) {
     SkASSERT(1 == fNumDraws);  // There should only be one single path draw in this Op right now.
-    return fDraws.head().finalize(caps, clip, fsaaType, clampType, &fProcessors);
+    return fDraws.head().finalize(caps, clip, hasMixedSampledCoverage, clampType, &fProcessors);
 }
 
 GrProcessorSet::Analysis GrCCDrawPathsOp::SingleDraw::finalize(
-        const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType, GrClampType clampType,
-        GrProcessorSet* processors) {
+        const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage, GrClampType
+        clampType, GrProcessorSet* processors) {
     const GrProcessorSet::Analysis& analysis = processors->finalize(
             fColor, GrProcessorAnalysisCoverage::kSingleChannel, clip,
-            &GrUserStencilSettings::kUnused, fsaaType, caps, clampType, &fColor);
+            &GrUserStencilSettings::kUnused, hasMixedSampledCoverage, caps, clampType, &fColor);
 
     // Lines start looking jagged when they get thinner than 1px. For thin strokes it looks better
     // if we can convert them to hairline (i.e., inflate the stroke width to 1px), and instead

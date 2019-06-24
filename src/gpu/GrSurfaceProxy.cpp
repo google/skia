@@ -266,7 +266,7 @@ void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
     const GrRenderTargetProxy* rtp = this->asRenderTargetProxy();
     int sampleCount = 1;
     if (rtp) {
-        sampleCount = rtp->numStencilSamples();
+        sampleCount = rtp->numSamples();
     }
 
     const GrTextureProxy* tp = this->asTextureProxy();

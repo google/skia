@@ -402,7 +402,7 @@ GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(const GrRe
     SkASSERT(width >= rt->width());
     SkASSERT(height >= rt->height());
 
-    int samples = rt->numStencilSamples();
+    int samples = rt->numSamples();
 
     const GrMtlCaps::StencilFormat& sFmt = this->mtlCaps().preferredStencilFormat();
 
@@ -871,7 +871,7 @@ void GrMtlGpu::testingOnly_flushGpuAndSync() {
 
 static int get_surface_sample_cnt(GrSurface* surf) {
     if (const GrRenderTarget* rt = surf->asRenderTarget()) {
-        return rt->numColorSamples();
+        return rt->numSamples();
     }
     return 0;
 }

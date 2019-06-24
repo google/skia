@@ -140,8 +140,9 @@ GrDrawOp::FixedFunctionFlags GrAtlasTextOp::fixedFunctionFlags() const {
     return FixedFunctionFlags::kNone;
 }
 
-GrProcessorSet::Analysis GrAtlasTextOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                                 GrFSAAType fsaaType, GrClampType clampType) {
+GrProcessorSet::Analysis GrAtlasTextOp::finalize(
+        const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
+        GrClampType clampType) {
     GrProcessorAnalysisCoverage coverage;
     GrProcessorAnalysisColor color;
     if (kColorBitmapMask_MaskType == fMaskType) {
@@ -165,8 +166,8 @@ GrProcessorSet::Analysis GrAtlasTextOp::finalize(const GrCaps& caps, const GrApp
             break;
     }
     auto analysis = fProcessors.finalize(
-            color, coverage, clip, &GrUserStencilSettings::kUnused, fsaaType, caps, clampType,
-            &fGeoData[0].fColor);
+            color, coverage, clip, &GrUserStencilSettings::kUnused, hasMixedSampledCoverage, caps,
+            clampType, &fGeoData[0].fColor);
     fUsesLocalCoords = analysis.usesLocalCoords();
     return analysis;
 }

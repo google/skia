@@ -29,11 +29,6 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendForm
         , fOutputSwizzle(outputSwizzle)
         , fNeedsStencil(false)
         , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo) {
-    // Since we know the newly created render target will be internal, we are able to precompute
-    // what the flags will ultimately end up being.
-    if (caps.usesMixedSamples() && fSampleCnt > 1) {
-        this->setHasMixedSamples();
-    }
 }
 
 // Lazy-callback version
@@ -59,7 +54,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin 
                                          const GrSwizzle& outputSwizzle,
                                          WrapsVkSecondaryCB wrapsVkSecondaryCB)
         : INHERITED(std::move(surf), origin, textureSwizzle, SkBackingFit::kExact)
-        , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
+        , fSampleCnt(fTarget->asRenderTarget()->numSamples())
         , fOutputSwizzle(outputSwizzle)
         , fNeedsStencil(false)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
@@ -99,7 +94,7 @@ sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resource
 }
 
 size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
-    int colorSamplesPerPixel = this->numColorSamples();
+    int colorSamplesPerPixel = this->numSamples();
     if (colorSamplesPerPixel > 1) {
         // Add one for the resolve buffer.
         ++colorSamplesPerPixel;
@@ -126,7 +121,7 @@ void GrRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
 
     // Anything that is checked here should be duplicated in GrTextureRenderTargetProxy's version
     SkASSERT(surface->asRenderTarget());
-    SkASSERT(surface->asRenderTarget()->numStencilSamples() == this->numStencilSamples());
+    SkASSERT(surface->asRenderTarget()->numSamples() == this->numSamples());
 
     GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
     GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();

@@ -44,8 +44,8 @@ GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
     if (args.fHasUserStencilSettings) {
         return CanDrawPath::kNo;
     }
-    // doesn't do per-path AA, relies on the target having MSAA.
-    if (AATypeFlags::kCoverage == args.fAATypeFlags) {
+    // We rely on a mixed sampled stencil buffer to implement coverage AA.
+    if (GrAAType::kCoverage == args.fAAType) {  // MIXED SAMPLES TODO: "&& !mixedSamplesSupport"
         return CanDrawPath::kNo;
     }
     return CanDrawPath::kYes;
@@ -91,11 +91,13 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     const SkMatrix& viewMatrix = *args.fViewMatrix;
 
-    bool doStencilMSAA = AATypeFlags::kNone != args.fAATypeFlags;
-    SkASSERT(!doStencilMSAA ||
-             (AATypeFlags::kMSAA | AATypeFlags::kMixedSampledStencilThenCover) & args.fAATypeFlags);
+    bool doStencilMSAA = GrAAType::kNone != args.fAAType;
 
     sk_sp<GrPath> path(get_gr_path(fResourceProvider, *args.fShape));
+
+    if (GrAAType::kCoverage == args.fAAType) {
+        // MIXED SAMPLES TODO: Indicate that we need a mixed sampled stencil buffer.
+    }
 
     if (args.fShape->inverseFilled()) {
         SkMatrix vmi;
@@ -157,12 +159,12 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             // We have to suppress enabling MSAA for mixed samples or we will get seams due to
             // coverage modulation along the edge where two triangles making up the rect meet.
             GrAA doStencilMSAA = GrAA::kNo;
-            if (AATypeFlags::kMSAA & args.fAATypeFlags) {
-                SkASSERT(!(AATypeFlags::kMixedSampledStencilThenCover & args.fAATypeFlags));
+            if (GrAAType::kMSAA == args.fAAType) {
                 doStencilMSAA = GrAA::kYes;
             }
-            args.fRenderTargetContext->priv().stencilRect(*args.fClip, &kInvertedCoverPass,
-                    std::move(args.fPaint), doStencilMSAA, coverMatrix, coverBounds, &localMatrix);
+            args.fRenderTargetContext->priv().stencilRect(
+                    *args.fClip, &kInvertedCoverPass, std::move(args.fPaint), doStencilMSAA,
+                    coverMatrix, coverBounds, &localMatrix);
         }
     } else {
         std::unique_ptr<GrDrawOp> op = GrDrawPathOp::Make(

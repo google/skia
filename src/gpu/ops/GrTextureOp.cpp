@@ -223,7 +223,8 @@ public:
 #endif
 
     GrProcessorSet::Analysis finalize(
-            const GrCaps& caps, const GrAppliedClip*, GrFSAAType, GrClampType clampType) override {
+            const GrCaps& caps, const GrAppliedClip*, bool hasMixedSampledCoverage,
+            GrClampType clampType) override {
         fColorType = static_cast<unsigned>(ColorType::kNone);
         for (int q = 0; q < fQuads.count(); ++q) {
             const ColorDomainAndAA& info = fQuads.metadata(q);
@@ -766,7 +767,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     auto texXform = GrTest::TestColorXform(random);
     GrAAType aaType = GrAAType::kNone;
     if (random->nextBool()) {
-        aaType = (fsaaType == GrFSAAType::kUnifiedMSAA) ? GrAAType::kMSAA : GrAAType::kCoverage;
+        aaType = (numSamples > 1) ? GrAAType::kMSAA : GrAAType::kCoverage;
     }
     GrQuadAAFlags aaFlags = GrQuadAAFlags::kNone;
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kLeft : GrQuadAAFlags::kNone;

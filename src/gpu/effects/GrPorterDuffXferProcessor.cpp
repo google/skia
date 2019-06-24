@@ -831,7 +831,7 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
             // Mixed samples implicity computes a fractional coverage from sample coverage. This
             // could affect the formula used. However, we don't expect to have mixed samples without
             // dual source blending.
-            SkASSERT(!caps.usesMixedSamples());
+            SkASSERT(!caps.mixedSamplesSupport());
             if (formula.hasSecondaryOutput()) {
                 props |= AnalysisProperties::kReadsDstInShader;
             }

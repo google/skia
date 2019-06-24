@@ -58,7 +58,7 @@ public:
     bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
     bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
     bool instanceAttribSupport() const { return fInstanceAttribSupport; }
-    bool usesMixedSamples() const { return fUsesMixedSamples; }
+    bool mixedSamplesSupport() const { return fMixedSamplesSupport; }
     bool halfFloatVertexAttributeSupport() const { return fHalfFloatVertexAttributeSupport; }
 
     // Primitive restart functionality is core in ES 3.0, but using it will cause slowdowns on some
@@ -391,7 +391,7 @@ protected:
     bool fSampleLocationsSupport                     : 1;
     bool fMultisampleDisableSupport                  : 1;
     bool fInstanceAttribSupport                      : 1;
-    bool fUsesMixedSamples                           : 1;
+    bool fMixedSamplesSupport                        : 1;
     bool fUsePrimitiveRestart                        : 1;
     bool fPreferClientSideDynamicBuffers             : 1;
     bool fPreferFullscreenClears                     : 1;

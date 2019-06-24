@@ -40,7 +40,7 @@ GrAALinearizingConvexPathRenderer::GrAALinearizingConvexPathRenderer() {
 
 GrPathRenderer::CanDrawPath
 GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    if (!(AATypeFlags::kCoverage & args.fAATypeFlags)) {
+    if (GrAAType::kCoverage != args.fAAType) {
         return CanDrawPath::kNo;
     }
     if (!args.fShape->knownToBeConvex()) {
@@ -187,11 +187,12 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                      GrFSAAType fsaaType, GrClampType clampType) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
+            GrClampType clampType) override {
         return fHelper.finalizeProcessors(
-                caps, clip, fsaaType, clampType, GrProcessorAnalysisCoverage::kSingleChannel,
-                &fPaths.back().fColor, &fWideColor);
+                caps, clip, hasMixedSampledCoverage, clampType,
+                GrProcessorAnalysisCoverage::kSingleChannel, &fPaths.back().fColor, &fWideColor);
     }
 
 private:
@@ -337,7 +338,7 @@ private:
 bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrAALinearizingConvexPathRenderer::onDrawPath");
-    SkASSERT(GrFSAAType::kUnifiedMSAA != args.fRenderTargetContext->fsaaType());
+    SkASSERT(args.fRenderTargetContext->numSamples() <= 1);
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(!args.fShape->style().pathEffect());
 
