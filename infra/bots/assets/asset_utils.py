@@ -38,8 +38,6 @@ TAG_PROJECT_SKIA = 'project:skia'
 TAG_VERSION_PREFIX = 'version:'
 TAG_VERSION_TMPL = '%s%%s' % TAG_VERSION_PREFIX
 
-WHICH = 'where' if sys.platform.startswith('win') else 'which'
-
 VERSION_FILENAME = 'VERSION'
 ZIP_BLACKLIST = ['.git', '.svn', '*.pyc', '.DS_STORE']
 
@@ -159,7 +157,17 @@ class GSStore(object):
     if gsutil:
       gsutil = os.path.abspath(gsutil)
     else:
-      gsutil = subprocess.check_output([WHICH, 'gsutil']).rstrip()
+      gsutils = subprocess.check_output([
+          utils.WHICH, 'gsutil']).rstrip().splitlines()
+      for g in gsutils:
+        ok = True
+        try:
+          subprocess.check_call([g, 'version'])
+        except OSError:
+          ok = False
+        if ok:
+          gsutil = g
+          break
     self._gsutil = [gsutil]
     if gsutil.endswith('.py'):
       self._gsutil = ['python', gsutil]

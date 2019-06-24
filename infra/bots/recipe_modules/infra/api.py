@@ -30,7 +30,8 @@ class InfraApi(recipe_api.RecipeApi):
         'GOCACHE': self.m.vars.cache_dir.join('go_cache'),
         'GOPATH': self.gopath,
         'GOROOT': self.goroot,
-        'PATH': '%s:%s:%%(PATH)s' % (self.go_bin, self.gopath.join('bin')),
+        'PATH': self.m.path.pathsep.join([
+            str(self.go_bin), str(self.gopath.join('bin')), '%(PATH)s']),
     }
 
   @property
