@@ -100,7 +100,7 @@ bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texPr
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
                                       const GrMipLevel texels[], int mipLevelCount) {
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrGpu", "createTexture", fContext);
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     GrSurfaceDesc desc = origDesc;
 
     GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
@@ -215,6 +215,7 @@ sk_sp<GrRenderTarget> GrGpu::onWrapVulkanSecondaryCBAsRenderTarget(const SkImage
 
 sk_sp<GrGpuBuffer> GrGpu::createBuffer(size_t size, GrGpuBufferType intendedType,
                                        GrAccessPattern accessPattern, const void* data) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     this->handleDirtyContext();
     sk_sp<GrGpuBuffer> buffer = this->onCreateBuffer(size, intendedType, accessPattern, data);
     if (!this->caps()->reuseScratchBuffers()) {
@@ -225,7 +226,7 @@ sk_sp<GrGpuBuffer> GrGpu::createBuffer(size_t size, GrGpuBufferType intendedType
 
 bool GrGpu::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                         const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) {
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrGpu", "copySurface", fContext);
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(dst && src);
 
     if (dst->readOnly()) {
@@ -239,6 +240,7 @@ bool GrGpu::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
 
 bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int height,
                        GrColorType dstColorType, void* buffer, size_t rowBytes) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
 
     int bpp = GrColorTypeBytesPerPixel(dstColorType);
@@ -260,6 +262,7 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
 
 bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int height,
                         GrColorType srcColorType, const GrMipLevel texels[], int mipLevelCount) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
 
     if (surface->readOnly()) {
@@ -298,6 +301,7 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
 bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
                              GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
                              size_t offset, size_t rowBytes) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(texture);
     SkASSERT(transferBuffer);
 
@@ -327,6 +331,7 @@ bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, i
 bool GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
                                GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
                                size_t offset) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
     SkASSERT(transferBuffer);
     SkASSERT(this->caps()->transferFromOffsetAlignment(bufferColorType));
@@ -349,6 +354,7 @@ bool GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width,
 }
 
 bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(texture);
     SkASSERT(this->caps()->mipMapSupport());
     SkASSERT(texture->texturePriv().mipMapped() == GrMipMapped::kYes);
@@ -411,6 +417,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
                                          SkSurface::BackendSurfaceAccess access,
                                          const GrFlushInfo& info,
                                          const GrPrepareForExternalIORequests& externalRequests) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     this->stats()->incNumFinishFlushes();
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
 
