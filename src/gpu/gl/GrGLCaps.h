@@ -106,6 +106,8 @@ public:
     GrGLCaps(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
              const GrGLInterface* glInterface);
 
+    bool isFormatSRGB(const GrBackendFormat& format) const override;
+
     bool isFormatTexturable(SkColorType, const GrBackendFormat&) const override;
 
     bool isConfigTexturable(GrPixelConfig config) const override {
