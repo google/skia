@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6485e14c_39bb6bd6",
+        "filename": "include/private/GrRecordingContext.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-25T13:41:18Z",
+      "side": 1,
+      "message": "this function now has a format and colorType. Should we be dropping passing in the config here and instead create it in the function via caps call? Just thinking anywhere we can start to remove pixel config from the API is helpful.",
+      "range": {
+        "startLine": 86,
+        "startChar": 12,
+        "endLine": 86,
+        "endChar": 33
+      },
+      "revId": "b62f6e591cf793bb2db8621dcfadb19274f3ce03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17ccb643_405891b5",
+        "filename": "src/gpu/GrContextPriv.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-25T13:41:18Z",
+      "side": 1,
+      "message": "same with comments in the RecordingContext",
+      "range": {
+        "startLine": 103,
+        "startChar": 12,
+        "endLine": 103,
+        "endChar": 32
+      },
+      "revId": "b62f6e591cf793bb2db8621dcfadb19274f3ce03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "635b7c42_59a542a2",
+        "filename": "src/gpu/GrTextureMaker.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-25T13:41:18Z",
+      "side": 1,
+      "message": "why was this added?",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 40
+      },
+      "revId": "b62f6e591cf793bb2db8621dcfadb19274f3ce03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
