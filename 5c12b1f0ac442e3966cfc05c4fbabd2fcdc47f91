@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef50d457_020596f6",
+        "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/rendertests.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-06-25T18:25:13Z",
+      "side": 1,
+      "message": "I\u0027d wound this up to 10.",
+      "revId": "5c12b1f0ac442e3966cfc05c4fbabd2fcdc47f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28b66ae1_97a24817",
+        "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/rendertests.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-06-25T18:25:13Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be \u003e 64380? e.g.:\n\n    bigbitmaprect_i,70000",
+      "revId": "5c12b1f0ac442e3966cfc05c4fbabd2fcdc47f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "433c8215_0e829b82",
+        "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/rendertests.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-06-25T18:25:13Z",
+      "side": 1,
+      "message": "should be greater than 12, e.g.:\n\n    bug339297,20",
+      "revId": "5c12b1f0ac442e3966cfc05c4fbabd2fcdc47f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
