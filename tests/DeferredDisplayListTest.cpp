@@ -188,6 +188,7 @@ public:
                                                                              fOrigin, fColorType,
                                                                              fColorSpace,
                                                                              &fSurfaceProps);
+            SkASSERT(result->isCompatible(c));
             return result;
         }
 
@@ -215,6 +216,7 @@ public:
             return nullptr;
         }
 
+        SkASSERT(surface->isCompatible(c));
         return surface;
     }
 
@@ -541,6 +543,7 @@ static void test_make_render_target(skiatest::Reporter* reporter,
         }
 
         REPORTER_ASSERT(reporter, c.isValid());
+        REPORTER_ASSERT(reporter, s->isCompatible(c));
         // Note that we're leaving 'backend' live here
     }
 
@@ -548,6 +551,7 @@ static void test_make_render_target(skiatest::Reporter* reporter,
     {
         sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, c, SkBudgeted::kYes);
         REPORTER_ASSERT(reporter, s);
+        REPORTER_ASSERT(reporter, s->isCompatible(c));
     }
 
     params.cleanUpBackEnd(context, backend);

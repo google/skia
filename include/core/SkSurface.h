@@ -411,6 +411,17 @@ public:
                                              const SkSurfaceCharacterization& characterization,
                                              SkBudgeted budgeted);
 
+    /** Is this surface compatible with the provided characterization?
+
+        This method can be used to determine if an existing SkSurface is a viable destination
+        for an SkDeferredDisplayList.
+
+        @param characterization  The characterization for which a compatibility check is desired
+        @return                  true if this surface is compatible with the characterization;
+                                 false otherwise
+    */
+    bool isCompatible(const SkSurfaceCharacterization& characterization) const;
+
     /** Returns SkSurface without backing pixels. Drawing to SkCanvas returned from SkSurface
         has no effect. Calling makeImageSnapshot() on returned SkSurface returns nullptr.
 
