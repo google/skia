@@ -157,6 +157,8 @@ public:
         return this->maxWindowRectangles() > 0 && this->onIsWindowRectanglesSupportedForRT(rt);
     }
 
+    virtual bool isFormatSRGB(const GrBackendFormat&) const = 0;
+
     virtual bool isFormatTexturable(SkColorType, const GrBackendFormat&) const = 0;
     virtual bool isConfigTexturable(GrPixelConfig) const = 0;
 
