@@ -692,6 +692,39 @@ bool GrBackendRenderTarget::getGLFramebufferInfo(GrGLFramebufferInfo* outInfo) c
     return false;
 }
 
+GrBackendFormat GrBackendRenderTarget::getBackendFormat() const {
+    if (!this->isValid()) {
+        return GrBackendFormat();
+    }
+    switch (fBackend) {
+#ifdef SK_GL
+        case GrBackendApi::kOpenGL:
+            return GrBackendFormat::MakeGL(fGLInfo.fFormat, GR_GL_TEXTURE_2D);
+#endif
+#ifdef SK_VULKAN
+        case GrBackendApi::kVulkan: {
+            auto info = fVkInfo.snapImageInfo();
+            if (info.fYcbcrConversionInfo.isValid()) {
+                SkASSERT(info.fFormat == VK_FORMAT_UNDEFINED);
+                return GrBackendFormat::MakeVk(info.fYcbcrConversionInfo);
+            }
+            return GrBackendFormat::MakeVk(info.fFormat);
+        }
+#endif
+#ifdef SK_METAL
+        case GrBackendApi::kMetal: {
+            GrMtlTextureInfo mtlInfo;
+            SkAssertResult(this->getMtlTextureInfo(&mtlInfo));
+            return GrBackendFormat::MakeMtl(GrGetMTLPixelFormatFromMtlTextureInfo(mtlInfo));
+        }
+#endif
+        case GrBackendApi::kMock:
+            return GrBackendFormat::MakeMock(fMockInfo.fConfig);
+        default:
+            return GrBackendFormat();
+    }
+}
+
 bool GrBackendRenderTarget::getMockRenderTargetInfo(GrMockRenderTargetInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kMock == fBackend) {
         *outInfo = fMockInfo;
