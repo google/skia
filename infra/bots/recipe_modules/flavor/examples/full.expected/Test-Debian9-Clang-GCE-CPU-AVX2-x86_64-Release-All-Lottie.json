@@ -108,7 +108,11 @@
       "[START_DIR]/tmp/LOTTIE_VERSION"
     ],
     "infra_step": true,
-    "name": "write LOTTIE_VERSION"
+    "name": "write LOTTIE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@LOTTIE_VERSION@42@@@",
+      "@@@STEP_LOG_END@LOTTIE_VERSION@@@"
+    ]
   },
   {
     "cmd": [
