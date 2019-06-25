@@ -256,7 +256,7 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPai
     }
 }
 
-bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& characterization) const {
+bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characterization) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
@@ -395,17 +395,15 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
         return nullptr;
     }
 
-    sk_sp<SkSurface> s = sk_make_sp<SkSurface_Gpu>(std::move(device));
+    sk_sp<SkSurface> result = sk_make_sp<SkSurface_Gpu>(std::move(device));
 #ifdef SK_DEBUG
-    if (s) {
-        SkSurface_Gpu* gpuSurface = static_cast<SkSurface_Gpu*>(s.get());
-        SkASSERT(gpuSurface->isCompatible(c));
+    if (result) {
+        SkASSERT(result->isCompatible(c));
     }
 #endif
 
-    return s;
+    return result;
 }
-
 
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
                                              const SkImageInfo& info, int sampleCount,
