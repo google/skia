@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baacc80b_3f3fbbf6",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1183,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-25T22:05:17Z",
+      "side": 1,
+      "message": "So this is more or less what the friending is for, but isn\u0027t this just a use case of making the fields private, then creating non-const setters and const getters? That should allow the removal of all the friendliness. This is actually a good time to make such a change, because I think we\u0027ve finally removed all of the external implementations of SkScalerContext.",
+      "range": {
+        "startLine": 1183,
+        "startChar": 4,
+        "endLine": 1183,
+        "endChar": 22
+      },
+      "revId": "2ea59c3d21271aa94995925f0f9cc6b4b4509751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7509eb10_c8531c2c",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1292,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-25T22:05:17Z",
+      "side": 1,
+      "message": "If these used width() and height(), the only reason this needs to be friendly is for the writable glyph.fImage pointer without checks, correct? At this point can we just pass a non-const SkGlyph into this and have a non-const \u0027image()\u0027. Then we can pass the non-const version into the scaler context and always provide the const versions to the outside world to separate the inside from the outside? Then we wouldn\u0027t even need all the friends. We could even pass a const SkGlyph here but also pass in a non-const pointer to the dst (which might be the same pointer fImage is set to... or not as the case may be).",
+      "range": {
+        "startLine": 1292,
+        "startChar": 28,
+        "endLine": 1292,
+        "endChar": 34
+      },
+      "revId": "2ea59c3d21271aa94995925f0f9cc6b4b4509751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c323be63_9748381f",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1351,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-06-25T22:05:17Z",
+      "side": 1,
+      "message": "The conceit is that this method should only write into the fImage and leave everything else the same, so each implementation actually casts off the const from the fImage. If this took an additional non-const void* for the dst then we wouldn\u0027t need to do that cast.",
+      "range": {
+        "startLine": 1351,
+        "startChar": 40,
+        "endLine": 1351,
+        "endChar": 60
+      },
+      "revId": "2ea59c3d21271aa94995925f0f9cc6b4b4509751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
