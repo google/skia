@@ -288,6 +288,11 @@ def dm_flags(api, bot):
       configs = [c for c in configs if c == 'gl' or c == 'gles']
       args.extend(['--pr', 'ccpr', '--cc', 'true', '--cachePathMasks', 'false'])
 
+    # Test non-nvpr on NVIDIA.
+    if 'NonNVPR' in bot:
+      configs = ['gl', 'glmsaa4']
+      args.extend(['--pr', '~nvpr'])
+
     # DDL is a GPU-only feature
     if 'DDL1' in bot:
       # This bot generates gl and vk comparison images for the large skps
@@ -1034,6 +1039,7 @@ TEST_BUILDERS = [
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3',
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Lottie',
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-BonusConfigs',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NonNVPR',
   ('Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-ReleaseAndAbandonGpuContext'),
   'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI',
