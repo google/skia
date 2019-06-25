@@ -27,18 +27,18 @@ class Context;
 class Type : public Symbol {
 public:
     struct Field {
-        Field(Modifiers modifiers, StringFragment name, const Type* type)
+        Field(Modifiers modifiers, StringFragment name, IRNode::ID type)
         : fModifiers(modifiers)
         , fName(name)
-        , fType(std::move(type)) {}
+        , fType(type) {}
 
         const String description() const {
-            return fType->description() + " " + fName + ";";
+            return fType.node().description() + " " + fName + ";";
         }
 
         Modifiers fModifiers;
         StringFragment fName;
-        const Type* fType;
+        IRNode::ID fType;
     };
 
     enum Kind {
@@ -64,7 +64,7 @@ public:
     // Create an "other" (special) type with the given name. These types cannot be directly
     // referenced from user code.
     Type(const char* name)
-    : INHERITED(-1, kType_Kind, StringFragment())
+    : INHERITED(nullptr, -1, kType_Kind, StringFragment())
     , fNameString(name)
     , fTypeKind(kOther_Kind)
     , fNumberKind(kNonnumeric_NumberKind) {
@@ -74,7 +74,7 @@ public:
 
     // Create an "other" (special) type that supports field access.
     Type(const char* name, std::vector<Field> fields)
-    : INHERITED(-1, kType_Kind, StringFragment())
+    : INHERITED(nullptr, -1, kType_Kind, StringFragment())
     , fNameString(name)
     , fTypeKind(kOther_Kind)
     , fNumberKind(kNonnumeric_NumberKind)
@@ -85,7 +85,7 @@ public:
 
     // Create a simple type.
     Type(String name, Kind kind)
-    : INHERITED(-1, kType_Kind, StringFragment())
+    : INHERITED(nullptr, -1, kType_Kind, StringFragment())
     , fNameString(std::move(name))
     , fTypeKind(kind)
     , fNumberKind(kNonnumeric_NumberKind) {
@@ -94,8 +94,8 @@ public:
     }
 
     // Create a generic type which maps to the listed types.
-    Type(const char* name, std::vector<const Type*> types)
-    : INHERITED(-1, kType_Kind, StringFragment())
+    Type(const char* name, std::vector<IRNode::ID> types)
+    : INHERITED(nullptr, -1, kType_Kind, StringFragment())
     , fNameString(name)
     , fTypeKind(kGeneric_Kind)
     , fNumberKind(kNonnumeric_NumberKind)
@@ -106,7 +106,7 @@ public:
 
     // Create a struct type with the given fields.
     Type(int offset, String name, std::vector<Field> fields)
-    : INHERITED(offset, kType_Kind, StringFragment())
+    : INHERITED(nullptr, offset, kType_Kind, StringFragment())
     , fNameString(std::move(name))
     , fTypeKind(kStruct_Kind)
     , fNumberKind(kNonnumeric_NumberKind)
@@ -117,7 +117,7 @@ public:
 
     // Create a scalar type.
     Type(const char* name, NumberKind numberKind, int priority, bool highPrecision = false)
-    : INHERITED(-1, kType_Kind, StringFragment())
+    : INHERITED(nullptr, -1, kType_Kind, StringFragment())
     , fNameString(name)
     , fTypeKind(kScalar_Kind)
     , fNumberKind(numberKind)
@@ -133,8 +133,8 @@ public:
     Type(const char* name,
          NumberKind numberKind,
          int priority,
-         std::vector<const Type*> coercibleTypes)
-    : INHERITED(-1, kType_Kind, StringFragment())
+         std::vector<IRNode::ID> coercibleTypes)
+    : INHERITED(nullptr, -1, kType_Kind, StringFragment())
     , fNameString(name)
     , fTypeKind(kScalar_Kind)
     , fNumberKind(numberKind)
@@ -147,12 +147,12 @@ public:
     }
 
     // Create a nullable type.
-    Type(String name, Kind kind, const Type& componentType)
-    : INHERITED(-1, kType_Kind, StringFragment())
+    Type(String name, Kind kind, IRNode::ID componentType)
+    : INHERITED(nullptr, -1, kType_Kind, StringFragment())
     , fNameString(std::move(name))
     , fTypeKind(kind)
     , fNumberKind(kNonnumeric_NumberKind)
-    , fComponentType(&componentType)
+    , fComponentType(componentType)
     , fColumns(1)
     , fRows(1)
     , fDimensions(SpvDim1D) {
@@ -161,16 +161,16 @@ public:
     }
 
     // Create a vector type.
-    Type(const char* name, const Type& componentType, int columns)
+    Type(const char* name, IRNode::ID componentType, int columns)
     : Type(name, kVector_Kind, componentType, columns) {}
 
     // Create a vector or array type.
-    Type(String name, Kind kind, const Type& componentType, int columns)
-    : INHERITED(-1, kType_Kind, StringFragment())
+    Type(String name, Kind kind, IRNode::ID componentType, int columns)
+    : INHERITED(nullptr, -1, kType_Kind, StringFragment())
     , fNameString(std::move(name))
     , fTypeKind(kind)
     , fNumberKind(kNonnumeric_NumberKind)
-    , fComponentType(&componentType)
+    , fComponentType(componentType)
     , fColumns(columns)
     , fRows(1)
     , fDimensions(SpvDim1D) {
@@ -179,12 +179,12 @@ public:
     }
 
     // Create a matrix type.
-    Type(const char* name, const Type& componentType, int columns, int rows)
-    : INHERITED(-1, kType_Kind, StringFragment())
+    Type(const char* name, IRNode::ID componentType, int columns, int rows)
+    : INHERITED(nullptr, -1, kType_Kind, StringFragment())
     , fNameString(name)
     , fTypeKind(kMatrix_Kind)
     , fNumberKind(kNonnumeric_NumberKind)
-    , fComponentType(&componentType)
+    , fComponentType(componentType)
     , fColumns(columns)
     , fRows(rows)
     , fDimensions(SpvDim1D) {
@@ -195,7 +195,7 @@ public:
     // Create a sampler type.
     Type(const char* name, SpvDim_ dimensions, bool isDepth, bool isArrayed, bool isMultisampled,
          bool isSampled)
-    : INHERITED(-1, kType_Kind, StringFragment())
+    : INHERITED(nullptr, -1, kType_Kind, StringFragment())
     , fNameString(name)
     , fTypeKind(kSampler_Kind)
     , fNumberKind(kNonnumeric_NumberKind)
@@ -299,19 +299,20 @@ public:
      * For matrices and vectors, returns the type of individual cells (e.g. mat2 has a component
      * type of kFloat_Type). For all other types, causes an SkASSERTion failure.
      */
-    const Type& componentType() const {
+    IRNode::ID componentType() const {
         SkASSERT(fComponentType);
-        return *fComponentType;
+        return fComponentType;
     }
 
     /**
      * For nullable types, returns the base type, otherwise returns the type itself.
      */
-    const Type& nonnullable() const {
+    IRNode::ID nonnullable() const {
         if (fTypeKind == kNullable_Kind) {
             return this->componentType();
         }
-        return *this;
+        abort();
+        //return *this;
     }
 
     /**
@@ -343,7 +344,7 @@ public:
      * For generic types, returns the types that this generic type can substitute for. For other
      * types, returns a list of other types that this type can be coerced into.
      */
-    const std::vector<const Type*>& coercibleTypes() const {
+    const std::vector<IRNode::ID>& coercibleTypes() const {
         SkASSERT(fCoercibleTypes.size() > 0);
         return fCoercibleTypes;
     }
@@ -375,7 +376,7 @@ public:
 
     bool highPrecision() const {
         if (fComponentType) {
-            return fComponentType->highPrecision();
+            return fComponentType.typeNode().highPrecision();
         }
         return fHighPrecision;
     }
@@ -384,7 +385,7 @@ public:
      * Returns the corresponding vector or matrix type with the specified number of columns and
      * rows.
      */
-    const Type& toCompound(const Context& context, int columns, int rows) const;
+    IRNode::ID toCompound(int columns, int rows) const;
 
 private:
     typedef Symbol INHERITED;
@@ -394,8 +395,8 @@ private:
     // always kNonnumeric_NumberKind for non-scalar values
     NumberKind fNumberKind;
     int fPriority = -1;
-    const Type* fComponentType = nullptr;
-    std::vector<const Type*> fCoercibleTypes;
+    IRNode::ID fComponentType;
+    std::vector<IRNode::ID> fCoercibleTypes;
     int fColumns = -1;
     int fRows = -1;
     std::vector<Field> fFields;

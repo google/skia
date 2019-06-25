@@ -18,9 +18,9 @@ namespace SkSL {
  * An external function invocation.
  */
 struct ExternalFunctionCall : public Expression {
-    ExternalFunctionCall(int offset, const Type& type, ExternalValue* function,
-                         std::vector<std::unique_ptr<Expression>> arguments)
-    : INHERITED(offset, kExternalFunctionCall_Kind, type)
+    ExternalFunctionCall(IRGenerator* irGenerator, int offset, IRNode::ID type,
+                         ExternalValue* function, std::vector<IRNode::ID> arguments)
+    : INHERITED(irGenerator, offset, kExternalFunctionCall_Kind, type)
     , fFunction(function)
     , fArguments(std::move(arguments)) {}
 
@@ -28,23 +28,17 @@ struct ExternalFunctionCall : public Expression {
         return true;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        std::vector<std::unique_ptr<Expression>> cloned;
-        for (const auto& arg : fArguments) {
-            cloned.push_back(arg->clone());
-        }
-        return std::unique_ptr<Expression>(new ExternalFunctionCall(fOffset,
-                                                                    fType,
-                                                                    fFunction,
-                                                                    std::move(cloned)));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new ExternalFunctionCall(fIRGenerator, fOffset, fType,
+                                                                 fFunction, fArguments));
     }
 
     String description() const override {
         String result = String(fFunction->fName) + "(";
         String separator;
-        for (size_t i = 0; i < fArguments.size(); i++) {
+        for (auto arg : fArguments) {
             result += separator;
-            result += fArguments[i]->description();
+            result += arg.node().description();
             separator = ", ";
         }
         result += ")";
@@ -52,7 +46,7 @@ struct ExternalFunctionCall : public Expression {
     }
 
     ExternalValue* fFunction;
-    std::vector<std::unique_ptr<Expression>> fArguments;
+    std::vector<IRNode::ID> fArguments;
 
     typedef Expression INHERITED;
 };

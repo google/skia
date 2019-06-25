@@ -26,53 +26,48 @@ namespace SkSL {
  * collection of vectors and scalars totalling exactly the right number of scalar components.
  */
 struct Constructor : public Expression {
-    Constructor(int offset, const Type& type, std::vector<std::unique_ptr<Expression>> arguments)
-    : INHERITED(offset, kConstructor_Kind, type)
+    Constructor(IRGenerator* irGenerator, int offset, IRNode::ID type,
+                std::vector<IRNode::ID> arguments)
+    : INHERITED(irGenerator, offset, kConstructor_Kind, type)
     , fArguments(std::move(arguments)) {}
 
-    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override {
-        if (fArguments.size() == 1 && fArguments[0]->fKind == Expression::kIntLiteral_Kind) {
-            if (fType.isFloat()) {
+    IRNode::ID constantPropagate(const DefinitionMap& definitions) override {
+        if (fArguments.size() == 1 &&
+            fArguments[0].expressionNode().fKind == Expression::kIntLiteral_Kind) {
+            const Type& type = fType.typeNode();
+            if (type.isFloat()) {
                 // promote float(1) to 1.0
-                int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
-                return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
-                                                                    fOffset,
-                                                                    intValue));
-            } else if (fType.isInteger()) {
+                int64_t intValue = ((IntLiteral&) fArguments[0].node()).fValue;
+                return fIRGenerator->createNode(new FloatLiteral(fIRGenerator, fOffset, intValue));
+            } else if (type.isInteger()) {
                 // promote uint(1) to 1u
-                int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
-                return std::unique_ptr<Expression>(new IntLiteral(fOffset,
-                                                                  intValue,
-                                                                  &fType));
+                int64_t intValue = ((IntLiteral&) fArguments[0].node()).fValue;
+                return fIRGenerator->createNode(new IntLiteral(fIRGenerator, fOffset, intValue,
+                                                               fType));
             }
         }
-        return nullptr;
+        return IRNode::ID();
     }
 
     bool hasSideEffects() const override {
         for (const auto& arg : fArguments) {
-            if (arg->hasSideEffects()) {
+            if (arg.expressionNode().hasSideEffects()) {
                 return true;
             }
         }
         return false;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        std::vector<std::unique_ptr<Expression>> cloned;
-        for (const auto& arg : fArguments) {
-            cloned.push_back(arg->clone());
-        }
-        return std::unique_ptr<Expression>(new Constructor(fOffset, fType, std::move(cloned)));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new Constructor(fIRGenerator, fOffset, fType, fArguments));
     }
 
     String description() const override {
-        String result = fType.description() + "(";
+        String result = fType.node().description() + "(";
         String separator;
-        for (size_t i = 0; i < fArguments.size(); i++) {
+        for (auto arg : fArguments) {
             result += separator;
-            result += fArguments[i]->description();
+            result += arg.node().description();
             separator = ", ";
         }
         result += ")";
@@ -80,21 +75,22 @@ struct Constructor : public Expression {
     }
 
     bool isConstant() const override {
-        for (size_t i = 0; i < fArguments.size(); i++) {
-            if (!fArguments[i]->isConstant()) {
+        for (auto arg : fArguments) {
+            if (!arg.expressionNode().isConstant()) {
                 return false;
             }
         }
         return true;
     }
 
-    bool compareConstant(const Context& context, const Expression& other) const override {
+    bool compareConstant(const Expression& other) const override {
         SkASSERT(other.fKind == Expression::kConstructor_Kind && other.fType == fType);
         Constructor& c = (Constructor&) other;
-        if (c.fType.kind() == Type::kVector_Kind) {
-            bool isFloat = c.fType.columns() > 1 ? c.fType.componentType().isFloat()
-                                                 : c.fType.isFloat();
-            for (int i = 0; i < fType.columns(); i++) {
+        const Type& type = c.fType.typeNode();
+        if (type.kind() == Type::kVector_Kind) {
+            bool isFloat = type.columns() > 1 ? type.componentType().typeNode().isFloat()
+                                              : type.isFloat();
+            for (int i = 0; i < type.columns(); i++) {
                 if (isFloat) {
                     if (this->getFVecComponent(i) != c.getFVecComponent(i)) {
                         return false;
@@ -108,10 +104,10 @@ struct Constructor : public Expression {
         // shouldn't be possible to have a constant constructor that isn't a vector or matrix;
         // a constant scalar constructor should have been collapsed down to the appropriate
         // literal
-        SkASSERT(fType.kind() == Type::kMatrix_Kind);
-        for (int col = 0; col < fType.columns(); col++) {
-            for (int row = 0; row < fType.rows(); row++) {
-                if (getMatComponent(col, row) != c.getMatComponent(col, row)) {
+        SkASSERT(type.kind() == Type::kMatrix_Kind);
+        for (int col = 0; col < type.columns(); col++) {
+            for (int row = 0; row < type.rows(); row++) {
+                if (this->getMatComponent(col, row) != c.getMatComponent(col, row)) {
                     return false;
                 }
             }
@@ -121,39 +117,42 @@ struct Constructor : public Expression {
 
     template<typename type>
     type getVecComponent(int index) const {
-        SkASSERT(fType.kind() == Type::kVector_Kind);
-        if (fArguments.size() == 1 && fArguments[0]->fType.kind() == Type::kScalar_Kind) {
+        SkASSERT(fType.typeNode().kind() == Type::kVector_Kind);
+        if (fArguments.size() == 1 &&
+            fArguments[0].expressionNode().fType.typeNode().kind() == Type::kScalar_Kind) {
             if (std::is_floating_point<type>::value) {
-                return fArguments[0]->getConstantFloat();
+                return fArguments[0].expressionNode().getConstantFloat();
             } else {
-                return fArguments[0]->getConstantInt();
+                return fArguments[0].expressionNode().getConstantInt();
             }
         }
         int current = 0;
-        for (const auto& arg : fArguments) {
+        for (const auto& argID : fArguments) {
+            Expression& arg = argID.expressionNode();
+            const Type& argType = arg.fType.typeNode();
             SkASSERT(current <= index);
-            if (arg->fType.kind() == Type::kScalar_Kind) {
+            if (argType.kind() == Type::kScalar_Kind) {
                 if (index == current) {
                     if (std::is_floating_point<type>::value) {
-                        return arg.get()->getConstantFloat();
+                        return arg.getConstantFloat();
                     } else {
-                        return arg.get()->getConstantInt();
+                        return arg.getConstantInt();
                     }
                 }
                 current++;
-            } else if (arg->fKind == kConstructor_Kind) {
-                if (current + arg->fType.columns() > index) {
-                    return ((const Constructor&) *arg).getVecComponent<type>(index - current);
+            } else if (arg.fKind == kConstructor_Kind) {
+                if (current + argType.columns() > index) {
+                    return ((const Constructor&) arg).getVecComponent<type>(index - current);
                 }
-                current += arg->fType.columns();
+                current += argType.columns();
             } else {
-                if (current + arg->fType.columns() > index) {
-                    SkASSERT(arg->fKind == kPrefix_Kind);
-                    const PrefixExpression& p = (PrefixExpression&) *arg;
-                    const Constructor& c = (const Constructor&) *p.fOperand;
+                if (current + argType.columns() > index) {
+                    SkASSERT(arg.fKind == kPrefix_Kind);
+                    const PrefixExpression& p = (PrefixExpression&) arg;
+                    const Constructor& c = (const Constructor&) p.fOperand.node();
                     return -c.getVecComponent<type>(index - current);
                 }
-                current += arg->fType.columns();
+                current += argType.columns();
             }
         }
         ABORT("failed to find vector component %d in %s\n", index, description().c_str());
@@ -173,47 +172,50 @@ struct Constructor : public Expression {
 
     SKSL_FLOAT getMatComponent(int col, int row) const override {
         SkASSERT(this->isConstant());
-        SkASSERT(fType.kind() == Type::kMatrix_Kind);
-        SkASSERT(col < fType.columns() && row < fType.rows());
+        SkASSERT(fType.typeNode().kind() == Type::kMatrix_Kind);
+        SkASSERT(col < fType.typeNode().columns() && row < fType.typeNode().rows());
         if (fArguments.size() == 1) {
-            if (fArguments[0]->fType.kind() == Type::kScalar_Kind) {
+            Expression& arg = fArguments[0].expressionNode();
+            const Type& argType = arg.fType.typeNode();
+            if (argType.kind() == Type::kScalar_Kind) {
                 // single scalar argument, so matrix is of the form:
                 // x 0 0
                 // 0 x 0
                 // 0 0 x
                 // return x if col == row
-                return col == row ? fArguments[0]->getConstantFloat() : 0.0;
+                return col == row ? arg.getConstantFloat() : 0.0;
             }
-            if (fArguments[0]->fType.kind() == Type::kMatrix_Kind) {
-                SkASSERT(fArguments[0]->fKind == Expression::kConstructor_Kind);
+            if (argType.kind() == Type::kMatrix_Kind) {
+                SkASSERT(arg.fKind == Expression::kConstructor_Kind);
                 // single matrix argument. make sure we're within the argument's bounds.
-                const Type& argType = ((Constructor&) *fArguments[0]).fType;
                 if (col < argType.columns() && row < argType.rows()) {
                     // within bounds, defer to argument
-                    return ((Constructor&) *fArguments[0]).getMatComponent(col, row);
+                    return ((Constructor&) arg).getMatComponent(col, row);
                 }
                 // out of bounds
                 return 0.0;
             }
         }
         int currentIndex = 0;
-        int targetIndex = col * fType.rows() + row;
-        for (const auto& arg : fArguments) {
+        int targetIndex = col * fType.typeNode().rows() + row;
+        for (const auto& argID : fArguments) {
+            Expression& arg = argID.expressionNode();
+            const Type& argType = arg.fType.typeNode();
             SkASSERT(targetIndex >= currentIndex);
-            SkASSERT(arg->fType.rows() == 1);
-            if (currentIndex + arg->fType.columns() > targetIndex) {
-                if (arg->fType.columns() == 1) {
-                    return arg->getConstantFloat();
+            SkASSERT(argType.rows() == 1);
+            if (currentIndex + argType.columns() > targetIndex) {
+                if (argType.columns() == 1) {
+                    return arg.getConstantFloat();
                 } else {
-                    return arg->getFVecComponent(targetIndex - currentIndex);
+                    return arg.getFVecComponent(targetIndex - currentIndex);
                 }
             }
-            currentIndex += arg->fType.columns();
+            currentIndex += arg.fType.typeNode().columns();
         }
         ABORT("can't happen, matrix component out of bounds");
     }
 
-    std::vector<std::unique_ptr<Expression>> fArguments;
+    std::vector<IRNode::ID> fArguments;
 
     typedef Expression INHERITED;
 };

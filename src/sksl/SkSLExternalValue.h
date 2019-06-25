@@ -17,8 +17,8 @@ class Type;
 
 class ExternalValue : public Symbol {
 public:
-    ExternalValue(const char* name, const Type& type)
-        : INHERITED(-1, kExternal_Kind, name)
+    ExternalValue(IRGenerator* irGenerator, const char* name, IRNode::ID type)
+        : INHERITED(irGenerator, -1, kExternal_Kind, name)
         , fType(type) {}
 
     virtual bool canRead() const {
@@ -36,7 +36,7 @@ public:
     /**
      * Returns the type for purposes of read and write operations.
      */
-    virtual const Type& type() const {
+    virtual IRNode::ID type() const {
         return fType;
     }
 
@@ -48,14 +48,14 @@ public:
      * Fills in the outTypes array with pointers to the parameter types. outTypes must be able to
      * hold callParameterCount() pointers.
      */
-    virtual void getCallParameterTypes(const Type** outTypes) const {
+    virtual void getCallParameterTypes(const IRNode::ID* outTypes) const {
         SkASSERT(false);
     }
 
     /**
      * Returns the return type resulting from a call operation.
      */
-    virtual const Type& callReturnType() const {
+    virtual IRNode::ID callReturnType() const {
         return fType;
     }
 
@@ -105,7 +105,7 @@ public:
 private:
     typedef Symbol INHERITED;
 
-    const Type& fType;
+    IRNode::ID fType;
 };
 
 } // namespace

@@ -8,6 +8,7 @@
 #ifndef SKSL_SECTION
 #define SKSL_SECTION
 
+#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 
 namespace SkSL {
@@ -16,14 +17,15 @@ namespace SkSL {
  * A section declaration (e.g. @body { body code here })..
  */
 struct Section : public ProgramElement {
-    Section(int offset, String name, String arg, String text)
-    : INHERITED(offset, kSection_Kind)
+    Section(IRGenerator* irGenerator, int offset, String name, String arg, String text)
+    : INHERITED(irGenerator, offset, kSection_Kind)
     , fName(std::move(name))
     , fArgument(std::move(arg))
     , fText(std::move(text)) {}
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new Section(fOffset, fName, fArgument, fText));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new Section(fIRGenerator, fOffset, fName, fArgument,
+                                                    fText));
     }
 
     String description() const override {

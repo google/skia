@@ -9,6 +9,7 @@
 #define SKSL_TYPEREFERENCE
 
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
 namespace SkSL {
@@ -18,8 +19,8 @@ namespace SkSL {
  * always eventually replaced by Constructors in valid programs.
  */
 struct TypeReference : public Expression {
-    TypeReference(const Context& context, int offset, const Type& value)
-    : INHERITED(offset, kTypeReference_Kind, *context.fInvalid_Type)
+    TypeReference(IRGenerator* irGenerator, int offset, IRNode::ID value)
+    : INHERITED(irGenerator, offset, kTypeReference_Kind, irGenerator->fContext.fInvalid_Type)
     , fValue(value) {}
 
     bool hasSideEffects() const override {
@@ -27,20 +28,20 @@ struct TypeReference : public Expression {
     }
 
     String description() const override {
-        return String(fValue.fName);
+        return String(fValue.typeNode().fName);
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new TypeReference(fOffset, fValue, &fType));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new TypeReference(fIRGenerator, fOffset, fValue, fType));
     }
 
-    const Type& fValue;
+    IRNode::ID fValue;
 
     typedef Expression INHERITED;
 
 private:
-    TypeReference(int offset, const Type& value, const Type* type)
-    : INHERITED(offset, kTypeReference_Kind, *type)
+    TypeReference(IRGenerator* irGenerator, int offset, IRNode::ID value, IRNode::ID type)
+    : INHERITED(irGenerator, offset, kTypeReference_Kind, type)
     , fValue(value) {}
 };
 

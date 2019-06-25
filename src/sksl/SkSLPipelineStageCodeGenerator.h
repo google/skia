@@ -17,7 +17,7 @@ namespace SkSL {
 
 class PipelineStageCodeGenerator : public GLSLCodeGenerator {
 public:
-    PipelineStageCodeGenerator(const Context* context, const Program* program,
+    PipelineStageCodeGenerator(IRGenerator* irGenerator, const Program* program,
                                ErrorReporter* errors, OutputStream* out,
                                std::vector<Compiler::FormatArg>* outFormatArgs);
 
