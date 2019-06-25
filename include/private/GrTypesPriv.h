@@ -401,6 +401,7 @@ static const int kGrSLTypeCount = kLast_GrSLType + 1;
  * and sampling parameters are legal for proxies that will be instantiated with wrapped textures.
  */
 enum class GrTextureType {
+    kNone,
     k2D,
     /* Rectangle uses unnormalized texture coordinates. */
     kRectangle,

@@ -277,4 +277,6 @@ size_t GrGLFormatCompressedDataSize(GrGLenum glFormat, int width, int height);
 
 size_t GrGLBytesPerFormat(GrGLenum glFormat);
 
+bool GrGLFormatIsSupported(GrGLenum format);
+
 #endif
