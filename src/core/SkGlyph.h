@@ -118,16 +118,13 @@ class SkGlyph {
 public:
     static constexpr SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedGlyphID::kSubBits;
 
-    constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} {}
+    constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} { }
     explicit SkGlyph(const SkGlyphPrototype& p);
-
 
     SkVector advanceVector() const { return SkVector{fAdvanceX, fAdvanceY}; }
     SkScalar advanceX() const { return fAdvanceX; }
     SkScalar advanceY() const { return fAdvanceY; }
 
-    bool isJustAdvance() const { return MASK_FORMAT_JUST_ADVANCE == fMaskFormat; }
-    bool isFullMetrics() const { return MASK_FORMAT_JUST_ADVANCE != fMaskFormat; }
     SkGlyphID getGlyphID() const { return fID.code(); }
     SkPackedGlyphID getPackedID() const { return fID; }
     SkFixed getSubXFixed() const { return fID.getSubXFixed(); }
@@ -220,16 +217,6 @@ public:
     void ensureIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
                           SkScalar* array, int* count, SkArenaAlloc* alloc);
 
-    void*     fImage    = nullptr;
-
-    // The width and height of the glyph mask.
-    uint16_t  fWidth  = 0,
-              fHeight = 0;
-
-    // The offset from the glyphs origin on the baseline to the top left of the glyph mask.
-    int16_t   fTop  = 0,
-              fLeft = 0;
-
 private:
     // There are two sides to an SkGlyph, the scaler side (things that create glyph data) have
     // access to all the fields. Scalers are assumed to maintain all the SkGlyph invariants. The
@@ -252,8 +239,6 @@ private:
 
     static constexpr uint16_t kMaxGlyphWidth = 1u << 13u;
 
-    size_t allocImage(SkArenaAlloc* alloc);
-
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,
     // the fBounds contains the top and bottom of the underline. The fInterval pair contains the
@@ -271,8 +256,21 @@ private:
         bool       fHasPath{false};
     };
 
-    // path == nullptr indicates there is no path.
+    size_t allocImage(SkArenaAlloc* alloc);
+
+    // path == nullptr indicates that there is no path.
     void installPath(SkArenaAlloc* alloc, const SkPath* path);
+
+    // The width and height of the glyph mask.
+    uint16_t  fWidth  = 0,
+              fHeight = 0;
+
+    // The offset from the glyphs origin on the baseline to the top left of the glyph mask.
+    int16_t   fTop  = 0,
+              fLeft = 0;
+
+    // fImage must remain null if the glyph is empty or if width > kMaxGlyphWidth.
+    void*     fImage    = nullptr;
 
     // Path data has tricky state. If the glyph isEmpty, then fPathData should always be nullptr,
     // else if fPathData is not null, then a path has been requested. The fPath field of fPathData
@@ -291,9 +289,7 @@ private:
     // Used by the DirectWrite scaler to track state.
     int8_t    fForceBW = 0;
 
-    // TODO(herb) remove friend statement after SkStrike cleanup.
-    friend class SkStrike;
-    SkPackedGlyphID fID;
+    const SkPackedGlyphID fID;
 };
 
 struct SkGlyphPrototype {
