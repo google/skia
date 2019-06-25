@@ -49,4 +49,40 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createResized(int width, in
                                      fVulkanSecondaryCBCompatible, fSurfaceProps);
 }
 
+bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex) const {
+    if (!backendTex.isValid()) {
+        return false;
+    }
+
+    const GrCaps* caps = fContextInfo->priv().caps();
+
+    // TODO: avoid getting pixel config here
+    GrPixelConfig config = caps->getConfigFromBackendFormat(backendTex.getBackendFormat(),
+                                                            this->colorType());
+    if (GrPixelConfig::kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+
+    if (this->config() != config) {
+        return false;
+    }
+
+    // TODO: use backendFormat here!
+    int maxColorSamples = caps->maxRenderTargetSampleCount(this->colorType(),
+                                                           backendTex.getBackendFormat());
+    if (0 == maxColorSamples) {
+        return false;  // backendTex isn't renderable
+    }
+
+    // TODO:
+    //   handle this->stencilCount()
+    //   handle this->isTextureable()
+    //   eliminate FBO0 case
+
+    return this->width() == backendTex.width() &&
+           this->height() == backendTex.height() &&
+           this->isMipMapped() == backendTex.hasMipMaps();
+}
+
+
 #endif
