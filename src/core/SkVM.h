@@ -69,9 +69,9 @@ namespace skvm {
 
         // All dst = x op y.
         using DstEqXOpY = void(Ymm dst, Ymm x, Ymm y);
-        DstEqXOpY vpaddd, vpsubd, vpmulld,
-                  vpsubw, vpmullw,
-                  vpand, vpor, vpxor, vpandn,
+        DstEqXOpY vpand, vpor, vpxor, vpandn,
+                  vpaddd, vpsubd, vpmulld,
+                          vpsubw, vpmullw,
                   vaddps, vsubps, vmulps, vdivps,
                   vfmadd132ps, vfmadd213ps, vfmadd231ps,
                   vpackusdw, vpackuswb;
@@ -102,8 +102,24 @@ namespace skvm {
 
         // d = op(n,m)
         using DOpNM = void(V d, V n, V m);
-        DOpNM  add4s,  sub4s,  mul4s,
+        DOpNM  and16b, orr16b, eor16b, bic16b,
+               add4s,  sub4s,  mul4s,
+                       sub8h,  mul8h,
               fadd4s, fsub4s, fmul4s, fdiv4s;
+
+        // d += n*m
+        void fmla4s(V d, V n, V m);
+
+        // d = op(n,imm)
+        using DOpNImm = void(V d, V n, int imm);
+        DOpNImm shl4s, sshr4s, ushr4s,
+                               ushr8h;
+
+        // d = op(n)
+        using DOpN = void(V d, V n);
+        DOpN scvtf4s, fcvtzs4s;
+
+        // TODO: both these platforms support rounding float->int (vcvtps2dq, fcvtns.4s)... use?
 
     private:
         // dst = op(dst, imm)

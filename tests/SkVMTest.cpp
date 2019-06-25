@@ -373,22 +373,42 @@ DEF_TEST(SkVM_Assembler, r) {
     // echo "fmul v4.4s, v3.4s, v1.4s" | llvm-mc -show-encoding -arch arm64
 
     test_asm(r, [&](A& a) {
+        a.and16b(A::v4, A::v3, A::v1);
+        a.orr16b(A::v4, A::v3, A::v1);
+        a.eor16b(A::v4, A::v3, A::v1);
+        a.bic16b(A::v4, A::v3, A::v1);
+
+        a.add4s(A::v4, A::v3, A::v1);
+        a.sub4s(A::v4, A::v3, A::v1);
+        a.mul4s(A::v4, A::v3, A::v1);
+
+        a.sub8h(A::v4, A::v3, A::v1);
+        a.mul8h(A::v4, A::v3, A::v1);
+
         a.fadd4s(A::v4, A::v3, A::v1);
         a.fsub4s(A::v4, A::v3, A::v1);
         a.fmul4s(A::v4, A::v3, A::v1);
         a.fdiv4s(A::v4, A::v3, A::v1);
 
-        a.add4s(A::v4, A::v3, A::v1);
-        a.sub4s(A::v4, A::v3, A::v1);
-        a.mul4s(A::v4, A::v3, A::v1);
+        a.fmla4s(A::v4, A::v3, A::v1);
     },{
+        0x64,0x1c,0x21,0x4e,
+        0x64,0x1c,0xa1,0x4e,
+        0x64,0x1c,0x21,0x6e,
+        0x64,0x1c,0x61,0x4e,
+
+        0x64,0x84,0xa1,0x4e,
+        0x64,0x84,0xa1,0x6e,
+        0x64,0x9c,0xa1,0x4e,
+
+        0x64,0x84,0x61,0x6e,
+        0x64,0x9c,0x61,0x4e,
+
         0x64,0xd4,0x21,0x4e,
         0x64,0xd4,0xa1,0x4e,
         0x64,0xdc,0x21,0x6e,
         0x64,0xfc,0x21,0x6e,
 
-        0x64,0x84,0xa1,0x4e,
-        0x64,0x84,0xa1,0x6e,
-        0x64,0x9c,0xa1,0x4e,
+        0x64,0xcc,0x21,0x4e,
     });
 }
