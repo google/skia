@@ -60,6 +60,7 @@ declare_args() {
   skia_llvm_lib = "LLVM"
 
   skia_tools_require_resources = false
+  skia_include_multiframe_procs = false
 }
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
@@ -1043,6 +1044,10 @@ component("skia") {
   if (skia_enable_spirv_validation) {
     deps += [ "//third_party/spirv-tools" ]
     defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
+  }
+
+  if (skia_include_multiframe_procs) {
+    sources += [ "tools/SkSharingProc.cpp" ]
   }
 }
 
