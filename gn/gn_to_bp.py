@@ -313,11 +313,13 @@ def generate_args(target_os, enable_gpu):
     'skia_use_freetype':                  'true',
     'skia_use_fontconfig':                'false',
     'skia_use_fixed_gamma_text':          'true',
+    'skia_include_multiframe_procs':      'false',
   }
   d['target_os'] = target_os
   if target_os == '"android"':
     d['skia_enable_tools'] = 'true'
     d['skia_use_libheif']  = 'true'
+    d['skia_include_multiframe_procs'] = 'true'
   else:
     d['skia_use_libheif']  = 'false'
 
