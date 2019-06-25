@@ -22,8 +22,8 @@ struct GrGlyph {
         kDistance_MaskStyle
     };
 
-    static GrMaskFormat FormatFromSkGlyph(const SkGlyph& glyph) {
-        switch (glyph.maskFormat()) {
+    static GrMaskFormat FormatFromSkGlyph(SkMask::Format format) {
+        switch (format) {
             case SkMask::kBW_Format:
             case SkMask::kSDF_Format:
                 // fall through to kA8 -- we store BW and SDF glyphs in our 8-bit cache
@@ -49,7 +49,7 @@ struct GrGlyph {
 
     GrGlyph(const SkGlyph& skGlyph)
         : fPackedID{skGlyph.getPackedID()}
-        , fMaskFormat{FormatFromSkGlyph(skGlyph)}
+        , fMaskFormat{FormatFromSkGlyph(skGlyph.maskFormat())}
         , fMaskStyle{MaskStyleFromSkGlyph(skGlyph)}
         , fBounds{GrIRect16::Make(skGlyph.iRect())} {}
 

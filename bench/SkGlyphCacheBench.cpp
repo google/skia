@@ -31,8 +31,7 @@ static void do_font_stuff(SkFont* font) {
         }
         for (int lookups = 0; lookups < 10; lookups++) {
             for (int c = ' '; c < 'z'; c++) {
-                SkGlyph* g = cache->glyph(glyphs[c]);
-                cache->findImage(*g);
+                cache->prepareImage(cache->glyph(glyphs[c]));
             }
         }
     }
