@@ -401,6 +401,7 @@ static const int kGrSLTypeCount = kLast_GrSLType + 1;
  * and sampling parameters are legal for proxies that will be instantiated with wrapped textures.
  */
 enum class GrTextureType {
+    kNone,
     k2D,
     /* Rectangle uses unnormalized texture coordinates. */
     kRectangle,
@@ -564,6 +565,9 @@ static inline GrSLType GrSLCombinedSamplerTypeForTextureType(GrTextureType type)
             return kTexture2DRectSampler_GrSLType;
         case GrTextureType::kExternal:
             return kTextureExternalSampler_GrSLType;
+        default:
+            SK_ABORT("Unexpected texture type");
+            return kTexture2DSampler_GrSLType;
     }
     SK_ABORT("Unexpected texture type");
     return kTexture2DSampler_GrSLType;
@@ -578,6 +582,9 @@ static inline bool GrTextureTypeHasRestrictedSampling(GrTextureType type) {
             return true;
         case GrTextureType::kExternal:
             return true;
+        default:
+            SK_ABORT("Unexpected texture type");
+            return false;
     }
     SK_ABORT("Unexpected texture type");
     return false;
