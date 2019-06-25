@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "821c72e7_e7538c8b",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1042,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-06-25T23:20:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77f51644_e58ffed8",
+      "revId": "46932c8c6c450fb3df4f3a56dd8fb79bf9ce8fb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
