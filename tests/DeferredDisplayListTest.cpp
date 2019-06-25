@@ -188,6 +188,7 @@ public:
                                                                              fOrigin, fColorType,
                                                                              fColorSpace,
                                                                              &fSurfaceProps);
+            SkASSERT(result->isCompatible(c));
             return result;
         }
 
@@ -197,6 +198,8 @@ public:
         if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
             return nullptr;
         }
+
+        SkASSERT(c.isCompatible(*backend));
 
         sk_sp<SkSurface> surface;
         if (!fIsTextureable) {
@@ -215,6 +218,7 @@ public:
             return nullptr;
         }
 
+        SkASSERT(surface->isCompatible(c));
         return surface;
     }
 
@@ -541,6 +545,8 @@ static void test_make_render_target(skiatest::Reporter* reporter,
         }
 
         REPORTER_ASSERT(reporter, c.isValid());
+        REPORTER_ASSERT(reporter, c.isCompatible(backend));
+        REPORTER_ASSERT(reporter, s->isCompatible(c));
         // Note that we're leaving 'backend' live here
     }
 
@@ -548,6 +554,14 @@ static void test_make_render_target(skiatest::Reporter* reporter,
     {
         sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, c, SkBudgeted::kYes);
         REPORTER_ASSERT(reporter, s);
+        REPORTER_ASSERT(reporter, s->isCompatible(c));
+    }
+
+    // Make an SkSurface that wraps the existing backend texture
+    {
+        sk_sp<SkSurface> s = SkSurface::MakeFromBackendTexture(context, c, backend);
+        REPORTER_ASSERT(reporter, s);
+        REPORTER_ASSERT(reporter, s->isCompatible(c));
     }
 
     params.cleanUpBackEnd(context, backend);
