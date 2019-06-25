@@ -116,8 +116,9 @@ public:
      * Create a texture proxy that wraps a backend texture and is both texture-able and renderable
      */
     sk_sp<GrTextureProxy> wrapRenderableBackendTexture(const GrBackendTexture&, GrSurfaceOrigin,
-                                                       int sampleCnt, GrWrapOwnership,
-                                                       GrWrapCacheable, ReleaseProc = nullptr,
+                                                       int sampleCnt, GrColorType,
+                                                       GrWrapOwnership, GrWrapCacheable,
+                                                       ReleaseProc = nullptr,
                                                        ReleaseContext = nullptr);
 
     /*

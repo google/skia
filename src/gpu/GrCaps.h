@@ -351,8 +351,8 @@ public:
     // TODO: replace validateBackendRenderTarget with calls to getConfigFromBackendFormat?
     // TODO: it seems like we could pass the full SkImageInfo and validate its colorSpace too
     // Returns kUnknown if a valid config could not be determined.
-    virtual GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat& format,
-                                                     SkColorType ct) const = 0;
+    virtual GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&,
+                                                     GrColorType) const = 0;
 
     /**
      * Special method only for YUVA images. Returns a config that matches the backend format or

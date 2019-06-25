@@ -940,7 +940,7 @@ bool GrVkCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
     return true;
 }
 
-static GrPixelConfig validate_image_info(VkFormat format, SkColorType ct, bool hasYcbcrConversion) {
+static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool hasYcbcrConversion) {
     if (format == VK_FORMAT_UNDEFINED) {
         // If the format is undefined then it is only valid as an external image which requires that
         // we have a valid VkYcbcrConversion.
@@ -1033,7 +1033,7 @@ static GrPixelConfig validate_image_info(VkFormat format, SkColorType ct, bool h
 }
 
 GrPixelConfig GrVkCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt,
-                                                    SkColorType ct) const {
+                                                    GrColorType ct) const {
     GrVkImageInfo imageInfo;
     if (!rt.getVkImageInfo(&imageInfo)) {
         return kUnknown_GrPixelConfig;
@@ -1042,7 +1042,7 @@ GrPixelConfig GrVkCaps::validateBackendRenderTarget(const GrBackendRenderTarget&
 }
 
 GrPixelConfig GrVkCaps::getConfigFromBackendFormat(const GrBackendFormat& format,
-                                                   SkColorType ct) const {
+                                                   GrColorType ct) const {
     const VkFormat* vkFormat = format.getVkFormat();
     const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
     if (!vkFormat || !ycbcrInfo) {

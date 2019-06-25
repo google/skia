@@ -415,7 +415,7 @@ public:
     GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
                                               SkColorType) const override;
 
-    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, SkColorType) const override;
+    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
     GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;
 
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
