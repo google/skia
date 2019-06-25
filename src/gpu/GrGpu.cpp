@@ -160,7 +160,8 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
 }
 
 sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& backendTex,
-                                                     int sampleCnt, GrWrapOwnership ownership,
+                                                     int sampleCnt, GrColorType colorType,
+                                                     GrWrapOwnership ownership,
                                                      GrWrapCacheable cacheable) {
     this->handleDirtyContext();
     if (sampleCnt < 1) {
@@ -175,8 +176,8 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
         backendTex.height() > this->caps()->maxRenderTargetSize()) {
         return nullptr;
     }
-    sk_sp<GrTexture> tex =
-            this->onWrapRenderableBackendTexture(backendTex, sampleCnt, ownership, cacheable);
+    sk_sp<GrTexture> tex = this->onWrapRenderableBackendTexture(backendTex, sampleCnt, colorType,
+                                                                ownership, cacheable);
     SkASSERT(!tex || tex->asRenderTarget());
     return tex;
 }

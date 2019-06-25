@@ -125,6 +125,7 @@ sk_sp<GrTexture> GrMockGpu::onWrapBackendTexture(const GrBackendTexture& tex,
 
 sk_sp<GrTexture> GrMockGpu::onWrapRenderableBackendTexture(const GrBackendTexture& tex,
                                                            int sampleCnt,
+                                                           GrColorType colorType,
                                                            GrWrapOwnership ownership,
                                                            GrWrapCacheable cacheable) {
     GrSurfaceDesc desc;
