@@ -43,6 +43,9 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
 
     args.fRenderer = GrGLGetRendererFromStrings(renderer, interface->fExtensions);
 
+    SkDebugf("Renderer: %d\n", args.fRenderer);
+    return nullptr;
+
     GrGLGetANGLEInfoFromString(renderer, &args.fANGLEBackend, &args.fANGLEVendor,
                                &args.fANGLERenderer);
 
