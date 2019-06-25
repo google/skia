@@ -3108,6 +3108,23 @@ bool GrGLCaps::onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget& b
     return fbInfo.fFBOID != 0;
 }
 
+static bool format_is_srgb(GrGLenum format) {
+    switch (format) {
+        case GR_GL_SRGB8_ALPHA8:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool GrGLCaps::isFormatSRGB(const GrBackendFormat& format) const {
+    if (!format.getGLFormat()) {
+        return false;
+    }
+
+    return format_is_srgb(*format.getGLFormat());
+}
+
 bool GrGLCaps::isFormatTexturable(SkColorType ct, const GrBackendFormat& format) const {
     GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
     if (kUnknown_GrPixelConfig == config) {
@@ -3269,6 +3286,16 @@ GrPixelConfig GrGLCaps::validateBackendRenderTarget(const GrBackendRenderTarget&
         return kUnknown_GrPixelConfig;
     }
     return validate_sized_format(fbInfo.fFormat, ct, fStandard);
+}
+
+bool GrGLCaps::areColorTypeAndFormatCompatible(SkColorType ct,
+                                               const GrBackendFormat& format) const {
+    const GrGLenum* glFormat = format.getGLFormat();
+    if (!glFormat) {
+        return false;
+    }
+
+    return kUnknown_GrPixelConfig != validate_sized_format(*glFormat, ct, fStandard);
 }
 
 GrPixelConfig GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format,

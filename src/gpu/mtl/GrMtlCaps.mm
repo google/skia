@@ -231,6 +231,23 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fHalfFloatVertexAttributeSupport = true;
 }
 
+static bool format_is_srgb(MTLPixelFormat format) {
+    switch (format) {
+        case MTLPixelFormatRGBA8Unorm_sRGB:
+        case MTLPixelFormatBGRA8Unorm_sRGB:
+            return true;
+        default:
+            return false;
+    }
+}
+bool GrMtlCaps::isFormatSRGB(const GrBackendFormat& format) const {
+    if (!format.getMtlFormat()) {
+        return false;
+    }
+
+    return format_is_srgb(*format.getMtlFormat());
+}
+
 bool GrMtlCaps::isFormatTexturable(SkColorType ct, const GrBackendFormat& format) const {
     GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
     if (kUnknown_GrPixelConfig == config) {
@@ -553,6 +570,17 @@ GrPixelConfig GrMtlCaps::validateBackendRenderTarget(const GrBackendRenderTarget
     id<MTLTexture> texture = (__bridge id<MTLTexture>) fbInfo.fTexture.get();
     return validate_sized_format(texture.pixelFormat, ct);
 }
+
+bool GrMtlCaps::areColorTypeAndFormatCompatible(SkColorType ct,
+                                                const GrBackendFormat& format) const {
+    const GrMTLPixelFormat* mtlFormat = format.getMtlFormat();
+    if (!mtlFormat) {
+        return false;
+    }
+
+    return kUnknown_GrPixelConfig != validate_sized_format(*mtlFormat, ct);
+}
+
 
 GrPixelConfig GrMtlCaps::getConfigFromBackendFormat(const GrBackendFormat& format,
                                                     SkColorType ct) const {

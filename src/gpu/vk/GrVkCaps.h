@@ -32,6 +32,8 @@ public:
              uint32_t instanceVersion, uint32_t physicalDeviceVersion,
              const GrVkExtensions& extensions, GrProtected isProtected = GrProtected::kNo);
 
+    bool isFormatSRGB(const GrBackendFormat& format) const override;
+
     bool isFormatTexturable(SkColorType, const GrBackendFormat&) const override;
     bool isFormatTexturable(VkFormat) const;
     bool isConfigTexturable(GrPixelConfig config) const override;
@@ -161,6 +163,8 @@ public:
 
     GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
                                               SkColorType) const override;
+
+    bool areColorTypeAndFormatCompatible(SkColorType, const GrBackendFormat&) const override;
 
     GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, SkColorType) const override;
     GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;

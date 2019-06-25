@@ -106,6 +106,8 @@ public:
     GrGLCaps(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
              const GrGLInterface* glInterface);
 
+    bool isFormatSRGB(const GrBackendFormat& format) const override;
+
     bool isFormatTexturable(SkColorType, const GrBackendFormat&) const override;
 
     bool isConfigTexturable(GrPixelConfig config) const override {
@@ -414,6 +416,8 @@ public:
 
     GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
                                               SkColorType) const override;
+
+    bool areColorTypeAndFormatCompatible(SkColorType, const GrBackendFormat&) const override;
 
     GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, SkColorType) const override;
     GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;
