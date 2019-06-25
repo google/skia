@@ -1318,15 +1318,11 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
 #endif
 }
 
-static void clear_glyph_image(const SkGlyph& glyph) {
-    sk_bzero(glyph.fImage, glyph.rowBytes() * glyph.fHeight);
-}
-
 void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
     SkAutoMutexExclusive  ac(f_t_mutex());
 
     if (this->setupSize()) {
-        clear_glyph_image(glyph);
+        sk_bzero(glyph.fImage, glyph.rowBytes() * glyph.fHeight);
         return;
     }
 
@@ -1336,7 +1332,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
                      "width:%d height:%d rb:%d flags:%d) failed.",
                      glyph.getGlyphID(), glyph.fWidth, glyph.fHeight, glyph.rowBytes(),
                      fLoadGlyphFlags);
-        clear_glyph_image(glyph);
+        sk_bzero(glyph.fImage, glyph.rowBytes() * glyph.fHeight);
         return;
     }
 
