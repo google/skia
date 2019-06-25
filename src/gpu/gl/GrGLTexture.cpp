@@ -36,6 +36,9 @@ static inline GrGLenum target_from_texture_type(GrTextureType type) {
             return GR_GL_TEXTURE_RECTANGLE;
         case GrTextureType::kExternal:
             return GR_GL_TEXTURE_EXTERNAL;
+        default:
+            SK_ABORT("Unexpected texture target");
+            return GR_GL_TEXTURE_2D;
     }
     SK_ABORT("Unexpected texture type");
     return GR_GL_TEXTURE_2D;

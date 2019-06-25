@@ -354,6 +354,9 @@ public:
     bool getMtlTextureInfo(GrMtlTextureInfo*) const;
 #endif
 
+    // Get the GrBackendFormat for this render target (or an invalid format if this is not valid).
+    GrBackendFormat getBackendFormat() const;
+
     // If the backend API is Mock, copies a snapshot of the GrMockTextureInfo struct into the passed
     // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
     bool getMockRenderTargetInfo(GrMockRenderTargetInfo*) const;
@@ -409,7 +412,9 @@ private:
     GrBackendApi fBackend;
 
     union {
+#ifdef SK_GL
         GrGLFramebufferInfo fGLInfo;
+#endif
         GrVkBackendSurfaceInfo fVkInfo;
         GrMockRenderTargetInfo fMockInfo;
     };

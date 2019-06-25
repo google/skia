@@ -55,8 +55,7 @@ public:
 
     SkGpuDevice* getDevice() { return fDevice.get(); }
 
-    static bool Valid(const SkImageInfo&);
-    static bool Valid(const GrCaps*, GrPixelConfig, SkColorSpace*);
+    static bool Valid(const GrCaps*, const GrBackendFormat&);
 
 private:
     sk_sp<SkGpuDevice> fDevice;

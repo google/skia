@@ -231,6 +231,24 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fHalfFloatVertexAttributeSupport = true;
 }
 
+static bool format_is_srgb(MTLPixelFormat format) {
+    switch (format) {
+        case MTLPixelFormatRGBA8Unorm_sRGB:
+        case MTLPixelFormatBGRA8Unorm_sRGB:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool GrMtlCaps::isFormatSRGB(const GrBackendFormat& format) const {
+    if (!format.getMtlFormat()) {
+        return false;
+    }
+
+    return format_is_srgb(static_cast<MTLPixelFormat>(*format.getMtlFormat()));
+}
+
 bool GrMtlCaps::isFormatTexturable(SkColorType ct, const GrBackendFormat& format) const {
     GrPixelConfig config = this->getConfigFromBackendFormat(format, ct);
     if (kUnknown_GrPixelConfig == config) {
