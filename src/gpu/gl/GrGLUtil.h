@@ -60,14 +60,30 @@ enum GrGLRenderer {
     kAdreno5xx_GrGLRenderer,
     kOSMesa_GrGLRenderer,
     kGoogleSwiftShader_GrGLRenderer,
-    kIntelIrisPro_GrGLRenderer,
-    /** Either HD 4xxx or Iris 4xxx */
-    kIntel4xxx_GrGLRenderer,
-    /** Either HD 6xxx or Iris 6xxx */
-    kIntel6xxx_GrGLRenderer,
+
+    /** Intel GPU families, ordered by generation **/
+    // 6th gen
     kIntelSandyBridge_GrGLRenderer,
-    kIntelBayTrail_GrGLRenderer,
-    kIntelSkylake_GrGLRenderer,
+
+    // 7th gen
+    kIntelIvyBridge_GrGLRenderer,
+    kIntelValleyView_GrGLRenderer, // aka BayTrail
+    kIntelHaswell_GrGLRenderer,
+
+    // 8th gen
+    kIntelCherryView_GrGLRenderer, // aka Braswell
+    kIntelBroadwell_GrGLRenderer,
+
+    // 9th gen
+    kIntelApolloLake_GrGLRenderer,
+    kIntelSkyLake_GrGLRenderer,
+    kIntelGeminiLake_GrGLRenderer,
+    kIntelKabyLake_GrGLRenderer,
+    kIntelCoffeeLake_GrGLRenderer,
+
+    // 11th gen
+    kIntelIceLake_GrGLRenderer,
+
     kGalliumLLVM_GrGLRenderer,
     kMali4xx_GrGLRenderer,
     /** T-6xx, T-7xx, or T-8xx */
