@@ -1402,9 +1402,9 @@ static inline GrColorType GrPixelConfigToColorType(GrPixelConfig config) {
     return GrPixelConfigToColorTypeAndEncoding(config, &bogusEncoded);
 }
 
-static inline GrPixelConfig GrColorTypeToPixelConfig(GrColorType config,
+static inline GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType,
                                                      GrSRGBEncoded srgbEncoded) {
-    switch (config) {
+    switch (colorType) {
         case GrColorType::kUnknown:
             return kUnknown_GrPixelConfig;
         case GrColorType::kAlpha_8:
