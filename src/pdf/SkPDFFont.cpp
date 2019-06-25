@@ -448,7 +448,7 @@ struct ImageAndOffset {
     SkIPoint fOffset;
 };
 static ImageAndOffset to_image(SkGlyphID gid, SkStrike* cache) {
-    (void)cache->findImage(*cache->glyph(gid));
+    (void)cache->prepareImage(cache->glyph(gid));
     SkMask mask = cache->glyph(gid)->mask();
     if (!mask.fImage) {
         return {nullptr, {0, 0}};

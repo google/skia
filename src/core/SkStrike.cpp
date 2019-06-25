@@ -45,6 +45,7 @@ SkGlyph* SkStrike::makeGlyph(SkPackedGlyphID packedGlyphID) {
 }
 
 SkGlyph* SkStrike::glyph(SkPackedGlyphID packedGlyphID) {
+    VALIDATE();
     SkGlyph* glyph = fGlyphMap.findOrNull(packedGlyphID);
     if (glyph == nullptr) {
         glyph = this->makeGlyph(packedGlyphID);
@@ -110,7 +111,6 @@ int SkStrike::countCachedGlyphs() const {
 
 SkSpan<const SkGlyph*> SkStrike::metrics(
         SkSpan<const SkGlyphID>glyphIDs, const SkGlyph* results[]) {
-
     size_t glyphCount = 0;
     for (auto glyphID : glyphIDs) {
         SkGlyph* glyphPtr = this->glyph(glyphID);
@@ -130,8 +130,8 @@ SkSpan<SkPoint> SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint 
     return {advances, glyphIDs.size()};
 }
 
-const void* SkStrike::findImage(const SkGlyph& glyphRef) {
-    SkGlyph* glyph = const_cast<SkGlyph*>(&glyphRef);
+
+const void* SkStrike::prepareImage(SkGlyph* glyph) {
     if (glyph->setImage(&fAlloc, fScalerContext.get())) {
         fMemoryUsed += glyph->imageSize();
     }
@@ -190,21 +190,20 @@ SkSpan<const SkGlyphPos> SkStrike::prepareForDrawing(const SkGlyphID glyphIDs[],
         if (SkScalarsAreFinite(position.x(), position.y())) {
             // This assumes that the strike has no sub-pixel positioning for glyphs that are
             // transformed from source space to device space.
-            const SkGlyph& glyph = this->getGlyphMetrics(glyphIDs[i], position);
-            if (!glyph.isEmpty()) {
-                result[drawableGlyphCount++] = {i, &glyph, position};
-                if (glyph.maxDimension() <= maxDimension) {
-                    // Glyph fits in the atlas, good to go.
+            SkGlyph* glyph = this->glyph(glyphIDs[i], position);
+            if (!glyph->isEmpty()) {
+                result[drawableGlyphCount++] = {i, glyph, position};
+                if (glyph->maxDimension() <= maxDimension) {
+                    // Glyph is an allowable size, good to go.
                     if (detail == SkStrikeInterface::kImageIfNeeded) {
-                        this->findImage(glyph);
+                        this->prepareImage(glyph);
                     }
-                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
+                } else if (!glyph->isColor()) {
                     // The out of atlas glyph is not color so we can draw it using paths.
-                    this->preparePath(const_cast<SkGlyph*>(&glyph));
+                    this->preparePath(glyph);
                 } else {
                     // This will be handled by the fallback strike.
-                    SkASSERT(glyph.maxDimension() > maxDimension
-                             && glyph.fMaskFormat == SkMask::kARGB32_Format);
+                    SkASSERT(glyph->maxDimension() > maxDimension && glyph->isColor());
                 }
             }
         }
