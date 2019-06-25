@@ -237,7 +237,7 @@ void SkStrike::forceValidate() const {
     size_t memoryUsed = sizeof(*this);
     fGlyphMap.foreach ([&memoryUsed](const SkGlyph* glyphPtr) {
         memoryUsed += sizeof(SkGlyph);
-        if (glyphPtr->fImage) {
+        if (glyphPtr->setImageHasBeenCalled()) {
             memoryUsed += glyphPtr->imageSize();
         }
         if (glyphPtr->setPathHasBeenCalled() && glyphPtr->path() != nullptr) {

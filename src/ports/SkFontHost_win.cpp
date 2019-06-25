@@ -483,14 +483,14 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
         SkASSERT(prev != CLR_INVALID);
     }
 
-    if (fBM && (fIsBW != isBW || fWidth < glyph.fWidth || fHeight < glyph.fHeight)) {
+    if (fBM && (fIsBW != isBW || fWidth < glyph.width() || fHeight < glyph.height())) {
         DeleteObject(fBM);
         fBM = 0;
     }
     fIsBW = isBW;
 
-    fWidth = SkMax32(fWidth, glyph.fWidth);
-    fHeight = SkMax32(fHeight, glyph.fHeight);
+    fWidth = SkMax32(fWidth, glyph.width());
+    fHeight = SkMax32(fHeight, glyph.height());
 
     int biWidth = isBW ? alignTo32(fWidth) : fWidth;
 
@@ -525,8 +525,8 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
     memset(fBits, 0, size);
 
     XFORM xform = fXform;
-    xform.eDx = (float)-glyph.fLeft;
-    xform.eDy = (float)-glyph.fTop;
+    xform.eDx = (float)-glyph.left();
+    xform.eDy = (float)-glyph.top();
     SetWorldTransform(fDC, &xform);
 
     uint16_t glyphID = glyph.getGlyphID();
@@ -537,7 +537,7 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
     }
     *srcRBPtr = srcRB;
     // offset to the start of the image
-    return (const char*)fBits + (fHeight - glyph.fHeight) * srcRB;
+    return (const char*)fBits + (fHeight - glyph.height()) * srcRB;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -565,6 +565,13 @@ protected:
 private:
     DWORD getGDIGlyphPath(SkGlyphID glyph, UINT flags,
                           SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf);
+    template<bool APPLY_PREBLEND>
+    static void RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
+                        const SkGlyph& glyph, const uint8_t* table8);
+
+    template<bool APPLY_PREBLEND>
+    static void RGBToLcd16(const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const SkGlyph& glyph,
+                           const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB);
 
     HDCOffscreen fOffscreen;
     /** fGsA is the non-rotational part of total matrix without the text height scale.
@@ -816,13 +823,13 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph) {
         // Bitmap FON cannot underhang, but vector FON may.
         // There appears no means of determining underhang of vector FON.
         glyph->fLeft = SkToS16(0);
-        glyph->fAdvanceX = glyph->fWidth;
+        glyph->fAdvanceX = glyph->width();
         glyph->fAdvanceY = 0;
 
         // Vector FON will transform nicely, but bitmap FON do not.
         if (fType == SkScalerContext_GDI::kLine_Type) {
             SkRect bounds = SkRect::MakeXYWH(glyph->fLeft, glyph->fTop,
-                                             glyph->fWidth, glyph->fHeight);
+                                             glyph->width(), glyph->height());
             SkMatrix m;
             m.setAll(SkFIXEDToScalar(fMat22.eM11), -SkFIXEDToScalar(fMat22.eM21), 0,
                      -SkFIXEDToScalar(fMat22.eM12), SkFIXEDToScalar(fMat22.eM22), 0,
@@ -1049,11 +1056,11 @@ static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb, const uint8_t* tableR,
 }
 
 template<bool APPLY_PREBLEND>
-static void rgb_to_a8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
-                      const SkGlyph& glyph, const uint8_t* table8) {
+void SkScalerContext_GDI::RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
+                                  const SkGlyph& glyph, const uint8_t* table8) {
     const size_t dstRB = glyph.rowBytes();
-    const int width = glyph.fWidth;
-    uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+    const int width = glyph.width();
+    uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)glyph.fImage + (glyph.height() - 1) * dstRB);
 
     for (int y = 0; y < glyph.fHeight; y++) {
         for (int i = 0; i < width; i++) {
@@ -1068,11 +1075,12 @@ static void rgb_to_a8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
 }
 
 template<bool APPLY_PREBLEND>
-static void rgb_to_lcd16(const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const SkGlyph& glyph,
-                         const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
+void SkScalerContext_GDI::RGBToLcd16(
+        const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const SkGlyph& glyph,
+        const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
     const size_t dstRB = glyph.rowBytes();
-    const int width = glyph.fWidth;
-    uint16_t* SK_RESTRICT dst = (uint16_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+    const int width = glyph.width();
+    uint16_t* SK_RESTRICT dst = (uint16_t*)((char*)glyph.fImage + (glyph.height() - 1) * dstRB);
 
     for (int y = 0; y < glyph.fHeight; y++) {
         for (int i = 0; i < width; i++) {
@@ -1116,7 +1124,7 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         //one with this and one without.
         SkGdiRGB* addr = (SkGdiRGB*)bits;
         for (int y = 0; y < glyph.fHeight; ++y) {
-            for (int x = 0; x < glyph.fWidth; ++x) {
+            for (int x = 0; x < glyph.width(); ++x) {
                 int r = (addr[x] >> 16) & 0xFF;
                 int g = (addr[x] >>  8) & 0xFF;
                 int b = (addr[x] >>  0) & 0xFF;
@@ -1136,10 +1144,10 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
             dst -= dstRB;
         }
 #if SK_SHOW_TEXT_BLIT_COVERAGE
-            if (glyph.fWidth > 0 && glyph.fHeight > 0) {
-                int bitCount = glyph.fWidth & 7;
+            if (glyph.width() > 0 && glyph.fHeight > 0) {
+                int bitCount = glyph.width() & 7;
                 uint8_t* first = (uint8_t*)glyph.fImage;
-                uint8_t* last = (uint8_t*)((char*)glyph.fImage + glyph.fHeight * dstRB - 1);
+                uint8_t* last = (uint8_t*)((char*)glyph.fImage + glyph.height() * dstRB - 1);
                 *first |= 1 << 7;
                 *last |= bitCount == 0 ? 1 : 1 << (8 - bitCount);
             }
@@ -1149,19 +1157,17 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         // ... until we have the caller tell us that explicitly
         const SkGdiRGB* src = (const SkGdiRGB*)bits;
         if (fPreBlend.isApplicable()) {
-            rgb_to_a8<true>(src, srcRB, glyph, fPreBlend.fG);
+            RGBToA8<true>(src, srcRB, glyph, fPreBlend.fG);
         } else {
-            rgb_to_a8<false>(src, srcRB, glyph, fPreBlend.fG);
+            RGBToA8<false>(src, srcRB, glyph, fPreBlend.fG);
         }
     } else {    // LCD16
         const SkGdiRGB* src = (const SkGdiRGB*)bits;
         SkASSERT(SkMask::kLCD16_Format == glyph.fMaskFormat);
         if (fPreBlend.isApplicable()) {
-            rgb_to_lcd16<true>(src, srcRB, glyph,
-                               fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+            RGBToLcd16<true>(src, srcRB, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         } else {
-            rgb_to_lcd16<false>(src, srcRB, glyph,
-                                fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+            RGBToLcd16<false>(src, srcRB, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         }
     }
 }
