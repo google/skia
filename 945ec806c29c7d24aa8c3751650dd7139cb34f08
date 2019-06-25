@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff28905f_9b92d0d0",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-06-25T18:24:03Z",
+      "side": 1,
+      "message": "I would like to see these files and potentially all new files to fall under a specific flag that we can turn on for just the Android framework and not all clients.\n\nskia_enable_multiframe_serialization? or something like that.",
+      "range": {
+        "startLine": 44,
+        "startChar": 2,
+        "endLine": 44,
+        "endChar": 18
+      },
+      "revId": "945ec806c29c7d24aa8c3751650dd7139cb34f08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
