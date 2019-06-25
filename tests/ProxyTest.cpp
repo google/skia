@@ -311,7 +311,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                                           GrRenderable::kYes);
 
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapRenderableBackendTexture(
-                            backendTex, origin, supportedNumSamples, kBorrow_GrWrapOwnership,
+                            backendTex, origin, supportedNumSamples,
+                            SkColorTypeToGrColorType(colorType), kBorrow_GrWrapOwnership,
                             GrWrapCacheable::kNo, nullptr, nullptr);
                     if (!sProxy) {
                         context->deleteBackendTexture(backendTex);

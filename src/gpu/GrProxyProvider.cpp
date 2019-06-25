@@ -548,8 +548,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
 
 sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         const GrBackendTexture& backendTex, GrSurfaceOrigin origin, int sampleCnt,
-        GrWrapOwnership ownership, GrWrapCacheable cacheable, ReleaseProc releaseProc,
-        ReleaseContext releaseCtx) {
+        GrColorType colorType, GrWrapOwnership ownership, GrWrapCacheable cacheable,
+        ReleaseProc releaseProc, ReleaseContext releaseCtx) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -571,7 +571,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
     }
 
     sk_sp<GrTexture> tex = resourceProvider->wrapRenderableBackendTexture(backendTex, sampleCnt,
-                                                                          ownership, cacheable);
+                                                                          colorType, ownership,
+                                                                          cacheable);
     if (!tex) {
         return nullptr;
     }
@@ -584,7 +585,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
     // Make sure we match how we created the proxy with SkBudgeted::kNo
     SkASSERT(GrBudgetedType::kBudgeted != tex->resourcePriv().budgetedType());
 
-    GrColorType colorType = GrPixelConfigToColorType(tex->config());
     GrSwizzle texSwizzle = this->caps()->getTextureSwizzle(tex->backendFormat(), colorType);
     GrSwizzle outSwizzle = this->caps()->getOutputSwizzle(tex->backendFormat(), colorType);
 
