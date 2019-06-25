@@ -894,6 +894,15 @@ static inline bool GrPixelConfigIsSRGB(GrPixelConfig config) {
     return GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(config);
 }
 
+#include "include/core/SkImage.h"
+static inline GrPixelConfig GrCompressionTypePixelConfig(SkImage::CompressionType compression) {
+    switch (compression) {
+        case SkImage::kETC1_CompressionType: return kRGB_ETC1_GrPixelConfig;
+    }
+    SK_ABORT("Invalid compression type.");
+    return kUnknown_GrPixelConfig;
+}
+
 static inline size_t GrBytesPerPixel(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:

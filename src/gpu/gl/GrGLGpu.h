@@ -194,6 +194,8 @@ private:
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                      const GrMipLevel texels[], int mipLevelCount) override;
+    sk_sp<GrTexture> onCreateCompressedTexture(int width, int height, SkImage::CompressionType compression, SkBudgeted,
+                                               const void* data, size_t dataSize) override;
 
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType intendedType, GrAccessPattern,
                                       const void* data) override;
@@ -401,9 +403,7 @@ private:
     // helper for onCreateCompressedTexture. Compressed textures are read-only so we
     // only use this to populate a new texture.
     bool uploadCompressedTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
-                                 GrGLenum target,
-                                 const GrMipLevel texels[], int mipLevelCount,
-                                 GrMipMapsStatus* mipMapsStatus = nullptr);
+                                 GrGLenum target, const void* data);
 
     bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
                                    GrGLRenderTarget::IDDesc*);

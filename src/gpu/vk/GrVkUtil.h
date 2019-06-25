@@ -75,6 +75,6 @@ size_t GrVkFormatCompressedDataSize(VkFormat, int width, int height);
 /**
  * Maps a vk format into the GrCompressed enum.
  */
-GrCompression GrVkFormat2Compression(VkFormat);
+//GrCompression GrVkFormat2Compression(VkFormat);
 
 #endif

@@ -465,22 +465,22 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                                     fit, budgeted, surfaceFlags));
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createProxy(sk_sp<SkData> data, const GrSurfaceDesc& desc) {
+sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(int width, int height, SkBudgeted budgeted, SkImage::CompressionType compressionType, sk_sp<SkData> data) {
+    GrBackendFormat format = this->caps()->getBackendFormatFromCompressionType(compressionType);
+
+    GrSurfaceDesc desc;
+    desc.fConfig = GrCompressionTypePixelConfig(compressionType);
+    desc.fWidth = width;
+    desc.fHeight = height;
+
     if (!this->caps()->isConfigTexturable(desc.fConfig)) {
         return nullptr;
     }
 
-    const GrColorType ct = GrPixelConfigToColorType(desc.fConfig);
-    const GrBackendFormat format =
-                            this->caps()->getBackendFormatFromGrColorType(ct, GrSRGBEncoded::kNo);
-
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-        [desc, data](GrResourceProvider* resourceProvider) {
-            GrMipLevel texels;
-            texels.fPixels = data->data();
-            texels.fRowBytes = GrBytesPerPixel(desc.fConfig)*desc.fWidth;
+        [width, height, compressionType, budgeted, data](GrResourceProvider* resourceProvider) {
             return LazyInstantiationResult(
-                    resourceProvider->createTexture(desc, SkBudgeted::kYes, &texels, 1));
+                    resourceProvider->createCompressedTexture(width, height, compressionType, budgeted, data.get()));
         },
         format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
         SkBudgeted::kYes);

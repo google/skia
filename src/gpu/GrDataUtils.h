@@ -13,26 +13,25 @@
 #include "src/gpu/GrSwizzle.h"
 
 // TODO: consolidate all the backend-specific flavors of this method to this
-size_t GrETC1CompressedDataSize(int w, int h);
-
-// TODO: should this be grown into a replacement for GrPixelConfig?
-enum class GrCompression {
-    kNone,
-    kETC1,
-};
+size_t GrCompressedDataSize(SkImage::CompressionType, int w, int h);
 
 // Compute the size of the buffer required to hold all the mipLevels of the specified type
 // of data when all rowBytes are tight.
 // Note there may still be padding between the mipLevels to meet alignment requirements.
-size_t GrComputeTightCombinedBufferSize(GrCompression, size_t bytesPerPixel,
+size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel,
                                         int baseWidth, int baseHeight,
                                         SkTArray<size_t>* individualMipOffsets,
                                         int mipLevelCount);
 
-void GrFillInData(GrCompression, GrPixelConfig,
+size_t GrComputeCompressedTightBufferSize(SkImage::CompressionType, int width, int height);
+
+void GrFillInData(GrPixelConfig,
                   int baseWidth, int baseHeight,
                   const SkTArray<size_t>& individualMipOffsets,
                   char* dest, const SkColor4f& color);
+
+void GrFillInCompressedData(SkImage::CompressionType, int width, int height, char* dest,
+                           const SkColor4f& color);
 
 struct GrColorInfo {
     GrColorType fColorType = GrColorType::kUnknown;

@@ -306,7 +306,7 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
     return true;
 }
 
-size_t GrComputeTightCombinedBufferSize(GrCompression compression, size_t bytesPerPixel,
+size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel,
                                         int baseWidth, int baseHeight,
                                         SkTArray<size_t>* individualMipOffsets,
                                         int mipLevelCount) {
@@ -316,7 +316,46 @@ size_t GrComputeTightCombinedBufferSize(GrCompression compression, size_t bytesP
     individualMipOffsets->push_back(0);
 
     size_t combinedBufferSize = baseWidth * bytesPerPixel * baseHeight;
-    if (GrCompression::kETC1 == compression) {
+    int currentWidth = baseWidth;
+    int currentHeight = baseHeight;
+
+    // The Vulkan spec for copying a buffer to an image requires that the alignment must be at
+    // least 4 bytes and a multiple of the bytes per pixel of the image config.
+    SkASSERT(bytesPerPixel == 1 || bytesPerPixel == 2 || bytesPerPixel == 3 ||
+             bytesPerPixel == 4 || bytesPerPixel == 8 || bytesPerPixel == 16);
+    int desiredAlignment = (bytesPerPixel == 3) ? 12 : (bytesPerPixel > 4 ? bytesPerPixel : 4);
+
+    for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; ++currentMipLevel) {
+        currentWidth = SkTMax(1, currentWidth / 2);
+        currentHeight = SkTMax(1, currentHeight / 2);
+
+        size_t trimmedSize = currentWidth * bytesPerPixel * currentHeight;
+        const size_t alignmentDiff = combinedBufferSize % desiredAlignment;
+        if (alignmentDiff != 0) {
+            combinedBufferSize += desiredAlignment - alignmentDiff;
+        }
+        SkASSERT((0 == combinedBufferSize % 4) && (0 == combinedBufferSize % bytesPerPixel));
+
+        individualMipOffsets->push_back(combinedBufferSize);
+        combinedBufferSize += trimmedSize;
+    }
+
+    SkASSERT(individualMipOffsets->count() == mipLevelCount);
+    return combinedBufferSize;
+}
+
+/*
+size_t GrComputeTightCombinedBufferSize(SkImage::CompressionType type, size_t bytesPerPixel,
+                                        int baseWidth, int baseHeight,
+                                        SkTArray<size_t>* individualMipOffsets,
+                                        int mipLevelCount) {
+    SkASSERT(individualMipOffsets && !individualMipOffsets->count());
+    SkASSERT(mipLevelCount >= 1);
+
+    individualMipOffsets->push_back(0);
+
+    size_t combinedBufferSize = baseWidth * bytesPerPixel * baseHeight;
+    if (SkImage::kETC1_CompressionType == type) {
         SkASSERT(0 == bytesPerPixel);
         bytesPerPixel = 4; // munge Bpp to make the following code work (and not assert)
         combinedBufferSize = GrETC1CompressedDataSize(baseWidth, baseHeight);
@@ -353,9 +392,9 @@ size_t GrComputeTightCombinedBufferSize(GrCompression compression, size_t bytesP
 
     SkASSERT(individualMipOffsets->count() == mipLevelCount);
     return combinedBufferSize;
-}
+}*/
 
-void GrFillInData(GrCompression compression, GrPixelConfig config,
+void GrFillInData(GrPixelConfig config,
                   int baseWidth, int baseHeight,
                   const SkTArray<size_t>& individualMipOffsets, char* dstPixels,
                   const SkColor4f& colorf) {
@@ -368,16 +407,19 @@ void GrFillInData(GrCompression compression, GrPixelConfig config,
     for (int currentMipLevel = 0; currentMipLevel < mipLevels; ++currentMipLevel) {
         size_t offset = individualMipOffsets[currentMipLevel];
 
-        if (GrCompression::kETC1 == compression) {
-            // TODO: compute the ETC1 block for 'colorf' just once
-            fillin_ETC1_with_color(currentWidth, currentHeight, colorf, &(dstPixels[offset]));
-        } else {
-            fill_buffer_with_color(config, currentWidth, currentHeight, colorf,
-                                   &(dstPixels[offset]));
-        }
-
+        fill_buffer_with_color(config, currentWidth, currentHeight, colorf,
+                               &(dstPixels[offset]));
         currentWidth = SkTMax(1, currentWidth / 2);
         currentHeight = SkTMax(1, currentHeight / 2);
+    }
+}
+
+void GrFillInCompressedData(SkImage::CompressionType type, int baseWidth, int baseHeight, char* dstPixels, const SkColor4f& colorf) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    int currentWidth = baseWidth;
+    int currentHeight = baseHeight;
+    if (SkImage::kETC1_CompressionType == type) {
+        fillin_ETC1_with_color(currentWidth, currentHeight, colorf, dstPixels);
     }
 }
 

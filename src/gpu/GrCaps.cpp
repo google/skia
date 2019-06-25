@@ -375,3 +375,7 @@ GrCaps::SupportedRead GrCaps::supportedReadPixelsColorType(GrPixelConfig config,
                                                            GrColorType dstColorType) const {
     return SupportedRead{GrSwizzle::RGBA(), GrPixelConfigToColorType(config)};
 }
+
+GrBackendFormat GrCaps::getBackendFormatFromCompressionType(SkImage::CompressionType) const {
+    return GrBackendFormat{};
+}

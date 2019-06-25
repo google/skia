@@ -268,7 +268,7 @@ bool GrGLFormatIsCompressed(GrGLenum glFormat);
 /**
  * Maps a gl format into the GrCompressed enum.
  */
-GrCompression GrGLFormat2Compression(GrGLenum glFormat);
+bool GrGLFormat2Compression(GrGLenum glFormat, SkImage::CompressionType*);
 
 /**
  * Returns the data size for the given compressed format

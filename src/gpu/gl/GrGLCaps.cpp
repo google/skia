@@ -3343,6 +3343,14 @@ GrBackendFormat GrGLCaps::getBackendFormatFromGrColorType(GrColorType ct,
     return GrBackendFormat::MakeGL(this->configSizedInternalFormat(config), GR_GL_TEXTURE_2D);
 }
 
+GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(SkImage::CompressionType compressionType) const {
+    GrPixelConfig config = GrCompressionTypePixelConfig(compressionType);
+    if (config == kUnknown_GrPixelConfig) {
+        return GrBackendFormat();
+    }
+    return GrBackendFormat::MakeGL(this->configSizedInternalFormat(config), GR_GL_TEXTURE_2D);
+}
+
 #ifdef SK_DEBUG
 static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType) {
     switch (colorType) {
