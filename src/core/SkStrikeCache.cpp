@@ -32,10 +32,6 @@ public:
         return fStrike.rounding();
     }
 
-    const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override {
-        return fStrike.getGlyphMetrics(glyphID, position);
-    }
-
     SkSpan<const SkGlyphPos> prepareForDrawing(const SkGlyphID glyphIDs[],
                                                const SkPoint positions[],
                                                size_t n,

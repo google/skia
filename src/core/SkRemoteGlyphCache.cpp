@@ -523,36 +523,6 @@ SkVector SkStrikeServer::SkGlyphCacheState::rounding() const {
     return SkStrikeCommon::PixelRounding(fIsSubpixel, fAxisAlignmentForHText);
 }
 
-// Note: In the split Renderer/GPU architecture, if getGlyphMetrics is called in the Renderer
-// process, then it will be called on the GPU process because they share the rendering code. Any
-// data that is created in the Renderer process needs to be found in the GPU process. By
-// implication, any cache-miss/glyph-creation data needs to be sent to the GPU.
-const SkGlyph& SkStrikeServer::SkGlyphCacheState::getGlyphMetrics(
-        SkGlyphID glyphID, SkPoint position) {
-    SkIPoint lookupPoint = SkStrikeCommon::SubpixelLookup(fAxisAlignmentForHText, position);
-    SkPackedGlyphID packedGlyphID = fIsSubpixel ? SkPackedGlyphID{glyphID, lookupPoint}
-                                                : SkPackedGlyphID{glyphID};
-
-    // Check the cache for the glyph.
-    SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID);
-
-    // Has this glyph ever been seen before?
-    if (glyphPtr == nullptr) {
-
-        // Never seen before. Make a new glyph.
-        glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
-        fGlyphMap.set(glyphPtr);
-        this->ensureScalerContext();
-        fContext->getMetrics(glyphPtr);
-
-        // Make sure to send the glyph to the GPU because we always send the image for a glyph.
-        fCachedGlyphImages.add(packedGlyphID);
-        fPendingGlyphImages.push_back(packedGlyphID);
-    }
-
-    return *glyphPtr;
-}
-
 // Because the strike calls between the Renderer and the GPU are mirror images of each other, the
 // information needed to make the call in the Renderer needs to be sent to the GPU so it can also
 // make the call. If there is a path then it should be sent, and the path is queued to be sent and

@@ -105,8 +105,6 @@ public:
 
     SkVector rounding() const override;
 
-    const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
-
     const SkDescriptor& getDescriptor() const override;
 
     SkSpan<const SkGlyphPos> prepareForDrawing(const SkGlyphID glyphIDs[],
