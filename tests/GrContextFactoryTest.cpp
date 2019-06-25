@@ -15,38 +15,6 @@
 
 using namespace sk_gpu_test;
 
-DEF_GPUTEST(GrContextFactory_NVPRContextOptionHasPathRenderingSupport, reporter, options) {
-    // Test that if NVPR is requested, the context always has path rendering
-    // or the context creation fails.
-    for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
-        GrContextFactory testFactory(options);
-        // Test that if NVPR is possible, caps are in sync.
-        GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
-        GrContext* context = testFactory.get(ctxType,
-                                           GrContextFactory::ContextOverrides::kRequireNVPRSupport);
-        if (!context) {
-            continue;
-        }
-        REPORTER_ASSERT(reporter,
-                        context->priv().caps()->shaderCaps()->pathRenderingSupport());
-    }
-}
-
-DEF_GPUTEST(GrContextFactory_NoPathRenderingIfNVPRDisabled, reporter, options) {
-    // Test that if NVPR is explicitly disabled, the context has no path rendering support.
-
-    for (int i = 0; i <= GrContextFactory::kLastContextType; ++i) {
-        GrContextFactory testFactory(options);
-        GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType)i;
-        GrContext* context =
-            testFactory.get(ctxType, GrContextFactory::ContextOverrides::kDisableNVPR);
-        if (context) {
-            REPORTER_ASSERT(reporter,
-                            !context->priv().caps()->shaderCaps()->pathRenderingSupport());
-        }
-    }
-}
-
 DEF_GPUTEST(GrContextFactory_abandon, reporter, options) {
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory testFactory(options);
