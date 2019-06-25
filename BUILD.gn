@@ -984,7 +984,10 @@ component("skia") {
     if (defined(ndk) && ndk != "") {
       deps += [ "//third_party/cpu-features" ]
     }
-    sources += [ "src/ports/SkDebug_android.cpp" ]
+    sources += [
+      "src/ports/SkDebug_android.cpp",
+      "tools/SkSharingProc.cpp",
+    ]
     libs += [
       "EGL",
       "GLESv2",
