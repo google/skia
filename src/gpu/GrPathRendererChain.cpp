@@ -30,18 +30,6 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
         fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
     }
-    if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
-        auto direct = context->priv().asDirectContext();
-        if (direct) {
-            auto resourceProvider = direct->priv().resourceProvider();
-
-            sk_sp<GrPathRenderer> pr(
-               GrStencilAndCoverPathRenderer::Create(resourceProvider, caps));
-            if (pr) {
-                fChain.push_back(std::move(pr));
-            }
-        }
-    }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
     }
@@ -65,6 +53,18 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         auto spr = sk_make_sp<GrSmallPathRenderer>();
         context->priv().addOnFlushCallbackObject(spr.get());
         fChain.push_back(std::move(spr));
+    }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
+        auto direct = context->priv().asDirectContext();
+        if (direct) {
+            auto resourceProvider = direct->priv().resourceProvider();
+
+            sk_sp<GrPathRenderer> pr(
+                    GrStencilAndCoverPathRenderer::Create(resourceProvider, caps));
+            if (pr) {
+                fChain.push_back(std::move(pr));
+            }
+        }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTessellating) {
         fChain.push_back(sk_make_sp<GrTessellatingPathRenderer>());
