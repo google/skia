@@ -73,7 +73,11 @@
       "myfile.txt"
     ],
     "infra_step": true,
-    "name": "write myfile.txt"
+    "name": "write myfile.txt",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@myfile.txt@contents@@@",
+      "@@@STEP_LOG_END@myfile.txt@@@"
+    ]
   },
   {
     "cmd": [

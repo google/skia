@@ -34,7 +34,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "write NEO OpenCL ICD"
+    "name": "write NEO OpenCL ICD",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@neo.icd@[START_DIR]/opencl_intel_neo_linux/libigdrcl.so@@@",
+      "@@@STEP_LOG_END@neo.icd@@@"
+    ]
   },
   {
     "cmd": [
