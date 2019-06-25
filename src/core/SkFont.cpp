@@ -210,17 +210,13 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
 }
 
 static void set_bounds(const SkGlyph& g, SkRect* bounds) {
-    bounds->set(SkIntToScalar(g.fLeft),
-                SkIntToScalar(g.fTop),
-                SkIntToScalar(g.fLeft + g.fWidth),
-                SkIntToScalar(g.fTop + g.fHeight));
+    *bounds = g.rect();
 }
 
 static void join_bounds_x(const SkGlyph& g, SkRect* bounds, SkScalar dx) {
-    bounds->join(SkIntToScalar(g.fLeft) + dx,
-                 SkIntToScalar(g.fTop),
-                 SkIntToScalar(g.fLeft + g.fWidth) + dx,
-                 SkIntToScalar(g.fTop + g.fHeight));
+    SkRect r = g.rect();
+    r.offset(dx, 0);
+    bounds->join(r);
 }
 
 namespace {
@@ -278,12 +274,7 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
 }
 
 static SkRect make_bounds(const SkGlyph& g, SkScalar scale) {
-    return {
-        g.fLeft * scale,
-        g.fTop * scale,
-        (g.fLeft + g.fWidth) * scale,
-        (g.fTop + g.fHeight) * scale
-    };
+    return SkMatrix::MakeScale(scale).mapRect(g.rect());
 }
 
 template <typename HANDLER>
