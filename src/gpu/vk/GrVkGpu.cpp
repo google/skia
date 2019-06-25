@@ -1571,7 +1571,6 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     }
 
     if (fProtectedContext != isProtected) {
-        SkDebugf("Can only create protected image in protected context\n");
         return false;
     }
 
@@ -1901,7 +1900,6 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
     this->handleDirtyContext();
 
     if (fProtectedContext != isProtected) {
-        SkDebugf("Can only create protected image in protected context\n");
         return GrBackendTexture();
     }
 
