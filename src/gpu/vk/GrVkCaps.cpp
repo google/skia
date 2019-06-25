@@ -649,28 +649,7 @@ static bool format_is_srgb(VkFormat format) {
         case VK_FORMAT_R8G8B8A8_SRGB:
         case VK_FORMAT_B8G8R8A8_SRGB:
             return true;
-        case VK_FORMAT_R8G8B8A8_UNORM:
-        case VK_FORMAT_B8G8R8A8_UNORM:
-        case VK_FORMAT_R8G8B8_UNORM:
-        case VK_FORMAT_R8G8_UNORM:
-        case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
-        case VK_FORMAT_R5G6B5_UNORM_PACK16:
-        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
-        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
-        case VK_FORMAT_R8_UNORM:
-        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
-        case VK_FORMAT_R32G32B32A32_SFLOAT:
-        case VK_FORMAT_R32G32_SFLOAT:
-        case VK_FORMAT_R16G16B16A16_SFLOAT:
-        case VK_FORMAT_R16_SFLOAT:
-        case VK_FORMAT_R16_UNORM:
-        case VK_FORMAT_R16G16_UNORM:
-        // Experimental (for Y416 and mutant P016/P010)
-        case VK_FORMAT_R16G16B16A16_UNORM:
-        case VK_FORMAT_R16G16_SFLOAT:
-            return false;
         default:
-            SK_ABORT("Unsupported VkFormat");
             return false;
     }
 }
@@ -804,6 +783,22 @@ void GrVkCaps::FormatInfo::init(const GrVkInterface* interface,
     }
 }
 
+bool GrVkCaps::isFormatSRGB(const GrBackendFormat& format) const {
+    if (!format.getVkFormat()) {
+        return false;
+    }
+
+    return format_is_srgb(*format.getVkFormat());
+}
+
+bool GrVkCaps::isFormatTexturable(SkColorType, const GrBackendFormat& format) const {
+    if (!format.getVkFormat()) {
+        return false;
+    }
+
+    return this->isFormatTexturable(*format.getVkFormat());
+}
+
 bool GrVkCaps::isFormatTexturable(VkFormat format) const {
     if (!GrVkFormatIsSupported(format)) {
         return false;
@@ -823,6 +818,15 @@ bool GrVkCaps::isConfigTexturable(GrPixelConfig config) const {
 
 bool GrVkCaps::isFormatRenderable(VkFormat format) const {
     return this->maxRenderTargetSampleCount(format) > 0;
+}
+
+int GrVkCaps::getRenderTargetSampleCount(int requestedCount,
+                                         SkColorType, const GrBackendFormat& format) const {
+    if (!format.getVkFormat()) {
+        return 0;
+    }
+
+    return this->getRenderTargetSampleCount(requestedCount, *format.getVkFormat());
 }
 
 int GrVkCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
@@ -862,6 +866,14 @@ int GrVkCaps::getRenderTargetSampleCount(int requestedCount, VkFormat format) co
         }
     }
     return 0;
+}
+
+int GrVkCaps::maxRenderTargetSampleCount(SkColorType, const GrBackendFormat& format) const {
+    if (!format.getVkFormat()) {
+        return 0;
+    }
+
+    return this->maxRenderTargetSampleCount(*format.getVkFormat());
 }
 
 int GrVkCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {

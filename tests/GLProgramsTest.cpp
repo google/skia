@@ -147,12 +147,14 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
                                                                  const GrCaps* caps) {
     GrSurfaceOrigin origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin
                                                 : kBottomLeft_GrSurfaceOrigin;
-    int sampleCnt =
-            random->nextBool() ? caps->getRenderTargetSampleCount(2, kRGBA_8888_GrPixelConfig) : 1;
-    // Above could be 0 if msaa isn't supported.
-    sampleCnt = SkTMax(1, sampleCnt);
 
     const GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+
+    int sampleCnt = random->nextBool()
+                           ? caps->getRenderTargetSampleCount(2, kRGBA_8888_SkColorType, format)
+                           : 1;
+    // Above could be 0 if msaa isn't supported.
+    sampleCnt = SkTMax(1, sampleCnt);
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
         context->priv().makeDeferredRenderTargetContext(format,

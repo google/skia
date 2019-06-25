@@ -47,16 +47,11 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         isMipMapped = false;
     }
 
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendFormat, ii.colorType());
-    if (config == kUnknown_GrPixelConfig) {
+    if (!SkSurface_Gpu::Valid2(this->caps(), backendFormat, ii.colorSpace())) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (!SkSurface_Gpu::Valid(this->caps(), config, ii.colorSpace())) {
-        return SkSurfaceCharacterization(); // return an invalid characterization
-    }
-
-    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, config);
+    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, ii.colorType(), backendFormat);
     if (!sampleCnt) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
@@ -65,8 +60,13 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (isTextureable && !this->caps()->isConfigTexturable(config)) {
+    if (isTextureable && !this->caps()->isFormatTexturable(ii.colorType(), backendFormat)) {
         // Skia doesn't agree that this is textureable.
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendFormat, ii.colorType());
+    if (kUnknown_GrPixelConfig == config) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 

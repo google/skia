@@ -231,6 +231,22 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fHalfFloatVertexAttributeSupport = true;
 }
 
+static bool format_is_srgb(MTLPixelFormat format) {
+    switch (format) {
+        case MTLPixelFormatRGBA8Unorm_sRGB:
+        case MTLPixelFormatBGRA8Unorm_sRGB:
+            return true;
+        default:
+            return false;
+    }
+}
+bool GrMtlCaps::isFormatSRGB(const GrBackendFormat& format) const {
+    if (!format.getMtlFormat()) {
+        return false;
+    }
+
+    return format_is_srgb(*format.getMtlFormat());
+}
 
 int GrMtlCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
     if (fConfigTable[config].fFlags & ConfigInfo::kMSAA_Flag) {
