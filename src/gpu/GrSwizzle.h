@@ -104,7 +104,7 @@ constexpr void GrSwizzle::setFromKey(uint16_t key) {
         fSwiz[i] = IToC(key & 15);
         key >>= 4;
     }
-    SkASSERT(fSwiz[4] == 0);
+    SkASSERT(fSwiz[4] == '\0');
 }
 
 constexpr float GrSwizzle::ComponentIndexToFloat(const SkPMColor4f& color, int idx) {
@@ -117,10 +117,7 @@ constexpr float GrSwizzle::ComponentIndexToFloat(const SkPMColor4f& color, int i
     if (idx == CToI('0')) {
         return 1.0f;
     }
-    bool failed = true;  // Using this var allows SkASSERT() to be used on GCC.
-    (void)failed;        // Otherwise unused in release build.
-    SkASSERT(!failed);
-    return -1.0f;
+    SkUNREACHABLE;
 }
 
 constexpr int GrSwizzle::CToI(char c) {
@@ -132,9 +129,8 @@ constexpr int GrSwizzle::CToI(char c) {
         case 'a': return 3;
         case '0': return 4;
         case '1': return 5;
-        default:  SkASSERT(false);
+        default:  SkUNREACHABLE;
     }
-    return -1;
 }
 
 constexpr char GrSwizzle::IToC(int idx) {
@@ -145,9 +141,8 @@ constexpr char GrSwizzle::IToC(int idx) {
         case CToI('a'): return 'a';
         case CToI('0'): return '0';
         case CToI('1'): return '1';
-        default:        SkASSERT(false);
+        default:        SkUNREACHABLE;
     }
-    return -1;
 }
 
 constexpr GrSwizzle GrSwizzle::Concat(const GrSwizzle& a, const GrSwizzle& b) {
