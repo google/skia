@@ -70,6 +70,11 @@ SK_API extern void sk_abort_no_print(void);
     #define SkAssertResult(cond)         if (cond) {} do {} while(false)
 #endif
 
+
+// A version of SK_ABORT that is compilable by GCC in constexpr functions. It must branch on a
+// non-const expression.
+#define SK_CONSTEXPR_ABORT(message) bool _true = true; if (_true) SK_ABORT(message)
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /** Fast type for unsigned 8 bits. Use for parameter passing and local
