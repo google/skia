@@ -213,12 +213,6 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             sk_memset32((uint32_t *) dest, color, width * height);
             break;
         }
-        case kSBGRA_8888_GrPixelConfig: {
-            GrColor swizzled = GrColorPackRGBA(b, g, r, a);
-
-            sk_memset32((uint32_t *) dest, swizzled, width * height);
-            break;
-        }
         case kRGBA_1010102_GrPixelConfig: {
             uint32_t r10 = SkScalarRoundToInt(colorf.fR * 1023.0f);
             uint32_t g10 = SkScalarRoundToInt(colorf.fG * 1023.0f);
