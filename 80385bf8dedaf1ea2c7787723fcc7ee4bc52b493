@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62661565_8d10017b",
+        "filename": "src/gpu/geometry/GrQuadBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-26T19:32:37Z",
+      "side": 1,
+      "message": "Is it not the pointer to where the next header will be?",
+      "revId": "80385bf8dedaf1ea2c7787723fcc7ee4bc52b493",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
