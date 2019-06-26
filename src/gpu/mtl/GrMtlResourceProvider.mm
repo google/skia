@@ -21,7 +21,7 @@
 GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
     : fGpu(gpu) {
     fPipelineStateCache.reset(new PipelineStateCache(gpu));
-    fBufferSuballocator.reset(new BufferSuballocator(gpu->device(), 512*1024));
+    fBufferSuballocator.reset(new BufferSuballocator(gpu->device(), 4*1024*1024));
 }
 
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
@@ -242,20 +242,20 @@ id<MTLBuffer> GrMtlResourceProvider::BufferSuballocator::getAllocation(size_t si
 void GrMtlResourceProvider::BufferSuballocator::addCompletionHandler(
         GrMtlCommandBuffer* cmdBuffer) {
     this->ref();
-    __block size_t newTail = fHead;
+    size_t newTail = fHead;
     cmdBuffer->addCompletedHandler(^(id <MTLCommandBuffer>commandBuffer) {
         // Make sure SkAutoSpinlock goes out of scope before
         // the BufferSuballocator is potentially deleted.
         {
-            SkAutoSpinlock lock(this->fMutex);
-            this->fTail = newTail;
+            SkAutoSpinlock lock(fMutex);
+            fTail = newTail;
         }
         this->unref();
     });
 }
 
 id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offset) {
-    static size_t kMaxDynamicBufferAllocationSize = 8*1024*1024;
+    static size_t kMaxDynamicBufferAllocationSize = 4*1024*1024;
 
     id<MTLBuffer> buffer = fBufferSuballocator->getAllocation(size, offset);
     if (buffer) {
