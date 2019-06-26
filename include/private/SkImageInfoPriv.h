@@ -118,4 +118,9 @@ static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
 static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkImageInfo& src) {
     return SkImageInfoIsValid(dst) && SkImageInfoIsValid(src);
 }
+
+bool SkImageInfo_ValidForSurface(const SkImageInfo& info);
+
+extern bool gTesting_SkRequireColorSpaceForSurface;
+
 #endif  // SkImageInfoPriv_DEFINED

@@ -14,6 +14,24 @@
 #include "src/core/SkImagePriv.h"
 #include "src/image/SkSurface_Base.h"
 
+bool gTesting_SkRequireColorSpaceForSurface;
+
+bool SkImageInfo_ValidForSurface(const SkImageInfo& info) {
+    if (!SkImageInfoIsValid(info)) {
+        return false;
+    }
+
+#ifdef SK_REQUIRE_COLORSPACE_FOR_SURFACE
+    if (!info.colorSpace()) {
+        return false;
+    }
+#endif
+    if (gTesting_SkRequireColorSpaceForSurface && !info.colorSpace()) {
+        return false;
+    }
+    return true;
+}
+
 static SkPixelGeometry compute_default_geometry() {
     SkFontLCDConfig::LCDOrder order = SkFontLCDConfig::GetSubpixelOrder();
     if (SkFontLCDConfig::kNONE_LCDOrder == order) {
@@ -64,6 +82,7 @@ SkSurface_Base::SkSurface_Base(int width, int height, const SkSurfaceProps* prop
 
 SkSurface_Base::SkSurface_Base(const SkImageInfo& info, const SkSurfaceProps* props)
     : INHERITED(info, props) {
+    SkASSERT(SkImageInfo_ValidForSurface(info));
 }
 
 SkSurface_Base::~SkSurface_Base() {
@@ -273,8 +292,7 @@ SkSurface::SkSurface(int width, int height, const SkSurfaceProps* props)
 SkSurface::SkSurface(const SkImageInfo& info, const SkSurfaceProps* props)
     : fProps(SkSurfacePropsCopyOrDefault(props)), fWidth(info.width()), fHeight(info.height())
 {
-    SkASSERT(fWidth > 0);
-    SkASSERT(fHeight > 0);
+    SkASSERT(SkImageInfo_ValidForSurface(info));
     fGenerationID = 0;
 }
 
@@ -317,6 +335,9 @@ sk_sp<SkImage> SkSurface::makeImageSnapshot(const SkIRect& srcBounds) {
 }
 
 sk_sp<SkSurface> SkSurface::makeSurface(const SkImageInfo& info) {
+    if (!SkImageInfo_ValidForSurface(info)) {
+        return nullptr;
+    }
     return asSB(this)->onNewSurface(info);
 }
 
@@ -480,6 +501,7 @@ protected:
         return new SkNoDrawCanvas(this->width(), this->height());
     }
     sk_sp<SkSurface> onNewSurface(const SkImageInfo& info) override {
+        SkASSERT(SkImageInfo_ValidForSurface(info));
         return MakeNull(info.width(), info.height());
     }
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subsetOrNull) override { return nullptr; }

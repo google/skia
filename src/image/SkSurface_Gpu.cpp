@@ -333,7 +333,21 @@ bool SkSurface_Gpu::Valid(const GrCaps* caps, const GrBackendFormat& format) {
     if (caps->isFormatSRGB(format)) {
         return caps->srgbSupport();
     }
+    return true;
+}
 
+bool SkSurface_Gpu::Valid(const SkImageInfo& info) {
+    return SkImageInfo_ValidForSurface(info);
+}
+
+bool SkSurface_Gpu::Valid(const GrCaps* caps, GrPixelConfig config, SkColorSpace* colorSpace) {
+    switch (config) {
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+            return caps->srgbSupport();
+        default:
+            return true;
+    }
     return true;
 }
 

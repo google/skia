@@ -38,7 +38,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
-    if (!SkImageInfoIsValid(info)) {
+    if (!SkImageInfo_ValidForSurface(info)) {
         return false;
     }
 
@@ -81,6 +81,7 @@ SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, sk_sp<SkPixelRef> pr
                                    const SkSurfaceProps* props)
     : INHERITED(pr->width(), pr->height(), props)
 {
+    SkASSERT(SkImageInfo_ValidForSurface(info));
     fBitmap.setInfo(info, pr->rowBytes());
     fRowBytes = pr->rowBytes(); // we track this, so that subsequent re-allocs will match
     fBitmap.setPixelRef(std::move(pr), 0, 0);
