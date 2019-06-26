@@ -1016,7 +1016,7 @@ namespace skvm {
                 fJIT.entry = entry;
                 fJIT.mask  = mask;
 
-            #if 1 && defined(SK_BUILD_FOR_UNIX)   // Debug dumps for perf.
+            #if 0 // Debug dumps for perf.
                 // We're doing some really stateful things below so one thread at a time please...
                 static SkSpinlock dump_lock;
                 SkAutoSpinlock lock(dump_lock);
