@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7d4509d9_a6e1b00a",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 4035,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-26T20:06:40Z",
+      "side": 1,
+      "message": "No, will remove in follow up.",
+      "parentUuid": "7a71695f_11d168c4",
+      "range": {
+        "startLine": 4033,
+        "startChar": 0,
+        "endLine": 4035,
+        "endChar": 13
+      },
+      "revId": "2b0e85938b4c2d9ba54024103c56a640d0a1682e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "22f5e987_631df772",
         "filename": "src/gpu/mtl/GrMtlGpu.h",
         "patchSetId": 4
@@ -36,6 +60,24 @@
       "writtenOn": "2019-06-26T19:46:10Z",
       "side": 1,
       "message": "??",
+      "revId": "2b0e85938b4c2d9ba54024103c56a640d0a1682e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df090b72_046800fc",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-26T20:06:40Z",
+      "side": 1,
+      "message": "AFAICT this already didn\u0027t work in Metal (etc1 GM doesn\u0027t draw).",
+      "parentUuid": "22f5e987_631df772",
       "revId": "2b0e85938b4c2d9ba54024103c56a640d0a1682e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
