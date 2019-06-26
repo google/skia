@@ -205,7 +205,6 @@ id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode
                                          MTLCompileOptions* options, bool* timedout) {
     dispatch_semaphore_t compilerSemaphore = dispatch_semaphore_create(0);
 
-    __block dispatch_semaphore_t semaphore = compilerSemaphore;
     __block id<MTLLibrary> compiledLibrary;
     [device newLibraryWithSource: mslCode
                          options: options
@@ -216,18 +215,18 @@ id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode
                     [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
             }
             compiledLibrary = library;
-            dispatch_semaphore_signal(semaphore);
+            dispatch_semaphore_signal(compilerSemaphore);
         }
     ];
 
     // Wait 100 ms for the compiler
-    if (dispatch_semaphore_wait(compilerSemaphore, dispatch_time(DISPATCH_TIME_NOW, 100000))) {
+    *timedout = dispatch_semaphore_wait(compilerSemaphore,
+                                        dispatch_time(DISPATCH_TIME_NOW, 100000));
+    if (*timedout) {
         SkDebugf("Timeout compiling MSL shader\n");
-        *timedout = true;
         return nil;
     }
 
-    *timedout = false;
     return compiledLibrary;
 }
 
@@ -235,7 +234,6 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
         id<MTLDevice> device, MTLRenderPipelineDescriptor* pipelineDescriptor, bool* timedout) {
     dispatch_semaphore_t pipelineSemaphore = dispatch_semaphore_create(0);
 
-    __block dispatch_semaphore_t semaphore = pipelineSemaphore;
     __block id<MTLRenderPipelineState> pipelineState;
     [device newRenderPipelineStateWithDescriptor: pipelineDescriptor
                                completionHandler:
@@ -245,18 +243,18 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
                     [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
             }
             pipelineState = state;
-            dispatch_semaphore_signal(semaphore);
+            dispatch_semaphore_signal(pipelineSemaphore);
         }
      ];
 
     // Wait 500 ms for pipeline creation
-    if (dispatch_semaphore_wait(pipelineSemaphore, dispatch_time(DISPATCH_TIME_NOW, 500000))) {
+    *timedout = dispatch_semaphore_wait(pipelineSemaphore,
+                                        dispatch_time(DISPATCH_TIME_NOW, 500000));
+    if (*timedout) {
         SkDebugf("Timeout creating pipeline.\n");
-        *timedout = true;
         return nil;
     }
 
-    *timedout = false;
     return pipelineState;
 }
 
