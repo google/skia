@@ -418,8 +418,12 @@ static bool validate_backend_format_and_config(const GrCaps* caps,
         // SkColorType are correct.
         return true;
     }
-    GrPixelConfig testConfig = caps->getConfigFromBackendFormat(format, colorType);
-    return testConfig != kUnknown_GrPixelConfig;
+    if (!caps->areColorTypeAndFormatCompatible(colorType, format)) {
+        caps->areColorTypeAndFormatCompatible(colorType, format);
+        return false;
+    }
+
+    return true;
 }
 #endif
 
