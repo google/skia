@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c880160b_235cf99f",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1447,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T18:46:06Z",
+      "side": 1,
+      "message": "rg32IsTexturable ?\n\nSince usual RG is handled via textureRedSupport",
+      "range": {
+        "startLine": 1447,
+        "startChar": 9,
+        "endLine": 1447,
+        "endChar": 24
+      },
+      "revId": "7f5756c785f267f7340f4eca603032f3e68f4b6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44a0fc3c_204d57fc",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1518,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T18:46:06Z",
+      "side": 1,
+      "message": "This isn\u0027t your problem but it seems a bit odd that fSRGBSupport is determined before this method is called (like the other member variables)\n\nAlso not your problem, could it be a sub-routine?",
+      "revId": "7f5756c785f267f7340f4eca603032f3e68f4b6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cca39f1_e48288da",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1692,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T18:46:06Z",
+      "side": 1,
+      "message": "mis-tab ?",
+      "range": {
+        "startLine": 1692,
+        "startChar": 16,
+        "endLine": 1692,
+        "endChar": 31
+      },
+      "revId": "7f5756c785f267f7340f4eca603032f3e68f4b6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cedec1cf_6c2c3839",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1694,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T18:46:06Z",
+      "side": 1,
+      "message": "mis-tab ?",
+      "range": {
+        "startLine": 1694,
+        "startChar": 16,
+        "endLine": 1694,
+        "endChar": 22
+      },
+      "revId": "7f5756c785f267f7340f4eca603032f3e68f4b6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b33ca335_f46cc23f",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1853,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T18:46:06Z",
+      "side": 1,
+      "message": "rgba16161616Supported is only used in here. Move it into this block to limit its reach ?",
+      "revId": "7f5756c785f267f7340f4eca603032f3e68f4b6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
