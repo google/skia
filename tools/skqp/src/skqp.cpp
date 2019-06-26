@@ -152,7 +152,6 @@ static std::unique_ptr<sk_gpu_test::TestContext> make_test_context(SkQP::SkiaBac
 static GrContextOptions context_options(skiagm::GM* gm = nullptr) {
     GrContextOptions grContextOptions;
     grContextOptions.fAllowPathMaskCaching = true;
-    grContextOptions.fSuppressPathRendering = true;
     grContextOptions.fDisableDriverCorrectnessWorkarounds = true;
     if (gm) {
         gm->modifyGrContextOptions(&grContextOptions);
