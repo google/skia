@@ -1,0 +1,20 @@
+kitchen.exe cook ^
+    -checkout-dir recipe_bundle ^
+    -mode swarming ^
+     -luci-system-account system ^
+    -cache-dir cache ^
+    -temp-dir tmp ^
+    -known-gerrit-host android.googlesource.com ^
+    -known-gerrit-host boringssl.googlesource.com ^
+    -known-gerrit-host chromium.googlesource.com ^
+    -known-gerrit-host dart.googlesource.com ^
+    -known-gerrit-host fuchsia.googlesource.com ^
+    -known-gerrit-host go.googlesource.com ^
+    -known-gerrit-host llvm.googlesource.com ^
+    -known-gerrit-host skia.googlesource.com ^
+    -known-gerrit-host webrtc.googlesource.com ^
+    -output-result-json %1\build_result_filename ^
+    -workdir . ^
+    -recipe "%2" ^
+    -properties '%3' ^
+    -logdog-annotation-url logdog://logs.chromium.org/%4/%SWARMING_TASK_ID%/+/annotations
