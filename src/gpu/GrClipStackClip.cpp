@@ -297,8 +297,6 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
         }
     }
 
-    renderTargetContext->setNeedsStencil();
-
     // This relies on the property that a reduced sub-rect of the last clip will contain all the
     // relevant window rectangles that were in the last clip. This subtle requirement will go away
     // after clipping is overhauled.
