@@ -39,9 +39,6 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
         case kSRGBA_8888_GrPixelConfig:
             *format = VK_FORMAT_R8G8B8A8_SRGB;
             return true;
-        case kSBGRA_8888_GrPixelConfig:
-            *format = VK_FORMAT_B8G8R8A8_SRGB;
-            return true;
         case kRGBA_1010102_GrPixelConfig:
             *format = VK_FORMAT_A2B10G10R10_UNORM_PACK32;
             return true;
@@ -112,8 +109,6 @@ bool GrVkFormatPixelConfigPairIsValid(VkFormat format, GrPixelConfig config) {
             return kBGRA_8888_GrPixelConfig == config;
         case VK_FORMAT_R8G8B8A8_SRGB:
             return kSRGBA_8888_GrPixelConfig == config;
-        case VK_FORMAT_B8G8R8A8_SRGB:
-            return kSBGRA_8888_GrPixelConfig == config;
         case VK_FORMAT_R8G8B8_UNORM:
             return kRGB_888_GrPixelConfig == config;
         case VK_FORMAT_R8G8_UNORM:
