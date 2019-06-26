@@ -201,9 +201,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             VkTestContext* vkSharedContext = masterContext
                     ? static_cast<VkTestContext*>(masterContext->fTestContext) : nullptr;
             SkASSERT(kVulkan_ContextType == type);
-            if (ContextOverrides::kRequireNVPRSupport & overrides) {
-                return ContextInfo();
-            }
             testCtx.reset(CreatePlatformVkTestContext(vkSharedContext));
             if (!testCtx) {
                 return ContextInfo();
@@ -236,9 +233,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
         case GrBackendApi::kMock: {
             TestContext* sharedContext = masterContext ? masterContext->fTestContext : nullptr;
             SkASSERT(kMock_ContextType == type);
-            if (ContextOverrides::kRequireNVPRSupport & overrides) {
-                return ContextInfo();
-            }
             testCtx.reset(CreateMockTestContext(sharedContext));
             if (!testCtx) {
                 return ContextInfo();
@@ -251,9 +245,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
 
     SkASSERT(testCtx && testCtx->backend() == backend);
     GrContextOptions grOptions = fGlobalOptions;
-    if (ContextOverrides::kDisableNVPR & overrides) {
-        grOptions.fSuppressPathRendering = true;
-    }
     if (ContextOverrides::kAvoidStencilBuffers & overrides) {
         grOptions.fAvoidStencilBuffers = true;
     }
@@ -264,11 +255,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     }
     if (!grCtx.get()) {
         return ContextInfo();
-    }
-    if (ContextOverrides::kRequireNVPRSupport & overrides) {
-        if (!grCtx->priv().caps()->shaderCaps()->pathRenderingSupport()) {
-            return ContextInfo();
-        }
     }
 
     // We must always add new contexts by pushing to the back so that when we delete them we delete

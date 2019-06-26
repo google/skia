@@ -52,19 +52,12 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
         // also tracks which of its contexts is current above that API and gets tripped up if the
         // native windowing API is used directly outside of the command buffer code.
         GrContextFactory factory(options);
-        ContextInfo ctxInfo = factory.getContextInfo(
-                contextType, GrContextFactory::ContextOverrides::kDisableNVPR);
+        ContextInfo ctxInfo = factory.getContextInfo(contextType);
         if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
             continue;
         }
 
         ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
-        if (ctxInfo.grContext()) {
-            (*test)(reporter, ctxInfo);
-            ctxInfo.grContext()->flush();
-        }
-        ctxInfo = factory.getContextInfo(contextType,
-                                         GrContextFactory::ContextOverrides::kRequireNVPRSupport);
         if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
             ctxInfo.grContext()->flush();

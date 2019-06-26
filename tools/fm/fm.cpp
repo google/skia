@@ -48,7 +48,6 @@ static DEFINE_string(tf    ,   "srgb", "The transfer function for any raster bac
 static DEFINE_bool  (legacy,    false, "Use a null SkColorSpace instead of --gamut and --tf?");
 
 static DEFINE_int   (samples ,         0, "Samples per pixel in GPU backends.");
-static DEFINE_bool  (nvpr    ,     false, "Use NV_path_rendering in GPU backends?");
 static DEFINE_bool  (stencils,      true, "If false, avoid stencil buffers in GPU backends.");
 static DEFINE_bool  (dit     ,     false, "Use device-independent text in GPU backends.");
 static DEFINE_string(surf    , "default", "Backing store for GPU backend surfaces.");
@@ -256,8 +255,7 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
         return nullptr;
     }
 
-    auto overrides = FLAGS_nvpr ? GrContextFactory::ContextOverrides::kRequireNVPRSupport
-                                : GrContextFactory::ContextOverrides::kDisableNVPR;
+    auto overrides = GrContextFactory::ContextOverrides::kNone;
     if (!FLAGS_stencils) { overrides |= GrContextFactory::ContextOverrides::kAvoidStencilBuffers; }
 
     GrContext* context = factory->getContextInfo(api, overrides)

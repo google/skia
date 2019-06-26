@@ -203,8 +203,7 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
                 }
             }
             sk_gpu_test::GrContextFactory factory(options);
-            sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(
-                    contextType, sk_gpu_test::GrContextFactory::ContextOverrides::kDisableNVPR);
+            sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(contextType);
             if (!sk_gpu_test::GrContextFactory::IsRenderingContext(contextType)) {
                 continue;
             }

@@ -220,11 +220,6 @@ struct SK_API GrContextOptions {
     bool fSuppressDualSourceBlending = false;
 
     /**
-     * If true, the caps will never report driver support for path rendering.
-     */
-    bool fSuppressPathRendering = false;
-
-    /**
      * If true, the caps will never support geometry shaders.
      */
     bool fSuppressGeometryShaders = false;

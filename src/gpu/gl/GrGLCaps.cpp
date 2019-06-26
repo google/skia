@@ -333,11 +333,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     GrShaderCaps* shaderCaps = fShaderCaps.get();
 
     shaderCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
-#if GR_TEST_UTILS
-    if (contextOptions.fSuppressPathRendering) {
-        shaderCaps->fPathRenderingSupport = false;
-    }
-#endif
 
     // Enable supported shader-related caps
     if (GR_IS_GR_GL(standard)) {

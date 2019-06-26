@@ -53,10 +53,7 @@ public:
      */
     enum class ContextOverrides {
         kNone                          = 0x0,
-        kDisableNVPR                   = 0x1,
-        kAvoidStencilBuffers           = 0x2,
-
-        kRequireNVPRSupport            = 0x4,
+        kAvoidStencilBuffers           = 0x1,
     };
 
     static bool IsRenderingContext(ContextType type) {
@@ -122,8 +119,7 @@ public:
     /**
      * Get a context initialized with a type of GL context. It also makes the GL context current.
      */
-    ContextInfo getContextInfo(ContextType type,
-                               ContextOverrides overrides = ContextOverrides::kNone);
+    ContextInfo getContextInfo(ContextType type, ContextOverrides = ContextOverrides::kNone);
 
     /**
      * Get a context in the same share group as the passed in GrContext, with the same type and
