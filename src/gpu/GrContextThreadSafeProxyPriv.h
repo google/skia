@@ -10,6 +10,8 @@
 
 #include "include/gpu/GrContextThreadSafeProxy.h"
 
+#include "src/gpu/GrCaps.h"
+
 /**
  * Class that adds methods to GrContextThreadSafeProxy that are only intended for use internal to
  * Skia. This class is purely a privileged window into GrContextThreadSafeProxy. It should never

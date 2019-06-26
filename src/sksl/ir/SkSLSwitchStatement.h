@@ -13,6 +13,8 @@
 
 namespace SkSL {
 
+class SymbolTable;
+
 /**
  * A 'switch' statement.
  */

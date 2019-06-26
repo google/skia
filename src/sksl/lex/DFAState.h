@@ -10,6 +10,9 @@
 
 #include "src/sksl/lex/LexUtil.h"
 
+#include <vector>
+#include <string>
+
 struct DFAState {
     struct Label {
         std::vector<int> fStates;

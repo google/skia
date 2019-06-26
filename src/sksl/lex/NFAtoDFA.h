@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef NFAtoDFA_DEFINED
+#define NFAtoDFA_DEFINED
 
 #include "src/sksl/lex/DFA.h"
 #include "src/sksl/lex/DFAState.h"
@@ -163,3 +165,4 @@ private:
     std::vector<int> fCharMappings;
     std::vector<int> fAccepts;
 };
+#endif  // NFAtoDFA_DEFINED

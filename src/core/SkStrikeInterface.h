@@ -8,11 +8,12 @@
 #ifndef SkStrikeInterface_DEFINED
 #define SkStrikeInterface_DEFINED
 
-#include <memory>
-
+#include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkSpan.h"
+
+#include <memory>
 
 class SkDescriptor;
 class SkGlyph;

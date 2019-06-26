@@ -10,6 +10,8 @@
 
 #include "src/sksl/ir/SkSLIRNode.h"
 
+#include <memory>
+
 namespace SkSL {
 
 /**

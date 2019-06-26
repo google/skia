@@ -9,6 +9,7 @@
 #define SkCallableTraits_DEFINED
 
 #include <type_traits>
+#include <tuple>
 
 template <typename R, typename... Args> struct sk_base_callable_traits {
     using return_type = R;

@@ -10,6 +10,8 @@
 
 #include "include/core/SkTypes.h"
 
+#include <string.h>
+
 // Typically declared in LLVM's msan_interface.h.  Easier for us to just re-declare.
 extern "C" {
     void __msan_check_mem_is_initialized(const volatile void*, size_t);
