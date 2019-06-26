@@ -22,32 +22,25 @@ namespace internal {
 
 namespace  {
 
-class LinearWipeAdapter final : public SkNVRefCnt<LinearWipeAdapter> {
+class LinearWipeAdapter final : public MaskFilterEffectBase {
 public:
     LinearWipeAdapter(sk_sp<sksg::RenderNode> layer, const SkSize& ls)
-        : fMaskNode(sksg::MaskFilter::Make(nullptr))
-        , fMaskEffectNode(sksg::MaskFilterEffect::Make(std::move(layer), fMaskNode))
-        , fLayerSize(ls) {}
+        : INHERITED(std::move(layer), ls) {}
 
     ADAPTER_PROPERTY(Completion, float, 0)
     ADAPTER_PROPERTY(Angle     , float, 0)
     ADAPTER_PROPERTY(Feather   , float, 0)
 
-    const sk_sp<sksg::MaskFilterEffect>& root() const { return fMaskEffectNode; }
-
 private:
-    void apply() const {
+    MaskInfo onMakeMask() const override {
         if (fCompletion >= 100) {
             // The layer is fully disabled.
-            fMaskEffectNode->setVisible(false);
-            return;
+            return { nullptr, false };
         }
-        fMaskEffectNode->setVisible(true);
 
         if (fCompletion <= 0) {
             // The layer is fully visible (no mask).
-            fMaskNode->setMaskFilter(nullptr);
-            return;
+            return { nullptr, true };
         }
 
         const auto t = SkTPin(fCompletion * 0.01f, 0.0f, 1.0f),
@@ -58,8 +51,8 @@ private:
 
         // Select the correct diagonal vector depending on quadrant.
         const SkVector angle_v = {cos_, sin_},
-                        diag_v = {std::copysign(fLayerSize.width() , cos_),
-                                  std::copysign(fLayerSize.height(), sin_)};
+                        diag_v = {std::copysign(this->layerSize().width() , cos_),
+                                  std::copysign(this->layerSize().height(), sin_)};
 
         // The transition length is the projection of the diagonal onto the angle vector.
         const auto len = SkVector::DotProduct(diag_v, angle_v);
@@ -68,7 +61,8 @@ private:
         const auto grad_len   = len + feather * 2;
         const SkVector grad_v = angle_v * grad_len,
               adjusted_grad_v = { grad_v.fX, -grad_v.fY }, // Y flipped for drawing space.
-                     center_v = {fLayerSize.width() * 0.5f, fLayerSize.height() * 0.5f};
+                     center_v = {0.5f * this->layerSize().width(),
+                                 0.5f * this->layerSize().height()};
 
         // Gradient start/end points:
         const SkPoint pts[] = {
@@ -90,13 +84,12 @@ private:
         const SkScalar  pos[] = { adjusted_t,
                                   adjusted_t + feather / grad_len };
 
-        fMaskNode->setMaskFilter(SkShaderMaskFilter::Make(
-            SkGradientShader::MakeLinear(pts, colors, pos, 2, SkTileMode::kClamp)));
+        return { SkShaderMaskFilter::Make(SkGradientShader::MakeLinear(pts, colors, pos, 2,
+                                                                       SkTileMode::kClamp)),
+                 true };
     }
 
-    const sk_sp<sksg::MaskFilter>       fMaskNode;
-    const sk_sp<sksg::MaskFilterEffect> fMaskEffectNode;
-    const SkSize                        fLayerSize;
+    using INHERITED = MaskFilterEffectBase;
 };
 
 } // namespace
