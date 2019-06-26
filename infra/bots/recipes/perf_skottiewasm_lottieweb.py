@@ -89,11 +89,14 @@ def RunSteps(api):
         continue
       output_file = output_dir.join(lottie_filename)
       with api.context(cwd=perf_app_dir):
+        # This is occasionally flaky due to skbug.com/9207, adding retries.
+        attempts = 3
         # Add output and input arguments to the cmd.
-        api.step('Run perf cmd line app', cmd=perf_app_cmd + [
-            '--input', lottie_file,
-            '--output', output_file,
-        ], infra_step=True)
+        api.run.with_retry(api.step, 'Run perf cmd line app', attempts,
+                           cmd=perf_app_cmd + [
+                               '--input', lottie_file,
+                               '--output', output_file,
+                           ], infra_step=True)
       output_json = api.file.read_json(
           'Read perf json', output_file,
           test_data={'frame_avg_us': 185.79982221126556,
