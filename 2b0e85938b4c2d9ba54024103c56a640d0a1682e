@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a71695f_11d168c4",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 4035,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T19:46:10Z",
+      "side": 1,
+      "message": "Do we still need this here ?",
+      "range": {
+        "startLine": 4033,
+        "startChar": 0,
+        "endLine": 4035,
+        "endChar": 13
+      },
+      "revId": "2b0e85938b4c2d9ba54024103c56a640d0a1682e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22f5e987_631df772",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T19:46:10Z",
+      "side": 1,
+      "message": "??",
+      "revId": "2b0e85938b4c2d9ba54024103c56a640d0a1682e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
