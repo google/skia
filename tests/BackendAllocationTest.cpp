@@ -415,8 +415,6 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
           kRGBA_8888_GrPixelConfig,         SkColors::kBlue     },
         { kBGRA_8888_SkColorType,           GR_GL_BGRA8,
           kBGRA_8888_GrPixelConfig,         SkColors::kBlue     },
-        { kBGRA_8888_SkColorType,           GR_GL_SRGB8_ALPHA8,
-          kSBGRA_8888_GrPixelConfig,        SkColors::kCyan     },
 
         { kRGBA_1010102_SkColorType,        GR_GL_RGB10_A2,
           // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
