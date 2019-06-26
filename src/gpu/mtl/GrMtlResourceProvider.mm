@@ -21,7 +21,7 @@
 GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
     : fGpu(gpu) {
     fPipelineStateCache.reset(new PipelineStateCache(gpu));
-    fBufferSuballocator.reset(new BufferSuballocator(gpu->device(), 512*1024));
+    fBufferSuballocator.reset(new BufferSuballocator(gpu->device(), 4*1024*1024));
 }
 
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
@@ -255,7 +255,7 @@ void GrMtlResourceProvider::BufferSuballocator::addCompletionHandler(
 }
 
 id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offset) {
-    static size_t kMaxDynamicBufferAllocationSize = 8*1024*1024;
+    static size_t kMaxDynamicBufferAllocationSize = 4*1024*1024;
 
     id<MTLBuffer> buffer = fBufferSuballocator->getAllocation(size, offset);
     if (buffer) {
