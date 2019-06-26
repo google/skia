@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebcfde33_ce358d6a",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-06-26T00:49:56Z",
+      "side": 0,
+      "message": "@halcanary: Did this have a reason, or was it more just copying other code that disabled nvpr? If the former, we can mask off nvpr from the path renderers right here.",
+      "range": {
+        "startLine": 155,
+        "startChar": 4,
+        "endLine": 155,
+        "endChar": 50
+      },
+      "revId": "01cb2a4228840bb4762d2d14caf7d5db08c7dba3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
