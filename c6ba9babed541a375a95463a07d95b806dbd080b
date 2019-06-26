@@ -1,0 +1,187 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba98aa2d_be31e292",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1382,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T13:38:41Z",
+      "side": 1,
+      "message": "Add an SkASSERT(GrGLFormatIsSupported(glFormat)); ?",
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24b566af_cea8143a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1385,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T13:38:41Z",
+      "side": 1,
+      "message": "Why do we have separate kGLFormats/fFormatTable arrays? Would it make sense for fFormatTable to have an fGLFormat field?",
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75d27012_88bdf2ac",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1397,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T13:38:41Z",
+      "side": 1,
+      "message": "typo (or maybe cool new spelling)",
+      "range": {
+        "startLine": 1397,
+        "startChar": 31,
+        "endLine": 1397,
+        "endChar": 39
+      },
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60d7a26a_c880b8a6",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1430,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T13:38:41Z",
+      "side": 1,
+      "message": "// This is set when we know we have both texture and render support for:\n//   R  8/16/16F\n//   RG 8/16/16F\n// Although floating point format support (hasFP*Textures) affects the *F formats.\n\n?",
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0d84ccc_de8bbdbf",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T13:38:41Z",
+      "side": 1,
+      "message": "maybe name this \u0027glFormat\u0027 to differentiate from backend format ?",
+      "range": {
+        "startLine": 112,
+        "startChar": 17,
+        "endLine": 112,
+        "endChar": 23
+      },
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd76880b_b6d34d6c",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T13:38:41Z",
+      "side": 1,
+      "message": "fwiw I don\u0027t think we need this guard here",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 9
+      },
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cb481a5_da36bc68",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T13:38:41Z",
+      "side": 1,
+      "message": "Add an SkASSERT(GrGLFormatIsSupported(glFormat)); ?",
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb8203cf_03379f28",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T13:38:41Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 141,
+        "endChar": 9
+      },
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c00de6fa_44f898f2",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T13:38:41Z",
+      "side": 1,
+      "message": "Do we still need this ?",
+      "range": {
+        "startLine": 598,
+        "startChar": 12,
+        "endLine": 598,
+        "endChar": 48
+      },
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
