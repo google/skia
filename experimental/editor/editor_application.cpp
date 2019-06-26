@@ -295,6 +295,7 @@ struct EditorApplication : public sk_app::Application {
         fLayer.inval();
         fLayer.loadFile(path);
         fWindow->pushLayer(&fLayer);
+        fWindow->setTitle(SkStringPrintf("Editor: \"%s\"", fLayer.fPath.c_str()).c_str());
         fWindow->show();
         fLayer.onResize(fWindow->width(), fWindow->height());
         #ifdef SK_EDITOR_DEBUG_OUT
