@@ -213,19 +213,6 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
             // Draw the wrapped image into an RGBA surface attempting to access all the
             // mipMap levels.
             {
-#ifdef SK_GL
-                // skbug.com/9141 (RGBA_F32 mipmaps appear to be broken on some Mali devices)
-                if (GrBackendApi::kOpenGL == context->backend()) {
-                    GrGLGpu* glGPU = static_cast<GrGLGpu*>(context->priv().getGpu());
-
-                    if (kRGBA_F32_SkColorType == colorType && GrMipMapped::kYes == mipMapped &&
-                        kGLES_GrGLStandard == glGPU->ctxInfo().standard()) {
-                        context->deleteBackendTexture(backendTex);
-                        return;
-                    }
-                }
-#endif
-
                 SkImageInfo newII = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType,
                                                       kPremul_SkAlphaType);
 
@@ -301,7 +288,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         { kGray_8_SkColorType,       kGray_8_GrPixelConfig,            kGrayCol            },
         { kRGBA_F16Norm_SkColorType, kRGBA_half_Clamped_GrPixelConfig, SkColors::kLtGray   },
         { kRGBA_F16_SkColorType,     kRGBA_half_GrPixelConfig,         SkColors::kYellow   },
-        { kRGBA_F32_SkColorType,     kRGBA_float_GrPixelConfig,        SkColors::kGray     },
+        // The kRGBA_F32_SkColorType has no Ganesh correlate
+        { kRGBA_F32_SkColorType,     kUnknown_GrPixelConfig,           SkColors::kYellow   },
     };
 
     SkASSERT(kLastEnum_SkColorType == SK_ARRAY_COUNT(combinations));
@@ -311,13 +299,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
 
         if (!caps->isConfigTexturable(combo.fConfig)) {
             continue;
-        }
-
-        if (GrBackendApi::kMetal == context->backend()) {
-            // skbug.com/9086 (Metal caps may not be handling RGBA32 correctly)
-            if (kRGBA_F32_SkColorType == combo.fColorType) {
-                continue;
-            }
         }
 
         for (auto mipMapped : { GrMipMapped::kNo, GrMipMapped::kYes }) {
@@ -434,17 +415,12 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
         { kGray_8_SkColorType,              GR_GL_R8,
           kGray_8_as_Red_GrPixelConfig,     kGrayCol            },
 
-        { kRGBA_F32_SkColorType,            GR_GL_RGBA32F,
-          kRGBA_float_GrPixelConfig,        SkColors::kRed      },
-
         { kRGBA_F16Norm_SkColorType,        GR_GL_RGBA16F,
           kRGBA_half_Clamped_GrPixelConfig, SkColors::kLtGray   },
         { kRGBA_F16_SkColorType,            GR_GL_RGBA16F,
           kRGBA_half_GrPixelConfig,         SkColors::kYellow   },
 
         // These backend formats don't have SkColorType equivalents
-        { kUnknown_SkColorType,             GR_GL_RG32F,
-          kRG_float_GrPixelConfig,          { 0.7f, 0.7f, 0, 0 }},
         { kUnknown_SkColorType,             GR_GL_RG8,
           kRG_88_GrPixelConfig,             { 0.5f, 0.5f, 0, 0 }},
         { kUnknown_SkColorType,             GR_GL_R16F,
@@ -594,13 +570,10 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         // of the provided color with the same value in such cases.
         { kGray_8_SkColorType,       VK_FORMAT_R8_UNORM,                 kGrayCol             },
 
-        { kRGBA_F32_SkColorType,     VK_FORMAT_R32G32B32A32_SFLOAT,      SkColors::kRed       },
-
         { kRGBA_F16Norm_SkColorType, VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kLtGray    },
         { kRGBA_F16_SkColorType,     VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kYellow    },
 
         // These backend formats don't have SkColorType equivalents
-        { kUnknown_SkColorType,      VK_FORMAT_R32G32_SFLOAT,            { 0.7f, 0.7f, 0, 0 } },
         { kUnknown_SkColorType,      VK_FORMAT_R8G8_UNORM,               { 0.5f, 0.5f, 0, 0 } },
         { kUnknown_SkColorType,      VK_FORMAT_R16_SFLOAT,               { 1.0f, 0, 0, 0.5f } },
         { kUnknown_SkColorType,      VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,  SkColors::kRed       },

@@ -68,17 +68,12 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
         { kGray_8_SkColorType,              MTLPixelFormatR8Unorm,
           kGray_8_as_Red_GrPixelConfig,     SkColors::kDkGray   },
 
-        { kRGBA_F32_SkColorType,            MTLPixelFormatRGBA32Float,
-          kRGBA_float_GrPixelConfig,        SkColors::kRed      },
-
         { kRGBA_F16Norm_SkColorType,        MTLPixelFormatRGBA16Float,
           kRGBA_half_Clamped_GrPixelConfig, SkColors::kLtGray   },
         { kRGBA_F16_SkColorType,            MTLPixelFormatRGBA16Float,
           kRGBA_half_GrPixelConfig,         SkColors::kYellow   },
 
         // These backend formats don't have SkColorType equivalents
-        { kUnknown_SkColorType,             MTLPixelFormatRG32Float,
-          kRG_float_GrPixelConfig,          { 0.7f, 0.7f, 0, 0 }},
         { kUnknown_SkColorType,             MTLPixelFormatRG8Unorm,
           kRG_88_GrPixelConfig,             { 0.5f, 0.5f, 0, 0 }},
         { kUnknown_SkColorType,             MTLPixelFormatR16Float,
@@ -93,11 +88,6 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
         GrBackendFormat format = GrBackendFormat::MakeMtl(combo.fFormat);
 
         if (!mtlCaps->isConfigTexturable(combo.fConfig)) {
-            continue;
-        }
-
-        // skbug.com/9086 (Metal caps may not be handling RGBA32 correctly)
-        if (kRGBA_F32_SkColorType == combo.fColorType) {
             continue;
         }
 

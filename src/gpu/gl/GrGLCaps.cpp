@@ -1988,25 +1988,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         }
     }
 
-    for (auto fpconfig : {kRGBA_float_GrPixelConfig, kRG_float_GrPixelConfig}) {
-        const GrGLenum format = kRGBA_float_GrPixelConfig == fpconfig ? GR_GL_RGBA : GR_GL_RG;
-        fConfigTable[fpconfig].fFormats.fBaseInternalFormat = format;
-        fConfigTable[fpconfig].fFormats.fSizedInternalFormat =
-            kRGBA_float_GrPixelConfig == fpconfig ? GR_GL_RGBA32F : GR_GL_RG32F;
-        fConfigTable[fpconfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = format;
-        fConfigTable[fpconfig].fFormats.fExternalType = GR_GL_FLOAT;
-        fConfigTable[fpconfig].fFormatType = kFloat_FormatType;
-        if (hasFP32Textures) {
-            fConfigTable[fpconfig].fFlags = rgIsTexturable ? ConfigInfo::kTextureable_Flag : 0;
-            if (hasFP32RenderTargets) {
-                fConfigTable[fpconfig].fFlags |= fpRenderFlags;
-            }
-        }
-        if (texStorageSupported) {
-            fConfigTable[fpconfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-        }
-    }
-
     GrGLenum redHalfExternalType;
     if (GR_IS_GR_GL(standard) ||
        (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0))) {
@@ -3064,7 +3045,7 @@ GrCaps::SupportedRead GrGLCaps::supportedReadPixelsColorType(GrPixelConfig srcPi
             }
             return {swizzle, GrColorType::kRGBA_8888};
         case kFloat_FormatType:
-            return {swizzle, GrColorType::kRGBA_F32};
+            return {swizzle, GrColorType::kRGBA_F16};
     }
     return {GrSwizzle{}, GrColorType::kUnknown};
 }
@@ -3238,9 +3219,6 @@ GrPixelConfig validate_sized_format(GrGLenum format, SkColorType ct, GrGLStandar
             }
             break;
         case kRGBA_F32_SkColorType:
-            if (GR_GL_RGBA32F == format) {
-                return kRGBA_float_GrPixelConfig;
-            }
             break;
     }
     SkDebugf("Unknown pixel config 0x%x\n", format);
@@ -3357,10 +3335,8 @@ static bool format_color_type_valid_pair(GrGLenum format, GrColorType colorType)
             return GR_GL_RGBA16F == format;
         case GrColorType::kRGBA_F16_Clamped:
             return GR_GL_RGBA16F == format;
-        case GrColorType::kRG_F32:
-            return GR_GL_RG32F == format;
         case GrColorType::kRGBA_F32:
-            return GR_GL_RGBA32F == format;
+            return false;
         case GrColorType::kRGB_ETC1:
             return GR_GL_COMPRESSED_RGB8_ETC2 == format || GR_GL_COMPRESSED_ETC1_RGB8 == format;
         case GrColorType::kR_16:
