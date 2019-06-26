@@ -342,33 +342,14 @@ bool GrVkFormatIsCompressed(VkFormat vkFormat) {
         default:
             return false;
     }
-    SK_ABORT("Invalid format");
-    return false;
 }
 
-GrCompression GrVkFormat2Compression(VkFormat vkFormat) {
+bool GrVkFormatToCompressionType(VkFormat vkFormat, SkImage::CompressionType* compressionType) {
     switch (vkFormat) {
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
-            return GrCompression::kETC1;
+            *compressionType = SkImage::kETC1_CompressionType;
+            return true;
         default:
-            return GrCompression::kNone;
+            return false;
     }
-    SK_ABORT("Invalid format");
-    return GrCompression::kNone;
 }
-
-size_t GrVkFormatCompressedDataSize(VkFormat vkFormat, int width, int height) {
-    SkASSERT(GrVkFormatIsCompressed(vkFormat));
-
-    switch (vkFormat) {
-        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
-            return GrETC1CompressedDataSize(width, height);
-        default:
-            SK_ABORT("Unknown compressed format");
-            return 4 * width * height;
-    }
-
-    SK_ABORT("Unknown compressed format");
-    return 4 * width * height;
-}
-
