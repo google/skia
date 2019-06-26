@@ -16,6 +16,24 @@
       "revId": "80385bf8dedaf1ea2c7787723fcc7ee4bc52b493",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d7bdd79_92808a2b",
+        "filename": "src/gpu/geometry/GrQuadBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-26T19:51:20Z",
+      "side": 1,
+      "message": "Not all the time. If the entry has no local coords, then packQuad(device, coords) will return a pointer to the next entry\u0027s header. If the entry has local coords, then the first call to packQuad(device, coords) returns the pointer to where the local coordinates should go, and the subsequent packQuad(local, coords) will return the pointer to the next entry.",
+      "parentUuid": "62661565_8d10017b",
+      "revId": "80385bf8dedaf1ea2c7787723fcc7ee4bc52b493",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
