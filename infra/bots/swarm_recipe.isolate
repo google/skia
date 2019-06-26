@@ -6,6 +6,7 @@
     'files': [
       '../../../.gclient',
       '../config/recipes.cfg',
+      'run_recipe.py',
     ],
   },
 }
