@@ -16,6 +16,24 @@
       "revId": "4ed9b45308c40f69401df52c7050c9f62e0cd444",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac11aab7_65334382",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T12:06:23Z",
+      "side": 1,
+      "message": "Well, the metal guard is there and this matches how GL is guarded elsewhere in this file. The mock guard hasn\u0027t even been defined yet (but it is coming). The Vulkan version isn\u0027t guarded bc it was causing some #include difficulties but, after talking with Greg, I\u0027m going to try to guard it too (in a separate CL).",
+      "parentUuid": "10f5a9fa_06d653c3",
+      "revId": "4ed9b45308c40f69401df52c7050c9f62e0cd444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
