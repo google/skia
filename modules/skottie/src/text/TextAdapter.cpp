@@ -123,6 +123,7 @@ void TextAdapter::apply() {
         fText.fTypeface,
         fText.fTextSize,
         fText.fLineHeight,
+        fText.fAscent,
         fText.fHAlign,
         fText.fVAlign,
         fHasAnimators ? Shaper::Flags::kFragmentGlyphs : Shaper::Flags::kNone,

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkFontMetrics.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTextBlob.h"
@@ -290,10 +291,14 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
 
     for (const auto& tsize : kTestSizes) {
         for (const auto& talign : kTestAligns) {
+            SkFontMetrics metrics;
+            SkFont(typeface, tsize.text_size).getMetrics(&metrics);
+
             const skottie::Shaper::TextDesc desc = {
                 typeface,
                 tsize.text_size,
                 tsize.text_size,
+                -metrics.fAscent,
                 talign.align,
                 skottie::Shaper::VAlign::kTopBaseline,
                 Shaper::Flags::kNone
@@ -350,13 +355,16 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
     const SkString text("Foo, bar.\rBaz.");
     const auto text_box = SkRect::MakeXYWH(100, 100, 1000, 1000); // large-enough to avoid breaks.
 
-
     for (const auto& tsize : kTestSizes) {
         for (const auto& talign : kTestAligns) {
+            SkFontMetrics metrics;
+            SkFont(typeface, tsize.text_size).getMetrics(&metrics);
+
             const skottie::Shaper::TextDesc desc = {
                 typeface,
                 tsize.text_size,
                 tsize.text_size,
+                -metrics.fAscent,
                 SkTextUtils::Align::kCenter_Align,
                 talign.align,
                 Shaper::Flags::kNone
@@ -387,10 +395,18 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
 }
 
 DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
+    auto typeface = SkTypeface::MakeDefault();
+    REPORTER_ASSERT(reporter, typeface);
+    static constexpr SkScalar kTSize = 18;
+
+    SkFontMetrics metrics;
+    SkFont(typeface, kTSize).getMetrics(&metrics);
+
     skottie::Shaper::TextDesc desc = {
-        SkTypeface::MakeDefault(),
-        18,
-        18,
+        typeface,
+        kTSize,
+        kTSize,
+        -metrics.fAscent,
         SkTextUtils::Align::kCenter_Align,
         Shaper::VAlign::kTop,
         Shaper::Flags::kNone

@@ -53,7 +53,15 @@ public:
 
     std::unique_ptr<sksg::Scene> parse(const skjson::ObjectValue&);
 
-    sk_sp<SkTypeface> findFont(const SkString& name) const;
+    struct FontInfo {
+        SkString                  fFamily,
+                                  fStyle;
+        SkScalar                  fAscentPct;
+        sk_sp<SkTypeface>         fTypeface;
+
+        bool matches(const char family[], const char style[]) const;
+    };
+    const FontInfo* findFont(const SkString& name) const;
 
     // This is the workhorse for property binding: depending on whether the property is animated,
     // it will either apply immediately or instantiate and attach a keyframe animator.
@@ -193,15 +201,6 @@ private:
     struct AssetInfo {
         const skjson::ObjectValue* fAsset;
         mutable bool               fIsAttaching; // Used for cycle detection
-    };
-
-    struct FontInfo {
-        SkString                  fFamily,
-                                  fStyle;
-        SkScalar                  fAscent;
-        sk_sp<SkTypeface>         fTypeface;
-
-        bool matches(const char family[], const char style[]) const;
     };
 
     struct ImageAssetInfo {

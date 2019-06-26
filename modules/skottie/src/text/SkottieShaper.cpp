@@ -52,9 +52,6 @@ public:
 
         SkFontMetrics metrics;
         info.fFont.getMetrics(&metrics);
-        if (!fLineCount) {
-            fFirstLineAscent = SkTMin(fFirstLineAscent, metrics.fAscent);
-        }
         fLastLineDescent = SkTMax(fLastLineDescent, metrics.fDescent);
     }
 
@@ -118,23 +115,23 @@ public:
         // By default, first line is vertically-aligned on a baseline of 0.
         // The content height considered for vertical alignment is the distance between the first
         // line top (ascent) to the last line bottom (descent).
-        const auto content_height = fLastLineDescent - fFirstLineAscent +
+        const auto content_height = fDesc.fAscent + fLastLineDescent +
                                     fDesc.fLineHeight * (fLineCount > 0 ? fLineCount - 1 : 0ul);
 
         // Perform additional adjustments based on VAlign.
         float v_offset = 0;
         switch (fDesc.fVAlign) {
         case Shaper::VAlign::kTop:
-            v_offset = -fFirstLineAscent;
+            v_offset = fDesc.fAscent;
             break;
         case Shaper::VAlign::kTopBaseline:
             // Default behavior.
             break;
         case Shaper::VAlign::kCenter:
-            v_offset = -fFirstLineAscent + (fBox.height() - content_height) * 0.5f;
+            v_offset = fDesc.fAscent + (fBox.height() - content_height) * 0.5f;
             break;
         case Shaper::VAlign::kBottom:
-            v_offset = -fFirstLineAscent + (fBox.height() - content_height);
+            v_offset = fDesc.fAscent + (fBox.height() - content_height);
             break;
         case Shaper::VAlign::kResizeToFit:
             SkASSERT(false);
@@ -242,8 +239,7 @@ private:
     SkPoint  fOffset{ 0, 0 };
     SkVector fPendingLineAdvance{ 0, 0 };
     uint32_t fLineCount = 0;
-    float    fFirstLineAscent = 0,
-             fLastLineDescent = 0;
+    float    fLastLineDescent = 0;
 
     const char* fUTF8 = nullptr; // only valid during shapeLine() calls
 
@@ -302,6 +298,7 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
         SkASSERT(try_scale >= in_scale && try_scale <= out_scale);
         desc.fTextSize   = try_scale * orig_desc.fTextSize;
         desc.fLineHeight = try_scale * orig_desc.fLineHeight;
+        desc.fAscent     = try_scale * orig_desc.fAscent;
 
         float res_height = 0;
         auto res = ShapeImpl(txt, desc, box, &res_height);
