@@ -26,12 +26,6 @@ SK_C_API void sk_textblob_builder_alloc_run_text(sk_textblob_builder_t* builder,
 SK_C_API void sk_textblob_builder_alloc_run_text_pos_h(sk_textblob_builder_t* builder, const sk_paint_t* font, int count, float y, int textByteCount, const sk_string_t* lang, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer);
 SK_C_API void sk_textblob_builder_alloc_run_text_pos(sk_textblob_builder_t* builder, const sk_paint_t* font, int count, int textByteCount, const sk_string_t* lang, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer);
 
-SK_C_API void sk_textblob_builder_runbuffer_set_glyphs(const sk_textblob_builder_runbuffer_t* runbuffer, const uint16_t* glyphs, int count);
-SK_C_API void sk_textblob_builder_runbuffer_set_pos(const sk_textblob_builder_runbuffer_t* runbuffer, const float* pos, int count);
-SK_C_API void sk_textblob_builder_runbuffer_set_pos_points(const sk_textblob_builder_runbuffer_t* runbuffer, const sk_point_t* pos, int count);
-SK_C_API void sk_textblob_builder_runbuffer_set_utf8_text(const sk_textblob_builder_runbuffer_t* runbuffer, const char* text, int count);
-SK_C_API void sk_textblob_builder_runbuffer_set_clusters(const sk_textblob_builder_runbuffer_t* runbuffer, const uint32_t* clusters, int count);
-
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
