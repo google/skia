@@ -497,7 +497,7 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
 
         writeGlyph(&glyph, serializer);
         auto imageSize = glyph.computeImageSize();
-        if (imageSize == 0u) continue;
+        if (imageSize == 0u || glyph.fWidth > kMaxGlyphWidth) continue;
 
         glyph.fImage = serializer->allocate(imageSize, glyph.formatAlignment());
         fContext->getImage(glyph);
@@ -799,7 +799,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             }
 
             auto imageSize = glyph->computeImageSize();
-            if (imageSize == 0u) continue;
+            if (imageSize == 0u || glyph->fWidth > kMaxGlyphWidth) continue;
 
             auto* image = deserializer.read(imageSize, glyph->formatAlignment());
             if (!image) READ_FAILURE
