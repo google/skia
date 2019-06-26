@@ -880,8 +880,6 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kRGBA_1010102_GrPixelConfig:
-        case kRGBA_float_GrPixelConfig:
-        case kRG_float_GrPixelConfig:
         case kRG_1616_GrPixelConfig:
             return 4;
         case kRGB_ETC1_GrPixelConfig:
@@ -3962,12 +3960,6 @@ static bool gl_format_to_pixel_config(GrGLenum format, GrPixelConfig* config) {
         case GR_GL_ALPHA8: // fall through
         case GR_GL_R8:
             *config = kAlpha_8_GrPixelConfig;
-            return true;
-        case GR_GL_RGBA32F:
-            *config = kRGBA_float_GrPixelConfig;
-            return true;
-        case GR_GL_RG32F:
-            *config = kRG_float_GrPixelConfig;
             return true;
         case GR_GL_RGBA16F:
             *config = kRGBA_half_GrPixelConfig;
