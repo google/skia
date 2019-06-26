@@ -244,13 +244,8 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
     }
 }
 
-sk_sp<SkTypeface> AnimationBuilder::findFont(const SkString& font_name) const {
-    if (const auto* font = fFonts.find(font_name)) {
-        return font->fTypeface;
-    }
-
-    this->log(Logger::Level::kError, nullptr, "Unknown font: \"%s\".", font_name.c_str());
-    return nullptr;
+const AnimationBuilder::FontInfo* AnimationBuilder::findFont(const SkString& font_name) const {
+    return fFonts.find(font_name);
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectValue& layer,
