@@ -235,7 +235,6 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
         id<MTLDevice> device, MTLRenderPipelineDescriptor* pipelineDescriptor, bool* timedout) {
     dispatch_semaphore_t pipelineSemaphore = dispatch_semaphore_create(0);
 
-    __block dispatch_semaphore_t semaphore = pipelineSemaphore;
     __block id<MTLRenderPipelineState> pipelineState;
     [device newRenderPipelineStateWithDescriptor: pipelineDescriptor
                                completionHandler:
@@ -245,18 +244,18 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
                     [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
             }
             pipelineState = state;
-            dispatch_semaphore_signal(semaphore);
+            dispatch_semaphore_signal(pipelineSemaphore);
         }
      ];
 
     // Wait 500 ms for pipeline creation
-    if (dispatch_semaphore_wait(pipelineSemaphore, dispatch_time(DISPATCH_TIME_NOW, 500000))) {
+    *timedout = dispatch_semaphore_wait(pipelineSemaphore,
+                                        dispatch_time(DISPATCH_TIME_NOW, 500000));
+    if (*timedout) {
         SkDebugf("Timeout creating pipeline.\n");
-        *timedout = true;
         return nil;
     }
 
-    *timedout = false;
     return pipelineState;
 }
 
