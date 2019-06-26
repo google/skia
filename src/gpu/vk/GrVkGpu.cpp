@@ -896,62 +896,30 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
 // It's probably possible to roll this into uploadTexDataOptimal,
 // but for now it's easier to maintain as a separate entity.
 bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int width, int height,
-                                      GrColorType dataColorType, const GrMipLevel texels[],
-                                      int mipLevelCount) {
+                                      SkImage::CompressionType compressionType, const void* data) {
+    SkASSERT(data);
     SkASSERT(!tex->isLinearTiled());
     // For now the assumption is that our rect is the entire texture.
     // Compressed textures are read-only so this should be a reasonable assumption.
     SkASSERT(0 == left && 0 == top && width == tex->width() && height == tex->height());
 
-    // We assume that if the texture has mip levels, we either upload to all the levels or just the
-    // first.
-    SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->texturePriv().maxMipMapLevel() + 1));
-
-    SkASSERT(GrPixelConfigIsCompressed(GrColorTypeToPixelConfig(dataColorType,
-                                                                GrSRGBEncoded::kNo)));
-
     if (width == 0 || height == 0) {
         return false;
     }
 
-    if (GrPixelConfigToColorType(tex->config()) != dataColorType) {
+    SkImage::CompressionType textureCompressionType;
+    if (!GrVkFormatToCompressionType(tex->imageFormat(), &textureCompressionType) ||
+        textureCompressionType != compressionType) {
         return false;
     }
 
     SkASSERT(this->vkCaps().isFormatTexturable(tex->imageFormat()));
 
-    SkTArray<size_t> individualMipOffsets(mipLevelCount);
-    individualMipOffsets.push_back(0);
-    size_t combinedBufferSize = GrVkFormatCompressedDataSize(tex->imageFormat(), width, height);
-    int currentWidth = width;
-    int currentHeight = height;
-    if (!texels[0].fPixels) {
-        return false;
-    }
-
-    // We assume that the alignment for any compressed format is at least 4 bytes and so we don't
-    // need to worry about alignment issues. For example, each block in ETC1 is 8 bytes.
-    for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        currentWidth = SkTMax(1, currentWidth / 2);
-        currentHeight = SkTMax(1, currentHeight / 2);
-
-        if (texels[currentMipLevel].fPixels) {
-            const size_t dataSize = GrVkFormatCompressedDataSize(tex->imageFormat(), currentWidth,
-                                                                 currentHeight);
-            individualMipOffsets.push_back(combinedBufferSize);
-            combinedBufferSize += dataSize;
-        } else {
-            return false;
-        }
-    }
-    if (0 == combinedBufferSize) {
-        // We don't have any data to upload so fail (compressed textures are read-only).
-        return false;
-    }
+    size_t dataSize = GrCompressedDataSize(compressionType, width, height);
 
     // allocate buffer to hold our mip data
     sk_sp<GrVkTransferBuffer> transferBuffer =
-            GrVkTransferBuffer::Make(this, combinedBufferSize, GrVkBuffer::kCopyRead_Type);
+            GrVkTransferBuffer::Make(this, dataSize, GrVkBuffer::kCopyRead_Type);
     if (!transferBuffer) {
         return false;
     }
@@ -961,38 +929,17 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int w
     GrVkTexture* uploadTexture = tex;
 
     char* buffer = (char*)transferBuffer->map();
-    SkTArray<VkBufferImageCopy> regions(mipLevelCount);
 
-    currentWidth = width;
-    currentHeight = height;
-    int layerHeight = uploadTexture->height();
-    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        if (texels[currentMipLevel].fPixels) {
-            // Again, we're assuming that our rect is the entire texture
-            SkASSERT(currentHeight == layerHeight);
-            SkASSERT(0 == uploadLeft && 0 == uploadTop);
+    memcpy(buffer, data, dataSize);
 
-            const size_t dataSize = GrVkFormatCompressedDataSize(tex->imageFormat(), currentWidth,
-                                                                 currentHeight);
-
-            // copy data into the buffer, skipping the trailing bytes
-            char* dst = buffer + individualMipOffsets[currentMipLevel];
-            const char* src = (const char*)texels[currentMipLevel].fPixels;
-            memcpy(dst, src, dataSize);
-
-            VkBufferImageCopy& region = regions.push_back();
-            memset(&region, 0, sizeof(VkBufferImageCopy));
-            region.bufferOffset = transferBuffer->offset() + individualMipOffsets[currentMipLevel];
-            region.bufferRowLength = currentWidth;
-            region.bufferImageHeight = currentHeight;
-            region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1 };
-            region.imageOffset = { uploadLeft, uploadTop, 0 };
-            region.imageExtent = { (uint32_t)currentWidth, (uint32_t)currentHeight, 1 };
-        }
-        currentWidth = SkTMax(1, currentWidth / 2);
-        currentHeight = SkTMax(1, currentHeight / 2);
-        layerHeight = currentHeight;
-    }
+    VkBufferImageCopy region;
+    memset(&region, 0, sizeof(VkBufferImageCopy));
+    region.bufferOffset = transferBuffer->offset();
+    region.bufferRowLength = width;
+    region.bufferImageHeight = height;
+    region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+    region.imageOffset = { uploadLeft, uploadTop, 0 };
+    region.imageExtent = { SkToU32(width), SkToU32(height), 1 };
 
     // no need to flush non-coherent memory, unmap will do that for us
     transferBuffer->unmap();
@@ -1009,12 +956,8 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int w
                                          transferBuffer.get(),
                                          uploadTexture,
                                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                         regions.count(),
-                                         regions.begin());
-
-    if (1 == mipLevelCount) {
-        tex->texturePriv().markMipMapsDirty();
-    }
+                                         1,
+                                         &region);
 
     return true;
 }
@@ -1079,24 +1022,16 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
         return nullptr;
     }
 
-    bool isCompressed = GrVkFormatIsCompressed(tex->imageFormat());
     auto colorType = GrPixelConfigToColorType(desc.fConfig);
     if (mipLevelCount) {
-        bool success;
-        if (isCompressed) {
-            success = this->uploadTexDataCompressed(tex.get(), 0, 0, desc.fWidth, desc.fHeight,
-                                                    colorType, texels, mipLevelCount);
-        } else {
-            success = this->uploadTexDataOptimal(tex.get(), 0, 0, desc.fWidth, desc.fHeight,
-                                                 colorType, texels, mipLevelCount);
-        }
-        if (!success) {
+        if (!this->uploadTexDataOptimal(tex.get(), 0, 0, desc.fWidth, desc.fHeight, colorType,
+                                        texels, mipLevelCount)) {
             tex->unref();
             return nullptr;
         }
     }
 
-    if (SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag) && !isCompressed) {
+    if (SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag)) {
         VkClearColorValue zeroClearColor;
         memset(&zeroClearColor, 0, sizeof(zeroClearColor));
         VkImageSubresourceRange range;
@@ -1109,6 +1044,55 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
                             VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
         this->currentCommandBuffer()->clearColorImage(this, tex.get(), &zeroClearColor, 1, &range);
     }
+    return std::move(tex);
+}
+
+sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(int width, int height,
+                                                    SkImage::CompressionType compressionType,
+                                                    SkBudgeted budgeted, const void* data) {
+    GrBackendFormat format = this->caps()->getBackendFormatFromCompressionType(compressionType);
+    if (!format.getVkFormat()) {
+        return nullptr;
+    }
+    VkFormat pixelFormat = *format.getVkFormat();
+
+    VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
+
+    // For now we will set the VK_IMAGE_USAGE_TRANSFER_DESTINATION_BIT and
+    // VK_IMAGE_USAGE_TRANSFER_SOURCE_BIT on every texture since we do not know whether or not we
+    // will be using this texture in some copy or not. Also this assumes, as is the current case,
+    // that all render targets in vulkan are also textures. If we change this practice of setting
+    // both bits, we must make sure to set the destination bit if we are uploading srcData to the
+    // texture.
+    usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+    // Compressed textures with MIP levels or multiple samples are not supported as of now.
+    GrVkImage::ImageDesc imageDesc;
+    imageDesc.fImageType = VK_IMAGE_TYPE_2D;
+    imageDesc.fFormat = pixelFormat;
+    imageDesc.fWidth = width;
+    imageDesc.fHeight = height;
+    imageDesc.fLevels = 1;
+    imageDesc.fSamples = 1;
+    imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
+    imageDesc.fUsageFlags = usageFlags;
+    imageDesc.fIsProtected = GrProtected::kNo;
+
+    GrSurfaceDesc desc;
+    desc.fConfig = GrCompressionTypePixelConfig(compressionType);
+    desc.fWidth = width;
+    desc.fHeight = height;
+    auto tex = GrVkTexture::MakeNewTexture(this, budgeted, desc, imageDesc,
+                                           GrMipMapsStatus::kNotAllocated);
+    if (!tex) {
+        return nullptr;
+    }
+
+    if (!this->uploadTexDataCompressed(tex.get(), 0, 0, desc.fWidth, desc.fHeight, compressionType,
+                                       data)) {
+        return nullptr;
+    }
+
     return std::move(tex);
 }
 
@@ -1480,6 +1464,30 @@ bool copy_src_data(GrVkGpu* gpu, const GrVkAlloc& alloc, VkFormat vkFormat,
                    int width, int height,
                    const void* srcData, size_t srcRowBytes) {
     SkASSERT(srcData);
+    SkASSERT(!GrVkFormatIsCompressed(vkFormat));
+
+    void* mapPtr = GrVkMemory::MapAlloc(gpu, alloc);
+    if (!mapPtr) {
+        return false;
+    }
+    size_t bytesPerPixel = GrVkBytesPerFormat(vkFormat);
+    const size_t trimRowBytes = width * bytesPerPixel;
+    if (!srcRowBytes) {
+        srcRowBytes = trimRowBytes;
+    }
+    SkASSERT(trimRowBytes * height <= alloc.fSize);
+
+    SkRectMemcpy(mapPtr, trimRowBytes, srcData, srcRowBytes, trimRowBytes, height);
+
+    GrVkMemory::FlushMappedAlloc(gpu, alloc, 0, alloc.fSize);
+    GrVkMemory::UnmapAlloc(gpu, alloc);
+    return true;
+}
+
+bool copy_compressed_src_data(GrVkGpu* gpu, const GrVkAlloc& alloc,
+                              SkImage::CompressionType compressionType, int width, int height,
+                              const void* data) {
+    SkASSERT(data);
 
     void* mapPtr = GrVkMemory::MapAlloc(gpu, alloc);
     if (!mapPtr) {
@@ -1487,43 +1495,30 @@ bool copy_src_data(GrVkGpu* gpu, const GrVkAlloc& alloc, VkFormat vkFormat,
     }
     mapPtr = reinterpret_cast<char*>(mapPtr);
 
-    if (GrVkFormatIsCompressed(vkFormat)) {
-        SkASSERT(0 == srcRowBytes);
-        size_t levelSize = GrVkFormatCompressedDataSize(vkFormat, width, height);
-
-        SkASSERT(levelSize <= alloc.fSize);
-        memcpy(mapPtr, srcData, levelSize);
-    } else {
-        size_t bytesPerPixel = GrVkBytesPerFormat(vkFormat);
-        const size_t trimRowBytes = width * bytesPerPixel;
-        if (!srcRowBytes) {
-            srcRowBytes = trimRowBytes;
-        }
-        SkASSERT(trimRowBytes * height <= alloc.fSize);
-
-        SkRectMemcpy(mapPtr, trimRowBytes, srcData, srcRowBytes, trimRowBytes, height);
-    }
-
+    size_t dataSize = GrCompressedDataSize(compressionType, width, height);
+    SkASSERT(dataSize <= alloc.fSize);
+    memcpy(mapPtr, data, dataSize);
     GrVkMemory::FlushMappedAlloc(gpu, alloc, 0, alloc.fSize);
     GrVkMemory::UnmapAlloc(gpu, alloc);
     return true;
 }
-
 bool fill_in_with_color(GrVkGpu* gpu, const GrVkAlloc& alloc, VkFormat vkFormat,
                         int baseWidth, int baseHeight,
                         const SkTArray<size_t>& individualMipOffsets,
                         GrPixelConfig config, const SkColor4f& color) {
-
-    GrCompression compression = GrVkFormat2Compression(vkFormat);
 
     void* mapPtr = GrVkMemory::MapAlloc(gpu, alloc);
     if (!mapPtr) {
         return false;
     }
 
-    // TODO: pass in alloc.fSize and assert we never write past it
-    GrFillInData(compression, config, baseWidth, baseHeight,
-                 individualMipOffsets, (char*) mapPtr, color);
+    SkImage::CompressionType compressionType;
+    if (GrVkFormatToCompressionType(vkFormat, &compressionType)) {
+        GrFillInCompressedData(compressionType, baseWidth, baseHeight, (char*)mapPtr, color);
+    } else {
+        // TODO: pass in alloc.fSize and assert we never write past it
+        GrFillInData(config, baseWidth, baseHeight, individualMipOffsets, (char*)mapPtr, color);
+    }
 
     GrVkMemory::FlushMappedAlloc(gpu, alloc, 0, alloc.fSize);
     GrVkMemory::UnmapAlloc(gpu, alloc);
@@ -1666,10 +1661,23 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
 
     SkTArray<size_t> individualMipOffsets(mipLevels);
 
-    GrCompression compression = GrVkFormat2Compression(vkFormat);
+    SkImage::CompressionType compressionType;
+    bool isCompressed = GrVkFormatToCompressionType(vkFormat, &compressionType);
 
-    size_t combinedBufferSize = GrComputeTightCombinedBufferSize(compression, bytesPerPixel, w, h,
-                                                                 &individualMipOffsets, mipLevels);
+    size_t combinedBufferSize;
+    if (isCompressed) {
+        // Compressed textures currently must be non-MIP mapped and have initial data.
+        if (mipMapped == GrMipMapped::kYes) {
+            return false;
+        }
+        if (!srcData && !color) {
+            return false;
+        }
+        combinedBufferSize = GrCompressedDataSize(compressionType, w, h);
+    } else {
+        combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, w, h,
+                                                              &individualMipOffsets, mipLevels);
+    }
 
     VkBufferCreateInfo bufInfo;
     memset(&bufInfo, 0, sizeof(VkBufferCreateInfo));
@@ -1702,9 +1710,10 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     if (!srcData) {
         result = fill_in_with_color(this, bufferAlloc, vkFormat, w, h, individualMipOffsets,
                                     config, *color);
+    } else if (isCompressed) {
+        result = copy_compressed_src_data(this, bufferAlloc, compressionType, w, h, srcData);
     } else {
         SkASSERT(1 == mipLevels);
-
         result = copy_src_data(this, bufferAlloc, vkFormat, w, h, srcData, srcRowBytes);
     }
 

@@ -625,6 +625,20 @@ GrBackendFormat GrMtlCaps::getBackendFormatFromGrColorType(GrColorType ct,
     return GrBackendFormat::MakeMtl(format);
 }
 
+GrBackendFormat GrMtlCaps::getBackendFormatFromCompressionType(
+        SkImage::CompressionType compressionType) const {
+    switch (compressionType) {
+        case SkImage::kETC1_CompressionType:
+#ifdef SK_BUILD_FOR_MAC
+            return {};
+#else
+            return GrBackendFormat::MakeMtl(MTLPixelFormatETC2_RGB8);
+#endif
+    }
+    SK_ABORT("Invalid compression type");
+    return {};
+}
+
 #ifdef SK_DEBUG
 static bool format_color_type_valid_pair(MTLPixelFormat format, GrColorType colorType) {
     switch (colorType) {
