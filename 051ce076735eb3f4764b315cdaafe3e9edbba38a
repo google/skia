@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cea96796_adf55202",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-26T19:32:09Z",
+      "side": 1,
+      "message": "Actually, could we just have\nconsexper uint64_t operator\"\" _mask(int bits) {\n   return (1\u003c\u003cbits) - 1;\n}\n\nThen it is just \n(hi \u0026 11_mask) \u003c\u003c 21\n| (m \u0026 5_mask) \u003c\u003c 16\n| (lo \u0026 6_mask) \u003c\u003c 10 ....",
+      "range": {
+        "startLine": 719,
+        "startChar": 20,
+        "endLine": 719,
+        "endChar": 36
+      },
+      "revId": "051ce076735eb3f4764b315cdaafe3e9edbba38a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
