@@ -132,3 +132,14 @@ bool GrQuad::aaHasEffectOnRect() const {
     // If rect, ws must all be 1s so no need to divide
     return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
 }
+
+bool GrQuad::asRect(SkRect* rect) const {
+    if (this->quadType() != Type::kAxisAligned) {
+        return false;
+    }
+
+    *rect = this->bounds();
+    // v0 at the geometric top-left is unique amongst axis-aligned vertex orders
+    // (90, 180, 270 rotations or axis flips all move v0).
+    return fX[0] == rect->fLeft && fY[0] == rect->fTop;
+}
