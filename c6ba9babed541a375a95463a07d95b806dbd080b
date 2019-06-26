@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5546fde8_78c42a43",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1382,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-26T17:24:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba98aa2d_be31e292",
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "24b566af_cea8143a",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2019-06-26T13:38:41Z",
       "side": 1,
       "message": "Why do we have separate kGLFormats/fFormatTable arrays? Would it make sense for fFormatTable to have an fGLFormat field?",
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3afbae10_3f581167",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1385,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-26T17:24:10Z",
+      "side": 1,
+      "message": "Chatted offline, but the main benefit is easy way to order formats for priority in searches. Also moved the kGLFormats array inside the getFormatInfo function so it isn\u0027t used elsewhere.",
+      "parentUuid": "24b566af_cea8143a",
       "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "7711ecfb_44b6093a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1397,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-26T17:24:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75d27012_88bdf2ac",
+      "range": {
+        "startLine": 1397,
+        "startChar": 31,
+        "endLine": 1397,
+        "endChar": 39
+      },
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "60d7a26a_c880b8a6",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 3
@@ -73,6 +133,24 @@
       "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce455802_68ac1ba5",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1430,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-26T17:24:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60d7a26a_c880b8a6",
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -99,6 +177,30 @@
     },
     {
       "key": {
+        "uuid": "4f0c3565_db28183c",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-26T17:24:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0d84ccc_de8bbdbf",
+      "range": {
+        "startLine": 112,
+        "startChar": 17,
+        "endLine": 112,
+        "endChar": 23
+      },
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fd76880b_b6d34d6c",
         "filename": "src/gpu/gl/GrGLCaps.h",
         "patchSetId": 3
@@ -122,6 +224,30 @@
     },
     {
       "key": {
+        "uuid": "4a6fbd8a_05aff9df",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-26T17:24:10Z",
+      "side": 1,
+      "message": "As talked about offline, we can get a config of kUnknown which doesn\u0027t make to any gl format.",
+      "parentUuid": "fd76880b_b6d34d6c",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 9
+      },
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9cb481a5_da36bc68",
         "filename": "src/gpu/gl/GrGLCaps.h",
         "patchSetId": 3
@@ -133,6 +259,24 @@
       "writtenOn": "2019-06-26T13:38:41Z",
       "side": 1,
       "message": "Add an SkASSERT(GrGLFormatIsSupported(glFormat)); ?",
+      "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b354e562_aacd26d1",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-26T17:24:10Z",
+      "side": 1,
+      "message": "Assert added inside getFormatInfo",
+      "parentUuid": "9cb481a5_da36bc68",
       "revId": "c6ba9babed541a375a95463a07d95b806dbd080b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
