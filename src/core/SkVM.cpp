@@ -710,12 +710,17 @@ namespace skvm {
 
     // https://static.docs.arm.com/ddi0596/a/DDI_0596_ARM_a64_instruction_set_architecture.pdf
 
+    static int bitfield(int x, int bits) {
+        int mask = (1<<bits)-1;
+        return x & mask;
+    }
+
     void Assembler::op(uint32_t hi, V m, uint32_t lo, V n, V d) {
-        this->word( (hi & 2047) << 21
-                  | (m  &   31) << 16
-                  | (lo &   63) << 10
-                  | (n  &   31) <<  5
-                  | (d  &   31) <<  0 );
+        this->word( bitfield(hi, 11) << 21
+                  | bitfield(m,   5) << 16
+                  | bitfield(lo,  6) << 10
+                  | bitfield(n,   5) <<  5
+                  | bitfield(d,   5) <<  0);
     }
 
     void Assembler::and16b(V d, V n, V m) { this->op(0b0'1'0'01110'00'1, m, 0b00011'1, n, d); }
@@ -738,10 +743,10 @@ namespace skvm {
     void Assembler::fmla4s(V d, V n, V m) { this->op(0b0'1'0'01110'0'0'1, m, 0b11001'1, n, d); }
 
     void Assembler::shift(uint32_t op, int imm, V n, V d) {
-        this->word( (op  & 4194303) << 10
-                  | (imm          ) << 16   // imm is embedded inside op, bit size depends on op
-                  | (n   &      31) << 5
-                  | (d   &      31) << 0);
+        this->word( bitfield(op, 22) << 10
+                  | imm              << 16   // imm is embedded inside op, bit size depends on op
+                  | bitfield(n,   5) <<  5
+                  | bitfield(d,   5) <<  0);
     }
 
     void Assembler::shl4s(V d, V n, int imm) {
@@ -759,51 +764,51 @@ namespace skvm {
 
     void Assembler::scvtf4s(V d, V n) {
         this->word(0b0'1'0'01110'0'0'10000'11101'10 << 10
-                  | (n & 31) << 5
-                  | (d & 31) << 0);
+                  | bitfield(n, 5) << 5
+                  | bitfield(d, 5) << 0);
     }
     void Assembler::fcvtzs4s(V d, V n) {
         this->word(0b0'1'0'01110'1'0'10000'1101'1'10 << 10
-                  | (n & 31) << 5
-                  | (d & 31) << 0);
+                  | bitfield(n, 5) << 5
+                  | bitfield(d, 5) << 0);
     }
 
     void Assembler::ret(X n) {
         this->word(0b1101011'0'0'10'11111'0000'0'0 << 10
-                   | (n & 31) << 5);
+                  | bitfield(n, 5) << 5);
     }
 
     void Assembler::add(X d, X n, int imm12) {
-        this->word(0b1'0'0'10001'00 << 22
-                  | (imm12 & 4095)  << 10
-                  | (n     &   31)  << 5
-                  | (d     &   31)  << 0);
+        this->word(0b1'0'0'10001'00     << 22
+                  | bitfield(imm12, 12) << 10
+                  | bitfield(n,      5) <<  5
+                  | bitfield(d,      5) <<  0);
     }
     void Assembler::subs(X d, X n, int imm12) {
-        this->word( 0b1'1'1'10001'00 << 22
-                  | (imm12 & 4095)   << 10
-                  | (n     &   31)   << 5
-                  | (d     &   31)   << 0);
+        this->word( 0b1'1'1'10001'00     << 22
+                  | bitfield(imm12, 12)  << 10
+                  | bitfield(n,      5)  <<  5
+                  | bitfield(d,      5)  <<  0);
     }
 
     void Assembler::bne(Label l) {
         // Jump in insts from before this one.
         const int imm19 = (l.offset - here().offset) / 4;
-        this->word( 0b0101010'0      << 24
-                  | (imm19 & 524287) << 5
-                  | 0b0'0001         << 0);
+        this->word( 0b0101010'0         << 24
+                  | bitfield(imm19, 19) <<  5
+                  | 0b0'0001            <<  0);
     }
 
     void Assembler::ldrq(V dst, X src) {
         this->word( 0b00'111'1'01'11'000000000000 << 10
-                  | (src & 31)                    <<  5
-                  | (dst & 31)                    <<  0);
+                  | bitfield(src, 5) << 5
+                  | bitfield(dst, 5) << 0);
     }
 
     void Assembler::strq(V src, X dst) {
         this->word( 0b00'111'1'01'10'000000000000 << 10
-                  | (dst & 31)                    <<  5
-                  | (src & 31)                    <<  0);
+                  | bitfield(dst, 5) << 5
+                  | bitfield(src, 5) << 0);
     }
 
 #if defined(SKVM_JIT)
