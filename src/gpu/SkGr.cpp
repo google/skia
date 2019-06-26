@@ -257,7 +257,7 @@ GrPixelConfig SkColorType2GrPixelConfig(const SkColorType type) {
         case kRGBA_F16_SkColorType:
             return kRGBA_half_GrPixelConfig;
         case kRGBA_F32_SkColorType:
-            return kRGBA_float_GrPixelConfig;
+            return kUnknown_GrPixelConfig;
     }
     SkASSERT(0);    // shouldn't get here
     return kUnknown_GrPixelConfig;
@@ -310,8 +310,6 @@ static inline int32_t dither_range_type_for_config(GrPixelConfig dstConfig) {
         case kRGBA_1010102_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
         case kAlpha_half_as_Red_GrPixelConfig:
-        case kRGBA_float_GrPixelConfig:
-        case kRG_float_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
         case kRGBA_half_Clamped_GrPixelConfig:
         case kRGB_ETC1_GrPixelConfig:

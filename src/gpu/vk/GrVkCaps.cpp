@@ -102,10 +102,6 @@ static int get_compatible_format_class(GrPixelConfig config) {
             return 4;
         case kRGBA_half_GrPixelConfig:
         case kRGBA_half_Clamped_GrPixelConfig:
-        case kRG_float_GrPixelConfig:
-            return 5;
-        case kRGBA_float_GrPixelConfig:
-            return 6;
         case kRGB_ETC1_GrPixelConfig:
             return 7;
         case kUnknown_GrPixelConfig:
@@ -1009,9 +1005,6 @@ static GrPixelConfig validate_image_info(VkFormat format, SkColorType ct, bool h
             }
             break;
         case kRGBA_F32_SkColorType:
-            if (VK_FORMAT_R32G32B32A32_SFLOAT == format) {
-                return kRGBA_float_GrPixelConfig;
-            }
             break;
     }
 
@@ -1116,10 +1109,8 @@ static bool format_color_type_valid_pair(VkFormat vkFormat, GrColorType colorTyp
             return VK_FORMAT_R16G16B16A16_SFLOAT == vkFormat;
         case GrColorType::kRGBA_F16_Clamped:
             return VK_FORMAT_R16G16B16A16_SFLOAT == vkFormat;
-        case GrColorType::kRG_F32:
-            return VK_FORMAT_R32G32_SFLOAT == vkFormat;
         case GrColorType::kRGBA_F32:
-            return VK_FORMAT_R32G32B32A32_SFLOAT == vkFormat;
+            return false;
         case GrColorType::kRGB_ETC1:
             return VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK == vkFormat;
         case GrColorType::kR_16:

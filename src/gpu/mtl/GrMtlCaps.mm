@@ -408,22 +408,6 @@ void GrMtlCaps::initConfigTable() {
         info->fFlags = ConfigInfo::kTextureable_Flag;
     }
 
-    // RGBA_float uses RGBA32Float
-    info = &fConfigTable[kRGBA_float_GrPixelConfig];
-    if (this->isMac()) {
-        info->fFlags = ConfigInfo::kAllFlags;
-    } else {
-        info->fFlags = 0;
-    }
-
-    // RG_float uses RG32Float
-    info = &fConfigTable[kRG_float_GrPixelConfig];
-    if (this->isMac()) {
-        info->fFlags = ConfigInfo::kAllFlags;
-    } else {
-        info->fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kRenderable_Flag;
-    }
-
     // Alpha_half uses R16Float
     info = &fConfigTable[kAlpha_half_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
@@ -546,9 +530,6 @@ GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, SkColorType ct) {
             }
             break;
         case kRGBA_F32_SkColorType:
-            if (MTLPixelFormatRGBA32Float == format) {
-                return kRGBA_float_GrPixelConfig;
-            }
             break;
     }
 
@@ -674,10 +655,8 @@ static bool format_color_type_valid_pair(MTLPixelFormat format, GrColorType colo
             return MTLPixelFormatRGBA16Float == format;
         case GrColorType::kRGBA_F16_Clamped:
             return MTLPixelFormatRGBA16Float == format;
-        case GrColorType::kRG_F32:
-            return MTLPixelFormatRG32Float == format;
         case GrColorType::kRGBA_F32:
-            return MTLPixelFormatRGBA32Float == format;
+            return false;
         case GrColorType::kRGB_ETC1:
 #ifdef SK_BUILD_FOR_MAC
             return false;

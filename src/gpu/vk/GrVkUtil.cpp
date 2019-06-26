@@ -62,12 +62,6 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             return true;
         case kGray_8_as_Lum_GrPixelConfig:
             return false;
-        case kRGBA_float_GrPixelConfig:
-            *format = VK_FORMAT_R32G32B32A32_SFLOAT;
-            return true;
-        case kRG_float_GrPixelConfig:
-            *format = VK_FORMAT_R32G32_SFLOAT;
-            return true;
         case kRGBA_half_GrPixelConfig:
         case kRGBA_half_Clamped_GrPixelConfig:
             *format = VK_FORMAT_R16G16B16A16_SFLOAT;
@@ -128,10 +122,6 @@ bool GrVkFormatPixelConfigPairIsValid(VkFormat format, GrPixelConfig config) {
                    kGray_8_as_Red_GrPixelConfig == config;
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
             return kRGB_ETC1_GrPixelConfig == config;
-        case VK_FORMAT_R32G32B32A32_SFLOAT:
-            return kRGBA_float_GrPixelConfig == config;
-        case VK_FORMAT_R32G32_SFLOAT:
-            return kRG_float_GrPixelConfig == config;
         case VK_FORMAT_R16G16B16A16_SFLOAT:
             return kRGBA_half_GrPixelConfig == config ||
                    kRGBA_half_Clamped_GrPixelConfig == config;
