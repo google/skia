@@ -128,7 +128,7 @@ private:
     bool onIsUsed(GrSurfaceProxy*) const override;
 
     // Must only be called if native stencil buffer clearing is enabled
-    void setStencilLoadOp(GrLoadOp op);
+    void setStencilLoadOp(GrLoadOp op) { fStencilLoadOp = op; }
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, const SkPMColor4f& color);
     // Sets the clear color to transparent black
@@ -137,10 +137,15 @@ private:
         this->setColorLoadOp(op, kDefaultClearColor);
     }
 
+    enum class CanDiscardPreviousOps : bool {
+        kYes = true,
+        kNo = false
+    };
+
     // Perform book-keeping for a fullscreen clear, regardless of how the clear is implemented later
     // (i.e. setColorLoadOp(), adding a ClearOp, or adding a GrFillRectOp that covers the device).
     // Returns true if the clear can be converted into a load op (barring device caps).
-    bool resetForFullscreenClear();
+    bool resetForFullscreenClear(CanDiscardPreviousOps);
 
     void deleteOps();
 

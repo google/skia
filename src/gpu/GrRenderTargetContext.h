@@ -15,6 +15,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrPaint.h"
+#include "src/gpu/GrRenderTargetOpList.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrXferProcessor.h"
@@ -31,7 +32,6 @@ class GrFixedClip;
 class GrOp;
 class GrRenderTarget;
 class GrRenderTargetContextPriv;
-class GrRenderTargetOpList;
 class GrShape;
 class GrStyle;
 class GrTextureProxy;
@@ -464,8 +464,6 @@ public:
     bool wrapsVkSecondaryCB() const { return fRenderTargetProxy->wrapsVkSecondaryCB(); }
     GrMipMapped mipMapped() const;
 
-    void setNeedsStencil() { fRenderTargetProxy->setNeedsStencil(); }
-
     // This entry point should only be called if the backing GPU object is known to be
     // instantiated.
     GrRenderTarget* accessRenderTarget() { return fRenderTargetProxy->peekRenderTarget(); }
@@ -491,6 +489,7 @@ public:
 
 #if GR_TEST_UTILS
     bool testingOnly_IsInstantiated() const { return fRenderTargetProxy->isInstantiated(); }
+    void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
 #endif
 
 protected:
@@ -528,6 +527,9 @@ private:
                              GrRenderTargetContext*,
                              std::unique_ptr<GrFragmentProcessor>,
                              sk_sp<GrTextureProxy>);
+
+    GrRenderTargetOpList::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const;
+    void setNeedsStencil();
 
     void internalClear(const GrFixedClip&, const SkPMColor4f&, CanClearFullscreen);
     void internalStencilClear(const GrFixedClip&, bool insideStencilMask);
@@ -624,6 +626,11 @@ private:
 
     SkSurfaceProps fSurfaceProps;
     bool fManagedOpList;
+
+    bool fNeedsStencil = false;
+#if GR_TEST_UTILS
+    bool fPreserveOpsOnFullClear_TestingOnly = false;
+#endif
 
     typedef GrSurfaceContext INHERITED;
 };
