@@ -274,8 +274,7 @@ DEF_GPUTEST(VkDrawableImportTest, reporter, options) {
             continue;
         }
         sk_gpu_test::GrContextFactory factory(options);
-        sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(
-                contextType, sk_gpu_test::GrContextFactory::ContextOverrides::kDisableNVPR);
+        sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(contextType);
         skiatest::ReporterContext ctx(
                    reporter, SkString(sk_gpu_test::GrContextFactory::ContextTypeName(contextType)));
         if (ctxInfo.grContext()) {
