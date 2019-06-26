@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b69e75ca_8b42ea35",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-06-26T18:40:04Z",
+      "side": 1,
+      "message": "I would be more comfortable with hex masks, but I don\u0027t know if that is only me.",
+      "range": {
+        "startLine": 778,
+        "startChar": 29,
+        "endLine": 778,
+        "endChar": 33
+      },
+      "revId": "f20fa82fed929c64a2e6191a1eb59970fc805935",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
