@@ -67,7 +67,7 @@ private:
     void bindProgramResourceLocations(GrGLuint programID);
     bool checkLinkStatus(GrGLuint programID, GrContextOptions::ShaderErrorHandler* errorHandler,
                          SkSL::String* sksl[], const SkSL::String glsl[]);
-    void resolveProgramResourceLocations(GrGLuint programID);
+    void resolveProgramResourceLocations(GrGLuint programID, bool force);
     void cleanupProgram(GrGLuint programID, const SkTDArray<GrGLuint>& shaderIDs);
     void cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs);
 

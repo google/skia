@@ -55,7 +55,7 @@ private:
     void bindUniformLocations(GrGLuint programID, const GrGLCaps& caps);
 
     // Updates the loction of the Uniforms if we cannot bind uniform locations manually
-    void getUniformLocations(GrGLuint programID, const GrGLCaps& caps);
+    void getUniformLocations(GrGLuint programID, const GrGLCaps& caps, bool force);
 
     const GrGLGpu* glGpu() const;
 

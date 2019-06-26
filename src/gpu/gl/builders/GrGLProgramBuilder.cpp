@@ -220,6 +220,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     checkLinked = true;
 #endif
     bool cached = fCached.get() != nullptr;
+    bool usedProgramBinaries = false;
     SkSL::String glsl[kGrShaderTypeCount];
     SkSL::String* sksl[kGrShaderTypeCount] = {
         &fVS.fCompilerString,
@@ -252,6 +253,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             } else {
                 cached = false;
             }
+            usedProgramBinaries = cached;
 #if GR_TEST_UTILS
         } else if (fGpu->getContext()->priv().options().fCacheSKSL) {
             // Only switch to the stored SkSL if it unpacks correctly
@@ -364,7 +366,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             }
         }
     }
-    this->resolveProgramResourceLocations(programID);
+    this->resolveProgramResourceLocations(programID, usedProgramBinaries);
 
     this->cleanupShaders(shadersToDelete);
     if (!cached) {
@@ -443,8 +445,8 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID,
     return SkToBool(linked);
 }
 
-void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID) {
-    fUniformHandler.getUniformLocations(programID, fGpu->glCaps());
+void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID, bool force) {
+    fUniformHandler.getUniformLocations(programID, fGpu->glCaps(), force);
 
     // handle NVPR separable varyings
     if (!fGpu->glCaps().shaderCaps()->pathRenderingSupport() ||

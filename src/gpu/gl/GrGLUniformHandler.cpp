@@ -114,8 +114,8 @@ void GrGLUniformHandler::bindUniformLocations(GrGLuint programID, const GrGLCaps
     }
 }
 
-void GrGLUniformHandler::getUniformLocations(GrGLuint programID, const GrGLCaps& caps) {
-    if (!caps.bindUniformLocationSupport()) {
+void GrGLUniformHandler::getUniformLocations(GrGLuint programID, const GrGLCaps& caps, bool force) {
+    if (!caps.bindUniformLocationSupport() || force) {
         int count = fUniforms.count();
         for (int i = 0; i < count; ++i) {
             GrGLint location;
