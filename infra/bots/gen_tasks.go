@@ -713,7 +713,8 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 		EnvPrefixes: map[string][]string{
 			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 		},
-		Isolate: relpath("swarm_recipe.isolate"),
+		Idempotent: true,
+		Isolate:    relpath("swarm_recipe.isolate"),
 	})
 	return BUNDLE_RECIPES_NAME
 }
@@ -731,7 +732,8 @@ func buildTaskDrivers(b *specs.TasksCfgBuilder) string {
 		EnvPrefixes: map[string][]string{
 			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
 		},
-		Isolate: "task_drivers.isolate",
+		Idempotent: true,
+		Isolate:    "task_drivers.isolate",
 	})
 	return BUILD_TASK_DRIVERS_NAME
 }
@@ -818,6 +820,7 @@ func isolateCIPDAsset(b *specs.TasksCfgBuilder, name string) string {
 		},
 		Command:    []string{"/bin/cp", "-rL", asset.path, "${ISOLATED_OUTDIR}"},
 		Dimensions: linuxGceDimensions(MACHINE_TYPE_SMALL),
+		Idempotent: true,
 		Isolate:    relpath("empty.isolate"),
 	})
 	return name
