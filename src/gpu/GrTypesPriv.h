@@ -565,9 +565,6 @@ static inline GrSLType GrSLCombinedSamplerTypeForTextureType(GrTextureType type)
             return kTexture2DRectSampler_GrSLType;
         case GrTextureType::kExternal:
             return kTextureExternalSampler_GrSLType;
-        default:
-            SK_ABORT("Unexpected texture type");
-            return kTexture2DSampler_GrSLType;
     }
     SK_ABORT("Unexpected texture type");
     return kTexture2DSampler_GrSLType;
@@ -582,9 +579,6 @@ static inline bool GrTextureTypeHasRestrictedSampling(GrTextureType type) {
             return true;
         case GrTextureType::kExternal:
             return true;
-        default:
-            SK_ABORT("Unexpected texture type");
-            return false;
     }
     SK_ABORT("Unexpected texture type");
     return false;

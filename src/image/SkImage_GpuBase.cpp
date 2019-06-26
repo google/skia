@@ -54,6 +54,7 @@ bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendText
     if (!backendFormat.isValid()) {
         return false;
     }
+
     *config = ctx->priv().caps()->getConfigFromBackendFormat(backendFormat, ct);
     return *config != kUnknown_GrPixelConfig;
 }
