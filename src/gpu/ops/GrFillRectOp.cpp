@@ -14,7 +14,7 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrQuad.h"
-#include "src/gpu/geometry/GrQuadList.h"
+#include "src/gpu/geometry/GrQuadBuffer.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
@@ -79,17 +79,13 @@ public:
                GrQuadAAFlags edgeFlags, const GrUserStencilSettings* stencil,
                const GrQuad& deviceQuad, const GrQuad& localQuad)
             : INHERITED(ClassID())
-            , fHelper(args, aaType, stencil) {
-        // The color stored with the quad is the clear color if a scissor-clear is decided upon
-        // when executing the op.
-        fDeviceQuads.push_back(deviceQuad, { paintColor, edgeFlags });
-
-        if (!fHelper.isTrivial()) {
-            // Conservatively keep track of the local coordinates; it may be that the paint doesn't
-            // need them after analysis is finished. If the paint is known to be solid up front they
-            // can be skipped entirely.
-            fLocalQuads.push_back(localQuad);
-        }
+            , fHelper(args, aaType, stencil)
+            , fQuads(1, !fHelper.isTrivial()) {
+        // Conservatively keep track of the local coordinates; it may be that the paint doesn't
+        // need them after analysis is finished. If the paint is known to be solid up front they
+        // can be skipped entirely.
+        fQuads.append(deviceQuad, { paintColor, edgeFlags },
+                      fHelper.isTrivial() ? nullptr : &localQuad);
         this->setBounds(deviceQuad.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
                         IsZeroArea::kNo);
     }
@@ -103,18 +99,17 @@ public:
 #ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("# draws: %u\n", this->quadCount());
+        str.appendf("# draws: %u\n", fQuads.count());
         str.appendf("Device quad type: %u, local quad type: %u\n",
-                    (uint32_t) fDeviceQuads.quadType(), (uint32_t) fLocalQuads.quadType());
+                    (uint32_t) fQuads.deviceQuadType(), (uint32_t) fQuads.localQuadType());
         str += fHelper.dumpInfo();
-        GrQuad device, local;
-        for (int i = 0; i < this->quadCount(); i++) {
-            device = fDeviceQuads[i];
-            const ColorAndAA& info = fDeviceQuads.metadata(i);
-            if (!fHelper.isTrivial()) {
-                local = fLocalQuads[i];
-            }
-            str += dump_quad_info(i, device, local, info.fColor, info.fAAFlags);
+        int i = 0;
+        auto iter = fQuads.iterator();
+        while(iter.next()) {
+            const ColorAndAA& info = iter.metadata();
+            str += dump_quad_info(i, iter.deviceQuad(), iter.localQuad(),
+                                  info.fColor, info.fAAFlags);
+            i++;
         }
         str += INHERITED::dumpInfo();
         return str;
@@ -125,12 +120,12 @@ public:
             const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
             GrClampType clampType) override {
         // Initialize aggregate color analysis with the first quad's color (which always exists)
-        SkASSERT(this->quadCount() > 0);
-        GrProcessorAnalysisColor quadColors(fDeviceQuads.metadata(0).fColor);
+        auto iter = fQuads.metadata();
+        SkAssertResult(iter.next());
+        GrProcessorAnalysisColor quadColors(iter->fColor);
         // Then combine the colors of any additional quads (e.g. from MakeSet)
-        for (int i = 1; i < this->quadCount(); ++i) {
-            quadColors = GrProcessorAnalysisColor::Combine(quadColors,
-                                                           fDeviceQuads.metadata(i).fColor);
+        while(iter.next()) {
+            quadColors = GrProcessorAnalysisColor::Combine(quadColors, iter->fColor);
             if (quadColors.isUnknown()) {
                 // No point in accumulating additional starting colors, combining cannot make it
                 // less unknown.
@@ -147,19 +142,19 @@ public:
                 caps, clip, hasMixedSampledCoverage, clampType, coverage, &quadColors);
         // If there is a constant color after analysis, that means all of the quads should be set
         // to the same color (even if they started out with different colors).
+        iter = fQuads.metadata();
         SkPMColor4f colorOverride;
         if (quadColors.isConstant(&colorOverride)) {
             fColorType = GrQuadPerEdgeAA::MinColorType(colorOverride, clampType, caps);
-            for (int i = 0; i < this->quadCount(); ++i) {
-                fDeviceQuads.metadata(i).fColor = colorOverride;
+            while(iter.next()) {
+                iter->fColor = colorOverride;
             }
         } else {
             // Otherwise compute the color type needed as the max over all quads.
             fColorType = ColorType::kNone;
-            for (int i = 0; i < this->quadCount(); ++i) {
-                SkPMColor4f* color = &fDeviceQuads.metadata(i).fColor;
+            while(iter.next()) {
                 fColorType = SkTMax(fColorType,
-                                    GrQuadPerEdgeAA::MinColorType(*color, clampType, caps));
+                                    GrQuadPerEdgeAA::MinColorType(iter->fColor, clampType, caps));
             }
         }
         // Most SkShaders' FPs multiply their calculated color by the paint color or alpha. We want
@@ -197,7 +192,7 @@ private:
         using Domain = GrQuadPerEdgeAA::Domain;
         static constexpr SkRect kEmptyDomain = SkRect::MakeEmpty();
 
-        VertexSpec vertexSpec(fDeviceQuads.quadType(), fColorType, fLocalQuads.quadType(),
+        VertexSpec vertexSpec(fQuads.deviceQuadType(), fColorType, fQuads.localQuadType(),
                               fHelper.usesLocalCoords(), Domain::kNo, fHelper.aaType(),
                               fHelper.compatibleWithCoverageAsAlpha());
         // Make sure that if the op thought it was a solid color, the vertex spec does not use
@@ -212,7 +207,7 @@ private:
 
         // Fill the allocated vertex data
         void* vdata = target->makeVertexSpace(
-                vertexSize, this->quadCount() * vertexSpec.verticesPerQuad(),
+                vertexSize, fQuads.count() * vertexSpec.verticesPerQuad(),
                 &vbuffer, &vertexOffsetInBuffer);
         if (!vdata) {
             SkDebugf("Could not allocate vertices\n");
@@ -221,27 +216,19 @@ private:
 
         // vertices pointer advances through vdata based on Tessellate's return value
         void* vertices = vdata;
-        if (fHelper.isTrivial()) {
-            SkASSERT(fLocalQuads.count() == 0); // No local coords, so send an ignored dummy quad
-            static const GrQuad kIgnoredLocal(SkRect::MakeEmpty());
-
-            for (int i = 0; i < this->quadCount(); ++i) {
-                const ColorAndAA& info = fDeviceQuads.metadata(i);
-                vertices = GrQuadPerEdgeAA::Tessellate(vertices, vertexSpec, fDeviceQuads[i],
-                        info.fColor, kIgnoredLocal, kEmptyDomain, info.fAAFlags);
-            }
-        } else {
-            SkASSERT(fLocalQuads.count() == fDeviceQuads.count());
-            for (int i = 0; i < this->quadCount(); ++i) {
-                const ColorAndAA& info = fDeviceQuads.metadata(i);
-                vertices = GrQuadPerEdgeAA::Tessellate(vertices, vertexSpec, fDeviceQuads[i],
-                        info.fColor, fLocalQuads[i], kEmptyDomain, info.fAAFlags);
-            }
+        auto iter = fQuads.iterator();
+        while(iter.next()) {
+            // All entries should have local coords, or no entries should have local coords,
+            // matching !helper.isTrivial() (which is more conservative than helper.usesLocalCoords)
+            SkASSERT(iter.isLocalValid() != fHelper.isTrivial());
+            auto info = iter.metadata();
+            vertices = GrQuadPerEdgeAA::Tessellate(vertices, vertexSpec, iter.deviceQuad(),
+                    info.fColor, iter.localQuad(), kEmptyDomain, info.fAAFlags);
         }
 
         // Configure the mesh for the vertex data
         GrMesh* mesh = target->allocMeshes(1);
-        if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, mesh, vertexSpec, this->quadCount())) {
+        if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, mesh, vertexSpec, fQuads.count())) {
             SkDebugf("Could not allocate indices\n");
             return;
         }
@@ -259,7 +246,7 @@ private:
 
         if ((fHelper.aaType() == GrAAType::kCoverage ||
              that->fHelper.aaType() == GrAAType::kCoverage) &&
-            this->quadCount() + that->quadCount() > GrQuadPerEdgeAA::kNumAAQuadsInIndexBuffer) {
+            fQuads.count() + that->fQuads.count() > GrQuadPerEdgeAA::kNumAAQuadsInIndexBuffer) {
             // This limit on batch size seems to help on Adreno devices
             return CombineResult::kCannotCombine;
         }
@@ -285,10 +272,7 @@ private:
             fHelper.setAAType(GrAAType::kCoverage);
         }
 
-        fDeviceQuads.concat(that->fDeviceQuads);
-        if (!fHelper.isTrivial()) {
-            fLocalQuads.concat(that->fLocalQuads);
-        }
+        fQuads.concat(that->fQuads);
         return CombineResult::kMerged;
     }
 
@@ -316,17 +300,7 @@ private:
         newBounds.joinPossiblyEmptyRect(deviceQuad.bounds());
         this->setBounds(newBounds, HasAABloat(fHelper.aaType() == GrAAType::kCoverage),
                         IsZeroArea::kNo);
-        fDeviceQuads.push_back(deviceQuad, { color, edgeAA });
-        if (!fHelper.isTrivial()) {
-            fLocalQuads.push_back(localQuad);
-        }
-    }
-
-    int quadCount() const {
-        // Sanity check that the parallel arrays for quad properties all have the same size
-        SkASSERT(fDeviceQuads.count() == fLocalQuads.count() ||
-                 (fLocalQuads.count() == 0 && fHelper.isTrivial()));
-        return fDeviceQuads.count();
+        fQuads.append(deviceQuad, { color, edgeAA }, fHelper.isTrivial() ? nullptr : &localQuad);
     }
 
     struct ColorAndAA {
@@ -335,9 +309,7 @@ private:
     };
 
     Helper fHelper;
-    GrTQuadList<ColorAndAA> fDeviceQuads;
-    // No metadata attached to the local quads; this list is empty when local coords are not needed.
-    GrQuadList fLocalQuads;
+    GrQuadBuffer<ColorAndAA> fQuads;
 
     ColorType fColorType;
 
