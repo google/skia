@@ -93,7 +93,7 @@ def RunSteps(api):
         api.step('Run perf cmd line app', cmd=perf_app_cmd + [
             '--input', lottie_file,
             '--output', output_file,
-        ])
+        ], infra_step=True)
       output_json = api.file.read_json(
           'Read perf json', output_file,
           test_data={'frame_avg_us': 185.79982221126556,

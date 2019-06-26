@@ -114,10 +114,17 @@ const targetURL = "http://localhost:" + options.port + "/";
 
 // Drive chrome to load the web page from the server we have running.
 async function driveBrowser() {
-  console.log('- Launching chrome.');
-  const browser = await puppeteer.launch(
-      {headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
-  const page = await browser.newPage();
+  console.log('- Launching chrome for ' + options.input);
+  let browser;
+  let page;
+  try {
+    browser = await puppeteer.launch(
+        {headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
+    page = await browser.newPage();
+  } catch (e) {
+    console.log('Could not open the browser.', e);
+    process.exit(1);
+  }
   console.log("Loading " + targetURL);
   try {
     await page.goto(targetURL, {

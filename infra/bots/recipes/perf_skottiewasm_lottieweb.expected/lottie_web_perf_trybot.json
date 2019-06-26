@@ -138,6 +138,7 @@
       "[CLEANUP]/g3_try_tmp_1/lottie1.json"
     ],
     "cwd": "[START_DIR]/cache/work/skia/tools/lottie-web-perf",
+    "infra_step": true,
     "name": "Run perf cmd line app"
   },
   {
@@ -164,6 +165,7 @@
       "[CLEANUP]/g3_try_tmp_1/lottie2.json"
     ],
     "cwd": "[START_DIR]/cache/work/skia/tools/lottie-web-perf",
+    "infra_step": true,
     "name": "Run perf cmd line app (2)"
   },
   {
@@ -190,6 +192,7 @@
       "[CLEANUP]/g3_try_tmp_1/lottie3.json"
     ],
     "cwd": "[START_DIR]/cache/work/skia/tools/lottie-web-perf",
+    "infra_step": true,
     "name": "Run perf cmd line app (3)"
   },
   {
