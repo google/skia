@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a729805_e0ee5933",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-26T19:19:21Z",
+      "side": 0,
+      "message": "To make sure I\u0027m on the right page, we don\u0027t need this here because when a clip does require stencil, it will have called drawStencilPath or similar on the GrRTC.  And now, with this CL, all draws that require stencil don\u0027t need to worry about setNeedsStencil(), since it will be called for them when the draw op is added?",
+      "range": {
+        "startLine": 300,
+        "startChar": 4,
+        "endLine": 300,
+        "endChar": 43
+      },
+      "revId": "43e97165d229c2b3e307345ec4564d9b89cc28b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

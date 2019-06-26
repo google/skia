@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "da0f1404_1aba39f4",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 836,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-26T19:19:21Z",
+      "side": 1,
+      "message": "Maybe \"must use an op to manually clear the stencil buffer before the op that required \u0027setNeedsStencil\u0027\"?",
+      "parentUuid": "beddb2ec_859b469e",
+      "range": {
+        "startLine": 836,
+        "startChar": 73,
+        "endLine": 836,
+        "endChar": 87
+      },
+      "revId": "69784a2860f7cca63adc45904b9dd0fc11554d52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2e3f09f3_ec4172c5",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 3
@@ -85,6 +109,24 @@
       "revId": "69784a2860f7cca63adc45904b9dd0fc11554d52",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50dc37b3_63d457b2",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-06-26T19:19:21Z",
+      "side": 1,
+      "message": "The CanDiscardPreviousOps enum can\u0027t be forward declared since it\u0027s nested inside GrRenderTargetOpList.",
+      "parentUuid": "80877bab_63af3419",
+      "revId": "69784a2860f7cca63adc45904b9dd0fc11554d52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
