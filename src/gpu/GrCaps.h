@@ -367,6 +367,8 @@ public:
                                                             GrSRGBEncoded srgbEncoded) const = 0;
     GrBackendFormat getBackendFormatFromColorType(SkColorType ct) const;
 
+    virtual GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const = 0;
+
     /**
      * The CLAMP_TO_BORDER wrap mode for texture coordinates was added to desktop GL in 1.3, and
      * GLES 3.2, but is also available in extensions. Vulkan and Metal always have support.
