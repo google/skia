@@ -397,7 +397,6 @@ static bool setup_features(GrVkGetProc getProc, VkInstance inst, VkPhysicalDevic
 
     if (isProtected) {
         if (!protectedMemoryFeatures->protectedMemory) {
-            SkDebugf("Protected memory is not supported on this platform\n");
             return false;
         }
     }
