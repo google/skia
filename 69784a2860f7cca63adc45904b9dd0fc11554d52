@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4770551c_a3b22034",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T19:05:05Z",
+      "side": 1,
+      "message": "maybe break here instead ?",
+      "range": {
+        "startLine": 810,
+        "startChar": 43,
+        "endLine": 810,
+        "endChar": 44
+      },
+      "revId": "69784a2860f7cca63adc45904b9dd0fc11554d52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "beddb2ec_859b469e",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 836,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T19:05:05Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 836,
+        "startChar": 73,
+        "endLine": 836,
+        "endChar": 87
+      },
+      "revId": "69784a2860f7cca63adc45904b9dd0fc11554d52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e3f09f3_ec4172c5",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T19:05:05Z",
+      "side": 1,
+      "message": "// Setting the clear stencil load op is preferable \n\n?",
+      "range": {
+        "startLine": 839,
+        "startChar": 0,
+        "endLine": 840,
+        "endChar": 33
+      },
+      "revId": "69784a2860f7cca63adc45904b9dd0fc11554d52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80877bab_63af3419",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-06-26T19:05:05Z",
+      "side": 1,
+      "message": "Why do we need this now ?",
+      "revId": "69784a2860f7cca63adc45904b9dd0fc11554d52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
