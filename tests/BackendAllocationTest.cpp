@@ -415,6 +415,8 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
           kRGBA_8888_GrPixelConfig,         SkColors::kBlue     },
         { kBGRA_8888_SkColorType,           GR_GL_BGRA8,
           kBGRA_8888_GrPixelConfig,         SkColors::kBlue     },
+        { kBGRA_8888_SkColorType,           GR_GL_SRGB8_ALPHA8,
+          kSBGRA_8888_GrPixelConfig,        SkColors::kCyan     },
 
         { kRGBA_1010102_SkColorType,        GR_GL_RGB10_A2,
           // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
@@ -580,6 +582,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         { kRGB_888x_SkColorType,     VK_FORMAT_R8G8B8_UNORM,             SkColors::kCyan      },
 
         { kBGRA_8888_SkColorType,    VK_FORMAT_B8G8R8A8_UNORM,           SkColors::kBlue      },
+        { kBGRA_8888_SkColorType,    VK_FORMAT_B8G8R8A8_SRGB,            SkColors::kCyan      },
 
         { kRGBA_1010102_SkColorType, VK_FORMAT_A2B10G10R10_UNORM_PACK32, { 0.5f, 0, 0, 1.0f } },
         { kRGB_565_SkColorType,      VK_FORMAT_R5G6B5_UNORM_PACK16,      SkColors::kRed       },

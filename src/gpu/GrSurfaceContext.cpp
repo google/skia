@@ -98,6 +98,7 @@ static bool valid_premul_config(GrPixelConfig config) {
         case kRG_88_GrPixelConfig:              return false;
         case kBGRA_8888_GrPixelConfig:          return true;
         case kSRGBA_8888_GrPixelConfig:         return true;
+        case kSBGRA_8888_GrPixelConfig:         return true;
         case kRGBA_1010102_GrPixelConfig:       return true;
         case kRGBA_float_GrPixelConfig:         return true;
         case kRG_float_GrPixelConfig:           return false;

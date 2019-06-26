@@ -400,6 +400,10 @@ void GrMtlCaps::initConfigTable() {
     info = &fConfigTable[kSRGBA_8888_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
 
+    // SBGRA_8888 uses BGRA8Unorm_sRGB
+    info = &fConfigTable[kSBGRA_8888_GrPixelConfig];
+    info->fFlags = ConfigInfo::kAllFlags;
+
     // kRGBA_1010102 uses RGB10A2Unorm
     info = &fConfigTable[kRGBA_1010102_GrPixelConfig];
     if (this->isMac() || fFamilyGroup >= 3) {
@@ -521,6 +525,8 @@ GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, SkColorType ct) {
         case kBGRA_8888_SkColorType:
             if (MTLPixelFormatBGRA8Unorm == format) {
                 return kBGRA_8888_GrPixelConfig;
+            } else if (MTLPixelFormatBGRA8Unorm_sRGB == format) {
+                return kSBGRA_8888_GrPixelConfig;
             }
             break;
         case kRGBA_1010102_SkColorType:
