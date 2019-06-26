@@ -794,6 +794,18 @@ namespace skvm {
                   | 0b0'0001         << 0);
     }
 
+    void Assembler::ldrq(V dst, X src) {
+        this->word( 0b00'111'1'01'11'000000000000 << 10
+                  | (src & 31)                    <<  5
+                  | (dst & 31)                    <<  0);
+    }
+
+    void Assembler::strq(V src, X dst) {
+        this->word( 0b00'111'1'01'10'000000000000 << 10
+                  | (dst & 31)                    <<  5
+                  | (src & 31)                    <<  0);
+    }
+
 #if defined(SKVM_JIT)
     static bool can_jit(int regs, int nargs) {
         return true
