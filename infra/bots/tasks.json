@@ -17976,7 +17976,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "infra",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Housekeeper-PerCommit-InfraTests_Linux\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Housekeeper-PerCommit-InfraTests_Linux\",\"swarm_out_dir\":\"output_ignored\"}",
         "skia"
       ],
       "dependencies": [
@@ -18002,6 +18002,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
+      "idempotent": true,
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
       "max_attempts": 2,
@@ -18086,7 +18087,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "infra",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Housekeeper-PerCommit-InfraTests_Win\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Housekeeper-PerCommit-InfraTests_Win\",\"swarm_out_dir\":\"output_ignored\"}",
         "skia"
       ],
       "dependencies": [
@@ -18112,6 +18113,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
+      "idempotent": true,
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
       "max_attempts": 2,
