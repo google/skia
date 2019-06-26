@@ -50,6 +50,8 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
 
         { kBGRA_8888_SkColorType,          MTLPixelFormatBGRA8Unorm,
           kBGRA_8888_GrPixelConfig,        SkColors::kBlue      },
+        { kBGRA_8888_SkColorType,          MTLPixelFormatBGRA8Unorm_sRGB,
+          kSBGRA_8888_GrPixelConfig,       SkColors::kCyan      },
 
         { kRGBA_1010102_SkColorType,       MTLPixelFormatRGB10A2Unorm,
           kRGBA_1010102_GrPixelConfig,     { 0.5f, 0, 0, 1.0f } },
