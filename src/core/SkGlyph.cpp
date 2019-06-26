@@ -72,6 +72,8 @@ size_t SkGlyph::formatAlignment() const {
 
 size_t SkGlyph::allocImage(SkArenaAlloc* alloc) {
     auto size = this->computeImageSize();
+    SkASSERT(fWidth < kMaxGlyphWidth);
+    SkASSERT(fHeight < kMaxGlyphWidth);
     auto format = static_cast<SkMask::Format>(fMaskFormat);
     fImage = alloc->makeBytesAlignedTo(size, format_alignment(format));
 

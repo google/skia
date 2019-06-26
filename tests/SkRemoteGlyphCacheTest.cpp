@@ -114,13 +114,18 @@ private:
     int fCacheMissCount[SkStrikeClient::CacheMissType::kLast + 1u];
 };
 
-sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
+sk_sp<SkTextBlob> buildTextBlob(
+        sk_sp<SkTypeface> tf, int glyphCount, SkFont* overrideFont = nullptr) {
     SkFont font;
-    font.setTypeface(tf);
-    font.setHinting(SkFontHinting::kNormal);
-    font.setSize(1u);
-    font.setEdging(SkFont::Edging::kAntiAlias);
-    font.setSubpixel(true);
+    if (overrideFont != nullptr) {
+        font = *overrideFont;
+    } else {
+        font.setTypeface(tf);
+        font.setHinting(SkFontHinting::kNormal);
+        font.setSize(1u);
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        font.setSubpixel(true);
+    }
 
     SkTextBlobBuilder builder;
     SkRect bounds = SkRect::MakeWH(10, 10);
@@ -209,6 +214,43 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, repor
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
     const SkPaint paint;
+
+    // Server.
+    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTfData = server.serializeTypeface(serverTf.get());
+
+    int glyphCount = 10;
+    auto serverBlob = buildTextBlob(serverTf, glyphCount);
+    auto props = FindSurfaceProps(ctxInfo.grContext());
+    SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, props, &server,
+                                                MakeSettings(ctxInfo.grContext()));
+    cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
+
+    std::vector<uint8_t> serverStrikeData;
+    server.writeStrikeData(&serverStrikeData);
+
+    // Client.
+    auto clientTf = client.deserializeTypeface(serverTfData->data(), serverTfData->size());
+    REPORTER_ASSERT(reporter,
+                    client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
+    auto clientBlob = buildTextBlob(clientTf, glyphCount);
+
+    SkBitmap expected = RasterBlob(serverBlob, 10, 10, paint, ctxInfo.grContext());
+    SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext());
+    compare_blobs(expected, actual, reporter);
+    REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+
+    // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
+    discardableManager->unlockAndDeleteAll();
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerializationBig, reporter, ctxInfo) {
+    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
+    SkStrikeServer server(discardableManager.get());
+    SkStrikeClient client(discardableManager, false);
+    SkPaint paint;
+    paint.setStrokeWidth(60000);
+    paint.setStyle(SkPaint::kStroke_Style);
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
