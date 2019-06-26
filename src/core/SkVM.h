@@ -121,6 +121,14 @@ namespace skvm {
 
         // TODO: both these platforms support rounding float->int (vcvtps2dq, fcvtns.4s)... use?
 
+        void ret (X);
+        void add (X d, X n, int imm12);
+        void subs(X d, X n, int imm12);
+        void bne (Label);
+
+        void ldr(V dst, X src);
+        void str(X dst, V src);
+
     private:
         // dst = op(dst, imm)
         void op(int opcode, int opcode_ext, GP64 dst, int imm);

@@ -768,6 +768,33 @@ namespace skvm {
                   | (d & 31) << 0);
     }
 
+    void Assembler::ret(X n) {
+        this->word(0b1101011'0'0'10'11111'0000'0'0 << 10
+                   | (n & 31) << 5);
+    }
+
+    void Assembler::add(X d, X n, int imm12) {
+        this->word(0b1'0'0'10001'00 << 22
+                  | (imm12 & 4095)  << 10
+                  | (n     &   31)  << 5
+                  | (d     &   31)  << 0);
+    }
+    void Assembler::subs(X d, X n, int imm12) {
+        this->word( 0b1'1'1'10001'00 << 22
+                  | (imm12 & 4095)  << 10
+                  | (n     &   31)  << 5
+                  | (d     &   31)  << 0);
+    }
+
+    void Assembler::bne(Label l) {
+        const int cond = 0b0001;  // == NE
+        const int imm19 = (l.offset - here().offset) / 4;  // Jump in insts from before this one.
+        this->word( 0b0101010'0      << 24
+                  | (imm19 & 524287) << 5
+                  | (0             ) << 4
+                  | (cond  &     15) << 0);
+    }
+
 #if defined(SKVM_JIT)
     static bool can_jit(int regs, int nargs) {
         return true
