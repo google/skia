@@ -631,6 +631,7 @@ public:
             , fSaveLayerFlags(saveLayerFlags)
         {}
 
+#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
         /** Experimental. Not ready for general use.
             Sets fBounds, fPaint, fBackdrop, fClipMask, fClipMatrix, and fSaveLayerFlags.
             clipMatrix uses alpha channel of image, transformed by clipMatrix, to clip
@@ -659,6 +660,7 @@ public:
             , fClipMatrix(clipMatrix)
             , fSaveLayerFlags(saveLayerFlags)
         {}
+#endif
 
         /** hints at layer size limit */
         const SkRect*        fBounds         = nullptr;
@@ -674,12 +676,13 @@ public:
          */
         const SkImageFilter* fBackdrop       = nullptr;
 
+#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
         /** clips layer with mask alpha */
         const SkImage*       fClipMask       = nullptr;
 
         /** transforms mask alpha used to clip */
         const SkMatrix*      fClipMatrix     = nullptr;
-
+#endif
         /** preserves LCD text, creates with prior layer contents */
         SaveLayerFlags       fSaveLayerFlags = 0;
     };

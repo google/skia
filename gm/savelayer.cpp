@@ -48,8 +48,7 @@
 static void save_layer_unclipped(SkCanvas* canvas,
                                  SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
     SkRect rect = SkRect::MakeLTRB(l, t, r, b);
-    canvas->saveLayer({ &rect, nullptr, nullptr, nullptr, nullptr,
-                        (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag });
+    canvas->saveLayer(SkCanvas::SaveLayerRec(&rect, nullptr, nullptr, (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag));
 }
 
 static void do_draw(SkCanvas* canvas) {
@@ -127,8 +126,8 @@ DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
         canvas->translate(100 * i, 0);
         auto flag = i ?
                 (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag : 0;
-        canvas->saveLayer({ &rect1, &paint1, nullptr, nullptr, nullptr, flag});
-        canvas->saveLayer({ &rect2, &paint2, nullptr, nullptr, nullptr, flag});
+        canvas->saveLayer(SkCanvas::SaveLayerRec(&rect1, &paint1, nullptr, flag));
+        canvas->saveLayer(SkCanvas::SaveLayerRec(&rect2, &paint2, nullptr, flag));
         canvas->drawRect(rect3, paint3);
         canvas->restore();
         canvas->restore();
@@ -169,6 +168,7 @@ static void draw_mask(SkCanvas* canvas, int size) {
     canvas->drawCircle(cx, cy, size / 4, paint);
 }
 
+#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
 DEF_SIMPLE_GM(savelayer_clipmask, canvas, 1200, 1200) {
     static constexpr int kSize = 100;
     static constexpr SkRect kLayerBounds = { kSize * 0.25f, kSize * 0.25f,
@@ -262,6 +262,7 @@ DEF_SIMPLE_GM(savelayer_clipmask, canvas, 1200, 1200) {
         }
     }
 }
+#endif
 
 DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {
     canvas->saveLayer(nullptr, nullptr);
@@ -301,6 +302,7 @@ DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {
     canvas->restore();
 }
 
+#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
 DEF_SIMPLE_GM(savelayer_clipmask_maskfilter, canvas, 500, 500) {
     // Offscreen surface for making the clip mask and mask filter images
     auto surf = SkSurface::MakeRaster(SkImageInfo::MakeA8(100, 100));
@@ -357,6 +359,7 @@ DEF_SIMPLE_GM(savelayer_clipmask_maskfilter, canvas, 500, 500) {
     canvas->clear(SK_ColorWHITE);
     canvas->restore();
 }
+#endif
 
 static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkScalar w, SkScalar h,
                       bool useDrawBehind) {
