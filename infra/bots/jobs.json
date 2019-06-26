@@ -596,6 +596,7 @@
   "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All",
   "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE",
   "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-BonusConfigs",
+  "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NonNVPR",
   "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan",
   "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_ProcDump",
   "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",

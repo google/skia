@@ -164,7 +164,6 @@
       "gl",
       "glsrgb",
       "glmsaa8",
-      "glnvpr8",
       "--loops",
       "1",
       "--samples",
