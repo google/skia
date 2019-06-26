@@ -8,7 +8,9 @@
 #ifndef TestEmptyTypeface_DEFINED
 #define TestEmptyTypeface_DEFINED
 
+#include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
 
 class TestEmptyTypeface : public SkTypeface {
 public:

@@ -8,6 +8,7 @@
 #ifndef GrRect_DEFINED
 #define GrRect_DEFINED
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTo.h"

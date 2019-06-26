@@ -12,6 +12,7 @@
 
 #include <cmath>
 #include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 
 using std::abs;
 

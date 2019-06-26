@@ -8,6 +8,10 @@
 #ifndef SkSafeRange_DEFINED
 #define SkSafeRange_DEFINED
 
+#include "include/core/SkTypes.h"
+
+#include <cstdint>
+
 // SkSafeRange always check that a series of operations are in-range.
 // This check is sticky, so that if any one operation fails, the object will remember that and
 // return false from ok().

@@ -10,6 +10,8 @@
 
 #include "src/core/SkVM.h"
 
+#include "include/private/SkVx.h"
+
 namespace SK_OPTS_NS {
 
     inline void eval(const skvm::Program::Instruction insts[], const int ninsts,

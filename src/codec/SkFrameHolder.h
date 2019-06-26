@@ -11,6 +11,8 @@
 #include "include/codec/SkCodecAnimation.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkEncodedInfo.h"
+#include "include/private/SkNoncopyable.h"
 #include "src/codec/SkCodecAnimationPriv.h"
 
 /**

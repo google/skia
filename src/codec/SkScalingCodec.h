@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef SkScalingCodec_DEFINED
+#define SkScalingCodec_DEFINED
 
 #include "include/codec/SkCodec.h"
 
@@ -34,3 +36,4 @@ private:
     typedef SkCodec INHERITED;
 };
 
+#endif  // SkScalingCodec_DEFINED

@@ -14,6 +14,7 @@
 #include "src/core/SkArenaAlloc.h"
 
 class SkPDFDocument;
+struct SkPDFIndirectReference;
 struct SkPDFTagNode;
 
 class SkPDFTagTree {

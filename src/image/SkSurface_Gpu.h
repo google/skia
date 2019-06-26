@@ -13,6 +13,7 @@
 
 #if SK_SUPPORT_GPU
 
+class GrBackendFormat;
 class SkGpuDevice;
 
 class SkSurface_Gpu : public SkSurface_Base {
