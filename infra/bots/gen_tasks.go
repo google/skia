@@ -217,6 +217,21 @@ var (
 		},
 	}
 
+	// These properties are required by some tasks, eg. for running
+	// bot_update, but they prevent de-duplication, so they should only be
+	// used where necessary.
+	EXTRA_PROPS = map[string]string{
+		"buildbucket_build_id": specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
+		"patch_issue":          specs.PLACEHOLDER_ISSUE,
+		"patch_ref":            specs.PLACEHOLDER_PATCH_REF,
+		"patch_repo":           specs.PLACEHOLDER_PATCH_REPO,
+		"patch_set":            specs.PLACEHOLDER_PATCHSET,
+		"patch_storage":        specs.PLACEHOLDER_PATCH_STORAGE,
+		"repository":           specs.PLACEHOLDER_REPO,
+		"revision":             specs.PLACEHOLDER_REVISION,
+		"task_id":              specs.PLACEHOLDER_TASK_ID,
+	}
+
 	// Flags.
 	builderNameSchemaFile = flag.String("builder_name_schema", "", "Path to the builder_name_schema.json file. If not specified, uses infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json from this repo.")
 	assetsDir             = flag.String("assets_dir", "", "Directory containing assets.")
@@ -224,13 +239,17 @@ var (
 	jobsFile              = flag.String("jobs", "", "JSON file containing jobs to run.")
 )
 
+// Return the project name.
+func project() string {
+	if alternateProject != "" {
+		return alternateProject
+	}
+	return DEFAULT_PROJECT
+}
+
 // Build the LogDog annotation URL.
 func logdogAnnotationUrl() string {
-	project := DEFAULT_PROJECT
-	if alternateProject != "" {
-		project = alternateProject
-	}
-	return fmt.Sprintf("logdog://logs.chromium.org/%s/%s/+/annotations", project, specs.PLACEHOLDER_TASK_ID)
+	return fmt.Sprintf("logdog://logs.chromium.org/%s/%s/+/annotations", project(), specs.PLACEHOLDER_TASK_ID)
 }
 
 // Create a properties JSON string.
@@ -267,17 +286,8 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		cipd = append(cipd, CIPD_PKGS_CPYTHON...)
 	}
 	properties := map[string]string{
-		"buildbucket_build_id": specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
-		"buildername":          name,
-		"patch_issue":          specs.PLACEHOLDER_ISSUE,
-		"patch_ref":            specs.PLACEHOLDER_PATCH_REF,
-		"patch_repo":           specs.PLACEHOLDER_PATCH_REPO,
-		"patch_set":            specs.PLACEHOLDER_PATCHSET,
-		"patch_storage":        specs.PLACEHOLDER_PATCH_STORAGE,
-		"repository":           specs.PLACEHOLDER_REPO,
-		"revision":             specs.PLACEHOLDER_REVISION,
-		"swarm_out_dir":        outputDir,
-		"task_id":              specs.PLACEHOLDER_TASK_ID,
+		"buildername":   name,
+		"swarm_out_dir": outputDir,
 	}
 	for k, v := range extraProps {
 		properties[k] = v
@@ -905,7 +915,7 @@ func attempts(name string) int {
 // compile generates a compile task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
-	task := kitchenTask(name, "compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, swarmDimensions(parts), nil, OUTPUT_BUILD)
+	task := kitchenTask(name, "compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, swarmDimensions(parts), EXTRA_PROPS, OUTPUT_BUILD)
 	usesGit(task, name)
 	usesDocker(task, name)
 
@@ -993,7 +1003,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		!strings.Contains(parts["os"], "Win") &&
 		!strings.Contains(parts["os"], "Mac") {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
-		task := kitchenTask(uploadName, "upload_skiaserve", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_BINARY, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
+		task := kitchenTask(uploadName, "upload_skiaserve", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_BINARY, linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
 		task.Dependencies = append(task.Dependencies, name)
 		b.MustAddTask(uploadName, task)
 		return uploadName
@@ -1010,7 +1020,7 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 		"pool:SkiaCT",
 		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 	}
-	task := kitchenTask(name, "recreate_skps", "swarm_recipe.isolate", SERVICE_ACCOUNT_RECREATE_SKPS, dims, nil, OUTPUT_NONE)
+	task := kitchenTask(name, "recreate_skps", "swarm_recipe.isolate", SERVICE_ACCOUNT_RECREATE_SKPS, dims, EXTRA_PROPS, OUTPUT_NONE)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	usesGo(b, task, name)
 	timeout(task, 4*time.Hour)
@@ -1021,7 +1031,7 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 // checkGeneratedFiles verifies that no generated SKSL files have been edited
 // by hand.
 func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
-	task := kitchenTask(name, "check_generated_files", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_LARGE), nil, OUTPUT_NONE)
+	task := kitchenTask(name, "check_generated_files", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_LARGE), EXTRA_PROPS, OUTPUT_NONE)
 	task.Caches = append(task.Caches, CACHES_WORKDIR...)
 	usesGo(b, task, name)
 	b.MustAddTask(name, task)
@@ -1031,7 +1041,7 @@ func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
 // housekeeper generates a Housekeeper task. Returns the name of the last task
 // in the generated chain of tasks, which the Job should add as a dependency.
 func housekeeper(b *specs.TasksCfgBuilder, name string) string {
-	task := kitchenTask(name, "housekeeper", "swarm_recipe.isolate", SERVICE_ACCOUNT_HOUSEKEEPER, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
+	task := kitchenTask(name, "housekeeper", "swarm_recipe.isolate", SERVICE_ACCOUNT_HOUSEKEEPER, linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
 	usesGit(task, name)
 	b.MustAddTask(name, task)
 	return name
@@ -1041,7 +1051,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name string) string {
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
 func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
-	task := kitchenTask(name, "android_compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
+	task := kitchenTask(name, "android_compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
 	timeout(task, 2*time.Hour)
 	b.MustAddTask(name, task)
 	return name
@@ -1051,7 +1061,7 @@ func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
 func g3FrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
-	task := kitchenTask(name, "g3_compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
+	task := kitchenTask(name, "g3_compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
 	timeout(task, 3*time.Hour)
 	b.MustAddTask(name, task)
 	return name
@@ -1071,7 +1081,7 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("pool:%s", CONFIG.Pool),
 		}
 	}
-	task := kitchenTask(name, "infra", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, dims, nil, OUTPUT_NONE)
+	task := kitchenTask(name, "infra", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, dims, EXTRA_PROPS, OUTPUT_NONE)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GSUTIL...)
 	usesGit(task, name)
 	usesGo(b, task, name)
@@ -1082,7 +1092,7 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 var BUILD_STATS_NO_UPLOAD = []string{"BuildStats-Debian9-Clang-x86_64-Release"}
 
 func buildstats(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string) string {
-	task := kitchenTask(name, "compute_buildstats", "swarm_recipe.isolate", "", swarmDimensions(parts), nil, OUTPUT_PERF)
+	task := kitchenTask(name, "compute_buildstats", "swarm_recipe.isolate", "", swarmDimensions(parts), EXTRA_PROPS, OUTPUT_PERF)
 	task.Dependencies = append(task.Dependencies, compileTaskName)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("bloaty"))
 	b.MustAddTask(name, task)
@@ -1093,6 +1103,9 @@ func buildstats(b *specs.TasksCfgBuilder, name string, parts map[string]string, 
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 		extraProps := map[string]string{
 			"gs_bucket": CONFIG.GsBucketNano,
+		}
+		for k, v := range EXTRA_PROPS {
+			extraProps[k] = v
 		}
 		uploadTask := kitchenTask(name, "upload_buildstats_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_NANO, linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
 		uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
@@ -1115,7 +1128,7 @@ func getParentRevisionName(compileTaskName string, parts map[string]string) stri
 // calmbench generates a calmbench task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName, compileParentName string) string {
-	task := kitchenTask(name, "calmbench", "calmbench.isolate", "", swarmDimensions(parts), nil, OUTPUT_PERF)
+	task := kitchenTask(name, "calmbench", "calmbench.isolate", "", swarmDimensions(parts), EXTRA_PROPS, OUTPUT_PERF)
 	usesGit(task, name)
 	task.Dependencies = append(task.Dependencies, compileTaskName, compileParentName, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
 	if parts["cpu_or_gpu_value"] == "QuadroP400" {
@@ -1135,6 +1148,9 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, c
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 		extraProps := map[string]string{
 			"gs_bucket": CONFIG.GsBucketCalm,
+		}
+		for k, v := range EXTRA_PROPS {
+			extraProps[k] = v
 		}
 		uploadTask := kitchenTask(name, "upload_calmbench_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_CALMBENCH, linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
 		uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
@@ -1182,6 +1198,9 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	}
 	extraProps := map[string]string{
 		"gold_hashes_url": CONFIG.GoldHashesURL,
+	}
+	for k, v := range EXTRA_PROPS {
+		extraProps[k] = v
 	}
 	iid := internalHardwareLabel(parts)
 	if iid != nil {
@@ -1237,6 +1256,9 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		extraProps := map[string]string{
 			"gs_bucket": CONFIG.GsBucketGm,
 		}
+		for k, v := range EXTRA_PROPS {
+			extraProps[k] = v
+		}
 		uploadTask := kitchenTask(name, "upload_dm_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_GM, linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
 		uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
 		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
@@ -1264,7 +1286,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	} else if strings.Contains(name, "SkottieWASM") || strings.Contains(name, "LottieWeb") {
 		recipe = "perf_skottiewasm_lottieweb"
 	}
-	task := kitchenTask(name, recipe, isolate, "", swarmDimensions(parts), nil, OUTPUT_PERF)
+	task := kitchenTask(name, recipe, isolate, "", swarmDimensions(parts), EXTRA_PROPS, OUTPUT_PERF)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
 	if !strings.Contains(name, "LottieWeb") {
 		// Perf.+LottieWeb doesn't require anything in Skia to be compiled.
@@ -1317,6 +1339,9 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		extraProps := map[string]string{
 			"gs_bucket": CONFIG.GsBucketNano,
 		}
+		for k, v := range EXTRA_PROPS {
+			extraProps[k] = v
+		}
 		uploadTask := kitchenTask(name, "upload_nano_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_NANO, linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
 		uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
 		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
@@ -1335,6 +1360,9 @@ func presubmit(b *specs.TasksCfgBuilder, name string) string {
 		"patch_ref":        specs.PLACEHOLDER_PATCH_REF,
 		"reason":           "CQ",
 		"repo_name":        "skia",
+	}
+	for k, v := range EXTRA_PROPS {
+		extraProps[k] = v
 	}
 	// Use MACHINE_TYPE_LARGE because it seems to save time versus MEDIUM and we want presubmit to be
 	// fast.
