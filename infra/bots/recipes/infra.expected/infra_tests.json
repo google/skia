@@ -1,105 +1,60 @@
 [
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/cache/work"
+      "git",
+      "init"
     ],
-    "infra_step": true,
-    "name": "makedirs checkout_path"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "remove",
-      "[START_DIR]/cache/work/.gclient_entries"
-    ],
-    "infra_step": true,
-    "name": "remove [START_DIR]/cache/work/.gclient_entries"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
-      "--spec-path",
-      "cache_dir = '[START_DIR]/cache/git'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
-      "--patch_root",
-      "skia",
-      "--revision_mapping_file",
-      "{\"got_revision\": \"skia\"}",
-      "--git-cache-dir",
-      "[START_DIR]/cache/git",
-      "--cleanup-dir",
-      "[CLEANUP]/bot_update",
-      "--output_json",
-      "/path/to/tmp/json",
-      "--revision",
-      "skia@abc123"
-    ],
-    "cwd": "[START_DIR]/cache/work",
-    "env_prefixes": {
-      "PATH": [
-        "RECIPE_REPO[depot_tools]"
-      ]
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "GOCACHE": "[START_DIR]/cache/go_cache",
+      "GOPATH": "[START_DIR]/cache/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/cache/gopath/bin:<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "infra_step": true,
-    "name": "bot_update",
-    "~followup_annotations": [
-      "@@@STEP_TEXT@Some step text@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"did_run\": true, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"fixed_revisions\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"skia\": \"abc123\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"manifest\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"skia\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"repository\": \"https://fake.org/skia.git\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"patch_failure\": false, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"patch_root\": \"skia\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"properties\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"got_revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"got_revision_cp\": \"refs/heads/master@{#164710}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"root\": \"skia\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"source_manifest\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"directories\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"skia\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"git_checkout\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@          \"repo_url\": \"https://fake.org/skia.git\", @@@",
-      "@@@STEP_LOG_LINE@json.output@          \"revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
-      "@@@STEP_LOG_LINE@json.output@        }@@@",
-      "@@@STEP_LOG_LINE@json.output@      }@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"version\": 0@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"step_text\": \"Some step text\"@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision@\"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision_cp@\"refs/heads/master@{#164710}\"@@@"
-    ]
+    "name": "git init"
+  },
+  {
+    "cmd": [
+      "git",
+      "add",
+      "."
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "GOCACHE": "[START_DIR]/cache/go_cache",
+      "GOPATH": "[START_DIR]/cache/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/cache/gopath/bin:<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "git add ."
+  },
+  {
+    "cmd": [
+      "git",
+      "commit",
+      "-a",
+      "-m",
+      "initial commit"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "GOCACHE": "[START_DIR]/cache/go_cache",
+      "GOPATH": "[START_DIR]/cache/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/cache/gopath/bin:<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "git commit"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cache/work/skia/infra/bots/infra_tests.py"
+      "[START_DIR]/skia/infra/bots/infra_tests.py"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "GOCACHE": "[START_DIR]/cache/go_cache",
