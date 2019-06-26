@@ -191,13 +191,9 @@ GrMtlResourceProvider::BufferSuballocator::BufferSuballocator(id<MTLDevice> devi
 
 id<MTLBuffer> GrMtlResourceProvider::BufferSuballocator::getAllocation(size_t size,
                                                                        size_t* offset) {
-    // capture current state locally (because fTail could be overwritten by the completion handler)
-    size_t head, tail;
-    {
-        SkAutoSpinlock lock(fMutex);
-        head = fHead;
-        tail = fTail;
-    }
+    SkAutoSpinlock lock(fMutex);
+    size_t head = fHead;
+    size_t tail = fTail;
 
     // The head and tail indices increment without bound, wrapping with overflow,
     // so we need to mod them down to the actual bounds of the allocation to determine
@@ -242,6 +238,7 @@ id<MTLBuffer> GrMtlResourceProvider::BufferSuballocator::getAllocation(size_t si
 void GrMtlResourceProvider::BufferSuballocator::addCompletionHandler(
         GrMtlCommandBuffer* cmdBuffer) {
     this->ref();
+    SkAutoSpinlock lock(this->fMutex);
     __block size_t newTail = fHead;
     cmdBuffer->addCompletedHandler(^(id <MTLCommandBuffer>commandBuffer) {
         // Make sure SkAutoSpinlock goes out of scope before
