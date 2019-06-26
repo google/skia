@@ -34,6 +34,24 @@
       "revId": "80385bf8dedaf1ea2c7787723fcc7ee4bc52b493",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b257f4a_6d41cdd3",
+        "filename": "src/gpu/geometry/GrQuadBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-26T20:07:25Z",
+      "side": 1,
+      "message": "ah got it",
+      "parentUuid": "0d7bdd79_92808a2b",
+      "revId": "80385bf8dedaf1ea2c7787723fcc7ee4bc52b493",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
