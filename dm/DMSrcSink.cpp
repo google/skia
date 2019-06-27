@@ -1331,6 +1331,7 @@ static DEFINE_bool(releaseAndAbandonGpuContext, false,
                    "Test releasing all gpu resources and abandoning the GrContext "
                    "after running each test");
 static DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
+static DEFINE_bool(programBinaryCache, true, "Use in-memory program binary cache");
 
 GPUSink::GPUSink(GrContextFactory::ContextType ct,
                  GrContextFactory::ContextOverrides overrides,
@@ -1351,7 +1352,11 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
         , fAlphaType(alphaType)
         , fColorSpace(std::move(colorSpace))
         , fThreaded(threaded)
-        , fBaseContextOptions(grCtxOptions) {}
+        , fBaseContextOptions(grCtxOptions) {
+    if (FLAGS_programBinaryCache) {
+        fBaseContextOptions.fPersistentCache = &fMemoryCache;
+    }
+}
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream* dstStream, SkString* log) const {
     return this->onDraw(src, dst, dstStream, log, fBaseContextOptions);
