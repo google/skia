@@ -454,7 +454,7 @@ static const char* kDefaultCode =
 class SkRandomExternalValue : public SkSL::ExternalValue {
 public:
     SkRandomExternalValue(const char* name, SkSL::Compiler& compiler)
-        : INHERITED(name, *compiler.context().fFloat_Type)
+        : INHERITED(compiler.irGenerator(), name, compiler.context().fFloat_Type)
         , fRandom(nullptr) { }
 
     void setRandom(SkRandom* random) { fRandom = random; }

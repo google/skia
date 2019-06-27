@@ -20,56 +20,56 @@ namespace SkSL {
  * An expression modified by a unary operator appearing before it, such as '!flag'.
  */
 struct PrefixExpression : public Expression {
-    PrefixExpression(Token::Kind op, std::unique_ptr<Expression> operand)
-    : INHERITED(operand->fOffset, kPrefix_Kind, operand->fType)
-    , fOperand(std::move(operand))
+    PrefixExpression(IRGenerator* irGenerator, Token::Kind op, IRNode::ID operand)
+    : INHERITED(irGenerator, operand.node().fOffset, kPrefix_Kind,
+                operand.expressionNode().fType)
+    , fOperand(operand)
     , fOperator(op) {}
 
     bool isConstant() const override {
-        return fOperator == Token::MINUS && fOperand->isConstant();
+        return fOperator == Token::MINUS && fOperand.expressionNode().isConstant();
     }
 
     bool hasSideEffects() const override {
         return fOperator == Token::PLUSPLUS || fOperator == Token::MINUSMINUS ||
-               fOperand->hasSideEffects();
+               fOperand.expressionNode().hasSideEffects();
     }
 
-    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override {
-        if (fOperand->fKind == Expression::kFloatLiteral_Kind) {
-            return std::unique_ptr<Expression>(new FloatLiteral(
-                                                              irGenerator.fContext,
-                                                              fOffset,
-                                                              -((FloatLiteral&) *fOperand).fValue));
+    IRNode::ID constantPropagate(const DefinitionMap& definitions) override {
+        if (fOperand.expressionNode().fKind == Expression::kFloatLiteral_Kind) {
+            return fIRGenerator->createNode(new FloatLiteral(
+                                        fIRGenerator,
+                                        fOffset,
+                                        -((FloatLiteral&) fOperand.node()).fValue));
 
         }
-        return nullptr;
+        return IRNode::ID();
     }
 
     SKSL_FLOAT getFVecComponent(int index) const override {
         SkASSERT(fOperator == Token::Kind::MINUS);
-        return -fOperand->getFVecComponent(index);
+        return -fOperand.expressionNode().getFVecComponent(index);
     }
 
     SKSL_INT getIVecComponent(int index) const override {
         SkASSERT(fOperator == Token::Kind::MINUS);
-        return -fOperand->getIVecComponent(index);
+        return -fOperand.expressionNode().getIVecComponent(index);
     }
 
     SKSL_FLOAT getMatComponent(int col, int row) const override {
         SkASSERT(fOperator == Token::Kind::MINUS);
-        return -fOperand->getMatComponent(col, row);
+        return -fOperand.expressionNode().getMatComponent(col, row);
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new PrefixExpression(fOperator, fOperand->clone()));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new PrefixExpression(fIRGenerator, fOperator, fOperand));
     }
 
     String description() const override {
-        return Compiler::OperatorName(fOperator) + fOperand->description();
+        return Compiler::OperatorName(fOperator) + fOperand.expressionNode().description();
     }
 
-    std::unique_ptr<Expression> fOperand;
+    IRNode::ID fOperand;
     const Token::Kind fOperator;
 
     typedef Expression INHERITED;

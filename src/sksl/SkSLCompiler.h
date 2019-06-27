@@ -140,6 +140,10 @@ public:
         return fErrorCount;
     }
 
+    IRGenerator& irGenerator() {
+        return *fIRGenerator;
+    }
+
     Context& context() {
         return *fContext;
     }
@@ -151,54 +155,54 @@ public:
 private:
     void processIncludeFile(Program::Kind kind, const char* src, size_t length,
                             std::shared_ptr<SymbolTable> base,
-                            std::vector<std::unique_ptr<ProgramElement>>* outElements,
+                            std::vector<IRNode::ID>* outElements,
                             std::shared_ptr<SymbolTable>* outSymbolTable);
-
-    void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
-                       DefinitionMap* definitions);
-
-    void addDefinitions(const BasicBlock::Node& node, DefinitionMap* definitions);
-
-    void scanCFG(CFG* cfg, BlockId block, std::set<BlockId>* workList);
-
-    void computeDataFlow(CFG* cfg);
-
-    /**
-     * Simplifies the expression pointed to by iter (in both the IR and CFG structures), if
-     * possible.
-     */
-    void simplifyExpression(DefinitionMap& definitions,
-                            BasicBlock& b,
-                            std::vector<BasicBlock::Node>::iterator* iter,
-                            std::unordered_set<const Variable*>* undefinedVariables,
-                            bool* outUpdated,
-                            bool* outNeedsRescan);
-
-    /**
-     * Simplifies the statement pointed to by iter (in both the IR and CFG structures), if
-     * possible.
-     */
-    void simplifyStatement(DefinitionMap& definitions,
-                           BasicBlock& b,
-                           std::vector<BasicBlock::Node>::iterator* iter,
-                           std::unordered_set<const Variable*>* undefinedVariables,
-                           bool* outUpdated,
-                           bool* outNeedsRescan);
-
-    void scanCFG(FunctionDefinition& f);
+//
+//    void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
+//                       DefinitionMap* definitions);
+//
+//    void addDefinitions(const BasicBlock::Node& node, DefinitionMap* definitions);
+//
+//    void scanCFG(CFG* cfg, BlockId block, std::set<BlockId>* workList);
+//
+//    void computeDataFlow(CFG* cfg);
+//
+//    /**
+//     * Simplifies the expression pointed to by iter (in both the IR and CFG structures), if
+//     * possible.
+//     */
+//    void simplifyExpression(DefinitionMap& definitions,
+//                            BasicBlock& b,
+//                            std::vector<BasicBlock::Node>::iterator* iter,
+//                            std::unordered_set<const Variable*>* undefinedVariables,
+//                            bool* outUpdated,
+//                            bool* outNeedsRescan);
+//
+//    /**
+//     * Simplifies the statement pointed to by iter (in both the IR and CFG structures), if
+//     * possible.
+//     */
+//    void simplifyStatement(DefinitionMap& definitions,
+//                           BasicBlock& b,
+//                           std::vector<BasicBlock::Node>::iterator* iter,
+//                           std::unordered_set<const Variable*>* undefinedVariables,
+//                           bool* outUpdated,
+//                           bool* outNeedsRescan);
+//
+//    void scanCFG(FunctionDefinition& f);
 
     Position position(int offset);
 
     std::shared_ptr<SymbolTable> fGpuSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fVertexInclude;
+    std::vector<IRNode::ID> fVertexInclude;
     std::shared_ptr<SymbolTable> fVertexSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fFragmentInclude;
+    std::vector<IRNode::ID> fFragmentInclude;
     std::shared_ptr<SymbolTable> fFragmentSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fGeometryInclude;
+    std::vector<IRNode::ID> fGeometryInclude;
     std::shared_ptr<SymbolTable> fGeometrySymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fPipelineInclude;
+    std::vector<IRNode::ID> fPipelineInclude;
     std::shared_ptr<SymbolTable> fPipelineSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fInterpreterInclude;
+    std::vector<IRNode::ID> fInterpreterInclude;
     std::shared_ptr<SymbolTable> fInterpreterSymbolTable;
 
     std::shared_ptr<SymbolTable> fTypes;

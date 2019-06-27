@@ -82,12 +82,13 @@ bool GLSLCodeGenerator::usesPrecisionModifiers() const {
 String GLSLCodeGenerator::getTypeName(const Type& type) {
     switch (type.kind()) {
         case Type::kVector_Kind: {
-            Type component = type.componentType();
+            IRNode::ID componentID = type.componentType();
+            const Type& component = componentID.typeNode();
             String result;
-            if (component == *fContext.fFloat_Type || component == *fContext.fHalf_Type) {
+            if (componentID == fContext.fFloat_Type || componentID == fContext.fHalf_Type) {
                 result = "vec";
             }
-            else if (component == *fContext.fDouble_Type) {
+            else if (component == fContext.fDouble_Type) {
                 result = "dvec";
             }
             else if (component.isSigned()) {
@@ -96,7 +97,7 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             else if (component.isUnsigned()) {
                 result = "uvec";
             }
-            else if (component == *fContext.fBool_Type) {
+            else if (component == fContext.fBool_Type) {
                 result = "bvec";
             }
             else {
@@ -107,11 +108,11 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
         }
         case Type::kMatrix_Kind: {
             String result;
-            Type component = type.componentType();
-            if (component == *fContext.fFloat_Type || component == *fContext.fHalf_Type) {
+            IRNode::ID componentID = type.componentType();
+            if (componentID == fContext.fFloat_Type || componentID == fContext.fHalf_Type) {
                 result = "mat";
             }
-            else if (component == *fContext.fDouble_Type) {
+            else if (componentID == fContext.fDouble_Type) {
                 result = "dmat";
             }
             else {
@@ -125,7 +126,7 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             return result;
         }
         case Type::kArray_Kind: {
-            String result = this->getTypeName(type.componentType()) + "[";
+            String result = this->getTypeName(type.componentType().typeNode()) + "[";
             if (type.columns() != -1) {
                 result += to_string(type.columns());
             }
@@ -133,19 +134,19 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             return result;
         }
         case Type::kScalar_Kind: {
-            if (type == *fContext.fHalf_Type) {
+            if (type == fContext.fHalf_Type.typeNode()) {
                 return "float";
             }
-            else if (type == *fContext.fShort_Type) {
+            else if (type == fContext.fShort_Type.typeNode()) {
                 return "int";
             }
-            else if (type == *fContext.fUShort_Type) {
+            else if (type == fContext.fUShort_Type.typeNode()) {
                 return "uint";
             }
-            else if (type == *fContext.fByte_Type) {
+            else if (type == fContext.fByte_Type.typeNode()) {
                 return "int";
             }
-            else if (type == *fContext.fUByte_Type) {
+            else if (type == fContext.fUByte_Type.typeNode()) {
                 return "uint";
             }
             else {
@@ -174,9 +175,9 @@ void GLSLCodeGenerator::writeType(const Type& type) {
         fIndentation++;
         for (const auto& f : type.fields()) {
             this->writeModifiers(f.fModifiers, false);
-            this->writeTypePrecision(*f.fType);
+            this->writeTypePrecision(f.fType.typeNode());
             // sizes (which must be static in structs) are part of the type name here
-            this->writeType(*f.fType);
+            this->writeType(f.fType.typeNode());
             this->write(" ");
             this->write(f.fName);
             this->writeLine(";");
@@ -241,7 +242,7 @@ static bool is_abs(Expression& expr) {
     if (expr.fKind != Expression::kFunctionCall_Kind) {
         return false;
     }
-    return ((FunctionCall&) expr).fFunction.fName == "abs";
+    return ((FunctionDeclaration&) ((FunctionCall&) expr).fFunction).fName == "abs";
 }
 
 // turns min(abs(x), y) into ((tmpVar1 = abs(x)) < (tmpVar2 = y) ? tmpVar1 : tmpVar2) to avoid a
@@ -250,10 +251,10 @@ void GLSLCodeGenerator::writeMinAbsHack(Expression& absExpr, Expression& otherEx
     SkASSERT(!fProgram.fSettings.fCaps->canUseMinAndAbsTogether());
     String tmpVar1 = "minAbsHackVar" + to_string(fVarCount++);
     String tmpVar2 = "minAbsHackVar" + to_string(fVarCount++);
-    this->fFunctionHeader += String("    ") + this->getTypePrecision(absExpr.fType) +
-                             this->getTypeName(absExpr.fType) + " " + tmpVar1 + ";\n";
-    this->fFunctionHeader += String("    ") + this->getTypePrecision(otherExpr.fType) +
-                             this->getTypeName(otherExpr.fType) + " " + tmpVar2 + ";\n";
+    this->fFunctionHeader += String("    ") + this->getTypePrecision(absExpr.fType.typeNode()) +
+                             this->getTypeName(absExpr.fType.typeNode()) + " " + tmpVar1 + ";\n";
+    this->fFunctionHeader += String("    ") + this->getTypePrecision(otherExpr.fType.typeNode()) +
+                             this->getTypeName(otherExpr.fType.typeNode()) + " " + tmpVar2 + ";\n";
     this->write("((" + tmpVar1 + " = ");
     this->writeExpression(absExpr, kTopLevel_Precedence);
     this->write(") < (" + tmpVar2 + " = ");
@@ -269,7 +270,7 @@ void GLSLCodeGenerator::writeInverseSqrtHack(const Expression& x) {
 
 void GLSLCodeGenerator::writeDeterminantHack(const Expression& mat) {
     String name;
-    if (mat.fType == *fContext.fFloat2x2_Type || mat.fType == *fContext.fHalf2x2_Type) {
+    if (mat.fType == fContext.fFloat2x2_Type || mat.fType == fContext.fHalf2x2_Type) {
         name = "_determinant2";
         if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
             fWrittenIntrinsics.insert(name);
@@ -280,7 +281,7 @@ void GLSLCodeGenerator::writeDeterminantHack(const Expression& mat) {
             ).c_str());
         }
     }
-    else if (mat.fType == *fContext.fFloat3x3_Type || mat.fType == *fContext.fHalf3x3_Type) {
+    else if (mat.fType == fContext.fFloat3x3_Type || mat.fType == fContext.fHalf3x3_Type) {
         name = "_determinant3";
         if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
             fWrittenIntrinsics.insert(name);
@@ -297,7 +298,7 @@ void GLSLCodeGenerator::writeDeterminantHack(const Expression& mat) {
             ).c_str());
         }
     }
-    else if (mat.fType == *fContext.fFloat4x4_Type || mat.fType == *fContext.fHalf4x4_Type) {
+    else if (mat.fType == fContext.fFloat4x4_Type || mat.fType == fContext.fHalf4x4_Type) {
         name = "_determinant3";
         if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
             fWrittenIntrinsics.insert(name);
@@ -334,7 +335,7 @@ void GLSLCodeGenerator::writeDeterminantHack(const Expression& mat) {
 
 void GLSLCodeGenerator::writeInverseHack(const Expression& mat) {
     String name;
-    if (mat.fType == *fContext.fFloat2x2_Type || mat.fType == *fContext.fHalf2x2_Type) {
+    if (mat.fType == fContext.fFloat2x2_Type || mat.fType == fContext.fHalf2x2_Type) {
         name = "_inverse2";
         if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
             fWrittenIntrinsics.insert(name);
@@ -346,7 +347,7 @@ void GLSLCodeGenerator::writeInverseHack(const Expression& mat) {
             ).c_str());
         }
     }
-    else if (mat.fType == *fContext.fFloat3x3_Type || mat.fType == *fContext.fHalf3x3_Type) {
+    else if (mat.fType == fContext.fFloat3x3_Type || mat.fType == fContext.fHalf3x3_Type) {
         name = "_inverse3";
         if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
             fWrittenIntrinsics.insert(name);
@@ -366,7 +367,7 @@ void GLSLCodeGenerator::writeInverseHack(const Expression& mat) {
             ).c_str());
         }
     }
-    else if (mat.fType == *fContext.fFloat4x4_Type || mat.fType == *fContext.fHalf4x4_Type) {
+    else if (mat.fType == fContext.fFloat4x4_Type || mat.fType == fContext.fHalf4x4_Type) {
         name = "_inverse4";
         if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
             fWrittenIntrinsics.insert(name);
@@ -420,19 +421,19 @@ void GLSLCodeGenerator::writeInverseHack(const Expression& mat) {
 }
 
 void GLSLCodeGenerator::writeTransposeHack(const Expression& mat) {
-    String name = "transpose" + to_string(mat.fType.columns()) + to_string(mat.fType.rows());
+    const Type& type = mat.fType.typeNode();
+    String name = "transpose" + to_string(type.columns()) + to_string(type.rows());
     if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
         fWrittenIntrinsics.insert(name);
-        String type = this->getTypeName(mat.fType);
-        const Type& base = mat.fType.componentType();
-        String transposed =  this->getTypeName(base.toCompound(fContext,
-                                                               mat.fType.rows(),
-                                                               mat.fType.columns()));
-        fExtraFunctions.writeText((transposed + " " + name + "(" + type + " m) {\nreturn " +
+        String typeName = this->getTypeName(mat.fType.typeNode());
+        const Type& base = mat.fType.typeNode().componentType().typeNode();
+        String transposed =  this->getTypeName(base.toCompound(type.rows(),
+                                                               type.columns()).typeNode());
+        fExtraFunctions.writeText((transposed + " " + name + "(" + typeName + " m) {\nreturn " +
                                   transposed + "(").c_str());
         const char* separator = "";
-        for (int row = 0; row < mat.fType.rows(); ++row) {
-            for (int column = 0; column < mat.fType.columns(); ++column) {
+        for (int row = 0; row < type.rows(); ++row) {
+            for (int column = 0; column < type.columns(); ++column) {
                 fExtraFunctions.writeText(separator);
                 fExtraFunctions.writeText(("m[" + to_string(column) + "][" + to_string(row) +
                                            "]").c_str());
@@ -476,18 +477,22 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 #ifndef SKSL_STANDALONE
     );
 #endif
-    const auto found = c.fFunction.fBuiltin ? fFunctionClasses->find(c.fFunction.fName) :
-                                              fFunctionClasses->end();
+    FunctionDeclaration f = (FunctionDeclaration&) c.fFunction.node();
+    StringFragment name = f.fName;
+    const auto found = f.fBuiltin ? fFunctionClasses->find(name)
+                                  : fFunctionClasses->end();
     bool isTextureFunctionWithBias = false;
     bool nameWritten = false;
     if (found != fFunctionClasses->end()) {
         switch (found->second) {
             case FunctionClass::kAbs: {
-                if (!fProgram.fSettings.fCaps->emulateAbsIntFunction())
+                if (!fProgram.fSettings.fCaps->emulateAbsIntFunction()) {
                     break;
+                }
                 SkASSERT(c.fArguments.size() == 1);
-                if (c.fArguments[0]->fType != *fContext.fInt_Type)
-                  break;
+                if ((c.fArguments[0].expressionNode()).fType != fContext.fInt_Type) {
+                    break;
+                }
                 // abs(int) on Intel OSX is incorrect, so emulate it:
                 String name = "_absemulation";
                 this->write(name);
@@ -505,13 +510,17 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             case FunctionClass::kAtan:
                 if (fProgram.fSettings.fCaps->mustForceNegatedAtanParamToFloat() &&
                     c.fArguments.size() == 2 &&
-                    c.fArguments[1]->fKind == Expression::kPrefix_Kind) {
-                    const PrefixExpression& p = (PrefixExpression&) *c.fArguments[1];
+                    (c.fArguments[1].expressionNode()).fKind ==
+                    Expression::kPrefix_Kind) {
+                    const PrefixExpression& p =
+                                              (PrefixExpression&) fProgram.getNode(c.fArguments[1]);
                     if (p.fOperator == Token::MINUS) {
                         this->write("atan(");
-                        this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                        this->writeExpression(c.fArguments[0].expressionNode(),
+                                              kSequence_Precedence);
                         this->write(", -1.0 * ");
-                        this->writeExpression(*p.fOperand, kMultiplicative_Precedence);
+                        this->writeExpression(p.fOperand.expressionNode(),
+                                              kMultiplicative_Precedence);
                         this->write(")");
                         return;
                     }
@@ -536,7 +545,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             case FunctionClass::kDeterminant:
                 if (fProgram.fSettings.fCaps->generation() < k150_GrGLSLGeneration) {
                     SkASSERT(c.fArguments.size() == 1);
-                    this->writeDeterminantHack(*c.fArguments[0]);
+                    this->writeDeterminantHack(c.fArguments[0].expressionNode());
                     return;
                 }
                 break;
@@ -544,11 +553,14 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 if (!fProgram.fSettings.fCaps->builtinFMASupport()) {
                     SkASSERT(c.fArguments.size() == 3);
                     this->write("((");
-                    this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                    this->writeExpression(c.fArguments[0].expressionNode(),
+                                          kSequence_Precedence);
                     this->write(") * (");
-                    this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+                    this->writeExpression(c.fArguments[1].expressionNode(),
+                                          kSequence_Precedence);
                     this->write(") + (");
-                    this->writeExpression(*c.fArguments[2], kSequence_Precedence);
+                    this->writeExpression(c.fArguments[2].expressionNode(),
+                                          kSequence_Precedence);
                     this->write("))");
                     return;
                 }
@@ -557,9 +569,11 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 if (!fProgram.fSettings.fCaps->canUseFractForNegativeValues()) {
                     SkASSERT(c.fArguments.size() == 1);
                     this->write("(0.5 - sign(");
-                    this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                    this->writeExpression(c.fArguments[0].expressionNode(),
+                                          kSequence_Precedence);
                     this->write(") * (0.5 - fract(abs(");
-                    this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                    this->writeExpression(c.fArguments[0].expressionNode(),
+                                          kSequence_Precedence);
                     this->write("))))");
                     return;
                 }
@@ -567,28 +581,30 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             case FunctionClass::kInverse:
                 if (fProgram.fSettings.fCaps->generation() < k140_GrGLSLGeneration) {
                     SkASSERT(c.fArguments.size() == 1);
-                    this->writeInverseHack(*c.fArguments[0]);
+                    this->writeInverseHack(c.fArguments[0].expressionNode());
                     return;
                 }
                 break;
             case FunctionClass::kInverseSqrt:
                 if (fProgram.fSettings.fCaps->generation() < k130_GrGLSLGeneration) {
                     SkASSERT(c.fArguments.size() == 1);
-                    this->writeInverseSqrtHack(*c.fArguments[0]);
+                    this->writeInverseSqrtHack(c.fArguments[0].expressionNode());
                     return;
                 }
                 break;
             case FunctionClass::kMin:
                 if (!fProgram.fSettings.fCaps->canUseMinAndAbsTogether()) {
                     SkASSERT(c.fArguments.size() == 2);
-                    if (is_abs(*c.fArguments[0])) {
-                        this->writeMinAbsHack(*c.fArguments[0], *c.fArguments[1]);
+                    Expression& arg0 = c.fArguments[0].expressionNode();
+                    Expression& arg1 = c.fArguments[1].expressionNode();
+                    if (is_abs(arg0)) {
+                        this->writeMinAbsHack(arg0, arg1);
                         return;
                     }
-                    if (is_abs(*c.fArguments[1])) {
+                    if (is_abs(arg1)) {
                         // note that this violates the GLSL left-to-right evaluation semantics.
                         // I doubt it will ever end up mattering, but it's worth calling out.
-                        this->writeMinAbsHack(*c.fArguments[1], *c.fArguments[0]);
+                        this->writeMinAbsHack(arg1, arg0);
                         return;
                     }
                 }
@@ -603,50 +619,55 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
                 // Change pow(x, y) into exp2(y * log2(x))
                 this->write("exp2(");
-                this->writeExpression(*c.fArguments[1], kMultiplicative_Precedence);
+                this->writeExpression(c.fArguments[1].expressionNode(),
+                                      kMultiplicative_Precedence);
                 this->write(" * log2(");
-                this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                this->writeExpression(c.fArguments[0].expressionNode(),
+                                      kSequence_Precedence);
                 this->write("))");
                 return;
             case FunctionClass::kSaturate:
                 SkASSERT(c.fArguments.size() == 1);
                 this->write("clamp(");
-                this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                this->writeExpression(c.fArguments[0].expressionNode(),
+                                      kSequence_Precedence);
                 this->write(", 0.0, 1.0)");
                 return;
             case FunctionClass::kTexture: {
                 const char* dim = "";
                 bool proj = false;
-                switch (c.fArguments[0]->fType.dimensions()) {
+                Expression& arg0 = c.fArguments[0].expressionNode();
+                Expression& arg1 = c.fArguments[1].expressionNode();
+                switch (arg0.fType.typeNode().dimensions()) {
                     case SpvDim1D:
                         dim = "1D";
                         isTextureFunctionWithBias = true;
-                        if (c.fArguments[1]->fType == *fContext.fFloat_Type) {
+                        if (arg1.fType == fContext.fFloat_Type) {
                             proj = false;
                         } else {
-                            SkASSERT(c.fArguments[1]->fType == *fContext.fFloat2_Type);
+                            SkASSERT(arg1.fType == fContext.fFloat2_Type);
                             proj = true;
                         }
                         break;
                     case SpvDim2D:
                         dim = "2D";
-                        if (c.fArguments[0]->fType != *fContext.fSamplerExternalOES_Type) {
+                        if (arg0.fType != fContext.fSamplerExternalOES_Type) {
                             isTextureFunctionWithBias = true;
                         }
-                        if (c.fArguments[1]->fType == *fContext.fFloat2_Type) {
+                        if (arg1.fType == fContext.fFloat2_Type) {
                             proj = false;
                         } else {
-                            SkASSERT(c.fArguments[1]->fType == *fContext.fFloat3_Type);
+                            SkASSERT(arg1.fType == fContext.fFloat3_Type);
                             proj = true;
                         }
                         break;
                     case SpvDim3D:
                         dim = "3D";
                         isTextureFunctionWithBias = true;
-                        if (c.fArguments[1]->fType == *fContext.fFloat3_Type) {
+                        if (arg1.fType == fContext.fFloat3_Type) {
                             proj = false;
                         } else {
-                            SkASSERT(c.fArguments[1]->fType == *fContext.fFloat4_Type);
+                            SkASSERT(arg1.fType == fContext.fFloat4_Type);
                             proj = true;
                         }
                         break;
@@ -683,21 +704,21 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             case FunctionClass::kTranspose:
                 if (fProgram.fSettings.fCaps->generation() < k130_GrGLSLGeneration) {
                     SkASSERT(c.fArguments.size() == 1);
-                    this->writeTransposeHack(*c.fArguments[0]);
+                    this->writeTransposeHack(c.fArguments[0].expressionNode());
                     return;
                 }
                 break;
         }
     }
     if (!nameWritten) {
-        this->write(c.fFunction.fName);
+        this->write(((FunctionDeclaration&) c.fFunction.node()).fName);
     }
     this->write("(");
     const char* separator = "";
-    for (const auto& arg : c.fArguments) {
+    for (auto argID : c.fArguments) {
         this->write(separator);
         separator = ", ";
-        this->writeExpression(*arg, kSequence_Precedence);
+        this->writeExpression(argID.expressionNode(), kSequence_Precedence);
     }
     if (fProgram.fSettings.fSharpenTextures && isTextureFunctionWithBias) {
         this->write(", -0.5");
@@ -707,22 +728,24 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
 void GLSLCodeGenerator::writeConstructor(const Constructor& c, Precedence parentPrecedence) {
     if (c.fArguments.size() == 1 &&
-        (this->getTypeName(c.fType) == this->getTypeName(c.fArguments[0]->fType) ||
-        (c.fType.kind() == Type::kScalar_Kind &&
-         c.fArguments[0]->fType == *fContext.fFloatLiteral_Type))) {
+        (this->getTypeName(c.fType.typeNode()) ==
+         this->getTypeName((c.fArguments[0].expressionNode()).fType.typeNode()) ||
+        (c.fType.typeNode().kind() == Type::kScalar_Kind &&
+         (c.fArguments[0].expressionNode()).fType ==
+                                         fContext.fFloatLiteral_Type))) {
         // in cases like half(float), they're different types as far as SkSL is concerned but the
         // same type as far as GLSL is concerned. We avoid a redundant float(float) by just writing
         // out the inner expression here.
-        this->writeExpression(*c.fArguments[0], parentPrecedence);
+        this->writeExpression(c.fArguments[0].expressionNode(), parentPrecedence);
         return;
     }
-    this->writeType(c.fType);
+    this->writeType(c.fType.typeNode());
     this->write("(");
     const char* separator = "";
-    for (const auto& arg : c.fArguments) {
+    for (auto argID : c.fArguments) {
         this->write(separator);
         separator = ", ";
-        this->writeExpression(*arg, kSequence_Precedence);
+        this->writeExpression(argID.expressionNode(), kSequence_Precedence);
     }
     this->write(")");
 }
@@ -772,7 +795,7 @@ void GLSLCodeGenerator::writeFragCoord() {
 }
 
 void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
-    switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
+    switch (((Variable&) ref.fVariable.node()).fModifiers.fLayout.fBuiltin) {
         case SK_FRAGCOLOR_BUILTIN:
             if (fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput()) {
                 this->write("sk_FragColor");
@@ -811,38 +834,40 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->write(fProgram.fSettings.fCaps->fbFetchColorName());
             break;
         default:
-            this->write(ref.fVariable.fName);
+            this->write(((Variable&) ref.fVariable.node()).fName);
     }
 }
 
 void GLSLCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
-    this->writeExpression(*expr.fBase, kPostfix_Precedence);
+    this->writeExpression(expr.fBase.expressionNode(), kPostfix_Precedence);
     this->write("[");
-    this->writeExpression(*expr.fIndex, kTopLevel_Precedence);
+    this->writeExpression(expr.fIndex.expressionNode(), kTopLevel_Precedence);
     this->write("]");
 }
 
 bool is_sk_position(const FieldAccess& f) {
-    return "sk_Position" == f.fBase->fType.fields()[f.fFieldIndex].fName;
+    return "sk_Position" == f.fBase.expressionNode().fType.typeNode().fields()[f.fFieldIndex].fName;
 }
 
 void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
     if (f.fOwnerKind == FieldAccess::kDefault_OwnerKind) {
-        this->writeExpression(*f.fBase, kPostfix_Precedence);
+        this->writeExpression(f.fBase.expressionNode(), kPostfix_Precedence);
         this->write(".");
     }
-    switch (f.fBase->fType.fields()[f.fFieldIndex].fModifiers.fLayout.fBuiltin) {
+    Expression& base = f.fBase.expressionNode();
+    const Type& type = base.fType.typeNode();
+    switch (type.fields()[f.fFieldIndex].fModifiers.fLayout.fBuiltin) {
         case SK_CLIPDISTANCE_BUILTIN:
             this->write("gl_ClipDistance");
             break;
         default:
-            StringFragment name = f.fBase->fType.fields()[f.fFieldIndex].fName;
+            StringFragment name = type.fields()[f.fFieldIndex].fName;
             if (name == "sk_Position") {
                 this->write("gl_Position");
             } else if (name == "sk_PointSize") {
                 this->write("gl_PointSize");
             } else {
-                this->write(f.fBase->fType.fields()[f.fFieldIndex].fName);
+                this->write(type.fields()[f.fFieldIndex].fName);
             }
     }
 }
@@ -850,10 +875,10 @@ void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
 void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     int last = swizzle.fComponents.back();
     if (last == SKSL_SWIZZLE_0 || last == SKSL_SWIZZLE_1) {
-        this->writeType(swizzle.fType);
+        this->writeType(swizzle.fType.typeNode());
         this->write("(");
     }
-    this->writeExpression(*swizzle.fBase, kPostfix_Precedence);
+    this->writeExpression(swizzle.fBase.expressionNode(), kPostfix_Precedence);
     this->write(".");
     for (int c : swizzle.fComponents) {
         if (c >= 0) {
@@ -916,24 +941,26 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         return;
     }
 
+    Expression& left = b.fLeft.expressionNode();
+    Expression& right = b.fRight.expressionNode();
     Precedence precedence = GetBinaryPrecedence(b.fOperator);
     if (precedence >= parentPrecedence) {
         this->write("(");
     }
     bool positionWorkaround = fProgramKind == Program::Kind::kVertex_Kind &&
                               Compiler::IsAssignment(b.fOperator) &&
-                              Expression::kFieldAccess_Kind == b.fLeft->fKind &&
-                              is_sk_position((FieldAccess&) *b.fLeft) &&
-                              !strstr(b.fRight->description().c_str(), "sk_RTAdjust") &&
+                              Expression::kFieldAccess_Kind == left.fKind &&
+                              is_sk_position((FieldAccess&) left) &&
+                              !strstr(right.description().c_str(), "sk_RTAdjust") &&
                               !fProgram.fSettings.fCaps->canUseFragCoord();
     if (positionWorkaround) {
         this->write("sk_FragCoord_Workaround = (");
     }
-    this->writeExpression(*b.fLeft, precedence);
+    this->writeExpression(left, precedence);
     this->write(" ");
     this->write(Compiler::OperatorName(b.fOperator));
     this->write(" ");
-    this->writeExpression(*b.fRight, precedence);
+    this->writeExpression(right, precedence);
     if (positionWorkaround) {
         this->write(")");
     }
@@ -951,20 +978,20 @@ void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpres
     // Transform:
     // a && b  =>   a ? b : false
     // a || b  =>   a ? true : b
-    this->writeExpression(*b.fLeft, kTernary_Precedence);
+    this->writeExpression(b.fLeft.expressionNode(), kTernary_Precedence);
     this->write(" ? ");
     if (b.fOperator == Token::LOGICALAND) {
-        this->writeExpression(*b.fRight, kTernary_Precedence);
+        this->writeExpression(b.fRight.expressionNode(), kTernary_Precedence);
     } else {
-        BoolLiteral boolTrue(fContext, -1, true);
+        BoolLiteral boolTrue(nullptr, -1, true, fContext.fBool_Type);
         this->writeBoolLiteral(boolTrue);
     }
     this->write(" : ");
     if (b.fOperator == Token::LOGICALAND) {
-        BoolLiteral boolFalse(fContext, -1, false);
+        BoolLiteral boolFalse(nullptr, -1, false, fContext.fBool_Type);
         this->writeBoolLiteral(boolFalse);
     } else {
-        this->writeExpression(*b.fRight, kTernary_Precedence);
+        this->writeExpression(b.fRight.expressionNode(), kTernary_Precedence);
     }
     if (kTernary_Precedence >= parentPrecedence) {
         this->write(")");
@@ -976,11 +1003,11 @@ void GLSLCodeGenerator::writeTernaryExpression(const TernaryExpression& t,
     if (kTernary_Precedence >= parentPrecedence) {
         this->write("(");
     }
-    this->writeExpression(*t.fTest, kTernary_Precedence);
+    this->writeExpression(t.fTest.expressionNode(), kTernary_Precedence);
     this->write(" ? ");
-    this->writeExpression(*t.fIfTrue, kTernary_Precedence);
+    this->writeExpression(t.fIfTrue.expressionNode(), kTernary_Precedence);
     this->write(" : ");
-    this->writeExpression(*t.fIfFalse, kTernary_Precedence);
+    this->writeExpression(t.fIfFalse.expressionNode(), kTernary_Precedence);
     if (kTernary_Precedence >= parentPrecedence) {
         this->write(")");
     }
@@ -992,7 +1019,7 @@ void GLSLCodeGenerator::writePrefixExpression(const PrefixExpression& p,
         this->write("(");
     }
     this->write(Compiler::OperatorName(p.fOperator));
-    this->writeExpression(*p.fOperand, kPrefix_Precedence);
+    this->writeExpression(p.fOperand.expressionNode(), kPrefix_Precedence);
     if (kPrefix_Precedence >= parentPrecedence) {
         this->write(")");
     }
@@ -1003,7 +1030,7 @@ void GLSLCodeGenerator::writePostfixExpression(const PostfixExpression& p,
     if (kPostfix_Precedence >= parentPrecedence) {
         this->write("(");
     }
-    this->writeExpression(*p.fOperand, kPostfix_Precedence);
+    this->writeExpression(p.fOperand.expressionNode(), kPostfix_Precedence);
     this->write(Compiler::OperatorName(p.fOperator));
     if (kPostfix_Precedence >= parentPrecedence) {
         this->write(")");
@@ -1015,11 +1042,11 @@ void GLSLCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
 }
 
 void GLSLCodeGenerator::writeIntLiteral(const IntLiteral& i) {
-    if (i.fType == *fContext.fUInt_Type) {
+    if (i.fType == fContext.fUInt_Type) {
         this->write(to_string(i.fValue & 0xffffffff) + "u");
-    } else if (i.fType == *fContext.fUShort_Type) {
+    } else if (i.fType == fContext.fUShort_Type) {
         this->write(to_string(i.fValue & 0xffff) + "u");
-    } else if (i.fType == *fContext.fUByte_Type) {
+    } else if (i.fType == fContext.fUByte_Type) {
         this->write(to_string(i.fValue & 0xff) + "u");
     } else {
         this->write(to_string((int32_t) i.fValue));
@@ -1036,23 +1063,25 @@ void GLSLCodeGenerator::writeSetting(const Setting& s) {
 
 void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     if (fProgramKind != Program::kPipelineStage_Kind) {
-        this->writeTypePrecision(f.fDeclaration.fReturnType);
-        this->writeType(f.fDeclaration.fReturnType);
-        this->write(" " + f.fDeclaration.fName + "(");
+        FunctionDeclaration& decl = (FunctionDeclaration&) f.fDeclaration.node();
+        this->writeTypePrecision(decl.fReturnType.typeNode());
+        this->writeType(decl.fReturnType.typeNode());
+        this->write(" " + decl.fName + "(");
         const char* separator = "";
-        for (const auto& param : f.fDeclaration.fParameters) {
+        for (IRNode::ID paramID : decl.fParameters) {
+            const Variable& param = (Variable&) paramID.node();
             this->write(separator);
             separator = ", ";
-            this->writeModifiers(param->fModifiers, false);
+            this->writeModifiers(param.fModifiers, false);
             std::vector<int> sizes;
-            const Type* type = &param->fType;
+            const Type* type = &param.fType.typeNode();
             while (type->kind() == Type::kArray_Kind) {
                 sizes.push_back(type->columns());
-                type = &type->componentType();
+                type = &type->componentType().typeNode();
             }
             this->writeTypePrecision(*type);
             this->writeType(*type);
-            this->write(" " + param->fName);
+            this->write(" " + param.fName);
             for (int s : sizes) {
                 if (s <= 0) {
                     this->write("[]");
@@ -1068,7 +1097,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     OutputStream* oldOut = fOut;
     StringStream buffer;
     fOut = &buffer;
-    this->writeStatements(((Block&) *f.fBody).fStatements);
+    this->writeStatements(((Block&) f.fBody.node()).fStatements);
     if (fProgramKind != Program::kPipelineStage_Kind) {
         fIndentation--;
         this->writeLine("}");
@@ -1165,17 +1194,18 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     if (intf.fTypeName == "sk_PerVertex") {
         return;
     }
-    this->writeModifiers(intf.fVariable.fModifiers, true);
+    const Variable& var = (Variable&) intf.fVariable.node();
+    this->writeModifiers(var.fModifiers, true);
     this->writeLine(intf.fTypeName + " {");
     fIndentation++;
-    const Type* structType = &intf.fVariable.fType;
+    const Type* structType = &var.fType.typeNode();
     while (structType->kind() == Type::kArray_Kind) {
-        structType = &structType->componentType();
+        structType = &structType->componentType().typeNode();
     }
     for (const auto& f : structType->fields()) {
         this->writeModifiers(f.fModifiers, false);
-        this->writeTypePrecision(*f.fType);
-        this->writeType(*f.fType);
+        this->writeTypePrecision(f.fType.typeNode());
+        this->writeType(f.fType.typeNode());
         this->writeLine(" " + f.fName + ";");
     }
     fIndentation--;
@@ -1186,7 +1216,7 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         for (const auto& size : intf.fSizes) {
             this->write("[");
             if (size) {
-                this->writeExpression(*size, kTopLevel_Precedence);
+                this->writeExpression(size.expressionNode(), kTopLevel_Precedence);
             }
             this->write("]");
         }
@@ -1202,25 +1232,25 @@ const char* GLSLCodeGenerator::getTypePrecision(const Type& type) {
     if (usesPrecisionModifiers()) {
         switch (type.kind()) {
             case Type::kScalar_Kind:
-                if (type == *fContext.fShort_Type || type == *fContext.fUShort_Type ||
-                    type == *fContext.fByte_Type || type == *fContext.fUByte_Type) {
+                if (type == fContext.fShort_Type || type == fContext.fUShort_Type ||
+                    type == fContext.fByte_Type || type == fContext.fUByte_Type) {
                     if (fProgram.fSettings.fForceHighPrecision ||
                             fProgram.fSettings.fCaps->incompleteShortIntPrecision()) {
                         return "highp ";
                     }
                     return "mediump ";
                 }
-                if (type == *fContext.fHalf_Type) {
+                if (type == fContext.fHalf_Type) {
                     return fProgram.fSettings.fForceHighPrecision ? "highp " : "mediump ";
                 }
-                if (type == *fContext.fFloat_Type || type == *fContext.fInt_Type ||
-                        type == *fContext.fUInt_Type) {
+                if (type == fContext.fFloat_Type || type == fContext.fInt_Type ||
+                        type == fContext.fUInt_Type) {
                     return "highp ";
                 }
                 return "";
             case Type::kVector_Kind: // fall through
             case Type::kMatrix_Kind:
-                return this->getTypePrecision(type.componentType());
+                return this->getTypePrecision(type.componentType().typeNode());
             default:
                 break;
         }
@@ -1232,35 +1262,36 @@ void GLSLCodeGenerator::writeTypePrecision(const Type& type) {
     this->write(this->getTypePrecision(type));
 }
 
-void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {
-    if (!decl.fVars.size()) {
+void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decls, bool global) {
+    if (!decls.fVars.size()) {
         return;
     }
     bool wroteType = false;
-    for (const auto& stmt : decl.fVars) {
-        VarDeclaration& var = (VarDeclaration&) *stmt;
+    for (IRNode::ID stmt : decls.fVars) {
+        VarDeclaration& decl = (VarDeclaration&) fProgram.getNode(stmt);
+        Variable& var = (Variable&) decl.fVar.node();
         if (wroteType) {
             this->write(", ");
         } else {
-            this->writeModifiers(var.fVar->fModifiers, global);
-            this->writeTypePrecision(decl.fBaseType);
-            this->writeType(decl.fBaseType);
+            this->writeModifiers(var.fModifiers, global);
+            this->writeTypePrecision(decls.fBaseType.typeNode());
+            this->writeType(decls.fBaseType.typeNode());
             this->write(" ");
             wroteType = true;
         }
-        this->write(var.fVar->fName);
-        for (const auto& size : var.fSizes) {
+        this->write(var.fName);
+        for (const auto& size : decl.fSizes) {
             this->write("[");
             if (size) {
-                this->writeExpression(*size, kTopLevel_Precedence);
+                this->writeExpression(size.expressionNode(), kTopLevel_Precedence);
             }
             this->write("]");
         }
-        if (var.fValue) {
+        if (decl.fValue) {
             this->write(" = ");
-            this->writeVarInitializer(*var.fVar, *var.fValue);
+            this->writeVarInitializer(var, decl.fValue.expressionNode());
         }
-        if (!fFoundExternalSamplerDecl && var.fVar->fType == *fContext.fSamplerExternalOES_Type) {
+        if (!fFoundExternalSamplerDecl && var.fType == fContext.fSamplerExternalOES_Type) {
             if (fProgram.fSettings.fCaps->externalTextureExtensionString()) {
                 this->writeExtension(fProgram.fSettings.fCaps->externalTextureExtensionString());
             }
@@ -1282,14 +1313,17 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
             this->writeBlock((Block&) s);
             break;
         case Statement::kExpression_Kind:
-            this->writeExpression(*((ExpressionStatement&) s).fExpression, kTopLevel_Precedence);
+            this->writeExpression(((ExpressionStatement&) s).fExpression.expressionNode(),
+                                  kTopLevel_Precedence);
             this->write(";");
             break;
         case Statement::kReturn_Kind:
             this->writeReturnStatement((ReturnStatement&) s);
             break;
         case Statement::kVarDeclarations_Kind:
-            this->writeVarDeclarations(*((VarDeclarationsStatement&) s).fDeclaration, false);
+            this->writeVarDeclarations((VarDeclarations&) fProgram.getNode(
+                                                      ((VarDeclarationsStatement&) s).fDeclaration),
+                                       false);
             break;
         case Statement::kIf_Kind:
             this->writeIfStatement((IfStatement&) s);
@@ -1323,10 +1357,11 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
     }
 }
 
-void GLSLCodeGenerator::writeStatements(const std::vector<std::unique_ptr<Statement>>& statements) {
-    for (const auto& s : statements) {
-        if (!s->isEmpty()) {
-            this->writeStatement(*s);
+void GLSLCodeGenerator::writeStatements(const std::vector<IRNode::ID>& statements) {
+    for (auto id : statements) {
+        Statement& s = (Statement&) fProgram.getNode(id);
+        if (!s.isEmpty()) {
+            this->writeStatement(s);
             this->writeLine();
         }
     }
@@ -1342,55 +1377,57 @@ void GLSLCodeGenerator::writeBlock(const Block& b) {
 
 void GLSLCodeGenerator::writeIfStatement(const IfStatement& stmt) {
     this->write("if (");
-    this->writeExpression(*stmt.fTest, kTopLevel_Precedence);
+    this->writeExpression(stmt.fTest.expressionNode(), kTopLevel_Precedence);
     this->write(") ");
-    this->writeStatement(*stmt.fIfTrue);
+    this->writeStatement(stmt.fIfTrue.statementNode());
     if (stmt.fIfFalse) {
         this->write(" else ");
-        this->writeStatement(*stmt.fIfFalse);
+        this->writeStatement(stmt.fIfFalse.statementNode());
     }
 }
 
 void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
     this->write("for (");
-    if (f.fInitializer && !f.fInitializer->isEmpty()) {
-        this->writeStatement(*f.fInitializer);
+    if (f.fInitializer && !f.fInitializer.statementNode().isEmpty()) {
+        this->writeStatement((Statement&) fProgram.getNode(f.fInitializer));
     } else {
         this->write("; ");
     }
     if (f.fTest) {
         if (fProgram.fSettings.fCaps->addAndTrueToLoopCondition()) {
-            std::unique_ptr<Expression> and_true(new BinaryExpression(
+            abort(); // NYI
+/*            std::unique_ptr<Expression> and_true(new BinaryExpression(
                     -1, f.fTest->clone(), Token::LOGICALAND,
                     std::unique_ptr<BoolLiteral>(new BoolLiteral(fContext, -1,
                                                                  true)),
-                    *fContext.fBool_Type));
-            this->writeExpression(*and_true, kTopLevel_Precedence);
+                    fContext.fBool_Type));
+            this->writeExpression(*and_true, kTopLevel_Precedence);*/
         } else {
-            this->writeExpression(*f.fTest, kTopLevel_Precedence);
+            this->writeExpression(f.fTest.expressionNode(), kTopLevel_Precedence);
         }
     }
     this->write("; ");
-    if (f.fNext) {
-        this->writeExpression(*f.fNext, kTopLevel_Precedence);
+    if (f.fNextExpression) {
+        this->writeExpression(f.fNextExpression.expressionNode(),
+                              kTopLevel_Precedence);
     }
     this->write(") ");
-    this->writeStatement(*f.fStatement);
+    this->writeStatement((Statement&) fProgram.getNode(f.fStatement));
 }
 
 void GLSLCodeGenerator::writeWhileStatement(const WhileStatement& w) {
     this->write("while (");
-    this->writeExpression(*w.fTest, kTopLevel_Precedence);
+    this->writeExpression(w.fTest.expressionNode(), kTopLevel_Precedence);
     this->write(") ");
-    this->writeStatement(*w.fStatement);
+    this->writeStatement((Statement&) fProgram.getNode(w.fStatement));
 }
 
 void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
     if (!fProgram.fSettings.fCaps->rewriteDoWhileLoops()) {
         this->write("do ");
-        this->writeStatement(*d.fStatement);
+        this->writeStatement((Statement&) fProgram.getNode(d.fStatement));
         this->write(" while (");
-        this->writeExpression(*d.fTest, kTopLevel_Precedence);
+        this->writeExpression(d.fTest.expressionNode(), kTopLevel_Precedence);
         this->write(");");
         return;
     }
@@ -1422,7 +1459,7 @@ void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
     this->writeLine(") {");
     fIndentation++;
     this->write("if (!");
-    this->writeExpression(*d.fTest, kPrefix_Precedence);
+    this->writeExpression(d.fTest.expressionNode(), kPrefix_Precedence);
     this->writeLine(") {");
     fIndentation++;
     this->writeLine("break;");
@@ -1432,7 +1469,7 @@ void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
     this->writeLine("}");
     this->write(tmpVar);
     this->writeLine(" = true;");
-    this->writeStatement(*d.fStatement);
+    this->writeStatement((Statement&) fProgram.getNode(d.fStatement));
     this->writeLine();
     fIndentation--;
     this->write("}");
@@ -1440,20 +1477,21 @@ void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
 
 void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     this->write("switch (");
-    this->writeExpression(*s.fValue, kTopLevel_Precedence);
+    this->writeExpression(s.fValue.expressionNode(), kTopLevel_Precedence);
     this->writeLine(") {");
     fIndentation++;
-    for (const auto& c : s.fCases) {
-        if (c->fValue) {
+    for (const auto& cID : s.fCases) {
+        SwitchCase& c = (SwitchCase&) fProgram.getNode(cID);
+        if (c.fValue) {
             this->write("case ");
-            this->writeExpression(*c->fValue, kTopLevel_Precedence);
+            this->writeExpression(c.fValue.expressionNode(), kTopLevel_Precedence);
             this->writeLine(":");
         } else {
             this->writeLine("default:");
         }
         fIndentation++;
-        for (const auto& stmt : c->fStatements) {
-            this->writeStatement(*stmt);
+        for (auto stmt : c.fStatements) {
+            this->writeStatement((Statement&) fProgram.getNode(stmt));
             this->writeLine();
         }
         fIndentation--;
@@ -1466,7 +1504,7 @@ void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     this->write("return");
     if (r.fExpression) {
         this->write(" ");
-        this->writeExpression(*r.fExpression, kTopLevel_Precedence);
+        this->writeExpression(r.fExpression.expressionNode(), kTopLevel_Precedence);
     }
     this->write(";");
 }
@@ -1484,14 +1522,15 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::kVar_Kind: {
             VarDeclarations& decl = (VarDeclarations&) e;
             if (decl.fVars.size() > 0) {
-                int builtin = ((VarDeclaration&) *decl.fVars[0]).fVar->fModifiers.fLayout.fBuiltin;
+                Variable& var = (Variable&) ((VarDeclaration&) decl.fVars[0]).fVar.node();
+                int builtin = var.fModifiers.fLayout.fBuiltin;
                 if (builtin == -1) {
                     // normal var
                     this->writeVarDeclarations(decl, true);
                     this->writeLine();
                 } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
                            fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput() &&
-                           ((VarDeclaration&) *decl.fVars[0]).fVar->fWriteCount) {
+                           var.fWriteCount) {
                     if (fProgram.fSettings.fFragColorIsInOut) {
                         this->write("inout ");
                     } else {
@@ -1557,8 +1596,8 @@ bool GLSLCodeGenerator::generateCode() {
     OutputStream* rawOut = fOut;
     StringStream body;
     fOut = &body;
-    for (const auto& e : fProgram) {
-        this->writeProgramElement(e);
+    for (IRNode::ID e : fProgram) {
+        this->writeProgramElement((ProgramElement&) e.node());
     }
     fOut = rawOut;
 

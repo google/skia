@@ -21,9 +21,10 @@ namespace SkSL {
  * A function declaration (not a definition -- does not contain a body).
  */
 struct FunctionDeclaration : public Symbol {
-    FunctionDeclaration(int offset, Modifiers modifiers, StringFragment name,
-                        std::vector<const Variable*> parameters, const Type& returnType)
-    : INHERITED(offset, kFunctionDeclaration_Kind, std::move(name))
+    FunctionDeclaration(IRGenerator* irGenerator, int offset, Modifiers modifiers,
+                        StringFragment name, std::vector<IRNode::ID> parameters,
+                        IRNode::ID returnType)
+    : INHERITED(irGenerator, offset, kFunctionDeclaration_Kind, std::move(name))
     , fDefined(false)
     , fBuiltin(false)
     , fModifiers(modifiers)
@@ -31,12 +32,12 @@ struct FunctionDeclaration : public Symbol {
     , fReturnType(returnType) {}
 
     String description() const override {
-        String result = fReturnType.description() + " " + fName + "(";
+        String result = fReturnType.node().description() + " " + fName + "(";
         String separator;
         for (auto p : fParameters) {
             result += separator;
             separator = ", ";
-            result += p->description();
+            result += p.node().description();
         }
         result += ")";
         return result;
@@ -50,7 +51,7 @@ struct FunctionDeclaration : public Symbol {
             return false;
         }
         for (size_t i = 0; i < fParameters.size(); i++) {
-            if (fParameters[i]->fType != f.fParameters[i]->fType) {
+            if (fParameters[i].expressionNode().fType != f.fParameters[i].expressionNode().fType) {
                 return false;
             }
         }
@@ -68,17 +69,20 @@ struct FunctionDeclaration : public Symbol {
      * indicates that an attempt should be made. If false is returned, the state of
      * outParameterTypes and outReturnType are undefined.
      */
-    bool determineFinalTypes(const std::vector<std::unique_ptr<Expression>>& arguments,
-                             std::vector<const Type*>* outParameterTypes,
-                             const Type** outReturnType) const {
+    bool determineFinalTypes(const std::vector<IRNode::ID>& arguments,
+                             std::vector<IRNode::ID>* outParameterTypes,
+                             IRNode::ID* outReturnType) const {
         SkASSERT(arguments.size() == fParameters.size());
         int genericIndex = -1;
         for (size_t i = 0; i < arguments.size(); i++) {
-            if (fParameters[i]->fType.kind() == Type::kGeneric_Kind) {
-                std::vector<const Type*> types = fParameters[i]->fType.coercibleTypes();
+            Expression& arg = (Expression&) arguments[i].expressionNode();
+            const Type& type = (Type&) arg.fType.typeNode();
+            const Variable& parameter = (const Variable&) fParameters[i].node();
+            if (parameter.fType.typeNode().kind() == Type::kGeneric_Kind) {
+                std::vector<IRNode::ID> types = parameter.fType.typeNode().coercibleTypes();
                 if (genericIndex == -1) {
                     for (size_t j = 0; j < types.size(); j++) {
-                        if (arguments[i]->fType.canCoerceTo(*types[j])) {
+                        if (type.canCoerceTo(types[j].typeNode())) {
                             genericIndex = j;
                             break;
                         }
@@ -89,14 +93,14 @@ struct FunctionDeclaration : public Symbol {
                 }
                 outParameterTypes->push_back(types[genericIndex]);
             } else {
-                outParameterTypes->push_back(&fParameters[i]->fType);
+                outParameterTypes->push_back(parameter.fType);
             }
         }
-        if (fReturnType.kind() == Type::kGeneric_Kind) {
+        if (fReturnType.typeNode().kind() == Type::kGeneric_Kind) {
             SkASSERT(genericIndex != -1);
-            *outReturnType = fReturnType.coercibleTypes()[genericIndex];
+            *outReturnType = fReturnType.typeNode().coercibleTypes()[genericIndex];
         } else {
-            *outReturnType = &fReturnType;
+            *outReturnType = fReturnType;
         }
         return true;
     }
@@ -104,8 +108,8 @@ struct FunctionDeclaration : public Symbol {
     mutable bool fDefined;
     bool fBuiltin;
     Modifiers fModifiers;
-    const std::vector<const Variable*> fParameters;
-    const Type& fReturnType;
+    const std::vector<IRNode::ID> fParameters;
+    IRNode::ID fReturnType;
 
     typedef Symbol INHERITED;
 };

@@ -7,6 +7,7 @@
 
 #include "stdio.h"
 #include "src/sksl/SkSLASTNode.h"
+#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLParser.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
@@ -99,11 +100,11 @@ void Parser::InitLayoutMap() {
     #undef TOKEN
 }
 
-Parser::Parser(const char* text, size_t length, SymbolTable& types, ErrorReporter& errors)
+Parser::Parser(const char* text, size_t length, SymbolTable& types, IRGenerator* irGenerator)
 : fText(text)
 , fPushback(Token::INVALID, -1, -1)
 , fTypes(types)
-, fErrors(errors) {
+, fIRGenerator(*irGenerator) {
     fLexer.start(text, length);
     static const bool layoutMapInitialized = []{ return (void)InitLayoutMap(), true; }();
     (void) layoutMapInitialized;
@@ -141,7 +142,7 @@ std::unique_ptr<ASTFile> Parser::file() {
                 return std::move(fFile);
             case Token::DIRECTIVE: {
                 ASTNode::ID dir = this->directive();
-                if (fErrors.errorCount()) {
+                if (fIRGenerator.fErrors.errorCount()) {
                     return nullptr;
                 }
                 if (dir) {
@@ -151,7 +152,7 @@ std::unique_ptr<ASTFile> Parser::file() {
             }
             case Token::SECTION: {
                 ASTNode::ID section = this->section();
-                if (fErrors.errorCount()) {
+                if (fIRGenerator.fErrors.errorCount()) {
                     return nullptr;
                 }
                 if (section) {
@@ -161,7 +162,7 @@ std::unique_ptr<ASTFile> Parser::file() {
             }
             default: {
                 ASTNode::ID decl = this->declaration();
-                if (fErrors.errorCount()) {
+                if (fIRGenerator.fErrors.errorCount()) {
                     return nullptr;
                 }
                 if (decl) {
@@ -242,11 +243,11 @@ void Parser::error(Token token, String msg) {
 }
 
 void Parser::error(int offset, String msg) {
-    fErrors.error(offset, msg);
+    fIRGenerator.fErrors.error(offset, msg);
 }
 
 bool Parser::isType(StringFragment name) {
-    return nullptr != fTypes[name];
+    return (bool) fTypes[name];
 }
 
 /* DIRECTIVE(#version) INT_LITERAL ("es" | "compatibility")? |
@@ -348,8 +349,8 @@ ASTNode::ID Parser::enumDeclaration() {
     if (!this->expect(Token::LBRACE, "'{'")) {
         return ASTNode::ID::Invalid();
     }
-    fTypes.add(this->text(name), std::unique_ptr<Symbol>(new Type(this->text(name),
-                                                                  Type::kEnum_Kind)));
+    fTypes.add(this->text(name), fTypes.fIRGenerator->createNode(new Type(this->text(name),
+                                                                          Type::kEnum_Kind)));
     CREATE_NODE(result, name.fOffset, ASTNode::Kind::kEnum, this->text(name));
     if (!this->checkNext(Token::RBRACE)) {
         Token id;
@@ -487,8 +488,8 @@ ASTNode::ID Parser::structDeclaration() {
         if (!decls) {
             return ASTNode::ID::Invalid();
         }
-        ASTNode& declsNode = getNode(decls);
-        auto type = (const Type*) fTypes[(declsNode.begin() + 1)->getTypeData().fName];
+        ASTNode& declsNode = this->getNode(decls);
+        IRNode::ID typeID = fTypes[(declsNode.begin() + 1)->getTypeData().fName];
         for (auto iter = declsNode.begin() + 2; iter != declsNode.end(); ++iter) {
             ASTNode& var = *iter;
             ASTNode::VarData vd = var.getVarData();
@@ -499,14 +500,12 @@ ASTNode::ID Parser::structDeclaration() {
                     return ASTNode::ID::Invalid();
                 }
                 uint64_t columns = size.getInt();
-                String name = type->name() + "[" + to_string(columns) + "]";
-                type = (Type*) fTypes.takeOwnership(std::unique_ptr<Symbol>(
-                                                                         new Type(name,
-                                                                                  Type::kArray_Kind,
-                                                                                  *type,
-                                                                                  (int) columns)));
+                const Type& type = typeID.typeNode();
+                String name = type.name() + "[" + to_string(columns) + "]";
+                typeID = fTypes.fIRGenerator->createNode(new Type(name, Type::kArray_Kind, typeID,
+                                                                  (int) columns));
             }
-            fields.push_back(Type::Field(declsNode.begin()->getModifiers(), vd.fName, type));
+            fields.push_back(Type::Field(declsNode.begin()->getModifiers(), vd.fName, typeID));
             if (vd.fSizeCount ? (var.begin() + (vd.fSizeCount - 1))->fNext : var.fFirstChild) {
                 this->error(declsNode.fOffset, "initializers are not permitted on struct fields");
             }
@@ -515,8 +514,8 @@ ASTNode::ID Parser::structDeclaration() {
     if (!this->expect(Token::RBRACE, "'}'")) {
         return ASTNode::ID::Invalid();
     }
-    fTypes.add(this->text(name), std::unique_ptr<Type>(new Type(name.fOffset, this->text(name),
-                                                                fields)));
+    fTypes.add(this->text(name), fIRGenerator.createNode(new Type(name.fOffset, this->text(name),
+                                                                  fields)));
     RETURN_NODE(name.fOffset, ASTNode::Kind::kType,
                 ASTNode::TypeData(this->text(name), true, false));
 }

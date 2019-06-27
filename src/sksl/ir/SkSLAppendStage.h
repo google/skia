@@ -17,19 +17,20 @@
 namespace SkSL {
 
 struct AppendStage : public Expression {
-    AppendStage(const Context& context, int offset, SkRasterPipeline::StockStage stage,
+    AppendStage(IRGenerator* irGenerator, int offset, SkRasterPipeline::StockStage stage,
                 std::vector<std::unique_ptr<Expression>> arguments)
-    : INHERITED(offset, kAppendStage_Kind, *context.fVoid_Type)
+    : INHERITED(irGenerator, offset, kAppendStage_Kind, irGenerator->fContext.fVoid_Type)
     , fStage(stage)
     , fArguments(std::move(arguments)) {}
 
-    std::unique_ptr<Expression> clone() const override {
-        std::vector<std::unique_ptr<Expression>> cloned;
+    IRNode::ID clone() const override {
+/*        std::vector<std::unique_ptr<Expression>> cloned;
         for (const auto& arg : fArguments) {
             cloned.push_back(arg->clone());
         }
         return std::unique_ptr<Expression>(new AppendStage(fOffset, fStage, std::move(cloned),
-                                                           &fType));
+                                                           &fType));*/
+        abort();
     }
 
     String description() const override {
@@ -55,9 +56,9 @@ struct AppendStage : public Expression {
     typedef Expression INHERITED;
 
 private:
-    AppendStage(int offset, SkRasterPipeline::StockStage stage,
-                std::vector<std::unique_ptr<Expression>> arguments, const Type* type)
-    : INHERITED(offset, kAppendStage_Kind, *type)
+    AppendStage(IRGenerator* irGenerator, int offset, SkRasterPipeline::StockStage stage,
+                std::vector<IRNode::ID> arguments, const Type* type)
+    : INHERITED(irGenerator, offset, kAppendStage_Kind, *type)
     , fStage(stage)
     , fArguments(std::move(arguments)) {}
 

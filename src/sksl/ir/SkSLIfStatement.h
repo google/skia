@@ -17,17 +17,17 @@ namespace SkSL {
  * An 'if' statement.
  */
 struct IfStatement : public Statement {
-    IfStatement(int offset, bool isStatic, std::unique_ptr<Expression> test,
-                std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)
-    : INHERITED(offset, kIf_Kind)
+    IfStatement(IRGenerator* irGenerator, int offset, bool isStatic, IRNode::ID test,
+                IRNode::ID ifTrue, IRNode::ID ifFalse)
+    : INHERITED(irGenerator, offset, kIf_Kind)
     , fIsStatic(isStatic)
-    , fTest(std::move(test))
-    , fIfTrue(std::move(ifTrue))
-    , fIfFalse(std::move(ifFalse)) {}
+    , fTest(test)
+    , fIfTrue(ifTrue)
+    , fIfFalse(ifFalse) {}
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new IfStatement(fOffset, fIsStatic, fTest->clone(),
-                fIfTrue->clone(), fIfFalse ? fIfFalse->clone() : nullptr));
+    IRNode::ID clone() const override {
+        return fIRGenerator->createNode(new IfStatement(fIRGenerator, fOffset, fIsStatic, fTest,
+                                                        fIfTrue, fIfFalse));
     }
 
     String description() const override {
@@ -35,18 +35,18 @@ struct IfStatement : public Statement {
         if (fIsStatic) {
             result += "@";
         }
-        result += "if (" + fTest->description() + ") " + fIfTrue->description();
+        result += "if (" + fTest.node().description() + ") " + fIfTrue.node().description();
         if (fIfFalse) {
-            result += " else " + fIfFalse->description();
+            result += " else " + fIfFalse.node().description();
         }
         return result;
     }
 
     bool fIsStatic;
-    std::unique_ptr<Expression> fTest;
-    std::unique_ptr<Statement> fIfTrue;
+    IRNode::ID fTest;
+    IRNode::ID fIfTrue;
     // may be null
-    std::unique_ptr<Statement> fIfFalse;
+    IRNode::ID fIfFalse;
 
     typedef Statement INHERITED;
 };
