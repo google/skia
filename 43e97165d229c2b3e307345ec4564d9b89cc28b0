@@ -22,6 +22,30 @@
       "revId": "43e97165d229c2b3e307345ec4564d9b89cc28b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac117ccf_1d0d8056",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-06-27T19:57:31Z",
+      "side": 0,
+      "message": "Yes that\u0027s correct. \"stencilPath\" is only for NVPR, so most clips will just add a draw op that uses stencil. Even before this CL, I believe this call was unnecessary since this stuff was already automatic anyway.\n\nIn the event that this does get broken (i.e., an op to set up stencil clip doesn\u0027t return kUsesStencil in its FixedFunctionFlags), there is an assert in GrRenderTargetContext::addDrawOp now that will trigger if there is a stencil clip and we haven\u0027t called setNeedsStencil automatically.",
+      "parentUuid": "9a729805_e0ee5933",
+      "range": {
+        "startLine": 300,
+        "startChar": 4,
+        "endLine": 300,
+        "endChar": 43
+      },
+      "revId": "43e97165d229c2b3e307345ec4564d9b89cc28b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
