@@ -282,14 +282,9 @@ GrGLenum GrToGLStencilFunc(GrStencilTest test);
 bool GrGLFormatIsCompressed(GrGLenum glFormat);
 
 /**
- * Maps a gl format into the GrCompressed enum.
+ * Maps a gl format into the CompressionType enum if appropriate.
  */
-GrCompression GrGLFormat2Compression(GrGLenum glFormat);
-
-/**
- * Returns the data size for the given compressed format
- */
-size_t GrGLFormatCompressedDataSize(GrGLenum glFormat, int width, int height);
+bool GrGLFormatToCompressionType(GrGLenum glFormat, SkImage::CompressionType*);
 
 size_t GrGLBytesPerFormat(GrGLenum glFormat);
 
