@@ -607,17 +607,17 @@ private:
 
 namespace GrTextureOp {
 
-std::unique_ptr<GrDrawOp> MakeGeneral(GrRecordingContext* context,
-                                      sk_sp<GrTextureProxy> proxy,
-                                      sk_sp<GrColorSpaceXform> textureXform,
-                                      GrSamplerState::Filter filter,
-                                      const SkPMColor4f& color,
-                                      SkBlendMode blendMode,
-                                      GrAAType aaType,
-                                      GrQuadAAFlags aaFlags,
-                                      const GrQuad& deviceQuad,
-                                      const GrQuad& localQuad,
-                                      const SkRect* domain) {
+std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
+                               sk_sp<GrTextureProxy> proxy,
+                               sk_sp<GrColorSpaceXform> textureXform,
+                               GrSamplerState::Filter filter,
+                               const SkPMColor4f& color,
+                               SkBlendMode blendMode,
+                               GrAAType aaType,
+                               GrQuadAAFlags aaFlags,
+                               const GrQuad& deviceQuad,
+                               const GrQuad& localQuad,
+                               const SkRect* domain) {
     // Apply optimizations that are valid whether or not using GrTextureOp or GrFillRectOp
     if (domain && domain->contains(proxy->getWorstCaseBoundsRect())) {
         // No need for a shader-based domain if hardware clamping achieves the same effect
@@ -656,40 +656,6 @@ std::unique_ptr<GrDrawOp> MakeGeneral(GrRecordingContext* context,
         return GrFillRectOp::Make(context, std::move(paint), aaType, aaFlags,
                                   deviceQuad, localQuad);
     }
-}
-
-std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                               sk_sp<GrTextureProxy> proxy,
-                               GrSamplerState::Filter filter,
-                               const SkPMColor4f& color,
-                               const SkRect& srcRect,
-                               const SkRect& dstRect,
-                               GrAAType aaType,
-                               GrQuadAAFlags aaFlags,
-                               SkCanvas::SrcRectConstraint constraint,
-                               const SkMatrix& viewMatrix,
-                               sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                               SkBlendMode blendMode) {
-    return MakeGeneral(context, std::move(proxy), textureColorSpaceXform, filter, color, blendMode,
-                       aaType, aaFlags, GrQuad::MakeFromRect(dstRect, viewMatrix), GrQuad(srcRect),
-                       constraint == SkCanvas::kStrict_SrcRectConstraint ? &srcRect : nullptr);
-}
-
-std::unique_ptr<GrDrawOp> MakeQuad(GrRecordingContext* context,
-                                  sk_sp<GrTextureProxy> proxy,
-                                  GrSamplerState::Filter filter,
-                                  const SkPMColor4f& color,
-                                  const SkPoint srcQuad[4],
-                                  const SkPoint dstQuad[4],
-                                  GrAAType aaType,
-                                  GrQuadAAFlags aaFlags,
-                                  const SkRect* domain,
-                                  const SkMatrix& viewMatrix,
-                                  sk_sp<GrColorSpaceXform> textureXform,
-                                  SkBlendMode blendMode) {
-    return MakeGeneral(context, std::move(proxy), textureXform, filter, color, blendMode,
-                       aaType, aaFlags, GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
-                       GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()), domain);
 }
 
 std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
@@ -755,10 +721,11 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kTop : GrQuadAAFlags::kNone;
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kRight : GrQuadAAFlags::kNone;
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kBottom : GrQuadAAFlags::kNone;
-    auto constraint = random->nextBool() ? SkCanvas::kStrict_SrcRectConstraint
-                                         : SkCanvas::kFast_SrcRectConstraint;
-    return GrTextureOp::Make(context, std::move(proxy), filter, color, srcRect, rect, aaType,
-                             aaFlags, constraint, viewMatrix, std::move(texXform));
+    bool useDomain = random->nextBool();
+    return GrTextureOp::Make(context, std::move(proxy), std::move(texXform), filter, color,
+                             SkBlendMode::kSrcOver, aaType, aaFlags,
+                             GrQuad::MakeFromRect(rect, viewMatrix), GrQuad(srcRect),
+                             useDomain ? &srcRect : nullptr);
 }
 
 #endif

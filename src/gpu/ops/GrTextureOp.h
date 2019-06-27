@@ -31,48 +31,17 @@ namespace GrTextureOp {
  * deconstructed into the texture, filter, modulating color, and blend mode. When blend mode is
  * src over, this will return a GrFillRectOp with a paint that samples the proxy.
  */
-std::unique_ptr<GrDrawOp> MakeGeneral(GrRecordingContext* context,
-                                      sk_sp<GrTextureProxy> proxy,
-                                      sk_sp<GrColorSpaceXform> textureXform,
-                                      GrSamplerState::Filter filter,
-                                      const SkPMColor4f& color,
-                                      SkBlendMode blendMode,
-                                      GrAAType aaType,
-                                      GrQuadAAFlags aaFlags,
-                                      const GrQuad& deviceQuad,
-                                      const GrQuad& localQuad,
-                                      const SkRect* domain = nullptr);
-
-// FIXME (michaelludwig) - To be removed
-std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
-                               sk_sp<GrTextureProxy>,
-                               GrSamplerState::Filter,
-                               const SkPMColor4f&,
-                               const SkRect& srcRect,
-                               const SkRect& dstRect,
-                               GrAAType,
-                               GrQuadAAFlags,
-                               SkCanvas::SrcRectConstraint,
-                               const SkMatrix& viewMatrix,
+std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
+                               sk_sp<GrTextureProxy> proxy,
                                sk_sp<GrColorSpaceXform> textureXform,
-                               SkBlendMode blendMode = SkBlendMode::kSrcOver);
-
-// Generalizes the above subrect drawing operation to draw a subquad of an image, where srcQuad
-// and dstQuad correspond to srcRect and dstRect. If domain is not null, this behaves as if it
-// had a strict constraint relying on the given domain.
-// FIXME (michaelludwig) - To be removed
-std::unique_ptr<GrDrawOp> MakeQuad(GrRecordingContext* context,
-                                  sk_sp<GrTextureProxy>,
-                                  GrSamplerState::Filter,
-                                  const SkPMColor4f&,
-                                  const SkPoint srcQuad[4],
-                                  const SkPoint dstQuad[4],
-                                  GrAAType,
-                                  GrQuadAAFlags,
-                                  const SkRect* domain,
-                                  const SkMatrix& viewMatrix,
-                                  sk_sp<GrColorSpaceXform> textureXform,
-                                  SkBlendMode blendMode = SkBlendMode::kSrcOver);
+                               GrSamplerState::Filter filter,
+                               const SkPMColor4f& color,
+                               SkBlendMode blendMode,
+                               GrAAType aaType,
+                               GrQuadAAFlags aaFlags,
+                               const GrQuad& deviceQuad,
+                               const GrQuad& localQuad,
+                               const SkRect* domain = nullptr);
 
 // Unlike the single-proxy factory, this only supports src-over blending.
 std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext*,
