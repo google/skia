@@ -739,6 +739,8 @@ namespace skvm {
 
     void Assembler::fmla4s(V d, V n, V m) { this->op(0b0'1'0'01110'0'0'1, m, 0b11001'1, n, d); }
 
+    void Assembler::tbl(V d, V n, V m) { this->op(0b0'1'001110'00'0, m, 0b0'00'0'00, n, d); }
+
     void Assembler::shift(uint32_t op, int imm, V n, V d) {
         this->word( (op & 22_mask) << 10
                   | imm            << 16   // imm is embedded inside op, bit size depends on op
@@ -831,6 +833,39 @@ namespace skvm {
     #endif
     }
 
+    // Just so happens that we can translate the immediate control for our bytes() op
+    // to a single 128-bit mask that can be consumed by both AVX2 vpshufb and NEON tbl!
+    static void bytes_control(int imm, int mask[4]) {
+        auto nibble_to_vpshufb = [](uint8_t n) -> uint8_t {
+            // 0 -> 0xff,    Fill with zero
+            // 1 -> 0x00,    Select byte 0
+            // 2 -> 0x01,         "      1
+            // 3 -> 0x02,         "      2
+            // 4 -> 0x03,         "      3
+            return n - 1;
+        };
+        uint8_t control[] = {
+            nibble_to_vpshufb( (imm >>  0) & 0xf ),
+            nibble_to_vpshufb( (imm >>  4) & 0xf ),
+            nibble_to_vpshufb( (imm >>  8) & 0xf ),
+            nibble_to_vpshufb( (imm >> 12) & 0xf ),
+        };
+        for (int i = 0; i < 4; i++) {
+            mask[i] = (int)control[0] <<  0
+                    | (int)control[1] <<  8
+                    | (int)control[2] << 16
+                    | (int)control[3] << 24;
+
+            // Update each byte that refers to a byte index by 4 to
+            // point into the next 32-bit lane, but leave any 0xff
+            // that fills with zero alone.
+            control[0] += control[0] == 0xff ? 0 : 4;
+            control[1] += control[1] == 0xff ? 0 : 4;
+            control[2] += control[2] == 0xff ? 0 : 4;
+            control[3] += control[3] == 0xff ? 0 : 4;
+        }
+    }
+
     // Returns stride of the JIT, currently always 8.
     #if defined(__x86_64__)
     static int jit(Assembler& a, size_t* code,
@@ -867,49 +902,19 @@ namespace skvm {
         SkTHashMap<int, A::Label> vpshufb_masks;
         for (const Program::Instruction& inst : instructions) {
             if (inst.op == Op::bytes && vpshufb_masks.find(inst.imm) == nullptr) {
-                // Translate bytes()'s control nibbles to vpshufb's control bytes.
-                auto nibble_to_vpshufb = [](uint8_t n) -> uint8_t {
-                    // 0 -> 0xff,    Fill with zero
-                    // 1 -> 0x00,    Select byte 0
-                    // 2 -> 0x01,         "      1
-                    // 3 -> 0x02,         "      2
-                    // 4 -> 0x03,         "      3
-                    return n - 1;
-                };
-                uint8_t control[] = {
-                    nibble_to_vpshufb( (inst.imm >>  0) & 0xf ),
-                    nibble_to_vpshufb( (inst.imm >>  4) & 0xf ),
-                    nibble_to_vpshufb( (inst.imm >>  8) & 0xf ),
-                    nibble_to_vpshufb( (inst.imm >> 12) & 0xf ),
-                };
-
                 // Now, vpshufb is one of those weird AVX instructions
                 // that does everything in 2 128-bit chunks, so we'll
-                // only really need 4 distinct values to write in our pattern:
-                int p[4];
-                for (int i = 0; i < 4; i++) {
-                    p[i] = (int)control[0] <<  0
-                        | (int)control[1] <<  8
-                        | (int)control[2] << 16
-                        | (int)control[3] << 24;
-
-                    // Update each byte that refers to a byte index by 4 to
-                    // point into the next 32-bit lane, but leave any 0xff
-                    // that fills with zero alone.
-                    control[0] += control[0] == 0xff ? 0 : 4;
-                    control[1] += control[1] == 0xff ? 0 : 4;
-                    control[2] += control[2] == 0xff ? 0 : 4;
-                    control[3] += control[3] == 0xff ? 0 : 4;
-                }
+                // write the same mask pattern twice.
+                int mask[4];
+                bytes_control(inst.imm, mask);
 
                 // Notice, same pattern for top 4 32-bit lanes as bottom 4 lanes.
                 SkASSERT(a.size() % 32 == 0);
                 A::Label label = a.here();
-                a.byte(p, sizeof(p));
-                a.byte(p, sizeof(p));
+                a.byte(mask, sizeof(mask));
+                a.byte(mask, sizeof(mask));
                 vpshufb_masks.set(inst.imm, label);
             }
-
         }
 
         // Map from splat bit pattern to 4-byte aligned data location holding that pattern.
@@ -1053,8 +1058,17 @@ namespace skvm {
         };
         const int tmp = 23;  // i.e. v31
 
-        SkTHashMap<int, A::Label> splats;
+        SkTHashMap<int, A::Label> tbl_masks,
+                                  splats;
         for (const Program::Instruction& inst : instructions) {
+            if (inst.op == Op::bytes && tbl_masks.find(inst.imm) == nullptr) {
+                int mask[4];
+                bytes_control(inst.imm, mask);
+
+                A::Label label = a.here();
+                a.byte(mask, sizeof(mask));
+                tbl_masks.set(inst.imm, label);
+            }
             if (inst.op == Op::splat) {
                 A::Label label = a.here();
                 a.word(inst.imm);
@@ -1135,7 +1149,9 @@ namespace skvm {
                 case Op::to_f32: a.scvtf4s (r(d), r(x)); break;
                 case Op::to_i32: a.fcvtzs4s(r(d), r(x)); break;
 
-                case Op::bytes: TODO;
+                case Op::bytes: a.ldrq(r(tmp), *tbl_masks.find(imm));  // TODO: hoist instead of tmp
+                                a.tbl (r(d), r(x), r(tmp));
+                                break;
             }
         }
 
@@ -1207,7 +1223,7 @@ namespace skvm {
                 fJIT.mask  = mask;
 
 
-            #if defined(SKVM_PERF_DUMPS) // Debug dumps for perf.
+            #if 0 || defined(SKVM_PERF_DUMPS) // Debug dumps for perf.
                 #if defined(__aarch64__)
                     // cat | llvm-mc -arch aarch64 -disassemble
                     auto cur = (const uint8_t*)buf;
