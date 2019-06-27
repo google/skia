@@ -147,7 +147,7 @@ SkMatrix44 CameraAdapter::totalMatrix() const {
     //
     const auto view_size     = SkTMax(fViewportSize.width(), fViewportSize.height()),
                view_distance = this->getZoom(),
-               view_angle    = std::atan(view_size * 0.5f / view_distance);
+               view_angle    = std::atan(sk_ieee_float_divide(view_size * 0.5f, view_distance));
 
     SkMatrix44 persp_t;
     Sk3Perspective(&persp_t, 0, view_distance, 2 * view_angle);
