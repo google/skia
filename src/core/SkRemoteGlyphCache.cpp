@@ -557,29 +557,25 @@ void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& gl
 
 // Be sure to read and understand the comment for prepareForDrawing in SkStrikeInterface.h before
 // working on this code.
-SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
-        const SkGlyphID glyphIDs[],
-        const SkPoint positions[],
-        size_t n,
-        int maxDimension,
-        PreparationDetail detail,
-        SkGlyphPos results[]) {
+SkSpan<const SkGlyphPos>
+SkStrikeServer::SkGlyphCacheState::prepareForDrawing(const SkGlyphID glyphIDs[],
+                                                     const SkPoint positions[],
+                                                     const SkPackedGlyphID packedGlyphIDs[],
+                                                     size_t n,
+                                                     int maxDimension, PreparationDetail detail,
+                                                     SkGlyphPos results[]) {
 
     for (size_t i = 0; i < n; i++) {
         SkPoint glyphPos = positions[i];
-        SkGlyphID glyphID = glyphIDs[i];
-        SkIPoint lookupPoint = SkStrikeCommon::SubpixelLookup(fAxisAlignmentForHText, glyphPos);
-        SkPackedGlyphID packedGlyphID = fIsSubpixel ? SkPackedGlyphID{glyphID, lookupPoint}
-                                                    : SkPackedGlyphID{glyphID};
 
         // Check the cache for the glyph.
-        SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID);
+        SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphIDs[i]);
 
         // Has this glyph ever been seen before?
         if (glyphPtr == nullptr) {
 
             // Never seen before. Make a new glyph.
-            glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
+            glyphPtr = fAlloc.make<SkGlyph>(packedGlyphIDs[i]);
             fGlyphMap.set(glyphPtr);
             this->ensureScalerContext();
             fContext->getMetrics(glyphPtr);
@@ -602,8 +598,8 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
             }
 
             // Make sure to send the glyph to the GPU because we always send the image for a glyph.
-            fCachedGlyphImages.add(packedGlyphID);
-            fPendingGlyphImages.push_back(packedGlyphID);
+            fCachedGlyphImages.add(packedGlyphIDs[i]);
+            fPendingGlyphImages.push_back(packedGlyphIDs[i]);
         }
 
         // Each glyph needs to be added as per the contract for prepareForDrawing.
