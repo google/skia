@@ -1910,10 +1910,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     // NOTE: We disallow floating point textures on ES devices if linear filtering modes are not
     // supported. This is for simplicity, but a more granular approach is possible. Coincidentally,
     // [half] floating point textures became part of the standard in ES3.1 / OGL 3.0.
-    bool hasFP32Textures = false;
     bool hasFP16Textures = false;
-    bool rgIsTexturable = false;
-    bool hasFP32RenderTargets = false;
     enum class HalfFPRenderTargetSupport { kNone, kRGBAOnly, kAll };
     HalfFPRenderTargetSupport halfFPRenderTargetSupport = HalfFPRenderTargetSupport::kNone;
     // for now we don't support floating point MSAA on ES
@@ -1921,20 +1918,14 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
     if (GR_IS_GR_GL(standard)) {
         if (version >= GR_GL_VER(3, 0)) {
-            hasFP32Textures = true;
             hasFP16Textures = true;
-            rgIsTexturable = true;
-            hasFP32RenderTargets = true;
             halfFPRenderTargetSupport = HalfFPRenderTargetSupport::kAll;
         }
     } else if (GR_IS_GR_GL_ES(standard)) {
         if (version >= GR_GL_VER(3, 0)) {
-            hasFP32Textures = true;
             hasFP16Textures = true;
-            rgIsTexturable = true;
         } else if (ctxInfo.hasExtension("GL_OES_texture_float_linear") &&
                    ctxInfo.hasExtension("GL_OES_texture_float")) {
-            hasFP32Textures = true;
             hasFP16Textures = true;
         } else if (ctxInfo.hasExtension("GL_OES_texture_half_float_linear") &&
                    ctxInfo.hasExtension("GL_OES_texture_half_float")) {
@@ -1942,16 +1933,9 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         }
 
         if (version >= GR_GL_VER(3, 2)) {
-            // For now we only enable rendering to fp32 on desktop, because on ES we'd have to solve
-            // many precision issues and no clients actually want this yet.
-            // hasFP32RenderTargets = true;
             halfFPRenderTargetSupport = HalfFPRenderTargetSupport::kAll;
         } else if (ctxInfo.hasExtension("GL_EXT_color_buffer_float")) {
-            // For now we only enable rendering to fp32 on desktop, because on ES we'd have to
-            // solve many precision issues and no clients actually want this yet.
-            // hasFP32RenderTargets = true;
             halfFPRenderTargetSupport = HalfFPRenderTargetSupport::kAll;
-            rgIsTexturable = true;
         } else if (ctxInfo.hasExtension("GL_EXT_color_buffer_half_float")) {
             // This extension only enables half float support rendering for RGBA.
             halfFPRenderTargetSupport = HalfFPRenderTargetSupport::kRGBAOnly;
@@ -1961,7 +1945,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
              ctxInfo.hasExtension("GL_OES_texture_float")) ||
             (ctxInfo.hasExtension("OES_texture_float_linear") &&
              ctxInfo.hasExtension("OES_texture_float"))) {
-            hasFP32Textures = true;
             hasFP16Textures = true;
         } else if ((ctxInfo.hasExtension("GL_OES_texture_half_float_linear") &&
                     ctxInfo.hasExtension("GL_OES_texture_half_float")) ||
@@ -1983,6 +1966,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         }
     }
 
+    // We disable all texturing and rendering to F32 formats.
     for (auto fpconfig : {kRGBA_float_GrPixelConfig, kRG_float_GrPixelConfig}) {
         const GrGLenum format = kRGBA_float_GrPixelConfig == fpconfig ? GR_GL_RGBA : GR_GL_RG;
         fConfigTable[fpconfig].fFormats.fBaseInternalFormat = format;
@@ -1991,12 +1975,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[fpconfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = format;
         fConfigTable[fpconfig].fFormats.fExternalType = GR_GL_FLOAT;
         fConfigTable[fpconfig].fFormatType = kFloat_FormatType;
-        if (hasFP32Textures) {
-            fConfigTable[fpconfig].fFlags = rgIsTexturable ? ConfigInfo::kTextureable_Flag : 0;
-            if (hasFP32RenderTargets) {
-                fConfigTable[fpconfig].fFlags |= fpRenderFlags;
-            }
-        }
         if (texStorageSupported) {
             fConfigTable[fpconfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
         }

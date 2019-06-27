@@ -66,23 +66,6 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context, T min, T max, T
     }
 }
 
-static const int RGBA32F_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 4;
-static const float kMaxIntegerRepresentableInSPFloatingPoint = 16777216;  // 2 ^ 24
-
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FloatingPointTextureTest, reporter, ctxInfo) {
-    runFPTest<float>(reporter, ctxInfo.grContext(), FLT_MIN, FLT_MAX, FLT_EPSILON,
-                     kMaxIntegerRepresentableInSPFloatingPoint, RGBA32F_CONTROL_ARRAY_SIZE,
-                     GrColorType::kRGBA_F32);
-}
-
-static const int RG32F_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 2;
-
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FloatingPointTextureTest_RG, reporter, ctxInfo) {
-    runFPTest<float>(reporter, ctxInfo.grContext(), FLT_MIN, FLT_MAX, FLT_EPSILON,
-                     kMaxIntegerRepresentableInSPFloatingPoint, RG32F_CONTROL_ARRAY_SIZE,
-                     GrColorType::kRG_F32);
-}
-
 static const int HALF_ALPHA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 1 /*alpha-only*/;
 static const SkHalf kMaxIntegerRepresentableInHalfFloatingPoint = 0x6800;  // 2 ^ 11
 
