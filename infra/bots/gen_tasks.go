@@ -891,8 +891,34 @@ func attempts(name string) int {
 // compile generates a compile task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
-	task := kitchenTask(name, "compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, swarmDimensions(parts), EXTRA_PROPS, OUTPUT_BUILD)
-	usesGit(task, name)
+	recipe := "compile"
+	isolate := "compile.isolate"
+	var props map[string]string
+	needSync := false
+	if strings.Contains(name, "NoDEPS") ||
+		strings.Contains(name, "CMake") ||
+		strings.Contains(name, "CommandBuffer") ||
+		strings.Contains(name, "Flutter") ||
+		strings.Contains(name, "ParentRevision") {
+		recipe = "sync_and_compile"
+		isolate = "swarm_recipe.isolate"
+		props = EXTRA_PROPS
+		needSync = true
+	} else if strings.Contains(name, "Android") {
+		isolate = "compile_android.isolate"
+	} else if strings.Contains(name, "CanvasKit") {
+		isolate = "compile_canvaskit.isolate"
+	} else if strings.Contains(name, "iOS") {
+		isolate = "compile_ios.isolate"
+	} else if strings.Contains(name, "PathKit") {
+		isolate = "compile_pathkit.isolate"
+	}
+	task := kitchenTask(name, recipe, isolate, SERVICE_ACCOUNT_COMPILE, swarmDimensions(parts), props, OUTPUT_BUILD)
+	if needSync {
+		usesGit(task, name)
+	} else {
+		task.Idempotent = true
+	}
 	usesDocker(task, name)
 
 	// Android bots require a toolchain.
