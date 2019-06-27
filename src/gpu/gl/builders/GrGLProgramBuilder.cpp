@@ -369,7 +369,12 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     this->resolveProgramResourceLocations(programID, usedProgramBinaries);
 
     this->cleanupShaders(shadersToDelete);
-    if (!cached) {
+
+    // With ANGLE, we can't cache path-rendering programs. We use ProgramPathFragmentInputGen,
+    // and ANGLE's deserialized program state doesn't restore enough state to handle that.
+    // The native NVIDIA drivers do, but this is such an edge case that it's easier to just
+    // black-list caching these programs in all cases. See: anglebug.com/3619
+    if (!cached && !primProc.isPathRendering()) {
         bool isSkSL = false;
 #if GR_TEST_UTILS
         if (fGpu->getContext()->priv().options().fCacheSKSL) {
