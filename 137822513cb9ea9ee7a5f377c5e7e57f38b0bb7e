@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab39f93d_f2b0f9cc",
+        "filename": "tools/lottie-web-perf/lottie-web-perf.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-06-27T13:37:08Z",
+      "side": 1,
+      "message": "nit: const",
+      "range": {
+        "startLine": 75,
+        "startChar": 10,
+        "endLine": 75,
+        "endChar": 13
+      },
+      "revId": "137822513cb9ea9ee7a5f377c5e7e57f38b0bb7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
