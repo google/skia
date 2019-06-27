@@ -788,7 +788,7 @@ namespace skvm {
 
     void Assembler::bne(Label l) {
         // Jump in insts from before this one.
-        const int imm19 = (l.offset - here().offset) / 4;
+        const unsigned imm19 = (l.offset - here().offset) / 4;
         this->word( 0b0101010'0      << 24
                   | (imm19 & 524287) << 5
                   | 0b0'0001         << 0);
