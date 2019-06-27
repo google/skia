@@ -105,7 +105,8 @@ namespace skvm {
         DOpNM  and16b, orr16b, eor16b, bic16b,
                add4s,  sub4s,  mul4s,
                        sub8h,  mul8h,
-              fadd4s, fsub4s, fmul4s, fdiv4s;
+              fadd4s, fsub4s, fmul4s, fdiv4s,
+              tbl;
 
         // d += n*m
         void fmla4s(V d, V n, V m);
