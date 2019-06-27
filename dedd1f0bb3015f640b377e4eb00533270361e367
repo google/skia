@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bb9fdec_314472af",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-27T17:18:55Z",
+      "side": 1,
+      "message": "I wonder if this is still relevant. We don\u0027t ever try to make sRGB textures anymore, we only allow clients to wrap them. Might check with Brian O.",
+      "range": {
+        "startLine": 353,
+        "startChar": 0,
+        "endLine": 363,
+        "endChar": 5
+      },
+      "revId": "dedd1f0bb3015f640b377e4eb00533270361e367",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cf72a0e_a6ba3b02",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-06-27T17:18:55Z",
+      "side": 1,
+      "message": "This is no longer needed for two reasons:\n\n1) The command buffer does bind this function.\n\n2) This cap is never checked. We never call glTexCompressedSubImage2D. (though we will likely use it again in the future).",
+      "range": {
+        "startLine": 365,
+        "startChar": 3,
+        "endLine": 367,
+        "endChar": 0
+      },
+      "revId": "dedd1f0bb3015f640b377e4eb00533270361e367",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
