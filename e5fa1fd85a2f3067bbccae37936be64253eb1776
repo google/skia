@@ -22,6 +22,30 @@
       "revId": "e5fa1fd85a2f3067bbccae37936be64253eb1776",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae582cb4_1cc67f47",
+        "filename": "modules/skottie/src/text/SkottieShaper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-06-27T18:23:37Z",
+      "side": 1,
+      "message": "Yes, we flip the sign when converting from ascent percentage (as stored in JSON/font), to keep within the same domain as SkFontMetrics (which uses negative ascents): https://skia-review.googlesource.com/c/skia/+/223986/3/modules/skottie/src/text/TextValue.cpp#61",
+      "parentUuid": "71b38fac_0653c88c",
+      "range": {
+        "startLine": 163,
+        "startChar": 56,
+        "endLine": 163,
+        "endChar": 64
+      },
+      "revId": "e5fa1fd85a2f3067bbccae37936be64253eb1776",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
