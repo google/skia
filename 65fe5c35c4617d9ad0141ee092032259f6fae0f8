@@ -22,6 +22,30 @@
       "revId": "65fe5c35c4617d9ad0141ee092032259f6fae0f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3630af2c_de4717aa",
+        "filename": "modules/skottie/src/SkottiePriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-06-27T12:38:51Z",
+      "side": 1,
+      "message": "Ah, good point, you don\u0027t necessarily have access to this magic number when generating the input outside of AE.\n\nI\u0027ll update to only use when specified.",
+      "parentUuid": "a485ff33_913160f4",
+      "range": {
+        "startLine": 59,
+        "startChar": 34,
+        "endLine": 59,
+        "endChar": 44
+      },
+      "revId": "65fe5c35c4617d9ad0141ee092032259f6fae0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
