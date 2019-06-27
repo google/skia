@@ -380,17 +380,20 @@ ReadSuccessExpectation read_should_succeed(const SkIRect& srcRect, const SkImage
     if (!isGPU) {
         return ReadSuccessExpectation::kYes;
     }
+    // GPU doesn't allow this. Not sure what it means.
+    if (srcInfo.alphaType() == kOpaque_SkAlphaType &&
+        dstInfo.alphaType() != kOpaque_SkAlphaType) {
+        return ReadSuccessExpectation::kNo;
+    }
+
     // This serves more as documentation of what currently works on the GPU rather than desired
     // expectations. Once we make GrSurfaceContext color/alpha type aware and clean up some read
     // pixels code we will make more scenarios work.
 
-    // The GPU code current only does the premul->unpremul conversion, not the reverse.
-    if (srcInfo.alphaType() == kUnpremul_SkAlphaType &&
-        dstInfo.alphaType() == kPremul_SkAlphaType) {
-        return ReadSuccessExpectation::kNo;
-    }
     // We don't currently require reading alpha-only surfaces to succeed because of some pessimistic
     // caps decisions and alpha/red complexity in GL.
+
+    // TODO: REMOVE!
     if (SkColorTypeIsAlphaOnly(srcInfo.colorType())) {
         return ReadSuccessExpectation::kMaybe;
     }
@@ -493,22 +496,9 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
                 // Try doing the read directly from a non-renderable texture
                 if (startsWithPixels) {
                     fill_dst_bmp_with_init_data(&bmp);
-                    uint32_t flags = 0;
-                    // TODO: These two hacks can go away when the surface context knows the alpha
-                    // type.
-                    // Tell the read to perform an unpremul step since it doesn't know alpha type.
-                    if (gReadPixelsConfigs[c].fAlphaType == kUnpremul_SkAlphaType) {
-                        flags = GrSurfaceContext::kUnpremul_PixelOpsFlag;
-                    }
-                    // The surface context doesn't know that the src is opaque. We don't support
-                    // converting non-opaque data to opaque during a read.
-                    if (bmp.alphaType() == kOpaque_SkAlphaType &&
-                        surfaceInfo.alphaType() != kOpaque_SkAlphaType) {
-                        continue;
-                    }
                     bool success = sContext->readPixels(bmp.info(), bmp.getPixels(),
                                                         bmp.rowBytes(),
-                                                        srcRect.fLeft, srcRect.fTop, flags);
+                                                        srcRect.fLeft, srcRect.fTop);
                     auto expectSuccess =
                             read_should_succeed(srcRect, bmp.info(), surfaceInfo, true);
                     REPORTER_ASSERT(

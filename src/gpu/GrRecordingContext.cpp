@@ -154,7 +154,7 @@ sk_sp<GrSurfaceContext> GrRecordingContext::makeWrappedSurfaceContext(
     if (proxy->asRenderTargetProxy()) {
         SkASSERT(kPremul_SkAlphaType == alphaType || kOpaque_SkAlphaType == alphaType);
         return this->drawingManager()->makeRenderTargetContext(std::move(proxy), colorType,
-                                                               std::move(colorSpace), props);
+                std::move(colorSpace), props);
     } else {
         SkASSERT(proxy->asTextureProxy());
         SkASSERT(!props);
@@ -176,6 +176,7 @@ sk_sp<GrSurfaceContext> GrRecordingContext::makeDeferredSurfaceContext(
         const SkSurfaceProps* props) {
     sk_sp<GrTextureProxy> proxy;
     if (GrMipMapped::kNo == mipMapped) {
+        SkASSERT(alphaType == kPremul_SkAlphaType || alphaType == kOpaque_SkAlphaType);
         proxy = this->proxyProvider()->createProxy(format, dstDesc, origin, fit, isDstBudgeted);
     } else {
         SkASSERT(SkBackingFit::kExact == fit);

@@ -8,6 +8,7 @@
 #ifndef GrSurfaceContext_DEFINED
 #define GrSurfaceContext_DEFINED
 
+#include "GrDataUtils.h"
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/GrColorSpaceInfo.h"
 #include "src/gpu/GrSurfaceProxy.h"
@@ -15,6 +16,7 @@
 class GrAuditTrail;
 class GrDrawingManager;
 class GrOpList;
+struct GrPixelInfo;
 class GrRecordingContext;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
@@ -39,15 +41,6 @@ public:
     int width() const { return this->asSurfaceProxy()->width(); }
     int height() const { return this->asSurfaceProxy()->height(); }
 
-   /**
-    * These flags can be used with the read/write pixels functions below.
-    */
-    enum PixelOpsFlags {
-        /** The src for write or dst read is unpremultiplied. This is only respected if both the
-            config src and dst configs are an RGBA/BGRA 8888 format. */
-        kUnpremul_PixelOpsFlag  = 0x4,
-    };
-
     /**
      * Reads a rectangle of pixels from the render target context.
      * @param dstInfo       image info for the destination
@@ -60,7 +53,7 @@ public:
      *              unsupported pixel config.
      */
     bool readPixels(const SkImageInfo& dstInfo, void* dstBuffer, size_t dstRowBytes,
-                    int x, int y, uint32_t flags = 0);
+                    int x, int y0);
 
     /**
      * Writes a rectangle of pixels [srcInfo, srcBuffer, srcRowbytes] into the
@@ -75,24 +68,13 @@ public:
      *              unsupported pixel config.
      */
     bool writePixels(const SkImageInfo& srcInfo, const void* srcBuffer, size_t srcRowBytes,
-                     int x, int y, uint32_t flags = 0);
+                     int x, int y);
 
-#if GR_TEST_UTILS
-    // Accessors for tests to directly call read/writePixelsImpl
-    bool writePixels(GrContext* direct, int left, int top, int width, int height,
-                     GrColorType srcColorType, SkColorSpace* srcColorSpace,
-                     const void* srcBuffer, size_t srcRowBytes = 0, uint32_t pixelOpsFlags = 0) {
-        return writePixelsImpl(direct, left, top, width, height, srcColorType, srcColorSpace,
-                               srcBuffer, srcRowBytes, pixelOpsFlags);
-    }
+    bool writePixels(GrContext* direct, const GrPixelInfo& srcInfo, const void* src,
+                     size_t rowBytes, int x, int y);
 
-    bool readPixels(GrContext* direct, int left, int top, int width, int height,
-                    GrColorType dstColorType, SkColorSpace* dstColorSpace, void* buffer,
-                    size_t rowBytes = 0, uint32_t pixelOpsFlags = 0) {
-        return readPixelsImpl(direct, left, top, width, height, dstColorType, dstColorSpace,
-                              buffer, rowBytes, pixelOpsFlags);
-    }
-#endif
+    bool readPixels(GrContext* direct, const GrPixelInfo& dstInfo, void* dst, size_t rowBytes,
+                    int x, int y);
 
     // TODO: this is virtual b.c. this object doesn't have a pointer to the wrapped GrSurfaceProxy?
     virtual GrSurfaceProxy* asSurfaceProxy() = 0;
@@ -167,15 +149,6 @@ private:
     bool copy(GrSurfaceProxy* src) {
         return this->copy(src, SkIRect::MakeWH(src->width(), src->height()), SkIPoint::Make(0, 0));
     }
-
-    bool writePixelsImpl(GrContext* direct, int left, int top, int width, int height,
-                         GrColorType srcColorType, SkColorSpace* srcColorSpace,
-                         const void* srcBuffer, size_t srcRowBytes, uint32_t pixelOpsFlags);
-
-    bool readPixelsImpl(GrContext* direct, int left, int top, int width,
-                        int height, GrColorType dstColorType,
-                        SkColorSpace* dstColorSpace, void* buffer, size_t rowBytes,
-                        uint32_t pixelOpsFlags);
 
     GrColorSpaceInfo    fColorSpaceInfo;
 

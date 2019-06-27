@@ -128,28 +128,6 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
                                    std::move(copyProxy), this->refColorSpace());
 }
 
-static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
-    switch (info.colorType()) {
-    case kRGBA_8888_SkColorType:
-    case kBGRA_8888_SkColorType:
-        break;
-    default:
-        return; // nothing to do
-    }
-
-    // SkColor is not necessarily RGBA or BGRA, but it is one of them on little-endian,
-    // and in either case, the alpha-byte is always in the same place, so we can safely call
-    // SkPreMultiplyColor()
-    //
-    SkColor* row = (SkColor*)pixels;
-    for (int y = 0; y < info.height(); ++y) {
-        for (int x = 0; x < info.width(); ++x) {
-            row[x] = SkPreMultiplyColor(row[x]);
-        }
-        row = (SkColor*)((char*)(row)+rowBytes);
-    }
-}
-
 bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                    int srcX, int srcY, CachingHint) const {
     auto direct = fContext->priv().asDirectContext();
@@ -162,18 +140,10 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
         return false;
     }
 
+    // TODO REMOVE THIS
     SkReadPixelsRec rec(dstInfo, dstPixels, dstRB, srcX, srcY);
     if (!rec.trim(this->width(), this->height())) {
         return false;
-    }
-
-    // TODO: this seems to duplicate code in GrTextureContext::onReadPixels and
-    // GrRenderTargetContext::onReadPixels
-    uint32_t flags = 0;
-    if (kUnpremul_SkAlphaType == rec.fInfo.alphaType() &&
-        kPremul_SkAlphaType == this->alphaType()) {
-        // let the GPU perform this transformation for us
-        flags = GrSurfaceContext::kUnpremul_PixelOpsFlag;
     }
 
     sk_sp<GrSurfaceContext> sContext = direct->priv().makeWrappedSurfaceContext(
@@ -183,21 +153,8 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
         return false;
     }
 
-    if (!sContext->readPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY, flags)) {
+    if (!sContext->readPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY)) {
         return false;
-    }
-
-    // do we have to manually fix-up the alpha channel?
-    //      src         dst
-    //      unpremul    premul      fix manually
-    //      premul      unpremul    done by kUnpremul_PixelOpsFlag
-    // all other combos need to change.
-    //
-    // Should this be handled by Ganesh? todo:?
-    //
-    if (kPremul_SkAlphaType == rec.fInfo.alphaType() &&
-        kUnpremul_SkAlphaType == this->alphaType()) {
-        apply_premul(rec.fInfo, rec.fPixels, rec.fRowBytes);
     }
     return true;
 }

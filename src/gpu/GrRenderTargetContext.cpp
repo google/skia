@@ -1954,18 +1954,19 @@ GrRenderTargetContext::PixelTransferResult GrRenderTargetContext::transferPixels
             srcInfo.fColorInfo.fAlphaType = kPremul_SkAlphaType;
             srcInfo.fColorInfo.fColorType = supportedRead.fColorType;
             srcInfo.fColorInfo.fColorSpace = nullptr;
-            srcInfo.fRowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * w;
+            size_t srcRB = GrColorTypeBytesPerPixel(supportedRead.fColorType) * w;
 
             GrPixelInfo dstInfo;
             dstInfo.fColorInfo.fAlphaType = kPremul_SkAlphaType;
             dstInfo.fColorInfo.fColorType = dstCT;
             dstInfo.fColorInfo.fColorSpace = nullptr;
-            dstInfo.fRowBytes = GrColorTypeBytesPerPixel(dstCT) * w;
+            size_t dstRB  = GrColorTypeBytesPerPixel(dstCT) * w;
 
             srcInfo.fWidth  = dstInfo.fWidth  = w;
             srcInfo.fHeight = dstInfo.fHeight = h;
 
-            GrConvertPixels(dstInfo, dst, srcInfo, src, supportedRead.fSwizzle);
+            GrConvertPixels(dstInfo, dst, dstRB, srcInfo, src, srcRB, /* flipY = */ false,
+                            supportedRead.fSwizzle);
         };
     }
     return result;

@@ -203,6 +203,7 @@ bool SkGpuDevice::onReadPixels(const SkPixmap& pm, int x, int y) {
         return false;
     }
 
+    // TODO: delete me.
     SkReadPixelsRec rec(pm, x, y);
     if (!rec.trim(this->width(), this->height())) {
         return false;

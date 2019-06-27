@@ -548,7 +548,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
 
     SkBitmap bm;
     bm.allocPixels(fullII);
-    SkAssertResult(dest->readPixels(bm, 0, 0));
+    if (!dest->readPixels(bm, 0, 0))
+        SkAssertResult(dest->readPixels(bm, 0, 0));
 
     bool isCorrect = true;
     for (int y = 0; isCorrect && y < 16; ++y) {
