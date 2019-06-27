@@ -249,7 +249,7 @@ func project() string {
 
 // Build the LogDog annotation URL.
 func logdogAnnotationUrl() string {
-	return fmt.Sprintf("logdog://logs.chromium.org/%s/%s/+/annotations", project(), specs.PLACEHOLDER_TASK_ID)
+	return fmt.Sprintf("logdog://logs.chromium.org/%s/${SWARMING_TASK_ID}/+/annotations", project())
 }
 
 // Create a properties JSON string.
@@ -296,6 +296,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 	if outputDir != OUTPUT_NONE {
 		outputs = []string{outputDir}
 	}
+	python := "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}"
 	task := &specs.TaskSpec{
 		Caches: []*specs.Cache{
 			&specs.Cache{
@@ -304,28 +305,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 			},
 		},
 		CipdPackages: cipd,
-		Command: []string{
-			"./kitchen${EXECUTABLE_SUFFIX}", "cook",
-			"-checkout-dir", "recipe_bundle",
-			"-mode", "swarming",
-			"-luci-system-account", "system",
-			"-cache-dir", "cache",
-			"-temp-dir", "tmp",
-			"-known-gerrit-host", "android.googlesource.com",
-			"-known-gerrit-host", "boringssl.googlesource.com",
-			"-known-gerrit-host", "chromium.googlesource.com",
-			"-known-gerrit-host", "dart.googlesource.com",
-			"-known-gerrit-host", "fuchsia.googlesource.com",
-			"-known-gerrit-host", "go.googlesource.com",
-			"-known-gerrit-host", "llvm.googlesource.com",
-			"-known-gerrit-host", "skia.googlesource.com",
-			"-known-gerrit-host", "webrtc.googlesource.com",
-			"-output-result-json", "${ISOLATED_OUTDIR}/build_result_filename",
-			"-workdir", ".",
-			"-recipe", recipe,
-			"-properties", props(properties),
-			"-logdog-annotation-url", logdogAnnotationUrl(),
-		},
+		Command:      []string{python, "skia/infra/bots/run_recipe.py", "${ISOLATED_OUTDIR}", recipe, props(properties), project()},
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
@@ -1342,7 +1322,7 @@ func presubmit(b *specs.TasksCfgBuilder, name string) string {
 	}
 	// Use MACHINE_TYPE_LARGE because it seems to save time versus MEDIUM and we want presubmit to be
 	// fast.
-	task := kitchenTask(name, "run_presubmit", "empty.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_LARGE), extraProps, OUTPUT_NONE)
+	task := kitchenTask(name, "run_presubmit", "run_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_LARGE), extraProps, OUTPUT_NONE)
 	usesGit(task, name)
 	task.CipdPackages = append(task.CipdPackages, &specs.CipdPackage{
 		Name:    "infra/recipe_bundles/chromium.googlesource.com/chromium/tools/build",

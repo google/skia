@@ -1,11 +1,7 @@
 {
-  'includes': [
-    'infrabots.isolate',
-  ],
   'variables': {
     'files': [
       '../../../.gclient',
-      '../config/recipes.cfg',
       'run_recipe.py',
     ],
   },
