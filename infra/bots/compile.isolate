@@ -1,0 +1,23 @@
+{
+  'includes': [
+    'run_recipe.isolate',
+  ],
+  'variables': {
+    'files': [
+      '../../../.gclient',
+      '../../bench',
+      '../../BUILD.gn',
+      '../../buildtools',
+      '../../dm',
+      '../../gm',
+      '../../gn',
+      '../../include',
+      '../../modules',
+      '../../platform_tools',
+      '../../src',
+      '../../tests',
+      '../../third_party',
+      '../../tools',
+    ],
+  },
+}
