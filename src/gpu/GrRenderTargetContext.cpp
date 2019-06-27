@@ -1544,8 +1544,8 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     GrAAType aaType = this->chooseAAType(aa);
 
     std::unique_ptr<GrDrawOp> op;
-    if (GrAAType::kCoverage == aaType && oval.width() == oval.height() &&
-        viewMatrix.isSimilarity()) {
+    if (GrAAType::kCoverage == aaType && oval.width() > SK_ScalarNearlyZero &&
+        oval.width() == oval.height() && viewMatrix.isSimilarity()) {
         // We don't draw true circles as round rects in coverage mode, because it can
         // cause perf regressions on some platforms as compared to the dedicated circle Op.
         assert_alive(paint);
