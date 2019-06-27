@@ -159,6 +159,14 @@ public:
             return;
         }
 
+        SkASSERT(start <= end);
+        if (start == end) {
+            // SkShaper doesn't care for empty lines.
+            this->beginLine();
+            this->commitLine();
+            return;
+        }
+
         // When no text box is present, text is laid out on a single infinite line
         // (modulo explicit line breaks).
         const auto shape_width = fBox.isEmpty() ? SK_ScalarMax
