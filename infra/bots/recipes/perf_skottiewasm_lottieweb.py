@@ -36,6 +36,8 @@ LOTTIE_WEB_BLACKLIST = [
   'obama_caricature.json',
   'lottiefiles.com - Nudge.json',
   'lottiefiles.com - Retweet.json',
+  # Works in SVG but not in Canvas.
+  'Hello World.json',
 ]
 
 
