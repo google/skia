@@ -720,9 +720,6 @@ static bool mtl_format_to_pixel_config(MTLPixelFormat format, GrPixelConfig* con
         case MTLPixelFormatRGBA8Unorm_sRGB:
             *config = kSRGBA_8888_GrPixelConfig;
             return true;
-        case MTLPixelFormatBGRA8Unorm_sRGB:
-            *config = kSBGRA_8888_GrPixelConfig;
-            return true;
         case MTLPixelFormatRGB10A2Unorm:
             *config = kRGBA_1010102_GrPixelConfig;
             return true;

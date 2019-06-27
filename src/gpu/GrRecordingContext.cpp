@@ -272,11 +272,10 @@ static inline bool color_type_and_config_fallback(GrColorType* ct, GrPixelConfig
             *ct = GrColorType::kRGBA_8888;
             return true;
         case GrColorType::kBGRA_8888:
-            if (*config != kBGRA_8888_GrPixelConfig && *config != kSBGRA_8888_GrPixelConfig) {
+            if (*config != kBGRA_8888_GrPixelConfig) {
                 return false;
             }
-            *config = (*config == kSBGRA_8888_GrPixelConfig) ? kSRGBA_8888_GrPixelConfig
-                                                             : kRGBA_8888_GrPixelConfig;
+            *config = kRGBA_8888_GrPixelConfig;
             *ct = GrColorType::kRGBA_8888;
             return true;
         case GrColorType::kRGBA_1010102:

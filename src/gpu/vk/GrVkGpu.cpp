@@ -1848,9 +1848,6 @@ static bool vk_format_to_pixel_config(VkFormat format, GrPixelConfig* config) {
         case VK_FORMAT_R8G8B8A8_SRGB:
             *config = kSRGBA_8888_GrPixelConfig;
             return true;
-        case VK_FORMAT_B8G8R8A8_SRGB:
-            *config = kSBGRA_8888_GrPixelConfig;
-            return true;
         case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
             *config = kRGBA_1010102_GrPixelConfig;
             return true;
