@@ -15,7 +15,6 @@
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrPathRendering.h"
@@ -102,10 +101,6 @@ bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texPr
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
                                       const GrMipLevel texels[], int mipLevelCount) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    if (GrPixelConfigIsCompressed(origDesc.fConfig)) {
-        // Call GrGpu::createCompressedTexture.
-        return nullptr;
-    }
     GrSurfaceDesc desc = origDesc;
 
     GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
@@ -123,6 +118,10 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
     if (mipLevelCount && (desc.fFlags & kPerformInitialClear_GrSurfaceFlag)) {
         return nullptr;
     }
+
+    // We shouldn't be rendering into compressed textures
+    SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig) || !isRT);
+    SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig) || 1 == desc.fSampleCnt);
 
     this->handleDirtyContext();
     sk_sp<GrTexture> tex = this->onCreateTexture(desc, budgeted, texels, mipLevelCount);
@@ -142,27 +141,6 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
     return this->createTexture(desc, budgeted, nullptr, 0);
-}
-
-sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
-                                                SkImage::CompressionType compressionType,
-                                                SkBudgeted budgeted, const void* data,
-                                                size_t dataSize) {
-    this->handleDirtyContext();
-    if (width  < 1 || width  > this->caps()->maxTextureSize() ||
-        height < 1 || height > this->caps()->maxTextureSize()) {
-        return nullptr;
-    }
-    if (!data) {
-        return nullptr;
-    }
-    if (!this->caps()->isConfigTexturable(GrCompressionTypePixelConfig(compressionType))) {
-        return nullptr;
-    }
-    if (dataSize < GrCompressedDataSize(compressionType, width, height)) {
-        return nullptr;
-    }
-    return this->onCreateCompressedTexture(width, height, compressionType, budgeted, data);
 }
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,

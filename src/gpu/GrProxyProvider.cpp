@@ -411,10 +411,6 @@ static bool validate_backend_format_and_config(const GrCaps* caps,
     if (kUnknown_GrPixelConfig == config) {
         return false;
     }
-    if (GrPixelConfigIsCompressed(config)) {
-        // We have no way to verify these at the moment.
-        return true;
-    }
     SkColorType colorType = GrColorTypeToSkColorType(GrPixelConfigToColorType(config));
     if (colorType == kUnknown_SkColorType) {
         // We should add support for validating GrColorType with a GrBackendFormat. Currently we
@@ -435,10 +431,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                                    SkBudgeted budgeted,
                                                    GrInternalSurfaceFlags surfaceFlags) {
     SkASSERT(validate_backend_format_and_config(this->caps(), format, desc.fConfig));
-    if (GrPixelConfigIsCompressed(desc.fConfig)) {
-        // Deferred proxies for compressed textures are not supported.
-        return nullptr;
-    }
     if (GrMipMapped::kYes == mipMapped) {
         // SkMipMap doesn't include the base level in the level count so we have to add 1
         int mipCount = SkMipMap::ComputeLevelCount(desc.fWidth, desc.fHeight) + 1;
@@ -473,27 +465,25 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                                     fit, budgeted, surfaceFlags));
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
-        int width, int height, SkBudgeted budgeted, SkImage::CompressionType compressionType,
-        sk_sp<SkData> data) {
-    GrBackendFormat format = this->caps()->getBackendFormatFromCompressionType(compressionType);
-
-    GrSurfaceDesc desc;
-    desc.fConfig = GrCompressionTypePixelConfig(compressionType);
-    desc.fWidth = width;
-    desc.fHeight = height;
-
+sk_sp<GrTextureProxy> GrProxyProvider::createProxy(sk_sp<SkData> data, const GrSurfaceDesc& desc) {
     if (!this->caps()->isConfigTexturable(desc.fConfig)) {
         return nullptr;
     }
 
+    const GrColorType ct = GrPixelConfigToColorType(desc.fConfig);
+    const GrBackendFormat format =
+                            this->caps()->getBackendFormatFromGrColorType(ct, GrSRGBEncoded::kNo);
+
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [width, height, compressionType, budgeted, data](GrResourceProvider* resourceProvider) {
-                return LazyInstantiationResult(resourceProvider->createCompressedTexture(
-                        width, height, compressionType, budgeted, data.get()));
-            },
-            format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
-            SkBudgeted::kYes);
+        [desc, data](GrResourceProvider* resourceProvider) {
+            GrMipLevel texels;
+            texels.fPixels = data->data();
+            texels.fRowBytes = GrBytesPerPixel(desc.fConfig)*desc.fWidth;
+            return LazyInstantiationResult(
+                    resourceProvider->createTexture(desc, SkBudgeted::kYes, &texels, 1));
+        },
+        format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
+        SkBudgeted::kYes);
 
     if (!proxy) {
         return nullptr;
