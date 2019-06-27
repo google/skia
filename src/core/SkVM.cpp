@@ -808,15 +808,31 @@ namespace skvm {
                   | (src & 5_mask) << 0);
     }
 
+    void Assembler::ldrq(V dst, Label l) {
+        const int imm19 = (l.offset - here().offset) / 4;
+        this->word( 0b10'011'1'00     << 24
+                  | (imm19 & 19_mask) << 5
+                  | (dst   &  5_mask) << 0);
+    }
+
 #if defined(SKVM_JIT)
     static bool can_jit(int regs, int nargs) {
+    #if defined(__x86_64__)
         return true
             && SkCpu::Supports(SkCpu::HSW)   // TODO: SSE4.1 target?
             && regs  <= 15   // All 16 ymm registers, reserving one for us as tmp.
             && nargs <=  5;  // We can increase this if we push/pop GP registers.
+    #elif defined(__aarch64__)
+        return true
+            && regs  <= 23   // We can use 24 v registers without saving, reserving one as tmp.
+            && nargs <=  7;  // First 8 args are passed in registers.
+    #else
+        return false;
+    #endif
     }
 
     // Returns stride of the JIT, currently always 8.
+    #if defined(__x86_64__)
     static int jit(Assembler& a, size_t* code,
                    const std::vector<Program::Instruction>& instructions,
                    int regs, int loop, size_t strides[], int nargs) {
@@ -907,7 +923,7 @@ namespace skvm {
 
                 SkASSERT(a.size() % 4 == 0);
                 A::Label label = a.here();
-                a.byte(&inst.imm, 4);
+                a.word(inst.imm);
                 splats.set(inst.imm, label);
             }
         }
@@ -1009,6 +1025,134 @@ namespace skvm {
         // Return mask to apply to N for elements the JIT can handle.
         return ~(K-1);
     }
+    #elif defined(__aarch64__)
+    static int jit(Assembler& a, size_t* code,
+                   const std::vector<Program::Instruction>& instructions,
+                   int regs, int loop, size_t strides[], int nargs) {
+        using A = Assembler;
+        SkASSERT(can_jit(regs,nargs));
+
+        static constexpr int K = 4;
+
+        // These registers are used to pass the first 8 arguments,
+        // so if we stick to these we need not push, pop, spill, or move anything around.
+        A::X N = A::x0,
+            arg[] = { A::x1, A::x2, A::x3, A::x4, A::x5, A::x6, A::x7 };
+
+        // We can use v0-v7 and v16-v31 without doing anything to preserve them.
+        auto r = [](Reg ix) {
+            SkASSERT(ix < 24);
+            const A::V reg[] = { A::v0 , A::v1 , A::v2 , A::v3 , A::v4 , A::v5 , A::v6 , A::v7 ,
+                                 A::v16, A::v17, A::v18, A::v19, A::v20, A::v21, A::v22, A::v23,
+                                 A::v24, A::v25, A::v26, A::v27, A::v28, A::v29, A::v30, A::v31, };
+            return reg[ix];
+        };
+        const int tmp = 23;  // i.e. v31
+
+        SkTHashMap<int, A::Label> splats;
+        for (const Program::Instruction& inst : instructions) {
+            if (inst.op == Op::splat) {
+                A::Label label = a.here();
+                a.word(inst.imm);
+                a.word(inst.imm);
+                a.word(inst.imm);
+                a.word(inst.imm);
+                splats.set(inst.imm, label);
+            }
+        }
+
+        *code = a.size();
+
+        A::Label loop_label;
+        for (int i = 0; i < (int)instructions.size(); i++) {
+            if (i == loop) {
+                loop_label = a.here();
+            }
+            const Program::Instruction& inst = instructions[i];
+            Op  op = inst.op;
+
+            Reg   d = inst.d,
+                  x = inst.x,
+                  y = inst.y,
+                  z = inst.z;
+            int imm = inst.imm;
+            switch (op) {
+            #define TODO if (0) SkDebugf("op %d\n", op); return 0
+                case Op::store8: TODO;
+                case Op::store32: a.strq(r(x), arg[imm]); break;
+
+                case Op::load8: TODO;
+                case Op::load32: a.ldrq(r(d), arg[imm]); break;
+
+                case Op::splat: a.ldrq(r(d), *splats.find(imm)); break;
+
+                case Op::add_f32: a.fadd4s(r(d), r(x), r(y)); break;
+                case Op::sub_f32: a.fsub4s(r(d), r(x), r(y)); break;
+                case Op::mul_f32: a.fmul4s(r(d), r(x), r(y)); break;
+                case Op::div_f32: a.fdiv4s(r(d), r(x), r(y)); break;
+                case Op::mad_f32:
+                    if (d == z) {
+                        a.fmla4s(r(d), r(x), r(y));
+                    } else {
+                        a.fmul4s(r(tmp), r(x), r(y));
+                        a.fadd4s(r(d), r(tmp), r(z));
+                    }
+                    break;
+
+                case Op::add_i32: a.add4s(r(d), r(x), r(y)); break;
+                case Op::sub_i32: a.sub4s(r(d), r(x), r(y)); break;
+                case Op::mul_i32: a.mul4s(r(d), r(x), r(y)); break;
+
+                case Op::sub_i16x2: a.sub8h (r(d), r(x), r(y)); break;
+                case Op::mul_i16x2: a.mul8h (r(d), r(x), r(y)); break;
+                case Op::shr_i16x2: a.ushr8h(r(d), r(x),  imm); break;
+
+                case Op::bit_and  : a.and16b(r(d), r(x), r(y)); break;
+                case Op::bit_or   : a.orr16b(r(d), r(x), r(y)); break;
+                case Op::bit_xor  : a.eor16b(r(d), r(x), r(y)); break;
+                case Op::bit_clear: a.bic16b(r(d), r(x), r(y)); break;
+
+                case Op::shl: a.shl4s (r(d), r(x), imm); break;
+                case Op::shr: a.ushr4s(r(d), r(x), imm); break;
+                case Op::sra: a.sshr4s(r(d), r(x), imm); break;
+
+                case Op::extract: if (imm) {
+                                      a.ushr4s(r(tmp), r(x), imm);
+                                      a.and16b(r(d), r(tmp), r(y));
+                                  } else {
+                                      a.and16b(r(d), r(x), r(y));
+                                  }
+                                  break;
+
+                case Op::pack: a.shl4s (r(tmp), r(y), imm);
+                               a.orr16b(r(d), r(tmp), r(x));
+                               break;
+
+                case Op::to_f32: a.scvtf4s (r(d), r(x)); break;
+                case Op::to_i32: a.fcvtzs4s(r(d), r(x)); break;
+
+                case Op::bytes: TODO;
+            }
+        }
+
+        for (int i = 0; i < nargs; i++) {
+            a.add(arg[i], arg[i], K*(int)strides[i]);
+        }
+        a.subs(N, N, K);
+        a.bne(loop_label);
+        a.ret(A::x30);
+
+        return ~(K-1);
+    }
+
+    #else  // not x86-64 or aarch64
+    static int jit(Assembler& a, size_t* code,
+                   const std::vector<Program::Instruction>& instructions,
+                   int regs, int loop, size_t strides[], int nargs) {
+        *code = 0;
+        return 0;
+    }
+    #endif
 
     Program::JIT::~JIT() {
         if (buf) {
@@ -1048,15 +1192,33 @@ namespace skvm {
                 mask = jit(a,&code, fInstructions, fRegs, fLoop, strides, nargs);
 
                 mprotect(buf,size, PROT_READ|PROT_EXEC);
+            #if defined(__aarch64__)
+                msync(buf, size, MS_SYNC|MS_INVALIDATE);
+            #endif
 
                 entry = (decltype(entry))( (const uint8_t*)buf + code );
-
                 fJIT.buf   = buf;
                 fJIT.size  = size;
                 fJIT.entry = entry;
                 fJIT.mask  = mask;
 
+
             #if defined(SKVM_PERF_DUMPS) // Debug dumps for perf.
+                #if defined(__aarch64__)
+                    // cat | llvm-mc -arch aarch64 -disassemble
+                    auto cur = (const uint8_t*)buf;
+                    for (int i = 0; i < (int)a.size(); i++) {
+                        if (i % 4 == 0) {
+                            SkDebugf("\n");
+                            if (i == (int)code) {
+                                SkDebugf("loop:\n");
+                            }
+                        }
+                        SkDebugf("0x%02x ", *cur++);
+                    }
+                    SkDebugf("\n");
+                #endif
+
                 // We're doing some really stateful things below so one thread at a time please...
                 static SkSpinlock dump_lock;
                 SkAutoSpinlock lock(dump_lock);
