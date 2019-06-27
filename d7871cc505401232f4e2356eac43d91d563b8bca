@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15b36358_9361b84d",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1547,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-06-27T18:49:43Z",
+      "side": 1,
+      "message": "I wonder if it would be faster to set a threshold like 100x100? Do we have an idea about which op is faster for smaller (CPU bound) shapes as opposed to larger (GPU bound) ones?",
+      "revId": "d7871cc505401232f4e2356eac43d91d563b8bca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
