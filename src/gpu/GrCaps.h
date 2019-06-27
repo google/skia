@@ -52,6 +52,7 @@ public:
     bool srgbWriteControl() const { return fSRGBWriteControl; }
     bool discardRenderTargetSupport() const { return fDiscardRenderTargetSupport; }
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
+    bool compressedTexSubImageSupport() const { return fCompressedTexSubImageSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
     bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
@@ -404,6 +405,7 @@ protected:
     bool fReuseScratchTextures                       : 1;
     bool fReuseScratchBuffers                        : 1;
     bool fGpuTracingSupport                          : 1;
+    bool fCompressedTexSubImageSupport               : 1;
     bool fOversizedStencilSupport                    : 1;
     bool fTextureBarrierSupport                      : 1;
     bool fSampleLocationsSupport                     : 1;
