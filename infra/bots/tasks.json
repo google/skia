@@ -22922,7 +22922,7 @@
         ]
       },
       "idempotent": true,
-      "isolate": "swarm_recipe.isolate"
+      "isolate": "recipes.isolate"
     },
     "Housekeeper-PerCommit-CheckGeneratedFiles": {
       "caches": [

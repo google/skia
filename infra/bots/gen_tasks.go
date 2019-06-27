@@ -720,7 +720,7 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 		},
 		Idempotent: true,
-		Isolate:    relpath("swarm_recipe.isolate"),
+		Isolate:    relpath("recipes.isolate"),
 	})
 	return BUNDLE_RECIPES_NAME
 }
