@@ -1,8 +1,11 @@
 {
+  'includes': [
+    'run_recipe.isolate',
+  ],
   'variables': {
     'files': [
       '../../../.gclient',
-      'run_recipe.py',
+      'android_compile/',
     ],
   },
 }

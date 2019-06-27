@@ -923,10 +923,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 
 	// Android bots require a toolchain.
 	if strings.Contains(name, "Android") {
-		if parts["extra_config"] == "Android_Framework" {
-			// Do not need a toolchain when building the
-			// Android Framework.
-		} else if strings.Contains(name, "Mac") {
+		if strings.Contains(name, "Mac") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("android_ndk_darwin"))
 		} else if strings.Contains(name, "Win") {
 			pkg := b.MustGetCipdPackageFromAsset("android_ndk_windows")
@@ -1053,7 +1050,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name string) string {
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
 func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
-	task := kitchenTask(name, "android_compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
+	task := kitchenTask(name, "android_compile", "compile_android_framework.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
 	timeout(task, 2*time.Hour)
 	b.MustAddTask(name, task)
 	return name
@@ -1084,7 +1081,7 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 		}
 	}
 	extraProps := map[string]string{
-		"repository":           specs.PLACEHOLDER_REPO,
+		"repository": specs.PLACEHOLDER_REPO,
 	}
 	task := kitchenTask(name, "infra", "infra_tests.isolate", SERVICE_ACCOUNT_COMPILE, dims, extraProps, OUTPUT_NONE)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GSUTIL...)
