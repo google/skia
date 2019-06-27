@@ -1745,25 +1745,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
-    // sBGRA is not a "real" thing in OpenGL, but GPUs support it, and on platforms where
-    // kN32 == BGRA, we need some way to work with it. (The default framebuffer on Windows
-    // is in this format, for example).
-    fConfigTable[kSBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_SRGB_ALPHA;
-    fConfigTable[kSBGRA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_SRGB8_ALPHA8;
-    // GL does not do srgb<->rgb conversions when transferring between cpu and gpu. Thus, the
-    // external format is GL_BGRA.
-    fConfigTable[kSBGRA_8888_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] =
-        GR_GL_BGRA;
-    fConfigTable[kSBGRA_8888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    fConfigTable[kSBGRA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    if (fSRGBSupport && GR_IS_GR_GL(standard)) {
-        fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
-                                                         srgbRenderFlags;
-    }
-
-    if (texStorageSupported) {
-        fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-    }
 
     fConfigTable[kRGB_565_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGB;
     if (this->ES2CompatibilitySupport()) {
@@ -2271,12 +2252,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if (GR_IS_GR_GL_ES(standard) && version == GR_GL_VER(2,0)) {
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fExternalFormat[kTexImage_ExternalFormatUsage] =
             GR_GL_SRGB_ALPHA;
-
-        // Additionally, because we had to "invent" sBGRA, there is no way to make it work
-        // in ES 2.0, because there is no <internalFormat> we can use. So just make that format
-        // unsupported. (If we have no sRGB support at all, this will get overwritten below).
-        fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags = 0;
     }
+
     // On ES 2.0 we have to use GL_RGB with glTexImage as the internal/external formats must
     // be the same. Moreover, if we write kRGB_888x data to a texture format on non-ES2 we want to
     // be sure that we write 1 for alpha not whatever happens to be in the client provided the 'x'
@@ -3239,8 +3216,6 @@ GrPixelConfig validate_sized_format(GrGLenum format, SkColorType ct, GrGLStandar
                 if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
                     return kBGRA_8888_GrPixelConfig;
                 }
-            } else if (GR_GL_SRGB8_ALPHA8 == format) {
-                return kSBGRA_8888_GrPixelConfig;
             }
             break;
         case kRGBA_1010102_SkColorType:
