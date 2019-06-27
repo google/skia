@@ -129,7 +129,7 @@
       "    arg_names, **additional_args)",
       "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", in _invoke_with_properties",
       "    return callable_obj(*props, **additional_args)",
-      "  File \"RECIPE_REPO[skia]/infra/bots/recipes/perf_skottiewasm_lottieweb.py\", line 76, in RunSteps",
+      "  File \"RECIPE_REPO[skia]/infra/bots/recipes/perf_skottiewasm_lottieweb.py\", line 80, in RunSteps",
       "    raise Exception('Could not recognize the buildername %s' % buildername)",
       "Exception: Could not recognize the buildername Perf-Debian9-none-GCE-CPU-AVX2-x86_64-Release-All-Unrecognized"
     ]
