@@ -931,9 +931,12 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTexture", fContext);
+
+    const SkRect* domain = nullptr;
     if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
-        srcRect.contains(proxy->getWorstCaseBoundsRect())) {
-        constraint = SkCanvas::kFast_SrcRectConstraint;
+        !srcRect.contains(proxy->getWorstCaseBoundsRect())) {
+        // The domain coordinates will be the original src rect, not the clipped src rect
+        domain = &srcRect;
     }
 
     GrAAType aaType = this->chooseAAType(aa);
@@ -945,9 +948,10 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
     }
 
     AutoCheckFlush acf(this->drawingManager());
-    auto op = GrTextureOp::Make(fContext, std::move(proxy), filter, color, clippedSrcRect,
-                                clippedDstRect, aaType, aaFlags, constraint, viewMatrix,
-                                std::move(textureColorSpaceXform), mode);
+    auto op = GrTextureOp::Make(
+            fContext, std::move(proxy), std::move(textureColorSpaceXform), filter, color, mode,
+            aaType, aaFlags, GrQuad::MakeFromRect(clippedDstRect, viewMatrix),
+            GrQuad(clippedSrcRect), domain);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -971,8 +975,9 @@ void GrRenderTargetContext::drawTextureQuad(const GrClip& clip, sk_sp<GrTextureP
     // Unlike drawTexture(), don't bother cropping or optimizing the filter type since we're
     // sampling an arbitrary quad of the texture.
     AutoCheckFlush acf(this->drawingManager());
-    auto op = GrTextureOp::MakeQuad(fContext, std::move(proxy), filter, color, srcQuad, dstQuad,
-                                    aaType, aaFlags, domain, viewMatrix, std::move(texXform), mode);
+    auto op = GrTextureOp::Make(fContext, std::move(proxy), std::move(texXform), filter, color,
+                                mode, aaType, aaFlags, GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
+                                GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()), domain);
     this->addDrawOp(clip, std::move(op));
 }
 
