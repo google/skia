@@ -15,26 +15,48 @@
     #include <immintrin.h>
 
     static inline __m256i SkPMSrcOver_AVX2(const __m256i& src, const __m256i& dst) {
-        auto SkAlphaMulQ_AVX2 = [](const __m256i& c, const __m256i& scale) {
-            const __m256i mask = _mm256_set1_epi32(0xFF00FF);
-            __m256i s = _mm256_or_si256(_mm256_slli_epi32(scale, 16), scale);
+        // Abstractly srcover is
+        //     b = s + d*(1-srcA)
+        //
+        // In terms of unorm8 bytes, that works out to
+        //     b = s + (d*(255-srcA) + 127) / 255
+        //
+        // But we approximate that to within a bit with
+        //     b = s + (d*(255-srcA) + d) / 256
+        // a.k.a
+        //     b = s + (d*(256-srcA)) >> 8
 
-            // uint32_t rb = ((c & mask) * scale) >> 8
-            __m256i rb = _mm256_and_si256(mask, c);
-            rb = _mm256_mullo_epi16(rb, s);
-            rb = _mm256_srli_epi16(rb, 8);
+        // The bottleneck of this math is the multiply, and we want to do it as
+        // narrowly as possible, here getting inputs into 16-bit lanes and
+        // using 16-bit multiplies.  We can do twice as many multiplies at once
+        // as using naive 32-bit multiplies, and on top of that, the 16-bit multiplies
+        // are themselves a couple cycles quicker.  Win-win.
 
-            // uint32_t ag = ((c >> 8) & mask) * scale
-            __m256i ag = _mm256_srli_epi16(c, 8);
-            ag = _mm256_mullo_epi16(ag, s);
+        // We'll get everything in 16-bit lanes for two multiplies, one
+        // handling dst red and blue, the other green and alpha.  (They're
+        // conveniently 16-bits apart, you see.) We don't need the individual
+        // src channels beyond alpha until the very end when we do the "s + "
+        // add, and we don't even need to unpack them; the adds cannot overflow.
 
-            // (rb & mask) | (ag & ~mask)
-            ag = _mm256_andnot_si256(mask, ag);
-            return _mm256_or_si256(rb, ag);
-        };
-        return _mm256_add_epi32(src,
-                             SkAlphaMulQ_AVX2(dst, _mm256_sub_epi32(_mm256_set1_epi32(256),
-                                                                 _mm256_srli_epi32(src, 24))));
+        // Shuffle each pixel's srcA to the low byte of each 16-bit half of the pixel.
+        const int _ = -1;   // fills a literal 0 byte.
+        __m256i srcA_x2 = _mm256_shuffle_epi8(src,
+                _mm256_setr_epi8(3,_,3,_, 7,_,7,_, 11,_,11,_, 15,_,15,_,
+                                 3,_,3,_, 7,_,7,_, 11,_,11,_, 15,_,15,_));
+        __m256i scale_x2 = _mm256_sub_epi16(_mm256_set1_epi16(256),
+                                            srcA_x2);
+
+        // Scale red and blue, leaving results in the low byte of each 16-bit lane.
+        __m256i rb = _mm256_and_si256(_mm256_set1_epi32(0x00ff00ff), dst);
+        rb = _mm256_mullo_epi16(rb, scale_x2);
+        rb = _mm256_srli_epi16 (rb, 8);
+
+        // Scale green and alpha, leaving results in the high byte, masking off the low bits.
+        __m256i ga = _mm256_srli_epi16(dst, 8);
+        ga = _mm256_mullo_epi16(ga, scale_x2);
+        ga = _mm256_andnot_si256(_mm256_set1_epi32(0x00ff00ff), ga);
+
+        return _mm256_add_epi32(src, _mm256_or_si256(rb, ga));
     }
 
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
