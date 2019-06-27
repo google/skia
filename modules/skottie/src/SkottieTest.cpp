@@ -343,8 +343,8 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
         skottie::Shaper::VAlign align;
         SkScalar                topFactor;
     } kTestAligns[] = {
-        { skottie::Shaper::VAlign::kTop   , 0.0f },
-        { skottie::Shaper::VAlign::kCenter, 0.5f },
+        { skottie::Shaper::VAlign::kVisualTop   , 0.0f },
+        { skottie::Shaper::VAlign::kVisualCenter, 0.5f },
         // TODO: any way to test kTopBaseline?
     };
 

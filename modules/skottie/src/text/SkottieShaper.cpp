@@ -11,12 +11,38 @@
 #include "include/core/SkTextBlob.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skshaper/include/SkShaper.h"
+#include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"
 
 #include <limits.h>
 
 namespace skottie {
 namespace {
+
+SkRect ComputeBlobBounds(const sk_sp<SkTextBlob>& blob) {
+    auto bounds = SkRect::MakeEmpty();
+
+    if (!blob) {
+        return bounds;
+    }
+
+    SkAutoSTArray<16, SkRect> glyphBounds;
+
+    SkTextBlobRunIterator it(blob.get());
+
+    for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
+        glyphBounds.reset(SkToInt(it.glyphCount()));
+        it.font().getBounds(it.glyphs(), it.glyphCount(), glyphBounds.get(), nullptr);
+
+        SkASSERT(it.positioning() == SkTextBlobRunIterator::kFull_Positioning);
+        for (uint32_t i = 0; i < it.glyphCount(); ++i) {
+            bounds.join(glyphBounds[i].makeOffset(it.pos()[i * 2    ],
+                                                  it.pos()[i * 2 + 1]));
+        }
+    }
+
+    return bounds;
+}
 
 // Helper for interfacing with SkShaper: buffers shaper-fed runs and performs
 // per-line position adjustments (for external line breaking, horizontal alignment, etc).
@@ -119,11 +145,33 @@ public:
         // Note: ascent values are negative (relative to the baseline).
         const auto ascent = fDesc.fAscent ? fDesc.fAscent : fFirstLineAscent;
 
-        // By default, first line is vertically-aligned on a baseline of 0.
-        // The content height considered for vertical alignment is the distance between the first
-        // line top (ascent) to the last line bottom (descent).
-        const auto content_height = fLastLineDescent - ascent +
-                                    fDesc.fLineHeight * (fLineCount > 0 ? fLineCount - 1 : 0ul);
+        // For visual VAlign modes, we use a hybrid extent box computed as the union of
+        // actual visual bounds and the vertical typographical extent.
+        //
+        // This ensures that
+        //
+        //   a) text doesn't visually overflow the alignment boundaries
+        //
+        //   b) leading/trailing empty lines are still taken into account for alignment purposes
+
+        auto extent_box = [&]() {
+            auto box = fResult.computeVisualBounds();
+
+            // By default, first line is vertically-aligned on a baseline of 0.
+            // The typographical height considered for vertical alignment is the distance between
+            // the first line top (ascent) to the last line bottom (descent).
+            const auto typographical_top    = fBox.fTop + ascent,
+                       typographical_bottom = fBox.fTop + fLastLineDescent + fDesc.fLineHeight *
+                                                           (fLineCount > 0 ? fLineCount - 1 : 0ul);
+
+            box.fTop    = std::min(box.fTop,    typographical_top);
+            box.fBottom = std::max(box.fBottom, typographical_bottom);
+
+            return box;
+        };
+
+        // Only ShapeToFit cares about the result height, and it uses kVisualCenter.
+        SkASSERT(!shaped_height || fDesc.fVAlign == Shaper::VAlign::kVisualCenter);
 
         // Perform additional adjustments based on VAlign.
         float v_offset = 0;
@@ -134,13 +182,20 @@ public:
         case Shaper::VAlign::kTopBaseline:
             // Default behavior.
             break;
-        case Shaper::VAlign::kCenter:
-            v_offset = -ascent + (fBox.height() - content_height) * 0.5f;
+        case Shaper::VAlign::kVisualTop:
+            v_offset = fBox.fTop - extent_box().fTop;
             break;
-        case Shaper::VAlign::kBottom:
-            v_offset = -ascent + (fBox.height() - content_height);
+        case Shaper::VAlign::kVisualCenter: {
+            const auto ebox = extent_box();
+            v_offset = fBox.centerY() - ebox.centerY();
+            if (shaped_height) {
+                *shaped_height = ebox.height();
+            }
+        } break;
+        case Shaper::VAlign::kVisualBottom:
+            v_offset = fBox.fBottom - extent_box().fBottom;
             break;
-        case Shaper::VAlign::kResizeToFit:
+        case Shaper::VAlign::kVisualResizeToFit:
             SkASSERT(false);
             break;
         }
@@ -149,10 +204,6 @@ public:
             for (auto& fragment : fResult.fFragments) {
                 fragment.fPos.fY += v_offset;
             }
-        }
-
-        if (shaped_height) {
-            *shaped_height = content_height;
         }
 
         return std::move(fResult);
@@ -264,7 +315,7 @@ private:
 
 Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
                          const SkRect& box, float* shaped_height = nullptr) {
-    SkASSERT(desc.fVAlign != Shaper::VAlign::kResizeToFit);
+    SkASSERT(desc.fVAlign != Shaper::VAlign::kVisualResizeToFit);
 
     const auto& is_line_break = [](SkUnichar uch) {
         // TODO: other explicit breaks?
@@ -289,7 +340,7 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
 
 Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc,
                           const SkRect& box) {
-    SkASSERT(orig_desc.fVAlign == Shaper::VAlign::kResizeToFit);
+    SkASSERT(orig_desc.fVAlign == Shaper::VAlign::kVisualResizeToFit);
 
     Shaper::Result best_result;
 
@@ -298,7 +349,7 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
     }
 
     auto desc = orig_desc;
-    desc.fVAlign = Shaper::VAlign::kCenter;
+    desc.fVAlign = Shaper::VAlign::kVisualCenter;
 
     float in_scale = 0,                                 // maximum scale that fits inside
          out_scale = std::numeric_limits<float>::max(), // minimum scale that doesn't fit
@@ -346,15 +397,26 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
 } // namespace
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkPoint& point) {
-    return (desc.fVAlign == VAlign::kResizeToFit) // makes no sense in point mode
+    return (desc.fVAlign == VAlign::kVisualResizeToFit) // makes no sense in point mode
             ? Result()
             : ShapeImpl(txt, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()));
 }
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkRect& box) {
-    return (desc.fVAlign == VAlign::kResizeToFit)
+    return (desc.fVAlign == VAlign::kVisualResizeToFit)
             ? ShapeToFit(txt, desc, box)
             : ShapeImpl(txt, desc, box);
+}
+
+SkRect Shaper::Result::computeVisualBounds() const {
+    auto bounds = SkRect::MakeEmpty();
+
+    for (const auto& fragment : fFragments) {
+        bounds.join(ComputeBlobBounds(fragment.fBlob).makeOffset(fragment.fPos.x(),
+                                                                 fragment.fPos.y()));
+    }
+
+    return bounds;
 }
 
 } // namespace skottie
