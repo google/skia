@@ -15,13 +15,17 @@
 </head>
 <body>
   <main>
-    <div style="width:1000px;height:1000px" class=anim></div>
+    <div class=anim></div>
+    <canvas id=canvas width=1000 height=1000 style="height: 1000px; width: 1000px;"></canvas>
   </main>
   <script type="text/javascript" charset="utf-8">
     (function () {
       const PATH = '/res/lottie.json';
-      const RENDERER = 'svg';
+      const RENDERER = 'canvas';
       const FRAMES = 25;
+
+      const cvs = document.getElementById("canvas");
+      const canvasContext = cvs.getContext('2d');
 
       // Do an initial load to figure out how many frames we are working with
       // for calculating seek values later.
@@ -38,19 +42,22 @@
 
      initialAnim.addEventListener('data_ready', (e) => {
         // We no longer need initialAnim.
-        lottie.destroy()
+        initialAnim.destroy()
+
         console.log("Lottie has " + initialAnim.totalFrames + "total frames");
         totalFrames = initialAnim.totalFrames;
 
         // Load the animation with autoplay false. We will control which
         // frame to seek to and then will measure performance.
         let anim = lottie.loadAnimation({
-          container: document.querySelector('.anim'),
           renderer: RENDERER,
           loop: false,
           autoplay: false,
           path: PATH,
           rendererSettings: {
+            context: canvasContext,
+            scaleMode: 'noScale',
+            clearCanvas: true,
             preserveAspectRatio:'xMidYMid meet'
           },
         });
