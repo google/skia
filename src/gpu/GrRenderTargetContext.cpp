@@ -881,31 +881,6 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
     fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
-// Creates a paint for GrFillRectOp that matches behavior of GrTextureOp
-static void draw_texture_to_grpaint(sk_sp<GrTextureProxy> proxy, const SkRect* domain,
-                                    GrSamplerState::Filter filter, SkBlendMode mode,
-                                    const SkPMColor4f& color, sk_sp<GrColorSpaceXform> csXform,
-                                    GrPaint* paint) {
-    paint->setColor4f(color);
-    paint->setXPFactory(SkBlendMode_AsXPFactory(mode));
-
-    std::unique_ptr<GrFragmentProcessor> fp;
-    if (domain) {
-        SkRect correctedDomain = *domain;
-        if (filter == GrSamplerState::Filter::kBilerp) {
-            // Inset by 1/2 pixel, which GrTextureOp and GrTextureAdjuster handle automatically
-            correctedDomain.inset(0.5f, 0.5f);
-        }
-        fp = GrTextureDomainEffect::Make(std::move(proxy), SkMatrix::I(), correctedDomain,
-                                         GrTextureDomain::kClamp_Mode, filter);
-    } else {
-        fp = GrSimpleTextureEffect::Make(std::move(proxy), SkMatrix::I(), filter);
-    }
-
-    fp = GrColorSpaceXformEffect::Make(std::move(fp), csXform);
-    paint->addColorFragmentProcessor(std::move(fp));
-}
-
 void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
                                         GrSamplerState::Filter filter, SkBlendMode mode,
                                         const SkPMColor4f& color, const SkRect& srcRect,
@@ -931,29 +906,9 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
     }
 
     AutoCheckFlush acf(this->drawingManager());
-
-    std::unique_ptr<GrDrawOp> op;
-    if (mode != SkBlendMode::kSrcOver) {
-        // Emulation mode with GrPaint and GrFillRectOp
-        if (filter != GrSamplerState::Filter::kNearest &&
-            !GrTextureOp::GetFilterHasEffect(viewMatrix, clippedSrcRect, clippedDstRect)) {
-            filter = GrSamplerState::Filter::kNearest;
-        }
-
-        GrPaint paint;
-        draw_texture_to_grpaint(std::move(proxy),
-                constraint == SkCanvas::kStrict_SrcRectConstraint ? &srcRect : nullptr,
-                filter, mode, color, std::move(textureColorSpaceXform), &paint);
-        op = GrFillRectOp::Make(fContext, std::move(paint), aaType, aaFlags,
-                                GrQuad::MakeFromRect(clippedDstRect, viewMatrix),
-                                GrQuad(clippedSrcRect));
-    } else {
-        // Can use a lighter weight op that can chain across proxies
-        op = GrTextureOp::Make(fContext, std::move(proxy), filter, color, clippedSrcRect,
-                               clippedDstRect, aaType, aaFlags, constraint, viewMatrix,
-                               std::move(textureColorSpaceXform));
-    }
-
+    auto op = GrTextureOp::Make(fContext, std::move(proxy), filter, color, clippedSrcRect,
+                                clippedDstRect, aaType, aaFlags, constraint, viewMatrix,
+                                std::move(textureColorSpaceXform), mode);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -977,22 +932,8 @@ void GrRenderTargetContext::drawTextureQuad(const GrClip& clip, sk_sp<GrTextureP
     // Unlike drawTexture(), don't bother cropping or optimizing the filter type since we're
     // sampling an arbitrary quad of the texture.
     AutoCheckFlush acf(this->drawingManager());
-    std::unique_ptr<GrDrawOp> op;
-    if (mode != SkBlendMode::kSrcOver) {
-        // Emulation mode, but don't bother converting to kNearest filter since it's an arbitrary
-        // quad that is being drawn, which makes the tests too expensive here
-        GrPaint paint;
-        draw_texture_to_grpaint(
-                std::move(proxy), domain, filter, mode, color, std::move(texXform), &paint);
-        op = GrFillRectOp::Make(fContext, std::move(paint), aaType, aaFlags,
-                                GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
-                                GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()));
-    } else {
-        // Use lighter weight GrTextureOp
-        op = GrTextureOp::MakeQuad(fContext, std::move(proxy), filter, color, srcQuad, dstQuad,
-                                   aaType, aaFlags, domain, viewMatrix, std::move(texXform));
-    }
-
+    auto op = GrTextureOp::MakeQuad(fContext, std::move(proxy), filter, color, srcQuad, dstQuad,
+                                    aaType, aaFlags, domain, viewMatrix, std::move(texXform), mode);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -1008,7 +949,8 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
 
     if (mode != SkBlendMode::kSrcOver ||
         !fContext->priv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
-        // Draw one at a time with GrFillRectOp and a GrPaint that emulates what GrTextureOp does
+        // Draw one at a time since the bulk API doesn't support non src-over blending, or the
+        // backend can't support the bulk geometry processor yet.
         SkMatrix ctm;
         for (int i = 0; i < cnt; ++i) {
             float alpha = set[i].fAlpha;
