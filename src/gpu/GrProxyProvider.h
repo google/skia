@@ -96,9 +96,11 @@ public:
     }
 
     /*
-     * Create a texture proxy with data. It's assumed that the data is packed tightly.
+     * Create a texture proxy from compressed texture data.
      */
-    sk_sp<GrTextureProxy> createProxy(sk_sp<SkData>, const GrSurfaceDesc& desc);
+    sk_sp<GrTextureProxy> createCompressedTextureProxy(int width, int height, SkBudgeted budgeted,
+                                                       SkImage::CompressionType compressionType,
+                                                       sk_sp<SkData> data);
 
     // These match the definitions in SkImage & GrTexture.h, for whence they came
     typedef void* ReleaseContext;
