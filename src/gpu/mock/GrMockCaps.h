@@ -41,8 +41,7 @@ public:
             return false;
         }
 
-        return kSRGBA_8888_GrPixelConfig == *format.getMockFormat() ||
-               kSBGRA_8888_GrPixelConfig == *format.getMockFormat();
+        return kSRGBA_8888_GrPixelConfig == *format.getMockFormat();
     }
 
     bool isFormatTexturable(SkColorType, const GrBackendFormat& format) const override {
