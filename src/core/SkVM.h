@@ -84,7 +84,7 @@ namespace skvm {
         using DstEqOpX = void(Ymm dst, Ymm x);
         DstEqOpX vcvtdq2ps, vcvttps2dq;
 
-        struct Label { size_t offset; };
+        struct Label { int offset; };
         Label here();
 
         void jne(Label);

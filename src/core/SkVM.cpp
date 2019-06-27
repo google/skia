@@ -643,7 +643,7 @@ namespace skvm {
     void Assembler::vcvttps2dq(Ymm dst, Ymm x) { this->op(0xf3,0x0f,0x5b, dst,x); }
 
     Assembler::Label Assembler::here() {
-        return { this->size() };
+        return { (int)this->size() };
     }
 
     void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label l) {
