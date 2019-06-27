@@ -113,10 +113,14 @@ static int num_ETC1_blocks(int w, int h) {
     return w * h;
 }
 
-size_t GrETC1CompressedDataSize(int width, int height) {
-    int numBlocks = num_ETC1_blocks(width, height);
-
-    return numBlocks * sizeof(ETC1Block);
+size_t GrCompressedDataSize(SkImage::CompressionType type, int width, int height) {
+    switch (type) {
+        case SkImage::kETC1_CompressionType:
+            int numBlocks = num_ETC1_blocks(width, height);
+            return numBlocks * sizeof(ETC1Block);
+    }
+    SK_ABORT("Unexpected compression type");
+    return 0;
 }
 
 // Fill in 'dest' with ETC1 blocks derived from 'colorf'
@@ -306,22 +310,14 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
     return true;
 }
 
-size_t GrComputeTightCombinedBufferSize(GrCompression compression, size_t bytesPerPixel,
-                                        int baseWidth, int baseHeight,
-                                        SkTArray<size_t>* individualMipOffsets,
-                                        int mipLevelCount) {
+size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, int baseWidth, int baseHeight,
+                                        SkTArray<size_t>* individualMipOffsets, int mipLevelCount) {
     SkASSERT(individualMipOffsets && !individualMipOffsets->count());
     SkASSERT(mipLevelCount >= 1);
 
     individualMipOffsets->push_back(0);
 
     size_t combinedBufferSize = baseWidth * bytesPerPixel * baseHeight;
-    if (GrCompression::kETC1 == compression) {
-        SkASSERT(0 == bytesPerPixel);
-        bytesPerPixel = 4; // munge Bpp to make the following code work (and not assert)
-        combinedBufferSize = GrETC1CompressedDataSize(baseWidth, baseHeight);
-    }
-
     int currentWidth = baseWidth;
     int currentHeight = baseHeight;
 
@@ -335,12 +331,7 @@ size_t GrComputeTightCombinedBufferSize(GrCompression compression, size_t bytesP
         currentWidth = SkTMax(1, currentWidth / 2);
         currentHeight = SkTMax(1, currentHeight / 2);
 
-        size_t trimmedSize;
-        if (GrCompression::kETC1 == compression) {
-            trimmedSize = GrETC1CompressedDataSize(currentWidth, currentHeight);
-        } else {
-            trimmedSize = currentWidth * bytesPerPixel * currentHeight;
-        }
+        size_t trimmedSize = currentWidth * bytesPerPixel * currentHeight;
         const size_t alignmentDiff = combinedBufferSize % desiredAlignment;
         if (alignmentDiff != 0) {
             combinedBufferSize += desiredAlignment - alignmentDiff;
@@ -355,12 +346,11 @@ size_t GrComputeTightCombinedBufferSize(GrCompression compression, size_t bytesP
     return combinedBufferSize;
 }
 
-void GrFillInData(GrCompression compression, GrPixelConfig config,
-                  int baseWidth, int baseHeight,
+void GrFillInData(GrPixelConfig config, int baseWidth, int baseHeight,
                   const SkTArray<size_t>& individualMipOffsets, char* dstPixels,
                   const SkColor4f& colorf) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-
+    SkASSERT(!GrPixelConfigIsCompressed(config));
     int mipLevels = individualMipOffsets.count();
 
     int currentWidth = baseWidth;
@@ -368,16 +358,19 @@ void GrFillInData(GrCompression compression, GrPixelConfig config,
     for (int currentMipLevel = 0; currentMipLevel < mipLevels; ++currentMipLevel) {
         size_t offset = individualMipOffsets[currentMipLevel];
 
-        if (GrCompression::kETC1 == compression) {
-            // TODO: compute the ETC1 block for 'colorf' just once
-            fillin_ETC1_with_color(currentWidth, currentHeight, colorf, &(dstPixels[offset]));
-        } else {
-            fill_buffer_with_color(config, currentWidth, currentHeight, colorf,
-                                   &(dstPixels[offset]));
-        }
-
+        fill_buffer_with_color(config, currentWidth, currentHeight, colorf, &(dstPixels[offset]));
         currentWidth = SkTMax(1, currentWidth / 2);
         currentHeight = SkTMax(1, currentHeight / 2);
+    }
+}
+
+void GrFillInCompressedData(SkImage::CompressionType type, int baseWidth, int baseHeight,
+                            char* dstPixels, const SkColor4f& colorf) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    int currentWidth = baseWidth;
+    int currentHeight = baseHeight;
+    if (SkImage::kETC1_CompressionType == type) {
+        fillin_ETC1_with_color(currentWidth, currentHeight, colorf, dstPixels);
     }
 }
 
@@ -423,7 +416,6 @@ static GrSwizzle get_load_and_get_swizzle(GrColorType ct, SkRasterPipeline::Stoc
                                              break;
 
         case GrColorType::kUnknown:
-        case GrColorType::kRGB_ETC1:
             SK_ABORT("unexpected CT");
     }
     return swizzle;
@@ -471,7 +463,6 @@ static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::Sto
 
         case GrColorType::kGray_8:  // not currently supported as output
         case GrColorType::kUnknown:
-        case GrColorType::kRGB_ETC1:
             SK_ABORT("unexpected CT");
     }
     return swizzle;

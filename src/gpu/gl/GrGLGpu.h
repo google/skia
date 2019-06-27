@@ -194,6 +194,9 @@ private:
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                      const GrMipLevel texels[], int mipLevelCount) override;
+    sk_sp<GrTexture> onCreateCompressedTexture(int width, int height,
+                                               SkImage::CompressionType compression, SkBudgeted,
+                                               const void* data) override;
 
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType intendedType, GrAccessPattern,
                                       const void* data) override;
@@ -220,6 +223,11 @@ private:
                            GrGLTextureParameters::SamplerOverriddenState* initialState,
                            const GrMipLevel texels[], int mipLevelCount,
                            GrMipMapsStatus* mipMapsStatus);
+
+    bool createCompressedTextureImpl(GrGLTextureInfo* info, int width, int height,
+                                     SkImage::CompressionType compression,
+                                     GrGLTextureParameters::SamplerOverriddenState* initialState,
+                                     const void* data);
 
     // Checks whether glReadPixels can be called to get pixel values in readConfig from the
     // render target.
@@ -398,12 +406,11 @@ private:
                        GrPixelConfig dataConfig, const GrMipLevel texels[], int mipLevelCount,
                        GrMipMapsStatus* mipMapsStatus = nullptr);
 
-    // helper for onCreateCompressedTexture. Compressed textures are read-only so we
-    // only use this to populate a new texture.
-    bool uploadCompressedTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
-                                 GrGLenum target,
-                                 const GrMipLevel texels[], int mipLevelCount,
-                                 GrMipMapsStatus* mipMapsStatus = nullptr);
+    // Helper for onCreateCompressedTexture. Compressed textures are read-only so we
+    // only use this to populate a new texture. Returns the internal format of the texture
+    // or 0 on failure.
+    GrGLenum uploadCompressedTexData(SkImage::CompressionType, int width, int height,
+                                     GrGLenum target, const void* data);
 
     bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
                                    GrGLRenderTarget::IDDesc*);
