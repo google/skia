@@ -1,0 +1,12 @@
+{
+  'variables': {
+    'files': [
+      '../../../.gclient',
+      '../config/recipes.cfg',
+      'bundle_recipes.sh',
+      'recipe_modules/',
+      'recipes/',
+      'recipes.py',
+    ],
+  },
+}
