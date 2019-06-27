@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a8c46c23_7e850f06",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-27T17:29:32Z",
+      "side": 1,
+      "message": "Brian agreed to delete it.",
+      "parentUuid": "7bb9fdec_314472af",
+      "range": {
+        "startLine": 353,
+        "startChar": 0,
+        "endLine": 363,
+        "endChar": 5
+      },
+      "revId": "dedd1f0bb3015f640b377e4eb00533270361e367",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8cf72a0e_a6ba3b02",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "dedd1f0bb3015f640b377e4eb00533270361e367",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28d1260b_5986e90e",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-27T17:29:32Z",
+      "side": 1,
+      "message": "Removed cap. We can add it back again when we need it.",
+      "parentUuid": "8cf72a0e_a6ba3b02",
+      "range": {
+        "startLine": 365,
+        "startChar": 3,
+        "endLine": 367,
+        "endChar": 0
+      },
+      "revId": "dedd1f0bb3015f640b377e4eb00533270361e367",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
