@@ -8,6 +8,8 @@
 #include "include/core/SkExecutor.h"
 #include "include/gpu/GrContextOptions.h"
 #include "tools/flags/CommonFlags.h"
+#include "tools/gpu/MemoryCache.h"
+
 
 DEFINE_int(gpuThreads,
              2,
@@ -31,6 +33,8 @@ static DEFINE_bool(disableDriverCorrectnessWorkarounds, false,
 
 static DEFINE_bool(reduceOpListSplitting, false, "Improve opList sorting");
 static DEFINE_bool(dontReduceOpListSplitting, false, "Allow more opList splitting");
+
+static DEFINE_bool(programBinaryCache, false, "Use in-memory program binary cache");
 
 static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
     if (!strcmp(name, "none")) {
@@ -89,6 +93,11 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fSuppressGeometryShaders             = FLAGS_noGS;
     ctxOptions->fGpuPathRenderers                    = collect_gpu_path_renderers_from_flags();
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
+
+    if (FLAGS_programBinaryCache) {
+        static sk_gpu_test::MemoryCache gMemoryCache;
+        ctxOptions->fPersistentCache = &gMemoryCache;
+    }
 
     if (FLAGS_reduceOpListSplitting) {
         SkASSERT(!FLAGS_dontReduceOpListSplitting);
