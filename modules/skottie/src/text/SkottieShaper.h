@@ -59,7 +59,8 @@ public:
     struct TextDesc {
         const sk_sp<SkTypeface>&  fTypeface;
         SkScalar                  fTextSize,
-                                  fLineHeight;
+                                  fLineHeight,
+                                  fAscent;
         SkTextUtils::Align        fHAlign;
         VAlign                    fVAlign;
         uint32_t                  fFlags;

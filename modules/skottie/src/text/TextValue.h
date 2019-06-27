@@ -20,7 +20,8 @@ struct TextValue {
     SkString           fText;
     float              fTextSize    = 0,
                        fStrokeWidth = 0,
-                       fLineHeight  = 0;
+                       fLineHeight  = 0,
+                       fAscent      = 0;
     SkTextUtils::Align fHAlign      = SkTextUtils::kLeft_Align;
     Shaper::VAlign     fVAlign      = Shaper::VAlign::kTop;
     SkRect             fBox         = SkRect::MakeEmpty();

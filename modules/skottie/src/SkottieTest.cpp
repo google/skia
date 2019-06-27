@@ -294,6 +294,7 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
                 typeface,
                 tsize.text_size,
                 tsize.text_size,
+                0,
                 talign.align,
                 skottie::Shaper::VAlign::kTopBaseline,
                 Shaper::Flags::kNone
@@ -357,6 +358,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
                 typeface,
                 tsize.text_size,
                 tsize.text_size,
+                0,
                 SkTextUtils::Align::kCenter_Align,
                 talign.align,
                 Shaper::Flags::kNone
@@ -391,6 +393,7 @@ DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
         SkTypeface::MakeDefault(),
         18,
         18,
+         0,
         SkTextUtils::Align::kCenter_Align,
         Shaper::VAlign::kTop,
         Shaper::Flags::kNone
