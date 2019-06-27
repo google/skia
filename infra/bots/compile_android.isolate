@@ -1,0 +1,10 @@
+{
+  'includes': [
+    'compile.isolate',
+  ],
+  'variables': {
+    'files': [
+      '../../platform_tools/android',
+    ],
+  },
+}
