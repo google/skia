@@ -126,6 +126,7 @@ namespace skvm {
         void subs(X d, X n, int imm12);
         void bne (Label);
 
+        void ldrq(V dst, Label);  // 128-bit PC-relative load
         void ldrq(V dst, X src);  // 128-bit dst = *src
         void strq(V src, X dst);  // 128-bit *dst = src
 
