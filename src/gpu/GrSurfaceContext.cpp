@@ -72,6 +72,7 @@ static bool valid_premul_color_type(GrColorType ct) {
         case GrColorType::kRGBA_F16_Clamped: return true;
         case GrColorType::kRG_F32:           return false;
         case GrColorType::kRGBA_F32:         return true;
+        case GrColorType::kRGB_ETC1:         return false;
         case GrColorType::kR_16:             return false;
         case GrColorType::kRG_1616:          return false;
         // Experimental (for Y416 and mutant P016/P010)

@@ -106,25 +106,6 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgete
     return sk_sp<GrTexture>(new GrMockTexture(this, budgeted, desc, mipMapsStatus, texInfo));
 }
 
-sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(int width, int height,
-                                                      SkImage::CompressionType compressionType,
-                                                      SkBudgeted budgeted, const void* data) {
-    if (fMockOptions.fFailTextureAllocations) {
-        return nullptr;
-    }
-    GrBackendFormat format = this->caps()->getBackendFormatFromCompressionType(compressionType);
-
-    GrMockTextureInfo texInfo;
-    texInfo.fConfig = *format.getMockFormat();
-    texInfo.fID = NextInternalTextureID();
-    GrSurfaceDesc desc;
-    desc.fConfig = texInfo.fConfig;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    return sk_sp<GrTexture>(
-            new GrMockTexture(this, budgeted, desc, GrMipMapsStatus::kNotAllocated, texInfo));
-}
-
 sk_sp<GrTexture> GrMockGpu::onWrapBackendTexture(const GrBackendTexture& tex,
                                                  GrWrapOwnership ownership,
                                                  GrWrapCacheable wrapType, GrIOType ioType) {

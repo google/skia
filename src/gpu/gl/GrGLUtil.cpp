@@ -602,17 +602,36 @@ bool GrGLFormatIsCompressed(GrGLenum glFormat) {
         default:
             return false;
     }
+    SK_ABORT("Invalid format");
+    return false;
 }
 
-bool GrGLFormatToCompressionType(GrGLenum glFormat, SkImage::CompressionType* compressionType) {
+GrCompression GrGLFormat2Compression(GrGLenum glFormat) {
     switch (glFormat) {
         case GR_GL_COMPRESSED_RGB8_ETC2: // fall through
         case GR_GL_COMPRESSED_ETC1_RGB8:
-            *compressionType = SkImage::kETC1_CompressionType;
-            return true;
+            return GrCompression::kETC1;
         default:
-            return false;
+            return GrCompression::kNone;
     }
+    SK_ABORT("Invalid format");
+    return GrCompression::kNone;
+}
+
+size_t GrGLFormatCompressedDataSize(GrGLenum glFormat, int width, int height) {
+    SkASSERT(GrGLFormatIsCompressed(glFormat));
+
+    switch (glFormat) {
+        case GR_GL_COMPRESSED_RGB8_ETC2:  // fall through
+        case GR_GL_COMPRESSED_ETC1_RGB8:
+            return GrETC1CompressedDataSize(width, height);
+        default:
+            SK_ABORT("Unknown compressed format");
+            return 4 * width * height;
+    }
+
+    SK_ABORT("Unknown compressed format");
+    return 4 * width * height;
 }
 
 size_t GrGLBytesPerFormat(GrGLenum glFormat) {

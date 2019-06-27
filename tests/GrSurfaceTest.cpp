@@ -14,7 +14,6 @@
 #include "src/core/SkMipMap.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceProvider.h"
@@ -114,41 +113,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     };
     GR_STATIC_ASSERT(kGrPixelConfigCnt == SK_ARRAY_COUNT(configs));
 
-    auto createTexture = [](int width, int height, GrPixelConfig config, GrRenderable renderable,
-                            GrResourceProvider* rp) -> sk_sp<GrTexture> {
-        if (GrPixelConfigIsCompressed(config)) {
-            if (renderable == GrRenderable::kYes) {
-                return nullptr;
-            }
-            SkImage::CompressionType type;
-            switch (config) {
-                case kRGB_ETC1_GrPixelConfig:
-                    type = SkImage::kETC1_CompressionType;
-                    break;
-                default:
-                    SK_ABORT("Unexpected config");
-                    return nullptr;
-            }
-            // Only supported compression type right now.
-            SkASSERT(config == kRGB_ETC1_GrPixelConfig);
-            auto size = GrCompressedDataSize(type, width, height);
-            auto data = SkData::MakeUninitialized(size);
-            SkColor4f color = {0, 0, 0, 0};
-            GrFillInCompressedData(type, width, height, (char*)data->writable_data(), color);
-            return rp->createCompressedTexture(width, height, SkImage::kETC1_CompressionType,
-                                               SkBudgeted::kNo, data.get());
-        } else {
-            GrSurfaceDesc desc;
-            desc.fWidth = width;
-            desc.fHeight = height;
-            desc.fFlags = renderable == GrRenderable::kYes ? kRenderTarget_GrSurfaceFlag
-                                                           : kNone_GrSurfaceFlags;
-            desc.fConfig = config;
-            desc.fSampleCnt = 1;
-            return rp->createTexture(desc, SkBudgeted::kNo,
-                                     GrResourceProvider::Flags::kNoPendingIO);
-        }
-    };
+    GrSurfaceDesc desc;
+    desc.fWidth = 64;
+    desc.fHeight = 64;
 
     for (GrPixelConfig config : configs) {
         for (GrSurfaceOrigin origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
@@ -156,13 +123,13 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 // It is not valid to be calling into GrProxyProvider with an unknown pixel config.
                 continue;
             }
-            static constexpr int kW = 64;
-            static constexpr int kH = 64;
+            desc.fFlags = kNone_GrSurfaceFlags;
+            desc.fConfig = config;
+            desc.fSampleCnt = 1;
 
-            bool ict = caps->isConfigTexturable(config);
-
-            sk_sp<GrSurface> tex =
-                    createTexture(kW, kH, config, GrRenderable::kNo, resourceProvider);
+            sk_sp<GrSurface> tex = resourceProvider->createTexture(
+                desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
+            bool ict = caps->isConfigTexturable(desc.fConfig);
             REPORTER_ASSERT(reporter, SkToBool(tex) == ict,
                             "config:%d, tex:%d, isConfigTexturable:%d", config, SkToBool(tex), ict);
 
@@ -174,19 +141,11 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 continue;
             }
 
-            GrSurfaceDesc desc;
-            desc.fWidth = kW;
-            desc.fHeight = kH;
-            desc.fFlags = kNone_GrSurfaceFlags;
-            desc.fConfig = config;
-            desc.fSampleCnt = 1;
-
             sk_sp<GrTextureProxy> proxy =
                     proxyProvider->createMipMapProxy(format, desc, origin, SkBudgeted::kNo);
-            REPORTER_ASSERT(reporter,
-                            SkToBool(proxy.get()) ==
-                                    (caps->isConfigTexturable(desc.fConfig) &&
-                                     caps->mipMapSupport() && !GrPixelConfigIsCompressed(config)));
+            REPORTER_ASSERT(reporter, SkToBool(proxy.get()) ==
+                            (caps->isConfigTexturable(desc.fConfig) &&
+                             caps->mipMapSupport()));
 
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
             tex = resourceProvider->createTexture(desc, SkBudgeted::kNo,
