@@ -150,6 +150,16 @@ public:
         return GrBackendFormat::MakeMock(config);
     }
 
+    GrBackendFormat getBackendFormatFromCompressionType(
+            SkImage::CompressionType compressionType) const override {
+        switch (compressionType) {
+            case SkImage::kETC1_CompressionType:
+                return GrBackendFormat::MakeMock(kRGB_ETC1_GrPixelConfig);
+        }
+        SK_ABORT("Invalid compression type");
+        return {};
+    }
+
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override {
         return GrSwizzle();
     }

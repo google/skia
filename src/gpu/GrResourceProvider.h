@@ -88,6 +88,11 @@ public:
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, SkBackingFit,
                                    const GrMipLevel&, Flags);
 
+    // Creates a compressed texture. The GrGpu must support the SkImageImage::Compression type.
+    // This does not currently support MIP maps.
+    sk_sp<GrTexture> createCompressedTexture(int width, int height, SkImage::CompressionType,
+                                             SkBudgeted, SkData* data);
+
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces
 

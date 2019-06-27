@@ -68,13 +68,8 @@ size_t GrVkBytesPerFormat(VkFormat);
 bool GrVkFormatIsCompressed(VkFormat);
 
 /**
- * Returns the data size for the given compressed format
+ * Maps a vk format into the CompressionType enum if applicable.
  */
-size_t GrVkFormatCompressedDataSize(VkFormat, int width, int height);
-
-/**
- * Maps a vk format into the GrCompressed enum.
- */
-GrCompression GrVkFormat2Compression(VkFormat);
+bool GrVkFormatToCompressionType(VkFormat vkFormat, SkImage::CompressionType* compressionType);
 
 #endif

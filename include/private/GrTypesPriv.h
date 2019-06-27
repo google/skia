@@ -10,6 +10,7 @@
 
 #include <chrono>
 #include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
@@ -890,6 +891,13 @@ static constexpr bool GrPixelConfigIsSRGB(GrPixelConfig config) {
     return GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(config);
 }
 
+static constexpr GrPixelConfig GrCompressionTypePixelConfig(SkImage::CompressionType compression) {
+    switch (compression) {
+        case SkImage::kETC1_CompressionType: return kRGB_ETC1_GrPixelConfig;
+    }
+    SkUNREACHABLE;
+}
+
 static constexpr size_t GrBytesPerPixel(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
@@ -1161,7 +1169,6 @@ enum class GrColorType {
     kRGBA_F16_Clamped,
     kRG_F32,
     kRGBA_F32,
-    kRGB_ETC1,      // Not in SkColorType
 
     kR_16,          // Not in SkColorType
     kRG_1616,       // Not in SkColorType
@@ -1188,7 +1195,6 @@ static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
         case GrColorType::kRGBA_F16_Clamped: return kRGBA_F16Norm_SkColorType;
         case GrColorType::kRG_F32:           return kUnknown_SkColorType;
         case GrColorType::kRGBA_F32:         return kRGBA_F32_SkColorType;
-        case GrColorType::kRGB_ETC1:         return kUnknown_SkColorType;
         case GrColorType::kR_16:             return kUnknown_SkColorType;
         case GrColorType::kRG_1616:          return kUnknown_SkColorType;
         // Experimental (for Y416 and mutant P016/P010)
@@ -1236,7 +1242,6 @@ static constexpr uint32_t GrColorTypeComponentFlags(GrColorType ct) {
         case GrColorType::kRG_F32:           return kRed_SkColorTypeComponentFlag |
                                                     kGreen_SkColorTypeComponentFlag;
         case GrColorType::kRGBA_F32:         return kRGBA_SkColorTypeComponentFlags;
-        case GrColorType::kRGB_ETC1:         return kRGB_SkColorTypeComponentFlags;
         case GrColorType::kR_16:             return kRed_SkColorTypeComponentFlag;
         case GrColorType::kRG_1616:          return kRed_SkColorTypeComponentFlag |
                                                     kGreen_SkColorTypeComponentFlag;
@@ -1259,7 +1264,6 @@ static constexpr bool GrColorTypeHasAlpha(GrColorType ct) {
 static constexpr int GrColorTypeBytesPerPixel(GrColorType ct) {
     switch (ct) {
         case GrColorType::kUnknown:          return 0;
-        case GrColorType::kRGB_ETC1:         return 0;
         case GrColorType::kAlpha_8:          return 1;
         case GrColorType::kBGR_565:          return 2;
         case GrColorType::kABGR_4444:        return 2;
@@ -1279,6 +1283,16 @@ static constexpr int GrColorTypeBytesPerPixel(GrColorType ct) {
         // Experimental (for Y416 and mutant P016/P010)
         case GrColorType::kRGBA_16161616:    return 8;
         case GrColorType::kRG_F16:           return 4;
+    }
+    SkUNREACHABLE;
+}
+
+// We may need a roughly equivalent color type for a compressed texture. This should be the logical
+// format for decompressing the data into.
+static constexpr GrColorType GrCompressionTypeClosestColorType(
+        SkImage::CompressionType type) {
+    switch (type) {
+        case SkImage::CompressionType::kETC1_CompressionType: return GrColorType::kRGB_888x;
     }
     SkUNREACHABLE;
 }
@@ -1339,7 +1353,7 @@ static constexpr GrColorType GrPixelConfigToColorTypeAndEncoding(GrPixelConfig c
             return GrColorType::kRGBA_F16_Clamped;
         case kRGB_ETC1_GrPixelConfig:
             *srgbEncoded = GrSRGBEncoded::kNo;
-            return GrColorType::kRGB_ETC1;
+            return GrCompressionTypeClosestColorType(SkImage::kETC1_CompressionType);
         case kAlpha_8_as_Alpha_GrPixelConfig:
             *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kAlpha_8;
@@ -1437,10 +1451,6 @@ static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType config,
         case GrColorType::kRGBA_F16_Clamped:
             return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
                                                         : kRGBA_half_Clamped_GrPixelConfig;
-
-        case GrColorType::kRGB_ETC1:
-            return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
-                                                        : kRGB_ETC1_GrPixelConfig;
 
         case GrColorType::kR_16:
             return (GrSRGBEncoded::kYes == srgbEncoded) ? kUnknown_GrPixelConfig
