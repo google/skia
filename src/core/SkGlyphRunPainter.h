@@ -115,6 +115,7 @@ private:
 
     int fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
+    SkAutoTMalloc<SkPackedGlyphID> fPackedGlyphIDs;
     SkAutoTMalloc<SkGlyphPos> fGlyphPos;
 
     std::vector<SkGlyphPos> fPaths;

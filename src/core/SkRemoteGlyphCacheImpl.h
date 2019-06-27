@@ -37,12 +37,16 @@ public:
 
     SkVector rounding() const override;
 
-    SkSpan<const SkGlyphPos> prepareForDrawing(const SkGlyphID glyphIDs[],
-                                               const SkPoint positions[],
-                                               size_t n,
-                                               int maxDimension,
-                                               PreparationDetail detail,
-                                               SkGlyphPos results[]) override;
+    SkIPoint subpixelMask() const override {
+        return SkIPoint::Make((!fIsSubpixel || fAxisAlignmentForHText == kY_SkAxisAlignment) ? 0 : ~0,
+                              (!fIsSubpixel || fAxisAlignmentForHText == kX_SkAxisAlignment) ? 0 : ~0);
+    }
+
+    SkSpan<const SkGlyphPos>
+    prepareForDrawing(const SkGlyphID glyphIDs[], const SkPoint positions[],
+                      const SkPackedGlyphID packedGlyphIDs[], size_t n,
+                      int maxDimension, PreparationDetail detail,
+                      SkGlyphPos results[]) override;
 
     const SkPath* preparePath(SkGlyph* glyph) override;
 
