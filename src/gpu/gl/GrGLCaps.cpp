@@ -324,32 +324,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fSupportsAHardwareBufferImages = true;
 #endif
 
-    // We only enable srgb support if both textures and FBOs support srgb.
-    if (GR_IS_GR_GL(standard)) {
-        if (version >= GR_GL_VER(3,0)) {
-            fSRGBSupport = true;
-        } else if (ctxInfo.hasExtension("GL_EXT_texture_sRGB")) {
-            if (ctxInfo.hasExtension("GL_ARB_framebuffer_sRGB") ||
-                ctxInfo.hasExtension("GL_EXT_framebuffer_sRGB")) {
-                fSRGBSupport = true;
-            }
-        }
-        // All the above srgb extensions support toggling srgb writes
-        if (fSRGBSupport) {
-            fSRGBWriteControl = true;
-        }
-    } else if (GR_IS_GR_GL_ES(standard)) {
-        fSRGBSupport = version >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB");
-        // ES through 3.1 requires EXT_srgb_write_control to support toggling
-        // sRGB writing for destinations.
-        fSRGBWriteControl = ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
-    } else if (GR_IS_GR_WEBGL(standard)) {
-        // sRGB extension should be on most WebGL 1.0 contexts, although
-        // sometimes under 2 names.
-        fSRGBSupport = version >= GR_GL_VER(2,0) || ctxInfo.hasExtension("GL_EXT_sRGB") ||
-                                                    ctxInfo.hasExtension("EXT_sRGB");
-    }
-
     /**************************************************************************
     * GrShaderCaps fields
     **************************************************************************/
@@ -690,14 +664,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else if (GR_IS_GR_WEBGL(standard)) {
         fSamplerObjectSupport = version >= GR_GL_VER(2,0);
     }
+    // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
+    // already been detected.
+    this->initConfigTable(contextOptions, ctxInfo, gli, shaderCaps);
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         this->applyDriverCorrectnessWorkarounds(ctxInfo, contextOptions, shaderCaps);
     }
-
-    // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
-    // already been detected.
-    this->initConfigTable(contextOptions, ctxInfo, gli, shaderCaps);
 
     this->applyOptionsOverrides(contextOptions);
     shaderCaps->applyOptionsOverrides(contextOptions);
@@ -1479,6 +1452,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
     // Correctness workarounds.
     bool disableTextureRedForMesa = false;
+    bool disableSRGBWriteControlForAdreno4xx = false;
     bool disableR8TexStorageForANGLEGL = false;
     bool disableSRGBRenderWithMSAAForMacAMD = false;
     bool disableRGB8ForMali400 = false;
@@ -1492,6 +1466,10 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         disableTextureRedForMesa = kOSMesa_GrGLRenderer == ctxInfo.renderer();
 
         disableGrayLumFBOForMesa = kOSMesa_GrGLRenderer == ctxInfo.renderer();
+
+        disableSRGBWriteControlForAdreno4xx =
+                (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
+                 kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer());
 
         // Angle with es2->GL has a bug where it will hang trying to call TexSubImage on GL_R8
         // formats on miplevels > 0. We already disable texturing on gles > 2.0 so just need to
@@ -1704,6 +1682,46 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
     if (texStorageSupported && supportsBGRATexStorage) {
         fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
+
+    // We only enable srgb support if both textures and FBOs support srgb.
+    if (GR_IS_GR_GL(standard)) {
+        if (version >= GR_GL_VER(3,0)) {
+            fSRGBSupport = true;
+        } else if (ctxInfo.hasExtension("GL_EXT_texture_sRGB")) {
+            if (ctxInfo.hasExtension("GL_ARB_framebuffer_sRGB") ||
+                ctxInfo.hasExtension("GL_EXT_framebuffer_sRGB")) {
+                fSRGBSupport = true;
+            }
+        }
+        // All the above srgb extensions support toggling srgb writes
+        if (fSRGBSupport) {
+            fSRGBWriteControl = true;
+        }
+    } else if (GR_IS_GR_GL_ES(standard)) {
+        fSRGBSupport = version >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB");
+        // ES through 3.1 requires EXT_srgb_write_control to support toggling
+        // sRGB writing for destinations.
+        // See https://bug.skia.org/5329 for Adreno4xx issue.
+        fSRGBWriteControl = !disableSRGBWriteControlForAdreno4xx &&
+            ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        // sRGB extension should be on most WebGL 1.0 contexts, although
+        // sometimes under 2 names.
+        fSRGBSupport = version >= GR_GL_VER(2,0) || ctxInfo.hasExtension("GL_EXT_sRGB") ||
+                                                    ctxInfo.hasExtension("EXT_sRGB");
+    }
+
+    // This is very conservative, if we're on a platform where N32 is BGRA, and using ES, disable
+    // all sRGB support. Too much code relies on creating surfaces with N32 + sRGB colorspace,
+    // and sBGRA is basically impossible to support on any version of ES (with our current code).
+    // In particular, ES2 doesn't support sBGRA at all, and even in ES3, there is no valid pair
+    // of formats that can be used for TexImage calls to upload BGRA data to sRGBA (which is what
+    // we *have* to use as the internal format, because sBGRA doesn't exist). This primarily
+    // affects Windows.
+    if (kSkia8888_GrPixelConfig == kBGRA_8888_GrPixelConfig &&
+        (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard))) {
+        fSRGBSupport = false;
     }
 
     uint32_t srgbRenderFlags = allRenderFlags;
@@ -2019,6 +2037,9 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
     // glCompressedTexImage2D is available on all OpenGL ES devices. It is available on standard
     // OpenGL after version 1.3. We'll assume at least that level of OpenGL support.
+
+    // TODO: Fix command buffer bindings and remove this.
+    fCompressedTexSubImageSupport = (bool)(gli->fFunctions.fCompressedTexSubImage2D);
 
     // No sized/unsized internal format distinction for compressed formats, no external format.
     // Below we set the external formats and types to 0.
@@ -2950,13 +2971,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // the client never changes them either.
     fDontSetBaseOrMaxLevelForExternalTextures = true;
 #endif
-
-    // We disable srgb write control for Adreno4xx devices.
-    // see: https://bug.skia.org/5329
-    if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
-        kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer()) {
-        fSRGBWriteControl = false;
-    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {

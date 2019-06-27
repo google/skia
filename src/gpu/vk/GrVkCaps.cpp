@@ -35,6 +35,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fDiscardRenderTargetSupport = true;
     fReuseScratchTextures = true; //TODO: figure this out
     fGpuTracingSupport = false; //TODO: figure this out
+    fCompressedTexSubImageSupport = true;
     fOversizedStencilSupport = false; //TODO: figure this out
     fInstanceAttribSupport = true;
 
