@@ -125,6 +125,52 @@ static bool check_glyph_position(SkPoint position) {
              lt(position.fY, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)));
 }
 
+SkSpan<const SkPackedGlyphID> SkGlyphRunListPainter::SubpixelPackedGlyphIDs(
+        SkStrikeInterface* strike,
+        const SkMatrix& viewMatrix,
+        const SkPoint& origin,
+        int n,
+        const SkGlyphID glyphIDs[],
+        const SkPoint positions[],
+        SkPoint mappedPositions[],
+        SkPackedGlyphID results[]) {
+    // Add rounding and origin.
+    SkMatrix matrix = viewMatrix;
+    matrix.preTranslate(origin.x(), origin.y());
+    SkPoint rounding = strike->rounding();
+    matrix.postTranslate(rounding.x(), rounding.y());
+    matrix.mapPoints(mappedPositions, positions, n);
+
+    SkIPoint mask = strike->subpixelMask();
+
+    for (int i = 0; i < n; i++) {
+        SkFixed subX = SkScalarToFixed(mappedPositions[i].x()) & mask.x(),
+                subY = SkScalarToFixed(mappedPositions[i].y()) & mask.y();
+        results[i] = SkPackedGlyphID{glyphIDs[i], subX, subY};
+    }
+
+    return SkSpan<const SkPackedGlyphID>{results, SkTo<size_t>(n)};
+}
+
+SkSpan<const SkPackedGlyphID> SkGlyphRunListPainter::FullPixelGlyphIDs(
+        const SkPoint& origin,
+        int n,
+        const SkGlyphID glyphIDs[],
+        const SkPoint positions[],
+        SkPoint mappedPositions[],
+        SkPackedGlyphID results[]) {
+
+    SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
+            mappedPositions, positions, n);
+
+    SkPackedGlyphID* cursor = results;
+    for (int i = 0; i < n; i++) {
+        *cursor++ = SkPackedGlyphID{glyphIDs[i]};
+    }
+
+    return SkSpan<const SkPackedGlyphID>{results, SkTo<size_t>(n)};
+}
+
 void SkGlyphRunListPainter::drawForBitmapDevice(
         const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
         const BitmapDevicePainter* bitmapDevice) {
@@ -143,21 +189,32 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
         auto runSize = glyphRun.runSize();
 
         if (SkStrikeSpec::ShouldDrawAsPath(runPaint, runFont, deviceMatrix)) {
-            SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
-                    fPositions, glyphRun.positions().data(), runSize);
 
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
                     runFont, runPaint, props, fScalerContextFlags);
 
             SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-            auto glyphPosSpan = strike->prepareForDrawing(
+            auto packedGlyphIDs = FullPixelGlyphIDs(
+                    origin,
+                    runSize,
                     glyphRun.glyphsIDs().data(),
+                    glyphRun.positions().data(),
                     fPositions,
-                    glyphRun.runSize(),
-                    0,
-                    SkStrikeInterface::kBoundsOnly,
-                    fGlyphPos);
+                    fPackedGlyphIDs);
+
+
+            SkPackedGlyphID* cursor = fPackedGlyphIDs;
+            for (auto glyphID : glyphRun.glyphsIDs()) {
+                *cursor++ = SkPackedGlyphID{glyphID};
+            }
+
+            auto glyphPosSpan = strike->prepareForDrawing(packedGlyphIDs.data(),
+                                                          fPositions,
+                                                          glyphRun.runSize(),
+                                                          0,
+                                                          SkStrikeInterface::kBoundsOnly,
+                                                          fGlyphPos);
 
             SkTDArray<SkPathPos> pathsAndPositions;
             pathsAndPositions.setReserve(glyphPosSpan.size());
@@ -195,15 +252,18 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
             SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-            // Add rounding and origin.
-            SkMatrix matrix = deviceMatrix;
-            matrix.preTranslate(origin.x(), origin.y());
-            SkPoint rounding = strike->rounding();
-            matrix.postTranslate(rounding.x(), rounding.y());
-            matrix.mapPoints(fPositions, glyphRun.positions().data(), runSize);
+            auto packedGlyphIDs = SubpixelPackedGlyphIDs(
+                    strike.get(),
+                    deviceMatrix,
+                    origin,
+                    runSize,
+                    glyphRun.glyphsIDs().data(),
+                    glyphRun.positions().data(),
+                    fPositions,
+                    fPackedGlyphIDs);
 
             SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
-                    glyphRun.glyphsIDs().data(),
+                    packedGlyphIDs.data(),
                     fPositions,
                     glyphRun.runSize(),
                     std::numeric_limits<int>::max(),
@@ -288,13 +348,17 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
 
         SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-        SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
-                fARGBGlyphsIDs.data(),
-                fARGBPositions.data(),
-                fARGBGlyphsIDs.size(),
-                SkStrikeCommon::kSkSideTooBigForAtlas,
-                SkStrikeInterface::kBoundsOnly,
-                fGlyphPos);
+        SkPackedGlyphID* cursor = fPackedGlyphIDs;
+        for (auto glyphID : fARGBGlyphsIDs) {
+            *cursor++ = SkPackedGlyphID{glyphID};
+        }
+
+        SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(fPackedGlyphIDs,
+                                                                          fARGBPositions.data(),
+                                                                          fARGBGlyphsIDs.size(),
+                                                                          SkStrikeCommon::kSkSideTooBigForAtlas,
+                                                                          SkStrikeInterface::kBoundsOnly,
+                                                                          fGlyphPos);
 
         if (process) {
             process->processDeviceFallback(glyphPosSpan, strikeSpec);
@@ -309,7 +373,12 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
 
         SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-        auto glyphPosSpan = strike->prepareForDrawing(fARGBGlyphsIDs.data(),
+        SkPackedGlyphID* cursor = fPackedGlyphIDs;
+        for (auto glyphID : fARGBGlyphsIDs) {
+            *cursor++ = SkPackedGlyphID{glyphID};
+        }
+
+        auto glyphPosSpan = strike->prepareForDrawing(fPackedGlyphIDs,
                                                       fARGBPositions.data(),
                                                       fARGBGlyphsIDs.size(),
                                                       SkStrikeCommon::kSkSideTooBigForAtlas,
@@ -369,13 +438,17 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
             SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
-                    glyphRun.glyphsIDs().data(),
-                    fPositions,
-                    glyphRun.runSize(),
-                    SkStrikeCommon::kSkSideTooBigForAtlas,
-                    SkStrikeInterface::kBoundsOnly,
-                    fGlyphPos);
+            SkPackedGlyphID* cursor = fPackedGlyphIDs;
+            for (auto glyphID : glyphRun.glyphsIDs()) {
+                *cursor++ = SkPackedGlyphID{glyphID};
+            }
+
+            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(fPackedGlyphIDs,
+                                                                              fPositions,
+                                                                              glyphRun.runSize(),
+                                                                              SkStrikeCommon::kSkSideTooBigForAtlas,
+                                                                              SkStrikeInterface::kBoundsOnly,
+                                                                              fGlyphPos);
 
             size_t glyphsWithMaskCount = 0;
             for (const SkGlyphPos& glyphPos : glyphPosSpan) {
@@ -441,13 +514,17 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
             SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
-                    glyphRun.glyphsIDs().data(),
-                    fPositions,
-                    glyphRun.runSize(),
-                    0,
-                    SkStrikeInterface::kBoundsOnly,
-                    fGlyphPos);
+            SkPackedGlyphID* cursor = fPackedGlyphIDs;
+            for (auto glyphID : glyphRun.glyphsIDs()) {
+                *cursor++ = SkPackedGlyphID{glyphID};
+            }
+
+            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(fPackedGlyphIDs,
+                                                                              fPositions,
+                                                                              glyphRun.runSize(),
+                                                                              0,
+                                                                              SkStrikeInterface::kBoundsOnly,
+                                                                              fGlyphPos);
 
             // As opposed to SDF and mask, path handling puts paths in fGlyphPos instead of fPaths.
             size_t glyphsWithPathCount = 0;
@@ -492,14 +569,21 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             mapping.postTranslate(rounding.x(), rounding.y());
             mapping.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
 
+            SkIPoint mask = strike->subpixelMask();
+
+            for (size_t i = 0; i < glyphRun.runSize(); i++) {
+                SkFixed subX = SkScalarToFixed(fPositions[i].x()) & mask.x(),
+                        subY = SkScalarToFixed(fPositions[i].y()) & mask.y();
+                fPackedGlyphIDs[i] = SkPackedGlyphID{glyphRun.glyphsIDs()[i], subX, subY};
+            }
+
             // Lookup all the glyphs from the cache.
-            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
-                    glyphRun.glyphsIDs().data(),
-                    fPositions,
-                    glyphRun.runSize(),
-                    SkStrikeCommon::kSkSideTooBigForAtlas,
-                    SkStrikeInterface::kBoundsOnly,
-                    fGlyphPos);
+            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(fPackedGlyphIDs,
+                                                                              fPositions,
+                                                                              glyphRun.runSize(),
+                                                                              SkStrikeCommon::kSkSideTooBigForAtlas,
+                                                                              SkStrikeInterface::kBoundsOnly,
+                                                                              fGlyphPos);
 
             // Sort glyphs into the three bins: mask (fGlyphPos), path (fPaths), and fallback.
             size_t glyphsWithMaskCount = 0;
@@ -935,6 +1019,7 @@ SkGlyphRunListPainter::ScopedBuffers::ScopedBuffers(SkGlyphRunListPainter* paint
         fPainter->fMaxRunSize = size;
 
         fPainter->fPositions.reset(size);
+        fPainter->fPackedGlyphIDs.reset(size);
         fPainter->fGlyphPos.reset(size);
     }
 }
@@ -947,6 +1032,7 @@ SkGlyphRunListPainter::ScopedBuffers::~ScopedBuffers() {
     if (fPainter->fMaxRunSize > 200) {
         fPainter->fMaxRunSize = 0;
         fPainter->fPositions.reset();
+        fPainter->fPackedGlyphIDs.reset();
         fPainter->fGlyphPos.reset();
         fPainter->fPaths.shrink_to_fit();
         fPainter->fARGBGlyphsIDs.shrink_to_fit();

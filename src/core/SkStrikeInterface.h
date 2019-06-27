@@ -11,6 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
+#include "src/core/SkGlyph.h"
 #include "src/core/SkSpan.h"
 
 #include <memory>
@@ -63,12 +64,15 @@ public:
     // drawing (where there is no upper limit to the glyph in the cache) use INT_MAX.
     // * PreparationDetail determines, in the mask case, if the mask/SDF should be generated.
     //   This does not affect the path or fallback cases.
-    virtual SkSpan<const SkGlyphPos> prepareForDrawing(const SkGlyphID glyphIDs[],
-                                                       const SkPoint positions[],
-                                                       size_t n,
-                                                       int maxDimension,
-                                                       PreparationDetail detail,
-                                                       SkGlyphPos results[]) = 0;
+    virtual SkSpan<const SkGlyphPos>
+    prepareForDrawing(const SkPackedGlyphID packedGlyphIDs[],
+                      const SkPoint positions[],
+                      size_t n,
+                      int maxDimension,
+                      PreparationDetail detail,
+                      SkGlyphPos results[]) = 0;
+
+    virtual SkIPoint subpixelMask() const = 0;
 
     // If glyph does not have an existing path, then add a path to glyph using a scaler context.
     virtual const SkPath* preparePath(SkGlyph* glyph) = 0;
