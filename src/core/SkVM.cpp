@@ -868,9 +868,13 @@ namespace skvm {
         for (const Program::Instruction& inst : instructions) {
             if (inst.op == Op::bytes && vpshufb_masks.find(inst.imm) == nullptr) {
                 // Translate bytes()'s control nibbles to vpshufb's control bytes.
-                auto nibble_to_vpshufb = [](unsigned n) -> uint8_t {
-                    return n == 0 ? 0xff  // Fill with zero.
-                                  : n-1;  // Select n'th 1-indexed byte.
+                auto nibble_to_vpshufb = [](uint8_t n) -> uint8_t {
+                    // 0 -> 0xff,    Fill with zero
+                    // 1 -> 0x00,    Select byte 0
+                    // 2 -> 0x01,         "      1
+                    // 3 -> 0x02,         "      2
+                    // 4 -> 0x03,         "      3
+                    return n - 1;
                 };
                 uint8_t control[] = {
                     nibble_to_vpshufb( (inst.imm >>  0) & 0xf ),
