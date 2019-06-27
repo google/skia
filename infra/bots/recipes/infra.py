@@ -7,9 +7,9 @@
 
 
 DEPS = [
-  'checkout',
   'infra',
   'recipe_engine/context',
+  'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
   'vars',
@@ -18,14 +18,12 @@ DEPS = [
 
 def RunSteps(api):
   api.vars.setup()
-  checkout_root = api.checkout.default_checkout_root
-  api.checkout.bot_update(checkout_root=checkout_root)
 
   # Run the infra tests.
   repo_name = api.properties['repository'].split('/')[-1]
   if repo_name.endswith('.git'):
     repo_name = repo_name[:-len('.git')]
-  repo_root = checkout_root.join(repo_name)
+  repo_root = api.path['start_dir'].join(repo_name)
   infra_tests = repo_root.join('infra', 'bots', 'infra_tests.py')
 
   # Merge the default environment with the Go environment.
@@ -40,7 +38,12 @@ def RunSteps(api):
     else:
       env[k] = v
 
-  with api.context(cwd=checkout_root.join(repo_name), env=env):
+  with api.context(cwd=repo_root, env=env):
+    # Some tests assume that they're being run inside a git repo.
+    api.step('git init', cmd=['git', 'init'])
+    api.step('git add .', cmd=['git', 'add', '.'])
+    api.step('git commit', cmd=['git', 'commit', '-a', '-m', 'initial commit'])
+
     # Unfortunately, the recipe tests are flaky due to file removal on Windows.
     # Run multiple attempts.
     last_exc = None
@@ -58,7 +61,6 @@ def GenTests(api):
       api.test('infra_tests') +
       api.properties(buildername='Housekeeper-PerCommit-InfraTests_Win',
                      repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]')
   )
