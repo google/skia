@@ -267,6 +267,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                     }
                     context->priv().testingOnly_purgeAllUnlockedResources();
 
+                    // We don't round trip correctly going from pixelConfig to colorType to
+                    // backendFormat with the RGBX config. The actual config stored on the GrSurface
+                    // will be RGBA_8888 but the format we create below will say it is RGB_888.
+                    if (desc.fConfig == kRGB_888X_GrPixelConfig) {
+                        continue;
+                    }
                     GrSRGBEncoded srgbEncoded = GrSRGBEncoded::kNo;
                     GrColorType colorType = GrPixelConfigToColorTypeAndEncoding(desc.fConfig,
                                                                                 &srgbEncoded);

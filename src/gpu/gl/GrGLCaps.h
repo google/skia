@@ -111,7 +111,11 @@ public:
     bool isFormatTexturable(SkColorType, const GrBackendFormat&) const override;
 
     bool isConfigTexturable(GrPixelConfig config) const override {
-        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kTextureable_Flag);
+        GrGLenum glFormat = this->configSizedInternalFormat(config);
+        if (!glFormat) {
+            return false;
+        }
+        return SkToBool(this->getFormatInfo(glFormat).fFlags & FormatInfo::kTextureable_Flag);
     }
 
     int getRenderTargetSampleCount(int requestedCount,
@@ -130,8 +134,14 @@ public:
         return this->canConfigBeFBOColorAttachment(config);
     }
 
+    bool canFormatBeFBOColorAttachment(GrGLenum format) const;
+
     bool canConfigBeFBOColorAttachment(GrPixelConfig config) const {
-        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kFBOColorAttachment_Flag);
+        GrGLenum format = this->configSizedInternalFormat(config);
+        if (!format) {
+            return false;
+        }
+        return this->canFormatBeFBOColorAttachment(format);
     }
 
     bool isConfigTexSupportEnabled(GrPixelConfig config) const {
@@ -459,8 +469,8 @@ private:
     void initBlendEqationSupport(const GrGLContextInfo&);
     void initStencilSupport(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
-    void initConfigTable(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*,
-                         GrShaderCaps*);
+    void initConfigTable(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*);
+    void initFormatTable(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*);
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
@@ -584,13 +594,11 @@ private:
         SkTDArray<int> fColorSampleCounts;
 
         enum {
-            kTextureable_Flag             = 0x1,
-            kRenderable_Flag              = 0x2,
-            kRenderableWithMSAA_Flag      = 0x4,
+            kRenderable_Flag              = 0x1,
+            kRenderableWithMSAA_Flag      = 0x2,
             /** kFBOColorAttachment means that even if the config cannot be a GrRenderTarget, we can
                 still attach it to a FBO for blitting or reading pixels. */
-            kFBOColorAttachment_Flag      = 0x8,
-            kCanUseTexStorage_Flag        = 0x10,
+            kCanUseTexStorage_Flag        = 0x4,
         };
         uint32_t fFlags;
 
@@ -602,13 +610,21 @@ private:
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
 
     struct FormatInfo {
+        enum {
+            kTextureable_Flag                = 0x1,
+            /** kFBOColorAttachment means that even if the format cannot be a GrRenderTarget, we can
+                still attach it to a FBO for blitting or reading pixels. */
+            kFBOColorAttachment_Flag         = 0x2,
+            kFBOColorAttachmentWithMSAA_Flag = 0x4,
+        };
         uint32_t fFlags = 0;
     };
 
     static const size_t kNumGLFormats = 21;
     FormatInfo fFormatTable[kNumGLFormats];
 
-    const FormatInfo& getFormatInfo(GrGLenum format) const;
+    FormatInfo& getFormatInfo(GrGLenum glFormat);
+    const FormatInfo& getFormatInfo(GrGLenum glFormat) const;
 
     typedef GrCaps INHERITED;
 };
