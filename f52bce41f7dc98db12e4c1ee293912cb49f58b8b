@@ -45,6 +45,30 @@
       "revId": "f52bce41f7dc98db12e4c1ee293912cb49f58b8b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9581e734_1bd0b920",
+        "filename": "tools/skottie-wasm-perf/skottie-wasm-perf.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-06-27T13:48:03Z",
+      "side": 1,
+      "message": "IIRC, it is faster without this, but I could not get the animation to look right without this. It was drawing in the 1000x1000 but was zoomed.",
+      "parentUuid": "b814ee96_18803447",
+      "range": {
+        "startLine": 90,
+        "startChar": 30,
+        "endLine": 95,
+        "endChar": 24
+      },
+      "revId": "f52bce41f7dc98db12e4c1ee293912cb49f58b8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
