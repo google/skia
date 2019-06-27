@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "54e3e53b_fc04cf68",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1447,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-27T17:32:34Z",
+      "side": 1,
+      "message": "This has now been removed in another CL.",
+      "parentUuid": "c880160b_235cf99f",
+      "range": {
+        "startLine": 1447,
+        "startChar": 9,
+        "endLine": 1447,
+        "endChar": 24
+      },
+      "revId": "7f5756c785f267f7340f4eca603032f3e68f4b6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "44a0fc3c_204d57fc",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 4
@@ -39,6 +63,24 @@
       "revId": "7f5756c785f267f7340f4eca603032f3e68f4b6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a187f026_56503477",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1518,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-27T17:32:34Z",
+      "side": 1,
+      "message": "Refactored in a different CL landing before this.",
+      "parentUuid": "44a0fc3c_204d57fc",
+      "revId": "7f5756c785f267f7340f4eca603032f3e68f4b6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "e8c496b7_bfe5be6d",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1692,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-27T17:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8cca39f1_e48288da",
+      "range": {
+        "startLine": 1692,
+        "startChar": 16,
+        "endLine": 1692,
+        "endChar": 31
+      },
+      "revId": "7f5756c785f267f7340f4eca603032f3e68f4b6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cedec1cf_6c2c3839",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 4
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "e7e5929c_515abab2",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1694,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-27T17:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cedec1cf_6c2c3839",
+      "range": {
+        "startLine": 1694,
+        "startChar": 16,
+        "endLine": 1694,
+        "endChar": 22
+      },
+      "revId": "7f5756c785f267f7340f4eca603032f3e68f4b6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b33ca335_f46cc23f",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 4
@@ -102,6 +192,24 @@
       "revId": "7f5756c785f267f7340f4eca603032f3e68f4b6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9d2ef2f_46c00241",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1853,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-06-27T17:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b33ca335_f46cc23f",
+      "revId": "7f5756c785f267f7340f4eca603032f3e68f4b6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
