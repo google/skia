@@ -35,6 +35,7 @@
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrRenderTargetProxyPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrStyle.h"
@@ -302,15 +303,16 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
     }
 
     if (isFull) {
-        if (this->getRTOpList()->resetForFullscreenClear() &&
+        GrRenderTargetOpList* opList = this->getRTOpList();
+        if (opList->resetForFullscreenClear(this->canDiscardPreviousOpsOnFullClear()) &&
             !this->caps()->performColorClearsAsDraws()) {
             // The op list was emptied and native clears are allowed, so just use the load op
-            this->getRTOpList()->setColorLoadOp(GrLoadOp::kClear, color);
+            opList->setColorLoadOp(GrLoadOp::kClear, color);
             return;
         } else {
             // Will use an op for the clear, reset the load op to discard since the op will
             // blow away the color buffer contents
-            this->getRTOpList()->setColorLoadOp(GrLoadOp::kDiscard);
+            opList->setColorLoadOp(GrLoadOp::kDiscard);
         }
 
         // Must add an op to the list (either because we couldn't use a load op, or because the
@@ -323,8 +325,8 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
                             GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
                                                         rtRect));
         } else {
-            this->getRTOpList()->addOp(GrClearOp::Make(fContext, SkIRect::MakeEmpty(), color,
-                                                       /* fullscreen */ true), *this->caps());
+            opList->addOp(GrClearOp::Make(fContext, SkIRect::MakeEmpty(), color,
+                                          /* fullscreen */ true), *this->caps());
         }
     } else {
         if (this->caps()->performPartialClearsAsDraws()) {
@@ -397,7 +399,8 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMCol
         }
     } else {
         // Reset the oplist like in internalClear(), but do not rely on a load op for the clear
-        fRenderTargetContext->getRTOpList()->resetForFullscreenClear();
+        fRenderTargetContext->getRTOpList()->resetForFullscreenClear(
+                fRenderTargetContext->canDiscardPreviousOpsOnFullClear());
         fRenderTargetContext->getRTOpList()->setColorLoadOp(GrLoadOp::kDiscard);
 
         if (fRenderTargetContext->caps()->performColorClearsAsDraws()) {
@@ -804,6 +807,45 @@ int GrRenderTargetContextPriv::maxWindowRectangles() const {
             *fRenderTargetContext->caps());
 }
 
+GrRenderTargetOpList::CanDiscardPreviousOps GrRenderTargetContext::canDiscardPreviousOpsOnFullClear(
+        ) const {
+#if GR_TEST_UTILS
+    if (fPreserveOpsOnFullClear_TestingOnly) {
+        return GrRenderTargetOpList::CanDiscardPreviousOps::kNo;
+    }
+#endif
+    // Regardless of how the clear is implemented (native clear or a fullscreen quad), all prior ops
+    // would normally be overwritten. The one exception is if the render target context is marked as
+    // needing a stencil buffer then there may be a prior op that writes to the stencil buffer.
+    // Although the clear will ignore the stencil buffer, following draw ops may not so we can't get
+    // rid of all the preceding ops. Beware! If we ever add any ops that have a side effect beyond
+    // modifying the stencil buffer we will need a more elaborate tracking system (skbug.com/7002).
+    return GrRenderTargetOpList::CanDiscardPreviousOps(!fNeedsStencil);
+}
+
+void GrRenderTargetContext::setNeedsStencil() {
+    // Don't clear stencil until after we've changed fNeedsStencil. This ensures we don't loop
+    // forever in the event that there are driver bugs and we need to clear as a draw.
+    bool needsStencilClear = !fNeedsStencil;
+
+    fNeedsStencil = true;
+    fRenderTargetProxy->setNeedsStencil();
+
+    if (needsStencilClear) {
+        if (this->caps()->performStencilClearsAsDraws()) {
+            // There is a driver bug with clearing stencil. We must use an op to manually clear the
+            // stencil buffer before the op that required 'setNeedsStencil'.
+            this->internalStencilClear(GrFixedClip::Disabled(), /* inside mask */ false);
+        } else {
+            // Setting the clear stencil load op is preferable. On non-tilers, this lets the flush
+            // code note when the instantiated stencil buffer is already clear and skip the clear
+            // altogether. And on tilers, loading the stencil buffer cleared is even faster than
+            // preserving the previous contents.
+            this->getRTOpList()->setStencilLoadOp(GrLoadOp::kClear);
+        }
+    }
+}
+
 void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
@@ -824,10 +866,6 @@ void GrRenderTargetContext::internalStencilClear(const GrFixedClip& clip, bool i
         // Configure the paint to have no impact on the color buffer
         GrPaint paint;
         paint.setXPFactory(GrDisableColorXPFactory::Get());
-
-        // Mark stencil usage here before addDrawOp() so that it doesn't try to re-call
-        // internalStencilClear() just because the op has stencil settings.
-        this->setNeedsStencil();
         this->addDrawOp(clip, GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
                                                           rtRect, ss));
     } else {
@@ -865,7 +903,6 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
         return;
     }
 
-    fRenderTargetContext->setNeedsStencil();
 
     std::unique_ptr<GrOp> op = GrStencilPathOp::Make(fRenderTargetContext->fContext,
                                                      viewMatrix,
@@ -878,6 +915,8 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
         return;
     }
     op->setClippedBounds(bounds);
+
+    fRenderTargetContext->setNeedsStencil();
     fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
@@ -2556,31 +2595,19 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     op_bounds(&bounds, op.get());
     GrAppliedClip appliedClip;
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags = op->fixedFunctionFlags();
-    if (!clip.apply(fContext, this, fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA,
-                    fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil, &appliedClip,
-                    &bounds)) {
+    bool usesHWAA = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA;
+    bool usesStencil = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil;
+
+    if (usesStencil) {
+        this->setNeedsStencil();
+    }
+
+    if (!clip.apply(fContext, this, usesHWAA, usesStencil, &appliedClip, &bounds)) {
         fContext->priv().opMemoryPool()->release(std::move(op));
         return;
     }
 
-    if (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil ||
-        appliedClip.hasStencilClip()) {
-        if (this->caps()->performStencilClearsAsDraws()) {
-            // Must use an op to perform the clear of the stencil buffer before this op, but only
-            // have to clear the first time any draw needs it (this also ensures we don't loop
-            // forever when the internal stencil clear adds a draw op that has stencil settings).
-            if (!fRenderTargetProxy->needsStencil()) {
-                // Send false so that the stencil buffer is fully cleared to 0
-                this->internalStencilClear(GrFixedClip::Disabled(), /* inside mask */ false);
-            }
-        } else {
-            // Just make sure the stencil buffer is cleared before the draw op, easy to do it as
-            // a load at the start
-            this->getRTOpList()->setStencilLoadOp(GrLoadOp::kClear);
-        }
-
-        this->setNeedsStencil();
-    }
+    SkASSERT((!usesStencil && !appliedClip.hasStencilClip()) || fNeedsStencil);
 
     GrClampType clampType = GrPixelConfigClampType(this->colorSpaceInfo().config());
     // MIXED SAMPLES TODO: check stencil buffer is MSAA and make sure stencil test is actually doing
