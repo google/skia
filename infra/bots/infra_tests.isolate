@@ -1,5 +1,6 @@
 {
   'includes': [
+    'infrabots.isolate',
     'swarm_recipe.isolate',
   ],
   'variables': {
