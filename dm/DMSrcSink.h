@@ -18,7 +18,6 @@
 #include "src/core/SkBBoxHierarchy.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tools/flags/CommonFlagsConfig.h"
-#include "tools/gpu/MemoryCache.h"
 
 //#define TEST_VIA_SVG
 
@@ -364,7 +363,6 @@ private:
     sk_sp<SkColorSpace>                               fColorSpace;
     bool                                              fThreaded;
     GrContextOptions                                  fBaseContextOptions;
-    sk_gpu_test::MemoryCache                          fMemoryCache;
 };
 
 class GPUThreadTestingSink : public GPUSink {
